@@ -3,8 +3,7 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
-RSpec.describe V0::HigherLevelReviewsController, type: :request do
-  puts 'wegwegwegwegew************************************************************'
+RSpec.describe V1::HigherLevelReviewsController, type: :request do
   let(:user) { build(:user, :loa3) }
   let(:headers) { { 'CONTENT_TYPE' => 'application/json' } }
 
@@ -12,17 +11,17 @@ RSpec.describe V0::HigherLevelReviewsController, type: :request do
 
   describe '#create' do
     def personal_information_logs
-      PersonalInformationLog.where 'error_class like ?', 'V0::HigherLevelReviewsController#create exception % (HLR)'
+      PersonalInformationLog.where 'error_class like ?', 'V1::HigherLevelReviewsController#create exception % (HLR)'
     end
 
     subject do
-      post '/v0/higher_level_reviews',
-           params: VetsJsonSchema::EXAMPLES.fetch('HLR-CREATE-REQUEST-BODY').to_json,
+      post '/v1/higher_level_reviews',
+           params: VetsJsonSchema::EXAMPLES.fetch('HLR-CREATE-REQUEST-BODY_V1').to_json,
            headers: headers
     end
 
     it 'creates an HLR' do
-      VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-200') do
+      VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-200_V1') do
         subject
         expect(response).to be_successful
         appeal_uuid = JSON.parse(response.body)['data']['id']
@@ -31,13 +30,11 @@ RSpec.describe V0::HigherLevelReviewsController, type: :request do
     end
 
     it 'adds to the PersonalInformationLog when an exception is thrown' do
-      VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-422') do
+      VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-422_V1') do
         expect(personal_information_logs.count).to be 0
         subject
         expect(personal_information_logs.count).to be 1
         pil = personal_information_logs.first
-        puts "PIL"
-        puts pil.data['error'].to_json
         %w[
           first_name last_name birls_id icn edipi mhv_correlation_id
           participant_id vet360_id ssn assurance_level birth_date
@@ -48,5 +45,4 @@ RSpec.describe V0::HigherLevelReviewsController, type: :request do
       end
     end
   end
-  puts 'wegwegwegwegew************************************************************'
 end

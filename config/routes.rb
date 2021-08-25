@@ -354,6 +354,11 @@ Rails.application.routes.draw do
 
       resources :zipcode_rates, only: :show, defaults: { format: :json }
     end
+
+    namespace :higher_level_reviews do
+      get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
+    end
+    resources :higher_level_reviews, only: %i[create show]
   end
 
   root 'v0/example#index', module: 'v0'
