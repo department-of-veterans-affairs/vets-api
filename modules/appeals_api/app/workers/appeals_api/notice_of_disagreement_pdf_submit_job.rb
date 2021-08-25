@@ -13,6 +13,7 @@ module AppealsApi
     include Sidekiq::Worker
     include Sidekiq::MonitoredWorker
     include CentralMail::Utilities
+    include AppealsApi::CharacterUtilities
 
     def perform(id, version = 'V1')
       notice_of_disagreement = NoticeOfDisagreement.find(id)
@@ -43,8 +44,8 @@ module AppealsApi
 
     def upload_to_central_mail(notice_of_disagreement, pdf_path)
       metadata = {
-        'veteranFirstName' => notice_of_disagreement.veteran_first_name,
-        'veteranLastName' => notice_of_disagreement.veteran_last_name,
+        'veteranFirstName' => transliterate_for_centralmail(notice_of_disagreement.veteran_first_name),
+        'veteranLastName' => transliterate_for_centralmail(notice_of_disagreement.veteran_last_name),
         'fileNumber' => notice_of_disagreement.file_number.presence || notice_of_disagreement.ssn,
         'zipCode' => notice_of_disagreement.zip_code_5,
         'source' => "Appeals-NOD-#{notice_of_disagreement.consumer_name}",

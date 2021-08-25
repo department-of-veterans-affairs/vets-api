@@ -13,6 +13,7 @@ module AppealsApi
     include Sidekiq::Worker
     include Sidekiq::MonitoredWorker
     include CentralMail::Utilities
+    include AppealsApi::CharacterUtilities
 
     # Retry for ~7 days
     sidekiq_options retry: 20
@@ -47,8 +48,8 @@ module AppealsApi
 
     def upload_to_central_mail(higher_level_review, pdf_path)
       metadata = {
-        'veteranFirstName' => higher_level_review.first_name,
-        'veteranLastName' => higher_level_review.last_name,
+        'veteranFirstName' => transliterate_for_centralmail(higher_level_review.first_name),
+        'veteranLastName' => transliterate_for_centralmail(higher_level_review.last_name),
         'fileNumber' => higher_level_review.file_number.presence || higher_level_review.ssn,
         'zipCode' => higher_level_review.zip_code_5,
         'source' => "Appeals-HLR-#{higher_level_review.consumer_name}",
