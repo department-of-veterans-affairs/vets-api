@@ -776,7 +776,7 @@
           "disabilityActionType": {
             "description": "The status of the current disability.",
             "type": "string",
-            "enum": ["NONE", "NEW", "SECONDARY", "INCREASE", "REOPEN"],
+            "enum": ["NONE", "NEW", "INCREASE"],
             "example": "NEW"
           },
           "name": {
@@ -802,7 +802,7 @@
                 "disabilityActionType": {
                   "description": "The status of the secondary disability.",
                   "type": "string",
-                  "enum": ["NONE", "NEW", "SECONDARY", "INCREASE", "REOPEN"],
+                  "enum": ["NONE", "NEW", "SECONDARY", "INCREASE"],
                   "example": "SECONDARY"
                 },
                 "serviceRelevance": {
