@@ -4,7 +4,6 @@ require 'rails_helper'
 require 'support/controller_spec_helper'
 
 RSpec.describe V0::HigherLevelReviewsController, type: :request do
-  puts 'wegwegwegwegew************************************************************'
   let(:user) { build(:user, :loa3) }
   let(:headers) { { 'CONTENT_TYPE' => 'application/json' } }
 
@@ -36,8 +35,6 @@ RSpec.describe V0::HigherLevelReviewsController, type: :request do
         subject
         expect(personal_information_logs.count).to be 1
         pil = personal_information_logs.first
-        puts "PIL"
-        puts pil.data['error'].to_json
         %w[
           first_name last_name birls_id icn edipi mhv_correlation_id
           participant_id vet360_id ssn assurance_level birth_date
@@ -48,5 +45,4 @@ RSpec.describe V0::HigherLevelReviewsController, type: :request do
       end
     end
   end
-  puts 'wegwegwegwegew************************************************************'
 end
