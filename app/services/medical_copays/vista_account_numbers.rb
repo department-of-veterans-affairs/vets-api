@@ -60,7 +60,7 @@ module MedicalCopays
     # @return [Array]
     #
     def default
-      ['0']
+      ['0000000000000000']
     end
   end
 end

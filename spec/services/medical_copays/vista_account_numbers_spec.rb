@@ -36,7 +36,7 @@ RSpec.describe MedicalCopays::VistaAccountNumbers do
       it 'returns a default list' do
         allow_any_instance_of(MedicalCopays::VistaAccountNumbers).to receive(:data).and_return({})
 
-        expect(subject.list).to eq(['0'])
+        expect(subject.list).to eq(['0000000000000000'])
       end
     end
 
@@ -100,7 +100,7 @@ RSpec.describe MedicalCopays::VistaAccountNumbers do
 
   describe '#default' do
     it 'returns a default value' do
-      expect(subject.default).to eq(['0'])
+      expect(subject.default).to eq(['0000000000000000'])
     end
   end
 end
