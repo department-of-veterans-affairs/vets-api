@@ -56,6 +56,9 @@ module ClaimsApi
       form_data['claimDate'] ||= (persisted? ? created_at.to_date.to_s : Time.zone.today.to_s)
       form_data['claimSubmissionSource'] = 'Lighthouse'
       form_data['bddQualified'] = bdd_qualified?
+      if separation_pay_received_date?
+        form_data['servicePay']['separationPay']['receivedDate'] = breakout_separation_pay_received_date
+      end
 
       resolve_special_issue_mappings!
       resolve_homelessness_situation_type_mappings!
@@ -142,6 +145,22 @@ module ClaimsApi
       end
 
       days_until_release >= 90
+    end
+
+    def separation_pay_received_date?
+      form_data.dig('servicePay', 'separationPay', 'receivedDate').present?
+    end
+
+    def breakout_separation_pay_received_date
+      received_date = form_data.dig('servicePay', 'separationPay', 'receivedDate')
+
+      temp = Date.parse(received_date)
+
+      {
+        'year': temp.year.to_s,
+        'month': temp.month.to_s,
+        'day': temp.day.to_s
+      }
     end
 
     def resolve_special_issue_mappings!

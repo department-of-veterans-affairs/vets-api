@@ -894,92 +894,407 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
     end
 
-    describe "'servicePay.militaryRetiredPay' validations" do
-      let(:service_pay_attribute) do
-        {
-          'militaryRetiredPay': {
-            'receiving': receiving,
-            'willReceiveInFuture': will_receive,
-            'payment': {
-              'serviceBranch': 'Air Force'
+    describe "'servicePay validations'" do
+      describe "'servicePay.militaryRetiredPay' validations" do
+        describe "'receiving' and 'willReceiveInFuture' validations" do
+          let(:service_pay_attribute) do
+            {
+              'militaryRetiredPay': {
+                'receiving': receiving,
+                'willReceiveInFuture': will_receive,
+                'futurePayExplanation': 'Some explanation',
+                'payment': {
+                  'serviceBranch': 'Air Force'
+                }
+              }
             }
-          }
-        }
+          end
+
+          context "when 'receiving' and 'willReceiveInFuture' are equal but not 'nil'" do
+            context "when both are 'true'" do
+              let(:receiving) { true }
+              let(:will_receive) { true }
+
+              before do
+                stub_mpi
+              end
+
+              it 'responds with a bad request' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                      json_data = JSON.parse data
+                      params = json_data
+                      params['data']['attributes']['servicePay'] = service_pay_attribute
+                      post path, params: params.to_json, headers: headers.merge(auth_header)
+                      expect(response.status).to eq(400)
+                    end
+                  end
+                end
+              end
+            end
+
+            context "when both are 'false'" do
+              let(:receiving) { false }
+              let(:will_receive) { false }
+
+              before do
+                stub_mpi
+              end
+
+              it 'responds with a bad request' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                      json_data = JSON.parse data
+                      params = json_data
+                      params['data']['attributes']['servicePay'] = service_pay_attribute
+                      post path, params: params.to_json, headers: headers.merge(auth_header)
+                      expect(response.status).to eq(400)
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          context "when 'receiving' and 'willReceiveInFuture' are not equal" do
+            context "when 'receiving' is 'false' and 'willReceiveInFuture' is 'true'" do
+              let(:receiving) { false }
+              let(:will_receive) { true }
+
+              before do
+                stub_mpi
+              end
+
+              it 'responds with a 200' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                      json_data = JSON.parse data
+                      params = json_data
+                      params['data']['attributes']['servicePay'] = service_pay_attribute
+                      post path, params: params.to_json, headers: headers.merge(auth_header)
+                      expect(response.status).to eq(200)
+                    end
+                  end
+                end
+              end
+            end
+
+            context "when 'receiving' is 'true' and 'willReceiveInFuture' is 'false'" do
+              let(:receiving) { true }
+              let(:will_receive) { false }
+
+              before do
+                stub_mpi
+              end
+
+              it 'responds with a 200' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                      json_data = JSON.parse data
+                      params = json_data
+                      params['data']['attributes']['servicePay'] = service_pay_attribute
+                      post path, params: params.to_json, headers: headers.merge(auth_header)
+                      expect(response.status).to eq(200)
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        describe "'payment'" do
+          let(:service_pay_attribute) do
+            {
+              'militaryRetiredPay': {
+                'receiving': true,
+                'willReceiveInFuture': false,
+                'payment': {
+                  'serviceBranch': 'Air Force',
+                  'amount': military_retired_payment_amount
+                }
+              }
+            }
+          end
+
+          context "when 'amount' is below the minimum" do
+            let(:military_retired_payment_amount) { 0 }
+
+            before do
+              stub_mpi
+            end
+
+            it 'responds with an unprocessible entity' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    json_data = JSON.parse data
+                    params = json_data
+                    params['data']['attributes']['servicePay'] = service_pay_attribute
+                    post path, params: params.to_json, headers: headers.merge(auth_header)
+                    expect(response.status).to eq(422)
+                  end
+                end
+              end
+            end
+          end
+
+          context "when 'amount' is above the maximum" do
+            let(:military_retired_payment_amount) { 1_000_000 }
+
+            before do
+              stub_mpi
+            end
+
+            it 'responds with an unprocessible entity' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    json_data = JSON.parse data
+                    params = json_data
+                    params['data']['attributes']['servicePay'] = service_pay_attribute
+                    post path, params: params.to_json, headers: headers.merge(auth_header)
+                    expect(response.status).to eq(422)
+                  end
+                end
+              end
+            end
+          end
+
+          context "when 'amount' is within limits" do
+            let(:military_retired_payment_amount) { 100 }
+
+            before do
+              stub_mpi
+            end
+
+            it 'responds with a 200' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    json_data = JSON.parse data
+                    params = json_data
+                    params['data']['attributes']['servicePay'] = service_pay_attribute
+                    post path, params: params.to_json, headers: headers.merge(auth_header)
+                    expect(response.status).to eq(200)
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        describe "'futurePayExplanation'" do
+          context "when 'militaryRetiredPay.willReceiveInFuture' is 'true'" do
+            let(:will_receive_in_future) { true }
+
+            context "when 'militaryRetiredPay.futurePayExplanation' is not provided" do
+              let(:service_pay_attribute) do
+                {
+                  'militaryRetiredPay': {
+                    'receiving': false,
+                    'willReceiveInFuture': will_receive_in_future,
+                    'payment': {
+                      'serviceBranch': 'Air Force'
+                    }
+                  }
+                }
+              end
+
+              before do
+                stub_mpi
+              end
+
+              it 'responds with an unprocessible entity' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                      json_data = JSON.parse data
+                      params = json_data
+                      params['data']['attributes']['servicePay'] = service_pay_attribute
+                      post path, params: params.to_json, headers: headers.merge(auth_header)
+                      expect(response.status).to eq(422)
+                    end
+                  end
+                end
+              end
+            end
+
+            context "when 'militaryRetiredPay.futurePayExplanation' is provided" do
+              let(:service_pay_attribute) do
+                {
+                  'militaryRetiredPay': {
+                    'receiving': false,
+                    'willReceiveInFuture': will_receive_in_future,
+                    'futurePayExplanation': 'Retiring soon.',
+                    'payment': {
+                      'serviceBranch': 'Air Force'
+                    }
+                  }
+                }
+              end
+
+              before do
+                stub_mpi
+              end
+
+              it 'responds with a 200' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                      json_data = JSON.parse data
+                      params = json_data
+                      params['data']['attributes']['servicePay'] = service_pay_attribute
+                      post path, params: params.to_json, headers: headers.merge(auth_header)
+                      expect(response.status).to eq(200)
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
       end
 
-      context "when 'receiving' and 'willReceiveInFuture' are equal but not 'nil'" do
-        context "when both are 'true'" do
-          let(:receiving) { true }
-          let(:will_receive) { true }
+      describe "'servicePay.separationPay' validations" do
+        describe "'payment'" do
+          let(:service_pay_attribute) do
+            {
+              'separationPay': {
+                'received': true,
+                'receivedDate': (Time.zone.today - 1.year).to_s,
+                'payment': {
+                  'serviceBranch': 'Air Force',
+                  'amount': separation_payment_amount
+                }
+              }
+            }
+          end
 
-          it 'responds with a bad request' do
-            with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                  json_data = JSON.parse data
-                  params = json_data
-                  params['data']['attributes']['servicePay'] = service_pay_attribute
-                  post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(400)
+          context "when 'amount' is below the minimum" do
+            let(:separation_payment_amount) { 0 }
+
+            before do
+              stub_mpi
+            end
+
+            it 'responds with an unprocessible entity' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    json_data = JSON.parse data
+                    params = json_data
+                    params['data']['attributes']['servicePay'] = service_pay_attribute
+                    post path, params: params.to_json, headers: headers.merge(auth_header)
+                    expect(response.status).to eq(422)
+                  end
+                end
+              end
+            end
+          end
+
+          context "when 'amount' is above the maximum" do
+            let(:separation_payment_amount) { 1_000_000 }
+
+            before do
+              stub_mpi
+            end
+
+            it 'responds with an unprocessible entity' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    json_data = JSON.parse data
+                    params = json_data
+                    params['data']['attributes']['servicePay'] = service_pay_attribute
+                    post path, params: params.to_json, headers: headers.merge(auth_header)
+                    expect(response.status).to eq(422)
+                  end
+                end
+              end
+            end
+          end
+
+          context "when 'amount' is within limits" do
+            let(:separation_payment_amount) { 100 }
+
+            before do
+              stub_mpi
+            end
+
+            it 'responds with a 200' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    json_data = JSON.parse data
+                    params = json_data
+                    params['data']['attributes']['servicePay'] = service_pay_attribute
+                    post path, params: params.to_json, headers: headers.merge(auth_header)
+                    expect(response.status).to eq(200)
+                  end
                 end
               end
             end
           end
         end
 
-        context "when both are 'false'" do
-          let(:receiving) { false }
-          let(:will_receive) { false }
+        describe "'receivedDate'" do
+          let(:service_pay_attribute) do
+            {
+              'separationPay': {
+                'received': true,
+                'receivedDate': received_date,
+                'payment': {
+                  'serviceBranch': 'Air Force',
+                  'amount': 100
+                }
+              }
+            }
+          end
 
-          it 'responds with a bad request' do
-            with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                  json_data = JSON.parse data
-                  params = json_data
-                  params['data']['attributes']['servicePay'] = service_pay_attribute
-                  post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(400)
+          context "when 'receivedDate' is not in the past" do
+            let(:received_date) { Time.zone.today.to_s }
+
+            before do
+              stub_mpi
+            end
+
+            it 'responds with a bad request' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    json_data = JSON.parse data
+                    params = json_data
+                    params['data']['attributes']['servicePay'] = service_pay_attribute
+                    post path, params: params.to_json, headers: headers.merge(auth_header)
+                    expect(response.status).to eq(400)
+                  end
                 end
               end
             end
           end
-        end
-      end
 
-      context "when 'receiving' and 'willReceiveInFuture' are not equal" do
-        context "when 'receiving' is 'false' and 'willReceiveInFuture' is 'true'" do
-          let(:receiving) { false }
-          let(:will_receive) { true }
+          context "when 'receivedDate' is in the past" do
+            let(:received_date) { (Time.zone.today - 1.year).to_s }
 
-          it 'responds with a 200' do
-            with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                  json_data = JSON.parse data
-                  params = json_data
-                  params['data']['attributes']['servicePay'] = service_pay_attribute
-                  post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(200)
-                end
-              end
+            before do
+              stub_mpi
             end
-          end
-        end
 
-        context "when 'receiving' is 'true' and 'willReceiveInFuture' is 'false'" do
-          let(:receiving) { true }
-          let(:will_receive) { false }
-
-          it 'responds with a 200' do
-            with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                  json_data = JSON.parse data
-                  params = json_data
-                  params['data']['attributes']['servicePay'] = service_pay_attribute
-                  post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(200)
+            it 'responds with a 200' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    json_data = JSON.parse data
+                    params = json_data
+                    params['data']['attributes']['servicePay'] = service_pay_attribute
+                    post path, params: params.to_json, headers: headers.merge(auth_header)
+                    expect(response.status).to eq(200)
+                  end
                 end
               end
             end

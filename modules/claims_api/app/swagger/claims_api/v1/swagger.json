@@ -496,7 +496,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "53053e23-0687-4bf4-b195-fada22dbb98b",
+                    "id": "7a22a480-f253-4676-9fde-b86c0d799f97",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -545,11 +545,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "ab67b674-76a4-4cc9-a1bb-de8811998f62",
+                          "id": "4f50f495-855b-497b-b7de-2bbeb0d60a9b",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-08-24T20:35:58.222Z"
+                          "uploaded_at": "2021-08-23T16:57:22.775Z"
                         }
                       ]
                     }
@@ -2162,6 +2162,21 @@
                                   "type": "string",
                                   "example": "Will be retiring soon."
                                 }
+                              },
+                              "if": {
+                                "properties": {
+                                  "willReceiveInFuture": {
+                                    "const": true
+                                  }
+                                },
+                                "required": [
+                                  "willReceiveInFuture"
+                                ]
+                              },
+                              "then": {
+                                "required": [
+                                  "futurePayExplanation"
+                                ]
                               }
                             },
                             "hasSeparationPay": {
@@ -2381,7 +2396,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "214de8a3-a650-4303-a94b-20f5dfa69de4",
+                    "id": "f7142792-7392-4c7b-b6c1-84e6fd2d2836",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2399,13 +2414,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-08-24T20:35:58.586Z",
+                      "updated_at": "2021-08-23T16:57:23.165Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "214de8a3-a650-4303-a94b-20f5dfa69de4",
+                      "token": "f7142792-7392-4c7b-b6c1-84e6fd2d2836",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3968,6 +3983,21 @@
                                     "type": "string",
                                     "example": "Will be retiring soon."
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "willReceiveInFuture": {
+                                      "const": true
+                                    }
+                                  },
+                                  "required": [
+                                    "willReceiveInFuture"
+                                  ]
+                                },
+                                "then": {
+                                  "required": [
+                                    "futurePayExplanation"
+                                  ]
                                 }
                               },
                               "hasSeparationPay": {
@@ -4200,7 +4230,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e39779a8-fae6-45ee-800f-4087e5a94740",
+                    "id": "aa22acbe-7389-4574-9cc4-332fc3036f4f",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4218,13 +4248,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-08-24T20:35:58.985Z",
+                      "updated_at": "2021-08-23T16:57:23.516Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "e39779a8-fae6-45ee-800f-4087e5a94740",
+                      "token": "aa22acbe-7389-4574-9cc4-332fc3036f4f",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -6188,6 +6218,21 @@
                                     "type": "string",
                                     "example": "Will be retiring soon."
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "willReceiveInFuture": {
+                                      "const": true
+                                    }
+                                  },
+                                  "required": [
+                                    "willReceiveInFuture"
+                                  ]
+                                },
+                                "then": {
+                                  "required": [
+                                    "futurePayExplanation"
+                                  ]
                                 }
                               },
                               "hasSeparationPay": {
@@ -6420,7 +6465,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ca064d83-0ed6-48b6-a047-71397c513220",
+                    "id": "83c82d30-f4ef-4a63-819a-e21a63dad94e",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6434,7 +6479,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-08-24T20:35:59.710Z",
+                      "updated_at": "2021-08-23T16:57:24.439Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6443,7 +6488,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "16e50302-f504-4880-9729-5c6177c17590",
+                          "id": "560edf3e-5296-4293-ac67-8f7e4e8d3eab",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8400,11 +8445,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "998c8b91-f922-43bd-8d77-42726c63cb09",
+                    "id": "3891dd12-bf3b-49a7-b560-9e1d9e7c01e5",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2021-08-24",
+                      "date_request_accepted": "2021-08-23",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9113,11 +9158,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f9dc2580-e204-46e0-aa15-46a46934d76a",
+                    "id": "1d684c0f-a73b-44c5-90f8-c65691602bfe",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-08-24",
+                      "date_request_accepted": "2021-08-23",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9438,11 +9483,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "32169ff8-1492-4c87-929c-88d3025886cf",
+                    "id": "79c04ef1-049c-404e-a500-dba2c5552ce4",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-08-24",
+                      "date_request_accepted": "2021-08-23",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"

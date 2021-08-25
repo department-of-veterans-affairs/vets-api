@@ -185,6 +185,34 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
         end
       end
     end
+
+    describe "breaking out 'separationPay.receivedDate'" do
+      it 'breaks it out by year, month, day' do
+        temp_form_data = pending_record.form_data
+        temp_form_data.merge!(
+          {
+            'servicePay' => {
+              'separationPay' => {
+                'received' => true,
+                'receivedDate' => '2018-03-02',
+                'payment' => {
+                  'serviceBranch' => 'Air Force',
+                  'amount' => 100
+                }
+              }
+            }
+          }
+        )
+        pending_record.form_data = temp_form_data
+
+        payload = JSON.parse(pending_record.to_internal)
+        expect(payload['form526']['servicePay']['separationPay']['receivedDate']).to include(
+          'year' => '2018',
+          'month' => '3',
+          'day' => '2'
+        )
+      end
+    end
   end
 
   describe 'evss_id_by_token' do

@@ -1143,6 +1143,17 @@
               "type": "string",
               "example": "Will be retiring soon."
             }
+          },
+          "if": {
+            "properties": {
+              "willReceiveInFuture": {
+                "const": true
+              }
+            },
+            "required": ["willReceiveInFuture"]
+          },
+          "then": {
+            "required": ["futurePayExplanation"]
           }
         },
         "hasSeparationPay": {

@@ -295,6 +295,11 @@ module ClaimsApi
         end
 
         def validate_form_526_service_pay!
+          validate_form_526_military_retired_pay!
+          validate_form_526_separation_pay!
+        end
+
+        def validate_form_526_military_retired_pay!
           receiving_attr    = form_attributes.dig('servicePay', 'militaryRetiredPay', 'receiving')
           will_receive_attr = form_attributes.dig('servicePay', 'militaryRetiredPay', 'willReceiveInFuture')
 
@@ -306,6 +311,20 @@ module ClaimsApi
             'servicePay.militaryRetiredPay',
             form_attributes['servicePay']['militaryRetiredPay']
           )
+        end
+
+        def validate_form_526_separation_pay!
+          validate_form_526_separation_pay_received_date!
+        end
+
+        def validate_form_526_separation_pay_received_date!
+          separation_pay_received_date = form_attributes.dig('servicePay', 'separationPay', 'receivedDate')
+
+          return if separation_pay_received_date.blank?
+
+          return if Date.parse(separation_pay_received_date) < Time.zone.today
+
+          raise ::Common::Exceptions::InvalidFieldValue.new('separationPay.receivedDate', separation_pay_received_date)
         end
 
         def too_many_homelessness_attributes_provided?
