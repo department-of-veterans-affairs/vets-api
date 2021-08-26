@@ -11,7 +11,7 @@ RSpec.describe VBADocuments::ReportUnsuccessfulSubmissions, type: :job do
   let(:upload) { FactoryBot.create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
 
   describe '#perform' do
-    it 'sends mail' do
+    xit 'sends mail' do
       with_settings(Settings.vba_documents,
                     report_enabled: true) do
         Timecop.freeze
@@ -37,7 +37,7 @@ RSpec.describe VBADocuments::ReportUnsuccessfulSubmissions, type: :job do
       end
     end
 
-    it 'calculate totals' do
+    xit 'calculate totals' do
       with_settings(Settings.vba_documents,
                     report_enabled: true) do
         error_upload
