@@ -24,7 +24,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
     let(:path) { base_path 'higher_level_reviews' }
 
     context 'creates an HLR and persists the data' do
-      it 'with all headers' do
+      xit 'with all headers' do
         post(path, params: @data, headers: @headers)
         hlr = AppealsApi::HigherLevelReview.last
         expect(hlr.source).to eq('va.gov')
