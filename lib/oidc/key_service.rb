@@ -6,8 +6,11 @@ module OIDC
   class KeyService
     @mutex = Mutex.new
     # Map from kid to OpenSSL::RSA::PKey for all current keys
+
+    # rubocop:disable ThreadSafety/MutableClassInstanceVariable
     @current_keys = {}
     @cache_miss_kids = {}
+    # rubocop:enable ThreadSafety/MutableClassInstanceVariable
     @expected_iss = nil
     KID_CACHE_PERIOD_SECS = 60
     KID_CACHE_MAX_SIZE = 10

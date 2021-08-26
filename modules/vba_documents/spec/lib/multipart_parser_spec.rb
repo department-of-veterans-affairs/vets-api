@@ -20,7 +20,7 @@ RSpec.describe VBADocuments::MultipartParser do
         end
       end
 
-      @data_type = %i[file stringio]
+      @data_type = %i[file stringio].freeze
     end
 
     context 'multipart_data_type' do

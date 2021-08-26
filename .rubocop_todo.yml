@@ -673,16 +673,6 @@ ThreadSafety/InstanceVariableInClassMethod:
     - 'lib/va_profile/contact_information/transaction_response.rb'
     - 'lib/vic/url_helper.rb'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: literals, strict
-ThreadSafety/MutableClassInstanceVariable:
-  Exclude:
-    - 'lib/oidc/key_service.rb'
-    - 'modules/vba_documents/spec/lib/multipart_parser_spec.rb'
-    - 'modules/vba_documents/spec/mailers/unsuccessful_report_mailer_spec.rb'
-
 # Offense count: 1
 ThreadSafety/NewThread:
   Exclude:

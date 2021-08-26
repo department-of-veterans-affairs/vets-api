@@ -55,7 +55,7 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
         dev: 'https://dsva-vetsgov-dev-benefits-documents.s3.us-gov-west-1.amazonaws.com/',
         sandbox: 'https://dsva-vagov-sandbox-benefits-documents.s3.us-gov-west-1.amazonaws.com/',
         prod: 'https://dsva-vetsgov-prod-benefits-documents.s3.us-gov-west-1.amazonaws.com/'
-      }
+      }.freeze
     end
 
     before do
