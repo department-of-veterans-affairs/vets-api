@@ -10,6 +10,9 @@ FacilitiesApi::Engine.routes.draw do
         get 'specialties',  to: 'ccp#specialties'
       end
     end
+
     resources :va, only: %i[index show]
   end
+
+  resources :apidocs, only: [:index]
 end

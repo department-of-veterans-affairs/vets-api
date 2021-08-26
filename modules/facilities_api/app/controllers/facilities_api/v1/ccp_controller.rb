@@ -54,7 +54,6 @@ module FacilitiesApi
     def ppms_params
       params.require(:type)
       params.permit(
-        :address,
         :latitude,
         :longitude,
         :page,
