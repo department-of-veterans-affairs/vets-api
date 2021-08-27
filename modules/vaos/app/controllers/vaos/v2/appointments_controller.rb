@@ -23,10 +23,10 @@ module VAOS
         render json: { data: serialized }, status: :created
       end
 
-      def cancel
-        resp = appointments_service.cancel_appointment(appt_id: appt_id, reason: cancellation_reason)
+      def update
+        resp_appointment = appointments_service.update_appointment(appt_id: update_appt_id, status: status_update)
         serializer = VAOS::V2::VAOSSerializer.new
-        serialized = serializer.serialize(resp, 'appointments')
+        serialized = serializer.serialize(resp_appointment, 'appointments')
         render json: { data: serialized }
       end
 
@@ -46,8 +46,12 @@ module VAOS
           appointments_service.get_appointment(appointment_id)
       end
 
-      def appt_id
+      def update_appt_id
         params.require(:id)
+      end
+
+      def status_update
+        params.require(:status)
       end
 
       def cancellation_reason

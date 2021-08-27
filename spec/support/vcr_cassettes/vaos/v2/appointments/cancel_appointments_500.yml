@@ -5,7 +5,7 @@ http_interactions:
     uri: https://veteran.apps.va.gov/vaos/v1/patients/1012845331V153043/appointments/35952
     body:
       encoding: UTF-8
-      string: '{"status":"cancelled","cancellationReason":"test cancellation"}'
+      string: '{"status":"cancelled"}'
     headers:
       Accept:
       - application/json

@@ -214,12 +214,11 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
-  "/appointments/cancel/{appointment-id}":
     put:
       tags:
         - appointments
-      summary: Cancels the appointment
-      operationId: cancelAppointment
+      summary: Updates the appointment
+      operationId: updateAppointment
       security:
         - bearerAuth: []
       parameters:
@@ -229,12 +228,11 @@ paths:
           required: true
           schema:
             type: string
-        - in: query
-          name: reason
-          required: true
-          schema:
-            type: string
-          description: The reason for cancelling the appointment.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAppointmentRequest"   
       responses:
         "200":
           description: The appointment status is updated
@@ -767,13 +765,13 @@ components:
     AppointmentStatus:
       type: string
       enum:
+        - cancelled
         - proposed
         - pending
         - booked
         - arrived
         - noshow
         - fulfilled
-        - cancelled
     Errors:
       required:
         - "errors"
@@ -906,6 +904,12 @@ components:
             "$ref": "#/components/schemas/Period"
         preferredLanguage:
           type: string
+    UpdateAppointmentRequest:
+      description: A request to create a new appointment.
+      type: object
+      properties: 
+        status:
+          "$ref": "#/components/schemas/AppointmentStatus"
     Slot:
       type: object
       required:

@@ -38,9 +38,9 @@ module VAOS
         end
       end
 
-      def cancel_appointment(appt_id:, reason:)
+      def update_appointment(appt_id:, status:)
         url_path = "/vaos/v1/patients/#{user.icn}/appointments/#{appt_id}"
-        params = VAOS::V2::CancelForm.new(status: 'cancelled', cancellation_reason: reason).params
+        params = VAOS::V2::UpdateAppointmentForm.new(status: status).params
         with_monitoring do
           response = perform(:put, url_path, params, headers)
           OpenStruct.new(response.body)

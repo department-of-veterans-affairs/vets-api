@@ -150,11 +150,11 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
       end
     end
 
-    describe 'Cancel appointments' do
+    describe 'PUT appointments' do
       context 'when the appointment is successfully cancelled' do
         it 'returns a status code of 200 and the cancelled appointment with the updated status' do
           VCR.use_cassette('vaos/v2/appointments/cancel_appointments_200', match_requests_on: %i[method uri]) do
-            put '/vaos/v2/appointments/cancel/42081?reason=test cancellation'
+            put '/vaos/v2/appointments/42081', params: { status: 'cancelled' }
             expect(response.status).to eq(200)
             expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('cancelled')
           end
@@ -164,7 +164,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
       context 'when the backend service cannot handle the request' do
         it 'returns a 502 status code' do
           VCR.use_cassette('vaos/v2/appointments/cancel_appointments_500', match_requests_on: %i[method uri]) do
-            put '/vaos/v2/appointments/cancel/35952?reason=test reason'
+            put '/vaos/v2/appointments/35952', params: { status: 'cancelled' }
             expect(response.status).to eq(502)
             expect(JSON.parse(response.body)['errors'][0]['code']).to eq('VAOS_502')
           end
