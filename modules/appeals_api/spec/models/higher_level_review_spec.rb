@@ -270,6 +270,39 @@ describe AppealsApi::HigherLevelReview, type: :model do
 
       expect(handler).to have_received(:handle!)
     end
+
+    it 'successfully gets the ICN when email isn\'t present' do
+      higher_level_review = described_class.create!(
+        auth_headers: auth_headers,
+        form_data: default_form_data.deep_merge({
+                                                  'data' => {
+                                                    'attributes' => {
+                                                      'veteran' => {
+                                                        'emailAddressText' => nil
+                                                      }
+                                                    }
+                                                  }
+                                                })
+      )
+
+      params = { event_type: :hlr_received, opts: {
+        email_identifier: { id_value: '1013062086V794840', id_type: 'ICN' },
+        first_name: higher_level_review.first_name,
+        date_submitted: higher_level_review.date_signed,
+        guid: higher_level_review.id
+      } }
+
+      stub_mpi
+
+      handler = instance_double(AppealsApi::Events::Handler)
+      allow(AppealsApi::Events::Handler).to receive(:new).and_call_original
+      allow(AppealsApi::Events::Handler).to receive(:new).with(params).and_return(handler)
+      allow(handler).to receive(:handle!)
+
+      higher_level_review.update_status!(status: 'submitted')
+
+      expect(AppealsApi::Events::Handler).to have_received(:new).exactly(2).times
+    end
   end
 
   describe 'V2' do
