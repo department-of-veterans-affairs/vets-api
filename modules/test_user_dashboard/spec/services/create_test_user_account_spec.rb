@@ -10,7 +10,10 @@ describe TestUserDashboard::CreateTestUserAccount do
 
   describe '#call' do
     it 'sets the account_id and services' do
-      tud_account = ::TestUserDashboard::CreateTestUserAccount.new(users[0]).call
+      user = users[0]
+      ::TestUserDashboard::CreateTestUserAccount.new(user).call
+      tud_account = ::TestUserDashboard::TudAccount.find_by(email: user.to_hash['email'])
+
       expect(tud_account.account_uuid).not_to be_nil
       expect(tud_account.services).to eq %w[facilities hca edu_benefits form-save-in-progress
                                             form-prefill user-profile appeals-status
