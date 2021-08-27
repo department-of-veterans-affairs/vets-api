@@ -982,17 +982,33 @@
             }
           }
         },
-        "if": {
-          "properties": {
-            "disabilityActionType": {
-              "enum": ["INCREASE"]
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "disabilityActionType": {
+                  "enum": ["INCREASE"]
+                }
+              }
+            },
+            "then": {
+              "required": ["ratedDisabilityId", "diagnosticCode"]
             }
           },
-          "required": ["disabilityActionType"]
-        },
-        "then": {
-          "required": ["ratedDisabilityId"]
-        }
+          {
+            "if": {
+              "properties": {
+                "disabilityActiontype": {
+                  "enum": ["NONE"]
+                }
+              },
+                "required": ["secondaryDisabilities"]
+              },
+              "then": {
+                "required": ["diagnosticCode"]
+              }
+            }
+        ]
       }
     },
     "treatments": {

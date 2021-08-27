@@ -119,7 +119,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         params['data']['attributes']['disabilities'] = [{}]
         post path, params: params.to_json, headers: headers
         expect(response.status).to eq(422)
-        expect(JSON.parse(response.body)['errors'].size).to eq(2)
+        expect(JSON.parse(response.body)['errors'].size).to eq(4)
       end
 
       describe 'disabilities specialIssues' do

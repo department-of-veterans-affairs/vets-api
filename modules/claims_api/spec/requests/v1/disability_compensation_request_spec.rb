@@ -433,7 +433,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             params['data']['attributes']['disabilities'] = [{}]
             post path, params: params.to_json, headers: headers.merge(auth_header)
             expect(response.status).to eq(422)
-            expect(JSON.parse(response.body)['errors'].size).to eq(2)
+            expect(JSON.parse(response.body)['errors'].size).to eq(4)
           end
         end
 
@@ -1303,14 +1303,10 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
     end
 
-    describe "'disabilities.ratedDisabilityId' validations" do
+    describe "'disabilities' validations" do
       context "when 'disabilites.disabilityActionType' equals 'INCREASE'" do
         context "and 'disabilities.ratedDisabilityId' is not provided" do
-          before do
-            stub_mpi
-          end
-
-          it 'responds with an unprocessible entity' do
+          it 'returns an unprocessible entity status' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
                 VCR.use_cassette('evss/reference_data/get_intake_sites') do
@@ -1318,6 +1314,7 @@ RSpec.describe 'Disability Claims ', type: :request do
                   params = json_data
                   disabilities = [
                     {
+                      diagnosticCode: 123,
                       disabilityActionType: 'INCREASE',
                       name: 'PTSD (post traumatic stress disorder)'
                     }
@@ -1332,11 +1329,31 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
 
         context "and 'disabilities.ratedDisabilityId' is provided" do
-          before do
-            stub_mpi
-          end
-
           it 'responds with a 200' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  disabilities = [
+                    {
+                      diagnosticCode: 123,
+                      ratedDisabilityId: '1100583',
+                      disabilityActionType: 'INCREASE',
+                      name: 'PTSD (post traumatic stress disorder)'
+                    }
+                  ]
+                  params['data']['attributes']['disabilities'] = disabilities
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(200)
+                end
+              end
+            end
+          end
+        end
+
+        context "and 'disabilities.diagnosticCode' is not provided" do
+          it 'returns an unprocessible entity status' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
                 VCR.use_cassette('evss/reference_data/get_intake_sites') do
@@ -1351,7 +1368,41 @@ RSpec.describe 'Disability Claims ', type: :request do
                   ]
                   params['data']['attributes']['disabilities'] = disabilities
                   post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(200)
+                  expect(response.status).to eq(422)
+                end
+              end
+            end
+          end
+        end
+      end
+
+      context "when 'disabilites.disabilityActionType' equals 'NONE'" do
+        context "and 'disabilites.secondaryDisabilities' is defined" do
+          context "and 'disabilites.diagnosticCode is not provided" do
+            it 'returns an unprocessible entity status' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    json_data = JSON.parse data
+                    params = json_data
+                    disabilities = [
+                      {
+                        disabilityActionType: 'NONE',
+                        name: 'PTSD (post traumatic stress disorder)',
+                        secondaryDisabilities: [
+                          {
+                            name: 'PTSD personal trauma',
+                            disabilityActionType: 'SECONDARY',
+                            serviceRelevance: 'Caused by a service-connected disability\\nLengthy description',
+                            specialIssues: ['Radiation', 'Emergency Care – CH17 Determination']
+                          }
+                        ]
+                      }
+                    ]
+                    params['data']['attributes']['disabilities'] = disabilities
+                    post path, params: params.to_json, headers: headers.merge(auth_header)
+                    expect(response.status).to eq(422)
+                  end
                 end
               end
             end
@@ -1361,10 +1412,6 @@ RSpec.describe 'Disability Claims ', type: :request do
 
       context "when 'disabilites.disabilityActionType' equals value other than 'INCREASE'" do
         context "and 'disabilities.ratedDisabilityId' is not provided" do
-          before do
-            stub_mpi
-          end
-
           it 'responds with a 200' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
@@ -1373,6 +1420,7 @@ RSpec.describe 'Disability Claims ', type: :request do
                   params = json_data
                   disabilities = [
                     {
+                      diagnosticCode: 123,
                       disabilityActionType: 'NONE',
                       name: 'PTSD (post traumatic stress disorder)'
                     }
