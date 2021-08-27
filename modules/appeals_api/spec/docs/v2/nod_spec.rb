@@ -156,8 +156,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
       response '200', 'Info about a single Notice of Disagreement' do
         schema AppealsApi::SwaggerSharedComponents.response_schemas[:nod_response_schema]
 
-        nod = FactoryBot.create(:minimal_notice_of_disagreement)
-        let(:uuid) { nod.id }
+        let(:uuid) { FactoryBot.create(:minimal_notice_of_disagreement).id }
 
         before do |example|
           submit_request(example.metadata)
@@ -450,8 +449,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
       response '200', 'Info about a single Notice of Disagreement Evidence Submission.' do
         schema AppealsApi::SwaggerSharedComponents.response_schemas[:evidence_submission_response_schema]
 
-        evidence_submission = FactoryBot.create(:evidence_submission)
-        let(:uuid) { evidence_submission.guid }
+        let(:uuid) { FactoryBot.create(:evidence_submission).guid }
 
         before do |example|
           submit_request(example.metadata)

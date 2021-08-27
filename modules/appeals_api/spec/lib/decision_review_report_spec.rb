@@ -49,7 +49,7 @@ describe AppealsApi::DecisionReviewReport do
     end
   end
 
-  xit 'can correctly calculate nods' do
+  it 'can correctly calculate nods' do
     create :notice_of_disagreement, created_at: 1.week.ago, status: 'success'
     create :notice_of_disagreement, status: 'success'
     create :notice_of_disagreement, status: 'success'

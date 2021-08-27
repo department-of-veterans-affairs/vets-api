@@ -150,8 +150,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
       response '200', 'Info about a single Higher-Level Review' do
         schema AppealsApi::SwaggerSharedComponents.response_schemas[:hlr_response_schema]
 
-        hlr = FactoryBot.create(:minimal_higher_level_review_v2)
-        let(:uuid) { hlr.id }
+        let(:uuid) { FactoryBot.create(:minimal_higher_level_review_v2).id }
 
         before do |example|
           submit_request(example.metadata)
