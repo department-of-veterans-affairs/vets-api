@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe TriageTeamSerializer, type: :serializer do
+RSpec.describe TriageTeamSerializer do
   subject { serialize(triage_team, serializer_class: described_class) }
 
   let(:triage_team) { build :triage_team }

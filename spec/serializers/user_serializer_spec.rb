@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe UserSerializer, type: :serializer do
+RSpec.describe UserSerializer do
   subject { serialize(pre_serialized_profile, serializer_class: described_class) }
 
   let(:user) { create(:user, :loa3) }

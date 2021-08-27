@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe InProgressFormSerializer, type: :serializer do
+RSpec.describe InProgressFormSerializer do
   subject { JSON.parse serialize(in_progress_form, serializer_class: described_class) }
 
   let(:in_progress_form) { build :in_progress_form }

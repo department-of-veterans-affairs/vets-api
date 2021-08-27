@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe CategorySerializer, type: :serializer do
+RSpec.describe CategorySerializer do
   subject { serialize(category, serializer_class: described_class) }
 
   let(:category) { build :category }

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe EducationBenefitsClaimSerializer, type: :serializer do
+RSpec.describe EducationBenefitsClaimSerializer do
   subject { serialize(education_benefits_claim) }
 
   let(:education_benefits_claim) { create(:education_benefits_claim) }

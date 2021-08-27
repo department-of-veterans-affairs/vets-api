@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
+RSpec.describe EVSSClaimDetailSerializer do
   subject { serialize(evss_claim, serializer_class: EVSSClaimDetailSerializer) }
 
   let(:evss_claim) { build(:evss_claim) }

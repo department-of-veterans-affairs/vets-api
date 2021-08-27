@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Form1010cg::AttachmentSerializer, type: :serializer do
+RSpec.describe Form1010cg::AttachmentSerializer do
   subject { serialize(attachment, serializer_class: described_class) }
 
   let(:expected) do

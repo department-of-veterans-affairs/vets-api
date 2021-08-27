@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe ReceiveApplicationSerializer, type: :serializer do
+RSpec.describe ReceiveApplicationSerializer do
   subject { serialize(receive_application, serializer_class: described_class) }
 
   let(:receive_application) { build :receive_application }
