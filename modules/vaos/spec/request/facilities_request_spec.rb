@@ -101,8 +101,12 @@ RSpec.describe 'facilities', type: :request do
       context 'with a valid GET response' do
         it 'returns a 200 with the correct schema' do
           VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method uri]) do
+            allow(Rails.logger).to receive(:info).at_least(:once)
             get '/vaos/v0/facilities/983/clinics', params: { type_of_care_id: '323', system_id: '983' }
 
+            expect(Rails.logger).to have_received(:info).with('Clinic names returned',
+                                                              ['Green Team Clinic1', 'CHY PC CASSIDY',
+                                                               'Green Team Clinic2', 'CHY PC VAR2']).at_least(:once)
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('vaos/facility_clinics')
           end

@@ -9,11 +9,23 @@ module VAOS
           clinics_params[:type_of_care_id],
           clinics_params[:system_id]
         )
-
+        log_clinic_names(response)
         render json: VAOS::V0::ClinicSerializer.new(response)
       end
 
       private
+
+      def log_clinic_names(clinic_data)
+        clinic_names = []
+        clinic_data.each do |clinic|
+          clinic_names << check_friendly_clinic_name(clinic)
+        end
+        Rails.logger.info('Clinic names returned', clinic_names)
+      end
+
+      def check_friendly_clinic_name(clinic)
+        clinic.clinic_friendly_location_name.empty? ? clinic.clinic_name : clinic.clinic_friendly_location_name
+      end
 
       def systems_service
         VAOS::SystemsService.new(current_user)
