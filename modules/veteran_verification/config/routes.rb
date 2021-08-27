@@ -2,6 +2,7 @@
 
 VeteranVerification::Engine.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
+  match '/v1/*path', to: 'application#cors_preflight', via: [:options]
   get '/metadata', to: 'metadata#veteran_verification'
 
   namespace :v0 do
