@@ -200,7 +200,7 @@ RSpec/FilePath:
     - 'spec/lib/common/models/**/*'
     - 'spec/lib/saml/*_user_spec.rb'
     - 'spec/lib/ihub/appointments/service_spec.rb'
-    - 'spec/request/in_progress_forms_request_spec.rb'
+    - 'spec/requests/in_progress_forms_request_spec.rb'
     - 'spec/jobs/pagerduty/**/*'
     - 'spec/lib/pagerduty/**/*'
     - 'spec/lib/common/client/middleware/response/appeals_response_middleware_spec.rb'
@@ -221,11 +221,7 @@ RSpec/DescribeClass:
     - 'spec/lib/mhv_ac/client_spec.rb'
     - 'spec/lib/mhv_logging/api/audits_spec.rb'
     - 'spec/rakelib/vet360_spec.rb'
-    - 'spec/request/burial_claims_spec.rb'
-    - 'spec/request/education_benefits_claims_request_spec.rb'
-    - 'spec/request/health_care_applications_request_spec.rb'
-    - 'spec/request/pension_claims_controller_spec.rb'
-    - 'spec/request/swagger_spec.rb'
+    - 'spec/requests/**/*'
     - 'spec/lib/sm/client/preferences_spec.rb'
     - 'spec/lib/sm/client/triage_teams_spec.rb'
     - 'spec/lib/sm/client/messages_spec.rb'
@@ -295,8 +291,8 @@ RSpec/MessageChain:
     - 'modules/veteran_verification/spec/requests/service_history_request_spec.rb'
     - 'modules/veteran_verification/spec/requests/veteran_status_request_spec.rb'
     - 'spec/lib/va_profile/service_spec.rb'
-    - 'spec/request/service_history_request_spec.rb'
-    - 'spec/request/swagger_spec.rb'
+    - 'spec/requests/service_history_request_spec.rb'
+    - 'spec/requests/swagger_spec.rb'
 
 # These instances seem to be necessary
 RSpec/MultipleDescribes:
@@ -304,7 +300,7 @@ RSpec/MultipleDescribes:
     - 'spec/jobs/evss/document_upload_spec.rb'
     - 'spec/jobs/evss/request_decision_spec.rb'
     - 'spec/lib/emis/veteran_status_service_spec.rb'
-    - 'spec/request/swagger_spec.rb'
+    - 'spec/requests/swagger_spec.rb'
     - 'spec/jobs/cypress_viewport_updater/existing_github_file_spec.rb'
 
 # These instances seem to be false positives
@@ -328,10 +324,10 @@ RSpec/ScatteredLet:
     - 'spec/mailers/spool_submissions_report_mailer_spec.rb'
     - 'spec/models/form_profile_spec.rb'
     - 'spec/models/va_profile_redis/contact_information_spec.rb'
-    - 'spec/request/health_care_applications_request_spec.rb'
-    - 'spec/request/health_records_request_spec.rb'
-    - 'spec/request/http_method_not_allowed_spec.rb'
-    - 'spec/request/swagger_spec.rb'
+    - 'spec/requests/health_care_applications_request_spec.rb'
+    - 'spec/requests/health_records_request_spec.rb'
+    - 'spec/requests/http_method_not_allowed_spec.rb'
+    - 'spec/requests/swagger_spec.rb'
 
 # Might be worth revisiting at some point
 RSpec/SubjectStub:

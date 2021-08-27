@@ -123,7 +123,7 @@ Lint/MissingSuper:
 # Cop supports --auto-correct.
 Lint/NonDeterministicRequireOrder:
   Exclude:
-    - 'spec/request/v1/apidoc/apidoc_spec.rb'
+    - 'spec/requests/v1/apidoc/apidoc_spec.rb'
     - 'spec/service_consumers/pact_helper.rb'
 
 # Offense count: 5
@@ -139,7 +139,7 @@ Lint/RedundantCopDisableDirective:
 # Offense count: 1
 Lint/StructNewOverride:
   Exclude:
-    - 'spec/request/authentication/standard_authentication_spec.rb'
+    - 'spec/requests/authentication/standard_authentication_spec.rb'
 
 # Offense count: 6
 # Cop supports --auto-correct.
@@ -157,7 +157,7 @@ Lint/UselessMethodDefinition:
 # Cop supports --auto-correct.
 Lint/UselessTimes:
   Exclude:
-    - 'spec/request/user_request_spec.rb'
+    - 'spec/requests/user_request_spec.rb'
 
 # Offense count: 505
 # Configuration parameters: IgnoredMethods, CountRepeatedAttributes.
@@ -212,8 +212,8 @@ RSpec/ContextMethod:
     - 'spec/lib/common/client/configuration/base_spec.rb'
     - 'spec/lib/pension_burial/processing_office_spec.rb'
     - 'spec/models/mhv_account_spec.rb'
-    - 'spec/request/address_request_spec.rb'
-    - 'spec/request/evss_claims_async_spec.rb'
+    - 'spec/requests/address_request_spec.rb'
+    - 'spec/requests/evss_claims_async_spec.rb'
     - 'spec/services/users/profile_spec.rb'
 
 # Offense count: 155
@@ -553,7 +553,7 @@ Style/QuotedSymbols:
     - 'spec/lib/vetext/service_spec.rb'
     - 'spec/models/form_profile_spec.rb'
     - 'spec/models/preneeds/attachment_spec.rb'
-    - 'spec/request/swagger_spec.rb'
+    - 'spec/requests/swagger_spec.rb'
 
 # Offense count: 4
 # Cop supports --auto-correct.
