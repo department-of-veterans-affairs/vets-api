@@ -788,6 +788,12 @@
             "type": "string",
             "example": "249470"
           },
+          "approximateBeginDate" : {
+            "description": "Approximate date disability began.",
+            "type": "string",
+            "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+            "example": "2018-03-02"
+          },
           "secondaryDisabilities": {
             "description": "Identifies the Secondary Service Disability information of the Veteran.",
             "type": "array",

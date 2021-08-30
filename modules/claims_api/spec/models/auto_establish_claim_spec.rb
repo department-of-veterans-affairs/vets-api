@@ -213,6 +213,25 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
         )
       end
     end
+
+    describe "breaking out 'disabilities.approximateBeginDate'" do
+      it 'breaks it out by year, month, day' do
+        disability = pending_record.form_data['disabilities'].first
+        disability.merge!(
+          {
+            'approximateBeginDate' => '1989-12-01'
+          }
+        )
+        pending_record.form_data['disabilities'][0] = disability
+
+        payload = JSON.parse(pending_record.to_internal)
+        expect(payload['form526']['disabilities'].first['approximateBeginDate']).to include(
+          'year' => '1989',
+          'month' => '12',
+          'day' => '1'
+        )
+      end
+    end
   end
 
   describe 'evss_id_by_token' do
