@@ -141,7 +141,8 @@ module EVSS
 
         !vet_not_found? &&
           @response.body.key?('chapter33_education_info') == true &&
-          @response.body['chapter33_education_info'] != {}
+          @response.body['chapter33_education_info'] != {} &&
+          !@response.body['chapter33_education_info'].nil?
       end
 
       def contains_error_messages?
