@@ -74,7 +74,9 @@ class AppealsApi::RswagConfig
       },
       'date': {
         'type': 'string',
-        'pattern': '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+        'pattern': '^[0-9]{4}-[0-9]{2}-[0-9]{2}$',
+        'maxLength': 10,
+        'minLength': 10
       }
     }
   end
@@ -191,7 +193,8 @@ class AppealsApi::RswagConfig
                           },
                           'internationalPostalCode': { 'type': 'string', 'maxLength': 16 }
                         },
-                        'additionalProperties': false
+                        'additionalProperties': false,
+                        'required': %w[addressLine1 city countryCodeISO2 zipCode5]
                       },
                       'phone': {
                         '$ref': "#{ref_root}/hlrCreatePhone"
@@ -205,9 +208,9 @@ class AppealsApi::RswagConfig
                       'timezone': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'time_zones.json')))
                     },
                     'additionalProperties': false,
-                    'required': [
-                      'homeless'
-                    ]
+                    'required': ['homeless'],
+                    'if': { 'properties': { 'homeless': { 'const': false } } },
+                    'then': { 'required': ['address'] }
                   },
                   'informalConferenceContact': {
                     'type': 'string',
