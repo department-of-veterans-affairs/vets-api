@@ -7,6 +7,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
 
   let(:evss_user) { create(:evss_user) }
   let(:evss_user2) { create(:evss_user, uuid: '87ebe3da-36a3-4c92-9a73-61e9d700f6ea') }
+  let(:no_edipi_evss_user) { create(:unauthorized_evss_user) }
   let(:evss_response_with_poa) { OpenStruct.new(body: get_fixture('json/evss_with_poa')) }
   let!(:account) { create(:account, uuid: evss_user.account_uuid) }
 
@@ -134,6 +135,16 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
         expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, any_args).and_return(true).at_least(:once)
         application_10203 = create(:va10203)
         application_10203.create_stem_automated_decision(evss_user)
+
+        subject.perform
+        application_10203.reload
+        expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to eq(nil)
+      end
+
+      it 'skips POA check for user without an EDIPI' do
+        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, any_args).and_return(false).at_least(:once)
+        application_10203 = create(:va10203)
+        application_10203.create_stem_automated_decision(no_edipi_evss_user)
 
         subject.perform
         application_10203.reload

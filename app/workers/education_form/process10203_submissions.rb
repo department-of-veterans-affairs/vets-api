@@ -84,8 +84,8 @@ module EducationForm
     def get_gi_bill_status(auth_headers)
       return {} if auth_headers.nil?
 
-      service = EVSS::GiBillStatus::Service.new(nil, auth_headers)
-      service.get_gi_bill_status(auth_headers)
+      gibill_service = EVSS::GiBillStatus::Service.new(nil, auth_headers)
+      gibill_service.get_gi_bill_status(auth_headers)
     rescue => e
       log_exception_to_sentry(Process10203EVSSError.new("Failed to retrieve GiBillStatus data: #{e.message}"))
       {}
@@ -96,11 +96,15 @@ module EducationForm
       # stem_automated_decision feature disables EVSS call  for POA which will be removed in a future PR
       return nil if Flipper.enabled?(:stem_automated_decision)
 
-      return nil if auth_headers.nil?
-      return nil unless auth_headers.key?('va_eauth_dodedipnid')
+      if auth_headers.nil? ||
+         !auth_headers.key?('va_eauth_dodedipnid') ||
+         auth_headers['va_eauth_dodedipnid'] == ''
 
-      service = EVSS::VSOSearch::Service.new(nil, auth_headers, account)
-      service.get_current_info(auth_headers)['userPoaInfoAvailable']
+        return nil
+      end
+
+      vsosearch_service = EVSS::VSOSearch::Service.new(nil, auth_headers, account)
+      vsosearch_service.get_current_info(auth_headers)['userPoaInfoAvailable']
     rescue => e
       log_exception_to_sentry(
         Process10203EVSSError.new("Failed to retrieve VSOSearch data: #{e.message}")
