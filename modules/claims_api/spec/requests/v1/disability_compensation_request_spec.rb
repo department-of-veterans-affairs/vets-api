@@ -1303,7 +1303,64 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
     end
 
-    describe "'disabilities' validations" do
+    describe "'disabilities.classificationCode' validations" do
+      let(:classification_type_codes) { [{ clsfcn_id: '1111' }] }
+
+      before do
+        stub_mpi
+
+        expect_any_instance_of(BGS::StandardDataService)
+          .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
+      end
+
+      context "when 'disabilites.classificationCode' is valid" do
+        it 'returns a successful response' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                json_data = JSON.parse data
+                params = json_data
+                disabilities = [
+                  {
+                    disabilityActionType: 'NEW',
+                    name: 'PTSD (post traumatic stress disorder)',
+                    classificationCode: '1111'
+                  }
+                ]
+                params['data']['attributes']['disabilities'] = disabilities
+                post path, params: params.to_json, headers: headers.merge(auth_header)
+                expect(response.status).to eq(200)
+              end
+            end
+          end
+        end
+      end
+
+      context "when 'disabilites.classificationCode' is invalid" do
+        it 'responds with a bad request' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                json_data = JSON.parse data
+                params = json_data
+                disabilities = [
+                  {
+                    disabilityActionType: 'NEW',
+                    name: 'PTSD (post traumatic stress disorder)',
+                    classificationCode: '2222'
+                  }
+                ]
+                params['data']['attributes']['disabilities'] = disabilities
+                post path, params: params.to_json, headers: headers.merge(auth_header)
+                expect(response.status).to eq(400)
+              end
+            end
+          end
+        end
+      end
+    end
+
+    describe "'disabilities.ratedDisabilityId' validations" do
       context "when 'disabilites.disabilityActionType' equals 'INCREASE'" do
         context "and 'disabilities.ratedDisabilityId' is not provided" do
           it 'returns an unprocessible entity status' do

@@ -784,6 +784,10 @@
             "type": "string",
             "example": "PTSD (post traumatic stress disorder)"
           },
+          "classificationCode": {
+            "type": "string",
+            "example": "249470"
+          },
           "secondaryDisabilities": {
             "description": "Identifies the Secondary Service Disability information of the Veteran.",
             "type": "array",

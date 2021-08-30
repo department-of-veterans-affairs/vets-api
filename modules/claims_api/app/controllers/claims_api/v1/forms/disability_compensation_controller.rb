@@ -156,6 +156,21 @@ module ClaimsApi
           validate_form_526_service_pay!
           validate_form_526_title10_activation_date!
           validate_form_526_change_of_address!
+          validate_form_526_disability_classification_code!
+        end
+
+        def validate_form_526_disability_classification_code!
+          return if (form_attributes['disabilities'].pluck('classificationCode') - [nil]).blank?
+
+          contention_classification_type_codes = bgs_service.data.get_contention_classification_type_code_list
+          classification_ids = contention_classification_type_codes.pluck(:clsfcn_id)
+          form_attributes['disabilities'].each do |disability|
+            next if disability['classificationCode'].blank?
+            next if classification_ids.include?(disability['classificationCode'])
+
+            raise ::Common::Exceptions::InvalidFieldValue.new('disabilities.classificationCode',
+                                                              disability['classificationCode'])
+          end
         end
 
         def validate_form_526_change_of_address!

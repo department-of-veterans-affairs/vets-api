@@ -127,7 +127,7 @@ module BGS
 
       increment_params.merge!(user_ssn) if Settings.bgs.mock_response == true
       with_multiple_attempts_enabled do
-        service.data.find_benefit_claim_type_increment(increment_params)
+        service.share_data.find_benefit_claim_type_increment(increment_params)
       end
     end
 
@@ -233,7 +233,7 @@ module BGS
     end
 
     def find_regional_offices
-      service.data.find_regional_offices[:return]
+      service.share_data.find_regional_offices[:return]
     rescue => e
       notify_of_service_exception(e, __method__, 1, :warn)
     end

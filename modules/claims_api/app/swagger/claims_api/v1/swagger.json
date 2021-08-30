@@ -496,7 +496,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "19cdfe42-d122-452c-aea7-4e3cf8064a9c",
+                    "id": "1822f74c-018e-4ae4-993b-afd4b085d639",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -545,11 +545,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "a519c6d5-24c3-43cb-8341-78bfd3ecf18a",
+                          "id": "453cf917-39c3-4087-a49d-78b0acb512e1",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-08-25T20:35:43.222Z"
+                          "uploaded_at": "2021-08-27T14:44:19.438Z"
                         }
                       ]
                     }
@@ -1777,6 +1777,10 @@
                                 "type": "string",
                                 "example": "PTSD (post traumatic stress disorder)"
                               },
+                              "classificationCode": {
+                                "type": "string",
+                                "example": "249470"
+                              },
                               "secondaryDisabilities": {
                                 "description": "Identifies the Secondary Service Disability information of the Veteran.",
                                 "type": "array",
@@ -2414,7 +2418,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0815d3fe-80a9-4da2-ac2b-d8043ca0fba7",
+                    "id": "b1eb9b36-1c74-4626-b890-ed8648697eee",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2432,13 +2436,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-08-25T20:35:43.743Z",
+                      "updated_at": "2021-08-27T14:44:19.830Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "0815d3fe-80a9-4da2-ac2b-d8043ca0fba7",
+                      "token": "b1eb9b36-1c74-4626-b890-ed8648697eee",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3616,6 +3620,10 @@
                                   "type": "string",
                                   "example": "PTSD (post traumatic stress disorder)"
                                 },
+                                "classificationCode": {
+                                  "type": "string",
+                                  "example": "249470"
+                                },
                                 "secondaryDisabilities": {
                                   "description": "Identifies the Secondary Service Disability information of the Veteran.",
                                   "type": "array",
@@ -4266,7 +4274,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f6560143-bdc1-4515-b40f-a06ac2a30589",
+                    "id": "c274ca16-4fe2-4957-bd31-b757540b7e41",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4284,13 +4292,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-08-25T20:35:44.205Z",
+                      "updated_at": "2021-08-27T14:44:20.134Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "f6560143-bdc1-4515-b40f-a06ac2a30589",
+                      "token": "c274ca16-4fe2-4957-bd31-b757540b7e41",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5869,6 +5877,10 @@
                                   "type": "string",
                                   "example": "PTSD (post traumatic stress disorder)"
                                 },
+                                "classificationCode": {
+                                  "type": "string",
+                                  "example": "249470"
+                                },
                                 "secondaryDisabilities": {
                                   "description": "Identifies the Secondary Service Disability information of the Veteran.",
                                   "type": "array",
@@ -6519,7 +6531,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f75db8bf-7bab-43ec-8951-96b44a1cee4c",
+                    "id": "8d8ccd08-acb0-4fd8-83b6-befa1782eae4",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6533,7 +6545,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-08-25T20:35:45.283Z",
+                      "updated_at": "2021-08-27T14:44:20.781Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6542,7 +6554,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "5eea5626-a2d4-4986-a8c7-ed9f60ed9a60",
+                          "id": "771d81af-bf4d-48d2-896e-9a3af1185aaa",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8499,11 +8511,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e2df298c-7cec-437e-89fb-d8314cbd8222",
+                    "id": "44d2370e-7221-41a7-a865-a7f86786a02f",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2021-08-25",
+                      "date_request_accepted": "2021-08-27",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9212,11 +9224,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b5873321-c48f-4c81-8405-7d2d76d24ee0",
+                    "id": "74c6f6fd-9935-4c29-996b-18e60f91d6ad",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-08-25",
+                      "date_request_accepted": "2021-08-27",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9537,11 +9549,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f5febae5-4080-4fc9-b193-f7af7f81ff63",
+                    "id": "1451a510-76a2-4279-97e1-08a43df844de",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-08-25",
+                      "date_request_accepted": "2021-08-27",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
