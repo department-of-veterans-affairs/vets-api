@@ -429,7 +429,11 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
         end
 
         it 'returns a 202 response' do |example|
-          assert_response_matches_metadata(example.metadata)
+          with_settings(Settings.vba_documents.location,
+                        prefix: 'https://fake.s3.url/foo/',
+                        replacement: 'https://api.vets.gov/proxy/') do
+            assert_response_matches_metadata(example.metadata)
+          end
         end
 
         after do |example|
