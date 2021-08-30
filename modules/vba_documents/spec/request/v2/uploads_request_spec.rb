@@ -37,7 +37,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
         allow(s3_object).to receive(:presigned_url).and_return(+'https://fake.s3.url/foo/guid')
       end
 
-      it 'returns a UUID and location' do
+      xit 'returns a UUID and location' do
         with_settings(Settings.vba_documents.location,
                       prefix: 'https://fake.s3.url/foo/',
                       replacement: 'https://api.vets.gov/proxy/') do
@@ -65,7 +65,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       end
 
       %i[file text].each do |multipart_fashion|
-        it "returns a UUID, location and observers when valid observers #{multipart_fashion} included" do
+        xit "returns a UUID, location and observers when valid observers #{multipart_fashion} included" do
           with_settings(Settings.vba_documents.location,
                         prefix: 'https://fake.s3.url/foo/',
                         replacement: 'https://api.vets.gov/proxy/') do
