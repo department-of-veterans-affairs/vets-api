@@ -182,6 +182,72 @@ class AppealsApi::SwaggerSharedComponents
           }
         },
         required: ['data']
+      },
+      evidence_submission_response_schema: {
+        type: :object,
+        properties: {
+          data: {
+            properties: {
+              id: {
+                description: 'The document upload identifier',
+                type: :string,
+                format: :uuid,
+                example: '6d8433c1-cd55-4c24-affd-f592287a7572'
+              },
+              type: {
+                description: 'JSON API type specification',
+                type: :string,
+                example: 'evidenceSubmission'
+              },
+              attributes: {
+                properties: {
+                  status: {
+                    type: :string,
+                    example: VBADocuments::UploadSubmission::ALL_STATUSES.first,
+                    enum: VBADocuments::UploadSubmission::ALL_STATUSES
+                  },
+                  code: {
+                    type: %i[string null]
+                  },
+                  detail: {
+                    type: %i[string null],
+                    description: 'Human readable error detail. Only present if status = "error"'
+                  },
+                  appealType: {
+                    description: 'Type of associated appeal',
+                    type: :string,
+                    example: 'NoticeOfDisagreement'
+                  },
+                  appealId: {
+                    description: 'GUID of associated appeal',
+                    type: :uuid,
+                    example: '2926ad2a-9372-48cf-8ec1-69e08e4799ef'
+                  },
+                  location: {
+                    type: %i[string null],
+                    description: 'Location to which to PUT document Payload',
+                    format: 'uri',
+                    example: 'https://sandbox-api.va.gov/example_path_here/{idpath}'
+                  },
+                  updatedAt: {
+                    description: 'The last time the submission was updated',
+                    type: :string,
+                    format: 'date-time',
+                    example: '2018-07-30T17:31:15.958Z'
+                  },
+                  createdAt: {
+                    description: 'The last time the submission was updated',
+                    type: :string,
+                    format: 'date-time',
+                    example: '2018-07-30T17:31:15.958Z'
+                  }
+                }
+              }
+            },
+            required: %w[id type attributes]
+          }
+        },
+        required: ['data']
       }
     }
   end

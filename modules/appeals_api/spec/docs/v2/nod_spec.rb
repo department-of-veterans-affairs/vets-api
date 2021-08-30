@@ -389,6 +389,226 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
     end
   end
 
+  path '/notice_of_disagreements/evidence_submissions/' do
+    post 'Get a location for subsequent evidence submission document upload PUT request' do
+      tags 'Notice of Disagreements'
+      operationId 'postNoticeOfDisagreementEvidenceSubmission'
+      description <<~DESC
+        This is the first step to submitting supporting evidence for an NOD.  (See the Evidence Uploads section above for additional information.)
+        The Notice of Disagreement GUID that is returned when the NOD is submitted, is supplied to this endpoint to ensure the NOD is in a valid state for sending supporting evidence documents.  Only NODs that selected the Evidence Submission lane are allowed to submit evidence documents up to 90 days after the NOD is received by VA.
+      DESC
+
+      parameter name: :nod_uuid, in: :query, type: :string, required: true, description: 'Associated Notice of Disagreement UUID'
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_ssn_header]
+      let(:'X-VA-SSN') { '123456789' }
+
+      security [
+        { apikey: [] }
+      ]
+      produces 'application/json'
+
+      response '202', 'Accepted. Location generated' do
+        let(:nod_uuid) { FactoryBot.create(:minimal_notice_of_disagreement, board_review_option: 'evidence_submission').id }
+
+        schema AppealsApi::SwaggerSharedComponents.response_schemas[:evidence_submission_response_schema]
+
+        before do |example|
+          with_settings(Settings.modules_appeals_api.evidence_submissions.location,
+                        prefix: 'http://some.fakesite.com/path',
+                        replacement: 'http://another.fakesite.com/rewrittenpath') do
+            s3_client = instance_double(Aws::S3::Resource)
+            allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
+            s3_bucket = instance_double(Aws::S3::Bucket)
+            s3_object = instance_double(Aws::S3::Object)
+            allow(s3_client).to receive(:bucket).and_return(s3_bucket)
+            allow(s3_bucket).to receive(:object).and_return(s3_object)
+            allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
+            submit_request(example.metadata)
+          end
+        end
+
+        it 'returns a 202 response' do |example|
+          assert_response_matches_metadata(example.metadata)
+        end
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+      end
+
+      response '400', 'Bad Request' do
+        let(:nod_uuid) { nil }
+
+        schema type: :object,
+               properties: {
+                 errors: {
+                   type: :array,
+                   items: {
+                     properties: {
+                       status: {
+                         type: 'integer',
+                         example: 400
+                       },
+                       detail: {
+                         type: 'string',
+                         example: 'Must supply a corresponding NOD id in order to submit evidence'
+                       }
+                     }
+                   }
+                 }
+               }
+
+        before do |example|
+          submit_request(example.metadata)
+        end
+
+        it 'returns a 400 response' do |example|
+          # NOOP
+        end
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+      end
+
+      response '404', 'Associated Notice of Disagreement not found' do
+        let(:nod_uuid) { nil }
+
+        schema type: :object,
+               properties: {
+                 errors: {
+                   type: :array,
+                   items: {
+                     properties: {
+                       status: {
+                         type: 'integer',
+                         example: 404
+                       },
+                       detail: {
+                         type: 'string',
+                         example: 'The record identified by {nod_uuid} not found.'
+                       }
+                     }
+                   }
+                 }
+               }
+
+        before do |example|
+          submit_request(example.metadata)
+        end
+
+        it 'returns a 404 response' do |example|
+          assert_response_matches_metadata(example.metadata)
+        end
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+      end
+
+      response '422', 'Validation errors' do
+        let(:nod_uuid) { FactoryBot.create(:minimal_notice_of_disagreement, board_review_option: 'evidence_submission').id }
+        let(:'X-VA-SSN') { '000000000' }
+
+        schema type: :object,
+               properties: {
+                 title: {
+                   type: 'string',
+                   enum: [
+                     'unprocessable_entity'
+                   ],
+                   example: 'unprocessable_entity'
+                 },
+                 detail: {
+                   type: 'string',
+                   enum: [
+                     "Request header 'X-VA-SSN' does not match the associated Notice of Disagreement's SSN",
+                     "Corresponding Notice of Disagreement 'boardReviewOption' must be 'evidence_submission'"
+                   ],
+                   example: "Corresponding Notice of Disagreement 'boardReviewOption' must be 'evidence_submission'"
+                 },
+                 status: {
+                   type: 'integer',
+                   description: 'Standard HTTP error response code.',
+                   example: 422
+                 }
+               }
+
+        before do |example|
+          submit_request(example.metadata)
+        end
+
+        it 'returns a 422 response' do |example|
+          assert_response_matches_metadata(example.metadata)
+        end
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+      end
+
+      response '500', 'Unknown Error' do
+        let(:nod_uuid) { nil }
+
+        schema type: :object,
+               properties: {
+                 errors: {
+                   type: :array,
+                   items: {
+                     properties: {
+                       status: {
+                         type: 'integer',
+                         example: 500
+                       },
+                       detail: {
+                         type: 'string',
+                         example: 'An unknown error has occurred.'
+                       },
+                       code: {
+                         type: 'string',
+                         example: '151'
+                       },
+                       title: {
+                         type: 'string',
+                         example: 'Internal Server Error'
+                       }
+                     }
+                   }
+                 },
+                 status: {
+                   type: 'integer',
+                   example: 500
+                 }
+               }
+
+        before do |example|
+          submit_request(example.metadata)
+        end
+
+        it 'returns a 500 response' do |example|
+          # NOOP
+        end
+      end
+    end
+  end
+
   path '/path' do
     put 'Accepts Notice of Disagreement Evidence Submission document upload.' do
       tags 'Notice of Disagreements'
