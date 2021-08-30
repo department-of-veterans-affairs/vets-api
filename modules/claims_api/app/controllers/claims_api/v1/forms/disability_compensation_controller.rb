@@ -157,6 +157,7 @@ module ClaimsApi
           validate_form_526_title10_activation_date!
           validate_form_526_change_of_address!
           validate_form_526_disabilities!
+          validate_form_526_treatments!
         end
 
         def validate_form_526_change_of_address!
@@ -375,6 +376,62 @@ module ClaimsApi
             next if Date.parse(approx_begin_date) < Time.zone.today
 
             raise ::Common::Exceptions::InvalidFieldValue.new('disability.approximateBeginDate', approx_begin_date)
+          end
+        end
+
+        def validate_form_526_treatments!
+          treatments = form_attributes.dig('treatments')
+          return if treatments.blank?
+
+          validate_treatment_start_dates!
+          validate_treatment_end_dates!
+          validate_treated_disability_names!
+        end
+
+        def validate_treatment_start_dates!
+          treatments = form_attributes.dig('treatments')
+          return if treatments.blank?
+
+          earliest_begin_date = form_attributes['serviceInformation']['servicePeriods'].map do |service_period|
+            Date.parse(service_period['activeDutyBeginDate'])
+          end.min
+
+          treatments.each do |treatment|
+            next if Date.parse(treatment['startDate']) > earliest_begin_date
+
+            raise ::Common::Exceptions::InvalidFieldValue.new('treatments.startDate', treatment['startDate'])
+          end
+        end
+
+        def validate_treatment_end_dates!
+          treatments = form_attributes.dig('treatments')
+          return if treatments.blank?
+
+          treatments.each do |treatment|
+            next if treatment['endDate'].blank?
+
+            treatment_start_date = Date.parse(treatment['startDate'])
+            treatment_end_date   = Date.parse(treatment['endDate'])
+
+            next if treatment_end_date > treatment_start_date
+
+            raise ::Common::Exceptions::InvalidFieldValue.new('treatments.endDate', treatment['endDate'])
+          end
+        end
+
+        def validate_treated_disability_names!
+          treatments = form_attributes.dig('treatments')
+          return if treatments.blank?
+
+          declared_disability_names = form_attributes['disabilities'].pluck('name')
+
+          treatments.each do |treatment|
+            next if treatment['treatedDisabilityNames'].all? { |name| declared_disability_names.include?(name) }
+
+            raise ::Common::Exceptions::InvalidFieldValue.new(
+              'treatments.treatedDisabilityNames',
+              treatment['treatedDisabilityNames']
+            )
           end
         end
 

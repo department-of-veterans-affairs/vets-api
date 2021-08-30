@@ -60,6 +60,7 @@ module ClaimsApi
         form_data['servicePay']['separationPay']['receivedDate'] = transform_separation_pay_received_date
       end
       form_data['disabilites'] = transform_disability_approximate_begin_dates
+      form_data['treatments'] = transform_treatment_dates if treatments?
 
       resolve_special_issue_mappings!
       resolve_homelessness_situation_type_mappings!
@@ -232,6 +233,35 @@ module ClaimsApi
         self.auth_headers = {}
         self.file_data = nil
       end
+    end
+
+    def treatments?
+      form_data['treatments'].present?
+    end
+
+    def transform_treatment_dates
+      treatments = form_data['treatments']
+
+      treatments.map do |treatment|
+        treatment = transform_treatment_start_date(treatment: treatment)
+        treatment = transform_treatment_end_date(treatment: treatment)
+        treatment
+      end
+    end
+
+    def transform_treatment_start_date(treatment:)
+      start_date = treatment['startDate']
+      treatment['startDate'] = breakout_date_components(date: start_date)
+      treatment
+    end
+
+    def transform_treatment_end_date(treatment:)
+      # 'endDate' is not a required field in EVSS
+      return treatment if treatment['endDate'].blank?
+
+      end_date = treatment['endDate']
+      treatment['endDate'] = breakout_date_components(date: end_date)
+      treatment
     end
 
     def breakout_date_components(date:)
