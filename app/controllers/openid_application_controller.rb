@@ -35,6 +35,12 @@ class OpenidApplicationController < ApplicationController
   def authenticate_token
     return false if token.blank?
 
+    # Static tokens do not have a session built up at this time.
+    return true if token.static?
+
+    # For now only opaque tokens are static, all others are opaque tokens are invalid.
+    return false if token.opaque?
+
     # Only want to fetch the Okta profile if the session isn't already established and not a CC token
     @session = Session.find(hash_token(token)) unless token.client_credentials_token?
     profile = @session.profile unless @session.nil? || @session.profile.nil?
@@ -86,6 +92,15 @@ class OpenidApplicationController < ApplicationController
     end
   end
 
+  def handle_opaque_token(token_string, aud)
+    opaque_token = OpaqueToken.new(token_string, aud)
+    opaque_token.set_payload(fetch_issued(token_string))
+
+    return opaque_token if TokenUtil.validate_token(opaque_token)
+
+    raise error_klass('Invalid token.')
+  end
+
   def populate_ssoi_token_payload(profile)
     token.payload['last_login_type'] = 'ssoi'
     token.payload['icn'] = profile.attrs['icn']
@@ -103,7 +118,9 @@ class OpenidApplicationController < ApplicationController
     if jwt?(token_string)
       Token.new(token_string, fetch_aud)
     else
-      # Future block for opaque tokens
+      # Handle opaque token
+      return handle_opaque_token(token_string, fetch_aud) if Settings.oidc.issued_url
+
       raise error_klass('Invalid token.')
     end
   end
@@ -196,6 +213,27 @@ class OpenidApplicationController < ApplicationController
   rescue => e
     log_message_to_sentry('Error retrieving smart launch context for OIDC token: ' + e.message, :error)
     raise error_klass('Invalid launch context')
+  end
+
+  def fetch_issued(token_string)
+    return nil unless Settings.oidc.issued_url
+
+    response = RestClient.get(Settings.oidc.issued_url,
+                              { Authorization: 'Bearer ' + token_string })
+    raise error_klass('Invalid token') if response.nil?
+
+    if response.code == 200
+      json_response = JSON.parse(response.body)
+      if json_response['scopes']
+        json_response['scp'] = json_response['scopes']
+        json_response['scopes'] = nil
+      end
+      json_response
+    end
+  rescue => e
+    raise error_klass('Invalid token') if e.to_s.include?('Unauthorized')
+
+    raise Common::Exceptions::ServiceError('Issued service error')
   end
 
   def hash_token(token)

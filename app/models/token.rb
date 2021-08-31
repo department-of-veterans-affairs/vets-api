@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Token
-  attr_reader :token_string
+  attr_reader :token_string, :aud
 
   def initialize(token_string, aud)
     @token_string = token_string
@@ -68,8 +68,16 @@ class Token
     payload['sub'] == payload['cid']
   end
 
+  def opaque?
+    false
+  end
+
   def ssoi_token?
     payload['last_login_type'] == 'ssoi'
+  end
+
+  def static?
+    false
   end
 
   def identifiers

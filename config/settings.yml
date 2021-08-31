@@ -649,6 +649,7 @@ oidc:
   base_api_url: https://example.com
   base_api_token: ~
   smart_launch_url: ~
+  issued_url: ~
   issuers:
     - prefix: "https://example.com/"
       metadata: "/.well-known/openid-configuration"

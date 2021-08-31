@@ -8,6 +8,8 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   include SchemaMatchers
 
   let(:token) { 'token' }
+  let(:hashed_token) { '3c469e9d6c5875d37a43f353d4f88e61fcf812c66eee3457465a40b0da4153e0' }
+  let(:static_token) { '123456789' }
   let(:jwt) do
     [{
       'ver' => 1,
@@ -104,6 +106,13 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         'alg' => 'RS256'
       }
     ]
+  end
+
+  let(:issued_static_response) do
+    instance_double(RestClient::Response,
+                    code: 200,
+                    body: { static: true, aud: 'https://example.com/xxxxxxservices/xxxxx', icn: '1234678',
+                            scopes: 'patient/Patient.read launch/patient' }.to_json)
   end
 
   let(:launch_response) do
@@ -264,6 +273,8 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     }
   end
   let(:auth_header) { { 'Authorization' => "Bearer #{token}" } }
+  let(:static_auth_header) { { 'Authorization' => "Bearer #{static_token}" } }
+  let(:invalid_auth_header) { { 'Authorization' => 'Bearer invalid-token' } }
   let(:user) { OpenidUser.new(build(:user_identity_attrs, :loa3)) }
 
   context 'with valid responses' do
@@ -425,7 +436,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
 
     it 'v2 POST returns true if the user is a veteran using cache' do
       with_okta_configured do
-        Session.create(token: token, launch: '73806470379396828')
+        Session.create(token: hashed_token, launch: '73806470379396828')
         post '/internal/auth/v2/validation', params: nil, headers: auth_header
         expect(response).to have_http_status(:ok)
         expect(response.body).to be_a(String)
@@ -439,7 +450,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   context 'with client credentials jwt launch session' do
     before do
       allow(JWT).to receive(:decode).and_return(client_credentials_launch_jwt)
-      Session.create(token: token, launch: '123V456')
+      Session.create(token: hashed_token, launch: '123V456')
     end
 
     it 'v2 POST returns true if the user is a veteran using cache' do
@@ -586,16 +597,46 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
 
     it 'v2 POST returns json response if valid user charon session' do
       with_ssoi_charon_configured do
-        allow(RestClient).to receive(:get).and_return(launch_with_sta3n_response)
+        VCR.use_cassette('charon/success') do
+          allow(RestClient).to receive(:get).and_return(launch_with_sta3n_response)
 
+          post '/internal/auth/v2/validation',
+               params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
+               headers: auth_header
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to be_a(String)
+          expect(JSON.parse(response.body)['data']['attributes'].keys)
+            .to eq(json_api_response_vista_id['data']['attributes'].keys)
+          expect(JSON.parse(response.body)['data']['attributes']['launch']['sta3n']).to eq('456')
+        end
+      end
+    end
+  end
+
+  context 'static token from issued' do
+    it 'static token from issued ok' do
+      allow(RestClient).to receive(:get).and_return(issued_static_response)
+      with_settings(
+        Settings.oidc, issued_url: 'http://example.com/issued'
+      ) do
         post '/internal/auth/v2/validation',
              params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
-             headers: auth_header
+             headers: static_auth_header
         expect(response).to have_http_status(:ok)
-        expect(response.body).to be_a(String)
-        expect(JSON.parse(response.body)['data']['attributes'].keys)
-          .to eq(json_api_response_vista_id['data']['attributes'].keys)
-        expect(JSON.parse(response.body)['data']['attributes']['launch']['sta3n']).to eq('456')
+      end
+    end
+
+    it 'static token from issued aud mismatch' do
+      allow(RestClient).to receive(:get).and_return(issued_static_response)
+      with_settings(
+        Settings.oidc, issued_url: 'http://example.com/issued'
+      ) do
+        post '/internal/auth/v2/validation',
+             params: { aud: %w[https://example.com/xxxxxxservices/mismatch] },
+             headers: static_auth_header
+        expect(response).to have_http_status(:unauthorized)
+        expect(JSON.parse(response.body)['errors'].first['code']).to eq '401'
+        expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Invalid audience'
       end
     end
   end
