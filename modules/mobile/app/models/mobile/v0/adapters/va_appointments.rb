@@ -113,6 +113,7 @@ module Mobile
             comment: comment(details, type),
             facility_id: facility_id,
             sta6aid: sta6aid,
+            healthcare_provider: nil, # healthcare_provider is currently only used by CC appointments
             healthcare_service: healthcare_service(appointment_hash, details, type),
             location: location(details, type, facility_id),
             minutes_duration: minutes_duration(details, type),

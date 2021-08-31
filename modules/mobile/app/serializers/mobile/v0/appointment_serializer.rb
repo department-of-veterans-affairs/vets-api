@@ -8,6 +8,7 @@ module Mobile
       attributes :appointment_type,
                  :cancel_id,
                  :comment,
+                 :healthcare_provider,
                  :healthcare_service,
                  :location,
                  :minutes_duration,

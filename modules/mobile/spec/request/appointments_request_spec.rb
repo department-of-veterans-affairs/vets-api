@@ -174,7 +174,7 @@ RSpec.describe 'appointments', type: :request do
             )
           end
 
-          it 'has the corrent pagination meta data' do
+          it 'has the correct pagination meta data' do
             expect(response.parsed_body['meta']['pagination']).to eq(
               {
                 'currentPage' => 2,
@@ -207,7 +207,7 @@ RSpec.describe 'appointments', type: :request do
             )
           end
 
-          it 'has the corrent pagination meta data' do
+          it 'has the correct pagination meta data' do
             expect(response.parsed_body['meta']['pagination']).to eq(
               {
                 'currentPage' => 4,
@@ -262,6 +262,8 @@ RSpec.describe 'appointments', type: :request do
         let(:first_appointment) { response.parsed_body['data'].first['attributes'] }
         let(:last_appointment) { response.parsed_body['data'].last['attributes'] }
         let(:cancelled_appointment) { response.parsed_body['data'][6]['attributes'] }
+        let(:cc_appointment_with_blank_provider) { response.parsed_body['data'][1]['attributes'] }
+        let(:cc_appointment_with_provider) { response.parsed_body['data'][2]['attributes'] }
 
         it 'returns an ok response' do
           expect(response).to have_http_status(:ok)
@@ -279,6 +281,14 @@ RSpec.describe 'appointments', type: :request do
           expect(cancelled_appointment['statusDetail']).to eq('CANCELLED BY PATIENT')
         end
 
+        it 'returns nil for blank providers' do
+          expect(cc_appointment_with_blank_provider['healthcareProvider']).to be_nil
+        end
+
+        it 'returns a joined name for non-blank providers' do
+          expect(cc_appointment_with_provider['healthcareProvider']).to eq('Joseph Murphy')
+        end
+
         it 'includes the expected properties for a VA appointment' do
           va_appointment = response.parsed_body['data'].filter { |a| a['attributes']['appointmentType'] == 'VA' }.first
           expect(va_appointment).to include(
@@ -288,6 +298,7 @@ RSpec.describe 'appointments', type: :request do
                 'appointmentType' => 'VA',
                 'cancelId' => 'MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7R3JlZW4gVGVhbSBDbGluaWMx',
                 'comment' => nil,
+                'healthcareProvider' => nil,
                 'healthcareService' => 'Green Team Clinic1',
                 'location' => {
                   'name' => 'Cheyenne VA Medical Center',
@@ -332,6 +343,7 @@ RSpec.describe 'appointments', type: :request do
                 'appointmentType' => 'COMMUNITY_CARE',
                 'cancelId' => nil,
                 'comment' => 'Please arrive 15 minutes ahead of appointment.',
+                'healthcareProvider' => nil,
                 'healthcareService' => 'Atlantic Medical Care',
                 'location' => {
                   'name' => 'Atlantic Medical Care',
@@ -401,6 +413,7 @@ RSpec.describe 'appointments', type: :request do
                 'appointmentType' => 'VA',
                 'cancelId' => 'MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7R3JlZW4gVGVhbSBDbGluaWMx',
                 'comment' => nil,
+                'healthcareProvider' => nil,
                 'healthcareService' => 'Green Team Clinic1',
                 'location' => {
                   'name' => 'Cheyenne VA Medical Center',
@@ -445,6 +458,7 @@ RSpec.describe 'appointments', type: :request do
                 'appointmentType' => 'COMMUNITY_CARE',
                 'cancelId' => nil,
                 'comment' => 'Please arrive 15 minutes ahead of appointment.',
+                'healthcareProvider' => nil,
                 'healthcareService' => 'Atlantic Medical Care',
                 'location' => {
                   'name' => 'Atlantic Medical Care',

@@ -46,6 +46,7 @@ module Mobile
       attribute :comment, Types::String.optional
       attribute :facility_id, Types::String.optional
       attribute :sta6aid, Types::String.optional
+      attribute :healthcare_provider, Types::String.optional
       attribute :healthcare_service, Types::String.optional
       attribute :location, AppointmentLocation
       attribute :minutes_duration, Types::Integer

@@ -18,12 +18,14 @@ properties:
       - comment
       - clinicId
       - facilityId
+      - healthcareProvider
       - healthcareService
       - location
       - minutesDuration
       - startDateLocal
       - startDateUtc
       - status
+      - statusDetail
       - timeZone
       - vetextId
     properties:
@@ -37,6 +39,9 @@ properties:
       comment:
         type: string
         example: Please arrive 20 minutes before the start of your appointment
+      healthcareProvider:
+        type: string
+        example: John Smith
       healthcareService:
         type: string
         example: Blind Rehabilitation Center

@@ -53,6 +53,9 @@
                   "null"
                 ]
               },
+              "healthcareProvider": {
+                "type": ["string", "null"]
+              },
               "healthcareService": {
                 "type": "string"
               },

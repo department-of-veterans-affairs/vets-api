@@ -7,6 +7,7 @@ data:
       comment: Please log on 5 minutes before the start of your appointment
       clinicId: ~
       facilityId: ~
+      healthcareProvider: null
       healthcareService: ATLAS Conference Center
       location:
         name: VA Long Beach Healthcare System
@@ -27,6 +28,7 @@ data:
       startDateLocal: 2019-04-20T14:15:00.000-04:00
       startDateUtc: 2019-04-20T18:15:00.000Z
       status: BOOKED
+      statusDetail: null
       timeZone: America/Los_Angeles
       vetextId: 308;20210106.140000
 meta:
