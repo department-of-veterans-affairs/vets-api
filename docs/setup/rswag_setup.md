@@ -176,8 +176,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
           #   or loaded from plain json files:
           #       schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', '404.json')))
 
-        hlr = FactoryBot.create(:minimal_higher_level_review_v2)
-        let(:uuid) { hlr.id }
+        let(:uuid) { FactoryBot.create(:minimal_higher_level_review_v2).id }
         # ^ needs to match the parameters name otherwise you'll see a No method error for 'uuid' (or whatever your parameter is called)
 
         before do |example|
@@ -245,7 +244,9 @@ end
 
 ### Misc details
 
-How to add multiple request bodies and responses to Rswag examples (examples truncated for brevity):
+- Make sure that if you are creating any resources (FactoryBot or otherwise) they happen lazily (ie inside a `let`, `before`, or `it`). If you put them inside the `response` block (or anywhere else that gets evaluated on load) Rspec will evaluate and run them when it is loading all the files up for a suite run - and then because they were not created in the typical way they won't get cleaned up properly at the end of the spec run... This can lead to confusion if you use specific counts of that resource anywhere else in your specs.
+
+- How to add multiple request bodies and responses to Rswag examples (examples truncated for brevity):
 
 
 ```ruby
