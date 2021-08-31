@@ -36,7 +36,7 @@ module Veteran
       # Sorts previous power of attorneys by begin date
       poa_history = poa_history[:person_poa_history][:person_poa]
       poa_history = [poa_history] unless poa_history.is_a?(Array)
-      poa_history = poa_history.sort_by { |poa| poa[:begin_dt] }.reverse
+      poa_history = poa_history.select { |poa| poa[:begin_dt].present? }.sort_by { |poa| poa[:begin_dt] }.reverse
       poa_codes = poa_history.pluck(:legacy_poa_cd)
 
       @previous_poa_code = poa_codes.delete_if { |poa_code| poa_code == current_poa_code }.first
