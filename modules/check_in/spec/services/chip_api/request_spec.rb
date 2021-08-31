@@ -62,6 +62,14 @@ describe ChipApi::Request do
       Faraday.default_connection = nil
     end
 
+    it 'creates a new instance just once' do
+      allow(Faraday).to receive(:new).and_return(conn)
+
+      expect(Faraday).to receive(:new).once
+
+      subject.build.connection
+    end
+
     it 'GET has headers' do
       stubs.get('/dev/appointments/d602d9eb-9a31-484f-9637-13ab0b507e0d') do |_env|
         [
@@ -138,9 +146,17 @@ describe ChipApi::Request do
     end
   end
 
-  describe '#url' do
-    it 'has default headers' do
+  describe '#settings' do
+    it 'has a url' do
       expect(subject.build.url).to eq('https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com')
+    end
+
+    it 'has a service_name' do
+      expect(subject.build.service_name).to eq('CHIP-API')
+    end
+
+    it 'has a tmp_api_id' do
+      expect(subject.build.tmp_api_id).to eq('2dcdrrn5zc')
     end
   end
 end

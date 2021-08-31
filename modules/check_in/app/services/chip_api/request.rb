@@ -10,10 +10,24 @@ module ChipApi
   ##
   # An object responsible for making HTTP calls to the Chip API
   #
+  # @!attribute settings
+  #   @return [Config::Options]
+  # @!attribute service_name
+  #   @return (see Config::Options#service_name)
+  # @!attribute tmp_api_id
+  #   @return (see Config::Options#tmp_api_id)
+  # @!attribute url
+  #   @return (see Config::Options#url)
   class Request
+    extend Forwardable
     include Common::Client::Concerns::Monitoring
 
     STATSD_KEY_PREFIX = 'api.check_in.chip_api.request'
+
+    attr_reader :settings
+
+    def_delegators :settings, :service_name, :tmp_api_id, :url
+
     ##
     # Builds a ChipApi::Request instance
     #
@@ -21,6 +35,10 @@ module ChipApi
     #
     def self.build
       new
+    end
+
+    def initialize
+      @settings = Settings.check_in.chip_api
     end
 
     ##
@@ -63,8 +81,12 @@ module ChipApi
     #
     def connection
       Faraday.new(url: url) do |conn|
+        conn.request :json
+        conn.use :breakers
         conn.response :check_in_errors
         conn.use :check_in_logging
+        conn.response :raise_error, error_prefix: service_name
+        conn.response :json
         conn.adapter Faraday.default_adapter
       end
     end
@@ -75,23 +97,7 @@ module ChipApi
     # @return [Hash]
     #
     def headers
-      { 'x-apigw-api-id' => chip_api.tmp_api_id }
-    end
-
-    ##
-    # Helper method for returning the Chip URL
-    # from our environment configuration file
-    #
-    # @return [String]
-    #
-    def url # rubocop:disable Rails/Delegate
-      chip_api.url
-    end
-
-    private
-
-    def chip_api
-      Settings.check_in.chip_api
+      { 'x-apigw-api-id' => tmp_api_id }
     end
   end
 end
