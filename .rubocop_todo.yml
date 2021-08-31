@@ -443,7 +443,7 @@ Style/EmptyElse:
   Exclude:
     - 'Gemfile'
 
-# Offense count: 15
+# Offense count: 14
 # Cop supports --auto-correct.
 Style/ExplicitBlockArgument:
   Exclude:
@@ -451,6 +451,7 @@ Style/ExplicitBlockArgument:
     - 'lib/common/hash_helpers.rb'
     - 'lib/debt_management_center/base_service.rb'
     - 'lib/decision_review/service.rb'
+    - 'lib/decision_review_v1/service.rb'
     - 'lib/evss/intent_to_file/response_strategy.rb'
     - 'lib/evss/pciu_address/response_strategy.rb'
     - 'lib/evss/reference_data/response_strategy.rb'

@@ -196,6 +196,9 @@ decision_review:
     aws_secret_access_key: ~
     region: region
     bucket: bucket
+  v1:
+    url: https://sandbox-api.va.gov/services/appeals/v2/decision_reviews
+
 
 # Settings for modules/appeals_api
 modules_appeals_api:
