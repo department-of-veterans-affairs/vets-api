@@ -36,12 +36,14 @@ RSpec.configure do |config|
   config.before :each, type: :request do
     Flipper.enable('mobile_api')
     Flipper.enable('va_online_scheduling')
+    Flipper.enable('direct_deposit_cnp')
     stub_iam_certs
   end
 
   config.before :each, type: :controller do
     Flipper.enable('mobile_api')
     Flipper.enable('va_online_scheduling')
+    Flipper.enable('direct_deposit_cnp')
     stub_iam_certs
   end
 end

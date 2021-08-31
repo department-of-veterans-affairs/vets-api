@@ -18,7 +18,7 @@ FactoryBot.define do
 
     sign_in do
       {
-        service_name: 'iam_ssoe'
+        service_name: 'oauth_IDME'
       }
     end
 
