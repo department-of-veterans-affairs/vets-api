@@ -51,7 +51,6 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
           sign_in_as(user_no_pid)
 
           form_params = { veteran_readiness_employment_claim: { form: test_form.form } }
-          expect_any_instance_of(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:send_to_central_mail!)
 
           post(:create, params: form_params)
           expect(response.code).to eq('200')
