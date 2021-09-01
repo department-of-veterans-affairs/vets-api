@@ -58,6 +58,40 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       end
     end
 
+    context 'with a valid response that includes service connected and not connected' do
+      before do
+        VCR.use_cassette('profile/rating_info') do
+          VCR.use_cassette('profile/rated_disabilities_mixed_service_connected') do
+            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+          end
+        end
+      end
+
+      it 'rates service connected disabilities as an integer' do
+        service_connnected = response.parsed_body.dig('data', 'attributes', 'individualRatings')[1]
+        expect(service_connnected).to eq({
+                                           'decision' => 'Service Connected',
+                                           'effectiveDate' => '2012-05-01T05:00:00.000+00:00',
+                                           'ratingPercentage' => 10,
+                                           'diagnosticText' => nil
+                                         })
+      end
+
+      it 'rates non service connected disabilities as null' do
+        not_service_connnected = response.parsed_body.dig('data', 'attributes', 'individualRatings').first
+        expect(not_service_connnected).to eq({
+                                               'decision' => 'Not Service Connected',
+                                               'effectiveDate' => nil,
+                                               'ratingPercentage' => nil,
+                                               'diagnosticText' => nil
+                                             })
+      end
+
+      it 'matches the rated disabilities schema' do
+        expect(response.body).to match_json_schema('disability_rating_response')
+      end
+    end
+
     context 'with a 500 response for individual ratings' do
       it 'returns a bad gateway response' do
         VCR.use_cassette('profile/rating_info') do
