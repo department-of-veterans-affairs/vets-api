@@ -27,6 +27,7 @@ saml_ssoe:
   issuer: https://ssoe-sp-localhost.va.gov
   callback_url: http://localhost:3000/v1/sessions/callback
   logout_url: https://int.eauth.va.gov/slo/globallogout?appKey=https%253A%252F%252Fssoe-sp-dev.va.gov
+  idme_authn_context: ~
   request_signing: false
   response_signing: false
   response_encryption: false

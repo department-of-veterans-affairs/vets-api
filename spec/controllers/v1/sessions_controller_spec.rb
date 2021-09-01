@@ -91,7 +91,7 @@ RSpec.describe V1::SessionsController, type: :controller do
               when 'mhv'
                 'myhealthevet'
               when 'idme'
-                'http://idmanagement.gov/ns/assurance/loa/1/vets'
+                [LOA::IDME_LOA1_VETS, Settings.saml_ssoe.idme_authn_context]
               when 'dslogon'
                 'dslogon'
               end
@@ -105,8 +105,7 @@ RSpec.describe V1::SessionsController, type: :controller do
               expect { get(:new, params: { type: type, clientId: '123123' }) }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                              tags: ["context:#{type}", 'version:v1'], **once)
-                .and trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY,
-                                              tags: ["type:#{type}", "context:#{authn}", 'version:v1'], **once)
+                .and trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY, **once)
 
               expect(response).to have_http_status(:ok)
               expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
@@ -551,8 +550,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         it 'counts the triggered SAML request' do
           expect { post(:saml_callback) }
-            .to trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY,
-                                         tags: ['type:', "context:#{LOA::IDME_LOA3}", 'version:v1'], **once)
+            .to trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY, **once)
         end
 
         it 'redirects to identity proof URL', :aggregate_failures do

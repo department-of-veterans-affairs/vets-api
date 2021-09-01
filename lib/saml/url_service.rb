@@ -88,7 +88,7 @@ module SAML
 
     def idme_url
       @type = 'idme'
-      build_sso_url(LOA::IDME_LOA1_VETS)
+      build_sso_url(build_authn_context(LOA::IDME_LOA1_VETS))
     end
 
     def custom_url(authn)
@@ -110,7 +110,7 @@ module SAML
       link_authn_context =
         case authn_context
         when LOA::IDME_LOA1_VETS, 'multifactor'
-          @loa3_context
+          build_authn_context(@loa3_context)
         when 'myhealthevet', 'myhealthevet_multifactor'
           'myhealthevet_loa3'
         when 'dslogon', 'dslogon_multifactor'
@@ -164,6 +164,14 @@ module SAML
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
       save_saml_request_tracker(saml_auth_request.uuid, link_authn_context)
       saml_auth_request.create(new_url_settings, query_params)
+    end
+
+    def build_authn_context(assurance_level_url, identity_provider = Settings.saml_ssoe.idme_authn_context)
+      if identity_provider
+        [assurance_level_url, identity_provider]
+      else
+        assurance_level_url
+      end
     end
 
     def relay_state_params
