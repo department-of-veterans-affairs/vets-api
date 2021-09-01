@@ -23,6 +23,8 @@ module BGS
       @user = user
       @end_product_name = '130 - Automated Dependency 686c'
       @end_product_code = '130DPNEBNADJ'
+      @proc_state = 'Ready'
+      @note_text = nil
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -53,8 +55,8 @@ module BGS
       ).create
 
       vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
-      proc_state = vnp_proc_state_type_cd == 'MANUAL_VAGOV' ? vnp_proc_state_type_cd : 'Ready'
-      bgs_service.update_proc(proc_id, proc_state: proc_state)
+      prep_manual_claim(benefit_claim_record[:benefit_claim_id]) if vnp_proc_state_type_cd == 'MANUAL_VAGOV'
+      bgs_service.update_proc(proc_id, proc_state: @proc_state)
     end
     # rubocop:enable Metrics/MethodLength
 
@@ -91,18 +93,27 @@ module BGS
       dependents_app = payload['dependents_application']
 
       # search through the "selectable_options" hash and check if any of the "REMOVE_CHILD_OPTIONS" are set to true
-      return 'MANUAL_VAGOV' if REMOVE_CHILD_OPTIONS.any? { |child_option| selectable_options[child_option] }
+      if REMOVE_CHILD_OPTIONS.any? { |child_option| selectable_options[child_option] }
+        # find which one of the remove child options is selected, and set the reject reason for that option
+        selectable_options.each do |remove_option, is_selected|
+          return reject_claim(remove_option) if REMOVE_CHILD_OPTIONS.any?(remove_option) && is_selected
+        end
+      end
 
       # if the user is adding a spouse and the marriage type is anything other than CEREMONIAL, set the status to manual
       if selectable_options['add_spouse']
         marriage_types = %w[COMMON-LAW TRIBAL PROXY OTHER]
-        return 'MANUAL_VAGOV' if marriage_types.any? { |m| m == dependents_app['current_marriage_information']['type'] }
+        if marriage_types.any? { |m| m == dependents_app['current_marriage_information']['type'] }
+          return reject_claim('add_spouse')
+        end
       end
 
       # search through the array of "deaths" and check if the dependent_type = "CHILD" or "DEPENDENT_PARENT"
       if selectable_options['report_death']
         relationships = %w[CHILD DEPENDENT_PARENT]
-        return 'MANUAL_VAGOV' if dependents_app['deaths'].any? { |h| relationships.include?(h['dependent_type']) }
+        if dependents_app['deaths'].any? { |h| relationships.include?(h['dependent_type']) }
+          return reject_claim('report_death')
+        end
       end
 
       'Started'
@@ -138,6 +149,31 @@ module BGS
 
     def bid_service
       BID::Awards::Service.new(@user)
+    end
+
+    def prep_manual_claim(benefit_claim_id)
+      @proc_state = 'MANUAL_VAGOV'
+
+      bgs_service.create_note(benefit_claim_id, @note_text)
+    end
+
+    def reject_claim(reason_code)
+      @note_text = 'Claim set to manual by VA.gov: This application needs manual review because a 686 was submitted '
+
+      case reason_code
+      when 'report_death'
+        @note_text += 'for removal of a child/dependent parent due to death.'
+      when 'add_spouse'
+        @note_text += 'to add a spouse due to civic/non-ceremonial marriage.'
+      when 'report_stepchild_not_in_household'
+        @note_text += 'for removal of a step-child that has left household.'
+      when 'report_marriage_of_child_under18'
+        @note_text += 'for removal of a married minor child.'
+      when 'report_child18_or_older_is_not_attending_school'
+        @note_text += 'for removal of a schoolchild over 18 who has stopped attending school.'
+      end
+
+      'MANUAL_VAGOV'
     end
   end
 end

@@ -11,16 +11,18 @@ RSpec.describe BGS::Form686c do
   it 'returns a hash with proc information' do
     VCR.use_cassette('bgs/form686c/submit') do
       VCR.use_cassette('bid/awards/get_awards_pension') do
-        modify_dependents = BGS::Form686c.new(user_object).submit(all_flows_payload)
+        VCR.use_cassette('bgs/service/create_note') do
+          modify_dependents = BGS::Form686c.new(user_object).submit(all_flows_payload)
 
-        expect(modify_dependents).to include(
-          :jrn_dt,
-          :jrn_lctn_id,
-          :jrn_obj_id,
-          :jrn_status_type_cd,
-          :jrn_user_id,
-          :vnp_proc_id
-        )
+          expect(modify_dependents).to include(
+            :jrn_dt,
+            :jrn_lctn_id,
+            :jrn_obj_id,
+            :jrn_status_type_cd,
+            :jrn_user_id,
+            :vnp_proc_id
+          )
+        end
       end
     end
   end
@@ -38,6 +40,11 @@ RSpec.describe BGS::Form686c do
         expect_any_instance_of(BGS::VnpBenefitClaim).to receive(:update).and_call_original
         expect_any_instance_of(BGS::Service).to receive(:update_proc).with('3831475', { proc_state: 'MANUAL_VAGOV' })
         expect_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_call_original
+        expect_any_instance_of(BGS::Service).to receive(:create_note).with(
+          '600210032',
+          'Claim set to manual by VA.gov: This application needs manual review because a 686 was submitted '\
+          'for removal of a step-child that has left household.'
+        )
 
         BGS::Form686c.new(user_object).submit(all_flows_payload)
       end
@@ -57,19 +64,23 @@ RSpec.describe BGS::Form686c do
 
   it 'submits a manual claim with pension disabled' do
     VCR.use_cassette('bgs/form686c/submit') do
-      expect(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(false)
+      VCR.use_cassette('bgs/service/create_note') do
+        expect(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(false)
 
-      BGS::Form686c.new(user_object).submit(all_flows_payload)
+        BGS::Form686c.new(user_object).submit(all_flows_payload)
+      end
     end
   end
 
   it 'submits a manual claim with pension enabled' do
     VCR.use_cassette('bgs/form686c/submit') do
       VCR.use_cassette('bid/awards/get_awards_pension') do
-        expect(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(true)
-        expect_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_call_original
+        VCR.use_cassette('bgs/service/create_note') do
+          expect(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(true)
+          expect_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_call_original
 
-        BGS::Form686c.new(user_object).submit(all_flows_payload)
+          BGS::Form686c.new(user_object).submit(all_flows_payload)
+        end
       end
     end
   end
