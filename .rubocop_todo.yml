@@ -402,13 +402,14 @@ Style/CaseLikeIf:
     - 'rakelib/redis.rake'
     - 'spec/models/form_profile_spec.rb'
 
-# Offense count: 9
+# Offense count: 10
 # Cop supports --auto-correct.
 # Configuration parameters: IgnoredMethods.
 # IgnoredMethods: ==, equal?, eql?
 Style/ClassEqualityComparison:
   Exclude:
     - 'app/controllers/appeals_base_controller.rb'
+    - 'app/controllers/appeals_base_controller_v1.rb'
     - 'app/serializers/dependents_serializer.rb'
     - 'app/serializers/dependents_verifications_serializer.rb'
     - 'app/serializers/vet_payment_history_serializer.rb'
