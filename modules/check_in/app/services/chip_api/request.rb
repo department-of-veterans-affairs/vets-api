@@ -81,12 +81,10 @@ module ChipApi
     #
     def connection
       Faraday.new(url: url) do |conn|
-        conn.request :json
         conn.use :breakers
         conn.response :check_in_errors
         conn.use :check_in_logging
         conn.response :raise_error, error_prefix: service_name
-        conn.response :json
         conn.adapter Faraday.default_adapter
       end
     end
