@@ -199,7 +199,7 @@ group :development, :test do
   gem 'rspec-its'
   gem 'rspec-rails'
   gem 'rswag-specs'
-  gem 'rubocop', '1.19.1', require: false
+  gem 'rubocop', require: false
   gem 'rubocop-rails'
   gem 'rubocop-rspec'
   gem 'rubocop-thread_safety'
