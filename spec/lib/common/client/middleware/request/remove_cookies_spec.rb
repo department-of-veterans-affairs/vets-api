@@ -16,7 +16,8 @@ describe Common::Client::Middleware::Request::RemoveCookies do
       end
     end
   end
-
+  # This test requires the creation of a new thread
+  # rubocop:disable ThreadSafety/NewThread
   describe '#request' do
     let!(:server_thread) do
       Thread.new do
@@ -36,6 +37,7 @@ describe Common::Client::Middleware::Request::RemoveCookies do
         server.start
       end
     end
+    # rubocop:enable ThreadSafety/NewThread
 
     after do
       VCR.configure do |c|

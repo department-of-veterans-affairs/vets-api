@@ -674,8 +674,3 @@ ThreadSafety/InstanceVariableInClassMethod:
     - 'lib/va_profile/contact_information/person_response.rb'
     - 'lib/va_profile/contact_information/transaction_response.rb'
     - 'lib/vic/url_helper.rb'
-
-# Offense count: 1
-ThreadSafety/NewThread:
-  Exclude:
-    - 'spec/lib/common/client/middleware/request/remove_cookies_spec.rb'
