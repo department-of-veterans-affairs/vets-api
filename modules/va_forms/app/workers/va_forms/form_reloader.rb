@@ -27,6 +27,9 @@ module VAForms
         )
         next
       end
+
+      # append new tags for pg_search
+      VAForms::UpdateFormTagsService.run
     rescue => e
       Rails.logger.error('VAForms::FormReloader failed to run!', e)
     end
