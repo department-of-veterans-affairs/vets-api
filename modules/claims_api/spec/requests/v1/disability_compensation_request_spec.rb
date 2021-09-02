@@ -657,6 +657,45 @@ RSpec.describe 'Disability Claims ', type: :request do
           end
         end
 
+        describe 'disabilities name' do
+          context 'when classificationCode is missing for a disabilityActionType of type "NEW"' do
+            context 'when "disabilities.name" has invalid characters' do
+              it 'responds with an unprocessible entity' do
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    with_okta_user(scopes) do |auth_header|
+                      params = json_data
+                      params['data']['attributes']['disabilities'][0]['name'] = '@@@'
+                      post path, params: params.to_json, headers: headers.merge(auth_header)
+                      expect(response.status).to eq(422)
+                      expect(JSON.parse(response.body)['errors'].size).to eq(1)
+                    end
+                  end
+                end
+              end
+            end
+
+            context 'when "disabilities.name" is over 255 characters' do
+              it 'responds with an unprocessible entity' do
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    with_okta_user(scopes) do |auth_header|
+                      params = json_data
+                      params['data']['attributes']['disabilities'][0]['name'] =
+                        'This is a very very very very very very very very very very very very very very very very'\
+                        ' very very very very very very very very very very very very very very very very very very'\
+                        ' very very very very very very very very very very very very verrry long name'
+                      post path, params: params.to_json, headers: headers.merge(auth_header)
+                      expect(response.status).to eq(422)
+                      expect(JSON.parse(response.body)['errors'].size).to eq(1)
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+
         describe 'flashes' do
           context 'when an incorrect type is passed for flashes' do
             it 'returns errors explaining the failure' do

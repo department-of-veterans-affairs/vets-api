@@ -1008,7 +1008,31 @@
           {
             "if": {
               "properties": {
-                "disabilityActiontype": {
+                "disabilityActionType": {
+                  "enum": ["NEW"]
+                }
+              },
+              "dependencies": {
+                "disabilityActionType": {
+                  "not": {
+                    "required": ["classificationCode"]
+                  }
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "name": {
+                  "pattern": "([a-zA-Z0-9\\-'.,/\\(\\)]([a-zA-Z0-9\\-',. ])?)+$",
+                  "maxLength": 255
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "disabilityActionType": {
                   "enum": ["NONE"]
                 }
               },
