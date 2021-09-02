@@ -159,9 +159,7 @@ module EducationForm
     # Useful for debugging which records were or were not sent over successfully,
     # in case of network failures.
     def log_submissions(records, filename)
-      ids = records.map { |r| r.record.id }
       log_info("Writing #{records.count} application(s) to #{filename}")
-      log_info("IDs: #{ids}")
     end
 
     # Useful for alerting and monitoring the numbers of successfully send submissions
