@@ -349,6 +349,7 @@ module ClaimsApi
         def validate_form_526_disabilities!
           validate_form_526_disability_classification_code!
           validate_form_526_disability_approximate_begin_date!
+          validate_form_526_special_issues!
         end
 
         def validate_form_526_disability_classification_code!
@@ -377,6 +378,37 @@ module ClaimsApi
 
             raise ::Common::Exceptions::InvalidFieldValue.new('disability.approximateBeginDate', approx_begin_date)
           end
+        end
+
+        def validate_form_526_special_issues!
+          disabilities = form_attributes.dig('disabilities')
+          return if disabilities.blank?
+
+          disabilities.each do |disability|
+            special_issues = disability['specialIssues']
+            next if special_issues.blank?
+
+            if invalid_hepatitis_c_special_issue?(special_issues: special_issues, disability: disability)
+              raise ::Common::Exceptions::InvalidFieldValue.new('disability.specialIssues', special_issues)
+            end
+
+            if invalid_pow_special_issue?(special_issues: special_issues)
+              raise ::Common::Exceptions::InvalidFieldValue.new('disability.specialIssues', special_issues)
+            end
+          end
+        end
+
+        def invalid_hepatitis_c_special_issue?(special_issues:, disability:)
+          # if 'specialIssues' includes 'HEPC', then EVSS requires the disability 'name' to equal 'hepatitis'
+          special_issues.include?('HEPC') && !disability['name'].casecmp?('hepatitis')
+        end
+
+        def invalid_pow_special_issue?(special_issues:)
+          return false unless special_issues.include?('POW')
+
+          # if 'specialIssues' includes 'POW', then EVSS requires there also be a 'serviceInformation.confinements'
+          confinements = form_attributes['serviceInformation']['confinements']
+          confinements.blank?
         end
 
         def validate_form_526_treatments!
