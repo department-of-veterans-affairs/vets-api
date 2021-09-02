@@ -16,11 +16,19 @@ module VAOS
       private
 
       def log_clinic_names(clinic_data)
-        clinic_names = []
+        clinic_names = {}
         clinic_data.each do |clinic|
-          clinic_names << check_friendly_clinic_name(clinic)
+          clinic_names.merge! check_friendly_clinic_name(clinic) => clinic_name_metrics(clinic)
         end
-        Rails.logger.info('Clinic names returned', clinic_names)
+        Rails.logger.info('Clinic names returned', clinic_names.to_json)
+      end
+
+      def clinic_name_metrics(clinic)
+        {
+          clinicName: clinic.clinic_name,
+          clinicFriendlyLocationName: clinic.clinic_friendly_location_name,
+          institutionCode: clinic.institution_code
+        }
       end
 
       def check_friendly_clinic_name(clinic)
