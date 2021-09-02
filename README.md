@@ -97,7 +97,7 @@ The following features require additional configuration, click for details.
 - [Facilities Locator](/docs/setup/facilities_locator.md)
 - [Local Network Access](/docs/setup/local_network_access.md)
 - [Mailers](/docs/setup/mailer.md)
-- [Master Veteran Index (MVI)](/docs/setup/mvi.md)
+- [Master Person Index (MPI)](/docs/setup/mpi.md)
 - [My HealtheVet (MHV)](/docs/setup/mhv.md)
 - [Virtual Machine Access](/docs/setup/virtual_machine_access.md)
 - [Test User Dashboard](https://github.com/department-of-veterans-affairs/vsp-test-user-dashboard/blob/main/README.md#back-end)
