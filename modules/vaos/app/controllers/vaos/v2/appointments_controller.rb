@@ -6,27 +6,41 @@ module VAOS
   module V2
     class AppointmentsController < VAOS::V0::BaseController
       def index
+        appointments
+        merge_clinic_names(appointments[:data])
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(appointments[:data], 'appointments')
-        render json: { data: serialized }
+        render json: { data: serialized, meta: appointments[:meta] }
       end
 
       def show
+        appointment
+        unless appointment[:clinic_id].nil?
+          appointment[:station_name] = get_clinic_name(appointment[:location_id], appointment[:clinic_id])
+        end
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(appointment, 'appointments')
         render json: { data: serialized }
       end
 
       def create
+        new_appointment
+        unless new_appointment[:clinic_id].nil?
+          new_appointment[:station_name] = get_clinic_name(new_appointment[:location_id], new_appointment[:clinic_id])
+        end
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(new_appointment, 'appointments')
         render json: { data: serialized }, status: :created
       end
 
       def update
-        resp_appointment = appointments_service.update_appointment(appt_id: update_appt_id, status: status_update)
+        updated_appointment
+        unless updated_appointment[:clinic_id].nil?
+          updated_appointment[:station_name] =
+            get_clinic_name(updated_appointment[:location_id], updated_appointment[:clinic_id])
+        end
         serializer = VAOS::V2::VAOSSerializer.new
-        serialized = serializer.serialize(resp_appointment, 'appointments')
+        serialized = serializer.serialize(updated_appointment, 'appointments')
         render json: { data: serialized }
       end
 
@@ -34,6 +48,10 @@ module VAOS
 
       def appointments_service
         VAOS::V2::AppointmentsService.new(current_user)
+      end
+
+      def systems_service
+        VAOS::V2::SystemsService.new(current_user)
       end
 
       def appointments
@@ -46,21 +64,47 @@ module VAOS
           appointments_service.get_appointment(appointment_id)
       end
 
+      def new_appointment
+        @new_appointment ||=
+          appointments_service.post_appointment(create_params)
+      end
+
+      def updated_appointment
+        @updated_appointment ||=
+          appointments_service.update_appointment(update_appt_id, status_update)
+      end
+
+      def merge_clinic_names(appointments)
+        cached_clinic_names = {}
+        appointments.each do |appt|
+          unless appt[:clinic].nil?
+            unless cached_clinic_names[:clinic]
+              clinic_name = get_clinic_name(appt[:location_id], appt[:clinic])
+              cached_clinic_names[appt[:clinic]] = clinic_name
+            end
+
+            appt[:station_name] = cached_clinic_names[appt[:clinic]] if cached_clinic_names[appt[:clinic]]
+          end
+        end
+      end
+
+      def get_clinic_name(location_id, clinic_id)
+        clinics = systems_service.get_facility_clinics(location_id: location_id, clinic_ids: clinic_id)
+        clinics.first[:station_name]
+      rescue Common::Exceptions::BackendServiceException
+        Rails.logger.error(
+          "Error fetching clinic #{clinic_id} for location #{location_id}",
+          clinic_id: clinic_id,
+          location_id: location_id
+        )
+      end
+
       def update_appt_id
         params.require(:id)
       end
 
       def status_update
         params.require(:status)
-      end
-
-      def cancellation_reason
-        params.require(:reason)
-      end
-
-      def new_appointment
-        @new_appointment ||=
-          appointments_service.post_appointment(create_params)
       end
 
       def appointment_params

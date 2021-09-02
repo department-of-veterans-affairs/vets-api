@@ -56,8 +56,7 @@ describe VAOS::V2::AppointmentsService do
         VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri],
                                                                       tag: :force_utf8) do
           response = subject.get_appointments(start_date2, end_date2)
-
-          expect(response[:data].size).to eq(84)
+          expect(response[:data].size).to eq(18)
         end
       end
     end
@@ -153,7 +152,7 @@ describe VAOS::V2::AppointmentsService do
     context 'when there is a server error in updating an appointment' do
       it 'throws a BackendServiceException' do
         VCR.use_cassette('vaos/v2/appointments/cancel_appointments_500', match_requests_on: %i[method uri]) do
-          expect { subject.update_appointment(appt_id: '35952', status: 'cancelled') }
+          expect { subject.update_appointment('35952', 'cancelled') }
             .to raise_error do |error|
             expect(error).to be_a(Common::Exceptions::BackendServiceException)
             expect(error.status_code).to eq(502)
@@ -165,7 +164,7 @@ describe VAOS::V2::AppointmentsService do
     context 'when the upstream server successfully updates an appointment' do
       it 'returns a cancelled status and the cancelled appointment information' do
         VCR.use_cassette('vaos/v2/appointments/cancel_appointments_200', match_requests_on: %i[method uri]) do
-          response = subject.update_appointment(appt_id: '42081', status: 'cancelled')
+          response = subject.update_appointment('42081', 'cancelled')
           expect(response.status).to eq('cancelled')
         end
       end

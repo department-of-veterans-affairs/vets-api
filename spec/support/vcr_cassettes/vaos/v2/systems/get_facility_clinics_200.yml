@@ -191,4 +191,62 @@ http_interactions:
         VA Medical Center","primaryStopCode":203,"primaryStopCodeName":"AUDIOLOGY","secondaryStopCode":450,"secondaryStopCodeName":"COMP
         & PENS (C&P) EXAMS","patientDirectScheduling":false,"patientDisplay":true}]}'
   recorded_at: Fri, 14 May 2021 03:20:45 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=1081
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - c120e2b1-9fba-4e7e-bb50-77696a9eccdc
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 14 May 2021 03:20:45 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '321'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 1.4.0
+      B3:
+      - 767bf549f7976703-4d836145f32de0f1-1
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 6cfdbcb
+      X-Vamf-Timestamp:
+      - '2021-05-08T03:21:25+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"vistaSite":983,"id":"570","serviceName":"CHY C&P AUDIO","stationId":"983","stationName":"CHYSHR-Cheyenne
+        VA Medical Center","primaryStopCode":203,"primaryStopCodeName":"AUDIOLOGY","secondaryStopCode":450,"secondaryStopCodeName":"COMP
+        & PENS (C&P) EXAMS","patientDirectScheduling":false,"patientDisplay":true}]}'
+  recorded_at: Fri, 14 May 2021 03:20:45 GMT
 recorded_with: VCR 6.0.0

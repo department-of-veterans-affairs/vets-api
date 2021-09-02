@@ -39,7 +39,7 @@ module VAOS
         end
       end
 
-      def update_appointment(appt_id:, status:)
+      def update_appointment(appt_id, status)
         url_path = "/vaos/v1/patients/#{user.icn}/appointments/#{appt_id}"
         params = VAOS::V2::UpdateAppointmentForm.new(status: status).params
         with_monitoring do

@@ -9,6 +9,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
     Flipper.enable('va_online_scheduling')
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+    allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_clinic_name).and_return('test_clinic')
   end
 
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
@@ -25,6 +26,8 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         VCR.use_cassette('vaos/v2/appointments/post_appointments_200', match_requests_on: %i[method uri]) do
           post '/vaos/v2/appointments', params: request_body, headers: inflection_header
           expect(response).to have_http_status(:created)
+          data = JSON.parse(response.body)['data']
+          expect(data['attributes']['stationName']).to eq('test_clinic')
           expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
         end
       end
@@ -48,12 +51,28 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
       context 'requests a list of appointments' do
         it 'has access and returns va appointments' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri],
+                                                                        allow_playback_repeats: true) do
             get '/vaos/v2/appointments', params: params, headers: inflection_header
-
+            data = JSON.parse(response.body)['data']
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
-            expect(JSON.parse(response.body)['data'].size).to eq(84)
+            expect(data.size).to eq(18)
+            expect(data[0]['attributes']['stationName']).to eq('test_clinic')
+            expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+          end
+        end
+
+        it 'has access and returns va appointments when systems service fails' do
+          allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_clinic_name).and_call_original
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_system_service_500',
+                           match_requests_on: %i[method uri], allow_playback_repeats: true) do
+            get '/vaos/v2/appointments', params: params, headers: inflection_header
+            data = JSON.parse(response.body)['data']
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(data.size).to eq(18)
+            expect(data[0]['attributes']['stationName']).to eq(nil)
             expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
           end
         end
@@ -132,9 +151,11 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             expect(response).to have_http_status(:ok)
             expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
             data = JSON.parse(response.body)['data']
+
             expect(data['id']).to eq('36952')
             expect(data['attributes']['status']).to eq('booked')
             expect(data['attributes']['minutesDuration']).to eq(20)
+            expect(data['attributes']['stationName']).to eq('test_clinic')
           end
         end
       end
@@ -154,9 +175,12 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
       context 'when the appointment is successfully cancelled' do
         it 'returns a status code of 200 and the cancelled appointment with the updated status' do
           VCR.use_cassette('vaos/v2/appointments/cancel_appointments_200', match_requests_on: %i[method uri]) do
-            put '/vaos/v2/appointments/42081', params: { status: 'cancelled' }
+            put '/vaos/v2/appointments/42081', params: { status: 'cancelled' }, headers: inflection_header
             expect(response.status).to eq(200)
-            expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('cancelled')
+            expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+            data = JSON.parse(response.body)['data']
+            expect(data['attributes']['stationName']).to eq('test_clinic')
+            expect(data['attributes']['status']).to eq('cancelled')
           end
         end
       end
