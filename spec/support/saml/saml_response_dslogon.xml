@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<samlp:Response xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" Destination="http://localhost:3000/auth/saml/callback" ID="_45a9c054f5e04390a4257782298fde7d" InResponseTo="_7c65d326-914a-4b03-900e-80a9b7c96888" IssueInstant="2017-09-21T21:28:05Z" Version="2.0">
+<samlp:Response xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" Destination="http://localhost:3000/v1/sessions/callback" ID="_45a9c054f5e04390a4257782298fde7d" InResponseTo="_7c65d326-914a-4b03-900e-80a9b7c96888" IssueInstant="2017-09-21T21:28:05Z" Version="2.0">
   <saml:Issuer>api.idmelabs.com</saml:Issuer>
   <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
     <ds:SignedInfo>
@@ -50,7 +50,7 @@
       <saml:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified" NameQualifier="api.idmelabs.com" SPNameQualifier="saml-rp.vetsgov.localhost">7912b07602694ab7b7c44ae6b34f42b5</saml:NameID>
       <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
         <saml:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified" NameQualifier="api.idmelabs.com" SPNameQualifier="saml-rp.vetsgov.localhost">7912b07602694ab7b7c44ae6b34f42b5</saml:NameID>
-        <saml:SubjectConfirmationData InResponseTo="_7c65d326-914a-4b03-900e-80a9b7c96888" NotOnOrAfter="2017-09-21T21:33:05Z" Recipient="http://localhost:3000/auth/saml/callback"/>
+        <saml:SubjectConfirmationData InResponseTo="_7c65d326-914a-4b03-900e-80a9b7c96888" NotOnOrAfter="2017-09-21T21:33:05Z" Recipient="http://localhost:3000/v1/sessions/callback"/>
       </saml:SubjectConfirmation>
     </saml:Subject>
     <saml:Conditions NotBefore="2017-09-21T21:28:05Z" NotOnOrAfter="2017-09-21T21:33:05Z">

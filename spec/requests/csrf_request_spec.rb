@@ -75,18 +75,9 @@ RSpec.describe 'CSRF scenarios' do
   # SAML callback
   describe 'POST SAML callback' do
     context 'without a CSRF token' do
-      context 'v0' do
-        it 'does not raise an error' do
-          post(auth_saml_callback_path)
-          expect(response.body).not_to match(/Invalid Authenticity Token/)
-        end
-      end
-
-      context 'v1' do
-        it 'does not raise an error' do
-          post(v1_sessions_callback_path)
-          expect(response.body).not_to match(/Invalid Authenticity Token/)
-        end
+      it 'does not raise an error' do
+        post(v1_sessions_callback_path)
+        expect(response.body).not_to match(/Invalid Authenticity Token/)
       end
     end
   end

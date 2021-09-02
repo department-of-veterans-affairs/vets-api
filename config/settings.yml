@@ -14,7 +14,7 @@ saml:
   cert_new_path: config/certs/vetsgov-localhost_new.crt
   key_path: config/certs/vetsgov-localhost.key
   issuer: saml-rp.vetsgov.localhost
-  callback_url: http://localhost:3000/auth/saml/callback
+  callback_url: http://localhost:3000/v1/sessions/callback
   metadata_url: https://api.idmelabs.com/saml/metadata/provider
   authn_requests_signed: false
 

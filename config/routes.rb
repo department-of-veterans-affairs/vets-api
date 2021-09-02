@@ -7,11 +7,6 @@ Rails.application.routes.draw do
   match '/services/*path', to: 'application#cors_preflight', via: [:options]
 
   get '/saml/metadata', to: 'saml#metadata'
-  get '/auth/saml/logout', to: 'v0/sessions#saml_logout_callback', as: 'saml_logout'
-  post '/auth/saml/callback', to: 'v0/sessions#saml_callback', module: 'v0'
-  get '/sessions/:type/new',
-      to: 'v0/sessions#new',
-      constraints: ->(request) { V0::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
 
   get '/v1/sessions/metadata', to: 'v1/sessions#metadata'
   post '/v1/sessions/callback', to: 'v1/sessions#saml_callback', module: 'v1'
@@ -69,11 +64,6 @@ Rails.application.routes.draw do
 
     resource :decision_review_evidence, only: :create
     resource :upload_supporting_evidence, only: :create
-
-    resource :sessions, only: [] do
-      post :saml_callback, to: 'sessions#saml_callback'
-      post :saml_slo_callback, to: 'sessions#saml_slo_callback'
-    end
 
     resource :user, only: [:show]
     resource :post911_gi_bill_status, only: [:show]
