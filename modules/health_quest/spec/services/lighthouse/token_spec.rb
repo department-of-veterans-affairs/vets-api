@@ -124,6 +124,12 @@ describe HealthQuest::Lighthouse::Token do
     end
   end
 
+  describe '#base64_encoded_launch' do
+    it 'base64 encodes the launch object' do
+      expect(token.base64_encoded_launch).to eq('eyI6cGF0aWVudCI6IjEwMDg1OTYzNzlWODU5ODM4In0=')
+    end
+  end
+
   describe '#post_params' do
     context 'when pgd_api' do
       it 'sets the pgd scopes' do

@@ -90,7 +90,7 @@ module HealthQuest
           client_assertion_type: lighthouse.client_assertion_type,
           client_assertion: claims_token,
           scope: scopes[api].join(SCOPES_DELIMITER),
-          launch: user&.icn
+          launch: base64_encoded_launch
         }
 
         URI.encode_www_form(hash)
@@ -112,6 +112,17 @@ module HealthQuest
       #
       def scopes
         { 'pgd_api' => lighthouse.pgd_api_scopes, 'health_api' => lighthouse.health_api_scopes }
+      end
+
+      ##
+      # Base64 encoded object containing the user's ICN as the value
+      #
+      # @return [String]
+      #
+      def base64_encoded_launch
+        json_obj = Oj.dump({ patient: user&.icn })
+
+        Base64.encode64(json_obj)
       end
 
       private

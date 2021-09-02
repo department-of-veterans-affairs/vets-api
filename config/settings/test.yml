@@ -140,7 +140,7 @@ hqva_mobile:
     mock: false
     key_path: modules/health_quest/config/rsa/sandbox_rsa
     pgd_api_scopes:
-      - "launch/patient"
+      - "launch launch/patient"
       - "patient/Observation.read"
       - "patient/Observation.write"
       - "patient/Questionnaire.read"
@@ -148,7 +148,7 @@ hqva_mobile:
       - "patient/QuestionnaireResponse.read"
       - "patient/QuestionnaireResponse.write"
     health_api_scopes:
-      - "launch/patient"
+      - "launch launch/patient"
       - "patient/Appointment.read"
       - "patient/Location.read"
       - "patient/Organization.read"
