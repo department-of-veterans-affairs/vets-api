@@ -10,7 +10,8 @@ module V0
     def create
       return render status: :not_found unless Flipper.enabled?(:virtual_agent_token)
 
-      render json: { token: fetch_connector_token }
+      render json: { token: fetch_connector_token,
+                     apiSession: cookies[:api_session] }
     end
 
     private
