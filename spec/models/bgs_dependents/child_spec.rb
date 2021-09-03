@@ -26,7 +26,7 @@ RSpec.describe BGSDependents::Child do
       'birth_date' => '2009-03-03'
     }
   end
-  let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }
+  let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
 
   let(:address_result) do
     {

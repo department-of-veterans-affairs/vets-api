@@ -6,7 +6,7 @@ require 'bgs/children'
 RSpec.describe BGS::Children do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
   let(:proc_id) { '3828033' }
-  let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }
+  let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
 
   context 'adding children' do
     let(:adopted_payload) { FactoryBot.build(:adopted_child_lives_with_veteran) }

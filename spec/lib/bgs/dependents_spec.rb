@@ -6,7 +6,7 @@ require 'bgs/dependents'
 RSpec.describe BGS::Dependents do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
   let(:proc_id) { '3828033' }
-  let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }
+  let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
 
   describe '#create' do
     context 'reporting a death' do

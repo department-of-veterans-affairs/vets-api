@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe SavedClaim::DependencyClaim do
   let(:dependency_claim) { create(:dependency_claim_no_vet_information) }
-  let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }
+  let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
   let(:adopted_child) { FactoryBot.build(:adopted_child_lives_with_veteran) }
   let(:form_674_only) { FactoryBot.build(:form_674_only) }
   let(:va_file_number_with_payload) do

@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe BGS::SubmitForm686cJob, type: :job do
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
   let(:dependency_claim) { create(:dependency_claim) }
-  let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }
+  let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
   let(:vet_info) do
     {
       'veteran_information' => {

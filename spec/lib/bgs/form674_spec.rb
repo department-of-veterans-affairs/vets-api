@@ -5,7 +5,7 @@ require 'bgs/form674'
 
 RSpec.describe BGS::Form674 do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
-  let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }
+  let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
 
   # @TODO: may want to return something else
   it 'returns a hash with proc information' do
