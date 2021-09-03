@@ -65,7 +65,11 @@ module AppealsApi
       end
 
       def valid_email_identifier?
-        opts['email_identifier'].keys == %w[id_value id_type]
+        required_email_identifier_keys.all? { |k| opts['email_identifier'].key?(k) }
+      end
+
+      def required_email_identifier_keys
+        %w[id_type id_value]
       end
 
       def required_keys?

@@ -50,6 +50,32 @@ module AppealsApi
             }
           )
         end
+
+        it 'does not care about the order of email identifier hash' do
+          client = instance_double(VaNotify::Service)
+          allow(VaNotify::Service).to receive(:new).and_return(client)
+          allow(client).to receive(:send_email)
+
+          opts = {
+            'email_identifier' => { 'id_type' => 'email', 'id_value' => 'fake_email@email.com' }, # key order changed
+            'first_name' => 'first name',
+            'date_submitted' => Date.new(2021, 1, 2),
+            'guid' => '1234556'
+          }
+
+          AppealsApi::Events::AppealReceived.new(opts).hlr_received
+
+          expect(client).to have_received(:send_email).with(
+            {
+              email_address: 'fake_email@email.com',
+              template_id: nil,
+              personalisation: {
+                'first_name' => 'first name',
+                'date_submitted' => 'January 02, 2021'
+              }
+            }
+          )
+        end
       end
 
       it 'uses icn if email isn\'t present' do
