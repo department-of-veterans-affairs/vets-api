@@ -218,14 +218,14 @@ module AppealsApi
       update_handler = Events::Handler.new(event_type: :hlr_status_updated, opts: {
                                              from: self.status,
                                              to: status,
-                                             status_update_time: Time.zone.now,
+                                             status_update_time: Time.zone.now.iso8601,
                                              statusable_id: id
                                            })
 
       email_handler = Events::Handler.new(event_type: :hlr_received, opts: {
                                             email_identifier: email_identifier,
                                             first_name: first_name,
-                                            date_submitted: date_signed,
+                                            date_submitted: veterans_local_time.iso8601,
                                             guid: id
                                           })
 

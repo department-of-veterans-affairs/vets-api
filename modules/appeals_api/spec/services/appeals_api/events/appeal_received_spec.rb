@@ -17,7 +17,7 @@ module AppealsApi
           opts = {
             'email_identifier' => { 'id_value' => 'fake_email@email.com' }, # missing id_type
             'first_name' => 'first name',
-            'date_submitted' => Date.new(2021, 11, 11),
+            'date_submitted' => DateTime.new(2021, 11, 11, 1, 2, 3).iso8601,
             'guid' => '1234556'
           }
 
@@ -33,7 +33,7 @@ module AppealsApi
           opts = {
             'email_identifier' => { 'id_value' => 'fake_email@email.com', 'id_type' => 'email' },
             'first_name' => 'first name',
-            'date_submitted' => Date.new(2021, 0o1, 0o2),
+            'date_submitted' => DateTime.new(2021, 1, 2, 3, 4, 5).iso8601,
             'guid' => '1234556'
           }
 
@@ -59,7 +59,7 @@ module AppealsApi
           opts = {
             'email_identifier' => { 'id_type' => 'email', 'id_value' => 'fake_email@email.com' }, # key order changed
             'first_name' => 'first name',
-            'date_submitted' => Date.new(2021, 1, 2),
+            'date_submitted' => DateTime.new(2021, 1, 2, 3, 4, 5).iso8601,
             'guid' => '1234556'
           }
 
@@ -90,7 +90,7 @@ module AppealsApi
           opts = {
             'email_identifier' => { 'id_value' => '1233445353', 'id_type' => 'ICN' },
             'first_name' => 'first name',
-            'date_submitted' => Date.new(1900, 1, 1),
+            'date_submitted' => DateTime.new(1900, 1, 2, 3, 4, 5).iso8601,
             'guid' => '1234556'
           }
 
@@ -105,7 +105,7 @@ module AppealsApi
               template_id: 'fake_template_id',
               personalisation: {
                 'first_name' => 'first name',
-                'date_submitted' => 'January 01, 1900'
+                'date_submitted' => 'January 02, 1900'
               }
             }
           )

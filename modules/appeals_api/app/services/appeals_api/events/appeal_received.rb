@@ -53,7 +53,7 @@ module AppealsApi
 
       def personalisation
         { personalisation: { 'first_name' => opts['first_name'],
-                             'date_submitted' => opts['date_submitted'].strftime('%B %d, %Y') } }
+                             'date_submitted' => date_submitted } }
       end
 
       def log_error(guid, type)
@@ -62,6 +62,10 @@ module AppealsApi
 
       def guid
         opts['guid']
+      end
+
+      def date_submitted
+        @date_submitted ||= DateTime.iso8601(opts['date_submitted']).strftime('%B %d, %Y')
       end
 
       def valid_email_identifier?
