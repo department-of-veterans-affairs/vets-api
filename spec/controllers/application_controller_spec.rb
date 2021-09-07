@@ -364,10 +364,8 @@ RSpec.describe ApplicationController, type: :controller do
       let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
       let(:header_host_value) { Settings.hostname }
       let(:header_auth_value) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
-      let(:sso_cookie_value)  { 'bar' }
 
       before do
-        Settings.sso.cookie_enabled = true
         session_object = Session.create(uuid: user.uuid, token: token)
         User.create(user)
 
@@ -375,11 +373,6 @@ RSpec.describe ApplicationController, type: :controller do
 
         request.env['HTTP_HOST'] = header_host_value
         request.env['HTTP_AUTHORIZATION'] = header_auth_value
-        request.cookies[Settings.sso.cookie_name] = sso_cookie_value
-      end
-
-      after do
-        Settings.sso.cookie_enabled = false
       end
 
       context 'with valid session and user' do
@@ -399,55 +392,6 @@ RSpec.describe ApplicationController, type: :controller do
           it 'returns bad request' do
             get :test_authentication
             expect(response).to have_http_status(:bad_request)
-          end
-        end
-
-        context 'with a virtual host that matches sso cookie' do
-          let(:header_host_value) { 'localhost' }
-
-          it 'returns success' do
-            get :test_authentication
-            expect(response).to have_http_status(:ok)
-          end
-        end
-
-        context 'with a virtual host that matches sso cookie domain, but sso cookie destroyed' do
-          let(:header_host_value) { 'localhost' }
-          let(:sso_cookie_value)  { nil }
-
-          around do |example|
-            original_value = Settings.sso.cookie_signout_enabled
-            Settings.sso.cookie_signout_enabled = true
-            example.run
-            Settings.sso.cookie_signout_enabled = original_value
-          end
-
-          it 'returns json error' do
-            get :test_authentication
-            expect(response).to have_http_status(:unauthorized)
-            expect(JSON.parse(response.body)['errors'].first)
-              .to eq('title' => 'Not authorized', 'detail' => 'Not authorized', 'code' => '401', 'status' => '401')
-          end
-        end
-
-        context 'with a virtual host that matches sso cookie domain, but sso cookie destroyed: disabled' do
-          before do
-            Settings.sso.cookie_signout_enabled = nil
-          end
-
-          let(:header_host_value) { 'localhost' }
-          let(:sso_cookie_value)  { nil }
-
-          around do |example|
-            original_value = Settings.sso.cookie_signout_enabled
-            Settings.sso.cookie_signout_enabled = false
-            example.run
-            Settings.sso.cookie_signout_enabled = original_value
-          end
-
-          it 'returns success' do
-            get :test_authentication
-            expect(response).to have_http_status(:ok)
           end
         end
       end

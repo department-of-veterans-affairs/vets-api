@@ -2,7 +2,6 @@
 
 # This module only gets mixed in to one place, but is that cleanest way to organize everything in one place related
 # to this responsibility alone.
-# rubocop:disable Metrics/ModuleLength
 module AuthenticationAndSSOConcerns
   extend ActiveSupport::Concern
   include ActionController::Cookies
@@ -31,13 +30,7 @@ module AuthenticationAndSSOConcerns
       return false
     end
 
-    if should_signout_sso?
-      Rails.logger.info('SSO: MHV INITIATED SIGNOUT', sso_logging_info)
-      reset_session
-    else
-      extend_session!
-    end
-
+    extend_session!
     @current_user.present?
   end
 
@@ -46,11 +39,10 @@ module AuthenticationAndSSOConcerns
     @current_user = User.find(@session_object.uuid) if @session_object&.uuid
   end
 
-  # Destroys the user's session in Redis and the MHV SSO Cookie
+  # Destroys the user's session in Redis
   def clear_session
     Rails.logger.debug('SSO: ApplicationController#clear_session', sso_logging_info)
 
-    cookies.delete(Settings.sso.cookie_name, domain: Settings.sso.cookie_domain)
     @session_object&.destroy
     @current_user&.destroy
     @session_object = nil
@@ -68,23 +60,11 @@ module AuthenticationAndSSOConcerns
     super
   end
 
-  # Determines whether user signed out of MHV's website
-  def should_signout_sso?
-    # TODO: This logic needs updating to let us log out either/or
-    # SSOe session or MHV-SSO session but for  now  the next line lets
-    # us avoid terminating  the session due to not setting it  previously
-    return false if @session_object&.authenticated_by_ssoe
-    return false unless Settings.sso.cookie_enabled && Settings.sso.cookie_signout_enabled
-
-    cookies[Settings.sso.cookie_name].blank? && request.host.match(Settings.sso.cookie_domain)
-  end
-
-  # Extends the users session, including the MHV SSO Cookie
+  # Extends the users session
   def extend_session!
     @session_object.expire(Session.redis_namespace_ttl)
     @current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
     @current_user&.expire(User.redis_namespace_ttl)
-    set_sso_cookie!
   end
 
   # Sets a cookie "api_session" with all of the key/value pairs from session object.
@@ -95,52 +75,8 @@ module AuthenticationAndSSOConcerns
     @session_object.to_hash.each { |k, v| session[k] = v }
   end
 
-  # Sets a cookie used by MHV for SSO
-  def set_sso_cookie!
-    return unless Settings.sso.cookie_enabled &&
-                  @session_object.present? &&
-                  # if the user logged in via SSOe, there is no benefit from
-                  # creating a MHV SSO shared cookie
-                  !@session_object&.authenticated_by_ssoe
-
-    Rails.logger.info('SSO: ApplicationController#set_sso_cookie!', sso_logging_info)
-
-    encryptor = SSOEncryptor
-    encrypted_value = encryptor.encrypt(ActiveSupport::JSON.encode(sso_cookie_content))
-    cookies[Settings.sso.cookie_name] = {
-      value: encrypted_value,
-      expires: nil, # NOTE: we track expiration as an attribute in "value." nil here means kill cookie on browser close.
-      secure: Settings.sso.cookie_secure,
-      httponly: true,
-      domain: Settings.sso.cookie_domain
-    }
-  end
-
   def set_session_expiration_header
     headers['X-Session-Expiration'] = @session_object.ttl_in_time.httpdate if @session_object.present?
-  end
-
-  # The contents of MHV SSO Cookie with specifications found here:
-  # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx
-  def sso_cookie_content
-    return nil if @current_user.blank?
-
-    {
-      'patientIcn' => (@current_user.mhv_icn || @current_user.icn),
-      'mhvCorrelationId' => @current_user.mhv_correlation_id,
-      'signIn' => @current_user.identity.sign_in.deep_transform_keys { |key| key.to_s.camelize(:lower) },
-      'credential_used' => sso_cookie_sign_credential_used,
-      'expirationTime' => @session_object.ttl_in_time.iso8601(0)
-    }
-  end
-
-  # Temporary solution for MHV having already coded this attribute differently than expected.
-  def sso_cookie_sign_credential_used
-    {
-      'myhealthevet' => 'my_healthe_vet',
-      'dslogon' => 'ds_logon',
-      'idme' => 'id_me'
-    }.fetch(@current_user.identity.sign_in.fetch(:service_name))
   end
 
   # Info for logging purposes related to SSO.
@@ -151,5 +87,17 @@ module AuthenticationAndSSOConcerns
       request_host: request.host
     }
   end
+
+  private
+
+  def sso_cookie_content
+    return nil if @current_user.blank?
+
+    {
+      'patientIcn' => @current_user.icn,
+      'signIn' => @current_user.identity.sign_in.deep_transform_keys { |key| key.to_s.camelize(:lower) },
+      'credential_used' => @current_user.identity.sign_in[:service_name],
+      'expirationTime' => @session_object.ttl_in_time.iso8601(0)
+    }
+  end
 end
-# rubocop:enable Metrics/ModuleLength

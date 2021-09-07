@@ -549,7 +549,6 @@ Style/QuotedSymbols:
     - 'modules/appeals_api/spec/swagger/appeals_api/json_schema_to_swagger_converter_spec.rb'
     - 'modules/mobile/spec/request/push_send_request_spec.rb'
     - 'modules/openid_auth/app/controllers/openid_auth/v0/okta_controller.rb'
-    - 'rakelib/support/sessions_arg_serializer.rb'
     - 'spec/controllers/v0/profile/ch33_bank_accounts_controller_spec.rb'
     - 'spec/factories/in_progress_forms/hca_forms.rb'
     - 'spec/lib/vetext/service_spec.rb'
