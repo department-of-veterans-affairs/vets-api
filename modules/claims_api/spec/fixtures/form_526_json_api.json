@@ -41,8 +41,7 @@
             {
               "name": "PTSD personal trauma",
               "disabilityActionType": "SECONDARY",
-              "serviceRelevance": "Caused by a service-connected disability\\nLengthy description",
-              "specialIssues": ["Radiation", "Emergency Care – CH17 Determination"]
+              "serviceRelevance": "Caused by a service-connected disability\\nLengthy description"
             }
           ]
         }

@@ -168,10 +168,21 @@ module ClaimsApi
       disabilities = form_data.dig('disabilities')
 
       disabilities.map do |disability|
-        approx_begin_date = disability.dig('approximateBeginDate')
-        next if approx_begin_date.blank?
+        next if disability['approximateBeginDate'].blank?
 
-        disability['approximateBeginDate'] = breakout_date_components(date: approx_begin_date)
+        disability['approximateBeginDate'] = breakout_date_components(date: disability['approximateBeginDate'])
+
+        disability['secondaryDisabilities'] ||= []
+        disability['secondaryDisabilities'].map do |secondary_disability|
+          next if secondary_disability['approximateBeginDate'].blank?
+
+          secondary_disability['approximateBeginDate'] = breakout_date_components(
+            date: secondary_disability['approximateBeginDate']
+          )
+
+          secondary_disability
+        end
+
         disability
       end
     end

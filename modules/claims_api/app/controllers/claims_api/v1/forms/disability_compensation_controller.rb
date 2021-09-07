@@ -10,7 +10,7 @@ require 'jsonapi/parser'
 module ClaimsApi
   module V1
     module Forms
-      class DisabilityCompensationController < ClaimsApi::V1::Forms::Base
+      class DisabilityCompensationController < ClaimsApi::V1::Forms::Base # rubocop:disable Metrics/ClassLength
         include ClaimsApi::PoaVerification
         include ClaimsApi::DocumentValidations
 
@@ -350,20 +350,97 @@ module ClaimsApi
           validate_form_526_disability_classification_code!
           validate_form_526_disability_approximate_begin_date!
           validate_form_526_special_issues!
+          validate_form_526_disability_secondary_disabilities!
+        end
+
+        def validate_form_526_disability_secondary_disability_disability_action_type!(disability)
+          return unless disability['disabilityActionType'] == 'NONE' && disability['secondaryDisabilities'].blank?
+
+          raise ::Common::Exceptions::InvalidFieldValue.new('disabilities.secondaryDisabilities',
+                                                            disability['secondaryDisabilities'])
+        end
+
+        def validate_form_526_disability_secondary_disability_classification_code!(secondary_disability)
+          return unless bgs_classification_ids.exclude?(secondary_disability['classificationCode'])
+
+          raise ::Common::Exceptions::InvalidFieldValue.new(
+            'disabilities.secondaryDisabilities.classificationCode',
+            secondary_disability['classificationCode']
+          )
+        end
+
+        def validate_form_526_disability_secondary_disability_classification_code_matches_name!(secondary_disability)
+          return unless secondary_disability['classificationCode'] != secondary_disability['name']
+
+          raise ::Common::Exceptions::InvalidFieldValue.new(
+            'disabilities.secondaryDisabilities.name',
+            secondary_disability['name']
+          )
+        end
+
+        def validate_form_526_disability_secondary_disability_name!(secondary_disability)
+          return if %r{([a-zA-Z0-9\-'.,/\(\)]([a-zA-Z0-9\-',. ])?)+$}.match?(secondary_disability['name']) &&
+                    secondary_disability['name'].length <= 255
+
+          raise ::Common::Exceptions::InvalidFieldValue.new(
+            'disabilities.secondaryDisabilities.name',
+            secondary_disability['name']
+          )
+        end
+
+        def validate_form_526_disability_secondary_disability_approximate_begin_date!(secondary_disability)
+          return if Date.parse(secondary_disability['approximateBeginDate']) < Time.zone.today
+
+          raise ::Common::Exceptions::InvalidFieldValue.new(
+            'disabilities.secondaryDisabilities.approximateBeginDate',
+            secondary_disability['approximateBeginDate']
+          )
+        rescue ArgumentError
+          raise ::Common::Exceptions::InvalidFieldValue.new(
+            'disabilities.secondaryDisabilities.approximateBeginDate',
+            secondary_disability['approximateBeginDate']
+          )
+        end
+
+        def validate_form_526_disability_secondary_disabilities!
+          form_attributes['disabilities'].each do |disability|
+            validate_form_526_disability_secondary_disability_disability_action_type!(disability)
+            next if disability['secondaryDisabilities'].blank?
+
+            disability['secondaryDisabilities'].each do |secondary_disability|
+              if secondary_disability['classificationCode'].present?
+                validate_form_526_disability_secondary_disability_classification_code!(secondary_disability)
+                validate_form_526_disability_secondary_disability_classification_code_matches_name!(
+                  secondary_disability
+                )
+              else
+                validate_form_526_disability_secondary_disability_name!(secondary_disability)
+              end
+
+              if secondary_disability['approximateBeginDate'].present?
+                validate_form_526_disability_secondary_disability_approximate_begin_date!(secondary_disability)
+              end
+            end
+          end
         end
 
         def validate_form_526_disability_classification_code!
           return if (form_attributes['disabilities'].pluck('classificationCode') - [nil]).blank?
 
-          contention_classification_type_codes = bgs_service.data.get_contention_classification_type_code_list
-          classification_ids = contention_classification_type_codes.pluck(:clsfcn_id)
           form_attributes['disabilities'].each do |disability|
             next if disability['classificationCode'].blank?
-            next if classification_ids.include?(disability['classificationCode'])
+            next if bgs_classification_ids.include?(disability['classificationCode'])
 
             raise ::Common::Exceptions::InvalidFieldValue.new('disabilities.classificationCode',
                                                               disability['classificationCode'])
           end
+        end
+
+        def bgs_classification_ids
+          return @bgs_classification_ids if @bgs_classification_ids.present?
+
+          contention_classification_type_codes = bgs_service.data.get_contention_classification_type_code_list
+          @bgs_classification_ids = contention_classification_type_codes.pluck(:clsfcn_id)
         end
 
         def validate_form_526_disability_approximate_begin_date!
