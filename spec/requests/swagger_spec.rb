@@ -504,6 +504,21 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           )
         end
       end
+
+      context 'debts index' do
+        it 'validates the route' do
+          VCR.use_cassette('bgs/people_service/person_data') do
+            VCR.use_cassette('debts/get_letters', VCR::MATCH_EVERYTHING) do
+              expect(subject).to validate(
+                :get,
+                '/v0/debts',
+                200,
+                headers
+              )
+            end
+          end
+        end
+      end
     end
 
     context 'medical copays tests' do

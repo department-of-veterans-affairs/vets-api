@@ -131,6 +131,7 @@ module V0
       Swagger::Requests::BB::HealthRecords,
       Swagger::Requests::BurialClaims,
       Swagger::Requests::ClaimStatus,
+      Swagger::Requests::Debts,
       Swagger::Requests::DebtLetters,
       Swagger::Requests::DecisionReviewEvidence,
       Swagger::Requests::DependentsApplications,
