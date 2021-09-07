@@ -200,7 +200,7 @@ class FormProfiles::VA526ez < FormProfile
   end
 
   def initialize_payment_information
-    return {} unless user.authorize :evss, :access?
+    return {} unless user.authorize(:ppiu, :access?) && user.authorize(:evss, :access?)
 
     service = EVSS::PPIU::Service.new(user)
     response = service.get_payment_information

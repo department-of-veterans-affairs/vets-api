@@ -989,6 +989,7 @@ RSpec.describe FormProfile, type: :model do
         before do
           stub_methods_for_emis_data
           can_prefill_emis(true)
+          expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
         end
 
@@ -1001,6 +1002,7 @@ RSpec.describe FormProfile, type: :model do
         before do
           stub_methods_for_emis_data
           can_prefill_emis(true)
+          expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
           v22_0994_expected['bankAccount'] = {
             'bankAccountNumber' => '*********1234',
@@ -1114,34 +1116,11 @@ RSpec.describe FormProfile, type: :model do
         end
 
         context 'with a user that can prefill evss' do
-          before do
-            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-          end
-
           # Note: `increase only` and `all claims` use the same form prefilling
           context 'when Vet360 prefill is disabled' do
-            it 'returns prefilled 21-526EZ' do
-              VCR.use_cassette('evss/pciu_address/address_domestic') do
-                VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-                  VCR.use_cassette('evss/ppiu/payment_information') do
-                    expect_prefilled('21-526EZ')
-                  end
-                end
-              end
-            end
-          end
-
-          context 'when Vet360 prefill is enabled' do
             before do
-              VAProfile::Configuration::SETTINGS.prefill = true
-              expected_veteran_info = v21_526_ez_expected['veteran']
-              expected_veteran_info['emailAddress'] =
-                VAProfileRedis::ContactInformation.for_user(user).email.email_address
-              expected_veteran_info['primaryPhone'] = '3035551234'
-            end
-
-            after do
-              VAProfile::Configuration::SETTINGS.prefill = false
+              expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
+              expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
             end
 
             it 'returns prefilled 21-526EZ' do
@@ -1155,9 +1134,38 @@ RSpec.describe FormProfile, type: :model do
             end
           end
 
-          it 'returns prefilled 21-686C' do
-            VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes') do
-              expect_prefilled('21-686C')
+          context 'without ppiu' do
+            context 'when Vet360 prefill is enabled' do
+              before do
+                VAProfile::Configuration::SETTINGS.prefill = true
+                expected_veteran_info = v21_526_ez_expected['veteran']
+                expected_veteran_info['emailAddress'] =
+                  VAProfileRedis::ContactInformation.for_user(user).email.email_address
+                expected_veteran_info['primaryPhone'] = '3035551234'
+              end
+
+              after do
+                VAProfile::Configuration::SETTINGS.prefill = false
+              end
+
+              it 'returns prefilled 21-526EZ' do
+                expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
+                expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+                VCR.use_cassette('evss/pciu_address/address_domestic') do
+                  VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+                    VCR.use_cassette('evss/ppiu/payment_information') do
+                      expect_prefilled('21-526EZ')
+                    end
+                  end
+                end
+              end
+            end
+
+            it 'returns prefilled 21-686C' do
+              expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+              VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes') do
+                expect_prefilled('21-686C')
+              end
             end
           end
         end
