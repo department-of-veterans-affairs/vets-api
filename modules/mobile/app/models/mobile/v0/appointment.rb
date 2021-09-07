@@ -48,7 +48,7 @@ module Mobile
       attribute :sta6aid, Types::String.optional
       attribute :healthcare_provider, Types::String.optional
       attribute :healthcare_service, Types::String.optional
-      attribute :location, AppointmentLocation
+      attribute :location, AppointmentLocation.optional
       attribute :minutes_duration, Types::Integer
       attribute :start_date_local, Types::DateTime
       attribute :start_date_utc, Types::DateTime

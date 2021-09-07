@@ -9,6 +9,11 @@ module Mobile
 
           appointments.map do |appointment|
             facility = facilities_by_id["vha_#{appointment.id_for_address}"]
+            if facility.nil?
+              log_missing_facility(appointment)
+              raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
+            end
+
             # resources are immutable and are updated with new copies
             appointment.new(
               location: appointment.location.new(
@@ -21,6 +26,8 @@ module Mobile
             )
           end
         end
+
+        private
 
         def address_from_facility(facility)
           address = facility.address['physical']
@@ -55,6 +62,18 @@ module Mobile
             area_code: phone_captures[1].presence,
             number: phone_captures[2].presence,
             extension: phone_captures[3].presence
+          )
+        end
+
+        def log_missing_facility(appointment)
+          Rails.logger.warn(
+            'Could not find matching facility for mobile appointment',
+            {
+              appointment_id: appointment_id,
+              facility_id: appointment.facility_id,
+              sta6aid: appointment.sta6aid,
+              id_for_address: appointment.id_for_address
+            }
           )
         end
       end
