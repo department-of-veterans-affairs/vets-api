@@ -408,7 +408,7 @@ module Swagger
                    maxLength: 100,
                    pattern: /^([a-zA-Z0-9\-'.#]([a-zA-Z0-9\-'.# ])?)+$/
           property :treatmentDateRange, type: :array do
-            key :$ref, :DateRangeFromRequired
+            key :$ref, :DateRange
           end
           property :treatmentCenterAddress, type: :object do
             key :required, [:country]
