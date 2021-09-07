@@ -43,6 +43,7 @@ module BGS
 
     private
 
+    # rubocop:disable Metrics/MethodLength
     def benefit_claim_params
       {
         file_number: @veteran[:file_number],
@@ -57,6 +58,10 @@ module BGS
         city: @veteran[:address_city],
         state: @veteran[:address_state_code],
         postal_code: @veteran[:address_zip_code],
+        address_type: @veteran[:address_type],
+        mlty_postal_type_cd: @veteran[:mlty_postal_type_cd],
+        mlty_post_office_type_cd: @veteran[:mlty_post_office_type_cd],
+        foreign_mail_code: @veteran[:foreign_mail_code],
         email_address: @veteran[:email_address],
         country: @veteran[:address_country],
         date_of_claim: Time.current.strftime('%m/%d/%Y'),
@@ -65,6 +70,7 @@ module BGS
         soj: @veteran[:regional_office_number]
       }.merge(BENEFIT_CLAIM_PARAM_CONSTANTS)
     end
+    # rubocop:enable Metrics/MethodLength
 
     def handle_error(error, method)
       bgs_service.update_manual_proc(@proc_id)

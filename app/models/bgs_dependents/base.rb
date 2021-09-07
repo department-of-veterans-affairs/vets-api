@@ -102,6 +102,11 @@ module BGSDependents
 
       adjust_address_lines(address)
 
+      if address['international_postal_code'].present?
+        country = address['country_name']
+        address['country_name'] = IsoCountryCodes.find(country).name if country.present? && country.size == 3
+      end
+
       address
     end
 
@@ -130,6 +135,7 @@ module BGSDependents
         city_nm: address['city'],
         cntry_nm: address['country_name'],
         postal_cd: address['state_code'],
+        frgn_postal_cd: address['international_postal_code'],
         mlty_postal_type_cd: address['military_postal_code'],
         mlty_post_office_type_cd: address['military_post_office_type_code'],
         zip_prefix_nbr: address['zip_code'],

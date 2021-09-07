@@ -34,6 +34,7 @@ module BGSDependents
       vet_info.to_h
     end
 
+    # rubocop:disable Metrics/MethodLength
     def veteran_response(participant, address, claim_info)
       {
         vnp_participant_id: participant[:vnp_ptcpnt_id],
@@ -48,6 +49,10 @@ module BGSDependents
         address_state_code: address[:postal_cd],
         address_city: address[:city_nm],
         address_zip_code: address[:zip_prefix_nbr],
+        address_type: address[:address_type],
+        mlty_postal_type_cd: address[:mlty_postal_type_cd],
+        mlty_post_office_type_cd: address[:mlty_post_office_type_cd],
+        foreign_mail_code: address[:frgn_postal_cd],
         type: 'veteran',
         benefit_claim_type_end_product: claim_info[:claim_type_end_product],
         regional_office_number: claim_info[:regional_office_number],
@@ -55,6 +60,7 @@ module BGSDependents
         net_worth_over_limit_ind: claim_info[:net_worth_over_limit_ind]
       }
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 

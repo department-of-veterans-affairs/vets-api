@@ -48,7 +48,16 @@ module BGS
 
     def create_address(participant)
       address_params = veteran.create_address_params(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
-      bgs_service.create_address(address_params)
+      address = bgs_service.create_address(address_params)
+
+      address[:address_type] = 'OVR' if address[:mlty_post_office_type_cd].present?
+
+      if address[:frgn_postal_cd].present?
+        address[:foreign_mail_code] = address.delete('frgn_postal_cd')
+        address[:address_type] = 'INT'
+      end
+
+      address
     end
 
     def get_regional_office(zip, country, province)
