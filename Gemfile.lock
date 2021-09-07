@@ -801,7 +801,7 @@ GEM
       rubocop (>= 0.53.0)
     ruby-progressbar (1.11.0)
     ruby-rc4 (0.1.5)
-    ruby-saml (1.12.2)
+    ruby-saml (1.13.0)
       nokogiri (>= 1.10.5)
       rexml
     ruby-vips (2.1.2)
