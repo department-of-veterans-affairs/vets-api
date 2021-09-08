@@ -602,7 +602,7 @@
         "required": ["disabilityActionType", "name"],
         "properties": {
           "specialIssues": {
-            "description": "The special issues related to the disability.",
+            "description": "The special issues related to the disability. Note :: Only add special issues that you are certain about.  Incorrect special issues can lead to processing delays or denials.  [See special issue descriptions.](https://www.knowva.ebenefits.va.gov/system/templates/selfservice/va_ssnew/help/customer/locale/en-US/portal/554400000001018/content/554400000179710/Appendix-E-Index-of-Corporate-Flashes-and-Special-Issues?query=special%20issues#2b)",
             "type": "array",
             "items": {
               "type": "string",
@@ -827,7 +827,7 @@
                   "example": "Caused by a service-connected disability."
                 },
                 "specialIssues": {
-                  "description": "The special issues related to the disability.",
+                  "description": "The special issues related to the disability. Note :: Only add special issues that you are certain about.  Incorrect special issues can lead to processing delays or denials.  [See special issue descriptions.](https://www.knowva.ebenefits.va.gov/system/templates/selfservice/va_ssnew/help/customer/locale/en-US/portal/554400000001018/content/554400000179710/Appendix-E-Index-of-Corporate-Flashes-and-Special-Issues?query=special%20issues#2b)",
                   "type": "array",
                   "items": {
                     "type": "string",

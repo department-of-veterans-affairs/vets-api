@@ -496,7 +496,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6ac665b3-33b5-4ffd-b1a7-2e45900d0663",
+                    "id": "446dccae-f244-4491-aa7d-f403d28d6d3b",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -545,11 +545,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "2bd94702-9778-4848-9ed9-62c39d63e039",
+                          "id": "ccfa2ca1-3c92-4d9e-9052-81e97c0c2028",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-09-08T14:48:24.599Z"
+                          "uploaded_at": "2021-09-03T18:06:57.133Z"
                         }
                       ]
                     }
@@ -1591,7 +1591,7 @@
                             ],
                             "properties": {
                               "specialIssues": {
-                                "description": "The special issues related to the disability.",
+                                "description": "The special issues related to the disability. Note :: Only add special issues that you are certain about.  Incorrect special issues can lead to processing delays or denials.  [See special issue descriptions.](https://www.knowva.ebenefits.va.gov/system/templates/selfservice/va_ssnew/help/customer/locale/en-US/portal/554400000001018/content/554400000179710/Appendix-E-Index-of-Corporate-Flashes-and-Special-Issues?query=special%20issues#2b)",
                                 "type": "array",
                                 "items": {
                                   "type": "string",
@@ -1826,7 +1826,7 @@
                                       "example": "Caused by a service-connected disability."
                                     },
                                     "specialIssues": {
-                                      "description": "The special issues related to the disability.",
+                                      "description": "The special issues related to the disability. Note :: Only add special issues that you are certain about.  Incorrect special issues can lead to processing delays or denials.  [See special issue descriptions.](https://www.knowva.ebenefits.va.gov/system/templates/selfservice/va_ssnew/help/customer/locale/en-US/portal/554400000001018/content/554400000179710/Appendix-E-Index-of-Corporate-Flashes-and-Special-Issues?query=special%20issues#2b)",
                                       "type": "array",
                                       "items": {
                                         "type": "string",
@@ -2307,7 +2307,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a605ade3-f659-4dd0-8e22-04637b3917a7",
+                    "id": "e9d3fbfb-1471-4a1d-924a-181dcb928bd8",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2325,13 +2325,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-09-08T14:48:25.010Z",
+                      "updated_at": "2021-09-03T18:06:57.666Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "a605ade3-f659-4dd0-8e22-04637b3917a7",
+                      "token": "e9d3fbfb-1471-4a1d-924a-181dcb928bd8",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3323,7 +3323,7 @@
                               ],
                               "properties": {
                                 "specialIssues": {
-                                  "description": "The special issues related to the disability.",
+                                  "description": "The special issues related to the disability. Note :: Only add special issues that you are certain about.  Incorrect special issues can lead to processing delays or denials.  [See special issue descriptions.](https://www.knowva.ebenefits.va.gov/system/templates/selfservice/va_ssnew/help/customer/locale/en-US/portal/554400000001018/content/554400000179710/Appendix-E-Index-of-Corporate-Flashes-and-Special-Issues?query=special%20issues#2b)",
                                   "type": "array",
                                   "items": {
                                     "type": "string",
@@ -3558,7 +3558,7 @@
                                         "example": "Caused by a service-connected disability."
                                       },
                                       "specialIssues": {
-                                        "description": "The special issues related to the disability.",
+                                        "description": "The special issues related to the disability. Note :: Only add special issues that you are certain about.  Incorrect special issues can lead to processing delays or denials.  [See special issue descriptions.](https://www.knowva.ebenefits.va.gov/system/templates/selfservice/va_ssnew/help/customer/locale/en-US/portal/554400000001018/content/554400000179710/Appendix-E-Index-of-Corporate-Flashes-and-Special-Issues?query=special%20issues#2b)",
                                         "type": "array",
                                         "items": {
                                           "type": "string",
@@ -4052,7 +4052,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "438b39ca-fcd5-4e88-b8f7-1edb77939f97",
+                    "id": "e679d7e8-3473-4ddf-b524-1500ddc85e3c",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4070,13 +4070,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-09-08T14:48:25.341Z",
+                      "updated_at": "2021-09-03T18:06:58.042Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "438b39ca-fcd5-4e88-b8f7-1edb77939f97",
+                      "token": "e679d7e8-3473-4ddf-b524-1500ddc85e3c",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5464,7 +5464,7 @@
                               ],
                               "properties": {
                                 "specialIssues": {
-                                  "description": "The special issues related to the disability.",
+                                  "description": "The special issues related to the disability. Note :: Only add special issues that you are certain about.  Incorrect special issues can lead to processing delays or denials.  [See special issue descriptions.](https://www.knowva.ebenefits.va.gov/system/templates/selfservice/va_ssnew/help/customer/locale/en-US/portal/554400000001018/content/554400000179710/Appendix-E-Index-of-Corporate-Flashes-and-Special-Issues?query=special%20issues#2b)",
                                   "type": "array",
                                   "items": {
                                     "type": "string",
@@ -5699,7 +5699,7 @@
                                         "example": "Caused by a service-connected disability."
                                       },
                                       "specialIssues": {
-                                        "description": "The special issues related to the disability.",
+                                        "description": "The special issues related to the disability. Note :: Only add special issues that you are certain about.  Incorrect special issues can lead to processing delays or denials.  [See special issue descriptions.](https://www.knowva.ebenefits.va.gov/system/templates/selfservice/va_ssnew/help/customer/locale/en-US/portal/554400000001018/content/554400000179710/Appendix-E-Index-of-Corporate-Flashes-and-Special-Issues?query=special%20issues#2b)",
                                         "type": "array",
                                         "items": {
                                           "type": "string",
@@ -6193,7 +6193,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ed5ab5ec-e844-417e-b067-98c674597e85",
+                    "id": "1d64f29f-0f97-429e-b5e7-749c6a638581",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6207,7 +6207,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-09-08T14:48:26.020Z",
+                      "updated_at": "2021-09-03T18:06:58.856Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6216,7 +6216,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "a07978f2-3c71-4ab6-b2a4-cdfe42918891",
+                          "id": "5e7c7cdb-c5f7-4b4a-9203-d2439cbf3aa0",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8173,11 +8173,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e9fb8942-652d-4e43-bb6a-89f3e2e5ab71",
+                    "id": "d4e585d9-c51c-4658-9829-2f642fba546b",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2021-09-08",
+                      "date_request_accepted": "2021-09-03",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8886,11 +8886,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "21c9da8e-03c6-42d6-ad72-44e8fcd8aeb3",
+                    "id": "893f8f0c-e844-45a4-9cb9-a1bd9a468502",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-09-08",
+                      "date_request_accepted": "2021-09-03",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9211,11 +9211,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6e9c7631-57e4-4dec-bed8-d891ed317e16",
+                    "id": "b965a9b7-3b0a-4dbf-a6a7-18ed9dba87f5",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-09-08",
+                      "date_request_accepted": "2021-09-03",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
