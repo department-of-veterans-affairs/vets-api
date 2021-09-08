@@ -53,6 +53,7 @@ module ClaimsApi
     alias token id
 
     def to_internal
+      form_data['applicationExpirationDate'] ||= build_application_expiration
       form_data['claimDate'] ||= (persisted? ? created_at.to_date.to_s : Time.zone.today.to_s)
       form_data['claimSubmissionSource'] = 'Lighthouse'
       form_data['bddQualified'] = bdd_qualified?
@@ -283,6 +284,10 @@ module ClaimsApi
         'month': temp.month.to_s,
         'day': temp.day.to_s
       }
+    end
+
+    def build_application_expiration
+      (Time.zone.now.to_date + 1.year).to_s
     end
   end
 end

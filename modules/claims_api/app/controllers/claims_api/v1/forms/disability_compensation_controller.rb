@@ -219,6 +219,7 @@ module ClaimsApi
         end
 
         def validate_form_526_application_expiration_date!
+          return if form_attributes['applicationExpirationDate'].blank?
           return if Date.parse(form_attributes['applicationExpirationDate']) >= Time.zone.today
 
           raise ::Common::Exceptions::InvalidFieldValue.new('applicationExpirationDate',

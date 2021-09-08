@@ -342,4 +342,25 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
       )
     end
   end
+
+  describe "assigning 'applicationExpirationDate'" do
+    context "when 'applicationExpirationDate' is not provided" do
+      it 'assigns a value 1 year from today' do
+        pending_record.form_data.delete('applicationExpirationDate')
+
+        payload = JSON.parse(pending_record.to_internal)
+        application_expiration_date = Date.parse(payload['form526']['applicationExpirationDate'])
+        expect(application_expiration_date).to eq(Time.zone.now.to_date + 1.year)
+      end
+    end
+
+    context "when 'applicationExpirationDate' is provided" do
+      it 'leaves the original provided value' do
+        original_value = Date.parse(pending_record.form_data['applicationExpirationDate'])
+        payload = JSON.parse(pending_record.to_internal)
+        application_expiration_date = Date.parse(payload['form526']['applicationExpirationDate'])
+        expect(original_value).to eq(application_expiration_date)
+      end
+    end
+  end
 end

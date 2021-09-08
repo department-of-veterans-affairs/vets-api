@@ -9,8 +9,7 @@
     "disabilities",
     "claimantCertification",
     "standardClaim",
-    "autoCestPDFGenerationDisabled",
-    "applicationExpirationDate"
+    "autoCestPDFGenerationDisabled"
   ],
   "properties": {
     "veteran": {
