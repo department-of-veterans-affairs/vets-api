@@ -10,7 +10,7 @@ module VBADocuments
     EXPIRATION_TIME = 10.days
 
     REMOVAL_QUERY = <<-SQL
-        status IN ('received', 'processing', 'error', 'success')
+        status IN ('received', 'processing', 'error', 'success', 'vbms')
         AND s3_deleted IS NOT True
         AND created_at < ?
     SQL
@@ -18,7 +18,9 @@ module VBADocuments
     def perform
       return unless Settings.vba_documents.s3.enabled
 
-      VBADocuments::UploadSubmission.where(REMOVAL_QUERY, EXPIRATION_TIME.ago).find_each do |upload|
+      rows = VBADocuments::UploadSubmission.where(REMOVAL_QUERY, EXPIRATION_TIME.ago).order(created_at: :asc).limit(100)
+
+      rows.find_each do |upload|
         Rails.logger.info('VBADocuments: Cleaning up s3: ' + upload.inspect)
         next unless store.object(upload.guid).exists?
 
