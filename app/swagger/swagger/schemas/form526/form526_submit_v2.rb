@@ -122,7 +122,7 @@ module Swagger
                 key :$ref, :NewDisability
               end
             end
-            property :otherAtRiskHousing, type: :string
+            property :otherAtRiskHousing, type: :string, minLength: 1, maxLength: 500
             property :otherHomelessHousing, type: :string
             property :phoneAndEmail, type: :object do
               key :required, %i[primaryPhone emailAddress]
