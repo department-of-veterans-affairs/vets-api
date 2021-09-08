@@ -5,11 +5,20 @@ require 'rails_helper'
 RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
   include SchemaMatchers
 
+  test_address = {
+    'type' => 'physical',
+    'line' => ['2360 East Pershing Boulevard'],
+    'city' => 'Cheyenne',
+    'state' => 'WY',
+    'postalCode' => '82001-5356'
+  }
+
   before do
     Flipper.enable('va_online_scheduling')
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
     allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_clinic_name).and_return('test_clinic')
+    allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_facility_address).and_return(test_address)
   end
 
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
@@ -28,6 +37,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           expect(response).to have_http_status(:created)
           data = JSON.parse(response.body)['data']
           expect(data['attributes']['stationName']).to eq('test_clinic')
+          expect(data['attributes']['physicalAddress']).to eq(test_address)
           expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
         end
       end
@@ -59,6 +69,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             expect(response.body).to be_a(String)
             expect(data.size).to eq(18)
             expect(data[0]['attributes']['stationName']).to eq('test_clinic')
+            expect(data[0]['attributes']['physicalAddress']).to eq(test_address)
             expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
           end
         end
@@ -73,6 +84,21 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             expect(response.body).to be_a(String)
             expect(data.size).to eq(18)
             expect(data[0]['attributes']['stationName']).to eq(nil)
+            expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+          end
+        end
+
+        it 'has access and returns va appointments when mobile facility service fails' do
+          allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_facility_address).and_call_original
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_mobile_facility_service_500',
+                           match_requests_on: %i[method uri], allow_playback_repeats: true) do
+            get '/vaos/v2/appointments', params: params, headers: inflection_header
+            data = JSON.parse(response.body)['data']
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(data.size).to eq(18)
+            expect(data[0]['attributes']['physicalAddress']).to eq(nil)
+            expect(data[17]['attributes']['physicalAddress']).not_to eq(nil)
             expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
           end
         end
@@ -156,6 +182,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             expect(data['attributes']['status']).to eq('booked')
             expect(data['attributes']['minutesDuration']).to eq(20)
             expect(data['attributes']['stationName']).to eq('test_clinic')
+            expect(data['attributes']['physicalAddress']).to eq(test_address)
           end
         end
       end
@@ -180,6 +207,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
             data = JSON.parse(response.body)['data']
             expect(data['attributes']['stationName']).to eq('test_clinic')
+            expect(data['attributes']['physicalAddress']).to eq(test_address)
             expect(data['attributes']['status']).to eq('cancelled')
           end
         end

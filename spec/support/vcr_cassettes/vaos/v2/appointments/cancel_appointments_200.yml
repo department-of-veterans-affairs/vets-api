@@ -54,6 +54,6 @@ http_interactions:
       - max-age=63072000; includeSubDomains; preload
     body:
       encoding: UTF-8
-      string: '{"id":"42081","kind":"clinic","status":"cancelled","serviceType":"type","patientIcn":"1012845331V153043","locationId":"983","clinicId":"1081","reason":"5","requestedPeriods":[{"start":"2021-09-09T12:00:00Z","end":"2021-09-09T23:59:59.999Z"}],"contact":{"telecom":[{"type":"phone","value":"111-222-333"}]},"cancellable":true}'
+      string: '{"id":"42081","kind":"clinic","status":"cancelled","serviceType":"type","patientIcn":"1012845331V153043","locationId":"983","clinic":"1081","reason":"5","requestedPeriods":[{"start":"2021-09-09T12:00:00Z","end":"2021-09-09T23:59:59.999Z"}],"contact":{"telecom":[{"type":"phone","value":"111-222-333"}]},"cancellable":true}'
   recorded_at: Wed, 11 Aug 2021 01:50:18 GMT
 recorded_with: VCR 6.0.0
