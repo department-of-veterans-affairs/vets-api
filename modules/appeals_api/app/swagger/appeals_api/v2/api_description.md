@@ -7,6 +7,9 @@ The Decision Reviews API passes data through to Caseflow, a case management syst
 
 Because this application is designed to allow third-parties to request information on behalf of a Veteran, we are not using VA Authentication Federation Infrastructure (VAAFI) headers or Single Sign On External (SSOe).
 
+### Character Support
+Our CREATE endpoints support the Windows-1252 character set.
+
 ### Authorization and Access
 To gain access to the decision reviews API you must [request an API Key](/apply). API requests are authorized through a symmetric API token which is provided in an HTTP header named `apikey`.
 
@@ -77,6 +80,8 @@ You may check the status of your evidence document upload by using GET `/notice_
 The evidence document upload statuses begin with pending and end with vbms.
 
 Note that until a document status of “received”, “processing”, “success”, or "vbms" is returned, a client cannot consider the document as received by VA. In particular a status of “uploaded” means that the document package has been transmitted, but possibly not validated. Any errors with the document package (unreadable PDF, etc) may cause the status to change to “error”.
+
+The metadata.json file only supports a limited set of characters within the ascii character space. Refer to the <code>documentUploadMetadata</code> schema for more details.
 
 | Status      | What it means |
 | ---        |     ---     |

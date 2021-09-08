@@ -23,8 +23,8 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
   describe '#create' do
     let(:path) { base_path 'notice_of_disagreements' }
 
-    context 'creates an NOD and persists the data' do
-      it 'with all headers' do
+    context 'when all headers are present and valid' do
+      it 'creates an NOD and persists the data' do
         post(path, params: @data, headers: @headers)
         nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
 
@@ -32,13 +32,17 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
         expect(parsed['data']['type']).to eq('noticeOfDisagreement')
         expect(parsed['data']['attributes']['status']).to eq('pending')
       end
+    end
 
-      it 'with the minimum required headers' do
+    context 'with minimum valid headers' do
+      it 'creates an NOD and persists the data' do
         post(path, params: @minimum_valid_data, headers: @minimum_required_headers)
         expect(parsed['data']['type']).to eq('noticeOfDisagreement')
       end
+    end
 
-      it 'fails when a required header is missing' do
+    context 'when a required headers is missing' do
+      it 'returns an error' do
         post(path, params: @data, headers: @minimum_required_headers.except('X-VA-SSN'))
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array

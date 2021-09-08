@@ -6,8 +6,11 @@ require 'appeals_api/form_schemas'
 class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < AppealsApi::ApplicationController
   include AppealsApi::JsonFormatValidation
   include AppealsApi::StatusSimulation
+  include AppealsApi::CharacterUtilities
+  include AppealsApi::CharacterValidation
 
-  skip_before_action(:authenticate)
+  skip_before_action :authenticate
+  before_action :validate_characters, only: %i[create validate]
   before_action :validate_json_format, if: -> { request.post? }
   before_action :validate_json_schema, only: %i[create validate]
   before_action :new_notice_of_disagreement, only: %i[create validate]
@@ -72,9 +75,7 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   end
 
   def request_headers
-    HEADERS.reduce({}) do |hash, key|
-      hash.merge(key => request.headers[key])
-    end.compact
+    HEADERS.index_with { |key| request.headers[key] }.compact
   end
 
   def new_notice_of_disagreement

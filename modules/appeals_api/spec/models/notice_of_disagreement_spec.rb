@@ -87,7 +87,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
   end
 
   describe '#veteran_first_name' do
-    it { expect(notice_of_disagreement.veteran_first_name).to eq 'Jane' }
+    it { expect(notice_of_disagreement.veteran_first_name).to eq 'Jäñe' }
   end
 
   describe '#veteran_last_name' do

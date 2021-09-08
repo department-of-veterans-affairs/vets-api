@@ -6,8 +6,11 @@ require 'appeals_api/form_schemas'
 class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi::ApplicationController
   include AppealsApi::JsonFormatValidation
   include AppealsApi::StatusSimulation
+  include AppealsApi::CharacterUtilities
+  include AppealsApi::CharacterValidation
 
   skip_before_action :authenticate
+  before_action :validate_characters, only: %i[create validate]
   before_action :validate_json_format, if: -> { request.post? }
   before_action :validate_json_schema, only: %i[create validate]
   before_action :new_higher_level_review, only: %i[create validate]
@@ -93,11 +96,7 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
   end
 
   def request_headers
-    HEADERS.reduce({}) do |acc, header_key|
-      header_value = request.headers[header_key]
-
-      header_value.nil? ? acc : acc.merge({ header_key => header_value })
-    end
+    HEADERS.index_with { |key| request.headers[key] }.compact
   end
 
   def new_higher_level_review

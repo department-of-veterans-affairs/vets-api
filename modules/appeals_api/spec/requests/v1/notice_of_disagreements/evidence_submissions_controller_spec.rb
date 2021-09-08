@@ -10,6 +10,8 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
   let(:evidence_submissions) { create_list(:evidence_submission, 3, supportable: notice_of_disagreement) }
   let(:path) { '/services/appeals/v1/decision_reviews/notice_of_disagreements/evidence_submissions/' }
 
+  let(:parsed) { JSON.parse(response.body) }
+
   def with_s3_settings
     with_settings(Settings.modules_appeals_api.evidence_submissions.location,
                   prefix: 'http://some.fakesite.com/path',

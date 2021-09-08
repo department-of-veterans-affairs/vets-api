@@ -23,29 +23,39 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
   describe '#create' do
     let(:path) { base_path 'higher_level_reviews' }
 
-    context 'creates an HLR and persists the data' do
-      it 'with all headers' do
+    context 'with all headers' do
+      it 'creates an HLR and persists the data' do
         post(path, params: @data, headers: @headers)
-
         hlr_guid = JSON.parse(response.body)['data']['id']
         hlr = AppealsApi::HigherLevelReview.find(hlr_guid)
-
         expect(hlr.source).to eq('va.gov')
         expect(parsed['data']['type']).to eq('higherLevelReview')
         expect(parsed['data']['attributes']['status']).to eq('pending')
       end
-      it 'with the minimum required headers' do
+    end
+
+    context 'with minimum required headers' do
+      it 'creates an HLR and persists the data' do
         post(path, params: @data, headers: @minimum_required_headers)
         expect(parsed['data']['type']).to eq('higherLevelReview')
         expect(parsed['data']['attributes']['status']).to eq('pending')
       end
-      it 'fails when a required header is missing' do
+    end
+
+    context 'when header is missing' do
+      it 'responds with status :unprocessable_entity' do
         post(path, params: @data, headers: @minimum_required_headers.except('X-VA-SSN'))
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
       end
+    end
 
-      it 'fails when the phone number is too long' do
+    context 'when phone number is too long' do
+      let(:error_content) do
+        { 'status' => 422, 'detail' => 'Phone number will not fit on form (20 char limit): 9991234567890x1234567890' }
+      end
+
+      it 'responds with status :unprocessable_entity ' do
         data = JSON.parse(@data)
         data['data']['attributes']['veteran'].merge!(
           { 'phone' => { 'areaCode' => '999', 'phoneNumber' => '1234567890', 'phoneNumberExt' => '1234567890' } }
@@ -53,12 +63,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
 
         post(path, params: data.to_json, headers: @minimum_required_headers)
         expect(response.status).to eq(422)
-        expect(parsed['errors']).to include(
-          {
-            'status' => 422,
-            'detail' => 'Phone number will not fit on form (20 char limit): 9991234567890x1234567890'
-          }
-        )
+        expect(parsed['errors']).to include(error_content)
       end
 
       it 'fails when homeless is false but no address is provided' do
@@ -76,40 +81,44 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
       end
     end
 
-    it 'create the job to build the PDF' do
+    it 'creates the job to build the PDF' do
       expect { post(path, params: @data, headers: @headers) }.to(
         change(AppealsApi::HigherLevelReviewPdfSubmitJob.jobs, :size).by(1)
       )
     end
 
-    it 'invalid headers return an error' do
-      post(path, params: @data, headers: @invalid_headers)
-      expect(response.status).to eq(422)
-      expect(parsed['errors'][0]['detail']).to eq('Veteran birth date isn\'t in the past: 3000-12-31')
-    end
-
-    it 'responds with a 422 when request.body is a Puma::NullIO' do
-      fake_puma_null_io_object = Object.new.tap do |obj|
-        def obj.class
-          OpenStruct.new name: 'Puma::NullIO'
-        end
+    context 'when invalid headers supplied' do
+      it 'returns an error' do
+        post(path, params: @data, headers: @invalid_headers)
+        expect(response.status).to eq(422)
+        expect(parsed['errors'][0]['detail']).to eq('Veteran birth date isn\'t in the past: 3000-12-31')
       end
-      expect(fake_puma_null_io_object.class.name).to eq 'Puma::NullIO'
-      allow_any_instance_of(ActionDispatch::Request).to(
-        receive(:body).and_return(fake_puma_null_io_object)
-      )
-      post(path, params: @data, headers: @headers)
-      expect(response.status).to eq 422
-      expect(JSON.parse(response.body)['errors']).to be_an Array
     end
 
-    context 'responds with a 422 when request.body isn\'t a JSON *object*' do
+    context 'when request.body is a Puma::NullIO' do
+      it 'responds with a 422' do
+        fake_puma_null_io_object = Object.new.tap do |obj|
+          def obj.class
+            OpenStruct.new name: 'Puma::NullIO'
+          end
+        end
+        expect(fake_puma_null_io_object.class.name).to eq 'Puma::NullIO'
+        allow_any_instance_of(ActionDispatch::Request).to(
+          receive(:body).and_return(fake_puma_null_io_object)
+        )
+        post(path, params: @data, headers: @headers)
+        expect(response.status).to eq 422
+        expect(JSON.parse(response.body)['errors']).to be_an Array
+      end
+    end
+
+    context 'when request.body isn\'t a JSON *object*' do
       before do
         fake_io_object = OpenStruct.new string: json
         allow_any_instance_of(ActionDispatch::Request).to receive(:body).and_return(fake_io_object)
       end
 
-      context 'request.body is a JSON string' do
+      context 'when request.body is a JSON string' do
         let(:json) { '"Hello!"' }
 
         it 'responds with a properly formed error object' do
@@ -121,7 +130,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         end
       end
 
-      context 'request.body is a JSON integer' do
+      context 'when request.body is a JSON integer' do
         let(:json) { '66' }
 
         it 'responds with a properly formed error object' do

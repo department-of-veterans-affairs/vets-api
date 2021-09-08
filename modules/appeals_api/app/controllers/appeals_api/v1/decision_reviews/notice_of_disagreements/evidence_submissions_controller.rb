@@ -6,10 +6,19 @@ module AppealsApi::V1
       class EvidenceSubmissionsController < AppealsApi::ApplicationController
         include AppealsApi::StatusSimulation
         include SentryLogging
+        include AppealsApi::CharacterUtilities
+        include AppealsApi::CharacterValidation
 
         class EvidenceSubmissionRequestValidatorError < StandardError; end
 
+        HEADERS = JSON.parse(
+          File.read(
+            AppealsApi::Engine.root.join('config/schemas/v1/10182_headers.json')
+          )
+        )['definitions']['nodCreateHeadersRoot']['properties'].keys
+
         skip_before_action :authenticate
+        before_action :validate_characters, only: :create
         before_action :nod_uuid_present?, only: :create
 
         def create
@@ -63,6 +72,10 @@ module AppealsApi::V1
             supportable_id: params[:nod_uuid],
             supportable_type: 'AppealsApi::NoticeOfDisagreement'
           }
+        end
+
+        def request_headers
+          HEADERS.index_with { |key| request.headers[key] }.compact
         end
 
         def log_error(error_detail)
