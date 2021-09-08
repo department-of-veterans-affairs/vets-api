@@ -40,6 +40,18 @@ module Caseflow
       end
     end
 
+    # Returns caseflow data for a user via their SSN or file_number passed as headers
+    def get_legacy_appeals(headers:)
+      with_monitoring do
+        authorized_perform(
+          :get,
+          "#{CASEFLOW_V3_API_PATH}/legacy_appeals".chomp('/'),
+          {},
+          headers
+        )
+      end
+    end
+
     ##
     # Returns contestable issues for a veteran.
     #

@@ -63,6 +63,8 @@ AppealsApi::Engine.routes.draw do
           post 'validate'
         end
       end
+
+      get 'legacy_appeals', to: 'legacy_appeals#index'
     end
   end
 
