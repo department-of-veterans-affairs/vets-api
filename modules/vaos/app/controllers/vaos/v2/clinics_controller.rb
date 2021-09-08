@@ -3,6 +3,8 @@
 module VAOS
   module V2
     class ClinicsController < VAOS::V0::BaseController
+      CLINIC_KEY = 'Clinic'
+
       def index
         response = systems_service.get_facility_clinics(location_id: location_id,
                                                         clinic_ids: params[:clinic_ids],
@@ -16,11 +18,10 @@ module VAOS
       private
 
       def log_clinic_names(clinic_data)
-        clinic_names = {}
         clinic_data.each do |clinic|
-          clinic_names.merge! clinic.service_name => clinic_name_metrics(clinic)
+          clinic_names = { CLINIC_KEY => clinic_name_metrics(clinic) }
+          Rails.logger.info('Clinic names returned', clinic_names.to_json) unless clinic_names.empty?
         end
-        Rails.logger.info('Clinic names returned', clinic_names.to_json)
       end
 
       def clinic_name_metrics(clinic)
