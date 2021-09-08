@@ -69,7 +69,7 @@ module Mobile
           Rails.logger.warn(
             'Could not find matching facility for mobile appointment',
             {
-              appointment_id: appointment_id,
+              appointment_id: appointment.id,
               facility_id: appointment.facility_id,
               sta6aid: appointment.sta6aid,
               id_for_address: appointment.id_for_address
