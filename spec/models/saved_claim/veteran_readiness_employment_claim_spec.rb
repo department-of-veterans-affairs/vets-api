@@ -168,5 +168,9 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       expect(claim).to receive(:process_attachments!)
       claim.send_to_central_mail!
     end
+
+    it 'sets @sent_to_cmp to true' do
+      expect { claim.send_to_central_mail! }.to change(claim, :sent_to_cmp).from(false).to(true)
+    end
   end
 end
