@@ -12,7 +12,11 @@ module FacilitiesApi
         self.open_timeout = Settings.ppms.open_timeout
         self.read_timeout = Settings.ppms.read_timeout
         def base_path
-          Settings.ppms.url
+          if Flipper.enabled?(:facility_locator_ppms_use_secure_api)
+            Settings.ppms.apim_url
+          else
+            Settings.ppms.url
+          end
         end
 
         def service_name
