@@ -496,7 +496,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "2f14a046-395e-4731-b502-099ec54c4fcf",
+                    "id": "f6f7d996-d0e9-4f0f-b8cf-fae056c0c935",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -545,11 +545,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "9299d77e-f0d5-4f81-8623-e86609ae1d9f",
+                          "id": "7965db46-89aa-4988-96df-a2c0fea0a64c",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-09-02T20:01:36.091Z"
+                          "uploaded_at": "2021-09-02T20:40:31.661Z"
                         }
                       ]
                     }
@@ -1012,6 +1012,13 @@
                                   "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                   "maxLength": 20,
                                   "example": "Apt. 22"
+                                },
+                                "addressLine3": {
+                                  "description": "Additional Address Information Veteran resides in.",
+                                  "type": "string",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                  "maxLength": 20,
+                                  "example": "Box 123"
                                 },
                                 "city": {
                                   "description": "City Veteran resides in.",
@@ -2301,7 +2308,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f6edfa78-8a10-4eac-ac9a-aa984a7e049d",
+                    "id": "d49eba36-6515-440e-a1c1-d57a233f5e3e",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2319,13 +2326,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-09-02T20:01:36.519Z",
+                      "updated_at": "2021-09-02T20:40:32.098Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "f6edfa78-8a10-4eac-ac9a-aa984a7e049d",
+                      "token": "d49eba36-6515-440e-a1c1-d57a233f5e3e",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -2738,6 +2745,13 @@
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 20,
                                     "example": "Apt. 22"
+                                  },
+                                  "addressLine3": {
+                                    "description": "Additional Address Information Veteran resides in.",
+                                    "type": "string",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "maxLength": 20,
+                                    "example": "Box 123"
                                   },
                                   "city": {
                                     "description": "City Veteran resides in.",
@@ -4040,7 +4054,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "564f1729-aa87-4d6f-964e-69d5c1e46d25",
+                    "id": "f8fce22d-ab1b-476e-8f4c-f7de1cf3ddce",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4058,13 +4072,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-09-02T20:01:36.857Z",
+                      "updated_at": "2021-09-02T20:40:32.462Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "564f1729-aa87-4d6f-964e-69d5c1e46d25",
+                      "token": "f8fce22d-ab1b-476e-8f4c-f7de1cf3ddce",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -4878,6 +4892,13 @@
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "maxLength": 20,
                                     "example": "Apt. 22"
+                                  },
+                                  "addressLine3": {
+                                    "description": "Additional Address Information Veteran resides in.",
+                                    "type": "string",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "maxLength": 20,
+                                    "example": "Box 123"
                                   },
                                   "city": {
                                     "description": "City Veteran resides in.",
@@ -6180,7 +6201,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "aec10139-195f-4568-b3a1-248f223a068a",
+                    "id": "de20bdbc-9702-452c-a9d4-f9887d1dc669",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6194,7 +6215,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-09-02T20:01:37.580Z",
+                      "updated_at": "2021-09-02T20:40:33.327Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6203,7 +6224,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "2faf2af3-fac9-4ba5-ab7a-636c4c5a70a0",
+                          "id": "90364835-792e-4705-93e6-f107ecd78f3f",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8160,7 +8181,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b9a06485-4472-434a-b4b6-ad36b1104453",
+                    "id": "1b780c21-cab4-4f5d-9a72-35c07988bd69",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
@@ -8873,7 +8894,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a4101361-2dc3-43ab-acb4-46bb6ef579eb",
+                    "id": "768e5f9d-f063-4e03-8dfc-f6ecc2cf3e97",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
@@ -9198,7 +9219,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ebab41ca-19a4-4286-9d4f-aec956b21dc3",
+                    "id": "e3f95d0a-44f6-4de9-b7cd-4809b96ffa47",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
