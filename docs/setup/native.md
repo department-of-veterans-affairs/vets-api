@@ -8,7 +8,7 @@ Vets API requires:
 
   The most up-to-date versions of each key dependency will be specified in the `docker-compose.yml` [file](https://github.com/department-of-veterans-affairs/vets-api/blob/master/docker-compose.yml) and the `Dockerfile`.
 
-  We suggest using a Ruby version manager such as `rbenv`, `asdf`, `rvm`, or `chruby` to install and maintain your version of Ruby.
+  We suggest using a Ruby version manager such as [`rbenv`](https://github.com/rbenv/rbenv#installation), `asdf`, `rvm`, or `chruby` to install and maintain your version of Ruby. 
 
 ## Base Setup
 
@@ -109,7 +109,8 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
 
    - Download the Postgres.app with PostgreSQL 10, 11 and 12
    - Install Instructions here: https://postgresapp.com/
-
+   - `sudo mkdir -p /etc/paths.d && echo /Applications/Postgres.app/Contents/Versions/latest/bin | sudo tee /etc/paths.d/postgresapp`
+   - `ARCHFLAGS="-arch x86_64" gem install pg -v 1.2.3`
    1. Alternatively Postgresql 11 & PostGIS 2.5 can be installed with homebrew
       - `brew install postgresql@11`
       - `brew services start postgresql@11`
