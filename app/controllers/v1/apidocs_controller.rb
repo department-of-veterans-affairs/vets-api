@@ -28,6 +28,10 @@ module V1
         key :name, 'facilities'
         key :description, 'VA facilities, locations, hours of operation, available services'
       end
+      tag do
+        key :name, 'higher_level_reviews'
+        key :description, 'Request a senior reviewer take a new look at a case'
+      end
       key :host, Settings.hostname
       key :schemes, %w[https http]
       key :basePath, '/'
@@ -64,6 +68,9 @@ module V1
       Swagger::V1::Requests::Facilities,
       Swagger::V1::Schemas::Facilities,
       Swagger::V1::Schemas::Errors,
+      Swagger::V1::Requests::Appeals::Appeals,
+      Swagger::V1::Schemas::Appeals::Requests,
+      Swagger::V1::Schemas::Appeals::HigherLevelReview,
       self
     ].freeze
 
