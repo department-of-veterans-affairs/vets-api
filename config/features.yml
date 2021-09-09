@@ -424,6 +424,10 @@ features:
     actor_type: user
     description: Enables the health care check-in experiences to use the lowest tier of authentication, i.e. last 4 and last name
     enable_in_development: true
+  check_in_experience_update_information_page_enabled:
+    actor_type: user
+    description: Enables the Update Information question in the health care check-in experience application
+    enable_in_development: false
   check_in_experience_multiple_appointment_support:
     actor_type: user
     description: Enables the health care check-in experiences to show multiple appointments
