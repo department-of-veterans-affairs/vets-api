@@ -323,17 +323,6 @@ features:
   spool_testing_error_3:
     actor_type: user
     description: Enables email notifications for CreateDailySpoolFiles errors
-  ssoe:
-    actor_type: cookie_id
-    description: Enables ssoe, as opposed to saml authentication wrapped by id.me
-    enable_in_development: true
-  ssoe_ebenefits_links:
-    actor_type: user
-    description: Enable eBenefits links to be proxied through eauth.va.gov, this allows users with SSOe sessions to stay logged in.
-  ssoe_inbound:
-    actor_type: cookie_id
-    description: Enables automatic establishment/disconnection of vets-api session based on a user's SSOe session status
-    enable_in_development: true
   stem_automated_decision:
     actor_type: user
     description: Add automated decision to 10203 application workflow
