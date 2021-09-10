@@ -6,8 +6,10 @@ class AppealsApi::Docs::V2::DocsController < ApplicationController
   SWAGGERED_CLASSES = [
     AppealsApi::V2::HigherLevelReviewsControllerSwagger,
     AppealsApi::V1::NoticeOfDisagreementsControllerSwagger,
+    AppealsApi::V2::LegacyAppealsControllerSwagger,
     AppealsApi::V1::Schemas::NoticeOfDisagreements,
     AppealsApi::V2::Schemas::HigherLevelReviews,
+    AppealsApi::V2::Schemas::LegacyAppeals,
     AppealsApi::V2::SecuritySchemeSwagger,
     AppealsApi::V2::SwaggerRoot
   ].freeze
