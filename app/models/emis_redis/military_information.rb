@@ -142,7 +142,6 @@ module EMISRedis
     # @param military_service_episode [EMIS::Models::MilitaryServiceEpisode]
     #  Military service episode model
     # @return [String] Readable service branch name formatted for EVSS
-    # rubocop:disable Lint/DuplicateBranch
     def service_branch_used_in_disability(military_service_episode)
       category = case military_service_episode.personnel_category_type_code
                  when 'A'
@@ -159,7 +158,6 @@ module EMISRedis
       service_name.gsub!('Air Force National Guard', 'Air National Guard')
       service_name if EVSS_SERVICE_BRANCHES.include? service_name
     end
-    # rubocop:enable Lint/DuplicateBranch
 
     # @return [Array<Hash>] Data about the veteran's service periods
     #  including service branch served under and date range of each

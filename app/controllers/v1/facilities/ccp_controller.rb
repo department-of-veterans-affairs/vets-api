@@ -79,7 +79,6 @@ class V1::Facilities::CcpController < FacilitiesController
     params.permit(:id)
   end
 
-   # rubocop:disable Lint/DuplicateBranch
   def ppms_search
     if ppms_params[:type] == 'provider' && ppms_params[:specialties] == ['261QU0200X']
       api.pos_locator(ppms_params)
@@ -91,7 +90,6 @@ class V1::Facilities::CcpController < FacilitiesController
       api.pos_locator(ppms_params)
     end
   end
-  # rubocop:enable Lint/DuplicateBranch
 
   def resource_path(options)
     v1_facilities_ccp_index_url(options)
