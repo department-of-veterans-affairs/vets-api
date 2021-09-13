@@ -181,6 +181,10 @@ MHV::AccountStatisticsJob:
   cron: "0 */4 * * * America/New_York"
   description: "Log MHV Account Statistics"
 
+AccountLoginStatisticsJob:
+  cron: "0 6 * * * America/New_York"
+  description: "Gather account login statistics for statsd"
+
 ExternalServicesStatusJob:
   every: '1m'
   description: "Checks the current status of all external services through PagerDuty's API"
