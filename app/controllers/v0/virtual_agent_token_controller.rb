@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'erb'
+
 module V0
   class VirtualAgentTokenController < ApplicationController
     skip_before_action :authenticate, only: [:create]
@@ -11,7 +13,7 @@ module V0
       return render status: :not_found unless Flipper.enabled?(:virtual_agent_token)
 
       render json: { token: fetch_connector_token,
-                     apiSession: cookies[:api_session] }
+                     apiSession: ERB::Util.url_encode(cookies[:api_session]) }
     end
 
     private

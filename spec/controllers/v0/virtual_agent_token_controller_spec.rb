@@ -52,6 +52,10 @@ RSpec.describe V0::VirtualAgentTokenController, type: :controller do
         'fake api session'
       end
 
+      let(:url_encoded_api_session) do
+        'fake%20api%20session'
+      end
+
       before do
         allow(Flipper).to receive(:enabled?).with(:virtual_agent_token).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:virtual_agent_bot_a).and_return(true)
@@ -74,7 +78,7 @@ RSpec.describe V0::VirtualAgentTokenController, type: :controller do
 
         res = JSON.parse(response.body)
 
-        expect(res['apiSession']).to eq(api_session)
+        expect(res['apiSession']).to eq(url_encoded_api_session)
       end
 
       it('does not crash when api session cookie does not exist') do
@@ -84,7 +88,7 @@ RSpec.describe V0::VirtualAgentTokenController, type: :controller do
 
         res = JSON.parse(response.body)
 
-        expect(res['apiSession']).to eq(nil)
+        expect(res['apiSession']).to eq('')
       end
     end
 
