@@ -32,7 +32,6 @@ gem 'sass-rails', '>= 6'
 
 # Anchored versions, do not change
 gem 'puma', '~> 5.4.0'
-gem 'puma-plugin-statsd', '~> 2.0.0'
 gem 'rails', '~> 6.1'
 
 # Gems with special version/repo needs
@@ -109,6 +108,7 @@ gem 'pg_search'
 gem 'pghero'
 gem 'prawn'
 gem 'prawn-table'
+gem 'puma-plugin-statsd'
 gem 'pundit'
 gem 'rack'
 gem 'rack-attack'

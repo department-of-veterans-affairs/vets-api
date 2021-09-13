@@ -1074,7 +1074,7 @@ DEPENDENCIES
   prawn-table
   pry-byebug
   puma (~> 5.4.0)
-  puma-plugin-statsd (~> 2.0.0)
+  puma-plugin-statsd
   pundit
   rack
   rack-attack
