@@ -16,6 +16,14 @@ module V0
         Rails.logger.info('PermissionsController#create request completed', sso_logging_info)
       end
 
+      def create_or_update
+        write_to_vet360_and_render_transaction!(
+          'permission',
+          permission_params,
+          http_verb: 'update'
+        )
+      end
+
       def update
         write_to_vet360_and_render_transaction!(
           'permission',

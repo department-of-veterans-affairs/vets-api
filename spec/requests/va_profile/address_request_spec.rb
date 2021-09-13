@@ -20,6 +20,19 @@ RSpec.describe 'address' do
     Timecop.return
   end
 
+  describe 'POST /v0/profile/addresses/create_or_update' do
+    let(:address) { build(:va_profile_address, vet360_id: user.vet360_id) }
+
+    it 'calls update_address' do
+      expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:update_address).and_call_original
+      VCR.use_cassette('va_profile/contact_information/put_address_success') do
+        post('/v0/profile/addresses/create_or_update', params: address.to_json, headers: headers)
+      end
+
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
   describe 'POST /v0/profile/addresses' do
     let(:address) { build(:va_profile_address, vet360_id: user.vet360_id) }
 

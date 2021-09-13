@@ -48,6 +48,45 @@ module VAProfile
         handle_error(e)
       end
 
+      def update_address(address)
+        address_type =
+          if address.address_pou == VAProfile::Models::BaseAddress::RESIDENCE
+            'residential'
+          else
+            'mailing'
+          end
+
+        update_model(address, "#{address_type}_address", 'address')
+      end
+
+      def update_email(email)
+        update_model(email, 'email', 'email')
+      end
+
+      def update_permission(permission)
+        update_model(permission, 'text_permission', 'permission')
+      end
+
+      def update_telephone(telephone)
+        phone_type =
+          case telephone.phone_type
+          when VAProfile::Models::Telephone::MOBILE
+            'mobile_phone'
+          when VAProfile::Models::Telephone::HOME
+            'home_phone'
+          when VAProfile::Models::Telephone::WORK
+            'work_phone'
+          when VAProfile::Models::Telephone::FAX
+            'fax_number'
+          when VAProfile::Models::Telephone::TEMPORARY
+            'temporary_phone'
+          else
+            raise 'invalid phone type'
+          end
+
+        update_model(telephone, phone_type, 'telephone')
+      end
+
       # POSTs a new address to the VAProfile API
       # @param address [VAProfile::Models::Address] the address to create
       # @return [VAProfile::ContactInformation::AddressTransactionResponse] response wrapper around
@@ -180,6 +219,14 @@ module VAProfile
       end
 
       private
+
+      def update_model(model, attr, method_name)
+        contact_info = VAProfileRedis::ContactInformation.for_user(@user)
+        model.id = contact_info.public_send(attr)&.id
+        verb = model.id.present? ? 'put' : 'post'
+
+        public_send("#{verb}_#{method_name}", model)
+      end
 
       def get_email_personalisation(type)
         { 'contact_info' => EMAIL_PERSONALISATIONS[type] }

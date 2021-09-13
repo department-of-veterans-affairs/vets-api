@@ -20,6 +20,19 @@ RSpec.describe 'email_address' do
     Timecop.return
   end
 
+  describe 'POST /v0/profile/email_addresses/create_or_update' do
+    let(:email) { build(:email, vet360_id: user.vet360_id) }
+
+    it 'calls update_email' do
+      expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:update_email).and_call_original
+      VCR.use_cassette('va_profile/contact_information/put_email_success') do
+        post('/v0/profile/email_addresses/create_or_update', params: email.to_json, headers: headers)
+      end
+
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
   describe 'POST /v0/profile/email_addresses' do
     let(:email) { build(:email, vet360_id: user.vet360_id) }
 

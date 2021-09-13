@@ -257,6 +257,60 @@ module Swagger
         end
       end
 
+      swagger_path '/v0/profile/addresses/create_or_update' do
+        operation :post do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, "Create or updates a user's VA profile address"
+          key :operationId, 'changeVaProfileAddress'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :domestic_body
+            key :in, :body
+            key :description, 'Attributes to create a domestic address.'
+            key :required, true
+
+            schema do
+              key :$ref, :PostVet360DomesticAddress
+            end
+          end
+
+          parameter do
+            key :name, :international_body
+            key :in, :body
+            key :description, 'Attributes to create an international address.'
+            key :required, true
+
+            schema do
+              key :$ref, :PostVet360InternationalAddress
+            end
+          end
+
+          parameter do
+            key :name, :military_overseas_body
+            key :in, :body
+            key :description, 'Attributes to create a military overseas address.'
+            key :required, true
+
+            schema do
+              key :$ref, :PostVet360MilitaryOverseasAddress
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :$ref, :AsyncTransactionVet360
+            end
+          end
+        end
+      end
+
       swagger_path '/v0/profile/addresses' do
         operation :post do
           extend Swagger::Responses::AuthenticationError
@@ -542,6 +596,38 @@ module Swagger
             key :description, 'Forbidden'
             schema do
               key :$ref, :EVSSAuthError
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/profile/email_addresses/create_or_update' do
+        operation :post do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Create or update a users VA profile email address'
+          key :operationId, 'changeVaProfileEmailAddress'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes to create an email address.'
+            key :required, true
+
+            schema do
+              key :$ref, :PostVet360Email
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :$ref, :AsyncTransactionVet360
             end
           end
         end
@@ -943,6 +1029,38 @@ module Swagger
         end
       end
 
+      swagger_path '/v0/profile/telephones/create_or_update' do
+        operation :post do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Create or update a users VA profile telephone'
+          key :operationId, 'changeVaProfileTelephone'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes to create a telephone.'
+            key :required, true
+
+            schema do
+              key :$ref, :PostVet360Telephone
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :$ref, :AsyncTransactionVet360
+            end
+          end
+        end
+      end
+
       swagger_path '/v0/profile/telephones' do
         operation :post do
           extend Swagger::Responses::AuthenticationError
@@ -1023,6 +1141,38 @@ module Swagger
 
             schema do
               key :$ref, :PutVet360Telephone
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :$ref, :AsyncTransactionVet360
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/profile/permissions/create_or_update' do
+        operation :post do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Create or update a users VA profile permission'
+          key :operationId, 'changeVet360Permission'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes to create a permission.'
+            key :required, true
+
+            schema do
+              key :$ref, :PostVet360Permission
             end
           end
 

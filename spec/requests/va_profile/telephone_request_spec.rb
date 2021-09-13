@@ -19,6 +19,19 @@ RSpec.describe 'telephone' do
     Timecop.return
   end
 
+  describe 'POST /v0/profile/telephones/create_or_update' do
+    let(:telephone) { build(:telephone, vet360_id: user.vet360_id) }
+
+    it 'calls update_telephone' do
+      expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:update_telephone).and_call_original
+      VCR.use_cassette('va_profile/contact_information/put_telephone_success') do
+        post('/v0/profile/telephones/create_or_update', params: telephone.to_json, headers: headers)
+      end
+
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
   describe 'POST /v0/profile/telephones' do
     let(:telephone) { build(:telephone, vet360_id: user.vet360_id) }
 

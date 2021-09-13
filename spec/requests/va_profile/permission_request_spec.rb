@@ -20,6 +20,19 @@ RSpec.describe 'permission' do
     Timecop.return
   end
 
+  describe 'POST /v0/profile/permissions/create_or_update' do
+    let(:permission) { build(:permission, vet360_id: user.vet360_id) }
+
+    it 'calls update_permission' do
+      expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:update_permission).and_call_original
+      VCR.use_cassette('va_profile/contact_information/put_permission_success') do
+        post('/v0/profile/permissions/create_or_update', params: permission.to_json, headers: headers)
+      end
+
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
   describe 'POST /v0/profile/permissions' do
     let(:permission) { build(:permission, vet360_id: user.vet360_id, id: nil) }
 

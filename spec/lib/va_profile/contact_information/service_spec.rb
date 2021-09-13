@@ -379,6 +379,71 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
     end
   end
 
+  context 'update model methods' do
+    before do
+      VCR.insert_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING)
+      allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
+    end
+
+    after do
+      VCR.eject_cassette
+    end
+
+    [
+      {
+        model_name: 'address',
+        factory: 'va_profile_address',
+        attr: 'residential_address',
+        id: 15_035
+      },
+      {
+        model_name: 'telephone',
+        factory: 'telephone',
+        attr: 'mobile_phone',
+        id: 17_259
+      },
+      {
+        model_name: 'email',
+        factory: 'email',
+        attr: 'email',
+        id: 8087
+      },
+      {
+        model_name: 'permission',
+        factory: 'permission',
+        attr: 'text_permission',
+        id: 361
+      }
+    ].each do |spec_data|
+      describe "#update_#{spec_data[:model_name]}" do
+        let(:model) { build(spec_data[:factory], id: nil) }
+
+        context "when the #{spec_data[:model_name]} doesnt exist" do
+          before do
+            allow_any_instance_of(VAProfileRedis::ContactInformation).to receive(spec_data[:attr]).and_return(nil)
+          end
+
+          it 'makes a post request' do
+            expect_any_instance_of(
+              VAProfile::ContactInformation::Service
+            ).to receive("post_#{spec_data[:model_name]}").with(model)
+            subject.public_send("update_#{spec_data[:model_name]}", model)
+          end
+        end
+
+        context "when the #{spec_data[:model_name]} exists" do
+          it 'makes a put request' do
+            expect(model).to receive(:id=).with(spec_data[:id]).and_call_original
+            expect_any_instance_of(
+              VAProfile::ContactInformation::Service
+            ).to receive("put_#{spec_data[:model_name]}").with(model)
+            subject.public_send("update_#{spec_data[:model_name]}", model)
+          end
+        end
+      end
+    end
+  end
+
   describe '#send_contact_change_notification' do
     let(:transaction) { double }
     let(:transaction_status) do
