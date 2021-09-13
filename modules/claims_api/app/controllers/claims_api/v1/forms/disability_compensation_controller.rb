@@ -253,10 +253,17 @@ module ClaimsApi
 
           return if confinements.nil?
 
-          return if confinements_within_service_periods?(confinements,
-                                                         service_periods) && confinements_dont_overlap?(confinements)
+          within_service_periods_check = confinements_within_service_periods?(confinements, service_periods)
+          not_overlapping_check        = confinements_dont_overlap?(confinements)
+          return if within_service_periods_check && not_overlapping_check
 
-          raise ::Common::Exceptions::InvalidFieldValue.new('confinements', confinements)
+          error_message = if within_service_periods_check
+                            'confinements must not overlap other confinements'
+                          else
+                            'confinements must be within a service period'
+                          end
+
+          raise ::Common::Exceptions::InvalidFieldValue.new(error_message, confinements)
         end
 
         def confinements_within_service_periods?(confinements, service_periods)

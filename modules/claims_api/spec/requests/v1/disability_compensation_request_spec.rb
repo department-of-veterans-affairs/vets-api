@@ -1028,7 +1028,9 @@ RSpec.describe 'Disability Claims ', type: :request do
                 confinementEndDate: (Time.zone.today + 1.week).to_s
               }]
               post path, params: params.to_json, headers: headers.merge(auth_header)
+              response_error_details = JSON.parse(response.body)['errors'].first['detail']
               expect(response.status).to eq(400)
+              expect(response_error_details).to include('confinements must be within a service period')
             end
           end
         end
@@ -1051,7 +1053,9 @@ RSpec.describe 'Disability Claims ', type: :request do
 
               }]
               post path, params: params.to_json, headers: headers.merge(auth_header)
+              response_error_details = JSON.parse(response.body)['errors'].first['detail']
               expect(response.status).to eq(400)
+              expect(response_error_details).to include('confinements must not overlap other confinements')
             end
           end
         end
