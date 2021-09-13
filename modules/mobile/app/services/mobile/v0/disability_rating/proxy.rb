@@ -15,7 +15,12 @@ module Mobile
                                                                in_threads: 2, &:call)
           Mobile::V0::Adapters::Rating.new.disability_ratings(combine_response, individual_response)
         rescue => e
-          status_code = e.respond_to?('response') ? e.response[:status] : e.status_code
+          status_code, details = if e.respond_to?('response')
+                                   [e.response[:status], e.response]
+                                 else
+                                   [e.status_code, e.errors]
+                                 end
+          Rails.logger.info('Mobile Disability Rating Error Details: ', details: details)
           case status_code
           when 400
             raise Common::Exceptions::BackendServiceException, 'MOBL_404_rating_not_found'
