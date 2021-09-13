@@ -759,7 +759,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
         context 'responds with a 422 when request.body isn\'t a JSON *object*' do
           before do
-            fake_io_object = OpenStruct.new string: json
+            fake_io_object = OpenStruct.new read: json
             allow_any_instance_of(ActionDispatch::Request).to receive(:body).and_return(fake_io_object)
           end
 

@@ -11,12 +11,12 @@ module ClaimsApi
           return
         end
 
-        @json_body = JSON.parse request.body.string
+        @json_body = JSON.parse request.body.read
         return if @json_body.is_a? Hash
 
         render_body_is_not_a_hash_error @json_body
       rescue JSON::ParserError
-        render_body_is_not_a_hash_error request.body.string
+        render_body_is_not_a_hash_error request.body.read
       end
 
       def render_body_is_not_a_hash_error(body)
