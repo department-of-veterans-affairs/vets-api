@@ -920,9 +920,16 @@ RSpec.describe SAML::User do
           build(:ssoe_inbound_dslogon_level2,
                 va_eauth_uid: ['NOT_FOUND'])
         end
+        let(:expected_log_params) { { sec_id_identifier: subject.user_attributes.uuid } }
+        let(:expected_log_message) { 'Inbound Authentication without ID.me UUID' }
 
         it 'validates' do
           expect { subject.validate! }.not_to raise_error
+        end
+
+        it 'logs to rails logger' do
+          expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_params)
+          subject.validate!
         end
       end
     end

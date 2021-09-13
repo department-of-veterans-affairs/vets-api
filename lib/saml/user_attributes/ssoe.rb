@@ -88,17 +88,16 @@ module SAML
 
       ### Identifiers
       def uuid
-        raise Common::Exceptions::InvalidResource, @attributes unless idme_uuid || sec_id
-
         return idme_uuid if idme_uuid
-
         # The sec_id is not a UUID, and while unique this has a potential to cause issues
         # in downstream processes that are expecting a user UUID to be 32 bytes. For
         # example, if there is a log filtering process that was striping out any 32 byte
         # id, an 10 byte sec id would be missed. Using a one way UUID hash, will convert
         # the sec id to a 32 byte unique identifier so that any downstream processes will
         # will treat it exactly the same as a typical 32 byte ID.me identifier.
-        Digest::UUID.uuid_v3('sec-id', sec_id).tr('-', '')
+        return Digest::UUID.uuid_v3('sec-id', sec_id).tr('-', '') if sec_id
+
+        raise Common::Exceptions::InvalidResource, @attributes
       end
 
       def idme_uuid
@@ -222,12 +221,16 @@ module SAML
       def should_raise_idme_uuid_error
         return false if idme_uuid
 
-        @saml_settings.nil? || auth_context_is_v1_and_not_inbound
+        if auth_context_is_inbound
+          Rails.logger.info('Inbound Authentication without ID.me UUID', sec_id_identifier: uuid)
+          return false
+        end
+
+        true
       end
 
-      def auth_context_is_v1_and_not_inbound
-        @saml_settings.assertion_consumer_service_url =~ %r{/v1/} &&
-          @authn_context != INBOUND_AUTHN_CONTEXT
+      def auth_context_is_inbound
+        @authn_context == INBOUND_AUTHN_CONTEXT
       end
 
       def mvi_ids
