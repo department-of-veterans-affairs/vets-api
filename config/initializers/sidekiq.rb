@@ -26,7 +26,6 @@ Rails.application.reloader.to_prepare do
     end
 
     config.server_middleware do |chain|
-      chain.add Middleware::Sidekiq::OnlyRunWhileUp
       chain.add Sidekiq::SemanticLogging
       chain.add SidekiqStatsInstrumentation::ServerMiddleware
       chain.add Sidekiq::RetryMonitoring

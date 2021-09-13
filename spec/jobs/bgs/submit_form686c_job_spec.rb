@@ -3,8 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe BGS::SubmitForm686cJob, type: :job do
-  subject { described_class.new.perform(user.uuid, dependency_claim.id, vet_info) }
-
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
   let(:dependency_claim) { create(:dependency_claim) }
   let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
@@ -21,33 +19,16 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
     }
   end
 
-  context 'when it is a Thursday at 2AM UTC' do
-    subject { described_class.perform_async(user.uuid, dependency_claim.id, vet_info) }
-
-    before { Timecop.freeze(Time.zone.parse('2021-09-09T02:00:00Z')) }
-
-    after { Timecop.return }
-
-    it 'does not submit the 686' do
-      client_stub = instance_double('BGS::Form686c')
-      allow(BGS::Form686c).to receive(:new).with(an_instance_of(User)) { client_stub }
-      expect(client_stub).not_to receive(:submit)
-
-      subject
-      described_class.perform_one
-    end
-  end
-
   it 'calls #submit for 686c submission' do
     client_stub = instance_double('BGS::Form686c')
     allow(BGS::Form686c).to receive(:new).with(an_instance_of(User)) { client_stub }
     expect(client_stub).to receive(:submit).once
 
-    subject
+    described_class.new.perform(user.uuid, dependency_claim.id, vet_info)
   end
 
-  context 'when submission raises error' do
-    it 'calls DependentsApplicationFailureMailer' do
+  context 'error' do
+    it 'calls #submit for 686c submission' do
       client_stub = instance_double('BGS::Form686c')
       mailer_double = double('Mail::Message')
       allow(BGS::Form686c).to receive(:new).with(an_instance_of(User)) { client_stub }
@@ -56,7 +37,7 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
       allow(mailer_double).to receive(:deliver_now)
       expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(User)) { mailer_double }
 
-      subject
+      described_class.new.perform(user.uuid, dependency_claim.id, vet_info)
     end
   end
 end

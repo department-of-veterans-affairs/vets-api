@@ -25,10 +25,6 @@ module BGS
       DependentsApplicationFailureMailer.build(user).deliver_later if user.present?
     end
 
-    def downtime_checks
-      [{ service_name: 'BDN', extra_delay: 120 }]
-    end
-
     private
 
     def valid_claim_data(saved_claim_id, vet_info)
