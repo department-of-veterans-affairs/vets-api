@@ -112,6 +112,22 @@ RSpec.describe AfterLoginJob do
 
           expect(stat.idme_at).not_to be_blank
         end
+
+        it 'will trigger sentry error if update fails' do
+          allow_any_instance_of(AccountLoginStat).to receive(:update!).and_raise('Failure!')
+          expect_any_instance_of(described_class).to receive(:log_error)
+          described_class.new.perform('user_uuid' => user.uuid)
+        end
+      end
+
+      context 'with a non-existant account' do
+        before { allow_any_instance_of(User).to receive(:account).and_return(nil) }
+
+        it 'will trigger sentry error message' do
+          expect_any_instance_of(described_class).to receive(:no_account_log_message)
+          expect { described_class.new.perform('user_uuid' => user.uuid) }.not_to \
+            change(AccountLoginStat, :count)
+        end
       end
     end
   end
