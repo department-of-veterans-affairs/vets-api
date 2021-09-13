@@ -1141,7 +1141,6 @@ DEPENDENCIES
   web-console
   webmock
   webrick (>= 1.6.1)
-  websocket-extensions (>= 0.1.5)
   will_paginate
   with_advisory_lock
   yard

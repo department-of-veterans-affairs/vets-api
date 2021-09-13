@@ -4,10 +4,6 @@ source 'https://rubygems.org'
 
 ruby '~> 2.6.6'
 
-# temp fix for security vulnerability, hopefulle we can remove this line with the next rails patch
-# https://blog.jcoglan.com/2020/06/02/redos-vulnerability-in-websocket-extensions/
-gem 'websocket-extensions', '>= 0.1.5'
-
 # Modules
 path 'modules' do
   gem 'appeals_api'
