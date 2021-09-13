@@ -1046,8 +1046,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           'form526' => {
             'vaTreatmentFacilities' => [
               {
-                'treatmentDateRange' => {
-                },
                 'treatmentCenterName' => 'Super Hospital',
                 'treatmentCenterAddress' => {
                   'country' => 'USA',
