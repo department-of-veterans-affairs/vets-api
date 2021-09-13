@@ -64,8 +64,6 @@ module EducationForm::Forms
       @text = format unless self.class == Base
     end
 
-    # rubocop:disable Style/AsciiComments
-
     # @note
     #   The input fixtures in {spec/fixtures/education_benefits_claims/**/*.json contain
     #   Windows-1252 encoding "double right-single-quotation-mark", (’) Unicode %u2019
@@ -74,7 +72,6 @@ module EducationForm::Forms
     #   Workaround is to sub the ASCII apostrophe, though other non-UTF-8 chars might break specs
     #
     # Convert the JSON/OStruct document into the text format that we submit to the backend
-    # rubocop:enable Style/AsciiComments
     def format
       @applicant = @form
       # the spool file has a requirement that lines be 80 bytes (not characters), and since they
