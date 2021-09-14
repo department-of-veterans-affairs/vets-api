@@ -12,7 +12,13 @@ describe VAOS::JwtWrapper do
   let(:jwt_regex) { %r{^[A-Za-z0-9\-_=]+\.[A-Za-z0-9\-_=]+\.?[A-Za-z0-9\-_.+/=]*$} }
 
   describe '#token' do
-    before { allow(File).to receive(:read).and_return(rsa_private) }
+    before do
+      allow(File).to receive(:read).and_return(rsa_private)
+      time = Time.utc(2021, 9, 13, 19, 30, 11)
+      Timecop.freeze(time)
+    end
+
+    after { Timecop.return }
 
     it 'returns a JWT string' do
       expect(subject.token).to be_a(String).and match(jwt_regex)
@@ -53,7 +59,7 @@ describe VAOS::JwtWrapper do
         expect(decoded_payload['ssn']).to eq('796061976')
       end
 
-      xit 'includes a exp(iration) timestamp' do
+      it 'includes a exp(iration) timestamp' do
         expect(decoded_payload['exp']).to eq(Time.now.utc.to_i + 900)
       end
 
