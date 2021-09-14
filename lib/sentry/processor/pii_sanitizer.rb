@@ -50,7 +50,7 @@ module Sentry
       FILTER_MASK_BLANK = FILTER_MASK + '-BLANK'
 
       def process(unsanitized_object)
-        sanitize(unsanitized_object.dup)
+        sanitize(unsanitized_object.deep_dup)
       end
 
       private

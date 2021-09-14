@@ -11,6 +11,21 @@ RSpec.describe Sentry::Processor::PIISanitizer do
   let(:processor) { Sentry::Processor::PIISanitizer.new(client) }
   let(:result) { processor.process(data) }
 
+  describe '#process' do
+    let(:data) do
+      {
+        foo: {
+          state: 'state'
+        }
+      }
+    end
+
+    it 'doesnt mutate the original data' do
+      result
+      expect(data[:foo][:state]).to eq('state')
+    end
+  end
+
   # These are needed for communicating issues to downstream parties and should not be sanitized
   context 'sanitization exceptions' do
     let(:data) do
