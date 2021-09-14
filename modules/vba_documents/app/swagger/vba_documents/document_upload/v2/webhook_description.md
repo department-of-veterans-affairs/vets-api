@@ -5,7 +5,7 @@ The following demonstrates a form-data payload suitable for submitting to the PO
 This is an example curl command when using Webhooks:
 
 ```
-'curl --location --request POST 'https://dev-api.va.gov/services/vba_documents/v2/uploads' \
+'curl --location --request POST 'https://dev-api.va.gov/v1/webhooks/register' \
 --header 'apikey: <yourAPIkey>' \
 --form 'observers="{
   \"subscriptions\": [

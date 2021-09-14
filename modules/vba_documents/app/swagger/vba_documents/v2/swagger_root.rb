@@ -22,7 +22,7 @@ module VBADocuments
         end
 
         server do
-          key :url, 'https://dev-api.va.gov/services/vba_documents/{version}'
+          key :url, 'https://dev-api.va.gov/'
           key :description, 'VA.gov API dev environment'
           variable :version do
             key :default, 'v2'

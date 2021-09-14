@@ -1,5 +1,5 @@
 {
-  "observers": {
+  "webhook": {
     "subscriptions": [
       {
         "event": "gov.va.developer.benefits-intake.status_change",
