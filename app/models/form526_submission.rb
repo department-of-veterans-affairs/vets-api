@@ -290,7 +290,7 @@ class Form526Submission < ApplicationRecord
     uploads = form[FORM_526_UPLOADS]
     delay = 60.seconds
     uploads.each do |upload|
-      EVSS::DisabilityCompensationForm::SubmitUploads.perform_in(delay, id, [upload])
+      EVSS::DisabilityCompensationForm::SubmitUploads.perform_in(delay, id, upload)
       delay += 15.seconds
     end
   end
