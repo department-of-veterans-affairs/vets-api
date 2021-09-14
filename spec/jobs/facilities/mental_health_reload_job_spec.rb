@@ -48,7 +48,7 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
     expect(FacilityMentalHealth.find('202A')).not_to be_nil
   end
 
-  it 'updates modified data' do
+  xit 'updates modified data' do
     now = Time.now.utc.iso8601
     Facilities::MentalHealthReloadJob.new.perform
     expect(FacilityMentalHealth.find('101A').mh_phone).to eq('407-123-1234')
