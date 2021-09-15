@@ -75,6 +75,8 @@ Example `metadata.json` file:
 
 You may check the status of your evidence document upload by using GET `/notice_of_disagreements/evidence_submissions/{uuid}`. If, after you've uploaded a document, the status hasn't changed to `uploaded` before 15 minutes has elapsed, we recommend retrying the submission to make sure the document properly reaches our servers.
 
+Evidence may only be uploaded within 90 days of the NOD reaching submitted status. After 90 days an error will be returned if evidence uploads related to this NOD are attempted.
+
 ### Evidence Upload Statuses
 
 The evidence document upload statuses begin with pending and end with vbms.
