@@ -29,8 +29,16 @@ RSpec.describe Ch31SubmissionsReportMailer, type: %i[mailer aws_helpers] do
         subject
         text = described_class::REPORT_TEXT
         expect(mail.subject).to eq(text)
-        body = File.read('spec/fixtures/vre_claim/ch31_submissions_report.html').gsub(/\n/, "\r\n")
-        expect(mail.body.encoded).to eq(body)
+        expect(mail.body.encoded).to include(
+          'Count',
+          'Regional Office',
+          'PID',
+          'Date Application Received',
+          'Type of Form',
+          'e-VA',
+          'Tele-counseling',
+          'Total'
+        )
       end
 
       it 'emails the the right staging recipients' do
