@@ -16,6 +16,10 @@ FactoryBot.define do
     trait :status_received do
       status { 'received' }
     end
+    trait :completed_a_day_ago do
+      updated_at { 1.day.ago }
+      status { 'success' }
+    end
     trait :completed_a_week_ago do
       updated_at { 8.days.ago }
       status { 'success' }

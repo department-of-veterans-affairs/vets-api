@@ -7,6 +7,10 @@ module AppealsApi
   class HigherLevelReview < ApplicationRecord
     include HlrStatus
 
+    scope :pii_expunge_policy, lambda {
+      where('updated_at < ? AND status IN (?)', 7.days.ago, COMPLETE_STATUSES)
+    }
+
     def self.past?(date)
       date < Time.zone.today
     end

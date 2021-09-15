@@ -15,6 +15,13 @@ FactoryBot.define do
     trait :status_received do
       status { 'submitted' }
     end
+    trait :status_completed do
+      status { AppealsApi::NoticeOfDisagreement::COMPLETE_STATUSES.sample }
+    end
+    trait :completed_a_day_ago do
+      updated_at { 1.day.ago }
+      status { AppealsApi::NoticeOfDisagreement::COMPLETE_STATUSES.sample }
+    end
     trait :completed_a_week_ago do
       updated_at { 8.days.ago }
       status { AppealsApi::NoticeOfDisagreement::COMPLETE_STATUSES.sample }

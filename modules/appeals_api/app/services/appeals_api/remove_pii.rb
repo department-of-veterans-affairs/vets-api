@@ -40,19 +40,13 @@ module AppealsApi
     end
 
     def records_to_be_expunged
-      # complete forms that contain pii over a week old
-
       @records_to_be_expunged ||=
         form_type.where.not(encrypted_form_data: nil)
                  .or(
                    form_type.where.not(
                      encrypted_auth_headers: nil
                    )
-                 ).where(
-                   status: form_type::COMPLETE_STATUSES
-                 ).where(
-                   'updated_at < ?', 1.week.ago
-                 )
+                 ).pii_expunge_policy
     end
 
     def records_were_not_cleared(result)

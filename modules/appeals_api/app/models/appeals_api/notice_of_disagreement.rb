@@ -7,6 +7,15 @@ module AppealsApi
   class NoticeOfDisagreement < ApplicationRecord
     include NodStatus
 
+    scope :pii_expunge_policy, lambda {
+      where(
+        status: COMPLETE_STATUSES
+      ).and(
+        where('updated_at < ? AND board_review_option IN (?)', 1.week.ago, %w[hearing direct_review])
+        .or(where('updated_at < ? AND board_review_option IN (?)', 91.days.ago, 'evidence_submission'))
+      )
+    }
+
     def self.load_json_schema(filename)
       MultiJson.load File.read Rails.root.join('modules', 'appeals_api', 'config', 'schemas', "#{filename}.json")
     end
