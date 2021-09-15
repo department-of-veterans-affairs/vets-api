@@ -8,6 +8,13 @@ describe V1::Chip::Service do
   let(:id) { 'd602d9eb-9a31-484f-9637-13ab0b507e0d' }
   let(:valid_check_in) { CheckIn::PatientCheckIn.build(uuid: id) }
   let(:invalid_check_in) { CheckIn::PatientCheckIn.build(uuid: '1234') }
+  let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
+
+  before do
+    allow(Rails).to receive(:cache).and_return(memory_store)
+
+    Rails.cache.clear
+  end
 
   describe '.build' do
     it 'returns an instance of Service' do
@@ -30,6 +37,12 @@ describe V1::Chip::Service do
       allow_any_instance_of(V1::Chip::Request).to receive(:post).with(opts).and_return(faraday_response)
 
       hsh = { data: faraday_response.body, status: faraday_response.status }
+
+      Rails.cache.write(
+        'check_in_lorota_v1_d602d9eb-9a31-484f-9637-13ab0b507e0d_read.full',
+        '12345',
+        namespace: 'check-in-lorota-v1-cache'
+      )
 
       expect(subject.build(valid_check_in).create_check_in).to eq(hsh)
     end

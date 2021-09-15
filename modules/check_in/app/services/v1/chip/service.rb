@@ -15,15 +15,15 @@ module V1
       end
 
       def initialize(check_in)
+        @settings = Settings.check_in.chip_api_v1
         @check_in = check_in
         @request = Request.build
         @response = Response
         @session = Session.build
-        @settings = Settings.check_in.chip_api_v1
       end
 
       def create_check_in
-        return handle_response(client_error) unless valid?
+        return response.build(response: client_error).handle unless valid?
 
         token = session.retrieve
         resp = request.post(path: "/#{base_path}/actions/check-in/#{uuid}", access_token: token)

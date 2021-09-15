@@ -11,7 +11,7 @@ CheckIn::Engine.routes.draw do
   end
 
   namespace :v1, defaults: { format: :json } do
-    resources :patient_check_ins, only: %i[index create]
+    resources :patient_check_ins, only: %i[show create]
     resources :sessions, only: %i[show create]
   end
 end
