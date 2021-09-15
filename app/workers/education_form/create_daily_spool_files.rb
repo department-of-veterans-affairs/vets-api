@@ -199,7 +199,7 @@ module EducationForm
     end
 
     def log_to_email(region)
-      return unless Flipper.enabled?(:spool_testing_error_3)
+      return unless Flipper.enabled?(:spool_testing_error_3) && !FeatureFlipper.staging_email?
 
       CreateDailySpoolFilesMailer.build(region).deliver_now
     end

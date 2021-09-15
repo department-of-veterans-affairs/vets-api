@@ -122,13 +122,6 @@ edu:
       - VAVBAHIN/TIMS@vba.va.gov
       - EDUAPPMGMT.VBACO@VA.GOV
     staging_emails:
-      - sonntag_adam@bah.com
-      - shawkey_daniel@bah.com
-      - neel_darrell@bah.com
-      - turner_desiree@bah.com
-      - mccurdy_devin@bah.com
-      - roth_matthew@bah.com
-      - delli-gatti_michael@bah.com
 dependents:
   prefill: true
 
@@ -545,18 +538,12 @@ reports:
       - tammy.hurley1@va.gov
     staging_emails:
       - Brian.Grubb@va.gov
-      - Darrell.Neel@va.gov
-      - Delli-Gatti_Michael@bah.com
       - Joseph.Preisser@va.gov
       - kyle.pietrosanto@va.gov
       - lihan@adhocteam.us
       - Lucas.Tickner@va.gov
-      - Neel_Darrell@bah.com
       - Ricardo.DaSilva@va.gov
-      - shawkey_daniel@bah.com
-      - sonntag_adam@bah.com
       - tammy.hurley1@va.gov
-      - Turner_Desiree@bah.com
   spool_submission:
     emails:
       - Brian.Grubb@va.gov
@@ -573,18 +560,12 @@ reports:
       - tammy.hurley1@va.gov
     staging_emails:
       - Brian.Grubb@va.gov
-      - Darrell.Neel@va.gov
-      - Delli-Gatti_Michael@bah.com
       - Joseph.Preisser@va.gov
       - kyle.pietrosanto@va.gov
       - lihan@adhocteam.us
       - Lucas.Tickner@va.gov
-      - Neel_Darrell@bah.com
       - Ricardo.DaSilva@va.gov
-      - shawkey_daniel@bah.com
-      - sonntag_adam@bah.com
       - tammy.hurley1@va.gov
-      - Turner_Desiree@bah.com
   year_to_date_report:
     emails:
       - 222A.VBAVACO@va.gov
@@ -593,7 +574,6 @@ reports:
       - Brandon.Scott2@va.gov
       - Brian.Grubb@va.gov
       - Christina.DiTucci@va.gov
-      - Darla.vanNieukerk@va.gov
       - EDU.VBAMUS@va.gov
       - John.McNeal@va.gov
       - Joseph.Preisser@va.gov
@@ -607,7 +587,6 @@ reports:
       - tammy.hurley1@va.gov
     staging_emails:
       - Brian.Grubb@va.gov
-      - Delli-Gatti_Michael@bah.com
       - Joseph.Preisser@va.gov
       - kyle.pietrosanto@va.gov
       - lee.munson@va.gov
@@ -615,15 +594,11 @@ reports:
       - Lucas.Tickner@va.gov
       - matthew.ziolkowski@va.gov
       - Michael.Johnson19@va.gov
-      - neel_darrell@bah.com
       - patrick.burk@va.gov
       - preston.sanders@va.gov
       - robyn.noles@va.gov
       - Ricardo.DaSilva@va.gov
-      - shawkey_daniel@bah.com
-      - sonntag_adam@bah.com
       - tammy.hurley1@va.gov
-      - turner_desiree@bah.com
 
 oidc:
   auth_server_metadata_url: ~
@@ -738,12 +713,10 @@ flipper:
     - craig.wheeler@gcio.com
     - dan.hinze@adhocteam.us
     - dat.tran@gcio.com
-    - delli-gatti_michael@bah.com
     - devinmccurdy@gmail.com
     - dnalbach@governmentcio.com
     - draju@governmentcio.com
     - dror@matal.com
-    - elder_joseph@bah.com
     - eric.buckley@adhocteam.us
     - eric.boehs@oddball.io
     - erik@adhocteam.us
@@ -778,7 +751,6 @@ flipper:
     - ltran@thoughtworks.com
     - marisa.hoenig@thoughtworks.com
     - mark.greenburg@adhocteam.us
-    - mccurdy_devin@bah.com
     - mdewey@governmentcio.com
     - micah@adhocteam.us
     - michel.mcdonald@adhocteam.us
@@ -795,23 +767,18 @@ flipper:
     - pherbert@thoughtworks.com
     - regarr@gmail.com # Robin Garrison - AdHoc
     - riley.anderson@oddball.io
-    - roth_matthew@bah.com
     - ryan.leahy@adhocteam.us # Ryan Leahy - Adhoc
     - ryan.thurlwell@va.gov
     - saman.moshafi@thoughtworks.com
     - samara.strauss@va.gov
     - scy0846@gmail.com # Taylor Mitchell - GCIO
-    - shawkey_daniel@bah.com
     - shefai.nayak@thoughtworks.com
-    - sonntag_adam@bah.com
     - ssuddath@governmentcio.com
     - stephen.barrs@va.gov
     - tony.williams@va.gov
     - travis.hilton@oddball.io
     - trevor.bosaw@oddball.io
-    - turner_desiree@bah.com
     - tze@adhocteam.us
-    - zurbergram@gmail.com
     - zmorel@governmentcio.com
     - kha.huynh@thoughtworks.com
     - zach.morel@gcio.com
