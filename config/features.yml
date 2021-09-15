@@ -42,6 +42,22 @@ features:
   cerner_override_757:
     actor_type: user
     description: This will show the Cerner facility 757 as `isCerner`.
+  check_in_experience_enabled:
+    actor_type: user
+    description: Enables the health care check-in experiences
+    enable_in_development: true
+  check_in_experience_low_authentication_enabled:
+    actor_type: user
+    description: Enables the health care check-in experiences to use the lowest tier of authentication, i.e. last 4 and last name
+    enable_in_development: true
+  check_in_experience_update_information_page_enabled:
+    actor_type: user
+    description: Enables the Update Information question in the health care check-in experience application
+    enable_in_development: false
+  check_in_experience_multiple_appointment_support:
+    actor_type: user
+    description: Enables the health care check-in experiences to show multiple appointments
+    enable_in_development: true
   coe_access:
     actor_type: user
     description: Feature gates the certificate of eligibility application
@@ -114,6 +130,9 @@ features:
     actor_type: user
     description: Allow user to upload files up to 150 MB in size (EVSS endpoint for 526 & CST)
     enable_in_development: true
+  ezcg_use_facility_api:
+    actor_type: user
+    description: Enables 1010EZ & 1010CG to use the Facility API instead of JSON schema
   discharge_wizard_features:
     actor_type: user
     description: Iteration of new features for discharge wizard
@@ -127,6 +146,10 @@ features:
   facilities_ppms_suppress_pharmacies:
     actor_type: user
     description: Front End Flag to suppress the ability to search for pharmacies
+  facilities_vet_center_automate_nearby:
+    actor_type: user
+    description: Automatically fetch nearby Vet Centers on Vet Center locations pages
+    enable_in_development: true
   facility_locator_covid_vaccine_walk_in_availability_text_frontend:
     actor_type: user
     description: Enable covid vaccine walk-in availability text within covid vaccine related search results
@@ -416,22 +439,3 @@ features:
     actor_type: user
     description: Enhances Yellow Ribbon MVP.
     enable_in_development: true
-  check_in_experience_enabled:
-    actor_type: user
-    description: Enables the health care check-in experiences
-    enable_in_development: true
-  check_in_experience_low_authentication_enabled:
-    actor_type: user
-    description: Enables the health care check-in experiences to use the lowest tier of authentication, i.e. last 4 and last name
-    enable_in_development: true
-  check_in_experience_update_information_page_enabled:
-    actor_type: user
-    description: Enables the Update Information question in the health care check-in experience application
-    enable_in_development: false
-  check_in_experience_multiple_appointment_support:
-    actor_type: user
-    description: Enables the health care check-in experiences to show multiple appointments
-    enable_in_development: true
-  ezcg_use_facility_api:
-    actor_type: user
-    description: Enables 1010EZ & 1010CG to use the Facility API instead of JSON schema
