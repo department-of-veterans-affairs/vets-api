@@ -32,6 +32,7 @@ require 'support/uploader_helpers'
 require 'super_diff/rspec-rails'
 require 'super_diff/active_support'
 require './spec/support/default_configuration_helper'
+require 'sidekiq/downtime_checker_middleware'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
@@ -82,6 +83,7 @@ ActiveRecord::Migration.maintain_test_schema!
 require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 Sidekiq::Testing.server_middleware do |chain|
+  chain.add Sidekiq::DowntimeCheckerMiddleware
   chain.add Sidekiq::SemanticLogging
   chain.add Sidekiq::ErrorTag
 end

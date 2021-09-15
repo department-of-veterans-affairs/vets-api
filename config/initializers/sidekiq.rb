@@ -7,6 +7,7 @@ require 'sidekiq/error_tag'
 require 'sidekiq/semantic_logging'
 require 'sidekiq/set_request_id'
 require 'sidekiq/set_request_attributes'
+require 'sidekiq/downtime_checker_middleware'
 
 Rails.application.reloader.to_prepare do
   Sidekiq::Enterprise.unique! if Rails.env.production?
@@ -26,6 +27,7 @@ Rails.application.reloader.to_prepare do
     end
 
     config.server_middleware do |chain|
+      chain.add Sidekiq::DowntimeCheckerMiddleware
       chain.add Sidekiq::SemanticLogging
       chain.add SidekiqStatsInstrumentation::ServerMiddleware
       chain.add Sidekiq::RetryMonitoring
