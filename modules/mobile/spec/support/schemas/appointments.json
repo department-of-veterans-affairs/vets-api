@@ -30,6 +30,7 @@
               "healthcareService",
               "location",
               "minutesDuration",
+              "phoneOnly",
               "startDateLocal",
               "startDateUtc",
               "status",
@@ -157,6 +158,9 @@
                   "integer",
                   "null"
                 ]
+              },
+              "phoneOnly": {
+                "type": "boolean"
               },
               "startDateLocal": {
                 "type": "string"

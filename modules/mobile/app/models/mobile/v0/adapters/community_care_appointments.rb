@@ -54,6 +54,7 @@ module Mobile
             healthcare_service: appointment_hash[:provider_practice],
             location: location,
             minutes_duration: 60, # not in raw data, matches va.gov default for cc appointments
+            phone_only: false,
             start_date_local: start_date_local,
             start_date_utc: start_date_utc,
             status: BOOKED_STATUS,

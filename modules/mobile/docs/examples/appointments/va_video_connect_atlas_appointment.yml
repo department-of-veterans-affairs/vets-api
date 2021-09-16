@@ -25,6 +25,7 @@ data:
         url: null
         code: GL45678
       minutesDuration: 60
+      phoneOnly: false
       startDateLocal: 2019-04-20T14:15:00.000-04:00
       startDateUtc: 2019-04-20T18:15:00.000Z
       status: BOOKED

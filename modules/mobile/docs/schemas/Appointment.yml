@@ -22,6 +22,7 @@ properties:
       - healthcareService
       - location
       - minutesDuration
+      - phoneOnly
       - startDateLocal
       - startDateUtc
       - status
@@ -107,6 +108,9 @@ properties:
       minutesDuration:
         type: integer
         example: 60
+      phoneOnly:
+        type: boolean
+        example: true
       startDateLocal:
         type: datetime
         example: 2019-04-20T14:15:00.000-04:00

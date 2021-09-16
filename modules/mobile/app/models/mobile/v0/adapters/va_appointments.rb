@@ -117,6 +117,7 @@ module Mobile
             healthcare_service: healthcare_service(appointment_hash, details, type),
             location: location(details, type, facility_id),
             minutes_duration: minutes_duration(details, type),
+            phone_only: appointment_hash[:phone_only] == true,
             start_date_local: start_date_local,
             start_date_utc: start_date_utc,
             status: status,

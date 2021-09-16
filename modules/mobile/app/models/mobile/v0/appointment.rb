@@ -50,6 +50,7 @@ module Mobile
       attribute :healthcare_service, Types::String.optional
       attribute :location, AppointmentLocation.optional
       attribute :minutes_duration, Types::Integer
+      attribute :phone_only, Types::Bool
       attribute :start_date_local, Types::DateTime
       attribute :start_date_utc, Types::DateTime
       attribute :status, STATUS_TYPE
