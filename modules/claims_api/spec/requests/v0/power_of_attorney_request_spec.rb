@@ -36,6 +36,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
       end
 
       it 'sets the source' do
+        allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(OpenStruct.new(current_poa: nil))
+
         post path, params: data, headers: headers
         parsed = JSON.parse(response.body)
         token = parsed['data']['id']
@@ -44,6 +46,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
       end
 
       it 'returns a successful response with all the data' do
+        allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(OpenStruct.new(current_poa: nil))
+
         post path, params: data, headers: headers
         parsed = JSON.parse(response.body)
         expect(parsed['data']['type']).to eq('claims_api_power_of_attorneys')

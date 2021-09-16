@@ -15,7 +15,7 @@ module ClaimsApi
         # POST to change power of attorney for a Veteran.
         #
         # @return [JSON] Record in pending state
-        def submit_form_2122
+        def submit_form_2122 # rubocop:disable Metrics/MethodLength
           validate_json_schema
 
           poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
@@ -29,6 +29,7 @@ module ClaimsApi
               auth_headers: auth_headers,
               form_data: form_attributes,
               source_data: source_data,
+              current_poa: current_poa_code,
               header_md5: header_md5
             )
 
