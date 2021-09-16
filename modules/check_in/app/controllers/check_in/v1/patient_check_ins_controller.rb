@@ -19,7 +19,10 @@ module CheckIn
         check_in = CheckIn::PatientCheckIn.build(uuid: patient_check_in_params[:uuid])
         resp =
           if session[:jwt]
-            ::V1::Chip::Service.build(check_in).create_check_in
+            chip_resp = ::V1::Chip::Service.build(check_in).create_check_in
+
+            session.delete(:jwt)
+            chip_resp
           else
             { data: { error: true, message: 'Check-in failed' }, status: 403 }
           end

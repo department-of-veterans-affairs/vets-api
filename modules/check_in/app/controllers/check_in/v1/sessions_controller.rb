@@ -26,8 +26,9 @@ module CheckIn
               status: 200 }
           else
             data = ::V1::Lorota::Service.build(check_in: check_in).get_or_create_token
+            jwt = data.dig(:data, :jwt)
+            session[:jwt] = jwt if jwt.present?
 
-            session[:jwt] = data.dig(:data, :jwt)
             data
           end
 
