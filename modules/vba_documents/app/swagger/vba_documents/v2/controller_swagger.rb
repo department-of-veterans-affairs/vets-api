@@ -37,7 +37,7 @@ module VBADocuments
         end
       end
 
-      swagger_path '/v1/webhooks/register' do
+      swagger_path '/webhooks/v1/register' do
         operation :post, tags: VBA_TAG do
           extend VBADocuments::Responses::ForbiddenError
           extend VBADocuments::Responses::TooManyRequestsError
@@ -80,7 +80,7 @@ module VBADocuments
         end
       end
 
-      swagger_path '/v1/webhooks/list' do
+      swagger_path '/webhooks/v1/list' do
         operation :get, tags: VBA_TAG do
           extend VBADocuments::Responses::ForbiddenError
           extend VBADocuments::Responses::TooManyRequestsError
@@ -190,48 +190,6 @@ module VBADocuments
                 property :data do
                   key :$ref, :DocumentUploadStatus
                 end
-              end
-            end
-          end
-        end
-      end
-
-      swagger_path '/services/vba_documents/v2/uploads/{id}/download' do
-        operation :get, tags: VBA_TAG do
-          extend VBADocuments::Responses::UnauthorizedError
-          extend VBADocuments::Responses::TooManyRequestsError
-          extend VBADocuments::Responses::ForbiddenError
-          extend VBADocuments::Responses::NotFoundError
-          extend VBADocuments::Responses::InternalServerError
-          key :summary, 'Download zip of "what the server sees"'
-          key :description, 'An endpoint that will allow you to see exactly what the server sees. We split apart all submitted docs and metadata and zip the file to make it available to you to help with debugging purposes. Files are deleted after 10 days. Only available in testing environments, not production.'
-          key :operationId, 'getBenefitsDocumentUploadDownload'
-
-          key :tags, [VBA_TAG]
-
-          security do
-            key :apikey, []
-          end
-
-          parameter do
-            key :name, 'id'
-            key :in, :path
-            key :description, 'ID as returned by a previous create upload request'
-            key :required, true
-            key :example, '6d8433c1-cd55-4c24-affd-f592287a7572'
-            schema do
-              key :type, :string
-              key :format, :uuid
-            end
-          end
-
-          response 200 do
-            key :description, 'Zip file with the contents of your payload as parsed by our server'
-            content 'application/zip' do
-              schema do
-                key :type, :string
-                key :format, :binary
-                key :example, 'Binary File'
               end
             end
           end

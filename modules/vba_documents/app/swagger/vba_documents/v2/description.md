@@ -44,16 +44,19 @@ Progress beyond the `received` status can be simulated for testing. We allow pas
 
 The available statuses are `pending`, `uploaded`, `received`, `processing`, `success`, `vbms`, and `error`. The meaning of the various statuses is listed below in Models under DocumentUploadStatusAttributes.
 
+There are additional tools that can help developers explore how the API works. There is a "download" endpoint that can help developers see how the server consumes the data. This endpoint is only available in sandbox and more information can be seen [here](https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/vba_documents/app/swagger/vba_documents/v2/downloads.md).
+
+In addition, there are Postman collections and a ping method that are only available in sandbox. More information can be found [here](https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/webhooks/postman_webhooks/ping-pong).
 ### Test data
 We use mock test data in the sandbox environment. Data is not sent upstream and it is not necessary to align submitted test data with any other systems' data.
 
 ### Upload operation
 Allows a client to upload a multi-part document package (form + attachments + metadata). Subscribing to the webhook callback in step 1 is optional. If polling is desired, begin with step 2.
 
-1. Client Request (Optional): POST https://dev-api.va.gov/v1/webhooks/register
+1. Client Request (Optional): POST https://dev-api.va.gov/webhooks/v1/register
    * Webhooks: Pass the `webhook` object to subscribe URL(s) to the status change event `gov.va.developer.benefits-intake.status_change`. This can be sent as a JSON file or as JSON text data. Please refer to the endpoint Webhook schema below for additional details.
    
-2. Client Request: POST https://dev-api.va.gov/services/vba_documents/v2/
+2. Client Request: POST https://dev-api.va.gov/services/vba_documents/v2/uploads
    * No request body or parameters required
     
 3. Service Response: A JSON API object with the following attributes:
