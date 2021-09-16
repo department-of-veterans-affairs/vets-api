@@ -310,6 +310,18 @@ FactoryBot.define do
 
     factory :blank_gender_user do
       gender { '' }
+      after(:build) do
+        stub_mpi(
+          build(
+            :mvi_profile,
+            edipi: '1007697216',
+            birls_id: '796043735',
+            participant_id: nil,
+            icn: nil,
+            birth_date: '1986-05-06T00:00:00+00:00'.to_date.to_s
+          )
+        )
+      end
     end
 
     factory :user_with_suffix, traits: [:loa3] do

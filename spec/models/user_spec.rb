@@ -445,6 +445,33 @@ RSpec.describe User, type: :model do
         end
       end
 
+      context 'when saml user attributes blank and user LOA3' do
+        let(:mvi_profile) { build(:mvi_profile) }
+        let(:user) do
+          build(:user, :loa3, first_name: '', middle_name: '', last_name: '', gender: '', mhv_icn: mvi_profile.icn)
+        end
+
+        before do
+          stub_mpi(mvi_profile)
+        end
+
+        it 'fetches first_name from MPI' do
+          expect(user.first_name).to be(user.first_name_mpi)
+        end
+
+        it 'fetches middle_name from MPI' do
+          expect(user.middle_name).to be(user.middle_name_mpi)
+        end
+
+        it 'fetches last_name from MPI' do
+          expect(user.last_name).to be(user.last_name_mpi)
+        end
+
+        it 'fetches gender from MPI' do
+          expect(user.gender).to be(user.gender_mpi)
+        end
+      end
+
       context 'explicit MPI getter methods' do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) { build(:user, :loa3, middle_name: 'J', mhv_icn: mvi_profile.icn) }
