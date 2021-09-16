@@ -41,6 +41,11 @@ module ClaimsApi
           end
 
           ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
+          if enable_vbms_access?
+            ClaimsApi::VBMSUpdater.perform_async(
+              power_of_attorney.id, target_veteran.participant_id
+            )
+          end
 
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
@@ -131,6 +136,10 @@ module ClaimsApi
             icn: Settings.bgs.external_uid,
             email: Settings.bgs.external_key
           }
+        end
+
+        def enable_vbms_access?
+          form_attributes['recordConsent'] && form_attributes['consentLimits'].blank?
         end
 
         def validation_success
