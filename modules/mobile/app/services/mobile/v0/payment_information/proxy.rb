@@ -19,19 +19,10 @@ module Mobile
         end
 
         def send_confirmation_email(ga_client_id)
-          user_emails = @user.all_emails
-
-          if user_emails.present?
-            user_emails.each do |email|
-              DirectDepositEmailJob.perform_async(email, ga_client_id)
-            end
+          if Flipper.enabled?(:direct_deposit_vanotify, @user)
+            VANotifyDdEmailJob.send_to_emails(@user.all_emails, :comp_pen)
           else
-            log_message_to_sentry(
-              'Direct Deposit info update: no email address present for confirmation email',
-              :info,
-              {},
-              feature: 'direct_deposit'
-            )
+            DirectDepositEmailJob.send_to_emails(@user.all_emails, ga_client_id, :comp_pen)
           end
         end
 

@@ -9,6 +9,7 @@ RSpec.describe 'payment_information', type: :request do
   before do
     allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: 'idme')
     iam_sign_in
+    Flipper.disable(:direct_deposit_vanotify)
   end
 
   let(:user) { create(:user, :mhv) }
@@ -184,99 +185,116 @@ RSpec.describe 'payment_information', type: :request do
       end
 
       context 'when the user does have an associated email address' do
-        it 'calls a background job to send an email' do
+        subject do
           VCR.use_cassette('evss/ppiu/update_payment_information') do
+            put '/mobile/v0/payment-information/benefits', params: payment_info_request, headers: headers
+          end
+        end
+
+        context 'with the va notify email flag on' do
+          it 'calls VA Notify background job to send an email' do
+            Flipper.enable(:direct_deposit_vanotify)
+
+            user.all_emails do |email|
+              expect(VANotifyDdEmailJob).to receive(:perform_async).with(email, nil)
+            end
+
+            subject
+          end
+
+          it 'calls direct deposit background job to send an email' do
+            Flipper.disable(:direct_deposit_vanotify)
+
             user.all_emails do |email|
               expect(DirectDepositEmailJob).to receive(:perform_async).with(email, nil)
             end
 
-            put '/mobile/v0/payment-information/benefits', params: payment_info_request,
-                                                           headers: iam_headers.merge(content_type)
+            subject
+          end
+        end
+
+        context 'when user does not have an associated email address' do
+          before do
+            Settings.sentry.dsn = 'asdf'
+          end
+
+          after do
+            Settings.sentry.dsn = nil
+          end
+
+          it 'logs a message to Sentry' do
+            VCR.use_cassette('evss/ppiu/update_payment_information') do
+              expect_any_instance_of(User).to receive(:all_emails).and_return([])
+              expect(Raven).to receive(:capture_message).once
+
+              put '/mobile/v0/payment-information/benefits', params: payment_info_request,
+                                                             headers: iam_headers.merge(content_type)
+              expect(response).to have_http_status(:ok)
+            end
           end
         end
       end
 
-      context 'when user does not have an associated email address' do
-        before do
-          Settings.sentry.dsn = 'asdf'
+      context 'with an invalid request payload' do
+        let(:payment_info_request) do
+          {
+            'account_type' => 'Checking',
+            'financial_institution_name' => 'Bank of Ad Hoc',
+            'account_number' => '12345678'
+          }.to_json
         end
 
-        after do
-          Settings.sentry.dsn = nil
+        it 'returns a validation error' do
+          put '/mobile/v0/payment-information/benefits', params: payment_info_request,
+                                                         headers: iam_headers.merge(content_type)
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response.body).to match_json_schema('errors')
         end
+      end
 
-        it 'logs a message to Sentry' do
-          VCR.use_cassette('evss/ppiu/update_payment_information') do
-            expect_any_instance_of(User).to receive(:all_emails).and_return([])
-            expect(Raven).to receive(:capture_message).once
-
+      context 'with a 403 response' do
+        it 'returns a not authorized response' do
+          VCR.use_cassette('evss/ppiu/update_forbidden') do
             put '/mobile/v0/payment-information/benefits', params: payment_info_request,
                                                            headers: iam_headers.merge(content_type)
-            expect(response).to have_http_status(:ok)
+            expect(response).to have_http_status(:forbidden)
+            expect(response.body).to match_json_schema('evss_errors')
           end
         end
       end
-    end
 
-    context 'with an invalid request payload' do
-      let(:payment_info_request) do
-        {
-          'account_type' => 'Checking',
-          'financial_institution_name' => 'Bank of Ad Hoc',
-          'account_number' => '12345678'
-        }.to_json
-      end
-
-      it 'returns a validation error' do
-        put '/mobile/v0/payment-information/benefits', params: payment_info_request,
-                                                       headers: iam_headers.merge(content_type)
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(response.body).to match_json_schema('errors')
-      end
-    end
-
-    context 'with a 403 response' do
-      it 'returns a not authorized response' do
-        VCR.use_cassette('evss/ppiu/update_forbidden') do
-          put '/mobile/v0/payment-information/benefits', params: payment_info_request,
-                                                         headers: iam_headers.merge(content_type)
-          expect(response).to have_http_status(:forbidden)
-          expect(response.body).to match_json_schema('evss_errors')
+      context 'with a 500 server error type' do
+        it 'returns a service error response' do
+          VCR.use_cassette('evss/ppiu/update_service_error') do
+            put '/mobile/v0/payment-information/benefits', params: payment_info_request,
+                                                           headers: iam_headers.merge(content_type)
+            expect(response).to have_http_status(:service_unavailable)
+            expect(response.body).to match_json_schema('evss_errors')
+          end
         end
       end
-    end
 
-    context 'with a 500 server error type' do
-      it 'returns a service error response' do
-        VCR.use_cassette('evss/ppiu/update_service_error') do
-          put '/mobile/v0/payment-information/benefits', params: payment_info_request,
-                                                         headers: iam_headers.merge(content_type)
-          expect(response).to have_http_status(:service_unavailable)
-          expect(response.body).to match_json_schema('evss_errors')
+      context 'with a 500 server error type pertaining to potential fraud' do
+        it 'returns a service error response', :aggregate_failures do
+          VCR.use_cassette('evss/ppiu/update_fraud') do
+            put '/mobile/v0/payment-information/benefits', params: payment_info_request,
+                                                           headers: iam_headers.merge(content_type)
+            expect(response).to have_http_status(:unprocessable_entity)
+            expect(response.body).to match_json_schema('evss_errors')
+            expect(JSON.parse(response.body)['errors'].first['title']).to eq('Potential Fraud')
+          end
         end
       end
-    end
 
-    context 'with a 500 server error type pertaining to potential fraud' do
-      it 'returns a service error response', :aggregate_failures do
-        VCR.use_cassette('evss/ppiu/update_fraud') do
-          put '/mobile/v0/payment-information/benefits', params: payment_info_request,
-                                                         headers: iam_headers.merge(content_type)
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(response.body).to match_json_schema('evss_errors')
-          expect(JSON.parse(response.body)['errors'].first['title']).to eq('Potential Fraud')
-        end
-      end
-    end
-
-    context 'with a 500 server error type pertaining to the account being flagged' do
-      it 'returns a service error response', :aggregate_failures do
-        VCR.use_cassette('evss/ppiu/update_flagged') do
-          put '/mobile/v0/payment-information/benefits', params: payment_info_request,
-                                                         headers: iam_headers.merge(content_type)
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(response.body).to match_json_schema('evss_errors')
-          expect(JSON.parse(response.body)['errors'].first['title']).to eq('Account Flagged')
+      context 'with a 500 server error type pertaining to the account being flagged' do
+        it 'returns a service error response', :aggregate_failures do
+          VCR.use_cassette('evss/ppiu/update_flagged') do
+            put '/mobile/v0/payment-information/benefits', params: payment_info_request,
+                                                           headers: iam_headers.merge(content_type)
+            expect(response).to have_http_status(:unprocessable_entity)
+            expect(response.body).to match_json_schema('evss_errors')
+            expect(JSON.parse(response.body)['errors'].first['title']).to eq('Account Flagged')
+          end
         end
       end
     end
