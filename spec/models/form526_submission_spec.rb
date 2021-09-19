@@ -12,7 +12,7 @@ RSpec.describe Form526Submission do
     )
   end
 
-  let(:user) { build(:disabilities_compensation_user) }
+  let(:user) { create(:disabilities_compensation_user) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -432,6 +432,32 @@ RSpec.describe Form526Submission do
         expect do
           subject.perform_ancillary_jobs(first_name)
         end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(3)
+      end
+    end
+
+    context 'with flashes' do
+      let(:form_json) do
+        File.read('spec/support/disability_compensation_form/submissions/with_uploads.json')
+      end
+
+      context 'when feature enabled' do
+        before { Flipper.enable(:disability_compensation_flashes) }
+
+        it 'queues flashes job' do
+          expect do
+            subject.perform_ancillary_jobs(first_name)
+          end.to change(BGS::FlashUpdater.jobs, :size).by(1)
+        end
+      end
+
+      context 'when feature disabled' do
+        before { Flipper.disable(:disability_compensation_flashes) }
+
+        it 'queues flashes job' do
+          expect do
+            subject.perform_ancillary_jobs(first_name)
+          end.to change(BGS::FlashUpdater.jobs, :size).by(0)
+        end
       end
     end
 

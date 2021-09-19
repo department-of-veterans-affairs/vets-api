@@ -44,6 +44,7 @@ class Form526Submission < ApplicationRecord
   FORM_4142 = 'form4142'
   FORM_0781 = 'form0781'
   FORM_8940 = 'form8940'
+  FLASHES = 'flashes'
   BIRLS_KEY = 'va_eauth_birlsfilenumber'
   SUBMIT_FORM_526_JOB_CLASSES = %w[SubmitForm526AllClaim SubmitForm526].freeze
 
@@ -250,6 +251,7 @@ class Form526Submission < ApplicationRecord
       submit_form_0781 if form[FORM_0781].present?
       submit_form_8940 if form[FORM_8940].present?
       upload_bdd_instructions if bdd?
+      submit_flashes if form[FLASHES].present?
       cleanup
     end
   end
@@ -310,6 +312,11 @@ class Form526Submission < ApplicationRecord
 
   def submit_form_8940
     EVSS::DisabilityCompensationForm::SubmitForm8940.perform_async(id)
+  end
+
+  def submit_flashes
+    user = User.find(user_uuid)
+    BGS::FlashUpdater.perform_async(id) if user && Flipper.enabled?(:disability_compensation_flashes, user)
   end
 
   def cleanup

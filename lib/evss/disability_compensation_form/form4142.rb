@@ -3,6 +3,7 @@
 module EVSS
   module DisabilityCompensationForm
     # Transforms a client 4142 form submission into the format expected by the EVSS service
+    # 4142 - AUTHORIZATION TO DISCLOSE INFORMATION TO THE DEPARTMENT OF VETERANS AFFAIRS
     #
     # @param user [User] The current user
     # @param form_content [Hash] Hash of the parsed JSON submitted by the client

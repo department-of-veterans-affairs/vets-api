@@ -122,6 +122,10 @@ features:
   direct_deposit_vanotify:
     actor_type: user
     description: Send direct deposit emails using VaNotify service
+  disability_compensation_flashes:
+    actor_type: user
+    description: enables sending flashes to BGS for disability_compensation submissions.
+    enable_in_development: true
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
