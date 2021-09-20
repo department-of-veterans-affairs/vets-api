@@ -8,7 +8,7 @@ module VAOS
       def index
         appointments
         merge_clinic_names(appointments[:data])
-        merge_facility_address(appointments[:data])
+        merge_facilities(appointments[:data])
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(appointments[:data], 'appointments')
         render json: { data: serialized, meta: appointments[:meta] }
@@ -17,12 +17,14 @@ module VAOS
       def show
         appointment
         unless appointment[:clinic].nil?
-          appointment[:station_name] = get_clinic_name(appointment[:location_id], appointment[:clinic])
+          appointment[:service_name] = get_clinic_name(appointment[:location_id], appointment[:clinic])
         end
 
+        # rubocop:disable Style/IfUnlessModifier
         unless appointment[:location_id].nil?
-          appointment[:physical_address] = get_facility_address(appointment[:location_id])
+          appointment[:location] = get_facility(appointment[:location_id])
         end
+        # rubocop:enable Style/IfUnlessModifier
 
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(appointment, 'appointments')
@@ -32,13 +34,12 @@ module VAOS
       def create
         new_appointment
         unless new_appointment[:clinic].nil?
-          new_appointment[:station_name] = get_clinic_name(new_appointment[:location_id], new_appointment[:clinic])
+          new_appointment[:service_name] = get_clinic_name(new_appointment[:location_id], new_appointment[:clinic])
         end
 
         unless new_appointment[:location_id].nil?
-          new_appointment[:physical_address] = get_facility_address(new_appointment[:location_id])
+          new_appointment[:location] = get_facility(new_appointment[:location_id])
         end
-
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(new_appointment, 'appointments')
         render json: { data: serialized }, status: :created
@@ -47,12 +48,12 @@ module VAOS
       def update
         updated_appointment
         unless updated_appointment[:clinic].nil?
-          updated_appointment[:station_name] =
+          updated_appointment[:service_name] =
             get_clinic_name(updated_appointment[:location_id], updated_appointment[:clinic])
         end
 
         unless updated_appointment[:location_id].nil?
-          updated_appointment[:physical_address] = get_facility_address(updated_appointment[:location_id])
+          updated_appointment[:location] = get_facility(updated_appointment[:location_id])
         end
 
         serializer = VAOS::V2::VAOSSerializer.new
@@ -103,28 +104,28 @@ module VAOS
               cached_clinic_names[appt[:clinic]] = clinic_name
             end
 
-            appt[:station_name] = cached_clinic_names[appt[:clinic]] if cached_clinic_names[appt[:clinic]]
+            appt[:service_name] = cached_clinic_names[appt[:clinic]] if cached_clinic_names[appt[:clinic]]
           end
         end
       end
 
-      def merge_facility_address(appointments)
-        cached_fac_addr = {}
+      def merge_facilities(appointments)
+        cached_facilities = {}
         appointments.each do |appt|
           unless appt[:location_id].nil?
-            unless cached_fac_addr[:location_id]
-              facility_address = get_facility_address(appt[:location_id])
-              cached_fac_addr[appt[:location_id]] = facility_address
+            unless cached_facilities[:location_id]
+              facility = get_facility(appt[:location_id])
+              cached_facilities[appt[:location_id]] = facility
             end
 
-            appt[:physical_address] = cached_fac_addr[appt[:location_id]] if cached_fac_addr[appt[:location_id]]
+            appt[:location] = cached_facilities[appt[:location_id]] if cached_facilities[appt[:location_id]]
           end
         end
       end
 
       def get_clinic_name(location_id, clinic_id)
         clinics = systems_service.get_facility_clinics(location_id: location_id, clinic_ids: clinic_id)
-        clinics.first[:station_name] unless clinics.empty?
+        clinics.first[:service_name] unless clinics.empty?
       rescue Common::Exceptions::BackendServiceException
         Rails.logger.error(
           "Error fetching clinic #{clinic_id} for location #{location_id}",
@@ -133,9 +134,8 @@ module VAOS
         )
       end
 
-      def get_facility_address(location_id)
-        facility = mobile_facility_service.get_facility(location_id)
-        facility&.physical_address
+      def get_facility(location_id)
+        mobile_facility_service.get_facility(location_id)
       rescue Common::Exceptions::BackendServiceException
         Rails.logger.error(
           "Error fetching facility details for location_id #{location_id}",

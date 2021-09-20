@@ -84,6 +84,13 @@
                   null
                 ]
               },
+              "clinicName": {
+                "description": "The clinic name for the Appointment",
+                "type": [
+                  "string",
+                  null
+                ]
+              },
               "telehealth": {
                 "description": "Details about a telehealth (virtual) meeting.",
                 "type": [

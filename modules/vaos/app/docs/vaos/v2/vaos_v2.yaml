@@ -683,8 +683,13 @@ components:
         locationId:
           description: The sta6aid for the VAfacility where the appointment is registered.
           type: string
+        location:
+          "$ref": "#/components/schemas/Facility"
         clinic:
           description: The clinic ID for the Appointment
+          type: string
+        clinicName:
+          description: The clinic name for the Appointment
           type: string
         telehealth:
           "$ref": "#/components/schemas/TelehealthInfo"
