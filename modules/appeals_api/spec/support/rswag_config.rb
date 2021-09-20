@@ -22,6 +22,10 @@ class AppealsApi::RswagConfig
             description: ''
           },
           {
+            name: 'Contestable Issues',
+            description: ''
+          },
+          {
             name: 'Legacy Appeals',
             description: ''
           }

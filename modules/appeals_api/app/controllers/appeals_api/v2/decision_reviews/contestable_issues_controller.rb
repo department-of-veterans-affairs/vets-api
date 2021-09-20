@@ -92,7 +92,11 @@ module AppealsApi::V2
       end
 
       def decision_review_type
-        params[:decision_review_type]
+        if params[:decision_review_type] == 'notice_of_disagreements'
+          'appeals'
+        else
+          params[:decision_review_type]
+        end
       end
 
       def benefit_type
@@ -114,7 +118,8 @@ module AppealsApi::V2
       end
 
       def invalid_decision_review_type?
-        !decision_review_type.in?(VALID_DECISION_REVIEW_TYPES)
+        raw_decision_review_type = params[:decision_review_type]
+        !raw_decision_review_type.in?(VALID_DECISION_REVIEW_TYPES)
       end
 
       def benefit_type_needed_and_missing?
@@ -128,10 +133,10 @@ module AppealsApi::V2
               title: 'Unprocessable Entity',
               code: 'unprocessable_entity',
               detail: message,
-              status: 422
+              status: '422'
             }
           ]
-        }, code: 422
+        }, status: '422'
       end
 
       def request_headers

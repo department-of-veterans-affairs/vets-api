@@ -16,6 +16,10 @@
       "description": ""
     },
     {
+      "name": "Contestable Issues",
+      "description": ""
+    },
+    {
       "name": "Legacy Appeals",
       "description": ""
     }
@@ -2352,6 +2356,321 @@
     }
   },
   "paths": {
+    "/contestable_issues/{decision_review_type}": {
+      "get": {
+        "summary": "Returns all contestable issues for a specific veteran.",
+        "tags": [
+          "Contestable Issues"
+        ],
+        "operationId": "getContestableIssues",
+        "security": [
+          {
+            "apikey": [
+
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "decision_review_type",
+            "in": "path",
+            "required": true,
+            "description": "Scoping of appeal type for associated issues",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "benefit_type",
+            "in": "query",
+            "description": "Benefit Type for the appeal. Required if Decision Review is a Higher Level Review.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-SSN",
+            "required": true,
+            "description": "Veteran's SSN",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-Receipt-Date",
+            "required": true,
+            "description": "(yyyy-mm-dd) In order to determine contestability of issues, the receipt date of a hypothetical Decision Review must be specified.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-File-Number",
+            "required": false,
+            "description": "Veteran's file number",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "JSON:API response returning all contestable issues for a specific veteran.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "type": "contestableIssue",
+                      "attributes": {
+                        "ratingIssueSubjectText": "right knee",
+                        "ratingIssueReferenceId": "826209920000",
+                        "ratingIssueProfileDate": "2019-02-22",
+                        "ratingIssueDiagnosticCode": null,
+                        "description": "Right knee",
+                        "isRating": true,
+                        "latestIssuesInChain": [
+                          {
+                            "id": null,
+                            "approxDecisionDate": "2019-02-26"
+                          }
+                        ],
+                        "decisionIssueId": null,
+                        "ratingDecisionReferenceId": null,
+                        "approxDecisionDate": "2019-02-26",
+                        "rampClaimId": null,
+                        "titleOfActiveReview": null,
+                        "sourceReviewType": null,
+                        "timely": true
+                      }
+                    },
+                    {
+                      "type": "contestableIssue",
+                      "attributes": {
+                        "ratingIssueSubjectText": "ptsd",
+                        "ratingIssueReferenceId": "826209441170",
+                        "ratingIssueProfileDate": "2019-02-22",
+                        "ratingIssueDiagnosticCode": null,
+                        "description": "PTSD",
+                        "isRating": true,
+                        "latestIssuesInChain": [
+                          {
+                            "id": null,
+                            "approxDecisionDate": "2019-02-25"
+                          }
+                        ],
+                        "decisionIssueId": null,
+                        "ratingDecisionReferenceId": null,
+                        "approxDecisionDate": "2019-02-25",
+                        "rampClaimId": null,
+                        "titleOfActiveReview": null,
+                        "sourceReviewType": null,
+                        "timely": true
+                      }
+                    },
+                    {
+                      "type": "contestableIssue",
+                      "attributes": {
+                        "ratingIssueSubjectText": "left knee",
+                        "ratingIssueReferenceId": "826209597423",
+                        "ratingIssueProfileDate": "2019-02-22",
+                        "ratingIssueDiagnosticCode": null,
+                        "description": "Left knee",
+                        "isRating": true,
+                        "latestIssuesInChain": [
+                          {
+                            "id": null,
+                            "approxDecisionDate": "2019-02-24"
+                          }
+                        ],
+                        "decisionIssueId": null,
+                        "ratingDecisionReferenceId": null,
+                        "approxDecisionDate": "2019-02-24",
+                        "rampClaimId": null,
+                        "titleOfActiveReview": null,
+                        "sourceReviewType": null,
+                        "timely": true
+                      }
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/contestableIssues"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Veteran not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "status": "404",
+                      "title": "Veteran not found",
+                      "detail": "A veteran with that SSN was not found in our systems."
+                    }
+                  ],
+                  "code": 404,
+                  "source": "Appeals Caseflow"
+                },
+                "schema": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "integer",
+                              "enum": [
+                                404
+                              ]
+                            },
+                            "detail": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Parameter Errors",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "benefit_type required for Higher Level Review": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Unprocessable Entity",
+                          "code": "unprocessable_entity",
+                          "detail": "benefit_type required for Higher Level Review",
+                          "status": "422"
+                        }
+                      ]
+                    }
+                  },
+                  "decision_review_type must be one of: higher_level_reviews, notice_of_disagreements, supplemental_claims": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Unprocessable Entity",
+                          "code": "unprocessable_entity",
+                          "detail": "decision_review_type must be one of: higher_level_reviews, notice_of_disagreements, supplemental_claims",
+                          "status": "422"
+                        }
+                      ]
+                    }
+                  },
+                  "Bad receipt date for  HLR": {
+                    "value": {
+                      "errors": [
+                        {
+                          "status": "422",
+                          "code": "invalid_receipt_date",
+                          "title": "Invalid Receipt Date",
+                          "detail": "\"2019-02-18\" is before AMA Activation Date (2019-02-19)."
+                        }
+                      ],
+                      "code": 422,
+                      "source": "Appeals Caseflow"
+                    }
+                  }
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Meta infomation",
+                            "properties": {
+                              "missing_fields": {
+                                "type": "array",
+                                "description": "List of missing fields"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Bad Gateway",
+                      "detail": "Received a 500 response from the upstream server",
+                      "code": "CASEFLOWSTATUS500",
+                      "source": "Appeals Caseflow",
+                      "status": "502"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/higher_level_reviews": {
       "post": {
         "summary": "Creates a new Higher-Level Review",
@@ -2458,12 +2777,12 @@
                   "minimum fields used": {
                     "value": {
                       "data": {
-                        "id": "2f13285b-258b-4e21-976e-517972179a0f",
+                        "id": "5b693ae7-f603-4a7b-bc19-1ad78a15d9bb",
                         "type": "higherLevelReview",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2021-08-30T22:03:37.137Z",
-                          "createdAt": "2021-08-30T22:03:37.137Z",
+                          "updatedAt": "2021-09-20T14:05:47.791Z",
+                          "createdAt": "2021-09-20T14:05:47.791Z",
                           "formData": {
                             "data": {
                               "type": "higherLevelReview",
@@ -2499,12 +2818,12 @@
                   "all fields used": {
                     "value": {
                       "data": {
-                        "id": "93b6a7fb-358e-43f5-aba2-0032b61c5c62",
+                        "id": "8f50e15f-daaf-4d44-8811-4ee3f45bc850",
                         "type": "higherLevelReview",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2021-08-30T22:03:37.256Z",
-                          "createdAt": "2021-08-30T22:03:37.256Z",
+                          "updatedAt": "2021-09-20T14:05:47.943Z",
+                          "createdAt": "2021-09-20T14:05:47.943Z",
                           "formData": {
                             "data": {
                               "type": "higherLevelReview",
@@ -2913,12 +3232,12 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "202daaaa-c9c2-483a-830c-cc964c26fd6e",
+                    "id": "ad4be627-1a87-49bb-a1c7-5cd395ac48ee",
                     "type": "higherLevelReview",
                     "attributes": {
                       "status": "pending",
-                      "updatedAt": "2021-08-30T22:03:37.329Z",
-                      "createdAt": "2021-08-30T22:03:37.329Z",
+                      "updatedAt": "2021-09-20T14:05:48.105Z",
+                      "createdAt": "2021-09-20T14:05:48.105Z",
                       "formData": {
                         "data": {
                           "type": "higherLevelReview",
@@ -3519,9 +3838,7 @@
                     },
                     "date": {
                       "type": "string",
-                      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
-                      "maxLength": 10,
-                      "minLength": 10
+                      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
                     },
                     "hlrCreatePhone": {
                       "type": "object",
@@ -3534,7 +3851,7 @@
                         },
                         "areaCode": {
                           "type": "string",
-                          "pattern": "^[2-9][0-9]{2}$",
+                          "pattern": "^[0-9]{1,4}$",
                           "minLength": 1,
                           "maxLength": 4
                         },
@@ -5278,12 +5595,12 @@
                   "minimum fields used": {
                     "value": {
                       "data": {
-                        "id": "50416297-006e-493d-9a95-2cace18c56f3",
+                        "id": "e16a00b4-acda-448b-9609-6a7821e62bb7",
                         "type": "noticeOfDisagreement",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2021-08-30T22:03:37.976Z",
-                          "createdAt": "2021-08-30T22:03:37.976Z",
+                          "updatedAt": "2021-09-20T14:05:49.129Z",
+                          "createdAt": "2021-09-20T14:05:49.129Z",
                           "formData": {
                             "data": {
                               "type": "noticeOfDisagreement",
@@ -5324,12 +5641,12 @@
                   "all fields used": {
                     "value": {
                       "data": {
-                        "id": "4f90bc58-2c14-43b7-b089-a795811746f8",
+                        "id": "a324cd9e-d272-42d3-9c0a-a14931a43fc5",
                         "type": "noticeOfDisagreement",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2021-08-30T22:03:38.019Z",
-                          "createdAt": "2021-08-30T22:03:38.019Z",
+                          "updatedAt": "2021-09-20T14:05:49.252Z",
+                          "createdAt": "2021-09-20T14:05:49.252Z",
                           "formData": {
                             "data": {
                               "type": "noticeOfDisagreement",
@@ -5732,12 +6049,12 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6b8436aa-312a-449c-b259-a01b48489f60",
+                    "id": "c0f8c7c2-9a5e-45d1-9071-e84606175f73",
                     "type": "noticeOfDisagreement",
                     "attributes": {
                       "status": "pending",
-                      "updatedAt": "2021-08-30T22:03:38.087Z",
-                      "createdAt": "2021-08-30T22:03:38.087Z",
+                      "updatedAt": "2021-09-20T14:05:49.382Z",
+                      "createdAt": "2021-09-20T14:05:49.382Z",
                       "formData": {
                         "data": {
                           "type": "noticeOfDisagreement",
@@ -7380,17 +7697,17 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f43f40b1-c1a1-4e21-a27f-43fafd779db6",
+                    "id": "038ccf8a-87c7-472e-9b20-c2dd816e3e4d",
                     "type": "evidenceSubmission",
                     "attributes": {
                       "status": "pending",
                       "code": null,
                       "detail": null,
                       "appealType": "NoticeOfDisagreement",
-                      "appealId": "d6176b07-7a4e-4a4e-be2d-d809e9016f14",
+                      "appealId": "d5569ab1-4dd5-4f55-af02-735c72cb5341",
                       "location": "http://another.fakesite.com/rewrittenpath/uuid",
-                      "createdAt": "2021-08-30T22:03:38.337Z",
-                      "updatedAt": "2021-08-30T22:03:38.337Z"
+                      "createdAt": "2021-09-20T14:05:50.001Z",
+                      "updatedAt": "2021-09-20T14:05:50.001Z"
                     }
                   }
                 },
@@ -7732,17 +8049,17 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0720388e-dc34-46cb-817f-4db0b9dd02b8",
+                    "id": "121e5867-ad53-4d87-a418-f4ce7bcb1901",
                     "type": "evidenceSubmission",
                     "attributes": {
                       "status": "pending",
                       "code": null,
                       "detail": null,
                       "appealType": "NoticeOfDisagreement",
-                      "appealId": "ca3f0b8d-4525-4eb6-b083-7da37675f65b",
+                      "appealId": "b1b41654-d81f-4828-a922-d7f3d3c00ff5",
                       "location": null,
-                      "createdAt": "2021-08-30T22:03:38.537Z",
-                      "updatedAt": "2021-08-30T22:03:38.537Z"
+                      "createdAt": "2021-09-20T14:05:50.347Z",
+                      "updatedAt": "2021-09-20T14:05:50.347Z"
                     }
                   }
                 },
