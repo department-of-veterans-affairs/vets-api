@@ -27,8 +27,10 @@ class Form526Submission < ApplicationRecord
   #   @return [Timestamp] updated at date.
   #
   attr_encrypted(:auth_headers_json, key: Settings.db_encryption_key)
-  attr_encrypted(:form_json, key: Settings.db_encryption_key)
   attr_encrypted(:birls_ids_tried, key: Settings.db_encryption_key)
+  attr_encrypted(:form_json, key: Settings.db_encryption_key)
+
+  encrypts :auth_headers_json, :birls_ids_tried, :form_json, migrating: true
 
   belongs_to :saved_claim,
              class_name: 'SavedClaim::DisabilityCompensation',

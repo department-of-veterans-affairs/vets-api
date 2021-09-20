@@ -40,6 +40,10 @@ ssoe_eauth_cookie:
 session_cookie:
   secure: false
 
+lockbox:
+  master_key: "a798f118b400a1a7552597cc94f44c577919c76b3d26c1eed8ae0703f4240216"
+  #old_master_key: we will need this in the near future when rotating
+
 binaries:
   # you can specify a full path in settings.local.yml if necessary
   pdfinfo: pdfinfo

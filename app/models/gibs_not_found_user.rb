@@ -3,6 +3,7 @@
 class GibsNotFoundUser < ApplicationRecord
   # :nocov:
   attr_encrypted :ssn, key: Settings.db_encryption_key
+  encrypts :ssn, migrating: true
 
   validates :edipi, presence: true, uniqueness: true
   validates :first_name, :last_name, :encrypted_ssn, :encrypted_ssn_iv, :dob, presence: true

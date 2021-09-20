@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'json_marshal/marshaller'
+
 class InProgressForm < ApplicationRecord
   class CleanUUID < ActiveRecord::Type::String
     def cast(value)
@@ -27,6 +29,8 @@ class InProgressForm < ApplicationRecord
 
   attribute :user_uuid, CleanUUID.new
   attr_encrypted :form_data, key: Settings.db_encryption_key
+  serialize :form_data, JsonMarshal::Marshaller
+  encrypts :form_data, migrating: true
   validates(:form_data, presence: true)
   validates(:user_uuid, presence: true)
   validate(:id_me_user_uuid)

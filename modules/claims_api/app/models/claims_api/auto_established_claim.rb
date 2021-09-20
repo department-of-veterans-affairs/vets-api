@@ -17,6 +17,14 @@ module ClaimsApi
                                                  marshal: true,
                                                  marshaler: JsonMarshal::Marshaller)
 
+    serialize :auth_headers, JsonMarshal::Marshaller
+    serialize :bgs_flash_responses, JsonMarshal::Marshaller
+    serialize :bgs_special_issue_responses, JsonMarshal::Marshaller
+    serialize :form_data, JsonMarshal::Marshaller
+    serialize :evss_response, JsonMarshal::Marshaller
+    encrypts :auth_headers, :bgs_flash_responses, :bgs_special_issue_responses, :evss_response, :form_data,
+             migrating: true
+
     validate :validate_service_dates
     after_create :log_special_issues
     after_create :log_flashes

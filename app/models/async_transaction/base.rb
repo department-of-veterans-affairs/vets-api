@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'json_marshal/marshaller'
+
 module AsyncTransaction
   class Base < ApplicationRecord
     self.table_name = 'async_transactions'
@@ -13,6 +15,8 @@ module AsyncTransaction
     }
 
     attr_encrypted :metadata, key: Settings.db_encryption_key
+    serialize :metadata, JsonMarshal::Marshaller
+    encrypts :metadata, migrating: true
 
     before_save :serialize_metadata
 

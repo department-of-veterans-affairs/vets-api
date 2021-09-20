@@ -5,6 +5,7 @@ class FormAttachment < ApplicationRecord
   include SentryLogging
 
   attr_encrypted(:file_data, key: Settings.db_encryption_key)
+  encrypts :file_data, migrating: true
 
   validates(:file_data, :guid, presence: true)
 

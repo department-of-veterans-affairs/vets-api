@@ -2,8 +2,6 @@
 
 module CovidResearch
   class RedisFormat
-    attr_reader :iv
-
     def initialize(crypto = Volunteer::FormCryptoService)
       @crypto = crypto.new
     end
@@ -13,7 +11,6 @@ module CovidResearch
     def from_redis(json)
       json = JSON.parse(json)
 
-      @iv = Base64.decode64(json['iv'])
       @form_data = Base64.decode64(json['form_data'])
 
       form_data
@@ -21,7 +18,7 @@ module CovidResearch
 
     # @return [String] the raw decrypted form submission
     def form_data
-      @crypto.decrypt_form(@form_data, iv)
+      @crypto.decrypt_form(@form_data)
     end
 
     # @param data [String] the raw unencrypted form submission
@@ -30,7 +27,6 @@ module CovidResearch
       encrypted = @crypto.encrypt_form(data)
 
       @form_data = encrypted[:form_data]
-      @iv = encrypted[:iv]
 
       encrypted[:form_data]
     end
@@ -39,8 +35,7 @@ module CovidResearch
     # @return [String] JSON string representation of the encrypted form submission and "salt"
     def to_json(opts = {})
       h = {
-        form_data: Base64.encode64(@form_data),
-        iv: Base64.encode64(@iv)
+        form_data: Base64.encode64(@form_data)
       }
 
       if opts[:only]

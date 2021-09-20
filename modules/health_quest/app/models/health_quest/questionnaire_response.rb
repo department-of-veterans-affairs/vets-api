@@ -28,6 +28,10 @@ module HealthQuest
                    marshal: true,
                    marshaler: JsonMarshaller
 
+    serialize :questionnaire_response_data, JSON
+    serialize :user_demographics_data, JSON
+    encrypts :questionnaire_response_data, :user_demographics_data, migrating: true
+
     validates :questionnaire_response_data, presence: true
 
     before_save :set_user_demographics

@@ -10,12 +10,10 @@ RSpec.describe CovidResearch::RedisFormat do
   let(:crypto_double) { double('crypto', decrypt_form: raw_form, encrypt_form: encrypted_form) }
   let(:raw_form)      { '{"name":"Bob"}' }
   let(:secret_form)   { 'dkghdkghd' }
-  let(:iv)            { 'fake_iv' }
-  let(:from_redis)    { "{\"form_data\":\"#{Base64.encode64(secret_form)}\",\"iv\":\"#{Base64.encode64(iv)}\"}" }
+  let(:from_redis)    { "{\"form_data\":\"#{Base64.encode64(secret_form)}\"}" }
   let(:encrypted_form) do
     {
-      form_data: secret_form,
-      iv: iv
+      form_data: secret_form
     }
   end
 
@@ -24,12 +22,6 @@ RSpec.describe CovidResearch::RedisFormat do
       expect(crypto_double).to receive(:decrypt_form)
 
       subject.from_redis(from_redis)
-    end
-
-    it 'stores the iv' do
-      subject.from_redis(from_redis)
-
-      expect(subject.iv).to eq(iv)
     end
 
     it 'stores the encrypted form data' do
@@ -58,12 +50,6 @@ RSpec.describe CovidResearch::RedisFormat do
       subject.form_data = raw_form
 
       expect(subject.instance_eval { @form_data }).to eq(secret_form)
-    end
-
-    it 'stores the iv used during encryption' do
-      subject.form_data = raw_form
-
-      expect(subject.instance_eval { @iv }).to eq(iv)
     end
   end
 

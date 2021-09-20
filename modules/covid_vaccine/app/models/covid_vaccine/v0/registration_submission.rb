@@ -13,6 +13,10 @@ module CovidVaccine
 
       attr_encrypted :form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller
       attr_encrypted :raw_form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller
+
+      serialize :form_data, JsonMarshal::Marshaller
+      serialize :raw_form_data, JsonMarshal::Marshaller
+      encrypts :form_data, :raw_form_data, migrating: true
     end
   end
 end

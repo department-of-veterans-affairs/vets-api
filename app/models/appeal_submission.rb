@@ -6,6 +6,8 @@ class AppealSubmission < ApplicationRecord
   validates :type_of_appeal, inclusion: APPEAL_TYPES
   attr_encrypted :upload_metadata, key: Settings.db_encryption_key
 
+  encrypts :upload_metadata, migrating: true
+
   has_many :appeal_submission_uploads, dependent: :destroy
 
   def self.submit_nod(request_body_hash:, current_user:)

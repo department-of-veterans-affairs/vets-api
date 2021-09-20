@@ -12,6 +12,7 @@ module Veteran
 
       attr_encrypted(:ssn, key: Settings.db_encryption_key)
       attr_encrypted(:dob, key: Settings.db_encryption_key)
+      encrypts :dob, :ssn, migrating: true
 
       scope :attorneys, -> { where(user_types: ['attorney']) }
       scope :veteran_service_officers, -> { where(user_types: ['veteran_service_officer']) }

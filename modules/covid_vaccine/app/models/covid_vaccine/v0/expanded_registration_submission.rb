@@ -6,7 +6,6 @@ module CovidVaccine
   module V0
     class ExpandedRegistrationSubmission < ApplicationRecord
       include AASM
-
       aasm(:state) do
         # Fire off job for email confirmation to the user that submission has been received
         # Fire off job to determine EMIS eligibility to kick off after hours; transition to eligible or ineligible
@@ -53,6 +52,14 @@ module CovidVaccine
       attr_encrypted :raw_form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller
       attr_encrypted :eligibility_info, key: Settings.db_encryption_key, marshal: true,
                                         marshaler: JsonMarshal::Marshaller
+
+      serialize :eligibility_info, JsonMarshal::Marshaller
+      serialize :form_data, JsonMarshal::Marshaller
+      serialize :raw_form_data, JsonMarshal::Marshaller
+
+      encrypts :form_data, migrating: true
+      encrypts :eligibility_info, migrating: true
+      encrypts :raw_form_data, migrating: true
     end
   end
 end
