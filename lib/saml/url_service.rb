@@ -78,12 +78,12 @@ module SAML
     # SIGN ON URLS
     def mhv_url
       @type = 'mhv'
-      build_sso_url('myhealthevet')
+      build_sso_url(build_authn_context('myhealthevet'))
     end
 
     def dslogon_url
       @type = 'dslogon'
-      build_sso_url('dslogon')
+      build_sso_url(build_authn_context('dslogon'))
     end
 
     def idme_url
@@ -99,7 +99,7 @@ module SAML
     def signup_url
       @type = 'signup'
       @query_params[:op] = 'signup'
-      build_sso_url(LOA::IDME_LOA1_VETS)
+      build_sso_url(build_authn_context(LOA::IDME_LOA1_VETS))
     end
 
     def verify_url
@@ -112,9 +112,9 @@ module SAML
         when LOA::IDME_LOA1_VETS, 'multifactor'
           build_authn_context(@loa3_context)
         when 'myhealthevet', 'myhealthevet_multifactor'
-          'myhealthevet_loa3'
+          build_authn_context('myhealthevet_loa3')
         when 'dslogon', 'dslogon_multifactor'
-          'dslogon_loa3'
+          build_authn_context('dslogon_loa3')
         when SAML::UserAttributes::SSOe::INBOUND_AUTHN_CONTEXT
           "#{@user.identity.sign_in[:service_name]}_loa3"
         end
@@ -127,11 +127,11 @@ module SAML
       link_authn_context =
         case authn_context
         when LOA::IDME_LOA1_VETS, LOA::IDME_LOA3_VETS, LOA::IDME_LOA3
-          'multifactor'
+          build_authn_context('multifactor')
         when 'myhealthevet', 'myhealthevet_loa3'
-          'myhealthevet_multifactor'
+          build_authn_context('myhealthevet_multifactor')
         when 'dslogon', 'dslogon_loa3'
-          'dslogon_multifactor'
+          build_authn_context('dslogon_multifactor')
         when SAML::UserAttributes::SSOe::INBOUND_AUTHN_CONTEXT
           "#{@user.identity.sign_in[:service_name]}_multifactor"
         end

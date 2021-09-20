@@ -88,11 +88,11 @@ RSpec.describe V1::SessionsController, type: :controller do
             let(:authn) do
               case type
               when 'mhv'
-                'myhealthevet'
+                ['myhealthevet', Settings.saml_ssoe.idme_authn_context]
               when 'idme'
                 [LOA::IDME_LOA1_VETS, Settings.saml_ssoe.idme_authn_context]
               when 'dslogon'
-                'dslogon'
+                ['dslogon', Settings.saml_ssoe.idme_authn_context]
               end
             end
 
