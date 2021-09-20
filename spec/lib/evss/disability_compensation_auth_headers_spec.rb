@@ -8,7 +8,7 @@ describe EVSS::DisabilityCompensationAuthHeaders do
   let(:user) { build(:user) }
   let(:blank_gender_user) { build(:blank_gender_user) }
   let(:valid_headers) { described_class.new(user) }
-  let(:invalid_headers) { described_class.new(blank_gender_user) }
+  let(:unknown_gender_headers) { described_class.new(blank_gender_user) }
 
   # rubocop:disable all
   it 'includes gender and birth date in the headers' do
@@ -19,8 +19,10 @@ describe EVSS::DisabilityCompensationAuthHeaders do
   end
   # rubocop:enable all
 
-  it 'raises an error if gender is not included' do
-    expect(Raven).to receive(:extra_context).with(user_gend: nil)
-    expect { invalid_headers.add_headers(auth_headers) }.to raise_error(Common::Exceptions::UnprocessableEntity)
+  it 'gender is unknown if gender is not included' do
+    gender = JSON.parse(unknown_gender_headers.add_headers(auth_headers)['va_eauth_authorization']).dig(
+      'authorizationResponse', 'gender'
+    )
+    expect(gender).to eq('UNKNOWN')
   end
 end
