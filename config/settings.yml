@@ -121,6 +121,16 @@ edu:
       - PIERRE.BROWN@va.gov
       - VAVBAHIN/TIMS@vba.va.gov
       - EDUAPPMGMT.VBACO@VA.GOV
+      - abelardo.blanco@va.gov
+      - eugenia.gina.ronat@accenturefederal.com
+      - morgan.whaley@accenturefederal.com
+      - m.c.shah@accenturefederal.com
+      - patrick.arthur@accenturefederal.com
+      - adam.freemer@accenturefederal.com
+      - dan.brooking@accenturefederal.com
+      - sebastian.cooper@accenturefederal.com
+      - david.rowley@accenturefederal.com
+      - nick.barthelemy@accenturefederal.com
     staging_emails:
 dependents:
   prefill: true
@@ -544,6 +554,13 @@ reports:
       - Lucas.Tickner@va.gov
       - Ricardo.DaSilva@va.gov
       - tammy.hurley1@va.gov
+      - abelardo.blanco@va.gov
+      - eugenia.gina.ronat@accenturefederal.com
+      - morgan.whaley@accenturefederal.com
+      - m.c.shah@accenturefederal.com
+      - d.a.barnes@accenturefederal.com
+      - jacob.finnern@accenturefederal.com
+      - hocine.halli@accenturefederal.com
   spool_submission:
     emails:
       - Brian.Grubb@va.gov
@@ -566,6 +583,13 @@ reports:
       - Lucas.Tickner@va.gov
       - Ricardo.DaSilva@va.gov
       - tammy.hurley1@va.gov
+      - abelardo.blanco@va.gov
+      - eugenia.gina.ronat@accenturefederal.com
+      - morgan.whaley@accenturefederal.com
+      - m.c.shah@accenturefederal.com
+      - d.a.barnes@accenturefederal.com
+      - jacob.finnern@accenturefederal.com
+      - hocine.halli@accenturefederal.com
   year_to_date_report:
     emails:
       - 222A.VBAVACO@va.gov
@@ -599,6 +623,13 @@ reports:
       - robyn.noles@va.gov
       - Ricardo.DaSilva@va.gov
       - tammy.hurley1@va.gov
+      - abelardo.blanco@va.gov
+      - eugenia.gina.ronat@accenturefederal.com
+      - morgan.whaley@accenturefederal.com
+      - m.c.shah@accenturefederal.com
+      - d.a.barnes@accenturefederal.com
+      - jacob.finnern@accenturefederal.com
+      - hocine.halli@accenturefederal.com
 
 oidc:
   auth_server_metadata_url: ~
@@ -782,6 +813,16 @@ flipper:
     - zmorel@governmentcio.com
     - kha.huynh@thoughtworks.com
     - zach.morel@gcio.com
+    - abelardo.blanco@va.gov
+    - eugenia.gina.ronat@accenturefederal.com
+    - morgan.whaley@accenturefederal.com
+    - m.c.shah@accenturefederal.com
+    - patrick.arthur@accenturefederal.com
+    - adam.freemer@accenturefederal.com
+    - dan.brooking@accenturefederal.com
+    - sebastian.cooper@accenturefederal.com
+    - david.rowley@accenturefederal.com
+    - nick.barthelemy@accenturefederal.com
 
 bgs:
   application: ~
@@ -1093,3 +1134,4 @@ bid:
 # Settings for Test User Dashboard modules
 test_user_dashboard:
   env: dev
+  
