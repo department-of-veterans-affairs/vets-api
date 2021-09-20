@@ -146,8 +146,11 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       let(:user_object) { create(:unauthorized_evss_user) }
 
       it 'PDF is sent to Central Mail and not VBMS' do
-        expect(claim).to receive(:send_to_central_mail!).once
+        expect(claim).to receive(:send_to_central_mail!).once.and_call_original
         expect(claim).not_to receive(:upload_to_vbms)
+        expect(VeteranReadinessEmploymentMailer).to receive(:build).with(
+          user_object, 'VRE.VBAPIT@va.gov', true
+        ).and_call_original
         subject
       end
     end
