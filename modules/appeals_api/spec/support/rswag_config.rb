@@ -20,6 +20,10 @@ class AppealsApi::RswagConfig
           {
             name: 'Notice of Disagreements',
             description: ''
+          },
+          {
+            name: 'Legacy Appeals',
+            description: ''
           }
         ],
         components: {
@@ -34,7 +38,8 @@ class AppealsApi::RswagConfig
             generic_schemas,
             hlr_v2_schemas('#/components/schemas'),
             contestable_issues_schema,
-            nod_schemas('#/components/schemas')
+            nod_schemas('#/components/schemas'),
+            legacy_appeals_schema
           ].reduce(&:merge)
         },
         paths: {},
@@ -450,6 +455,20 @@ class AppealsApi::RswagConfig
           }
         },
         'required': %w[data included]
+      }
+    }
+  end
+
+  def legacy_appeals_schema
+    {
+      'legacyAppeals': {
+        'type': 'object',
+        'properties': {
+          'data': {
+            'type': 'array',
+            'items': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'legacy_appeal.json')))
+          }
+        }
       }
     }
   end

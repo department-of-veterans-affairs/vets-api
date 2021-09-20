@@ -14,6 +14,10 @@
     {
       "name": "Notice of Disagreements",
       "description": ""
+    },
+    {
+      "name": "Legacy Appeals",
+      "description": ""
     }
   ],
   "components": {
@@ -2290,6 +2294,60 @@
           "data",
           "included"
         ]
+      },
+      "legacyAppeals": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "example": "legacyAppeal"
+                },
+                "id": {
+                  "type": "string",
+                  "description": "ID from VACOLS (Veteran Appeals Control and Locator Service)",
+                  "example": "3085659"
+                },
+                "attributes": {
+                  "type": "object",
+                  "properties": {
+                    "issues": {
+                      "type": "array",
+                      "description": "Issues on the Appeal.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "summary": {
+                            "type": "string",
+                            "description": "Summary of a single Issue.",
+                            "example": "Service connection, hearing loss"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "veteranFullName": {
+                    "type": "string",
+                    "example": "Junior L Fritsch"
+                  },
+                  "decisionDate": {
+                    "type": "string",
+                    "description": "Date of the Appeal's original decision.",
+                    "example": "2018-09-28T00:00:00.000Z"
+                  },
+                  "latestSocSsocDate": {
+                    "type": "string",
+                    "description": "Date of the Appeal's most recent SOC/SSOC (Statement of Case/Supplemental Statement of Case)",
+                    "example": "2018-12-29T00:00:00.000Z"
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -4952,6 +5010,168 @@
                         }
                       }
                     ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/legacy_appeals": {
+      "get": {
+        "summary": "Returns eligible appeals in the legacy process for a Veteran.",
+        "tags": [
+          "Legacy Appeals"
+        ],
+        "operationId": "getLegacyAppeals",
+        "security": [
+          {
+            "apikey": [
+
+            ]
+          }
+        ],
+        "description": "Returns eligible Legacy Appeals for a Veteran. A Legacy Appeal is eligible if an SOC/SSOC has been declared, and if the date of declaration is within the last 60 days. SOC (Statement of Case) / SSOC (Supplemental Statement of Case)",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-VA-SSN",
+            "required": false,
+            "description": "Either X-VA-SSN or X-VA-File-Number is required",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-File-Number",
+            "required": false,
+            "description": "Either X-VA-SSN or X-VA-File-Number is required",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns eligible legacy appeals for a veteran",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "id": "2760964",
+                      "type": "legacyAppeal",
+                      "attributes": {
+                        "issues": [
+                          {
+                            "summary": "Service connection, pancreatitis"
+                          }
+                        ],
+                        "veteranFullName": "Elda Z Quigley",
+                        "decisionDate": "2021-05-04T00:00:00.000Z",
+                        "latestSocSsocDate": "2021-06-12"
+                      }
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/legacyAppeals"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Veteran record not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "status": 404,
+                      "code": "veteran_not_found",
+                      "title": "Veteran Not Found"
+                    }
+                  ],
+                  "code": 404,
+                  "source": "Appeals Caseflow"
+                },
+                "schema": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "integer",
+                              "enum": [
+                                404
+                              ]
+                            },
+                            "detail": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Header Errors",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "when X-VA-SSN and X-VA-File-Number are missing": {
+                    "value": {
+                      "errors": [
+                        {
+                          "status": 422,
+                          "detail": "X-VA-SSN or X-VA-File-Number is required"
+                        }
+                      ]
+                    }
+                  },
+                  "when ssn formatted incorrectly": {
+                    "value": {
+                      "errors": [
+                        {
+                          "status": 422,
+                          "detail": "X-VA-SSN has an invalid format. Pattern: /^[0-9]{9}$/"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "integer",
+                              "enum": [
+                                422
+                              ]
+                            },
+                            "detail": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
                   }
                 }
               }

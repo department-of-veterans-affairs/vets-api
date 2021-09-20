@@ -34,7 +34,7 @@ class AppealsApi::V2::DecisionReviews::LegacyAppealsController < AppealsApi::App
     ssn = request.headers['X-VA-SSN']
     file_number = request.headers['X-VA-File-Number']
 
-    if ssn.nil? && file_number.nil?
+    if ssn.blank? && file_number.blank?
       validation_errors << { status: 422, detail: 'X-VA-SSN or X-VA-File-Number is required' }
     end
 
