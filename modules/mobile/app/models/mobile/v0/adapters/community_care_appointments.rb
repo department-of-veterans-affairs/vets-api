@@ -60,7 +60,8 @@ module Mobile
             status: BOOKED_STATUS,
             status_detail: nil, # not currently used by community care appointments
             time_zone: time_zone,
-            vetext_id: nil
+            vetext_id: nil,
+            reason: nil
           }
         end
         # rubocop:enable Metrics/MethodLength

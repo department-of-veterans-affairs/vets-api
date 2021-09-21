@@ -325,7 +325,8 @@ RSpec.describe 'appointments', type: :request do
                 'status' => 'BOOKED',
                 'statusDetail' => nil,
                 'timeZone' => 'America/Denver',
-                'vetextId' => '308;20201103.090000'
+                'vetextId' => '308;20201103.090000',
+                'reason' => nil
               }
             }
           )
@@ -371,7 +372,8 @@ RSpec.describe 'appointments', type: :request do
                 'status' => 'BOOKED',
                 'statusDetail' => nil,
                 'timeZone' => 'America/New_York',
-                'vetextId' => nil
+                'vetextId' => nil,
+                'reason' => nil
               }
             }
           )
@@ -442,7 +444,8 @@ RSpec.describe 'appointments', type: :request do
                 'status' => 'BOOKED',
                 'statusDetail' => nil,
                 'timeZone' => 'America/Denver',
-                'vetextId' => '308;20201103.090000'
+                'vetextId' => '308;20201103.090000',
+                'reason' => nil
               }
             }
           )
@@ -488,7 +491,8 @@ RSpec.describe 'appointments', type: :request do
                 'status' => 'BOOKED',
                 'statusDetail' => nil,
                 'timeZone' => 'America/New_York',
-                'vetextId' => nil
+                'vetextId' => nil,
+                'reason' => nil
               }
             }
           )
@@ -801,6 +805,42 @@ RSpec.describe 'appointments', type: :request do
       context 'with a non phone appointment' do
         it 'has a phoneOnly flag of false' do
           expect(appointment_without_phone['phoneOnly']).to be_falsey
+        end
+      end
+    end
+
+    describe 'reason for visit' do
+      before do
+        Timecop.freeze(Time.zone.parse('2021-09-13T11:07:07Z'))
+
+        VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/get_cc_appointments_reason_for_visit', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_appointments_reason_for_visit', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/appointments', headers: iam_headers, params: params
+            end
+          end
+        end
+      end
+
+      after { Timecop.return }
+
+      let(:start_date) { Time.now.utc.iso8601 }
+      let(:end_date) { (Time.now.utc + 1.year).iso8601 }
+      let(:params) { { startDate: start_date, endDate: end_date } }
+      let(:va_appointment_with_reason) { response.parsed_body['data'][0]['attributes'] }
+      let(:va_appointment_without_reason) { response.parsed_body['data'][2]['attributes'] }
+
+      it 'matches the expected schema' do
+        expect(response.body).to match_json_schema('appointments')
+      end
+
+      context 'va appointments' do
+        it 'contains reason' do
+          expect(va_appointment_with_reason['reason']).to eq('Follow-up/Routine: Reason 1')
+        end
+
+        it 'reason does not exist' do
+          expect(va_appointment_without_reason['reason']).to be_nil
         end
       end
     end

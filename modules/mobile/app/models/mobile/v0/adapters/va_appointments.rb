@@ -123,7 +123,8 @@ module Mobile
             status: status,
             status_detail: status_detail,
             time_zone: time_zone,
-            vetext_id: vetext_id(appointment_hash, start_date_local)
+            vetext_id: vetext_id(appointment_hash, start_date_local),
+            reason: details[:booking_note]
           }
 
           Rails.logger.info('metric.mobile.appointment.type', type: type)

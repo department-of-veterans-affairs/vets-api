@@ -61,7 +61,8 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
                         status: 'BOOKED',
                         status_detail: nil,
                         time_zone: 'America/New_York',
-                        vetext_id: nil })
+                        vetext_id: nil,
+                        reason: nil })
             end
           end
         end

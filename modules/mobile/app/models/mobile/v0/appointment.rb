@@ -57,6 +57,7 @@ module Mobile
       attribute :status_detail, STATUS_DETAIL_TYPE.optional
       attribute :time_zone, TIME_ZONE_TYPE
       attribute :vetext_id, Types::String.optional
+      attribute :reason, Types::String.optional
 
       def self.toggle_non_prod_id!(id)
         return id if Settings.hostname == 'www.va.gov' || id.nil?

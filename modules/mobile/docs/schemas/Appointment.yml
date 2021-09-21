@@ -29,6 +29,7 @@ properties:
       - statusDetail
       - timeZone
       - vetextId
+      - reason
     properties:
       appointmentType:
         type: string
@@ -136,3 +137,6 @@ properties:
       vetextId:
         type: string
         example: 308;20210106.140000
+      reason:
+        type: string
+        example: "Follow-up/Routine: Reason 1"

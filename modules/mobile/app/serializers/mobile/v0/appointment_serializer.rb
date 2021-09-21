@@ -18,7 +18,8 @@ module Mobile
                  :status,
                  :status_detail,
                  :time_zone,
-                 :vetext_id
+                 :vetext_id,
+                 :reason
     end
   end
 end
