@@ -30,6 +30,7 @@ module VAOS
 
         @app.call(env).on_complete do |response_env|
           if response_env.status.between?(200, 299)
+            response_env.status == 207 && statsd_increment("#{STATSD_KEY_PREFIX}.partial", env)
             log(:info, 'VAOS service call succeeded!', log_tags(env, start_time, response_env))
           else
             statsd_increment("#{STATSD_KEY_PREFIX}.fail", env)

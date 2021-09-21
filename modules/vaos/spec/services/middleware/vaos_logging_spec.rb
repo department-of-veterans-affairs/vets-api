@@ -33,7 +33,7 @@ describe VAOS::Middleware::VAOSLogging do
   context 'with status successful' do
     let(:status) { 200 }
 
-    it 'user service call logs a success' do
+    it 'user service call logs a success and increments total' do
       expect(Rails.logger).to receive(:info).with('VAOS service call succeeded!',
                                                   jti: 'ebfc95ef5f3a41a7b15e432fe47e9864',
                                                   status: 200,
@@ -69,6 +69,36 @@ describe VAOS::Middleware::VAOSLogging do
         .to trigger_statsd_increment(
           'api.vaos.va_mobile.response.total',
           tags: ['method:GET', 'url:/user_service_refresh_uri', 'http_status:']
+        )
+    end
+  end
+
+  context 'with status partial' do
+    let(:status) { 207 }
+
+    it 'user service call logs a success and increments total' do
+      expect(Rails.logger).to receive(:info).with('VAOS service call succeeded!',
+                                                  jti: 'ebfc95ef5f3a41a7b15e432fe47e9864',
+                                                  status: 207,
+                                                  duration: 0.0,
+                                                  url: '(POST) https://veteran.apps.va.gov/users/v2/session?processRules=true').and_call_original
+      expect { client.post(user_service_uri) }
+        .to trigger_statsd_increment(
+          'api.vaos.va_mobile.response.total',
+          tags: ['method:POST', 'url:/users/v2/session', 'http_status:']
+        )
+    end
+
+    it 'user service call logs a success and increments partial' do
+      expect(Rails.logger).to receive(:info).with('VAOS service call succeeded!',
+                                                  jti: 'ebfc95ef5f3a41a7b15e432fe47e9864',
+                                                  status: 207,
+                                                  duration: 0.0,
+                                                  url: '(POST) https://veteran.apps.va.gov/users/v2/session?processRules=true').and_call_original
+      expect { client.post(user_service_uri) }
+        .to trigger_statsd_increment(
+          'api.vaos.va_mobile.response.partial',
+          tags: ['method:POST', 'url:/users/v2/session', 'http_status:207']
         )
     end
   end
