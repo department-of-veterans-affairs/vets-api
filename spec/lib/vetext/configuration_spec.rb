@@ -8,7 +8,7 @@ describe 'VEText::Configuration' do
 
   describe '#base_url' do
     it 'returns the value from the env settings' do
-      expect(subject.base_url).to eq('https://vetext1.r01.med.va.gov')
+      expect(subject.base_path).to eq('https://vetext1.r01.med.va.gov')
     end
   end
 

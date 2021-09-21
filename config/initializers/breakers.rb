@@ -35,6 +35,7 @@ require 'okta/configuration'
 require 'va_profile/contact_information/configuration'
 require 'va_profile/communication/configuration'
 require 'iam_ssoe_oauth/configuration'
+require 'vetext/service'
 
 Rails.application.reloader.to_prepare do
   # Read the redis config, create a connection and a namespace for breakers
@@ -78,7 +79,8 @@ Rails.application.reloader.to_prepare do
     Okta::Configuration.instance.breakers_service,
     VAOS::Configuration.instance.breakers_service,
     IAMSSOeOAuth::Configuration.instance.breakers_service,
-    CovidVaccine::V0::VetextConfiguration.instance.breakers_service
+    CovidVaccine::V0::VetextConfiguration.instance.breakers_service,
+    VEText::Configuration.instance.breakers_service
   ]
 
   services << CentralMail::Configuration.instance.breakers_service if Settings.central_mail&.upload&.enabled

@@ -5,7 +5,7 @@ require 'common/client/middleware/response/vetext_errors'
 
 module VEText
   class Configuration < Common::Client::Configuration::REST
-    def base_url
+    def base_path
       Settings.vetext_push.base_url
     end
 
@@ -15,7 +15,7 @@ module VEText
 
     def connection
       @connection ||= Faraday.new(
-        base_url, headers: base_request_headers, request: request_options
+        base_path, headers: base_request_headers, request: request_options
       ) do |conn|
         conn.basic_auth(Settings.vetext_push.user, Settings.vetext_push.pass)
         conn.use :breakers
