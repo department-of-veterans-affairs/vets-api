@@ -207,6 +207,7 @@ modules_appeals_api:
     path_enabled_flag: false
   higher_level_review_pii_expunge_enabled: true
   higher_level_review_updater_enabled: true
+  legacy_appeals_enabled: false
   notice_of_disagreement_pii_expunge_enabled: true
   notice_of_disagreement_updater_enabled: true
   reports:
@@ -1138,4 +1139,3 @@ bid:
 # Settings for Test User Dashboard modules
 test_user_dashboard:
   env: dev
-  

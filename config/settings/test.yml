@@ -82,6 +82,9 @@ search_click_tracking:
 vba_documents:
   enable_download_endpoint: true
 
+modules_appeals_api:
+  legacy_appeals_enabled: true
+
 bgs:
   mock_response_location: /cache/bgs
   mock_responses: false
