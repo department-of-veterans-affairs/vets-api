@@ -9,7 +9,8 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
         {
           benefit_claim_id: '111111111',
           claim_status_type: 'Compensation',
-          phase_type: 'Pending'
+          phase_type: 'Pending',
+          end_product_code: '930'
         }
       end
       let(:lighthouse_claim) do
@@ -44,6 +45,14 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
 
         expect(claim[:status]).to eq('Pending')
       end
+
+      it "returns a claim that has the BGS 'endProductCode'" do
+        claim = ClaimsApi::BGSToLighthouseClaimsMapperService.process(
+          bgs_claim: bgs_claim
+        )
+
+        expect(claim[:end_product_code]).to eq('930')
+      end
     end
 
     context 'when only BGS claim is provided' do
@@ -51,7 +60,8 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
         {
           benefit_claim_id: '111111111',
           claim_status_type: 'Compensation',
-          phase_type: 'Pending'
+          phase_type: 'Pending',
+          end_product_code: '930'
         }
       end
 
@@ -77,6 +87,14 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
         )
 
         expect(claim[:status]).to eq('Pending')
+      end
+
+      it "returns a claim that has the BGS 'endProductCode'" do
+        claim = ClaimsApi::BGSToLighthouseClaimsMapperService.process(
+          bgs_claim: bgs_claim
+        )
+
+        expect(claim[:end_product_code]).to eq('930')
       end
     end
 
@@ -112,6 +130,14 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
         )
 
         expect(claim[:status]).to eq('Pending')
+      end
+
+      it "returns a claim with an 'endProductCode' of 'nil'" do
+        claim = ClaimsApi::BGSToLighthouseClaimsMapperService.process(
+          lighthouse_claim: lighthouse_claim
+        )
+
+        expect(claim[:end_product_code]).to eq(nil)
       end
     end
 

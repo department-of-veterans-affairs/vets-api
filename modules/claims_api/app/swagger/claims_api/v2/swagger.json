@@ -668,6 +668,7 @@
                     "type": "GET",
                     "url": "http://www.example.com/services/benefits/v2/veterans/1013062086V794840/claims/555555555"
                   },
+                  "endProductCode": "404",
                   "status": "Complete",
                   "type": "Compensation"
                 },
@@ -696,6 +697,11 @@
                       "type": "string",
                       "description": "Status of Claim",
                       "example": "Complete"
+                    },
+                    "endProductCode": {
+                      "type": "string",
+                      "description": "End Product Code of Claim",
+                      "example": "930"
                     },
                     "@links": {
                       "type": "object",

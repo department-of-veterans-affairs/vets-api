@@ -7,6 +7,7 @@ module ClaimsApi
         identifier :id
         field :type
         field :status
+        field :end_product_code
 
         field :@links do |claim, options|
           {
@@ -14,6 +15,10 @@ module ClaimsApi
             type: 'GET',
             url: "#{options[:base_url]}/services/benefits/v2/veterans/#{options[:veteran_id]}/claims/#{claim[:id]}"
           }
+        end
+
+        view :list do
+          exclude :end_product_code
         end
 
         transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer

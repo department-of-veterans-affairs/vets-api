@@ -19,6 +19,11 @@
       "description": "Status of Claim",
       "example": "Complete"
     },
+    "endProductCode": {
+      "type": "string",
+      "description": "End Product Code of Claim",
+      "example": "930"
+    },
     "@links": {
       "type": "object",
       "description": "HATEOAS links in the HAL standard format",

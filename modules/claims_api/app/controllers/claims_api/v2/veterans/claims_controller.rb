@@ -16,7 +16,7 @@ module ClaimsApi
 
           mapped_claims = map_claims(bgs_claims: bgs_claims, lighthouse_claims: lighthouse_claims)
 
-          blueprint_options = { base_url: request.base_url, veteran_id: params[:veteranId] }
+          blueprint_options = { base_url: request.base_url, veteran_id: params[:veteranId], view: :list }
           render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(mapped_claims, blueprint_options)
         end
 
@@ -107,7 +107,8 @@ module ClaimsApi
           {
             benefit_claim_id: bgs_claim[:benefit_claim_details_dto][:benefit_claim_id],
             claim_status_type: bgs_claim[:benefit_claim_details_dto][:claim_status_type],
-            phase_type: bgs_claim[:benefit_claim_details_dto][:bnft_claim_lc_status][:phase_type]
+            phase_type: bgs_claim[:benefit_claim_details_dto][:bnft_claim_lc_status][:phase_type],
+            end_product_code: bgs_claim[:benefit_claim_details_dto][:end_prdct_type_cd]
           }
         end
       end

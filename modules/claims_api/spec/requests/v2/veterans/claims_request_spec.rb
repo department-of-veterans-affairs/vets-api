@@ -157,7 +157,8 @@ RSpec.describe 'Claims', type: :request do
                     {
                       benefit_claim_id: '111111111',
                       claim_status_type: 'Compensation',
-                      phase_type: 'Pending'
+                      phase_type: 'Pending',
+                      end_product_code: '930'
                     }
                   ]
                 }
@@ -202,7 +203,8 @@ RSpec.describe 'Claims', type: :request do
                   {
                     benefit_claim_id: '111111111',
                     claim_status_type: 'Compensation',
-                    phase_type: 'Pending'
+                    phase_type: 'Pending',
+                    end_product_code: '930'
                   }
                 ]
               }
@@ -257,6 +259,7 @@ RSpec.describe 'Claims', type: :request do
               get all_claims_path, headers: auth_header
 
               json_response = JSON.parse(response.body)
+
               expect(response.status).to eq(200)
               expect(json_response).to be_an_instance_of(Array)
               expect(json_response.count).to eq(1)
@@ -359,6 +362,7 @@ RSpec.describe 'Claims', type: :request do
 
                 json_response = JSON.parse(response.body)
                 expect(response.status).to eq(200)
+                expect(response['endProductCode']).to eq(nil)
                 expect(json_response).to be_an_instance_of(Hash)
                 expect(json_response['id']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
               end
@@ -428,7 +432,7 @@ RSpec.describe 'Claims', type: :request do
             }
           end
 
-          context 'and a Lighthouse claim does exit' do
+          context 'and a Lighthouse claim does exist' do
             let(:lighthouse_claim) do
               OpenStruct.new(
                 id: '0958d973-36fb-43ef-8801-2718bd33c825',
@@ -450,6 +454,7 @@ RSpec.describe 'Claims', type: :request do
                 json_response = JSON.parse(response.body)
                 expect(response.status).to eq(200)
                 expect(json_response).to be_an_instance_of(Hash)
+                expect(response['endProductCode']).to eq(nil)
                 expect(json_response['id']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
                 expect(json_response['type']).to eq('value from BGS')
               end
