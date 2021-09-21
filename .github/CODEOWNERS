@@ -47,7 +47,7 @@ spec/support/*/facilities @department-of-veterans-affairs/vsa-facilities-backend
 spec/support/*/lighthouse @department-of-veterans-affairs/vsa-facilities-backend @department-of-veterans-affairs/backend-review-group
 
 # test user dashboard product
-modules/test_user_dashboard @department-of-veterans-affairs/vsp-identity
+modules/test_user_dashboard @department-of-veterans-affairs/vsp-identity @department-of-veterans-affairs/vsp-testing
 
 # Debt Resolution
 app/controllers/v0/debt_letters_controller.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
