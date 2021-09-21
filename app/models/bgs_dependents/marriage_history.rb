@@ -16,7 +16,7 @@ module BGSDependents
         divorce_country: @former_spouse.dig('end_location', 'country'),
         divorce_state: @former_spouse.dig('end_location', 'state'),
         divorce_city: @former_spouse.dig('end_location', 'city'),
-        marriage_termination_type_code: @former_spouse['reason_marriage_ended_other']
+        marriage_termination_type_code: @former_spouse['reason_marriage_ended']
       }.merge(@former_spouse['full_name']).with_indifferent_access
     end
   end

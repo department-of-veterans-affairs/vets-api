@@ -24,7 +24,7 @@ RSpec.describe BGSDependents::MarriageHistory do
       'divorce_state' => 'IL',
       'divorce_city' => 'Chicago',
       'divorce_country' => nil,
-      'marriage_termination_type_code' => 'Some other reason',
+      'marriage_termination_type_code' => 'Other',
       'first' => 'Billy',
       'middle' => 'Yohan',
       'last' => 'Johnson',
