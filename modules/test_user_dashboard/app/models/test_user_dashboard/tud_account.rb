@@ -16,6 +16,21 @@ module TestUserDashboard
       checkout_time.nil?
     end
 
+    def user_values(user)
+      {
+        first_name: user.first_name,
+        middle_name: user.middle_name,
+        last_name: user.last_name,
+        gender: user.gender,
+        birth_date: user.birth_date,
+        ssn: user.ssn,
+        phone: user.pciu_primary_phone,
+        loa: user.loa,
+        idme_uuid: user.idme_uuid,
+        services: Users::Services.new(user).authorizations
+      }
+    end
+
     def user_identity
       unless (identity = UserIdentity.find(account_uuid))
         identity = UserIdentity.create(

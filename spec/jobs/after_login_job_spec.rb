@@ -32,7 +32,7 @@ RSpec.describe AfterLoginJob do
       end
 
       it 'does not call TUD account checkout' do
-        expect_any_instance_of(TestUserDashboard::CheckoutUser).not_to receive(:call)
+        expect_any_instance_of(TestUserDashboard::UpdateUser).not_to receive(:call)
         described_class.new.perform('user_uuid' => user.uuid)
       end
     end
@@ -47,7 +47,7 @@ RSpec.describe AfterLoginJob do
       end
 
       it 'calls TUD account checkout' do
-        expect_any_instance_of(TestUserDashboard::CheckoutUser).to receive(:call)
+        expect_any_instance_of(TestUserDashboard::UpdateUser).to receive(:call)
         described_class.new.perform('user_uuid' => user.uuid)
       end
     end

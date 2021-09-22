@@ -342,7 +342,7 @@ module V1
     end
 
     def after_login_actions
-      AfterLoginJob.perform_async('user_uuid' => @current_user&.uuid)
+      AfterLoginJob.perform_async(user_uuid: @current_user&.uuid)
       log_persisted_session_and_warnings
     end
 

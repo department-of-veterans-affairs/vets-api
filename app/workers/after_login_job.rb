@@ -23,8 +23,6 @@ class AfterLoginJob
     evss_create_account
     create_user_account
     update_account_login_stats
-    if Settings.test_user_dashboard.env == 'staging'
-      TestUserDashboard::CheckoutUser.new(@current_user.account_uuid).call
-    end
+    TestUserDashboard::UpdateUser.new(@current_user).call(Time.current) if Settings.test_user_dashboard.env == 'staging'
   end
 end
