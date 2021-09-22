@@ -13,6 +13,25 @@ RSpec.describe Account, type: :model do
     expect(account.reload.uuid).to eq uuid
   end
 
+  it 'enforces sec_id uniqueness when idme_uuid is blank' do
+    expect(Account.count).to eq 0
+    sec_id = 'some-sec-id'
+
+    expect do
+      first_account = Account.new(sec_id: sec_id)
+      second_account = Account.new(sec_id: sec_id)
+
+      first_account.save
+      second_account.save
+      expect(first_account.sec_id).to eq sec_id
+      expect(second_account.sec_id).to eq sec_id
+      expect(first_account.idme_uuid).to eq nil
+      expect(second_account.idme_uuid).to eq nil
+      expect(first_account.valid?).to eq true
+      expect(second_account.valid?).to eq false
+    end.to change(Account, :count).by(1)
+  end
+
   describe '.idme_uuid_match' do
     it 'returns only accounts with matching idme_uuid' do
       find_me = create :account
@@ -85,6 +104,24 @@ RSpec.describe Account, type: :model do
         expect(acct.sec_id).to eq '1234'
         expect(acct.idme_uuid).to eq nil
       end.to change(Account, :count).by(1)
+    end
+
+    it 'allows multiple records to have nil idme_uuid if sec_id is defined' do
+      expect(Account.count).to eq 0
+      first_sec_id = 'some-sec-id'
+      another_sec_id = 'some-other-sec-id'
+
+      first_user = create(:user, :user_with_no_idme_uuid, sec_id: first_sec_id)
+      second_user = create(:user, :user_with_no_idme_uuid, sec_id: another_sec_id)
+
+      expect do
+        first_account = Account.create_if_needed!(first_user)
+        second_account = Account.create_if_needed!(second_user)
+        expect(first_account.sec_id).to eq first_sec_id
+        expect(second_account.sec_id).to eq another_sec_id
+        expect(first_account.idme_uuid).to eq nil
+        expect(second_account.idme_uuid).to eq nil
+      end.to change(Account, :count).by(2)
     end
 
     it 'matches on sec id with missing idme uuid' do
