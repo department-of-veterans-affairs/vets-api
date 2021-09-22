@@ -2,14 +2,18 @@
 
 require 'caseflow/service'
 require 'common/exceptions'
+require 'appeals_api/form_schemas'
 
 class AppealsApi::V2::DecisionReviews::LegacyAppealsController < AppealsApi::ApplicationController
-  SSN_REGEX = /^[0-9]{9}$/.freeze
+  HEADERS = JSON.parse(
+    File.read(
+      AppealsApi::Engine.root.join('config/schemas/v2/legacy_appeals_headers.json')
+    )
+  )['definitions']['legacyAppealsIndexParameters']['properties'].keys
+  SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
 
-  skip_before_action(:authenticate)
-  before_action :validate_headers, only: %i[index]
-
-  EXPECTED_HEADERS = %w[X-VA-SSN X-VA-File-Number].freeze
+  skip_before_action :authenticate
+  before_action :validate_json_schema, only: %i[index]
 
   def index
     return unless enabled?
@@ -28,29 +32,18 @@ class AppealsApi::V2::DecisionReviews::LegacyAppealsController < AppealsApi::App
   attr_reader :caseflow_response, :caseflow_exception_response
 
   def request_headers
-    EXPECTED_HEADERS.index_with { |key| request.headers[key] }.compact
+    HEADERS.index_with { |key| request.headers[key] }.compact
   end
 
-  def validate_headers
-    validation_errors = []
-    ssn = request.headers['X-VA-SSN']
-    file_number = request.headers['X-VA-File-Number']
-
-    if ssn.blank? && file_number.blank?
-      validation_errors << { status: 422, detail: 'X-VA-SSN or X-VA-File-Number is required' }
-    end
-
-    if ssn.present? && !SSN_REGEX.match?(ssn)
-      validation_errors << { status: 422, detail: "X-VA-SSN has an invalid format. Pattern: #{SSN_REGEX.inspect}" }
-    end
-
-    render_validation_errors(validation_errors)
+  def validate_json_schema
+    validate_json_schema_for_headers
   end
 
-  def render_validation_errors(validation_errors)
-    return if validation_errors.empty?
-
-    render json: { errors: validation_errors }, status: :unprocessable_entity
+  def validate_json_schema_for_headers
+    AppealsApi::FormSchemas.new(
+      SCHEMA_ERROR_TYPE,
+      schema_version: 'v2'
+    ).validate!('LEGACY_APPEALS_HEADERS', request_headers)
   end
 
   def get_legacy_appeals_from_caseflow
