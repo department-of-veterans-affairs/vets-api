@@ -162,7 +162,7 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
         latitude: 40.414248,
         longitude: -74.097581,
         main_phone: nil,
-        miles: 2.5153,
+        miles: 2.5066,
         provider_identifier: '1437189941',
         provider_name: 'LILLIE, ROBERT C'
       )
@@ -188,7 +188,7 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
         latitude: 40.409114,
         longitude: -74.041849,
         main_phone: nil,
-        miles: 1.0277,
+        miles: 1.019,
         pos_codes: %w[
           17
           20
@@ -204,10 +204,10 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
       r = Facilities::PPMS::V1::Client.new.provider_info(1_154_383_230)
       expect(r).to have_attributes(
         acc_new_patients: 'true',
-        address_city: 'ASBURY PARK',
+        address_city: '1301 MAIN ST',
         address_postal_code: nil,
         address_state_province: 'NJ',
-        address_street: '1301 MAIN ST',
+        address_street: 'ASBURY PARK',
         care_site: nil,
         caresite_phone: nil,
         contact_method: nil,

@@ -23,8 +23,14 @@ module FacilitiesApi
           self.total_entries = current_page * per_page + 1
         end
 
-        def providers
-          providers = body[offset, per_page].map do |attr|
+        def providers(paginated: false)
+          providers = if paginated
+                        body
+                      else
+                        body[offset, per_page]
+                      end
+
+          providers.map! do |attr|
             provider = FacilitiesApi::V1::PPMS::Provider.new(attr)
             provider.set_hexdigest_as_id!
             provider

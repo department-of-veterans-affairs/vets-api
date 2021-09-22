@@ -23,14 +23,14 @@ module FacilitiesApi
       api_results = if provider_urgent_care?
                       api.pos_locator(ppms_action_params)
                     else
-                      api.provider_locator(ppms_provider_params)
+                      provider_locator(ppms_provider_params)
                     end
 
       render_json(V1::PPMS::ProviderSerializer, ppms_action_params, api_results)
     end
 
     def pharmacy
-      api_results = api.provider_locator(ppms_action_params.merge(specialties: ['3336C0003X']))
+      api_results = provider_locator(ppms_action_params.merge(specialties: ['3336C0003X']))
 
       render_json(V1::PPMS::ProviderSerializer, ppms_action_params, api_results)
     end
@@ -97,9 +97,9 @@ module FacilitiesApi
       if urgent_care?
         api.pos_locator(ppms_params)
       elsif ppms_params[:type] == 'provider'
-        api.provider_locator(ppms_provider_params)
+        provider_locator(ppms_provider_params)
       elsif ppms_params[:type] == 'pharmacy'
-        api.provider_locator(ppms_params.merge(specialties: ['3336C0003X']))
+        provider_locator(ppms_params.merge(specialties: ['3336C0003X']))
       end
     end
 
@@ -113,6 +113,14 @@ module FacilitiesApi
 
     def resource_path(options)
       v1_ccp_index_url(options)
+    end
+
+    def provider_locator(locator_params)
+      if Flipper.enabled?(:facility_locator_ppms_use_paginated_endpoint)
+        api.facility_service_locator(locator_params)
+      else
+        api.provider_locator(locator_params)
+      end
     end
   end
 end

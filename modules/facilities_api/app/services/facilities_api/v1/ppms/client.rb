@@ -14,12 +14,26 @@ module FacilitiesApi
       # https://dev.dws.ppms.va.gov/swagger
       class Client < Common::Client::Base
         DEGREES_OF_ACCURACY = 6
+        PER_PAGE = 10
         RADIUS_MAX = 500
         RADIUS_MIN = 1
         RESULTS_MAX = 50
         RESULTS_MIN = 2
 
         configuration FacilitiesApi::V1::PPMS::Configuration
+
+        def facility_service_locator(params)
+          qparams = facility_service_locator_params(params)
+          response = perform(:get, facility_service_locator_url, qparams)
+
+          return [] if response.body.nil?
+
+          flatten_and_normalize_attributes!(response)
+          trim_response_attributes!(response)
+          deduplicate_response_arrays!(response)
+
+          FacilitiesApi::V1::PPMS::Response.new(response.body, params).providers(paginated: true)
+        end
 
         # https://dev.dws.ppms.va.gov/swagger/ui/index#!/GlobalFunctions/GlobalFunctions_ProviderLocator
         def provider_locator(params)
@@ -55,11 +69,19 @@ module FacilitiesApi
 
         private
 
+        def facility_service_locator_url
+          if Flipper.enabled?(:facility_locator_ppms_use_secure_api)
+            '/dws/v1.0/FacilityServiceLocator'
+          else
+            '/v1.0/FacilityServiceLocator'
+          end
+        end
+
         def provider_locator_url
           if Flipper.enabled?(:facility_locator_ppms_use_secure_api)
             '/dws/v1.0/ProviderLocator'
           else
-            'v1.0/ProviderLocator'
+            '/v1.0/ProviderLocator'
           end
         end
 
@@ -76,6 +98,12 @@ module FacilitiesApi
             '/dws/v1.0/Specialties'
           else
             '/v1.0/Specialties'
+          end
+        end
+
+        def flatten_and_normalize_attributes!(response)
+          response.body.collect! do |hsh|
+            hsh['ProviderServices'].first
           end
         end
 
@@ -105,9 +133,31 @@ module FacilitiesApi
           response
         end
 
+        def facility_service_locator_params(params)
+          page = Integer(params[:page] || 1)
+          per_page = Integer(params[:per_page] || PER_PAGE)
+
+          latitude = Float(params.fetch(:latitude)).round(DEGREES_OF_ACCURACY)
+          longitude = Float(params.fetch(:longitude)).round(DEGREES_OF_ACCURACY)
+          radius = Integer(params.fetch(:radius)).clamp(RADIUS_MIN, RADIUS_MAX)
+
+          specialties = Array.wrap(params[:specialties])
+          specialty_codes = specialties.first(5).map.with_index.with_object({}) do |(code, index), hsh|
+            hsh["specialtycode#{index + 1}".to_sym] = code
+          end
+
+          {
+            address: [latitude, longitude].join(','),
+            radius: radius,
+            maxResults: per_page,
+            pageNumber: page,
+            pageSize: per_page
+          }.merge(specialty_codes)
+        end
+
         def base_params(params)
           page = Integer(params[:page] || 1)
-          per_page = Integer(params[:per_page] || BaseFacility.per_page)
+          per_page = Integer(params[:per_page] || PER_PAGE)
 
           latitude = Float(params.fetch(:latitude)).round(DEGREES_OF_ACCURACY)
           longitude = Float(params.fetch(:longitude)).round(DEGREES_OF_ACCURACY)

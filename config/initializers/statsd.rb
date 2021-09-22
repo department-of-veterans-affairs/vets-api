@@ -182,7 +182,10 @@ Rails.application.reloader.to_prepare do
     StatsD.increment('facilities.ppms.response.total', tags: payload_statuses)
 
     duration = end_time - start_time
+
     measurement = case payload[:url].path
+                  when /FacilityServiceLocator/
+                    'facilities.ppms.facility_service_locator'
                   when /ProviderLocator/
                     'facilities.ppms.provider_locator'
                   when /PlaceOfServiceLocator/

@@ -5,8 +5,7 @@ require 'rails_helper'
 vcr_options = {
   cassette_name: 'facilities/ppms/ppms',
   match_requests_on: %i[path query],
-  allow_playback_repeats: true,
-  record: :new_episodes
+  allow_playback_repeats: true
 }
 
 RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_options do
@@ -27,7 +26,7 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
       if feature_flag
         let(:path) { '/dws/v1.0/ProviderLocator' }
       else
-        let(:path) { 'v1.0/ProviderLocator' }
+        let(:path) { '/v1.0/ProviderLocator' }
       end
 
       context 'StatsD notifications' do
@@ -246,6 +245,201 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
         end
       end
 
+      describe '#facility_service_locator' do
+        if feature_flag
+          let(:path) { '/dws/v1.0/FacilityServiceLocator' }
+        else
+          let(:path) { '/v1.0/FacilityServiceLocator' }
+        end
+
+        describe 'Require between 1 and 5 Specialties' do
+          let(:client) { FacilitiesApi::V1::PPMS::Client.new }
+          let(:fake_response) { double('fake_response') }
+
+          it 'accepts upto 5 specialties' do
+            allow(fake_response).to receive(:body)
+            expect(client).to receive(:perform).with(
+              :get,
+              path,
+              {
+                address: '40.415217,-74.057114',
+                maxResults: 10,
+                pageNumber: 1,
+                pageSize: 10,
+                radius: 200,
+                specialtycode1: 'Code1',
+                specialtycode2: 'Code2',
+                specialtycode3: 'Code3',
+                specialtycode4: 'Code4',
+                specialtycode5: 'Code5'
+              }
+            ).and_return(fake_response)
+
+            client.facility_service_locator(params.merge(specialties: %w[Code1 Code2 Code3 Code4 Code5]))
+          end
+
+          it 'ignores more than 5 specialties' do
+            allow(fake_response).to receive(:body)
+            expect(client).to receive(:perform).with(
+              :get,
+              path,
+              {
+                address: '40.415217,-74.057114',
+                maxResults: 10,
+                pageNumber: 1,
+                pageSize: 10,
+                radius: 200,
+                specialtycode1: 'Code1',
+                specialtycode2: 'Code2',
+                specialtycode3: 'Code3',
+                specialtycode4: 'Code4',
+                specialtycode5: 'Code5'
+              }
+            ).and_return(fake_response)
+
+            client.facility_service_locator(params.merge(specialties: %w[Code1 Code2 Code3 Code4 Code5 Code6]))
+          end
+        end
+
+        describe 'Paginated Responses' do
+          describe 'Page 1' do
+            let!(:response) do
+              FacilitiesApi::V1::PPMS::Client.new.facility_service_locator(
+                params.merge(
+                  maxResults: 20,
+                  specialties: ['213E00000X'],
+                  page: 1,
+                  per_page: 20
+                )
+              )
+            end
+
+            it 'is expected to have the following attributes' do
+              expect(response[0]).to have_attributes(
+                acc_new_patients: 'true',
+                address_city: 'BELFORD',
+                address_postal_code: '07718-1042',
+                address_state_province: 'NJ',
+                address_street: '55 LEONARDVILLE RD',
+                care_site: 'ROBERT C LILLIE',
+                caresite_phone: '732-787-4747',
+                contact_method: nil,
+                email: nil,
+                fax: nil,
+                gender: 'Male',
+                latitude: 40.414248,
+                longitude: -74.097581,
+                main_phone: nil,
+                miles: 2.5066,
+                provider_identifier: '1437189941',
+                provider_name: 'LILLIE, ROBERT C'
+              )
+            end
+
+            it 'is expected to contain the following provider IDs' do
+              expect(response.collect(&:provider_identifier)).to contain_exactly(
+                '1437189941',
+                '1598735631',
+                '1598053944',
+                '1689617748',
+                '1154383230',
+                '1083043236',
+                '1225099500',
+                '1407929631',
+                '1770840068',
+                '1033125174',
+                '1780603902',
+                '1275569956',
+                '1578676821',
+                '1790707057',
+                '1740269273',
+                '1851318745',
+                '1750368486',
+                '1114903713',
+                '1730252859',
+                '1154383230'
+              )
+            end
+          end
+
+          describe 'Page 2' do
+            let!(:response) do
+              FacilitiesApi::V1::PPMS::Client.new.facility_service_locator(
+                params.merge(
+                  maxResults: 20,
+                  specialties: ['213E00000X'],
+                  page: 2,
+                  per_page: 20
+                )
+              )
+            end
+
+            it 'is expected to contain the following provider IDs' do
+              expect(response.collect(&:provider_identifier)).to contain_exactly(
+                '1518224773',
+                '1154383230',
+                '1093110744',
+                '1588687065',
+                '1801125703',
+                '1083043236',
+                '1083043236',
+                '1639292212',
+                '1194839274',
+                '1194801084',
+                '1679504427',
+                '1992799464',
+                '1255501938',
+                '1083043236',
+                '1164461927',
+                '1275625261',
+                '1679589261',
+                '1063819092',
+                '1912382888',
+                '1417171638'
+              )
+            end
+          end
+
+          describe 'Page 3' do
+            let!(:response) do
+              FacilitiesApi::V1::PPMS::Client.new.facility_service_locator(
+                params.merge(
+                  maxResults: 20,
+                  specialties: ['213E00000X'],
+                  page: 3,
+                  per_page: 20
+                )
+              )
+            end
+
+            it 'is expected to contain the following provider IDs' do
+              expect(response.collect(&:provider_identifier)).to contain_exactly(
+                '1962683235',
+                '1831187426',
+                '1831187426',
+                '1851318745',
+                '1194188565',
+                '1851318745',
+                '1669466207',
+                '1013902428',
+                '1548581069',
+                '1154792364',
+                '1295872661',
+                '1205831450',
+                '1316163298',
+                '1487004552',
+                '1083043236',
+                '1083043236',
+                '1518230663',
+                '1083043236',
+                '1548209356',
+                '1811067119'
+              )
+            end
+          end
+        end
+      end
+
       describe '#provider_locator' do
         describe 'Require between 1 and 5 Specialties' do
           let(:client) { FacilitiesApi::V1::PPMS::Client.new }
@@ -310,7 +504,7 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
             latitude: 40.414248,
             longitude: -74.097581,
             main_phone: nil,
-            miles: 2.5153,
+            miles: 2.5066,
             provider_identifier: '1437189941',
             provider_name: 'LILLIE, ROBERT C'
           )
@@ -336,7 +530,7 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
             latitude: 40.409114,
             longitude: -74.041849,
             main_phone: nil,
-            miles: 1.0277,
+            miles: 1.019,
             pos_codes: %w[
               17
               20

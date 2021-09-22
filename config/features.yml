@@ -175,6 +175,9 @@ features:
   facility_locator_ppms_use_secure_api:
     actor_type: user
     description: Use the new secure ppms api with new auth headers
+  facility_locator_ppms_use_paginated_endpoint:
+    actor_type: user
+    description: Use the new paginated endpoint for providers
   facility_locator_predictive_location_search:
     actor_type: user
     description: Use predictive location search in the Facility Locator UI
