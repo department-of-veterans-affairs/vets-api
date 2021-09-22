@@ -10,7 +10,7 @@ RSpec.describe BGS::FlashUpdater, type: :job do
   let(:ssn) { submission.auth_headers['va_eauth_pnid'] }
   let(:flashes) { %w[Homeless POW] }
   let(:assigned_flashes) do
-    { flashes: flashes.map { |flash| { assigned_indicator: nil, flash_name: flash, flash_type: nil } } }
+    { flashes: flashes.map { |flash| { assigned_indicator: nil, flash_name: "#{flash}    ", flash_type: nil } } }
   end
 
   it 'submits successfully with claim id' do

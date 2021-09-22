@@ -21,7 +21,7 @@ module BGS
 
       assigned_flashes = service.find_assigned_flashes(ssn)[:flashes]
       flashes.each do |flash_name|
-        assigned_flash = assigned_flashes.find { |af| af[:flash_name] == flash_name }
+        assigned_flash = assigned_flashes.find { |af| af[:flash_name].strip == flash_name }
         if assigned_flash.blank?
           Raven.tags_context(source: '526EZ-all-claims', submission_id: submission_id)
           e = StandardError.new("Failed to assign '#{flash_name}' to Veteran")

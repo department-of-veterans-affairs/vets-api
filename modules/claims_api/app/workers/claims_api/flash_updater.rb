@@ -20,7 +20,7 @@ module ClaimsApi
 
       assigned_flashes = service.find_assigned_flashes(user['ssn'])[:flashes]
       flashes.each do |flash_name|
-        assigned_flash = assigned_flashes.find { |af| af[:flash_name] == flash_name }
+        assigned_flash = assigned_flashes.find { |af| af[:flash_name].strip == flash_name }
         if assigned_flash.blank?
           e = StandardError.new("Failed to assign '#{flash_name}' to Veteran")
           persist_exception(e, auto_claim_id: auto_claim_id, message: { text: e.message })

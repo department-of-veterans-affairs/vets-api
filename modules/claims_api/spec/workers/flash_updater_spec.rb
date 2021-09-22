@@ -18,7 +18,7 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
   let(:flashes) { %w[Homeless POW] }
   let(:claim) { create(:auto_established_claim) }
   let(:assigned_flashes) do
-    { flashes: flashes.map { |flash| { assigned_indicator: nil, flash_name: flash, flash_type: nil } } }
+    { flashes: flashes.map { |flash| { assigned_indicator: nil, flash_name: "#{flash}    ", flash_type: nil } } }
   end
 
   it 'submits successfully without claim id' do
