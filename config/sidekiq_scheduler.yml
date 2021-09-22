@@ -253,3 +253,8 @@ PgHeroCleanQueryStatsJob:
 Webhooks::SchedulerJob:
   at: "<%=Settings.vba_documents.v2_enabled ? 0.seconds.from_now : 100.years.from_now%>"
   description: Starts off webhook based notifications
+
+Form1010cg::DeleteOldUploadsJob:
+  cron: "0 0 * * * America/New_York"
+  description: Delete uploaded caregiver assistance claim forms 30 days old or older.
+
