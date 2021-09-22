@@ -1040,6 +1040,44 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
     end
 
+    context 'when given a treatment center an incomplete "from" date' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'vaTreatmentFacilities' => [
+              {
+                'treatmentDateRange' => {
+                  'from' => 'XXXX-07-XX',
+                  'to' => ''
+                },
+                'treatmentCenterName' => 'Super Hospital',
+                'treatmentCenterAddress' => {
+                  'country' => 'USA',
+                  'city' => 'Portland',
+                  'state' => 'OR'
+                },
+                'treatedDisabilityNames' => %w[PTSD PTSD2 PTSD3]
+              }
+            ]
+          }
+        }
+      end
+
+      it 'translates the data correctly' do
+        expect(subject.send(:translate_treatments)).to eq 'treatments' => [
+          {
+            'treatedDisabilityNames' => %w[PTSD PTSD2 PTSD3],
+            'center' => {
+              'name' => 'Super Hospital',
+              'country' => 'USA',
+              'city' => 'Portland',
+              'state' => 'OR'
+            }
+          }
+        ]
+      end
+    end
+
     context 'when given a treatment center with no date' do
       let(:form_content) do
         {

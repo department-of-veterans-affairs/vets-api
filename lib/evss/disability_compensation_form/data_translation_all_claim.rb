@@ -448,6 +448,7 @@ module EVSS
         return nil if date.blank?
 
         year, month, day = date.split('-')
+        return nil if year == 'XXXX'
 
         # month/day are optional and can be XXed out
         month = nil if month == 'XX'
