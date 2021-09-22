@@ -16,7 +16,7 @@ module VEText
     SEND_PATH = BASE_PATH + '/send'
 
     def register(app_name, device_token, icn, os, device_name = nil)
-      Rails.logger.info('VEText Push service register method enter', app_name: app_name)
+      Rails.logger.info('VEText Push service register method enter', app_name: app_name, app_sid: app_sid(app_name))
       perform(:put, REGISTER_PATH, {
                 appSid: app_sid(app_name),
                 token: device_token,
