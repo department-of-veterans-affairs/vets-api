@@ -84,7 +84,7 @@ RSpec.describe EVSSClaimDocumentUploader do
   describe '#final_filename' do
     it 'returns the right filename' do
       [uploader_with_tiff, uploader_with_jpg].each do |uploader|
-        expect(uploader.final_filename).to match(/converted_image.TIF.jpe?g/)
+        expect(uploader.final_filename).to eq('converted_image_TIF.jpg')
       end
     end
   end
@@ -121,13 +121,13 @@ RSpec.describe EVSSClaimDocumentUploader do
       },
       {
         path: 'evss_claim/image.TIF',
-        final_filename: /converted_image_TIF.jpe?g/,
+        final_filename: 'converted_image_TIF.jpg',
         description: 'ext and filetype match /BUT/ tifs not allowed',
         binary_or_name_changes: true
       },
       {
         path: 'evss_claim/secretly_a_jpg.tif',
-        final_filename: /converted_secretly_a_jpg_tif.jpe?g/,
+        final_filename: 'converted_secretly_a_jpg_tif.jpg',
         description: 'misnamed jpg',
         binary_or_name_changes: true
       },
@@ -146,7 +146,7 @@ RSpec.describe EVSSClaimDocumentUploader do
         file = Rack::Test::UploadedFile.new "spec/fixtures/#{path}", "image/#{path.split('.').last}"
         uploader.store! file
         expect(uploader.converted_exists?).to eq binary_or_name_changes
-        expect(uploader.final_filename).to match(final_filename)
+        expect(uploader.final_filename).to eq(final_filename)
       end
     end
   end

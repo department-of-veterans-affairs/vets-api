@@ -3,6 +3,22 @@
 class EVSSClaimDocumentUploaderBase < CarrierWave::Uploader::Base
   include SetAWSConfig
   include ValidatePdf
+  include CarrierWave::MiniMagick
+  include ConvertFileType
+
+  version :converted, if: :tiff_or_incorrect_extension? do
+    process(convert: :jpg, if: :tiff?)
+    def full_filename(original_name_for_file)
+      name = "converted_#{original_name_for_file}"
+      extension = CarrierWave::SanitizedFile.new(nil).send(:split_extension, original_name_for_file)[1]
+      mimemagic_object = self.class.inspect_binary file
+      if self.class.incorrect_extension?(extension: extension, mimemagic_object: mimemagic_object)
+        extension = self.class.extensions_from_mimemagic_object(mimemagic_object).max
+        return "#{name.gsub('.', '_')}.#{extension}"
+      end
+      name
+    end
+  end
 
   before :store, :validate_file_size
 

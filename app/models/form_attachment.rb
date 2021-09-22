@@ -55,6 +55,6 @@ class FormAttachment < ApplicationRecord
   end
 
   def get_attachment_uploader
-    self.class::ATTACHMENT_UPLOADER_CLASS.new(guid)
+    @au ||= self.class::ATTACHMENT_UPLOADER_CLASS.new(guid)
   end
 end

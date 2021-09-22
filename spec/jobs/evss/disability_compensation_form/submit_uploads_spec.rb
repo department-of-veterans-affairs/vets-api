@@ -25,9 +25,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
   describe 'perform' do
     let(:upload_data) { [submission.form[Form526Submission::FORM_526_UPLOADS].first] }
     let(:document_data) { double(:document_data, valid?: true) }
-    let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', 'image/jpg') }
 
     context 'when file_data exists' do
+      let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', 'image/jpg') }
       let!(:attachment) do
         sea = SupportingEvidenceAttachment.new(guid: upload_data.first['confirmationCode'])
         sea.set_file_data!(file)
@@ -59,6 +59,33 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
           subject.perform_async(submission.id, upload_data)
           expect(Form526JobStatus).to receive(:upsert).twice
           expect { described_class.drain }.to raise_error(EVSS::ErrorMiddleware::EVSSBackendServiceError)
+        end
+      end
+    end
+
+    context 'when misnamed file_data exists' do
+      let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1_actually_jpg.png', 'image/png') }
+      let!(:attachment) do
+        sea = SupportingEvidenceAttachment.new(guid: upload_data.first['confirmationCode'])
+        sea.set_file_data!(file)
+        sea.save
+      end
+
+      it 'calls the documents service api with file body and document data' do
+        VCR.use_cassette('evss/documents/upload_with_errors') do
+          expect(EVSSClaimDocument)
+            .to receive(:new)
+            .with(
+              evss_claim_id: submission.submitted_claim_id,
+              file_name: 'converted_sm_file1_actually_jpg_png.jpg',
+              tracked_item_id: nil,
+              document_type: upload_data.first['attachmentId']
+            )
+            .and_return(document_data)
+
+          subject.perform_async(submission.id, upload_data)
+          expect_any_instance_of(EVSS::DocumentsService).to receive(:upload).with(file.read, document_data)
+          described_class.drain
         end
       end
     end

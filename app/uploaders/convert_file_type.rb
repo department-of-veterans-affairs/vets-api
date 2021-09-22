@@ -36,7 +36,7 @@ module ConvertFileType
     if converted_exists?
       converted.file.filename
     else
-      filename
+      file.filename
     end
   end
 
