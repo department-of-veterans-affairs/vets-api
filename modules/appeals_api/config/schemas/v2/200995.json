@@ -52,7 +52,8 @@
                           "pattern": "^[0-9]{5}$"
                         }
                       },
-                      "additionalProperties": false },
+                      "additionalProperties": false
+                    },
                     "phone":{
                       "type": "object",
                       "properties": {
@@ -79,52 +80,48 @@
                   "properties": {
                     "evidenceType":{
                       "type": "array",
-                      "items": { "enum": ["uploaded", "retrieved"] },
+                      "items": { "enum": ["upload", "retrieval"] },
                       "minItems": 1,
                       "uniqueItems": true
                     },
                     "retrieveFrom": {
                       "type": "array",
                       "items": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "type": { "type": "string", "enum": ["retrievedEvidence"] },
-                            "attributes": {
-                              "type": "object",
-                              "properties": {
-                                "locationAndName": { "$ref": "#/definitions/nonBlankString" },
-                                "evidenceDates": {
-                                  "type": "array",
-                                  "items": { "$ref": "#/definitions/date" },
-                                  "minItems": 1
-                                }
-                              },
-                              "additionalProperties": false,
-                              "required": [ "locationAndName", "evidenceDates" ]
-                            }
-                          },
-                          "additionalProperties": false,
-                          "required": [ "type", "attributes" ]
+                        "type": "object",
+                        "properties": {
+                          "type": { "type": "string", "enum": ["retrievalEvidence"] },
+                          "attributes": {
+                            "type": "object",
+                            "properties": {
+                              "locationAndName": { "$ref": "#/definitions/nonBlankString" },
+                              "evidenceDates": {
+                                "type": "array",
+                                "items": { "$ref": "#/definitions/date" },
+                                "minItems": 1
+                              }
+                            },
+                            "additionalProperties": false,
+                            "required": [ "locationAndName", "evidenceDates" ]
+                          }
                         },
-                        "minItems": 1,
-                        "uniqueItems": true
-                      }
+                        "additionalProperties": false,
+                        "required": [ "type", "attributes" ]
+                      },
+                      "minItems": 1,
+                      "uniqueItems": true
                     }
                   },
                   "required": ["evidenceType"],
                   "anyOf": [
-                    { "not": { "$ref": "#/definitions/retrieve-evidence" } },
-                    { "required": ["retrieveFrom"] }
-                  ],
-                  "definitions": {
-                    "retrieve-evidence": {
-                      "properties": {
-                        "evidenceType": { "contains": { "enum": ["retrieved"] } }
+                    {
+                      "not": {
+                        "properties": {
+                          "evidenceType": { "contains": { "enum": ["retrieval"] } }
+                        }
                       }
-                    }
-                  }
+                    },
+                    { "required": ["retrieveFrom"] }
+                  ]
                 }
               },
               "required": ["veteran", "evidenceSubmission"]

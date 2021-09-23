@@ -83,6 +83,8 @@ vba_documents:
   enable_download_endpoint: true
 
 modules_appeals_api:
+  documentation:
+    path_enabled_flag: true
   legacy_appeals_enabled: true
 
 bgs:
