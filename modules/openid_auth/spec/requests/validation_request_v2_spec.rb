@@ -10,6 +10,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   let(:token) { 'token' }
   let(:hashed_token) { '3c469e9d6c5875d37a43f353d4f88e61fcf812c66eee3457465a40b0da4153e0' }
   let(:static_token) { '123456789' }
+  let(:opaque_token) { 'abcde12345abcde12345' }
   let(:jwt) do
     [{
       'ver' => 1,
@@ -113,6 +114,45 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
                     code: 200,
                     body: { static: true, aud: 'https://example.com/xxxxxxservices/xxxxx', icn: '1234678',
                             scopes: 'patient/Patient.read launch/patient' }.to_json)
+  end
+
+  let(:issued_ssoi_response) do
+    instance_double(RestClient::Response,
+                    code: 200,
+                    body: { static: false, proxy: 'https://example.com',
+                            aud: 'https://example.com/xxxxxxservices/xxxxx' }.to_json)
+  end
+
+  let(:openid_response) do
+    instance_double(RestClient::Response,
+                    code: 200,
+                    body: { "issuer": 'https://example.com/issuer',
+                            "authorization_endpoint": 'https://example.com/authorization',
+                            "token_endpoint": 'https://example.com/token',
+                            "userinfo_endpoint": 'https://example.com/userinfo',
+                            "introspection_endpoint": 'https://example.com/introspect',
+                            "revocation_endpoint": 'https://example.com/revoke' }.to_json)
+  end
+
+  let(:ssoi_introspect_response) do
+    instance_double(RestClient::Response,
+                    code: 200,
+                    body: {
+                      'type': 'ssoi',
+                      'static': false,
+                      'scope': 'openid profile patient/Medication.read offline_access',
+                      'expires_in': 3600,
+                      'fediamMVIICN': '555',
+                      'npi': 'sample-npi',
+                      'fediamsecid': '1013031911',
+                      'fediamVISTAID': '508|12345^PN^508^USVHA|A,509|23456^PN^509^USVHA|A,510|34567^PN^510^USVHA|A',
+                      'iat': 1_568_040_790,
+                      'exp': 1_568_041_690,
+                      'sub': '1013031911',
+                      'fediamassurLevel': '3',
+                      'fediamissuer': 'VA_SSOi_IDP',
+                      'client_id': 'ampl_gui'
+                    }.to_json)
   end
 
   let(:launch_response) do
@@ -274,6 +314,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   end
   let(:auth_header) { { 'Authorization' => "Bearer #{token}" } }
   let(:static_auth_header) { { 'Authorization' => "Bearer #{static_token}" } }
+  let(:opaque_auth_header) { { 'Authorization' => "Bearer #{opaque_token}" } }
   let(:invalid_auth_header) { { 'Authorization' => 'Bearer invalid-token' } }
   let(:user) { OpenidUser.new(build(:user_identity_attrs, :loa3)) }
 
@@ -637,6 +678,36 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         expect(response).to have_http_status(:unauthorized)
         expect(JSON.parse(response.body)['errors'].first['code']).to eq '401'
         expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Invalid audience'
+      end
+    end
+  end
+
+  context 'ssoi oauth opaque token' do
+    it 'issued ok' do
+      allow(RestClient).to receive(:get).and_return(issued_ssoi_response, openid_response)
+      allow(RestClient).to receive(:post).and_return(ssoi_introspect_response)
+      with_settings(Settings.oidc, issued_url: 'http://example.com/issued') do
+        with_settings(Settings.oidc.opaque_clients.first, route: 'https://example.com', client_id: 123_456_789) do
+          post '/internal/auth/v2/validation',
+               params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
+               headers: opaque_auth_header
+          expect(response).to have_http_status(:ok)
+        end
+      end
+    end
+
+    it 'issued aud mismatch' do
+      allow(RestClient).to receive(:get).and_return(issued_ssoi_response)
+      allow(RestClient).to receive(:post).and_return(ssoi_introspect_response)
+      with_settings(Settings.oidc, issued_url: 'http://example.com/issued') do
+        with_settings(Settings.oidc.opaque_clients.first, route: 'https://example.com', client_id: 123_456_789) do
+          post '/internal/auth/v2/validation',
+               params: { aud: %w[https://example.com/xxxxxxservices/mismatch] },
+               headers: opaque_auth_header
+          expect(response).to have_http_status(:unauthorized)
+          expect(JSON.parse(response.body)['errors'].first['code']).to eq '401'
+          expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Invalid audience'
+        end
       end
     end
   end
