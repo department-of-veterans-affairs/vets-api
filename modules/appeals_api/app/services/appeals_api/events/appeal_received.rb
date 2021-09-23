@@ -65,7 +65,12 @@ module AppealsApi
       end
 
       def date_submitted
-        @date_submitted ||= DateTime.iso8601(opts['date_submitted']).strftime('%B %d, %Y')
+        # TODO: Remove "%m/%d/%Y" format parsing after all old jobs using that format have cleared the queue
+        @date_submitted ||= if opts['date_submitted'] =~ %r{^\d{2}/\d{2}/\d{4}}
+                              DateTime.strptime(opts['date_submitted'], '%m/%d/%Y').strftime('%B %d, %Y')
+                            else
+                              DateTime.iso8601(opts['date_submitted']).strftime('%B %d, %Y')
+                            end
       end
 
       def valid_email_identifier?
