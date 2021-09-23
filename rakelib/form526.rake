@@ -261,20 +261,23 @@ namespace :form526 do
 
   desc 'Get an error report within a given date period. [<start date: yyyy-mm-dd>,<end date: yyyy-mm-dd>,<flag>]'
   task :errors, %i[start_date end_date flag] => [:environment] do |_, args|
-    def print_row(sub_id, p_id, created_at, is_bdd, job_class)
-      printf "%-15s %-16s  %-25s %-10s %-20s\n", sub_id, p_id, created_at, is_bdd, job_class
-      # rubocop:enable Style/FormatStringToken
+    # rubocop:disable Metrics/ParameterLists
+    def print_row(sub_id, evss_id, user_uuid, created_at, is_bdd, job_class)
+      printf "%-15s %-45s %-35s %-25s %-10s %-20s\n", sub_id, evss_id, user_uuid, created_at, is_bdd, job_class
     end
 
+    # rubocop:enable Metrics/ParameterLists
+    # rubocop:enable Style/FormatStringToken
     def print_errors(errors)
       errors.sort_by { |_message, hash| -hash[:submission_ids].length }.each do |(k, v)|
         puts k
         puts '*****************'
         puts "Unique Participant ID count: #{v[:participant_ids].count}"
-        print_row('submission_id:', 'participant_id:', 'created_at:', 'is_bdd?', 'job_class')
+        print_row('submission_id:', 'evss_id', 'user_uuid', 'created_at:', 'is_bdd?', 'job_class')
         v[:submission_ids].each do |submission|
           print_row(submission[:sub_id],
-                    submission[:p_id],
+                    submission[:evss_id],
+                    submission[:user_uuid],
                     submission[:date],
                     submission[:is_bdd],
                     submission[:job_class])
@@ -344,6 +347,8 @@ namespace :form526 do
           errors[message][:submission_ids].append(
             sub_id: submission.id,
             p_id: submission.auth_headers['va_eauth_pid'],
+            evss_id: submission.auth_headers['va_eauth_service_transaction_id'],
+            user_uuid: submission.user_uuid,
             date: submission.created_at,
             is_bdd: submission.bdd?,
             job_class: job_status.job_class
