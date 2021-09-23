@@ -191,6 +191,15 @@ describe VAOS::AppointmentService do
       end
     end
 
+    context 'when upstream service returns an empty string in body' do
+      it 'returns nil in body' do
+        VCR.use_cassette('vaos/appointments/show_appointment', match_requests_on: %i[method uri]) do
+          response = subject.get_appointment('123456789101112')
+          expect(response.body).to be_nil
+        end
+      end
+    end
+
     context 'returns single appointment with dash in app id' do
       let(:id) { '202006031600983000030800000000000000-aaaaaa' }
 

@@ -23,7 +23,8 @@ module VAOS
 
       with_monitoring do
         response = perform(:get, show_appointment_url(id), params, headers)
-        OpenStruct.new(response.body)
+        # handle VAMF http status 204 and an empty string is returned in the body, issue va.gov-team/28630
+        response.body.blank? ? OpenStruct.new(nil) : OpenStruct.new(response.body)
       end
     end
 
