@@ -13,7 +13,7 @@ class OpenidUserIdentity < ::UserIdentity
   # @param profile [Okta::UserProfile] the profile of the user, as they are known to okta.
   # @param ttl [Integer] the time to store the identity in redis.
   # @return [OpenidUserIdentity]
-  def self.build_from_profile(uuid:, profile:, ttl:)
+  def self.build_from_okta_profile(uuid:, profile:, ttl:)
     identity = new(
       uuid: uuid,
       email: profile['email'],

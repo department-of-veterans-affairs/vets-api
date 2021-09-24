@@ -657,9 +657,6 @@ oidc:
     - prefix: "https://example.com/"
       metadata: "/.well-known/openid-configuration"
       proxy: "https://example.com/"
-  opaque_clients:
-    - route: ~
-      client_id: ~
 
 sentry:
   dsn: ~

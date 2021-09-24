@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
 class OpaqueToken
-  attr_reader :token_string, :payload, :aud, :is_ssoi
+  attr_reader :token_string, :payload, :aud
 
   def initialize(token_string, aud)
     @token_string = token_string
     @aud = aud
-    @payload = {}
   end
 
   def to_s
@@ -25,16 +24,12 @@ class OpaqueToken
     @aud = aud
   end
 
-  def set_is_ssoi(is_ssoi)
-    @is_ssoi = is_ssoi
-  end
-
   def client_credentials_token?
     false
   end
 
   def ssoi_token?
-    @is_ssoi
+    false
   end
 
   def static?
