@@ -202,6 +202,15 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
       end
 
+      context 'when the upstream service returns an http status of 204, no content and X-Key-Inflection set' do
+        it 'returns an http status of 404 to the vets website' do
+          VCR.use_cassette('vaos/appointments/show_appointment', match_requests_on: %i[method uri]) do
+            get '/vaos/v0/appointments/va/123456789101112', params: params, headers: inflection_header
+            expect(response).to have_http_status(:not_found)
+          end
+        end
+      end
+
       context 'shows single appointment with dash in app id' do
         it 'returns single appointment based on appointment id' do
           VCR.use_cassette('vaos/appointments/show_appointment_with_dash', match_requests_on: %i[method uri]) do

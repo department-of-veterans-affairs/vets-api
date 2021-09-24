@@ -25,7 +25,7 @@ module VAOS
         if appt.to_h.count.positive?
           render json: VAOS::V0::VAAppointmentsSerializer.new(appt)
         else
-          head :not_found    # edge case for the few times where the service does not return content
+          render status: :not_found    # edge case for the few times where the service does not return content
         end
       end
 
