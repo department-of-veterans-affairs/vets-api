@@ -120,6 +120,12 @@ Rails.application.routes.draw do
 
     resources :virtual_agent_claim, only: %i[index]
 
+    namespace :virtual_agent do
+      get 'appeal', to: 'virtual_agent_appeal#index'
+    end
+
+    resources :virtual_agent_appeal, only: %i[index]
+
     get 'intent_to_file', to: 'intent_to_files#index'
     get 'intent_to_file/:type/active', to: 'intent_to_files#active'
     post 'intent_to_file/:type', to: 'intent_to_files#submit'
