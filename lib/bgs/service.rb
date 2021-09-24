@@ -248,7 +248,14 @@ module BGS
         txt: note_text
       }.merge!(bgs_auth).except!(:jrn_status_type_cd)
 
-      service.notes.create_note(option_hash)
+      response = service.notes.create_note(option_hash)
+      message = if response[:note]
+                  response[:note].slice(:clm_id, :txt)
+                else
+                  response
+                end
+      log_message_to_sentry(message, :info, {}, { team: 'vfs-ebenefits' })
+      response
     rescue => e
       notify_of_service_exception("#{claim_id} - #{e}", __method__, 1, :warn)
     end
