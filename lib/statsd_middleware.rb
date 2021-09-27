@@ -16,6 +16,7 @@ class StatsdMiddleware
     1990-edu-benefits
     1990e-edu-benefits
     1990n-edu-benefits
+    1990s-edu-benefits
     1995-edu-benefits
     28-1900-chapter-31
     28-8832-planning-and-career-guidance
@@ -28,9 +29,12 @@ class StatsdMiddleware
     auth
     beta-enrollment
     burials
+    check-in
     claims-status
+    coe
     coronavirus-research
     coronavirus-vaccination
+    covid-vaccine
     covid19screen
     dashboard
     dependents-view-dependents
@@ -38,13 +42,15 @@ class StatsdMiddleware
     discharge-upgrade-instructions
     facilities
     feedback-tool
-    financial-status-report
     gi
+    gi-sandbox
     hca
     letters
     login-page
+    medical-copays
     messages
     my-documents
+    my-education-benefits
     my-health-account-validation
     order-form-2346
     pensions
@@ -55,11 +61,10 @@ class StatsdMiddleware
     public-outreach-materials
     questionnaire
     questionnaire-list
-    request-debt-help-5655
+    request-debt-help-form-5655
     resources-and-support
     search
-    search-typeahead
-    search-click-tracking
+    search-representative
     static-pages
     terms-and-conditions
     vaos
@@ -68,6 +73,7 @@ class StatsdMiddleware
     veteran-representative
     view-payments
     view-representative
+    virtual-agent
     yellow-ribbon
     your-debt
     unknown
