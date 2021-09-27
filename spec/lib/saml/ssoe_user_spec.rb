@@ -14,16 +14,13 @@ RSpec.describe SAML::User do
     let(:multifactor) { false }
     let(:existing_saml_attributes) { nil }
     let(:callback_url) { 'http://http://127.0.0.1:3000/v1/sessions/callback/v1/sessions/callback' }
-    let(:rubysaml_settings) { build(:rubysaml_settings_v1, assertion_consumer_service_url: callback_url) }
-
     let(:saml_response) do
       build_saml_response(
         authn_context: authn_context,
         level_of_assurance: [highest_attained_loa],
         attributes: saml_attributes,
         existing_attributes: existing_saml_attributes,
-        issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20',
-        settings: rubysaml_settings
+        issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
       )
     end
 

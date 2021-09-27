@@ -35,7 +35,7 @@ module SAML
         saml_response: Base64.encode64(saml_response&.response || '')
       )
 
-      @user_attributes = user_attributes_class.new(saml_attributes, authn_context, saml_response.settings)
+      @user_attributes = user_attributes_class.new(saml_attributes, authn_context)
 
       Raven.tags_context(
         sign_in_service_name: user_attributes.sign_in&.fetch(:service_name, nil),

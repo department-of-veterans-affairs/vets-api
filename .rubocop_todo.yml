@@ -44,7 +44,6 @@ Layout/EmptyLineBetweenDefs:
     - 'lib/common/client/errors.rb'
     - 'lib/mpi/errors/errors.rb'
     - 'lib/mpi/messages/message_builder.rb'
-    - 'lib/saml/settings_service.rb'
     - 'lib/va_profile/contact_information/transaction_response.rb'
     - 'lib/vre/errors/ch31_errors.rb'
 

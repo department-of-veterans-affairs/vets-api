@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'feature_flipper'
-require 'saml/settings_service'
 require 'aes_256_cbc_encryptor'
 
 class ApplicationController < ActionController::API
@@ -47,13 +46,6 @@ class ApplicationController < ActionController::API
 
   def set_csrf_header
     response.set_header('X-CSRF-Token', form_authenticity_token)
-  end
-
-  def saml_settings(options = {})
-    callback_url = URI.parse(Settings.saml.callback_url)
-    callback_url.host = request.host if Settings.review_instance_slug.blank?
-    options.reverse_merge!(assertion_consumer_service_url: callback_url.to_s)
-    SAML::SettingsService.saml_settings(options)
   end
 
   def pagination_params

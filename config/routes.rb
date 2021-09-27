@@ -6,8 +6,6 @@ Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/services/*path', to: 'application#cors_preflight', via: [:options]
 
-  get '/saml/metadata', to: 'saml#metadata'
-
   get '/v1/sessions/metadata', to: 'v1/sessions#metadata'
   post '/v1/sessions/callback', to: 'v1/sessions#saml_callback', module: 'v1'
   get '/v1/sessions/:type/new',

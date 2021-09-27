@@ -27,12 +27,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
   subject { Apivore::SwaggerChecker.instance_for('/v0/apidocs.json') }
 
-  let(:rubysaml_settings) { build(:rubysaml_settings) }
   let(:mhv_user) { build(:user, :mhv, middle_name: 'Bob') }
 
   before do
     create(:account, idme_uuid: mhv_user.uuid)
-    allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
   end
 
   context 'has valid paths' do

@@ -24,7 +24,7 @@ module SAML
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/ParameterLists
     def build_saml_response(
       authn_context:, level_of_assurance:,
-      attributes: nil, issuer: nil, existing_attributes: nil, in_response_to: nil, settings: nil
+      attributes: nil, issuer: nil, existing_attributes: nil, in_response_to: nil
     )
       verifying = [LOA::IDME_LOA3, LOA::IDME_LOA3_VETS, 'myhealthevet_loa3', 'dslogon_loa3'].include?(authn_context)
 
@@ -59,7 +59,6 @@ module SAML
       allow(saml_response).to receive(:validate).and_return(true)
       allow(saml_response).to receive(:decrypted_document).and_return(document_partial(authn_context))
       allow(saml_response).to receive(:in_response_to).and_return(in_response_to)
-      allow(saml_response).to receive(:settings).and_return(settings)
       saml_response
     end
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/ParameterLists

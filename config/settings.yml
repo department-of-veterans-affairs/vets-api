@@ -8,16 +8,6 @@ virtual_hosts: ["127.0.0.1", "localhost"] # Safe host names
 web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,null
 web_origin_regex: \Ahttps?:\/\/www\.va\.gov\z
 
-# Settings for SAML authentication
-saml:
-  cert_path: config/certs/vetsgov-localhost.crt
-  cert_new_path: config/certs/vetsgov-localhost_new.crt
-  key_path: config/certs/vetsgov-localhost.key
-  issuer: saml-rp.vetsgov.localhost
-  callback_url: http://localhost:3000/v1/sessions/callback
-  metadata_url: https://api.idmelabs.com/saml/metadata/provider
-  authn_requests_signed: false
-
 # Settings for new SAML authentication with SSOe
 saml_ssoe:
   idp_metadata_file: config/ssoe_idp_int_metadata_isam.xml
@@ -29,6 +19,7 @@ saml_ssoe:
   logout_url: https://int.eauth.va.gov/slo/globallogout?appKey=https%253A%252F%252Fssoe-sp-dev.va.gov
   idme_authn_context: ~
   request_signing: false
+  relay: ~
   response_signing: false
   response_encryption: false
 
