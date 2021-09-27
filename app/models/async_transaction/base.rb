@@ -16,7 +16,7 @@ module AsyncTransaction
 
     attr_encrypted :metadata, key: Settings.db_encryption_key
     serialize :metadata, JsonMarshal::Marshaller
-    encrypts :metadata, migrating: true
+    encrypts :metadata, migrating: true, **lockbox_options
 
     before_save :serialize_metadata
 

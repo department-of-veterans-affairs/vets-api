@@ -8,7 +8,7 @@ class EducationStemAutomatedDecision < ApplicationRecord
   DECISION_STATES = [INIT, PROCESSED, DENIED].freeze
 
   attr_encrypted(:auth_headers_json, key: Settings.db_encryption_key)
-  encrypts :auth_headers_json, migrating: true
+  encrypts :auth_headers_json, migrating: true, **lockbox_options
 
   validates(:automated_decision_state, inclusion: DECISION_STATES)
 

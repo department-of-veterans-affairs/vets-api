@@ -23,7 +23,7 @@ module ClaimsApi
     serialize :form_data, JsonMarshal::Marshaller
     serialize :evss_response, JsonMarshal::Marshaller
     encrypts :auth_headers, :bgs_flash_responses, :bgs_special_issue_responses, :evss_response, :form_data,
-             migrating: true
+             migrating: true, **lockbox_options
 
     validate :validate_service_dates
     after_create :log_special_issues

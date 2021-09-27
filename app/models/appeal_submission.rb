@@ -6,7 +6,7 @@ class AppealSubmission < ApplicationRecord
   validates :type_of_appeal, inclusion: APPEAL_TYPES
   attr_encrypted :upload_metadata, key: Settings.db_encryption_key
 
-  encrypts :upload_metadata, migrating: true
+  encrypts :upload_metadata, migrating: true, **lockbox_options
 
   has_many :appeal_submission_uploads, dependent: :destroy
 

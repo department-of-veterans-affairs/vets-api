@@ -9,7 +9,7 @@ module ClaimsApi
     included do
       attr_encrypted(:file_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
       serialize :file_data, JsonMarshal::Marshaller
-      encrypts :file_data, migrating: true
+      encrypts :file_data, migrating: true, **lockbox_options
 
       def file_name
         file_data['filename']

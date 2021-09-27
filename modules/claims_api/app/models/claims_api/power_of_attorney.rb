@@ -13,7 +13,7 @@ module ClaimsApi
     serialize :auth_headers, JsonMarshal::Marshaller
     serialize :form_data, JsonMarshal::Marshaller
     serialize :source_data, JsonMarshal::Marshaller
-    encrypts :auth_headers, :form_data, :source_data, migrating: true
+    encrypts :auth_headers, :form_data, :source_data, migrating: true, **lockbox_options
 
     PENDING = 'pending'
     UPDATED = 'updated'

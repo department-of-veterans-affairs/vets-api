@@ -23,7 +23,7 @@ class SavedClaim < ApplicationRecord
   validate(:form_matches_schema)
   validate(:form_must_be_string)
   attr_encrypted(:form, key: Settings.db_encryption_key)
-  encrypts :form, migrating: true
+  encrypts :form, migrating: true, **lockbox_options
 
   has_many :persistent_attachments, inverse_of: :saved_claim, dependent: :destroy
 

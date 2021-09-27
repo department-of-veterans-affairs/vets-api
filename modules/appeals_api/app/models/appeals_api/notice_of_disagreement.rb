@@ -31,7 +31,7 @@ module AppealsApi
 
     serialize :auth_headers, JsonMarshal::Marshaller
     serialize :form_data, JsonMarshal::Marshaller
-    encrypts :auth_headers, :form_data, migrating: true
+    encrypts :auth_headers, :form_data, migrating: true, **lockbox_options
 
     validate :validate_hearing_type_selection, if: :pii_present?
 

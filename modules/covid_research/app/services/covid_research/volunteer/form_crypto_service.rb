@@ -6,7 +6,8 @@ module CovidResearch
       attr_reader :lockbox
 
       def initialize
-        @lockbox = Lockbox.new(key: Settings.lockbox.master_key, encode: true)
+        @lockbox = Lockbox.new(key: Settings.lockbox.master_key,
+                               previous_versions: [{ key: Settings.lockbox.previous_master_key }], encode: true)
       end
 
       # @param form_data [String] encrypted form data

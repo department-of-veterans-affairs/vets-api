@@ -57,9 +57,9 @@ module CovidVaccine
       serialize :form_data, JsonMarshal::Marshaller
       serialize :raw_form_data, JsonMarshal::Marshaller
 
-      encrypts :form_data, migrating: true
-      encrypts :eligibility_info, migrating: true
-      encrypts :raw_form_data, migrating: true
+      encrypts :form_data, migrating: true, **lockbox_options
+      encrypts :eligibility_info, migrating: true, **lockbox_options
+      encrypts :raw_form_data, migrating: true, **lockbox_options
     end
   end
 end
