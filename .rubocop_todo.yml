@@ -647,15 +647,6 @@ Style/SoleNestedConditional:
 Style/StringConcatenation:
   Enabled: false
 
-# Offense count: 10
-ThreadSafety/ClassAndModuleAttributes:
-  Exclude:
-    - 'app/models/base_facility.rb'
-    - 'lib/carma/models/base.rb'
-    - 'lib/common/client/configuration/base.rb'
-    - 'lib/common/models/redis_store.rb'
-    - 'lib/saml/health_status.rb'
-
 # Offense count: 55
 ThreadSafety/InstanceVariableInClassMethod:
   Exclude:

@@ -68,7 +68,11 @@ class BaseFacility < ApplicationRecord
   PENSION_LOCATIONS = %w[310 330 335].freeze
 
   class << self
+    # This is only mutated in specs for the purpose of testing
+    # rubocop:disable ThreadSafety/ClassAndModuleAttributes
     attr_writer :validate_on_load
+
+    # rubocop:enable ThreadSafety/ClassAndModuleAttributes
 
     def to_date(dtstring)
       Date.iso8601(dtstring).iso8601

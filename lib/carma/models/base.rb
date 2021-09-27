@@ -3,8 +3,12 @@
 module CARMA
   module Models
     class Base
+      # rubocop:disable ThreadSafety/ClassAndModuleAttributes
+      # These attributes are inherited by subclasses so that
+      # they can change their own value without impacting the parent class
       class_attribute :request_payload_keys, default: []
       class_attribute :request_payload_after_hook
+      # rubocop:enable ThreadSafety/ClassAndModuleAttributes
 
       def to_request_payload
         request_payload = request_payload_keys.each_with_object({}) do |key, result|

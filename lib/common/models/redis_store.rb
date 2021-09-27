@@ -14,7 +14,7 @@ module Common
     REQ_CLASS_INSTANCE_VARS = %i[redis_namespace redis_namespace_key].freeze
 
     class << self
-      attr_accessor :redis_namespace, :redis_namespace_ttl, :redis_namespace_key
+      attr_reader :redis_namespace_ttl, :redis_namespace, :redis_namespace_key
     end
 
     def self.redis_store(namespace)

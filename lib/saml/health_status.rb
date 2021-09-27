@@ -14,8 +14,6 @@ module SAML
       include SentryLogging
       include StatusMessages
 
-      attr_accessor :consecutive_signature_failures
-
       def healthy?
         error_message.empty?
       end
