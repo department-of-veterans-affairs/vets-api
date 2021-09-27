@@ -63,7 +63,9 @@ class IAMUserIdentity < ::UserIdentity
     redis_namespace.expireat(REDIS_CONFIG[:iam_user_identity][:namespace], expiration_timestamp)
   end
 
-  # Users from IAM don't have a UUID like ID.me create one from the sec_id and iam_icn
+  # Users from IAM don't have a UUID like ID.me, instead we create one from the sec_id and iam_icn.
+  # It's used for JSON API object serialization, caching (no longer than a session), and debugging.
+  # The hashed value is not reversible and does not reference any external system or database.
   # @return [String] UUID that is unique to this user
   #
   def uuid

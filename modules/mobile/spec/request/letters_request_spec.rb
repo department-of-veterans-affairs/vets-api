@@ -11,7 +11,7 @@ RSpec.describe 'letters', type: :request do
   let(:letters_body) do
     {
       'data' => {
-        'id' => '69ad43ea-6882-5673-8552-377624da64a5',
+        'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
         'type' => 'letters',
         'attributes' => {
           'letters' =>

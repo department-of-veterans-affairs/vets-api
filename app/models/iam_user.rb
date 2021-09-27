@@ -39,11 +39,12 @@ class IAMUser < ::User
     loa3? && iam_edipi.present? ? iam_edipi : mpi&.edipi
   end
 
-  # for PII reasons we don't send correlation ids over the wire
-  # but JSON API requires an id with each resource
+  # Return the uuid as the id for the user. This id is generated
+  # within the IAMUserIdentity class.
+  # @return [String] UUID that is unique to this user
   #
   def id
-    Digest::UUID.uuid_v5(last_name, email)
+    uuid
   end
 
   def identity

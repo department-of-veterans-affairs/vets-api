@@ -13,7 +13,7 @@ RSpec.describe 'military_information', type: :request do
       let(:expected_body_multi) do
         {
           'data' => {
-            'id' => '69ad43ea-6882-5673-8552-377624da64a5',
+            'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
             'type' => 'militaryInformation',
             'attributes' => {
               'serviceHistory' =>
@@ -41,7 +41,7 @@ RSpec.describe 'military_information', type: :request do
       let(:expected_body_single) do
         {
           'data' => {
-            'id' => '69ad43ea-6882-5673-8552-377624da64a5',
+            'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
             'type' => 'militaryInformation',
             'attributes' => {
               'serviceHistory' =>
@@ -62,7 +62,7 @@ RSpec.describe 'military_information', type: :request do
       let(:expected_body_no_end_date) do
         {
           'data' => {
-            'id' => '69ad43ea-6882-5673-8552-377624da64a5',
+            'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
             'type' => 'militaryInformation',
             'attributes' => {
               'serviceHistory' =>
@@ -90,7 +90,7 @@ RSpec.describe 'military_information', type: :request do
       let(:expected_body_empty) do
         {
           'data' => {
-            'id' => '69ad43ea-6882-5673-8552-377624da64a5',
+            'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
             'type' => 'militaryInformation',
             'attributes' => {
               'serviceHistory' => []

@@ -16,7 +16,7 @@ RSpec.describe 'payment_information', type: :request do
   let(:get_payment_info_body) do
     {
       'data' => {
-        'id' => '69ad43ea-6882-5673-8552-377624da64a5',
+        'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
         'type' => 'paymentInformation',
         'attributes' => {
           'accountControl' => {
@@ -85,7 +85,7 @@ RSpec.describe 'payment_information', type: :request do
       let(:get_payment_info_body) do
         {
           'data' => {
-            'id' => '69ad43ea-6882-5673-8552-377624da64a5',
+            'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
             'type' => 'paymentInformation',
             'attributes' => {
               'accountControl' => {
@@ -139,7 +139,7 @@ RSpec.describe 'payment_information', type: :request do
     let(:post_payment_info_body) do
       {
         'data' => {
-          'id' => '69ad43ea-6882-5673-8552-377624da64a5',
+          'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
           'type' => 'paymentInformation',
           'attributes' => {
             'accountControl' => {
