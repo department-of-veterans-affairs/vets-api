@@ -430,6 +430,30 @@ namespace :form526 do
     end
   end
 
+  # context in https://github.com/department-of-veterans-affairs/va.gov-team/issues/29651
+  desc 'get a csv of all vets affected by BIRLS id mismatch errors since date'
+  task :birls_errors, [:start_date] => [:environment] do |_, args|
+    start_date = args[:start_date]&.to_date || 30.days.ago.utc
+    fss = Form526JobStatus.where(status: 'exhausted',
+                                 updated_at: [start_date..Time.now.utc])
+    CSV.open('tmp/birls_errors.csv', 'wb') do |csv|
+      csv << %w[veteran_name edipi birls_id ssn]
+      fss.each do |form_status|
+        fs = form_status.submission
+        next unless fs
+
+        ssn = fs.auth_headers['va_eauth_pnid']
+        birls_id = fs.auth_headers['va_eauth_birlsfilenumber']
+        edipi = fs.auth_headers['va_eauth_dodedipnid']
+        vname = fs.auth_headers['va_eauth_firstName'] + ' ' + fs.auth_headers['va_eauth_lastName']
+
+        diff =  StringHelpers.levenshtein_distance(birls_id, ssn)
+        csv << [vname, edipi, birls_id, ssn] if diff.positive? && diff < 3
+      end
+    end
+    puts 'tmp/birls_errors.csv'
+  end
+
   desc 'get a csv of all vets affected by PIF errors since date'
   task :pif_errors,  [:start_date] =>  [:environment] do |_, args|
     start_date = args[:start_date]&.to_date || 30.days.ago.utc
