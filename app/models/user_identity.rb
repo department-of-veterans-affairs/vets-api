@@ -29,6 +29,7 @@ class UserIdentity < Common::RedisStore
   attribute :multifactor, Boolean # used by F/E to decision on whether or not to prompt user to add MFA
   attribute :authn_context # used by F/E to handle various identity related complexities pending refactor
   attribute :idme_uuid
+  attribute :logingov_uuid
   attribute :sec_id
   attribute :mhv_icn # only needed by B/E not serialized in user_serializer
   attribute :mhv_correlation_id # this is the cannonical version of MHV Correlation ID, provided by MHV sign-in users

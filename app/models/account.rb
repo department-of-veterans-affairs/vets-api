@@ -22,8 +22,10 @@ class Account < ApplicationRecord
 
   validates :uuid, presence: true, uniqueness: true
   validates :idme_uuid, uniqueness: true, allow_nil: true
-  validates :idme_uuid, presence: true, unless: -> { sec_id.present? }
-  validates :sec_id, presence: true, uniqueness: true, unless: -> { idme_uuid.present? }
+  validates :logingov_uuid, uniqueness: true, allow_nil: true
+  validates :idme_uuid, presence: true, unless: -> { sec_id.present? || logingov_uuid.present? }
+  validates :sec_id, presence: true, uniqueness: true, unless: -> { idme_uuid.present? || logingov_uuid.present? }
+  validates :logingov_uuid, presence: true, unless: -> { idme_uuid.present? || sec_id.present? }
 
   before_validation :initialize_uuid, on: :create
 
@@ -49,6 +51,13 @@ class Account < ApplicationRecord
                            none
                          end
                        }
+  scope :logingov_uuid_match, lambda { |v|
+                                if v.present?
+                                  where(logingov_uuid: v)
+                                else
+                                  none
+                                end
+                              }
 
   # Returns the one Account record for the passed in user.
   #
@@ -59,7 +68,7 @@ class Account < ApplicationRecord
   # @return [Account] A persisted instance of Account
   #
   def self.cache_or_create_by!(user)
-    return unless user.uuid || user.sec_id
+    return unless user.idme_uuid || user.sec_id || user.logingov_uuid
 
     acct = do_cached_with(key: get_key(user)) do
       create_if_needed!(user)
@@ -71,7 +80,7 @@ class Account < ApplicationRecord
   end
 
   def self.create_if_needed!(user)
-    accts = idme_uuid_match(user.idme_uuid).or(sec_id_match(user.sec_id))
+    accts = idme_uuid_match(user.idme_uuid).or(sec_id_match(user.sec_id)).or(logingov_uuid_match(user.logingov_uuid))
     accts = sort_with_idme_uuid_priority(accts, user)
     accts.length.positive? ? accts[0] : create(**account_attrs_from_user(user))
   end
@@ -99,6 +108,7 @@ class Account < ApplicationRecord
   def self.account_attrs_from_user(user)
     {
       idme_uuid: user.idme_uuid,
+      logingov_uuid: user.logingov_uuid,
       sec_id: user.sec_id,
       edipi: user.edipi,
       icn: user.icn

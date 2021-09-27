@@ -15,6 +15,7 @@ FactoryBot.define do
       zip { '17325' }
       ssn { '796111863' }
       idme_uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
+      logingov_uuid { nil }
       sec_id { nil }
       participant_id { nil }
       birls_id { nil }
@@ -54,6 +55,7 @@ FactoryBot.define do
                              zip: t.zip,
                              ssn: t.ssn,
                              idme_uuid: t.idme_uuid,
+                             logingov_uuid: t.logingov_uuid,
                              sec_id: t.sec_id,
                              participant_id: t.participant_id,
                              birls_id: t.birls_id,
@@ -119,6 +121,25 @@ FactoryBot.define do
       idme_uuid { '378250b8-28b1-4366-a377-445d04fcd3d5' }
       callback(:after_build) do |user|
         create(:account, sec_id: user.sec_id)
+      end
+
+      sign_in do
+        {
+          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
+        }
+      end
+
+      loa do
+        { current: LOA::THREE, highest: LOA::THREE }
+      end
+    end
+
+    trait :accountable_with_logingov_uuid do
+      authn_context { LOA::IDME_LOA3_VETS }
+      uuid { '378250b8-28b1-4366-a377-445d04fcd3d5' }
+      logingov_uuid { '2j4250b8-28b1-4366-a377-445dfj49turh' }
+      callback(:after_build) do |user|
+        create(:account, logingov_uuid: user.logingov_uuid)
       end
 
       sign_in do
@@ -373,6 +394,32 @@ FactoryBot.define do
 
       loa do
         { current: LOA::THREE, highest: LOA::THREE }
+      end
+    end
+
+    trait :user_with_no_idme_uuid_or_sec_id do
+      uuid { '133e619f-7b69-4e7a-b571-e4c9478d0a04' }
+      sec_id { nil }
+      logingov_uuid { '256f723a-7b69-4e7a-b571-e4c94785jgof' }
+      idme_uuid { nil }
+
+      sign_in do
+        {
+          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
+        }
+      end
+
+      loa do
+        { current: LOA::THREE, highest: LOA::THREE }
+      end
+
+      after(:build) do
+        stub_mpi(
+          build(
+            :mvi_profile,
+            sec_id: nil
+          )
+        )
       end
     end
 

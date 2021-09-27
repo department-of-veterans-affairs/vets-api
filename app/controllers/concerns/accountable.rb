@@ -43,7 +43,8 @@ module Accountable
       error,
       {
         error: error.inspect,
-        idme_uuid: @current_user.uuid
+        idme_uuid: @current_user.idme_uuid,
+        logingov_uuid: @current_user.logingov_uuid
       },
       tag_hash
     )
