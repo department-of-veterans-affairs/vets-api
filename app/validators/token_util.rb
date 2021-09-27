@@ -4,8 +4,8 @@ class TokenUtil
   def self.validate_token(token)
     raise error_klass('Invalid audience') unless TokenUtil.valid_audience?(token)
 
-    # Only static tokens utilize this validator at this time
-    token.static?
+    # Only static and ssoi tokens utilize this validator at this time
+    token.static? || token.ssoi_token?
   end
 
   # Validates the token audience against the service caller supplied `aud` payload.
@@ -14,7 +14,7 @@ class TokenUtil
     if token.aud.nil?
       token.payload['aud'] == Settings.oidc.isolated_audience.default
     else
-      # Temorarily accept the default audience or the API specificed audience
+      # Temporarily accept the default audience or the API specified audience
       [Settings.oidc.isolated_audience.default, *token.aud].include?(token.payload['aud'])
     end
   end
