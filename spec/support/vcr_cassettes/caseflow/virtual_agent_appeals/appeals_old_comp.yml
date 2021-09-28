@@ -61,7 +61,7 @@ http_interactions:
                 "alerts": [],
                 "aod": false,
                 "aoj": "vba",
-                "description": "",
+                "description": "Service connection, sleep apnea",
                 "docket": null,
                 "events": [{
                     "date": "2002-09-23",
@@ -108,7 +108,7 @@ http_interactions:
                 "alerts": [],
                 "aod": false,
                 "aoj": "vba",
-                "description": "",
+                "description": "Service connection, sleep apnea",
                 "docket": null,
                 "events": [{
                     "date": "2008-04-24",
@@ -240,7 +240,7 @@ http_interactions:
                 "alerts": [],
                 "aod": false,
                 "aoj": "other",
-                "description": "",
+                "description": "Service connection, sleep apnea",
                 "docket": null,
                 "events": [{
                     "date": "2010-08-11",

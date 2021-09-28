@@ -27,22 +27,50 @@ module V0
         aoj = appeal['attributes']['aoj']
         {
           appeal_type: appeal['attributes']['programArea'].capitalize,
-          filing_date: get_earliest_event_date(appeal).strftime('%m/%d/%Y'),
-          appeal_status: get_status_type_text(appeal['attributes']['status']['type'], aoj)
+          filing_date: get_submission_date(appeal).strftime('%m/%d/%Y'),
+          appeal_status: get_status_type_text(appeal['attributes']['status']['type'], aoj),
+          updated_date: get_last_updated_date(appeal).strftime('%m/%d/%Y'),
+          description: appeal['attributes']['description'] == '' ? ' ' : " (#{appeal['attributes']['description']}) ",
+          appeal_or_review: get_appeal_or_review(appeal)
         }
       end
 
       def first_open_comp_appeal(appeals)
         appeals
-          .sort_by { |appeal| get_earliest_event_date appeal }
+          .sort_by { |appeal| get_submission_date appeal }
           .reverse
           .find { |appeal| open_compensation? appeal }
       end
 
-      def get_earliest_event_date(appeal)
+      def get_appeal_or_review(appeal)
+        case appeal['type']
+        when 'legacyAppeal', 'appeal'
+          'appeal'
+        when 'higherLevelReview', 'supplementalClaim'
+          'review'
+        end
+      end
+
+      def get_submission_date(appeal)
+        events = appeal['attributes']['events']
+        submission_event = {}
+        case appeal['type']
+        when 'legacyAppeal'
+          submission_event = events.detect { |event| event['type'] == 'nod' }
+        when 'appeal'
+          submission_event = events.detect { |event| event['type'] == 'ama_nod' }
+        when 'higherLevelReview'
+          submission_event = events.detect { |event| event['type'] == 'hlr_request' }
+        when 'supplementalClaim'
+          submission_event = events.detect { |event| event['type'] == 'sc_request' }
+        end
+        DateTime.parse submission_event['date']
+      end
+
+      def get_last_updated_date(appeal)
         events = appeal['attributes']['events']
         DateTime.parse events
-          .min_by { |event| DateTime.parse event['date'] }['date']
+          .max_by { |event| DateTime.parse event['date'] }['date']
       end
 
       def open_compensation?(appeal)

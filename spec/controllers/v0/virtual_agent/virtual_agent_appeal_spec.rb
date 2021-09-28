@@ -9,7 +9,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
     it 'returns information when most recent open appeal is compensation' do
       sign_in_as(user)
       # run job
-      VCR.use_cassette('caseflow/appeals') do
+      VCR.use_cassette('caseflow/virtual_agent_appeals/recent_open_compensation_appeal') do
         get '/v0/virtual_agent/appeal'
         res_body = JSON.parse(response.body)['data']
         expect(response).to have_http_status(:ok)
@@ -17,8 +17,10 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
         expect(JSON.parse(response.body)['data'].size).to equal(1)
         expect(res_body[0]).to include({
                                          'appeal_type' => 'Compensation',
-                                         'filing_date' => '04/24/2008',
-                                         'appeal_status' => 'Please review your Supplemental Statement of the Case'
+                                         'filing_date' => '06/11/2008',
+                                         'appeal_status' => 'Please review your Supplemental Statement of the Case',
+                                         'updated_date' => '01/16/2018',
+                                         'description' => ' '
                                        })
       end
     end
@@ -35,7 +37,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
       end
     end
 
-    it 'returns most recent claim that is compensation and active' do
+    it 'returns most recent appeal that is compensation and active' do
       sign_in_as(user)
       VCR.use_cassette('caseflow/virtual_agent_appeals/appeals_old_comp') do
         get '/v0/virtual_agent/appeal'
@@ -45,8 +47,11 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
         expect(res_body.size).to equal(1)
         expect(res_body[0]).to include({
                                          'appeal_type' => 'Compensation',
-                                         'filing_date' => '09/23/2002',
-                                         'appeal_status' => 'Your appeal was closed'
+                                         'filing_date' => '01/06/2003',
+                                         'appeal_status' => 'Your appeal was closed',
+                                         'description' => ' (Service connection, sleep apnea) ',
+                                         'updated_date' => '09/30/2003',
+                                         'appeal_or_review' => 'appeal'
                                        })
       end
     end
@@ -87,26 +92,94 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
         expect(res_body.size).to equal(1)
         expect(res_body[0]).to include({
                                          'appeal_type' => 'Compensation',
-                                         'filing_date' => '04/24/2008',
-                                         'appeal_status' => 'The Veterans Benefits Administration granted your appeal'
+                                         'filing_date' => '06/11/2008',
+                                         'appeal_status' => 'The Veterans Benefits Administration granted your appeal',
+                                         'updated_date' => '01/16/2018',
+                                         'description' => ' ',
+                                         'appeal_or_review' => 'appeal'
                                        })
       end
     end
 
-    it 'returns correct filing date when event dates are unsorted' do
-      sign_in_as(user)
+    describe 'get appeal or review based on appeal type' do
+      it 'returns appeal when appeal type is legacyAppeal ' do
+        sign_in_as(user)
+        # run job
+        VCR.use_cassette('caseflow/virtual_agent_appeals/recent_open_compensation_appeal') do
+          get '/v0/virtual_agent/appeal'
+          res_body = JSON.parse(response.body)['data']
+          expect(response).to have_http_status(:ok)
+          expect(res_body).to be_kind_of(Array)
+          expect(JSON.parse(response.body)['data'].size).to equal(1)
+          expect(res_body[0]).to include({
+                                           'appeal_type' => 'Compensation',
+                                           'filing_date' => '06/11/2008',
+                                           'appeal_status' => 'Please review your Supplemental Statement of the Case',
+                                           'updated_date' => '01/16/2018',
+                                           'description' => ' ',
+                                           'appeal_or_review' => 'appeal'
+                                         })
+        end
+      end
 
-      VCR.use_cassette('caseflow/virtual_agent_appeals/appeals_unsorted_event_dates') do
-        get '/v0/virtual_agent/appeal'
-        res_body = JSON.parse(response.body)['data']
-        expect(response).to have_http_status(:ok)
-        expect(res_body).to be_kind_of(Array)
-        expect(res_body.size).to equal(1)
-        expect(res_body[0]).to include({
-                                         'appeal_type' => 'Compensation',
-                                         'filing_date' => '09/23/2002',
-                                         'appeal_status' => 'Your appeal was closed'
-                                       })
+      it 'returns appeal when appeal type is appeal ' do
+        sign_in_as(user)
+        # run job
+        VCR.use_cassette('caseflow/virtual_agent_appeals/appeal_type_is_appeal') do
+          get '/v0/virtual_agent/appeal'
+          res_body = JSON.parse(response.body)['data']
+          expect(response).to have_http_status(:ok)
+          expect(res_body).to be_kind_of(Array)
+          expect(JSON.parse(response.body)['data'].size).to equal(1)
+          expect(res_body[0]).to include({
+                                           'appeal_type' => 'Compensation',
+                                           'filing_date' => '06/11/2008',
+                                           'appeal_status' => 'Please review your Supplemental Statement of the Case',
+                                           'updated_date' => '01/16/2018',
+                                           'description' => ' ',
+                                           'appeal_or_review' => 'appeal'
+                                         })
+        end
+      end
+
+      it 'returns review when appeal type is higherLevelReview ' do
+        sign_in_as(user)
+        # run job
+        VCR.use_cassette('caseflow/virtual_agent_appeals/appeal_type_is_higher_level_review') do
+          get '/v0/virtual_agent/appeal'
+          res_body = JSON.parse(response.body)['data']
+          expect(response).to have_http_status(:ok)
+          expect(res_body).to be_kind_of(Array)
+          expect(JSON.parse(response.body)['data'].size).to equal(1)
+          expect(res_body[0]).to include({
+                                           'appeal_type' => 'Compensation',
+                                           'filing_date' => '06/11/2008',
+                                           'appeal_status' => 'Please review your Supplemental Statement of the Case',
+                                           'updated_date' => '01/16/2018',
+                                           'description' => ' ',
+                                           'appeal_or_review' => 'review'
+                                         })
+        end
+      end
+
+      it 'returns review when appeal type is supplementalClaim ' do
+        sign_in_as(user)
+        # run job
+        VCR.use_cassette('caseflow/virtual_agent_appeals/appeal_type_is_supplemental_claim') do
+          get '/v0/virtual_agent/appeal'
+          res_body = JSON.parse(response.body)['data']
+          expect(response).to have_http_status(:ok)
+          expect(res_body).to be_kind_of(Array)
+          expect(JSON.parse(response.body)['data'].size).to equal(1)
+          expect(res_body[0]).to include({
+                                           'appeal_type' => 'Compensation',
+                                           'filing_date' => '06/11/2008',
+                                           'appeal_status' => 'Please review your Supplemental Statement of the Case',
+                                           'updated_date' => '01/16/2018',
+                                           'description' => ' ',
+                                           'appeal_or_review' => 'review'
+                                         })
+        end
       end
     end
   end
