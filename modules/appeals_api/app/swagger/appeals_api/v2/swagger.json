@@ -44,6 +44,64 @@
         "maxLength": 10,
         "minLength": 10
       },
+      "errorWithTitleAndDetail": {
+        "required": [
+          "errors"
+        ],
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "additionalProperties": false,
+              "required": [
+                "title",
+                "detail",
+                "code",
+                "status"
+              ],
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "description": "HTTP error title"
+                },
+                "detail": {
+                  "type": "string",
+                  "description": "HTTP error detail"
+                },
+                "code": {
+                  "type": "string",
+                  "description": "HTTP error code"
+                },
+                "source": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "Source of error",
+                  "properties": {
+                    "pointer": {
+                      "type": "string",
+                      "description": "Pointer to source of error"
+                    }
+                  }
+                },
+                "status": {
+                  "type": "string",
+                  "description": "HTTP error code"
+                },
+                "meta": {
+                  "type": "object",
+                  "description": "Meta infomation",
+                  "properties": {
+                    "missing_fields": {
+                      "type": "array",
+                      "description": "List of missing fields"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "hlrCreatePhone": {
         "type": "object",
         "properties": {
@@ -2331,21 +2389,21 @@
                           }
                         }
                       }
+                    },
+                    "veteranFullName": {
+                      "type": "string",
+                      "example": "Junior L Fritsch"
+                    },
+                    "decisionDate": {
+                      "type": "string",
+                      "description": "Date of the Appeal's original decision.",
+                      "example": "2018-09-28T00:00:00.000Z"
+                    },
+                    "latestSocSsocDate": {
+                      "type": "string",
+                      "description": "Date of the Appeal's most recent SOC/SSOC (Statement of Case/Supplemental Statement of Case)",
+                      "example": "2018-12-29T00:00:00.000Z"
                     }
-                  },
-                  "veteranFullName": {
-                    "type": "string",
-                    "example": "Junior L Fritsch"
-                  },
-                  "decisionDate": {
-                    "type": "string",
-                    "description": "Date of the Appeal's original decision.",
-                    "example": "2018-09-28T00:00:00.000Z"
-                  },
-                  "latestSocSsocDate": {
-                    "type": "string",
-                    "description": "Date of the Appeal's most recent SOC/SSOC (Statement of Case/Supplemental Statement of Case)",
-                    "example": "2018-12-29T00:00:00.000Z"
                   }
                 }
               }
@@ -2363,6 +2421,7 @@
           "Contestable Issues"
         ],
         "operationId": "getContestableIssues",
+        "description": "Returns all issues associated with a Veteran that have not previously been decided as of the `receiptDate`. Not all issues returned are guaranteed to be eligible for appeal.",
         "security": [
           {
             "apikey": [
@@ -2590,62 +2649,7 @@
                   }
                 },
                 "schema": {
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail",
-                          "code",
-                          "status"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "description": "HTTP error title"
-                          },
-                          "detail": {
-                            "type": "string",
-                            "description": "HTTP error detail"
-                          },
-                          "code": {
-                            "type": "string",
-                            "description": "HTTP error code"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
-                          },
-                          "status": {
-                            "type": "string",
-                            "description": "HTTP error code"
-                          },
-                          "meta": {
-                            "type": "object",
-                            "description": "Meta infomation",
-                            "properties": {
-                              "missing_fields": {
-                                "type": "array",
-                                "description": "List of missing fields"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/errorWithTitleAndDetail"
                 }
               }
             }
@@ -2674,6 +2678,7 @@
     "/higher_level_reviews": {
       "post": {
         "summary": "Creates a new Higher-Level Review",
+        "description": "Submits an appeal of type Notice of Disagreement. This endpoint is the same as submitting [VA Form 10182](https://www.va.gov/vaforms/va/pdf/VA10182.pdf) via mail or fax directly to the Board of Veterans’ Appeals.",
         "tags": [
           "Higher-Level Reviews"
         ],
@@ -3002,62 +3007,7 @@
                   ]
                 },
                 "schema": {
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail",
-                          "code",
-                          "status"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "description": "HTTP error title"
-                          },
-                          "detail": {
-                            "type": "string",
-                            "description": "HTTP error detail"
-                          },
-                          "code": {
-                            "type": "string",
-                            "description": "HTTP error code"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
-                          },
-                          "status": {
-                            "type": "string",
-                            "description": "HTTP error code"
-                          },
-                          "meta": {
-                            "type": "object",
-                            "description": "Meta infomation",
-                            "properties": {
-                              "missing_fields": {
-                                "type": "array",
-                                "description": "List of missing fields"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/errorWithTitleAndDetail"
                 }
               }
             }
@@ -3203,6 +3153,7 @@
     "/higher_level_reviews/{uuid}": {
       "get": {
         "summary": "Shows a specific Higher-Level Review. (a.k.a. the Show endpoint)",
+        "description": "Returns all of the data associated with a specific Higher-Level Review.",
         "tags": [
           "Higher-Level Reviews"
         ],
@@ -3726,62 +3677,7 @@
                   "source": "Appeals Caseflow"
                 },
                 "schema": {
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail",
-                          "code",
-                          "status"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "description": "HTTP error title"
-                          },
-                          "detail": {
-                            "type": "string",
-                            "description": "HTTP error detail"
-                          },
-                          "code": {
-                            "type": "string",
-                            "description": "HTTP error code"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
-                          },
-                          "status": {
-                            "type": "string",
-                            "description": "HTTP error code"
-                          },
-                          "meta": {
-                            "type": "object",
-                            "description": "Meta infomation",
-                            "properties": {
-                              "missing_fields": {
-                                "type": "array",
-                                "description": "List of missing fields"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/errorWithTitleAndDetail"
                 }
               }
             }
@@ -3814,7 +3710,7 @@
           "Higher-Level Reviews"
         ],
         "operationId": "hlrSchema",
-        "description": "Returns the JSON Schema for the POST /higher_level_reviews endpoint.",
+        "description": "Returns the [JSON Schema](https://json-schema.org/) for the `POST /higher_level_reviews` endpoint.",
         "security": [
           {
             "apikey": [
@@ -5129,6 +5025,7 @@
                   }
                 },
                 "schema": {
+                  "$ref": "#/components/schemas/errorWithTitleAndDetail",
                   "required": [
                     "errors"
                   ],
@@ -5143,10 +5040,6 @@
                           "status"
                         ],
                         "properties": {
-                          "title": {
-                            "type": "string",
-                            "description": "HTTP error title"
-                          },
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail",
@@ -5154,40 +5047,18 @@
                               "The request body isn't a JSON object"
                             ]
                           },
-                          "code": {
-                            "type": "string",
-                            "description": "HTTP error code"
-                          },
                           "source": {
                             "type": "null",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            },
                             "enum": [
                               null
                             ]
                           },
                           "status": {
-                            "type": "integer",
-                            "description": "HTTP error code",
                             "enum": [
                               422
-                            ]
-                          },
-                          "meta": {
-                            "type": "object",
-                            "description": "Meta infomation",
-                            "properties": {
-                              "missing_fields": {
-                                "type": "array",
-                                "description": "List of missing fields"
-                              }
-                            }
+                            ],
+                            "type": "integer",
+                            "description": "HTTP error code"
                           }
                         }
                       }
@@ -5450,8 +5321,29 @@
                     "value": {
                       "errors": [
                         {
-                          "status": 422,
-                          "detail": "X-VA-SSN or X-VA-File-Number is required"
+                          "title": "Invalid length",
+                          "detail": "'' did not fit within the defined length limits",
+                          "code": "142",
+                          "source": {
+                            "pointer": "/X-VA-SSN"
+                          },
+                          "status": "422",
+                          "meta": {
+                            "max_length": 9,
+                            "min_length": 9
+                          }
+                        },
+                        {
+                          "title": "Invalid pattern",
+                          "detail": "'' did not match the defined pattern",
+                          "code": "143",
+                          "source": {
+                            "pointer": "/X-VA-SSN"
+                          },
+                          "status": "422",
+                          "meta": {
+                            "regex": "^[0-9]{9}$"
+                          }
                         }
                       ]
                     }
@@ -5460,36 +5352,36 @@
                     "value": {
                       "errors": [
                         {
-                          "status": 422,
-                          "detail": "X-VA-SSN has an invalid format. Pattern: /^[0-9]{9}$/"
+                          "title": "Invalid length",
+                          "detail": "'12n-~89' did not fit within the defined length limits",
+                          "code": "142",
+                          "source": {
+                            "pointer": "/X-VA-SSN"
+                          },
+                          "status": "422",
+                          "meta": {
+                            "max_length": 9,
+                            "min_length": 9
+                          }
+                        },
+                        {
+                          "title": "Invalid pattern",
+                          "detail": "'12n-~89' did not match the defined pattern",
+                          "code": "143",
+                          "source": {
+                            "pointer": "/X-VA-SSN"
+                          },
+                          "status": "422",
+                          "meta": {
+                            "regex": "^[0-9]{9}$"
+                          }
                         }
                       ]
                     }
                   }
                 },
                 "schema": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "errors": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "status": {
-                              "type": "integer",
-                              "enum": [
-                                422
-                              ]
-                            },
-                            "detail": {
-                              "type": "string"
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/errorWithTitleAndDetail"
                 }
               }
             }
@@ -5819,62 +5711,7 @@
                   ]
                 },
                 "schema": {
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail",
-                          "code",
-                          "status"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "description": "HTTP error title"
-                          },
-                          "detail": {
-                            "type": "string",
-                            "description": "HTTP error detail"
-                          },
-                          "code": {
-                            "type": "string",
-                            "description": "HTTP error code"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
-                          },
-                          "status": {
-                            "type": "string",
-                            "description": "HTTP error code"
-                          },
-                          "meta": {
-                            "type": "object",
-                            "description": "Meta infomation",
-                            "properties": {
-                              "missing_fields": {
-                                "type": "array",
-                                "description": "List of missing fields"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/errorWithTitleAndDetail"
                 }
               }
             }
@@ -6157,7 +5994,7 @@
                   "errors": [
                     {
                       "status": 404,
-                      "detail": "translation missing: en.appeals_api.errors.nod_not_found"
+                      "detail": "NoticeOfDisagreement with uuid invalid not found."
                     }
                   ]
                 },
@@ -6198,7 +6035,7 @@
           "Notice of Disagreements"
         ],
         "operationId": "nodSchema",
-        "description": "Returns the JSON Schema for the POST /notice_of_disagreements endpoint.",
+        "description": "Returns the [JSON Schema](https://json-schema.org/) for the `POST /notice_of_disagreement` endpoint.",
         "security": [
           {
             "apikey": [
@@ -7450,6 +7287,7 @@
                   }
                 },
                 "schema": {
+                  "$ref": "#/components/schemas/errorWithTitleAndDetail",
                   "required": [
                     "errors"
                   ],
@@ -7464,10 +7302,6 @@
                           "status"
                         ],
                         "properties": {
-                          "title": {
-                            "type": "string",
-                            "description": "HTTP error title"
-                          },
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail",
@@ -7475,40 +7309,18 @@
                               "The request body isn't a JSON object"
                             ]
                           },
-                          "code": {
-                            "type": "string",
-                            "description": "HTTP error code"
-                          },
                           "source": {
                             "type": "null",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            },
                             "enum": [
                               null
                             ]
                           },
                           "status": {
-                            "type": "integer",
-                            "description": "HTTP error code",
                             "enum": [
                               422
-                            ]
-                          },
-                          "meta": {
-                            "type": "object",
-                            "description": "Meta infomation",
-                            "properties": {
-                              "missing_fields": {
-                                "type": "array",
-                                "description": "List of missing fields"
-                              }
-                            }
+                            ],
+                            "type": "integer",
+                            "description": "HTTP error code"
                           }
                         }
                       }

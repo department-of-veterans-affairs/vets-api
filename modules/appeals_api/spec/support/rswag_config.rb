@@ -86,7 +86,8 @@ class AppealsApi::RswagConfig
         'pattern': '^[0-9]{4}-[0-9]{2}-[0-9]{2}$',
         'maxLength': 10,
         'minLength': 10
-      }
+      },
+      'errorWithTitleAndDetail': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', 'default.json')))
     }
   end
 

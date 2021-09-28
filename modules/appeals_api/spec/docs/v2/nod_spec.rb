@@ -113,8 +113,8 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
       end
 
       response '422', 'Violates JSON schema' do
-        schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors',
-                                                                 'default.json')))
+        schema '$ref' => '#/components/schemas/errorWithTitleAndDetail'
+
         let(:nod_body) do
           request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_10182.json')))
           request_body['data']['attributes'].delete('socOptIn')
@@ -203,7 +203,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
     get 'Gets the Notice of Disagreement JSON Schema.' do
       tags 'Notice of Disagreements'
       operationId 'nodSchema'
-      description 'Returns the JSON Schema for the POST /notice_of_disagreements endpoint.'
+      description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /notice_of_disagreement` endpoint.'
       security [
         { apikey: [] }
       ]
@@ -328,7 +328,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
       end
 
       response '422', 'Error' do
-        schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', 'default.json')))
+        schema '$ref' => '#/components/schemas/errorWithTitleAndDetail'
 
         let(:nod_body) do
           request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_10182_minimum.json')))

@@ -16,7 +16,7 @@ describe 'Contestable Issues', swagger_doc: 'modules/appeals_api/app/swagger/app
       tags 'Contestable Issues'
       operationId 'getContestableIssues'
 
-      description 'Returns all issues associated with a Veteran that have' \
+      description 'Returns all issues associated with a Veteran that have ' \
         'not previously been decided ' \
         'as of the `receiptDate`. Not all issues returned are guaranteed to be eligible for appeal.' \
 
@@ -92,8 +92,7 @@ describe 'Contestable Issues', swagger_doc: 'modules/appeals_api/app/swagger/app
 
       response '422', 'Parameter Errors' do
         context 'benefit_type required for Higher Level Review' do
-          schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors',
-                                                                   'default.json')))
+          schema '$ref' => '#/components/schemas/errorWithTitleAndDetail'
 
           let(:'X-VA-SSN') { '872958715' }
           let(:'X-VA-Receipt-Date') { '1900-01-01' }
@@ -121,8 +120,7 @@ describe 'Contestable Issues', swagger_doc: 'modules/appeals_api/app/swagger/app
         end
 
         context 'decision_review_type must be one of: higher_level_reviews, notice_of_disagreements, supplemental_claims' do
-          schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors',
-                                                                   'default.json')))
+          schema '$ref' => '#/components/schemas/errorWithTitleAndDetail'
 
           let(:benefit_type) { 'compensation' }
           let(:'X-VA-SSN') { '872958715' }
@@ -151,8 +149,7 @@ describe 'Contestable Issues', swagger_doc: 'modules/appeals_api/app/swagger/app
         end
 
         context 'Bad receipt date for  HLR' do
-          schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors',
-                                                                   'default.json')))
+          schema '$ref' => '#/components/schemas/errorWithTitleAndDetail'
 
           let(:benefit_type) { 'compensation' }
           let(:'X-VA-SSN') { '872958715' }

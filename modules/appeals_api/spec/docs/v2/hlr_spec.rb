@@ -12,6 +12,10 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
 
   path '/higher_level_reviews' do
     post 'Creates a new Higher-Level Review' do
+      description 'Submits an appeal of type Notice of Disagreement. ' \
+      'This endpoint is the same as submitting [VA Form 10182](https://www.va.gov/vaforms/va/pdf/VA10182.pdf)' \
+      ' via mail or fax directly to the Board of Veterans’ Appeals.'
+
       tags 'Higher-Level Reviews'
       operationId 'createHlr'
       security [
@@ -109,8 +113,8 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
       end
 
       response '422', 'Violates JSON schema' do
-        schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors',
-                                                                 'default.json')))
+        schema '$ref' => '#/components/schemas/errorWithTitleAndDetail'
+
         let(:hlr_body) do
           request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_v2.json')))
           request_body['data']['attributes'].delete('informalConference')
@@ -138,6 +142,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
 
   path '/higher_level_reviews/{uuid}' do
     get 'Shows a specific Higher-Level Review. (a.k.a. the Show endpoint)' do
+      description 'Returns all of the data associated with a specific Higher-Level Review.'
       tags 'Higher-Level Reviews'
       operationId 'showHlr'
       security [
@@ -268,8 +273,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
       end
 
       response '422', 'Bad receipt date' do
-        schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors',
-                                                                 'default.json')))
+        schema '$ref' => '#/components/schemas/errorWithTitleAndDetail'
 
         let(:benefit_type) { 'compensation' }
         let(:'X-VA-SSN') { '872958715' }
@@ -327,7 +331,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
     get 'Gets the Higher-Level Review JSON Schema.' do
       tags 'Higher-Level Reviews'
       operationId 'hlrSchema'
-      description 'Returns the JSON Schema for the POST /higher_level_reviews endpoint.'
+      description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /higher_level_reviews` endpoint.'
       security [
         { apikey: [] }
       ]
@@ -453,8 +457,8 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
       end
 
       response '422', 'Error' do
-        schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors',
-                                                                 'default.json')))
+        schema '$ref' => '#/components/schemas/errorWithTitleAndDetail'
+
         let(:hlr_body) do
           request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_v2.json')))
           request_body['data']['attributes'].delete('informalConference')
