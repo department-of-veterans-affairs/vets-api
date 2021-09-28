@@ -5,6 +5,8 @@ module AppealsApi
     class LegacyAppealsControllerSwagger
       include Swagger::Blocks
 
+      PATH_ENABLED_FOR_ENV = Settings.modules_appeals_api.documentation.path_enabled_flag
+
       ERROR_500_EXAMPLE = {
         errors: [
           {
@@ -42,6 +44,8 @@ module AppealsApi
       }.freeze
 
       swagger_path '/legacy_appeals' do
+        next unless PATH_ENABLED_FOR_ENV
+
         operation :get, tags: ['Legacy Appeals'] do
           key :operationId, 'getLegacyAppeals'
           key :summary, 'returns a list of Legacy Appeals scoped to the Veteran'
