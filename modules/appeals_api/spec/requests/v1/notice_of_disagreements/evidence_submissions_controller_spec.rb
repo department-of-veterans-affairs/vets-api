@@ -50,7 +50,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
       end
 
       context "when nod record 'auth_headers' are present" do
-        it 'returns success with 202' do
+        xit 'returns success with 202' do
           with_s3_settings do
             notice_of_disagreement.update(board_review_option: 'evidence_submission')
             post path, params: { nod_uuid: notice_of_disagreement.id }, headers: headers
@@ -74,7 +74,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
 
       context "when nod record 'auth_headers' are not present" do
         # if PII expunged not validating for matching SSNs
-        it 'creates the evidence submission and returns upload location' do
+        xit 'creates the evidence submission and returns upload location' do
           with_s3_settings do
             notice_of_disagreement.update(board_review_option: 'evidence_submission', auth_headers: nil)
             post path, params: { nod_uuid: notice_of_disagreement.id }, headers: headers
@@ -119,7 +119,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
       end
     end
 
-    it 'stores the source from headers' do
+    xit 'stores the source from headers' do
       with_s3_settings do
         notice_of_disagreement.update(board_review_option: 'evidence_submission')
         post path, params: { nod_uuid: notice_of_disagreement.id }, headers: headers
