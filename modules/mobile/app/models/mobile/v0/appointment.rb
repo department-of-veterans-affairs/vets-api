@@ -60,7 +60,7 @@ module Mobile
       attribute :reason, Types::String.optional
 
       def self.toggle_non_prod_id!(id)
-        return id if Settings.hostname == 'www.va.gov' || id.nil?
+        return id if Settings.hostname == 'api.va.gov' || id.nil?
 
         match = id.match(/\A(983|984|552|442)/)
         return id unless match
