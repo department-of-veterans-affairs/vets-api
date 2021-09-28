@@ -624,6 +624,38 @@ RSpec.describe SAML::User do
       end
     end
 
+    context 'with multi-value sec_id string' do
+      let(:saml_attributes) do
+        build(:ssoe_idme_mhv_loa3, va_eauth_secid: [sec_id])
+      end
+
+      context 'with one id string' do
+        let(:sec_id) { '1234567890' }
+
+        it 'will not log a warning to sentry' do
+          expect_any_instance_of(SentryLogging).not_to receive(:log_message_to_sentry).with(
+            'User attributes contains multiple sec_id values',
+            'warn',
+            { sec_id: sec_id }
+          )
+          subject.validate!
+        end
+      end
+
+      context 'with two ids string' do
+        let(:sec_id) { '1234567890,0987654321' }
+
+        it 'will log a warning to sentry' do
+          expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
+            'User attributes contains multiple sec_id values',
+            'warn',
+            { sec_id: sec_id }
+          )
+          subject.validate!
+        end
+      end
+    end
+
     context 'with multi-value corp_id' do
       let(:saml_attributes) do
         build(:ssoe_idme_mhv_loa3,

@@ -208,6 +208,15 @@ module SAML
         raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:mhv_icn_mismatch] if mhv_icn_mismatch?
         raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:multiple_corp_ids] if corp_id_mismatch?
 
+        # Collecting information on users with multiple sec_ids (e.g. '123456789,098765432')
+        if sec_id_mismatch?
+          log_message_to_sentry(
+            'User attributes contains multiple sec_id values',
+            'warn',
+            { sec_id: @attributes['va_eauth_secid'] }
+          )
+        end
+
         # Multiple BIRLS IDs are more common, only raise a warning
         if birls_id_mismatch?
           log_message_to_sentry('User attributes contain multiple distinct BIRLS ID values.', 'warn',
@@ -252,26 +261,31 @@ module SAML
         iens.append(uuid).reject(&:nil?).uniq.size > 1
       end
 
-      # Gather all available EDIPIs, de-duplicate, and see if n > 1
-      def edipi_mismatch?
-        edipis = safe_attr('va_eauth_dodedipnid')&.split(',') || []
-        edipis.reject(&:nil?).uniq.size > 1
-      end
-
       def mhv_icn_mismatch?
         mhvicn_val = safe_attr('va_eauth_mhvicn')
         icn_val = safe_attr('va_eauth_icn')
         icn_val.present? && mhvicn_val.present? && icn_val != mhvicn_val
       end
 
+      def edipi_mismatch?
+        attribute_has_multiple_values?('va_eauth_dodedipnid')
+      end
+
       def birls_id_mismatch?
-        birls_ids = safe_attr('va_eauth_birlsfilenumber')&.split(',') || []
-        birls_ids.reject(&:nil?).uniq.size > 1
+        attribute_has_multiple_values?('va_eauth_birlsfilenumber')
       end
 
       def corp_id_mismatch?
-        corp_ids = safe_attr('vba_corp_id')&.split(',') || []
-        corp_ids.reject(&:nil?).uniq.size > 1
+        attribute_has_multiple_values?('vba_corp_id')
+      end
+
+      def sec_id_mismatch?
+        attribute_has_multiple_values?('va_eauth_secid')
+      end
+
+      def attribute_has_multiple_values?(attribute)
+        var = safe_attr(attribute)&.split(',') || []
+        var.reject(&:nil?).uniq.size > 1
       end
 
       def csid
