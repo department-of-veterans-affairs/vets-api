@@ -401,6 +401,7 @@ Rails.application.routes.draw do
   mount CovidVaccine::Engine, at: '/covid_vaccine'
   mount FacilitiesApi::Engine, at: '/facilities_api'
   mount HealthQuest::Engine, at: '/health_quest'
+  mount MebApi::Engine, at: '/meb_api'
   mount Mobile::Engine, at: '/mobile'
   mount VAOS::Engine, at: '/vaos'
   # End Modules

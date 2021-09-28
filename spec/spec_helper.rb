@@ -57,6 +57,7 @@ unless ENV['NOCOVERAGE']
     add_group 'FacilitiesApi', 'modules/facilities_api/'
     add_group 'HealthQuest', 'modules/health_quest/'
     add_group 'Identity', 'modules/identity/'
+    add_group 'MebApi', 'modules/meb_api/'
     add_group 'Mobile', 'modules/mobile/'
     add_group 'OpenidAuth', 'modules/openid_auth/'
     add_group 'Policies', 'app/policies'

@@ -90,6 +90,7 @@ PATH
     facilities_api (0.1.0)
     health_quest (0.1.0)
     identity (0.1.0)
+    meb_api (0.1.0)
     mobile (0.1.0)
       dry-validation
     openid_auth (0.0.1)
@@ -1044,6 +1045,7 @@ DEPENDENCIES
   liquid
   lockbox
   mail (= 2.7.1)
+  meb_api!
   memoist
   mimemagic (~> 0.4.3)
   mini_magick (~> 4.11.0)

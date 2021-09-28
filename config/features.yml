@@ -324,6 +324,10 @@ features:
     actor_type: user
     description: Enables the Wizard for VA Form 5655 (Financial Status Report)
     enable_in_development: true
+  show_meb_mock_endpoints:
+    actor_type: user
+    description: Allows for frontend to have progressivley enhanced backend endpoints to consume in staging.
+    enable_in_development: true
   show_medical_copays:
     actor_type: user
     description: Enables the medical copays application on route /manage-va-debt/medical-copays/
