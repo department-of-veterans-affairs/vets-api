@@ -39,11 +39,11 @@ class AppealsApi::RswagConfig
             }
           },
           schemas: [
-            generic_schemas,
+            generic_schemas('#/components/schemas'),
             hlr_v2_schemas('#/components/schemas'),
-            contestable_issues_schema,
+            contestable_issues_schema('#/components/schemas'),
             nod_schemas('#/components/schemas'),
-            legacy_appeals_schema
+            legacy_appeals_schema('#/components/schemas')
           ].reduce(&:merge)
         },
         paths: {},
@@ -74,7 +74,7 @@ class AppealsApi::RswagConfig
 
   private
 
-  def generic_schemas
+  def generic_schemas(ref_root)
     {
       'nonBlankString': {
         'type': 'string',
@@ -87,21 +87,89 @@ class AppealsApi::RswagConfig
         'maxLength': 10,
         'minLength': 10
       },
-      'errorWithTitleAndDetail': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', 'default.json')))
+      'errorWithTitleAndDetail': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', 'default.json'))),
+      'documentUploadMetadata': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'document_upload_metadata.json'))),
+      "X-VA-SSN": {
+        "allOf": [
+          { "description": 'social security number' },
+          {
+            "type": 'string',
+            "minLength": 0,
+            "maxLength": 9,
+            "pattern": '^[0-9]{9}$'
+          }
+        ]
+      },
+      "X-VA-First-Name": {
+        "allOf": [
+          { "description": 'first name' },
+          { "type": 'string' }
+        ]
+      },
+      "X-VA-Middle-Initial": {
+        "allOf": [
+          { "description": 'middle initial' },
+          { "$ref": "#{ref_root}/nonBlankString" }
+        ]
+      },
+      "X-VA-Last-Name": {
+        "allOf": [
+          { "description": 'last name' },
+          { "$ref": "#{ref_root}/nonBlankString" }
+        ]
+      },
+      "X-VA-Birth-Date": {
+        "allOf": [
+          { "description": 'birth date' },
+          { "minLength": 10 },
+          { "maxLength": 10 },
+          { "$ref": "#{ref_root}/date" }
+        ]
+      },
+      "X-VA-File-Number": {
+        "allOf": [
+          { "description": 'VA file number (c-file / css)' },
+          { "maxLength": 9 },
+          { "$ref": "#{ref_root}/nonBlankString" }
+        ]
+      },
+      "X-Consumer-Username": {
+        "allOf": [
+          { "description": 'Consumer Username (passed from Kong)' },
+          { "$ref": "#{ref_root}/nonBlankString" }
+        ]
+      },
+      "X-Consumer-ID": {
+        "allOf": [
+          { "description": 'Consumer GUID' },
+          { "$ref": "#{ref_root}/nonBlankString" }
+        ]
+      },
+      "uuid": {
+        "type": 'string',
+        "pattern": '^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$'
+      },
+      "timeStamp": {
+        "type": 'string',
+        "pattern": '\\d{4}(-\\d{2}){2}T\\d{2}(:\\d{2}){2}\\.\\d{3}Z'
+      }
     }
   end
 
-  def contestable_issues_schema
+  def contestable_issues_schema(ref_root)
     {
       'contestableIssues': {
         'type': 'object',
         'properties': {
           'data': {
             'type': 'array',
-            'items': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'contestable_issue.json')))
+            'items': {
+              "$ref": "#{ref_root}/contestableIssue"
+            }
           }
         }
-      }
+      },
+      'contestableIssue': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'contestable_issue.json')))
     }
   end
 
@@ -358,6 +426,61 @@ class AppealsApi::RswagConfig
           data
           included
         ]
+      },
+      'hlrCreateParameters': {
+        "type": 'object',
+        "properties": {
+          "X-VA-SSN": {
+            "type": 'string',
+            "description": "Veteran's SSN",
+            "pattern": '^[0-9]{9}$'
+          },
+          "X-VA-First-Name": {
+            "type": 'string',
+            "description": "Veteran's first name",
+            "maxLength": 30,
+            "$comment": 'can be whitespace, to accommodate those with 1 legal name'
+          },
+          "X-VA-Middle-Initial": {
+            "allOf": [
+              { "description": "Veteran's middle initial", "maxLength": 1 },
+              { "$ref": "#{ref_root}/nonBlankString" }
+            ]
+          },
+          "X-VA-Last-Name": { "allOf": [
+            { "description": "Veteran's last name", "maxLength": 40 },
+            { "$ref": "#{ref_root}/nonBlankString" }
+          ] },
+          "X-VA-Birth-Date": { "allOf": [
+            { "description": "Veteran's birth date" },
+            { "$ref": "#{ref_root}/date" }
+          ] },
+          "X-VA-File-Number": { "allOf": [
+            { "description": "Veteran's file number", "maxLength": 9 },
+            { "$ref": "#{ref_root}/nonBlankString" }
+          ] },
+          "X-VA-Insurance-Policy-Number": { "allOf": [
+            { "description": "Veteran's insurance policy number", "maxLength": 18 },
+            { "$ref": "#{ref_root}/nonBlankString" }
+          ] },
+          "X-Consumer-Username": {
+            "allOf": [
+              { "description": 'Consumer User Name (passed from Kong)' },
+              { "$ref": "#{ref_root}/nonBlankString" }
+            ]
+          },
+          "X-Consumer-ID": { "allOf": [
+            { "description": 'Consumer GUID' },
+            { "$ref": "#{ref_root}/nonBlankString" }
+          ] }
+        },
+        "additionalProperties": false,
+        "required": %w[
+          X-VA-SSN
+          X-VA-First-Name
+          X-VA-Last-Name
+          X-VA-Birth-Date
+        ]
       }
     }
   end
@@ -460,21 +583,64 @@ class AppealsApi::RswagConfig
           }
         },
         'required': %w[data included]
+      },
+      "nodCreateHeadersDate": {
+        "type": 'string',
+        "pattern": '^[0-9]{4}(-[0-9]{2}){2}$'
+      },
+      "nodCreateHeadersRoot": {
+        "type": 'object',
+        "additionalProperties": false,
+        "properties": {
+          "X-VA-First-Name": {
+            "$ref": "#{ref_root}/X-VA-First-Name"
+          },
+          "X-VA-Middle-Initial": {
+            "$ref": "#{ref_root}/X-VA-Middle-Initial"
+          },
+          "X-VA-Last-Name": {
+            "$ref": "#{ref_root}/X-VA-Last-Name"
+          },
+          "X-VA-SSN": {
+            "$ref": "#{ref_root}/X-VA-SSN"
+          },
+          "X-VA-File-Number": {
+            "$ref": "#{ref_root}/X-VA-File-Number"
+          },
+          "X-VA-Birth-Date": {
+            "$ref": "#{ref_root}/X-VA-Birth-Date"
+          },
+          "X-Consumer-Username": {
+            "$ref": "#{ref_root}/X-Consumer-Username"
+          },
+          "X-Consumer-ID": {
+            "$ref": "#{ref_root}/X-Consumer-ID"
+          }
+        },
+        "required": %w[
+          X-VA-First-Name
+          X-VA-Last-Name
+          X-VA-SSN
+          X-VA-Birth-Date
+        ]
       }
     }
   end
 
-  def legacy_appeals_schema
+  def legacy_appeals_schema(ref_root)
     {
       'legacyAppeals': {
         'type': 'object',
         'properties': {
           'data': {
             'type': 'array',
-            'items': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'legacy_appeal.json')))
+            'items': {
+              "$ref": "#{ref_root}/legacyAppeal"
+            }
           }
         }
-      }
+      },
+      'legacyAppeal': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'legacy_appeal.json')))
     }
   end
 end
