@@ -15,17 +15,17 @@ module Accountable
   end
 
   def update_account_login_stats
-    return unless login_stats.present? && login_type.in?(AccountLoginStat::LOGIN_TYPES)
+    return unless account_login_stats.present? && login_type.in?(AccountLoginStat::LOGIN_TYPES)
 
-    login_stats.update!("#{login_type}_at" => Time.zone.now)
+    account_login_stats.update!("#{login_type}_at" => Time.zone.now)
   rescue => e
     log_error(e, account_login_stats: 'update_failed')
   end
 
   private
 
-  def login_stats
-    @login_stats ||=
+  def account_login_stats
+    @account_login_stats ||=
       if @current_user.account.present?
         AccountLoginStat.find_or_initialize_by(account_id: @current_user.account.id)
       else

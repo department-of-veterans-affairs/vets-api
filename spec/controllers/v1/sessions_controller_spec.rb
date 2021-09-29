@@ -212,9 +212,10 @@ RSpec.describe V1::SessionsController, type: :controller do
       context 'loa3_user' do
         let(:saml_user_attributes) { loa3_user.attributes.merge(loa3_user.identity.attributes) }
 
-        it 'creates an after login job' do
+        it 'makes a call to AfterLoginActions' do
           allow(SAML::User).to receive(:new).and_return(saml_user)
-          expect { post :saml_callback }.to change(AfterLoginJob.jobs, :size).by(1)
+          expect_any_instance_of(AfterLoginActions).to receive(:perform)
+          post :saml_callback
         end
       end
 
@@ -876,7 +877,6 @@ RSpec.describe V1::SessionsController, type: :controller do
 
           it 'creates an Account record for the user' do
             post :saml_callback
-            AfterLoginJob.drain
 
             expect(Account.first.idme_uuid).to eq uuid
           end
@@ -887,7 +887,6 @@ RSpec.describe V1::SessionsController, type: :controller do
 
           it 'does not create a new Account record for the user', :aggregate_failures do
             post :saml_callback
-            AfterLoginJob.drain
 
             expect(Account.count).to eq 1
             expect(Account.first.idme_uuid).to eq account.idme_uuid

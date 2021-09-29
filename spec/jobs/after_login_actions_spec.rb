@@ -2,14 +2,14 @@
 
 require 'rails_helper'
 
-RSpec.describe AfterLoginJob do
+RSpec.describe AfterLoginActions do
   describe '#perform' do
     context 'with a user that has evss access' do
       let(:user) { create(:evss_user) }
 
       it 'launches CreateUserAccountJob' do
         expect(EVSS::CreateUserAccountJob).to receive(:perform_async)
-        described_class.new.perform('user_uuid' => user.uuid)
+        described_class.new(user).perform
       end
     end
 
@@ -18,7 +18,7 @@ RSpec.describe AfterLoginJob do
 
       it 'shouldnt launch CreateUserAccountJob' do
         expect(EVSS::CreateUserAccountJob).not_to receive(:perform_async)
-        described_class.new.perform('user_uuid' => user.uuid)
+        described_class.new(user).perform
       end
     end
 
@@ -33,7 +33,7 @@ RSpec.describe AfterLoginJob do
 
       it 'does not call TUD account checkout' do
         expect_any_instance_of(TestUserDashboard::UpdateUser).not_to receive(:call)
-        described_class.new.perform('user_uuid' => user.uuid)
+        described_class.new(user).perform
       end
     end
 
@@ -48,7 +48,7 @@ RSpec.describe AfterLoginJob do
 
       it 'calls TUD account checkout' do
         expect_any_instance_of(TestUserDashboard::UpdateUser).to receive(:call)
-        described_class.new.perform('user_uuid' => user.uuid)
+        described_class.new(user).perform
       end
     end
 
@@ -60,12 +60,12 @@ RSpec.describe AfterLoginJob do
 
       context 'with non-existent login stats record' do
         it 'will create an account_login_stats record' do
-          expect { described_class.new.perform('user_uuid' => user.uuid) }.to \
+          expect { described_class.new(user).perform }.to \
             change(AccountLoginStat, :count).by(1)
         end
 
         it 'will update the correct login stats column' do
-          described_class.new.perform('user_uuid' => user.uuid)
+          described_class.new(user).perform
           expect(AccountLoginStat.last.send("#{login_type}_at")).not_to be_nil
         end
 
@@ -73,7 +73,7 @@ RSpec.describe AfterLoginJob do
           login_type = 'something_invalid'
           allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: login_type)
 
-          expect { described_class.new.perform('user_uuid' => user.uuid) }.not_to \
+          expect { described_class.new(user).perform }.not_to \
             change(AccountLoginStat, :count)
         end
       end
@@ -87,7 +87,7 @@ RSpec.describe AfterLoginJob do
         end
 
         it 'will not create another record' do
-          expect { described_class.new.perform('user_uuid' => user.uuid) }.not_to \
+          expect { described_class.new(user).perform }.not_to \
             change(AccountLoginStat, :count)
         end
 
@@ -95,7 +95,7 @@ RSpec.describe AfterLoginJob do
           stat = AccountLoginStat.last
 
           expect do
-            described_class.new.perform('user_uuid' => user.uuid)
+            described_class.new(user).perform
             stat.reload
           end.to change(stat, :myhealthevet_at)
         end
@@ -106,7 +106,7 @@ RSpec.describe AfterLoginJob do
           stat = AccountLoginStat.last
 
           expect do
-            described_class.new.perform('user_uuid' => user.uuid)
+            described_class.new(user).perform
             stat.reload
           end.not_to change(stat, :myhealthevet_at)
 
@@ -116,7 +116,7 @@ RSpec.describe AfterLoginJob do
         it 'will trigger sentry error if update fails' do
           allow_any_instance_of(AccountLoginStat).to receive(:update!).and_raise('Failure!')
           expect_any_instance_of(described_class).to receive(:log_error)
-          described_class.new.perform('user_uuid' => user.uuid)
+          described_class.new(user).perform
         end
       end
 
@@ -125,7 +125,7 @@ RSpec.describe AfterLoginJob do
 
         it 'will trigger sentry error message' do
           expect_any_instance_of(described_class).to receive(:no_account_log_message)
-          expect { described_class.new.perform('user_uuid' => user.uuid) }.not_to \
+          expect { described_class.new(user).perform }.not_to \
             change(AccountLoginStat, :count)
         end
       end
