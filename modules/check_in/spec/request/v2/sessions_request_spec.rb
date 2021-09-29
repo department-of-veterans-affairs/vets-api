@@ -21,14 +21,14 @@ RSpec.describe 'V2::SessionsController', type: :request do
         {
           'body' => {
             'error' => true,
-            'message' => "Invalid uuid #{invalid_uuid}"
+            'message' => 'Invalid uuid, last4 or last name!'
           },
           'status' => 400
         }
       end
 
       it 'returns an error response' do
-        get check_in.v2_session_path(invalid_uuid)
+        get "/check_in/v2/sessions/#{invalid_uuid}"
 
         expect(response.status).to eq(200)
         expect(JSON.parse(response.body)).to eq(resp)
@@ -39,16 +39,38 @@ RSpec.describe 'V2::SessionsController', type: :request do
       let(:uuid) { Faker::Internet.uuid }
       let(:resp) do
         {
-          'data' => {
-            'permissions' => 'read.none',
-            'uuid' => uuid,
-            'status' => 'success'
-          }
+          'permissions' => 'read.none',
+          'status' => 'success',
+          'uuid' => uuid
         }
       end
 
       it 'returns read.none permissions' do
         get check_in.v2_session_path(uuid)
+
+        expect(response.status).to eq(200)
+        expect(JSON.parse(response.body)).to eq(resp)
+      end
+    end
+
+    context 'when token present' do
+      let(:uuid) { Faker::Internet.uuid }
+      let(:key) { "check_in_lorota_v2_#{uuid}_read.full" }
+      let(:resp) do
+        {
+          'permissions' => 'read.full',
+          'status' => 'success',
+          'uuid' => uuid
+        }
+      end
+
+      it 'returns read.full permissions' do
+        allow_any_instance_of(CheckIn::V2::Session).to receive(:redis_session_prefix).and_return('check_in_lorota_v2')
+        allow_any_instance_of(CheckIn::V2::Session).to receive(:jwt).and_return('jwt-123-1bc')
+
+        Rails.cache.write(key, 'jwt-123-1bc', namespace: 'check-in-lorota-v2-cache')
+
+        get "/check_in/v2/sessions/#{uuid}"
 
         expect(response.status).to eq(200)
         expect(JSON.parse(response.body)).to eq(resp)

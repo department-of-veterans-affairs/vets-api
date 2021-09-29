@@ -4,15 +4,12 @@ module CheckIn
   module V2
     class SessionsController < CheckIn::ApplicationController
       def show
-        check_in = CheckIn::PatientCheckIn.build(uuid: params[:id])
+        check_in_session = CheckIn::V2::Session.build(data: { uuid: params[:id] }, jwt: session[:jwt])
 
-        render json: check_in.client_error and return unless check_in.valid?
+        render json: check_in_session.client_error and return unless check_in_session.valid_uuid?
+        render json: check_in_session.unauthorized_message and return unless check_in_session.authorized?
 
-        session_key = "#{Settings.check_in.lorota_v2.redis_session_prefix}_#{check_in.uuid}_read.full"
-
-        unless session[:jwt].present? && Rails.cache.read(session_key, namespace: 'check-in-lorota-v2-cache')
-          render json: { data: { permissions: 'read.none', uuid: check_in.uuid, status: 'success' } }
-        end
+        render json: check_in_session.success_message
       end
 
       def create
