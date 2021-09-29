@@ -6,9 +6,11 @@ module VAOS
   module V0
     class AppointmentsController < VAOS::V0::BaseController
       before_action :validate_params, only: :index
-
+      STATSD_KEY = 'api.vaos.va_mobile.response.partial'
       def index
         if appointments[:meta][:errors]&.any?
+          StatsDMetric.new(key: STATSD_KEY).save
+          StatsD.increment(STATSD_KEY, tags: ["errors:#{appointments[:meta][:errors]}"])
           render json: each_serializer.new(appointments[:data], meta: appointments[:meta]), status: 207
         else
           render json: each_serializer.new(appointments[:data], meta: appointments[:meta]), status: 200

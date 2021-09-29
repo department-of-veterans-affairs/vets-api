@@ -54,7 +54,7 @@ http_interactions:
       - max-age=63072000; includeSubDomains; preload
     body:
       encoding: UTF-8
-      string: '{"errors":[{"code":1,"source":"test result","summary":"test summary"},{"code":2,"source":"test result 2","summary":"test summary 2"}],"data":{"result":{"partial":false,"sources":["VVS","983","984"],"pageCount":1,"currentPage":1},"appointmentList":[{"id":"202006031600983000030800000000000000","startDate":"2020-06-03T16:00:00Z","clinicId":"308","clinicFriendlyName":"Green
+      string: '{"errors":[{"code":1,"source":"test result","summary":"test summary"}],"data":{"result":{"partial":false,"sources":["VVS","983","984"],"pageCount":1,"currentPage":1},"appointmentList":[{"id":"202006031600983000030800000000000000","startDate":"2020-06-03T16:00:00Z","clinicId":"308","clinicFriendlyName":"Green
         Team Clinic1","facilityId":"983","sta6aid":"983","stationName":"CHYSHR-Cheyenne
         VA Medical Center","locationName":"CHY PC KILPATRICK","patientIcn":"1012845331V153043","communityCare":false,"vdsAppointments":[{"id":"308;20200603.100000","appointmentLength":"20","appointmentTime":"2020-06-03T16:00:00Z","clinic":{"name":"CHY
         PC KILPATRICK","askForCheckIn":false,"facilityCode":"983"},"patientId":"7216691","type":"SERVICE

@@ -158,6 +158,16 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           end
         end
 
+        it 'increments statsD on a partial' do
+          VCR.use_cassette('vaos/appointments/get_appointments_200_partial_error', match_requests_on: %i[method uri]) do
+            expect { get('/vaos/v0/appointments', params: params) }
+              .to trigger_statsd_increment(
+                'api.vaos.va_mobile.response.partial',
+                tags: ['errors:[{:code=>1 :source=>"test result" :summary=>"test summary"}]']
+              )
+          end
+        end
+
         it 'has access and returns va appointments when camel-inflected' do
           VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method uri]) do
             get '/vaos/v0/appointments', params: params, headers: inflection_header

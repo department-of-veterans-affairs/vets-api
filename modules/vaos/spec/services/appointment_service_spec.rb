@@ -119,8 +119,7 @@ describe VAOS::AppointmentService do
             level: 'info'
           )
           expect(Raven).to receive(:extra_context).with(
-            errors: '[{"code":1,"source":"test result","summary":"test summary"}' \
-                    ',{"code":2,"source":"test result 2","summary":"test summary 2"}]'
+            errors: '[{"code":1,"source":"test result","summary":"test summary"}]'
           )
           subject.get_appointments(type, start_date, end_date)
         end
