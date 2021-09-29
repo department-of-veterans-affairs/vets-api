@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_09_02_124948) do
+ActiveRecord::Schema.define(version: 2021_09_13_194827) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -643,6 +643,13 @@ ActiveRecord::Schema.define(version: 2021_09_02_124948) do
     t.index ["user_uuid", "mhv_correlation_id"], name: "index_mhv_accounts_on_user_uuid_and_mhv_correlation_id", unique: true
   end
 
+  create_table "mobile_users", force: :cascade do |t|
+    t.string "icn", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["icn"], name: "index_mobile_users_on_icn", unique: true
+  end
+
   create_table "notifications", id: :serial, force: :cascade do |t|
     t.integer "account_id", null: false
     t.integer "subject", null: false
@@ -792,10 +799,10 @@ ActiveRecord::Schema.define(version: 2021_09_02_124948) do
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.text "services"
     t.string "id_type"
     t.string "loa"
     t.string "account_type"
+    t.text "services"
     t.uuid "idme_uuid"
     t.text "notes"
   end
