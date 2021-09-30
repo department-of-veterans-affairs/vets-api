@@ -186,8 +186,7 @@ RSpec.describe CheckIn::V2::Session do
       }
       error = subject.build(params_hsh).client_error
 
-      expect(error.body).to eq(hsh)
-      expect(error.status).to eq(400)
+      expect(error).to eq(hsh)
     end
   end
 end

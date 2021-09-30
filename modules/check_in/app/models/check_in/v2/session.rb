@@ -109,9 +109,7 @@ module CheckIn
       # @return [Faraday::Response]
       #
       def client_error
-        body = { error: true, message: 'Invalid uuid, last4 or last name!' }
-
-        Faraday::Response.new(body: body, status: 400)
+        { error: true, message: 'Invalid uuid, last4 or last name!' }
       end
     end
   end
