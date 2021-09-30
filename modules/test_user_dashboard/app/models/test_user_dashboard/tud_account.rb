@@ -6,7 +6,7 @@ module TestUserDashboard
 
     ID_PROVIDERS = %w[idme dslogon mhv logingov].freeze
 
-    validates :first_name, :last_name, :email, :gender, :id_type, presence: true
+    validates :first_name, :last_name, :email, :id_type, presence: true
     validates :email, uniqueness: true
     validates :id_type, inclusion: { in: ID_PROVIDERS }
 
