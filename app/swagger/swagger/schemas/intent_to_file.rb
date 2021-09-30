@@ -20,13 +20,7 @@ module Swagger
         property :expiration_date, type: :string, example: '2018-02-21T19:53:45.810+00:00'
         property :participant_id, type: :integer, example: 1
         property :source, type: :string, example: 'EBN'
-        property :status, type: :string, enum: %w[
-          active
-          claim_recieved
-          duplicate
-          expired
-          incomplete
-        ], example: 'active'
+        property :status, type: :string, enum: EVSS::IntentToFile::IntentToFile::STATUS_TYPES, example: 'active'
         property :type, type: :string, enum: %w[
           compensation
           pension

@@ -32,6 +32,7 @@ module EVSS
         duplicate
         expired
         incomplete
+        canceled
       ].freeze
 
       attribute :id, String
