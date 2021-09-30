@@ -121,11 +121,6 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
           expect(response).to have_http_status(:ok)
         end
 
-        it 'calls async user table job on first call and does not on the second due to redis lock' do
-          expect(Mobile::V0::FillMobileUserTableJob).to receive(:perform_async)
-          get :index
-        end
-
         it 'increments the auth success metric once' do
           expect do
             get :index
@@ -141,7 +136,7 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
           expect(response).to have_http_status(:ok)
         end
 
-        it 'calls async linking job on first call and does not one second after redis lock is in place' do
+        it 'calls async linking job on first call and does not on second after redis lock is in place' do
           expect(Mobile::V0::Vet360LinkingJob).to receive(:perform_async)
           get :index
           expect(Mobile::V0::Vet360LinkingJob).not_to receive(:perform_async)
