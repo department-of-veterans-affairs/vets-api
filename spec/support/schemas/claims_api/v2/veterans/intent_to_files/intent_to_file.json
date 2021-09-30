@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "creationDate", "expirationDate", "status", "type"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Intent To File ID",
+      "example": "600131328"
+    },
+    "creationDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the Intent to File was received at the VA"
+    },
+    "expirationDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the Intent to File expires, this is 1 year from the created_date"
+    },
+    "status": {
+      "type": "string",
+      "description": "The status of the Intent to File",
+      "example": "active"
+    },
+    "type": {
+      "type": "string",
+      "description": "The type of Intent to File filed.",
+      "example": "compensation"
+    }
+  }
+}

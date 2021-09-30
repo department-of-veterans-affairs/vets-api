@@ -14,7 +14,7 @@ module ClaimsApi
     end
 
     def type
-      ClaimsApi::IntentToFile::ITF_TYPES.key(object[:itf_type_cd])
+      ClaimsApi::IntentToFile::ITF_TYPES_TO_BGS_TYPES.key(object[:itf_type_cd])
     end
 
     def creation_date

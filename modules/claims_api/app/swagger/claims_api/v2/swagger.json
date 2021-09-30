@@ -915,6 +915,303 @@
         }
       }
     },
+    "/veterans/{veteranId}/intent-to-files/{type}": {
+      "get": {
+        "summary": "Returns last active Intent to File form submission for given 'type'.",
+        "tags": [
+          "Intent to File"
+        ],
+        "operationId": "active0966itf",
+        "security": [
+          {
+            "productionOauth": [
+              "claim.read"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "description": "Returns Veteran's last active Intent to File submission for given 'type'.",
+        "parameters": [
+          {
+            "name": "veteranId",
+            "in": "path",
+            "required": true,
+            "description": "ID of Veteran",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "description": "Type of Intent to File to return. Available values - compensation, pension, burial",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with active Intent to File",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "193685",
+                  "creationDate": "2021-03-16T19:15:21.000-05:00",
+                  "expirationDate": "2022-03-16T19:15:20.000-05:00",
+                  "status": "active",
+                  "type": "compensation"
+                },
+                "schema": {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "creationDate",
+                    "expirationDate",
+                    "status",
+                    "type"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Intent To File ID",
+                      "example": "600131328"
+                    },
+                    "creationDate": {
+                      "type": "string",
+                      "format": "date",
+                      "description": "Date the Intent to File was received at the VA"
+                    },
+                    "expirationDate": {
+                      "type": "string",
+                      "format": "date",
+                      "description": "Date the Intent to File expires, this is 1 year from the created_date"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "The status of the Intent to File",
+                      "example": "active"
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of Intent to File filed.",
+                      "example": "compensation"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "detail": "Not authorized",
+                      "code": "401",
+                      "status": "401"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Forbidden",
+                      "detail": "Forbidden",
+                      "code": "403",
+                      "status": "403"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "detail": "No active 'compensation' intent to file found.",
+                      "code": "404",
+                      "status": "404"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/veterans/{veteranId}/power-of-attorney": {
       "get": {
         "summary": "Find current Power of Attorney for a Veteran.",

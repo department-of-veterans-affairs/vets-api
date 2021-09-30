@@ -41,7 +41,7 @@ module ClaimsApi
 
           bgs_response = bgs_service.intent_to_file.find_intent_to_file_by_ptcpnt_id_itf_type_cd(
             target_veteran.participant_id,
-            ClaimsApi::IntentToFile::ITF_TYPES[active_param]
+            ClaimsApi::IntentToFile::ITF_TYPES_TO_BGS_TYPES[active_param]
           )
           bgs_active = if bgs_response.is_a?(Array)
                          bgs_response.detect { |itf| active?(itf) }
@@ -68,7 +68,7 @@ module ClaimsApi
 
         def intent_to_file_options
           {
-            intent_to_file_type_code: ClaimsApi::IntentToFile::ITF_TYPES[form_type],
+            intent_to_file_type_code: ClaimsApi::IntentToFile::ITF_TYPES_TO_BGS_TYPES[form_type],
             participant_claimant_id: form_attributes['participant_claimant_id'] || target_veteran.participant_id,
             participant_vet_id: form_attributes['participant_vet_id'] || target_veteran.participant_id,
             received_date: Time.zone.now.strftime('%Y-%m-%dT%H:%M:%S%:z'),

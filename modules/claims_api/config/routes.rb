@@ -67,6 +67,11 @@ ClaimsApi::Engine.routes.draw do
       get '/:veteranId/claims', to: 'claims#index'
       get '/:veteranId/claims/:id', to: 'claims#show'
       get '/:veteranId/power-of-attorney', to: 'power_of_attorney#show'
+      get '/:veteranId/intent-to-files/:type',
+          to: 'intent_to_files#type',
+          constraints: (lambda do |request|
+            ClaimsApi::V2::Veterans::IntentToFilesController::ITF_TYPES.include?(request.path_parameters[:type])
+          end)
     end
   end
 
