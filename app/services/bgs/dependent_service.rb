@@ -3,7 +3,7 @@
 module BGS
   class DependentService < BaseService
     def get_dependents
-      @service.claimant.find_dependents_by_participant_id(@user.participant_id, @user.ssn)
+      @service.claimant.find_dependents_by_participant_id(@user.participant_id, @user.ssn) || { persons: [] }
     end
 
     def submit_686c_form(claim)

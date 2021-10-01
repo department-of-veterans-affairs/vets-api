@@ -27,7 +27,7 @@ RSpec.describe V0::DependentsApplicationsController do
       end
     end
 
-    context 'with an empty bgs response' do
+    context 'with an erroneous bgs response' do
       let(:user) { build(:disabilities_compensation_user, ssn: '796043735') }
 
       it 'returns no content' do
