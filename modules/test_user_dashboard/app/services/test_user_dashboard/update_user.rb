@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
+require 'sentry_logging'
+
 module TestUserDashboard
   class UpdateUser
+    include SentryLogging
+
     attr_accessor :tud_account, :user
 
     def initialize(user)
@@ -13,7 +17,8 @@ module TestUserDashboard
       return unless tud_account
 
       user_values = tud_account.user_values(user).merge(checkout_time: time)
-      tud_account.update!(user_values)
+      valid_update = tud_account.update(user_values.compact)
+      log_message_to_sentry('[TestUserDashboard] UpdateUser invalid update', :warn, user_values) unless valid_update
     end
   end
 end
