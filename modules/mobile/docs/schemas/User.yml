@@ -27,6 +27,7 @@ properties:
           - birthDate
           - gender
           - addresses
+          - signinService
         properties:
           firstName:
             type: string
@@ -54,6 +55,12 @@ properties:
             $ref: "./PhoneUpdate.yml"
           faxPhoneNumber:
             $ref: "./PhoneUpdate.yml"
+          signinService:
+            type: string
+            enum:
+              - IDME
+              - DSL
+              - MHV
       authorizedServices:
         type: array
         items:

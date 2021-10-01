@@ -131,6 +131,10 @@ RSpec.describe 'user', type: :request do
         )
       end
 
+      it 'includes sign-in service' do
+        expect(attributes['profile']['signinService']).to eq('IDME')
+      end
+
       it 'includes the service the user has access to' do
         expect(attributes['authorizedServices']).to eq(
           %w[
