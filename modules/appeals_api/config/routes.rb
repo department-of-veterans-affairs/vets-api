@@ -66,9 +66,7 @@ AppealsApi::Engine.routes.draw do
 
       get 'legacy_appeals', to: 'legacy_appeals#index'
 
-      if Settings.modules_appeals_api.documentation.path_enabled_flag
-        resources :supplemental_claims, only: %i[create show]
-      end
+      resources :supplemental_claims, only: %i[create show] if Settings.modules_appeals_api.supplemental_claims_enabled
     end
   end
 
