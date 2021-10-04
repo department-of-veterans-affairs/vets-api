@@ -363,4 +363,82 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
       end
     end
   end
+
+  describe 'massaging invalid disability names' do
+    describe "handling the length of a 'disability.name'" do
+      context "when a 'disability.name' is longer than 255 characters" do
+        it 'truncates it' do
+          invalid_length_name = 'X' * 300
+          pending_record.form_data['disabilities'].first['name'] = invalid_length_name
+
+          payload = JSON.parse(pending_record.to_internal)
+          disability_name = payload['form526']['disabilities'].first['name']
+
+          expect(disability_name.length).to eq(255)
+        end
+      end
+
+      context "when a 'disability.name' is shorter than 255 characters" do
+        it 'does not change it' do
+          valid_length_name = 'X' * 20
+          pending_record.form_data['disabilities'].first['name'] = valid_length_name
+
+          payload = JSON.parse(pending_record.to_internal)
+          disability_name = payload['form526']['disabilities'].first['name']
+
+          expect(valid_length_name).to eq(disability_name)
+        end
+      end
+
+      context "when a 'disability.name' is exactly 255 characters" do
+        it 'does not change it' do
+          valid_length_name = 'X' * 255
+          pending_record.form_data['disabilities'].first['name'] = valid_length_name
+
+          payload = JSON.parse(pending_record.to_internal)
+          disability_name = payload['form526']['disabilities'].first['name']
+
+          expect(valid_length_name).to eq(disability_name)
+        end
+      end
+    end
+
+    describe "handling invalid characters in a 'disability.name'" do
+      context "when a 'disability.name' has invalid characters" do
+        it 'the invalid characters are removed' do
+          name_with_invalid_characters = 'abc `~!@#$%^&*=+123'
+          pending_record.form_data['disabilities'].first['name'] = name_with_invalid_characters
+
+          payload = JSON.parse(pending_record.to_internal)
+          disability_name = payload['form526']['disabilities'].first['name']
+
+          expect(disability_name.include?('abc 123')).to eq(true)
+          expect(disability_name.include?('`')).to eq(false)
+          expect(disability_name.include?('~')).to eq(false)
+          expect(disability_name.include?('!')).to eq(false)
+          expect(disability_name.include?('@')).to eq(false)
+          expect(disability_name.include?('#')).to eq(false)
+          expect(disability_name.include?('$')).to eq(false)
+          expect(disability_name.include?('%')).to eq(false)
+          expect(disability_name.include?('^')).to eq(false)
+          expect(disability_name.include?('&')).to eq(false)
+          expect(disability_name.include?('*')).to eq(false)
+          expect(disability_name.include?('=')).to eq(false)
+          expect(disability_name.include?('+')).to eq(false)
+        end
+      end
+
+      context "when a 'disability.name' only has valid characters" do
+        it 'nothing is changed' do
+          name_with_only_valid_characters = "abc \-'.,/()123"
+          pending_record.form_data['disabilities'].first['name'] = name_with_only_valid_characters
+
+          payload = JSON.parse(pending_record.to_internal)
+          disability_name = payload['form526']['disabilities'].first['name']
+
+          expect(name_with_only_valid_characters).to eq(disability_name)
+        end
+      end
+    end
+  end
 end

@@ -69,6 +69,7 @@ module ClaimsApi
         form_data['servicePay']['separationPay']['receivedDate'] = transform_separation_pay_received_date
       end
       form_data['disabilites'] = transform_disability_approximate_begin_dates
+      form_data['disabilites'] = massage_invalid_disability_names
       form_data['treatments'] = transform_treatment_dates if treatments?
 
       resolve_special_issue_mappings!
@@ -296,6 +297,30 @@ module ClaimsApi
 
     def build_application_expiration
       (Time.zone.now.to_date + 1.year).to_s
+    end
+
+    # EVSS requires disability names to be less than 255 characters and cannot contain special characters.
+    # Rather than raise an exception to the user, massage the name into a valid state that EVSS will accept.
+    def massage_invalid_disability_names
+      disabilities = form_data.dig('disabilities')
+      invalid_characters = %r{[^a-zA-Z0-9\\\-'\.,\/\(\) ]}
+
+      disabilities.map do |disability|
+        name = disability['name']
+        name = truncate_disability_name(name: name) if name.length > 255
+        name = sanitize_disablity_name(name: name, regex: invalid_characters) if name.match?(invalid_characters)
+        disability['name'] = name
+
+        disability
+      end
+    end
+
+    def truncate_disability_name(name:)
+      name.truncate(255, omission: '')
+    end
+
+    def sanitize_disablity_name(name:, regex:)
+      name.gsub(regex, '')
     end
   end
 end
