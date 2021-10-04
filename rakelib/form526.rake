@@ -454,17 +454,56 @@ namespace :form526 do
     puts 'tmp/birls_errors.csv'
   end
 
+  # context in https://github.com/department-of-veterans-affairs/va.gov-team/issues/11353
+  desc 'get a csv of all vets affected by payee code errors with multiple corp ids since date'
+  task :corp_id_errors, [:start_date] => [:environment] do |_, args|
+    start_date = args[:start_date]&.to_date || 30.days.ago.utc
+    fss = Form526JobStatus.where(status: 'non_retryable_error',
+                                 updated_at: [start_date..Time.now.utc]).where("error_message like '%Payee code%'")
+    file_path = 'tmp/corp_errors.csv'
+    edipis = []
+    CSV.open(file_path, 'wb') do |csv|
+      csv << %w[veteran_name edipi corp_ids]
+      fss.each do |form_status|
+        fs = form_status.submission
+        next unless fs
+
+        edipi = fs.auth_headers['va_eauth_dodedipnid']
+        if edipis.include? edipi
+          next
+        else
+          edipis << edipi
+        end
+
+        user_identity = OpenStruct.new(mhv_icn: '', edipi: edipi)
+        response = MPI::Service.new.find_profile(user_identity).profile
+        active_corp_ids = response.full_mvi_ids.select { |id| id.match?(/\d*\^PI\^200CORP\^USVBA\^A/) }
+        vname = fs.auth_headers['va_eauth_firstName'] + ' ' + fs.auth_headers['va_eauth_lastName']
+        csv << [vname, edipi, active_corp_ids] if active_corp_ids.count > 1
+      end
+    end
+    puts file_path
+  end
+
   desc 'get a csv of all vets affected by PIF errors since date'
   task :pif_errors,  [:start_date] =>  [:environment] do |_, args|
     start_date = args[:start_date]&.to_date || 30.days.ago.utc
     fss = Form526JobStatus.where(status: 'exhausted',
                                  updated_at: [start_date..Time.now.utc]).where("error_message like '%PIF%'")
+    ssns = []
     CSV.open('tmp/pif_errors.csv', 'wb') do |csv|
       csv << %w[veteran_name ssn soj form526_submission_id]
       fss.each do |form_status|
         fs = form_status.submission
 
         ssn = fs.auth_headers['va_eauth_pnid']
+
+        if ssns.include? ssn
+          next
+        else
+          ssns << ssn
+        end
+
         vname = fs.auth_headers['va_eauth_firstName'] + ' ' + fs.auth_headers['va_eauth_lastName']
         icn = Account.where(idme_uuid: fs.user_uuid).first&.icn
         if icn.blank?
