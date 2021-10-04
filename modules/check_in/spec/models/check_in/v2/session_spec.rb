@@ -178,7 +178,7 @@ RSpec.describe CheckIn::V2::Session do
 
   describe '#client_error' do
     it 'has a response' do
-      hsh = { error: true, message: 'Invalid uuid, last4 or last name!' }
+      hsh = { error: true, message: 'Invalid last4 or last name!' }
       params_hsh = {
         id: 'd602d9eb',
         last4: '5555',

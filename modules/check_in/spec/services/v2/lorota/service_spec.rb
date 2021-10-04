@@ -47,6 +47,107 @@ describe V2::Lorota::Service do
     end
   end
 
+  describe '#get_check_in_data' do
+    let(:appointment_data) do
+      {
+        uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+        options: {
+          validStart: 'validStartDateTime',
+          validEnd: 'validEndDateTime',
+          additionalValidation: {
+            lastName: 'veteranLastName',
+            SSN4: 'veteranLastFour'
+          }
+        },
+        payload: {
+          'read.full': {
+            appointments: [
+              {
+                appointmentIEN: '123',
+                patientDFN: '888',
+                stationNo: '5625',
+                zipCode: 'appointment.zipCode',
+                clinicName: 'appointment.clinicName',
+                startTime: 'formattedStartTime',
+                clinicPhoneNumber: 'appointment.clinicPhoneNumber',
+                clinicFriendlyName: 'appointment.patientFriendlyName',
+                facility: 'appointment.facility',
+                facilityId: 'some-id',
+                appointmentCheckInStart: 'time checkin starts',
+                appointmentCheckInEnds: 'time checkin Ends',
+                status: 'the status',
+                timeCheckedIn: 'time the user checked already'
+              },
+              {
+                appointmentIEN: '456',
+                patientDFN: '888',
+                stationNo: '5625',
+                zipCode: 'appointment.zipCode',
+                clinicName: 'appointment.clinicName',
+                startTime: 'formattedStartTime',
+                clinicPhoneNumber: 'appointment.clinicPhoneNumber',
+                clinicFriendlyName: 'appointment.patientFriendlyName',
+                facility: 'appointment.facility',
+                facilityId: 'some-id',
+                appointmentCheckInStart: 'time checkin starts',
+                appointmentCheckInEnds: 'time checkin Ends',
+                status: 'the status',
+                timeCheckedIn: 'time the user checked already'
+              }
+            ]
+          }
+        }
+      }
+    end
+    let(:approved_response) do
+      {
+        id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+        payload: {
+          appointments: [
+            {
+              'appointmentIEN' => '123',
+              'zipCode' => 'appointment.zipCode',
+              'clinicName' => 'appointment.clinicName',
+              'startTime' => 'formattedStartTime',
+              'clinicPhoneNumber' => 'appointment.clinicPhoneNumber',
+              'clinicFriendlyName' => 'appointment.patientFriendlyName',
+              'facility' => 'appointment.facility',
+              'facilityId' => 'some-id',
+              'appointmentCheckInStart' => 'time checkin starts',
+              'appointmentCheckInEnds' => 'time checkin Ends',
+              'status' => 'the status',
+              'timeCheckedIn' => 'time the user checked already'
+            },
+            {
+              'appointmentIEN' => '456',
+              'zipCode' => 'appointment.zipCode',
+              'clinicName' => 'appointment.clinicName',
+              'startTime' => 'formattedStartTime',
+              'clinicPhoneNumber' => 'appointment.clinicPhoneNumber',
+              'clinicFriendlyName' => 'appointment.patientFriendlyName',
+              'facility' => 'appointment.facility',
+              'facilityId' => 'some-id',
+              'appointmentCheckInStart' => 'time checkin starts',
+              'appointmentCheckInEnds' => 'time checkin Ends',
+              'status' => 'the status',
+              'timeCheckedIn' => 'time the user checked already'
+            }
+          ]
+        }
+      }
+    end
+
+    before do
+      allow_any_instance_of(::V2::Lorota::Session).to receive(:from_redis).and_return('123abc')
+      allow_any_instance_of(::V2::Lorota::Request).to receive(:get)
+        .and_return(Faraday::Response.new(body: appointment_data.to_json, status: 200))
+    end
+
+    it 'returns approved data' do
+      expect(subject.build(check_in: valid_check_in).get_check_in_data).to eq(approved_response)
+    end
+  end
+
   describe '#base_path' do
     it 'returns base_path' do
       expect(subject.build(check_in: valid_check_in).base_path).to eq('dev')

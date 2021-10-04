@@ -10,8 +10,8 @@ module V2
       def_delegators :check_in, :client_error, :uuid, :valid?
       def_delegators :settings, :base_path
 
-      def self.build(check_in)
-        new(check_in)
+      def self.build(opts = {})
+        new(opts)
       end
 
       def initialize(opts = {})

@@ -109,7 +109,7 @@ module CheckIn
       # @return [Faraday::Response]
       #
       def client_error
-        { error: true, message: 'Invalid uuid, last4 or last name!' }
+        { error: true, message: 'Invalid last4 or last name!' }
       end
     end
   end

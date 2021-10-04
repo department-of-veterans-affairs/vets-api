@@ -20,7 +20,7 @@ RSpec.describe 'V2::SessionsController', type: :request do
       let(:resp) do
         {
           'error' => true,
-          'message' => 'Invalid uuid, last4 or last name!'
+          'message' => 'Invalid last4 or last name!'
         }
       end
 
@@ -102,7 +102,7 @@ RSpec.describe 'V2::SessionsController', type: :request do
       let(:resp) do
         {
           'error' => true,
-          'message' => 'Invalid uuid, last4 or last name!'
+          'message' => 'Invalid last4 or last name!'
         }
       end
       let(:session_params) do

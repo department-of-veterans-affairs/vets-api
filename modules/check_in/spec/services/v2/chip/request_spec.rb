@@ -91,6 +91,7 @@ describe V2::Chip::Request do
       let(:opts) do
         {
           path: '/dev/actions/check-in/d602d9eb-9a31-484f-9637-13ab0b507e0d',
+          params: { appointment_ien: '123-abc' },
           access_token: 'abc123'
         }
       end
