@@ -59,7 +59,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
           JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_minimum_v2.json')))
         end
 
-        schema AppealsApi::SwaggerSharedComponents.response_schemas[:hlr_response_schema]
+        schema '$ref' => '#/components/schemas/hlrShow'
 
         before do |example|
           submit_request(example.metadata)
@@ -88,7 +88,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
           JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_v2.json')))
         end
 
-        schema AppealsApi::SwaggerSharedComponents.response_schemas[:hlr_response_schema]
+        schema '$ref' => '#/components/schemas/hlrShow'
 
         before do |example|
           submit_request(example.metadata)
@@ -113,7 +113,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
       end
 
       response '422', 'Violates JSON schema' do
-        schema '$ref' => '#/components/schemas/errorWithTitleAndDetail'
+        schema '$ref' => '#/components/schemas/errorModel'
 
         let(:hlr_body) do
           request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_v2.json')))
@@ -153,7 +153,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
       parameter name: :uuid, in: :path, type: :string, description: 'Higher-Level Review UUID'
 
       response '200', 'Info about a single Higher-Level Review' do
-        schema AppealsApi::SwaggerSharedComponents.response_schemas[:hlr_response_schema]
+        schema '$ref' => '#/components/schemas/hlrShow'
 
         let(:uuid) { FactoryBot.create(:minimal_higher_level_review_v2).id }
 
@@ -273,7 +273,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
       end
 
       response '422', 'Bad receipt date' do
-        schema '$ref' => '#/components/schemas/errorWithTitleAndDetail'
+        schema '$ref' => '#/components/schemas/errorModel'
 
         let(:benefit_type) { 'compensation' }
         let(:'X-VA-SSN') { '872958715' }
@@ -457,7 +457,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
       end
 
       response '422', 'Error' do
-        schema '$ref' => '#/components/schemas/errorWithTitleAndDetail'
+        schema '$ref' => '#/components/schemas/errorModel'
 
         let(:hlr_body) do
           request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_v2.json')))

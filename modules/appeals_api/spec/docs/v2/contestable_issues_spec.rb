@@ -92,7 +92,7 @@ describe 'Contestable Issues', swagger_doc: 'modules/appeals_api/app/swagger/app
 
       response '422', 'Parameter Errors' do
         context 'benefit_type required for Higher Level Review' do
-          schema '$ref' => '#/components/schemas/errorWithTitleAndDetail'
+          schema '$ref' => '#/components/schemas/errorModel'
 
           let(:'X-VA-SSN') { '872958715' }
           let(:'X-VA-Receipt-Date') { '1900-01-01' }
@@ -120,7 +120,7 @@ describe 'Contestable Issues', swagger_doc: 'modules/appeals_api/app/swagger/app
         end
 
         context 'decision_review_type must be one of: higher_level_reviews, notice_of_disagreements, supplemental_claims' do
-          schema '$ref' => '#/components/schemas/errorWithTitleAndDetail'
+          schema '$ref' => '#/components/schemas/errorModel'
 
           let(:benefit_type) { 'compensation' }
           let(:'X-VA-SSN') { '872958715' }
@@ -149,7 +149,7 @@ describe 'Contestable Issues', swagger_doc: 'modules/appeals_api/app/swagger/app
         end
 
         context 'Bad receipt date for  HLR' do
-          schema '$ref' => '#/components/schemas/errorWithTitleAndDetail'
+          schema '$ref' => '#/components/schemas/errorModel'
 
           let(:benefit_type) { 'compensation' }
           let(:'X-VA-SSN') { '872958715' }

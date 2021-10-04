@@ -40,11 +40,13 @@ class AppealsApi::RswagConfig
           },
           schemas: [
             generic_schemas('#/components/schemas'),
-            hlr_v2_schemas('#/components/schemas'),
+            hlr_v2_create_schemas('#/components/schemas'),
+            hlr_v2_response_schemas('#/components/schemas'),
             contestable_issues_schema('#/components/schemas'),
-            nod_schemas('#/components/schemas'),
+            nod_create_schemas('#/components/schemas'),
+            nod_response_schemas('#/components/schemas'),
             legacy_appeals_schema('#/components/schemas')
-          ].reduce(&:merge)
+          ].reduce(&:merge).sort_by { |k, _| k.to_s.downcase }.to_h
         },
         paths: {},
         basePath: '/services/appeals/v2/decision_reviews',
@@ -87,7 +89,21 @@ class AppealsApi::RswagConfig
         'maxLength': 10,
         'minLength': 10
       },
-      'errorWithTitleAndDetail': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', 'default.json'))),
+      'errorModel': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', 'default.json'))),
+      'errorWithTitleAndDetail': {
+        "type": 'array',
+        "items": {
+          "type": 'object',
+          "properties": {
+            "title": {
+              "type": 'string'
+            },
+            "detail": {
+              "type": 'string'
+            }
+          }
+        }
+      },
       'documentUploadMetadata': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'document_upload_metadata.json'))),
       "X-VA-SSN": {
         "allOf": [
@@ -173,7 +189,7 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def hlr_v2_schemas(ref_root)
+  def hlr_v2_create_schemas(ref_root)
     {
       'hlrCreatePhone': {
         'type': 'object',
@@ -481,7 +497,12 @@ class AppealsApi::RswagConfig
           X-VA-Last-Name
           X-VA-Birth-Date
         ]
-      },
+      }
+    }
+  end
+
+  def hlr_v2_response_schemas(ref_root)
+    {
       "hlrShow": {
         "type": 'object',
         "properties": {
@@ -657,7 +678,7 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def nod_schemas(ref_root)
+  def nod_create_schemas(ref_root)
     {
       'nodCreateRoot': {
         'type': 'object',
@@ -738,7 +759,7 @@ class AppealsApi::RswagConfig
                   'additionalProperties': false,
                   'properties': {
                     'issue': { '$ref': "#{ref_root}/nonBlankString", 'maxLength': 180 },
-                    'decisionDate': { '$ref': "#{ref_root}/date" },
+                    'decisionDate': { '$ref': "#{ref_root}/nodCreateHeadersDate" },
                     'decisionIssueId': { 'type': 'integer' },
                     'ratingIssueReferenceId': { 'type': 'string' },
                     'ratingDecisionReferenceId': { 'type': 'string' },
@@ -795,6 +816,127 @@ class AppealsApi::RswagConfig
           X-VA-SSN
           X-VA-Birth-Date
         ]
+      }
+    }
+  end
+
+  def nod_response_schemas(ref_root)
+    {
+      "nodCreateResponse": {
+        "description": 'Successful response of a 10182 form submission',
+        "type": 'object',
+        "properties": {
+          "data": {
+            "properties": {
+              "id": {
+                "type": 'string',
+                "description": 'Unique ID of created NOD',
+                "example": '97751cb6-d06d-4179-87f6-75e3fc9d875c'
+              },
+              "type": {
+                "type": 'string',
+                "description": 'Name of record class',
+                "example": 'noticeOfDisagreement'
+              },
+              "attributes": {
+                "type": 'object',
+                "properties": {
+                  "status": {
+                    "type": 'string',
+                    "description": 'Status of NOD',
+                    "example": AppealsApi::NodStatus::STATUSES.first,
+                    "enum": AppealsApi::NodStatus::STATUSES
+                  },
+                  "createdAt": {
+                    "type": 'string',
+                    "description": 'Created timestamp of the NOD',
+                    "example": '2020-12-16T19:52:23.909Z'
+                  },
+                  "updatedAt": {
+                    "type": 'string',
+                    "description": 'Updated timestamp of the NOD',
+                    "example": '2020-12-16T19:52:23.909Z'
+                  }
+                }
+              },
+              "formData": {
+                "$ref": "#{ref_root}/nodCreateRoot"
+              }
+            }
+          },
+          "included": {
+            "type": 'array',
+            "items": {
+              "$ref": "#{ref_root}/contestableIssue"
+            }
+          }
+        }
+      },
+      "evidenceSubmissionResponse": {
+        "type": 'object',
+        "properties": {
+          "data": {
+            "properties": {
+              "id": {
+                "description": 'The document upload identifier',
+                "type": 'string',
+                "format": 'uuid',
+                "example": '6d8433c1-cd55-4c24-affd-f592287a7572'
+              },
+              "type": {
+                "description": 'JSON API type specification',
+                "type": 'string',
+                "example": 'evidenceSubmission'
+              },
+              "attributes": {
+                "properties": {
+                  "status": {
+                    "type": 'string',
+                    "example": VBADocuments::UploadSubmission::ALL_STATUSES.first,
+                    "enum": VBADocuments::UploadSubmission::ALL_STATUSES
+                  },
+                  "code": {
+                    "type": %i[string null]
+                  },
+                  "detail": {
+                    "type": %i[string null],
+                    "description": 'Human readable error detail. Only present if status = "error"'
+                  },
+                  "appealType": {
+                    "description": 'Type of associated appeal',
+                    "type": 'string',
+                    "example": 'NoticeOfDisagreement'
+                  },
+                  "appealId": {
+                    "description": 'GUID of associated appeal',
+                    "type": 'uuid',
+                    "example": '2926ad2a-9372-48cf-8ec1-69e08e4799ef'
+                  },
+                  "location": {
+                    "type": %i[string null],
+                    "description": 'Location to which to PUT document Payload',
+                    "format": 'uri',
+                    "example": 'https://sandbox-api.va.gov/example_path_here/{idpath}'
+                  },
+                  "updatedAt": {
+                    "description": 'The last time the submission was updated',
+                    "type": 'string',
+                    "format": 'date-time',
+                    "example": '2018-07-30T17:31:15.958Z'
+                  },
+                  "createdAt": {
+                    "description": 'The last time the submission was updated',
+                    "type": 'string',
+                    "format": 'date-time',
+                    "example": '2018-07-30T17:31:15.958Z'
+                  }
+                }
+              }
+            },
+            "required": %w[id type attributes]
+          }
+        },
+        "required": ['data']
       }
     }
   end

@@ -82,7 +82,7 @@ describe 'Legacy Appeals', swagger_doc: 'modules/appeals_api/app/swagger/appeals
           let(:'X-VA-SSN') { nil }
           let(:'X-VA-FILE-NUMBER') { nil }
 
-          schema '$ref' => '#/components/schemas/errorWithTitleAndDetail'
+          schema '$ref' => '#/components/schemas/errorModel'
 
           before do |example|
             submit_request(example.metadata)
@@ -108,7 +108,7 @@ describe 'Legacy Appeals', swagger_doc: 'modules/appeals_api/app/swagger/appeals
         context 'when ssn formatted incorrectly' do
           let(:'X-VA-SSN') { '12n-~89' }
 
-          schema '$ref' => '#/components/schemas/errorWithTitleAndDetail'
+          schema '$ref' => '#/components/schemas/errorModel'
 
           before do |example|
             submit_request(example.metadata)

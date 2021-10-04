@@ -59,7 +59,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
           JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_10182_minimum.json')))
         end
 
-        schema AppealsApi::SwaggerSharedComponents.response_schemas[:nod_response_schema]
+        schema '$ref' => '#/components/schemas/nodCreateResponse'
 
         before do |example|
           submit_request(example.metadata)
@@ -88,7 +88,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
           JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_10182.json')))
         end
 
-        schema AppealsApi::SwaggerSharedComponents.response_schemas[:nod_response_schema]
+        schema '$ref' => '#/components/schemas/nodCreateResponse'
 
         before do |example|
           submit_request(example.metadata)
@@ -113,7 +113,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
       end
 
       response '422', 'Violates JSON schema' do
-        schema '$ref' => '#/components/schemas/errorWithTitleAndDetail'
+        schema '$ref' => '#/components/schemas/errorModel'
 
         let(:nod_body) do
           request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_10182.json')))
@@ -154,7 +154,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
       parameter name: :uuid, in: :path, type: :string, description: 'Notice of Disagreement UUID'
 
       response '200', 'Info about a single Notice of Disagreement' do
-        schema AppealsApi::SwaggerSharedComponents.response_schemas[:nod_response_schema]
+        schema '$ref' => '#/components/schemas/nodCreateResponse'
 
         let(:uuid) { FactoryBot.create(:minimal_notice_of_disagreement).id }
 
@@ -328,7 +328,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
       end
 
       response '422', 'Error' do
-        schema '$ref' => '#/components/schemas/errorWithTitleAndDetail'
+        schema '$ref' => '#/components/schemas/errorModel'
 
         let(:nod_body) do
           request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_10182_minimum.json')))
@@ -411,7 +411,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
       response '202', 'Accepted. Location generated' do
         let(:nod_uuid) { FactoryBot.create(:minimal_notice_of_disagreement, board_review_option: 'evidence_submission').id }
 
-        schema AppealsApi::SwaggerSharedComponents.response_schemas[:evidence_submission_response_schema]
+        schema '$ref' => '#/components/schemas/evidenceSubmissionResponse'
 
         before do |example|
           with_settings(Settings.modules_appeals_api.evidence_submissions.location,
@@ -671,7 +671,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
       parameter name: :uuid, in: :path, type: :string, description: 'Notice of Disagreement UUID Evidence Submission'
 
       response '200', 'Info about a single Notice of Disagreement Evidence Submission.' do
-        schema AppealsApi::SwaggerSharedComponents.response_schemas[:evidence_submission_response_schema]
+        schema '$ref' => '#/components/schemas/evidenceSubmissionResponse'
 
         let(:uuid) { FactoryBot.create(:evidence_submission).guid }
 
