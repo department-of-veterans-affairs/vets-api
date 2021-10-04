@@ -17,17 +17,20 @@ describe 'Legacy Appeals', swagger_doc: 'modules/appeals_api/app/swagger/appeals
       security [{ apikey: [] }]
       consumes 'application/json'
       produces 'application/json'
-      description = 'Returns eligible Legacy Appeals for a Veteran. A Legacy Appeal is eligible if an SOC/SSOC ' \
-      'has been declared, and if the date of declaration is within the last 60 days. ' \
-      'SOC (Statement of Case) / SSOC (Supplemental Statement of Case)'
+      description = 'Returns eligible legacy appeals for a Veteran. A legacy appeal is eligible if a statement of ' \
+      'the case (SOC)  or supplemental statement of the case (SSOC) has been declared, and if the date of ' \
+      'declaration is within the last 60 days.'
       description description
 
-      ssn_override = { required: false, description: 'Either X-VA-SSN or X-VA-File-Number is required' }
+      ssn_override = { required: false,
+                       description: 'Either X-VA-SSN or X-VA-File-Number is required. Example X-VA-SSN: 123456789' }
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_ssn_header].merge(ssn_override)
-      file_num_override = { description: 'Either X-VA-SSN or X-VA-File-Number is required' }
+      file_num_override = {
+        description: 'Either X-VA-SSN or X-VA-File-Number is required. Example X-VA-File-Number: 123456789'
+      }
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header].merge(file_num_override)
 
-      response '200', 'Returns eligible legacy appeals for a veteran' do
+      response '200', 'Returns eligible legacy appeals for a Veteran' do
         let(:'X-VA-SSN') { '123456789' }
 
         schema '$ref' => '#/components/schemas/legacyAppeals'
