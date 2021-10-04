@@ -24,10 +24,13 @@ module V2
       end
 
       def create_check_in
-        return response.build(response: client_error).handle unless valid?
-
         token = session.retrieve
-        resp = request.post(path: "/#{base_path}/actions/check-in/#{uuid}", access_token: token, params: check_in_body)
+        resp =
+          if token.present?
+            request.post(path: "/#{base_path}/actions/check-in/#{uuid}", access_token: token, params: check_in_body)
+          else
+            Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
+          end
 
         response.build(response: resp).handle
       end
