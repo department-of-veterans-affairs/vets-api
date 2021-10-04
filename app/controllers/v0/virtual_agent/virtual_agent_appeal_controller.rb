@@ -16,14 +16,18 @@ module V0
       end
 
       def data_for_first_comp_appeal(appeals)
-        comp_appeal = first_open_comp_appeal(appeals)
+        open_comp_appeals = first_five_open_comp_appeals(appeals)
 
-        return [] if comp_appeal.nil?
+        return [] if open_comp_appeals.nil?
 
-        [transform_appeal_to_response(comp_appeal)]
+        transform_appeals_to_response(open_comp_appeals)
       end
 
-      def transform_appeal_to_response(appeal)
+      def transform_appeals_to_response(appeals)
+        appeals.map { |appeal| transform_single_appeal_to_response(appeal) }
+      end
+
+      def transform_single_appeal_to_response(appeal)
         aoj = appeal['attributes']['aoj']
         {
           appeal_type: appeal['attributes']['programArea'].capitalize,
@@ -35,11 +39,12 @@ module V0
         }
       end
 
-      def first_open_comp_appeal(appeals)
+      def first_five_open_comp_appeals(appeals)
         appeals
-          .sort_by { |appeal| get_submission_date appeal }
+          .sort_by { |appeal| get_last_updated_date appeal }
           .reverse
-          .find { |appeal| open_compensation? appeal }
+          .select { |appeal| open_compensation? appeal }
+          .take(5)
       end
 
       def get_appeal_or_review(appeal)

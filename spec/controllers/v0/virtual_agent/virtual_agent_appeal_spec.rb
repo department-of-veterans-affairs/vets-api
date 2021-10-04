@@ -181,6 +181,83 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
                                          })
         end
       end
+
+      describe 'returns multiple appeals as an array' do
+        it 'only returns active comp appeals ' do
+          sign_in_as(user)
+          # run job
+          VCR.use_cassette('caseflow/virtual_agent_appeals/three_appeals_two_open_comp') do
+            get '/v0/virtual_agent/appeal'
+            res_body = JSON.parse(response.body)['data']
+            expect(response).to have_http_status(:ok)
+            expect(res_body).to be_kind_of(Array)
+            expect(res_body.length).to equal(2)
+            expect(res_body).to eq([{
+                                     'appeal_type' => 'Compensation',
+                                     'filing_date' => '09/30/2021',
+                                     'appeal_status' => 'Your appeal is waiting to be sent to a judge',
+                                     'updated_date' => '09/30/2021',
+                                     'description' => ' ',
+                                     'appeal_or_review' => 'appeal'
+                                   }, {
+                                     'appeal_type' => 'Compensation',
+                                     'filing_date' => '01/06/2003',
+                                     'appeal_status' => 'The Board made a decision on your appeal',
+                                     'updated_date' => '09/15/2021',
+                                     'description' => ' ',
+                                     'appeal_or_review' => 'appeal'
+                                   }])
+          end
+        end
+
+        it 'only returns five active comp appeals when more than five are found' do
+          sign_in_as(user)
+          # run job
+          VCR.use_cassette('caseflow/virtual_agent_appeals/six_open_comp_appeals_five_returned') do
+            get '/v0/virtual_agent/appeal'
+            res_body = JSON.parse(response.body)['data']
+            expect(response).to have_http_status(:ok)
+            expect(res_body).to be_kind_of(Array)
+            expect(res_body.length).to equal(5)
+            expect(res_body).to eq([{
+                                     'appeal_type' => 'Compensation',
+                                     'filing_date' => '02/06/2003',
+                                     'appeal_status' => 'Your appeal was closed',
+                                     'updated_date' => '10/01/2021',
+                                     'description' => ' ',
+                                     'appeal_or_review' => 'appeal'
+                                   }, {
+                                     'appeal_type' => 'Compensation',
+                                     'filing_date' => '09/30/2021',
+                                     'appeal_status' => 'Your appeal is waiting to be sent to a judge',
+                                     'updated_date' => '09/30/2021',
+                                     'description' => ' ',
+                                     'appeal_or_review' => 'appeal'
+                                   }, {
+                                     'appeal_type' => 'Compensation',
+                                     'filing_date' => '09/29/2021',
+                                     'appeal_status' => 'Your appeal is waiting to be sent to a judge',
+                                     'updated_date' => '09/29/2021',
+                                     'description' => ' ',
+                                     'appeal_or_review' => 'appeal'
+                                   }, {
+                                     'appeal_type' => 'Compensation',
+                                     'filing_date' => '01/06/2003',
+                                     'appeal_status' => 'The Board made a decision on your appeal',
+                                     'updated_date' => '09/16/2021',
+                                     'description' => ' ',
+                                     'appeal_or_review' => 'appeal'
+                                   }, {
+                                     'appeal_type' => 'Compensation',
+                                     'filing_date' => '03/06/2021',
+                                     'appeal_status' => 'The Board made a decision on your appeal',
+                                     'updated_date' => '09/15/2021',
+                                     'description' => ' ',
+                                     'appeal_or_review' => 'appeal'
+                                   }])
+          end
+        end
+      end
     end
   end
 end
