@@ -9,7 +9,7 @@ class Shrine
         def validate_virus_free(message: nil)
           cached_path = get.download.path
           result = Common::VirusScan.scan(cached_path)
-          # TODO: Log a the full result to sentry
+          Rails.logger.info('ValidateVirusFree Common::VirusScan result', result)
           result.safe? || add_error_msg(message || result.body)
         end
 
