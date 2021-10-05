@@ -9,9 +9,5 @@ module Mobile
     def welcome
       render json: { data: { attributes: { message: 'Welcome to the mobile API' } } }
     end
-
-    def index
-      render json: Mobile::V0::DiscoverySerializer.new(Mobile::V0::Discovery.new(params))
-    end
   end
 end
