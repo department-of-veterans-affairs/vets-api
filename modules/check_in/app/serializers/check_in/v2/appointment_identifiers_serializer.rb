@@ -5,15 +5,15 @@ module CheckIn
     class AppointmentIdentifiersSerializer
       include FastJsonapi::ObjectSerializer
 
-      set_id(&:uuid)
+      set_id(&:id)
       set_type :appointment_identifier
 
       attribute :patientDFN do |object|
-        object.payload.dig(:'read.full', :appointments).first[:patientDFN]
+        object.payload.dig(:appointments).first[:patientDFN]
       end
 
       attribute :stationNo do |object|
-        object.payload.dig(:'read.full', :appointments).first[:stationNo]
+        object.payload.dig(:appointments).first[:stationNo]
       end
     end
   end

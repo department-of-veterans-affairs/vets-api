@@ -27,7 +27,8 @@ RSpec.describe 'V2::SessionsController', type: :request do
       it 'returns an error response' do
         get "/check_in/v2/sessions/#{invalid_uuid}"
 
-        expect(response.status).to eq(400)
+        # Even though this is unauthorized, we want to return a 200 back.
+        expect(response.status).to eq(200)
         expect(JSON.parse(response.body)).to eq(resp)
       end
     end
@@ -45,7 +46,8 @@ RSpec.describe 'V2::SessionsController', type: :request do
       it 'returns read.none permissions' do
         get check_in.v2_session_path(uuid)
 
-        expect(response.status).to eq(401)
+        # Even though this is unauthorized, we want to return a 200 back.
+        expect(response.status).to eq(200)
         expect(JSON.parse(response.body)).to eq(resp)
       end
     end

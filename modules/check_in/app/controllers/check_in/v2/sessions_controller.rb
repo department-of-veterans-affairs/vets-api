@@ -6,11 +6,8 @@ module CheckIn
       def show
         check_in_session = CheckIn::V2::Session.build(data: { uuid: params[:id] }, jwt: session[:jwt])
 
-        render json: check_in_session.client_error, status: :bad_request and return unless check_in_session.valid_uuid?
-
-        unless check_in_session.authorized?
-          render json: check_in_session.unauthorized_message, status: :unauthorized and return
-        end
+        render json: check_in_session.client_error, status: :ok and return unless check_in_session.valid_uuid?
+        render json: check_in_session.unauthorized_message, status: :ok and return unless check_in_session.authorized?
 
         render json: check_in_session.success_message
       end

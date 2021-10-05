@@ -7,52 +7,43 @@ RSpec.describe CheckIn::V2::AppointmentIdentifiersSerializer do
 
   let(:appointment_data) do
     {
-      uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
-      options: {
-        validStart: 'validStartDateTime',
-        validEnd: 'validEndDateTime',
-        additionalValidation: {
-          lastName: 'veteranLastName',
-          SSN4: 'veteranLastFour'
-        }
-      },
+      id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+      scope: 'read.full',
       payload: {
-        'read.full': {
-          appointments: [
-            {
-              appointmentIEN: '123',
-              patientDFN: '888',
-              stationNo: '5625',
-              zipCode: 'appointment.zipCode',
-              clinicName: 'appointment.clinicName',
-              startTime: 'formattedStartTime',
-              clinicPhoneNumber: 'appointment.clinicPhoneNumber',
-              clinicFriendlyName: 'appointment.patientFriendlyName',
-              facility: 'appointment.facility',
-              facilityId: 'some-id',
-              appointmentCheckInStart: 'time checkin starts',
-              appointmentCheckInEnds: 'time checkin Ends',
-              status: 'the status',
-              timeCheckedIn: 'time the user checked already'
-            },
-            {
-              appointmentIEN: '456',
-              patientDFN: '888',
-              stationNo: '5625',
-              zipCode: 'appointment.zipCode',
-              clinicName: 'appointment.clinicName',
-              startTime: 'formattedStartTime',
-              clinicPhoneNumber: 'appointment.clinicPhoneNumber',
-              clinicFriendlyName: 'appointment.patientFriendlyName',
-              facility: 'appointment.facility',
-              facilityId: 'some-id',
-              appointmentCheckInStart: 'time checkin starts',
-              appointmentCheckInEnds: 'time checkin Ends',
-              status: 'the status',
-              timeCheckedIn: 'time the user checked already'
-            }
-          ]
-        }
+        appointments: [
+          {
+            appointmentIEN: '1',
+            patientDFN: '888',
+            stationNo: '5625',
+            zipCode: 'appointment.zipCode',
+            clinicName: 'appointment.clinicName',
+            startTime: '2021-08-19T10:00:00',
+            clinicPhoneNumber: 'appointment.clinicPhoneNumber',
+            clinicFriendlyName: 'appointment.patientFriendlyName',
+            facility: 'appointment.facility',
+            facilityId: 'some-id',
+            appointmentCheckInStart: '2021-08-19T09:030:00',
+            appointmentCheckInEnds: 'time checkin Ends',
+            status: 'the status',
+            timeCheckedIn: 'time the user checked already'
+          },
+          {
+            appointmentIEN: '2',
+            patientDFN: '888',
+            stationNo: '5625',
+            zipCode: 'appointment.zipCode',
+            clinicName: 'appointment.clinicName',
+            startTime: '2021-08-19T15:00:00',
+            clinicPhoneNumber: 'appointment.clinicPhoneNumber',
+            clinicFriendlyName: 'appointment.patientFriendlyName',
+            facility: 'appointment.facility',
+            facilityId: 'some-id',
+            appointmentCheckInStart: '2021-08-19T14:30:00',
+            appointmentCheckInEnds: 'time checkin Ends',
+            status: 'the status',
+            timeCheckedIn: 'time the user checked already'
+          }
+        ]
       }
     }
   end
