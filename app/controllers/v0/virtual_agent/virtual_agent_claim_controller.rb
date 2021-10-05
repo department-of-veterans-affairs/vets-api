@@ -12,7 +12,7 @@ module V0
       def index
         claims, synchronized = service.all
 
-        data = synchronized == 'REQUESTED' ? nil : data_for_first_comp_claim(claims)
+        data = synchronized == 'REQUESTED' ? nil : data_for_five_most_recent_open_comp_claims(claims)
 
         render json: {
           data: data,
@@ -22,31 +22,38 @@ module V0
 
       private
 
-      def data_for_first_comp_claim(claims)
-        comp_claim = first_open_comp_claim claims
+      def data_for_five_most_recent_open_comp_claims(claims)
+        comp_claims = five_most_recent_open_comp_claims claims
 
-        return [] if comp_claim.nil?
+        return [] if comp_claims.nil?
 
-        [transform_claim_to_response(comp_claim)]
+        transform_claims_to_response(comp_claims)
       end
 
-      def transform_claim_to_response(claim)
+      def transform_claims_to_response(claims)
+        claims.map { |claim| transform_single_claim_to_response(claim) }
+      end
+
+      def transform_single_claim_to_response(claim)
         status_type = claim.list_data['status_type']
         claim_status = claim.list_data['status']
         filing_date = claim.list_data['date']
         evss_id = claim.list_data['id']
+        updated_date = get_updated_date(claim)
 
         { claim_status: claim_status,
           claim_type: status_type,
           filing_date: filing_date,
-          evss_id: evss_id }
+          evss_id: evss_id,
+          updated_date: updated_date }
       end
 
-      def first_open_comp_claim(claims)
+      def five_most_recent_open_comp_claims(claims)
         claims
           .sort_by { |claim| parse_claim_date claim }
           .reverse
-          .find { |claim| open_compensation? claim }
+          .select { |claim| open_compensation? claim }
+          .take(5)
       end
 
       def service
@@ -54,7 +61,11 @@ module V0
       end
 
       def parse_claim_date(claim)
-        Date.strptime claim.list_data['date'], '%m/%d/%Y'
+        Date.strptime get_updated_date(claim), '%m/%d/%Y'
+      end
+
+      def get_updated_date(claim)
+        claim.list_data['claim_phase_dates']['phase_change_date']
       end
 
       def open_compensation?(claim)
