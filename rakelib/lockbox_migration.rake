@@ -4,7 +4,7 @@ namespace :lockbox do
   desc 're-encrypt existing db attributes after key rotation'
   task migrate_db: :environment do
     models = ApplicationRecord.descendants.select do |model|
-      model.descendants.empty? && !model.lockbox_attributes.empty?
+      model.descendants.empty? && model.try(:lockbox_attributes) && !model.lockbox_attributes.empty?
     end
 
     models.map(&:name).each do |m|
