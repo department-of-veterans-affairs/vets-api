@@ -2,7 +2,6 @@
 
 require 'sidekiq'
 require 'appeals_api/upload_error'
-require 'appeals_api/sidekiq_retry_notifier'
 require 'central_mail/utilities'
 require 'central_mail/service'
 require 'pdf_info'
@@ -37,7 +36,7 @@ module AppealsApi
     end
 
     def notify(retry_params)
-      SidekiqRetryNotifier.notify!(retry_params)
+      AppealsApi::Slack::Messager.new(retry_params, notification_type: :error_retry).notify!
     end
 
     private

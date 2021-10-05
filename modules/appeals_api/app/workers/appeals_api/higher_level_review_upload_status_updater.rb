@@ -2,7 +2,6 @@
 
 require 'sidekiq'
 require 'sidekiq/monitored_worker'
-require 'appeals_api/sidekiq_retry_notifier'
 
 module AppealsApi
   class HigherLevelReviewUploadStatusUpdater
@@ -28,7 +27,7 @@ module AppealsApi
     end
 
     def notify(retry_params)
-      SidekiqRetryNotifier.notify!(retry_params)
+      AppealsApi::Slack::Messager.new(retry_params, notification_type: :error_retry).notify!
     end
   end
 end

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'appeals_api/sidekiq_retry_notifier'
-
 shared_examples 'a monitored worker' do |_options|
   it 'defines #notify' do
     expect(described_class.new.respond_to?(:notify)).to eq(true)
@@ -21,8 +19,10 @@ shared_examples 'a monitored worker' do |_options|
   end
 
   it 'calls SidekiqRetryNotifer' do
-    allow(AppealsApi::SidekiqRetryNotifier).to receive(:notify!)
+    messager_instance = instance_double('AppealsApi::Slack::Messager')
+    allow(AppealsApi::Slack::Messager).to receive(:new).and_return(messager_instance)
+    allow(messager_instance).to receive(:notify!)
     described_class.new.notify({})
-    expect(AppealsApi::SidekiqRetryNotifier).to have_received(:notify!)
+    expect(messager_instance).to have_received(:notify!)
   end
 end

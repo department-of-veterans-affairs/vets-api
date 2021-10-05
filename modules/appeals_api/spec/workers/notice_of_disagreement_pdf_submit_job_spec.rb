@@ -73,7 +73,9 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
 
     it 'puts the NOD into an error state' do
       expect(client_stub).to receive(:upload) { |_arg| faraday_response }
-      allow(AppealsApi::SidekiqRetryNotifier).to receive(:notify!).and_return(true)
+      messager_instance = instance_double(AppealsApi::Slack::Messager)
+      allow(AppealsApi::Slack::Messager).to receive(:new).and_return(messager_instance)
+      allow(messager_instance).to receive(:notify!).and_return(true)
       described_class.new.perform(notice_of_disagreement.id)
       expect(notice_of_disagreement.reload.status).to eq('error')
       expect(notice_of_disagreement.code).to eq('DOC201')
@@ -81,10 +83,12 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
 
     it 'sends a retry notification' do
       expect(client_stub).to receive(:upload) { |_arg| faraday_response }
-      allow(AppealsApi::SidekiqRetryNotifier).to receive(:notify!).and_return(true)
+      messager_instance = instance_double(AppealsApi::Slack::Messager)
+      allow(AppealsApi::Slack::Messager).to receive(:new).and_return(messager_instance)
+      allow(messager_instance).to receive(:notify!).and_return(true)
       described_class.new.perform(notice_of_disagreement.id)
 
-      expect(AppealsApi::SidekiqRetryNotifier).to have_received(:notify!)
+      expect(messager_instance).to have_received(:notify!)
     end
   end
 
