@@ -22,10 +22,17 @@ module V2
       end
 
       def fetch
-        resp = request.post("/#{base_path}/token", {})
+        resp = request.post("/#{base_path}/token", auth_params)
 
         self.access_token = Oj.load(resp.body)&.fetch('token')
         self
+      end
+
+      def auth_params
+        {
+          SSN4: check_in.last4,
+          lastName: check_in.last_name
+        }
       end
     end
   end
