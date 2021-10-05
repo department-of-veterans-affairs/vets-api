@@ -142,6 +142,7 @@ RSpec.describe 'user', type: :request do
             appointments
             claims
             directDepositBenefits
+            disabilityRating
             lettersAndDocuments
             militaryServiceHistory
             userProfileUpdate
@@ -156,6 +157,7 @@ RSpec.describe 'user', type: :request do
             appointments
             claims
             directDepositBenefits
+            disabilityRating
             lettersAndDocuments
             militaryServiceHistory
             userProfileUpdate
@@ -227,6 +229,7 @@ RSpec.describe 'user', type: :request do
               appointments
               claims
               directDepositBenefits
+              disabilityRating
               lettersAndDocuments
               militaryServiceHistory
               userProfileUpdate

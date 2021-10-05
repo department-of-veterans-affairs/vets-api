@@ -43,6 +43,7 @@ module Mobile
         appointments: :vaos,
         claims: :evss,
         directDepositBenefits: %i[evss ppiu],
+        disabilityRating: :evss,
         lettersAndDocuments: :evss,
         militaryServiceHistory: :emis,
         userProfileUpdate: :vet360,

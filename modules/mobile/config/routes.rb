@@ -16,6 +16,7 @@ Mobile::Engine.routes.draw do
     get '/letters', to: 'letters#index'
     get '/letters/beneficiary', to: 'letters#beneficiary'
     post '/letters/:type/download', to: 'letters#download'
+    get '/maintenance_windows', to: 'maintenance_windows#index'
     get '/military-service-history', to: 'military_information#get_service_history'
     get '/payment-information/benefits', to: 'payment_information#index'
     put '/payment-information/benefits', to: 'payment_information#update'
