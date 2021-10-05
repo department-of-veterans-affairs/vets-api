@@ -20,7 +20,7 @@ module VBADocuments
         still_processing = run_sql(SQLSupport::PROCESSING_SQL, last_month_start)
         still_success = run_sql(SQLSupport::SUCCESS_SQL,
                                 VBADocuments::UploadSubmission::VBMS_IMPLEMENTATION_DATE, last_month_start)
-        @avg_processing_time = run_sql(SQLSupport::AVG_TIME_TO_VBMS_SQL, last_month_end)
+        @monthly_grouping = run_sql(SQLSupport::MONTHLY_GROUP_SQL, last_month_end)
         @monthly_max_avg = run_sql(SQLSupport::MAX_AVG_SQL, last_month_end)
         @monthly_mode = run_sql(SQLSupport::MODE_SQL, last_month_end)
         rolling_elapsed_times = rolling_status_times
@@ -60,8 +60,7 @@ module VBADocuments
 
     def join_monthly_results
       ret = []
-      @avg_processing_time.each_with_index do |base_row, idx|
-        base_row['avg_time'] = seconds_to_hms(base_row['avg_time_secs'])
+      @monthly_grouping.each_with_index do |base_row, idx|
         base_row.merge!(@monthly_max_avg[idx]) if @monthly_max_avg[idx]
         base_row.merge!(@monthly_mode[idx]) if @monthly_mode[idx]
         ret << base_row

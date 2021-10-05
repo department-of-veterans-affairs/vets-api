@@ -34,7 +34,7 @@ RSpec.describe VBADocuments::ReportMonthlySubmissions, type: :job do
           rval = get_fixture_yml(monthly_counts) if sql.eql? VBADocuments::SQLSupport::MONTHLY_COUNT_SQL
           rval = get_fixture_yml(still_processing) if sql.eql? VBADocuments::SQLSupport::PROCESSING_SQL
           rval = get_fixture_yml(still_success) if sql.eql? VBADocuments::SQLSupport::SUCCESS_SQL
-          rval = get_fixture_yml(avg_times) if sql.eql? VBADocuments::SQLSupport::AVG_TIME_TO_VBMS_SQL
+          rval = get_fixture_yml(avg_times) if sql.eql? VBADocuments::SQLSupport::MONTHLY_GROUP_SQL
           rval = get_fixture_yml(mode) if sql.eql? VBADocuments::SQLSupport::MODE_SQL
           rval = [{ 'median_pages' => nil, 'median_size' => nil }] if sql.eql? VBADocuments::SQLSupport::MEDIAN_SQL
           rval = get_fixture_yml(max_avg) if sql.eql? VBADocuments::SQLSupport::MAX_AVG_SQL

@@ -19,12 +19,12 @@ module VBADocuments
     # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/ParameterLists
     def build(monthly_totals, summary, still_processing, still_success,
-              avg_processing_time, rolling_elapsed_times, last_month_start, last_month_end)
+              monthly_grouping, rolling_elapsed_times, last_month_start, last_month_end)
       @monthly_totals = monthly_totals
       @summary_totals = summary
       @last_month_still_processing = still_processing
       @last_month_still_success = still_success
-      @avg_processing_time = avg_processing_time
+      @monthly_grouping = monthly_grouping
       @last_month_start = last_month_start
       @last_month_end = last_month_end
       @rolling_elapsed_times = rolling_elapsed_times

@@ -214,16 +214,13 @@ module VBADocuments
       ) as median_results
     "
 
-    AVG_TIME_TO_VBMS_SQL = "
+    MONTHLY_GROUP_SQL = "
       select
       date_part('year', a.created_at)::integer as yyyy,
       date_part('month', a.created_at)::integer as mm,
-      count(*) as count,
-    	avg(date_part('epoch', a.updated_at)::bigint -
-        date_part('epoch', a.created_at)::bigint)::integer as avg_time_secs
+      count(*) as count
       from vba_documents_upload_submissions a
-      where a.status = 'vbms'
-      and   a.created_at < $1
+      where a.created_at < $1
       group by 1,2
       order by 1 desc, 2 desc
       limit 12

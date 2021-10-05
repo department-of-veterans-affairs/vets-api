@@ -51,22 +51,20 @@
 <h5>* Processing statuses include: pending, uploaded, received, and processing</h5>
 <br>
 <br>
-<h2>Prior Twelve Months - Average Time to VBMS (Hours:Minutes:Seconds), Page Counts, and Upload Sizes in MB</h2>
+<h2>Prior Twelve Months - Page Counts and Upload Sizes in MB</h2>
 <table>
   <thead>
   <tr>
-    <th style="width: 8%"></th>
-    <th style="width: 8%"></th>
-    <th style="width: 8%"></th>
-    <th style="width: 8%">AVG TIME</th>
-    <th  style="width: 34%" colspan="4">PAGE COUNTS</th>
-    <th  style="width: 34%" colspan="4">UPLOAD SIZE (MB)</th>
+    <th style="width: 10%"></th>
+    <th style="width: 10%"></th>
+    <th style="width: 10%"></th>
+    <th  style="width: 35%" colspan="4">PAGE COUNTS</th>
+    <th  style="width: 35%" colspan="4">UPLOAD SIZE (MB)</th>
   </tr>
   <tr>
     <th>YEAR</th>
     <th>MONTH</th>
     <th>COUNT</th>
-    <th>TO VBMS</th>
     <th>MAX</th>
     <th>AVG</th>
     <th>MEDIAN</th>
@@ -78,12 +76,11 @@
   </tr>
   </thead>
   <tbody>
-  <% @avg_processing_time.each do |row| %>
+  <% @monthly_grouping.each do |row| %>
     <tr>
       <td><%= row['yyyy'] %></td>
       <td><%= Date::MONTHNAMES[row['mm']] %></td>
       <td style="text-align: right"><%= row['count'].to_s %></td>
-      <td style="text-align: right"><%= row['avg_time'].to_s %></td>
       <td style="text-align: right"><%= row['max_pages'].to_s %></td>
       <td style="text-align: right"><%= row['avg_pages'].to_s %></td>
       <td style="text-align: right"><%= row['median_pages'].to_s %></td>
@@ -93,7 +90,7 @@
       <td style="text-align: right"><%= row['median_size'].to_s %></td>
       <td style="text-align: right"><%= row['mode_size'].to_s %></td>
     </tr>
-  <% end if @avg_processing_time %>
+  <% end if @monthly_grouping %>
   </tbody>
 </table>
 <br>
