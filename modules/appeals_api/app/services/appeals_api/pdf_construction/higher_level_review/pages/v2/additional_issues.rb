@@ -57,10 +57,15 @@ module AppealsApi
             end
 
             def extra_issues_table_data
-              header = ['A. Specific Issue(s)', 'B. Date of Decision', 'C. SOC/SSOC Date']
+              header = ['A. Specific Issue(s)', 'B. Area of Disagreement', 'C. Date of Decision', 'D. SOC/SSOC Date']
 
               data = form_data.contestable_issues.drop(max_issues_on_form).map do |issue|
-                [issue.text, issue.decision_date, issue.soc_date_formatted]
+                [
+                  issue.text,
+                  issue.disagreement_area,
+                  issue.decision_date,
+                  issue.soc_date_formatted
+                ]
               end
 
               data.unshift(header)

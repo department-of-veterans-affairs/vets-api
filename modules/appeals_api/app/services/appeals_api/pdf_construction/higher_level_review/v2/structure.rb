@@ -204,18 +204,36 @@ module AppealsApi
 
         def fill_contestable_issues_text(pdf)
           issues = form_data.contestable_issues.take(MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM)
+
+          fill_issues_first_page(issues, pdf)
+          pdf.start_new_page # Always start a new page even if there are no issues so other text can insert properly
+          fill_issues_second_page(issues, pdf)
+        end
+
+        def fill_issues_first_page(issues, pdf)
           issues.first(NUMBER_OF_ISSUES_FIRST_PAGE).each_with_index do |issue, i|
             if issue.text_exists?
               pdf.text_box issue.text, default_text_opts.merge(form_fields.boxes[:issues_pg1][i])
               pdf.text_box form_data.soc_date_text(issue), default_text_opts.merge(form_fields.boxes[:soc_date_pg1][i])
             end
-          end
-          pdf.start_new_page # Always start a new page even if there are no issues so other text can insert properly
 
+            if issue.disagreement_area
+              pdf.text_box "Area of Disagreement: #{issue.disagreement_area}",
+                           default_text_opts.merge(form_fields.boxes[:disagreement_area_pg1][i])
+            end
+          end
+        end
+
+        def fill_issues_second_page(issues, pdf)
           issues.drop(NUMBER_OF_ISSUES_FIRST_PAGE).each_with_index do |issue, i|
             if issue.text_exists?
               pdf.text_box issue.text, default_text_opts.merge(form_fields.boxes[:issues_pg2][i])
               pdf.text_box form_data.soc_date_text(issue), default_text_opts.merge(form_fields.boxes[:soc_date_pg2][i])
+            end
+
+            if issue.disagreement_area
+              pdf.text_box "Area of Disagreement: #{issue.disagreement_area}",
+                           default_text_opts.merge(form_fields.boxes[:disagreement_area_pg2][i])
             end
           end
         end

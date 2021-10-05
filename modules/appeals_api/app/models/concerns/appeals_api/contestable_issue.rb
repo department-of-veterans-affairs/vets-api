@@ -45,6 +45,10 @@ class AppealsApi::ContestableIssue
     text.present?
   end
 
+  def disagreement_area
+    issue.dig('attributes', 'disagreementArea')
+  end
+
   delegate :[], to: :issue
 
   private

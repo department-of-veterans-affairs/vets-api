@@ -49,7 +49,8 @@
           "decisionIssueId": 1,
           "ratingIssueReferenceId": "2",
           "ratingDecisionReferenceId": "3",
-          "socDate": "2020-04-30"
+          "socDate": "2020-04-30",
+          "disagreementArea": "Rating"
         }
       },
       {
@@ -135,7 +136,8 @@
         "type": "contestableIssue",
         "attributes": {
           "issue": "fever",
-          "decisionDate": "1900-01-13"
+          "decisionDate": "1900-01-13",
+          "disagreementArea": "Service connection"
         }
       },
       {
@@ -150,7 +152,8 @@
         "type": "contestableIssue",
         "attributes": {
           "issue": "cooties",
-          "decisionDate": "1900-01-15"
+          "decisionDate": "1900-01-15",
+          "disagreementArea": "Service connection"
         }
       }
     ]

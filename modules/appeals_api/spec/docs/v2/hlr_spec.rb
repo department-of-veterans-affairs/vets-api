@@ -12,8 +12,8 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
 
   path '/higher_level_reviews' do
     post 'Creates a new Higher-Level Review' do
-      description 'Submits an appeal of type Notice of Disagreement. ' \
-      'This endpoint is the same as submitting [VA Form 10182](https://www.va.gov/vaforms/va/pdf/VA10182.pdf)' \
+      description 'Submits an appeal of type Higher Level Review. ' \
+      'This endpoint is the same as submitting [VA Form 20-0996](https://www.va.gov/decision-reviews/higher-level-review/request-higher-level-review-form-20-0996)' \
       ' via mail or fax directly to the Board of Veterans’ Appeals.'
 
       tags 'Higher-Level Reviews'
@@ -31,7 +31,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
           value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_minimum_v2.json')))
         },
         'all fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_v2.json')))
+          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_v2_extra.json')))
         }
       }
 
