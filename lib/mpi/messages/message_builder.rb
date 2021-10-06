@@ -84,7 +84,7 @@ module MPI
         Settings.mvi.processing_code
       end
     end
-    class MessageBuilderError < StandardError
-    end
+
+    class MessageBuilderError < StandardError; end
   end
 end

@@ -18,17 +18,6 @@ Layout/EmptyLineAfterGuardClause:
   Exclude:
     - 'lib/common/models/collection.rb'
 
-# Offense count: 9
-# Cop supports --auto-correct.
-# Configuration parameters: EmptyLineBetweenMethodDefs, EmptyLineBetweenClassDefs, EmptyLineBetweenModuleDefs, AllowAdjacentOneLineDefs, NumberOfEmptyLines.
-Layout/EmptyLineBetweenDefs:
-  Exclude:
-    - 'lib/common/client/errors.rb'
-    - 'lib/mpi/errors/errors.rb'
-    - 'lib/mpi/messages/message_builder.rb'
-    - 'lib/va_profile/contact_information/transaction_response.rb'
-    - 'lib/vre/errors/ch31_errors.rb'
-
 # Offense count: 5
 # Cop supports --auto-correct.
 # Configuration parameters: AllowAliasSyntax, AllowedMethods.
