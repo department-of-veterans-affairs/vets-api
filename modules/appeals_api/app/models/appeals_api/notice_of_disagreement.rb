@@ -26,9 +26,12 @@ module AppealsApi
       nil
     end
 
+    attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
+
     serialize :auth_headers, JsonMarshal::Marshaller
     serialize :form_data, JsonMarshal::Marshaller
-    encrypts :auth_headers, :form_data, **lockbox_options
+    encrypts :auth_headers, :form_data, migrating: true, **lockbox_options
 
     validate :validate_hearing_type_selection, if: :pii_present?
 

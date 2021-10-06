@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'attr_encrypted'
 class EducationBenefitsClaim < ApplicationRecord
   FORM_TYPES = %w[1990 1995 1990e 5490 5495 1990n 0993 0994 10203 1990s].freeze
 

@@ -121,7 +121,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           .and_return(mvi_profile_response)
         subject.register(submission)
         expect(submission.reload.vetext_sid).to match(sid)
-        expect(submission.reload.eligibility_info_ciphertext).not_to be_nil
+        expect(submission.reload.encrypted_eligibility_info).not_to be_nil
       end
 
       it 'adds ICN to non Nil encrypted enrollment data' do
@@ -132,7 +132,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           .and_return(mvi_profile_response)
         subject.register(submission_eligibility_info)
         expect(submission_eligibility_info.reload.vetext_sid).to match(sid)
-        expect(submission_eligibility_info.reload.eligibility_info_ciphertext).not_to be_nil
+        expect(submission_eligibility_info.reload.encrypted_eligibility_info).not_to be_nil
       end
 
       it 'allows a spouse to register' do

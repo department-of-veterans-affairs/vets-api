@@ -7,13 +7,23 @@ require 'claims_api/homelessness_situation_type_mapper'
 module ClaimsApi
   class AutoEstablishedClaim < ApplicationRecord
     include FileData
+    attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:evss_response, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:bgs_flash_responses, key: Settings.db_encryption_key,
+                                         marshal: true,
+                                         marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:bgs_special_issue_responses, key: Settings.db_encryption_key,
+                                                 marshal: true,
+                                                 marshaler: JsonMarshal::Marshaller)
+
     serialize :auth_headers, JsonMarshal::Marshaller
     serialize :bgs_flash_responses, JsonMarshal::Marshaller
     serialize :bgs_special_issue_responses, JsonMarshal::Marshaller
     serialize :form_data, JsonMarshal::Marshaller
     serialize :evss_response, JsonMarshal::Marshaller
     encrypts :auth_headers, :bgs_flash_responses, :bgs_special_issue_responses, :evss_response, :form_data,
-             **lockbox_options
+             migrating: true, **lockbox_options
 
     validate :validate_service_dates
     after_create :log_special_issues

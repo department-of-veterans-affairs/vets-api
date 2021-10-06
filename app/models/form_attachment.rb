@@ -4,7 +4,8 @@ class FormAttachment < ApplicationRecord
   include SetGuid
   include SentryLogging
 
-  encrypts :file_data, **lockbox_options
+  attr_encrypted(:file_data, key: Settings.db_encryption_key)
+  encrypts :file_data, migrating: true, **lockbox_options
 
   validates(:file_data, :guid, presence: true)
 

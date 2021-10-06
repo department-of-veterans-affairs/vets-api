@@ -48,10 +48,18 @@ module CovidVaccine
         reg.form_data&.symbolize_keys!
       end
 
+      attr_encrypted :form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller
+      attr_encrypted :raw_form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller
+      attr_encrypted :eligibility_info, key: Settings.db_encryption_key, marshal: true,
+                                        marshaler: JsonMarshal::Marshaller
+
       serialize :eligibility_info, JsonMarshal::Marshaller
       serialize :form_data, JsonMarshal::Marshaller
       serialize :raw_form_data, JsonMarshal::Marshaller
-      encrypts :eligibility_info, :form_data, :raw_form_data, **lockbox_options
+
+      encrypts :form_data, migrating: true, **lockbox_options
+      encrypts :eligibility_info, migrating: true, **lockbox_options
+      encrypts :raw_form_data, migrating: true, **lockbox_options
     end
   end
 end

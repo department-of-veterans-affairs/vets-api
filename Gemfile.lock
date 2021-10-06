@@ -189,6 +189,8 @@ GEM
       gyoku (>= 0.4.0)
       nokogiri
     ast (2.4.2)
+    attr_encrypted (3.1.0)
+      encryptor (~> 3.0.0)
     attr_extras (6.2.4)
     awesome_print (1.9.2)
     aws-eventstream (1.2.0)
@@ -975,6 +977,7 @@ DEPENDENCIES
   apivore!
   appeals_api!
   apps_api!
+  attr_encrypted (= 3.1.0)
   awesome_print (~> 1.9)
   aws-sdk-s3 (~> 1)
   aws-sdk-sns (~> 1)

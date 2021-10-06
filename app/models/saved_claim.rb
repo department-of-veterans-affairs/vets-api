@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'attr_encrypted'
 require 'pdf_fill/filler'
 
 # Base class to hold common functionality for Claim submissions.
@@ -21,7 +22,8 @@ class SavedClaim < ApplicationRecord
   validates(:form, presence: true)
   validate(:form_matches_schema)
   validate(:form_must_be_string)
-  encrypts :form, **lockbox_options
+  attr_encrypted(:form, key: Settings.db_encryption_key)
+  encrypts :form, migrating: true, **lockbox_options
 
   has_many :persistent_attachments, inverse_of: :saved_claim, dependent: :destroy
 
