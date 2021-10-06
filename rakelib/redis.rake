@@ -4,13 +4,6 @@ require 'emis/responses/response'
 require 'emis/responses/get_veteran_status_response'
 
 namespace :redis do
-  desc 'Flush RedisStore: Account'
-  task flush_account_store: :environment do
-    # Account uses ActiveRecordCacheAside so we don't have #redis_namespace
-    namespace = 'user-account-details'
-    flush_keys(namespace)
-  end
-
   desc 'Flush Vets.gov User/Sessions'
   task flush_session: %i[flush_session_store flush_users_store]
 

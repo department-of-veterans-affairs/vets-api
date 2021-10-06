@@ -655,7 +655,6 @@ ThreadSafety/InstanceVariableInClassMethod:
     - 'lib/common/client/concerns/mhv_session_based_client.rb'
     - 'lib/common/models/base.rb'
     - 'lib/common/models/collection.rb'
-    - 'lib/common/models/concerns/active_record_cache_aside.rb'
     - 'lib/common/models/redis_store.rb'
     - 'lib/oidc/key_service.rb'
     - 'lib/saml/settings_service.rb'

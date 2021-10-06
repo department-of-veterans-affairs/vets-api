@@ -9,7 +9,7 @@ module Accountable
   # Account.
   #
   def create_user_account
-    Account.cache_or_create_by! @current_user
+    Account.create_by! @current_user
   rescue => e
     log_error(e, account: 'cannot_create_unique_account_record')
   end

@@ -276,50 +276,36 @@ RSpec.describe Account, type: :model do
     end
   end
 
-  describe '.cache_or_create_by!' do
+  describe '.create_by!' do
     let(:user) { build(:user, :loa3) }
 
-    it 'first attempts to fetch the Account record from the Redis cache' do
-      expect(Account).to receive(:do_cached_with) { Account.create(idme_uuid: user.uuid) }
-
-      Account.cache_or_create_by! user
-    end
-
     it "returns the user's db Account record", :aggregate_failures do
-      record = Account.cache_or_create_by! user
+      record = Account.create_by! user
 
       expect(record).to eq Account.find_by(idme_uuid: user.idme_uuid)
       expect(record.class).to eq Account
     end
   end
 
-  describe 'cache write-through on update' do
+  describe 'update' do
     let(:user) { build(:user_with_no_secid) }
     let(:new_secid) { '9999999' }
     let(:user_delta) { build(:user, :loa3) }
     let(:mvi_profile) { build(:mvi_profile, sec_id: new_secid) }
     let(:nil_mvi_profile) { build(:mvi_profile, sec_id: nil) }
 
-    it 'writes updates to database AND cache' do
+    it 'writes updates to database' do
       stub_mpi(nil_mvi_profile)
-      original_acct = Account.cache_or_create_by! user
+      original_acct = Account.create_by! user
       stub_mpi(mvi_profile)
       updated_acct = Account.update_if_needed!(original_acct, user_delta)
       expect(updated_acct.sec_id).to eq new_secid
-
-      # Use do_cached_with to fetch cached model only
-      cached_acct = Account.do_cached_with(key: user.uuid)
-      expect(cached_acct.sec_id).to eq new_secid
     end
 
     it 'does not overwrite populated fields with nil values' do
-      original_acct = Account.cache_or_create_by! user_delta
+      original_acct = Account.create_by! user_delta
       updated_acct = Account.update_if_needed!(original_acct, user)
       expect(updated_acct.sec_id).to be_present
-
-      # Use do_cached_with to fetch cached model only
-      cached_acct = Account.do_cached_with(key: user.uuid)
-      expect(cached_acct.sec_id).to be_present
     end
   end
 end

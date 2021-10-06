@@ -49,7 +49,7 @@ class User < Common::RedisStore
   # @return [Account] an instance of the Account object
   #
   def account
-    Account.cache_or_create_by!(self)
+    @account ||= Account.create_by!(self)
   end
 
   def pciu_email
