@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec::Matchers.define :be_an_idme_saml_url do |expected_url_partial|
+RSpec::Matchers.define :be_a_saml_url do |expected_url_partial|
   match do |actual_url|
     # Use the URI library to parse the string, returning false if this fails.
     query_params = CGI.parse(URI.parse(actual_url).query)
