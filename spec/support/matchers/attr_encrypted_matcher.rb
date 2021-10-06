@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec::Matchers.define :encrypt_attr do |attribute|
-  encrypted_attribute = ('encrypted_' + attribute.to_s)
+  encrypted_attribute = (attribute.to_s + '_ciphertext')
 
   match do |model|
     model.respond_to?(attribute) &&
@@ -11,7 +11,7 @@ RSpec::Matchers.define :encrypt_attr do |attribute|
 
   failure_message do |model|
     if model.class.column_names.include?(encrypted_attribute)
-      "#{attribute} should use attr_encrypted on #{model.class}"
+      "#{attribute} should use lockbox on #{model.class}"
     else
       "#{encrypted_attribute} must be a column on #{model.class} for encryption to work"
     end
@@ -19,7 +19,7 @@ RSpec::Matchers.define :encrypt_attr do |attribute|
 
   failure_message_when_negated do |model|
     if model.class.column_names.include?(encrypted_attribute)
-      "#{attribute} should not use attr_encrypted on #{model.class}"
+      "#{attribute} should not use lockbox on #{model.class}"
     else
       "#{encrypted_attribute} shouldn't be a column on #{model.class}"
     end

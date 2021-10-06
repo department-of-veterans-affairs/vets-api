@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'attr_encrypted'
 require 'common/convert_to_pdf'
 
 # Persistent backing of a Shrine file upload, primarily used by SavedClaim
@@ -9,8 +8,7 @@ require 'common/convert_to_pdf'
 class PersistentAttachment < ApplicationRecord
   include SetGuid
 
-  attr_encrypted(:file_data, key: Settings.db_encryption_key)
-  encrypts :file_data, migrating: true, **lockbox_options
+  encrypts :file_data, **lockbox_options
   belongs_to :saved_claim, inverse_of: :persistent_attachments, optional: true
   delegate :original_filename, :size, to: :file
 

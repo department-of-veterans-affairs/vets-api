@@ -75,11 +75,11 @@ describe HealthQuest::QuestionnaireResponse do
     end
 
     it 'encrypts questionnaire_response_data' do
-      expect(subject.encrypted_questionnaire_response_data).to be_a(String)
+      expect(subject.questionnaire_response_data_ciphertext).to be_a(String)
     end
 
     it 'encrypts user_demographics_data' do
-      expect(subject.encrypted_user_demographics_data).to be_a(String)
+      expect(subject.user_demographics_data_ciphertext).to be_a(String)
     end
   end
 

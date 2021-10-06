@@ -7,9 +7,8 @@ module ClaimsApi
     extend ActiveSupport::Concern
 
     included do
-      attr_encrypted(:file_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
       serialize :file_data, JsonMarshal::Marshaller
-      encrypts :file_data, migrating: true, **lockbox_options
+      encrypts :file_data, **lockbox_options
 
       def file_name
         file_data['filename']
