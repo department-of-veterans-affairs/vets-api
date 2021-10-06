@@ -51,7 +51,7 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
     end
 
     it 'does not do the daily notification at the incorrect hour' do
-      Timecop.freeze(1_616_657_401) do
+      Timecop.freeze(Time.at(1_616_657_401).utc) do
         # Time.at(1616657401).utc.hour is not 12
         @results = @job.perform
       end
