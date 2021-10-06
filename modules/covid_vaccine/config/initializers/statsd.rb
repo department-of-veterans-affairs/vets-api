@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+StatsD.logger = Logger.new 'log/statsd.log' if Rails.env.development?
+
 vetext_endpoints = %w[put_vaccine_registry]
 
 Rails.application.reloader.to_prepare do

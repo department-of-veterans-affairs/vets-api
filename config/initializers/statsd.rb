@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+StatsD.logger = Logger.new 'log/statsd.log' if Rails.env.development?
+
 require 'caseflow/service'
 require 'central_mail/service'
 require 'emis/service'

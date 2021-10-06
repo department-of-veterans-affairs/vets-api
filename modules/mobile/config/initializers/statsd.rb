@@ -4,6 +4,8 @@
 # and set initial values for increments to 0 (does not reset values, ensures counts carry over server instances)
 # statsd_count_success automatically appends .success or .failure
 
+StatsD.logger = Logger.new 'log/statsd.log' if Rails.env.development?
+
 Rails.application.reloader.to_prepare do
   # Authentication #-------------------------------------------------------------
 
