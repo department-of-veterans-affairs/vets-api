@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_09_13_194827) do
+ActiveRecord::Schema.define(version: 2021_10_05_171821) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -308,8 +308,8 @@ ActiveRecord::Schema.define(version: 2021_09_13_194827) do
   end
 
   create_table "claims_api_supporting_documents", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "encrypted_file_data", null: false
-    t.string "encrypted_file_data_iv", null: false
+    t.string "encrypted_file_data"
+    t.string "encrypted_file_data_iv"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.uuid "auto_established_claim_id"
@@ -523,10 +523,10 @@ ActiveRecord::Schema.define(version: 2021_09_13_194827) do
     t.string "user_uuid", null: false
     t.integer "saved_claim_id", null: false
     t.integer "submitted_claim_id"
-    t.string "encrypted_auth_headers_json", null: false
-    t.string "encrypted_auth_headers_json_iv", null: false
-    t.string "encrypted_form_json", null: false
-    t.string "encrypted_form_json_iv", null: false
+    t.string "encrypted_auth_headers_json"
+    t.string "encrypted_auth_headers_json_iv"
+    t.string "encrypted_form_json"
+    t.string "encrypted_form_json_iv"
     t.boolean "workflow_complete", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -545,8 +545,8 @@ ActiveRecord::Schema.define(version: 2021_09_13_194827) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.uuid "guid", null: false
-    t.string "encrypted_file_data", null: false
-    t.string "encrypted_file_data_iv", null: false
+    t.string "encrypted_file_data"
+    t.string "encrypted_file_data_iv"
     t.string "type", null: false
     t.text "file_data_ciphertext"
     t.index ["guid", "type"], name: "index_form_attachments_on_guid_and_type", unique: true
@@ -556,8 +556,8 @@ ActiveRecord::Schema.define(version: 2021_09_13_194827) do
     t.string "edipi", null: false
     t.string "first_name", null: false
     t.string "last_name", null: false
-    t.string "encrypted_ssn", null: false
-    t.string "encrypted_ssn_iv", null: false
+    t.string "encrypted_ssn"
+    t.string "encrypted_ssn_iv"
     t.datetime "dob", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -600,8 +600,8 @@ ActiveRecord::Schema.define(version: 2021_09_13_194827) do
   create_table "in_progress_forms", id: :serial, force: :cascade do |t|
     t.string "user_uuid", null: false
     t.string "form_id", null: false
-    t.string "encrypted_form_data", null: false
-    t.string "encrypted_form_data_iv", null: false
+    t.string "encrypted_form_data"
+    t.string "encrypted_form_data_iv"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.json "metadata"
@@ -672,8 +672,8 @@ ActiveRecord::Schema.define(version: 2021_09_13_194827) do
     t.datetime "updated_at", null: false
     t.integer "saved_claim_id"
     t.datetime "completed_at"
-    t.string "encrypted_file_data", null: false
-    t.string "encrypted_file_data_iv", null: false
+    t.string "encrypted_file_data"
+    t.string "encrypted_file_data_iv"
     t.text "file_data_ciphertext"
     t.index ["guid"], name: "index_persistent_attachments_on_guid", unique: true
     t.index ["saved_claim_id"], name: "index_persistent_attachments_on_saved_claim_id"
@@ -721,8 +721,8 @@ ActiveRecord::Schema.define(version: 2021_09_13_194827) do
   create_table "saved_claims", id: :serial, force: :cascade do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string "encrypted_form", null: false
-    t.string "encrypted_form_iv", null: false
+    t.string "encrypted_form"
+    t.string "encrypted_form_iv"
     t.string "form_id"
     t.uuid "guid", null: false
     t.string "type"
