@@ -34,7 +34,7 @@ module V2
             prefix = opts[:access_token] ? 'Bearer' : 'Basic'
             suffix = opts[:access_token] || opts[:claims_token]
             req.headers = headers.merge('Authorization' => "#{prefix} #{suffix}")
-            req.body = { appointmentIEN: opts[:params][:appointment_ien] }.to_json if opts[:access_token]
+            req.body = opts[:params].to_json if opts[:access_token] && opts[:params]
           end
         end
       end

@@ -27,12 +27,44 @@ module V2
         token = session.retrieve
         resp =
           if token.present?
-            request.post(path: "/#{base_path}/actions/check-in/#{uuid}", access_token: token, params: check_in_body)
+            request.post(
+              path: "/#{base_path}/actions/check-in/#{uuid}",
+              access_token: token,
+              params: { appointmentIEN: check_in_body[:appointment_ien] }
+            )
+
           else
             Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
           end
 
         response.build(response: resp).handle
+      end
+
+      def refresh_appointments
+        token = session.retrieve
+
+        request.post(
+          path: "/#{base_path}/actions/refresh-appointments/#{uuid}",
+          access_token: token,
+          params: identifier_params
+        )
+      end
+
+      def identifier_params
+        hashed_identifiers =
+          Oj.load(appointment_identifiers).with_indifferent_access.dig(:data, :attributes)
+
+        {
+          patientDFN: hashed_identifiers[:patientDFN],
+          stationNo: hashed_identifiers[:stationNo]
+        }
+      end
+
+      def appointment_identifiers
+        Rails.cache.read(
+          "check_in_lorota_v2_appointment_identifiers_#{uuid}",
+          namespace: 'check-in-lorota-v2-cache'
+        )
       end
     end
   end
