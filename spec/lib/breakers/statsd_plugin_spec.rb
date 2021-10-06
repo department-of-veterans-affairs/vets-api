@@ -14,6 +14,11 @@ describe Breakers::StatsdPlugin do
         expect(subject.get_tags(request)).to include('method:get')
       end
 
+      it 'adds source tag when available' do
+        RequestStore.store = { 'additional_request_attributes' => { 'source' => 'myapp' } }
+        expect(subject.get_tags(request)).to include('source:myapp')
+      end
+
       it 'returns endpoint tag' do
         request.url = URI(test_host + '/foo')
         expect(subject.get_tags(request)).to include('endpoint:/foo')

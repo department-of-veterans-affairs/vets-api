@@ -12,7 +12,8 @@ module SentryControllerLogging
     RequestStore.store['additional_request_attributes'] = {
       'remote_ip' => request.remote_ip,
       'user_agent' => request.user_agent,
-      'user_uuid' => current_user&.uuid
+      'user_uuid' => current_user&.uuid,
+      'source' => request.headers['Source-App-Name']
     }
     Raven.extra_context(request_uuid: request.uuid)
     Raven.user_context(user_context) if current_user
