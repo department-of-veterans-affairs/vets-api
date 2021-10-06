@@ -2,7 +2,7 @@
 
 # require './spec/lib/webhooks/utilities_helper'
 require 'rails_helper'
-require './spec/workers/webhooks/job_tracking'
+require_relative 'job_tracking'
 require './lib/webhooks/utilities'
 require_relative 'registrations'
 
