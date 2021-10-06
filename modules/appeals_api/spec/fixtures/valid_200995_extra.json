@@ -1,0 +1,152 @@
+{
+  "data": {
+    "type": "supplementalClaim",
+    "attributes": {
+      "benefitType": "fiduciary",
+      "veteran": {
+        "address": {
+          "addressLine1": "123 Main St",
+          "addressLine2": "Suite #1200",
+          "addressLine3": "Box 4",
+          "city": "New York",
+          "countryCodeISO2": "US",
+          "stateCode": "NY",
+          "zipCode5": "30012"
+        },
+        "phone": {
+          "countryCode": "03",
+          "areaCode": "555",
+          "phoneNumber": "8001111"
+        },
+        "email": "josie@example.com",
+        "timezone": "America/Chicago"
+      },
+      "socOptIn": true,
+      "noticeOfAcknowledgement": true,
+      "evidenceSubmission": {
+        "evidenceType": ["upload", "retrieval"],
+        "retrieveFrom": [
+          {
+            "type": "retrievalEvidence",
+            "attributes": {
+              "locationAndName": "X-Ray VAMC",
+              "evidenceDates": [
+                "2020-04-10", "2020-01-02", "2019-02-07", "2021-02-20", "2020-04-10", "2020-01-02", "2019-02-07", "2021-02-20", "2020-04-10", "2020-01-02", "2019-02-07", "2021-02-20"
+              ]
+            }
+          },
+          {
+            "type": "retrievalEvidence",
+            "attributes": {
+              "locationAndName": "Blood Lab VA Facility",
+              "evidenceDates": [
+                "2021-01-02", "2021-02-06", "2021-02-27"
+              ]
+            }
+          },
+          {
+            "type": "retrievalEvidence",
+            "attributes": {
+              "locationAndName": "Doctor's Notes VAMC Center Doctor's Notes VAMC Center Doctor's Notes VAMC Center Doctor's Notes VAMC Center Doctor's Notes VAMC Center Doctor's Notes VAMC Center Doctor's Notes VAMC Center",
+              "evidenceDates": [
+                "2021-05-26"
+              ]
+            }
+          },
+          {
+            "type": "retrievalEvidence",
+            "attributes": {
+              "locationAndName": "CT scan VA Medical Facility",
+              "evidenceDates": [
+                "2020-07-19", "2018-03-06", "2019-02-12"
+              ]
+            }
+          },
+          {
+            "type": "retrievalEvidence",
+            "attributes": {
+              "locationAndName": "Lab work VAMC",
+              "evidenceDates": [
+                "2020-12-14", "2018-01-15"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "included": [
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "right shoulder",
+        "decisionDate": "2000-01-08",
+        "socDate": "2020-04-30"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "lower back",
+        "decisionDate": "1900-01-06",
+        "socDate": "2021-02-24"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "torn rotator cuff",
+        "decisionDate": "1989-03-07",
+        "socDate": "2020-04-30"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss",
+        "decisionDate": "1930-10-20",
+        "socDate": "2016-05-30"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "sciatica",
+        "decisionDate": "2007-01-19",
+        "socDate": "2012-01-02"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "bowel obstruction",
+        "decisionDate": "1999-12-29",
+        "socDate": "2019-08-13"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "right eye",
+        "decisionDate": "1920-04-02",
+        "socDate": "2019-11-19"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "left index finger",
+        "decisionDate": "2018-08-17",
+        "socDate": "2021-03-20"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "spinal compression",
+        "decisionDate": "2013-09-11",
+        "socDate": "2020-08-24"
+      }
+    }
+  ]
+}

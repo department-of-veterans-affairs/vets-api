@@ -97,7 +97,8 @@
                               "evidenceDates": {
                                 "type": "array",
                                 "items": { "$ref": "#/definitions/date" },
-                                "minItems": 1
+                                "minItems": 1,
+                                "maxItems":8
                               }
                             },
                             "additionalProperties": false,
@@ -122,9 +123,10 @@
                     },
                     { "required": ["retrieveFrom"] }
                   ]
-                }
+                },
+                "socOptIn": { "type": "boolean" }
               },
-              "required": ["veteran", "evidenceSubmission"]
+              "required": ["veteran", "socOptIn", "evidenceSubmission"]
             }
           },
           "additionalProperties": false,

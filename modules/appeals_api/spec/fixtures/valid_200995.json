@@ -11,19 +11,9 @@
         "email": "josie@example.com",
         "timezone": "America/Chicago"
       },
+      "socOptIn": false,
       "evidenceSubmission": {
-        "evidenceType": ["upload"],
-        "retrieveFrom": [
-          {
-            "type": "retrievalEvidence",
-            "attributes": {
-              "locationAndName": "locationAndName",
-              "evidenceDates": [
-                "1900-01-06"
-              ]
-            }
-          }
-        ]
+        "evidenceType": ["upload"]
       }
     }
   },
