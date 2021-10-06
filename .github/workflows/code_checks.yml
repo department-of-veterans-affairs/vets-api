@@ -127,9 +127,9 @@ jobs:
       - name: Cleanup
         if: always()
         run: |
-          docker network prune -f
           docker rmi -f vets-api:${{ env.DOCKER_IMAGE }} 2> /dev/null || true
-          docker rm -f ${{ env.DOCKER_IMAGE }}_postgres_1 2> /dev/null || true
+          docker rm -f ${{ env.DOCKER_IMAGE }}-postgres-1 2> /dev/null || true
+          docker network prune -f
           rm -rf .git
 
   publish_results:
