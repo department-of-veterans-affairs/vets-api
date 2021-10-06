@@ -31,16 +31,17 @@ module FailedRequestLoggable
       .each { |key| hash[key] = @current_user.try(key) }
 
     hash[:assurance_level] = begin
-                               @current_user.loa[:current]
-                             rescue
-                               nil
-                             end
+      @current_user.loa[:current]
+    rescue
+      nil
+    end
 
     hash[:birth_date] = begin
-                          @current_user.birth_date_mpi.to_date.iso8601
-                        rescue
-                          nil
-                        end
+      @current_user.birth_date_mpi.to_date.iso8601
+    rescue
+      nil
+    end
+
     hash
   end
 

@@ -22,10 +22,10 @@ module V0
       render json: hlr_response_body
     rescue => e
       request = begin
-                  { body: request_body_hash }
-                rescue
-                  request_body_debug_data
-                end
+        { body: request_body_hash }
+      rescue
+        request_body_debug_data
+      end
 
       log_exception_to_personal_information_log(
         e, error_class: error_class(method: 'create', exception_class: e.class), request: request
