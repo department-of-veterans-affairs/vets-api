@@ -248,7 +248,7 @@ RSpec.describe 'VA and Community Care Mashup', team: :facilities, vcr: vcr_optio
                   'descriptionFacility' => nil,
                   'appointmentLeadin' =>
                   '<p><em>&nbsp; &nbsp;Contact us to schedule, reschedule, or cancel your appointment. If a ' \
-                    'referral is required, you’ll need to contact your primary care provider first.</em></p>',
+                  'referral is required, you’ll need to contact your primary care provider first.</em></p>',
                   'appointmentPhones' => [
                     {
                       'extension' => nil,

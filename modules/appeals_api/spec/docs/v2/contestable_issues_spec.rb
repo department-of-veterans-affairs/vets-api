@@ -17,8 +17,8 @@ describe 'Contestable Issues', swagger_doc: 'modules/appeals_api/app/swagger/app
       operationId 'getContestableIssues'
 
       description 'Returns all issues associated with a Veteran that have ' \
-        'not previously been decided ' \
-        'as of the `receiptDate`. Not all issues returned are guaranteed to be eligible for appeal.' \
+                  'not previously been decided ' \
+                  'as of the `receiptDate`. Not all issues returned are guaranteed to be eligible for appeal.' \
 
       security [
         { apikey: [] }

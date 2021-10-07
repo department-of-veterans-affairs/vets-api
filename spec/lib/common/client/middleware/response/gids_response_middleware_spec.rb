@@ -24,7 +24,7 @@ describe Common::Client::Middleware::Response do
   let(:message_json) { attributes_for(:message).to_json }
   let(:gids_error) do
     '{"errors": [{"status": "404", "title": "Record not found", ' \
-    '"detail": "The record identified by 31800132abc could not be found"}]}'
+      '"detail": "The record identified by 31800132abc could not be found"}]}'
   end
 
   it 'raises client response error' do

@@ -106,7 +106,7 @@ describe Mobile::V0::Appointments::Service do
               'mobile appointments backend service exception',
               hash_including(
                 url: '/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling' \
-                  '/patient/ICN/24811694708759028/booked-cc-appointments'
+                     '/patient/ICN/24811694708759028/booked-cc-appointments'
               )
             ).once
 

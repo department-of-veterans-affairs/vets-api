@@ -64,7 +64,7 @@ module Mobile
 
         def cancel_appointment_url(facility_id)
           "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/#{facility_id}/patient/ICN/" \
-           "#{@user.icn}/cancel-appointment"
+            "#{@user.icn}/cancel-appointment"
         end
 
         def internal_error(e, url)

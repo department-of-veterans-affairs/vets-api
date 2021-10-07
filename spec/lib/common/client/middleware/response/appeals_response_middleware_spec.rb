@@ -24,7 +24,7 @@ describe Common::Client::Middleware::Response do
   let(:message_json) { attributes_for(:message).to_json }
   let(:caseflow_error) do
     '{"errors": [{"status": "404", "title": "Veteran not found", ' \
-    '"detail": "A veteran with that SSN was not found in our systems."}]}'
+      '"detail": "A veteran with that SSN was not found in our systems."}]}'
   end
 
   it 'raises client response error' do

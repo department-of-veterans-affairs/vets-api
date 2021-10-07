@@ -18,8 +18,8 @@ describe 'Legacy Appeals', swagger_doc: 'modules/appeals_api/app/swagger/appeals
       consumes 'application/json'
       produces 'application/json'
       description = 'Returns eligible legacy appeals for a Veteran. A legacy appeal is eligible if a statement of ' \
-      'the case (SOC)  or supplemental statement of the case (SSOC) has been declared, and if the date of ' \
-      'declaration is within the last 60 days.'
+                    'the case (SOC)  or supplemental statement of the case (SSOC) has been declared, and if the ' \
+                    'date of declaration is within the last 60 days.'
       description description
 
       ssn_override = { required: false,

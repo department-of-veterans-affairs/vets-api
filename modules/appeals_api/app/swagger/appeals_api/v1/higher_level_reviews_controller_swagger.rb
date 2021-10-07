@@ -72,7 +72,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       key :operationId, 'postHigherLevelReviews'
       key :summary, 'Creates a new Higher-Level Review.'
       desc = 'Submits a Decision Review request of type *Higher-Level Review*. This endpoint is the same as ' \
-        'submitting [VA Form 20-0996](https://www.vba.va.gov/pubs/forms/VBA-20-0996-ARE.pdf) via mail or fax.'
+             'submitting [VA Form 20-0996](https://www.vba.va.gov/pubs/forms/VBA-20-0996-ARE.pdf) via mail or fax.'
       key :description, desc
       key :parameters, hlr_create_parameters
       key :requestBody, hlr_create_request_body
@@ -105,8 +105,8 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       key :operationId, 'getContestableIssues'
       key :summary, 'Returns all contestable issues for a specific veteran.'
       desc = 'Returns all issues associated with a Veteran that have not previously been decided by a Higher-Level ' \
-        'Review as of the `receiptDate` and bound by `benefitType`. Not all issues returned are guaranteed to be ' \
-        'eligible for appeal. Associate these results when creating a new Higher-Level Review.'
+             'Review as of the `receiptDate` and bound by `benefitType`. Not all issues returned are guaranteed to be ' \
+             'eligible for appeal. Associate these results when creating a new Higher-Level Review.'
       key :description, desc
       parameter name: 'X-VA-SSN', in: 'header', description: 'veteran\'s ssn' do
         key :description, 'Either X-VA-SSN or X-VA-File-Number is required'
@@ -118,7 +118,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       end
       parameter name: 'X-VA-Receipt-Date', in: 'header', required: true do
         desc = '(yyyy-mm-dd) In order to determine contestability of issues, ' \
-          'the receipt date of a hypothetical Decision Review must be specified.'
+               'the receipt date of a hypothetical Decision Review must be specified.'
         key :description, desc
         schema type: :string, format: :date
       end
@@ -131,7 +131,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
         value: {
           errors: [{ status: 422, code: 'invalid_benefit_type', title: 'Invalid Benefit Type',
                      detail: 'Benefit type nil is invalid. Must be one of: ["compensation", "pension",' \
-              '"fiduciary", "insurance", "education", "voc_rehab", "loan_guaranty", "vha", "nca"]' }]
+                             '"fiduciary", "insurance", "education", "voc_rehab", "loan_guaranty", "vha", "nca"]' }]
         }
       }
       key :responses, responses

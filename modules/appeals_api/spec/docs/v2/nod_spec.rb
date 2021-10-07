@@ -16,8 +16,8 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
       tags 'Notice of Disagreements'
       operationId 'createNod'
       description 'Submits an appeal of type Notice of Disagreement.' \
-      ' This endpoint is the same as submitting [VA Form 10182](https://www.va.gov/vaforms/va/pdf/VA10182.pdf)' \
-      ' via mail or fax directly to the Board of Veterans’ Appeals.'
+                  ' This endpoint is the same as submitting [VA Form 10182](https://www.va.gov/vaforms/va/pdf/VA10182.pdf)' \
+                  ' via mail or fax directly to the Board of Veterans’ Appeals.'
 
       security [
         { apikey: [] }

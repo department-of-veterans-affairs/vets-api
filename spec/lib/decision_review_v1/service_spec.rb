@@ -150,7 +150,7 @@ describe DecisionReviewV1::Service do
     context '200 response with a malformed body' do
       def personal_information_logs
         PersonalInformationLog.where error_class: 'DecisionReviewV1::Service#validate_against_schema' \
-          ' exception Common::Exceptions::SchemaValidationErrors (HLR)'
+                                                  ' exception Common::Exceptions::SchemaValidationErrors (HLR)'
       end
 
       it 'returns a schema error' do

@@ -76,9 +76,9 @@ module Preneeds
           end
 
           headers['Content-Type'] = 'multipart/related; ' \
-            "boundary=\"#{multipart.boundary}\"; " \
-            "type=\"application/xop+xml\"; start=\"#{STARTING_CID}\"; " \
-            'start-info="text/xml"'
+                                    "boundary=\"#{multipart.boundary}\"; " \
+                                    "type=\"application/xop+xml\"; start=\"#{STARTING_CID}\"; " \
+                                    'start-info="text/xml"'
 
           multipart.body.encoded
         else

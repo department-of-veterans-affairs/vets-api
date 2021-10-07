@@ -32,8 +32,8 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       key :summary, 'Creates a new Notice of Disagreement.'
 
       description = 'Submits an appeal of type Notice of Disagreement.' \
-      'This endpoint is the same as submitting [VA Form 10182](https://www.va.gov/vaforms/va/pdf/VA10182.pdf)' \
-      ' via mail or fax directly to the Board of Veterans’ Appeals.'
+                    'This endpoint is the same as submitting [VA Form 10182](https://www.va.gov/vaforms/va/pdf/VA10182.pdf)' \
+                    ' via mail or fax directly to the Board of Veterans’ Appeals.'
       key :description, description
 
       key :operationId, 'nodCreateRoot'
@@ -132,9 +132,9 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       key :summary, 'Returns all contestable issues for a specific veteran.'
 
       description = 'Returns all issues associated with a Veteran that have' \
-      'not previously been decided by a Notice of Disagreement' \
-      'as of the `receiptDate`. Not all issues returned are guaranteed to be eligible for appeal.' \
-      'Associate these results when creating a new Notice of Disagreement.'
+                    'not previously been decided by a Notice of Disagreement' \
+                    'as of the `receiptDate`. Not all issues returned are guaranteed to be eligible for appeal.' \
+                    'Associate these results when creating a new Notice of Disagreement.'
       key :description, description
 
       parameter name: 'X-VA-SSN', in: 'header', description: 'veteran\'s ssn' do
@@ -149,7 +149,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
       parameter name: 'X-VA-Receipt-Date', in: 'header', required: true do
         desc = '(yyyy-mm-dd) In order to determine contestability of issues, ' \
-          'the receipt date of a hypothetical Decision Review must be specified.'
+               'the receipt date of a hypothetical Decision Review must be specified.'
         key :description, desc
 
         schema type: :string, format: :date
@@ -571,7 +571,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
               key :type, :string
               key :description, 'Error detail'
               key :example, 'A client error (InvalidDigest) occurred when calling the PutObject operation -'\
-                'The Content-MD5 you specified was invalid.'
+                            'The Content-MD5 you specified was invalid.'
             end
 
             property :Resource do

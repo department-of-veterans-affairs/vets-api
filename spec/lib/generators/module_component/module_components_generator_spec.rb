@@ -153,7 +153,7 @@ RSpec.describe 'ModuleComponent', type: :generator do
 
     it 'does not create the bad_component' do
       expected_stdout = "\nbad_component is not a known generator command.Commands allowed " \
-        "are controller, model, serializer and service\n"
+                        "are controller, model, serializer and service\n"
       expect do
         ModuleComponentGenerator.new(['foo', { 'method' => 'bad_component' }]).create_component
       end.to output(expected_stdout).to_stdout

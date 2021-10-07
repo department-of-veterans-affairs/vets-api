@@ -49,8 +49,8 @@ module AppealsApi
         operation :get, tags: ['Legacy Appeals'] do
           key :operationId, 'getLegacyAppeals'
           key :summary, 'Returns eligible legacy appeals for a Veteran. A legacy appeal is eligible if a statement ' \
-          'of the case (SOC) or supplemental statement of the case (SSOC) has been declared, and if the date of ' \
-          'declaration is within the last 60 days.'
+                        'of the case (SOC) or supplemental statement of the case (SSOC) has been declared, and if the date of ' \
+                        'declaration is within the last 60 days.'
           key :description, 'Returns all of the data associated with a Veteran\'s Legacy Appeals'
 
           parameter name: 'X-VA-SSN', in: 'header', description: 'veteran\'s ssn' do

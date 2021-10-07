@@ -331,8 +331,8 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
     describe 'POST appointments' do
       let(:error_detail) do
         'This appointment cannot be booked using VA Online Scheduling.  Please contact the site directly to schedule ' \
-        'your appointment and advise them to <b>contact the VAOS Support Team for assistance with Clinic configuratio' \
-        'n.</b> <a class="external-link" href="https://www.va.gov/find-locations/">VA Facility Locator</a>'
+          'your appointment and advise them to <b>contact the VAOS Support Team for assistance with Clinic configurat' \
+          'ion.</b> <a class="external-link" href="https://www.va.gov/find-locations/">VA Facility Locator</a>'
       end
 
       context 'with flipper disabled' do
@@ -450,8 +450,8 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             expect(response).to have_http_status(:conflict)
             expect(JSON.parse(response.body)['errors'].first['detail'])
               .to eq('This appointment cannot be cancelled using VA Online Scheduling.  Please contact the site direc' \
-                'tly to cancel your appointment. <a class="external-link" href="https://www.va.gov/find-locations/">V' \
-                'A Facility Locator</a>')
+                     'tly to cancel your appointment. <a class="external-link" ' \
+                     'href="https://www.va.gov/find-locations/">VA Facility Locator</a>')
           end
         end
       end

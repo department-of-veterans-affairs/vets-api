@@ -294,7 +294,8 @@ RSpec.describe 'V1::Facilities::Va', team: :facilities, vcr: vcr_options do
                 code: 'NORMAL'
               },
               operationalHoursSpecialInstructions: 'Expanded or Nontraditional hours are available for some ' \
-                'services on a routine and or requested basis. Please call our main phone number for details. |',
+                                                   'services on a routine and or requested basis. Please call our ' \
+                                                   'main phone number for details. |',
               phone: {
                 fax: '360-690-0864',
                 main: '360-759-1901',

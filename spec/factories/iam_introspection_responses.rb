@@ -28,13 +28,13 @@ FactoryBot.define do
     fediamauth_n_type { 'DSL' }
     fediamdmdc_authorization {
       '{"authorizationResponse":{"id":"796121200" }"idType":"SSN" }"lastName":"ANDERSON" }"firstName":"GREG" }' \
-      '"middleName":"A" }"cadencyName":"" }"deceased":false,"birthDate":"1933-04-05T08:00:00Z" }"gender":"MALE" }' \
-      '"edi":1005079124,"benefits":["21"],"personnels":[{"organization":"21" }"category":"RETIRED_MILITARY" }' \
-      '"serviceBranchClassification":"A" }"rank":"SSG"}],"status":"SPONSOR" }"personAssociatedSet":[' \
-      '{"id":"796121201" }"idType":"SSN" }"lastName":"WHITE" }"firstName":"CONNIE" }"middleName":"A" }' \
-      '"cadencyName":"" }"deceased":false,"birthDate":"1935-07-12T08:00:00Z" }"gender":"FEMALE" }' \
-      '"edi":1005079140,"associationReason":"SPOUSE" }"benefits":["21"],"personnels":[],"status":"DEPENDENT" }' \
-      '"relationshipTypes":["FAMILY"],"permissionTypes":["NON_CLINICAL"]}]}}'
+        '"middleName":"A" }"cadencyName":"" }"deceased":false,"birthDate":"1933-04-05T08:00:00Z" }"gender":"MALE" }' \
+        '"edi":1005079124,"benefits":["21"],"personnels":[{"organization":"21" }"category":"RETIRED_MILITARY" }' \
+        '"serviceBranchClassification":"A" }"rank":"SSG"}],"status":"SPONSOR" }"personAssociatedSet":[' \
+        '{"id":"796121201" }"idType":"SSN" }"lastName":"WHITE" }"firstName":"CONNIE" }"middleName":"A" }' \
+        '"cadencyName":"" }"deceased":false,"birthDate":"1935-07-12T08:00:00Z" }"gender":"FEMALE" }' \
+        '"edi":1005079140,"associationReason":"SPOUSE" }"benefits":["21"],"personnels":[],"status":"DEPENDENT" }' \
+        '"relationshipTypes":["FAMILY"],"permissionTypes":["NON_CLINICAL"]}]}}'
     }
     fediam_not_on_or_after { '2021-02-12T17:47:41Z' }
     aud { 'VAMobile' }
@@ -95,8 +95,8 @@ FactoryBot.define do
     fediam_do_dedipn_id { 'NOT_FOUND' }
     fediam_gc_id {
       '1012853893V362415^NI^200M^USVHA^P|943574^PI^979^USVHA^A|20221^PI^200VETS^USDVA^A|' \
-      'da4ae1e5ef9d479084f66563457a2dc3^PN^200VIDM^USDVA^A|1012853893^PN^200PROV^USDVA^A|' \
-      '12403029^PI^200MH^USVHA^A|12403029^PI^200MHS^USVHA^A|438b7fbd26c5417ab57e0430e366c31d^PN^200VIDM^USDVA^A'
+        'da4ae1e5ef9d479084f66563457a2dc3^PN^200VIDM^USDVA^A|1012853893^PN^200PROV^USDVA^A|' \
+        '12403029^PI^200MH^USVHA^A|12403029^PI^200MHS^USVHA^A|438b7fbd26c5417ab57e0430e366c31d^PN^200VIDM^USDVA^A'
     }
     active { true }
     fediamauth_n_type { 'MHV' }
@@ -157,10 +157,13 @@ FactoryBot.define do
     fediam_street1 { '1700 University Boulevard' }
     fediam_do_dedipn_id { '1005079124' }
     fediam_gc_id {
-      '1008596379V859838^NI^200M^USVHA^P|796121200^PI^200BRLS^USVBA^A|0000028114^PN^200PROV^USDVA^A|' \
-      '1005079124^NI^200DOD^USDOD^A|32331150^PI^200CORP^USVBA^A|85c50aa76934460c8736f687a6a30546^PN^200VIDM^USDVA^A|' \
-      '2810777^PI^200CORP^USVBA^A|32324397^PI^200CORP^USVBA^A|19798466a4b143748e664482c6b6b81b^PN^200VIDM^USDVA^A|' \
-      '796121200^AN^200CORP^USVBA^'
+      '1008596379V859838^NI^200M^USVHA^P|796121200^PI^200BRLS^USVBA^A|' \
+        '0000028114^PN^200PROV^USDVA^A|1005079124^NI^200DOD^USDOD^A|' \
+        '32331150^PI^200CORP^USVBA^A|' \
+        '85c50aa76934460c8736f687a6a30546^PN^200VIDM^USDVA^A|' \
+        '2810777^PI^200CORP^USVBA^A|32324397^PI^200CORP^USVBA^A|' \
+        '19798466a4b143748e664482c6b6b81b^PN^200VIDM^USDVA^A|' \
+        '796121200^AN^200CORP^USVBA^'
     }
     active { true }
     fediamauth_n_type { 'IDME' }

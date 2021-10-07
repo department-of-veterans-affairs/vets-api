@@ -490,10 +490,10 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
               'specialization' => nil,
               'specialtyCode' => '101Y00000X',
               'specialtyDescription' => 'A provider who is trained and educated in the performance of behavior ' \
-              'health services through interpersonal communications and analysis. ' \
-              'Training and education at the specialty level usually requires a ' \
-              'master\'s degree and clinical experience and supervision for licensure ' \
-              'or certification.'
+                                        'health services through interpersonal communications and analysis. ' \
+                                        'Training and education at the specialty level usually requires a ' \
+                                        'master\'s degree and clinical experience and supervision for licensure ' \
+                                        'or certification.'
             }
           },
           {

@@ -407,3 +407,6 @@ Lint/SymbolConversion:
 
 Layout/EmptyLineBetweenDefs:
   AllowAdjacentOneLineDefs: true
+
+Layout/LineEndStringConcatenationIndentation:
+  Enabled: true

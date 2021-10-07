@@ -9,7 +9,7 @@ module Mobile
       page_size = validated_params[:page_size]
 
       query_string = "?startDate=#{validated_params[:start_date]}&endDate=#{validated_params[:end_date]}"\
-          "&useCache=#{validated_params[:use_cache]}"
+                     "&useCache=#{validated_params[:use_cache]}"
       url = request.base_url + request.path + query_string
 
       if page_number > 1

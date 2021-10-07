@@ -100,9 +100,10 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
       it 'adds the correct overflow text' do
         expect(subject.send(:overflow_text)).to eq "Corporate Flash Details\n" \
-          "This applicant has indicated that they're terminally ill.\n" \
-          'VA Form 21-4142/4142a has been completed by the applicant and sent to the ' \
-          'PMR contractor for processing in accordance with M21-1 III.iii.1.D.2.'
+                                                   "This applicant has indicated that they're terminally ill.\n" \
+                                                   'VA Form 21-4142/4142a has been completed by the applicant and ' \
+                                                   'sent to the PMR contractor for processing in accordance with ' \
+                                                   'M21-1 III.iii.1.D.2.'
       end
     end
 
@@ -111,8 +112,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
       it 'adds the correct overflow text' do
         expect(subject.send(:overflow_text)).to eq 'VA Form 21-4142/4142a has been completed ' \
-          'by the applicant and sent to the ' \
-          'PMR contractor for processing in accordance with M21-1 III.iii.1.D.2.'
+                                                   'by the applicant and sent to the PMR contractor ' \
+                                                   'for processing in accordance with M21-1 III.iii.1.D.2.'
       end
     end
 
@@ -127,7 +128,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
       it 'adds the correct overflow text' do
         expect(subject.send(:overflow_text)).to eq "Corporate Flash Details\n" \
-          "This applicant has indicated that they're terminally ill.\n"
+                                                   "This applicant has indicated that they're terminally ill.\n"
       end
     end
 

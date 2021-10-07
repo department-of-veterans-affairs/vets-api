@@ -28,7 +28,7 @@ module AppealsApi
                                {
                                  title: 'unprocessable_entity',
                                  detail: "Corresponding Notice of Disagreement 'boardReviewOption' " \
-                                 "must be 'evidence_submission'"
+                                         "must be 'evidence_submission'"
                                }
                              ])
       end

@@ -225,7 +225,7 @@ describe DecisionReview::Service do
     context '200 response with a malformed body' do
       def personal_information_logs
         PersonalInformationLog.where error_class: 'DecisionReview::Service#validate_against_schema' \
-          ' exception Common::Exceptions::SchemaValidationErrors (HLR)'
+                                                  ' exception Common::Exceptions::SchemaValidationErrors (HLR)'
       end
 
       it 'returns a schema error' do
@@ -283,7 +283,7 @@ describe DecisionReview::Service do
     context '200 response with a malformed body' do
       def personal_information_logs
         PersonalInformationLog.where error_class: 'DecisionReview::Service#validate_against_schema' \
-          ' exception Common::Exceptions::SchemaValidationErrors (NOD)'
+                                                  ' exception Common::Exceptions::SchemaValidationErrors (NOD)'
       end
 
       it 'returns a schema error' do
