@@ -82,6 +82,46 @@ module AppealsApi
             'form1[0].#subform[3].DATESIGNED[0]'
           end
 
+          def contestable_issues_coordinates
+            [].tap do |n|
+              Structure::MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM.times do |i|
+                n << { at: [0, 203 - (30 * i)], width: 402, height: 22, valign: :top }
+              end
+            end
+          end
+
+          def decision_dates_coordinates
+            [].tap do |n|
+              Structure::MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM.times do |i|
+                n << { at: [414, 204 - (30 * i)], width: 120, height: 22, valign: :top }
+              end
+            end
+          end
+
+          def soc_dates_coordinates
+            [].tap do |n|
+              Structure::MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM.times do |i|
+                n << { at: [414, 198 - (30 * i)], width: 120, height: 15 }
+              end
+            end
+          end
+
+          def new_evidence_locations_coordinates
+            [].tap do |n|
+              Structure::MAX_NUMBER_OF_EVIDENCE_LOCATIONS_FORM.times do |i|
+                n << { at: [0, 587 - (44 * i)], width: 404, height: 36, valign: :top }
+              end
+            end
+          end
+
+          def new_evidence_dates_coordinates
+            [].tap do |n|
+              Structure::MAX_NUMBER_OF_EVIDENCE_LOCATIONS_FORM.times do |i|
+                n << { at: [418, 587 - (44 * i)], width: 116, height: 36, valign: :top }
+              end
+            end
+          end
+
           def boxes
             {
               # PAGE 3 '#subform[2]'
@@ -92,67 +132,17 @@ module AppealsApi
               mailing_address_city_and_box: { at: [195, 402], width: 308 },
               email: { at: [286, 347], width: 244 },
 
-              contestable_issues: handle_contestable_issues,
-              decision_dates: handle_decision_dates,
-              soc_dates: handle_soc_dates,
+              contestable_issues: contestable_issues_coordinates,
+              decision_dates: decision_dates_coordinates,
+              soc_dates: soc_dates_coordinates,
 
               # PAGE 4 '#subform[3]
-              new_evidence_locations: handle_new_evidence_locations,
-              new_evidence_dates: handle_new_evidence_dates,
+              new_evidence_locations: new_evidence_locations_coordinates,
+              new_evidence_dates: new_evidence_dates_coordinates,
 
               signature_of_veteran_claimant_or_rep: { at: [0, 251], width: 415, height: 20, valign: :top },
               print_name_veteran_claimaint_or_rep: { at: [0, 227], width: 540, height: 20, valign: :top  }
             }
-          end
-        end
-
-        private
-
-        def number_of_issues_on_form
-          Structure::MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM
-        end
-
-        def number_of_evidence_submission_boxes
-          Structure::MAX_NUMBER_OF_EVIDENCE_LOCATIONS_FORM
-        end
-
-        def handle_contestable_issues
-          [].tap do |n|
-            number_of_issues_on_form.times do |i|
-              n << { at: [0, 203 - (30 * i)], width: 402, height: 22, valign: :top }
-            end
-          end
-        end
-
-        def handle_decision_dates
-          [].tap do |n|
-            number_of_issues_on_form.times do |i|
-              n << { at: [414, 204 - (30 * i)], width: 120, height: 22, valign: :top }
-            end
-          end
-        end
-
-        def handle_soc_dates
-          [].tap do |n|
-            number_of_issues_on_form.times do |i|
-              n << { at: [414, 198 - (30 * i)], width: 120, height: 15 }
-            end
-          end
-        end
-
-        def handle_new_evidence_locations
-          [].tap do |n|
-            number_of_evidence_submission_boxes.times do |i|
-              n << { at: [0, 587 - (44 * i)], width: 404, height: 36, valign: :top }
-            end
-          end
-        end
-
-        def handle_new_evidence_dates
-          [].tap do |n|
-            number_of_evidence_submission_boxes.times do |i|
-              n << { at: [418, 587 - (44 * i)], width: 116, height: 36, valign: :top }
-            end
           end
         end
       end

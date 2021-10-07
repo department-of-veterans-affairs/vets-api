@@ -129,7 +129,7 @@ module AppealsApi
     end
 
     def email
-      veteran&.dig('emailAddressText').to_s.strip
+      veteran&.dig('email')&.strip
     end
 
     def consumer_name
