@@ -7,8 +7,10 @@ module VAOS
     class AppointmentsController < VAOS::V0::BaseController
       def index
         appointments
-        merge_clinic_names(appointments[:data])
-        merge_facilities(appointments[:data])
+
+        _include&.include?('clinics') && merge_clinic_names(appointments[:data])
+        _include&.include?('facilities') && merge_facilities(appointments[:data])
+
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(appointments[:data], 'appointments')
         render json: { data: serialized, meta: appointments[:meta] }
@@ -154,7 +156,7 @@ module VAOS
       def appointment_params
         params.require(:start)
         params.require(:end)
-        params.permit(:start, :end)
+        params.permit(:start, :end, :_include)
       end
 
       def create_params
@@ -181,6 +183,10 @@ module VAOS
         DateTime.parse(appointment_params[:end]).in_time_zone
       rescue ArgumentError
         raise Common::Exceptions::InvalidFieldValue.new('end', params[:end])
+      end
+
+      def _include
+        appointment_params[:_include]&.split(',')
       end
 
       def statuses

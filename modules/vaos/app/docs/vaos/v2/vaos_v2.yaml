@@ -60,6 +60,15 @@ paths:
             "$ref": "#/components/schemas/AppointmentStatus"
           style: form
           explode: false
+        - name: _include
+          in: query
+          description:
+            A comma delimted list list of the desired appointment statuses to fetch/filter
+            by.
+          schema:
+            "$ref": "#/components/schemas/AppointmentIncludes"
+          style: form
+          explode: false
       responses:
         "200":
           description: Retrives a list of clincs for a given facility
@@ -759,6 +768,11 @@ components:
          * cc - A community-care appointment
          * telehealth - A virtual appointment
          * phone - A phone appointment
+    AppointmentIncludes:
+      type: string
+      enum:
+        - facilities
+        - clinics
     AppointmentsResponse:
       description: An array of appointments
       type: object
