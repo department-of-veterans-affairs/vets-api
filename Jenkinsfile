@@ -29,27 +29,7 @@ pipeline {
       }
     }
 
-    stage('Build Docker Images'){
-      steps {
-        withCredentials([string(credentialsId: 'sidekiq-enterprise-license', variable: 'BUNDLE_ENTERPRISE__CONTRIBSYS__COM')]) {
-          sh 'env=$RAILS_ENV make build'
-        }
-      }
-    }
-
-    stage('Setup Testing parallel DBs') {
-      steps {
-        sh 'env=$RAILS_ENV make spec_parallel_setup'
-      }
-    }
-
-    stage('Run tests') {
-      steps {
-        sh 'env=$RAILS_ENV make spec_parallel'
-      }
-    }
-
-    stage('Review') {
+    stage('Scheudle Review Instance Creation') {
       when { not { branch 'master' } }
 
       steps {
