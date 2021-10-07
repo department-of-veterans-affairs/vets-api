@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'saml/ssoe_settings_service'
 require_relative 'responses/login'
 
 module SAML
@@ -91,6 +92,12 @@ module SAML
       build_sso_url(build_authn_context(LOA::IDME_LOA1_VETS))
     end
 
+    def logingov_url
+      @type = 'logingov'
+      SAML::SSOeSettingsService.saml_settings({ 'authn_context_comparison' => 'minimum' })
+      build_sso_url(build_logingov_authn_context([IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2]))
+    end
+
     def custom_url(authn)
       @type = 'custom'
       build_sso_url(authn)
@@ -166,9 +173,18 @@ module SAML
       saml_auth_request.create(new_url_settings, query_params)
     end
 
-    def build_authn_context(assurance_level_url, identity_provider = Settings.saml_ssoe.idme_authn_context)
+    def build_authn_context(assurance_level_url, identity_provider = AuthnContext::ID_ME)
       if identity_provider
         [assurance_level_url, identity_provider]
+      else
+        assurance_level_url
+      end
+    end
+
+    def build_logingov_authn_context(assurance_level_url, identity_provider = AuthnContext::LOGIN_GOV)
+      if identity_provider
+        assurance_level_url = [assurance_level_url] unless assurance_level_url.is_a?(Array)
+        assurance_level_url.push(identity_provider)
       else
         assurance_level_url
       end

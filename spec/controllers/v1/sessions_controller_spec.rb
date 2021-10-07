@@ -83,16 +83,18 @@ RSpec.describe V1::SessionsController, type: :controller do
   context 'when not logged in' do
     describe 'new' do
       context 'routes not requiring auth' do
-        %w[mhv dslogon idme].each do |type|
+        %w[mhv dslogon idme logingov].each do |type|
           context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             let(:authn) do
               case type
               when 'mhv'
-                ['myhealthevet', Settings.saml_ssoe.idme_authn_context]
+                ['myhealthevet', AuthnContext::ID_ME]
               when 'idme'
-                [LOA::IDME_LOA1_VETS, Settings.saml_ssoe.idme_authn_context]
+                [LOA::IDME_LOA1_VETS, AuthnContext::ID_ME]
               when 'dslogon'
-                ['dslogon', Settings.saml_ssoe.idme_authn_context]
+                ['dslogon', AuthnContext::ID_ME]
+              when 'logingov'
+                [IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2, AuthnContext::LOGIN_GOV]
               end
             end
 

@@ -2,7 +2,7 @@
 
 class SessionActivity < ApplicationRecord
   after_initialize :initialize_defaults
-  SESSION_ACTIVITY_TYPES = %w[signup mhv dslogon idme mfa verify slo].freeze
+  SESSION_ACTIVITY_TYPES = %w[signup mhv dslogon idme logingov mfa verify slo].freeze
 
   # Initial validations on creation
   validates :originating_request_id, presence: true

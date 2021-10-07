@@ -73,7 +73,7 @@ module SAML
 
     private
 
-    # Builds the urls to trigger various SSO policies: mhv, dslogon, idme, mfa, or verify flows.
+    # Builds the urls to trigger various SSO policies: mhv, dslogon, idme, logingov, mfa, or verify flows.
     # link_authn_context is the new proposed authn_context
     def build_sso_url(link_authn_context)
       new_url_settings = url_settings
