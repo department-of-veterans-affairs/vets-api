@@ -45,24 +45,20 @@ module AppealsApi
             'form1[0].#subform[2].InsurancePolicyNumber[0]'
           end
 
-          # not sure if this is necessary, but it lists 'veteran'
-          def claimant_type(index)
-            "form1[0].#subform[2].RadioButtonList[#{index}]"
-          end
-
-          def address_state
+          def mailing_address_state
             'form1[0].#subform[2].CurrentMailingAddress_StateOrProvince[0]'
           end
 
-          def address_country
+          def mailing_address_country
             'form1[0].#subform[2].CurrentMailingAddress_Country[0]'
           end
 
-          def zip_code_first_five
+          def zip_code_5
             'form1[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]'
           end
 
-          def zip_code_last_four
+          # TODO: unsused at the moment
+          def zip_code_4
             'form1[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]'
           end
 
@@ -70,59 +66,93 @@ module AppealsApi
             'form1[0].#subform[2].TELEPHONE[0]'
           end
 
-          def benefit_type(index)
-            "form1[0].#subform[2].RadioButtonList[#{index}]"
+          def claimant_type
+            'form1[0].#subform[2].RadioButtonList[1]'
+          end
+
+          def benefit_type
+            'form1[0].#subform[2].RadioButtonList[0]'
           end
 
           def soc_ssoc_opt_in
             'form1[0].#subform[2].RadioButtonList[2]'
           end
 
-          def decision_date
-            'form1[0].#subform[2].DATEOFVADECISION1[0]'
-          end
-
-          def date_of_record
-            'form1[0].#subform[3].DATEOFTREATMENTRECORDS1[0]'
-          end
-
-          def notice_of_acknowledgement_no
-            'form1[0].#subform[3].TIME2TO430PM[0]'
-          end
-
-          def notice_of_acknowledgement_yes
-            'form1[0].#subform[3].TIME1230TO2PM[0]'
-          end
-
           def date_signed
             'form1[0].#subform[3].DATESIGNED[0]'
           end
 
-          def date_signed_alternate_signer
-            'form1[0].#subform[3].DATESIGNED[1]'
-          end
-
           def boxes
-            # number_of_issue_boxes = 7
-            # number_of_new_evidence_submission_boxes = 3
             {
               # PAGE 3 '#subform[2]'
-              veteran_first_name: { at: [3, 589], width: 195 },
-              veteran_last_name: { at: [238, 589], width: 300 },
-              address_number_street: { at: [23, 420], width: 510 },
-              address_apartment_or_unit_number: { at: [60, 399], width: 78 },
-              address_city: { at: [194, 399], width: 305 },
-              email: { at: [286, 343], width: 244 },
-              contestable_issue: { at: [0, 207], width: 402, height: 22 }, # first text box only
-              soc_date: { at: [435, 208], width: 80 }, # first text box only
+              veteran_first_name: { at: [3, 592], width: 195 },
+              veteran_last_name: { at: [238, 591], width: 300 },
+              mailing_address_number_and_street: { at: [23, 423], width: 510 },
+              mailing_address_apartment_or_unit_number: { at: [60, 401], width: 78 },
+              mailing_address_city_and_box: { at: [195, 402], width: 308 },
+              email: { at: [286, 347], width: 244 },
 
-              # PAGE 4 '#subform[3]'
-              new_evidence_name_location: { at: [0, 207], width: 404, height: 36 }, # first text box only
-              signature_of_veteran_claimant_or_rep: { at: [0, 260], width: 408 },
-              print_name_veteran_claimaint_or_rep: { at: [0, 235], width: 540 },
-              signature_alternate_signer: { at: [0, 98], width: 408 },
-              print_name_alternate_signer: { at: [0, 73], width: 540 }
+              contestable_issues: handle_contestable_issues,
+              decision_dates: handle_decision_dates,
+              soc_dates: handle_soc_dates,
+
+              # PAGE 4 '#subform[3]
+              new_evidence_locations: handle_new_evidence_locations,
+              new_evidence_dates: handle_new_evidence_dates,
+
+              signature_of_veteran_claimant_or_rep: { at: [0, 251], width: 415, height: 20, valign: :top },
+              print_name_veteran_claimaint_or_rep: { at: [0, 227], width: 540, height: 20, valign: :top  }
             }
+          end
+        end
+
+        private
+
+        def number_of_issues_on_form
+          Structure::MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM
+        end
+
+        def number_of_evidence_submission_boxes
+          Structure::MAX_NUMBER_OF_EVIDENCE_LOCATIONS_FORM
+        end
+
+        def handle_contestable_issues
+          [].tap do |n|
+            number_of_issues_on_form.times do |i|
+              n << { at: [0, 203 - (30 * i)], width: 402, height: 22, valign: :top }
+            end
+          end
+        end
+
+        def handle_decision_dates
+          [].tap do |n|
+            number_of_issues_on_form.times do |i|
+              n << { at: [414, 204 - (30 * i)], width: 120, height: 22, valign: :top }
+            end
+          end
+        end
+
+        def handle_soc_dates
+          [].tap do |n|
+            number_of_issues_on_form.times do |i|
+              n << { at: [414, 198 - (30 * i)], width: 120, height: 15 }
+            end
+          end
+        end
+
+        def handle_new_evidence_locations
+          [].tap do |n|
+            number_of_evidence_submission_boxes.times do |i|
+              n << { at: [0, 587 - (44 * i)], width: 404, height: 36, valign: :top }
+            end
+          end
+        end
+
+        def handle_new_evidence_dates
+          [].tap do |n|
+            number_of_evidence_submission_boxes.times do |i|
+              n << { at: [418, 587 - (44 * i)], width: 116, height: 36, valign: :top }
+            end
           end
         end
       end

@@ -28,6 +28,12 @@ module AppealsApi
       if: proc { |a| a.form_data.present? }
     )
 
+    def pdf_structure(version)
+      Object.const_get(
+        "AppealsApi::PdfConstruction::SupplementalClaim::#{version.upcase}::Structure"
+      ).new(self)
+    end
+
     def veteran_first_name
       auth_headers.dig('X-VA-First-Name')
     end

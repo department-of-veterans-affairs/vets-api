@@ -55,33 +55,32 @@ module AppealsApi
             it { expect(form_fields.insurance_policy_number).to eq 'form1[0].#subform[2].InsurancePolicyNumber[0]' }
           end
 
-          # not sure if this is necessary, but it lists 'veteran'
-          describe '#claimant_type(index)' do
-            it { expect(form_fields.claimant_type(0)).to eq 'form1[0].#subform[2].RadioButtonList[0]' }
-          end
-
-          describe '#address_state' do
+          describe '#mailing_address_state' do
             it {
-              expect(form_fields.address_state).to eq 'form1[0].#subform[2].CurrentMailingAddress_StateOrProvince[0]'
+              expect(
+                form_fields.mailing_address_state
+              ).to eq 'form1[0].#subform[2].CurrentMailingAddress_StateOrProvince[0]'
             }
           end
 
-          describe '#address_country' do
-            it { expect(form_fields.address_country).to eq 'form1[0].#subform[2].CurrentMailingAddress_Country[0]' }
+          describe '#mailing_address_country' do
+            it {
+              expect(form_fields.mailing_address_country).to eq 'form1[0].#subform[2].CurrentMailingAddress_Country[0]'
+            }
           end
 
-          describe '#zip_code_first_five' do
+          describe '#zip_code_5' do
             it {
               expect(
-                form_fields.zip_code_first_five
+                form_fields.zip_code_5
               ).to eq 'form1[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]'
             }
           end
 
-          describe '#zip_code_last_four' do
+          describe '#zip_code_4' do
             it {
               expect(
-                form_fields.zip_code_last_four
+                form_fields.zip_code_4
               ).to eq 'form1[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]'
             }
           end
@@ -90,36 +89,12 @@ module AppealsApi
             it { expect(form_fields.phone).to eq 'form1[0].#subform[2].TELEPHONE[0]' }
           end
 
-          describe '#benefit_type(index)' do
-            it { expect(form_fields.benefit_type(0)).to eq 'form1[0].#subform[2].RadioButtonList[0]' }
-          end
-
           describe '#soc_ssoc_opt_in' do
             it { expect(form_fields.soc_ssoc_opt_in).to eq 'form1[0].#subform[2].RadioButtonList[2]' }
           end
 
-          describe '#decision_date' do
-            it { expect(form_fields.decision_date).to eq 'form1[0].#subform[2].DATEOFVADECISION1[0]' }
-          end
-
-          describe '#date_of_record' do
-            it { expect(form_fields.date_of_record).to eq 'form1[0].#subform[3].DATEOFTREATMENTRECORDS1[0]' }
-          end
-
-          describe '#notice_of_acknowledgement_no' do
-            it { expect(form_fields.notice_of_acknowledgement_no).to eq 'form1[0].#subform[3].TIME2TO430PM[0]' }
-          end
-
-          describe '#notice_of_acknowledgement_yes' do
-            it { expect(form_fields.notice_of_acknowledgement_yes).to eq 'form1[0].#subform[3].TIME1230TO2PM[0]' }
-          end
-
           describe '#date_signed' do
             it { expect(form_fields.date_signed).to eq 'form1[0].#subform[3].DATESIGNED[0]' }
-          end
-
-          describe '#date_signed_alternate_signer' do
-            it { expect(form_fields.date_signed_alternate_signer).to eq 'form1[0].#subform[3].DATESIGNED[1]' }
           end
         end
       end
