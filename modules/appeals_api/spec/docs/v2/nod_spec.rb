@@ -428,7 +428,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
           end
         end
 
-        it 'returns a 202 response' do |example|
+        xit 'returns a 202 response' do |example|
           with_settings(Settings.vba_documents.location,
                         prefix: 'https://fake.s3.url/foo/',
                         replacement: 'https://api.vets.gov/proxy/') do
