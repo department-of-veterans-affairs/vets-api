@@ -30,6 +30,7 @@ properties:
       - timeZone
       - vetextId
       - reason
+      - isCovidVaccine
     properties:
       appointmentType:
         type: string
@@ -140,3 +141,6 @@ properties:
       reason:
         type: string
         example: "Follow-up/Routine: Reason 1"
+      isCovidVaccine:
+        type: boolean
+        example: false

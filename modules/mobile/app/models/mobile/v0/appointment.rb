@@ -58,6 +58,7 @@ module Mobile
       attribute :time_zone, TIME_ZONE_TYPE
       attribute :vetext_id, Types::String.optional
       attribute :reason, Types::String.optional
+      attribute :is_covid_vaccine, Types::Bool
 
       def self.toggle_non_prod_id!(id)
         return id if Settings.hostname == 'api.va.gov' || id.nil?

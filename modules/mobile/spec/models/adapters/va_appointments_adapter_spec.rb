@@ -422,6 +422,32 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
   end
 
+  context 'with a list that include covid vaccine appointments' do
+    let(:appointment_fixtures) do
+      File.read(Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'va_appointments_covid.json'))
+    end
+
+    let(:adapted_appointments) do
+      subject.parse(JSON.parse(appointment_fixtures, symbolize_names: true))[0]
+    end
+
+    let(:covid_vaccine_va) { adapted_appointments[0] }
+    let(:non_covid_vaccine_va) { adapted_appointments[1] }
+
+    it 'returns a list of appointments at the expected size' do
+      expect(adapted_appointments.size).to eq(5)
+    end
+
+    it 'labels covid vaccine appointments correctly' do
+      expect(covid_vaccine_va[:is_covid_vaccine]).to eq(true)
+    end
+
+    it 'labels non covid vaccine appointments correctly' do
+      expect(non_covid_vaccine_va[:appointment_type]).to eq('VA')
+      expect(non_covid_vaccine_va[:is_covid_vaccine]).to eq(false)
+    end
+  end
+
   context 'with a VA appointment that has a missing friendly name' do
     let(:missing_friendly_name) { adapted_appointments[3] }
 

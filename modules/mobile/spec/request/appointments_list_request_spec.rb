@@ -264,6 +264,7 @@ RSpec.describe 'appointments', type: :request do
         let(:cancelled_appointment) { response.parsed_body['data'][6]['attributes'] }
         let(:cc_appointment_with_blank_provider) { response.parsed_body['data'][1]['attributes'] }
         let(:cc_appointment_with_provider) { response.parsed_body['data'][2]['attributes'] }
+        let(:covid_appointment) { response.parsed_body['data'][6]['attributes'] }
 
         it 'returns an ok response' do
           expect(response).to have_http_status(:ok)
@@ -326,7 +327,8 @@ RSpec.describe 'appointments', type: :request do
                 'statusDetail' => nil,
                 'timeZone' => 'America/Denver',
                 'vetextId' => '308;20201103.090000',
-                'reason' => nil
+                'reason' => nil,
+                'isCovidVaccine' => false
               }
             }
           )
@@ -373,10 +375,15 @@ RSpec.describe 'appointments', type: :request do
                 'statusDetail' => nil,
                 'timeZone' => 'America/New_York',
                 'vetextId' => nil,
-                'reason' => nil
+                'reason' => nil,
+                'isCovidVaccine' => false
               }
             }
           )
+        end
+
+        it 'includes isCovidVaccine: true for covid appointments' do
+          expect(covid_appointment['isCovidVaccine']).to eq(true)
         end
       end
 
@@ -445,7 +452,8 @@ RSpec.describe 'appointments', type: :request do
                 'statusDetail' => nil,
                 'timeZone' => 'America/Denver',
                 'vetextId' => '308;20201103.090000',
-                'reason' => nil
+                'reason' => nil,
+                'isCovidVaccine' => false
               }
             }
           )
@@ -492,7 +500,8 @@ RSpec.describe 'appointments', type: :request do
                 'statusDetail' => nil,
                 'timeZone' => 'America/New_York',
                 'vetextId' => nil,
-                'reason' => nil
+                'reason' => nil,
+                'isCovidVaccine' => false
               }
             }
           )

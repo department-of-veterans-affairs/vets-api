@@ -19,7 +19,8 @@ module Mobile
                  :status_detail,
                  :time_zone,
                  :vetext_id,
-                 :reason
+                 :reason,
+                 :is_covid_vaccine
     end
   end
 end

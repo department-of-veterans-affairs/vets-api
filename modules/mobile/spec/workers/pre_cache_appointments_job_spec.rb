@@ -62,7 +62,8 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
                         status_detail: nil,
                         time_zone: 'America/New_York',
                         vetext_id: nil,
-                        reason: nil })
+                        reason: nil,
+                        is_covid_vaccine: false })
             end
           end
         end

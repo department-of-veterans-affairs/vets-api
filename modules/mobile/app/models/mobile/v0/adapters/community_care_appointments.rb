@@ -61,7 +61,8 @@ module Mobile
             status_detail: nil, # not currently used by community care appointments
             time_zone: time_zone,
             vetext_id: nil,
-            reason: nil
+            reason: nil,
+            is_covid_vaccine: false
           }
         end
         # rubocop:enable Metrics/MethodLength
