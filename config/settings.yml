@@ -63,9 +63,10 @@ dmc:
 mcp:
   vbs:
     url: https://fake_url.com:9000
-    host: fake_url.com
+    host: fake_url.com:9000
+    base_path: /base/path
     service_name: VBS
-    mock: true
+    mock: false
 
 fsr:
   prefill: true

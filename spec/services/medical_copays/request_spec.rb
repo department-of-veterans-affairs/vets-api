@@ -13,7 +13,11 @@ RSpec.describe MedicalCopays::Request do
 
   describe 'settings' do
     it 'has a host' do
-      expect(subject.host).to eq('fake_url.com')
+      expect(subject.host).to eq('fake_url.com:9000')
+    end
+
+    it 'has base_path' do
+      expect(subject.base_path).to eq('/base/path')
     end
 
     it 'has service_name' do
@@ -33,19 +37,20 @@ RSpec.describe MedicalCopays::Request do
 
   describe '#mock_enabled?' do
     it 'default mock is false' do
-      expect(subject.mock_enabled?).to be(false)
+      expect(subject.mock_enabled?).to be(true)
     end
   end
 
   describe '#headers' do
     it 'has request headers' do
-      expect(subject.headers).to eq({ 'Host' => 'fake_url.com', 'Content-Type' => 'application/json' })
+      expect(subject.headers).to eq({ 'Host' => 'fake_url.com:9000',
+                                      'Content-Type' => 'application/json' })
     end
   end
 
   describe '#post' do
     let(:path) { '/foo/bar' }
-    let(:params) { { edipi: '123', vistaAccountNumbers: ['1234'] } }
+    let(:params) { { edipi: '123', vistaAccountNumbers: [1234] } }
     let(:response) { Faraday::Response.new }
 
     it 'connection is called with post' do

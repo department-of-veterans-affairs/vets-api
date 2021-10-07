@@ -227,9 +227,10 @@ check_in:
 mcp:
   vbs:
     url: https://fake_url.com:9000
-    host: ~
+    host: fake_url.com:9000
+    base_path: /base/path
     service_name: VBS
-    mock: false
+    mock: true
 
 rack:
   cookie_secret: "xxxxx"

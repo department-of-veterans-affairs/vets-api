@@ -31,8 +31,8 @@ RSpec.describe MedicalCopays::VBS::Service do
     end
 
     it 'returns a response hash' do
-      url = '/Prod/GetStatementsByEDIPIAndVistaAccountNumber'
-      data = { edipi: '123456789', vistaAccountNumbers: ['36546'] }
+      url = '/base/path/GetStatementsByEDIPIAndVistaAccountNumber'
+      data = { edipi: '123456789', vistaAccountNumbers: [36_546] }
       response = Faraday::Response.new(body: [{ 'foo_bar' => 'bar' }], status: 200)
 
       allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:valid?).and_return(true)

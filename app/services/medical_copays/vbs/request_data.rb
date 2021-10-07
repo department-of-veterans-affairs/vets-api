@@ -44,7 +44,7 @@ module MedicalCopays
             'vistaAccountNumbers' => {
               'type' => 'array',
               'items' => {
-                'type' => 'string',
+                'type' => 'integer',
                 'minLength' => 16,
                 'maxLength' => 16
               }
@@ -80,8 +80,8 @@ module MedicalCopays
       #
       def to_hash
         {
-          edipi: edipi,
-          vistaAccountNumbers: vista_account_numbers.list
+          'edipi' => edipi,
+          'vistaAccountNumbers' => vista_account_numbers.list
         }
       end
 

@@ -51,7 +51,7 @@ module MedicalCopays
       offset = 16 - (key + id).length
       padding = '0' * offset
 
-      "#{key}#{padding}#{id}"
+      "#{key}#{padding}#{id}".to_i
     end
 
     ##
@@ -60,7 +60,7 @@ module MedicalCopays
     # @return [Array]
     #
     def default
-      ['0000000000000000']
+      [0]
     end
   end
 end

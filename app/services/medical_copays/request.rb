@@ -20,7 +20,7 @@ module MedicalCopays
 
     attr_reader :settings
 
-    def_delegators :settings, :host, :service_name, :url
+    def_delegators :settings, :base_path, :host, :service_name, :url
 
     ##
     # Builds a MedicalCopays::Request instance

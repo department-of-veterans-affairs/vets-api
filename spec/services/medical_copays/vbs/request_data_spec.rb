@@ -41,8 +41,13 @@ RSpec.describe MedicalCopays::VBS::RequestData do
   describe '#to_hash' do
     it 'returns a data hash' do
       hsh = {
-        edipi: '123',
-        vistaAccountNumbers: %w[5160000000012345 5160000067891234 5530000000000002 5530000087234689]
+        'edipi' => '123',
+        'vistaAccountNumbers' => [
+          5_160_000_000_012_345,
+          5_160_000_067_891_234,
+          5_530_000_000_000_002,
+          5_530_000_087_234_689
+        ]
       }
 
       expect(subject.to_hash).to eq(hsh)
@@ -79,7 +84,7 @@ RSpec.describe MedicalCopays::VBS::RequestData do
           'vistaAccountNumbers' => {
             'type' => 'array',
             'items' => {
-              'type' => 'string',
+              'type' => 'integer',
               'minLength' => 16,
               'maxLength' => 16
             }
