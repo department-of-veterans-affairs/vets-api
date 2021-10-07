@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_05_171821) do
+ActiveRecord::Schema.define(version: 2021_10_06_193911) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -28,7 +28,9 @@ ActiveRecord::Schema.define(version: 2021_10_05_171821) do
     t.datetime "dslogon_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "current_verification"
     t.index ["account_id"], name: "index_account_login_stats_on_account_id", unique: true
+    t.index ["current_verification"], name: "index_account_login_stats_on_current_verification"
     t.index ["dslogon_at"], name: "index_account_login_stats_on_dslogon_at"
     t.index ["idme_at"], name: "index_account_login_stats_on_idme_at"
     t.index ["myhealthevet_at"], name: "index_account_login_stats_on_myhealthevet_at"
@@ -799,10 +801,10 @@ ActiveRecord::Schema.define(version: 2021_10_05_171821) do
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.text "services"
     t.string "id_type"
     t.string "loa"
     t.string "account_type"
-    t.text "services"
     t.uuid "idme_uuid"
     t.text "notes"
   end
