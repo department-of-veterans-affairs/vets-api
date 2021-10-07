@@ -43,46 +43,9 @@ pipeline {
       }
     }
 
-    stage('Lint Changed Files') {
-      when { changeRequest() }
-      steps {
-        script {
-          files_to_lint = ''
-          try {
-            files_to_lint = getGithubChangedFiles('vets-api', env.CHANGE_ID.toInteger(),
-                              change_types: ['modified', 'added']).join(' ')
-          } catch(IOException e) {
-            echo "WARNING: Unable to fetch changed PR files from Github!"
-            echo "${e}"           
-          }
-        }
-        sh """env=$RAILS_ENV make files='${files_to_lint}' lint"""
-      }
-    }
-
-    stage('Lint All Files') {
-      when { branch 'master' }
-      steps {
-        sh 'env=$RAILS_ENV make lint'
-      }
-    }
-
-    stage('Security Scan') {
-      steps {
-        sh 'env=$RAILS_ENV make security'
-      }
-    }
-
     stage('Run tests') {
       steps {
         sh 'env=$RAILS_ENV make spec_parallel'
-      }
-      post {
-        success {
-          archiveArtifacts artifacts: "coverage/**"
-          publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
-          junit 'log/*.xml'
-        }
       }
     }
 
