@@ -7,6 +7,7 @@ require 'lib/sentry_logging_spec_helper'
 RSpec.describe ApplicationController, type: :controller do
   controller do
     attr_reader :payload
+
     skip_before_action :authenticate, except: :test_authentication
 
     JSON_ERROR = {

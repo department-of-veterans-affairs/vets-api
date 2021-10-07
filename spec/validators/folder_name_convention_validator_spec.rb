@@ -7,6 +7,7 @@ class Validatable
   include ActiveModel::Validations
 
   attr_accessor :name
+
   validates :name, folder_name_convention: true
 end
 

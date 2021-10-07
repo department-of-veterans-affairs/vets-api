@@ -6,18 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: AllowAliasSyntax, AllowedMethods.
-# AllowedMethods: alias_method, public, protected, private
-Layout/EmptyLinesAroundAttributeAccessor:
-  Exclude:
-    - 'lib/evss/service.rb'
-    - 'lib/json_schema/json_api_missing_attribute.rb'
-    - 'lib/okta/user_profile.rb'
-    - 'spec/controllers/application_controller_spec.rb'
-    - 'spec/validators/folder_name_convention_validator_spec.rb'
-
 # Offense count: 63
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, IndentationWidth.

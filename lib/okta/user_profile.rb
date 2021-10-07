@@ -11,6 +11,7 @@ module Okta
     end
 
     attr_reader :attrs
+
     delegate :[], to: :attrs
 
     def derived_loa
