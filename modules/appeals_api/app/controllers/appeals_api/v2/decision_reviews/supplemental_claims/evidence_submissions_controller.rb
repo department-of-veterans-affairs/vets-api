@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-module AppealsApi::V1
+module AppealsApi::V2
   module DecisionReviews
-    module NoticeOfDisagreements
+    module SupplementalClaims
       class EvidenceSubmissionsController < AppealsApi::ApplicationController
         include AppealsApi::StatusSimulation
         include SentryLogging
@@ -13,21 +13,21 @@ module AppealsApi::V1
 
         HEADERS = JSON.parse(
           File.read(
-            AppealsApi::Engine.root.join('config/schemas/v1/10182_headers.json')
+            AppealsApi::Engine.root.join('config/schemas/v2/200995_headers.json')
           )
-        )['definitions']['nodCreateHeadersRoot']['properties'].keys
+        )['definitions']['supplementalClaimParams']['properties'].keys
 
         skip_before_action :authenticate
         before_action :validate_characters, only: :create
-        before_action :nod_uuid_present?, only: :create
+        before_action :supplemental_claim_uuid?, only: :create
 
         def create
-          status, error = AppealsApi::EvidenceSubmissionRequestValidator.new(params[:nod_uuid],
+          status, error = AppealsApi::EvidenceSubmissionRequestValidator.new(params[:sc_uuid],
                                                                              request.headers['X-VA-SSN'],
-                                                                             'NoticeOfDisagreement').call
+                                                                             'SupplementalClaim').call
 
           if status == :ok
-            upload = VBADocuments::UploadSubmission.create! consumer_name: 'appeals_api_nod_evidence_submission'
+            upload = VBADocuments::UploadSubmission.create! consumer_name: 'appeals_api_sc_evidence_submission'
             submission = AppealsApi::EvidenceSubmission.create! submission_attributes.merge(upload_submission: upload)
 
             render status: :accepted,
@@ -55,12 +55,13 @@ module AppealsApi::V1
 
         private
 
-        def nod_uuid_present?
-          nod_uuid_missing_error unless params[:nod_uuid]
+        def supplemental_claim_uuid?
+          uuid_missing_error unless params[:sc_uuid]
         end
 
-        def nod_uuid_missing_error
-          error = { title: 'bad_request', detail: I18n.t('appeals_api.errors.missing_uuid', appeal_type: 'NOD') }
+        def uuid_missing_error
+          error = { title: 'bad_request',
+                    detail: I18n.t('appeals_api.errors.missing_uuid', appeal_type: 'SupplementalClaim') }
           log_error(error)
 
           render json: { errors: [error] }, status: :bad_request
@@ -69,8 +70,8 @@ module AppealsApi::V1
         def submission_attributes
           {
             source: request.headers['X-Consumer-Username'],
-            supportable_id: params[:nod_uuid],
-            supportable_type: 'AppealsApi::NoticeOfDisagreement'
+            supportable_id: params[:sc_uuid],
+            supportable_type: 'AppealsApi::SupplementalClaim'
           }
         end
 

@@ -19,6 +19,8 @@ module AppealsApi
     serialize :form_data, JsonMarshal::Marshaller
     encrypts :auth_headers, :form_data, **lockbox_options
 
+    has_many :evidence_submissions, as: :supportable, dependent: :destroy
+    has_many :status_updates, as: :statusable, dependent: :destroy
     # the controller applies the JSON Schemas in modules/appeals_api/config/schemas/
     # further validations:
     validate(
@@ -150,6 +152,14 @@ module AppealsApi
       end
     end
 
+    def evidence_submission_days_window
+      10
+    end
+
+    def accepts_evidence?
+      true
+    end
+
     def soc_opt_in
       data_attributes&.dig('socOptIn')
     end
@@ -189,7 +199,7 @@ module AppealsApi
     end
 
     def birth_date_string
-      auth_headers.dig('X-VA-Birth-Date')
+      auth_headers&.dig('X-VA-Birth-Date')
     end
 
     def birth_date

@@ -2,7 +2,6 @@
 
 module AppealsApi
   class EvidenceSubmissionRequestValidator
-    EVIDENCE_SUBMISSION_DAYS_WINDOW = 91
     ACCEPTED_APPEAL_TYPES = %w[
       NoticeOfDisagreement
       SupplementalClaim
@@ -47,7 +46,7 @@ module AppealsApi
       return true unless submitted_status
 
       submitted_status.status_update_time >=
-        EVIDENCE_SUBMISSION_DAYS_WINDOW.days.ago.end_of_day
+        appeal.evidence_submission_days_window.days.ago.end_of_day
     end
 
     def ssn_match?

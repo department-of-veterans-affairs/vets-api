@@ -67,6 +67,12 @@ AppealsApi::Engine.routes.draw do
       get 'legacy_appeals', to: 'legacy_appeals#index'
 
       resources :supplemental_claims, only: %i[create show] if Settings.modules_appeals_api.supplemental_claims_enabled
+
+      if Settings.modules_appeals_api.supplemental_claims_enabled
+        namespace :supplemental_claims do
+          resources :evidence_submissions, only: %i[create show]
+        end
+      end
     end
   end
 

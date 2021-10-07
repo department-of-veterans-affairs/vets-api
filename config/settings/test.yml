@@ -86,6 +86,7 @@ modules_appeals_api:
   documentation:
     path_enabled_flag: true
   legacy_appeals_enabled: true
+  supplemental_claims_enabled: true
 
 bgs:
   mock_response_location: /cache/bgs

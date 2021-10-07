@@ -129,6 +129,10 @@ module AppealsApi
       board_review_option == 'evidence_submission'
     end
 
+    def evidence_submission_days_window
+      91
+    end
+
     def update_status!(status:, code: nil, detail: nil)
       handler = Events::Handler.new(event_type: :nod_status_updated, opts: {
                                       from: self.status,
