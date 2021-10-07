@@ -41,10 +41,10 @@ module AppealsApi
 
     def records_to_be_expunged
       @records_to_be_expunged ||=
-        form_type.where.not(encrypted_form_data: nil)
+        form_type.where.not(form_data_ciphertext: nil)
                  .or(
                    form_type.where.not(
-                     encrypted_auth_headers: nil
+                     auth_headers_ciphertext: nil
                    )
                  ).pii_expunge_policy
     end

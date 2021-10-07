@@ -6,14 +6,10 @@ require 'common/file_helpers'
 module ClaimsApi
   class PowerOfAttorney < ApplicationRecord
     include FileData
-    attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
-    attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
-    attr_encrypted(:source_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
-
     serialize :auth_headers, JsonMarshal::Marshaller
     serialize :form_data, JsonMarshal::Marshaller
     serialize :source_data, JsonMarshal::Marshaller
-    encrypts :auth_headers, :form_data, :source_data, migrating: true, **lockbox_options
+    encrypts :auth_headers, :form_data, :source_data, **lockbox_options
 
     PENDING = 'pending'
     UPDATED = 'updated'

@@ -22,7 +22,7 @@ module HealthQuest
     # @return [Hash]
     #
     def self.load(attribute)
-      JSON.parse(attribute)
+      JSON.parse(attribute) unless attribute.nil?
     end
   end
 end

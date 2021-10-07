@@ -19,18 +19,9 @@ module HealthQuest
   class QuestionnaireResponse < ApplicationRecord
     attr_accessor :user
 
-    attr_encrypted :questionnaire_response_data,
-                   key: Settings.db_encryption_key,
-                   marshal: true,
-                   marshaler: JsonMarshaller
-    attr_encrypted :user_demographics_data,
-                   key: Settings.db_encryption_key,
-                   marshal: true,
-                   marshaler: JsonMarshaller
-
-    serialize :questionnaire_response_data, JSON
-    serialize :user_demographics_data, JSON
-    encrypts :questionnaire_response_data, :user_demographics_data, migrating: true, **lockbox_options
+    serialize :questionnaire_response_data, JsonMarshaller
+    serialize :user_demographics_data, JsonMarshaller
+    encrypts :questionnaire_response_data, :user_demographics_data, **lockbox_options
 
     validates :questionnaire_response_data, presence: true
 

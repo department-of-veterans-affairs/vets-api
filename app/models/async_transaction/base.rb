@@ -14,9 +14,8 @@ module AsyncTransaction
       where('created_at < ?', DELETE_COMPLETED_AFTER.ago).where(status: COMPLETED)
     }
 
-    attr_encrypted :metadata, key: Settings.db_encryption_key
     serialize :metadata, JsonMarshal::Marshaller
-    encrypts :metadata, migrating: true, **lockbox_options
+    encrypts :metadata, **lockbox_options
 
     before_save :serialize_metadata
 
