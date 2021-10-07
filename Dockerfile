@@ -5,7 +5,7 @@
 ###
 # shared build/settings for all child images, reuse these layers yo
 ###
-FROM ruby:2.6.8-slim-stretch AS base
+FROM ruby:2.6.8-slim-buster AS base
 
 ARG userid=993
 SHELL ["/bin/bash", "-c"]
@@ -24,6 +24,8 @@ COPY config/clamd.conf /etc/clamav/clamd.conf
 COPY config/ca-trust/* /usr/local/share/ca-certificates/
 # rename .pem files to .crt because update-ca-certificates ignores files that are not .crt
 RUN cd /usr/local/share/ca-certificates ; for i in *.pem ; do mv $i ${i/pem/crt} ; done ; update-ca-certificates
+# Relax ImageMagick PDF security. See https://stackoverflow.com/a/59193253.
+RUN sed -i '/rights="none" pattern="PDF"/d' /etc/ImageMagick-6/policy.xml
 WORKDIR /srv/vets-api/src
 
 ###
