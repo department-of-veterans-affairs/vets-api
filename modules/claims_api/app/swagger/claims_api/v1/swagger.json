@@ -496,7 +496,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "48f19cd8-fa45-427e-ab9e-31c076eb994c",
+                    "id": "c8cf9641-04b8-456e-b4f5-69a121c95f38",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -545,11 +545,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "64040a19-68f7-496d-8330-7eb50f76056b",
+                          "id": "59f6d64b-d86f-4011-bd95-0b671f662373",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-09-30T14:49:31.062Z"
+                          "uploaded_at": "2021-10-06T18:20:14.158Z"
                         }
                       ]
                     }
@@ -1450,6 +1450,7 @@
                                     "example": "1990-01-02"
                                   },
                                   "separationLocationCode": {
+                                    "description": "Code for the facility the Veteran plans to separate from.  [Code values available here.](https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/claims_api/lib/claims_api/separation_location_code_values.json)",
                                     "type": "string",
                                     "example": "98283"
                                   }
@@ -2279,7 +2280,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c54af5e8-0795-44d1-b56c-c86ebbff1c32",
+                    "id": "4f38153e-e70c-40a2-82b7-391df22bec21",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2297,13 +2298,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-09-30T14:49:31.756Z",
+                      "updated_at": "2021-10-06T18:20:14.813Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "c54af5e8-0795-44d1-b56c-c86ebbff1c32",
+                      "token": "4f38153e-e70c-40a2-82b7-391df22bec21",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3154,6 +3155,7 @@
                                       "example": "1990-01-02"
                                     },
                                     "separationLocationCode": {
+                                      "description": "Code for the facility the Veteran plans to separate from.  [Code values available here.](https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/claims_api/lib/claims_api/separation_location_code_values.json)",
                                       "type": "string",
                                       "example": "98283"
                                     }
@@ -3996,7 +3998,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "694de459-e645-49ab-b2cc-0f5e510788e7",
+                    "id": "4d2ebe11-afc1-478d-af38-4edce76f2047",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4014,13 +4016,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-09-30T14:49:32.253Z",
+                      "updated_at": "2021-10-06T18:20:15.482Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "694de459-e645-49ab-b2cc-0f5e510788e7",
+                      "token": "4d2ebe11-afc1-478d-af38-4edce76f2047",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5267,6 +5269,7 @@
                                       "example": "1990-01-02"
                                     },
                                     "separationLocationCode": {
+                                      "description": "Code for the facility the Veteran plans to separate from.  [Code values available here.](https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/claims_api/lib/claims_api/separation_location_code_values.json)",
                                       "type": "string",
                                       "example": "98283"
                                     }
@@ -6109,7 +6112,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "362a2352-9775-453a-8b6b-4db8c1ee1a0f",
+                    "id": "c3002156-6150-46f9-a246-4c76822e1973",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6123,7 +6126,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-09-30T14:49:33.213Z",
+                      "updated_at": "2021-10-06T18:20:16.540Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6132,7 +6135,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "0521d1e1-2afd-4b40-a919-13ed7fd14dc6",
+                          "id": "5db8ff68-fd77-4c1d-aba7-95b9fe4ab74b",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8089,11 +8092,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "fd4ee4c3-9335-45ad-8467-42c70d08d50d",
+                    "id": "346ad4c2-eb21-419e-bb9e-01b5195c8111",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2021-09-30",
+                      "date_request_accepted": "2021-10-06",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8802,11 +8805,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6ac23eec-9551-4f48-800c-fb4e53b1b75f",
+                    "id": "0516b5a9-dd90-4ff2-8b4b-6980e57fc949",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-09-30",
+                      "date_request_accepted": "2021-10-06",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9127,11 +9130,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "85c07187-e96c-487c-a11b-e6b644050f84",
+                    "id": "92d56ed0-34f1-4b83-a046-4f84b1490c4c",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-09-30",
+                      "date_request_accepted": "2021-10-06",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"

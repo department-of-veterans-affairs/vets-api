@@ -473,6 +473,7 @@
                 "example": "1990-01-02"
               },
               "separationLocationCode": {
+                "description": "Code for the facility the Veteran plans to separate from.  [Code values available here.](https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/claims_api/lib/claims_api/separation_location_code_values.json)",
                 "type": "string",
                 "example": "98283"
               }
