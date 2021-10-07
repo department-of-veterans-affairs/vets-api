@@ -1,14 +1,26 @@
 # frozen_string_literal: true
 
 unless Rails.env.test?
-  # The CHIP API Request object methods that we wish to monitor
-  chip_api_request_endpoints = %w[get post]
 
   Rails.application.reloader.to_prepare do
-    # Increment StatsD when we call the CHIP API
-    chip_api_request_endpoints.each do |endpoint|
-      StatsD.increment("api.check_in.chip_api.request.#{endpoint}.total", 0)
-      StatsD.increment("api.check_in.chip_api.request.#{endpoint}.fail", 0)
+    # duration/success/fail of GET, POST calls for controllers
+    CheckIn::V2::SessionsController.extend(StatsD::Instrument)
+    CheckIn::V2::PatientCheckInsController.extend(StatsD::Instrument)
+    %i[show create].each do |method|
+      CheckIn::V2::SessionsController.statsd_measure method, "api.check_in.v2.sessions.#{method}.measure"
+      CheckIn::V2::SessionsController.statsd_count_success method, "api.check_in.v2.sessions.#{method}.count"
+      CheckIn::V2::PatientCheckInsController.statsd_measure method, "api.check_in.v2.checkins.#{method}.measure"
+      CheckIn::V2::PatientCheckInsController.statsd_count_success method, "api.check_in.v2.checkins.#{method}.count"
+    end
+
+    # Measure the count/duration of GET/POST calls for LoROTA/CHIP services
+    V2::Lorota::Request.extend(StatsD::Instrument)
+    V2::Chip::Request.extend(StatsD::Instrument)
+    %i[get post].each do |method|
+      V2::Lorota::Request.statsd_count_success method, "api.check_in.v2.lorota.#{method}.count"
+      V2::Lorota::Request.statsd_measure method, "api.check_in.v2.lorota.#{method}.measure"
+      V2::Chip::Request.statsd_count_success method, "api.check_in.v2.chip.#{method}.count"
+      V2::Chip::Request.statsd_measure method, "api.check_in.v2.chip.#{method}.measure"
     end
 
     # Measure the duration of GET and POST calls for Check-in data to the CHIP API

@@ -4,7 +4,6 @@ module V2
   module Lorota
     class Request
       extend Forwardable
-      include Common::Client::Concerns::Monitoring
 
       STATSD_KEY_PREFIX = 'api.check_in.v2.lorota_api.request'
 
@@ -25,19 +24,15 @@ module V2
       end
 
       def get(path)
-        with_monitoring do
-          connection.get(path) do |req|
-            req.headers = default_headers.merge('Authorization' => "Bearer #{token}")
-          end
+        connection.get(path) do |req|
+          req.headers = default_headers.merge('Authorization' => "Bearer #{token}")
         end
       end
 
       def post(path, params)
-        with_monitoring do
-          connection.post(path) do |req|
-            req.headers = default_headers.merge('x-lorota-claims' => claims_token)
-            req.body = params.to_json
-          end
+        connection.post(path) do |req|
+          req.headers = default_headers.merge('x-lorota-claims' => claims_token)
+          req.body = params.to_json
         end
       end
 
