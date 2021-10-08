@@ -110,7 +110,7 @@ describe AppealsApi::PdfConstruction::Generator do
       context 'pdf verification' do
         let(:supplemental_claim) { create(:supplemental_claim, created_at: Time.zone.today) }
 
-        it 'generates the expected pdf' do
+        xit 'generates the expected pdf' do
           generated_pdf = described_class.new(supplemental_claim, version: 'V2').generate
           expected_pdf = fixture_filepath('expected_200995.pdf')
           expect(generated_pdf).to match_pdf(expected_pdf)
@@ -121,7 +121,7 @@ describe AppealsApi::PdfConstruction::Generator do
       context 'pdf extra content verification' do
         let(:extra_supplemental_claim) { create(:extra_supplemental_claim, created_at: Time.zone.today) }
 
-        it 'generates the expected pdf' do
+        xit 'generates the expected pdf' do
           generated_pdf = described_class.new(extra_supplemental_claim, version: 'V2').generate
           expected_pdf = fixture_filepath('expected_200995_extra.pdf')
           expect(generated_pdf).to match_pdf(expected_pdf)
