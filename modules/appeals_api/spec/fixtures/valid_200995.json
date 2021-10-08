@@ -4,6 +4,12 @@
     "attributes": {
       "benefitType": "compensation",
       "veteran": {
+        "address": {
+          "addressLine1": "123 Main St",
+          "city": "New York",
+          "countryCodeISO2": "US",
+          "zipCode5": "30012"
+        },
         "phone": {
           "areaCode": "555",
           "phoneNumber": "8001111"

@@ -68,28 +68,11 @@ describe AppealsApi::SupplementalClaim, type: :model do
       let(:address) { veteran['address'] }
 
       describe 'mailing_address_number_and_street' do
-        it { expect(supplemental_claim.mailing_address_number_and_street).to eq(address['addressLine1']) }
-      end
-
-      describe 'mailing_address_apartment_or_unit_number' do
-        it { expect(supplemental_claim.mailing_address_apartment_or_unit_number).to eq(address['addressLine2']) }
-      end
-
-      describe 'mailing_address_box' do
-        it { expect(supplemental_claim.mailing_address_box).to eq(address['addressLine3']) }
+        it { expect(supplemental_claim.mailing_address_number_and_street).to eq('123 Main St Suite #1200 Box 4') }
       end
 
       describe 'mailing_address_city' do
         it { expect(supplemental_claim.mailing_address_city).to eq(address['city']) }
-      end
-
-      describe 'mailing_address_city_and_box' do
-        it 'concatenates the city and p.o. box when provided' do
-          city = address['city']
-          box = address['addressLine3']
-
-          expect(supplemental_claim.mailing_address_city_and_box).to eq("#{city} #{box}")
-        end
       end
 
       describe 'mailing_address_state' do

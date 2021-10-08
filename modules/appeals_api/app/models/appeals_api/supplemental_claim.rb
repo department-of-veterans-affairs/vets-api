@@ -81,23 +81,11 @@ module AppealsApi
     end
 
     def mailing_address_number_and_street
-      veteran.dig('address', 'addressLine1') || ''
-    end
-
-    def mailing_address_apartment_or_unit_number
-      veteran.dig('address', 'addressLine2') || ''
-    end
-
-    def mailing_address_box
-      veteran.dig('address', 'addressLine3') || ''
+      address_combined
     end
 
     def mailing_address_city
       veteran.dig('address', 'city') || ''
-    end
-
-    def mailing_address_city_and_box
-      "#{mailing_address_city} #{mailing_address_box}"
     end
 
     def mailing_address_state
@@ -257,6 +245,15 @@ module AppealsApi
 
     def add_error(message)
       errors.add(:base, message)
+    end
+
+    def address_combined
+      return unless veteran.dig('address', 'addressLine1')
+
+      @address_combined ||=
+        [veteran.dig('address', 'addressLine1'),
+         veteran.dig('address', 'addressLine2'),
+         veteran.dig('address', 'addressLine3')].compact.map(&:strip).join(' ')
     end
   end
 end

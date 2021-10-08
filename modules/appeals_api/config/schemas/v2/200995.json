@@ -52,7 +52,8 @@
                           "pattern": "^[0-9]{5}$"
                         }
                       },
-                      "additionalProperties": false
+                      "additionalProperties": false,
+                      "required": [ "addressLine1", "city", "countryCodeISO2", "zipCode5" ]
                     },
                     "phone":{
                       "type": "object",

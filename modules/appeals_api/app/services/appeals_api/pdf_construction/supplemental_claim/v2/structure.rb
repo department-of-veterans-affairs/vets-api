@@ -137,8 +137,6 @@ module AppealsApi
               whiteout_line pdf, :veteran_first_name
               whiteout_line pdf, :veteran_last_name
               whiteout_line pdf, :mailing_address_number_and_street
-              whiteout_line pdf, :mailing_address_apartment_or_unit_number
-              whiteout_line pdf, :mailing_address_city_and_box
               whiteout_line pdf, :email
               fill_contestable_issues_text pdf
               pdf.start_new_page
