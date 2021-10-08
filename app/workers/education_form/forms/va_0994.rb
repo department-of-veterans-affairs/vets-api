@@ -88,7 +88,7 @@ module EducationForm::Forms
     end
 
     def high_tech_area_names
-      return 'N/A' if !@applicant.currentHighTechnologyEmployment && !@applicant.currentHighTechnologyEmployment
+      return 'N/A' unless @applicant.currentHighTechnologyEmployment
       return '' if @applicant.highTechnologyEmploymentTypes.blank?
 
       areas = []
@@ -112,7 +112,7 @@ module EducationForm::Forms
     end
 
     def salary_text
-      return 'N/A' if !@applicant.currentHighTechnologyEmployment && !@applicant.currentHighTechnologyEmployment
+      return 'N/A' unless @applicant.currentHighTechnologyEmployment
       return '' if @applicant.currentSalary.blank?
 
       SALARY_TEXT[@applicant.currentSalary.to_sym]
