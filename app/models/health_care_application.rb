@@ -45,12 +45,12 @@ class HealthCareApplication < ApplicationRecord
   def submit_sync
     result = begin
       HCA::Service.new(user).submit_form(parsed_form)
-             rescue Common::Client::Errors::ClientError => e
-               log_exception_to_sentry(e)
+    rescue Common::Client::Errors::ClientError => e
+      log_exception_to_sentry(e)
 
-               raise Common::Exceptions::BackendServiceException.new(
-                 nil, detail: e.message
-               )
+      raise Common::Exceptions::BackendServiceException.new(
+        nil, detail: e.message
+      )
     end
 
     Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"

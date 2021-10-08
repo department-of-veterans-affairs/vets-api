@@ -6,16 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 7
-# Cop supports --auto-correct.
-Layout/RescueEnsureAlignment:
-  Exclude:
-    - 'app/controllers/concerns/failed_request_loggable.rb'
-    - 'app/controllers/v0/higher_level_reviews_controller.rb'
-    - 'app/controllers/v0/id_card_attributes_controller.rb'
-    - 'app/models/health_care_application.rb'
-    - 'rakelib/form526.rake'
-
 # Offense count: 20
 # Cop supports --auto-correct.
 # Configuration parameters: RequireParenthesesForMethodChains.
