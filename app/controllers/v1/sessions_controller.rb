@@ -54,6 +54,7 @@ module V1
     def saml_callback
       set_sentry_context_for_callback if html_escaped_relay_state['type'] == 'mfa'
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
+      save_personal_information_log_staging(saml_response) if Settings.test_user_dashboard.env == 'staging'
       saml_response_stats(saml_response)
       raise_saml_error(saml_response) unless saml_response.valid?
       user_login(saml_response)
@@ -294,6 +295,16 @@ module V1
       when :total
         StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY, tags: [VERSION_TAG])
       end
+    end
+
+    def save_personal_information_log_staging(response)
+      PersonalInformationLog.create(
+        error_class: 'Staging Test Mocks',
+        data: {
+          request_id: request.uuid,
+          payload: response&.response
+        }
+      )
     end
 
     # rubocop:disable Metrics/ParameterLists
