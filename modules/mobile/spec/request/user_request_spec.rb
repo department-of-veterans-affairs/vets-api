@@ -11,8 +11,21 @@ RSpec.describe 'user', type: :request do
   describe 'GET /mobile/v0/user' do
     before { iam_sign_in }
 
+    before(:all) do
+      @original_cassette_dir = VCR.configure(&:cassette_library_dir)
+      VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
+    end
+
+    after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
+
     context 'with no upstream errors' do
-      before { get '/mobile/v0/user', headers: iam_headers }
+      before do
+        VCR.use_cassette('user/get_facility_358', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('user/get_facility_757', match_requests_on: %i[method uri]) do
+            get '/mobile/v0/user', headers: iam_headers
+          end
+        end
+      end
 
       let(:attributes) { response.parsed_body.dig('data', 'attributes') }
 
@@ -173,11 +186,13 @@ RSpec.describe 'user', type: :request do
             'facilities' => [
               {
                 'facilityId' => '757',
-                'isCerner' => true
+                'isCerner' => true,
+                'facilityName' => 'Cheyenne VA Medical Center'
               },
               {
                 'facilityId' => '358',
-                'isCerner' => false
+                'isCerner' => false,
+                'facilityName' => 'COLUMBUS VAMC'
               }
             ]
           }
@@ -219,7 +234,11 @@ RSpec.describe 'user', type: :request do
         before do
           user = FactoryBot.build(:iam_user, :no_multifactor)
           iam_sign_in(user)
-          get '/mobile/v0/user', headers: iam_headers
+          VCR.use_cassette('user/get_facility_358', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('user/get_facility_757', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/user', headers: iam_headers
+            end
+          end
         end
 
         it 'does not include directDepositBenefits in the authorized services list' do
@@ -314,7 +333,11 @@ RSpec.describe 'user', type: :request do
     context 'after a profile request' do
       it 'kicks off a pre cache appointments job' do
         expect(Mobile::V0::PreCacheAppointmentsJob).to receive(:perform_async).once
-        get '/mobile/v0/user', headers: iam_headers
+        VCR.use_cassette('user/get_facility_358', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('user/get_facility_757', match_requests_on: %i[method uri]) do
+            get '/mobile/v0/user', headers: iam_headers
+          end
+        end
       end
     end
   end

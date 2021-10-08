@@ -92,7 +92,8 @@ module Mobile
         cerner_facility_ids = user.cerner_facility_ids || []
         {
           facility_id: facility_id,
-          is_cerner: cerner_facility_ids.include?(facility_id)
+          is_cerner: cerner_facility_ids.include?(facility_id),
+          facility_name: Mobile::FacilitiesHelper.get_facility_name(facility_id)
         }
       end
     end

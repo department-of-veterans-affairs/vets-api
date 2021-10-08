@@ -71,9 +71,7 @@ module Mobile
         end
 
         def get_appointment_facilities(appointments, facility_ids)
-          facilities = facilities_service.get_facilities(
-            ids: facility_ids.to_a.map { |id| "vha_#{id}" }.join(',')
-          )
+          facilities = Mobile::FacilitiesHelper.get_facilities(facility_ids)
           va_facilities_adapter.map_appointments_to_facilities(appointments, facilities)
         end
 
@@ -116,10 +114,6 @@ module Mobile
 
         def vaos_systems_service
           VAOS::SystemsService.new(@user)
-        end
-
-        def facilities_service
-          Lighthouse::Facilities::Client.new
         end
 
         def va_appointments_adapter

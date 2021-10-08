@@ -74,6 +74,7 @@ properties:
         required:
           - isCernerPatient
           - facilities
+          - facilityName
         properties:
           isCernerPatient:
             type: boolean
@@ -88,4 +89,7 @@ properties:
                 isCerner:
                   type: boolean
                   example: false
+                facilityName:
+                  type: string
+                  example: "Cheyenne VA Medical Center"
             
