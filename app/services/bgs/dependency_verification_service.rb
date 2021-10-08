@@ -25,7 +25,7 @@ module BGS
 
     def empty_response(diaries)
       {
-        dependency_decs: [diaries.dig(:dependency_decs, :dependency_dec)],
+        dependency_decs: diaries.dig(:dependency_decs, :dependency_dec),
         diaries: []
       }
     end

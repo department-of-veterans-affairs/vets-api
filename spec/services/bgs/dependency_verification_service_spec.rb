@@ -81,14 +81,14 @@ RSpec.describe BGS::DependencyVerificationService do
         service = BGS::DependencyVerificationService.new(user)
         diaries = service.read_diaries
         expect(diaries[:diaries]).to eq([])
-        expect(diaries[:dependency_decs]).to match([
-                                                     a_hash_including(
-                                                       award_type: 'CPL',
-                                                       beneficiary_id: '123',
-                                                       dependency_decision_id: '123',
-                                                       modified_location: '101'
-                                                     )
-                                                   ])
+        expect(diaries[:dependency_decs]).to match(
+          a_hash_including(
+            award_type: 'CPL',
+            beneficiary_id: '123',
+            dependency_decision_id: '123',
+            modified_location: '101'
+          )
+        )
       end
     end
   end
