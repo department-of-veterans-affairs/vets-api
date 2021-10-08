@@ -6,21 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 20
-# Cop supports --auto-correct.
-# Configuration parameters: RequireParenthesesForMethodChains.
-Lint/AmbiguousRange:
-  Exclude:
-    - 'app/uploaders/decision_review_evidence_attachment_uploader.rb'
-    - 'app/uploaders/evss_claim_document_uploader_base.rb'
-    - 'app/uploaders/form1010cg/poa_uploader.rb'
-    - 'app/uploaders/hca_attachment_uploader.rb'
-    - 'app/uploaders/preneed_attachment_uploader.rb'
-    - 'app/uploaders/profile_photo_attachment_uploader.rb'
-    - 'app/uploaders/supporting_documentation_attachment_uploader.rb'
-    - 'modules/claims_api/app/uploaders/claims_api/base_uploader.rb'
-    - 'spec/uploaders/form1010cg/poa_uploader_spec.rb'
-
 # Offense count: 2
 Lint/BinaryOperatorWithIdenticalOperands:
   Exclude:
