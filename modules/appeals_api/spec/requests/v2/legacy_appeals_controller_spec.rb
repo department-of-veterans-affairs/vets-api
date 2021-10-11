@@ -113,15 +113,6 @@ describe AppealsApi::V2::DecisionReviews::LegacyAppealsController, type: :reques
         expect(JSON.parse(response.body)).to eq body
       end
     end
-
-    context 'when feature flag disabled' do
-      with_settings(Settings.modules_appeals_api, legacy_appeals_enabled: false) do
-        it 'returns a 500 error' do
-          get_legacy_appeals(ssn: '123445223', file_number: '222222222')
-          expect(response).to have_http_status :internal_server_error
-        end
-      end
-    end
   end
 
   private

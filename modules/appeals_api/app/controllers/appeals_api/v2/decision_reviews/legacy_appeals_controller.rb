@@ -16,8 +16,6 @@ class AppealsApi::V2::DecisionReviews::LegacyAppealsController < AppealsApi::App
   before_action :validate_json_schema, only: %i[index]
 
   def index
-    return unless enabled?
-
     get_legacy_appeals_from_caseflow
 
     if caseflow_response_usable?
@@ -74,9 +72,5 @@ class AppealsApi::V2::DecisionReviews::LegacyAppealsController < AppealsApi::App
     # Status is both rendered and updated -> an unusable response from Caseflow will have returned with a status: 200
     render status: :bad_gateway,
            json: Common::Exceptions::BackendServiceException.new(detail: 'Unusable upstream response')
-  end
-
-  def enabled?
-    Settings.modules_appeals_api.legacy_appeals_enabled
   end
 end
