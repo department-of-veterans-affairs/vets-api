@@ -340,6 +340,38 @@ RSpec.describe 'user', type: :request do
         end
       end
     end
+
+    context 'empty get_facility test' do
+      before do
+        VCR.use_cassette('user/get_facility_358', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('user/get_facility_757_empty', match_requests_on: %i[method uri]) do
+            get '/mobile/v0/user', headers: iam_headers
+          end
+        end
+      end
+
+      let(:attributes) { response.parsed_body.dig('data', 'attributes') }
+
+      it 'returns empty appropriate facilities list' do
+        expect(attributes['health']).to include(
+          {
+            'isCernerPatient' => true,
+            'facilities' => [
+              {
+                'facilityId' => '757',
+                'isCerner' => true,
+                'facilityName' => ''
+              },
+              {
+                'facilityId' => '358',
+                'isCerner' => false,
+                'facilityName' => 'COLUMBUS VAMC'
+              }
+            ]
+          }
+        )
+      end
+    end
   end
 
   describe 'GET /mobile/v0/user/logout' do

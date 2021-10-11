@@ -9,8 +9,13 @@ module Mobile
     end
 
     def get_facility_name(facility_id)
-      facility = facilities_service.get_facilities(ids: "vha_#{facility_id}")[0]
-      facility.name
+      facility = facilities_service.get_facilities(ids: "vha_#{facility_id}")
+      if facility[0].nil?
+        Rails.logger.info('Mobile: Facility not found?', facility_lookup_results: facility, id: facility_id)
+        ''
+      else
+        facility[0].name
+      end
     end
 
     def facilities_service
