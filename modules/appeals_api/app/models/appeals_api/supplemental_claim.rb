@@ -15,6 +15,8 @@ module AppealsApi
       nil
     end
 
+    STATUSES = %w[pending success error].freeze
+
     serialize :auth_headers, JsonMarshal::Marshaller
     serialize :form_data, JsonMarshal::Marshaller
     encrypts :auth_headers, :form_data, **lockbox_options

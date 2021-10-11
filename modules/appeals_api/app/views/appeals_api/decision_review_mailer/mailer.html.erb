@@ -54,5 +54,14 @@
 
     <%= render partial: 'appeal_table', locals: { appeal_name: 'NOD Evidence', appeal_status_and_count: @report.evidence_submission_by_status_and_count, faulty_appeals: @report.faulty_evidence_submission } %>
 
+    <br />
+    <hr />
+
+    <%= render partial: 'appeal_table', locals: { appeal_name: 'SC', appeal_status_and_count: @report.sc_by_status_and_count, faulty_appeals: @report.faulty_sc } %>
+
+    <br />
+    <hr />
+
+    <%= render partial: 'appeal_table', locals: { appeal_name: 'SC Evidence', appeal_status_and_count: @report.sc_evidence_submission_by_status_and_count, faulty_appeals: @report.sc_faulty_evidence_submission } %>
   </body>
 </html>

@@ -10,6 +10,14 @@ FactoryBot.define do
     form_data do
       JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/valid_200995.json"
     end
+
+    trait :status_success do
+      status { 'success' }
+    end
+
+    trait :status_error do
+      status { 'error' }
+    end
   end
 
   factory :extra_supplemental_claim, class: 'AppealsApi::SupplementalClaim' do

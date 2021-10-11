@@ -9,6 +9,15 @@ FactoryBot.define do
     } # set the guid to pass uniqueness check
   end
 
+  factory :sc_evidence_submission, class: 'AppealsApi::EvidenceSubmission' do
+    guid { SecureRandom.uuid }
+    association :supportable, factory: :supplemental_claim
+    upload_submission {
+      create(:upload_submission, guid: SecureRandom.uuid,
+                                 consumer_name: 'appeals_api_sc_evidence_submission')
+    } # set the guid to pass uniqueness check
+  end
+
   trait :with_detail do
     detail { SecureRandom.alphanumeric(150) }
   end
