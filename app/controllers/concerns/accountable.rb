@@ -17,7 +17,7 @@ module Accountable
   def update_account_login_stats
     return unless account_login_stats.present? && login_type.in?(AccountLoginStat::LOGIN_TYPES)
 
-    account_login_stats.update!("#{login_type}_at" => Time.zone.now)
+    account_login_stats.update!("#{login_type}_at" => Time.zone.now, current_verification: verification_level)
   rescue => e
     log_error(e, account_login_stats: 'update_failed')
   end
@@ -36,6 +36,12 @@ module Accountable
 
   def login_type
     @login_type ||= @current_user.identity.sign_in[:service_name]
+  end
+
+  def verification_level
+    AccountLoginStat::VERIFICATION_LEVELS.detect do |str|
+      @current_user.identity.authn_context&.gsub('/', '')&.scan(/#{str}/)&.present?
+    end
   end
 
   def log_error(error, tag_hash)

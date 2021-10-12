@@ -69,6 +69,11 @@ RSpec.describe AfterLoginActions do
           expect(AccountLoginStat.last.send("#{login_type}_at")).not_to be_nil
         end
 
+        it 'will update the current_verification column' do
+          described_class.new(user).perform
+          expect(AccountLoginStat.last.current_verification).to eq('loa1')
+        end
+
         it 'will not create a record if login_type is not valid' do
           login_type = 'something_invalid'
           allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: login_type)
