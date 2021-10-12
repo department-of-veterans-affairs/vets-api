@@ -28,8 +28,8 @@ module AppealsApi
         'app',
         'views',
         'appeals_api',
-        'daily_error_report',
-        'index.html.erb'
+        'daily_error_report_mailer',
+        'mailer.html.erb'
       )
     end
   end

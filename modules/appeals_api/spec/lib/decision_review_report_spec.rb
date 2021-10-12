@@ -87,7 +87,7 @@ describe AppealsApi::DecisionReviewReport do
   end
 
   it 'can correctly calculate SCs' do
-    create :supplemental_claim, created_at: 1.week.ago, status: 'success'
+    create :supplemental_claim, :status_success, created_at: 1.week.ago
     create :supplemental_claim, :status_success
     create :supplemental_claim, :status_success
 
