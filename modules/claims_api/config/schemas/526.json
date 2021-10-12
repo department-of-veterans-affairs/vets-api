@@ -260,20 +260,6 @@
             {
               "if": {
                 "properties": {
-                  "addressChangeType": {
-                    "const": "TEMPORARY"
-                  }
-                }
-              },
-              "then": {
-                "required": [
-                  "endingDate"
-                ]
-              }
-            },
-            {
-              "if": {
-                "properties": {
                   "type": {
                     "const": "INTERNATIONAL"
                   }

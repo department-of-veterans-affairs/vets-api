@@ -161,7 +161,6 @@ module ClaimsApi
         end
 
         def validate_form_526_change_of_address!
-          validate_form_526_change_of_address_ending_date!
           validate_form_526_change_of_address_beginning_date!
           validate_form_526_change_of_address_country!
         end
@@ -173,15 +172,6 @@ module ClaimsApi
           return if Date.parse(change_of_address['beginningDate']) > Time.zone.now
 
           raise ::Common::Exceptions::InvalidFieldValue.new('beginningDate', change_of_address['beginningDate'])
-        end
-
-        def validate_form_526_change_of_address_ending_date!
-          change_of_address = form_attributes.dig('veteran', 'changeOfAddress')
-          return if change_of_address.blank?
-          return if change_of_address['addressChangeType'] == 'TEMPORARY' && change_of_address['endingDate'].present?
-          return if change_of_address['addressChangeType'] == 'PERMANENT' && change_of_address['endingDate'].blank?
-
-          raise ::Common::Exceptions::InvalidFieldValue.new('endingDate', change_of_address['endingDate'])
         end
 
         def validate_form_526_change_of_address_country!

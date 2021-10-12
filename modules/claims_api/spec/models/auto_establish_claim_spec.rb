@@ -232,6 +232,81 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
         )
       end
     end
+
+    describe "handling 'changeOfAddress.endingDate'" do
+      context "when 'changeOfAddress' is provided" do
+        let(:change_of_address) do
+          {
+            'beginningDate' => (Time.zone.now + 1.month).to_date.to_s,
+            'endingDate' => ending_date,
+            'addressChangeType' => address_change_type,
+            'addressLine1' => '1234 Couch Street',
+            'city' => 'New York City',
+            'state' => 'NY',
+            'type' => 'DOMESTIC',
+            'zipFirstFive' => '12345',
+            'country' => 'USA'
+          }
+        end
+        let(:ending_date) { (Time.zone.now + 6.months).to_date.to_s }
+
+        context "when 'changeOfAddress.addressChangeType' is 'TEMPORARY'" do
+          let(:address_change_type) { 'TEMPORARY' }
+
+          context "and 'changeOfAddress.endingDate' is not provided" do
+            it "sets 'changeOfAddress.endingDate' to 1 year in the future" do
+              change_of_address.delete('endingDate')
+              pending_record.form_data['veteran']['changeOfAddress'] = change_of_address
+
+              payload = JSON.parse(pending_record.to_internal)
+              transformed_ending_date = payload['form526']['veteran']['changeOfAddress']['endingDate']
+
+              expect(transformed_ending_date).to eq((Time.zone.now.to_date + 1.year).to_s)
+            end
+          end
+
+          context "and 'changeOfAddress.endingDate' is provided" do
+            it "does not change 'changeOfAddress.endingDate'" do
+              pending_record.form_data['veteran']['changeOfAddress'] = change_of_address
+
+              payload = JSON.parse(pending_record.to_internal)
+              untouched_ending_date = payload['form526']['veteran']['changeOfAddress']['endingDate']
+
+              expect(untouched_ending_date).to eq(ending_date)
+            end
+          end
+        end
+
+        context "when 'changeOfAddress.addressChangeType' is 'PERMANENT'" do
+          let(:address_change_type) { 'PERMANENT' }
+
+          context "and 'changeOfAddress.endingDate' is provided" do
+            let(:ending_date) { (Time.zone.now + 6.months).to_date.to_s }
+
+            it "removes the 'changeOfAddress.endingDate'" do
+              pending_record.form_data['veteran']['changeOfAddress'] = change_of_address
+
+              payload = JSON.parse(pending_record.to_internal)
+              transformed_ending_date = payload['form526']['veteran']['changeOfAddress']['endingDate']
+
+              expect(transformed_ending_date).to eq(nil)
+            end
+          end
+
+          context "and 'changeOfAddress.endingDate' is not provided" do
+            it "does not add a 'changeOfAddress.endingDate'" do
+              change_of_address.delete('endingDate')
+              pending_record.form_data['veteran']['changeOfAddress'] = change_of_address
+
+              payload = JSON.parse(pending_record.to_internal)
+              untouched_ending_date = payload['form526']['veteran']['changeOfAddress']['endingDate']
+
+              expect(untouched_ending_date).to eq(nil)
+            end
+          end
+        end
+      end
+    end
   end
 
   describe 'evss_id_by_token' do

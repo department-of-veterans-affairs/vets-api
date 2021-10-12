@@ -351,22 +351,6 @@ RSpec.describe 'Disability Claims ', type: :request do
             }
           end
 
-          it 'raises an exception that endingDate is not provided' do
-            with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                  VCR.use_cassette('evss/reference_data/countries') do
-                    par = json_data
-                    par['data']['attributes']['veteran']['changeOfAddress'] = change_of_address
-
-                    post path, params: par.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(422)
-                  end
-                end
-              end
-            end
-          end
-
           context 'when beginningDate is in the past' do
             let(:json_data) { JSON.parse data }
 
@@ -397,38 +381,6 @@ RSpec.describe 'Disability Claims ', type: :request do
                         expect(response.status).to eq(400)
                       end
                     end
-                  end
-                end
-              end
-            end
-          end
-        end
-
-        context 'when addressChangeType is PERMANENT' do
-          let(:change_of_address) do
-            {
-              beginningDate: (Time.zone.now + 1.month).to_date.to_s,
-              endingDate: (Time.zone.now + 2.months).to_date.to_s,
-              addressChangeType: 'PERMANENT',
-              addressLine1: '1234 Couch Street',
-              city: 'New York City',
-              state: 'NY',
-              type: 'DOMESTIC',
-              zipFirstFive: '12345',
-              country: 'USA'
-            }
-          end
-
-          it 'raises an exception that endingDate is provided but should not be' do
-            with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                  VCR.use_cassette('evss/reference_data/countries') do
-                    par = json_data
-                    par['data']['attributes']['veteran']['changeOfAddress'] = change_of_address
-
-                    post path, params: par.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(400)
                   end
                 end
               end

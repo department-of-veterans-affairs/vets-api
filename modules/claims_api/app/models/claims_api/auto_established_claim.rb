@@ -55,9 +55,8 @@ module ClaimsApi
       form_data['claimDate'] ||= (persisted? ? created_at.to_date.to_s : Time.zone.today.to_s)
       form_data['claimSubmissionSource'] = 'Lighthouse'
       form_data['bddQualified'] = bdd_qualified?
-      if separation_pay_received_date?
-        form_data['servicePay']['separationPay']['receivedDate'] = transform_separation_pay_received_date
-      end
+      form_data['servicePay']['separationPay']['receivedDate'] = transform_separation_pay_received_date if separation_pay_received_date? # rubocop:disable Layout/LineLength
+      form_data['veteran']['changeOfAddress'] = transform_change_of_address_ending_date if invalid_change_of_address_ending_date? # rubocop:disable Layout/LineLength
       form_data['disabilites'] = transform_disability_approximate_begin_dates
       form_data['disabilites'] = massage_invalid_disability_names
       form_data['treatments'] = transform_treatment_dates if treatments?
@@ -311,6 +310,55 @@ module ClaimsApi
 
     def sanitize_disablity_name(name:, regex:)
       name.gsub(regex, '')
+    end
+
+    def invalid_change_of_address_ending_date?
+      change_of_address = form_data['veteran']['changeOfAddress']
+
+      return false if change_of_address.blank?
+      return true if temporary_change_of_address_missing_ending_date?
+      return true if permanent_change_of_address_includes_ending_date?
+
+      false
+    end
+
+    def temporary_change_of_address_missing_ending_date?
+      change_of_address = form_data['veteran']['changeOfAddress']
+
+      return false if change_of_address.blank?
+
+      change_of_address['addressChangeType'].casecmp?('TEMPORARY') && change_of_address['endingDate'].blank?
+    end
+
+    def permanent_change_of_address_includes_ending_date?
+      change_of_address = form_data['veteran']['changeOfAddress']
+
+      return false if change_of_address.blank?
+
+      change_of_address['addressChangeType'].casecmp?('PERMANENT') && change_of_address['endingDate'].present?
+    end
+
+    # EVSS requires a 'TEMPORARY' 'changeOfAddress' to include an 'endingDate'
+    # EVSS requires a 'PERMANENT' 'changeOfAddress' to NOT include an 'endingDate'
+    # If the submission is in an invalid state, let's try to gracefully fix it for them
+    def transform_change_of_address_ending_date
+      change_of_address = form_data['veteran']['changeOfAddress']
+      change_of_address = add_change_of_address_ending_date if temporary_change_of_address_missing_ending_date?
+      change_of_address = remove_change_of_address_ending_date if permanent_change_of_address_includes_ending_date?
+
+      change_of_address
+    end
+
+    def add_change_of_address_ending_date
+      change_of_address = form_data['veteran']['changeOfAddress']
+      change_of_address['endingDate'] = (Time.zone.now.to_date + 1.year).to_s
+      change_of_address
+    end
+
+    def remove_change_of_address_ending_date
+      change_of_address = form_data['veteran']['changeOfAddress']
+      change_of_address.delete('endingDate')
+      change_of_address
     end
   end
 end
