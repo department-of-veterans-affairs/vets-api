@@ -13,7 +13,7 @@ module Common
       end
 
       def errors
-        @raw_errors.map do |raw_error|
+        @errors ||= @raw_errors.map do |raw_error|
           type = raw_error['type'].downcase
           pointer = raw_error['data_pointer'].presence || '/'
           error = if respond_to?(type, true)

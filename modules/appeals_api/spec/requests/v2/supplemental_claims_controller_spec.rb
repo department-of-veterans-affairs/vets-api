@@ -69,6 +69,19 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       end
     end
 
+    context 'noticeAcknowledgement' do
+      it 'benefitType = compensation and noticeAcknowledgement = false' do
+        mod_data = JSON.parse(data)
+        mod_data['data']['attributes']['noticeAcknowledgement'] = false
+
+        post(path, params: mod_data.to_json, headers: headers)
+        expect(response.status).to eq(422)
+        expect(parsed['errors']).to be_an Array
+        expect(response.body).to include('/data/attributes/noticeAcknowledgement')
+        expect(response.body).to include('https://www.va.gov/disability/how-to-file-claim/evidence-needed')
+      end
+    end
+
     context 'when request.body is a Puma::NullIO' do
       it 'responds with a 422' do
         fake_puma_null_io_object = Object.new.tap do |obj|

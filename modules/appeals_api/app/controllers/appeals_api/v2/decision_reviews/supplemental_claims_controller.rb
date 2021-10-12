@@ -93,4 +93,20 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
       }
     )
   end
+
+  def render_errors(va_exception)
+    case va_exception
+    when JsonSchema::JsonApiMissingAttribute
+      render json: va_exception.to_json_api, status: va_exception.code
+    else
+      if (notice_index = va_exception.errors.find_index do |e|
+            e.source[:pointer] == '/data/attributes/noticeAcknowledgement'
+          end)
+        va_exception.errors[notice_index].detail = 'Please ensure the Veteran reviews the 38 U.S.CC 5103 information ' \
+        'regarding evidence necessary to substantiate the claim found here: ' \
+        'https://www.va.gov/disability/how-to-file-claim/evidence-needed'
+      end
+      render json: { errors: va_exception.errors }, status: va_exception.status_code
+    end
+  end
 end

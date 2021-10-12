@@ -17,6 +17,7 @@
         "email": "josie@example.com",
         "timezone": "America/Chicago"
       },
+      "noticeAcknowledgement": true,
       "socOptIn": false,
       "evidenceSubmission": {
         "evidenceType": ["upload"]
