@@ -8,14 +8,9 @@ module Mobile
       facilities_service.get_facilities(ids: facility_ids.to_a.map { |id| "vha_#{id}" }.join(','))
     end
 
-    def get_facility_name(facility_id)
-      facility = facilities_service.get_facilities(ids: "vha_#{facility_id}")
-      if facility[0].nil?
-        Rails.logger.info('Mobile: Facility not found?', facility_lookup_results: facility, id: facility_id)
-        ''
-      else
-        facility[0].name
-      end
+    def get_facility_names(facility_ids)
+      facilities = get_facilities(facility_ids)
+      facilities.map(&:name)
     end
 
     def facilities_service

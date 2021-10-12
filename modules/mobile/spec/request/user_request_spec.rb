@@ -20,10 +20,8 @@ RSpec.describe 'user', type: :request do
 
     context 'with no upstream errors' do
       before do
-        VCR.use_cassette('user/get_facility_358', match_requests_on: %i[method uri]) do
-          VCR.use_cassette('user/get_facility_757', match_requests_on: %i[method uri]) do
-            get '/mobile/v0/user', headers: iam_headers
-          end
+        VCR.use_cassette('user/get_facilities', match_requests_on: %i[method uri]) do
+          get '/mobile/v0/user', headers: iam_headers
         end
       end
 
@@ -202,7 +200,9 @@ RSpec.describe 'user', type: :request do
       context 'when user object birth_date is nil' do
         before do
           iam_sign_in(FactoryBot.build(:iam_user, :no_birth_date))
-          get '/mobile/v0/user', headers: iam_headers
+          VCR.use_cassette('user/get_facilities_no_ids', match_requests_on: %i[method uri]) do
+            get '/mobile/v0/user', headers: iam_headers
+          end
         end
 
         it 'returns a nil birthdate' do
@@ -216,7 +216,9 @@ RSpec.describe 'user', type: :request do
       context 'with a user who does not have access to evss' do
         before do
           iam_sign_in(FactoryBot.build(:iam_user, :no_edipi_id))
-          get '/mobile/v0/user', headers: iam_headers
+          VCR.use_cassette('user/get_facilities_no_ids', match_requests_on: %i[method uri]) do
+            get '/mobile/v0/user', headers: iam_headers
+          end
         end
 
         it 'does not include edipi services (claims, direct deposit, letters, military history)' do
@@ -234,10 +236,8 @@ RSpec.describe 'user', type: :request do
         before do
           user = FactoryBot.build(:iam_user, :no_multifactor)
           iam_sign_in(user)
-          VCR.use_cassette('user/get_facility_358', match_requests_on: %i[method uri]) do
-            VCR.use_cassette('user/get_facility_757', match_requests_on: %i[method uri]) do
-              get '/mobile/v0/user', headers: iam_headers
-            end
+          VCR.use_cassette('user/get_facilities', match_requests_on: %i[method uri]) do
+            get '/mobile/v0/user', headers: iam_headers
           end
         end
 
@@ -333,20 +333,16 @@ RSpec.describe 'user', type: :request do
     context 'after a profile request' do
       it 'kicks off a pre cache appointments job' do
         expect(Mobile::V0::PreCacheAppointmentsJob).to receive(:perform_async).once
-        VCR.use_cassette('user/get_facility_358', match_requests_on: %i[method uri]) do
-          VCR.use_cassette('user/get_facility_757', match_requests_on: %i[method uri]) do
-            get '/mobile/v0/user', headers: iam_headers
-          end
+        VCR.use_cassette('user/get_facilities', match_requests_on: %i[method uri]) do
+          get '/mobile/v0/user', headers: iam_headers
         end
       end
     end
 
     context 'empty get_facility test' do
       before do
-        VCR.use_cassette('user/get_facility_358', match_requests_on: %i[method uri]) do
-          VCR.use_cassette('user/get_facility_757_empty', match_requests_on: %i[method uri]) do
-            get '/mobile/v0/user', headers: iam_headers
-          end
+        VCR.use_cassette('user/get_facilities_empty', match_requests_on: %i[method uri]) do
+          get '/mobile/v0/user', headers: iam_headers
         end
       end
 
@@ -365,7 +361,7 @@ RSpec.describe 'user', type: :request do
               {
                 'facilityId' => '358',
                 'isCerner' => false,
-                'facilityName' => 'COLUMBUS VAMC'
+                'facilityName' => ''
               }
             ]
           }
