@@ -464,11 +464,13 @@ module ClaimsApi
             next if special_issues.blank?
 
             if invalid_hepatitis_c_special_issue?(special_issues: special_issues, disability: disability)
-              raise ::Common::Exceptions::InvalidFieldValue.new('disability.specialIssues', special_issues)
+              message = "'disability.specialIssues' :: Claim must include a disability with the name 'hepatitis'"
+              raise ::Common::Exceptions::InvalidFieldValue.new(message, special_issues)
             end
 
             if invalid_pow_special_issue?(special_issues: special_issues)
-              raise ::Common::Exceptions::InvalidFieldValue.new('disability.specialIssues', special_issues)
+              message = "'disability.specialIssues' :: Claim must include valid 'serviceInformation.confinements' value"
+              raise ::Common::Exceptions::InvalidFieldValue.new(message, special_issues)
             end
           end
         end

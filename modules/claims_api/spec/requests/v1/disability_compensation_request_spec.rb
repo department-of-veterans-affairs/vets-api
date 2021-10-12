@@ -1990,6 +1990,22 @@ RSpec.describe 'Disability Claims ', type: :request do
                 end
               end
             end
+
+            it 'responds with a useful error message  ' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    json_data = JSON.parse data
+                    params = json_data
+                    params['data']['attributes']['disabilities'] = disabilities
+                    post path, params: params.to_json, headers: headers.merge(auth_header)
+                    errors = JSON.parse(response.body)['errors']
+                    expected_verbiage = "Claim must include a disability with the name 'hepatitis'"
+                    expect(errors.any? { |error| error['detail'].include?(expected_verbiage) }).to be true
+                  end
+                end
+              end
+            end
           end
 
           context "when 'disability.name' is 'Hepatitis'" do
@@ -2034,6 +2050,23 @@ RSpec.describe 'Disability Claims ', type: :request do
                     params['data']['attributes']['serviceInformation'].delete('confinements')
                     post path, params: params.to_json, headers: headers.merge(auth_header)
                     expect(response.status).to eq(400)
+                  end
+                end
+              end
+            end
+
+            it 'responds with a useful error message  ' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    json_data = JSON.parse data
+                    params = json_data
+                    params['data']['attributes']['disabilities'] = disabilities
+                    params['data']['attributes']['serviceInformation'].delete('confinements')
+                    post path, params: params.to_json, headers: headers.merge(auth_header)
+                    errors = JSON.parse(response.body)['errors']
+                    expected_verbiage = "Claim must include valid 'serviceInformation.confinements' value"
+                    expect(errors.any? { |error| error['detail'].include?(expected_verbiage) }).to be true
                   end
                 end
               end
