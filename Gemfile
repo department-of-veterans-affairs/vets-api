@@ -32,7 +32,7 @@ end
 gem 'sass-rails', '>= 6'
 
 # Anchored versions, do not change
-gem 'puma', '~> 5.5.0'
+gem 'puma', '~> 5.5'
 gem 'rails', '~> 6.1'
 
 # Gems with special version/repo needs

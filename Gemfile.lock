@@ -345,7 +345,6 @@ GEM
     ecma-re-validator (0.3.0)
       regexp_parser (~> 2.0)
     einhorn (0.8.2)
-    encryptor (3.0.0)
     erubi (1.10.0)
     et-orbi (1.2.4)
       tzinfo
@@ -654,7 +653,7 @@ GEM
       byebug (~> 11.0)
       pry (~> 0.13.0)
     public_suffix (4.0.6)
-    puma (5.5.0)
+    puma (5.5.1)
       nio4r (~> 2.0)
     puma-plugin-statsd (2.0.0)
       puma (>= 5.0, < 6)
@@ -1073,7 +1072,7 @@ DEPENDENCIES
   prawn
   prawn-table
   pry-byebug
-  puma (~> 5.5.0)
+  puma (~> 5.5)
   puma-plugin-statsd
   pundit
   rack
