@@ -50,7 +50,7 @@ module V0
     def form_submission
       params.require(:caregivers_assistance_claim).require(:form)
     rescue => e
-      auditor.record(:submission_failure_client_data, errors: [e.message])
+      auditor.record(:submission_failure_client_data, errors: [e.original_message])
       raise e
     end
 

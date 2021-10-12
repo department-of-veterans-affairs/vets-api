@@ -60,7 +60,7 @@ jobs:
 
       - name: Setup Docker
         run: |
-          docker volume create --name=test_bundle_v1
+          docker volume create --name=test_bundle_v2_7
           cp /etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem config/ca-trust/
           docker cp config/ca-trust/VA-Internal-S2-RCA1-v1.cer.pem ${{ env.BUILDX_CONTAINER_ID }}:/usr/local/share/ca-certificates/
           docker exec -d  ${{ env.BUILDX_CONTAINER_ID }} update-ca-certificates

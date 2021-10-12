@@ -44,7 +44,7 @@ RSpec.describe Form1010cg::Auditor do
       it 'claim_guid:, carma_case_id:, metadata:, attachments:, attachments_job_id:' do
         expect { subject.record_submission_success }.to raise_error(ArgumentError) do |e|
           expect(e.message).to eq(
-            'missing keywords: claim_guid, carma_case_id, metadata, attachments, attachments_job_id'
+            'missing keywords: :claim_guid, :carma_case_id, :metadata, :attachments, :attachments_job_id'
           )
         end
       end
@@ -146,7 +146,7 @@ RSpec.describe Form1010cg::Auditor do
     context 'requires' do
       it 'errors:' do
         expect { subject.record_submission_failure_client_data }.to raise_error(ArgumentError) do |e|
-          expect(e.message).to eq('missing keyword: errors')
+          expect(e.message).to eq('missing keyword: :errors')
         end
 
         expect { subject.record_submission_failure_client_data(errors: %w[error1 error2]) }.not_to raise_error
@@ -186,7 +186,7 @@ RSpec.describe Form1010cg::Auditor do
     context 'requires' do
       it 'claim_guid:, veteran_name:' do
         expect { subject.record_submission_failure_client_qualification }.to raise_error(ArgumentError) do |e|
-          expect(e.message).to eq('missing keyword: claim_guid')
+          expect(e.message).to eq('missing keyword: :claim_guid')
         end
       end
     end
@@ -248,7 +248,7 @@ RSpec.describe Form1010cg::Auditor do
     context 'requires' do
       it 'claim_guid:, form_subject:, result:' do
         expect { subject.log_mpi_search_result }.to raise_error(ArgumentError) do |e|
-          expect(e.message).to eq('missing keywords: claim_guid, form_subject, result')
+          expect(e.message).to eq('missing keywords: :claim_guid, :form_subject, :result')
         end
       end
     end

@@ -60,7 +60,7 @@ RSpec.describe EVSSClaimService do
       subject.upload_document(document)
       job = EVSS::DocumentUpload.jobs.last
       doc_args = job['args'].last
-      expect(doc_args['file_name']).to match(/file_with_spaces.*\.txt/)
+      expect(doc_args['file_name']).to match(/filewithspaces.*\.txt/)
     end
   end
 
