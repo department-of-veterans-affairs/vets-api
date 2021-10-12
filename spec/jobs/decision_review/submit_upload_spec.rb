@@ -31,18 +31,18 @@ RSpec.describe DecisionReview::SubmitUpload, type: :job do
             subject.perform_async(appeal_submission_upload.id)
             expect_any_instance_of(DecisionReview::Service).to receive(:put_notice_of_disagreement_upload)
 
-            expect(StatsD).to receive(:increment).once.with(
-              'api.decision_review.get_notice_of_disagreement_upload_url.total'
-            )
-            expect(StatsD).to receive(:increment).once.with('worker.decision_review.submit_upload.success')
-            expect(StatsD).to receive(:increment).once.with(
-              'api.external_http_request.DecisionReview.success',
-              1,
-              { tags: ['endpoint:/services/appeals/v1/decision_reviews/notice_of_disagreements/evidence_submissions',
-                       'method:post'] }
-            )
-
-            described_class.drain
+            expect do
+              described_class.drain
+            end.to trigger_statsd_increment('api.decision_review.get_notice_of_disagreement_upload_url.total',
+                                            times: 1)
+              .and trigger_statsd_increment('worker.decision_review.submit_upload.success', times: 1)
+              .and trigger_statsd_increment(
+                'api.external_http_request.DecisionReview.success',
+                times: 1,
+                tags: ['endpoint:/services/appeals/v1/decision_reviews/notice_of_disagreements/evidence_submissions',
+                       'method:post',
+                       'source:unknown']
+              )
             expect(AppealSubmissionUpload.first.lighthouse_upload_id).to eq('59cdb98f-f94b-4aaa-8952-4d1e59b6e40a')
           end
         end

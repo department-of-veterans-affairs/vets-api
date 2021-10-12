@@ -85,6 +85,7 @@ Sidekiq::Testing.fake!
 Sidekiq::Testing.server_middleware do |chain|
   chain.add Sidekiq::DowntimeCheckerMiddleware
   chain.add Sidekiq::SemanticLogging
+  chain.add SidekiqStatsInstrumentation::ServerMiddleware
   chain.add Sidekiq::ErrorTag
 end
 

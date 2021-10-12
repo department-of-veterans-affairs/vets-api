@@ -12,7 +12,7 @@ class Sidekiq::SemanticLogging < Sidekiq::JobLogger
       remote_ip: item['remote_ip'],
       user_agent: item['user_agent'],
       user_uuid: item['user_uuid'] || 'N/A',
-      source: item['source'] || 'N/A'
+      source: item['source']
     }
 
     @logger.tagged(**logger_tags) do

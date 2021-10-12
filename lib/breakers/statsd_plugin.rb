@@ -4,7 +4,6 @@ module Breakers
   class StatsdPlugin
     def get_tags(upstream_request)
       source_app = RequestStore.store.dig('additional_request_attributes', 'source')
-      # TODO: - does source_app work with sidekiq?
 
       tags = []
       if upstream_request

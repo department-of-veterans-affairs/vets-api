@@ -25,6 +25,7 @@ require 'gibft/configuration'
 require 'hca/configuration'
 require 'mhv_ac/configuration'
 require 'mpi/configuration'
+require 'pagerduty/configuration'
 require 'preneeds/configuration'
 require 'rx/configuration'
 require 'sm/configuration'
@@ -80,7 +81,8 @@ Rails.application.reloader.to_prepare do
     VAOS::Configuration.instance.breakers_service,
     IAMSSOeOAuth::Configuration.instance.breakers_service,
     CovidVaccine::V0::VetextConfiguration.instance.breakers_service,
-    VEText::Configuration.instance.breakers_service
+    VEText::Configuration.instance.breakers_service,
+    PagerDuty::Configuration.instance.breakers_service
   ]
 
   services << CentralMail::Configuration.instance.breakers_service if Settings.central_mail&.upload&.enabled

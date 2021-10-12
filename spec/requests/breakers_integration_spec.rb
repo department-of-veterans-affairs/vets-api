@@ -74,8 +74,12 @@ RSpec.describe 'breakers', type: :request do
     it 'increments successes' do
       stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
       expect do
-        get '/v0/prescriptions'
-      end.to trigger_statsd_increment('api.external_http_request.Rx.success', times: 1, value: 1)
+        get '/v0/prescriptions', headers: { 'Source-App-Name' => 'profile' }
+      end.to trigger_statsd_increment('api.external_http_request.Rx.success',
+                                      times: 1,
+                                      value: 1,
+                                      tags: ['endpoint:/mhv-api/patient/v1/prescription/gethistoryrx', 'method:get',
+                                             'source:profile'])
     end
 
     it 'increments errors' do
@@ -89,6 +93,22 @@ RSpec.describe 'breakers', type: :request do
       path = 'mhv-api/patient/v1/prescription/gethistoryrx'
       stub_varx_request(:get, path, history_rxs, status_code: 200, tags: ['endpoint:/' + path])
       expect { get '/v0/prescriptions' }.to trigger_statsd_measure('api.external_http_request.Rx.time', times: 1)
+    end
+  end
+
+  it 'includes correct tags in background jobs' do
+    RequestStore.store['additional_request_attributes'] = { 'source' => 'auth' }
+    PagerDuty::PollMaintenanceWindows.perform_async
+    RequestStore.clear!
+
+    with_settings(Settings.vanotify.services.va_gov, api_key: "testkey-#{SecureRandom.uuid}-#{SecureRandom.uuid}") do
+      VCR.use_cassette('pager_duty/success', match_requests_on: %i[method path]) do
+        expect do
+          PagerDuty::PollMaintenanceWindows.drain
+        end.to trigger_statsd_increment('api.external_http_request.PagerDuty.success',
+                                        times: 1,
+                                        tags: ['endpoint:/maintenance_windows', 'method:get', 'source:auth'])
+      end
     end
   end
 end
