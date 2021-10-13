@@ -10,7 +10,6 @@ module ClaimsApi
       include ClaimsApi::HeaderValidation
       include ClaimsApi::JsonFormatValidation
 
-      skip_before_action :set_tags_and_extra_context, raise: false
       before_action :validate_json_format, if: -> { request.post? }
       before_action :validate_veteran_identifiers
 
@@ -102,6 +101,11 @@ module ClaimsApi
                               body: e.message)
         message = 'User not a valid or authorized Veteran for this end point.'
         raise ::Common::Exceptions::Unauthorized.new(detail: message)
+      end
+
+      def set_tags_and_extra_content
+        RequestStore.store['additional_request_attributes'] = { 'source' => 'claims_api' }
+        Raven.tags_context(source: 'claims_api')
       end
     end
   end

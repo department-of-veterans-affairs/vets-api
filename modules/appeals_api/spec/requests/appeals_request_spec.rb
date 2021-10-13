@@ -34,7 +34,15 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
     it 'logs details about the request' do
       VCR.use_cassette('caseflow/appeals') do
         allow(Rails.logger).to receive(:info)
-        get appeals_endpoint, params: nil, headers: user_headers
+        expect do
+          get appeals_endpoint, params: nil,
+                                headers: user_headers
+        end.to trigger_statsd_increment('api.external_http_request.CaseflowStatus.success',
+                                        times: 1,
+                                        value: 1,
+                                        tags: ['endpoint:/api/v2/appeals',
+                                               'method:get',
+                                               'source:appeals_api'])
 
         hash = Digest::SHA2.hexdigest '111223333'
         expect(Rails.logger).to have_received(:info).with('Caseflow Request',

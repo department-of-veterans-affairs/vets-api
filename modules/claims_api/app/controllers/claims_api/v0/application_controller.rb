@@ -12,7 +12,6 @@ module ClaimsApi
 
       skip_before_action :verify_authenticity_token
       skip_before_action :authenticate
-      skip_before_action :set_tags_and_extra_context, raise: false
       before_action :validate_json_format, if: -> { request.post? }
       before_action :verify_mpi
 
@@ -79,6 +78,11 @@ module ClaimsApi
         vet.edipi = vet.edipi_mpi
         vet.participant_id = vet.participant_id_mpi
         vet
+      end
+
+      def set_tags_and_extra_content
+        RequestStore.store['additional_request_attributes'] = { 'source' => 'claims_api' }
+        Raven.tags_context(source: 'claims_api')
       end
     end
   end

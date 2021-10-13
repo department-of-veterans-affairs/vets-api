@@ -4,7 +4,6 @@ module AppealsApi
   class ApplicationController < ::ApplicationController
     skip_before_action :verify_authenticity_token
     skip_after_action :set_csrf_header
-    skip_before_action :set_tags_and_extra_context, raise: false
     before_action :deactivate_endpoint
 
     def render_response(response)
@@ -30,6 +29,11 @@ module AppealsApi
 
     def sunset_date
       nil
+    end
+
+    def set_tags_and_extra_context
+      RequestStore.store['additional_request_attributes'] = { 'source' => 'appeals_api' }
+      Raven.tags_context(source: 'appeals_api')
     end
   end
 end
