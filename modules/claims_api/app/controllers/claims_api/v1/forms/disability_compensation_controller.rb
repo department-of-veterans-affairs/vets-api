@@ -532,10 +532,11 @@ module ClaimsApi
           treatments = form_attributes.dig('treatments')
           return if treatments.blank?
 
-          declared_disability_names = form_attributes['disabilities'].pluck('name')
+          declared_disability_names = form_attributes['disabilities'].pluck('name').map(&:strip).map(&:downcase)
 
           treatments.each do |treatment|
-            next if treatment['treatedDisabilityNames'].all? { |name| declared_disability_names.include?(name) }
+            treated_disability_names = treatment['treatedDisabilityNames'].map(&:strip).map(&:downcase)
+            next if treated_disability_names.all? { |name| declared_disability_names.include?(name) }
 
             raise ::Common::Exceptions::InvalidFieldValue.new(
               'treatments.treatedDisabilityNames',
