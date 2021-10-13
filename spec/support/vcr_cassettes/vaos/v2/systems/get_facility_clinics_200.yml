@@ -18,7 +18,7 @@ http_interactions:
       X-Vamf-Jwt:
       - stubbed_token
       X-Request-Id:
-      - f1c76a4a-54f0-4e82-88f5-baaaf9263a44
+      - ''
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -27,7 +27,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 13 May 2021 16:43:07 GMT
+      - Fri, 08 Oct 2021 17:16:25 GMT
       Content-Type:
       - application/json
       Content-Length:
@@ -35,15 +35,15 @@ http_interactions:
       Server:
       - openresty
       X-Vamf-Version:
-      - 1.4.0
+      - 1.10.0
       B3:
-      - 674d1c86307c89fe-8a5ff5d784ff5583-1
+      - d59a397d6ff313e3-0534a9f1c0bcf50e-1
       Access-Control-Allow-Headers:
       - x-vamf-jwt
       X-Vamf-Build:
-      - 6cfdbcb
+      - 58ec2e2
       X-Vamf-Timestamp:
-      - '2021-05-08T03:21:25+0000'
+      - '2021-08-18T13:44:12+0000'
       Access-Control-Allow-Origin:
       - "*"
       Access-Control-Allow-Methods:
@@ -71,68 +71,7 @@ http_interactions:
         AID LORI","physicalLocation":"WHEATLAND","stationId":"983","stationName":"CHYSHR-Cheyenne
         VA Medical Center","primaryStopCode":203,"primaryStopCodeName":"AUDIOLOGY","secondaryStopCode":449,"secondaryStopCodeName":"FITTING
         & ADJSTMNTS 2ND ONLY"}]}'
-  recorded_at: Thu, 13 May 2021 16:43:07 GMT
-- request:
-    method: get
-    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=570,945
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Agent
-      Referer:
-      - https://review-instance.va.gov
-      X-Vamf-Jwt:
-      - stubbed_token
-      X-Request-Id:
-      - 3fd25390-a735-4e15-beb9-8a8be8aa9625
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Thu, 13 May 2021 23:01:46 GMT
-      Content-Type:
-      - application/json
-      Content-Length:
-      - '673'
-      Server:
-      - openresty
-      X-Vamf-Version:
-      - 1.4.0
-      B3:
-      - ea2637c860d62ce7-68df51d214560b2b-1
-      Access-Control-Allow-Headers:
-      - x-vamf-jwt
-      X-Vamf-Build:
-      - 6cfdbcb
-      X-Vamf-Timestamp:
-      - '2021-05-08T03:21:25+0000'
-      Access-Control-Allow-Origin:
-      - "*"
-      Access-Control-Allow-Methods:
-      - GET,OPTIONS
-      Access-Control-Max-Age:
-      - '3600'
-      Strict-Transport-Security:
-      - max-age=63072000; includeSubDomains; preload
-    body:
-      encoding: UTF-8
-      string: '{"data":[{"vistaSite":983,"id":"570","serviceName":"CHY C&P AUDIO","stationId":"983","stationName":"CHYSHR-Cheyenne
-        VA Medical Center","primaryStopCode":203,"primaryStopCodeName":"AUDIOLOGY","secondaryStopCode":450,"secondaryStopCodeName":"COMP
-        & PENS (C&P) EXAMS","patientDirectScheduling":false,"patientDisplay":true},{"vistaSite":983,"id":"945","serviceName":"FTC
-        C&P AUDIO BEV","physicalLocation":"FORT COLLINS AUDIO","stationId":"983GC","stationName":"CHYSHR-Fort
-        Collins VA Clinic","primaryStopCode":203,"primaryStopCodeName":"AUDIOLOGY","secondaryStopCode":450,"secondaryStopCodeName":"COMP
-        & PENS (C&P) EXAMS","patientDirectScheduling":true,"patientDisplay":true}]}'
-  recorded_at: Thu, 13 May 2021 23:01:46 GMT
+  recorded_at: Fri, 08 Oct 2021 17:16:25 GMT
 - request:
     method: get
     uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=570
@@ -149,9 +88,9 @@ http_interactions:
       Referer:
       - https://review-instance.va.gov
       X-Vamf-Jwt:
-      - stubbed_token
+      - eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Ikthc3N1bGtlIiwic3ViIjoiMTAwMDEyMzQ1NlYxMjM0NTYiLCJhdXRoZW50aWNhdGVkIjp0cnVlLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiaWRUeXBlIjoiSUNOIiwiZ2VuZGVyIjoiTUFMRSIsImlzcyI6Imdvdi52YS52YW1mLnVzZXJzZXJ2aWNlLnYyIiwiZGF0ZU9mQmlydGgiOiIyMDA2MDExNyIsInZlcnNpb24iOjIuNiwiZWRpcGlkIjoiNjI4OTA5NTQ3NyIsInNzbiI6IjMyMDc5OTczMCIsImZpcnN0TmFtZSI6IlRvbWFzIiwibmJmIjoxNjMzNzE4MjE3LCJzc3QiOjE2MzM3MTgzOTYsInBhdGllbnQiOnsiZmlyc3ROYW1lIjoiVG9tYXMiLCJsYXN0TmFtZSI6Ikthc3N1bGtlIiwiZ2VuZGVyIjoiTUFMRSIsImljbiI6IjEwMDAxMjM0NTZWMTIzNDU2IiwiZG9iIjoiMjAwNi0wMS0xNyIsImRhdGVPZkJpcnRoIjoiMjAwNi0wMS0xNyIsInNzbiI6IjMyMDc5OTczMCJ9LCJkb2IiOiIyMDA2MDExNyIsInZhbWYuYXV0aC5yb2xlcyI6WyJ2ZXRlcmFuIl0sImV4cCI6MTYzMzcxOTI5NywianRpIjoiODQyODZjNzEtY2Q0OC00YzRiLTkyOTktMTczNGMyNGYwYzE2IiwibG9hIjoyfQ.nxRkIHXSesYu83GA3RQ24GKyul-KN6jch0SodfVHtoC5Bc9vfstKrinVg15GO_FBXoFZ6IzFGBl4c9iIFU2yQT4WXdPzESpOWlIfUGIMXbvcBnA0yN115Ai9P3yYEAPRxmPahPwMeUrNFc58-Em39BVk1erriO0oK5yNKQ2hTBKN2RCg3Cwi7uFOuUYX34-TWX0SA3s82mqRwzMjQVkCdgRA5jjdDFBGRpsLUTTn_ixHis_UV513f3gz9jRGDVIPZrWk45RnJnrefZqoYptFO7sdbJ5qIo30kvWASw1re1V94ckPPehG2C-Q6GL7Ox7GQVmQEoDdlq3HEy9eRctOvQ
       X-Request-Id:
-      - c120e2b1-9fba-4e7e-bb50-77696a9eccdc
+      - ''
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -160,7 +99,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 14 May 2021 03:20:45 GMT
+      - Fri, 08 Oct 2021 18:39:57 GMT
       Content-Type:
       - application/json
       Content-Length:
@@ -168,15 +107,15 @@ http_interactions:
       Server:
       - openresty
       X-Vamf-Version:
-      - 1.4.0
+      - 1.10.0
       B3:
-      - 767bf549f7976703-4d836145f32de0f1-1
+      - fb526a32c61e30ea-13c8646788450d07-1
       Access-Control-Allow-Headers:
       - x-vamf-jwt
       X-Vamf-Build:
-      - 6cfdbcb
+      - 58ec2e2
       X-Vamf-Timestamp:
-      - '2021-05-08T03:21:25+0000'
+      - '2021-08-18T13:44:12+0000'
       Access-Control-Allow-Origin:
       - "*"
       Access-Control-Allow-Methods:
@@ -190,10 +129,10 @@ http_interactions:
       string: '{"data":[{"vistaSite":983,"id":"570","serviceName":"CHY C&P AUDIO","stationId":"983","stationName":"CHYSHR-Cheyenne
         VA Medical Center","primaryStopCode":203,"primaryStopCodeName":"AUDIOLOGY","secondaryStopCode":450,"secondaryStopCodeName":"COMP
         & PENS (C&P) EXAMS","patientDirectScheduling":false,"patientDisplay":true}]}'
-  recorded_at: Fri, 14 May 2021 03:20:45 GMT
+  recorded_at: Fri, 08 Oct 2021 18:39:57 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=1081
+    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=570,945
     body:
       encoding: US-ASCII
       string: ''
@@ -207,9 +146,9 @@ http_interactions:
       Referer:
       - https://review-instance.va.gov
       X-Vamf-Jwt:
-      - stubbed_token
+      - eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6IlJ1bm9sZnNzb24iLCJzdWIiOiIxMDAwMTIzNDU2VjEyMzQ1NiIsImF1dGhlbnRpY2F0ZWQiOnRydWUsImF1dGhlbnRpY2F0aW9uQXV0aG9yaXR5IjoiZ292LnZhLnZhb3MiLCJpZFR5cGUiOiJJQ04iLCJnZW5kZXIiOiJNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjIiLCJkYXRlT2ZCaXJ0aCI6IjE5OTEwNTIxIiwidmVyc2lvbiI6Mi42LCJlZGlwaWQiOiI5ODAwNDY2NDI4Iiwic3NuIjoiNjA5ODYyNDU1IiwiZmlyc3ROYW1lIjoiTWFydGgiLCJuYmYiOjE2MzM3MTg0MDMsInNzdCI6MTYzMzcxODU4MiwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJNYXJ0aCIsImxhc3ROYW1lIjoiUnVub2xmc3NvbiIsImdlbmRlciI6Ik1BTEUiLCJpY24iOiIxMDAwMTIzNDU2VjEyMzQ1NiIsImRvYiI6IjE5OTEtMDUtMjEiLCJkYXRlT2ZCaXJ0aCI6IjE5OTEtMDUtMjEiLCJzc24iOiI2MDk4NjI0NTUifSwiZG9iIjoiMTk5MTA1MjEiLCJ2YW1mLmF1dGgucm9sZXMiOlsidmV0ZXJhbiJdLCJleHAiOjE2MzM3MTk0ODMsImp0aSI6ImJlMzI5YWI2LTk4NmMtNDJiMi04MTQ0LTE3NDg3NTVhYTJjYiIsImxvYSI6Mn0.dk9teFlVFhZeU-uNIQBJ-9kXEmhJaM56lZxaee46sFY1gvGCuzRS6eNbpoZMuXnr-Cbp6Ds9Fepj9bnJUt_O0p7l65Be7NnsnEvXgURu7vC0Fw_57q4isr_7DBpVNaHLzdKnzru9Z03op0BlJ_FVDTk5J8tSh9XE2xRHGMdxULGgU5cvo1qDXIuV9TiKntM2rYWdxDKLVjCCA55ybHkNuQ5yH6xukBc_8cIqiF3yELWVjxwCzF8FuQ4wlFuAHrdgfsSbEoWELVsshHBnfLX4Is44afJJw7jalfxb-iI-Hpn_dcUmwbk4W0tRtp5yLNk1Rr6KG8w6mcp7k-cZzxFg-w
       X-Request-Id:
-      - c120e2b1-9fba-4e7e-bb50-77696a9eccdc
+      - ''
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -218,23 +157,23 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 14 May 2021 03:20:45 GMT
+      - Fri, 08 Oct 2021 18:43:04 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '321'
+      - '673'
       Server:
       - openresty
       X-Vamf-Version:
-      - 1.4.0
+      - 1.10.0
       B3:
-      - 767bf549f7976703-4d836145f32de0f1-1
+      - '08b731bfc160b666-23723de99bd8a7c2-1'
       Access-Control-Allow-Headers:
       - x-vamf-jwt
       X-Vamf-Build:
-      - 6cfdbcb
+      - 58ec2e2
       X-Vamf-Timestamp:
-      - '2021-05-08T03:21:25+0000'
+      - '2021-08-18T13:44:12+0000'
       Access-Control-Allow-Origin:
       - "*"
       Access-Control-Allow-Methods:
@@ -247,6 +186,9 @@ http_interactions:
       encoding: UTF-8
       string: '{"data":[{"vistaSite":983,"id":"570","serviceName":"CHY C&P AUDIO","stationId":"983","stationName":"CHYSHR-Cheyenne
         VA Medical Center","primaryStopCode":203,"primaryStopCodeName":"AUDIOLOGY","secondaryStopCode":450,"secondaryStopCodeName":"COMP
-        & PENS (C&P) EXAMS","patientDirectScheduling":false,"patientDisplay":true}]}'
-  recorded_at: Fri, 14 May 2021 03:20:45 GMT
+        & PENS (C&P) EXAMS","patientDirectScheduling":false,"patientDisplay":true},{"vistaSite":983,"id":"945","serviceName":"FTC
+        C&P AUDIO BEV","physicalLocation":"FORT COLLINS AUDIO","stationId":"983GC","stationName":"CHYSHR-Fort
+        Collins VA Clinic","primaryStopCode":203,"primaryStopCodeName":"AUDIOLOGY","secondaryStopCode":450,"secondaryStopCodeName":"COMP
+        & PENS (C&P) EXAMS","patientDirectScheduling":true,"patientDisplay":true}]}'
+  recorded_at: Fri, 08 Oct 2021 18:43:04 GMT
 recorded_with: VCR 6.0.0

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics/570/slots?end=2021-12-31T23:59:59Z&start=2021-06-01T00:00:00Z
+    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics/1081/slots?end=2021-12-31T23:59:59Z&start=2021-10-01T00:00:00Z
     body:
       encoding: US-ASCII
       string: ''
@@ -16,9 +16,9 @@ http_interactions:
       Referer:
       - https://review-instance.va.gov
       X-Vamf-Jwt:
-      - eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjIiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInNzbiI6Ijc5NjA2MTk3NiIsInNzdCI6MTYyMTM5MzgxOCwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKdWR5IiwibGFzdE5hbWUiOiJNb3JyaXNvbiIsImdlbmRlciI6IkZFTUFMRSIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIiwiZG9iIjoiMTk1My0wNC0wMSIsImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInNzbiI6Ijc5NjA2MTk3NiJ9LCJ2YW1mLmF1dGgucm9sZXMiOlsidmV0ZXJhbiJdLCJyaWdodE9mQWNjZXNzQWNjZXB0ZWQiOnRydWUsImV4cCI6MTYyMTM5NDcxOSwianRpIjoiNWFkYTk4NDgtY2UxMy00NDBjLWJmZWYtMmY1YThkOWM5ZTQzIiwiaWRUeXBlIjoiSUNOIiwiZGF0ZU9mQmlydGgiOiIxOTUzMDQwMSIsInZlcnNpb24iOjIuNSwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNjIxMzkzNjM5LCJkb2IiOiIxOTUzMDQwMSIsImxvYSI6Mn0.QYaDP50o3SFta9_fAjYsQpFzU-3gXifqz24N8vQraqRSe4YauwO0BdefI10AKxZvYkwt5i_CmtiWJrDPK33vOHs9AKdTcG5Ff1hQrvCLlX_mJCIfQqr6sgAId6rcPHWQHEQ-84vdgoKMo3toi6WIxcT-ubJylkk5SvA9OR_HYk0YEy2_YrIHLyGGQOkwaZTddSSMz_2bgzJCoazC_wUtfbQzb64R9ylcvvWVZhYaZhxwPqMMu-rDHuK4Mrl7JwAcaEwYaf7ZD4r4TgFH282u9HiuoE7yRZGepZaacxzQlG_7kw81Y16QgGPn-MysoaiBBc55f8VH24VORqF-SxFSCw
+      - stubbed_token
       X-Request-Id:
-      - 88df7390-01a3-4b0f-8ed3-655b7df6131f
+      - ''
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -27,32 +27,34 @@ http_interactions:
       message: Internal Server Error
     headers:
       Date:
-      - Wed, 19 May 2021 03:10:19 GMT
+      - Mon, 11 Oct 2021 18:52:33 GMT
       Content-Type:
       - application/json
-      Content-Length:
-      - '253'
+      Transfer-Encoding:
+      - chunked
       Server:
       - openresty
       X-Vamf-Version:
-      - 1.4.0
+      - 1.10.0
       B3:
-      - 91a715d9c0766830-c65192fb305aa9cf-1
+      - cb9c50235cfad84d-5c00879195fa36e7-1
       Access-Control-Allow-Headers:
       - x-vamf-jwt
       X-Vamf-Build:
-      - 6cfdbcb
+      - 58ec2e2
       X-Vamf-Timestamp:
-      - '2021-05-08T03:21:25+0000'
+      - '2021-08-18T13:44:12+0000'
       Access-Control-Allow-Origin:
       - "*"
       Access-Control-Allow-Methods:
       - GET,OPTIONS
       Access-Control-Max-Age:
       - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
     body:
       encoding: UTF-8
-      string: '{"id":"c195c4c2-f5b7-4ea3-8358-f6ad8b129c23","code":500,"errorCode":7007,"traceId":"91a715d9c0766830","message":"failed
+      string: '{"id":"c195c4c2-f5b7-4ea3-8358-f6ad8b129c23","code":500,"errorCode":7007,"traceId":"cb9c50235cfad84d","message":"failed
         to fetch slots","meta":{"upstreamErrorSource":"mobile-appointment-service","upstreamErrorId":"54291a36-2d69-4777-9612-94ae7be21378"}}'
-  recorded_at: Wed, 19 May 2021 03:10:19 GMT
+  recorded_at: Mon, 11 Oct 2021 18:52:33 GMT
 recorded_with: VCR 6.0.0
