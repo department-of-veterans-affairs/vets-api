@@ -48,7 +48,7 @@ features:
     enable_in_development: true
   check_in_experience_demographics_page_enabled:
     actor_type: user
-    description: Enables the health care check-in experiences to show demographics page. 
+    description: Enables the health care check-in experiences to show demographics page.
     enable_in_development: true
   check_in_experience_low_authentication_enabled:
     actor_type: user
@@ -286,6 +286,10 @@ features:
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
+    enable_in_development: true
+  search_dropdown_component_enabled:
+    actor_type: user
+    description: Enables typeahead 2.0 functionality
     enable_in_development: true
   search_typeahead_enabled:
     actor_type: user
