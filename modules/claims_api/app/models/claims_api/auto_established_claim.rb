@@ -3,6 +3,7 @@
 require 'json_marshal/marshaller'
 require 'claims_api/special_issue_mappers/evss'
 require 'claims_api/homelessness_situation_type_mapper'
+require 'claims_api/service_branch_mapper'
 
 module ClaimsApi
   class AutoEstablishedClaim < ApplicationRecord
@@ -60,6 +61,7 @@ module ClaimsApi
       form_data['disabilites'] = transform_disability_approximate_begin_dates
       form_data['disabilites'] = massage_invalid_disability_names
       form_data['treatments'] = transform_treatment_dates if treatments?
+      form_data['serviceInformation'] = transform_service_branch
 
       resolve_special_issue_mappings!
       resolve_homelessness_situation_type_mappings!
@@ -359,6 +361,23 @@ module ClaimsApi
       change_of_address = form_data['veteran']['changeOfAddress']
       change_of_address.delete('endingDate')
       change_of_address
+    end
+
+    # For whatever reason, legacy ClaimsApi code previously allowed
+    # 'serviceInformation.servicePeriod.serviceBranch' values that are not accepted by EVSS.
+    # Rather than refuse those invalid values, this maps them to an equivalent value that EVSS will accept.
+    def transform_service_branch
+      received_service_periods = form_data['serviceInformation']['servicePeriods']
+
+      transformed_service_periods = received_service_periods.map do |period|
+        name = period['serviceBranch']
+        period['serviceBranch'] = ClaimsApi::ServiceBranchMapper.new(name).value
+
+        period
+      end
+
+      form_data['serviceInformation']['servicePeriods'] = transformed_service_periods
+      form_data['serviceInformation']
     end
   end
 end

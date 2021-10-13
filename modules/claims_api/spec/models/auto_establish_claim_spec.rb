@@ -307,6 +307,168 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
         end
       end
     end
+
+    describe "handling an old 'serviceBranch' value" do
+      context "when 'serviceBranch' is 'Air Force Academy'" do
+        let(:old_value) { 'Air Force Academy' }
+
+        it 'maps to a value accepted by EVSS' do
+          pending_record.form_data['serviceInformation']['servicePeriods'].first['serviceBranch'] = old_value
+          payload = JSON.parse(pending_record.to_internal)
+          expect(payload['form526']['serviceInformation']['servicePeriods'].first['serviceBranch']).to eq('Air Force')
+        end
+      end
+
+      context "when 'serviceBranch' is 'Air Force Reserves'" do
+        let(:old_value) { 'Air Force Reserves' }
+
+        it 'maps to a value accepted by EVSS' do
+          pending_record.form_data['serviceInformation']['servicePeriods'].first['serviceBranch'] = old_value
+          payload = JSON.parse(pending_record.to_internal)
+          expect(payload['form526']['serviceInformation']['servicePeriods'].first['serviceBranch']).to eq('Air Force')
+        end
+      end
+
+      context "when 'serviceBranch' is 'Army Reserves'" do
+        let(:old_value) { 'Army Reserves' }
+
+        it 'maps to a value accepted by EVSS' do
+          pending_record.form_data['serviceInformation']['servicePeriods'].first['serviceBranch'] = old_value
+          payload = JSON.parse(pending_record.to_internal)
+          expect(payload['form526']['serviceInformation']['servicePeriods'].first['serviceBranch']).to eq('Army')
+        end
+      end
+
+      context "when 'serviceBranch' is 'Army Air Corps or Army Air Force'" do
+        let(:old_value) { 'Army Air Corps or Army Air Force' }
+
+        it 'maps to a value accepted by EVSS' do
+          pending_record.form_data['serviceInformation']['servicePeriods'].first['serviceBranch'] = old_value
+          payload = JSON.parse(pending_record.to_internal)
+          expect(payload['form526']['serviceInformation']['servicePeriods'].first['serviceBranch']).to eq('Army')
+        end
+      end
+
+      context "when 'serviceBranch' is 'Army Nurse Corps'" do
+        let(:old_value) { 'Army Nurse Corps' }
+
+        it 'maps to a value accepted by EVSS' do
+          pending_record.form_data['serviceInformation']['servicePeriods'].first['serviceBranch'] = old_value
+          payload = JSON.parse(pending_record.to_internal)
+          expect(payload['form526']['serviceInformation']['servicePeriods'].first['serviceBranch']).to eq('Army')
+        end
+      end
+
+      context "when 'serviceBranch' is 'Women's Army Corps'" do
+        let(:old_value) { "Women's Army Corps" }
+
+        it 'maps to a value accepted by EVSS' do
+          pending_record.form_data['serviceInformation']['servicePeriods'].first['serviceBranch'] = old_value
+          payload = JSON.parse(pending_record.to_internal)
+          expect(payload['form526']['serviceInformation']['servicePeriods'].first['serviceBranch']).to eq('Army')
+        end
+      end
+
+      context "when 'serviceBranch' is 'US Military Academy'" do
+        let(:old_value) { 'US Military Academy' }
+
+        it 'maps to a value accepted by EVSS' do
+          pending_record.form_data['serviceInformation']['servicePeriods'].first['serviceBranch'] = old_value
+          payload = JSON.parse(pending_record.to_internal)
+          expect(payload['form526']['serviceInformation']['servicePeriods'].first['serviceBranch']).to eq('Army')
+        end
+      end
+
+      context "when 'serviceBranch' is 'Coast Guard Reserves'" do
+        let(:old_value) { 'Coast Guard Reserves' }
+
+        it 'maps to a value accepted by EVSS' do
+          pending_record.form_data['serviceInformation']['servicePeriods'].first['serviceBranch'] = old_value
+          payload = JSON.parse(pending_record.to_internal)
+          expect(payload['form526']['serviceInformation']['servicePeriods'].first['serviceBranch']).to eq('Coast Guard')
+        end
+      end
+
+      context "when 'serviceBranch' is 'Coast Guard Academy'" do
+        let(:old_value) { 'Coast Guard Academy' }
+
+        it 'maps to a value accepted by EVSS' do
+          pending_record.form_data['serviceInformation']['servicePeriods'].first['serviceBranch'] = old_value
+          payload = JSON.parse(pending_record.to_internal)
+          expect(payload['form526']['serviceInformation']['servicePeriods'].first['serviceBranch']).to eq('Coast Guard')
+        end
+      end
+
+      context "when 'serviceBranch' is 'Marine Corps'" do
+        let(:old_value) { 'Marine Corps' }
+
+        it 'maps to a value accepted by EVSS' do
+          pending_record.form_data['serviceInformation']['servicePeriods'].first['serviceBranch'] = old_value
+          payload = JSON.parse(pending_record.to_internal)
+          expect(payload['form526']['serviceInformation']['servicePeriods'].first['serviceBranch']).to eq('Marine')
+        end
+      end
+
+      context "when 'serviceBranch' is 'Marine Corps Reserves'" do
+        let(:old_value) { 'Marine Corps Reserves' }
+
+        it 'maps to a value accepted by EVSS' do
+          pending_record.form_data['serviceInformation']['servicePeriods'].first['serviceBranch'] = old_value
+          payload = JSON.parse(pending_record.to_internal)
+          expect(payload['form526']['serviceInformation']['servicePeriods'].first['serviceBranch']).to eq('Marine')
+        end
+      end
+
+      context "when 'serviceBranch' is 'Merchant Marine'" do
+        let(:old_value) { 'Merchant Marine' }
+
+        it 'maps to a value accepted by EVSS' do
+          pending_record.form_data['serviceInformation']['servicePeriods'].first['serviceBranch'] = old_value
+          payload = JSON.parse(pending_record.to_internal)
+          expect(payload['form526']['serviceInformation']['servicePeriods'].first['serviceBranch']).to eq('Marine')
+        end
+      end
+
+      context "when 'serviceBranch' is 'Navy Reserves'" do
+        let(:old_value) { 'Navy Reserves' }
+
+        it 'maps to a value accepted by EVSS' do
+          pending_record.form_data['serviceInformation']['servicePeriods'].first['serviceBranch'] = old_value
+          payload = JSON.parse(pending_record.to_internal)
+          expect(payload['form526']['serviceInformation']['servicePeriods'].first['serviceBranch']).to eq('Navy')
+        end
+      end
+
+      context "when 'serviceBranch' is 'Naval Academy'" do
+        let(:old_value) { 'Naval Academy' }
+
+        it 'maps to a value accepted by EVSS' do
+          pending_record.form_data['serviceInformation']['servicePeriods'].first['serviceBranch'] = old_value
+          payload = JSON.parse(pending_record.to_internal)
+          expect(payload['form526']['serviceInformation']['servicePeriods'].first['serviceBranch']).to eq('Navy')
+        end
+      end
+
+      context "when 'serviceBranch' is 'Other'" do
+        let(:old_value) { 'Other' }
+
+        it 'maps to a value accepted by EVSS' do
+          pending_record.form_data['serviceInformation']['servicePeriods'].first['serviceBranch'] = old_value
+          payload = JSON.parse(pending_record.to_internal)
+          expect(payload['form526']['serviceInformation']['servicePeriods'].first['serviceBranch']).to eq('Unknown')
+        end
+      end
+
+      context "when 'serviceBranch' is unmapped" do
+        let(:old_value) { 'Some Random Value' }
+
+        it 'remains unchanged' do
+          pending_record.form_data['serviceInformation']['servicePeriods'].first['serviceBranch'] = old_value
+          payload = JSON.parse(pending_record.to_internal)
+          expect(payload['form526']['serviceInformation']['servicePeriods'].first['serviceBranch']).to eq(old_value)
+        end
+      end
+    end
   end
 
   describe 'evss_id_by_token' do
