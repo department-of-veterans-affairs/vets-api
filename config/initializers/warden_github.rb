@@ -1,27 +1,31 @@
 # frozen_string_literal: true
 
-Warden::GitHub::User.module_eval do
+module WardenGitHubUserExtensions
   def api
     Octokit::Client.new(access_token: Settings.sidekiq.github_api_key)
   end
 end
 
-Warden::GitHub::Strategy.module_eval do
+module WardenGithubStrategyExtensions
   def authenticate!
-    if session[:user].present?
-      success!(session[:user])
+    if scope == :sidekiq && session[:sidekiq_user].present?
+      success!(session[:sidekiq_user])
       redirect!(request.url)
-    elsif in_flow?
-      continue_flow!
     else
-      begin_flow!
+      super
     end
   end
 
   def finalize_flow!
-    session[:user] = load_user
-    redirect!(custom_session['return_to'])
-    teardown_flow
-    throw(:warden)
+    session[:sidekiq_user] = load_user if scope == :sidekiq
+    super
   end
+end
+
+Warden::GitHub::Strategy.module_eval do
+  prepend WardenGithubStrategyExtensions
+end
+
+Warden::GitHub::User.module_eval do
+  prepend WardenGitHubUserExtensions
 end

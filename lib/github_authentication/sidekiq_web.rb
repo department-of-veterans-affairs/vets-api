@@ -11,13 +11,13 @@ module GithubAuthentication
         end
 
         def github_organization_authenticate!(name)
-          unless session[:user].organization_member?(name)
+          unless session[:sidekiq_user].organization_member?(name)
             throw :halt, [401, {}, ["You don't have access to organization #{name}"]]
           end
         end
 
         def github_team_authenticate!(id)
-          throw :halt, [401, {}, ["You don't have access to team #{id}"]] unless session[:user].team_member?(id)
+          throw :halt, [401, {}, ["You don't have access to team #{id}"]] unless session[:sidekiq_user].team_member?(id)
         end
       end
 
@@ -25,11 +25,11 @@ module GithubAuthentication
         next if current_path == 'unauthenticated'
         next if current_path == 'auth/github/callback'
 
-        session[:user] ||= warden.user
+        session[:sidekiq_user] ||= warden.user
 
-        if session[:user].blank?
-          warden.authenticate!
-          session[:user] = warden.user
+        if session[:sidekiq_user].blank?
+          warden.authenticate!(scope: :sidekiq)
+          session[:sidekiq_user] = warden.user
         end
         github_organization_authenticate! Settings.sidekiq.github_organization
         github_team_authenticate! Settings.sidekiq.github_team
@@ -41,7 +41,7 @@ module GithubAuthentication
         if params['error']
           redirect '/unauthenticated'
         else
-          warden.authenticate!
+          warden.authenticate!(scope: :sidekiq)
           redirect root_path
         end
       end
