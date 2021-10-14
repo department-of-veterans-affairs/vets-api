@@ -1,16 +1,15 @@
 common:
-  - 'gregory.bowman@libertyits.com'
-commonz:
   - 'cristopher.shupp@libertyits.com'
   - 'gregory.bowman@libertyits.com'
   - 'mark.viterna@libertyits.com'
   - 'molly.gatti@va.gov'
-  - 'ana.ricci@libertyits.com'
+  - 'kevin.cranmer@libertyits.com'
+  - 'jessica.sexton@libertyits.com'
   - 'nichole.harris@libertyits.com'
 dev:
 staging:
 sandbox:
-prodz:
+prod:
   - 'david.mazik@va.gov'
   - 'ryan.link@oddball.io'
   - 'christopher.stone@libertyits.com'
