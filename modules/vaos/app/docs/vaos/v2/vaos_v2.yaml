@@ -17,12 +17,12 @@ tags:
   - name: systems
     description: Systems
 servers:
-  - url: https://sandbox-api.va.gov/v2/vaos/{version}
+  - url: https://sandbox-api.va.gov/vaos/v2
     description: VA.gov API sandbox environment
     variables:
       version:
         default: v2
-  - url: https://api.va.gov/v2/vaos/{version}
+  - url: https://api.va.gov/vaos/v2
     description: VA.gov API production environment
     variables:
       version:
@@ -527,7 +527,29 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
-  "/patients":
+  "/eligibility":
+    parameters:
+     - in: query
+       required: true
+       name: clinical_service_id
+       description: The clinical service (type of care) ID for the scheduling eligibility decision. The currently supported/available VAOS clinical service IDs can be discovered from Mobile Facility Service v2.
+       schema:
+         type: string
+     - in: query
+       required: true
+       name: facility_id
+       schema:
+         type: string
+     - in: query
+       required: true
+       name: type
+       schema: {
+         type: string,
+         enum: [
+           direct,
+           request
+         ]
+       }
     get:
       tags:
         - patients
@@ -545,23 +567,7 @@ paths:
                   - data
                 properties:
                   data:
-                    type: object
-                    required:
-                      - id
-                      - type
-                      - attributes
-                    properties:
-                      id:
-                        type: string
-                      type:
-                        type: string
-                      attributes:
-                        type: object
-                        properties:
-                          hasRequiredAppointmentHistory:
-                            type: boolean
-                          isEligibleForNewAppointmentRequest:
-                            type: boolean
+                    $ref: "#/components/schemas/PatientEligibilityResponse"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -881,6 +887,33 @@ components:
         - "cpap"
         - "outpatientMentalHealth"
         - "covid"
+    CodeableConcept:
+      properties:
+        coding:
+          type: array
+          items:
+            $ref: '#/components/schemas/Coding'
+        text:
+          type: string
+          description: Plain text representation of the concept
+      description: >- 
+        A CodeableConcept represents a value that is usually supplied by providing a
+        reference to one or more terminologies or ontologies.
+        FHIR reference: https://www.hl7.org/fhir/datatypes.html#CodeableConcept
+    Coding:
+      properties:
+        system:
+          type: string
+          description: Identity of the terminology system
+        code:
+          type: string
+          description: Symbol in syntax defined by the system
+        display:
+          type: string
+          description: A human-readable representation defined by the system.
+      description: >- 
+        A Coding is a representation of a defined concept using a symbol from a defined "code system". 
+        FHIR reference: https://www.hl7.org/fhir/datatypes.html#Coding
     CreateAppointmentRequest:
       description: A request to create a new appointment.
       type: object
@@ -923,6 +956,45 @@ components:
             "$ref": "#/components/schemas/Period"
         preferredLanguage:
           type: string
+    PatientEligibilityResponse:
+      type: object
+      required:
+        - id
+        - type
+        - attributes 
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        attributes:
+          type: object
+          properties:
+            id:
+              type: string
+            decisionDate:
+              type: string
+              description: The date-time (in UTC) when the eligibility decision was decided.
+              format: date-time
+            clinicalServiceId:
+              type: string
+              description: The clinical service (type of care) for the the request.
+            type:
+              type: string
+              description: >-
+                The type of appointment eligibility being considered. `direct` means a
+                direct-booking request on the part of the veteran, and `request` means a
+                veteran appointment request (to be processed by a scheduler).
+              enum:
+                - direct
+                - request
+            eligible:
+              type: boolean
+            ineligibilityReasons:
+              type: array
+              items:
+                $ref: '#/components/schemas/CodeableConcept'
+      description: The response for a patient scheduing eligibility request.        
     UpdateAppointmentRequest:
       description: A request to create a new appointment.
       type: object

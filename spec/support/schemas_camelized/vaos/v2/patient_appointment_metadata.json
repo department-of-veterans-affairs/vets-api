@@ -19,16 +19,43 @@
         },
         "attributes": {
           "type": "object",
-          "required": [
-            "hasRequiredAppointmentHistory",
-            "isEligibleForNewAppointmentRequest"
-          ],
           "properties": {
-            "hasRequiredAppointmentHistory": {
+            "decisionDate": {
+              "type": "string"
+            },
+            "clinicalServiceId": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "eligible": {
               "type": "boolean"
             },
-            "isEligibleForNewAppointmentRequest": {
-              "type": "boolean"
+            "ineligibilityReasons": {
+              "type": "array",
+              "properties": {
+                "coding": {
+                  "type": "array",
+                  "properties": {
+                    "system": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "display": {
+                      "type": "string"
+                    }
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                }
+              }  
+            },
+            "id": {
+              "type": "string"
             }
           }
         }

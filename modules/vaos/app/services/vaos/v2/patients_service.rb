@@ -23,7 +23,7 @@ module VAOS
       private
 
       def url
-        "/vaos/v1/patients/#{user.icn}"
+        "/vaos/v1/patients/#{user.icn}/eligibility"
       end
     end
   end

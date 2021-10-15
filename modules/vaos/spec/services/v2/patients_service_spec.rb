@@ -14,8 +14,9 @@ describe VAOS::V2::PatientsService do
       it 'returns a patient' do
         VCR.use_cassette('vaos/v2/patients/get_patient_appointment_metadata', match_requests_on: %i[method uri]) do
           response = subject.get_patient_appointment_metadata('primaryCare', '100', 'direct')
-          expect(response[:has_required_appointment_history]).to eq(true)
-          expect(response[:is_eligible_for_new_appointment_request]).to eq(true)
+          expect(response[:eligible]).to eq(false)
+
+          expect(response[:ineligibility_reasons][0][:coding][0][:code]).to eq('facility-cs-direct-disabled')
         end
       end
     end

@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: https://veteran.apps.va.gov/vaos/v1/patients/1012845331V153043?clinicalServiceId=primaryCare&facilityId=100&type=direct
+      uri: https://veteran.apps.va.gov/vaos/v1/patients/1012845331V153043/eligibility?clinicalServiceId=primaryCare&facilityId=100&type=direct
       body:
         encoding: US-ASCII
         string: ""

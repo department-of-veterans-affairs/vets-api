@@ -9,8 +9,9 @@ module VAOS
           patient_params[:facility_id],
           patient_params[:type]
         )
-
-        render json: VAOS::V2::PatientAppointmentMetadataSerializer.new(response)
+        serializer = VAOS::V2::VAOSSerializer.new
+        serialized = serializer.serialize(response, 'patient_metadata')
+        render json: { data: serialized }
       end
 
       private

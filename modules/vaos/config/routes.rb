@@ -48,7 +48,7 @@ VAOS::Engine.routes.draw do
     put '/appointments/:id', to: 'appointments#update'
     get '/locations/:location_id/clinics', to: 'clinics#index'
     get '/locations/:location_id/clinics/:clinic_id/slots', to: 'slots#index'
-    get '/patients/', to: 'patients#index'
+    get '/eligibility/', to: 'patients#index'
     get '/scheduling/configurations', to: 'scheduling#configurations'
     get '/facilities', to: 'facilities#index'
     get '/facilities/:facility_id', to: 'facilities#show'
