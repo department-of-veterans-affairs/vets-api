@@ -54,26 +54,27 @@ module FacilitiesApi
     def ppms_params
       params.require(:type)
       params.permit(
+        :lat,
         :latitude,
+        :long,
         :longitude,
         :page,
         :per_page,
         :radius,
         :type,
-        bbox: [],
         specialties: []
       )
     end
 
     def ppms_action_params
       params.permit(
-        :address,
+        :lat,
         :latitude,
+        :long,
         :longitude,
         :page,
         :per_page,
         :radius,
-        bbox: [],
         specialties: []
       )
     end
@@ -81,14 +82,14 @@ module FacilitiesApi
     def ppms_provider_params
       params.require(:specialties)
       params.permit(
-        :address,
+        :lat,
         :latitude,
+        :long,
         :longitude,
         :page,
         :per_page,
         :radius,
         :type,
-        bbox: [],
         specialties: []
       )
     end

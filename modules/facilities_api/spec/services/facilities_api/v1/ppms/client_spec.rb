@@ -11,8 +11,8 @@ vcr_options = {
 RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_options do
   let(:params) do
     {
-      latitude: 40.415217,
-      longitude: -74.057114,
+      lat: 40.415217,
+      long: -74.057114,
       radius: 200
     }.with_indifferent_access
   end
@@ -238,8 +238,8 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
 
             client.provider_locator(params.merge(
                                       specialties: %w[Code1],
-                                      latitude: 40.123456789012345,
-                                      longitude: -74.123456789012345
+                                      lat: 40.123456789012345,
+                                      long: -74.123456789012345
                                     ))
           end
         end

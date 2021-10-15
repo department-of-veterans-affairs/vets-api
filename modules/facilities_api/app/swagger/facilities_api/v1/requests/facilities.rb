@@ -40,12 +40,6 @@ module FacilitiesApi
             key :type, :string
           end
         end
-        parameter do
-          key :name, 'address'
-          key :description, 'Address of search center, needed for searches involving community care providers'
-          key :in, :query
-          key :type, :string
-        end
         response 200 do
           key :description, 'Successful bounding box query'
           schema do
@@ -103,8 +97,22 @@ module FacilitiesApi
           key :tags, %w[providers]
 
           parameter do
+            key :name, :lat
+            key :description, 'Latitude'
+            key :in, :query
+            key :type, :number
+          end
+
+          parameter do
             key :name, :latitude
             key :description, 'Latitude'
+            key :in, :query
+            key :type, :number
+          end
+
+          parameter do
+            key :name, :long
+            key :description, 'Longitude'
             key :in, :query
             key :type, :number
           end

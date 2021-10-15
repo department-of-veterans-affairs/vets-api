@@ -17,8 +17,8 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
 
   let(:params) do
     {
-      latitude: 40.415217,
-      longitude: -74.057114,
+      lat: 40.415217,
+      long: -74.057114,
       radius: 200,
       type: 'provider',
       specialties: ['213E00000X']
@@ -91,8 +91,8 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
           context 'Missing specialties param' do
             let(:params) do
               {
-                latitude: 40.415217,
-                longitude: -74.057114,
+                lat: 40.415217,
+                long: -74.057114,
                 radius: 200,
                 type: 'provider'
               }
@@ -121,8 +121,8 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
           context 'specialties=261QU0200X' do
             let(:params) do
               {
-                latitude: 40.415217,
-                longitude: -74.057114,
+                lat: 40.415217,
+                long: -74.057114,
                 radius: 200,
                 type: 'provider',
                 specialties: ['261QU0200X']
@@ -254,8 +254,8 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
         context 'type=pharmacy' do
           let(:params) do
             {
-              latitude: 40.415217,
-              longitude: -74.057114,
+              lat: 40.415217,
+              long: -74.057114,
               radius: 200,
               type: 'pharmacy'
             }
@@ -300,8 +300,8 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
         context 'type=urgent_care' do
           let(:params) do
             {
-              latitude: 40.415217,
-              longitude: -74.057114,
+              lat: 40.415217,
+              long: -74.057114,
               radius: 200,
               type: 'urgent_care'
             }
@@ -323,8 +323,8 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
         context 'Missing specialties param' do
           let(:params) do
             {
-              latitude: 40.415217,
-              longitude: -74.057114,
+              lat: 40.415217,
+              long: -74.057114,
               radius: 200
             }
           end
@@ -352,8 +352,8 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
         context 'specialties=261QU0200X' do
           let(:params) do
             {
-              latitude: 40.415217,
-              longitude: -74.057114,
+              lat: 40.415217,
+              long: -74.057114,
               radius: 200,
               specialties: ['261QU0200X']
             }
@@ -408,8 +408,8 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
       describe '#pharmacy' do
         let(:params) do
           {
-            latitude: 40.415217,
-            longitude: -74.057114,
+            lat: 40.415217,
+            long: -74.057114,
             radius: 200
           }
         end
@@ -453,8 +453,8 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
       describe '#urgent_care' do
         let(:params) do
           {
-            latitude: 40.415217,
-            longitude: -74.057114,
+            lat: 40.415217,
+            long: -74.057114,
             radius: 200
           }
         end

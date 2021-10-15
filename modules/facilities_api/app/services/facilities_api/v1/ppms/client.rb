@@ -133,13 +133,19 @@ module FacilitiesApi
           response
         end
 
+        def fetch_lat_long_and_radius(params)
+          latitude = Float(params.values_at(:lat, :latitude).compact.first).round(DEGREES_OF_ACCURACY)
+          longitude = Float(params.values_at(:long, :longitude).compact.first).round(DEGREES_OF_ACCURACY)
+          radius = Integer(params.fetch(:radius)).clamp(RADIUS_MIN, RADIUS_MAX)
+
+          [latitude, longitude, radius]
+        end
+
         def facility_service_locator_params(params)
           page = Integer(params[:page] || 1)
           per_page = Integer(params[:per_page] || PER_PAGE)
 
-          latitude = Float(params.fetch(:latitude)).round(DEGREES_OF_ACCURACY)
-          longitude = Float(params.fetch(:longitude)).round(DEGREES_OF_ACCURACY)
-          radius = Integer(params.fetch(:radius)).clamp(RADIUS_MIN, RADIUS_MAX)
+          latitude, longitude, radius = fetch_lat_long_and_radius(params)
 
           specialties = Array.wrap(params[:specialties])
           specialty_codes = specialties.first(5).map.with_index.with_object({}) do |(code, index), hsh|
@@ -159,9 +165,8 @@ module FacilitiesApi
           page = Integer(params[:page] || 1)
           per_page = Integer(params[:per_page] || PER_PAGE)
 
-          latitude = Float(params.fetch(:latitude)).round(DEGREES_OF_ACCURACY)
-          longitude = Float(params.fetch(:longitude)).round(DEGREES_OF_ACCURACY)
-          radius = Integer(params.fetch(:radius)).clamp(RADIUS_MIN, RADIUS_MAX)
+          latitude, longitude, radius = fetch_lat_long_and_radius(params)
+
           max_results = (per_page * page + 1).clamp(RESULTS_MIN, RESULTS_MAX)
 
           {
