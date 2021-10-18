@@ -45,7 +45,7 @@ describe ClaimsApi::PoaPdfConstructor::Individual do
     Timecop.return
   end
 
-  it 'construct pdf' do
+  xit 'construct pdf' do
     power_of_attorney = ClaimsApi::PowerOfAttorney.find(temp.id)
     data = power_of_attorney.form_data.deep_merge(
       {

@@ -8,6 +8,7 @@ require 'pdf_info'
 module CentralMail
   class SubmitSavedClaimJob
     include Sidekiq::Worker
+    include SentryLogging
 
     FOREIGN_POSTALCODE = '00000'
 
@@ -26,6 +27,7 @@ module CentralMail
       end
 
       response = CentralMail::Service.new.upload(create_request_body)
+      log_cmp_response if @claim.is_a?(SavedClaim::VeteranReadinessEmploymentClaim)
       File.delete(@pdf_path)
       @attachment_paths.each { |p| File.delete(p) }
 
@@ -37,6 +39,11 @@ module CentralMail
     rescue
       update_submission('failed')
       raise
+    end
+
+    def log_cmp_response
+      log_message_to_sentry("vre-central-mail-response: #{response}", :info, {}, { team: 'vfs-ebenefits' })
+      Rails.logger "vre-central-mail-response: #{response}"
     end
 
     def create_request_body

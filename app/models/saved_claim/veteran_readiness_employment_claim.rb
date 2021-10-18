@@ -120,10 +120,11 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     else
       begin
         upload_to_vbms
-      rescue VBMS::DownForMaintenance
+      rescue
         send_to_central_mail!
       end
     end
+
     @office_location = check_office_location[0] if @office_location.nil?
 
     email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
