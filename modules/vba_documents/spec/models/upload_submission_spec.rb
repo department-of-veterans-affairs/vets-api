@@ -319,4 +319,18 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(times.sort).to eq times
     end
   end
+
+  describe '#appeals_consumer?' do
+    it 'returns true if #consumer_name is appeals specific' do
+      upload = FactoryBot.create(:upload_submission, consumer_name: 'appeals_api_sc_evidence_submission')
+
+      expect(upload.appeals_consumer?).to eq(true)
+    end
+
+    it 'returns false if #consumer_name is not appeals specific' do
+      upload = FactoryBot.create(:upload_submission, consumer_name: 'unrelated')
+
+      expect(upload.appeals_consumer?).to eq(false)
+    end
+  end
 end

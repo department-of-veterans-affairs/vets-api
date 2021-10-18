@@ -174,6 +174,20 @@ module AppealsApi
       veterans_local_time.strftime('%m/%d/%Y')
     end
 
+    def lob
+      {
+        'compensation' => 'CMP',
+        'pensionSurvivorsBenefits' => 'PMC',
+        'fiduciary' => 'FID',
+        'lifeInsurance' => 'INS',
+        'veteransHealthAdministration' => 'OTH',
+        'veteranReadinessAndEmployment' => 'VRE',
+        'loanGuaranty' => 'OTH',
+        'education' => 'EDU',
+        'nationalCemeteryAdministration' => 'OTH'
+      }[benefit_type]
+    end
+
     private
 
     def data_attributes

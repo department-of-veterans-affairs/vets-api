@@ -109,6 +109,10 @@ module VBADocuments
       self[:consumer_name] || 'unknown'
     end
 
+    def appeals_consumer?
+      /appeals_api/.match?(consumer_name)
+    end
+
     # data structure
     # [{"status"=>"vbms", "min_secs"=>816, "max_secs"=>816, "avg_secs"=>816, "rowcount"=>1},
     # {"status"=>"pending", "min_secs"=>0, "max_secs"=>23, "avg_secs"=>9, "rowcount"=>7},
