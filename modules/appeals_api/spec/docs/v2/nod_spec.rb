@@ -414,26 +414,12 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
         schema '$ref' => '#/components/schemas/evidenceSubmissionResponse'
 
         before do |example|
-          with_settings(Settings.modules_appeals_api.evidence_submissions.location,
-                        prefix: 'http://some.fakesite.com/path',
-                        replacement: 'http://another.fakesite.com/rewrittenpath') do
-            s3_client = instance_double(Aws::S3::Resource)
-            allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
-            s3_bucket = instance_double(Aws::S3::Bucket)
-            s3_object = instance_double(Aws::S3::Object)
-            allow(s3_client).to receive(:bucket).and_return(s3_bucket)
-            allow(s3_bucket).to receive(:object).and_return(s3_object)
-            allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
-            submit_request(example.metadata)
-          end
+          allow_any_instance_of(VBADocuments::UploadSubmission).to receive(:get_location).and_return(+'http://some.fakesite.com/path/uuid')
+          submit_request(example.metadata)
         end
 
-        xit 'returns a 202 response' do |example|
-          with_settings(Settings.vba_documents.location,
-                        prefix: 'https://fake.s3.url/foo/',
-                        replacement: 'https://api.vets.gov/proxy/') do
-            assert_response_matches_metadata(example.metadata)
-          end
+        it 'returns a 202 response' do |example|
+          assert_response_matches_metadata(example.metadata)
         end
 
         after do |example|
