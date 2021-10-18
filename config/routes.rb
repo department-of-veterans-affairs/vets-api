@@ -114,6 +114,7 @@ Rails.application.routes.draw do
 
     namespace :virtual_agent do
       get 'claim', to: 'virtual_agent_claim#index'
+      get 'claim/:id', to: 'virtual_agent_claim#show'
     end
 
     resources :virtual_agent_claim, only: %i[index]

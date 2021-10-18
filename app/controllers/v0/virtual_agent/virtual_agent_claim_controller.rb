@@ -12,7 +12,7 @@ module V0
       def index
         claims, synchronized = service.all
 
-        data = synchronized == 'REQUESTED' ? nil : data_for_five_most_recent_open_comp_claims(claims)
+        data = synchronized == 'REQUESTED' ? nil : data_for_three_most_recent_open_comp_claims(claims)
 
         render json: {
           data: data,
@@ -20,10 +20,21 @@ module V0
         }
       end
 
+      def show
+        claim = EVSSClaim.for_user(current_user).find_by(evss_id: params[:id])
+
+        claim, synchronized = service.update_from_remote(claim)
+
+        render json: {
+          data: { va_representative: get_va_representative(claim) },
+          meta: { sync_status: synchronized }
+        }
+      end
+
       private
 
-      def data_for_five_most_recent_open_comp_claims(claims)
-        comp_claims = five_most_recent_open_comp_claims claims
+      def data_for_three_most_recent_open_comp_claims(claims)
+        comp_claims = three_most_recent_open_comp_claims claims
 
         return [] if comp_claims.nil?
 
@@ -48,12 +59,12 @@ module V0
           updated_date: updated_date }
       end
 
-      def five_most_recent_open_comp_claims(claims)
+      def three_most_recent_open_comp_claims(claims)
         claims
           .sort_by { |claim| parse_claim_date claim }
           .reverse
           .select { |claim| open_compensation? claim }
-          .take(5)
+          .take(3)
       end
 
       def service
@@ -70,6 +81,11 @@ module V0
 
       def open_compensation?(claim)
         claim.list_data['status_type'] == 'Compensation' and !claim.list_data.key?('close_date')
+      end
+
+      def get_va_representative(claim)
+        va_rep = claim.data['poa']
+        va_rep.gsub(/&[^ ;]+;/, '')
       end
     end
   end
