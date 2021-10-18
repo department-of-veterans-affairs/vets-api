@@ -168,24 +168,24 @@ group :test do
   gem 'simplecov', require: false
   gem 'super_diff'
   gem 'vcr'
-  gem 'webrick', '>= 1.6.1'
+  gem 'webrick'
 end
 
 group :development, :test do
-  gem 'awesome_print', '~> 1.9' # Pretty print your Ruby objects in full color and with proper indentation
-  gem 'brakeman', '~> 5.0'
+  gem 'awesome_print' # Pretty print your Ruby objects in full color and with proper indentation
+  gem 'brakeman'
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'danger'
   gem 'database_cleaner'
-  gem 'factory_bot_rails', '> 5'
+  gem 'factory_bot_rails'
   gem 'faker'
   # CAUTION: faraday_curl may not provide all headers used in the actual faraday request. Be cautious if using this to
   # assist with debugging production issues (https://github.com/department-of-veterans-affairs/vets.gov-team/pull/6262)
   gem 'faraday_adapter_socks'
   gem 'faraday_curl'
   gem 'fuubar'
-  gem 'guard-rspec', '~> 4.7'
+  gem 'guard-rspec'
   gem 'overcommit'
   gem 'parallel_tests'
   gem 'pry-byebug'
