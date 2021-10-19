@@ -10,6 +10,32 @@ RSpec.describe CheckIn::V2::AppointmentIdentifiersSerializer do
       id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
       scope: 'read.full',
       payload: {
+        demographics: {
+          mailingAddress: {
+            street1: '123 Turtle Trail',
+            street2: '',
+            street3: '',
+            city: 'Treetopper',
+            county: 'SAN BERNARDINO',
+            state: 'Tennessee',
+            zip: '101010',
+            country: 'USA'
+          },
+          homeAddress: {
+            street1: '445 Fine Finch Fairway',
+            street2: 'Apt 201',
+            street3: '',
+            city: 'Fairfence',
+            county: 'FOO',
+            state: 'Florida',
+            zip: '445545',
+            country: 'USA'
+          },
+          homePhone: '5552223333',
+          mobilePhone: '5553334444',
+          workPhone: '5554445555',
+          emailAddress: 'kermit.frog@sesameenterprises.us'
+        },
         appointments: [
           {
             appointmentIEN: '1',

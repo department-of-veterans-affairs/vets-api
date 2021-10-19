@@ -12,24 +12,26 @@ describe V2::Lorota::Request do
   end
 
   describe '#get' do
-    let(:conn) { double('Faraday::Connection') }
+    let(:req) { Faraday::Request.new }
 
     it 'connection is called with get' do
       allow_any_instance_of(Faraday::Connection).to receive(:get).with(anything).and_return(anything)
 
       expect_any_instance_of(Faraday::Connection).to receive(:get)
-        .with('/dev/data/d602d9eb-9a31-484f-9637-13ab0b507e0d').once
+        .with('/dev/data/d602d9eb-9a31-484f-9637-13ab0b507e0d').once.and_yield(req)
 
       subject.build.get('/dev/data/d602d9eb-9a31-484f-9637-13ab0b507e0d')
     end
   end
 
   describe '#post' do
+    let(:req) { Faraday::Request.new }
+
     it 'connection is called with post' do
       allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(anything)
 
       expect_any_instance_of(Faraday::Connection).to receive(:post)
-        .with('/dev/token').once
+        .with('/dev/token').once.and_yield(req)
 
       subject.build.post('/dev/token', {})
     end

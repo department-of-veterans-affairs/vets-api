@@ -9,12 +9,44 @@ module CheckIn
       set_type :appointment_data
 
       attribute :payload do |object|
-        approved_values =
+        appointments =
           object.payload.dig(:appointments).map do |appt|
             appt.except!(:patientDFN, :stationNo)
           end
 
-        { appointments: approved_values }
+        if Flipper.enabled?(:check_in_experience_demographics_page_enabled)
+          raw_demographics = object.payload.dig(:demographics)
+          demographics = {
+            mailingAddress: {
+              street1: raw_demographics.dig(:mailingAddress, :street1),
+              street2: raw_demographics.dig(:mailingAddress, :street2),
+              street3: raw_demographics.dig(:mailingAddress, :street3),
+              city: raw_demographics.dig(:mailingAddress, :city),
+              county: raw_demographics.dig(:mailingAddress, :county),
+              state: raw_demographics.dig(:mailingAddress, :state),
+              zip: raw_demographics.dig(:mailingAddress, :zip),
+              country: raw_demographics.dig(:mailingAddress, :country)
+            },
+            homeAddress: {
+              street1: raw_demographics.dig(:homeAddress, :street1),
+              street2: raw_demographics.dig(:homeAddress, :street2),
+              street3: raw_demographics.dig(:homeAddress, :street3),
+              city: raw_demographics.dig(:homeAddress, :city),
+              county: raw_demographics.dig(:homeAddress, :county),
+              state: raw_demographics.dig(:homeAddress, :state),
+              zip: raw_demographics.dig(:homeAddress, :zip),
+              country: raw_demographics.dig(:homeAddress, :country)
+            },
+            homePhone: raw_demographics[:homePhone],
+            mobilePhone: raw_demographics[:mobilePhone],
+            workPhone: raw_demographics[:workPhone],
+            emailAddress: raw_demographics[:emailAddress]
+          }
+
+          { demographics: demographics, appointments: appointments }
+        else
+          { appointments: appointments }
+        end
       end
     end
   end

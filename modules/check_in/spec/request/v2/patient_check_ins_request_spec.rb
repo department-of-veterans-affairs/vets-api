@@ -11,6 +11,8 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
     allow(Rails).to receive(:cache).and_return(memory_store)
     allow(Flipper).to receive(:enabled?)
       .with('check_in_experience_multiple_appointment_support').and_return(true)
+    allow(Flipper).to receive(:enabled?)
+      .with(:check_in_experience_demographics_page_enabled).and_return(true)
 
     Rails.cache.clear
   end

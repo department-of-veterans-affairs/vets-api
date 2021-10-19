@@ -5,11 +5,42 @@ require 'rails_helper'
 RSpec.describe CheckIn::V2::AppointmentDataSerializer do
   subject { described_class }
 
+  before do
+    allow(Flipper).to receive(:enabled?)
+      .with(:check_in_experience_demographics_page_enabled).and_return(true)
+  end
+
   let(:appointment_data) do
     {
       id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
       scope: 'read.full',
       payload: {
+        demographics: {
+          mailingAddress: {
+            street1: '123 Turtle Trail',
+            street2: '',
+            street3: '',
+            city: 'Treetopper',
+            county: 'SAN BERNARDINO',
+            state: 'Tennessee',
+            zip: '101010',
+            country: 'USA'
+          },
+          homeAddress: {
+            street1: '445 Fine Finch Fairway',
+            street2: 'Apt 201',
+            street3: '',
+            city: 'Fairfence',
+            county: 'FOO',
+            state: 'Florida',
+            zip: '445545',
+            country: 'USA'
+          },
+          homePhone: '5552223333',
+          mobilePhone: '5553334444',
+          workPhone: '5554445555',
+          emailAddress: 'kermit.frog@sesameenterprises.us'
+        },
         appointments: [
           {
             appointmentIEN: '1',
@@ -56,6 +87,32 @@ RSpec.describe CheckIn::V2::AppointmentDataSerializer do
           type: :appointment_data,
           attributes: {
             payload: {
+              demographics: {
+                mailingAddress: {
+                  street1: '123 Turtle Trail',
+                  street2: '',
+                  street3: '',
+                  city: 'Treetopper',
+                  county: 'SAN BERNARDINO',
+                  state: 'Tennessee',
+                  zip: '101010',
+                  country: 'USA'
+                },
+                homeAddress: {
+                  street1: '445 Fine Finch Fairway',
+                  street2: 'Apt 201',
+                  street3: '',
+                  city: 'Fairfence',
+                  county: 'FOO',
+                  state: 'Florida',
+                  zip: '445545',
+                  country: 'USA'
+                },
+                homePhone: '5552223333',
+                mobilePhone: '5553334444',
+                workPhone: '5554445555',
+                emailAddress: 'kermit.frog@sesameenterprises.us'
+              },
               appointments: [
                 {
                   appointmentIEN: '1',

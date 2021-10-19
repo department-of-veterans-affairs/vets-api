@@ -19,6 +19,7 @@ describe V2::Lorota::Service do
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 
   before do
+    allow(Flipper).to receive(:enabled?).with(:check_in_experience_demographics_page_enabled).and_return(true)
     allow(Rails).to receive(:cache).and_return(memory_store)
 
     Rails.cache.clear
@@ -53,6 +54,32 @@ describe V2::Lorota::Service do
         id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
         scope: 'read.full',
         payload: {
+          demographics: {
+            mailingAddress: {
+              street1: '123 Turtle Trail',
+              street2: '',
+              street3: '',
+              city: 'Treetopper',
+              county: 'SAN BERNARDINO',
+              state: 'Tennessee',
+              zip: '101010',
+              country: 'USA'
+            },
+            homeAddress: {
+              street1: '445 Fine Finch Fairway',
+              street2: 'Apt 201',
+              street3: '',
+              city: 'Fairfence',
+              county: 'FOO',
+              state: 'Florida',
+              zip: '445545',
+              country: 'USA'
+            },
+            homePhone: '5552223333',
+            mobilePhone: '5553334444',
+            workPhone: '5554445555',
+            emailAddress: 'kermit.frog@sesameenterprises.us'
+          },
           appointments: [
             {
               appointmentIEN: '1',
@@ -92,8 +119,33 @@ describe V2::Lorota::Service do
     end
     let(:approved_response) do
       {
-        id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
         payload: {
+          demographics: {
+            mailingAddress: {
+              street1: '123 Turtle Trail',
+              street2: '',
+              street3: '',
+              city: 'Treetopper',
+              county: 'SAN BERNARDINO',
+              state: 'Tennessee',
+              zip: '101010',
+              country: 'USA'
+            },
+            homeAddress: {
+              street1: '445 Fine Finch Fairway',
+              street2: 'Apt 201',
+              street3: '',
+              city: 'Fairfence',
+              county: 'FOO',
+              state: 'Florida',
+              zip: '445545',
+              country: 'USA'
+            },
+            homePhone: '5552223333',
+            mobilePhone: '5553334444',
+            workPhone: '5554445555',
+            emailAddress: 'kermit.frog@sesameenterprises.us'
+          },
           appointments: [
             {
               'appointmentIEN' => '1',
@@ -124,7 +176,8 @@ describe V2::Lorota::Service do
               'timeCheckedIn' => 'time the user checked already'
             }
           ]
-        }
+        },
+        id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d'
       }
     end
 
