@@ -148,5 +148,5 @@ else
 endif
 
 .PHONY: up
-up: db
-	docker-compose up
+up: db  ## Starts the server and associated services with docker-compose, use `clam=1 make up` to run ClamAV
+	@$(BASH_DEV) "rm -f tmp/pids/server.pid && foreman start -m ${FOREMAN_ARG}"

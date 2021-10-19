@@ -1,9 +1,5 @@
 version: '3.4'
 services:
-  clamav:
-    image: clamav/clamav
-    ports:
-      - "3310:3310"
   redis:
     image: redis:5.0-alpine
     ports:
@@ -25,7 +21,6 @@ services:
         sidekiq_license: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
         userid: "${VETS_API_USER_ID}"
     image: "vets-api:${DOCKER_IMAGE:-latest}"
-    command: bash -c "rm -f tmp/pids/server.pid && bundle exec puma -p 3000 -C ./config/puma.rb"
     volumes:
       - .:/srv/vets-api/src:cached
       - "../vets-api-mockdata:/cache"
@@ -45,48 +40,15 @@ services:
       "Settings.test_database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_test}"
       "Settings.redis.app_data.url": "redis://redis:6379"
       "Settings.redis.sidekiq.url": "redis://redis:6379"
+      "Settings.binaries.clamdscan": "clamscan" # Not running a separate process within the container for clamdscan, so we use clamscan which requires no daemon
       POSTGRES_HOST: "${POSTGRES_HOST:-postgres}"
       POSTGRES_PORT: "${POSTGRES_PORT:-5432}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
     depends_on:
-      - clamav
       - postgres
       - redis
     links:
-      - clamav
-      - postgres
-      - redis
-  worker:
-    build:
-      context: .
-      target: development
-      args:
-        sidekiq_license: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
-        userid: "${VETS_API_USER_ID}"
-    image: "vets-api:${DOCKER_IMAGE:-latest}"
-    command: bundle exec sidekiq -q critical,4 -q tasker,3 -q default,2 -q low,1
-    volumes:
-      - .:/srv/vets-api/src:cached
-      - "../vets-api-mockdata:/cache"
-      - dev_bundle:/usr/local/bundle
-    environment:
-      "Settings.database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_development}?pool=4"
-      "Settings.test_database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_test}"
-      "Settings.saml.cert_path": "/srv/vets-api/src/config/certs/vetsgov-localhost.crt"
-      "Settings.saml.key_path": "/srv/vets-api/src/config/certs/vetsgov-localhost.key"
-      "Settings.redis.app_data.url": "redis://redis:6379"
-      "Settings.redis.sidekiq.url": "redis://redis:6379"
-      POSTGRES_HOST: "${POSTGRES_HOST:-postgres}"
-      POSTGRES_PORT: "${POSTGRES_PORT:-5432}"
-      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
-    depends_on:
-      - vets-api
-      - postgres
-      - redis
-    links:
-      - vets-api
       - postgres
       - redis
 
