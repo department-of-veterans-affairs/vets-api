@@ -404,7 +404,7 @@ GEM
       nokogiri (>= 1.11.4)
     filelock (1.1.1)
     find_a_port (1.0.1)
-    flipper (0.22.1)
+    flipper (0.22.2)
     flipper-active_record (0.22.1)
       activerecord (>= 4.2, < 7)
       flipper (~> 0.22.1)
