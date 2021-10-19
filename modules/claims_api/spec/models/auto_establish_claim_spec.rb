@@ -95,7 +95,6 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
     it 'converts special issues to EVSS codes' do
       payload = JSON.parse(pending_record.to_internal)
       expect(payload['form526']['disabilities'].first['specialIssues']).to eq(['PTSD_2'])
-      expect(payload['form526']['disabilities'].first['secondaryDisabilities'].first['specialIssues']).to eq([])
     end
 
     it 'converts homelessness situation type to EVSS code' do
@@ -466,6 +465,42 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
           pending_record.form_data['serviceInformation']['servicePeriods'].first['serviceBranch'] = old_value
           payload = JSON.parse(pending_record.to_internal)
           expect(payload['form526']['serviceInformation']['servicePeriods'].first['serviceBranch']).to eq(old_value)
+        end
+      end
+
+      describe "scrubbing 'specialIssues' on 'secondaryDisabilities'" do
+        context "when a 'secondaryDisability' has 'specialIssues'" do
+          it "removes the 'specialIssues' attribute" do
+            pending_record.form_data['disabilities'].first['secondaryDisabilities'].first['specialIssues'] = []
+            pending_record.form_data['disabilities'].first['secondaryDisabilities'].first['specialIssues'] << 'ALS'
+
+            payload = JSON.parse(pending_record.to_internal)
+            special_issues = payload['form526']['disabilities'].first['secondaryDisabilities'].first['specialIssues']
+
+            expect(special_issues).to be_nil
+          end
+        end
+
+        context "when a 'secondaryDisability' does not have 'specialIssues'" do
+          it 'does not change anything' do
+            pre_processed_disabilities = pending_record.form_data['disabilities']
+            payload = JSON.parse(pending_record.to_internal)
+            post_processed_disabilities = payload['form526']['disabilities']
+
+            expect(pre_processed_disabilities).eql?(post_processed_disabilities)
+          end
+        end
+
+        context "when a 'secondaryDisability' does not exist" do
+          it 'does not change anything' do
+            pending_record.form_data['disabilities'].first.delete('secondaryDisabilities')
+
+            pre_processed_disabilities = pending_record.form_data['disabilities']
+            payload = JSON.parse(pending_record.to_internal)
+            post_processed_disabilities = payload['form526']['disabilities']
+
+            expect(pre_processed_disabilities).eql?(post_processed_disabilities)
+          end
         end
       end
     end

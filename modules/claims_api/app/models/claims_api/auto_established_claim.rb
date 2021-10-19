@@ -60,6 +60,7 @@ module ClaimsApi
       form_data['veteran']['changeOfAddress'] = transform_change_of_address_ending_date if invalid_change_of_address_ending_date? # rubocop:disable Layout/LineLength
       form_data['disabilites'] = transform_disability_approximate_begin_dates
       form_data['disabilites'] = massage_invalid_disability_names
+      form_data['disabilites'] = remove_special_issues_from_secondary_disabilities
       form_data['treatments'] = transform_treatment_dates if treatments?
       form_data['serviceInformation'] = transform_service_branch
 
@@ -194,12 +195,6 @@ module ClaimsApi
         disability['specialIssues'] = (disability['specialIssues'] || []).map do |special_issue|
           mapper.code_from_name(special_issue)
         end.compact
-
-        (disability['secondaryDisabilities'] || []).each do |secondary_disability|
-          secondary_disability['specialIssues'] = (secondary_disability['specialIssues'] || []).map do |special_issue|
-            mapper.code_from_name(special_issue)
-          end.compact
-        end
       end
     end
 
@@ -378,6 +373,24 @@ module ClaimsApi
 
       form_data['serviceInformation']['servicePeriods'] = transformed_service_periods
       form_data['serviceInformation']
+    end
+
+    # The legacy ClaimsApi code has always allowed 'secondaryDisabilities' to have 'specialIssues'.
+    # EVSS does not allow this.
+    # Rather than break the API by removing 'specialIssues' from the 'secondaryDisabilities' schema,
+    # just detect the invalid case and remove the 'specialIssues' before sending to EVSS.
+    def remove_special_issues_from_secondary_disabilities
+      disabilities = form_data['disabilites']
+
+      disabilities.map do |disability|
+        next if disability['secondaryDisabilities'].blank?
+
+        disability['secondaryDisabilities'].map do |secondary|
+          secondary.delete('specialIssues') if secondary['specialIssues'].present?
+
+          secondary
+        end
+      end
     end
   end
 end
