@@ -51,7 +51,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
 
     it 'create the job to build the PDF' do
       expect { post(path, params: @data, headers: @headers) }.to(
-        change(AppealsApi::NoticeOfDisagreementPdfSubmitJob.jobs, :size).by(1)
+        change(AppealsApi::PdfSubmitJob.jobs, :size).by(1)
       )
     end
 
