@@ -4,10 +4,13 @@ class StatsdMiddleware
   STATUS_KEY   = 'api.rack.request'
   DURATION_KEY = 'api.rack.request.duration'
 
-  API_ONLY_APP_NAMES = Set.new %w[
+  MODULES_APP_NAMES = Set.new %w[
     appeals_api
     apps_api
     claims_api
+    coronavirus-research
+    mobile
+    test_user_dashboard
   ].freeze
 
   OTHER_APP_NAMES = Set.new %w[
@@ -88,7 +91,7 @@ class StatsdMiddleware
     your-debt
   ].freeze
 
-  SOURCE_APP_NAMES = FRONT_END_APP_NAMES + API_ONLY_APP_NAMES + OTHER_APP_NAMES
+  SOURCE_APP_NAMES = FRONT_END_APP_NAMES + MODULES_APP_NAMES + OTHER_APP_NAMES
 
   def initialize(app)
     @app = app

@@ -40,8 +40,7 @@ RSpec.describe DecisionReview::SubmitUpload, type: :job do
                 'api.external_http_request.DecisionReview.success',
                 times: 1,
                 tags: ['endpoint:/services/appeals/v1/decision_reviews/notice_of_disagreements/evidence_submissions',
-                       'method:post',
-                       'source:unknown']
+                       'method:post']
               )
             expect(AppealSubmissionUpload.first.lighthouse_upload_id).to eq('59cdb98f-f94b-4aaa-8952-4d1e59b6e40a')
           end

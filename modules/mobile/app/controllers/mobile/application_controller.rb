@@ -9,6 +9,7 @@ module Mobile
     include SentryControllerLogging
 
     before_action :check_feature_flag, :authenticate
+    before_action :set_tags_and_extra_context
     skip_before_action :authenticate, only: :cors_preflight
 
     ACCESS_TOKEN_REGEX = /^Bearer /.freeze
@@ -83,6 +84,11 @@ module Mobile
       super
       payload[:session] = Session.obscure_token(access_token) if access_token.present?
       payload[:user_uuid] = current_user.uuid if current_user.present?
+    end
+
+    def set_tags_and_extra_context
+      RequestStore.store['additional_request_attributes'] = { 'source' => 'mobile' }
+      Raven.tags_context(source: 'mobile')
     end
   end
 end

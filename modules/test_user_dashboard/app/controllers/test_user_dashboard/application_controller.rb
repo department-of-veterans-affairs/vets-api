@@ -6,6 +6,7 @@ module TestUserDashboard
   class ApplicationController < ActionController::API
     include SentryLogging
     before_action :require_jwt
+    before_action :set_tags_and_extra_context
 
     def require_jwt
       token = request.headers['JWT']
@@ -28,6 +29,11 @@ module TestUserDashboard
         log_message_to_sentry('Error decoding TUD JWT: ', :error, body: e.message)
       end
       false
+    end
+
+    def set_tags_and_extra_context
+      RequestStore.store['additional_request_attributes'] = { 'source' => 'test-user-dashboard' }
+      Raven.tags_context(source: 'test-user-dashboard')
     end
   end
 end
