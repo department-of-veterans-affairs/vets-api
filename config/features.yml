@@ -12,6 +12,10 @@
 # Sorted using http://yaml-sorter.herokuapp.com/
 
 features:
+  caregiver_sigi_enabled:
+    actor_type: user
+    description: Whether Self-Identifying Gender Identity is enabled for caregiver.
+    enable_in_development: true
   can_upload_10_10cg_poa:
     actor_type: cookie_id
     description: Allows users to upload POA documentation when completing the 10-10CG.
