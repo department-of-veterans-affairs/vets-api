@@ -40,6 +40,12 @@ describe V2::Lorota::Client do
     it 'returns the token' do
       expect(subject.token).to eq(faraday_response)
     end
+
+    it 'yields to block' do
+      expect_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_yield(Faraday::Request.new)
+
+      subject.token
+    end
   end
 
   describe '#data' do
@@ -54,6 +60,12 @@ describe V2::Lorota::Client do
 
     it 'returns a valid response' do
       expect(subject.data(token: token)).to eq(faraday_response)
+    end
+
+    it 'yields to block' do
+      expect_any_instance_of(Faraday::Connection).to receive(:get).with(anything).and_yield(Faraday::Request.new)
+
+      subject.data(token: token)
     end
   end
 end
