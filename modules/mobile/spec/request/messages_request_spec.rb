@@ -71,6 +71,17 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
       expect(result['data']['links']['self']).to match(%r{/mobile/v0})
     end
 
+    it 'returns message signature preferences' do
+      VCR.use_cassette('sm_client/messages/gets_message_signature') do
+        get '/mobile/v0/messaging/health/messages/signature', headers: iam_headers
+      end
+
+      result = JSON.parse(response.body)
+      expect(result['data']['attributes']['signatureName']).to eq('test-api Name')
+      expect(result['data']['attributes']['includeSignature']).to eq(true)
+      expect(result['data']['attributes']['signatureTitle']).to eq('test-api title')
+    end
+
     describe 'POST create' do
       let(:attachment_type) { 'image/jpg' }
       let(:uploads) do

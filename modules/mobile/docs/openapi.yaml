@@ -2612,6 +2612,32 @@ paths:
                     }
                   ]
               }
+  /v0/messaging/health/messages/signature:
+    get:
+      summary: /v0/messaging/health/messages/signature
+      description: Gets user message signature preferences
+      operationId: get_signature
+      security:
+        - Bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/SecureMessageSignature.yml"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
   /v0/messaging/health/messages/{id}/thread:
     get:
       summary: /v0/messaging/health/messages/{id}/thread

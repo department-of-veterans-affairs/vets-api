@@ -29,7 +29,8 @@ module SM
                   parsed_triage   ||
                   parsed_folders  ||
                   normalize_message(parsed_messages) ||
-                  parsed_categories
+                  parsed_categories ||
+                  parsed_signature
 
           @parsed_json = {
             data: data,
@@ -58,6 +59,10 @@ module SM
 
         def parsed_categories
           @parsed_json.key?(:message_category_type) ? @parsed_json : @parsed_json[:message_category_type]
+        end
+
+        def parsed_signature
+          @parsed_json.key?(:signature_name) ? @parsed_json : @parsed_json[:signature_name]
         end
 
         def split_errors!

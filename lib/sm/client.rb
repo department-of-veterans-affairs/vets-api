@@ -62,6 +62,15 @@ module SM
       perform(:post, 'preferences/notification', mhv_params, token_headers)
       get_preferences
     end
+
+    ##
+    # Fetch current message signature
+    #
+    # @return [Sting] json response
+    #
+    def get_signature
+      perform(:get, 'preferences/signature', nil, token_headers).body
+    end
     # @!endgroup
 
     ##
