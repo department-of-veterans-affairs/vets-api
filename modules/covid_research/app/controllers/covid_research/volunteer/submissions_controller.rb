@@ -21,7 +21,7 @@ module CovidResearch
             error = {
               errors: form_service.submission_errors(payload)
             }
-            render json: error, status: 422
+            render json: error, status: :unprocessable_entity
           end
         end
       end

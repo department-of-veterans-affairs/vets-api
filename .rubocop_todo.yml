@@ -155,18 +155,6 @@ RSpec/RepeatedExampleGroupDescription:
 RSpec/StubbedMock:
   Enabled: false
 
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: numeric, symbolic
-Rails/HttpStatus:
-  Exclude:
-    - 'app/controllers/v0/search_click_tracking_controller.rb'
-    - 'modules/appeals_api/app/controllers/appeals_api/v1/decision_reviews/notice_of_disagreements_controller.rb'
-    - 'modules/covid_research/app/controllers/covid_research/volunteer/submissions_controller.rb'
-    - 'modules/vaos/app/controllers/vaos/v0/appointments_controller.rb'
-    - 'modules/veteran/app/controllers/veteran/v0/representatives_controller.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Rails/IndexBy:

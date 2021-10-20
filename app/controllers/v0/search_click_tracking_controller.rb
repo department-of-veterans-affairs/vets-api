@@ -15,9 +15,9 @@ module V0
     def create
       response = SearchClickTracking::Service.new(url, query, position, user_agent, module_code).track_click
       if response.success?
-        render nothing: true, status: 204
+        render nothing: true, status: :no_content
       else
-        render json: response.body, status: 400
+        render json: response.body, status: :bad_request
       end
     end
 

@@ -11,9 +11,9 @@ module VAOS
         if appointments[:meta][:errors]&.any?
           StatsDMetric.new(key: STATSD_KEY).save
           StatsD.increment(STATSD_KEY, tags: ["errors:#{appointments[:meta][:errors]}"])
-          render json: each_serializer.new(appointments[:data], meta: appointments[:meta]), status: 207
+          render json: each_serializer.new(appointments[:data], meta: appointments[:meta]), status: :multi_status
         else
-          render json: each_serializer.new(appointments[:data], meta: appointments[:meta]), status: 200
+          render json: each_serializer.new(appointments[:data], meta: appointments[:meta]), status: :ok
         end
       end
 
