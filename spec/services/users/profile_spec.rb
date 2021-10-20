@@ -47,19 +47,19 @@ RSpec.describe Users::Profile do
       expect(subject.errors).to be_nil
     end
 
-    context '#in_progress_forms' do
+    describe '#in_progress_forms' do
       it 'includes metadata' do
         expect(subject.in_progress_forms[0][:metadata]).to eq(in_progress_form.metadata)
       end
     end
 
-    context '#account' do
+    describe '#account' do
       it 'includes account uuid' do
         expect(subject.account[:account_uuid]).to eq(user.account_uuid)
       end
     end
 
-    context '#profile' do
+    describe '#profile' do
       # --- positive tests ---
       context 'idme user' do
         it 'includes authn_context' do
@@ -177,7 +177,7 @@ RSpec.describe Users::Profile do
       end
     end
 
-    context '#va_profile' do
+    describe '#va_profile' do
       context 'when user.mpi is not nil' do
         it 'includes birth_date' do
           expect(va_profile[:birth_date]).to eq(user.birth_date_mpi)
@@ -247,7 +247,7 @@ RSpec.describe Users::Profile do
       end
     end
 
-    context '#veteran_status' do
+    describe '#veteran_status' do
       context 'when a veteran status is successfully returned' do
         it 'includes is_veteran' do
           expect(veteran_status[:is_veteran]).to eq(user.veteran?)
@@ -344,7 +344,7 @@ RSpec.describe Users::Profile do
       end
     end
 
-    context '#vet360_contact_information' do
+    describe '#vet360_contact_information' do
       context 'with an loa1 user' do
         let(:user) { build(:user, :loa1) }
 
@@ -402,7 +402,7 @@ RSpec.describe Users::Profile do
       end
     end
 
-    context '#prefills_available' do
+    describe '#prefills_available' do
       it 'populates with an array of available prefills' do
         expect(subject.prefills_available).to be_present
       end
@@ -418,14 +418,14 @@ RSpec.describe Users::Profile do
       end
     end
 
-    context '#services' do
+    describe '#services' do
       it 'returns an array of authorized services', :aggregate_failures do
         expect(subject.services.class).to eq Array
         expect(subject.services).to include 'facilities', 'hca', 'edu-benefits'
       end
     end
 
-    context '#session_data' do
+    describe '#session_data' do
       let(:scaffold_with_ssoe) { Users::Profile.new(user, { ssoe_transactionid: 'a' }).pre_serialize }
 
       it 'no session object indicates no SSOe authentication' do

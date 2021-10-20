@@ -18,7 +18,7 @@ RSpec.describe 'address' do
     sign_in_as(current_user)
   end
 
-  context '#reference_data_service.enabled=false' do
+  describe '#reference_data_service.enabled=false' do
     before do
       Settings.evss.reference_data_service.enabled = false
     end
@@ -211,7 +211,7 @@ RSpec.describe 'address' do
     end
   end
 
-  context '#reference_data_service.enabled=true' do
+  describe '#reference_data_service.enabled=true' do
     before do
       Settings.evss.reference_data_service.enabled = true
     end

@@ -18,7 +18,7 @@ describe Common::Client::Configuration::Base do
 
   subject { SomeRandomModule::DerivedClass.instance }
 
-  context '#service_exception' do
+  describe '#service_exception' do
     it 'creates an exception class dynamically based on module name' do
       expect(SomeRandomModule).not_to be_const_defined('ServiceException')
       expect(subject.service_exception).to eq(SomeRandomModule::ServiceException)

@@ -360,7 +360,7 @@ RSpec.describe ApplicationController, type: :controller do
       end
     end
 
-    context '#test_authentication' do
+    describe '#test_authentication' do
       let(:user) { build(:user, :loa3) }
       let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
       let(:header_host_value) { Settings.hostname }

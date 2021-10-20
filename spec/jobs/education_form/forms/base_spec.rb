@@ -78,7 +78,7 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
     end
   end
 
-  context '#full_name' do
+  describe '#full_name' do
     subject { renderer.full_name(name) }
 
     let(:name) { OpenStruct.new(first: 'Mark', last: 'Olson') }
@@ -97,7 +97,7 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
     end
   end
 
-  context '#full_address' do
+  describe '#full_address' do
     subject { renderer.full_address(address) }
 
     let(:address) { application.open_struct_form.veteranAddress }
@@ -148,7 +148,7 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
     end
   end
 
-  context '#value_or_na' do
+  describe '#value_or_na' do
     it 'returns value' do
       expect(renderer.value_or_na('Value')).to eq('Value')
     end

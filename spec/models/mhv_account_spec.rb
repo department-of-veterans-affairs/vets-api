@@ -116,7 +116,7 @@ RSpec.describe MHVAccount, type: :model do
       end
     end
 
-    context '#track_state' do
+    describe '#track_state' do
       let(:tracker_id) { user.uuid.to_s + user.mhv_correlation_id.to_s }
 
       it 'creates redis entry' do

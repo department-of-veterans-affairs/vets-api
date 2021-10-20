@@ -67,7 +67,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     end
   end
 
-  context '#format_application' do
+  describe '#format_application' do
     context 'with a 1990 form' do
       it 'tracks and returns a form object' do
         expect(subject).to receive(:track_form_type).with('22-1990', 999)
@@ -99,7 +99,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     end
   end
 
-  context '#perform' do
+  describe '#perform' do
     context 'with a mix of valid and invalid record', run_at: '2016-09-16 03:00:00 EDT' do
       let(:spool_files) { Rails.root.join('tmp', 'spool_files', '*') }
 
@@ -148,7 +148,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     end
   end
 
-  context '#group_submissions_by_region' do
+  describe '#group_submissions_by_region' do
     it 'takes a list of records into chunked forms' do
       base_form = {
         veteranFullName: {

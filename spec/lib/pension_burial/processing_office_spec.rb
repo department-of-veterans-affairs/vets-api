@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'pension_burial/processing_office'
 
 RSpec.describe PensionBurial::ProcessingOffice do
-  context '#for_zip' do
+  describe '#for_zip' do
     it 'returns an office name for a zip' do
       expect(described_class.for_zip(90_210)).to eq('St. Paul')
     end
@@ -14,7 +14,7 @@ RSpec.describe PensionBurial::ProcessingOffice do
     end
   end
 
-  context '#address_for' do
+  describe '#address_for' do
     it 'returns an address including a po box' do
       answer = described_class.address_for(90_210)
       expect(answer.size).to eq(3)

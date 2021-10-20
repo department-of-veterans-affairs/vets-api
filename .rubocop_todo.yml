@@ -108,23 +108,6 @@ Naming/InclusiveLanguage:
     - 'lib/statsd_middleware.rb'
     - 'modules/vaos/app/controllers/vaos/v0/appointment_requests_controller.rb'
 
-# Offense count: 29
-# Cop supports --auto-correct.
-RSpec/ContextMethod:
-  Exclude:
-    - 'spec/controllers/application_controller_spec.rb'
-    - 'spec/jobs/education_form/create_daily_spool_files_spec.rb'
-    - 'spec/jobs/education_form/forms/base_spec.rb'
-    - 'spec/jobs/education_form/forms/va0993_spec.rb'
-    - 'spec/jobs/education_form/forms/va1990_spec.rb'
-    - 'spec/jobs/education_form/forms/va1995_spec.rb'
-    - 'spec/lib/common/client/configuration/base_spec.rb'
-    - 'spec/lib/pension_burial/processing_office_spec.rb'
-    - 'spec/models/mhv_account_spec.rb'
-    - 'spec/requests/address_request_spec.rb'
-    - 'spec/requests/evss_claims_async_spec.rb'
-    - 'spec/services/users/profile_spec.rb'
-
 # Offense count: 155
 # Cop supports --auto-correct.
 # Configuration parameters: AllowConsecutiveOneLiners.

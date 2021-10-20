@@ -14,7 +14,7 @@ RSpec.describe EducationForm::Forms::VA1990, type: :model, form: :education_bene
     test_spool_file('1990', application_name)
   end
 
-  context '#rotc_scholarship_amounts' do
+  describe '#rotc_scholarship_amounts' do
     it 'always outputs 5 double-spaced lines' do
       output = subject.rotc_scholarship_amounts(nil)
       expect(output.lines.count).to eq(9)
@@ -36,7 +36,7 @@ RSpec.describe EducationForm::Forms::VA1990, type: :model, form: :education_bene
     end
   end
 
-  context '#disclosure_for', run_at: '2017-01-04 03:00:00 EDT' do
+  describe '#disclosure_for', run_at: '2017-01-04 03:00:00 EDT' do
     today = '2017-01-04'
     before do
       subject.instance_variable_set(:@applicant, OpenStruct.new(benefitsRelinquishedDate: Time.zone.today))
@@ -56,7 +56,7 @@ RSpec.describe EducationForm::Forms::VA1990, type: :model, form: :education_bene
     end
   end
 
-  context '#disclosures' do
+  describe '#disclosures' do
     it 'adds disclosures for different types' do
       expect(subject).to receive(:disclosure_for).with('CH30')
       expect(subject).to receive(:disclosure_for).with('CH32')

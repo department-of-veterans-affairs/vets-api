@@ -11,7 +11,7 @@ RSpec.describe EducationForm::Forms::VA0993 do
     test_spool_file('0993', form)
   end
 
-  context '#direct_deposit_type' do
+  describe '#direct_deposit_type' do
     let(:education_benefits_claim) { create(:va0993).education_benefits_claim }
 
     it 'converts internal keys to text' do
