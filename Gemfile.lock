@@ -1013,7 +1013,7 @@ DEPENDENCIES
   faraday_middleware
   fast_jsonapi
   fastimage
-  fhir_client (~> 5.0.2)
+  fhir_client
   flipper
   flipper-active_record
   flipper-active_support_cache_store
@@ -1034,7 +1034,7 @@ DEPENDENCIES
   ice_nine
   identity!
   iso_country_codes
-  json (>= 2.3.0)
+  json
   json-schema
   json_schemer
   jsonapi-parser
@@ -1042,15 +1042,15 @@ DEPENDENCIES
   levenshtein-ffi
   liquid
   lockbox
-  mail (= 2.7.1)
+  mail
   meb_api!
   memoist
-  mimemagic (~> 0.4.3)
-  mini_magick (~> 4.11.0)
+  mimemagic
+  mini_magick
   mobile!
   net-sftp
-  nokogiri (~> 1.12)
-  notifications-ruby-client (~> 5.3)
+  nokogiri
+  notifications-ruby-client
   octokit
   oj
   okcomputer
@@ -1068,13 +1068,13 @@ DEPENDENCIES
   pdf-inspector
   pdf-reader
   pg
-  pg_query (>= 0.9.0)
+  pg_query
   pg_search
   pghero
   prawn
   prawn-table
   pry-byebug
-  puma (~> 5.5)
+  puma
   puma-plugin-statsd
   pundit
   rack
@@ -1084,7 +1084,7 @@ DEPENDENCIES
   rack-vcr
   rails (~> 6.1)
   rails-session_cookie
-  rails_semantic_logger (~> 4.6)
+  rails_semantic_logger
   rainbow
   redis
   redis-namespace
@@ -1105,8 +1105,8 @@ DEPENDENCIES
   rubocop-thread_safety
   ruby-debug-ide!
   ruby-saml
-  rubyzip (>= 1.3.0)
-  sass-rails (>= 6)
+  rubyzip
+  sass-rails
   savon
   seedbank
   sentry-raven
@@ -1120,7 +1120,7 @@ DEPENDENCIES
   spring
   spring-commands-rspec
   staccato
-  statsd-instrument (~> 3.1.2)
+  statsd-instrument
   strong_migrations
   super_diff
   swagger-blocks
