@@ -502,7 +502,7 @@ GEM
     iniparse (1.5.0)
     iso_country_codes (0.7.8)
     jmespath (1.4.0)
-    json (2.5.1)
+    json (2.6.0)
     json-schema (2.8.1)
       addressable (>= 2.4)
     json_schemer (0.2.18)
