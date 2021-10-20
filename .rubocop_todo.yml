@@ -155,15 +155,6 @@ RSpec/RepeatedExampleGroupDescription:
 RSpec/StubbedMock:
   Enabled: false
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: Include.
-# Include: app/models/**/*.rb
-Rails/ActiveRecordCallbacksOrder:
-  Exclude:
-    - 'modules/claims_api/app/models/claims_api/auto_established_claim.rb'
-    - 'modules/vba_documents/app/models/vba_documents/upload_submission.rb'
-
 # Offense count: 7
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

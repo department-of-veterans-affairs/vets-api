@@ -14,6 +14,7 @@ module VBADocuments
     extend SQLSupport
     send(:validates_uniqueness_of, :guid)
     before_save :record_status_change, if: :status_changed?
+    after_save :report_errors
     after_find :set_initial_status
     attr_reader :current_status
 
@@ -35,8 +36,6 @@ module VBADocuments
         .order(-> { Arel.sql("(metadata -> 'status' -> '#{status}' -> 'start')::bigint asc") }.call)
       # lambda above stops security scan from finding false positive sql injection!
     }
-
-    after_save :report_errors
 
     def initialize(attributes = nil)
       super

@@ -17,6 +17,8 @@ module ClaimsApi
              **lockbox_options
 
     validate :validate_service_dates
+    before_validation :set_md5
+    after_validation :remove_encrypted_fields, on: [:update]
     after_create :log_special_issues
     after_create :log_flashes
 
@@ -33,8 +35,6 @@ module ClaimsApi
                                documents_needed development_letter_sent decision_letter_sent
                                requested_decision va_representative].freeze
 
-    before_validation :set_md5
-    after_validation :remove_encrypted_fields, on: [:update]
     validates :md5, uniqueness: true, on: :create
 
     EVSS_CLAIM_ATTRIBUTES.each do |attribute|
