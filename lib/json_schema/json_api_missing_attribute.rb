@@ -2,8 +2,7 @@
 
 module JsonSchema
   class JsonApiMissingAttribute < StandardError
-    attr_accessor :code
-    attr_accessor :details
+    attr_accessor :code, :details
 
     def initialize(details)
       @code = 422

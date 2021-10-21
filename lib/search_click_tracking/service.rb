@@ -18,11 +18,7 @@ module SearchClickTracking
 
     configuration SearchClickTracking::Configuration
 
-    attr_reader :url
-    attr_reader :query
-    attr_reader :position
-    attr_reader :module_code
-    attr_reader :user_agent
+    attr_reader :url, :query, :position, :module_code, :user_agent
 
     def initialize(url, query, position, user_agent, module_code = 'I14Y')
       @url = url

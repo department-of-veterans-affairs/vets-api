@@ -238,22 +238,6 @@ Rails/WhereNot:
   Exclude:
     - 'modules/claims_api/lib/tasks/claims_tasks.rake'
 
-# Offense count: 24
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: separated, grouped
-Style/AccessorGrouping:
-  Exclude:
-    - 'app/models/health_care_application.rb'
-    - 'lib/central_mail/upload_error.rb'
-    - 'lib/common/client/errors.rb'
-    - 'lib/common/exceptions/open_id_service_error.rb'
-    - 'lib/evss/error_middleware.rb'
-    - 'lib/json_schema/json_api_missing_attribute.rb'
-    - 'lib/search/pagination.rb'
-    - 'lib/search/service.rb'
-    - 'lib/search_click_tracking/service.rb'
-
 # Offense count: 17
 # Cop supports --auto-correct.
 Style/CaseLikeIf:

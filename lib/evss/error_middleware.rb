@@ -5,8 +5,7 @@ require 'common/exceptions'
 module EVSS
   class ErrorMiddleware < Faraday::Response::Middleware
     class EVSSError < StandardError
-      attr_reader :details
-      attr_reader :body
+      attr_reader :details, :body
 
       def initialize(message = nil, details = nil, body = nil)
         super(message)

@@ -14,9 +14,7 @@ class HealthCareApplication < ApplicationRecord
   FORM_ID = '10-10EZ'
   ACTIVEDUTY_ELIGIBILITY = 'TRICARE'
 
-  attr_accessor(:user)
-  attr_accessor(:async_compatible)
-  attr_accessor(:google_analytics_client_id)
+  attr_accessor :user, :async_compatible, :google_analytics_client_id
 
   validates(:state, presence: true, inclusion: %w[success error failed pending])
   validates(:form_submission_id_string, :timestamp, presence: true, if: :success?)

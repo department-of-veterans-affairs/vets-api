@@ -4,8 +4,7 @@ require 'central_mail/upload_error'
 
 module CentralMail
   class UploadError < StandardError
-    attr_accessor :code
-    attr_accessor :detail
+    attr_accessor :code, :detail
 
     # DOC1xx errors: client errors, invalid submissions
     DOC101 = 'Invalid multipart payload'

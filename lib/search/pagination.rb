@@ -23,9 +23,7 @@ module Search
     #
     OFFSET_LIMIT = 999
 
-    attr_reader :next_offset
-    attr_reader :total_entries
-    attr_reader :total_pages
+    attr_reader :next_offset, :total_entries, :total_pages
 
     # @param [Hash] raw_body a Hash from the 'web' object found in the results response
     #

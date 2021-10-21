@@ -19,8 +19,7 @@ module Search
 
     configuration Search::Configuration
 
-    attr_reader :query
-    attr_reader :page
+    attr_reader :query, :page
 
     def initialize(query, page = 1)
       @query = query
