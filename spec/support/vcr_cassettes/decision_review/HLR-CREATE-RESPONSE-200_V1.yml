@@ -11,7 +11,7 @@ http_interactions:
         knee","decisionDate":"1900-01-02","decisionIssueId":4,"ratingIssueReferenceId":"5"}},{"type":"contestableIssue","attributes":{"issue":"right
         knee","decisionDate":"1900-01-03","ratingIssueReferenceId":"6","ratingDecisionReferenceId":"7"}},{"type":"contestableIssue","attributes":{"issue":"PTSD","decisionDate":"1900-01-04","decisionIssueId":8,"ratingDecisionReferenceId":"9"}},{"type":"contestableIssue","attributes":{"issue":"Traumatic
         Brain Injury","decisionDate":"1900-01-05","decisionIssueId":10}},{"type":"contestableIssue","attributes":{"issue":"right
-        shoulder","decisionDate":"1900-01-06"}}]}'
+        shoulder","decisionDate":"1900-01-06","disagreementArea":"Rating Low"}}]}'
     headers:
       Accept:
       - application/json
@@ -104,6 +104,6 @@ http_interactions:
         knee","decisionDate":"1900-01-02","decisionIssueId":4,"ratingIssueReferenceId":"5"}},{"type":"contestableIssue","attributes":{"issue":"right
         knee","decisionDate":"1900-01-03","ratingIssueReferenceId":"6","ratingDecisionReferenceId":"7"}},{"type":"contestableIssue","attributes":{"issue":"PTSD","decisionDate":"1900-01-04","decisionIssueId":8,"ratingDecisionReferenceId":"9"}},{"type":"contestableIssue","attributes":{"issue":"Traumatic
         Brain Injury","decisionDate":"1900-01-05","decisionIssueId":10}},{"type":"contestableIssue","attributes":{"issue":"right
-        shoulder","decisionDate":"1900-01-06"}}]}}}}'
+        shoulder","decisionDate":"1900-01-06","disagreementArea":"Rating Low"}}]}}}}'
   recorded_at: Sun, 22 Aug 2021 23:38:52 GMT
 recorded_with: VCR 6.0.0
