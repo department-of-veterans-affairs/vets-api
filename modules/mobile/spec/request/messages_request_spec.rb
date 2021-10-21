@@ -82,6 +82,19 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
       expect(result['data']['attributes']['signatureTitle']).to eq('test-api title')
     end
 
+    context 'when signature prefs are empty' do
+      it 'returns empty message signature preferences' do
+        VCR.use_cassette('sm_client/messages/gets_empty_message_signature') do
+          get '/mobile/v0/messaging/health/messages/signature', headers: iam_headers
+        end
+
+        result = JSON.parse(response.body)
+        expect(result['data']['attributes']['signatureName']).to eq(nil)
+        expect(result['data']['attributes']['includeSignature']).to eq(false)
+        expect(result['data']['attributes']['signatureTitle']).to eq(nil)
+      end
+    end
+
     describe 'POST create' do
       let(:attachment_type) { 'image/jpg' }
       let(:uploads) do
