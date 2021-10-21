@@ -37,7 +37,7 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
           capture_body = arg
           faraday_response
         }
-        described_class.new.perform(notice_of_disagreement.id, AppealsApi::NoticeOfDisagreement)
+        described_class.new.perform(notice_of_disagreement.id, 'AppealsApi::NoticeOfDisagreement')
         expect(capture_body).to be_a(Hash)
         expect(capture_body).to have_key('metadata')
         expect(capture_body).to have_key('document')
@@ -80,7 +80,7 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
     }
 
     expect do
-      described_class.new.perform(notice_of_disagreement.id, AppealsApi::NoticeOfDisagreement)
+      described_class.new.perform(notice_of_disagreement.id, 'AppealsApi::NoticeOfDisagreement')
     end.to raise_error(AppealsApi::UploadError)
     expect(capture_body).to be_a(Hash)
     expect(capture_body).to have_key('metadata')
@@ -105,7 +105,7 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
       messager_instance = instance_double(AppealsApi::Slack::Messager)
       allow(AppealsApi::Slack::Messager).to receive(:new).and_return(messager_instance)
       allow(messager_instance).to receive(:notify!).and_return(true)
-      described_class.new.perform(notice_of_disagreement.id, AppealsApi::NoticeOfDisagreement)
+      described_class.new.perform(notice_of_disagreement.id, 'AppealsApi::NoticeOfDisagreement')
       expect(notice_of_disagreement.reload.status).to eq('error')
       expect(notice_of_disagreement.code).to eq('DOC201')
     end
@@ -115,7 +115,7 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
       messager_instance = instance_double(AppealsApi::Slack::Messager)
       allow(AppealsApi::Slack::Messager).to receive(:new).and_return(messager_instance)
       allow(messager_instance).to receive(:notify!).and_return(true)
-      described_class.new.perform(notice_of_disagreement.id, AppealsApi::NoticeOfDisagreement)
+      described_class.new.perform(notice_of_disagreement.id, 'AppealsApi::NoticeOfDisagreement')
 
       expect(messager_instance).to have_received(:notify!)
     end
@@ -127,7 +127,7 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
       allow(submit_job_worker).to receive(:upload_to_central_mail).and_raise(RuntimeError, 'runtime error!')
 
       expect do
-        submit_job_worker.perform(notice_of_disagreement.id, AppealsApi::NoticeOfDisagreement)
+        submit_job_worker.perform(notice_of_disagreement.id, 'AppealsApi::NoticeOfDisagreement')
       end.to raise_error(RuntimeError, 'runtime error!')
 
       notice_of_disagreement.reload

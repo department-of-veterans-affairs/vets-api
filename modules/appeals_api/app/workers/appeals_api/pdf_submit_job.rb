@@ -22,7 +22,8 @@ module AppealsApi
     # Retry for ~7 days
     sidekiq_options retry: 20
 
-    def perform(appeal_id, appeal_class, version = 'V1')
+    def perform(appeal_id, appeal_class_str, version = 'V1')
+      appeal_class = Object.const_get(appeal_class_str)
       appeal = appeal_wrapper(appeal_class).new(appeal_class.find(appeal_id))
 
       begin
