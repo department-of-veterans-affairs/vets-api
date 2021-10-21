@@ -67,6 +67,7 @@ mcp:
     base_path: /base/path
     service_name: VBS
     mock: false
+    mock_vista: false
 
 fsr:
   prefill: true

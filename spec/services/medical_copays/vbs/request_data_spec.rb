@@ -52,6 +52,13 @@ RSpec.describe MedicalCopays::VBS::RequestData do
 
       expect(subject.to_hash).to eq(hsh)
     end
+
+    it 'returns mock vista numbers depending on settings' do
+      # rubocop:disable RSpec/MessageChain
+      allow(Settings).to receive_message_chain(:mcp, :vbs, :mock_vista).and_return(true)
+      # rubocop:enable RSpec/MessageChain
+      expect(subject.to_hash['vistaAccountNumbers']).to eq([5_160_000_000_012_345])
+    end
   end
 
   describe '#valid?' do
