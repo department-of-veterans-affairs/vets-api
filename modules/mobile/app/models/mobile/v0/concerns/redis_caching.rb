@@ -18,13 +18,18 @@ module Mobile
             return nil unless result
 
             data = JSON.parse(result)
-            data.map { |i| new(i.deep_symbolize_keys) }
+
+            if data.is_a?(Array)
+              data.map { |i| new(i.deep_symbolize_keys) }
+            else
+              new(data.symbolize_keys)
+            end
           end
 
-          def set_cached(user, data)
+          def set_cached(user, data, ttl = nil)
             if data
               @redis.set(user.uuid, data.to_json)
-              @redis.expire(user.uuid, @redis_ttl)
+              @redis.expire(user.uuid, ttl || @redis_ttl)
             else
               Rails.logger.info('Mobile: Attempted to set nil data in redis cache')
             end

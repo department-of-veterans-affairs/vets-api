@@ -132,6 +132,9 @@ development: &defaults
   mobile_app_claims_store:
     namespace: mobile-app-claims-store
     each_ttl: 1800
+  mobile_app_lighthouse_session_store:
+    namespace: mobile-app-lighthouse-session-store
+    each_ttl: 300
   secure_messaging_store:
     namespace: secure_messaging_store
     each_ttl: 1800
