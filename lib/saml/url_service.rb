@@ -94,8 +94,7 @@ module SAML
 
     def logingov_url
       @type = 'logingov'
-      SAML::SSOeSettingsService.saml_settings({ 'authn_context_comparison' => 'minimum' })
-      build_sso_url(build_logingov_authn_context([IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2]))
+      build_logingov_sso_url(build_logingov_authn_context([IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2]))
     end
 
     def custom_url(authn)

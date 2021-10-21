@@ -101,5 +101,19 @@ module SAML
       login_url = new_url_settings.idp_sso_service_url
       [login_url, post_params]
     end
+
+    # Temporary Login.gov/ISAM integration sso_url method
+    # will be removed when all IDPs are using 'minimum' authn_context_comparison
+    def build_logingov_sso_url(link_authn_context)
+      new_url_settings = saml_settings.dup
+      new_url_settings.name_identifier_value = session&.uuid
+      new_url_settings.authn_context = link_authn_context
+      new_url_settings.authn_context_comparison = 'minimum'
+      saml_auth_request = OneLogin::RubySaml::Authrequest.new
+      save_saml_request_tracker(saml_auth_request.uuid, link_authn_context)
+      post_params = saml_auth_request.create_params(new_url_settings, 'RelayState' => relay_state_params)
+      login_url = new_url_settings.idp_sso_service_url
+      [login_url, post_params]
+    end
   end
 end

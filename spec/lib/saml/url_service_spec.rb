@@ -49,12 +49,6 @@ RSpec.describe SAML::URLService do
             .with_relay_state('originating_request_id' => '123', 'type' => 'idme')
         end
 
-        it 'has sign in url: logingov_url' do
-          expect(subject.logingov_url)
-            .to be_a_saml_url(expected_saml_url)
-            .with_relay_state('originating_request_id' => '123', 'type' => 'logingov')
-        end
-
         it 'has sign up url: signup_url' do
           expect(subject.signup_url)
             .to be_a_saml_url(expected_saml_url)
