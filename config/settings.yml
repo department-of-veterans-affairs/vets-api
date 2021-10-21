@@ -22,6 +22,14 @@ saml_ssoe:
   response_signing: false
   response_encryption: false
   authn_context_comparison: 'exact'
+  redirect_urls:
+    mhv:
+      base: 'https://int.eauth.va.gov/mhv-portal-web/eauth'
+      mhv_download_my_data: '?deeplinking=download_my_data'
+      mhv_prescription_refill: '?deeplinking=prescription_refill'
+      mhv_secure_messaging: '?deeplinking=secure_messaging'
+      mhv_appointments: '?deeplinking=appointments'
+      mhv_home: ''
 
 ssoe_eauth_cookie:
   name: vagov_saml_request_localhost

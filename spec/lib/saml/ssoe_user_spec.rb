@@ -13,6 +13,7 @@ RSpec.describe SAML::User do
     let(:highest_attained_loa) { '1' }
     let(:multifactor) { false }
     let(:existing_saml_attributes) { nil }
+    let(:login_uuid) { '1234567890' }
     let(:callback_url) { 'http://http://127.0.0.1:3000/v1/sessions/callback/v1/sessions/callback' }
     let(:saml_response) do
       build_saml_response(
@@ -20,6 +21,7 @@ RSpec.describe SAML::User do
         level_of_assurance: [highest_attained_loa],
         attributes: saml_attributes,
         existing_attributes: existing_saml_attributes,
+        in_response_to: login_uuid,
         issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
       )
     end
@@ -480,11 +482,28 @@ RSpec.describe SAML::User do
           )
         end
 
-        it 'does not validate' do
-          expect { subject.validate! }.to raise_error { |error|
-            expect(error).to be_a(SAML::UserAttributeError)
-            expect(error.message).to eq('User attributes contain multiple distinct MHV ID values')
-          }
+        context 'normal validation flow' do
+          it 'does not validate and throws an error' do
+            expect { subject.validate! }.to raise_error { |error|
+              expect(error).to be_a(SAML::UserAttributeError)
+              expect(error.message).to eq('User attributes contain multiple distinct MHV ID values')
+            }
+          end
+        end
+
+        context 'MHV inbound-outbound flow' do
+          it 'does not validate and logs a Sentry warning' do
+            SAMLRequestTracker.create(
+              uuid: '1234567890',
+              payload: { redirect: 'mhv_prescription_refill' }
+            )
+            expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
+              'User attributes contain multiple distinct MHV ID values.',
+              'warn',
+              { mhv_ids: %w[888777 999888] }
+            )
+            subject.validate!
+          end
         end
       end
 

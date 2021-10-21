@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/exceptions/routing_error'
+require 'sentry_logging'
 require_relative 'url_service'
 
 module SAML
@@ -11,6 +12,8 @@ module SAML
   # @see SAML::URLService
   #
   class PostURLService < URLService
+    include SentryLogging
+
     def initialize(saml_settings, session: nil, user: nil, params: {}, loa3_context: LOA::IDME_LOA3_VETS)
       unless %w[new saml_callback saml_logout_callback ssoe_slo_callback].include?(params[:action])
         raise Common::Exceptions::RoutingError, params[:path]
@@ -42,7 +45,7 @@ module SAML
     def login_redirect_url(auth: 'success', code: nil)
       if auth == 'success'
         # if the original auth request specified a redirect, use that
-        redirect_target = @tracker&.payload_attr(:redirect)
+        redirect_target = build_login_redirect_target
         return redirect_target if redirect_target.present?
       end
 
@@ -59,6 +62,20 @@ module SAML
         add_query(Settings.saml_ssoe.relay, query_params)
       else
         add_query("#{base_redirect_url}#{LOGIN_REDIRECT_PARTIAL}", query_params)
+      end
+    end
+
+    def build_login_redirect_target
+      redirect = @tracker.payload_attr(:redirect)
+      return unless redirect
+
+      redirect_consumer = redirect.match('\A[a-zA-Z]+').to_s
+      consumer_urls = Settings.saml_ssoe.redirect_urls[redirect_consumer]
+
+      if consumer_urls && consumer_urls[redirect]
+        consumer_urls['base'] + consumer_urls[redirect]
+      else
+        log_message_to_sentry('Redirect urls not found.', :warn, redirect: redirect)
       end
     end
 

@@ -24,18 +24,19 @@ module SAML
       'dslogon' => { loa_current: nil, sign_in: { service_name: 'dslogon' } }
     }.freeze
     UNKNOWN_AUTHN_CONTEXT = 'unknown'
-    attr_reader :saml_response, :saml_attributes, :user_attributes
+    attr_reader :saml_response, :saml_attributes, :user_attributes, :tracker_uuid
 
     def initialize(saml_response)
       @saml_response = saml_response
       @saml_attributes = saml_response.attributes
+      @tracker_uuid = saml_response.in_response_to
 
       Raven.extra_context(
         saml_attributes: saml_attributes&.to_h,
         saml_response: Base64.encode64(saml_response&.response || '')
       )
 
-      @user_attributes = user_attributes_class.new(saml_attributes, authn_context)
+      @user_attributes = user_attributes_class.new(saml_attributes, authn_context, tracker_uuid)
 
       Raven.tags_context(
         sign_in_service_name: user_attributes.sign_in&.fetch(:service_name, nil),
