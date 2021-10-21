@@ -12,7 +12,5 @@ ALLOWLIST = %w[
   qqtotalfilesize
 ].freeze
 Rails.application.config.filter_parameters = [lambda do |k, v|
-  if v.is_a?(String)
-    v.replace('FILTERED') unless ALLOWLIST.include?(k)
-  end
+  v.replace('FILTERED') if v.is_a?(String) && !ALLOWLIST.include?(k)
 end]

@@ -482,20 +482,6 @@ Style/SlicingWithRange:
     - 'rakelib/mvi.rake'
     - 'spec/lib/hca/service_spec.rb'
 
-# Offense count: 8
-# Cop supports --auto-correct.
-# Configuration parameters: AllowModifier.
-Style/SoleNestedConditional:
-  Exclude:
-    - 'app/controllers/openid_application_controller.rb'
-    - 'config/initializers/filter_parameter_logging.rb'
-    - 'lib/emis/responses/response.rb'
-    - 'lib/generators/module_component/module_component_generator.rb'
-    - 'lib/va_profile/models/base.rb'
-    - 'spec/jobs/cypress_viewport_updater/google_analytics_reports_spec.rb'
-    - 'spec/jobs/cypress_viewport_updater/viewport_spec.rb'
-    - 'spec/jobs/cypress_viewport_updater/viewports_spec.rb'
-
 # Offense count: 135
 # Cop supports --auto-correct.
 # Configuration parameters: Mode.

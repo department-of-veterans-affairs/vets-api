@@ -118,9 +118,7 @@ module EMIS
         # do a case-insensitive regex.
         #
         [].tap do |result|
-          if !skip_el && el.respond_to?(:value)
-            result << el if el.value.match?(/^NS\d+:#{tag_without_namespace}$/i)
-          end
+          result << el if !skip_el && el.respond_to?(:value) && el.value.match?(/^NS\d+:#{tag_without_namespace}$/i)
 
           if el.respond_to?(:nodes)
             el.nodes.each do |node|

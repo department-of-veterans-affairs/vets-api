@@ -7,10 +7,9 @@ RSpec.describe CypressViewportUpdater::Viewport do
     # the following filter is used on requests to
     # https://analyticsreporting.googleapis.com/v4/reports:batchGet
     c.filter_sensitive_data('removed') do |interaction|
-      if interaction.request.headers['Authorization']
-        if (match = interaction.request.headers['Authorization'].first.match(/^Bearer.+/))
-          match[0]
-        end
+      if interaction.request.headers['Authorization'] &&
+         (match = interaction.request.headers['Authorization'].first.match(/^Bearer.+/))
+        match[0]
       end
     end
 
