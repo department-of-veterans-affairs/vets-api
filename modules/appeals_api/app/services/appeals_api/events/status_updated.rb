@@ -28,6 +28,16 @@ module AppealsApi
         )
       end
 
+      def sc_status_updated
+        AppealsApi::StatusUpdate.create!(
+          from: opts['from'],
+          to: opts['to'],
+          status_update_time: opts['status_update_time'],
+          statusable_id: opts['statusable_id'],
+          statusable_type: 'AppealsApi::SupplementalClaim'
+        )
+      end
+
       private
 
       attr_accessor :opts

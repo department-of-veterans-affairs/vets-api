@@ -18,6 +18,10 @@ FactoryBot.define do
     trait :status_error do
       status { 'error' }
     end
+
+    trait :status_received do
+      status { 'received' }
+    end
   end
 
   factory :extra_supplemental_claim, class: 'AppealsApi::SupplementalClaim' do

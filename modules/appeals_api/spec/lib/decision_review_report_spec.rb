@@ -98,6 +98,7 @@ describe AppealsApi::DecisionReviewReport do
     expect(subject.sc_by_status_and_count).to eq({
       'error' => 1,
       'pending' => 0,
+      'received' => 0,
       'success' => 2
     })
   end

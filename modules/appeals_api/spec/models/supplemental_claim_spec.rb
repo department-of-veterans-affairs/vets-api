@@ -96,4 +96,40 @@ describe AppealsApi::SupplementalClaim, type: :model do
       end
     end
   end
+
+  describe '#update_status!' do
+    let(:supplemental_claim) { create(:supplemental_claim) }
+
+    it 'error status' do
+      supplemental_claim.update_status!(status: 'error', code: 'code', detail: 'detail')
+
+      expect(supplemental_claim.status).to eq('error')
+      expect(supplemental_claim.code).to eq('code')
+      expect(supplemental_claim.detail).to eq('detail')
+    end
+
+    it 'other valid status' do
+      supplemental_claim.update_status!(status: 'success')
+
+      expect(supplemental_claim.status).to eq('success')
+    end
+
+    # TODO: should be implemented with status checking
+    xit 'invalid status' do
+      expect do
+        supplemental_claim.update_status!(status: 'invalid_status')
+      end.to raise_error(ActiveRecord::RecordInvalid,
+                         'Validation failed: Status is not included in the list')
+    end
+
+    it 'emits an event' do
+      handler = instance_double(AppealsApi::Events::Handler)
+      allow(AppealsApi::Events::Handler).to receive(:new).and_return(handler)
+      allow(handler).to receive(:handle!)
+
+      supplemental_claim.update_status!(status: 'pending')
+
+      expect(handler).to have_received(:handle!)
+    end
+  end
 end

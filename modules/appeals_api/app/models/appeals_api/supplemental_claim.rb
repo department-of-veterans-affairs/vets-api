@@ -15,7 +15,9 @@ module AppealsApi
       nil
     end
 
-    STATUSES = %w[pending success error].freeze
+    STATUSES = %w[pending received success error].freeze
+    RECEIVED_OR_PROCESSING = %w[received processing].freeze
+    scope :received_or_processing, -> { where status: RECEIVED_OR_PROCESSING }
 
     serialize :auth_headers, JsonMarshal::Marshaller
     serialize :form_data, JsonMarshal::Marshaller
@@ -172,6 +174,19 @@ module AppealsApi
 
     def date_signed
       veterans_local_time.strftime('%m/%d/%Y')
+    end
+
+    def update_status!(status:, code: nil, detail: nil)
+      handler = Events::Handler.new(event_type: :sc_status_updated, opts: {
+                                      from: self.status,
+                                      to: status,
+                                      status_update_time: Time.zone.now.iso8601,
+                                      statusable_id: id
+                                    })
+
+      update!(status: status, code: code, detail: detail)
+
+      handler.handle!
     end
 
     def lob
