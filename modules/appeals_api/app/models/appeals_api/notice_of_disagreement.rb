@@ -137,7 +137,7 @@ module AppealsApi
       handler = Events::Handler.new(event_type: :nod_status_updated, opts: {
                                       from: self.status,
                                       to: status,
-                                      status_update_time: Time.zone.now,
+                                      status_update_time: Time.zone.now.iso8601,
                                       statusable_id: id
                                     })
 
