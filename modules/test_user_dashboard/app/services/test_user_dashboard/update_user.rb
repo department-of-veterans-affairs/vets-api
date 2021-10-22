@@ -17,7 +17,7 @@ module TestUserDashboard
       return unless tud_account
 
       user_values = tud_account.user_values(user).merge(checkout_time: time)
-      valid_update = tud_account.update(user_values.compact)
+      valid_update = tud_account.update(user_values)
       log_message_to_sentry('[TestUserDashboard] UpdateUser invalid update', :warn, user_values) unless valid_update
     end
   end

@@ -53,10 +53,9 @@ describe TestUserDashboard::UpdateUser do
     end
 
     context 'when user has incomplete attributes' do
-      let(:user) { create(:user, last_name: nil, ssn: user_ssn) }
-      let(:tud_account) { create(:tud_account, account_uuid: user.account_uuid, last_name: tud_last_name) }
-      let(:tud_last_name) { 'some-last-name' }
       let(:user_ssn) { '343434343' }
+      let(:user) { create(:user, last_name: nil, ssn: user_ssn) }
+      let(:tud_account) { create(:tud_account, account_uuid: user.account_uuid, last_name: 'some-last-name') }
 
       before do
         @timestamp = Time.current
@@ -68,7 +67,7 @@ describe TestUserDashboard::UpdateUser do
       end
 
       it 'updates the test account only with the attributes that are presented' do
-        expect(tud_account.last_name).to eq(tud_last_name)
+        expect(tud_account.last_name).to eq(user.last_name)
         expect(tud_account.ssn.to_s).to eq(user_ssn)
       end
     end
