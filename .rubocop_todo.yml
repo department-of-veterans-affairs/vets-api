@@ -434,12 +434,6 @@ Style/RedundantBegin:
 Style/RedundantFileExtensionInRequire:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/RedundantParentheses:
-  Exclude:
-    - 'modules/vba_documents/app/workers/vba_documents/report_unsuccessful_submissions.rb'
-
 # Offense count: 15
 # Cop supports --auto-correct.
 Style/RedundantRegexpCharacterClass:

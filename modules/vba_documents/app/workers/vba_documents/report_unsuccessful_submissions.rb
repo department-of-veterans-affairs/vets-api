@@ -74,7 +74,7 @@ module VBADocuments
 
         # sum the count of success and vbms statuses for the period
         success_count = sum_hash['success'] + sum_hash['vbms']
-        success_rate = "#{(success_count.positive? ? (100.0 / sum_total * success_count).round : 0)}%"
+        success_rate = "#{success_count.positive? ? (100.0 / sum_total * success_count).round : 0}%"
         sum_hash['total'] = sum_total
         sum_hash['success_rate'] = success_rate
         sum_hash['error_rate'] = error_rate
