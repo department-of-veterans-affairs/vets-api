@@ -299,6 +299,7 @@ class AppealsApi::RswagConfig
                         'minLength': 6,
                         'maxLength': 255
                       },
+                      # Generated using: File.write('timezones.json', (TZInfo::Timezone.all.map(&:name) + ActiveSupport::TimeZone.all.map(&:name)).uniq.sort) #Although this might seem like it should be generated dynamically, it's been written to file in case TZInfo or ActiveSupport deletes/modifies a timezone with a future version, which would change our APIs enum (a non-additve change to the current API version).
                       'timezone': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'time_zones.json')))
                     },
                     'additionalProperties': false,
@@ -739,6 +740,7 @@ class AppealsApi::RswagConfig
                   },
                   'boardReviewOption': { 'type': 'string', 'enum': %w[direct_review evidence_submission hearing] },
                   'hearingTypePreference': { 'type': 'string', 'enum': %w[virtual_hearing video_conference central_office] },
+                  # Generated using: File.write('timezones.json', (TZInfo::Timezone.all.map(&:name) + ActiveSupport::TimeZone.all.map(&:name)).uniq.sort) #Although this might seem like it should be generated dynamically, it's been written to file in case TZInfo or ActiveSupport deletes/modifies a timezone with a future version, which would change our APIs enum (a non-additve change to the current API version).
                   'timezone': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'time_zones.json'))),
                   'socOptIn': { 'type': 'boolean' }
                 },

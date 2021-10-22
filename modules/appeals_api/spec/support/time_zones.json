@@ -1,7 +1,6 @@
 {
   "type": "string",
-  "description": "Veteran's timezone (either [IANA](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) or [Rails](https://github.com/rails/rails/blob/master/activesupport/lib/active_support/values/time_zone.rb) style). Used for adding the current date to the signature according to the veteran's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date).",
-  "$comment": "Generated using: File.write('timezones.json', (TZInfo::Timezone.all.map(&:name) + ActiveSupport::TimeZone.all.map(&:name)).uniq.sort) #Although this might seem like it should be generated dynamically, it's been written to file in case TZInfo or ActiveSupport deletes/modifies a timezone with a future version, which would change our APIs enum (a non-additve change to the current API version).",
+  "description": "Veteran's timezone. Used for adding the current date to the signature according to the veteran's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date).",
   "enum": [
     "Abu Dhabi",
     "Adelaide",
