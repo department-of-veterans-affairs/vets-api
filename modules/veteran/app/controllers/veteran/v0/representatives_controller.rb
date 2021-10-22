@@ -3,7 +3,6 @@
 module Veteran
   module V0
     class RepresentativesController < ApplicationController
-      skip_before_action :set_tags_and_extra_content, raise: false
       skip_before_action :authenticate
       before_action :check_required_fields
 

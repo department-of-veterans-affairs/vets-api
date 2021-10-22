@@ -96,7 +96,7 @@ RSpec.describe 'breakers', type: :request do
     end
   end
 
-  it 'includes correct tags in background jobs' do
+  xit 'includes correct tags in background jobs' do
     RequestStore.store['additional_request_attributes'] = { 'source' => 'auth' }
     PagerDuty::PollMaintenanceWindows.perform_async
     RequestStore.clear!

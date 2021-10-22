@@ -4,8 +4,6 @@ require 'common/exceptions'
 
 module OpenidAuth
   class ApplicationController < ::OpenidApplicationController
-    skip_before_action :set_tags_and_extra_content, raise: false
-
     def validate_user
       unless token.static? || token.client_credentials_token? || token.ssoi_token?
         raise Common::Exceptions::RecordNotFound, @current_user.uuid if @current_user.mpi_status == 'NOT_FOUND'
@@ -18,6 +16,11 @@ module OpenidAuth
 
     def fetch_aud
       params['aud']
+    end
+
+    def set_tags_and_extra_context
+      RequestStore.store['additional_request_attributes'] = { 'source' => 'openid_auth' }
+      Raven.tags_context(source: 'openid_auth')
     end
   end
 end

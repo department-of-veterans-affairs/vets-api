@@ -10,7 +10,10 @@ class StatsdMiddleware
     claims_api
     coronavirus-research
     mobile
+    openid_auth
     test_user_dashboard
+    veteran_confirmation
+    veteran_verification
   ].freeze
 
   OTHER_APP_NAMES = Set.new %w[
