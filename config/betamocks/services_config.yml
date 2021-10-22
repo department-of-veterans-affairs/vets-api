@@ -516,6 +516,12 @@
   - :method: :get
     :path: "/health-check"
     :file_path: "appeals/health-check"
+  - :method: :get
+    :path: "/api/v3/decision_reviews/legacy_appeals"
+    :file_path: modules_appeals_api/get_legacy_appeals
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: X-VA-SSN
 
 # IHUB
 - :name: 'IHub'
