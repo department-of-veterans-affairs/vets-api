@@ -63,6 +63,27 @@ describe VBADocuments::UploadSubmission, type: :model do
     allow(CentralMail::Service).to receive(:new) { client_stub }
   end
 
+  def status_complete_packets(*reasons)
+    ret = [[{
+      uuid: 'ignored',
+      status: 'Complete',
+      errorMessage: '',
+      lastUpdated: '2018-04-25 00:02:39',
+      packets: []
+    }]]
+    reasons.each do |r|
+      packet = {
+        veteranId: '777889999',
+        status: 'Complete',
+        completedReason: r,
+        transactionDate: '2018-04-25 00:02:39'
+      }
+
+      ret[0][0][:packets] << packet
+    end
+    ret.to_json
+  end
+
   describe 'consumer_name' do
     it 'returns unknown when no name is set' do
       upload = FactoryBot.create(:upload_submission, consumer_name: nil)
@@ -101,6 +122,76 @@ describe VBADocuments::UploadSubmission, type: :model do
       upload_received.refresh_status!
       updated = VBADocuments::UploadSubmission.find_by(guid: upload_received.guid)
       expect(updated.status).to eq('processing')
+    end
+
+    it 'updates completed status from upstream to VBMS' do
+      resp = status_complete_packets(VBADocuments::UploadSubmission::COMPLETED_DOWNLOAD_CONFIRMED,
+                                     VBADocuments::UploadSubmission::COMPLETED_UPLOAD_SUCCEEDED)
+      expect(client_stub).to receive(:status).and_return(faraday_response)
+      expect(faraday_response).to receive(:success?).and_return(true)
+      expect(faraday_response).to receive(:body).at_least(:once).and_return(resp)
+      upload_success.refresh_status!
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload_success.guid)
+      expect(updated.status).to eq('vbms')
+      expect(updated.metadata['completed_details']).to eq(JSON.parse(resp).first.first['packets'])
+    end
+
+    it 'updates completed status from upstream to SUCCESS and marked as final' do
+      resp = status_complete_packets(VBADocuments::UploadSubmission::COMPLETED_DOWNLOAD_CONFIRMED)
+      expect(client_stub).to receive(:status).and_return(faraday_response)
+      expect(faraday_response).to receive(:success?).and_return(true)
+      expect(faraday_response).to receive(:body).at_least(:once).and_return(resp)
+      upload_success.refresh_status!
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload_success.guid)
+      expect(updated.status).to eq('success')
+      expect(updated.metadata[VBADocuments::UploadSubmission::FINAL_SUCCESS_STATUS_KEY]).not_to be(nil)
+    end
+
+    it 'updates completed status from upstream to ERROR if any UNIDENTIFIABLE_MAIL' do
+      resp = status_complete_packets(VBADocuments::UploadSubmission::COMPLETED_DOWNLOAD_CONFIRMED,
+                                     VBADocuments::UploadSubmission::COMPLETED_UNIDENTIFIABLE_MAIL,
+                                     VBADocuments::UploadSubmission::COMPLETED_DOWNLOAD_CONFIRMED)
+      expect(client_stub).to receive(:status).and_return(faraday_response)
+      expect(faraday_response).to receive(:success?).and_return(true)
+      expect(faraday_response).to receive(:body).at_least(:once).and_return(resp)
+      upload_success.refresh_status!
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload_success.guid)
+      expect(updated.status).to eq('error')
+      expect(updated.code).to eq('DOC202')
+      expect(updated.detail).to eq("Upstream status: #{VBADocuments::UploadSubmission::ERROR_UNIDENTIFIED_MAIL}")
+    end
+
+    it 'Logs an error if no packets are sent' do
+      resp = status_complete_packets
+      expect(client_stub).to receive(:status).and_return(faraday_response)
+      expect(faraday_response).to receive(:success?).and_return(true)
+      expect(faraday_response).to receive(:body).at_least(:once).and_return(resp)
+      upload_success.refresh_status!
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload_success.guid)
+      expect(updated.status).to eq('success')
+    end
+
+    it 'Logs an error if no completedReason keys are sent' do
+      resp = [[{
+        uuid: 'ignored',
+        status: 'Complete',
+        errorMessage: '',
+        lastUpdated: '2018-04-25 00:02:39',
+        packets: [
+          {
+            veteranId: '777889999',
+            status: 'Complete',
+            transactionDate: '2018-04-25 00:02:39'
+          }
+        ]
+      }]].to_json
+
+      expect(client_stub).to receive(:status).and_return(faraday_response)
+      expect(faraday_response).to receive(:success?).and_return(true)
+      expect(faraday_response).to receive(:body).at_least(:once).and_return(resp)
+      upload_success.refresh_status!
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload_success.guid)
+      expect(updated.status).to eq('success')
     end
 
     it 'updates success status from upstream' do

@@ -18,6 +18,14 @@ module VBADocuments
     after_find :set_initial_status
     attr_reader :current_status
 
+    COMPLETED_UPLOAD_SUCCEEDED = 'UploadSucceeded'
+    COMPLETED_DOWNLOAD_CONFIRMED = 'DownloadConfirmed'
+    COMPLETED_UNIDENTIFIABLE_MAIL = 'UnidentifiableMail'
+    ERROR_UNIDENTIFIED_MAIL = %w[
+      Unidentified Mail: We could not associate part or all of this submission with a Veteran.
+      Please verify the identifying information and resubmit.
+    ].join(' ')
+
     # We don't want to check successes before
     # this date as it used to be the endpoint
     VBMS_IMPLEMENTATION_DATE = Date.parse('28-06-2019')
@@ -173,13 +181,16 @@ module VBADocuments
     end
 
     def map_upstream_status(response_object)
-      case response_object['status']
+      status = response_object['status']
+      case status
       when 'Received'
         self.status = 'received'
       when 'In Process', 'Processing Success'
         self.status = 'processing'
       when 'Success'
         self.status = 'success'
+      when 'Complete'
+        process_complete(response_object)
       when 'VBMS Complete'
         self.status = 'vbms'
       when 'Error', 'Processing Error'
@@ -187,11 +198,44 @@ module VBADocuments
         self.code = 'DOC202'
         self.detail = "Upstream status: #{response_object['errorMessage']}"
       else
-        log_message_to_sentry('Unknown status value from Central Mail API',
-                              :warning,
-                              status: response_object['status'])
+        log_message_to_sentry('Unknown status value from Central Mail API', :warning, status: status)
         raise Common::Exceptions::BadGateway, detail: 'Unknown processing status'
       end
+    end
+
+    def process_complete(response_object)
+      new_status = get_complete_status(response_object)
+
+      if new_status
+        self.status = new_status
+        metadata[FINAL_SUCCESS_STATUS_KEY] = Time.now.to_i if new_status.eql?('success')
+
+        if new_status.eql?('error')
+          self.code = 'DOC202'
+          self.detail = "Upstream status: #{ERROR_UNIDENTIFIED_MAIL}"
+        end
+
+        metadata['completed_details'] = response_object['packets']
+      else
+        msg = "Unable to determine Complete status. Packets/completedReason not included. Response: #{response_object}"
+        Rails.logger.error(msg)
+        log_message_to_sentry(msg, :warning, status: 'undetermined')
+      end
+    end
+
+    def get_complete_status(response_object)
+      new_status = nil
+      packets = response_object.dig('packets')
+      if packets
+        if packets.any? { |i| i['completedReason'].eql? COMPLETED_UNIDENTIFIABLE_MAIL }
+          new_status = 'error'
+        elsif packets.any? { |i| i['completedReason'].eql? COMPLETED_UPLOAD_SUCCEEDED }
+          new_status = 'vbms'
+        elsif packets.any? { |i| i['completedReason'].eql? COMPLETED_DOWNLOAD_CONFIRMED }
+          new_status = 'success'
+        end
+      end
+      new_status
     end
 
     def report_errors
