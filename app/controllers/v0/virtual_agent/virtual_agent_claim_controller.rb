@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require 'date'
+require 'concurrent'
+
+require './lib/virtual_agent/claim_augmenter'
 
 module V0
   module VirtualAgent
@@ -12,7 +15,14 @@ module V0
       def index
         claims, synchronized = service.all
 
-        data = synchronized == 'REQUESTED' ? nil : data_for_three_most_recent_open_comp_claims(claims)
+        if synchronized == 'REQUESTED'
+          data = nil
+        else
+          open_comp_claims_data = data_for_three_most_recent_open_comp_claims(claims)
+          claim_augmenter = ClaimAugmenter.new
+          data = claim_augmenter.get_supplemental_claim_data(open_comp_claims_data,
+                                                             current_user, service)
+        end
 
         render json: {
           data: data,
