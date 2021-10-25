@@ -218,22 +218,11 @@ RSpec.describe SAML::PostURLService do
 
           context 'with an MHV inbound-outbound user' do
             context 'with a valid redirect code' do
-              let(:redirect) do
-                mhv_urls = Settings.saml_ssoe.redirect_urls.mhv
-                mhv_urls.base += mhv_urls.mhv_prescription_refill
-              end
+              let(:redirect) { 'https://int.eauth.va.gov/mhv-portal-web/eauth?deeplinking=secure_messaging' }
 
               it 'redirects to MHV' do
-                params[:redirect] = 'mhv_prescription_refill'
+                params[:redirect] = redirect
                 expect(subject.login_redirect_url).to eq(redirect)
-              end
-            end
-
-            context 'with an invalid redirect code' do
-              it 'redirects to base login success url' do
-                params[:redirect] = 'mhv_bad_code'
-                expect(subject.login_redirect_url)
-                  .to eq(values[:base_redirect] + SAML::URLService::LOGIN_REDIRECT_PARTIAL + '?type=idme')
               end
             end
           end

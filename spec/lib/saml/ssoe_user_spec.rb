@@ -484,6 +484,10 @@ RSpec.describe SAML::User do
 
         context 'normal validation flow' do
           it 'does not validate and throws an error' do
+            SAMLRequestTracker.create(
+              uuid: '1234567890',
+              payload: { skip_dupe: false }
+            )
             expect { subject.validate! }.to raise_error { |error|
               expect(error).to be_a(SAML::UserAttributeError)
               expect(error.message).to eq('User attributes contain multiple distinct MHV ID values')
@@ -495,7 +499,7 @@ RSpec.describe SAML::User do
           it 'does not validate and logs a Sentry warning' do
             SAMLRequestTracker.create(
               uuid: '1234567890',
-              payload: { redirect: 'mhv_prescription_refill' }
+              payload: { skip_dupe: 'mhv' }
             )
             expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
               'User attributes contain multiple distinct MHV ID values.',

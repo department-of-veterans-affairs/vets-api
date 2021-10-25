@@ -293,8 +293,7 @@ module SAML
 
       def mhv_inbound_outbound
         tracker = SAMLRequestTracker.find(@tracker_uuid)
-        redirect = tracker&.payload_attr(:redirect)
-        redirect && redirect.match('\A[a-zA-Z]+').to_s == 'mhv'
+        tracker&.payload_attr(:skip_dupe) == 'mhv'
       end
 
       def mhv_icn_mismatch?
