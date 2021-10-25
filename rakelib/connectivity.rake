@@ -5,7 +5,7 @@
 # Also does sanity check to ensure that logs directory is writeable
 
 # Allows running on development machines
-Rails.logger = Logger.new(STDOUT)
+Rails.logger = Logger.new($stdout)
 
 class ConnectivityError < StandardError; end
 

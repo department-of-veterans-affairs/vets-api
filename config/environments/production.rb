@@ -66,7 +66,7 @@ Rails.application.configure do
 
   config.rails_semantic_logger.format = :json
   config.rails_semantic_logger.add_file_appender = false
-  config.semantic_logger.add_appender(io: STDOUT,
+  config.semantic_logger.add_appender(io: $stdout,
                                       level: config.log_level,
                                       formatter: config.rails_semantic_logger.format)
 
@@ -106,8 +106,8 @@ Rails.application.configure do
   # config.logger = ActiveSupport::TaggedLogging.new(Syslog::Logger.new 'app-name')
 
   # Log to standard out, with specified formatter
-  STDOUT.sync = config.autoflush_log
-  logger = ActiveSupport::Logger.new(STDOUT)
+  $stdout.sync = config.autoflush_log
+  logger = ActiveSupport::Logger.new($stdout)
   logger.formatter = config.log_formatter
   config.logger = ActiveSupport::TaggedLogging.new(logger)
 

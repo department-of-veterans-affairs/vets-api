@@ -327,17 +327,6 @@ Style/FrozenStringLiteralComment:
     - 'app/workers/education_form/forms/base.rb'
     - 'spec/support/spec_builders.rb'
 
-# Offense count: 12
-# Cop supports --auto-correct.
-Style/GlobalStdStream:
-  Exclude:
-    - 'config/environments/production.rb'
-    - 'modules/covid_vaccine/app/services/covid_vaccine/v0/vetext_configuration.rb'
-    - 'modules/vaos/app/services/vaos/configuration.rb'
-    - 'modules/vaos/app/services/vaos/v1/fhir_configuration.rb'
-    - 'rakelib/connectivity.rake'
-    - 'spec/support/silence_stream.rb'
-
 # Offense count: 16
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

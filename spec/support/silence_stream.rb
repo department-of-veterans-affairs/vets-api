@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 def silence
-  original_stdout = STDOUT.clone
-  original_stderr = STDERR.clone
+  original_stdout = $stdout.clone
+  original_stderr = $stderr.clone
   $stderr.reopen File.new('/dev/null', 'w')
   $stdout.reopen File.new('/dev/null', 'w')
   yield

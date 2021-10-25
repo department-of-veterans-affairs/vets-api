@@ -23,8 +23,8 @@ module CovidVaccine
           c.request :json
 
           if ENV['DEBUG'] && !Rails.env.production?
-            c.request(:curl, ::Logger.new(STDOUT), :warn)
-            c.response(:logger, ::Logger.new(STDOUT), bodies: true)
+            c.request(:curl, ::Logger.new($stdout), :warn)
+            c.response(:logger, ::Logger.new($stdout), bodies: true)
           end
 
           c.response :betamocks if mock_enabled?
