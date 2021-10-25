@@ -39,6 +39,7 @@ module VAOS
           meta: {}
         }
       rescue Common::Exceptions::BackendServiceException => e
+        log_direct_schedule_submission_errors(e)
         # TODO: Reevaluate the need to log clinic data three months after launch (6/15/20)
         log_clinic_details(:create, params.dig(:clinic, :clinic_id), site_code) if e.key == 'VAOS_400'
         raise e
@@ -63,6 +64,10 @@ module VAOS
     end
 
     private
+
+    def log_direct_schedule_submission_errors(e)
+      Rails.logger.warn('Direct schedule submission error', { status: e.status_code, message: e.message })
+    end
 
     def log_clinic_details(action, clinic_id, site_code)
       Rails.logger.warn(

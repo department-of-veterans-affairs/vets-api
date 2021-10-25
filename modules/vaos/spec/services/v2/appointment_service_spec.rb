@@ -20,6 +20,10 @@ describe VAOS::V2::AppointmentsService do
       FactoryBot.build(:appointment_form_v2, :eligible).attributes
     end
 
+    let(:direct_scheduling_request_body) do
+      FactoryBot.build(:appointment_form_v2, :with_direct_scheduling).attributes
+    end
+
     context 'when request is valid' do
       it 'returns the created appointment' do
         VCR.use_cassette('vaos/v2/appointments/post_appointments_200', match_requests_on: %i[method uri]) do
@@ -35,6 +39,19 @@ describe VAOS::V2::AppointmentsService do
           expect { subject.post_appointment(request_body) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
+        end
+      end
+    end
+
+    context 'when the patientIcn is missing on a direct scheduling submission' do
+      it 'raises a backend exception and logs error details' do
+        VCR.use_cassette('vaos/v2/appointments/post_appointments_400', match_requests_on: %i[method uri]) do
+          allow(Rails.logger).to receive(:warn).at_least(:once)
+          expect { subject.post_appointment(direct_scheduling_request_body) }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+          expect(Rails.logger).to have_received(:warn).with('Direct schedule submission error',
+                                                            any_args).at_least(:once)
         end
       end
     end

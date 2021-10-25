@@ -353,11 +353,14 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
         it 'returns bad request with detail in errors' do
           VCR.use_cassette('vaos/appointments/post_appointment_409', match_requests_on: %i[method uri]) do
+            allow(Rails.logger).to receive(:warn).at_least(:once)
             post '/vaos/v0/appointments', params: request_body
 
             expect(response).to have_http_status(:conflict)
             expect(JSON.parse(response.body)['errors'].first['detail'])
               .to eq(error_detail)
+            expect(Rails.logger).to have_received(:warn).with('Direct schedule submission error',
+                                                              any_args).at_least(:once)
           end
         end
       end
@@ -369,6 +372,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
         it 'returns bad request with detail in errors' do
           VCR.use_cassette('vaos/appointments/post_appointment_400', match_requests_on: %i[method uri]) do
+            expect(Rails.logger).to receive(:warn).with('Direct schedule submission error', any_args)
             expect(Rails.logger).to receive(:warn).with('VAOS service call failed!', any_args)
             expect(Rails.logger).to receive(:warn).with(
               'Clinic does not support VAOS appointment create',

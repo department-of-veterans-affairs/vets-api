@@ -20,10 +20,13 @@ describe VAOS::AppointmentService do
 
       it 'returns a 400 Bad Request' do
         VCR.use_cassette('vaos/appointments/post_appointment_400', match_requests_on: %i[method uri]) do
+          allow(Rails.logger).to receive(:warn).at_least(:once)
           expect { subject.post_appointment(request_body) }
             .to raise_error(Common::Exceptions::BackendServiceException) do |error|
               expect(error.status_code).to eq(400)
             end
+          expect(Rails.logger).to have_received(:warn).with('Direct schedule submission error',
+                                                            any_args).at_least(:once)
         end
       end
     end
@@ -35,10 +38,13 @@ describe VAOS::AppointmentService do
 
       it 'returns a 400 Bad Request for 409 conlicts as well' do
         VCR.use_cassette('vaos/appointments/post_appointment_409', match_requests_on: %i[method uri]) do
+          allow(Rails.logger).to receive(:warn).at_least(:once)
           expect { subject.post_appointment(request_body) }
             .to raise_error(Common::Exceptions::BackendServiceException) do |error|
               expect(error.status_code).to eq(409)
             end
+          expect(Rails.logger).to have_received(:warn).with('Direct schedule submission error',
+                                                            any_args).at_least(:once)
         end
       end
     end

@@ -27,6 +27,10 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         FactoryBot.build(:appointment_form_v2, :eligible).attributes
       end
 
+      let(:direct_scheduling_request_body) do
+        FactoryBot.build(:appointment_form_v2, :with_direct_scheduling).attributes
+      end
+
       it 'creates the appointment' do
         VCR.use_cassette('vaos/v2/appointments/post_appointments_200', match_requests_on: %i[method uri]) do
           post '/vaos/v2/appointments', params: request_body, headers: inflection_header
@@ -46,6 +50,20 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
             'the patientIcn must match the ICN in the request URI'
           )
+        end
+      end
+
+      it 'returns a 400 error on direct scheduling submission' do
+        VCR.use_cassette('vaos/v2/appointments/post_appointments_400', match_requests_on: %i[method uri]) do
+          allow(Rails.logger).to receive(:warn).at_least(:once)
+          post '/vaos/v2/appointments', params: direct_scheduling_request_body
+          expect(response).to have_http_status(:bad_request)
+          expect(JSON.parse(response.body)['errors'][0]['status']).to eq('400')
+          expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+            'the patientIcn must match the ICN in the request URI'
+          )
+          expect(Rails.logger).to have_received(:warn).with('Direct schedule submission error',
+                                                            any_args).at_least(:once)
         end
       end
     end

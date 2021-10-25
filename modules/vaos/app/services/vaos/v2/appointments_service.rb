@@ -36,6 +36,9 @@ module VAOS
         with_monitoring do
           response = perform(:post, appointments_base_url, params, headers)
           OpenStruct.new(response.body)
+        rescue Common::Exceptions::BackendServiceException => e
+          log_direct_schedule_submission_errors(e) if params[:status] == 'booked'
+          raise e
         end
       end
 
@@ -49,6 +52,10 @@ module VAOS
       end
 
       private
+
+      def log_direct_schedule_submission_errors(e)
+        Rails.logger.warn('Direct schedule submission error', { status: e.status_code, message: e.message })
+      end
 
       def deserialized_appointments(appointment_list)
         return [] unless appointment_list
