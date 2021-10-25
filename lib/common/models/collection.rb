@@ -202,7 +202,7 @@ module Common
     def convert_fields_to_ordered_hash(fields)
       fields.each_with_object({}) do |field, hash|
         if field.start_with?('-')
-          field = field[1..-1]
+          field = field[1..]
           hash[field] = 'DESC'
         else
           hash[field] = 'ASC'

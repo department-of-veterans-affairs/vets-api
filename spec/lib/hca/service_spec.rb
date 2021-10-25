@@ -45,7 +45,7 @@ describe HCA::Service do
           expect(service).to receive(:perform) do |_verb, _, body|
             submission = body
             pretty_printed = Ox.dump(Ox.parse(submission).locate('soap:Envelope/soap:Body/ns1:submitFormRequest').first)
-            expect(pretty_printed[1..-1]).to eq(xml)
+            expect(pretty_printed[1..]).to eq(xml)
           end.and_return(response)
 
           service.submit_form(json)

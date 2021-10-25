@@ -177,7 +177,7 @@ class User < Common::RedisStore
   end
 
   def middle_name_mpi
-    mpi&.profile&.given_names.to_a[1..-1]&.join(' ').presence
+    mpi&.profile&.given_names.to_a[1..]&.join(' ').presence
   end
 
   def gender_mpi

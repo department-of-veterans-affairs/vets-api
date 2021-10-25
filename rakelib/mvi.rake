@@ -80,7 +80,7 @@ namespace :mvi do
               when 'first_name'
                 row['first_name'] = response.profile.given_names.first
               when 'middle_name'
-                row['middle_name'] = response.profile.given_names.to_a[1..-1]&.join(' ')
+                row['middle_name'] = response.profile.given_names.to_a[1..]&.join(' ')
               when 'last_name'
                 row['last_name'] = response.profile.family_name
               else

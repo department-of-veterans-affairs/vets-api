@@ -324,7 +324,7 @@ class FormProfile
     return '' if pciu_primary_phone.blank?
     return pciu_primary_phone if pciu_primary_phone.size == 10
 
-    return pciu_primary_phone[1..-1] if pciu_primary_phone.size == 11 && pciu_primary_phone[0] == '1'
+    return pciu_primary_phone[1..] if pciu_primary_phone.size == 11 && pciu_primary_phone[0] == '1'
 
     ''
   end

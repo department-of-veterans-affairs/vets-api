@@ -608,7 +608,7 @@ module PdfFill
       def split_phone(phone)
         return [nil, nil] if phone.blank?
 
-        [phone[0..2], phone[3..-1]]
+        [phone[0..2], phone[3..]]
       end
 
       def expand_gender(gender)

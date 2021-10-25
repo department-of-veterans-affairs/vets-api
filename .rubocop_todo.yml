@@ -444,17 +444,6 @@ Style/RedundantSelfAssignmentBranch:
 Style/SingleArgumentDig:
   Enabled: false
 
-# Offense count: 6
-# Cop supports --auto-correct.
-Style/SlicingWithRange:
-  Exclude:
-    - 'app/models/form_profile.rb'
-    - 'app/models/user.rb'
-    - 'lib/common/models/collection.rb'
-    - 'lib/pdf_fill/forms/va21p527ez.rb'
-    - 'rakelib/mvi.rake'
-    - 'spec/lib/hca/service_spec.rb'
-
 # Offense count: 135
 # Cop supports --auto-correct.
 # Configuration parameters: Mode.
