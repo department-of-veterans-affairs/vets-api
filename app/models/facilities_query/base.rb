@@ -23,8 +23,7 @@ module FacilitiesQuery
         service_condition(type, service)
       end
       facilities = facilities.where(service_conditions.join(' OR ')) if service_conditions&.any?
-      facilities = facilities.where.not(facility_type: BaseFacility::DOD_HEALTH)
-      facilities
+      facilities.where.not(facility_type: BaseFacility::DOD_HEALTH)
     end
 
     def service_condition(type, service)

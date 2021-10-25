@@ -47,13 +47,11 @@ module CentralMail
         uuid: [*uuid_or_list].to_json
       }
 
-      response = request(
+      request(
         :post,
         'getStatus',
         body
       )
-
-      response
     end
 
     def self.current_breaker_outage?

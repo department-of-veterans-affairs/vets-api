@@ -21,9 +21,7 @@ module VAProfile
 
       VAProfile::Stats.increment('total_operations')
       config.base_request_headers.merge(headers)
-      response = super(method, path, body, headers)
-
-      response
+      super(method, path, body, headers)
     end
 
     def self.breakers_service

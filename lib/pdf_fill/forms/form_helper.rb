@@ -8,13 +8,11 @@ module PdfFill
       def split_ssn(veteran_social_security_number)
         return if veteran_social_security_number.blank?
 
-        split_ssn = {
+        {
           'first' => veteran_social_security_number[0..2],
           'second' => veteran_social_security_number[3..4],
           'third' => veteran_social_security_number[5..8]
         }
-
-        split_ssn
       end
 
       def extract_middle_i(hash, key)

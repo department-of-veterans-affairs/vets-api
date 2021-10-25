@@ -411,15 +411,6 @@ Style/QuotedSymbols:
     - 'spec/models/preneeds/attachment_spec.rb'
     - 'spec/requests/swagger_spec.rb'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-Style/RedundantAssignment:
-  Exclude:
-    - 'app/models/facilities_query/base.rb'
-    - 'lib/central_mail/service.rb'
-    - 'lib/pdf_fill/forms/form_helper.rb'
-    - 'lib/va_profile/service.rb'
-
 # Offense count: 5
 # Cop supports --auto-correct.
 Style/RedundantBegin:
