@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require CovidResearch::Engine.root.join('spec', 'rails_helper.rb')
-require_relative '../../../../app/workers/covid_research/volunteer/confirmation_mailer_job.rb'
+require_relative '../../../../app/workers/covid_research/volunteer/confirmation_mailer_job'
 
 RSpec.describe CovidResearch::Volunteer::ConfirmationMailerJob do
   subject         { described_class.new }

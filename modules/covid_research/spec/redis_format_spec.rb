@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require_relative '../lib/redis_format.rb'
+require_relative '../lib/redis_format'
 
 RSpec.describe CovidResearch::RedisFormat do
   subject             { described_class.new(crypto_class) }

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require './lib/tasks/support/schema_camelizer.rb'
+require './lib/tasks/support/schema_camelizer'
 
 describe SchemaCamelizer do
   TEST_DIRECTORY = 'tmp/camel_schema_tests'

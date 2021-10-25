@@ -2,8 +2,8 @@
 
 require 'rails_helper'
 require CovidResearch::Engine.root.join('spec', 'rails_helper.rb')
-require_relative '../../../../app/workers/covid_research/volunteer/genisis_delivery_job.rb'
-require_relative '../../../../lib/redis_format.rb'
+require_relative '../../../../app/workers/covid_research/volunteer/genisis_delivery_job'
+require_relative '../../../../lib/redis_format'
 
 RSpec.describe CovidResearch::Volunteer::GenisisDeliveryJob do
   subject               { described_class.new }

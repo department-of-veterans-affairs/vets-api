@@ -2,9 +2,9 @@
 
 require 'rails_helper'
 require CovidResearch::Engine.root.join('spec', 'rails_helper.rb')
-require_relative '../../../app/serializers/covid_research/genisis_serializer.rb'
+require_relative '../../../app/serializers/covid_research/genisis_serializer'
 # Because we aren't requiring the Rails helper so it isn't autoloaded
-require_relative '../../../app/serializers/covid_research/volunteer/name_serializer.rb'
+require_relative '../../../app/serializers/covid_research/volunteer/name_serializer'
 
 RSpec.describe CovidResearch::GenisisSerializer do
   let(:subject)  { described_class.new }

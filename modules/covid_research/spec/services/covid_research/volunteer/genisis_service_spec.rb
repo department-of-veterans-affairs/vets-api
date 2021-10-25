@@ -3,7 +3,7 @@
 require 'rails_helper'
 require CovidResearch::Engine.root.join('spec', 'rails_helper.rb')
 
-require_relative '../../../../app/services/covid_research/volunteer/genisis_service.rb'
+require_relative '../../../../app/services/covid_research/volunteer/genisis_service'
 
 RSpec.configure do |c|
   c.include StatsD::Instrument::Matchers

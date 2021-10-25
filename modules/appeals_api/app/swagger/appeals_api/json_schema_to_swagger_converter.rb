@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative './json_schema_reference_string.rb'
+require_relative './json_schema_reference_string'
 
 # Converts a restricted-style of JSON Schema to Swagger
 #

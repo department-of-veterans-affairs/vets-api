@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require_relative '../../../lib/apps_api/notification_service.rb'
+require_relative '../../../lib/apps_api/notification_service'
 
 module AppsApi
   class FetchConnections

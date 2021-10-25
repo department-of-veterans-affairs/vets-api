@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs/power_of_attorney_verifier.rb'
+require 'bgs/power_of_attorney_verifier'
 
 describe BGS::PowerOfAttorneyVerifier do
   let(:user) { FactoryBot.create(:user, :loa3) }

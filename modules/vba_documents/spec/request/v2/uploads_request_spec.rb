@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require './lib/webhooks/utilities.rb'
+require './lib/webhooks/utilities'
 require_relative '../../support/vba_document_fixtures'
 require_dependency 'vba_documents/payload_manager'
 require_dependency 'vba_documents/object_store'

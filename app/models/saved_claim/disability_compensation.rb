@@ -4,7 +4,7 @@ require 'evss/disability_compensation_form/data_translation_all_claim'
 require 'evss/disability_compensation_form/form4142'
 require 'evss/disability_compensation_form/form0781'
 require 'evss/disability_compensation_form/form8940'
-require 'bgs/disability_compensation_form_flashes.rb'
+require 'bgs/disability_compensation_form_flashes'
 
 class SavedClaim::DisabilityCompensation < SavedClaim
   alias_attribute :submission, :disability_compensation_submission

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../../lib/json_schema/missing_schema.rb'
+require_relative '../../../lib/json_schema/missing_schema'
 
 describe JsonSchema::MissingSchema do
   let(:missing_schema_error) { described_class.new missing_key, keys }

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'rack/mime.rb'
+require 'rack/mime'
 
 module Common
   module Client

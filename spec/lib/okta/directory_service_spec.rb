@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'okta/directory_service.rb'
+require 'okta/directory_service'
 require 'okta/service'
 require 'vcr'
 

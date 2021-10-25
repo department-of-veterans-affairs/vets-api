@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require 'bb/generate_report_request_form'
-require 'bb/client.rb'
+require 'bb/client'
 
 describe BB::GenerateReportRequestForm do
   subject { described_class.new(bb_client, attributes) }

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require CovidResearch::Engine.root.join('spec', 'rails_helper.rb')
-require_relative '../../../../app/serializers/covid_research/volunteer/name_serializer.rb'
+require_relative '../../../../app/serializers/covid_research/volunteer/name_serializer'
 
 RSpec.describe CovidResearch::Volunteer::NameSerializer do
   let(:subject) { described_class.new }

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative './json_api_missing_attribute.rb'
-require_relative './missing_schema.rb'
+require_relative './json_api_missing_attribute'
+require_relative './missing_schema'
 
 module JsonSchema
   class FormSchemas

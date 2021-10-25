@@ -411,11 +411,6 @@ Style/QuotedSymbols:
     - 'spec/models/preneeds/attachment_spec.rb'
     - 'spec/requests/swagger_spec.rb'
 
-# Offense count: 31
-# Cop supports --auto-correct.
-Style/RedundantFileExtensionInRequire:
-  Enabled: false
-
 # Offense count: 63
 # Cop supports --auto-correct.
 Style/RedundantRegexpEscape:

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'openssl'
-require 'oidc/service.rb'
+require 'oidc/service'
 module OIDC
   class KeyService
     @mutex = Mutex.new
