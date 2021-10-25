@@ -309,9 +309,7 @@ module HealthQuest
       # entries for FHIR::Questionnaire objects
       #
       def get_questionnaires
-        @get_questionnaires ||= begin
-          questionnaire_service.search('context-type-value': get_use_context)
-        end
+        @get_questionnaires ||= questionnaire_service.search('context-type-value': get_use_context)
       end
 
       ##

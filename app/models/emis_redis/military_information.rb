@@ -359,9 +359,9 @@ module EMISRedis
     #  array of veteran's Guard and reserve service periods sorted
     #  by end date
     def guard_reserve_service_by_date
-      @guard_reserve_service_by_date ||= begin
-        guard_reserve_service_periods.sort_by { |per| per.end_date || Time.zone.today + 3650 }.reverse
-      end
+      @guard_reserve_service_by_date ||= guard_reserve_service_periods.sort_by do |per|
+        per.end_date || Time.zone.today + 3650
+      end.reverse
     end
 
     # @return [Array<Hash>] Veteran's guard and reserve service episode date

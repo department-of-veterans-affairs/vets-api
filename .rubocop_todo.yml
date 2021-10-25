@@ -411,15 +411,6 @@ Style/QuotedSymbols:
     - 'spec/models/preneeds/attachment_spec.rb'
     - 'spec/requests/swagger_spec.rb'
 
-# Offense count: 5
-# Cop supports --auto-correct.
-Style/RedundantBegin:
-  Exclude:
-    - 'app/models/emis_redis/military_information.rb'
-    - 'lib/common/models/base.rb'
-    - 'modules/health_quest/app/services/health_quest/questionnaire_manager/factory.rb'
-    - 'modules/vba_documents/lib/vba_documents/object_store.rb'
-
 # Offense count: 31
 # Cop supports --auto-correct.
 Style/RedundantFileExtensionInRequire:

@@ -23,17 +23,15 @@ module Common
       end
 
       def sortable_attributes
-        @sortable_attributes ||= begin
-          attribute_set.map do |attribute|
-            next unless attribute.options[:sortable]
+        @sortable_attributes ||= attribute_set.map do |attribute|
+          next unless attribute.options[:sortable]
 
-            sortable = attribute.options[:sortable].is_a?(Hash) ? attribute.options[:sortable] : { order: 'ASC' }
-            if sortable[:default]
-              @default_sort ||= sortable[:order] == 'DESC' ? "-#{attribute.name}" : attribute.name.to_s
-            end
-            [attribute.name.to_s, sortable[:order]]
-          end.compact.to_h.with_indifferent_access
-        end
+          sortable = attribute.options[:sortable].is_a?(Hash) ? attribute.options[:sortable] : { order: 'ASC' }
+          if sortable[:default]
+            @default_sort ||= sortable[:order] == 'DESC' ? "-#{attribute.name}" : attribute.name.to_s
+          end
+          [attribute.name.to_s, sortable[:order]]
+        end.compact.to_h.with_indifferent_access
       end
 
       def default_sort
@@ -44,11 +42,9 @@ module Common
       end
 
       def filterable_attributes
-        @filterable_attributes ||= begin
-          attribute_set.map do |attribute|
-            [attribute.name.to_s, attribute.options[:filterable]] if attribute.options[:filterable]
-          end.compact.to_h.with_indifferent_access
-        end
+        @filterable_attributes ||= attribute_set.map do |attribute|
+          [attribute.name.to_s, attribute.options[:filterable]] if attribute.options[:filterable]
+        end.compact.to_h.with_indifferent_access
       end
     end
 
