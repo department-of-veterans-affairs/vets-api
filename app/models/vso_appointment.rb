@@ -36,7 +36,7 @@ class VSOAppointment
   validates :claimant_daytime_phone, presence: true
   validates :claimant_evening_phone, presence: true
   validates :relationship, presence: true
-  validates :appointment_date, presence: true, format: /\A[\d]{4}-[\d]{2}-[\d]{2}\Z/
+  validates :appointment_date, presence: true, format: /\A\d{4}-\d{2}-\d{2}\Z/
   validates :organization_name, presence: true
   validates :organization_email, presence: true
   validates :organization_representative_name, presence: true

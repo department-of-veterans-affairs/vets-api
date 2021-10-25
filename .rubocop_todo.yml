@@ -434,18 +434,6 @@ Style/RedundantBegin:
 Style/RedundantFileExtensionInRequire:
   Enabled: false
 
-# Offense count: 15
-# Cop supports --auto-correct.
-Style/RedundantRegexpCharacterClass:
-  Exclude:
-    - 'app/models/vso_appointment.rb'
-    - 'app/workers/education_form/forms/base.rb'
-    - 'lib/common/client/middleware/response/facility_parser.rb'
-    - 'lib/common/client/middleware/response/facility_validator.rb'
-    - 'spec/jobs/cypress_viewport_updater/github_service_spec.rb'
-    - 'spec/jobs/cypress_viewport_updater/google_analytics_reports_spec.rb'
-    - 'spec/lib/vsopdf/vso_appointment_form_spec.rb'
-
 # Offense count: 63
 # Cop supports --auto-correct.
 Style/RedundantRegexpEscape:

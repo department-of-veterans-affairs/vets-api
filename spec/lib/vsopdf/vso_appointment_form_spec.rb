@@ -61,7 +61,7 @@ describe VSOAppointmentForm do
     expect(meta[:numberPages]).to eq 2
     expect(meta[:hashV]).to eq '817c57441e3696023e5adadc75a17a15d5ea0aa9e711b349210fb83d06323f3e'
     expect(meta[:uuid].length).to eq 36
-    expect(meta[:receiveDt].match(/\A[\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}:[\d]{2}\Z/).nil?).to eq false
+    expect(meta[:receiveDt].match(/\A\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\Z/).nil?).to eq false
   end
 
   it 'posts a pdf to central mail' do

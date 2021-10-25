@@ -14,7 +14,7 @@ module Common
           private
 
           def parse_body(env)
-            path_test = env.url.path.match(%r(\/([\w]{3}_(Facilities|VetCenters))\/))
+            path_test = env.url.path.match(%r(\/(\w{3}_(Facilities|VetCenters))\/))
             path_test = env.url.path.match(/(FacilitySitePoint_\w{3})/) if path_test.nil?
             path_part = path_test[1]
             facility_map = facility_klass(path_part).attribute_map

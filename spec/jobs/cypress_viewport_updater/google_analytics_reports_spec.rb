@@ -136,7 +136,7 @@ RSpec.describe CypressViewportUpdater::GoogleAnalyticsReports do
 
       it 'returns a report object that includes screen resolutions' do
         includes_screen_resolutions = @request_report.viewport_report.data.rows.any? do |row|
-          /[\d]+x[\d]+/.match(row.dimensions.second)
+          /\d+x\d+/.match(row.dimensions.second)
         end
 
         expect(includes_screen_resolutions).to be true

@@ -72,7 +72,7 @@ RSpec.describe CypressViewportUpdater::GithubService do
     end
 
     it 'returns the ref for the new feature branch' do
-      expect(@create_branch.ref).to match(%r{refs\/heads\/[\d]+_update_cypress_viewport_data})
+      expect(@create_branch.ref).to match(%r{refs\/heads\/\d+_update_cypress_viewport_data})
     end
   end
 
