@@ -1523,7 +1523,7 @@ module PdfFill
         veteran_information['full_name'] = extract_middle_i(veteran_information, 'full_name')
 
         # extract birth date
-        veteran_information['birth_date'] = split_date(veteran_information.dig('birth_date'))
+        veteran_information['birth_date'] = split_date(veteran_information['birth_date'])
 
         # extract ssn
         ssn = veteran_information['ssn']
@@ -1533,9 +1533,9 @@ module PdfFill
 
         # extract postal code and country
         veteran_contact_information['veteran_address']['zip_code'] =
-          split_postal_code(veteran_contact_information.dig('veteran_address'))
+          split_postal_code(veteran_contact_information['veteran_address'])
         veteran_contact_information['veteran_address']['country_name'] =
-          extract_country(veteran_contact_information.dig('veteran_address'))
+          extract_country(veteran_contact_information['veteran_address'])
       end
 
       def merge_spouse_helpers
@@ -1546,7 +1546,7 @@ module PdfFill
         spouse['full_name'] = extract_middle_i(spouse, 'full_name')
 
         # extract birth date
-        spouse['birth_date'] = split_date(spouse.dig('birth_date'))
+        spouse['birth_date'] = split_date(spouse['birth_date'])
 
         # extract ssn
         spouse['ssn'] = split_ssn(spouse['ssn'].delete('-')) if spouse['ssn'].present?
@@ -1580,10 +1580,10 @@ module PdfFill
           spouse['full_name'] = extract_middle_i(spouse, 'full_name')
 
           # extract veteran marriage history dates
-          spouse['start_date'] = split_date(spouse.dig('start_date'))
-          spouse['end_date'] = split_date(spouse.dig('end_date'))
+          spouse['start_date'] = split_date(spouse['start_date'])
+          spouse['end_date'] = split_date(spouse['end_date'])
 
-          reason_marriage_ended = spouse.dig('reason_marriage_ended')
+          reason_marriage_ended = spouse['reason_marriage_ended']
           # @TODO why is annulment not an option on FE ('Annulment or other')
           spouse['reason_marriage_ended'] = {
             'death' => select_radio_button(reason_marriage_ended == 'Death'),
@@ -1607,11 +1607,11 @@ module PdfFill
           spouse['full_name'] = extract_middle_i(spouse, 'full_name')
 
           # extract spouse marriage history dates
-          spouse['start_date'] = split_date(spouse.dig('start_date'))
-          spouse['end_date'] = split_date(spouse.dig('end_date'))
+          spouse['start_date'] = split_date(spouse['start_date'])
+          spouse['end_date'] = split_date(spouse['end_date'])
 
           # expand reason marriage ended
-          reason_marriage_ended = spouse.dig('reason_marriage_ended')
+          reason_marriage_ended = spouse['reason_marriage_ended']
           # @TODO why is annulment not an option on FE ('Annulment or other')
           spouse['reason_marriage_ended'] = {
             'death' => select_radio_button(reason_marriage_ended == 'Death'),
@@ -1635,7 +1635,7 @@ module PdfFill
           child['full_name'] = extract_middle_i(child, 'full_name')
 
           # extract birth date
-          child['birth_date'] = split_date(child.dig('birth_date'))
+          child['birth_date'] = split_date(child['birth_date'])
 
           # extract ssn
           child['ssn'] = split_ssn(child['ssn'].delete('-')) if child['ssn'].present?
@@ -1658,7 +1658,7 @@ module PdfFill
 
       def expand_child_status(child)
         # expand child status
-        child_status = child.dig('child_status')
+        child_status = child['child_status']
 
         # @TODO 18-23 YEARS OLD AND IN SCHOOL
         child['child_status'] = {
@@ -1716,7 +1716,7 @@ module PdfFill
         return if divorce.blank?
 
         # extract date
-        divorce['date'] = split_date(divorce.dig('date'))
+        divorce['date'] = split_date(divorce['date'])
 
         # extract middle initial
         divorce['full_name'] = extract_middle_i(divorce, 'full_name')
@@ -1736,11 +1736,11 @@ module PdfFill
             extract_middle_i(stepchild, 'who_does_the_stepchild_live_with')
 
           # extract step_children zip codes
-          stepchild['address']['zip_code'] = split_postal_code(stepchild.dig('address'))
-          stepchild['address']['country_name'] = extract_country(stepchild.dig('address'))
+          stepchild['address']['zip_code'] = split_postal_code(stepchild['address'])
+          stepchild['address']['country_name'] = extract_country(stepchild['address'])
 
           # expand living_expenses_paid
-          living_expenses_paid = stepchild.dig('living_expenses_paid')
+          living_expenses_paid = stepchild['living_expenses_paid']
           stepchild['living_expenses_paid'] = {
             'more_than_half' => select_radio_button(living_expenses_paid == 'More than half'),
             'half' => select_radio_button(living_expenses_paid == 'Half'),
@@ -1761,16 +1761,16 @@ module PdfFill
           death['full_name'] = extract_middle_i(death, 'full_name')
 
           # extract date
-          death['date'] = split_date(death.dig('date'))
+          death['date'] = split_date(death['date'])
 
           # extract country: FE uses 3 char country codes, but pdf expects 2 char country code
           death['location']['country'] = extract_country(death['location'])
 
           # expand dependent type
-          dependent_type = death.dig('dependent_type')
+          dependent_type = death['dependent_type']
           if dependent_type == 'CHILD'
             # ex. "dependent_type":"CHILD","child_status":{"child_under18":true,"step_child":true}
-            dependent_type = death.dig('child_status')
+            dependent_type = death['child_status']
           end
           death['dependent_type'] = {
             'spouse' => select_radio_button(dependent_type == 'SPOUSE'),
@@ -1792,7 +1792,7 @@ module PdfFill
         child_marriage['full_name'] = extract_middle_i(child_marriage, 'full_name')
 
         # extract date
-        child_marriage['date_married'] = split_date(child_marriage.dig('date_married'))
+        child_marriage['date_married'] = split_date(child_marriage['date_married'])
       end
 
       def merge_child_stopped_attending_school_helpers
@@ -1804,11 +1804,11 @@ module PdfFill
 
         # extract date
         child_stopped_attending_school['date_child_left_school'] =
-          split_date(child_stopped_attending_school.dig('date_child_left_school'))
+          split_date(child_stopped_attending_school['date_child_left_school'])
       end
 
       def expand_phone_number(veteran_contact_information)
-        phone_number = veteran_contact_information.dig('phone_number')
+        phone_number = veteran_contact_information['phone_number']
         if phone_number.present?
           phone_number = phone_number.delete('^0-9')
           veteran_contact_information['phone_number'] = {
@@ -1914,8 +1914,8 @@ module PdfFill
 
         dependent_text = ''
         dependents_hash.each do |dependent|
-          dependent_name = combine_full_name(dependent.dig('full_name'))
-          dependent_income = dependent.dig(income_attr)
+          dependent_name = combine_full_name(dependent['full_name'])
+          dependent_income = dependent[income_attr]
           dependent_text += add_dependent_income(dependent_name, dependent_income)
         end
 

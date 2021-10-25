@@ -167,7 +167,7 @@ module ClaimsApi
     # We (ClaimsApi) require a date string that is then validated to be a valid date
     # Convert our validated date into the components required by EVSS
     def transform_disability_approximate_begin_dates
-      disabilities = form_data.dig('disabilities')
+      disabilities = form_data['disabilities']
 
       disabilities.map do |disability|
         next if disability['approximateBeginDate'].blank?
@@ -288,7 +288,7 @@ module ClaimsApi
     # EVSS requires disability names to be less than 255 characters and cannot contain special characters.
     # Rather than raise an exception to the user, massage the name into a valid state that EVSS will accept.
     def massage_invalid_disability_names
-      disabilities = form_data.dig('disabilities')
+      disabilities = form_data['disabilities']
       invalid_characters = %r{[^a-zA-Z0-9\\\-'\.,\/\(\) ]}
 
       disabilities.map do |disability|

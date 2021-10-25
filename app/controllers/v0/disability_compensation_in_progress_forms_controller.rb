@@ -22,7 +22,7 @@ module V0
 
       # If EVSS's list of rated disabilties does not match our prefilled rated disabilites
       if rated_disabilities_evss.present? &&
-         arr_to_compare(parsed_form_data.dig('ratedDisabilities')) !=
+         arr_to_compare(parsed_form_data['ratedDisabilities']) !=
          arr_to_compare(rated_disabilities_evss.rated_disabilities)
 
         if parsed_form_data['ratedDisabilities'].present? &&

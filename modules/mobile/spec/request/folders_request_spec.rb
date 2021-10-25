@@ -68,10 +68,10 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
             get '/mobile/v0/messaging/health/folders', headers: iam_headers, params: params
             expect(response).to be_successful
             expect(response.body).to be_a(String)
-            parsed_response_contents = response.parsed_body.dig('data')
-            folder = parsed_response_contents.select { |entry| entry.dig('id') == '-2' }[0]
+            parsed_response_contents = response.parsed_body['data']
+            folder = parsed_response_contents.select { |entry| entry['id'] == '-2' }[0]
             expect(folder.dig('attributes', 'name')).to eq('Drafts')
-            expect(folder.dig('type')).to eq('folders')
+            expect(folder['type']).to eq('folders')
             expect(response).to match_camelized_response_schema('folders')
           end.to trigger_statsd_increment('mobile.sm.cache.hit', times: 1)
         end
@@ -160,10 +160,10 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
             get "/mobile/v0/messaging/health/folders/#{inbox_id}/messages", headers: iam_headers, params: params
             expect(response).to be_successful
             expect(response.body).to be_a(String)
-            parsed_response_contents = response.parsed_body.dig('data')
-            message = parsed_response_contents.select { |entry| entry.dig('id') == '674220' }[0]
+            parsed_response_contents = response.parsed_body['data']
+            message = parsed_response_contents.select { |entry| entry['id'] == '674220' }[0]
             expect(message.dig('attributes', 'category')).to eq('MEDICATIONS')
-            expect(message.dig('type')).to eq('messages')
+            expect(message['type']).to eq('messages')
             expect(response).to match_camelized_response_schema('messages')
           end.to trigger_statsd_increment('mobile.sm.cache.hit', times: 1)
         end

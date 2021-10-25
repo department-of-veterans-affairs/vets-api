@@ -47,9 +47,9 @@ namespace :login do
     )
 
     validate(
-      user.loa.dig(:current) == 1,
+      user.loa[:current] == 1,
       'User has an LOA level of 1',
-      "This user is LOA1 but has an LOA level of #{user.loa.dig(:current)}"
+      "This user is LOA1 but has an LOA level of #{user.loa[:current]}"
     )
 
     validate(

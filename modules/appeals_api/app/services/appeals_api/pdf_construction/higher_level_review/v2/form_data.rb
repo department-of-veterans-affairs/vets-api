@@ -52,7 +52,7 @@ module AppealsApi
         def veteran_phone_line_number
           return if veteran_country_code != '1'
 
-          higher_level_review.veteran_phone_data.dig('phoneNumber')&.last(4)
+          higher_level_review.veteran_phone_data['phoneNumber']&.last(4)
         end
 
         def veteran_phone_international_number

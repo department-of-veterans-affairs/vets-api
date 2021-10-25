@@ -20,7 +20,7 @@ class HealthCareApplication < ApplicationRecord
   validates(:form_submission_id_string, :timestamp, presence: true, if: :success?)
 
   after_save(:send_failure_mail, if: proc do |hca|
-    hca.saved_change_to_attribute?(:state) && hca.failed? && hca.form.present? && hca.parsed_form.dig('email')
+    hca.saved_change_to_attribute?(:state) && hca.failed? && hca.form.present? && hca.parsed_form['email']
   end)
 
   def self.get_user_identifier(user)

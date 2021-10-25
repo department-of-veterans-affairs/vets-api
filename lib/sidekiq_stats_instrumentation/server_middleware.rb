@@ -8,7 +8,7 @@ module SidekiqStatsInstrumentation
       queue_name = worker.class.get_sidekiq_options['queue']
       worker_name = worker.class.name.gsub('::', '_')
       StatsD.increment "shared.sidekiq.#{queue_name}.#{worker_name}.dequeue"
-      source = job.dig('source')
+      source = job['source']
       RequestStore.store['additional_request_attributes'] ||= { 'source' => source } if source
       StatsD.measure("shared.sidekiq.#{queue_name}.#{worker_name}.runtime", &block)
     rescue => e

@@ -4,7 +4,7 @@ module BGS
   class DisabilityCompensationFormFlashes
     def initialize(user, form_content)
       @user = user
-      @form_content = form_content.dig('form526')
+      @form_content = form_content['form526']
       @flashes = []
     end
 
@@ -36,11 +36,11 @@ module BGS
     end
 
     def homeless?
-      @form_content.dig('homelessOrAtRisk') == 'homeless'
+      @form_content['homelessOrAtRisk'] == 'homeless'
     end
 
     def terminally_ill?
-      @form_content.dig('isTerminallyIll') == true
+      @form_content['isTerminallyIll'] == true
     end
 
     def over_85?
@@ -48,7 +48,7 @@ module BGS
     end
 
     def pow?
-      @form_content.dig('confinements').present?
+      @form_content['confinements'].present?
     end
   end
 end

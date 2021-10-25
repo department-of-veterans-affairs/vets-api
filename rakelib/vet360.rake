@@ -79,7 +79,7 @@ namespace :vet360 do
     ensure_data_var
 
     data = JSON.parse(ENV[ENV_VAR_NAME])
-    vet360_id = data.dig('vet360_id')
+    vet360_id = data['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
     email = VAProfile::Models::Email.build_from(data)
@@ -103,7 +103,7 @@ namespace :vet360 do
     ensure_data_var
 
     body = JSON.parse(ENV[ENV_VAR_NAME])
-    vet360_id = body.dig('vet360_id')
+    vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
     telephone = VAProfile::Models::Telephone.build_from(body)
@@ -129,7 +129,7 @@ namespace :vet360 do
     ensure_data_var
 
     body = JSON.parse(ENV[ENV_VAR_NAME])
-    vet360_id = body.dig('vet360_id')
+    vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
     address = VAProfile::Models::Address.build_from(body)
@@ -152,7 +152,7 @@ namespace :vet360 do
     ensure_data_var
 
     body = JSON.parse(ENV[ENV_VAR_NAME])
-    vet360_id = body.dig('vet360_id')
+    vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
     permission = VAProfile::Models::Permission.build_from(body)
@@ -178,7 +178,7 @@ namespace :vet360 do
     ensure_data_var
 
     body = JSON.parse(ENV[ENV_VAR_NAME])
-    vet360_id = body.dig('vet360_id')
+    vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
     email = VAProfile::Models::Email.build_from(body)
@@ -204,7 +204,7 @@ namespace :vet360 do
     ensure_data_var
 
     body = JSON.parse(ENV[ENV_VAR_NAME])
-    vet360_id = body.dig('vet360_id')
+    vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
     telephone = VAProfile::Models::Telephone.build_from(body)
@@ -228,7 +228,7 @@ namespace :vet360 do
     ensure_data_var
 
     body = JSON.parse(ENV[ENV_VAR_NAME])
-    vet360_id = body.dig('vet360_id')
+    vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
     address = VAProfile::Models::Address.build_from(body)
@@ -251,7 +251,7 @@ namespace :vet360 do
     ensure_data_var
 
     body = JSON.parse(ENV[ENV_VAR_NAME])
-    vet360_id = body.dig('vet360_id')
+    vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
     permission = VAProfile::Models::Permission.build_from(body)

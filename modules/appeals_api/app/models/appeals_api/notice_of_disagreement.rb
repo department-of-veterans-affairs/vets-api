@@ -90,7 +90,7 @@ module AppealsApi
     end
 
     def email
-      veteran_contact_info.dig('emailAddressText')
+      veteran_contact_info['emailAddressText']
     end
 
     def veteran_homeless?

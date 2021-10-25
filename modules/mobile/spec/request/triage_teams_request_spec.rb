@@ -44,10 +44,10 @@ RSpec.describe 'Mobile Triage Teams Integration', type: :request do
           get '/mobile/v0/messaging/health/recipients', headers: iam_headers, params: params
           expect(response).to be_successful
           expect(response.body).to be_a(String)
-          parsed_response_contents = response.parsed_body.dig('data')
-          triage_team = parsed_response_contents.select { |entry| entry.dig('id') == '153463' }[0]
+          parsed_response_contents = response.parsed_body['data']
+          triage_team = parsed_response_contents.select { |entry| entry['id'] == '153463' }[0]
           expect(triage_team.dig('attributes', 'name')).to eq('Automation Triage')
-          expect(triage_team.dig('type')).to eq('triage_teams')
+          expect(triage_team['type']).to eq('triage_teams')
           expect(response).to match_camelized_response_schema('triage_teams')
         end.to trigger_statsd_increment('mobile.sm.cache.hit', times: 1)
       end

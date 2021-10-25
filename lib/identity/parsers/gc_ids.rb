@@ -89,7 +89,7 @@ module Identity
       def select_icn_with_aaid(extension)
         return unless extension.is_a?(Array) && extension.present?
 
-        *identifiers_array, status = extension.first.dig(:extension).split(IDENTIFIERS_SPLIT_TOKEN)
+        *identifiers_array, status = extension.first[:extension].split(IDENTIFIERS_SPLIT_TOKEN)
         return unless status == 'P'
 
         identifiers_array.join(IDENTIFIERS_SPLIT_TOKEN)

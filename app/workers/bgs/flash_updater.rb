@@ -9,7 +9,7 @@ module BGS
       submission = Form526Submission.find(submission_id)
       ssn = submission.auth_headers['va_eauth_pnid']
       service = bgs_service(ssn).claimant
-      flashes = submission.form.dig(Form526Submission::FLASHES)
+      flashes = submission.form[Form526Submission::FLASHES]
 
       flashes.each do |flash_name|
         # NOTE: Assumption that duplicate flashes are ignored when submitted

@@ -69,7 +69,7 @@ RSpec.describe 'claims document upload', type: :request do
     post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
     expect(response.status).to eq(422)
     expect(
-      response.parsed_body.dig('errors').first.dig('title')
+      response.parsed_body['errors'].first['title']
     ).to eq(I18n.t('errors.messages.uploads.document_type_unknown'))
   end
 
@@ -90,7 +90,7 @@ RSpec.describe 'claims document upload', type: :request do
       params = { file: file, trackedItemId: tracked_item_id, documentType: document_type }
       post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
       expect(response.status).to eq(422)
-      expect(response.parsed_body.dig('errors').first.dig('title')).to eq('Unprocessable Entity')
+      expect(response.parsed_body['errors'].first['title']).to eq('Unprocessable Entity')
     end
   end
 
@@ -101,7 +101,7 @@ RSpec.describe 'claims document upload', type: :request do
       params = { file: locked_file, trackedItemId: tracked_item_id, documentType: document_type }
       post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
       expect(response.status).to eq(422)
-      expect(response.parsed_body.dig('errors').first.dig('title')).to eq(I18n.t('errors.messages.uploads.pdf.locked'))
+      expect(response.parsed_body['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.pdf.locked'))
     end
 
     it 'accepts locked PDFs with the correct password' do
@@ -116,7 +116,7 @@ RSpec.describe 'claims document upload', type: :request do
       post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
       expect(response.status).to eq(422)
       expect(
-        response.parsed_body.dig('errors').first.dig('title')
+        response.parsed_body['errors'].first['title']
       ).to eq(I18n.t('errors.messages.uploads.pdf.incorrect_password'))
     end
   end
@@ -134,7 +134,7 @@ RSpec.describe 'claims document upload', type: :request do
       post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
       expect(response.status).to eq(422)
       expect(
-        response.parsed_body.dig('errors').first.dig('title')
+        response.parsed_body['errors'].first['title']
       ).to eq(I18n.t('errors.messages.uploads.malformed_pdf'))
     end
   end
@@ -147,7 +147,7 @@ RSpec.describe 'claims document upload', type: :request do
       post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
       expect(response.status).to eq(422)
       expect(
-        response.parsed_body.dig('errors').first.dig('detail')
+        response.parsed_body['errors'].first['detail']
       ).to eq(I18n.t('errors.messages.min_size_error', min_size: '1 Byte'))
     end
   end
@@ -165,7 +165,7 @@ RSpec.describe 'claims document upload', type: :request do
       post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
       expect(response.status).to eq(422)
       expect(
-        response.parsed_body.dig('errors').first.dig('title')
+        response.parsed_body['errors'].first['title']
       ).to eq(I18n.t('errors.messages.uploads.ascii_encoded'))
     end
   end
@@ -201,7 +201,7 @@ RSpec.describe 'claims document upload', type: :request do
       post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
       expect(response.status).to eq(422)
       expect(
-        response.parsed_body.dig('errors').first.dig('title')
+        response.parsed_body['errors'].first['title']
       ).to eq(I18n.t('errors.messages.uploads.ascii_encoded'))
     end
   end

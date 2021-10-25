@@ -12,7 +12,7 @@ class AppealSubmission < ApplicationRecord
   def self.submit_nod(request_body_hash:, current_user:)
     appeal_submission = new(type_of_appeal: 'NOD',
                             user_uuid: current_user.uuid,
-                            board_review_option: request_body_hash.dig('data')['attributes']['boardReviewOption'],
+                            board_review_option: request_body_hash['data']['attributes']['boardReviewOption'],
                             upload_metadata: DecisionReview::Service.file_upload_metadata(current_user))
 
     uploads_arr = request_body_hash.delete('nodUploads')

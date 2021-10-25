@@ -442,7 +442,7 @@ module ClaimsApi
         end
 
         def validate_form_526_disability_approximate_begin_date!
-          disabilities = form_attributes.dig('disabilities')
+          disabilities = form_attributes['disabilities']
           return if disabilities.blank?
 
           disabilities.each do |disability|
@@ -456,7 +456,7 @@ module ClaimsApi
         end
 
         def validate_form_526_special_issues!
-          disabilities = form_attributes.dig('disabilities')
+          disabilities = form_attributes['disabilities']
           return if disabilities.blank?
 
           disabilities.each do |disability|
@@ -489,7 +489,7 @@ module ClaimsApi
         end
 
         def validate_form_526_treatments!
-          treatments = form_attributes.dig('treatments')
+          treatments = form_attributes['treatments']
           return if treatments.blank?
 
           validate_treatment_start_dates!
@@ -498,7 +498,7 @@ module ClaimsApi
         end
 
         def validate_treatment_start_dates!
-          treatments = form_attributes.dig('treatments')
+          treatments = form_attributes['treatments']
           return if treatments.blank?
 
           earliest_begin_date = form_attributes['serviceInformation']['servicePeriods'].map do |service_period|
@@ -513,7 +513,7 @@ module ClaimsApi
         end
 
         def validate_treatment_end_dates!
-          treatments = form_attributes.dig('treatments')
+          treatments = form_attributes['treatments']
           return if treatments.blank?
 
           treatments.each do |treatment|
@@ -529,7 +529,7 @@ module ClaimsApi
         end
 
         def validate_treated_disability_names!
-          treatments = form_attributes.dig('treatments')
+          treatments = form_attributes['treatments']
           return if treatments.blank?
 
           declared_disability_names = form_attributes['disabilities'].pluck('name').map(&:strip).map(&:downcase)

@@ -41,15 +41,15 @@ module AppealsApi
     end
 
     def veteran_first_name
-      auth_headers.dig('X-VA-First-Name')
+      auth_headers['X-VA-First-Name']
     end
 
     def veteran_middle_initial
-      auth_headers.dig('X-VA-Middle-Initial')
+      auth_headers['X-VA-Middle-Initial']
     end
 
     def veteran_last_name
-      auth_headers.dig('X-VA-Last-Name')
+      auth_headers['X-VA-Last-Name']
     end
 
     def full_name
@@ -57,11 +57,11 @@ module AppealsApi
     end
 
     def ssn
-      auth_headers.dig('X-VA-SSN')
+      auth_headers['X-VA-SSN']
     end
 
     def file_number
-      auth_headers.dig('X-VA-File-Number')
+      auth_headers['X-VA-File-Number']
     end
 
     def veteran_dob_month
@@ -77,11 +77,11 @@ module AppealsApi
     end
 
     def veteran_service_number
-      auth_headers.dig('X-VA-Service-Number')
+      auth_headers['X-VA-Service-Number']
     end
 
     def insurance_policy_number
-      auth_headers.dig('X-VA-Insurance-Policy-Number')
+      auth_headers['X-VA-Insurance-Policy-Number']
     end
 
     def mailing_address_number_and_street
@@ -137,7 +137,7 @@ module AppealsApi
     end
 
     def contestable_issues
-      issues = form_data.dig('included') || []
+      issues = form_data['included'] || []
 
       @contestable_issues ||= issues.map do |issue|
         AppealsApi::ContestableIssue.new(issue)

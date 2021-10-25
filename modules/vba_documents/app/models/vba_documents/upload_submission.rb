@@ -225,7 +225,7 @@ module VBADocuments
 
     def get_complete_status(response_object)
       new_status = nil
-      packets = response_object.dig('packets')
+      packets = response_object['packets']
       if packets
         if packets.any? { |i| i['completedReason'].eql? COMPLETED_UNIDENTIFIABLE_MAIL }
           new_status = 'error'

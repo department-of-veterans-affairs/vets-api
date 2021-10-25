@@ -10,12 +10,12 @@ module CheckIn
 
       attribute :payload do |object|
         appointments =
-          object.payload.dig(:appointments).map do |appt|
+          object.payload[:appointments].map do |appt|
             appt.except!(:patientDFN, :stationNo)
           end
 
         if Flipper.enabled?(:check_in_experience_demographics_page_enabled)
-          raw_demographics = object.payload.dig(:demographics)
+          raw_demographics = object.payload[:demographics]
           demographics = {
             mailingAddress: {
               street1: raw_demographics.dig(:mailingAddress, :street1),

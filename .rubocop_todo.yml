@@ -425,11 +425,6 @@ Style/RedundantSelfAssignmentBranch:
     - 'modules/mobile/app/controllers/mobile/v0/messages_controller.rb'
     - 'spec/support/authenticated_session_helper.rb'
 
-# Offense count: 134
-# Cop supports --auto-correct.
-Style/SingleArgumentDig:
-  Enabled: false
-
 # Offense count: 135
 # Cop supports --auto-correct.
 # Configuration parameters: Mode.

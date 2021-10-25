@@ -9,11 +9,11 @@ module CheckIn
       set_type :appointment_identifier
 
       attribute :patientDFN do |object|
-        object.payload.dig(:appointments).first[:patientDFN]
+        object.payload[:appointments].first[:patientDFN]
       end
 
       attribute :stationNo do |object|
-        object.payload.dig(:appointments).first[:stationNo]
+        object.payload[:appointments].first[:stationNo]
       end
     end
   end

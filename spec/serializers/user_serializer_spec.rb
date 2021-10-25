@@ -18,38 +18,38 @@ RSpec.describe UserSerializer do
   end
 
   it 'returns serialized #services data' do
-    expect(attributes.dig('services')).to be_present
+    expect(attributes['services']).to be_present
   end
 
   it 'returns serialized #account data' do
-    expect(attributes.dig('account')).to be_present
+    expect(attributes['account']).to be_present
   end
 
   it 'returns serialized #profile data' do
-    expect(attributes.dig('profile')).to be_present
+    expect(attributes['profile']).to be_present
   end
 
   it 'returns serialized #va_profile data' do
-    expect(attributes.dig('va_profile')).to be_present
+    expect(attributes['va_profile']).to be_present
   end
 
   it 'returns serialized #veteran_status data' do
-    expect(attributes.dig('veteran_status')).to be_present
+    expect(attributes['veteran_status']).to be_present
   end
 
   it 'returns serialized #in_progress_forms data' do
-    expect(attributes.dig('in_progress_forms')).to be_present
+    expect(attributes['in_progress_forms']).to be_present
   end
 
   it 'returns serialized #prefills_available data' do
-    expect(attributes.dig('prefills_available')).to be_present
+    expect(attributes['prefills_available']).to be_present
   end
 
   it 'returns serialized #vet360_contact_information data' do
-    expect(attributes.dig('vet360_contact_information')).to be_present
+    expect(attributes['vet360_contact_information']).to be_present
   end
 
   it 'returns serialized #session data' do
-    expect(attributes.dig('session')).to be_present
+    expect(attributes['session']).to be_present
   end
 end

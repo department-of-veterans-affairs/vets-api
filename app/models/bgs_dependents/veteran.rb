@@ -22,7 +22,7 @@ module BGSDependents
         ['first', first_name],
         ['middle', middle_name],
         ['last', last_name],
-        *dependents_application.dig('veteran_contact_information'),
+        *dependents_application['veteran_contact_information'],
         *dependents_application.dig('veteran_contact_information', 'veteran_address'),
         %w[vet_ind Y]
       ]

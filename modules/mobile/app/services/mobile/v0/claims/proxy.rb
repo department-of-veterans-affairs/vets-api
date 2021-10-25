@@ -38,7 +38,7 @@ module Mobile
 
         def get_appeal(id)
           appeals = appeals_service.get_appeals(@user).body['data']
-          appeal = appeals.filter { |entry| entry.dig('id') == id }[0]
+          appeal = appeals.filter { |entry| entry['id'] == id }[0]
           raise Common::Exceptions::RecordNotFound, id unless appeal
 
           serializable_resource = OpenStruct.new(appeal['attributes'])

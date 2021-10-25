@@ -107,7 +107,7 @@ module AppealsApi
           end
 
           describe '#contestable_issues' do
-            it { expect(form_data.contestable_issues).to eq(notice_of_disagreement.form_data.dig('included')) }
+            it { expect(form_data.contestable_issues).to eq(notice_of_disagreement.form_data['included']) }
           end
 
           describe '#stamp_text' do

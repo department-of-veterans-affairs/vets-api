@@ -11,15 +11,15 @@ describe AppealsApi::SupplementalClaim, type: :model do
     let(:supplemental_claim) { create(:supplemental_claim) }
 
     describe 'veteran_first_name' do
-      it { expect(supplemental_claim.veteran_first_name).to eq(auth_headers.dig('X-VA-First-Name')) }
+      it { expect(supplemental_claim.veteran_first_name).to eq(auth_headers['X-VA-First-Name']) }
     end
 
     describe 'veteran_middle_initial' do
-      it { expect(supplemental_claim.veteran_middle_initial).to eq(auth_headers.dig('X-VA-Middle-Initial')) }
+      it { expect(supplemental_claim.veteran_middle_initial).to eq(auth_headers['X-VA-Middle-Initial']) }
     end
 
     describe 'veteran_last_name' do
-      it { expect(supplemental_claim.veteran_last_name).to eq(auth_headers.dig('X-VA-Last-Name')) }
+      it { expect(supplemental_claim.veteran_last_name).to eq(auth_headers['X-VA-Last-Name']) }
     end
 
     describe 'full_name' do
@@ -27,11 +27,11 @@ describe AppealsApi::SupplementalClaim, type: :model do
     end
 
     describe 'ssn' do
-      it { expect(supplemental_claim.ssn).to eq(auth_headers.dig('X-VA-SSN')) }
+      it { expect(supplemental_claim.ssn).to eq(auth_headers['X-VA-SSN']) }
     end
 
     describe 'file_number' do
-      it { expect(supplemental_claim.file_number).to eq(auth_headers.dig('X-VA-File-Number')) }
+      it { expect(supplemental_claim.file_number).to eq(auth_headers['X-VA-File-Number']) }
     end
 
     describe 'veteran_dob_month' do
@@ -47,15 +47,15 @@ describe AppealsApi::SupplementalClaim, type: :model do
     end
 
     describe 'veteran_service_number' do
-      it { expect(supplemental_claim.veteran_service_number).to eq(auth_headers.dig('X-VA-Service-Number')) }
+      it { expect(supplemental_claim.veteran_service_number).to eq(auth_headers['X-VA-Service-Number']) }
     end
 
     describe 'consumer_name' do
-      it { expect(supplemental_claim.consumer_name).to eq(auth_headers.dig('X-Consumer-Username')) }
+      it { expect(supplemental_claim.consumer_name).to eq(auth_headers['X-Consumer-Username']) }
     end
 
     describe 'consumer_id' do
-      it { expect(supplemental_claim.consumer_id).to eq(auth_headers.dig('X-Consumer-ID')) }
+      it { expect(supplemental_claim.consumer_id).to eq(auth_headers['X-Consumer-ID']) }
     end
   end
 
