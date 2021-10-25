@@ -41,7 +41,17 @@
               "additionalProperties": false,
               "properties": {
                 "informalConference": { "type": "boolean" },
-                "benefitType":        { "type":  "string", "enum":  ["compensation"] },
+                "benefitType": { "type": "string", "enum": [
+                  "compensation",
+                  "pensionSurvivorsBenefits",
+                  "fiduciary",
+                  "lifeInsurance",
+                  "veteransHealthAdministration",
+                  "veteranReadinessAndEmployment",
+                  "loanGuaranty",
+                  "education",
+                  "nationalCemeteryAdministration"
+                ] },
                 "veteran": {
                   "type": "object",
                   "properties": {

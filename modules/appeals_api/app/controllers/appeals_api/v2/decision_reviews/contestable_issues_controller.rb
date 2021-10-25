@@ -105,7 +105,11 @@ module AppealsApi::V2
       end
 
       def benefit_type
-        params[:benefit_type].to_s
+        if params[:decision_review_type] == 'notice_of_disagreements'
+          ''
+        else
+          caseflow_benefit_type_mapping[params[:benefit_type].to_s]
+        end
       end
 
       def validate_params
@@ -114,21 +118,11 @@ module AppealsApi::V2
             "decision_review_type must be one of: #{VALID_DECISION_REVIEW_TYPES.join(', ')}"
           )
         end
-
-        if benefit_type_needed_and_missing?
-          render_unprocessable_entity(
-            'benefit_type required for Higher Level Review'
-          )
-        end
       end
 
       def invalid_decision_review_type?
         raw_decision_review_type = params[:decision_review_type]
         !raw_decision_review_type.in?(VALID_DECISION_REVIEW_TYPES)
-      end
-
-      def benefit_type_needed_and_missing?
-        decision_review_type == 'higher_level_reviews' && benefit_type.empty?
       end
 
       def render_unprocessable_entity(message)
@@ -158,6 +152,20 @@ module AppealsApi::V2
           SCHEMA_ERROR_TYPE,
           schema_version: 'v2'
         ).validate!('CONTESTABLE_ISSUES_HEADERS', request_headers)
+      end
+
+      def caseflow_benefit_type_mapping
+        {
+          'compensation' => 'compensation',
+          'pensionSurvivorsBenefits' => 'pension',
+          'fiduciary' => 'fiduciary',
+          'lifeInsurance' => 'insurance',
+          'veteransHealthAdministration' => 'vha',
+          'veteranReadinessAndEmployment' => 'voc_rehab',
+          'loanGuaranty' => 'loan_guaranty',
+          'education' => 'education',
+          'nationalCemeteryAdministration' => 'nca'
+        }
       end
     end
   end

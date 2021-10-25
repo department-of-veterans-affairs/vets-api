@@ -14,6 +14,14 @@
     {
       "name": "Notice of Disagreements",
       "description": ""
+    },
+    {
+      "name": "Contestable Issues",
+      "description": ""
+    },
+    {
+      "name": "Legacy Appeals",
+      "description": ""
     }
   ],
   "components": {
@@ -1757,6 +1765,63 @@
           "data"
         ]
       },
+      "legacyAppeal": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "legacyAppeal"
+          },
+          "id": {
+            "type": "string",
+            "description": "ID from VACOLS (Veteran Appeals Control and Locator Service)",
+            "example": "3085659"
+          },
+          "attributes": {
+            "type": "object",
+            "properties": {
+              "issues": {
+                "type": "array",
+                "description": "Issues on the Appeal.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "summary": {
+                      "type": "string",
+                      "description": "Summary of a single Issue.",
+                      "example": "Service connection, hearing loss"
+                    }
+                  }
+                }
+              },
+              "veteranFullName": {
+                "type": "string",
+                "example": "Junior L Fritsch"
+              },
+              "decisionDate": {
+                "type": "string",
+                "description": "Date of the Appeal's original decision.",
+                "example": "2018-09-28T00:00:00.000Z"
+              },
+              "latestSocSsocDate": {
+                "type": "string",
+                "description": "Date of the Appeal's most recent SOC/SSOC (Statement of Case/Supplemental Statement of Case)",
+                "example": "2018-12-29T00:00:00.000Z"
+              }
+            }
+          }
+        }
+      },
+      "legacyAppeals": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/legacyAppeal"
+            }
+          }
+        }
+      },
       "nodCreateHeadersDate": {
         "type": "string",
         "pattern": "^[0-9]{4}(-[0-9]{2}){2}$"
@@ -2994,6 +3059,266 @@
     }
   },
   "paths": {
+    "/contestable_issues/{decision_review_type}": {
+      "get": {
+        "summary": "Returns all contestable issues for a specific veteran.",
+        "tags": [
+          "Contestable Issues"
+        ],
+        "operationId": "getContestableIssues",
+        "description": "Returns all issues associated with a Veteran that have not previously been decided as of the `receiptDate`. Not all issues returned are guaranteed to be eligible for appeal.",
+        "security": [
+          {
+            "apikey": [
+
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "decision_review_type",
+            "in": "path",
+            "required": true,
+            "description": "Scoping of appeal type for associated issues",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "benefit_type",
+            "in": "query",
+            "description": "Benefit Type for the appeal. Required if Decision Review is a Higher Level Review.",
+            "enum": [
+              "compensation",
+              "pensionSurvivorsBenefits",
+              "fiduciary",
+              "lifeInsurance",
+              "veteransHealthAdministration",
+              "veteranReadinessAndEmployment",
+              "loanGuaranty",
+              "education",
+              "nationalCemeteryAdministration"
+            ],
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-SSN",
+            "required": true,
+            "description": "Veteran's SSN",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-Receipt-Date",
+            "required": true,
+            "description": "(yyyy-mm-dd) In order to determine contestability of issues, the receipt date of a hypothetical Decision Review must be specified.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-File-Number",
+            "required": false,
+            "description": "Veteran's file number",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "JSON:API response returning all contestable issues for a specific veteran.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "type": "contestableIssue",
+                      "attributes": {
+                        "ratingIssueSubjectText": "right knee",
+                        "ratingIssueReferenceId": "826209920000",
+                        "ratingIssueProfileDate": "2019-02-22",
+                        "ratingIssueDiagnosticCode": null,
+                        "description": "Right knee",
+                        "isRating": true,
+                        "latestIssuesInChain": [
+                          {
+                            "id": null,
+                            "approxDecisionDate": "2019-02-26"
+                          }
+                        ],
+                        "decisionIssueId": null,
+                        "ratingDecisionReferenceId": null,
+                        "approxDecisionDate": "2019-02-26",
+                        "rampClaimId": null,
+                        "titleOfActiveReview": null,
+                        "sourceReviewType": null,
+                        "timely": true
+                      }
+                    },
+                    {
+                      "type": "contestableIssue",
+                      "attributes": {
+                        "ratingIssueSubjectText": "ptsd",
+                        "ratingIssueReferenceId": "826209441170",
+                        "ratingIssueProfileDate": "2019-02-22",
+                        "ratingIssueDiagnosticCode": null,
+                        "description": "PTSD",
+                        "isRating": true,
+                        "latestIssuesInChain": [
+                          {
+                            "id": null,
+                            "approxDecisionDate": "2019-02-25"
+                          }
+                        ],
+                        "decisionIssueId": null,
+                        "ratingDecisionReferenceId": null,
+                        "approxDecisionDate": "2019-02-25",
+                        "rampClaimId": null,
+                        "titleOfActiveReview": null,
+                        "sourceReviewType": null,
+                        "timely": true
+                      }
+                    },
+                    {
+                      "type": "contestableIssue",
+                      "attributes": {
+                        "ratingIssueSubjectText": "left knee",
+                        "ratingIssueReferenceId": "826209597423",
+                        "ratingIssueProfileDate": "2019-02-22",
+                        "ratingIssueDiagnosticCode": null,
+                        "description": "Left knee",
+                        "isRating": true,
+                        "latestIssuesInChain": [
+                          {
+                            "id": null,
+                            "approxDecisionDate": "2019-02-24"
+                          }
+                        ],
+                        "decisionIssueId": null,
+                        "ratingDecisionReferenceId": null,
+                        "approxDecisionDate": "2019-02-24",
+                        "rampClaimId": null,
+                        "titleOfActiveReview": null,
+                        "sourceReviewType": null,
+                        "timely": true
+                      }
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/contestableIssues"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Veteran not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "status": "404",
+                      "title": "Veteran not found",
+                      "detail": "A veteran with that SSN was not found in our systems."
+                    }
+                  ],
+                  "code": 404,
+                  "source": "Appeals Caseflow"
+                },
+                "schema": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "integer",
+                              "enum": [
+                                404
+                              ]
+                            },
+                            "detail": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Parameter Errors",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "decision_review_type must be one of: higher_level_reviews, notice_of_disagreements, supplemental_claims": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Unprocessable Entity",
+                          "code": "unprocessable_entity",
+                          "detail": "decision_review_type must be one of: higher_level_reviews, notice_of_disagreements, supplemental_claims",
+                          "status": "422"
+                        }
+                      ]
+                    }
+                  },
+                  "Bad receipt date for  HLR": {
+                    "value": {
+                      "errors": [
+                        {
+                          "status": "422",
+                          "code": "invalid_receipt_date",
+                          "title": "Invalid Receipt Date",
+                          "detail": "\"2019-02-18\" is before AMA Activation Date (2019-02-19)."
+                        }
+                      ],
+                      "code": 422,
+                      "source": "Appeals Caseflow"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Unknown error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Bad Gateway",
+                      "detail": "Received a 500 response from the upstream server",
+                      "code": "CASEFLOWSTATUS500",
+                      "source": "Appeals Caseflow",
+                      "status": "502"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/higher_level_reviews": {
       "post": {
         "summary": "Creates a new Higher-Level Review",
@@ -3101,12 +3426,12 @@
                   "minimum fields used": {
                     "value": {
                       "data": {
-                        "id": "f75df4fb-be91-46a1-8cea-4a90c88629de",
+                        "id": "632ca507-e7bb-4219-b5bf-2e783df594e6",
                         "type": "higherLevelReview",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2021-10-01T18:48:57.766Z",
-                          "createdAt": "2021-10-01T18:48:57.766Z",
+                          "updatedAt": "2021-10-21T15:50:53.854Z",
+                          "createdAt": "2021-10-21T15:50:53.854Z",
                           "formData": {
                             "data": {
                               "type": "higherLevelReview",
@@ -3142,12 +3467,12 @@
                   "all fields used": {
                     "value": {
                       "data": {
-                        "id": "dcfb3678-4607-4d08-8866-98c2e78cafc0",
+                        "id": "dc8db2ad-69e9-4e82-a4da-e5e8557e48ed",
                         "type": "higherLevelReview",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2021-10-01T18:48:57.846Z",
-                          "createdAt": "2021-10-01T18:48:57.846Z",
+                          "updatedAt": "2021-10-21T15:50:53.912Z",
+                          "createdAt": "2021-10-21T15:50:53.912Z",
                           "formData": {
                             "data": {
                               "type": "higherLevelReview",
@@ -3322,34 +3647,40 @@
                     "data": {
                       "type": "higherLevelReview",
                       "attributes": {
-                        "informalConference": true,
                         "benefitType": "compensation",
                         "veteran": {
+                          "homeless": true,
                           "address": {
-                            "addressLine1": "123 Somestreet",
-                            "city": "Sometown",
+                            "addressLine1": "123 Main St",
+                            "addressLine2": "Suite #1200",
+                            "addressLine3": "Box 4",
+                            "city": "New York",
                             "countryCodeISO2": "US",
-                            "zipCode5": "66002"
+                            "stateCode": "NY",
+                            "zipCode5": "30012"
                           },
                           "phone": {
-                            "countryCode": "1",
+                            "countryCode": "34",
                             "areaCode": "555",
-                            "phoneNumber": "8001111"
+                            "phoneNumber": "8001111",
+                            "phoneNumberExt": "2"
                           },
-                          "email": "josie@example.com",
-                          "timezone": "America/Chicago",
-                          "homeless": false
+                          "email": "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789_123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789_12345678901234567890@bobbytablesemail.com",
+                          "timezone": "America/Chicago"
                         },
                         "socOptIn": true,
+                        "informalConference": true,
                         "informalConferenceContact": "veteran",
                         "informalConferenceTime": "800-1200 ET",
                         "informalConferenceRep": {
                           "firstName": "Helen",
                           "lastName": "Holly",
+                          "email": "987654321098765432109876543210987654321098765432109876543210987654321098765432109876543210987654321_987654321098765432109876543210987654321098765432109876543210987654321098765432109876543210987654321_98765432109876543210@hellohellenholly.com",
                           "phone": {
-                            "countryCode": "6",
+                            "countryCode": "1",
                             "areaCode": "555",
-                            "phoneNumber": "8001111"
+                            "phoneNumber": "8001111",
+                            "phoneNumberExt": "2"
                           }
                         }
                       }
@@ -3370,42 +3701,36 @@
                       {
                         "type": "contestableIssue",
                         "attributes": {
-                          "issue": "left knee",
-                          "decisionDate": "1900-01-02",
-                          "decisionIssueId": 4,
-                          "ratingIssueReferenceId": "5"
+                          "issue": "left eye",
+                          "decisionDate": "1900-01-02"
                         }
                       },
                       {
                         "type": "contestableIssue",
                         "attributes": {
-                          "issue": "right knee",
-                          "decisionDate": "1900-01-03",
-                          "ratingIssueReferenceId": "6",
-                          "ratingDecisionReferenceId": "7"
+                          "issue": "right eye",
+                          "decisionDate": "1900-01-03"
                         }
                       },
                       {
                         "type": "contestableIssue",
                         "attributes": {
-                          "issue": "PTSD",
+                          "issue": "left ear",
                           "decisionDate": "1900-01-04",
-                          "decisionIssueId": 8,
-                          "ratingDecisionReferenceId": "9"
+                          "socDate": "2019-05-15"
                         }
                       },
                       {
                         "type": "contestableIssue",
                         "attributes": {
-                          "issue": "Traumatic Brain Injury",
-                          "decisionDate": "1900-01-05",
-                          "decisionIssueId": 10
+                          "issue": "right ear",
+                          "decisionDate": "1900-01-05"
                         }
                       },
                       {
                         "type": "contestableIssue",
                         "attributes": {
-                          "issue": "right shoulder",
+                          "issue": "migraines",
                           "decisionDate": "1900-01-06"
                         }
                       },
@@ -3518,12 +3843,12 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "32d80a9d-1bd5-4fb5-8308-67c2cbf58402",
+                    "id": "235e9387-5990-4f22-9e36-96d6cab2658c",
                     "type": "higherLevelReview",
                     "attributes": {
                       "status": "pending",
-                      "updatedAt": "2021-10-01T18:48:57.951Z",
-                      "createdAt": "2021-10-01T18:48:57.951Z",
+                      "updatedAt": "2021-10-21T15:50:53.988Z",
+                      "createdAt": "2021-10-21T15:50:53.988Z",
                       "formData": {
                         "data": {
                           "type": "higherLevelReview",
@@ -4075,7 +4400,15 @@
                                 "benefitType": {
                                   "type": "string",
                                   "enum": [
-                                    "compensation"
+                                    "compensation",
+                                    "pensionSurvivorsBenefits",
+                                    "fiduciary",
+                                    "lifeInsurance",
+                                    "veteransHealthAdministration",
+                                    "veteranReadinessAndEmployment",
+                                    "loanGuaranty",
+                                    "education",
+                                    "nationalCemeteryAdministration"
                                   ]
                                 },
                                 "veteran": {
@@ -5493,6 +5826,189 @@
         }
       }
     },
+    "/legacy_appeals": {
+      "get": {
+        "summary": "Returns eligible appeals in the legacy process for a Veteran.",
+        "tags": [
+          "Legacy Appeals"
+        ],
+        "operationId": "getLegacyAppeals",
+        "security": [
+          {
+            "apikey": [
+
+            ]
+          }
+        ],
+        "description": "Returns eligible legacy appeals for a Veteran. A legacy appeal is eligible if a statement of the case (SOC)  or supplemental statement of the case (SSOC) has been declared, and if the date of declaration is within the last 60 days.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-VA-SSN",
+            "required": false,
+            "description": "Either X-VA-SSN or X-VA-File-Number is required. Example X-VA-SSN: 123456789",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-File-Number",
+            "required": false,
+            "description": "Either X-VA-SSN or X-VA-File-Number is required. Example X-VA-File-Number: 123456789",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns eligible legacy appeals for a Veteran",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "id": "2760964",
+                      "type": "legacyAppeal",
+                      "attributes": {
+                        "issues": [
+                          {
+                            "summary": "Service connection, pancreatitis"
+                          }
+                        ],
+                        "veteranFullName": "Elda Z Quigley",
+                        "decisionDate": "2021-05-04T00:00:00.000Z",
+                        "latestSocSsocDate": "2021-06-12"
+                      }
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/legacyAppeals"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Veteran record not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "status": 404,
+                      "code": "veteran_not_found",
+                      "title": "Veteran Not Found"
+                    }
+                  ],
+                  "code": 404,
+                  "source": "Appeals Caseflow"
+                },
+                "schema": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "integer",
+                              "enum": [
+                                404
+                              ]
+                            },
+                            "detail": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Header Errors",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "when X-VA-SSN and X-VA-File-Number are missing": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Invalid length",
+                          "detail": "'' did not fit within the defined length limits",
+                          "code": "142",
+                          "source": {
+                            "pointer": "/X-VA-SSN"
+                          },
+                          "status": "422",
+                          "meta": {
+                            "max_length": 9,
+                            "min_length": 9
+                          }
+                        },
+                        {
+                          "title": "Invalid pattern",
+                          "detail": "'' did not match the defined pattern",
+                          "code": "143",
+                          "source": {
+                            "pointer": "/X-VA-SSN"
+                          },
+                          "status": "422",
+                          "meta": {
+                            "regex": "^[0-9]{9}$"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "when ssn formatted incorrectly": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Invalid length",
+                          "detail": "'12n-~89' did not fit within the defined length limits",
+                          "code": "142",
+                          "source": {
+                            "pointer": "/X-VA-SSN"
+                          },
+                          "status": "422",
+                          "meta": {
+                            "max_length": 9,
+                            "min_length": 9
+                          }
+                        },
+                        {
+                          "title": "Invalid pattern",
+                          "detail": "'12n-~89' did not match the defined pattern",
+                          "code": "143",
+                          "source": {
+                            "pointer": "/X-VA-SSN"
+                          },
+                          "status": "422",
+                          "meta": {
+                            "regex": "^[0-9]{9}$"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/notice_of_disagreements": {
       "post": {
         "summary": "Creates a new Notice of Disagreement",
@@ -5591,12 +6107,12 @@
                   "minimum fields used": {
                     "value": {
                       "data": {
-                        "id": "f27c228b-fb14-4558-b26c-2f8b13f80f0e",
+                        "id": "1ab7810d-5823-4d74-a01b-03262b019800",
                         "type": "noticeOfDisagreement",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2021-10-01T18:48:58.861Z",
-                          "createdAt": "2021-10-01T18:48:58.861Z",
+                          "updatedAt": "2021-10-21T15:50:55.093Z",
+                          "createdAt": "2021-10-21T15:50:55.093Z",
                           "formData": {
                             "data": {
                               "type": "noticeOfDisagreement",
@@ -5637,12 +6153,12 @@
                   "all fields used": {
                     "value": {
                       "data": {
-                        "id": "0d3b689e-f538-4bf4-b855-bb558d38f209",
+                        "id": "1fef2c8a-0735-40b2-8b99-3845ac3f4a58",
                         "type": "noticeOfDisagreement",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2021-10-01T18:48:58.936Z",
-                          "createdAt": "2021-10-01T18:48:58.936Z",
+                          "updatedAt": "2021-10-21T15:50:55.147Z",
+                          "createdAt": "2021-10-21T15:50:55.147Z",
                           "formData": {
                             "data": {
                               "type": "noticeOfDisagreement",
@@ -5938,12 +6454,12 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "63ba0a86-74b1-401a-8488-97f54a5e5a2a",
+                    "id": "8f75c5f7-d342-432e-9795-e83a784a42e9",
                     "type": "noticeOfDisagreement",
                     "attributes": {
                       "status": "pending",
-                      "updatedAt": "2021-10-01T18:48:59.037Z",
-                      "createdAt": "2021-10-01T18:48:59.037Z",
+                      "updatedAt": "2021-10-21T15:50:55.211Z",
+                      "createdAt": "2021-10-21T15:50:55.211Z",
                       "formData": {
                         "data": {
                           "type": "noticeOfDisagreement",
@@ -7509,17 +8025,17 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7789a32f-c5e7-4d73-b928-2789e7683910",
+                    "id": "f90cd1b8-cf8a-46f5-82ff-b889486dcfa0",
                     "type": "evidenceSubmission",
                     "attributes": {
                       "status": "pending",
                       "code": null,
                       "detail": null,
                       "appealType": "NoticeOfDisagreement",
-                      "appealId": "0cc53264-826e-40cc-a0ec-76dbcc5e8c49",
-                      "location": "http://another.fakesite.com/rewrittenpath/uuid",
-                      "createdAt": "2021-10-01T18:48:59.580Z",
-                      "updatedAt": "2021-10-01T18:48:59.580Z"
+                      "appealId": "7ec1ce3b-3d8c-47e6-a91f-e0a6078624f1",
+                      "location": "http://some.fakesite.com/path/uuid",
+                      "createdAt": "2021-10-21T15:50:55.626Z",
+                      "updatedAt": "2021-10-21T15:50:55.626Z"
                     }
                   }
                 },
@@ -7774,17 +8290,17 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "223dc1ae-a375-403d-bfe0-4b5da62e3e3a",
+                    "id": "1127bd67-55b7-4841-a575-47e985cfa31e",
                     "type": "evidenceSubmission",
                     "attributes": {
                       "status": "pending",
                       "code": null,
                       "detail": null,
                       "appealType": "NoticeOfDisagreement",
-                      "appealId": "af9bb3b0-d0aa-417f-a744-e6878fd2b8ed",
+                      "appealId": "6cf16dde-905a-45a9-9991-05bc44fbec17",
                       "location": null,
-                      "createdAt": "2021-10-01T18:48:59.901Z",
-                      "updatedAt": "2021-10-01T18:48:59.901Z"
+                      "createdAt": "2021-10-21T15:50:55.837Z",
+                      "updatedAt": "2021-10-21T15:50:55.837Z"
                     }
                   }
                 },

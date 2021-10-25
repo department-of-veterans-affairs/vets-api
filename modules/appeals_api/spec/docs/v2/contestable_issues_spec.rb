@@ -28,7 +28,19 @@ describe 'Contestable Issues', swagger_doc: 'modules/appeals_api/app/swagger/app
 
       parameter name: :decision_review_type, in: :path, required: true, type: :string, description: 'Scoping of appeal type for associated issues'
       let(:decision_review_type) { 'notice_of_disagreements' }
-      parameter name: :benefit_type, in: :query, type: :string, description: 'Benefit Type for the appeal. Required if Decision Review is a Higher Level Review.'
+      parameter name: :benefit_type, in: :query, type: :string,
+                description: 'Benefit Type for the appeal. Required if Decision Review is a Higher Level Review.',
+                enum: %w[
+                  compensation
+                  pensionSurvivorsBenefits
+                  fiduciary
+                  lifeInsurance
+                  veteransHealthAdministration
+                  veteranReadinessAndEmployment
+                  loanGuaranty
+                  education
+                  nationalCemeteryAdministration
+                ]
       let(:benefit_type) { '' }
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_ssn_header]
@@ -91,34 +103,6 @@ describe 'Contestable Issues', swagger_doc: 'modules/appeals_api/app/swagger/app
       end
 
       response '422', 'Parameter Errors' do
-        context 'benefit_type required for Higher Level Review' do
-          schema '$ref' => '#/components/schemas/errorModel'
-
-          let(:'X-VA-SSN') { '872958715' }
-          let(:'X-VA-Receipt-Date') { '1900-01-01' }
-          let(:decision_review_type) { 'higher_level_reviews' }
-
-          before do |example|
-            submit_request(example.metadata)
-          end
-
-          after do |example|
-            example.metadata[:response][:content] = {
-              'application/json' => {
-                examples: {
-                  example.metadata[:example_group][:description] => {
-                    value: JSON.parse(response.body, symbolize_names: true)
-                  }
-                }
-              }
-            }
-          end
-
-          it 'returns a 422 response' do |example|
-            assert_response_matches_metadata(example.metadata)
-          end
-        end
-
         context 'decision_review_type must be one of: higher_level_reviews, notice_of_disagreements, supplemental_claims' do
           schema '$ref' => '#/components/schemas/errorModel'
 
@@ -184,12 +168,13 @@ describe 'Contestable Issues', swagger_doc: 'modules/appeals_api/app/swagger/app
         # schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', 'default.json')))
         # #/errors/0/source is a string 'Appeals Caseflow' instead of an object...
 
+        let(:decision_review_type) { 'higher_level_reviews' }
         let(:benefit_type) { 'compensation' }
         let(:'X-VA-SSN') { '872958715' }
         let(:'X-VA-Receipt-Date') { '2019-12-01' }
 
         before do |example|
-          VCR.use_cassette('caseflow/contestable_issues/server_error') do
+          VCR.use_cassette('caseflow/higher_level_reviews/server_error') do
             submit_request(example.metadata)
           end
         end
