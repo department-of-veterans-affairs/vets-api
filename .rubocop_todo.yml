@@ -279,18 +279,6 @@ Style/CombinableLoops:
   Exclude:
     - 'modules/vba_documents/spec/mailers/unsuccessful_report_mailer_spec.rb'
 
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: Keywords, RequireColon.
-# Keywords: TODO, FIXME, OPTIMIZE, HACK, REVIEW, NOTE
-Style/CommentAnnotation:
-  Exclude:
-    - 'app/controllers/v0/backend_statuses_controller.rb'
-    - 'modules/claims_api/app/workers/claims_api/flash_updater.rb'
-    - 'spec/controllers/v0/evss_claims_async_controller_spec.rb'
-    - 'spec/controllers/v0/evss_claims_controller_spec.rb'
-    - 'spec/models/form_profile_spec.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

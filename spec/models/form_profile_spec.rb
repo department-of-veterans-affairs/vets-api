@@ -1116,7 +1116,7 @@ RSpec.describe FormProfile, type: :model do
         end
 
         context 'with a user that can prefill evss' do
-          # Note: `increase only` and `all claims` use the same form prefilling
+          # NOTE: `increase only` and `all claims` use the same form prefilling
           context 'when Vet360 prefill is disabled' do
             before do
               expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
