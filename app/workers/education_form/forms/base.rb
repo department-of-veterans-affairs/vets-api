@@ -1,6 +1,7 @@
+# frozen_string_literal: true
+
 require './app/workers/education_form/create_daily_spool_files'
 
-# frozen_string_literal: true
 module EducationForm::Forms
   class Base
     include ActionView::Helpers::TextHelper # Needed for word_wrap
