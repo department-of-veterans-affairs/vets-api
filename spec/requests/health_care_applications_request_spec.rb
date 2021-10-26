@@ -244,7 +244,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
       end
 
       context 'while authenticated', skip_mvi: true do
-        let(:current_user) { build(:user, :mhv) }
+        let(:current_user) { build(:user, :mhv, edipi: nil, icn: nil, sec_id: nil) }
 
         before do
           sign_in_as(current_user)

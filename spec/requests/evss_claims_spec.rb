@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe 'EVSS Claims management', type: :request do
   include SchemaMatchers
 
-  let(:user) { create(:user, :loa3) }
+  let(:user) { create(:user, :loa3, edipi: nil) }
   let(:evss_user) { create(:evss_user) }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 

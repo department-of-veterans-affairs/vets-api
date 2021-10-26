@@ -16,15 +16,15 @@ FactoryBot.define do
       ssn { '796111863' }
       idme_uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
       logingov_uuid { nil }
-      sec_id { nil }
+      sec_id { '123498767' }
       participant_id { nil }
       birls_id { nil }
-      icn { nil }
+      icn { '123498767V234859' }
       mhv_icn { nil }
       multifactor { false }
       mhv_correlation_id { nil }
       mhv_account_type { nil }
-      edipi { nil }
+      edipi { '384759483' }
       va_patient { nil }
       search_token { nil }
       icn_with_aaid { nil }
@@ -239,6 +239,7 @@ FactoryBot.define do
     factory :evss_user, traits: [:loa3] do
       first_name { 'WESLEY' }
       last_name { 'FORD' }
+      edipi { nil }
       last_signed_in { Time.zone.parse('2017-12-07T00:55:09Z') }
       ssn { '796043735' }
 
@@ -277,6 +278,7 @@ FactoryBot.define do
     factory :unauthorized_evss_user, traits: [:loa3] do
       first_name { 'WESLEY' }
       last_name { 'FORD' }
+      edipi { nil }
       last_signed_in { Time.zone.parse('2017-12-07T00:55:09Z') }
       ssn { '796043735' }
 
@@ -367,6 +369,7 @@ FactoryBot.define do
 
     factory :ch33_dd_user, traits: [:loa3] do
       ssn { '796104437' }
+      icn { nil }
 
       after(:build) do
         stub_mpi(
@@ -447,6 +450,7 @@ FactoryBot.define do
       email { Faker::Internet.email }
       first_name { Faker::Name.first_name }
       last_name { Faker::Name.last_name }
+      icn { nil }
       gender { 'M' }
       zip { Faker::Address.postcode }
       birth_date { Faker::Time.between(from: 40.years.ago, to: 10.years.ago) }

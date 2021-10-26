@@ -36,20 +36,26 @@ class User < Common::RedisStore
   attribute :uuid
   attribute :last_signed_in, Common::UTCTime # vaafi attributes
   attribute :mhv_last_signed_in, Common::UTCTime # MHV audit logging
+  attribute :account_uuid, String
+  attribute :account_id, Integer
 
   delegate :email, to: :identity, allow_nil: true
   delegate :loa3?, to: :identity, allow_nil: true
 
-  # This delegated method is called with #account_uuid
-  delegate :uuid, to: :account, prefix: true, allow_nil: true
-
-  # Retrieve a user's Account record.  Checks the cache before executing
-  # any database calls.
+  # Retrieve a user's Account record
   #
   # @return [Account] an instance of the Account object
   #
   def account
     @account ||= Account.create_by!(self)
+  end
+
+  def account_uuid
+    @account_uuid ||= account&.uuid
+  end
+
+  def account_id
+    @account_id ||= account&.id
   end
 
   def pciu_email
@@ -125,7 +131,7 @@ class User < Common::RedisStore
   end
 
   def sec_id
-    identity.sec_id || mpi_profile&.sec_id
+    identity&.sec_id || mpi_profile&.sec_id
   end
 
   def ssn
@@ -439,7 +445,7 @@ class User < Common::RedisStore
   end
 
   def mpi_profile
-    return nil unless mpi
+    return nil unless identity && mpi
 
     mpi.profile
   end

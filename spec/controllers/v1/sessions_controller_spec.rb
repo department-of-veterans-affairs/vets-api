@@ -874,6 +874,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       context 'when creating a user account' do
         context 'and the current user does not yet have an Account record' do
           before do
+            Account.first.destroy
             expect(Account.count).to eq 0
           end
 
@@ -885,13 +886,11 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         context 'and the current user already has an Account record' do
-          let!(:account) { create :account, idme_uuid: uuid }
-
           it 'does not create a new Account record for the user', :aggregate_failures do
             post :saml_callback
 
             expect(Account.count).to eq 1
-            expect(Account.first.idme_uuid).to eq account.idme_uuid
+            expect(Account.first.idme_uuid).to eq loa3_user.idme_uuid
           end
         end
       end

@@ -11,6 +11,7 @@ FactoryBot.modify do
       first_name { 'Judy' }
       middle_name { 'Snow' }
       last_name { 'Morrison' }
+      icn { nil }
       gender { 'F' }
       zip { nil }
       birth_date { '1953-04-01' }

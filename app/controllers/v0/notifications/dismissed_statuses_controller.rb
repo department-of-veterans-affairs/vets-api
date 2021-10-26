@@ -8,16 +8,15 @@ module V0
     # For any conventional read/unread notification use cases, use the notifications_controller.rb
     #
     class DismissedStatusesController < ApplicationController
-      include Accountable
       include ::Notifications::Validateable
 
       before_action -> { validate_subject!(subject) }
       before_action -> { validate_status!(status) }, only: %i[create update]
-      before_action :set_account, :set_notification
+      before_action :set_notification
       before_action -> { validate_record_present!(@notification, subject) }, only: :update
 
       def create
-        notification = @account.notifications.build(dismissed_statuses_params.merge(read_at: Time.current))
+        notification = @current_user.account.notifications.build(dismissed_statuses_params.merge(read_at: Time.current))
 
         if notification.save
           render json: notification, serializer: DismissedStatusSerializer
@@ -44,12 +43,8 @@ module V0
 
       private
 
-      def set_account
-        @account = create_user_account
-      end
-
       def set_notification
-        @notification = Notification.find_by(account_id: @account.id, subject: subject)
+        @notification = Notification.find_by(account_id: @current_user.account_id, subject: subject)
       end
 
       def dismissed_statuses_params

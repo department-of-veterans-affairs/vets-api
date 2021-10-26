@@ -4,16 +4,6 @@ module Accountable
   extend ActiveSupport::Concern
   include SentryLogging
 
-  # Creates a user's one Account record. By doing so, it initializes
-  # a unique account#uuid for the user, through a callback on
-  # Account.
-  #
-  def create_user_account
-    Account.create_by! @current_user
-  rescue => e
-    log_error(e, account: 'cannot_create_unique_account_record')
-  end
-
   def update_account_login_stats
     return unless account_login_stats.present? && login_type.in?(AccountLoginStat::LOGIN_TYPES)
 
@@ -26,8 +16,8 @@ module Accountable
 
   def account_login_stats
     @account_login_stats ||=
-      if @current_user.account.present?
-        AccountLoginStat.find_or_initialize_by(account_id: @current_user.account.id)
+      if @current_user.account_id.present?
+        AccountLoginStat.find_or_initialize_by(account_id: @current_user.account_id)
       else
         no_account_log_message
         nil

@@ -1472,7 +1472,7 @@ describe HCA::EnrollmentSystem do
         end
       end
 
-      let(:current_user) { build(:user) }
+      let(:current_user) { build(:user, icn: nil, edipi: nil) }
       let(:user_id) { '123' }
       let(:icn_id) { 1 }
       let(:edipi_id) { 2 }

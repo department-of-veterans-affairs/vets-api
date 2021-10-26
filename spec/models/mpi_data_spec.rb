@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe MPIData, skip_mvi: true do
-  let(:user) { build(:user, :loa3) }
+  let(:user) { build(:user, :loa3, edipi: nil, sec_id: nil, icn: nil) }
   let(:mvi) { MPIData.for_user(user.identity) }
   let(:mvi_profile) { build(:mvi_profile) }
   let(:mvi_codes) do

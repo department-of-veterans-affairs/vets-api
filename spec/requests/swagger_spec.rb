@@ -29,10 +29,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
   let(:mhv_user) { build(:user, :mhv, middle_name: 'Bob') }
 
-  before do
-    create(:account, idme_uuid: mhv_user.uuid)
-  end
-
   context 'has valid paths' do
     let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 

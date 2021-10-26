@@ -7,15 +7,13 @@ module V0
   # notifications/dismissed_statuses_controller.rb
   #
   class NotificationsController < ApplicationController
-    include Accountable
     include ::Notifications::Validateable
 
     before_action -> { validate_subject!(subject) }
-    before_action :set_account
     before_action :set_notification, only: %i[show update]
 
     def create
-      notification = @account.notifications.build(subject: subject, read_at: read_at)
+      notification = @current_user.account.notifications.build(subject: subject, read_at: read_at)
 
       if notification.save
         render json: notification, serializer: NotificationSerializer
@@ -44,12 +42,8 @@ module V0
 
     private
 
-    def set_account
-      @account = create_user_account
-    end
-
     def set_notification
-      @notification = Notification.find_by(account_id: @account.id, subject: subject)
+      @notification = Notification.find_by(account_id: @current_user.account_id, subject: subject)
     end
 
     def notification_params

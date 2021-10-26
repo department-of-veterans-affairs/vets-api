@@ -88,48 +88,55 @@ RSpec.describe Account, type: :model do
     it 'creates an Account if one does not exist' do
       expect(Account.count).to eq 0
 
-      user = create(:user, :loa3)
+      attributes = OpenStruct.new({ idme_uuid: 'some-idme-uuid' })
 
       expect do
-        Account.create_if_needed!(user)
+        Account.create_if_needed!(attributes)
       end.to change(Account, :count).by(1)
     end
 
     it 'does not create a second Account, matched on idme uuid' do
-      user = create(:user, :accountable)
+      idme_uuid = 'some-idme-uuid'
+      attributes = OpenStruct.new({ idme_uuid: idme_uuid })
+      create(:account, idme_uuid: idme_uuid)
       expect(Account.count).to eq 1
 
       expect do
-        Account.create_if_needed!(user)
+        Account.create_if_needed!(attributes)
       end.not_to change(Account, :count)
     end
 
     it 'does not create a second Account, matched on sec id' do
-      user = create(:user, :accountable_with_sec_id)
+      sec_id = 'some-sec-id'
+      attributes = OpenStruct.new({ sec_id: sec_id })
+      create(:account, sec_id: sec_id)
       expect(Account.count).to eq 1
 
       expect do
-        Account.create_if_needed!(user)
+        Account.create_if_needed!(attributes)
       end.not_to change(Account, :count)
     end
 
     it 'does not create a second Account, matched on logingov_uuid' do
-      user = create(:user, :accountable_with_logingov_uuid)
+      logingov_uuid = 'some-logingov_uuid'
+      attributes = OpenStruct.new({ logingov_uuid: logingov_uuid })
+      create(:account, logingov_uuid: logingov_uuid)
       expect(Account.count).to eq 1
 
       expect do
-        Account.create_if_needed!(user)
+        Account.create_if_needed!(attributes)
       end.not_to change(Account, :count)
     end
 
     it 'creates an Account on sec id if one does not exist' do
       expect(Account.count).to eq 0
 
-      user = create(:user, :user_with_no_idme_uuid)
+      sec_id = 'some-sec-id'
+      attributes = OpenStruct.new({ idme_uuid: nil, sec_id: sec_id })
 
       expect do
-        acct = Account.create_if_needed!(user)
-        expect(acct.sec_id).to eq '1234'
+        acct = Account.create_if_needed!(attributes)
+        expect(acct.sec_id).to eq sec_id
         expect(acct.idme_uuid).to eq nil
       end.to change(Account, :count).by(1)
     end
@@ -139,12 +146,12 @@ RSpec.describe Account, type: :model do
       first_sec_id = 'some-sec-id'
       another_sec_id = 'some-other-sec-id'
 
-      first_user = create(:user, :user_with_no_idme_uuid, sec_id: first_sec_id)
-      second_user = create(:user, :user_with_no_idme_uuid, sec_id: another_sec_id)
+      first_attributes = OpenStruct.new({ idme_uuid: nil, sec_id: first_sec_id })
+      second_attributes = OpenStruct.new({ idme_uuid: nil, sec_id: another_sec_id })
 
       expect do
-        first_account = Account.create_if_needed!(first_user)
-        second_account = Account.create_if_needed!(second_user)
+        first_account = Account.create_if_needed!(first_attributes)
+        second_account = Account.create_if_needed!(second_attributes)
         expect(first_account.sec_id).to eq first_sec_id
         expect(second_account.sec_id).to eq another_sec_id
         expect(first_account.idme_uuid).to eq nil
@@ -153,56 +160,64 @@ RSpec.describe Account, type: :model do
     end
 
     it 'matches on sec id with missing idme uuid' do
-      user = create(:user, :user_with_no_idme_uuid)
-      create(:account, idme_uuid: nil, sec_id: user.sec_id)
+      sec_id = 'some-sec-id'
+      attributes = OpenStruct.new({ idme_uuid: nil, sec_id: sec_id })
+      create(:account, sec_id: sec_id)
       expect(Account.count).to eq 1
 
       expect do
-        Account.create_if_needed!(user)
+        Account.create_if_needed!(attributes)
       end.not_to change(Account, :count)
     end
 
     it 'matches on logingov uuid with missing idme uuid and sec id' do
-      user = create(:user, :user_with_no_idme_uuid_or_sec_id)
-      create(:account, idme_uuid: nil, sec_id: nil, logingov_uuid: user.logingov_uuid)
+      logingov_uuid = 'some-logingov_uuid'
+      attributes = OpenStruct.new({ idme_uuid: nil, sec_id: nil, logingov_uuid: logingov_uuid })
+      create(:account, idme_uuid: nil, sec_id: nil, logingov_uuid: logingov_uuid)
       expect(Account.count).to eq 1
 
       expect do
-        Account.create_if_needed!(user)
+        Account.create_if_needed!(attributes)
       end.not_to change(Account, :count)
     end
 
     it 'creates an Account on logingov uuid if one does not exist' do
       expect(Account.count).to eq 0
 
-      user = create(:user, :user_with_no_idme_uuid_or_sec_id)
+      logingov_uuid = 'some-logingov_uuid'
+      attributes = OpenStruct.new({ idme_uuid: nil, sec_id: nil, logingov_uuid: logingov_uuid })
 
       expect do
-        acct = Account.create_if_needed!(user)
+        acct = Account.create_if_needed!(attributes)
         expect(acct.sec_id).to eq nil
         expect(acct.idme_uuid).to eq nil
-        expect(acct.logingov_uuid).to eq user.logingov_uuid
+        expect(acct.logingov_uuid).to eq logingov_uuid
       end.to change(Account, :count).by(1)
     end
 
     it 'issues a warning with multiple matching Accounts' do
-      user = create(:user, :accountable)
-      create(:user, :accountable_with_sec_id)
+      sec_id = 'some-sec-id'
+      attributes = OpenStruct.new({ idme_uuid: nil, sec_id: sec_id })
+      create(:account, idme_uuid: 'some-idme-uuid', sec_id: sec_id)
+      create(:account, idme_uuid: 'another-idme-uuid', sec_id: sec_id)
 
       expect(Account).to receive(:log_message_to_sentry)
 
       expect do
-        Account.create_if_needed!(user)
+        Account.create_if_needed!(attributes)
       end.not_to change(Account, :count)
     end
 
     it 'uses idme match with multiple matching Accounts' do
-      user1 = create(:user, :accountable_with_sec_id)
-      user1.uuid = nil
-      user2 = create(:user, :accountable)
+      sec_id = 'some-sec-id'
+      idme_uuid = 'some-idme-uuid'
+      attributes = OpenStruct.new({ idme_uuid: idme_uuid, sec_id: sec_id })
 
-      acct = Account.create_if_needed!(user2)
-      expect(acct.idme_uuid).to eq(user2.uuid)
+      create(:account, sec_id: sec_id)
+      create(:account, idme_uuid: idme_uuid)
+
+      acct = Account.create_if_needed!(attributes)
+      expect(acct.idme_uuid).to eq(attributes.idme_uuid)
     end
   end
 
@@ -210,7 +225,7 @@ RSpec.describe Account, type: :model do
     it 'does not update an Account that has yet to be saved' do
       expect(Account.count).to eq 0
 
-      user = create(:user, :loa3)
+      user = OpenStruct.new({ idme_uuid: 'kitty' })
 
       expect do
         Account.update_if_needed!(Account.new, user)
@@ -218,7 +233,7 @@ RSpec.describe Account, type: :model do
     end
 
     it 'does not update the Account, as it hasnt changed' do
-      user = create(:user, :loa3)
+      user = OpenStruct.new({ idme_uuid: 'kitty' })
       acct = Account.create_if_needed!(user)
 
       expect(Account.count).to eq 1
@@ -231,8 +246,8 @@ RSpec.describe Account, type: :model do
     end
 
     it 'does update the Account' do
-      user = create(:user, :accountable)
-      acct = Account.first
+      user = OpenStruct.new({ edipi: 'some-edipi', icn: 'some-icn', sec_id: 'some-sec-id' })
+      acct = create(:account, edipi: nil, icn: nil, sec_id: nil)
 
       expect(acct.edipi).to eq nil
       expect(acct.icn).to eq nil
@@ -246,38 +261,8 @@ RSpec.describe Account, type: :model do
     end
   end
 
-  describe 'Account factory' do
-    it 'generates a valid factory' do
-      account = create :account
-
-      expect(account).to be_valid
-    end
-  end
-
-  describe 'callbacks' do
-    describe 'before_create' do
-      let(:account) { create :account }
-
-      context 'when uuid is not present in the database' do
-        it 'creates a unique uuid' do
-          expect(account).to be_valid
-        end
-      end
-
-      context 'when uuid *is* already present in the database' do
-        it 'creates a valid record with a unique uuid', :aggregate_failures do
-          existing_uuid = account.uuid
-          new_account   = create :account, uuid: existing_uuid
-
-          expect(new_account).to be_valid
-          expect(existing_uuid).not_to eq new_account.uuid
-        end
-      end
-    end
-  end
-
   describe '.create_by!' do
-    let(:user) { build(:user, :loa3) }
+    let(:user) { OpenStruct.new({ idme_uuid: 'some-idme-uuid' }) }
 
     it "returns the user's db Account record", :aggregate_failures do
       record = Account.create_by! user
@@ -288,16 +273,12 @@ RSpec.describe Account, type: :model do
   end
 
   describe 'update' do
-    let(:user) { build(:user_with_no_secid) }
+    let(:user) { OpenStruct.new({ idme_uuid: 'some-idme-uuid', sec_id: nil }) }
     let(:new_secid) { '9999999' }
-    let(:user_delta) { build(:user, :loa3) }
-    let(:mvi_profile) { build(:mvi_profile, sec_id: new_secid) }
-    let(:nil_mvi_profile) { build(:mvi_profile, sec_id: nil) }
+    let(:user_delta) { OpenStruct.new({ sec_id: new_secid }) }
 
     it 'writes updates to database' do
-      stub_mpi(nil_mvi_profile)
       original_acct = Account.create_by! user
-      stub_mpi(mvi_profile)
       updated_acct = Account.update_if_needed!(original_acct, user_delta)
       expect(updated_acct.sec_id).to eq new_secid
     end
