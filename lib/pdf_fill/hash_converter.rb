@@ -28,11 +28,12 @@ module PdfFill
     end
 
     def convert_val_as_string(v)
-      if v.is_a?(Array)
+      case v
+      when Array
         return v.map do |item|
           convert_val_as_string(item)
         end.join(', ')
-      elsif v.is_a?(PdfFill::FormValue)
+      when PdfFill::FormValue
         return v
       end
 

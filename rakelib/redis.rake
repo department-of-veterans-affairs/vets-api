@@ -65,9 +65,10 @@ namespace :redis do
         u = Oj.load(redis.get(key))
         count += 1
         loa = u[:loa][:highest]
-        if loa == 3
+        case loa
+        when 3
           loa3 += 1
-        elsif loa == 1
+        when 1
           loa1 += 1
         end
       rescue

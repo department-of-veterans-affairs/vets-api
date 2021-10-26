@@ -845,9 +845,10 @@ RSpec.describe FormProfile, type: :model do
     def expect_prefilled(form_id)
       prefilled_data = Oj.load(described_class.for(form_id: form_id, user: user).prefill.to_json)['form_data']
 
-      if form_id == '1010ez'
+      case form_id
+      when '1010ez'
         '10-10EZ'
-      elsif form_id == '21-526EZ'
+      when '21-526EZ'
         '21-526EZ-ALLCLAIMS'
       else
         form_id
@@ -858,8 +859,7 @@ RSpec.describe FormProfile, type: :model do
 
         errors = JSON::Validator.fully_validate(
           schema,
-          schema_data.deep_transform_keys { |key| key.camelize(:lower) },
-          validate_schema: true
+          schema_data.deep_transform_keys { |key| key.camelize(:lower) }, validate_schema: true
         )
         expect(errors.empty?).to eq(true), "schema errors: #{errors}"
       end

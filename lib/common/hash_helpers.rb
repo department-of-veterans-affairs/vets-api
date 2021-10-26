@@ -29,10 +29,11 @@ module Common
 
     def deep_remove_helper(hash)
       delete_if_block = proc do |_k, v|
-        if v.is_a?(Hash)
+        case v
+        when Hash
           v.delete_if(&delete_if_block)
           nil
-        elsif v.is_a?(Array)
+        when Array
           v.reject! { |i| yield(i) }
           v.each do |item|
             delete_if_block.call(nil, item)

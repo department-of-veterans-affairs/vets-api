@@ -97,9 +97,10 @@ module Form1010cg
     end
 
     def deep_apply_filter(value)
-      if value.is_a?(Array)
+      case value
+      when Array
         value.map { |v| deep_apply_filter(v) }
-      elsif value.is_a?(Hash)
+      when Hash
         value.each_with_object({}) do |(key, v), result|
           result[key] = if LOGGER_FILTER_KEYS.include?(key.to_s) || LOGGER_FILTER_KEYS.include?(key.to_sym)
                           ActiveSupport::ParameterFilter::FILTERED

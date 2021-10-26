@@ -54,9 +54,10 @@ module CovidResearch
     end
 
     def value(actual)
-      if actual == true
+      case actual
+      when true
         'Yes'
-      elsif actual == false
+      when false
         'No'
       else
         actual.to_s

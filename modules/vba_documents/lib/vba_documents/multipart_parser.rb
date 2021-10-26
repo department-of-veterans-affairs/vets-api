@@ -117,9 +117,10 @@ module VBADocuments
     end
 
     def self.consume_body(lines, separator, content_type)
-      if content_type == 'application/pdf'
+      case content_type
+      when 'application/pdf'
         consume_body_tempfile(lines, separator)
-      elsif content_type == 'application/json'
+      when 'application/json'
         consume_body_string(lines, separator)
       else
         raise VBADocuments::UploadError.new(code: 'DOC101',
@@ -137,9 +138,10 @@ module VBADocuments
                                                 detail: 'Unexpected end of payload')
           end
           linechomp = line.chomp(LINE_BREAK)
-          if (linechomp == "#{separator}--") || (linechomp == "#{separator}--#{CARRIAGE_RETURN}")
+          case linechomp
+          when "#{separator}--", "#{separator}--#{CARRIAGE_RETURN}"
             return tf.string, false
-          elsif linechomp == separator
+          when separator
             return tf.string, true
           else
             tf.write(line)
@@ -158,10 +160,11 @@ module VBADocuments
           raise VBADocuments::UploadError.new(code: 'DOC101', detail: 'Unexpected end of payload')
         end
         linechomp = line.chomp(LINE_BREAK)
-        if (linechomp == "#{separator}--") || (linechomp == "#{separator}--#{CARRIAGE_RETURN}")
+        case linechomp
+        when "#{separator}--", "#{separator}--#{CARRIAGE_RETURN}"
           tf.rewind
           return tf, false
-        elsif linechomp == separator
+        when separator
           tf.rewind
           return tf, true
         else

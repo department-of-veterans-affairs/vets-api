@@ -389,9 +389,10 @@ class FormProfile
   end
 
   def clean!(value)
-    if value.is_a?(Hash)
+    case value
+    when Hash
       clean_hash!(value)
-    elsif value.is_a?(Array)
+    when Array
       value.map { |v| clean!(v) }.delete_if(&:blank?)
     else
       value

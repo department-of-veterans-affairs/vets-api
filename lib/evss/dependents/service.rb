@@ -87,7 +87,8 @@ module EVSS
       private
 
       def change_evss_times!(object)
-        if object.is_a?(Hash)
+        case object
+        when Hash
           object.each do |k, v|
             if k.downcase.include?('date') && v.is_a?(Numeric)
               object[k] = convert_evss_time(v)
@@ -95,7 +96,7 @@ module EVSS
               change_evss_times!(v)
             end
           end
-        elsif object.is_a?(Array)
+        when Array
           object.each do |item|
             change_evss_times!(item)
           end

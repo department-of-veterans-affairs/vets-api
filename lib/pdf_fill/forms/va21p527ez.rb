@@ -487,9 +487,10 @@ module PdfFill
           end
 
           key[acct_type][:limit] =
-            if acct_type == 'netWorths'
+            case acct_type
+            when 'netWorths'
               8
-            elsif acct_type == 'monthlyIncomes'
+            when 'monthlyIncomes'
               10
             else
               6

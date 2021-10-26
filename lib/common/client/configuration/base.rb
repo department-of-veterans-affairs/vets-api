@@ -109,11 +109,12 @@ module Common
 
         def breakers_exception_handler
           proc do |exception|
-            if exception.is_a?(Common::Exceptions::BackendServiceException)
+            case exception
+            when Common::Exceptions::BackendServiceException
               (500..599).cover?(exception.response_values[:status])
-            elsif exception.is_a?(Common::Client::Errors::HTTPError)
+            when Common::Client::Errors::HTTPError
               (500..599).cover?(exception.status)
-            elsif exception.is_a?(Faraday::ClientError)
+            when Faraday::ClientError
               # we're not yet using Faraday > 1.0, but when we do, 500 errors will be Faraday::ServerError
               (500..599).cover?(exception.response[:status])
             else

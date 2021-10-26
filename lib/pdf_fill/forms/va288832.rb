@@ -335,9 +335,10 @@ module PdfFill
       def expand_relationship
         relationship = @form_data['status']
         @form_data['relationship'] =
-          if relationship == 'isChild'
+          case relationship
+          when 'isChild'
             '5'
-          elsif relationship == 'isSpouse'
+          when 'isSpouse'
             '2'
           else
             '1'

@@ -238,25 +238,6 @@ Rails/WhereNot:
   Exclude:
     - 'modules/claims_api/lib/tasks/claims_tasks.rake'
 
-# Offense count: 17
-# Cop supports --auto-correct.
-Style/CaseLikeIf:
-  Exclude:
-    - 'app/models/form_profile.rb'
-    - 'app/services/form1010cg/auditor.rb'
-    - 'lib/common/client/configuration/base.rb'
-    - 'lib/common/hash_helpers.rb'
-    - 'lib/debt_management_center/payments_service.rb'
-    - 'lib/evss/dependents/service.rb'
-    - 'lib/hca/enrollment_system.rb'
-    - 'lib/pdf_fill/forms/va21p527ez.rb'
-    - 'lib/pdf_fill/forms/va288832.rb'
-    - 'lib/pdf_fill/hash_converter.rb'
-    - 'modules/covid_research/app/serializers/covid_research/genisis_serializer.rb'
-    - 'modules/vba_documents/lib/vba_documents/multipart_parser.rb'
-    - 'rakelib/redis.rake'
-    - 'spec/models/form_profile_spec.rb'
-
 # Offense count: 10
 # Cop supports --auto-correct.
 # Configuration parameters: IgnoredMethods.

@@ -58,9 +58,10 @@ module DebtManagementCenter
     def select_payments(type)
       return nil if @payments.blank?
 
-      type = if type == :compensation
+      type = case type
+             when :compensation
                'Compensation & Pension - Recurring'
-             elsif type == :education
+             when :education
                'Post-9/11 GI Bill'
              end
 

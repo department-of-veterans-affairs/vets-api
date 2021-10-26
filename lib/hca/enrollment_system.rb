@@ -624,11 +624,12 @@ module HCA
     end
 
     def prepend_namespace(data)
-      if data.is_a? Hash
+      case data
+      when Hash
         data.each_with_object({}) do |(k, v), memo|
           memo["eeSummary:#{k}"] = prepend_namespace(v)
         end
-      elsif data.is_a?(Array)
+      when Array
         data.map { |i| prepend_namespace(i) }
       else
         data
@@ -695,13 +696,14 @@ module HCA
     end
 
     def remove_ctrl_chars!(value)
-      if value.is_a?(Hash)
+      case value
+      when Hash
         value.each do |k, v|
           value[k] = remove_ctrl_chars!(v)
         end
-      elsif value.is_a?(Array)
+      when Array
         value.map! { |i| remove_ctrl_chars!(i) }
-      elsif value.is_a?(String)
+      when String
         value.tr("\u0000-\u001f\u007f\u2028", '')
       end
     end
