@@ -21,43 +21,43 @@ describe Mobile::V0::LighthouseHealth::Service do
   end
   let(:expected_item) do
     {
-      'fullUrl' => 'https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-A7XD2XUPAZQ5H4Y5D6HJ352GEQ000000',
-      'resource' => {
-        'resourceType' => 'Immunization',
-        'id' => 'I2-A7XD2XUPAZQ5H4Y5D6HJ352GEQ000000',
-        'status' => 'completed',
-        'vaccineCode' => {
-          'coding' => [{ 'system' => 'http://hl7.org/fhir/sid/cvx', 'code' => '140' }],
-          'text' => 'Influenza  seasonal  injectable  preservative free'
+      full_url: 'https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-A7XD2XUPAZQ5H4Y5D6HJ352GEQ000000',
+      resource: {
+        resource_type: 'Immunization',
+        id: 'I2-A7XD2XUPAZQ5H4Y5D6HJ352GEQ000000',
+        status: 'completed',
+        vaccine_code: {
+          coding: [{ system: 'http://hl7.org/fhir/sid/cvx', code: '140' }],
+          text: 'Influenza  seasonal  injectable  preservative free'
         },
-        'patient' => {
-          'reference' => 'https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/9000682',
-          'display' => 'Mr. Florentino8 Raynor401'
+        patient: {
+          reference: 'https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/9000682',
+          display: 'Mr. Florentino8 Raynor401'
         },
-        'occurrenceDateTime' => '2009-03-19T12:24:55Z',
-        'primarySource' => true,
-        'note' => [
+        occurrence_date_time: '2009-03-19T12:24:55Z',
+        primary_source: true,
+        note: [
           {
-            'text' => 'Dose #45 of 101 of Influenza  seasonal  injectable  preservative free vaccine '\
-                      'administered.'
+            text: 'Dose #45 of 101 of Influenza  seasonal  injectable  preservative free vaccine '\
+                  'administered.'
           }
         ],
-        'reaction' => [
+        reaction: [
           {
-            'detail' => {
-              'display' => 'Vomiting'
+            detail: {
+              display: 'Vomiting'
             }
           }
         ],
-        'protocolApplied' => [
+        protocol_applied: [
           {
-            'doseNumberString' => 'Booster',
-            'seriesDosesPositiveInt' => 1
+            dose_number_string: 'Booster',
+            series_doses_positive_int: 1
           }
         ]
       },
-      'search' => {
-        'mode' => 'match'
+      search: {
+        mode: 'match'
       }
     }
   end
@@ -86,20 +86,16 @@ describe Mobile::V0::LighthouseHealth::Service do
         end
       end
 
-      it 'returns a 200' do
-        expect(response.status).to eq(200)
-      end
-
       it 'caches the token' do
         expect(Mobile::V0::LighthouseSession.get_cached(user).access_token).to eq(access_token)
       end
 
       it 'returns multiple immunizations' do
-        expect(response.body['total']).to eq(15)
+        expect(response[:total]).to eq(15)
       end
 
       it 'returns items as a FHIR Immunization' do
-        expect(response.body['entry'].first).to eq(expected_item)
+        expect(response[:entry].first).to eq(expected_item)
       end
     end
 
@@ -116,16 +112,12 @@ describe Mobile::V0::LighthouseHealth::Service do
         end
       end
 
-      it 'returns a 200' do
-        expect(response.status).to eq(200)
-      end
-
       it 'returns multiple immunizations' do
-        expect(response.body['total']).to eq(15)
+        expect(response[:total]).to eq(15)
       end
 
       it 'returns items as a FHIR Immunization' do
-        expect(response.body['entry'].first).to eq(expected_item)
+        expect(response[:entry].first).to eq(expected_item)
       end
     end
   end

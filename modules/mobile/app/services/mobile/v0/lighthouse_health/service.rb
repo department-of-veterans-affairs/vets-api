@@ -21,7 +21,8 @@ module Mobile
         # @return Hash the list of immunizations decoded from JSON
         #
         def get_immunizations
-          perform(:get, 'Immunization', params, headers)
+          response = perform(:get, 'Immunization', params, headers)
+          response.body
         end
 
         private

@@ -50,6 +50,7 @@ module Mobile
         def connection
           Faraday.new(api_url) do |conn|
             conn.use :breakers
+            conn.response :snakecase
             conn.response :json, content_type: /\bjson$/
             conn.adapter Faraday.default_adapter
           end

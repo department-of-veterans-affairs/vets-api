@@ -13,11 +13,12 @@ Mobile::Engine.routes.draw do
     post '/claim/:id/documents/multi-image', to: 'claims_and_appeals#upload_multi_image_document'
     post '/claim/:id/request-decision', to: 'claims_and_appeals#request_decision'
     get '/disability-rating', to: 'disability_rating#index'
+    get '/health/immunizations', to: 'immunizations#index'
     get '/letters', to: 'letters#index'
     get '/letters/beneficiary', to: 'letters#beneficiary'
     post '/letters/:type/download', to: 'letters#download'
     get '/maintenance_windows', to: 'maintenance_windows#index'
-    get 'messaging/health/messages/signature', to: 'messages#signature'
+    get '/messaging/health/messages/signature', to: 'messages#signature'
     get '/military-service-history', to: 'military_information#get_service_history'
     get '/payment-information/benefits', to: 'payment_information#index'
     put '/payment-information/benefits', to: 'payment_information#update'
@@ -37,7 +38,6 @@ Mobile::Engine.routes.draw do
     post '/user/phones', to: 'phones#create'
     put '/user/phones', to: 'phones#update'
     delete '/user/phones', to: 'phones#destroy'
-    get 'messaging/health/messages/signature', to: 'messages#signature'
 
     scope :messaging do
       scope :health do
