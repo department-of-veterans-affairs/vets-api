@@ -22,7 +22,7 @@ module AppealsApi
     private
 
     def supplemental_claim_ids
-      @supplemental_claim_ids ||= SupplementalClaim.received_or_processing.order(created_at: :asc).pluck(:id)
+      @supplemental_claim_ids ||= SupplementalClaim.in_process_statuses.order(created_at: :asc).pluck(:id)
     end
 
     def slice_size

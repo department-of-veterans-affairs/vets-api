@@ -19,8 +19,8 @@ FactoryBot.define do
       status { 'error' }
     end
 
-    trait :status_received do
-      status { 'received' }
+    trait :status_submitted do
+      status { 'submitted' }
     end
   end
 

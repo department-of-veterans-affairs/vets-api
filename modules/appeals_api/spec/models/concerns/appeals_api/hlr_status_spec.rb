@@ -7,7 +7,7 @@ describe AppealsApi::HlrStatus, type: :concern do
     let(:local_statuses) { subject::STATUSES }
 
     it 'fails if central mail statuses are not included' do
-      additional_statuses = [*subject::RECEIVED_OR_PROCESSING, *subject::COMPLETE_STATUSES]
+      additional_statuses = [*subject::IN_PROCESS_STATUSES, *subject::COMPLETE_STATUSES]
 
       expect(local_statuses).to include(*additional_statuses)
     end

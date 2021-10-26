@@ -22,7 +22,7 @@ module AppealsApi
     private
 
     def notice_of_disagreement_ids
-      @notice_of_disagreement_ids ||= NoticeOfDisagreement.received_or_processing.order(created_at: :asc).pluck(:id)
+      @notice_of_disagreement_ids ||= NoticeOfDisagreement.in_process_statuses.order(created_at: :asc).pluck(:id)
     end
 
     def slice_size

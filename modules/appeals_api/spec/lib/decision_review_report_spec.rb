@@ -96,9 +96,12 @@ describe AppealsApi::DecisionReviewReport do
     subject = described_class.new(from: 5.days.ago, to: Time.now.utc)
 
     expect(subject.sc_by_status_and_count).to eq({
+      'caseflow' => 0,
       'error' => 1,
       'pending' => 0,
-      'received' => 0,
+      'processing' => 0,
+      'submitted' => 0,
+      'submitting' => 0,
       'success' => 2
     })
   end

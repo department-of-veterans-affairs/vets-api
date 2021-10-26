@@ -5,7 +5,7 @@ require AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_for_mon
 
 describe AppealsApi::SupplementalClaimUploadStatusUpdater, type: :job do
   let(:client_stub) { instance_double('CentralMail::Service') }
-  let(:upload) { create(:supplemental_claim, :status_received) }
+  let(:upload) { create(:supplemental_claim, :status_submitted) }
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:in_process_element) do
     [{ uuid: 'ignored',

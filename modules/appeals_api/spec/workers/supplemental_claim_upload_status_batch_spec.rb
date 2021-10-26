@@ -4,7 +4,7 @@ require 'rails_helper'
 
 describe AppealsApi::SupplementalClaimUploadStatusBatch, type: :job do
   let(:client_stub) { instance_double('CentralMail::Service') }
-  let!(:upload) { create(:supplemental_claim, :status_received) }
+  let!(:upload) { create(:supplemental_claim, :status_submitted) }
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:in_process_element) do
     [{ uuid: 'ignored',
@@ -36,7 +36,7 @@ describe AppealsApi::SupplementalClaimUploadStatusBatch, type: :job do
       it 'does not update statuses' do
         with_settings(Settings.modules_appeals_api, supplemental_claim_updater_enabled: false) do
           Sidekiq::Testing.inline! { AppealsApi::SupplementalClaimUploadStatusBatch.new.perform }
-          expect(upload.status).to eq('received')
+          expect(upload.status).to eq('submitted')
         end
       end
     end

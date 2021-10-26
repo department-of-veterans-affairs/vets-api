@@ -5,6 +5,8 @@ require 'json_marshal/marshaller'
 
 module AppealsApi
   class SupplementalClaim < ApplicationRecord
+    include ScStatus
+
     def self.past?(date)
       date < Time.zone.today
     end
@@ -14,10 +16,6 @@ module AppealsApi
     rescue ArgumentError
       nil
     end
-
-    STATUSES = %w[pending received success error].freeze
-    RECEIVED_OR_PROCESSING = %w[received processing].freeze
-    scope :received_or_processing, -> { where status: RECEIVED_OR_PROCESSING }
 
     serialize :auth_headers, JsonMarshal::Marshaller
     serialize :form_data, JsonMarshal::Marshaller

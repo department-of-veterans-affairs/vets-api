@@ -14,11 +14,11 @@ module AppealsApi
     # used primarly for reporting
     STATUSES = [*V1_STATUSES, *V2_STATUSES].uniq.freeze
 
-    RECEIVED_OR_PROCESSING = %w[received processing].freeze
+    IN_PROCESS_STATUSES = %w[submitted received processing].freeze
     COMPLETE_STATUSES = %w[success caseflow error].freeze
 
     included do
-      scope :received_or_processing, -> { where status: RECEIVED_OR_PROCESSING }
+      scope :in_process_statuses, -> { where status: IN_PROCESS_STATUSES }
       scope :incomplete_statuses, -> { where.not status: COMPLETE_STATUSES }
 
       def versioned_statuses
