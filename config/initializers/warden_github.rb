@@ -2,11 +2,7 @@
 
 module WardenGitHubUserExtensions
   def api
-    if scope == :sidekiq
-      Octokit::Client.new(access_token: Settings.sidekiq.github_api_key)
-    else
-      super
-    end
+    Octokit::Client.new(access_token: Settings.sidekiq.github_api_key)
   end
 end
 
