@@ -6,6 +6,7 @@ module V0
   module Profile
     class CommunicationPreferencesController < ApplicationController
       before_action { authorize :vet360, :access? }
+      before_action { authorize :communication_preferences, :access? }
 
       def index
         render(
