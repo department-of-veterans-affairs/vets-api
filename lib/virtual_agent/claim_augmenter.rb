@@ -3,15 +3,13 @@
 module V0
   module VirtualAgent
     class ClaimAugmenter
-      include Concurrent::Async
-
       def get_supplemental_claim_data(claims, current_user, service)
         claims.map do |claim|
           claim_db_record = EVSSClaim.for_user(current_user).find_by(evss_id: claim[:evss_id])
           single_claim_response = {}
           synchronized = 'REQUESTED'
           attempts = 0
-          until (synchronized == 'SUCCESS') || (attempts == 10)
+          until (synchronized == 'SUCCESS') || (attempts == 20)
             single_claim_response, synchronized = service.update_from_remote(claim_db_record)
             sleep(1) if synchronized == 'REQUESTED'
             attempts += 1
