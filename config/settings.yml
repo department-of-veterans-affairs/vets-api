@@ -1132,6 +1132,7 @@ check_in:
     mock: false
     key_path: fake_api_path
     redis_session_prefix: check_in_lorota_v1
+    redis_token_expiry: 43200 # 12 Hours
   chip_api_v2:
     url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
     base_path: dev
@@ -1154,6 +1155,7 @@ check_in:
     mock: false
     key_path: fake_api_path
     redis_session_prefix: check_in_lorota_v2
+    redis_token_expiry: 43200 # 12 Hours
 
 rack:
   cookie_secret: ~
