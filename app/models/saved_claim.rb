@@ -21,7 +21,9 @@ class SavedClaim < ApplicationRecord
   validates(:form, presence: true)
   validate(:form_matches_schema)
   validate(:form_must_be_string)
-  encrypts :form, **lockbox_options
+
+  has_kms_key
+  encrypts :form, key: :kms_key, **lockbox_options
 
   has_many :persistent_attachments, inverse_of: :saved_claim, dependent: :destroy
 

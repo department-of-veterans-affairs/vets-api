@@ -15,7 +15,9 @@ module AsyncTransaction
     }
 
     serialize :metadata, JsonMarshal::Marshaller
-    encrypts :metadata, **lockbox_options
+
+    has_kms_key
+    encrypts :metadata, key: :kms_key, **lockbox_options
 
     before_save :serialize_metadata
 

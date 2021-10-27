@@ -9,7 +9,8 @@ module Veteran
       BASE_URL = 'https://www.va.gov/ogc/apps/accreditation/'
 
       self.primary_key = :representative_id
-      encrypts :dob, :ssn, **lockbox_options
+      has_kms_key
+      encrypts :dob, :ssn, key: :kms_key, **lockbox_options
 
       scope :attorneys, -> { where(user_types: ['attorney']) }
       scope :veteran_service_officers, -> { where(user_types: ['veteran_service_officer']) }

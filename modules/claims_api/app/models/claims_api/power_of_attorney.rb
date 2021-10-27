@@ -9,7 +9,8 @@ module ClaimsApi
     serialize :auth_headers, JsonMarshal::Marshaller
     serialize :form_data, JsonMarshal::Marshaller
     serialize :source_data, JsonMarshal::Marshaller
-    encrypts :auth_headers, :form_data, :source_data, **lockbox_options
+    has_kms_key
+    encrypts :auth_headers, :form_data, :source_data, key: :kms_key, **lockbox_options
 
     PENDING = 'pending'
     UPDATED = 'updated'

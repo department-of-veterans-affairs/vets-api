@@ -21,7 +21,8 @@ module HealthQuest
 
     serialize :questionnaire_response_data, JsonMarshaller
     serialize :user_demographics_data, JsonMarshaller
-    encrypts :questionnaire_response_data, :user_demographics_data, **lockbox_options
+    has_kms_key
+    encrypts :questionnaire_response_data, :user_demographics_data, key: :kms_key, **lockbox_options
 
     validates :questionnaire_response_data, presence: true
 

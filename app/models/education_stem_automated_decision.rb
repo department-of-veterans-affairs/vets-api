@@ -7,7 +7,8 @@ class EducationStemAutomatedDecision < ApplicationRecord
 
   DECISION_STATES = [INIT, PROCESSED, DENIED].freeze
 
-  encrypts :auth_headers_json, **lockbox_options
+  has_kms_key
+  encrypts :auth_headers_json, key: :kms_key, **lockbox_options
 
   validates(:automated_decision_state, inclusion: DECISION_STATES)
 

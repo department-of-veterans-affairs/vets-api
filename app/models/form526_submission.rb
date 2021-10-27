@@ -26,7 +26,8 @@ class Form526Submission < ApplicationRecord
   # @!attribute workflow_complete
   #   @return [Timestamp] updated at date.
   #
-  encrypts :auth_headers_json, :birls_ids_tried, :form_json, **lockbox_options
+  has_kms_key
+  encrypts :auth_headers_json, :birls_ids_tried, :form_json, key: :kms_key, **lockbox_options
 
   belongs_to :saved_claim,
              class_name: 'SavedClaim::DisabilityCompensation',

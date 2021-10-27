@@ -29,7 +29,8 @@ class InProgressForm < ApplicationRecord
 
   attribute :user_uuid, CleanUUID.new
   serialize :form_data, JsonMarshal::Marshaller
-  encrypts :form_data, **lockbox_options
+  has_kms_key
+  encrypts :form_data, key: :kms_key, **lockbox_options
   validates(:form_data, presence: true)
   validates(:user_uuid, presence: true)
   validate(:id_me_user_uuid)

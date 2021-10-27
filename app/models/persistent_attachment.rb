@@ -8,7 +8,8 @@ require 'common/convert_to_pdf'
 class PersistentAttachment < ApplicationRecord
   include SetGuid
 
-  encrypts :file_data, **lockbox_options
+  has_kms_key
+  encrypts :file_data, key: :kms_key, **lockbox_options
   belongs_to :saved_claim, inverse_of: :persistent_attachments, optional: true
   delegate :original_filename, :size, to: :file
 

@@ -13,6 +13,8 @@ module AppealsApi
       it 'removes PII from HLR records needing PII removal' do
         day_old_has_pii = create :higher_level_review, :completed_a_day_ago
         week_old_has_pii = create :higher_level_review, :completed_a_week_ago
+        day_old_has_pii.update(updated_at: 1.day.ago)
+        week_old_has_pii.update(updated_at: 8.days.ago)
 
         expect(day_old_has_pii.form_data_ciphertext).not_to be_nil
         expect(week_old_has_pii.form_data_ciphertext).not_to be_nil
@@ -26,6 +28,8 @@ module AppealsApi
       it 'removes PII from SC records needing PII removal' do
         day_old_has_pii = create :supplemental_claim, :completed_a_day_ago
         week_old_has_pii = create :supplemental_claim, :completed_a_week_ago
+        day_old_has_pii.update(updated_at: 1.day.ago)
+        week_old_has_pii.update(updated_at: 8.days.ago)
 
         expect(day_old_has_pii.form_data_ciphertext).not_to be_nil
         expect(week_old_has_pii.form_data_ciphertext).not_to be_nil
@@ -44,6 +48,9 @@ module AppealsApi
                                           updated_at: 90.days.ago, board_review_option: 'evidence_submission'
           ninety_two_day_old_has_pii = create :notice_of_disagreement, :status_completed,
                                               updated_at: 92.days.ago, board_review_option: 'evidence_submission'
+          week_old_has_pii.update(updated_at: 7.days.ago)
+          ninety_day_old_has_pii.update(updated_at: 90.days.ago)
+          ninety_two_day_old_has_pii.update(updated_at: 92.days.ago)
 
           expect(week_old_has_pii.form_data_ciphertext).not_to be_nil
           expect(ninety_day_old_has_pii.form_data_ciphertext).not_to be_nil
@@ -59,6 +66,8 @@ module AppealsApi
         it 'direct_review' do
           one_day_old = create :notice_of_disagreement, :completed_a_day_ago, board_review_option: 'direct_review'
           week_old_has_pii = create :notice_of_disagreement, :completed_a_week_ago, board_review_option: 'direct_review'
+          one_day_old.update(updated_at: 1.day.ago)
+          week_old_has_pii.update(updated_at: 8.days.ago)
 
           expect(one_day_old.form_data_ciphertext).not_to be_nil
           expect(week_old_has_pii.form_data_ciphertext).not_to be_nil
@@ -72,6 +81,8 @@ module AppealsApi
         it 'hearing' do
           one_day_old = create :notice_of_disagreement, :completed_a_day_ago, board_review_option: 'hearing'
           week_old_has_pii = create :notice_of_disagreement, :completed_a_week_ago, board_review_option: 'hearing'
+          one_day_old.update(updated_at: 1.day.ago)
+          week_old_has_pii.update(updated_at: 8.days.ago)
 
           expect(one_day_old.form_data_ciphertext).not_to be_nil
           expect(week_old_has_pii.form_data_ciphertext).not_to be_nil

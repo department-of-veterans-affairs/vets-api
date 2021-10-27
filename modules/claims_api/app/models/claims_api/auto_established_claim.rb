@@ -13,8 +13,9 @@ module ClaimsApi
     serialize :bgs_special_issue_responses, JsonMarshal::Marshaller
     serialize :form_data, JsonMarshal::Marshaller
     serialize :evss_response, JsonMarshal::Marshaller
+    has_kms_key
     encrypts :auth_headers, :bgs_flash_responses, :bgs_special_issue_responses, :evss_response, :form_data,
-             **lockbox_options
+             key: :kms_key, **lockbox_options
 
     validate :validate_service_dates
     before_validation :set_md5

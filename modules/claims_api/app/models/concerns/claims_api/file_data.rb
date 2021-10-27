@@ -8,7 +8,8 @@ module ClaimsApi
 
     included do
       serialize :file_data, JsonMarshal::Marshaller
-      encrypts :file_data, **lockbox_options
+      has_kms_key
+      encrypts :file_data, key: :kms_key, **lockbox_options
 
       def file_name
         file_data['filename']
