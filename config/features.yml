@@ -165,10 +165,6 @@ features:
   facilities_ppms_suppress_pharmacies:
     actor_type: user
     description: Front End Flag to suppress the ability to search for pharmacies
-  facilities_vet_center_automate_nearby:
-    actor_type: user
-    description: Automatically fetch nearby Vet Centers on Vet Center locations pages
-    enable_in_development: true
   facility_locator_covid_vaccine_walk_in_availability_text_frontend:
     actor_type: user
     description: Enable covid vaccine walk-in availability text within covid vaccine related search results
