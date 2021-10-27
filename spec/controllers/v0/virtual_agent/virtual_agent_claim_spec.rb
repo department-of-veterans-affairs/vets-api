@@ -50,24 +50,21 @@ RSpec.describe 'VirtualAgentClaims', type: :request do
                                                         'claim_status' => 'UNDER REVIEW',
                                                         'filing_date' => '02/08/2017',
                                                         'evss_id' => '600118854',
-                                                        'updated_date' => '03/10/2018',
-                                                        'va_representative' => 'JOHN SMITH'
+                                                        'updated_date' => '03/10/2018'
                                                       },
                                                        {
                                                          'claim_type' => 'Compensation',
                                                          'claim_status' => 'UNDER REVIEW',
                                                          'filing_date' => '01/08/2018',
                                                          'evss_id' => '600118855',
-                                                         'updated_date' => '01/10/2018',
-                                                         'va_representative' => 'VAL KILMER'
+                                                         'updated_date' => '01/10/2018'
                                                        },
                                                        {
                                                          'claim_type' => 'Compensation',
                                                          'claim_status' => 'UNDER REVIEW',
                                                          'filing_date' => '12/08/2017',
                                                          'evss_id' => '600118851',
-                                                         'updated_date' => '12/08/2017',
-                                                         'va_representative' => 'JESSE BROWN'
+                                                         'updated_date' => '12/08/2017'
                                                        }])
     end
 
@@ -103,8 +100,7 @@ RSpec.describe 'VirtualAgentClaims', type: :request do
                                                                'claim_status' => 'UNDER REVIEW',
                                                                'filing_date' => '12/08/2017',
                                                                'evss_id' => '600118851',
-                                                               'updated_date' => '12/08/2017',
-                                                               'va_representative' => 'JOHN SMITH'
+                                                               'updated_date' => '12/08/2017'
                                                              })
       end
 
@@ -131,8 +127,7 @@ RSpec.describe 'VirtualAgentClaims', type: :request do
                                                                'claim_status' => 'UNDER REVIEW',
                                                                'filing_date' => '12/08/2017',
                                                                'evss_id' => '600118851',
-                                                               'updated_date' => '12/08/2017',
-                                                               'va_representative' => ''
+                                                               'updated_date' => '12/08/2017'
                                                              })
       end
     end
@@ -204,8 +199,7 @@ RSpec.describe 'VirtualAgentClaims', type: :request do
                                                                'claim_status' => 'CLAIM RECEIVED',
                                                                'filing_date' => '09/28/2017',
                                                                'evss_id' => '600114693',
-                                                               'updated_date' => '09/28/2017',
-                                                               'va_representative' => 'JESSE BROWN'
+                                                               'updated_date' => '09/28/2017'
                                                              })
       end
     end
