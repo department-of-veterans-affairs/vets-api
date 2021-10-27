@@ -23,6 +23,19 @@ module AppealsApi
         expect(week_old_has_pii.reload.form_data_ciphertext).to be_nil
       end
 
+      it 'removes PII from SC records needing PII removal' do
+        day_old_has_pii = create :supplemental_claim, :completed_a_day_ago
+        week_old_has_pii = create :supplemental_claim, :completed_a_week_ago
+
+        expect(day_old_has_pii.form_data_ciphertext).not_to be_nil
+        expect(week_old_has_pii.form_data_ciphertext).not_to be_nil
+
+        RemovePii.new(form_type: SupplementalClaim).run!
+
+        expect(day_old_has_pii.reload.form_data_ciphertext).not_to be_nil
+        expect(week_old_has_pii.reload.form_data_ciphertext).to be_nil
+      end
+
       describe 'removes PII from NODs at the correct times for the different lanes' do
         it 'evidence_submission' do
           week_old_has_pii = create :notice_of_disagreement, :completed_a_week_ago,

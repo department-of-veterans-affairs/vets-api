@@ -17,6 +17,10 @@ module AppealsApi
       nil
     end
 
+    scope :pii_expunge_policy, lambda {
+      where('updated_at < ? AND status IN (?)', 7.days.ago, COMPLETE_STATUSES)
+    }
+
     serialize :auth_headers, JsonMarshal::Marshaller
     serialize :form_data, JsonMarshal::Marshaller
     encrypts :auth_headers, :form_data, **lockbox_options

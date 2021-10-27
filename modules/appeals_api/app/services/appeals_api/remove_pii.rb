@@ -6,7 +6,8 @@ module AppealsApi
 
     APPEALS_TYPES = [
       HigherLevelReview,
-      NoticeOfDisagreement
+      NoticeOfDisagreement,
+      SupplementalClaim
     ].freeze
 
     def initialize(form_type:)
