@@ -12,6 +12,17 @@ class AppealsApi::V2::DecisionReviews::LegacyAppealsController < AppealsApi::App
   )['definitions']['legacyAppealsIndexParameters']['properties'].keys
   SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
 
+  UNUSABLE_RESPONSE_ERROR = {
+    errors: [
+      {
+        title: 'Bad Gateway',
+        code: 'bad_gateway',
+        detail: 'Received an unusable response from Caseflow.',
+        status: 502
+      }
+    ]
+  }.freeze
+
   skip_before_action :authenticate
   before_action :validate_json_schema, only: %i[index]
 
@@ -69,8 +80,6 @@ class AppealsApi::V2::DecisionReviews::LegacyAppealsController < AppealsApi::App
   end
 
   def render_unusable_response_error
-    # Status is both rendered and updated -> an unusable response from Caseflow will have returned with a status: 200
-    render status: :bad_gateway,
-           json: Common::Exceptions::BackendServiceException.new(detail: 'Unusable upstream response')
+    render json: UNUSABLE_RESPONSE_ERROR, status: UNUSABLE_RESPONSE_ERROR[:errors].first[:status]
   end
 end
