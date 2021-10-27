@@ -146,6 +146,15 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
     end
   end
 
+  describe '#schema' do
+    let(:path) { base_path 'supplemental_claims/schema' }
+
+    it 'renders the json schema' do
+      get path
+      expect(response.status).to eq(200)
+    end
+  end
+
   describe '#show' do
     let(:path) { base_path 'supplemental_claims/' }
 

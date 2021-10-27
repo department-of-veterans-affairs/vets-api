@@ -37,6 +37,15 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
     render json: AppealsApi::SupplementalClaimSerializer.new(sc).serializable_hash
   end
 
+  def schema
+    render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
+      AppealsApi::FormSchemas.new(
+        SCHEMA_ERROR_TYPE,
+        schema_version: 'v2'
+      ).schema(FORM_NUMBER)
+    )
+  end
+
   def show
     id = params[:id]
     sc = AppealsApi::SupplementalClaim.find(id)
