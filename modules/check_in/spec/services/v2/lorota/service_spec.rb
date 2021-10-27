@@ -55,6 +55,57 @@ describe V2::Lorota::Service do
         scope: 'read.full',
         payload: {
           demographics: {
+            nextOfKin1: {
+              name: 'VETERAN,JONAH',
+              relationship: 'BROTHER',
+              phone: '1112223333',
+              workPhone: '4445556666',
+              address: {
+                street1: '123 Main St',
+                street2: 'Ste 234',
+                street3: '',
+                city: 'Los Angeles',
+                county: 'Los Angeles',
+                state: 'CA',
+                zip: '90089',
+                zip4: nil,
+                country: 'USA'
+              }
+            },
+            nextOfKin2: {
+              name: '',
+              relationship: '',
+              phone: '',
+              workPhone: '',
+              address: {
+                street1: '',
+                street2: '',
+                street3: '',
+                city: '',
+                county: nil,
+                state: '',
+                zip: '',
+                zip4: nil,
+                country: nil
+              }
+            },
+            emergencyContact: {
+              name: '',
+              relationship: nil,
+              phone: '',
+              workPhone: '',
+              address: {
+                street1: '',
+                street2: '',
+                street3: '',
+                city: '',
+                county: nil,
+                state: '',
+                zip: '',
+                zip4: '',
+                country: ''
+              }
+            },
             mailingAddress: {
               street1: '123 Turtle Trail',
               street2: '',
@@ -181,14 +232,61 @@ describe V2::Lorota::Service do
       }
     end
 
-    before do
-      allow_any_instance_of(::V2::Lorota::Session).to receive(:from_redis).and_return('123abc')
-      allow_any_instance_of(::V2::Lorota::Request).to receive(:get)
-        .and_return(Faraday::Response.new(body: appointment_data.to_json, status: 200))
+    context 'with next of kin flag turned off' do
+      before do
+        allow_any_instance_of(::V2::Lorota::Session).to receive(:from_redis).and_return('123abc')
+        allow_any_instance_of(::V2::Lorota::Request).to receive(:get)
+          .and_return(Faraday::Response.new(body: appointment_data.to_json, status: 200))
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_next_of_kin_enabled).and_return(false)
+      end
+
+      it 'returns approved data without next of kin' do
+        expect(subject.build(check_in: valid_check_in).get_check_in_data).to eq(approved_response)
+      end
     end
 
-    it 'returns approved data' do
-      expect(subject.build(check_in: valid_check_in).get_check_in_data).to eq(approved_response)
+    context 'with next of kin flag turned on' do
+      let(:next_of_kin_data) do
+        {
+          payload: {
+            demographics: {
+              nextOfKin1: {
+                name: 'VETERAN,JONAH',
+                relationship: 'BROTHER',
+                phone: '1112223333',
+                workPhone: '4445556666',
+                address: {
+                  street1: '123 Main St',
+                  street2: 'Ste 234',
+                  street3: '',
+                  city: 'Los Angeles',
+                  county: 'Los Angeles',
+                  state: 'CA',
+                  zip: '90089',
+                  zip4: nil,
+                  country: 'USA'
+                }
+              }
+            }
+          }
+        }
+      end
+      let(:response_with_next_of_kin) do
+        approved_response.deep_merge(next_of_kin_data)
+      end
+
+      before do
+        allow_any_instance_of(::V2::Lorota::Session).to receive(:from_redis).and_return('123abc')
+        allow_any_instance_of(::V2::Lorota::Request).to receive(:get)
+          .and_return(Faraday::Response.new(body: appointment_data.to_json, status: 200))
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_next_of_kin_enabled).and_return(true)
+      end
+
+      it 'returns approved data with next of kin' do
+        expect(subject.build(check_in: valid_check_in).get_check_in_data).to eq(response_with_next_of_kin)
+      end
     end
   end
 

@@ -16,6 +16,57 @@ RSpec.describe CheckIn::V2::AppointmentDataSerializer do
       scope: 'read.full',
       payload: {
         demographics: {
+          nextOfKin1: {
+            name: 'VETERAN,JONAH',
+            relationship: 'BROTHER',
+            phone: '1112223333',
+            workPhone: '4445556666',
+            address: {
+              street1: '123 Main St',
+              street2: 'Ste 234',
+              street3: '',
+              city: 'Los Angeles',
+              county: 'Los Angeles',
+              state: 'CA',
+              zip: '90089',
+              zip4: nil,
+              country: 'USA'
+            }
+          },
+          nextOfKin2: {
+            name: '',
+            relationship: '',
+            phone: '',
+            workPhone: '',
+            address: {
+              street1: '',
+              street2: '',
+              street3: '',
+              city: '',
+              county: nil,
+              state: '',
+              zip: '',
+              zip4: nil,
+              country: nil
+            }
+          },
+          emergencyContact: {
+            name: '',
+            relationship: nil,
+            phone: '',
+            workPhone: '',
+            address: {
+              street1: '',
+              street2: '',
+              street3: '',
+              city: '',
+              county: nil,
+              state: '',
+              zip: '',
+              zip4: '',
+              country: ''
+            }
+          },
           mailingAddress: {
             street1: '123 Turtle Trail',
             street2: '',
@@ -149,11 +200,61 @@ RSpec.describe CheckIn::V2::AppointmentDataSerializer do
       }
     end
 
-    it 'returns a serialized hash' do
-      appt_struct = OpenStruct.new(appointment_data)
-      appt_serializer = CheckIn::V2::AppointmentDataSerializer.new(appt_struct)
+    context 'with next of kin flag turned off' do
+      it 'returns a serialized hash without next of kin' do
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_next_of_kin_enabled).and_return(false)
 
-      expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)
+        appt_struct = OpenStruct.new(appointment_data)
+        appt_serializer = CheckIn::V2::AppointmentDataSerializer.new(appt_struct)
+
+        expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)
+      end
+    end
+
+    context 'with next of kin flag turned on' do
+      let(:next_of_kin_data) do
+        {
+          data: {
+            attributes: {
+              payload: {
+                demographics: {
+                  nextOfKin1: {
+                    name: 'VETERAN,JONAH',
+                    relationship: 'BROTHER',
+                    phone: '1112223333',
+                    workPhone: '4445556666',
+                    address: {
+                      street1: '123 Main St',
+                      street2: 'Ste 234',
+                      street3: '',
+                      city: 'Los Angeles',
+                      county: 'Los Angeles',
+                      state: 'CA',
+                      zip: '90089',
+                      zip4: nil,
+                      country: 'USA'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      end
+      let(:serialized_hash_response_with_next_of_kin) do
+        serialized_hash_response.deep_merge(next_of_kin_data)
+      end
+
+      it 'returns a serialized hash with next of kin' do
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_next_of_kin_enabled).and_return(true)
+
+        appt_struct = OpenStruct.new(appointment_data)
+        appt_serializer = CheckIn::V2::AppointmentDataSerializer.new(appt_struct)
+
+        expect(appt_serializer.serializable_hash).to eq(serialized_hash_response_with_next_of_kin)
+      end
     end
   end
 end
