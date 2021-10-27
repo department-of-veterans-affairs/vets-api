@@ -134,6 +134,45 @@ describe 'Legacy Appeals', swagger_doc: 'modules/appeals_api/app/swagger/appeals
           end
         end
       end
+
+      response '502', 'Unknown Error' do
+        let(:'X-VA-SSN') { nil }
+
+        schema type: :object,
+               properties: {
+                 errors: {
+                   type: :array,
+                   items: {
+                     properties: {
+                       status: {
+                         type: 'string',
+                         example: '502'
+                       },
+                       detail: {
+                         type: 'string',
+                         example: 'Received a 500 response from the upstream server'
+                       },
+                       code: {
+                         type: 'string',
+                         example: 'CASEFLOWSTATUS500'
+                       },
+                       title: {
+                         type: 'string',
+                         example: 'Bad Gateway'
+                       }
+                     }
+                   }
+                 }
+               }
+
+        before do |example|
+          submit_request(example.metadata)
+        end
+
+        it 'returns a 500 response' do |example|
+          # NOOP
+        end
+      end
     end
   end
 end

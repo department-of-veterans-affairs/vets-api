@@ -5926,6 +5926,41 @@
                 }
               }
             }
+          },
+          "502": {
+            "description": "Unknown Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "example": "502"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "example": "Received a 500 response from the upstream server"
+                          },
+                          "code": {
+                            "type": "string",
+                            "example": "CASEFLOWSTATUS500"
+                          },
+                          "title": {
+                            "type": "string",
+                            "example": "Bad Gateway"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
