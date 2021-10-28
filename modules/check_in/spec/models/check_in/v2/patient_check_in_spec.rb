@@ -6,6 +6,7 @@ RSpec.describe CheckIn::V2::PatientCheckIn do
   subject { described_class }
 
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
+  let(:check_in) { subject.build }
 
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
@@ -17,21 +18,29 @@ RSpec.describe CheckIn::V2::PatientCheckIn do
 
   describe '.build' do
     it 'returns an instance of PatientCheckIn' do
-      expect(subject.build({})).to be_an_instance_of(CheckIn::V2::PatientCheckIn)
+      expect(check_in).to be_an_instance_of(CheckIn::V2::PatientCheckIn)
     end
   end
 
   describe 'attributes' do
     it 'responds to check_in' do
-      expect(subject.build({}).respond_to?(:check_in)).to be(true)
+      expect(check_in.respond_to?(:check_in)).to be(true)
     end
 
     it 'responds to data' do
-      expect(subject.build({}).respond_to?(:data)).to be(true)
+      expect(check_in.respond_to?(:data)).to be(true)
     end
 
     it 'responds to settings' do
-      expect(subject.build({}).respond_to?(:settings)).to be(true)
+      expect(check_in.respond_to?(:settings)).to be(true)
+    end
+
+    it 'gets redis_session_prefix from settings' do
+      expect(check_in.redis_session_prefix).to eq('check_in_lorota_v2')
+    end
+
+    it 'gets redis_token_expiry from settings' do
+      expect(check_in.redis_token_expiry).to eq(43_200)
     end
   end
 

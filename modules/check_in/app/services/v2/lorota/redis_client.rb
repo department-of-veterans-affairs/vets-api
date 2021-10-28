@@ -7,7 +7,7 @@ module V2
 
       attr_reader :settings
 
-      def_delegators :settings, :redis_session_prefix
+      def_delegators :settings, :redis_session_prefix, :redis_token_expiry
 
       def self.build
         new
@@ -29,7 +29,7 @@ module V2
           session_id_prefix(uuid: check_in_uuid),
           token,
           namespace: 'check-in-lorota-v2-cache',
-          expires_in: 1440.minutes
+          expires_in: redis_token_expiry
         )
       end
 

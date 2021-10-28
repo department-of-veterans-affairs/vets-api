@@ -18,6 +18,7 @@ describe V2::Lorota::RedisClient do
   let(:check_in) { CheckIn::V2::Session.build(opts) }
   let(:redis_client) { subject.build }
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
+  let(:redis_expiry_time) { 12.hours }
 
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
@@ -28,6 +29,14 @@ describe V2::Lorota::RedisClient do
   describe 'attributes' do
     it 'responds to settings' do
       expect(redis_client.respond_to?(:settings)).to be(true)
+    end
+
+    it 'gets redis_session_prefix from settings' do
+      expect(redis_client.redis_session_prefix).to eq('check_in_lorota_v2')
+    end
+
+    it 'gets redis_token_expiry from settings' do
+      expect(redis_client.redis_token_expiry).to eq(43_200)
     end
   end
 
@@ -42,15 +51,25 @@ describe V2::Lorota::RedisClient do
 
     context 'when cache exists' do
       before do
-        Rails.cache.write(
-          "check_in_lorota_v2_#{uuid}_read.full",
-          '12345',
-          namespace: 'check-in-lorota-v2-cache'
-        )
+        redis_client.save(check_in_uuid: uuid, token: '12345')
       end
 
       it 'returns the cached value' do
         expect(redis_client.get(check_in_uuid: uuid)).to eq('12345')
+      end
+    end
+
+    context 'when cache expires' do
+      let(:uuid) { Faker::Internet.uuid }
+
+      before do
+        redis_client.save(check_in_uuid: uuid, token: '52617')
+      end
+
+      it 'returns nil' do
+        Timecop.travel(redis_expiry_time.from_now) do
+          expect(redis_client.get(check_in_uuid: uuid)).to eq(nil)
+        end
       end
     end
 

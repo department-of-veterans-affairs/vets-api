@@ -23,6 +23,14 @@ describe V1::Lorota::BasicRedisHandler do
     it 'responds to settings' do
       expect(redis_handler.respond_to?(:settings)).to be(true)
     end
+
+    it 'gets redis_session_prefix from settings' do
+      expect(redis_handler.redis_session_prefix).to eq('check_in_lorota_v1')
+    end
+
+    it 'gets redis_token_expiry from settings' do
+      expect(redis_handler.redis_token_expiry).to eq(43_200)
+    end
   end
 
   describe '.build' do

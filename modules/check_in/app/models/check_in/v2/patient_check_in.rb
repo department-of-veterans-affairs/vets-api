@@ -7,7 +7,7 @@ module CheckIn
 
       attr_reader :settings, :check_in, :data, :http_status, :http_body
 
-      def_delegators :settings, :redis_session_prefix
+      def_delegators :settings, :redis_session_prefix, :redis_token_expiry
 
       def self.build(opts = {})
         new(opts)
@@ -26,7 +26,7 @@ module CheckIn
           build_session_id_prefix,
           appointment_identifiers_json,
           namespace: 'check-in-lorota-v2-cache',
-          expires_in: 1440.minutes
+          expires_in: redis_token_expiry
         )
       end
 
