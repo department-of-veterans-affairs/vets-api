@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_11_201540) do
+ActiveRecord::Schema.define(version: 2021_10_27_215259) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -747,6 +747,13 @@ ActiveRecord::Schema.define(version: 2021_10_11_201540) do
     t.string "account_type"
     t.uuid "idme_uuid"
     t.text "notes"
+  end
+
+  create_table "user_accounts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "icn"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["icn"], name: "index_user_accounts_on_icn", unique: true
   end
 
   create_table "va_forms_forms", force: :cascade do |t|
