@@ -8,7 +8,7 @@ module AppealsApi
       describe '#message_text' do
         let(:params) do
           {
-            'class' => 'HigherLevelReviewPdfSubmitJob',
+            'class' => 'PdfSubmitJob',
             'args' => %w[1234 5678],
             'retry_count' => 2,
             'error_class' => 'RuntimeError',
@@ -28,7 +28,7 @@ module AppealsApi
 
         it 'returns the class that errored' do
           with_settings(Settings, vsp_environment: 'staging') do
-            expect(described_class.new(params).message_text).to include('HigherLevelReviewPdfSubmitJob')
+            expect(described_class.new(params).message_text).to include('PdfSubmitJob')
           end
         end
 

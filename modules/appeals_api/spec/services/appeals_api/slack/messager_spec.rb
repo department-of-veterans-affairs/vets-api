@@ -8,7 +8,7 @@ module AppealsApi
       describe '.notify!' do
         let(:params) do
           {
-            'class' => 'HigherLevelReviewPdfSubmitJob',
+            'class' => 'PdfSubmitJob',
             'args' => %w[1234 5678],
             'retry_count' => 2,
             'error_class' => 'RuntimeError',

@@ -2,6 +2,7 @@
 
 require 'sidekiq'
 require 'appeals_api/upload_error'
+require 'appeals_api/hlr_pdf_submit_wrapper'
 require 'appeals_api/nod_pdf_submit_wrapper'
 require 'central_mail/utilities'
 require 'central_mail/service'
@@ -16,6 +17,7 @@ module AppealsApi
     include AppealsApi::CharacterUtilities
 
     APPEAL_WRAPPERS = {
+      AppealsApi::HigherLevelReview => AppealsApi::HlrPdfSubmitWrapper,
       AppealsApi::NoticeOfDisagreement => AppealsApi::NodPdfSubmitWrapper
     }.freeze
 

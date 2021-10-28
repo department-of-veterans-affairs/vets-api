@@ -71,9 +71,19 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
     end
 
     it 'create the job to build the PDF' do
-      expect { post(path, params: @data, headers: @headers) }.to(
-        change(AppealsApi::HigherLevelReviewPdfSubmitJob.jobs, :size).by(1)
-      )
+      client_stub = instance_double('CentralMail::Service')
+      faraday_response = instance_double('Faraday::Response')
+
+      allow(CentralMail::Service).to receive(:new) { client_stub }
+      allow(client_stub).to receive(:upload).and_return(faraday_response)
+      allow(faraday_response).to receive(:success?).and_return(true)
+
+      Sidekiq::Testing.inline! do
+        post(path, params: @data, headers: @headers)
+      end
+
+      nod = AppealsApi::HigherLevelReview.find_by(id: parsed['data']['id'])
+      expect(nod.status).to eq('submitted')
     end
 
     it 'invalid headers return an error' do
