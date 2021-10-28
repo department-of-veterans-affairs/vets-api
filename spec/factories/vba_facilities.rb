@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :vba_314c, class: Facilities::VBAFacility do
+  factory :vba_314c, class: 'Facilities::VBAFacility' do
     unique_id { '314c' }
     name { 'VetSuccss on Campus at Norfolk State University' }
     facility_type { 'va_benefits_facility' }
@@ -47,7 +47,7 @@ FactoryBot.define do
     access { {} }
   end
   # bbox entries for PDX
-  factory :vba_348, class: Facilities::VBAFacility do
+  factory :vba_348, class: 'Facilities::VBAFacility' do
     unique_id { '348' }
     name { 'Portland Regional Benefits Office' }
     facility_type { 'va_benefits_facility' }
@@ -97,7 +97,7 @@ FactoryBot.define do
     feedback { {} }
     access { {} }
   end
-  factory :vba_348a, class: Facilities::VBAFacility do
+  factory :vba_348a, class: 'Facilities::VBAFacility' do
     unique_id { '348a' }
     name { 'Portland Vocational Rehabilitation and Employment Office' }
     facility_type { 'va_benefits_facility' }
@@ -146,7 +146,7 @@ FactoryBot.define do
     feedback { {} }
     access { {} }
   end
-  factory :vba_348d, class: Facilities::VBAFacility do
+  factory :vba_348d, class: 'Facilities::VBAFacility' do
     unique_id { '348d' }
     name { 'VetSuccess on Campus at Portland State University' }
     facility_type { 'va_benefits_facility' }
@@ -195,7 +195,7 @@ FactoryBot.define do
     feedback { {} }
     access { {} }
   end
-  factory :vba_348e, class: Facilities::VBAFacility do
+  factory :vba_348e, class: 'Facilities::VBAFacility' do
     unique_id { '348e' }
     name { 'VetSuccess on Campus at Portland Community College Cascade Campus' }
     facility_type { 'va_benefits_facility' }
@@ -244,7 +244,7 @@ FactoryBot.define do
     feedback { {} }
     access { {} }
   end
-  factory :vba_348h, class: Facilities::VBAFacility do
+  factory :vba_348h, class: 'Facilities::VBAFacility' do
     unique_id { '348h' }
     name { 'Vancouver Vocational Rehabilitation and Employment Office' }
     facility_type { 'va_benefits_facility' }
@@ -294,7 +294,7 @@ FactoryBot.define do
     access { {} }
   end
   # bbox entries for NY vba
-  factory :vba_306, class: Facilities::VBAFacility do
+  factory :vba_306, class: 'Facilities::VBAFacility' do
     unique_id { '306' }
     name { 'New York Regional Benefits Office' }
     facility_type { 'va_benefits_facility' }
@@ -338,7 +338,7 @@ FactoryBot.define do
     feedback {}
     access {}
   end
-  factory :vba_306a, class: Facilities::VBAFacility do
+  factory :vba_306a, class: 'Facilities::VBAFacility' do
     unique_id { '306a' }
     name { 'New York Regional Office at Montrose VAMC' }
     facility_type { 'va_benefits_facility' }
@@ -378,7 +378,7 @@ FactoryBot.define do
     access {}
   end
 
-  factory :vba_306b, class: Facilities::VBAFacility do
+  factory :vba_306b, class: 'Facilities::VBAFacility' do
     unique_id { '306b' }
     name { 'New York Regional Office at Albany VAMC Hicksville' }
     facility_type { 'va_benefits_facility' }
@@ -418,7 +418,7 @@ FactoryBot.define do
     access {}
   end
 
-  factory :vba_306c, class: Facilities::VBAFacility do
+  factory :vba_306c, class: 'Facilities::VBAFacility' do
     unique_id { '306c' }
     name { 'New York Regional Office at Hicksville Vet Center' }
     facility_type { 'va_benefits_facility' }
@@ -457,7 +457,7 @@ FactoryBot.define do
     feedback {}
     access {}
   end
-  factory :vba_306d, class: Facilities::VBAFacility do
+  factory :vba_306d, class: 'Facilities::VBAFacility' do
     unique_id { '306d' }
     name { 'New York Regional Office IDES at Montrose VAMC' }
     facility_type { 'va_benefits_facility' }
@@ -496,7 +496,7 @@ FactoryBot.define do
     feedback {}
     access {}
   end
-  factory :vba_306e, class: Facilities::VBAFacility do
+  factory :vba_306e, class: 'Facilities::VBAFacility' do
     unique_id { '306e' }
     name { 'New York Regional Office at Albany VAMC' }
     facility_type { 'va_benefits_facility' }
@@ -539,7 +539,7 @@ FactoryBot.define do
     feedback {}
     access {}
   end
-  factory :vba_306f, class: Facilities::VBAFacility do
+  factory :vba_306f, class: 'Facilities::VBAFacility' do
     unique_id { '306f' }
     name { 'New York Regional Office at Castle Point VAMC' }
     facility_type { 'va_benefits_facility' }
@@ -582,7 +582,7 @@ FactoryBot.define do
     feedback {}
     access {}
   end
-  factory :vba_306g, class: Facilities::VBAFacility do
+  factory :vba_306g, class: 'Facilities::VBAFacility' do
     unique_id { '306g' }
     name { 'New York Regional Office Outbased at Montrose VAMC' }
     facility_type { 'va_benefits_facility' }
@@ -625,7 +625,7 @@ FactoryBot.define do
     feedback {}
     access {}
   end
-  factory :vba_306h, class: Facilities::VBAFacility do
+  factory :vba_306h, class: 'Facilities::VBAFacility' do
     unique_id { '306h' }
     name { 'New York Regional Office Outbased at Manhattan VAMC, Office 1' }
     facility_type { 'va_benefits_facility' }
@@ -668,7 +668,7 @@ FactoryBot.define do
     feedback {}
     access {}
   end
-  factory :vba_306i, class: Facilities::VBAFacility do
+  factory :vba_306i, class: 'Facilities::VBAFacility' do
     unique_id { '306i' }
     name { 'New York Regional Office Outbased  at Manhattan VAMC, Office 2' }
     facility_type { 'va_benefits_facility' }
@@ -712,7 +712,7 @@ FactoryBot.define do
     feedback {}
     access {}
   end
-  factory :vba_309, class: Facilities::VBAFacility do
+  factory :vba_309, class: 'Facilities::VBAFacility' do
     unique_id { '309' }
     name { 'Newark VA Regional Benefits Office' }
     facility_type { 'va_benefits_facility' }
@@ -760,7 +760,7 @@ FactoryBot.define do
     feedback {}
     access {}
   end
-  factory :vba_310e, class: Facilities::VBAFacility do
+  factory :vba_310e, class: 'Facilities::VBAFacility' do
     unique_id { '310e' }
     name { 'Wilkes Barre VA Medical Center, Vocational Rehabilitation and Employment Services Office' }
     facility_type { 'va_benefits_facility' }
@@ -797,7 +797,7 @@ FactoryBot.define do
     feedback {}
     access {}
   end
-  factory :generic_vba, class: Facilities::VBAFacility do
+  factory :generic_vba, class: 'Facilities::VBAFacility' do
     sequence :unique_id, &:to_s
     name { 'Generic Benefits Office' }
     facility_type { 'va_benefits_facility' }

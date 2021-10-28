@@ -3,7 +3,7 @@
 require 'gi/gids_response'
 
 FactoryBot.define do
-  factory :gids_response, class: GI::GIDSResponse do
+  factory :gids_response, class: 'GI::GIDSResponse' do
     status { 200 }
     body {
       {

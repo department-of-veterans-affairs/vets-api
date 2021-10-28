@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :ppms_provider, class: PPMS::Provider do
+  factory :ppms_provider, class: 'PPMS::Provider' do
     provider_identifier { Faker::Number.number(digits: 6) }
     provider_name { Faker::Name.name }
     care_site { Faker::Company.name }

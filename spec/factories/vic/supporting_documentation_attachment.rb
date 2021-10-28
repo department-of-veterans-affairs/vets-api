@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :supporting_documentation_attachment, class: VIC::SupportingDocumentationAttachment do
+  factory :supporting_documentation_attachment, class: 'VIC::SupportingDocumentationAttachment' do
     transient do
       file_path { nil }
       file_type { nil }

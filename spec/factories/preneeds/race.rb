@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :race, class: Preneeds::Race do
+  factory :race, class: 'Preneeds::Race' do
     is_american_indian_or_alaskan_native { true }
     is_asian { false }
     is_black_or_african_american { false }

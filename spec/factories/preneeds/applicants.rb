@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :applicant, class: Preneeds::Applicant do
+  factory :applicant, class: 'Preneeds::Applicant' do
     applicant_email { 'hg@hotmail.com' }
     applicant_phone_number { '555-555-5555 - 234' }
     applicant_relationship_to_claimant { 'Self' }

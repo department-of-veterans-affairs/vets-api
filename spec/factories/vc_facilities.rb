@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :vc_0543V, class: Facilities::VCFacility do
+  factory :vc_0543V, class: 'Facilities::VCFacility' do
     unique_id { '0543V' }
     name { 'Fort Collins Vet Center' }
     facility_type { 'vet_center' }
@@ -36,7 +36,7 @@ FactoryBot.define do
     access { {} }
   end
   # bbox entries for PDX
-  factory :vc_0617V, class: Facilities::VCFacility do
+  factory :vc_0617V, class: 'Facilities::VCFacility' do
     unique_id { '0617V' }
     name { 'Portland Vet Center' }
     facility_type { 'vet_center' }

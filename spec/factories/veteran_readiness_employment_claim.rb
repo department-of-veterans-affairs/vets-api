@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :veteran_readiness_employment_claim, class: SavedClaim::VeteranReadinessEmploymentClaim do
+  factory :veteran_readiness_employment_claim, class: 'SavedClaim::VeteranReadinessEmploymentClaim' do
     form_id { '28-1900' }
 
     transient do

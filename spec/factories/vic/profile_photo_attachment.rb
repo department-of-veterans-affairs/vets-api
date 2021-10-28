@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :profile_photo_attachment, class: VIC::ProfilePhotoAttachment do
+  factory :profile_photo_attachment, class: 'VIC::ProfilePhotoAttachment' do
     transient do
       file_path { nil }
       file_type { nil }

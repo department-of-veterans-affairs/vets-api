@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :dependent_relationships, class: Array do
+  factory :dependent_relationships, class: 'Array' do
     initialize_with do
       [
         {
@@ -87,7 +87,7 @@ FactoryBot.define do
     end
   end
 
-  factory :step_children_relationships, class: Array do
+  factory :step_children_relationships, class: 'Array' do
     initialize_with do
       [
         {

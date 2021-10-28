@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :burial_form, class: Preneeds::BurialForm do
+  factory :burial_form, class: 'Preneeds::BurialForm' do
     application_status { 'somewhere' }
     has_currently_buried { '1' }
     sending_code { 'abc' }

@@ -118,8 +118,8 @@ RSpec/EmptyLineAfterExample:
 # Cop supports --auto-correct.
 # Configuration parameters: Include.
 # Include: spec/factories.rb, spec/factories/**/*.rb, features/support/factories/**/*.rb
-RSpec/FactoryBot/FactoryClassName:
-  Enabled: false
+# RSpec/FactoryBot/FactoryClassName:
+#   Enabled: false
 
 # Offense count: 3
 RSpec/IdenticalEqualityAssertion:

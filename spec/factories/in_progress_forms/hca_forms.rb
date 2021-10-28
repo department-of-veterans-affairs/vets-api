@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :hca_in_progress_form, class: InProgressForm do
+  factory :hca_in_progress_form, class: 'InProgressForm' do
     user_uuid { SecureRandom.uuid }
     form_id { '1010cg' }
     metadata do

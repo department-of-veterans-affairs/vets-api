@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :dependency_claim, class: SavedClaim::DependencyClaim do
+  factory :dependency_claim, class: 'SavedClaim::DependencyClaim' do
     form_id { '686C-674' }
 
     form {

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :burial_claim, class: SavedClaim::Burial do
+  factory :burial_claim, class: 'SavedClaim::Burial' do
     form_id { '21P-530' }
     form do
       {

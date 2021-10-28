@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :supporting_document, class: ClaimsApi::SupportingDocument do
+  factory :supporting_document, class: 'ClaimsApi::SupportingDocument' do
     id { SecureRandom.uuid }
     auto_established_claim
 

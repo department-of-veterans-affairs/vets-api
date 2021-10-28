@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :nca_888, class: Facilities::NCAFacility do
+  factory :nca_888, class: 'Facilities::NCAFacility' do
     unique_id { '888' }
     name { 'Fort Logan National Cemetery' }
     facility_type { 'va_cemetery' }
@@ -42,7 +42,7 @@ FactoryBot.define do
     feedback { {} }
     access { {} }
   end
-  factory :nca_907, class: Facilities::NCAFacility do
+  factory :nca_907, class: 'Facilities::NCAFacility' do
     unique_id { '907' }
     name { 'Willamette National Cemetery' }
     facility_type { 'va_cemetery' }
@@ -87,7 +87,7 @@ FactoryBot.define do
     access { {} }
   end
   # bbox entries for NY nca
-  factory :nca_824, class: Facilities::NCAFacility do
+  factory :nca_824, class: 'Facilities::NCAFacility' do
     unique_id { '824' }
     name { 'Woodlawn National Cemetery' }
     facility_type { 'va_cemetery' }
@@ -131,7 +131,7 @@ FactoryBot.define do
     feedback { {} }
     access { {} }
   end
-  factory :nca_088, class: Facilities::NCAFacility do
+  factory :nca_088, class: 'Facilities::NCAFacility' do
     unique_id { '088' }
     name { "Albany Rural Cemetery Soldiers' Lot" }
     facility_type { 'va_cemetery' }
@@ -175,7 +175,7 @@ FactoryBot.define do
     feedback { {} }
     access { {} }
   end
-  factory :nca_808, class: Facilities::NCAFacility do
+  factory :nca_808, class: 'Facilities::NCAFacility' do
     unique_id { '808' }
     name { 'Cypress Hills National Cemetery' }
     facility_type  { 'va_cemetery' }
@@ -219,7 +219,7 @@ FactoryBot.define do
     feedback { {} }
     access { {} }
   end
-  factory :nca_803, class: Facilities::NCAFacility do
+  factory :nca_803, class: 'Facilities::NCAFacility' do
     unique_id { '803' }
     name { 'Bath National Cemetery' }
     facility_type { 'va_cemetery' }
@@ -263,7 +263,7 @@ FactoryBot.define do
     feedback { {} }
     access { {} }
   end
-  factory :nca_917, class: Facilities::NCAFacility do
+  factory :nca_917, class: 'Facilities::NCAFacility' do
     unique_id { '917' }
     name { 'Gerald B.H. Solomon Saratoga National Cemetery' }
     facility_type { 'va_cemetery' }
@@ -307,7 +307,7 @@ FactoryBot.define do
     feedback { {} }
     access { {} }
   end
-  factory :nca_815, class: Facilities::NCAFacility do
+  factory :nca_815, class: 'Facilities::NCAFacility' do
     unique_id { '815' }
     name { 'Long Island National Cemetery' }
     facility_type { 'va_cemetery' }

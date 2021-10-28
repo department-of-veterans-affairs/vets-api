@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :vha_648A4, class: Facilities::VHAFacility do
+  factory :vha_648A4, class: 'Facilities::VHAFacility' do
     unique_id { '648A4' }
     name { 'Portland VA Medical Center-Vancouver' }
     facility_type { 'va_health_facility' }
@@ -91,7 +91,7 @@ FactoryBot.define do
     }
   end
   # bbox entries for PDX
-  factory :vha_648, class: Facilities::VHAFacility do
+  factory :vha_648, class: 'Facilities::VHAFacility' do
     unique_id { '648' }
     name { 'Portland VA Medical Center' }
     facility_type { 'va_health_facility' }
@@ -212,7 +212,7 @@ FactoryBot.define do
       } }
     }
   end
-  factory :vha_648GI, class: Facilities::VHAFacility do
+  factory :vha_648GI, class: 'Facilities::VHAFacility' do
     unique_id { '648GI' }
     name { 'Portland VA Clinic' }
     facility_type { 'va_health_facility' }
@@ -281,7 +281,7 @@ FactoryBot.define do
       } }
     }
   end
-  factory :vha_402QA, class: Facilities::VHAFacility do
+  factory :vha_402QA, class: 'Facilities::VHAFacility' do
     unique_id { '402QA' }
     name { 'Fort Kent VA Clinic' }
     facility_type { 'va_health_facility' }
@@ -343,7 +343,7 @@ FactoryBot.define do
       } }
     }
   end
-  factory :generic_vha, class: Facilities::VHAFacility do
+  factory :generic_vha, class: 'Facilities::VHAFacility' do
     sequence :unique_id, &:to_s
     name { 'Generic Health Office' }
     facility_type { 'va_health_facility' }

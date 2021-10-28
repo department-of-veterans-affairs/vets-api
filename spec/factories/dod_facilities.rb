@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :dod_001, class: Facilities::DODFacility do
+  factory :dod_001, class: 'Facilities::DODFacility' do
     unique_id { SecureRandom.uuid }
     name { 'Portland Army Medical Center' }
     facility_type { 'dod_health' }
@@ -20,7 +20,7 @@ FactoryBot.define do
         } }
     }
   end
-  factory :dod_002, class: Facilities::DODFacility do
+  factory :dod_002, class: 'Facilities::DODFacility' do
     unique_id { SecureRandom.uuid }
     name { 'Portland Naval Hospital' }
     facility_type { 'dod_health' }

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :address, class: Preneeds::Address do
+  factory :address, class: 'Preneeds::Address' do
     sequence(:street) { generate(:street) }
     sequence(:street2) { generate(:street2) }
     city { 'NY' }
@@ -10,7 +10,7 @@ FactoryBot.define do
     postal_code { '10000' }
   end
 
-  factory :foreign_address, class: Preneeds::Address do
+  factory :foreign_address, class: 'Preneeds::Address' do
     sequence(:street) { generate(:street) }
     sequence(:street2) { generate(:street2) }
     city { 'somewhere' }

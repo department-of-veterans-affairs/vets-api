@@ -3,7 +3,7 @@
 require './lib/sm/client_session'
 
 FactoryBot.define do
-  factory :session, class: SM::ClientSession do
+  factory :session, class: 'SM::ClientSession' do
     user_id { 1234 }
     token { 'o7nsKRFVeijDG8u59/D6JOMrCmXMZO8p' }
     expires_at { 'Thu, 26 Dec 2015 15:54:21 GMT' }

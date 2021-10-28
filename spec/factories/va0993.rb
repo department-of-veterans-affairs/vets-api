@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :va0993, class: SavedClaim::EducationBenefits::VA0993, parent: :education_benefits do
+  factory :va0993, class: 'SavedClaim::EducationBenefits::VA0993', parent: :education_benefits do
     form do
       {
         claimantFullName: {

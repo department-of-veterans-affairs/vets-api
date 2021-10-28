@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :pension_claim, class: SavedClaim::Pension do
+  factory :pension_claim, class: 'SavedClaim::Pension' do
     form_id { '21P-527EZ' }
     form do
       {

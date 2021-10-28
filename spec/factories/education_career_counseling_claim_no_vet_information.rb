@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :education_career_counseling_claim_no_vet_information, class: SavedClaim::EducationCareerCounselingClaim do
+  factory :education_career_counseling_claim_no_vet_information, class: 'SavedClaim::EducationCareerCounselingClaim' do
     form_id { '28-8832' }
 
     form {
