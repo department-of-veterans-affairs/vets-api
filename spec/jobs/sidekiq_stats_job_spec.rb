@@ -32,6 +32,7 @@ RSpec.describe SidekiqStatsJob, type: :job do
       expect(StatsD).to receive(:gauge).with('shared.sidekiq.stats.working', busy_process_set.count)
       subject.perform
     end
+
     it 'gauges the size of each queue' do
       queues = { 'queue1' => 4, 'queue2' => 44 }
       allow_any_instance_of(Sidekiq::Stats).to receive(:queues).and_return(queues)

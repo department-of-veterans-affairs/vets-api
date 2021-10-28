@@ -92,6 +92,7 @@ RSpec.describe Okta::DirectoryService do
       allow_any_instance_of(Okta::DirectoryService).to receive(:scopes).with('health').and_return('boop')
       expect(subject.scopes('health')).to be('boop')
     end
+
     it 'directs to #handle_nonhealth_server as expected' do
       allow_any_instance_of(Okta::DirectoryService).to receive(:scopes).with('verification').and_return('beep')
       expect(subject.scopes('verification')).to be('beep')
@@ -118,6 +119,7 @@ RSpec.describe Okta::DirectoryService do
         expect(response).not_to be_nil
       end
     end
+
     it 'returns an empty server when passed an invalid category' do
       VCR.use_cassette('okta/invalid_scopes', match_requests_on: %i[method path]) do
         response = subject.handle_nonhealth_server('somethingthatdoesntexist')

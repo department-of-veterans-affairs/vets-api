@@ -24,6 +24,7 @@ RSpec.describe 'Appointments' do
           expect(response).to match_response_schema('appointments_response')
         end
       end
+
       it 'matches the appointments schema when camel-inflected' do
         VCR.use_cassette('ihub/appointments/success') do
           get '/v0/appointments', headers: inflection_header
@@ -45,6 +46,7 @@ RSpec.describe 'Appointments' do
         expect(response).to have_http_status(:bad_gateway)
         expect(response).to match_response_schema('errors')
       end
+
       it 'matches the errors schema when camel-inflected', :aggregate_failures do
         get '/v0/appointments', headers: inflection_header
 
@@ -62,6 +64,7 @@ RSpec.describe 'Appointments' do
           expect(response).to match_response_schema('errors')
         end
       end
+
       it 'matches the errors schema camel-inlfected', :aggregate_failures do
         VCR.use_cassette('ihub/appointments/error_occurred') do
           get '/v0/appointments', headers: inflection_header

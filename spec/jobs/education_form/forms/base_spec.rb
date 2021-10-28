@@ -57,9 +57,11 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
     it 'returns N/A for nil values' do
       expect(renderer.yesno(nil)).to eq('N/A')
     end
+
     it 'returns NO for falsey values' do
       expect(renderer.yesno(false)).to eq('NO')
     end
+
     it 'returns YES for truthy values' do
       expect(renderer.yesno(true)).to eq('YES')
       expect(renderer.yesno('true')).to eq('YES')
@@ -152,6 +154,7 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
     it 'returns value' do
       expect(renderer.value_or_na('Value')).to eq('Value')
     end
+
     it 'returns N/A' do
       expect(renderer.value_or_na(nil)).to eq('N/A')
     end

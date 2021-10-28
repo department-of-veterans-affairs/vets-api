@@ -35,6 +35,7 @@ RSpec.describe 'FacilitiesApi::Apidocs' do
       end
 
       it { is_expected.to validate(:get, '/facilities_api/v1/va', 200, params) }
+
       it {
         expect(subject).to validate(:get, '/facilities_api/v1/va', 400,
                                     '_query_string' => 'bbox[]=-122&bbox[]=45&bbox[]=-123')

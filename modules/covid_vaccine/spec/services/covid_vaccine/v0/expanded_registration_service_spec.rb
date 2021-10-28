@@ -317,6 +317,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
             expect(submission_no_facility.reload.vetext_sid).to match(sid)
             expect(submission_no_facility.reload.state).to match('registered_no_icn')
           end
+
           context 'with state=enrollment_complete' do
             it 'updates submission record' do
               sid = SecureRandom.uuid

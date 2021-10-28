@@ -26,6 +26,7 @@ RSpec.describe FacilitiesApi::V1::MobileCovid::Client, team: :facilities, vcr: v
       response = mobile_client.direct_booking_eligibility_criteria_by_id('vha_523A5')
       expect(response.id).to eql('523A5')
     end
+
     context 'Covid online scheduling is available' do
       it 'checks covid_online_scheduling_available?' do
         response = mobile_client.direct_booking_eligibility_criteria_by_id('vha_523A5')

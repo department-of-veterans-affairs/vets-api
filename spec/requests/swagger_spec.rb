@@ -1025,6 +1025,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         it 'fails when invalid form id is passed' do
           expect(subject).to validate(:post, '/v0/mvi_users/{id}', 403, headers.merge('id' => '12-1234'))
         end
+
         it 'when correct form id is passed, it supports creating mvi user' do
           VCR.use_cassette('mpi/add_person/add_person_success') do
             VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes') do
@@ -1037,6 +1038,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'fails when no user information is passed' do
         expect(subject).to validate(:post, '/v0/mvi_users/{id}', 401, 'id' => '21-0966')
       end
+
       context 'when user is missing birls only' do
         let(:mhv_user) { build(:user_with_no_birls_id) }
 
@@ -3404,6 +3406,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
                                      document_type: 'L023' }, 'evss_claim_id' => 189_625)
         )
       end
+
       it 'rejects a malformed document' do
         expect(subject).to validate(
           :post,

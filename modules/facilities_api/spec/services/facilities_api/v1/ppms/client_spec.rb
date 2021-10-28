@@ -207,6 +207,7 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
 
             client.provider_locator(params.merge(specialties: %w[Code1], radius: 600))
           end
+
           it 'limits radius to 1' do
             expect(client).to receive(:perform).with(
               :get,

@@ -20,6 +20,7 @@ RSpec.describe 'Intent to file' do
           expect(response).to match_response_schema('intent_to_files')
         end
       end
+
       it 'matches the intent to files schema when camel-inflected' do
         VCR.use_cassette('evss/intent_to_file/intent_to_file') do
           get '/v0/intent_to_file', headers: camel_inflection_header
@@ -37,6 +38,7 @@ RSpec.describe 'Intent to file' do
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
       end
+
       it 'returns a not authorized response with camel-inflection' do
         VCR.use_cassette('evss/intent_to_file/intent_to_file_403') do
           get '/v0/intent_to_file', headers: camel_inflection_header
@@ -54,6 +56,7 @@ RSpec.describe 'Intent to file' do
           expect(response).to match_response_schema('evss_errors')
         end
       end
+
       it 'returns a bad gateway response when camel-inflected' do
         VCR.use_cassette('evss/intent_to_file/intent_to_file_intent_type_invalid') do
           get '/v0/intent_to_file', headers: camel_inflection_header
@@ -73,6 +76,7 @@ RSpec.describe 'Intent to file' do
           expect(response).to match_response_schema('intent_to_file')
         end
       end
+
       it 'matches the intent to file schema with camel-inflection' do
         VCR.use_cassette('evss/intent_to_file/active_compensation') do
           get '/v0/intent_to_file/compensation/active', headers: camel_inflection_header
@@ -90,6 +94,7 @@ RSpec.describe 'Intent to file' do
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
       end
+
       it 'returns a not authorized response when camel-inflected' do
         VCR.use_cassette('evss/intent_to_file/active_compensation_403') do
           get '/v0/intent_to_file/compensation/active', headers: camel_inflection_header
@@ -107,6 +112,7 @@ RSpec.describe 'Intent to file' do
           expect(response).to match_response_schema('evss_errors')
         end
       end
+
       it 'returns a bad gateway response when camel-inlfected' do
         VCR.use_cassette('evss/intent_to_file/active_compensation_partner_service_invalid') do
           get '/v0/intent_to_file/compensation/active', headers: camel_inflection_header
@@ -126,6 +132,7 @@ RSpec.describe 'Intent to file' do
           expect(response).to match_response_schema('intent_to_file')
         end
       end
+
       it 'matches the intent to file schema when camel-inflected' do
         VCR.use_cassette('evss/intent_to_file/create_compensation') do
           post '/v0/intent_to_file/compensation', headers: camel_inflection_header
@@ -143,6 +150,7 @@ RSpec.describe 'Intent to file' do
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
       end
+
       it 'returns a not authorized response when camel-inflected' do
         VCR.use_cassette('evss/intent_to_file/create_compensation_403') do
           post '/v0/intent_to_file/compensation', headers: camel_inflection_header
@@ -160,6 +168,7 @@ RSpec.describe 'Intent to file' do
           expect(response).to match_response_schema('evss_errors')
         end
       end
+
       it 'returns a bad gateway response with camel-inflection' do
         VCR.use_cassette('evss/intent_to_file/create_compensation_partner_service_error') do
           post '/v0/intent_to_file/compensation', headers: camel_inflection_header
@@ -177,6 +186,7 @@ RSpec.describe 'Intent to file' do
           expect(response).to match_response_schema('evss_errors')
         end
       end
+
       it 'returns a bad gateway response with camel-inflection' do
         VCR.use_cassette('evss/intent_to_file/create_compensation_type_error') do
           post '/v0/intent_to_file/compensation', headers: camel_inflection_header

@@ -73,6 +73,7 @@ RSpec.describe 'email' do
           expect(response).to match_response_schema('errors')
         end
       end
+
       it 'matches the errors schema when camel-inflected' do
         VCR.use_cassette('evss/pciu/email_status_500') do
           get '/v0/profile/email', headers: inflection_header

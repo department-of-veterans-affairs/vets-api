@@ -161,6 +161,7 @@ describe MPIData, skip_mvi: true do
         expect(mvi.send(:record_ttl)).to eq(86_400)
         expect(mvi.error).to be_nil
       end
+
       it 'returns an :error response but not cache it', :aggregate_failures do
         allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response_error)
         expect(mvi).not_to receive(:save)
@@ -169,6 +170,7 @@ describe MPIData, skip_mvi: true do
         expect(mvi.error).to be_present
         expect(mvi.error.class).to eq Common::Exceptions::BackendServiceException
       end
+
       it 'returns a :not_found response and cache it for a shorter time', :aggregate_failures do
         allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response_not_found)
         expect(mvi).to receive(:save).once
@@ -187,6 +189,7 @@ describe MPIData, skip_mvi: true do
         expect(mvi.profile).to have_deep_attributes(mvi_profile)
         expect(mvi.error).to be_nil
       end
+
       it 'returns the cached data for :error response', :aggregate_failures do
         mvi.cache(user.uuid, profile_response_error)
         expect_any_instance_of(MPI::Service).not_to receive(:find_profile)
@@ -194,6 +197,7 @@ describe MPIData, skip_mvi: true do
         expect(mvi.error).to be_present
         expect(mvi.error.class).to eq Common::Exceptions::BackendServiceException
       end
+
       it 'returns the cached data for :not_found response', :aggregate_failures do
         mvi.cache(user.uuid, profile_response_not_found)
         expect_any_instance_of(MPI::Service).not_to receive(:find_profile)

@@ -23,6 +23,7 @@ RSpec.describe Facilities::VBAFacility do
         expect(list.size).to eq(6)
       end
     end
+
     it 'returns an array of Facilities::VBAFacility objects' do
       VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
         list = Facilities::VBAFacility.pull_source_data

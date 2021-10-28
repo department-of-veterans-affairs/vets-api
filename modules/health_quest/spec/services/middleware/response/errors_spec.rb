@@ -18,16 +18,20 @@ describe HealthQuest::Middleware::Response::Errors do
   it 'handles errors' do
     expect { described_class.new.on_complete(env) }.to raise_error(expected_exception, /VA900/)
   end
+
   it 'handles 400 errors' do
     expect { described_class.new.on_complete(env_400) }.to raise_error(expected_exception, /HEALTH_QUEST_400/)
     expect { described_class.new.on_complete(env_409) }.to raise_error(expected_exception, /HEALTH_QUEST_400/)
   end
+
   it 'handles 403 errors' do
     expect { described_class.new.on_complete(env_403) }.to raise_error(expected_exception, /HEALTH_QUEST_403/)
   end
+
   it 'handles 404 errors' do
     expect { described_class.new.on_complete(env_404) }.to raise_error(expected_exception, /HEALTH_QUEST_404/)
   end
+
   it 'handles 500 errors' do
     expect { described_class.new.on_complete(env_500) }.to raise_error(expected_exception, /HEALTH_QUEST_502/)
   end

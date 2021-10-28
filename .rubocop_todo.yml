@@ -108,12 +108,6 @@ Naming/InclusiveLanguage:
     - 'lib/statsd_middleware.rb'
     - 'modules/vaos/app/controllers/vaos/v0/appointment_requests_controller.rb'
 
-# Offense count: 155
-# Cop supports --auto-correct.
-# Configuration parameters: AllowConsecutiveOneLiners.
-RSpec/EmptyLineAfterExample:
-  Enabled: false
-
 # Offense count: 135
 # Cop supports --auto-correct.
 # Configuration parameters: Include.

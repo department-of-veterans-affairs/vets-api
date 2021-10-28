@@ -27,6 +27,7 @@ RSpec.describe EducationForm::EducationFacility do
         form.veteranAddress = western_address
         expect(described_class.routing_address(form, form_type: '1990').state).to eq(eastern_address.state)
       end
+
       it 'uses veteranAddress when no school address is given' do
         form.veteranAddress = western_address
         expect(described_class.routing_address(form, form_type: '1990').state).to eq(western_address.state)
@@ -40,6 +41,7 @@ RSpec.describe EducationForm::EducationFacility do
         form.educationProgram = school(central_address)
         expect(described_class.routing_address(form, form_type: '1990n').state).to eq(central_address.state)
       end
+
       it 'uses veteranAddress when no school address is given' do
         expect(described_class.routing_address(form, form_type: '1990n').state).to eq(western_address.state)
       end
@@ -52,6 +54,7 @@ RSpec.describe EducationForm::EducationFacility do
         form.newSchool = school(central_address)
         expect(described_class.routing_address(form, form_type: '1995').state).to eq(central_address.state)
       end
+
       it 'uses veteranAddress when no school address is given' do
         expect(described_class.routing_address(form, form_type: '1995').state).to eq(western_address.state)
       end
@@ -65,6 +68,7 @@ RSpec.describe EducationForm::EducationFacility do
           form.educationProgram = school(central_address)
           expect(described_class.routing_address(form, form_type: form_type).state).to eq(central_address.state)
         end
+
         it 'uses relativeAddress when no educationProgram address is given' do
           expect(described_class.routing_address(form, form_type: form_type).state).to eq(western_address.state)
         end
@@ -105,6 +109,7 @@ RSpec.describe EducationForm::EducationFacility do
         education_benefits_claim.saved_claim.form_id = '22-1995'
         expect(described_class.region_for(education_benefits_claim)).to eq(:eastern)
       end
+
       it 'routes to Eastern RPO' do
         form = education_benefits_claim.parsed_form
         education_benefits_claim.saved_claim.form = form.to_json

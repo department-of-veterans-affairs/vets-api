@@ -30,19 +30,24 @@ RSpec.describe StemApplicantConfirmationMailer, type: [:mailer] do
         first_and_last_name = "#{name.first} #{name.last}"
         expect(subject.body.raw_source).to include("for #{first_and_last_name}")
       end
+
       it 'includes confirmation number' do
         expect(subject.body.raw_source).to include("Confirmation number #{applicant.confirmation_number}")
       end
+
       it 'includes date received' do
         date_received = saved_claim.created_at.strftime('%b %d, %Y')
         expect(subject.body.raw_source).to include("Date received #{date_received}")
       end
+
       it 'includes Eastern RPO name' do
         expect(subject.body.raw_source).to include(EducationForm::EducationFacility::EMAIL_NAMES[:eastern])
       end
+
       it 'includes Eastern RPO address' do
         expect(subject.body.raw_source).to include(EducationForm::EducationFacility::ADDRESSES[:eastern][0])
       end
+
       it 'includes Eastern RPO address city, state, and zip' do
         expect(subject.body.raw_source).to include(EducationForm::EducationFacility::ADDRESSES[:eastern][1])
       end

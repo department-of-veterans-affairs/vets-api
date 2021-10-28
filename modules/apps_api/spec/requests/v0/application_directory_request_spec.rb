@@ -50,6 +50,7 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
       body = JSON.parse(response.body)
       expect(body.length).to be(1)
     end
+
     it 'returns an app when passing the :name param' do
       get '/services/apps/v0/directory/iBlueButton'
       body = JSON.parse(response.body)
@@ -91,6 +92,7 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
            headers: valid_headers
       expect(response).to have_http_status(:ok)
     end
+
     it 'has :unprocessable_entity when given invalid params' do
       post '/services/apps/v0/directory',
            params: { id: 'testing', directory_application: invalid_params },
@@ -109,6 +111,7 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
         expect(body['data'][0]['name']).to eq('launch/patient')
       end
     end
+
     it 'returns a populated list of benefits scopes' do
       VCR.use_cassette('okta/benefits-scopes', match_requests_on: %i[method path]) do
         get '/services/apps/v0/directory/scopes/Benefits'
@@ -118,6 +121,7 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
         expect(body['data'][0]['name']).to eq('claim.read')
       end
     end
+
     it 'returns a populated list of verification scopes' do
       VCR.use_cassette('okta/verification-scopes', match_requests_on: %i[method path]) do
         get '/services/apps/v0/directory/scopes/Verification'
@@ -127,12 +131,14 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
         expect(body['data'][0]['name']).to eq('disability_rating.read')
       end
     end
+
     it 'returns an empty list when given an unknown category' do
       VCR.use_cassette('okta/verification-scopes', match_requests_on: %i[method path]) do
         get '/services/apps/v0/directory/scopes/unknown_category'
         expect(response).to have_http_status(:no_content)
       end
     end
+
     it '204s when given a null category' do
       VCR.use_cassette('okta/verification-scopes', match_requests_on: %i[method path]) do
         get '/services/apps/v0/directory/scopes'

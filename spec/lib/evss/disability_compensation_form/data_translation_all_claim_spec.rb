@@ -206,6 +206,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             }
           end
         end
+
         context 'and the user is not authorized to access ppiu' do
           it 'gathers the banking info from the PPIU service' do
             Flipper.disable :direct_deposit_cnp

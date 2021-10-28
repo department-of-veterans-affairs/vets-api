@@ -113,6 +113,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
             expect(claim.parsed_form['appointmentTimePreferences'].first).to eq('morning')
           end
         end
+
         it 'does not successfully send to VRE' do
           VCR.use_cassette 'veteran_readiness_employment/failed_send_to_vre' do
             claim.add_claimant_info(user_object)

@@ -206,6 +206,7 @@ describe AppsApi::NotificationService do
         expect(response.body).not_to be_empty
       end
     end
+
     it 'returns a response body of disconnections' do
       VCR.use_cassette('okta/disconnection_logs', match_requests_on: %i[method]) do
         response = subject.get_events('app.oauth2.as.token.revoke')

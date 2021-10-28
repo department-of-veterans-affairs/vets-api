@@ -20,6 +20,7 @@ RSpec.describe 'alternate phone' do
           expect(response).to match_response_schema('phone_number_response')
         end
       end
+
       it 'matches the alternate phone schema when camel-inflected' do
         VCR.use_cassette('evss/pciu/alternate_phone') do
           get '/v0/profile/alternate_phone', headers: inflection_header
@@ -39,6 +40,7 @@ RSpec.describe 'alternate phone' do
           expect(response).to match_response_schema('errors')
         end
       end
+
       it 'matches the errors schema when camel-inflected' do
         VCR.use_cassette('evss/pciu/alternate_phone_status_400') do
           get '/v0/profile/alternate_phone', headers: inflection_header
@@ -68,6 +70,7 @@ RSpec.describe 'alternate phone' do
           expect(response).to match_response_schema('errors')
         end
       end
+
       it 'matches the errors schema when camel-inflected' do
         VCR.use_cassette('evss/pciu/alternate_phone_status_500') do
           get '/v0/profile/alternate_phone', headers: inflection_header
@@ -91,6 +94,7 @@ RSpec.describe 'alternate phone' do
           expect(response).to match_response_schema('phone_number_response')
         end
       end
+
       it 'matches the phone schema when camel-inflected', :aggregate_failures do
         VCR.use_cassette('evss/pciu/post_alternate_phone') do
           post('/v0/profile/alternate_phone', params: phone.to_json, headers: headers.merge(inflection_header))
@@ -111,6 +115,7 @@ RSpec.describe 'alternate phone' do
         expect(response).to match_response_schema('errors')
         expect(errors_for(response)).to include "number - can't be blank", 'number - Only numbers are permitted.'
       end
+
       it 'matches the errors schema when camel-inflected', :aggregate_failures do
         phone = build :phone_number, :nil_effective_date, number: ''
 
@@ -132,6 +137,7 @@ RSpec.describe 'alternate phone' do
         expect(response).to match_response_schema('errors')
         expect(errors_for(response)).to include 'number - Only numbers are permitted.'
       end
+
       it 'matches the errors schema when camel-inflected', :aggregate_failures do
         phone = build :phone_number, :nil_effective_date, number: '123-456-7890'
 
@@ -152,6 +158,7 @@ RSpec.describe 'alternate phone' do
           expect(response).to match_response_schema('errors')
         end
       end
+
       it 'matches the errors schema when camel-inflected', :aggregate_failures do
         VCR.use_cassette('evss/pciu/post_alternate_phone_status_400') do
           post('/v0/profile/alternate_phone', params: phone.to_json, headers: headers.merge(inflection_header))
@@ -181,6 +188,7 @@ RSpec.describe 'alternate phone' do
           expect(response).to match_response_schema('errors')
         end
       end
+
       it 'matches the errors schema when camel-inflected', :aggregate_failures do
         VCR.use_cassette('evss/pciu/post_alternate_phone_status_500') do
           post('/v0/profile/alternate_phone', params: phone.to_json, headers: headers.merge(inflection_header))

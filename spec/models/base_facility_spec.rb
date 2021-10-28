@@ -197,6 +197,7 @@ RSpec.describe BaseFacility, type: :model do
     it 'finds facility by id' do
       expect(BaseFacility.find_facility_by_id('vha_648A4').id).to eq('648A4')
     end
+
     it 'has hours that are sorted by day' do
       expect(BaseFacility.find_facility_by_id('vha_648A4').hours.keys).to eq(DateTime::DAYNAMES.rotate)
     end

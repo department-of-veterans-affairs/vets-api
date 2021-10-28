@@ -94,6 +94,7 @@ RSpec.describe 'Backend Status' do
         expect(response).to have_http_status(:ok)
         expect(response).to match_response_schema('backend_statuses')
       end
+
       it 'matches the backend_statuses schema when camel-inflected', :aggregate_failures do
         get '/v0/backend_statuses', headers: { 'X-Key-Inflection' => 'camel' }
 

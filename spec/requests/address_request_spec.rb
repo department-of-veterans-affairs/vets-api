@@ -32,6 +32,7 @@ RSpec.describe 'address' do
             expect(response).to match_response_schema('address_response')
           end
         end
+
         it 'matches the address schema when camel-inflected' do
           VCR.use_cassette('evss/pciu_address/address') do
             get '/v0/address', headers: camel_header
@@ -50,6 +51,7 @@ RSpec.describe 'address' do
             expect(response).to match_response_schema('address_response')
           end
         end
+
         it 'matches the address schema when camel-inflected' do
           VCR.use_cassette('evss/pciu_address/address_domestic') do
             get '/v0/address', headers: camel_header
@@ -68,6 +70,7 @@ RSpec.describe 'address' do
             expect(response).to match_response_schema('address_response')
           end
         end
+
         it 'matches the address schema when camel-inflected' do
           VCR.use_cassette('evss/pciu_address/address_international') do
             get '/v0/address', headers: camel_header
@@ -85,6 +88,7 @@ RSpec.describe 'address' do
             expect(response).to match_response_schema('errors')
           end
         end
+
         it 'matches the errors schema with camel-inflection' do
           VCR.use_cassette('evss/pciu_address/address_500') do
             get '/v0/address', headers: camel_header
@@ -106,6 +110,7 @@ RSpec.describe 'address' do
             expect(response).to match_response_schema('address_response')
           end
         end
+
         it 'matches the address schema when camel-infelcted' do
           VCR.use_cassette('evss/pciu_address/address_update') do
             put '/v0/address', params: domestic_address.to_json, headers: headers_with_camel
@@ -125,6 +130,7 @@ RSpec.describe 'address' do
             expect(response).to match_response_schema('errors')
           end
         end
+
         it 'matches the errors schema when camel-inflected' do
           VCR.use_cassette('evss/pciu_address/address_500') do
             put '/v0/address', params: domestic_address.to_json, headers: headers_with_camel
@@ -145,6 +151,7 @@ RSpec.describe 'address' do
             expect(response).to match_response_schema('errors')
           end
         end
+
         it 'matches the errors schema when camel-inflected' do
           VCR.use_cassette('evss/pciu_address/address_update_invalid_format') do
             put '/v0/address', params: domestic_address.to_json, headers: headers_with_camel
@@ -162,6 +169,7 @@ RSpec.describe 'address' do
             expect(response).to match_response_schema('errors')
           end
         end
+
         it 'matches the errors schema when camel-inflected' do
           VCR.use_cassette('evss/pciu_address/address_500') do
             get '/v0/address', headers: camel_header
@@ -181,6 +189,7 @@ RSpec.describe 'address' do
             expect(response).to match_response_schema('states')
           end
         end
+
         it 'matches the states schema with camel-inflection' do
           VCR.use_cassette('evss/pciu_address/states') do
             get '/v0/address/states', headers: camel_header
@@ -200,6 +209,7 @@ RSpec.describe 'address' do
             expect(response).to match_response_schema('countries')
           end
         end
+
         it 'matches the countries schema when camel-inflected' do
           VCR.use_cassette('evss/pciu_address/countries') do
             get '/v0/address/countries', headers: camel_header
@@ -225,6 +235,7 @@ RSpec.describe 'address' do
             expect(response).to match_response_schema('countries')
           end
         end
+
         it 'matches the countries schema when camel-inflected' do
           VCR.use_cassette('evss/reference_data/countries') do
             get '/v0/address/countries', headers: camel_header
@@ -244,6 +255,7 @@ RSpec.describe 'address' do
             expect(response).to match_response_schema('states')
           end
         end
+
         it 'matches the states schema with camel-inflection' do
           VCR.use_cassette('evss/reference_data/states') do
             get '/v0/address/states', headers: camel_header

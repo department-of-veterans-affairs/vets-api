@@ -24,6 +24,7 @@ RSpec.describe YearToDateReportMailer, type: %i[mailer aws_helpers] do
         expect(mail.body.encoded).to eq("#{text} (link expires in one week)<br>#{subject}")
         expect(mail.subject).to eq(text)
       end
+
       it 'emails the the right staging recipients' do
         subject
 

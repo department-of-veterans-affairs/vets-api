@@ -31,11 +31,13 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
         expect(parsed['data']['type']).to eq('higherLevelReview')
         expect(parsed['data']['attributes']['status']).to eq('pending')
       end
+
       it 'with the minimum required headers' do
         post(path, params: @data, headers: @minimum_required_headers)
         expect(parsed['data']['type']).to eq('higherLevelReview')
         expect(parsed['data']['attributes']['status']).to eq('pending')
       end
+
       it 'fails when a required header is missing' do
         post(path, params: @data, headers: @minimum_required_headers.except('X-VA-SSN'))
         expect(response.status).to eq(422)

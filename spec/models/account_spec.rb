@@ -40,6 +40,7 @@ RSpec.describe Account, type: :model do
       expect(accounts).to include(find_me)
       expect(accounts).not_to include(dont_find_me)
     end
+
     it 'returns no records with a nil idme_uuid' do
       create :account # account to not find
       expect(Account.idme_uuid_match(nil)).to be_empty

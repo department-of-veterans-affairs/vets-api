@@ -175,6 +175,7 @@ RSpec.describe CentralMail::Service do
             response_helper.call(metadata, key)
           end
         end
+
         if ['zipCode'].include?(key)
           it "Returns a 412 error when #{key} is invalid" do
             VCR.use_cassette(
@@ -186,6 +187,7 @@ RSpec.describe CentralMail::Service do
               response_helper.call(metadata, key, false)
             end
           end
+
           it "Returns a 412 error when #{key} is not enough digits" do
             VCR.use_cassette(
               "central_mail/bad_metadata_less_#{key}_digits",
@@ -196,6 +198,7 @@ RSpec.describe CentralMail::Service do
               response_helper.call(metadata, key, false)
             end
           end
+
           it "Returns a 412 error when #{key} is too many digits" do
             VCR.use_cassette(
               "central_mail/bad_metadata_more_#{key}_digits",

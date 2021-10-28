@@ -31,6 +31,7 @@ describe V2::Lorota::Session do
     it 'responds to token' do
       expect(subject.respond_to?(:token)).to be(true)
     end
+
     it 'responds to check_in' do
       expect(subject.respond_to?(:check_in)).to be(true)
     end

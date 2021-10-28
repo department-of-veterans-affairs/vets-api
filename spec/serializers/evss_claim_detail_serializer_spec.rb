@@ -78,6 +78,7 @@ RSpec.describe EVSSClaimDetailSerializer do
       expect(other_documents.count).to eq 1
       expect(other_documents.reject { |obj| obj['tracked_item_id'].nil? }.count).to eq 0
     end
+
     it 'uses the upload date for the tracked item' do
       tracked_item = attributes['events_timeline'].detect { |event| event['tracked_item_id'] == 211_684 }
       expect(tracked_item['date']).to eq('2016-11-04')
@@ -92,6 +93,7 @@ RSpec.describe EVSSClaimDetailSerializer do
         expect(attributes['events_timeline'].select { |obj| obj['type'] == "phase#{i}" }.count).to eq 0
       end
     end
+
     it 'has a phase 7 event' do
       expect(attributes['events_timeline'].select { |obj| obj['type'] == 'phase7' }.count).to eq 1
     end
