@@ -278,6 +278,10 @@ features:
     actor_type: user
     description: Turns on the Notification Settings section of the VA.gov Profile
     enable_in_development: true
+  profile_enhancements:
+    actor_type: user
+    description: Used to show any enhancement for the profile
+    enable_in_development: true
   profile_schema_forms:
     actor_type: user
     description: Enables SchemaForm-based contact info edit forms on the VA.gov Veteran profile page
