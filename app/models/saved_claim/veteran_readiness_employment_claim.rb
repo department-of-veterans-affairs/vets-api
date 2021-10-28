@@ -141,7 +141,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       )
     end
 
-    VeteranReadinessEmploymentMailer.build(user, email_addr, @sent_to_cmp).deliver_now if user.present?
+    VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr, @sent_to_cmp).deliver_later if user.present?
 
     # During Roll out our partners ask that we check vet location and if within proximity to specific offices,
     # send the data to them. We always send a pdf to VBMS

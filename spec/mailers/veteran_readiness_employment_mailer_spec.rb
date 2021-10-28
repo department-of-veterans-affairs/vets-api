@@ -8,7 +8,7 @@ RSpec.describe VeteranReadinessEmploymentMailer, type: [:mailer] do
   let(:current_date) { Time.current.in_time_zone('America/New_York').strftime('%m/%d/%Y') }
 
   describe '#build' do
-    subject { described_class.build(user, email_addr, routed_to_cmp).deliver_now }
+    subject { described_class.build(user.participant_id, email_addr, routed_to_cmp).deliver_now }
 
     context 'user is loa3 and has participant id' do
       let(:user) { FactoryBot.create(:evss_user, :loa3) }

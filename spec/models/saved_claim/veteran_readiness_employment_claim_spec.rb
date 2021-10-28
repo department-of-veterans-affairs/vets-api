@@ -150,7 +150,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
         expect(claim).to receive(:send_to_central_mail!).once.and_call_original
         expect(claim).not_to receive(:upload_to_vbms)
         expect(VeteranReadinessEmploymentMailer).to receive(:build).with(
-          user_object, 'VRE.VBAPIT@va.gov', true
+          user_object.participant_id, 'VRE.VBAPIT@va.gov', true
         ).and_call_original
         subject
       end
