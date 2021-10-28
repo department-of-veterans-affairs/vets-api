@@ -220,7 +220,7 @@ GEM
     blueprinter (0.25.3)
     bootsnap (1.9.1)
       msgpack (~> 1.0)
-    brakeman (5.1.1)
+    brakeman (5.1.2)
     breakers (0.5.0)
       faraday (>= 0.7.4, < 2.0)
       multi_json (~> 1.0)
