@@ -34,6 +34,8 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
 
     sc.save
 
+    AppealsApi::PdfSubmitJob.perform_async(sc.id, 'AppealsApi::SupplementalClaim', 'V2')
+
     render json: AppealsApi::SupplementalClaimSerializer.new(sc).serializable_hash
   end
 

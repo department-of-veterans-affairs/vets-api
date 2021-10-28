@@ -6,6 +6,7 @@ require AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_for_mon
 
 require 'appeals_api/hlr_pdf_submit_wrapper'
 require 'appeals_api/nod_pdf_submit_wrapper'
+require 'appeals_api/sc_pdf_submit_wrapper'
 
 RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
   include FixtureHelpers
@@ -17,6 +18,7 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
   let(:auth_headers) { fixture_to_s 'valid_200996_headers.json' }
   let(:higher_level_review) { create(:higher_level_review) }
   let(:notice_of_disagreement) { create(:notice_of_disagreement) }
+  let(:supplemental_claim) { create(:supplemental_claim) }
   let(:client_stub) { instance_double('CentralMail::Service') }
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:valid_doc) { fixture_to_s 'valid_200996.json' }
@@ -107,6 +109,49 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
         expect(capture_body['document'].content_type).to eq('application/pdf')
 
         updated = AppealsApi::NoticeOfDisagreement.find(notice_of_disagreement.id)
+        expect(updated.status).to eq('submitted')
+      end
+    end
+
+    it 'SC' do
+      Timecop.freeze(DateTime.new(2020, 1, 1).utc) do
+        file_digest_stub = instance_double('Digest::SHA256')
+        allow(Digest::SHA256).to receive(:file) { file_digest_stub }
+        allow(file_digest_stub).to receive(:hexdigest).and_return('file_digest_12345')
+
+        allow(CentralMail::Service).to receive(:new) { client_stub }
+        allow(faraday_response).to receive(:status).and_return(200)
+        allow(faraday_response).to receive(:body).and_return('')
+        allow(faraday_response).to receive(:success?).and_return(true)
+        capture_body = nil
+        expect(client_stub).to receive(:upload) { |arg|
+          capture_body = arg
+          faraday_response
+        }
+        described_class.new.perform(supplemental_claim.id, 'AppealsApi::SupplementalClaim', 'V2')
+        metadata = JSON.parse(capture_body['metadata'])
+
+        expect(capture_body).to be_a(Hash)
+        expect(capture_body).to have_key('metadata')
+        expect(metadata).to eq({
+                                 'veteranFirstName' => 'Jane',
+                                 'veteranLastName' => 'Doe',
+                                 'fileNumber' => '987654321',
+                                 'zipCode' => '30012',
+                                 'source' => 'Appeals-SC-va.gov',
+                                 'uuid' => supplemental_claim.id,
+                                 'hashV' => 'file_digest_12345',
+                                 'numberAttachments' => 0,
+                                 'receiveDt' => '2019-12-31 18:00:00',
+                                 'numberPages' => 2,
+                                 'lob' => 'CMP',
+                                 'docType' => '20-0995'
+                               })
+        expect(capture_body).to have_key('document')
+        expect(capture_body['document'].original_filename).to eq('200995-document.pdf')
+        expect(capture_body['document'].content_type).to eq('application/pdf')
+
+        updated = AppealsApi::SupplementalClaim.find(supplemental_claim.id)
         expect(updated.status).to eq('submitted')
       end
     end
