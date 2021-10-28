@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_27_215259) do
+ActiveRecord::Schema.define(version: 2021_10_27_222742) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -756,6 +756,23 @@ ActiveRecord::Schema.define(version: 2021_10_27_215259) do
     t.index ["icn"], name: "index_user_accounts_on_icn", unique: true
   end
 
+  create_table "user_verifications", force: :cascade do |t|
+    t.uuid "user_accounts_id"
+    t.string "idme_uuid"
+    t.string "logingov_uuid"
+    t.string "mhv_uuid"
+    t.string "dslogon_uuid"
+    t.datetime "verified_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["dslogon_uuid"], name: "index_user_verifications_on_dslogon_uuid", unique: true
+    t.index ["idme_uuid"], name: "index_user_verifications_on_idme_uuid", unique: true
+    t.index ["logingov_uuid"], name: "index_user_verifications_on_logingov_uuid", unique: true
+    t.index ["mhv_uuid"], name: "index_user_verifications_on_mhv_uuid", unique: true
+    t.index ["user_accounts_id"], name: "index_user_verifications_on_user_accounts_id", unique: true
+    t.index ["verified_at"], name: "index_user_verifications_on_verified_at"
+  end
+
   create_table "va_forms_forms", force: :cascade do |t|
     t.string "form_name"
     t.string "url"
@@ -901,4 +918,5 @@ ActiveRecord::Schema.define(version: 2021_10_27_215259) do
   add_foreign_key "account_login_stats", "accounts"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "user_verifications", "user_accounts", column: "user_accounts_id"
 end
