@@ -72,6 +72,21 @@ A request to the `/uploads/{id}` endpoint will return a real-time status for tha
 
 The `updated_at` field indicates the last time the status for a given GUID was updated.
 
+### Document Submission Statuses
+**Important note:** a submission has not been received by VA until it has a status of Received, Processing, Success, 
+or VBMS. Detailed descriptions of what each status means are found in this table.
+
+| Status        | What it means |
+| ---           |     ---     |
+| **Pending**   | Initial status.<br /><br />Indicates no document package has been uploaded yet.<br /><br />Date of Receipt is not yet established with this status |
+| **Uploaded**  | Indicates document package has been successfully uploaded (PUT) from your system to the API server but has not yet been validated.<br /><br />Date of Receipt is not yet established with this status. Any errors with the document package, such as having an unreadable PDF, may cause an Error status. |
+| **Received**  | Indicates document package has been received upstream of the API and is awaiting Processing.<br /><br />The VA Date of Receipt is set when this status is achieved.<br /><br />This is the final status in the sandbox environment unless further progress is simulated. |
+| **Processing**| Indicates the document package is being validated, processed, and made ready to route and work. |
+| **Success**   | Indicates the document package has been successfully received within VA’s mail handling system.<br /><br />Success is the final status for a small percentage of submitted packages with claim types, Veteran types, or exception processes that are not worked in VBMS. Most submissions reach a Success status within 1 business day. A small portion will take longer; however, some submissions may take up to 2 weeks to reach a Success status.<br /><br />A monthly reconciliation process ensures that any submissions remaining in a Success status are in the correct state. |
+| **VBMS**      | Indicates this document package was successfully uploaded into a Veteran’s eFolder within VBMS.<br /><br />On average, submissions reach VBMS status within 3 business days; however, processing times vary and some submissions may remain in a Success status for several weeks before reaching a VBMS status.<br /><br />Some document packages are worked in VA systems other than VBMS. For these submissions, Success is the final status. |
+| **Error**     | Indicates that there was an error. Refer to the error code and message for further information. |
+| **Expired**   | After a POST request, there is a 15-minute window during which documents must be uploaded via a PUT request.<br /><br />An Expired status means the documents were not successfully uploaded within this 15-minute window. We recommend coding to retry unsuccessful uploads within 15 minutes using the same submission in case of connection issues. |
+
 ### Optional Base64 encoding
 
 Base64 is an encoding scheme that converts binary data into text format, so that encoded textual data can be easily transported over networks uncorrupted and without data loss. 
