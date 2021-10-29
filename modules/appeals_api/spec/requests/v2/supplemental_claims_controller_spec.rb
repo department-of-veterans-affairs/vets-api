@@ -181,7 +181,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
     end
 
-    xit 'allow for status simulation' do
+    it 'allow for status simulation' do
       with_settings(Settings, vsp_environment: 'development') do
         with_settings(Settings.modules_appeals_api, status_simulation_enabled: true) do
           uuid = create(:supplemental_claim).id

@@ -4,7 +4,7 @@ require 'appeals_api/form_schemas'
 
 class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi::ApplicationController
   include AppealsApi::JsonFormatValidation
-  # include AppealsApi::StatusSimulation
+  include AppealsApi::StatusSimulation
   include AppealsApi::CharacterUtilities
   include AppealsApi::CharacterValidation
 
@@ -51,6 +51,7 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
   def show
     id = params[:id]
     sc = AppealsApi::SupplementalClaim.find(id)
+    sc = with_status_simulation(sc) if status_requested_and_allowed?
 
     render json: AppealsApi::SupplementalClaimSerializer.new(sc).serializable_hash
   rescue ActiveRecord::RecordNotFound
