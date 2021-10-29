@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_27_222742) do
+ActiveRecord::Schema.define(version: 2021_10_29_133322) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -189,6 +189,7 @@ ActiveRecord::Schema.define(version: 2021_10_27_222742) do
     t.text "metadata_ciphertext"
     t.text "encrypted_kms_key"
     t.index ["created_at"], name: "index_async_transactions_on_created_at"
+    t.index ["id", "type"], name: "index_async_transactions_on_id_and_type"
     t.index ["source_id"], name: "index_async_transactions_on_source_id"
     t.index ["transaction_id", "source"], name: "index_async_transactions_on_transaction_id_and_source", unique: true
     t.index ["transaction_id"], name: "index_async_transactions_on_transaction_id"
@@ -501,6 +502,7 @@ ActiveRecord::Schema.define(version: 2021_10_27_222742) do
     t.text "file_data_ciphertext"
     t.text "encrypted_kms_key"
     t.index ["guid", "type"], name: "index_form_attachments_on_guid_and_type", unique: true
+    t.index ["id", "type"], name: "index_form_attachments_on_id_and_type"
   end
 
   create_table "gibs_not_found_users", id: :serial, force: :cascade do |t|
@@ -619,6 +621,7 @@ ActiveRecord::Schema.define(version: 2021_10_27_222742) do
     t.text "file_data_ciphertext"
     t.text "encrypted_kms_key"
     t.index ["guid"], name: "index_persistent_attachments_on_guid", unique: true
+    t.index ["id", "type"], name: "index_persistent_attachments_on_id_and_type"
     t.index ["saved_claim_id"], name: "index_persistent_attachments_on_saved_claim_id"
   end
 
@@ -671,6 +674,7 @@ ActiveRecord::Schema.define(version: 2021_10_27_222742) do
     t.text "encrypted_kms_key"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
+    t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
   end
 
   create_table "session_activities", id: :serial, force: :cascade do |t|
