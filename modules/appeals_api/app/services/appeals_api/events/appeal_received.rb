@@ -22,6 +22,20 @@ module AppealsApi
         vanotify_service.send_email(params(template))
       end
 
+      def sc_received
+        return unless Flipper.enabled?(:decision_review_sc_email)
+
+        unless valid_email_identifier?
+          log_error(guid, 'SC')
+          raise InvalidKeys
+        end
+
+        template_type = 'supplemental_claim_received'
+        template = { template_id: template_id(template_type) }
+
+        vanotify_service.send_email(params(template))
+      end
+
       private
 
       attr_accessor :opts

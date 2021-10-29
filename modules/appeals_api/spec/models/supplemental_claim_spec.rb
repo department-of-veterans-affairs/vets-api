@@ -129,7 +129,17 @@ describe AppealsApi::SupplementalClaim, type: :model do
 
       supplemental_claim.update_status!(status: 'pending')
 
-      expect(handler).to have_received(:handle!)
+      expect(handler).to have_received(:handle!).exactly(1).times
+    end
+
+    it 'sends an email' do
+      handler = instance_double(AppealsApi::Events::Handler)
+      allow(AppealsApi::Events::Handler).to receive(:new).and_return(handler)
+      allow(handler).to receive(:handle!)
+
+      supplemental_claim.update_status!(status: 'submitted')
+
+      expect(handler).to have_received(:handle!).exactly(2).times
     end
   end
 end
