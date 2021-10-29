@@ -182,7 +182,6 @@ group :development, :test do
   gem 'faraday_curl'
   gem 'fuubar'
   gem 'guard-rspec'
-  gem 'overcommit'
   gem 'parallel_tests'
   gem 'pry-byebug'
   gem 'rack-test', require: 'rack/test'
