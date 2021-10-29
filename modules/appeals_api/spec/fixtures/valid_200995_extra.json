@@ -22,7 +22,7 @@
         "timezone": "America/Chicago"
       },
       "socOptIn": true,
-      "noticeOfAcknowledgement": true,
+      "noticeAcknowledgement": true,
       "evidenceSubmission": {
         "evidenceType": ["upload", "retrieval"],
         "retrieveFrom": [
@@ -31,7 +31,7 @@
             "attributes": {
               "locationAndName": "X-Ray VAMC",
               "evidenceDates": [
-                "2020-04-10", "2020-01-02", "2019-02-07", "2021-02-20", "2020-04-10", "2020-01-02", "2019-02-07", "2021-02-20", "2020-04-10", "2020-01-02", "2019-02-07", "2021-02-20"
+                "2020-04-10", "2020-01-02", "2019-02-07", "2021-02-20", "2020-04-10", "2020-01-02", "2019-02-07", "2021-02-20"
               ]
             }
           },
@@ -47,7 +47,7 @@
           {
             "type": "retrievalEvidence",
             "attributes": {
-              "locationAndName": "Doctor's Notes VAMC Center Doctor's Notes VAMC Center Doctor's Notes VAMC Center Doctor's Notes VAMC Center Doctor's Notes VAMC Center Doctor's Notes VAMC Center Doctor's Notes VAMC Center",
+              "locationAndName": "Doctor's Notes VAMC",
               "evidenceDates": [
                 "2021-05-26"
               ]
@@ -103,7 +103,7 @@
     {
       "type": "contestableIssue",
       "attributes": {
-        "issue": "hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss hearing loss",
+        "issue": "hearing loss",
         "decisionDate": "1930-10-20",
         "socDate": "2016-05-30"
       }

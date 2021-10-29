@@ -22,6 +22,10 @@ class AppealsApi::RswagConfig
             description: ''
           },
           {
+            name: 'Supplemental Claims',
+            description: ''
+          },
+          {
             name: 'Contestable Issues',
             description: ''
           },
@@ -45,6 +49,8 @@ class AppealsApi::RswagConfig
             contestable_issues_schema('#/components/schemas'),
             nod_create_schemas('#/components/schemas'),
             nod_response_schemas('#/components/schemas'),
+            sc_create_schemas('#/components/schemas'),
+            sc_response_schemas('#/components/schemas'),
             legacy_appeals_schema('#/components/schemas')
           ].reduce(&:merge).sort_by { |k, _| k.to_s.downcase }.to_h
         },
@@ -939,6 +945,267 @@ class AppealsApi::RswagConfig
           }
         },
         "required": ['data']
+      }
+    }
+  end
+
+  def sc_create_schemas(ref_root)
+    {
+      'scCreate': {
+        'type': 'object',
+        'properties': {
+          'data': {
+            'type': 'object',
+            'properties': {
+              'type': { 'type': 'string', 'enum': ['supplementalClaim'] },
+              'attributes': {
+                'type': 'object',
+                'additionalProperties': false,
+                'properties': {
+                  'benefitType': { 'type': 'string', 'enum': %w[compensation pensionSurvivorsBenefits fiduciary lifeInsurance veteransHealthAdministration veteranReadinessAndEmployment loanGuaranty education nationalCemeteryAdministration] },
+                  'veteran': {
+                    'type': 'object',
+                    'properties': {
+                      'address': { 'type': 'object',
+                                   'properties': {
+                                     'addressLine1': { 'type': 'string', 'maxLength': 60 },
+                                     'addressLine2': { 'type': 'string', 'maxLength': 30 },
+                                     'addressLine3': { 'type': 'string', 'maxLength': 10 },
+                                     'city': { 'type': 'string', 'maxLength': 60 },
+                                     'stateCode': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'state_codes.json'))),
+                                     'countryCodeISO2': { 'type': 'string', 'pattern': '^[A-Z]{2}$' },
+                                     'zipCode5': {
+                                       'type': 'string',
+                                       'description': "5-digit zipcode. Use '00000' if Veteran is outside the United States",
+                                       'pattern': '^[0-9]{5}$'
+                                     }
+                                   },
+                                   'additionalProperties': false,
+                                   'required': %w[addressLine1 city countryCodeISO2 zipCode5] },
+                      'phone': {
+                        'type': 'object',
+                        'properties': {
+                          'countryCode': { 'type': 'string', 'pattern': '^[0-9]+$' },
+                          'areaCode': { 'type': 'string', 'pattern': '^[2-9][0-9]{2}$' },
+                          'phoneNumber': { 'type': 'string', 'pattern': '^[0-9]{1,14}$' },
+                          'phoneNumberExt': { 'type': 'string', 'pattern': '^[0-9]{1,10}$' }
+                        },
+                        'required': %w[areaCode phoneNumber]
+                      },
+                      'email': { 'type': 'string', 'format': 'email', 'minLength': 6, 'maxLength': 255 },
+                      'timezone': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'time_zones.json')))
+                    },
+                    'additionalProperties': false,
+                    'required': []
+                  },
+                  'evidenceSubmission': {
+                    'type': 'object',
+                    'properties': {
+                      'evidenceType': {
+                        'type': 'array',
+                        'items': { 'enum': %w[upload retrieval] },
+                        'minItems': 1,
+                        'uniqueItems': true
+                      },
+                      'retrieveFrom': {
+                        'type': 'array',
+                        'items': {
+                          'type': 'object',
+                          'properties': {
+                            'type': { 'type': 'string', 'enum': ['retrievalEvidence'] },
+                            'attributes': {
+                              'type': 'object',
+                              'properties': {
+                                'locationAndName': { '$ref': "#{ref_root}/nonBlankString" },
+                                'evidenceDates': {
+                                  'type': 'array',
+                                  'items': { '$ref': "#{ref_root}/date" },
+                                  'minItems': 1,
+                                  'maxItems': 8
+                                }
+                              },
+                              'additionalProperties': false,
+                              'required': %w[locationAndName evidenceDates]
+                            }
+                          },
+                          'additionalProperties': false,
+                          'required': %w[type attributes]
+                        },
+                        'minItems': 1,
+                        'uniqueItems': true
+                      }
+                    },
+                    'required': ['evidenceType'],
+                    'anyOf': [
+                      {
+                        'not': {
+                          'properties': {
+                            'evidenceType': { 'contains': { 'enum': ['retrieval'] } }
+                          }
+                        }
+                      },
+                      { 'required': ['retrieveFrom'] }
+                    ]
+                  },
+                  'noticeAcknowledgement': {
+                    'enum': [true, false]
+                  },
+                  'socOptIn': { 'type': 'boolean' }
+                },
+                'required': %w[veteran evidenceSubmission socOptIn noticeAcknowledgement],
+                'if': { 'properties': { 'benefitType': { 'const': 'compensation' } } },
+                'then': { 'properties': { 'noticeAcknowledgement': { 'const': true } } }
+              }
+            },
+            'additionalProperties': false,
+            'required': %w[type attributes]
+          },
+          'included': {
+            'type': 'array',
+            'items': { 'type': 'object',
+                       'properties': {
+                         'type': { 'type': 'string', 'enum': ['contestableIssue'] },
+                         'attributes': {
+                           'type': 'object',
+                           'properties': {
+                             'issue': { 'allOf': [{ '$ref': "#{ref_root}/nonBlankString" }, { 'maxLength': 140 }] },
+                             'decisionDate': { '$ref': "#{ref_root}/date" },
+                             'decisionIssueId': { 'type': 'integer' },
+                             'ratingIssueReferenceId': { 'type': 'string' },
+                             'ratingDecisionReferenceId': { 'type': 'string' },
+                             'socDate': { '$ref': "#{ref_root}/date" }
+                           },
+                           'additionalProperties': false,
+                           'required': %w[issue decisionDate]
+                         }
+                       },
+                       'additionalProperties': false,
+                       'required': %w[type attributes] },
+            'minItems': 1,
+            'uniqueItems': true
+          }
+        },
+        'additionalProperties': false,
+        'required': %w[data included]
+      }
+    }
+  end
+
+  def sc_response_schemas(ref_root)
+    {
+      'scCreateResponse': {
+        'description': 'Successful response of a 200995 form submission',
+        'type': 'object',
+        'properties': {
+          'data': {
+            'properties': {
+              'id': {
+                'type': 'string',
+                'description': 'Unique ID of created SC',
+                'example': '97751cb6-d06d-4179-87f6-75e3fc9d875c'
+              },
+              'type': {
+                'type': 'string',
+                'description': 'Name of record class',
+                'example': 'supplementalClaim'
+              },
+              'attributes': {
+                'type': 'object',
+                'properties': {
+                  'status': {
+                    'type': 'string',
+                    'description': 'Status of SC',
+                    'example': AppealsApi::SupplementalClaim::STATUSES.first,
+                    'enum': AppealsApi::SupplementalClaim::STATUSES
+                  },
+                  'createdAt': {
+                    'type': 'string',
+                    'description': 'Created timestamp of the SC',
+                    'example': '2020-12-16T19:52:23.909Z'
+                  },
+                  'updatedAt': {
+                    'type': 'string',
+                    'description': 'Updated timestamp of the SC',
+                    'example': '2020-12-16T19:52:23.909Z'
+                  }
+                }
+              },
+              'formData': { '$ref': "#{ref_root}/scCreate" }
+            }
+          },
+          'included': {
+            'type': 'array',
+            'items': {
+              '$ref': "#{ref_root}/contestableIssue"
+            }
+          }
+        }
+      },
+      'scEvidenceSubmissionResponse': {
+        'type': 'object',
+        'properties': {
+          'data': {
+            'properties': {
+              'id': {
+                'description': 'The document upload identifier',
+                'type': 'string',
+                'format': 'uuid',
+                'example': '6d8433c1-cd55-4c24-affd-f592287a7572'
+              },
+              'type': {
+                'description': 'JSON API type specification',
+                'type': 'string',
+                'example': 'evidenceSubmission'
+              },
+              'attributes': {
+                'properties': {
+                  'status': {
+                    'type': 'string',
+                    'example': VBADocuments::UploadSubmission::ALL_STATUSES.first,
+                    'enum': VBADocuments::UploadSubmission::ALL_STATUSES
+                  },
+                  'code': {
+                    'type': %i[string null]
+                  },
+                  'detail': {
+                    'type': %i[string null],
+                    'description': 'Human readable error detail. Only present if status = "error"'
+                  },
+                  'appealType': {
+                    'description': 'Type of associated appeal',
+                    'type': 'string',
+                    'example': 'SupplementalClaim'
+                  },
+                  'appealId': {
+                    'description': 'GUID of associated appeal',
+                    'type': 'uuid',
+                    'example': '2926ad2a-9372-48cf-8ec1-69e08e4799ef'
+                  },
+                  'location': {
+                    'type': %i[string null],
+                    'description': 'Location to which to PUT document Payload',
+                    'format': 'uri',
+                    'example': 'https://sandbox-api.va.gov/example_path_here/{idpath}'
+                  },
+                  'updatedAt': {
+                    'description': 'The last time the submission was updated',
+                    'type': 'string',
+                    'format': 'date-time',
+                    'example': '2018-07-30T17:31:15.958Z'
+                  },
+                  'createdAt': {
+                    'description': 'The last time the submission was updated',
+                    'type': 'string',
+                    'format': 'date-time',
+                    'example': '2018-07-30T17:31:15.958Z'
+                  }
+                }
+              }
+            },
+            'required': %w[id type attributes]
+          }
+        },
+        'required': ['data']
       }
     }
   end
