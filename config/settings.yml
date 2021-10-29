@@ -1181,3 +1181,6 @@ lighthouse_health_immunization:
     - "launch launch/patient"
     - "patient/Immunization.read"
     - "patient/Location.read"
+
+notifications:
+  public_key: ~
