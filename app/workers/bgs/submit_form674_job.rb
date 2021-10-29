@@ -23,7 +23,7 @@ module BGS
     rescue => e
       log_message_to_sentry(e, :error, {}, { team: 'vfs-ebenefits' })
       salvage_save_in_progress_form(FORM_ID, user_uuid, in_progress_copy)
-      DependentsApplicationFailureMailer.build(user).deliver_later if user.present?
+      DependentsApplicationFailureMailer.build(user).deliver_now if user.present?
     end
 
     def downtime_checks

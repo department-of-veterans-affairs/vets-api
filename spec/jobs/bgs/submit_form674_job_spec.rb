@@ -38,7 +38,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
       mailer_double = double('Mail::Message')
       allow(BGS::Form674).to receive(:new).with(an_instance_of(User)) { client_stub }
       expect(client_stub).to receive(:submit).and_raise(StandardError)
-      allow(mailer_double).to receive(:deliver_later)
+      allow(mailer_double).to receive(:deliver_now)
       expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(User)) { mailer_double }
       expect(job).to receive(:salvage_save_in_progress_form).with('686C-674', user.uuid, anything)
 
