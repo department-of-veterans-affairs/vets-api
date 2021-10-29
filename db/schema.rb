@@ -324,6 +324,15 @@ ActiveRecord::Schema.define(version: 2021_10_29_133322) do
     t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
   end
 
+  create_table "deprecated_user_accounts", force: :cascade do |t|
+    t.uuid "user_accounts_id"
+    t.bigint "user_verifications_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_accounts_id"], name: "index_deprecated_user_accounts_on_user_accounts_id", unique: true
+    t.index ["user_verifications_id"], name: "index_deprecated_user_accounts_on_user_verifications_id", unique: true
+  end
+
   create_table "directory_applications", force: :cascade do |t|
     t.string "name"
     t.string "logo_url"
@@ -922,5 +931,7 @@ ActiveRecord::Schema.define(version: 2021_10_29_133322) do
   add_foreign_key "account_login_stats", "accounts"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "deprecated_user_accounts", "user_accounts", column: "user_accounts_id"
+  add_foreign_key "deprecated_user_accounts", "user_verifications", column: "user_verifications_id"
   add_foreign_key "user_verifications", "user_accounts", column: "user_accounts_id"
 end
