@@ -24,6 +24,16 @@ module Okta
       # SSOe combines LOA into a single field for all 3 login types
       elsif %w[200DOD 200VIDM 200MHV].include?(@attrs['last_login_type'])
         { current: @attrs['loa']&.to_i, highest: @attrs['loa']&.to_i }
+      # Login.gov moves to IAL/AAL as the preferred method
+      # Minimum IAL2 includes identity verification, AAL2 includes 2FA
+      # Together will be treated as LOA3
+      elsif @attrs['last_login_type'] == 'logingov'
+        ial = @attrs['ial']&.to_i
+        aal = @attrs['aal']&.to_i
+        return { current: 1, highest: 1 } if ial.nil? || aal.nil?
+
+        ll = ial >= 2 && aal >= 2 ? 3 : 1
+        { current: ll, highest: ll }
       else
         { current: @attrs['idme_loa']&.to_i, highest: @attrs['idme_loa']&.to_i }
       end
