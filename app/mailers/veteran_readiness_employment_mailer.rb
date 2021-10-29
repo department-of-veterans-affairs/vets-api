@@ -6,7 +6,8 @@ class VeteranReadinessEmploymentMailer < ApplicationMailer
     @submission_date = Time.current.in_time_zone('America/New_York').strftime('%m/%d/%Y')
     @pid = pid
     cmp = '_cmp' if routed_to_cmp
-    template = File.read("app/mailers/views/veteran_readiness_employment#{cmp}.html.erb")
+    file_path = Rails.root.join('app', 'mailers', 'views', "veteran_readiness_employment#{cmp}.html.erb")
+    template = File.read(file_path)
 
     mail(
       to: email_addr,
