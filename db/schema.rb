@@ -837,7 +837,9 @@ ActiveRecord::Schema.define(version: 2021_10_29_133322) do
     t.json "uploaded_pdf"
     t.boolean "use_active_storage", default: false
     t.jsonb "metadata", default: {}
+    t.index ["created_at"], name: "index_vba_documents_upload_submissions_on_created_at"
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
+    t.index ["s3_deleted"], name: "index_vba_documents_upload_submissions_on_s3_deleted"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
   end
 
