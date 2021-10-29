@@ -76,6 +76,24 @@ module VetsAPI
     config.middleware.use Rack::Attack
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use ActionDispatch::Flash
+    config.middleware.use Warden::Manager do |config|
+      config.failure_app = proc do |_env|
+        ['401', { 'Content-Type' => 'application/json' }, { error: 'Unauthorized', code: 401 }]
+      end
+      config.intercept_401 = false
+      config.default_strategies :github
+
+      # Sidekiq Web configuration
+      config.scope_defaults :sidekiq, config: {
+        client_id: Settings.sidekiq.github_oauth_key,
+        client_secret: Settings.sidekiq.github_oauth_secret,
+        scope: 'read:org',
+        redirect_uri: 'sidekiq/auth/github/callback'
+      }
+
+      config.serialize_from_session { |key| Warden::GitHub::Verifier.load(key) }
+      config.serialize_into_session { |user| Warden::GitHub::Verifier.dump(user) }
+    end
     config.middleware.insert_after ActionDispatch::Cookies,
                                    ActionDispatch::Session::CookieStore,
                                    key: 'api_session',

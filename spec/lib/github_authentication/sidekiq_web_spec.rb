@@ -4,6 +4,8 @@ require 'rails_helper'
 
 describe GithubAuthentication::SidekiqWeb do
   include Rack::Test::Methods
+  include Warden::Test::Helpers
+
   let(:app) { Sidekiq::Web.new }
   let(:default_attrs) do
     { 'login' => 'john',
@@ -19,6 +21,9 @@ describe GithubAuthentication::SidekiqWeb do
     allow_any_instance_of(Warden::Proxy).to receive(:authenticate!).and_return(user)
     allow_any_instance_of(Warden::Proxy).to receive(:user).and_return(user)
     Sidekiq::Web.use Rack::Session::Cookie, secret: 'secret', same_site: true
+    Sidekiq::Web.use Warden::Manager do |config|
+      config.failure_app = Sidekiq::Web
+    end
   end
 
   context 'the user is not an organization member' do
