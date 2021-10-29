@@ -6,7 +6,7 @@ RSpec.describe CheckIn::V2::PatientCheckIn do
   subject { described_class }
 
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
-  let(:check_in) { subject.build }
+  let(:patient_check_in) { subject.build }
 
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
@@ -18,29 +18,29 @@ RSpec.describe CheckIn::V2::PatientCheckIn do
 
   describe '.build' do
     it 'returns an instance of PatientCheckIn' do
-      expect(check_in).to be_an_instance_of(CheckIn::V2::PatientCheckIn)
+      expect(patient_check_in).to be_an_instance_of(CheckIn::V2::PatientCheckIn)
     end
   end
 
   describe 'attributes' do
     it 'responds to check_in' do
-      expect(check_in.respond_to?(:check_in)).to be(true)
+      expect(patient_check_in.respond_to?(:check_in)).to be(true)
     end
 
     it 'responds to data' do
-      expect(check_in.respond_to?(:data)).to be(true)
+      expect(patient_check_in.respond_to?(:data)).to be(true)
     end
 
     it 'responds to settings' do
-      expect(check_in.respond_to?(:settings)).to be(true)
+      expect(patient_check_in.respond_to?(:settings)).to be(true)
     end
 
     it 'gets redis_session_prefix from settings' do
-      expect(check_in.redis_session_prefix).to eq('check_in_lorota_v2')
+      expect(patient_check_in.redis_session_prefix).to eq('check_in_lorota_v2')
     end
 
     it 'gets redis_token_expiry from settings' do
-      expect(check_in.redis_token_expiry).to eq(43_200)
+      expect(patient_check_in.redis_token_expiry).to eq(43_200)
     end
   end
 
@@ -51,9 +51,9 @@ RSpec.describe CheckIn::V2::PatientCheckIn do
     let(:resp) { { permissions: 'read.none', status: 'success', uuid: uuid } }
 
     it 'returns a hashed response' do
-      patient_check_in = subject.build(data: data, check_in: check_in)
+      patient_check_in_with_data = subject.build(data: data, check_in: check_in)
 
-      expect(patient_check_in.unauthorized_message).to eq(resp)
+      expect(patient_check_in_with_data.unauthorized_message).to eq(resp)
     end
   end
 
@@ -61,9 +61,9 @@ RSpec.describe CheckIn::V2::PatientCheckIn do
     let(:data) { double('FaradayResponse', status: 401, body: {}) }
 
     it 'returns true' do
-      patient_check_in = subject.build(data: data, check_in: nil)
+      patient_check_in_with_data = subject.build(data: data, check_in: nil)
 
-      expect(patient_check_in.error_status?).to eq(true)
+      expect(patient_check_in_with_data.error_status?).to eq(true)
     end
   end
 
@@ -74,9 +74,9 @@ RSpec.describe CheckIn::V2::PatientCheckIn do
     let(:resp) { { error: true, message: { 'error' => 'forbidden' }, status: 403 } }
 
     it 'returns an error message' do
-      patient_check_in = subject.build(data: data, check_in: nil)
+      patient_check_in_with_data = subject.build(data: data, check_in: nil)
 
-      expect(patient_check_in.error_message).to eq(resp)
+      expect(patient_check_in_with_data.error_message).to eq(resp)
     end
   end
 end

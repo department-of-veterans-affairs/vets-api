@@ -57,10 +57,12 @@ describe V2::Lorota::RedisHandler do
   describe '#get' do
     context 'when cache exists' do
       before do
-        allow_any_instance_of(V2::Lorota::Token).to receive(:access_token).and_return('12345')
-        allow_any_instance_of(subject).to receive(:token).and_return(V2::Lorota::Token.build(check_in: check_in))
-
-        redis_handler.save
+        Rails.cache.write(
+          "check_in_lorota_v2_#{check_in.uuid}_read.full",
+          '12345',
+          namespace: 'check-in-lorota-v2-cache',
+          expires_in: redis_expiry_time
+        )
       end
 
       it 'returns the cached value' do
@@ -70,10 +72,12 @@ describe V2::Lorota::RedisHandler do
 
     context 'when cache expires' do
       before do
-        allow_any_instance_of(V2::Lorota::Token).to receive(:access_token).and_return('12345')
-        allow_any_instance_of(subject).to receive(:token).and_return(V2::Lorota::Token.build(check_in: check_in))
-
-        redis_handler.save
+        Rails.cache.write(
+          "check_in_lorota_v2_#{check_in.uuid}_read.full",
+          '12345',
+          namespace: 'check-in-lorota-v2-cache',
+          expires_in: redis_expiry_time
+        )
       end
 
       it 'returns nil' do

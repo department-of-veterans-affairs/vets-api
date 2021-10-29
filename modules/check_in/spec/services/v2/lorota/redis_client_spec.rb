@@ -51,7 +51,12 @@ describe V2::Lorota::RedisClient do
 
     context 'when cache exists' do
       before do
-        redis_client.save(check_in_uuid: uuid, token: '12345')
+        Rails.cache.write(
+          "check_in_lorota_v2_#{uuid}_read.full",
+          '12345',
+          namespace: 'check-in-lorota-v2-cache',
+          expires_in: redis_expiry_time
+        )
       end
 
       it 'returns the cached value' do
@@ -63,7 +68,12 @@ describe V2::Lorota::RedisClient do
       let(:uuid) { Faker::Internet.uuid }
 
       before do
-        redis_client.save(check_in_uuid: uuid, token: '52617')
+        Rails.cache.write(
+          "check_in_lorota_v2_#{uuid}_read.full",
+          '52617',
+          namespace: 'check-in-lorota-v2-cache',
+          expires_in: redis_expiry_time
+        )
       end
 
       it 'returns nil' do
