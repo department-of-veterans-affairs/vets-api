@@ -175,6 +175,10 @@ module AppealsApi
       end
     end
 
+    def notice_acknowledgement
+      data_attributes['notice_acknowledgement']
+    end
+
     def date_signed
       veterans_local_time.strftime('%m/%d/%Y')
     end

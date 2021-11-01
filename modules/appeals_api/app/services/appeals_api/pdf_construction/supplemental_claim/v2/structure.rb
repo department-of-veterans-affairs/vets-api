@@ -12,6 +12,7 @@ module AppealsApi
             @supplemental_claim = supplemental_claim
           end
 
+          # rubocop:disable Metrics/MethodLength
           def form_fill
             # Section I: Identifying Information
             # Name, address and email filled out through autosize text box, not pdf fields
@@ -43,14 +44,15 @@ module AppealsApi
               # Section III: New and Relevant Evidence
               # Name and Location, and Date text filled out through autosize text boxes
 
-              # Section IV: 5103 Notice Acknowledgement (only applies if compensation benefit type)
-              # TODO
+              # Section IV: 5103 Notice Acknowledgement
+              form_fields.notice_acknowledgement => form_data.notice_acknowledgement, # default to check 'YES' for now
 
               # Section V: Signatures
               # Signatures filled out through autosize text box, not pdf fields
               form_fields.date_signed => form_data.date_signed
             }
           end
+          # rubocop:enable Metrics/MethodLength
 
           def insert_overlaid_pages(form_fill_path)
             pdftk = PdfForms.new(Settings.binaries.pdftk)

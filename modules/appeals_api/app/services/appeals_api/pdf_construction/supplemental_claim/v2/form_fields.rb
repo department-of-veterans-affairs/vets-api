@@ -78,6 +78,11 @@ module AppealsApi
             'form1[0].#subform[2].RadioButtonList[2]'
           end
 
+          # currently defaults to YES
+          def notice_acknowledgement
+            'form1[0].#subform[3].TIME1230TO2PM[0]'
+          end
+
           def date_signed
             'form1[0].#subform[3].DATESIGNED[0]'
           end
