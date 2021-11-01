@@ -1187,3 +1187,10 @@ token_validation:
 
 notifications:
   public_key: ~
+
+sidekiq:
+  github_organization: ~
+  github_team: ~
+  github_oauth_key: ~
+  github_oauth_secret: ~
+  github_api_key: ~
