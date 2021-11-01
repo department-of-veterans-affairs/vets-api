@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_29_133322) do
+ActiveRecord::Schema.define(version: 2021_10_29_224522) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -325,12 +325,12 @@ ActiveRecord::Schema.define(version: 2021_10_29_133322) do
   end
 
   create_table "deprecated_user_accounts", force: :cascade do |t|
-    t.uuid "user_accounts_id"
-    t.bigint "user_verifications_id"
+    t.uuid "user_account_id"
+    t.bigint "user_verification_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["user_accounts_id"], name: "index_deprecated_user_accounts_on_user_accounts_id", unique: true
-    t.index ["user_verifications_id"], name: "index_deprecated_user_accounts_on_user_verifications_id", unique: true
+    t.index ["user_account_id"], name: "index_deprecated_user_accounts_on_user_account_id", unique: true
+    t.index ["user_verification_id"], name: "index_deprecated_user_accounts_on_user_verification_id", unique: true
   end
 
   create_table "directory_applications", force: :cascade do |t|
@@ -758,6 +758,7 @@ ActiveRecord::Schema.define(version: 2021_10_29_133322) do
     t.string "id_type"
     t.string "loa"
     t.string "account_type"
+
     t.uuid "idme_uuid"
     t.text "notes"
   end
@@ -770,7 +771,7 @@ ActiveRecord::Schema.define(version: 2021_10_29_133322) do
   end
 
   create_table "user_verifications", force: :cascade do |t|
-    t.uuid "user_accounts_id"
+    t.uuid "user_account_id"
     t.string "idme_uuid"
     t.string "logingov_uuid"
     t.string "mhv_uuid"
@@ -782,7 +783,7 @@ ActiveRecord::Schema.define(version: 2021_10_29_133322) do
     t.index ["idme_uuid"], name: "index_user_verifications_on_idme_uuid", unique: true
     t.index ["logingov_uuid"], name: "index_user_verifications_on_logingov_uuid", unique: true
     t.index ["mhv_uuid"], name: "index_user_verifications_on_mhv_uuid", unique: true
-    t.index ["user_accounts_id"], name: "index_user_verifications_on_user_accounts_id", unique: true
+    t.index ["user_account_id"], name: "index_user_verifications_on_user_account_id", unique: true
     t.index ["verified_at"], name: "index_user_verifications_on_verified_at"
   end
 
@@ -933,7 +934,7 @@ ActiveRecord::Schema.define(version: 2021_10_29_133322) do
   add_foreign_key "account_login_stats", "accounts"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "deprecated_user_accounts", "user_accounts", column: "user_accounts_id"
-  add_foreign_key "deprecated_user_accounts", "user_verifications", column: "user_verifications_id"
-  add_foreign_key "user_verifications", "user_accounts", column: "user_accounts_id"
+  add_foreign_key "deprecated_user_accounts", "user_accounts"
+  add_foreign_key "deprecated_user_accounts", "user_verifications"
+  add_foreign_key "user_verifications", "user_accounts"
 end
