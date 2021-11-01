@@ -57,6 +57,9 @@ properties:
           - url
           - code
         properties:
+          id:
+            type: string
+            example: 442
           name:
             type: string
             example: VA Long Beach Healthcare System

@@ -1,0 +1,48 @@
+type: object
+required:
+  - type
+  - id
+  - attributes
+properties:
+  type:
+    type: string
+    example: "immunization"
+  id:
+    type: string
+    example: "I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000"
+  attributes:
+    type: object
+    required:
+      - cvxCode
+      - date
+      - doseNumber
+      - doseSeries
+      - groupName
+      - manufacturer
+      - note
+      - shortDescription
+    properties:
+      cvxCode:
+        type: integer
+        example: 140
+      date:
+        type: string
+        example: 2009-03-19T12:24:55Z
+      doseNumber:
+        type: string
+        example: "Booster"
+      doseSeries:
+        type: integer
+        example: 1
+      groupName:
+        type: string
+        example: "FLU"
+      manufacturer:
+        type: string
+        example: nil
+      note:
+        type: string
+        example: "Dose #45 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered."
+      shortDescription:
+        type: string
+        example: "Influenza  seasonal  injectable  preservative free"

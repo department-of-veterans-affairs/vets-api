@@ -302,6 +302,7 @@ RSpec.describe 'appointments', type: :request do
                 'healthcareProvider' => nil,
                 'healthcareService' => 'Green Team Clinic1',
                 'location' => {
+                  'id' => '442',
                   'name' => 'Cheyenne VA Medical Center',
                   'address' => {
                     'street' => '2360 East Pershing Boulevard',
@@ -350,6 +351,7 @@ RSpec.describe 'appointments', type: :request do
                 'healthcareProvider' => nil,
                 'healthcareService' => 'Atlantic Medical Care',
                 'location' => {
+                  'id' => nil,
                   'name' => 'Atlantic Medical Care',
                   'address' => {
                     'street' => '123 Main Street',
@@ -427,6 +429,7 @@ RSpec.describe 'appointments', type: :request do
                 'healthcareProvider' => nil,
                 'healthcareService' => 'Green Team Clinic1',
                 'location' => {
+                  'id' => '442',
                   'name' => 'Cheyenne VA Medical Center',
                   'address' => {
                     'street' => '2360 East Pershing Boulevard',
@@ -475,6 +478,7 @@ RSpec.describe 'appointments', type: :request do
                 'healthcareProvider' => nil,
                 'healthcareService' => 'Atlantic Medical Care',
                 'location' => {
+                  'id' => nil,
                   'name' => 'Atlantic Medical Care',
                   'address' => {
                     'street' => '123 Main Street',
@@ -600,6 +604,7 @@ RSpec.describe 'appointments', type: :request do
       it 'has clinic appointments use the clinic address' do
         expect(clinic_appointment['location']).to eq(
           {
+            'id' => '442',
             'name' => 'Fort Collins VA Clinic',
             'address' => {
               'street' => '2509 Research Boulevard',
@@ -623,6 +628,7 @@ RSpec.describe 'appointments', type: :request do
       it 'has facility appointments use the facility address' do
         expect(facility_appointment['location']).to eq(
           {
+            'id' => '442',
             'name' => 'Cheyenne VA Medical Center',
             'address' => {
               'street' => '2360 East Pershing Boulevard',
@@ -664,6 +670,7 @@ RSpec.describe 'appointments', type: :request do
       it 'correctly parses the phone number as nil' do
         expect(location).to eq(
           {
+            'id' => '442',
             'name' => 'Cheyenne VA Medical Center',
             'address' => {
               'street' => '2360 East Pershing Boulevard',
@@ -702,6 +709,7 @@ RSpec.describe 'appointments', type: :request do
       it 'correctly parses the phone number as nil' do
         expect(location).to eq(
           {
+            'id' => '442',
             'name' => 'Cheyenne VA Medical Center',
             'address' => {
               'street' => '2360 East Pershing Boulevard',

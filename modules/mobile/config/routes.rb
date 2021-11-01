@@ -14,6 +14,7 @@ Mobile::Engine.routes.draw do
     post '/claim/:id/request-decision', to: 'claims_and_appeals#request_decision'
     get '/disability-rating', to: 'disability_rating#index'
     get '/health/immunizations', to: 'immunizations#index'
+    get '/health/location/:id', to: 'locations#show'
     get '/letters', to: 'letters#index'
     get '/letters/beneficiary', to: 'letters#beneficiary'
     post '/letters/:type/download', to: 'letters#download'
@@ -38,6 +39,7 @@ Mobile::Engine.routes.draw do
     post '/user/phones', to: 'phones#create'
     put '/user/phones', to: 'phones#update'
     delete '/user/phones', to: 'phones#destroy'
+    get 'messaging/health/messages/signature', to: 'messages#signature'
 
     scope :messaging do
       scope :health do

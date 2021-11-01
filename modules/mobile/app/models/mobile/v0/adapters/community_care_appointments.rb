@@ -78,6 +78,7 @@ module Mobile
           # and extension (until the end of the string) (\S*)\z
           phone_captures = phone.match(/\((\d{3})\)\s(\d{3}-\d{4})(\S*)\z/)
           {
+            id: nil,
             name: name,
             address: {
               street: address[:street],

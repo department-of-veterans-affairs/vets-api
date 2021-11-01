@@ -4,14 +4,13 @@ require 'common/models/resource'
 
 module Mobile
   module V0
-    # Child model of Mobile::V0::Appointment to all location (VA facility) related data
-    #
     # @example create a new instance and parse incoming data
-    #   Mobile::V0::Adapters::AppointmentLocation.new(location_hash)
+    #   Mobile::V0::Adapters::Location.new(location_hash)
     #
-    class AppointmentLocation < Common::Resource
+    class Location < Common::Resource
+      attribute :id, Types::String.optional
       attribute :name, Types::String
-      attribute :address, AppointmentAddress
+      attribute :address, Address
       attribute :lat, Types::Float.optional
       attribute :long, Types::Float.optional
       attribute :phone, AppointmentPhone.optional

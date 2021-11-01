@@ -158,9 +158,11 @@ module Mobile
           DateTime.parse(appointment_hash[:start_date])
         end
 
+        # rubocop:disable Metrics/MethodLength
         def location(details, type, facility_id)
           facility = Mobile::VA_FACILITIES_BY_ID["dfn-#{facility_id}"]
           location = {
+            id: facility_id,
             name: facility ? facility[:name] : nil,
             address: {
               street: nil,
@@ -181,6 +183,7 @@ module Mobile
 
           location_by_type(details, location, type)
         end
+        # rubocop:enable Metrics/MethodLength
 
         def location_by_type(details, location, type)
           case type

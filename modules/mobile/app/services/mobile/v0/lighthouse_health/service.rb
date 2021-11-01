@@ -25,6 +25,18 @@ module Mobile
           response.body
         end
 
+        # Performs a query location info
+        # by id
+        #
+        # @return Hash of location info based on id provided
+        #
+        def get_location(id)
+          response = perform(:get, "Location/#{id}", nil, headers)
+          raise Common::Exceptions::BackendServiceException, 'LIGHTHOUSE_FACILITIES404' if response[:status] == 404
+
+          response.body
+        end
+
         private
 
         def headers

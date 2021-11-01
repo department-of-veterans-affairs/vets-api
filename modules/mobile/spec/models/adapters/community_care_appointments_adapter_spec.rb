@@ -22,6 +22,7 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
     it 'has a location with a name, address, and phone number' do
       expect(booked_cc[:location].to_h).to eq(
         {
+          id: nil,
           name: 'Atlantic Medical Care',
           address: {
             street: '123 Main Street',

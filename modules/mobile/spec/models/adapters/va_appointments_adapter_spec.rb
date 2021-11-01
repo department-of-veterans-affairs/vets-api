@@ -49,6 +49,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a location with a name (address to be filled in by facilities api)' do
       expect(booked_va[:location].to_h).to eq(
         {
+          id: '442',
           name: 'CHEYENNE VAMC',
           address: {
             street: nil,
@@ -128,6 +129,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a location with a name (address to be filled in by facilities api)' do
       expect(cancelled_va[:location].to_h).to eq(
         {
+          id: '442',
           name: 'CHEYENNE VAMC',
           address: {
             street: nil,
@@ -203,6 +205,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a location with a url and code' do
       expect(booked_video_home[:location].to_h).to eq(
         {
+          id: '442',
           name: 'CHEYENNE VAMC',
           address: {
             street: nil,
@@ -270,6 +273,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a location with an address and a code' do
       expect(booked_video_atlas[:location].to_h).to eq(
         {
+          id: '442',
           name: 'CHEYENNE VAMC',
           address: {
             street: '114 Dewey Ave',
@@ -337,6 +341,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a location with a url and code' do
       expect(booked_video_gfe[:location].to_h).to eq(
         {
+          id: '442',
           name: 'CHEYENNE VAMC',
           address: {
             street: nil,

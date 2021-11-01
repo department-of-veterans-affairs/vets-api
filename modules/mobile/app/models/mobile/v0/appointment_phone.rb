@@ -4,7 +4,7 @@ require 'common/models/resource'
 
 module Mobile
   module V0
-    # Child model of Mobile::V0::AppointmentLocation to store phone data
+    # Child model of Mobile::V0::Location to store phone data
     #
     # @example create a new instance and parse incoming data
     #   Mobile::V0::Adapters::AppointmentPhone.new(phone_hash)
