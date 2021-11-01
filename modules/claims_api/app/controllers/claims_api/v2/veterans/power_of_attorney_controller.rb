@@ -1,16 +1,57 @@
 # frozen_string_literal: true
 
 require 'bgs/power_of_attorney_verifier'
+require 'claims_api/v2/params_validation/power_of_attorney'
 
 module ClaimsApi
   module V2
     module Veterans
       class PowerOfAttorneyController < ClaimsApi::V2::ApplicationController
-        def show
-          raise ::Common::Exceptions::Forbidden unless user_is_target_veteran? || user_is_representative?
+        include ClaimsApi::PoaVerification
+        before_action :verify_access!
 
+        def show
           poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code
           head(:no_content) && return if poa_code.blank?
+
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
+            representative(poa_code).merge({ code: poa_code })
+          )
+        end
+
+        def appoint_individual # rubocop:disable Metrics/MethodLength
+          validate_request!(ClaimsApi::V2::ParamsValidation::PowerOfAttorney)
+
+          poa_code = params.dig('serviceOrganization', 'poaCode')
+          validate_poa_code!(poa_code)
+
+          if poa_code_in_organization?(poa_code)
+            raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'POA Code must belong to an individual.')
+          end
+
+          power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
+                                                                                          source_name: source_name)
+          unless power_of_attorney&.status&.in?(%w[submitted pending])
+            # use .create! so we don't need to check if it's persisted just to call save (compare w/ v1)
+            power_of_attorney = ClaimsApi::PowerOfAttorney.create!(
+              status: ClaimsApi::PowerOfAttorney::PENDING,
+              auth_headers: auth_headers,
+              form_data: params,
+              source_data: source_data,
+              current_poa: current_poa_code,
+              header_md5: header_md5
+            )
+          end
+
+          ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
+
+          if enable_vbms_access?
+            ClaimsApi::VBMSUpdater.perform_async(power_of_attorney.id,
+                                                 target_veteran.participant_id)
+          end
+
+          data = power_of_attorney.form_data
+          ClaimsApi::PoaFormBuilderJob.perform_async(power_of_attorney.id) if data['signatures'].present?
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
             representative(poa_code).merge({ code: poa_code })
@@ -39,6 +80,47 @@ module ClaimsApi
             phone_number: individual.phone,
             type: 'individual'
           }
+        end
+
+        def enable_vbms_access?
+          params[:recordConsent] && params[:consentLimits].blank?
+        end
+
+        def current_poa_code
+          current_poa.try(:code)
+        end
+
+        def current_poa
+          @current_poa ||= BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa
+        end
+
+        def header_md5
+          @header_md5 ||= Digest::MD5.hexdigest(auth_headers.except('va_eauth_authenticationauthority',
+                                                                    'va_eauth_service_transaction_id',
+                                                                    'va_eauth_issueinstant',
+                                                                    'Authorization').to_json)
+        end
+
+        def source_data
+          {
+            name: source_name,
+            icn: nullable_icn,
+            email: current_user.email
+          }
+        end
+
+        def source_name
+          "#{current_user.first_name} #{current_user.last_name}"
+        end
+
+        def nullable_icn
+          current_user.icn
+        rescue => e
+          log_message_to_sentry('Failed to retrieve icn for consumer',
+                                :warning,
+                                body: e.message)
+
+          nil
         end
       end
     end

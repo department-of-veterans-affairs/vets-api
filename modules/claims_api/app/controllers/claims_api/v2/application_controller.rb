@@ -1,9 +1,29 @@
 # frozen_string_literal: true
 
+require 'evss/disability_compensation_auth_headers'
+require 'evss/auth_headers'
+
 module ClaimsApi
   module V2
     class ApplicationController < ::OpenidApplicationController
       protected
+
+      def auth_headers
+        evss_headers = EVSS::DisabilityCompensationAuthHeaders
+                       .new(target_veteran)
+                       .add_headers(
+                         EVSS::AuthHeaders.new(target_veteran).to_h
+                       )
+        evss_headers['va_eauth_pnid'] = target_veteran.mpi.profile.ssn
+
+        if request.headers['Mock-Override'] &&
+           Settings.claims_api.disability_claims_mock_override
+          evss_headers['Mock-Override'] = request.headers['Mock-Override']
+          Rails.logger.info('ClaimsApi: Mock Override Engaged')
+        end
+
+        evss_headers
+      end
 
       #
       # For validating the incoming request body
@@ -21,10 +41,24 @@ module ClaimsApi
       #
       # @return [ClaimsApi::Veteran] Veteran to act on
       def target_veteran
-        @target_veteran ||= ClaimsApi::Veteran.new(
-          mhv_icn: params[:veteranId],
-          loa: @current_user.loa
-        )
+        if user_is_representative?
+          @target_veteran ||= ClaimsApi::Veteran.new(
+            mhv_icn: params[:veteranId],
+            loa: @current_user.loa
+          )
+          # populate missing veteran attributes with their mpi record
+          @target_veteran.mpi_record?(user_key: params[:veteranId])
+          mpi_profile = @target_veteran.mpi.mvi_response.profile
+
+          @target_veteran[:uuid] = mpi_profile[:ssn]
+          @target_veteran[:ssn] = mpi_profile[:ssn]
+          @target_veteran[:participant_id] = mpi_profile[:participant_id]
+          @target_veteran[:va_profile] = ClaimsApi::Veteran.build_profile(mpi_profile.birth_date)
+        else
+          @target_veteran ||= ClaimsApi::Veteran.from_identity(identity: @current_user)
+        end
+
+        @target_veteran
       end
 
       #

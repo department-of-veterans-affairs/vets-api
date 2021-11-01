@@ -12,7 +12,7 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request do
       birthdate: '1967-06-19'
     }
   end
-  let(:scopes) { %w[claim.read] }
+  let(:scopes) { %w[claim.write] }
   let(:test_user_icn) { '1012667145V762142' }
   let(:veteran) { ClaimsApi::Veteran.new }
   let(:veteran_mpi_data) { MPIData.new }
@@ -69,7 +69,7 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request do
     end
 
     context 'when body params are not present' do
-      let(:data) { nil }
+      let(:data) { {} }
 
       it 'returns a 400 error code' do
         with_okta_user(scopes) do |auth_header|

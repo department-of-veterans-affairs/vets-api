@@ -137,8 +137,8 @@ class MPIData < Common::RedisStore
   end
 
   # @return [MPI::Responses::FindProfileResponse] the response returned from MVI
-  def mvi_response
-    @mvi_response ||= response_from_redis_or_service
+  def mvi_response(user_key: user_identity.uuid)
+    @mvi_response ||= response_from_redis_or_service(user_key: user_key)
   end
 
   # @return [String] Array representing the historical icn data for the user
@@ -190,8 +190,8 @@ class MPIData < Common::RedisStore
     cache(user_identity.uuid, mvi_response) if mvi_response.cache?
   end
 
-  def response_from_redis_or_service
-    do_cached_with(key: user_identity.uuid) do
+  def response_from_redis_or_service(user_key: user_identity.uuid)
+    do_cached_with(key: user_key) do
       mpi_service.find_profile(user_identity)
     rescue ArgumentError => e
       log_message_to_sentry("[MPI Data] Request error: #{e.message}", :warn)
