@@ -1182,5 +1182,8 @@ lighthouse_health_immunization:
     - "patient/Immunization.read"
     - "patient/Location.read"
 
+token_validation:
+  url: https://dev-api.va.gov/internal/auth
+
 notifications:
   public_key: ~
