@@ -118,7 +118,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       send_to_central_mail!
     else
       begin
+        start_time = Time.current
         upload_to_vbms
+        elapsed_time = Time.current - start_time
+        StatsD.measure('api.1900.vbms.response_time', elapsed_time, tags: {})
       rescue
         send_to_central_mail!
       end
