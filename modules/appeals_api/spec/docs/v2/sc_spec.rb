@@ -109,6 +109,277 @@ describe 'Supplemental Claims', swagger_doc: 'modules/appeals_api/app/swagger/ap
           }
         end
       end
+
+      response '422', 'Violates JSON schema' do
+        schema '$ref' => '#/components/schemas/errorModel'
+
+        let(:sc_body) do
+          request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200995.json')))
+          request_body['data']['attributes'].delete('noticeAcknowledgement')
+          request_body
+        end
+
+        before do |example|
+          submit_request(example.metadata)
+        end
+
+        it 'returns a 422 response' do |example|
+          assert_response_matches_metadata(example.metadata)
+        end
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+      end
+    end
+  end
+
+  path '/supplemental_claims/{uuid}' do
+    get 'Shows a specific Supplemental Claim. (a.k.a. the Show endpoint)' do
+      tags 'Supplemental Claims'
+      operationId 'showSc'
+      description 'Returns all of the data associated with a specific Supplemental Claim.'
+
+      security [{ apikey: [] }]
+      produces 'application/json'
+
+      parameter name: :uuid, in: :path, type: :string, description: 'Supplemental Claim UUID'
+
+      response '200', 'Info about a single Supplemental Claim' do
+        schema '$ref' => '#/components/schemas/scCreateResponse'
+
+        let(:uuid) { FactoryBot.create(:supplemental_claim).id }
+
+        before do |example|
+          submit_request(example.metadata)
+        end
+
+        it 'returns a 200 response' do |example|
+          assert_response_matches_metadata(example.metadata)
+        end
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+      end
+
+      response '404', 'Supplemental Claim not found' do
+        schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', '404.json')))
+
+        let(:uuid) { 'invalid' }
+
+        before do |example|
+          submit_request(example.metadata)
+        end
+
+        it 'returns a 404 response' do |example|
+          assert_response_matches_metadata(example.metadata)
+        end
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+      end
+    end
+  end
+
+  path '/supplemental_claims/evidence_submissions/' do
+    post 'Get a location for subsequent evidence submission document upload PUT request' do
+      tags 'Supplemental Claims'
+      operationId 'postSupplementalClaimEvidenceSubmission'
+      description <<~DESC
+        This is the first step to submitting supporting evidence for an SC.  (See the Evidence Uploads section above for additional information.)
+        The Supplemental Claim GUID that is returned when the SC is submitted, is supplied to this endpoint to ensure the SC is in a valid state for sending supporting evidence documents.
+      DESC
+
+      parameter name: :sc_uuid, in: :query, type: :string, required: true, description: 'Associated Supplemental Claim UUID'
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_ssn_header]
+      let(:'X-VA-SSN') { '123456789' }
+
+      security [{ apikey: [] }]
+      produces 'application/json'
+
+      response '202', 'Accepted. Location generated' do
+        let(:sc_uuid) { FactoryBot.create(:supplemental_claim).id }
+
+        schema '$ref' => '#/components/schemas/scEvidenceSubmissionResponse'
+
+        before do |example|
+          allow_any_instance_of(VBADocuments::UploadSubmission).to receive(:get_location).and_return(+'http://some.fakesite.com/path/uuid')
+          submit_request(example.metadata)
+        end
+
+        it 'returns a 202 response' do |example|
+          assert_response_matches_metadata(example.metadata)
+        end
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+      end
+
+      response '400', 'Bad Request' do
+        let(:sc_uuid) { nil }
+
+        schema type: :object,
+               properties: {
+                 errors: {
+                   type: :array,
+                   items: {
+                     properties: {
+                       status: {
+                         type: 'integer',
+                         example: 400
+                       },
+                       detail: {
+                         type: 'string',
+                         example: 'Must supply a corresponding SC id in order to submit evidence'
+                       }
+                     }
+                   }
+                 }
+               }
+        before do |example|
+          submit_request(example.metadata)
+        end
+
+        it 'returns a 400 response' do |example|
+          # NOOP
+        end
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+      end
+
+      response '404', 'Associated Supplemental Claim not found' do
+        let(:sc_uuid) { nil }
+
+        schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', '404.json')))
+
+        before do |example|
+          submit_request(example.metadata)
+        end
+
+        it 'returns a 404 response' do |example|
+          assert_response_matches_metadata(example.metadata)
+        end
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+      end
+
+      response '422', 'Validation errors' do
+        let(:sc_uuid) { FactoryBot.create(:supplemental_claim).id }
+        let(:'X-VA-SSN') { '000000000' }
+
+        schema type: :object,
+               properties: {
+                 title: {
+                   type: 'string',
+                   enum: [
+                     'unprocessable_entity'
+                   ],
+                   example: 'unprocessable_entity'
+                 },
+                 detail: {
+                   type: 'string',
+                   enum: [
+                     "Request header 'X-VA-SSN' does not match the associated Supplemental Claim's SSN"
+                   ],
+                   example: "Request header 'X-VA-SSN' does not match the associated Supplemental Claim's SSN"
+                 },
+                 status: {
+                   type: 'integer',
+                   description: 'Standard HTTP error response code.',
+                   example: 422
+                 }
+               }
+        before do |example|
+          submit_request(example.metadata)
+        end
+
+        it 'returns a 422 response' do |example|
+          assert_response_matches_metadata(example.metadata)
+        end
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+      end
+
+      response '500', 'Unknown Error' do
+        let(:sc_uuid) { nil }
+
+        schema type: :object,
+               properties: {
+                 errors: {
+                   type: :array,
+                   items: {
+                     properties: {
+                       status: {
+                         type: 'integer',
+                         example: 500
+                       },
+                       detail: {
+                         type: 'string',
+                         example: 'An unknown error has occurred.'
+                       },
+                       code: {
+                         type: 'string',
+                         example: '151'
+                       },
+                       title: {
+                         type: 'string',
+                         example: 'Internal Server Error'
+                       }
+                     }
+                   }
+                 },
+                 status: {
+                   type: 'integer',
+                   example: 500
+                 }
+               }
+
+        before do |example|
+          submit_request(example.metadata)
+        end
+
+        it 'returns a 500 response' do |example|
+          # NOOP
+        end
+      end
     end
   end
 
@@ -125,6 +396,33 @@ describe 'Supplemental Claims', swagger_doc: 'modules/appeals_api/app/swagger/ap
 
       response '200', 'Document upload staged' do
         it 'returns a 200 response' do |example|
+          # noop
+        end
+      end
+
+      response '400', 'Document upload failed' do
+        produces 'application/xml'
+
+        schema type: :object,
+               description: 'Document upload failed',
+               xml: { 'name': 'Error' },
+               properties: {
+                 Code: {
+                   type: :string, description: 'Error code', example: 'Bad Digest'
+                 },
+                 Message: {
+                   type: :string, description: 'Error detail',
+                   example: 'A client error (InvalidDigest) occurred when calling the PutObject operation - The Content-MD5 you specified was invalid.'
+                 },
+                 Resource: {
+                   type: :string, description: 'Resource description', example: '/example_path_here/6d8433c1-cd55-4c24-affd-f592287a7572.upload'
+                 },
+                 RequestId: {
+                   type: :string, description: 'Identifier for debug purposes'
+                 }
+               }
+
+        it 'returns a 400 response' do |example|
           # noop
         end
       end
@@ -152,6 +450,28 @@ describe 'Supplemental Claims', swagger_doc: 'modules/appeals_api/app/swagger/ap
         end
 
         it 'returns a 200 response' do |example|
+          assert_response_matches_metadata(example.metadata)
+        end
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+      end
+
+      response '404', 'Supplemental Claim Evidence Submission not found' do
+        schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', '404.json')))
+
+        let(:uuid) { 'invalid' }
+
+        before do |example|
+          submit_request(example.metadata)
+        end
+
+        it 'returns a 404 response' do |example|
           assert_response_matches_metadata(example.metadata)
         end
 
