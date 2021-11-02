@@ -62,17 +62,39 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
         }
       end
 
-      it 'returns a success response' do
-        allow_any_instance_of(CheckIn::V2::Session).to receive(:redis_session_prefix).and_return('check_in_lorota_v2')
-        allow_any_instance_of(CheckIn::V2::Session).to receive(:jwt).and_return('jwt-123-1bc')
-        allow_any_instance_of(::V2::Lorota::Service).to receive(:get_check_in_data).and_return(resp)
+      context 'with service_refactor feature flag off' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with('check_in_experience_services_refactor').and_return(false)
+          allow_any_instance_of(CheckIn::V2::Session).to receive(:redis_session_prefix).and_return('check_in_lorota_v2')
+          allow_any_instance_of(CheckIn::V2::Session).to receive(:jwt).and_return('jwt-123-1bc')
+          allow_any_instance_of(::V2::Lorota::Service).to receive(:get_check_in_data).and_return(resp)
 
-        Rails.cache.write(key, 'jwt-123-1bc', namespace: 'check-in-lorota-v2-cache')
+          Rails.cache.write(key, 'jwt-123-1bc', namespace: 'check-in-lorota-v2-cache')
+        end
 
-        get "/check_in/v2/patient_check_ins/#{id}"
+        it 'returns a success response' do
+          get "/check_in/v2/patient_check_ins/#{id}"
 
-        expect(response.status).to eq(200)
-        expect(JSON.parse(response.body)).to eq(resp)
+          expect(response.status).to eq(200)
+          expect(JSON.parse(response.body)).to eq(resp)
+        end
+      end
+
+      context 'with service_refactor feature flag on' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with('check_in_experience_services_refactor').and_return(true)
+          allow_any_instance_of(CheckIn::V2::Session).to receive(:authorized?).and_return(true)
+          allow_any_instance_of(::V2::Lorota::Service).to receive(:check_in_data).and_return(resp)
+        end
+
+        it 'returns a success response' do
+          get "/check_in/v2/patient_check_ins/#{id}"
+
+          expect(response.status).to eq(200)
+          expect(JSON.parse(response.body)).to eq(resp)
+        end
       end
     end
   end
@@ -83,6 +105,8 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
       allow_any_instance_of(::V2::Chip::Service).to receive(:create_check_in).and_return(resp)
       allow_any_instance_of(CheckIn::V2::Session).to receive(:redis_session_prefix).and_return('check_in_lorota_v2')
       allow_any_instance_of(CheckIn::V2::Session).to receive(:jwt).and_return('jwt-123-1bc')
+
+      Rails.cache.write(key, 'jwt-123-1bc', namespace: 'check-in-lorota-v2-cache')
     end
 
     let(:post_params) { { params: { patient_check_ins: { uuid: id, appointment_ien: '123-abc' } } } }
@@ -103,8 +127,6 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
     let(:key) { "check_in_lorota_v2_#{id}_read.full" }
 
     it 'returns a success hash' do
-      Rails.cache.write(key, 'jwt-123-1bc', namespace: 'check-in-lorota-v2-cache')
-
       post '/check_in/v2/sessions', session_params
       post '/check_in/v2/patient_check_ins', post_params
 
