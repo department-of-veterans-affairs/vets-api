@@ -95,6 +95,7 @@ PATH
       dry-validation
     openid_auth (0.0.1)
     test_user_dashboard (0.1.0)
+      google-cloud-bigquery
       rails (~> 6.1.4.1)
     va_forms (0.0.1)
       faraday
@@ -431,6 +432,8 @@ GEM
     google-api-client (0.53.0)
       google-apis-core (~> 0.1)
       google-apis-generator (~> 0.1)
+    google-apis-bigquery_v2 (0.19.0)
+      google-apis-core (>= 0.4, < 2.a)
     google-apis-core (0.4.1)
       addressable (~> 2.5, >= 2.5.1)
       googleauth (>= 0.16.2, < 2.a)
@@ -448,6 +451,18 @@ GEM
       google-apis-core (>= 0.4, < 2.a)
       google-apis-discovery_v1 (~> 0.5)
       thor (>= 0.20, < 2.a)
+    google-cloud-bigquery (1.37.0)
+      concurrent-ruby (~> 1.0)
+      google-apis-bigquery_v2 (~> 0.1)
+      google-cloud-core (~> 1.6)
+      googleauth (>= 0.16.2, < 2.a)
+      mini_mime (~> 1.0)
+    google-cloud-core (1.6.0)
+      google-cloud-env (~> 1.0)
+      google-cloud-errors (~> 1.0)
+    google-cloud-env (1.5.0)
+      faraday (>= 0.17.3, < 2.0)
+    google-cloud-errors (1.2.0)
     google-protobuf (3.18.1)
     googleauth (1.1.0)
       faraday (>= 0.17.3, < 2.0)
@@ -1020,6 +1035,7 @@ DEPENDENCIES
   google-api-client
   google-apis-core
   google-apis-generator
+  google-cloud-bigquery
   googleauth
   govdelivery-tms (= 2.8.4)
   guard-rspec

@@ -20,6 +20,7 @@ Gem::Specification.new do |spec|
   spec.test_files = Dir['spec/**/*']
 
   spec.add_dependency 'rails', '~> 6.1.4.1'
+  spec.add_dependency 'google-cloud-bigquery'
 
   spec.add_development_dependency 'factory_bot_rails'
   spec.add_development_dependency 'rspec-rails'

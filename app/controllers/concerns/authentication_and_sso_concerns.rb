@@ -53,6 +53,7 @@ module AuthenticationAndSSOConcerns
   def reset_session
     if Settings.test_user_dashboard.env == 'staging' && @current_user
       TestUserDashboard::UpdateUser.new(@current_user).call
+      TestUserDashboard::AccountMetrics.new(@current_user).checkin(checkin_time: Time.current)
     end
     Rails.logger.info('SSO: ApplicationController#reset_session', sso_logging_info)
 
