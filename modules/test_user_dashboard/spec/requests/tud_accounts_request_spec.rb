@@ -2,30 +2,19 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Test User Dashboard', type: :request do
-  let(:rsa_private) { OpenSSL::PKey::RSA.new 2048 }
-  let(:rsa_public) { rsa_private.public_key }
-  let(:pub_key) { Base64.encode64(rsa_public.to_der) }
-  let(:token) { JWT.encode 'test', rsa_private, 'RS256' }
-  let(:headers) { { 'JWT' => token, 'PK' => pub_key } }
+RSpec.describe TestUserDashboard::TudAccountsController, type: :request do
+  before do
+    # Copied from https://github.com/department-of-veterans-affairs/va.gov-workstreams/blob/master/spec/requests/workstreams_spec.rb
+    # Use RSpec mocks to avoid pinging live APIs during tests
+    allow_any_instance_of(described_class).to receive(:authenticated?).and_return(true)
+    allow_any_instance_of(described_class).to receive(:authorized?).and_return(true)
+  end
 
   describe '#index' do
-    context 'without any authentication headers' do
-      it 'refuses the request' do
-        get('/test_user_dashboard/tud_accounts')
+    it 'renders a successful response' do
+      get('/test_user_dashboard/tud_accounts')
 
-        expect(response.status).to eq 403
-        expect(response.content_type).to eq 'text/html'
-      end
-    end
-
-    context 'with valid authentication headers' do
-      it 'accepts the request and returns a response' do
-        get('/test_user_dashboard/tud_accounts', params: '', headers: headers)
-
-        expect(response).to have_http_status(:ok)
-        expect(response.content_type).to eq 'application/json; charset=utf-8'
-      end
+      expect(response).to have_http_status(:ok)
     end
   end
 
@@ -35,7 +24,7 @@ RSpec.describe 'Test User Dashboard', type: :request do
 
     it 'updates the tud account notes field' do
       allow(TestUserDashboard::TudAccount).to receive(:find).and_return(tud_account)
-      put('/test_user_dashboard/tud_accounts/123', params: { notes: notes }, headers: headers)
+      put('/test_user_dashboard/tud_accounts/123', params: { notes: notes })
 
       expect(response).to have_http_status(:ok)
       expect(tud_account.notes).to eq('Test note string goes here.')

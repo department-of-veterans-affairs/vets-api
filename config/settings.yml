@@ -1170,6 +1170,9 @@ bid:
 # Settings for Test User Dashboard modules
 test_user_dashboard:
   env: dev
+  github_oauth:
+    client_id:
+    client_secret:
 
 lighthouse_health_immunization:
   client_id: '0oad0xggirKLf2ger2p7'
