@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 
-# rubocop:disable Metrics/ModuleLength
 module AppealsApi
   module Events
     RSpec.describe AppealReceived do
@@ -47,33 +46,6 @@ module AppealsApi
               personalisation: {
                 'first_name' => 'first name',
                 'date_submitted' => 'January 02, 2021'
-              }
-            }
-          )
-        end
-
-        # TODO: Remove "mm/dd/yyyy" date parsing after the jobs using this format have cleared
-        it 'handles old date format' do
-          client = instance_double(VaNotify::Service)
-          allow(VaNotify::Service).to receive(:new).and_return(client)
-          allow(client).to receive(:send_email)
-
-          opts = {
-            'email_identifier' => { 'id_value' => 'fake_email@email.com', 'id_type' => 'email' },
-            'first_name' => 'first name',
-            'date_submitted' => '11/05/2021',
-            'guid' => '1234556'
-          }
-
-          AppealsApi::Events::AppealReceived.new(opts).hlr_received
-
-          expect(client).to have_received(:send_email).with(
-            {
-              email_address: 'fake_email@email.com',
-              template_id: nil,
-              personalisation: {
-                'first_name' => 'first name',
-                'date_submitted' => 'November 05, 2021'
               }
             }
           )
@@ -142,4 +114,3 @@ module AppealsApi
     end
   end
 end
-# rubocop:enable Metrics/ModuleLength
