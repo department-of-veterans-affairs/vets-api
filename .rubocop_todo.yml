@@ -62,12 +62,6 @@ Lint/UselessMethodDefinition:
     - 'modules/health_quest/app/services/health_quest/middleware/health_quest_logging.rb'
     - 'modules/vaos/app/services/vaos/middleware/vaos_logging.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Lint/UselessTimes:
-  Exclude:
-    - 'spec/requests/user_request_spec.rb'
-
 # Offense count: 505
 # Configuration parameters: IgnoredMethods, CountRepeatedAttributes.
 Metrics/AbcSize:
@@ -107,13 +101,6 @@ Naming/InclusiveLanguage:
     - 'lib/pagerduty/maintenance_client.rb'
     - 'lib/statsd_middleware.rb'
     - 'modules/vaos/app/controllers/vaos/v0/appointment_requests_controller.rb'
-
-# Offense count: 135
-# Cop supports --auto-correct.
-# Configuration parameters: Include.
-# Include: spec/factories.rb, spec/factories/**/*.rb, features/support/factories/**/*.rb
-# RSpec/FactoryBot/FactoryClassName:
-#   Enabled: false
 
 # Offense count: 3
 RSpec/IdenticalEqualityAssertion:

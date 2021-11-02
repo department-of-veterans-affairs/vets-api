@@ -309,13 +309,11 @@ RSpec.describe 'Fetching user data' do
 
       # Encounters failure and breakers kicks in
       stub_mpi_failure
-      1.times do |_count|
-        sign_in_as(new_user)
-        expect { get v0_user_url, params: nil }
-          .to trigger_statsd_increment('api.external_http_request.MVI.failed', times: 1, value: 1)
-          .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
-          .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
-      end
+      sign_in_as(new_user)
+      expect { get v0_user_url, params: nil }
+        .to trigger_statsd_increment('api.external_http_request.MVI.failed', times: 1, value: 1)
+        .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
+        .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
       expect(MPI::Configuration.instance.breakers_service.latest_outage.start_time.to_i).to eq(start_time.to_i)
 
       # skipped because breakers is active
