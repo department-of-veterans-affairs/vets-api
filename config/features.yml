@@ -172,6 +172,10 @@ features:
     actor_type: user
     description: Enable covid vaccine walk-in availability text within covid vaccine related search results
     enable_in_development: true
+  facility_locator_lat_long_only:
+    actor_type: user
+    description: Send only lat/long values (no bounding box or address) to the API when querying for facilities.
+    enable_in_development: true
   facility_locator_lighthouse_covid_vaccine_query:
     actor_type: user
     description: enable covid search/display
