@@ -225,6 +225,18 @@ RSpec.describe SAML::PostURLService do
                 expect(subject.login_redirect_url).to eq(redirect)
               end
             end
+
+            context 'with a postLogin param' do
+              let(:redirect) do
+                'https://int.eauth.va.gov/mhv-portal-web/eauth?deeplinking=secure_messaging&postLogin=true'
+              end
+
+              it 'adds the postLogin param to the final redirect URL' do
+                params[:redirect] = redirect
+                params[:postLogin] = true
+                expect(subject.login_redirect_url).to eq(redirect)
+              end
+            end
           end
 
           context 'with an user that needs to verify' do

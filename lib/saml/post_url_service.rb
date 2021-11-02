@@ -46,7 +46,10 @@ module SAML
       if auth == 'success'
         # if the original auth request specified a redirect, use that
         redirect_target = @tracker.payload_attr(:redirect)
-        return redirect_target if redirect_target.present?
+        if redirect_target.present?
+          redirect_target += '&postLogin=true' if @tracker.payload_attr(:post_login) == 'true'
+          return redirect_target
+        end
       end
 
       # if the original auth request was an inbound ssoe autologin (type custom)
