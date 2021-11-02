@@ -223,7 +223,7 @@ RSpec.describe 'Disability compensation form' do
       it 'returns the job status and response', :aggregate_failures do
         get "/v0/disability_compensation_form/submission_status/#{job_status.job_id}", params: nil, headers: headers
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)).to have_deep_attributes(
+        expect(JSON.parse(response.body)).to match(
           'data' => {
             'id' => '',
             'type' => 'form526_job_statuses',
@@ -232,15 +232,15 @@ RSpec.describe 'Disability compensation form' do
               'job_id' => job_status.job_id,
               'submission_id' => submission.id,
               'status' => 'success',
-              'ancillary_item_statuses' => [{
-                'id' => ancillary_job_status.id,
-                'job_id' => ancillary_job_status.job_id,
-                'job_class' => 'AncillaryForm',
-                'status' => 'success',
-                'error_class' => nil,
-                'error_message' => nil,
-                'updated_at' => ancillary_job_status.updated_at
-              }]
+              'ancillary_item_statuses' => [
+                a_hash_including('id' => ancillary_job_status.id,
+                                 'job_id' => ancillary_job_status.job_id,
+                                 'job_class' => 'AncillaryForm',
+                                 'status' => 'success',
+                                 'error_class' => nil,
+                                 'error_message' => nil,
+                                 'updated_at' => ancillary_job_status.updated_at.iso8601(3))
+              ]
             }
           }
         )
