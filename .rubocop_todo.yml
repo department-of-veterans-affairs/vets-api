@@ -136,12 +136,6 @@ RSpec/RepeatedExampleGroupDescription:
 RSpec/StubbedMock:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Rails/IndexBy:
-  Exclude:
-    - 'config/initializers/zcta.rb'
-
 # Offense count: 23
 # Cop supports --auto-correct.
 # Configuration parameters: Include.
