@@ -118,10 +118,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       send_to_central_mail!
     else
       begin
-        start_time = Time.current
         upload_to_vbms
-        elapsed_time = Time.current - start_time
-        StatsD.measure('api.1900.vbms.response_time', elapsed_time, tags: {})
       rescue
         send_to_central_mail!
       end
@@ -150,12 +147,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       doc_type: doc_type
     )
 
-    # TODO: remove temp logging for troubleshooting
-    file_exists = File.exist?(form_path)
-    message = "#{parsed_form['veteranInformation']['pid']}: VRE #upload_to_vbms #{form_path} does not exist"
-    log_message_to_sentry(message, :warn, {}, { team: 'vfs-ebenefits' }) unless file_exists
-
-    uploader.upload!
+    log_to_statsd('vbms') do
+      uploader.upload!
+    end
   end
 
   def send_to_central_mail!
@@ -169,7 +163,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     log_message_to_sentry(guid, :warn, { attachment_id: guid }, { team: 'vfs-ebenefits' })
     @sent_to_cmp = true
-    process_attachments!
+    log_to_statsd('cmp') do
+      process_attachments!
+    end
   end
 
   # SavedClaims require regional_office to be defined
@@ -230,5 +226,12 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     file_number.presence
   rescue
     nil
+  end
+
+  def log_to_statsd(service)
+    start_time = Time.current
+    yield
+    elapsed_time = Time.current - start_time
+    StatsD.measure("api.1900.#{service}.response_time", elapsed_time, tags: {})
   end
 end
