@@ -230,11 +230,6 @@ Style/ClassEqualityComparison:
     - 'modules/covid_research/app/serializers/covid_research/genisis_serializer.rb'
     - 'modules/va_forms/app/workers/va_forms/form_reloader.rb'
 
-# Offense count: 2
-Style/CombinableLoops:
-  Exclude:
-    - 'modules/vba_documents/spec/mailers/unsuccessful_report_mailer_spec.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
@@ -337,6 +332,7 @@ Style/QuotedSymbols:
 
 # Offense count: 63
 # Cop supports --auto-correct.
+# NOTE: These should not be auto-corrected because it will incorrectly remove escaped forward slashes
 Style/RedundantRegexpEscape:
   Enabled: false
 

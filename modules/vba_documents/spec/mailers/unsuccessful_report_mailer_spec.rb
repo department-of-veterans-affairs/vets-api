@@ -76,23 +76,11 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
         it "sends the email for #{k}" do
           expect(@email.subject).to eq("Benefits Intake Unsuccessful Submission Report for #{k}")
         end
-      end
-    end
-
-    MailerHelper.env_hash.each_pair do |k, v|
-      context 'environments' do
-        let(:env_url) { [k, v] }
 
         it "sends to the right people for #{k}" do
           people = VBADocuments::UnsuccessfulReportMailer.fetch_recipients
           expect(@email.to).to eq(people)
         end
-      end
-    end
-
-    MailerHelper.env_hash.each_pair do |k, v|
-      context 'environments' do
-        let(:env_url) { [k, v] }
 
         it "states the environment #{k.to_s.upcase} in the body" do
           @email.body.to_s =~ %r{<h1>(.*)?</h1>}i
