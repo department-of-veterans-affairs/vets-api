@@ -4,7 +4,7 @@ require 'rails_helper'
 require_relative '../support/iam_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
-RSpec.describe 'immunizations', type: :request do
+RSpec.describe 'locations', type: :request do
   include JsonSchemaMatchers
 
   let(:rsa_key) { OpenSSL::PKey::RSA.generate(2048) }
@@ -25,12 +25,12 @@ RSpec.describe 'immunizations', type: :request do
 
   after { Timecop.return }
 
-  describe 'GET /mobile/v0/health/location/:id' do
+  describe 'GET /mobile/v0/health/locations/:id' do
     context 'When a valid ID is provided' do
       before do
         VCR.use_cassette('lighthouse_health/get_facility', match_requests_on: %i[method uri]) do
           VCR.use_cassette('lighthouse_health/get_lh_location', match_requests_on: %i[method uri]) do
-            get '/mobile/v0/health/location/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000', headers: iam_headers
+            get '/mobile/v0/health/locations/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000', headers: iam_headers
           end
         end
       end
@@ -61,7 +61,7 @@ RSpec.describe 'immunizations', type: :request do
     before do
       VCR.use_cassette('lighthouse_health/get_facilities_empty', match_requests_on: %i[method uri]) do
         VCR.use_cassette('lighthouse_health/get_lh_location', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/health/location/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000', headers: iam_headers
+          get '/mobile/v0/health/locations/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000', headers: iam_headers
         end
       end
     end
@@ -74,7 +74,7 @@ RSpec.describe 'immunizations', type: :request do
   context 'When lh location returns 404' do
     before do
       VCR.use_cassette('lighthouse_health/get_lh_location_404', match_requests_on: %i[method uri]) do
-        get '/mobile/v0/health/location/FAKE-ID', headers: iam_headers
+        get '/mobile/v0/health/locations/FAKE-ID', headers: iam_headers
       end
     end
 

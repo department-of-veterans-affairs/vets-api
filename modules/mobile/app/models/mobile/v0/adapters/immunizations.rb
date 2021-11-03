@@ -17,14 +17,22 @@ module Mobile
               dose_number: dose_number(immunization[:protocol_applied]),
               dose_series: dose_series(immunization[:protocol_applied]),
               group_name: Mobile::CDC_CVX_CODE_MAP[cvx_code],
+              location_id: location_id(immunization.dig(:location, :reference)),
               manufacturer: nil,
               note: immunization[:note].first[:text],
+              reaction: reaction(immunization[:reaction]),
               short_description: vaccine_code[:text]
             )
           end
         end
 
         private
+
+        def location_id(reference)
+          return nil unless reference
+
+          reference.split('/').last
+        end
 
         def dose_number(protocol_applied)
           return nil if protocol_applied.blank?
@@ -40,6 +48,12 @@ module Mobile
           series = protocol_applied.first
 
           series[:series_doses_positive_int] || series[:series_doses_string]
+        end
+
+        def reaction(reaction)
+          return nil unless reaction
+
+          reaction.map { |r| r[:detail][:display] }.join(',')
         end
       end
     end

@@ -11,8 +11,10 @@ module Mobile
       attribute :dose_number, Types::String.optional
       attribute :dose_series, Types::String.optional
       attribute :group_name, Types::String.optional
+      attribute :location_id, Types::String.optional
       attribute :manufacturer, Types::String.optional
       attribute :note, Types::String.optional
+      attribute :reaction, Types::String.optional
       attribute :short_description, Types::String.optional
     end
   end

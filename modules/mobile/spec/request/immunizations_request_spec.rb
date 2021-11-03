@@ -52,8 +52,10 @@ RSpec.describe 'immunizations', type: :request do
                 'manufacturer' => nil,
                 'note' =>
                   'Dose #45 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
+                'reaction' => 'Vomiting',
                 'shortDescription' =>
-                  'Influenza  seasonal  injectable  preservative free' } },
+                  'Influenza  seasonal  injectable  preservative free' },
+             'relationships' => { 'location' => { 'data' => nil, 'links' => { 'related' => nil } } } },
            { 'id' => 'I2-6SIQZNJCIOAQOGES6YOTSQAWJY000000',
              'type' => 'immunization',
              'attributes' =>
@@ -65,8 +67,10 @@ RSpec.describe 'immunizations', type: :request do
                  'manufacturer' => nil,
                  'note' =>
                    'Dose #46 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
+                 'reaction' => 'Vomiting',
                  'shortDescription' =>
-                   'Influenza  seasonal  injectable  preservative free' } },
+                   'Influenza  seasonal  injectable  preservative free' },
+             'relationships' => { 'location' => { 'data' => nil, 'links' => { 'related' => nil } } } },
            { 'id' => 'I2-RWRNZDHNNCHLJJKJDJVVVAZHNQ000000',
              'type' => 'immunization',
              'attributes' =>
@@ -78,8 +82,16 @@ RSpec.describe 'immunizations', type: :request do
                  'manufacturer' => nil,
                  'note' =>
                    'Dose #47 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
+                 'reaction' => 'Other',
                  'shortDescription' =>
-                   'Influenza  seasonal  injectable  preservative free' } },
+                   'Influenza  seasonal  injectable  preservative free' },
+             'relationships' =>
+               { 'location' =>
+                 { 'data' =>
+                   { 'id' => 'I2-4KG3N5YUSPTWD3DAFMLMRL5V5U000000', 'type' => 'location' },
+                   'links' =>
+                     { 'related' =>
+                       'www.example.com/mobile/v0/health/locations/I2-4KG3N5YUSPTWD3DAFMLMRL5V5U000000' } } } },
            { 'id' => 'I2-YYBTWDMLX6WLFV3GBSIGT5CZO4000000',
              'type' => 'immunization',
              'attributes' =>
@@ -91,8 +103,16 @@ RSpec.describe 'immunizations', type: :request do
                  'manufacturer' => nil,
                  'note' =>
                    'Dose #48 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
+                 'reaction' => 'Anaphylaxis or collapse',
                  'shortDescription' =>
-                   'Influenza  seasonal  injectable  preservative free' } },
+                   'Influenza  seasonal  injectable  preservative free' },
+             'relationships' =>
+               { 'location' =>
+                 { 'data' =>
+                   { 'id' => 'I2-2FPCKUIXVR7RJLLG34XVWGZERM000000', 'type' => 'location' },
+                   'links' =>
+                     { 'related' =>
+                       'www.example.com/mobile/v0/health/locations/I2-2FPCKUIXVR7RJLLG34XVWGZERM000000' } } } },
            { 'id' => 'I2-LA34JJPECU7NQFSNCRULFSVQ3M000000',
              'type' => 'immunization',
              'attributes' =>
@@ -104,7 +124,15 @@ RSpec.describe 'immunizations', type: :request do
                  'manufacturer' => nil,
                  'note' =>
                    'Dose #3 of 8 of Td (adult) preservative free vaccine administered.',
-                 'shortDescription' => 'Td (adult) preservative free' } },
+                 'reaction' => 'Respiratory distress',
+                 'shortDescription' => 'Td (adult) preservative free' },
+             'relationships' =>
+               { 'location' =>
+                 { 'data' =>
+                   { 'id' => 'I2-2FPCKUIXVR7RJLLG34XVWGZERM000000', 'type' => 'location' },
+                   'links' =>
+                     { 'related' =>
+                       'www.example.com/mobile/v0/health/locations/I2-2FPCKUIXVR7RJLLG34XVWGZERM000000' } } } },
            { 'id' => 'I2-DOUHUYLFJLLPSJLACUDAJF5GF4000000',
              'type' => 'immunization',
              'attributes' =>
@@ -116,8 +144,16 @@ RSpec.describe 'immunizations', type: :request do
                  'manufacturer' => nil,
                  'note' =>
                    'Dose #49 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
+                 'reaction' => 'Convulsions',
                  'shortDescription' =>
-                   'Influenza  seasonal  injectable  preservative free' } },
+                   'Influenza  seasonal  injectable  preservative free' },
+             'relationships' =>
+               { 'location' =>
+                 { 'data' =>
+                   { 'id' => 'I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000', 'type' => 'location' },
+                   'links' =>
+                     { 'related' =>
+                       'www.example.com/mobile/v0/health/locations/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000' } } } },
            { 'id' => 'I2-VLMNAJAIAEAA3TR34PW5VHUFPM000000',
              'type' => 'immunization',
              'attributes' =>
@@ -129,8 +165,16 @@ RSpec.describe 'immunizations', type: :request do
                  'manufacturer' => nil,
                  'note' =>
                    'Dose #50 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
+                 'reaction' => 'Local reaction or swelling',
                  'shortDescription' =>
-                   'Influenza  seasonal  injectable  preservative free' } },
+                   'Influenza  seasonal  injectable  preservative free' },
+             'relationships' =>
+               { 'location' =>
+                 { 'data' =>
+                   { 'id' => 'I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000', 'type' => 'location' },
+                   'links' =>
+                     { 'related' =>
+                       'www.example.com/mobile/v0/health/locations/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000' } } } },
            { 'id' => 'I2-GY27FURWILSYXZTY2GQRNJH57U000000',
              'type' => 'immunization',
              'attributes' =>
@@ -142,8 +186,16 @@ RSpec.describe 'immunizations', type: :request do
                  'manufacturer' => nil,
                  'note' =>
                    'Dose #51 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
+                 'reaction' => 'Vomiting',
                  'shortDescription' =>
-                   'Influenza  seasonal  injectable  preservative free' } },
+                   'Influenza  seasonal  injectable  preservative free' },
+             'relationships' =>
+               { 'location' =>
+                 { 'data' =>
+                   { 'id' => 'I2-2FPCKUIXVR7RJLLG34XVWGZERM000000', 'type' => 'location' },
+                   'links' =>
+                     { 'related' =>
+                       'www.example.com/mobile/v0/health/locations/I2-2FPCKUIXVR7RJLLG34XVWGZERM000000' } } } },
            { 'id' => 'I2-F3CW7J5IRY6PVIEVDMRL4R4W6M000000',
              'type' => 'immunization',
              'attributes' =>
@@ -155,7 +207,9 @@ RSpec.describe 'immunizations', type: :request do
                  'manufacturer' => nil,
                  'note' =>
                    'Dose #1 of 5 of Pneumococcal conjugate PCV 13 vaccine administered.',
-                 'shortDescription' => 'Pneumococcal conjugate PCV 13' } },
+                 'reaction' => 'Vomiting',
+                 'shortDescription' => 'Pneumococcal conjugate PCV 13' },
+             'relationships' => { 'location' => { 'data' => nil, 'links' => { 'related' => nil } } } },
            { 'id' => 'I2-JYYSRLCG3BN646ZPICW25IEOFQ000000',
              'type' => 'immunization',
              'attributes' =>
@@ -167,8 +221,16 @@ RSpec.describe 'immunizations', type: :request do
                  'manufacturer' => nil,
                  'note' =>
                    'Dose #52 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
+                 'reaction' => 'Anaphylaxis or collapse',
                  'shortDescription' =>
-                   'Influenza  seasonal  injectable  preservative free' } },
+                   'Influenza  seasonal  injectable  preservative free' },
+             'relationships' =>
+               { 'location' =>
+                 { 'data' =>
+                   { 'id' => 'I2-2FPCKUIXVR7RJLLG34XVWGZERM000000', 'type' => 'location' },
+                   'links' =>
+                     { 'related' =>
+                       'www.example.com/mobile/v0/health/locations/I2-2FPCKUIXVR7RJLLG34XVWGZERM000000' } } } },
            { 'id' => 'I2-7PQYOMZCN4FG2Z545JOOLAVCBA000000',
              'type' => 'immunization',
              'attributes' =>
@@ -180,7 +242,15 @@ RSpec.describe 'immunizations', type: :request do
                  'manufacturer' => nil,
                  'note' =>
                    'Dose #1 of 1 of pneumococcal polysaccharide vaccine  23 valent vaccine administered.',
-                 'shortDescription' => 'pneumococcal polysaccharide vaccine  23 valent' } },
+                 'reaction' => 'Other',
+                 'shortDescription' => 'pneumococcal polysaccharide vaccine  23 valent' },
+             'relationships' =>
+               { 'location' =>
+                 { 'data' =>
+                   { 'id' => 'I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000', 'type' => 'location' },
+                   'links' =>
+                     { 'related' =>
+                       'www.example.com/mobile/v0/health/locations/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000' } } } },
            { 'id' => 'I2-2ZWOY2V6JJQLVARKAO25HI2V2M000000',
              'type' => 'immunization',
              'attributes' =>
@@ -192,8 +262,10 @@ RSpec.describe 'immunizations', type: :request do
                  'manufacturer' => nil,
                  'note' =>
                    'Dose #53 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
+                 'reaction' => 'Fever',
                  'shortDescription' =>
-                   'Influenza  seasonal  injectable  preservative free' } },
+                   'Influenza  seasonal  injectable  preservative free' },
+             'relationships' => { 'location' => { 'data' => nil, 'links' => { 'related' => nil } } } },
            { 'id' => 'I2-NGT2EAUYD7N7LUFJCFJY3C5KYY000000',
              'type' => 'immunization',
              'attributes' =>
@@ -205,8 +277,16 @@ RSpec.describe 'immunizations', type: :request do
                  'manufacturer' => nil,
                  'note' =>
                    'Dose #54 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
+                 'reaction' => 'Respiratory distress',
                  'shortDescription' =>
-                   'Influenza  seasonal  injectable  preservative free' } },
+                   'Influenza  seasonal  injectable  preservative free' },
+             'relationships' =>
+               { 'location' =>
+                 { 'data' =>
+                   { 'id' => 'I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000', 'type' => 'location' },
+                   'links' =>
+                     { 'related' =>
+                       'www.example.com/mobile/v0/health/locations/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000' } } } },
            { 'id' => 'I2-N7A6Q5AU6W5C6O4O7QEDZ3SJXM000000',
              'type' => 'immunization',
              'attributes' =>
@@ -218,7 +298,15 @@ RSpec.describe 'immunizations', type: :request do
                  'manufacturer' => nil,
                  'note' =>
                    'Dose #1 of 2 of COVID-19, mRNA, LNP-S, PF, 100 mcg/ 0.5 mL dose vaccine administered.',
-                 'shortDescription' => 'COVID-19, mRNA, LNP-S, PF, 100 mcg/ 0.5 mL dose' } },
+                 'reaction' => nil,
+                 'shortDescription' => 'COVID-19, mRNA, LNP-S, PF, 100 mcg/ 0.5 mL dose' },
+             'relationships' =>
+               { 'location' =>
+                 { 'data' =>
+                   { 'id' => 'I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000', 'type' => 'location' },
+                   'links' =>
+                     { 'related' =>
+                       'www.example.com/mobile/v0/health/locations/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000' } } } },
            { 'id' => 'I2-2BCP5BAI6N7NQSAPSVIJ6INQ4A000000',
              'type' => 'immunization',
              'attributes' =>
@@ -230,23 +318,81 @@ RSpec.describe 'immunizations', type: :request do
                  'manufacturer' => nil,
                  'note' =>
                    'Dose #2 of 2 of COVID-19, mRNA, LNP-S, PF, 100 mcg/ 0.5 mL dose vaccine administered.',
-                 'shortDescription' => 'COVID-19, mRNA, LNP-S, PF, 100 mcg/ 0.5 mL dose' } }] }
+                 'reaction' => nil,
+                 'shortDescription' => 'COVID-19, mRNA, LNP-S, PF, 100 mcg/ 0.5 mL dose' },
+             'relationships' =>
+               { 'location' =>
+                 { 'data' =>
+                   { 'id' => 'I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000', 'type' => 'location' },
+                   'links' =>
+                     { 'related' =>
+                       'www.example.com/mobile/v0/health/locations/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000' } } } }] }
       )
     end
 
-    it 'matches the expected attributes' do
-      expect(response.parsed_body['data'].first['attributes']).to eq(
-        {
-          'cvxCode' => 140,
-          'date' => '2009-03-19T12:24:55Z',
-          'doseNumber' => 'Booster',
-          'doseSeries' => 1,
-          'groupName' => 'FLU',
-          'manufacturer' => nil,
-          'note' => 'Dose #45 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
-          'shortDescription' => 'Influenza  seasonal  injectable  preservative free'
-        }
-      )
+    context 'for items that do not have locations' do
+      it 'matches the expected attributes' do
+        expect(response.parsed_body['data'].first['attributes']).to eq(
+          {
+            'cvxCode' => 140,
+            'date' => '2009-03-19T12:24:55Z',
+            'doseNumber' => 'Booster',
+            'doseSeries' => 1,
+            'groupName' => 'FLU',
+            'manufacturer' => nil,
+            'note' => 'Dose #45 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
+            'reaction' => 'Vomiting',
+            'shortDescription' => 'Influenza  seasonal  injectable  preservative free'
+          }
+        )
+      end
+
+      it 'has a blank relationship' do
+        expect(response.parsed_body['data'].first['relationships']).to eq(
+          {
+            'location' => {
+              'data' => nil,
+              'links' => {
+                'related' => nil
+              }
+            }
+          }
+        )
+      end
+    end
+
+    context 'for items that do have a location' do
+      it 'matches the expected attributes' do
+        expect(response.parsed_body['data'][2]['attributes']).to eq(
+          {
+            'cvxCode' => 140,
+            'date' => '2011-03-31T12:24:55Z',
+            'doseNumber' => 'Series 1',
+            'doseSeries' => 1,
+            'groupName' => 'FLU',
+            'manufacturer' => nil,
+            'note' => 'Dose #47 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
+            'reaction' => 'Other',
+            'shortDescription' => 'Influenza  seasonal  injectable  preservative free'
+          }
+        )
+      end
+
+      it 'has a relationship' do
+        expect(response.parsed_body['data'][2]['relationships']).to eq(
+          {
+            'location' => {
+              'data' => {
+                'id' => 'I2-4KG3N5YUSPTWD3DAFMLMRL5V5U000000',
+                'type' => 'location'
+              },
+              'links' => {
+                'related' => 'www.example.com/mobile/v0/health/locations/I2-4KG3N5YUSPTWD3DAFMLMRL5V5U000000'
+              }
+            }
+          }
+        )
+      end
     end
   end
 end
