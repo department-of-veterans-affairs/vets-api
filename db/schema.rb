@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_01_203924) do
+ActiveRecord::Schema.define(version: 2021_11_01_233443) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -786,7 +786,7 @@ ActiveRecord::Schema.define(version: 2021_11_01_203924) do
     t.index ["idme_uuid"], name: "index_user_verifications_on_idme_uuid", unique: true
     t.index ["logingov_uuid"], name: "index_user_verifications_on_logingov_uuid", unique: true
     t.index ["mhv_uuid"], name: "index_user_verifications_on_mhv_uuid", unique: true
-    t.index ["user_account_id"], name: "index_user_verifications_on_user_account_id", unique: true
+    t.index ["user_account_id"], name: "index_user_verifications_on_user_account_id"
     t.index ["verified_at"], name: "index_user_verifications_on_verified_at"
   end
 
