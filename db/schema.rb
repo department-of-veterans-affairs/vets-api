@@ -482,6 +482,8 @@ ActiveRecord::Schema.define(version: 2021_10_29_224522) do
     t.string "error_class"
     t.string "error_message"
     t.datetime "updated_at", null: false
+    t.jsonb "bgjob_errors", default: {}
+    t.index ["bgjob_errors"], name: "index_form526_job_statuses_on_bgjob_errors", using: :gin
     t.index ["form526_submission_id"], name: "index_form526_job_statuses_on_form526_submission_id"
     t.index ["job_id"], name: "index_form526_job_statuses_on_job_id", unique: true
   end
