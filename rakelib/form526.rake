@@ -338,7 +338,7 @@ namespace :form526 do
       unsuccessful_jobs.each do |job_status|
         # Check if its an EVSS error and parse, otherwise store the entire message
         messages = if job_status.error_message.include?('=>') &&
-                      !job_status.error_message.include?('BackendServiceException')
+                      job_status.error_message.exclude?('BackendServiceException')
                      JSON.parse(job_status.error_message.gsub('=>', ':')).collect { |message| message_string(message) }
                    else
                      [job_status.error_message]

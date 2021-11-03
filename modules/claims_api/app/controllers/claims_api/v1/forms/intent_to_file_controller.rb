@@ -86,7 +86,7 @@ module ClaimsApi
         end
 
         def check_for_type
-          return unless active_param && !ITF_TYPES.include?(active_param)
+          return unless active_param && ITF_TYPES.exclude?(active_param)
 
           message = "Must include either compensation, pension or burial as a 'type' parameter."
           raise ::Common::Exceptions::UnprocessableEntity.new(detail: message)

@@ -191,7 +191,7 @@ module Common
     end
 
     def sort_type_allowed?(sort_param)
-      !type.sortable_attributes.include?(sort_param.delete('-'))
+      type.sortable_attributes.exclude?(sort_param.delete('-'))
     end
 
     def verify_filter_keys!(filter)
