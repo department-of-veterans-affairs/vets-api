@@ -44,7 +44,8 @@ module FacilitiesApi
           current_page: paginated_obj.current_page,
           prev_page: paginated_obj.previous_page,
           next_page: paginated_obj.next_page,
-          total_pages: paginated_obj.total_pages
+          total_pages: paginated_obj.total_pages,
+          total_entries: paginated_obj.total_entries
         }
       }
     end

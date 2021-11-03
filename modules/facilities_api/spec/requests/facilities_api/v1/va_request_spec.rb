@@ -26,12 +26,13 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do |requ
     it 'is expected to have specified pagination metadata' do
       current_page = request_params[:page] || 1
       prev_page = current_page > 1 ? current_page - 1 : nil
-      expect(parsed_body[:meta][:pagination]).to include({
-                                                           current_page: current_page,
-                                                           prev_page: prev_page,
-                                                           next_page: be_kind_of(Integer).or(be_nil),
-                                                           total_pages: be_kind_of(Integer)
-                                                         })
+      expect(parsed_body[:meta][:pagination]).to match({
+                                                         current_page: current_page,
+                                                         prev_page: prev_page,
+                                                         next_page: be_kind_of(Integer).or(be_nil),
+                                                         total_pages: be_kind_of(Integer),
+                                                         total_entries: be_kind_of(Integer)
+                                                       })
     end
 
     it 'is expected to include pagination links' do
