@@ -24,12 +24,12 @@ module MebApi
               },
             'serviceData': {
               'beginDate': '2010-10-26T18:00:54.302Z', 'endDate': '2021-10-26T18:00:54.302Z',
-              'branchOfService': 'ArmyActiveDuty',
+              'branchOfService': 'Army',
               'trainingPeriods': [
                 { 'beginDate': '2018-10-26T18:00:54.302Z', 'endDate': '2019-10-26T18:00:54.302Z' }
               ],
               'exclusionPeriods': [{ 'beginDate': '2012-10-26T18:00:54.302Z', 'endDate': '2013-10-26T18:00:54.302Z' }],
-              'characterOfService': 'Honorable', 'reasonForSeparation': 'ExpirationTimeOfService'
+              'characterOfService': 'Honorable', 'reasonForSeparation': 'Expiration Term Of Service'
             }
           }
       end
