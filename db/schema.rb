@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_29_224522) do
+ActiveRecord::Schema.define(version: 2021_11_01_203924) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -174,6 +174,7 @@ ActiveRecord::Schema.define(version: 2021_10_29_224522) do
     t.text "form_data_ciphertext"
     t.text "auth_headers_ciphertext"
     t.text "encrypted_kms_key"
+    t.boolean "evidence_submission_indicated"
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
