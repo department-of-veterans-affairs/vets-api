@@ -93,7 +93,7 @@ class EVSSClaimDocument < Common::Base
     error_messages = pdftk.call_pdftk(file_obj.tempfile.path,
                                       'input_pw', password,
                                       'output', tempfile_without_pass.path)
-    if error_messages.present?
+    if error_messages.present? && error_messages.include?('Error')
       log_message_to_sentry(error_messages, 'warn')
       errors.add(:base, I18n.t('errors.messages.uploads.pdf.incorrect_password'))
     end
