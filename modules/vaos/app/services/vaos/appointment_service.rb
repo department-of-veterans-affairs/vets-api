@@ -5,6 +5,8 @@ require 'common/client/errors'
 
 module VAOS
   class AppointmentService < VAOS::SessionService
+    DIRECT_SCHEDULE_ERROR_KEY = 'DirectScheduleError'
+
     def get_appointments(type, start_date, end_date, pagination_params = {})
       params = date_params(start_date, end_date).merge(page_params(pagination_params)).merge(other_params).compact
 
@@ -66,7 +68,15 @@ module VAOS
     private
 
     def log_direct_schedule_submission_errors(e)
-      Rails.logger.warn('Direct schedule submission error', { status: e.status_code, message: e.message })
+      error_entry = { DIRECT_SCHEDULE_ERROR_KEY => ds_error_details(e) }
+      Rails.logger.warn('Direct schedule submission error', error_entry.to_json)
+    end
+
+    def ds_error_details(e)
+      {
+        status: e.status_code,
+        message: e.message
+      }
     end
 
     def log_clinic_details(action, clinic_id, site_code)
