@@ -221,8 +221,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   def veteran_va_file_number(user)
     service = BGS::PeopleService.new(user)
-    response = service.find_person_by_participant_id
-    file_number = response[:file_nbr]
+    StatsD.measure('api.1900.bgs.response_time') do
+      @response = service.find_person_by_participant_id
+    end
+    file_number = @response[:file_nbr]
     file_number.presence
   rescue
     nil
