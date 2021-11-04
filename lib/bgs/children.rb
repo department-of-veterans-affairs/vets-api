@@ -36,6 +36,8 @@ module BGS
         bgs_service.create_person(person_params(child, participant, formatted_info))
         send_address(child, participant, child.address(@dependents_application))
 
+        step_child_parent(child_info) if child['family_relationship_type'] == 'Stepchild'
+
         @children << child.serialize_dependent_result(
           participant,
           'Child',
@@ -122,6 +124,37 @@ module BGS
       end
 
       BGSDependents::ChildStoppedAttendingSchool.new(@dependents_application['child_stopped_attending_school'])
+    end
+
+    def step_child_parent(child_info)
+      parent = bgs_service.create_participant(@proc_id)
+
+      bgs_service.create_person(
+        {
+          vnp_proc_id: @proc_id,
+          vnp_ptcpnt_id: parent[:vnp_ptcpnt_id],
+          first_nm: child_info['child_status']['stepchild_parent']['first'],
+          last_nm: child_info['child_status']['stepchild_parent']['last'],
+          brthdy_dt: format_date(child_info['child_status']['birth_date']),
+          ssn_nbr: child_info['child_status']['ssn']
+        }
+      )
+
+      @step_children <<
+        {
+          vnp_participant_id: parent[:vnp_ptcpnt_id],
+          participant_relationship_type_name: 'Spouse',
+          family_relationship_type_name: 'Spouse',
+          event_date: child_info['child_status']['date_became_dependent'],
+          begin_date: child_info['child_status']['date_became_dependent'],
+          type: 'stepchild_parent'
+        }
+    end
+
+    def format_date(date)
+      return nil if date.nil?
+
+      DateTime.parse(date + ' 12:00:00').to_time.iso8601
     end
 
     def bgs_service

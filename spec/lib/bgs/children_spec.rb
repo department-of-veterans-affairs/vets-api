@@ -10,6 +10,7 @@ RSpec.describe BGS::Children do
 
   context 'adding children' do
     let(:adopted_payload) { FactoryBot.build(:adopted_child_lives_with_veteran) }
+    let(:add_step_child_payload) { FactoryBot.build(:step_child_lives_with_veteran) }
 
     it 'returns a hash for biological child that does not live with veteran' do
       VCR.use_cassette('bgs/dependents/create') do
@@ -64,6 +65,34 @@ RSpec.describe BGS::Children do
             family_relationship_type_name: 'Adopted Child',
             participant_relationship_type_name: 'Child',
             type: 'child'
+          )
+        )
+      end
+    end
+
+    it 'returns a hash for step child and spouse/parent of step child' do
+      VCR.use_cassette('bgs/dependents/create') do
+        children = BGS::Children.new(
+          proc_id: proc_id,
+          payload: add_step_child_payload,
+          user: user_object
+        ).create_all
+
+        expect(children[:dependents]).to include(
+          a_hash_including(
+            family_relationship_type_name: 'Stepchild',
+            participant_relationship_type_name: 'Child',
+            type: 'child'
+          )
+        )
+
+        expect(children[:step_children]).to include(
+          a_hash_including(
+            family_relationship_type_name: 'Spouse',
+            participant_relationship_type_name: 'Spouse',
+            event_date: '2021-09-02',
+            begin_date: '2021-09-02',
+            type: 'stepchild_parent'
           )
         )
       end

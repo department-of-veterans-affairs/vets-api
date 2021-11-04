@@ -74,7 +74,8 @@ module BGSDependents
         death_dt: format_date(payload['death_date']),
         ever_maried_ind: payload['ever_married_ind'],
         vet_ind: payload['vet_ind'],
-        martl_status_type_cd: payload['martl_status_type_cd']
+        martl_status_type_cd: payload['martl_status_type_cd'],
+        vnp_srusly_dsabld_ind: payload['not_self_sufficient']
       }
     end
 

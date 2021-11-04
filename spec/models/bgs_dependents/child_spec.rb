@@ -23,7 +23,8 @@ RSpec.describe BGSDependents::Child do
       'previous_marriage_details' => { 'date_marriage_ended' => '2018-03-04', 'reason_marriage_ended' => 'Death' },
       'full_name' => { 'first' => 'John', 'middle' => 'oliver', 'last' => 'Hamm', 'suffix' => 'Sr.' },
       'ssn' => '370947142',
-      'birth_date' => '2009-03-03'
+      'birth_date' => '2009-03-03',
+      'not_self_sufficient' => false
     }
   end
   let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
@@ -53,7 +54,8 @@ RSpec.describe BGSDependents::Child do
         'middle' => 'oliver',
         'last' => 'Hamm',
         'suffix' => 'Sr.',
-        'child_income' => 'N'
+        'child_income' => 'N',
+        'not_self_sufficient' => 'N'
       }
     end
 
