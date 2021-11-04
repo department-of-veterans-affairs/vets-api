@@ -266,9 +266,10 @@ module V1
         Rails.logger.info("SessionsController version:v1 login complete, user_uuid=#{@current_user&.uuid}")
         StatsD.measure(STATSD_LOGIN_LATENCY, url_service.tracker.age, tags: tags)
       when :failure
-        tags_and_error_code = tags << "error:#{error&.code || SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE}"
+        tags_and_error_code = tags << "error:#{error.try(:code) || SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE}"
+        error_message = error.try(:message) || 'Unknown'
         StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags_and_error_code)
-        Rails.logger.info("LOGIN_STATUS_FAILURE, tags: #{tags_and_error_code}")
+        Rails.logger.info("LOGIN_STATUS_FAILURE, tags: #{tags_and_error_code}, message: #{error_message}")
         Rails.logger.info("SessionsController version:v1 login failure, user_uuid=#{@current_user&.uuid}")
       end
     end
