@@ -258,3 +258,7 @@ Form1010cg::DeleteOldUploadsJob:
   cron: "0 0 * * * America/New_York"
   description: Delete uploaded caregiver assistance claim forms 30 days old or older.
 
+TestUserDashboard::DailyMaintenance:
+  cron: "0 0 * * * America/New_York"
+  class: TestUserDashboard::DailyMaintenance
+  description: "Checks in TUD users that weren't properly checked in."
