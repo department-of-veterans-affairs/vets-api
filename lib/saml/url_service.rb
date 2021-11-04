@@ -94,7 +94,10 @@ module SAML
 
     def logingov_url
       @type = 'logingov'
-      build_logingov_sso_url(build_logingov_authn_context([IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2]))
+      build_sso_url(
+        build_authn_context([IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2], AuthnContext::LOGIN_GOV),
+        'minimum'
+      )
     end
 
     def custom_url(authn)
@@ -173,14 +176,6 @@ module SAML
     end
 
     def build_authn_context(assurance_level_url, identity_provider = AuthnContext::ID_ME)
-      if identity_provider
-        [assurance_level_url, identity_provider]
-      else
-        assurance_level_url
-      end
-    end
-
-    def build_logingov_authn_context(assurance_level_url, identity_provider = AuthnContext::LOGIN_GOV)
       if identity_provider
         assurance_level_url = [assurance_level_url] unless assurance_level_url.is_a?(Array)
         assurance_level_url.push(identity_provider)

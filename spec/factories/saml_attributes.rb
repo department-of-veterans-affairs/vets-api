@@ -159,6 +159,28 @@ FactoryBot.define do
     initialize_with { new(attributes.stringify_keys) }
   end
 
+  factory :ssoe_logingov_ial1, class: 'OneLogin::RubySaml::Attributes' do
+    transient do
+      authn_context { IAL::LOGIN_GOV_IAL1 }
+    end
+    va_eauth_csid { ['LOGINGOV'] }
+    va_eauth_lastname { ['GPKTESTNINE'] }
+    va_eauth_credentialassurancelevel { ['1'] }
+    va_eauth_ial { ['1'] }
+    va_eauth_firstname { ['JERRY'] }
+    va_eauth_csponly { ['true'] }
+    va_eauth_authenticationMethod { ['http://idmanagement.gov/ns/assurance/ial/1'] }
+    va_eauth_aal { ['2'] }
+    va_eauth_emailaddress { ['vets.gov.user+262@example.com'] }
+    va_eauth_transactionid { ['abcd1234xyz'] }
+    va_eauth_authncontextclassref { ['http://idmanagement.gov/ns/assurance/ial/1'] }
+    va_eauth_uid { ['54e78de6140d473f87960f211be49c08'] }
+    va_eauth_issueinstant { ['2020-02-05T21:14:20Z'] }
+    va_eauth_middlename { ['NOT_FOUND'] }
+
+    initialize_with { new(attributes.stringify_keys) }
+  end
+
   factory :ssoe_idme_loa1_unproofed, class: 'OneLogin::RubySaml::Attributes' do
     transient do
       authn_context { LOA::IDME_LOA1_VETS }

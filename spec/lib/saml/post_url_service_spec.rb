@@ -33,6 +33,12 @@ RSpec.describe SAML::PostURLService do
         let(:params) { { action: 'new' } }
 
         it 'has sign in url: logingov_url' do
+          expect_any_instance_of(OneLogin::RubySaml::Settings)
+            .to receive(:authn_context=).with(
+              [IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2, AuthnContext::LOGIN_GOV]
+            )
+          expect_any_instance_of(OneLogin::RubySaml::Settings)
+            .to receive(:authn_context_comparison=).with('minimum')
           url, params = subject.logingov_url
           expect(url).to eq('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login')
           expect_saml_form_parameters(params,
