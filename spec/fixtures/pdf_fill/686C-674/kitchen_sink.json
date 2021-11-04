@@ -120,6 +120,7 @@
           "city":"Caracas"
          },
         "child_status": {"biological": true},
+        "not_self_sufficient": false,
         "child_income": true,
         "previously_married": "Yes",
         "previous_marriage_details": {
@@ -139,6 +140,7 @@
         "does_child_live_with_you": true,
         "place_of_birth": {"state": "CA", "city": "Slawson"},
         "child_status": {"adopted": true},
+        "not_self_sufficient": false,
         "previously_married": "No",
         "full_name": {
           "first": "Charlie",
@@ -148,6 +150,48 @@
         },
         "ssn": "370947143",
         "birth_date": "2010-03-03"
+      },
+      {
+        "does_child_live_with_you": false,
+        "child_address_info": {
+          "person_child_lives_with":
+          {
+            "first": "Ava",
+            "last": "Testwood"
+          },
+          "address": {
+            "country_name": "USA",
+            "address_line1": "4201 Henry Ave",
+            "city": "Philadelphia",
+            "state_code": "PA",
+            "zip_code": "19144"
+          }
+        },
+        "place_of_birth": {
+          "is_outside_us": false,
+          "state": "CO",
+          "city": "Denver"
+        },
+        "child_status": {
+          "biological": true,
+          "adopted": true,
+          "stepchild": true,
+          "date_became_dependent": "2021-05-02",
+          "stepchild_parent":  {
+            "first": "Lindsay",
+            "last": "Grayson"
+          },
+          "ssn": "333224444",
+          "birth_date": "1987-07-02"
+        },
+        "not_self_sufficient": true,
+        "previously_married": "No",
+        "full_name": {
+          "first": "Declan",
+          "last": "Testwood"
+        },
+        "ssn": "333224444",
+        "birth_date": "2008-10-06"
       }
     ],
     "step_children": [

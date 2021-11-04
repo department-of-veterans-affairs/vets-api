@@ -876,7 +876,12 @@ module PdfFill
               'child_previously_married' => {
                 key: 'children_to_add.child_status.child_previously_married[%iterator%]'
               },
-              'stepchild' => { key: 'children_to_add.child_status.stepchild[%iterator%]' }
+              'stepchild' => { key: 'children_to_add.child_status.stepchild[%iterator%]' },
+              'date_became_dependent' => {
+                'month' => { key: 'children_to_add.child_status.date_became_dependent.month[%iterator%]' },
+                'day' => { key: 'children_to_add.child_status.date_became_dependent.day[%iterator%]' },
+                'year' => { key: 'children_to_add.child_status.date_became_dependent.year[%iterator%]' }
+              }
             }, # end of child status
             'previous_marriage_details' => {
               'date_marriage_ended' => {
@@ -1659,16 +1664,19 @@ module PdfFill
       def expand_child_status(child)
         # expand child status
         child_status = child['child_status']
+        date_became_dependent = split_date(child.dig('child_status', 'date_became_dependent'))
 
         # @TODO 18-23 YEARS OLD AND IN SCHOOL
         child['child_status'] = {
           'biological' => select_radio_button(child_status['biological']),
           'school_age_in_school' => select_radio_button(child_status['school_age_in_school']),
           'adopted' => select_radio_button(child_status['adopted']),
-          'incapable_self_support' => select_radio_button(child_status['not_capable']),
+          'incapable_self_support' => select_radio_button(child['not_self_sufficient']),
           'child_previously_married' => select_radio_button(child_status['child_previously_married']),
           'stepchild' => select_radio_button(child_status['stepchild'])
         }
+
+        child['child_status']['date_became_dependent'] = date_became_dependent if date_became_dependent.present?
       end
 
       def expand_child_previously_married(child)
