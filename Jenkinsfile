@@ -102,11 +102,13 @@ pipeline {
       deleteDir() /* clean up our workspace */
     }
     failure {
-      when { branch 'master' }
-
-      slackSend message: "Failed vets-api CI on branch: `${env.THE_BRANCH}`! ${env.RUN_DISPLAY_URL}".stripMargin(),
-      color: 'danger',
-      failOnError: true
+      script {
+        if (env.BRANCH_NAME == 'master') {
+          slackSend message: "Failed vets-api CI on branch: `${env.THE_BRANCH}`! ${env.RUN_DISPLAY_URL}".stripMargin(),
+          color: 'danger',
+          failOnError: true
+        }
+      }
     }
   }
 }
