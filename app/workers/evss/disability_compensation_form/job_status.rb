@@ -5,6 +5,7 @@ module EVSS
     # Module that is mixed in to {EVSS::DisabilityCompensationForm::Job} so that it's sub-classes
     # get automatic metrics and logging.
     #
+    # rubocop:disable Metrics/ModuleLength
     module JobStatus
       extend ActiveSupport::Concern
       include SentryLogging
@@ -14,28 +15,48 @@ module EVSS
         #
         # @param msg [Hash] The message payload from Sidekiq
         #
+        # rubocop:disable Metrics/MethodLength
         def job_exhausted(msg, statsd_key_prefix)
+          job_id = msg['jid']
+          error_class = msg['error_class']
+          error_message = msg['error_message']
+
           values = {
             form526_submission_id: msg['args'].first,
-            job_id: msg['jid'],
+            job_id: job_id,
             job_class: msg['class'].demodulize,
             status: Form526JobStatus::STATUS[:exhausted],
-            error_class: msg['error_class'],
-            error_message: msg['error_message'],
+            error_class: error_class,
+            error_message: error_message,
+            bgjob_errors: {},
             updated_at: Time.now.utc
           }
+
+          form_job_status = Form526JobStatus.find_by(job_id: job_id)
+          bgjob_errors = form_job_status.bgjob_errors || {}
+          new_error = {
+            "#{__method__}": {
+              error_class: error_class,
+              error_message: error_message,
+              timestamp: Time.now.utc
+            }
+          }
+          bgjob_errors.merge!(new_error)
+          values[:bgjob_errors] = bgjob_errors
+
           Form526JobStatus.upsert(values, unique_by: :job_id)
 
           Rails.logger.error(
             'Form526 Exhausted', submission_id: msg['args'].first,
-                                 job_id: msg['jid'],
-                                 error_class: msg['error_class'],
-                                 error_message: msg['error_message']
+                                 job_id: job_id,
+                                 error_class: error_class,
+                                 error_message: error_message
           )
           Metrics.new(statsd_key_prefix).increment_exhausted
         rescue => e
           Rails.logger.error('error tracking job exhausted', error: e, class: msg['class'].demodulize)
         end
+        # rubocop:enable Metrics/MethodLength
       end
 
       # Code wrapped by this block will run between the {job_try} and {job_success} methods
@@ -104,11 +125,39 @@ module EVSS
           status: status,
           error_class: nil,
           error_message: nil,
+          bgjob_errors: {},
           updated_at: Time.now.utc
         }
-        values[:error_class] = error.class if error
-        values[:error_message] = error_message(error) if error
+
+        caller_method = caller[0][/`.*'/][1..-2]
+        error_class = error.class if error
+        error_message = error_message(error) if error
+        values[:error_class] = error_class
+        values[:error_message] = error_message
+
+        values[:bgjob_errors] = update_background_job_errors(job_id: jid,
+                                                             error_class: error_class,
+                                                             error_message: error_message,
+                                                             caller_method: caller_method)
+
         Form526JobStatus.upsert(values, unique_by: :job_id)
+      end
+
+      def update_background_job_errors(job_id:, error_class:, error_message:, caller_method:)
+        form_job_status = Form526JobStatus.find_by(job_id: job_id)
+        return unless form_job_status
+
+        bgjob_errors = form_job_status.bgjob_errors || {}
+
+        new_error = {
+          "#{caller_method.to_sym}": {
+            error_class: error_class,
+            error_message: error_message,
+            timestamp: Time.now.utc
+          }
+        }
+
+        bgjob_errors.merge!(new_error)
       end
 
       def error_message(error)
@@ -140,5 +189,6 @@ module EVSS
         @metrics ||= Metrics.new(self.class::STATSD_KEY_PREFIX)
       end
     end
+    # rubocop:enable Metrics/ModuleLength
   end
 end

@@ -13,6 +13,8 @@ class Form526JobStatus < ApplicationRecord
     exhausted: 'exhausted'
   }.freeze
 
+  store_accessor :bgjob_errors
+
   def success?
     status == STATUS[:success]
   end

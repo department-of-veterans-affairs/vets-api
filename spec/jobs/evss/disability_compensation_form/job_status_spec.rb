@@ -15,15 +15,22 @@ describe EVSS::DisabilityCompensationForm::JobStatus do
         'error_class' => 'Common::Exceptions::GatewayTimeout'
       }
     end
+    let!(:form526_submission) { create :form526_submission }
+    let!(:from526_job_status) do
+      create :form526_job_status, job_id: msg['jid'], form526_submission: form526_submission
+    end
 
     it 'tracks an exhausted job' do
       expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_exhausted)
       dummy_class.job_exhausted(msg, 'stats_key')
       job_status = Form526JobStatus.last
+
       expect(job_status.status).to eq 'exhausted'
       expect(job_status.job_class).to eq 'SubmitForm526AllClaim'
       expect(job_status.error_message).to eq msg['error_message']
       expect(job_status.form526_submission_id).to eq 123
+      expect(job_status.bgjob_errors).to be_a Hash
+      expect(job_status.bgjob_errors.keys).to match_array %w[job_exhausted]
     end
   end
 end
