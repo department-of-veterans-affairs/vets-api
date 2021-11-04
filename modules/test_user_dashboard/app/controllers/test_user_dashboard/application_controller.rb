@@ -5,63 +5,29 @@ require 'sentry_logging'
 module TestUserDashboard
   class ApplicationController < ActionController::API
     include SentryLogging
-    before_action :set_tags_and_extra_context
+    before_action :require_jwt
 
-    attr_reader :current_user
+    def require_jwt
+      token = request.headers['JWT']
+      pub_key = request.headers['PK']
 
-    def authenticate!
-      return if authenticated?
-
-      warden.authenticate!(scope: :tud)
-    end
-
-    def authenticated?
-      if warden.authenticated?(:tud)
-        set_current_user
-        Rails.logger.info("TUD authentication successful: #{github_user_details}")
-        return true
-      end
-
-      Rails.logger.info('TUD authentication unsuccessful')
-      false
-    end
-
-    def authorize!
-      authorized?
-    end
-
-    def authorized?
-      if authenticated? && github_user.organization_member?('department-of-veterans-affairs')
-        Rails.logger.info("TUD authorization successful: #{github_user_details}")
-        true
-      else
-        Rails.logger.info("TUD authorization unsuccessful: #{github_user_details}") if authenticated?
-        false
-      end
-    end
-
-    def github_user_details
-      "ID: #{github_user.id}, Login: #{github_user.login}, Name: #{github_user.name}, Email: #{github_user.email}"
+      head :forbidden unless valid_token(token, pub_key)
     end
 
     private
 
-    def github_user
-      warden.user(:tud)
-    end
+    def valid_token(token, pub_key)
+      return false unless token && pub_key
 
-    def set_current_user
-      @current_user = {
-        id: github_user.id,
-        login: github_user.login,
-        email: github_user.email,
-        name: github_user.name,
-        avatar_url: github_user.avatar_url
-      }
-    end
-
-    def warden
-      request.env['warden']
+      rsa_public = OpenSSL::PKey::RSA.new(Base64.decode64(pub_key))
+      token.gsub!('Bearer ', '')
+      begin
+        JWT.decode token, rsa_public, true, { algorithm: 'RS256' }
+        return true
+      rescue JWT::DecodeError => e
+        log_message_to_sentry('Error decoding TUD JWT: ', :error, body: e.message)
+      end
+      false
     end
 
     def set_tags_and_extra_context

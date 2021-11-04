@@ -5,13 +5,10 @@ require_dependency 'test_user_dashboard/application_controller'
 module TestUserDashboard
   class TudAccountsController < ApplicationController
     include ActionView::Helpers::SanitizeHelper
-    include Warden::GitHub::SSO
-
-    before_action :authenticate!
-    before_action :authorize!
 
     def index
-      render json: TudAccount.all
+      tud_accounts = TudAccount.all
+      render json: tud_accounts
     end
 
     def update
