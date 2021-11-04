@@ -23,6 +23,12 @@ app/controllers/*/sessions_controller.rb @department-of-veterans-affairs/vsp-ide
 spec/controllers/*/sessions_controller_spec.rb @department-of-veterans-affairs/vsp-identity
 app/models/account.rb @department-of-veterans-affairs/vsp-identity
 spec/models/account_spec.rb @department-of-veterans-affairs/vsp-identity
+app/models/user_account.rb @department-of-veterans-affairs/vsp-identity
+spec/models/user_account_spec.rb @department-of-veterans-affairs/vsp-identity
+app/models/user_verification.rb @department-of-veterans-affairs/vsp-identity
+spec/models/user_verification_spec.rb @department-of-veterans-affairs/vsp-identity
+app/models/deprecated_user_account.rb @department-of-veterans-affairs/vsp-identity
+spec/models/deprecated_user_account_spec.rb @department-of-veterans-affairs/vsp-identity
 app/models/saml_request_tracker.rb @department-of-veterans-affairs/vsp-identity
 spec/models/saml_request_tracker_spec.rb @department-of-veterans-affairs/vsp-identity
 app/models/user.rb @department-of-veterans-affairs/vsp-identity
