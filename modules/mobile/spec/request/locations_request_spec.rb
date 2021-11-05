@@ -82,4 +82,16 @@ RSpec.describe 'locations', type: :request do
       expect(response).to have_http_status(:not_found)
     end
   end
+
+  context 'When lh location has no identifier' do
+    before do
+      VCR.use_cassette('lighthouse_health/get_lh_location_no_identifier', match_requests_on: %i[method uri]) do
+        get '/mobile/v0/health/locations/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000', headers: iam_headers
+      end
+    end
+
+    it 'returns a 400' do
+      expect(response).to have_http_status(:bad_request)
+    end
+  end
 end
