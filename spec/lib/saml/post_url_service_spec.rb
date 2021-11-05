@@ -29,7 +29,6 @@ RSpec.describe SAML::PostURLService do
           callback_path = URI.parse(Settings.saml_ssoe.callback_url).path
           build(:settings_no_context, assertion_consumer_service_url: "#{vhost_url}#{callback_path}")
         end
-
         let(:params) { { action: 'new' } }
 
         it 'has sign in url: logingov_url' do
@@ -43,6 +42,13 @@ RSpec.describe SAML::PostURLService do
           expect(url).to eq('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login')
           expect_saml_form_parameters(params,
                                       'originating_request_id' => '123', 'type' => 'logingov')
+        end
+
+        it 'has sign up url: logingov_signup_url' do
+          url, params = subject.logingov_signup_url
+          expect(url).to eq('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login')
+          expect_saml_form_parameters(params,
+                                      'originating_request_id' => '123', 'type' => 'signup')
         end
       end
     end
@@ -96,6 +102,13 @@ RSpec.describe SAML::PostURLService do
 
         it 'has sign up url: signup_url' do
           url, params = subject.signup_url
+          expect(url).to eq('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login')
+          expect_saml_form_parameters(params,
+                                      'originating_request_id' => '123', 'type' => 'signup')
+        end
+
+        it 'has sign up url: idme_signup_url' do
+          url, params = subject.idme_signup_url
           expect(url).to eq('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login')
           expect_saml_form_parameters(params,
                                       'originating_request_id' => '123', 'type' => 'signup')
@@ -371,6 +384,13 @@ RSpec.describe SAML::PostURLService do
 
         it 'has sign up url: signup_url' do
           url, params = subject.signup_url
+          expect(url).to eq('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login')
+          expect_saml_form_parameters(params,
+                                      'originating_request_id' => '123', 'type' => 'signup')
+        end
+
+        it 'has sign up url: idme_signup_url' do
+          url, params = subject.idme_signup_url
           expect(url).to eq('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login')
           expect_saml_form_parameters(params,
                                       'originating_request_id' => '123', 'type' => 'signup')

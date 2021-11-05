@@ -11,7 +11,7 @@ module V1
   class SessionsController < ApplicationController
     skip_before_action :verify_authenticity_token
 
-    REDIRECT_URLS = %w[signup mhv dslogon idme logingov custom mfa verify slo].freeze
+    REDIRECT_URLS = %w[signup mhv dslogon idme idme_signup logingov logingov_signup custom mfa verify slo].freeze
     STATSD_SSO_NEW_KEY = 'api.auth.new'
     STATSD_SSO_SAMLREQUEST_KEY = 'api.auth.saml_request'
     STATSD_SSO_SAMLRESPONSE_KEY = 'api.auth.saml_response'
@@ -181,6 +181,7 @@ module V1
       }
     end
 
+    # rubocop:disable Metrics/MethodLength
     def login_params(type)
       raise Common::Exceptions::RoutingError, type unless REDIRECT_URLS.include?(type)
 
@@ -193,8 +194,12 @@ module V1
         url_service.dslogon_url
       when 'idme'
         url_service.idme_url
+      when 'idme_signup'
+        url_service.idme_signup_url
       when 'logingov'
         url_service.logingov_url
+      when 'logingov_signup'
+        url_service.logingov_signup_url
       when 'mfa'
         url_service.mfa_url
       when 'verify'
@@ -205,6 +210,7 @@ module V1
         url_service(false).custom_url params[:authn]
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def saml_request_stats
       tracker = url_service.tracker

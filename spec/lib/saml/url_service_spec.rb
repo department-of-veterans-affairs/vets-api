@@ -56,6 +56,13 @@ RSpec.describe SAML::URLService do
             .with_params('op' => 'signup')
         end
 
+        it 'has sign up url: idme_signup_url' do
+          expect(subject.idme_signup_url)
+            .to be_a_saml_url(expected_saml_url)
+            .with_relay_state('originating_request_id' => '123', 'type' => 'signup')
+            .with_params('op' => 'signup')
+        end
+
         context 'verify_url' do
           it 'has sign in url: with (default authn_context)' do
             expect(user.authn_context).to eq('http://idmanagement.gov/ns/assurance/loa/1/vets')
@@ -293,6 +300,13 @@ RSpec.describe SAML::URLService do
 
         it 'has sign up url: signup_url' do
           expect(subject.signup_url)
+            .to be_a_saml_url(expected_saml_url)
+            .with_relay_state('originating_request_id' => '123', 'type' => 'signup')
+            .with_params('op' => 'signup')
+        end
+
+        it 'has sign up url: idme_signup_url' do
+          expect(subject.idme_signup_url)
             .to be_a_saml_url(expected_saml_url)
             .with_relay_state('originating_request_id' => '123', 'type' => 'signup')
             .with_params('op' => 'signup')

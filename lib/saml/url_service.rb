@@ -92,8 +92,28 @@ module SAML
       build_sso_url(build_authn_context(LOA::IDME_LOA1_VETS))
     end
 
+    def signup_url
+      @type = 'signup'
+      @query_params[:op] = 'signup'
+      build_sso_url(build_authn_context(LOA::IDME_LOA1_VETS))
+    end
+
+    def idme_signup_url
+      @type = 'signup'
+      @query_params[:op] = 'signup'
+      build_sso_url(build_authn_context(LOA::IDME_LOA1_VETS))
+    end
+
     def logingov_url
       @type = 'logingov'
+      build_sso_url(
+        build_authn_context([IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2], AuthnContext::LOGIN_GOV),
+        'minimum'
+      )
+    end
+
+    def logingov_signup_url
+      @type = 'signup'
       build_sso_url(
         build_authn_context([IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2], AuthnContext::LOGIN_GOV),
         'minimum'
@@ -103,12 +123,6 @@ module SAML
     def custom_url(authn)
       @type = 'custom'
       build_sso_url(authn)
-    end
-
-    def signup_url
-      @type = 'signup'
-      @query_params[:op] = 'signup'
-      build_sso_url(build_authn_context(LOA::IDME_LOA1_VETS))
     end
 
     def verify_url
