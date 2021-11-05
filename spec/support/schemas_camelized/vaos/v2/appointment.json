@@ -235,7 +235,8 @@
             "enum": [
               "Morning",
               "Afternoon",
-              "Evening"
+              "Evening",
+              null
             ]
           }
         },
@@ -246,7 +247,18 @@
         },
         "cancellationReason": {
           "description": "The reason the appointment was cancelled.",
-          "type": ["string", "null"]
+          "type": ["object", "null"],
+          "properties": {
+            "system": {
+              "type": "string"
+            },
+            "code": {
+              "type": "string"
+            },
+            "display": {
+              "type": "string"
+            }
+          }
         },
         "description": {
           "description": "Not used.",

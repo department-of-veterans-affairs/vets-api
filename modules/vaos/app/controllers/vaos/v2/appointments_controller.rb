@@ -159,19 +159,60 @@ module VAOS
         params.permit(:start, :end, :_include)
       end
 
+      # rubocop:disable Metrics/MethodLength
       def create_params
         params.permit(:kind,
                       :status,
                       :location_id,
+                      :cancellable,
                       :clinic,
                       :reason,
                       :service_type,
                       :preferred_language,
+                      :minutes_duration,
+                      :patient_instruction,
+                      :priority,
+                      reason_code: [
+                        :text, { coding: %i[system code display] }
+                      ],
                       slot: %i[id start end],
                       contact: [telecom: %i[type value]],
+                      practitioner_ids: %i[system value],
                       requested_periods: %i[start end],
-                      practitioner_ids: %i[system value])
+                      practitioners: [
+                        :first_name,
+                        :last_name,
+                        :practice_name,
+                        {
+                          name: %i[family given]
+                        },
+                        {
+                          identifier: %i[system value]
+                        }
+                      ],
+                      preferred_location: %i[city state],
+                      preferred_times_for_phone_call: [],
+                      telehealth: [
+                        :url,
+                        :group,
+                        :vvs_kind,
+                        {
+                          atlas: [
+                            :site_code,
+                            :confirmation_code,
+                            {
+                              address: %i[
+                                street_address city state
+                                zip country latitude longitude
+                                additional_details
+                              ]
+                            }
+                          ]
+                        }
+                      ],
+                      extension: %i[desired_date])
       end
+      # rubocop:enable Metrics/MethodLength
 
       def start_date
         DateTime.parse(appointment_params[:start]).in_time_zone

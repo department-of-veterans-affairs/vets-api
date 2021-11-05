@@ -1,0 +1,113 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/users/v2/session?processRules=true
+    body:
+      encoding: US-ASCII
+      string: eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJzdWIiOiIxMDEyODQ1MzMxVjE1MzA0MyIsImlkVHlwZSI6IklDTiIsImlzcyI6Imdvdi52YS52YW9zIiwiZmlyc3ROYW1lIjoiSnVkeSIsImxhc3ROYW1lIjoiTW9ycmlzb24iLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS5pYW0uc3NvZS52MSIsImp0aSI6IjE2MzY2ZDMyLTYwZGQtNDY3My1iYjQxLTQyNTYwYWFiMTJkMyIsIm5iZiI6MTYzNjA1ODUzNiwiZXhwIjoxNjM2MDU5NDk2LCJzc3QiOjE2MzYwNTg1ODYsInZlcnNpb24iOjIuMSwiZ2VuZGVyIjoiRkVNQUxFIiwiZG9iIjoiMTk1MzA0MDEiLCJkYXRlT2ZCaXJ0aCI6IjE5NTMwNDAxIiwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInNzbiI6Ijc5NjA2MTk3NiJ9.u-C4BaN84dBJ-fTTnMewNZfbg1Mk46vbAcrKlQ87VzDkqvuPqDJiaYjX1bP4j6xzvcSv74c_ivTKeeFPonrmsYR17HP5phZqB2828jyrWJW1mH_JzBGscIUuecSIzfmr4RrJdAJsYGigxhT6mg8_A0hf2aGvCHekUKMGuhnI4o_M2DqeDuaOlN7PgTG1ZGUK1ljE9uQAvLxpnfChlsziTR566nMLgkjEfA_GVgOHk5OVuYRdHB1P_C5eEt0r1SjtVhJGOPvUGe78NMmbIjcDb6V7nEJm5kjN9MnL7T8exGqkkfHb8Q5v4yvEVWxckLnra35jPjC-b4-kphi5RhDhWuH6aZB4WILovJnKe7JGd6c_Gn7srPt2osaZVO5SnxS6MceVoEpvS949IqMN1fhv3fRaE1v1JWSyWSJP0xKK2Z5fY9dIpRWiKLHF12hvNOewF-e5KFEHafUJSsL15374JECp44LepQ7s60-IrtLMqF-_PGItp7R5LW2tVx6P1hmjTkmD4IHTnI09FFnkoBLqmObSWUGPO6dMi7qZ5Jpd6GlMVEm8BipJ2mLD82YpLhYOxdf6AQqzKPBQoxdunu3spynqCpvnjuUmLspw8-JogvovpRm-DVgURMx0gV85rL2uWeiwCzNPfU9RDD2HILmGfQ-c9fsjVwkYdHqlT0EhfNI
+    headers:
+      Accept:
+      - text/plain
+      Content-Type:
+      - text/plain
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 04 Nov 2021 20:43:21 GMT
+      Content-Type:
+      - text/plain
+      Content-Length:
+      - '1663'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.16.0
+      Cache-Control:
+      - no-store
+      B3:
+      - 11ee75fe04e157ce-1a4fc6c0f7fd9914-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - e31aeab
+      X-Vamf-Timestamp:
+      - '2021-09-02T05:15:46+0000'
+      Access-Control-Allow-Origin:
+      - "*.va.gov"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjIiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInNzbiI6Ijc5NjA2MTk3NiIsInNzdCI6MTYzNjA1ODYwMCwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKdWR5IiwibGFzdE5hbWUiOiJNb3JyaXNvbiIsImdlbmRlciI6IkZFTUFMRSIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIiwiZG9iIjoiMTk1My0wNC0wMSIsImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInNzbiI6Ijc5NjA2MTk3NiJ9LCJ2YW1mLmF1dGgucm9sZXMiOlsidmV0ZXJhbiJdLCJyaWdodE9mQWNjZXNzQWNjZXB0ZWQiOnRydWUsImV4cCI6MTYzNjA1OTUwMSwianRpIjoiMTYzNjZkMzItNjBkZC00NjczLWJiNDEtNDI1NjBhYWIxMmQzIiwiaWRUeXBlIjoiSUNOIiwiZGF0ZU9mQmlydGgiOiIxOTUzMDQwMSIsInZlcnNpb24iOjIuNiwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNjM2MDU4NDIxLCJkb2IiOiIxOTUzMDQwMSIsImxvYSI6Mn0.TM5D5Xp3z19SuQHy86VaNHMdEzajjtdMFa5LUSc6THpV447Mpz8WxhRd5oFgUxOiUL1jjluwVj-9LLX37JDpNpshdj74LGY24ul4wcnK-BoYK2p8uLcRuTN4I5jMCgKlzw3rITyZbDyLw_IBJp-Kmc-e0gl2euCyE2yrjCHlAMXzbGOwPn9iBofAcjlLYNTwHZrTEGngOcmU2udeBzfSjTXmiQy_DFfL2-uvfZS7Y0S9Xji977MkW5F9Omr-vuLhfW15I41d3DxbDkbVqQs0CrvADw8VCNIZhXzj_JzaAyvlf7ltvoUMmSmLlG353LpACUxUZBUMkNC3_5x1KLP8DA
+  recorded_at: Thu, 04 Nov 2021 20:43:21 GMT
+- request:
+    method: post
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/vaos/v1/patients/1012845331V153043/appointments
+    body:
+      encoding: UTF-8
+      string: '{"kind":"clinic","status":"booked","locationId":"983","clinic":"1081","slot":{"id":"test"},"comment":"test","extension":{"desiredDate":"2021-06-15T23:59:00.000+00:00"},"patientIcn":"1012845331V153043"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjIiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInNzbiI6Ijc5NjA2MTk3NiIsInNzdCI6MTYzNjA1ODYwMCwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKdWR5IiwibGFzdE5hbWUiOiJNb3JyaXNvbiIsImdlbmRlciI6IkZFTUFMRSIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIiwiZG9iIjoiMTk1My0wNC0wMSIsImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInNzbiI6Ijc5NjA2MTk3NiJ9LCJ2YW1mLmF1dGgucm9sZXMiOlsidmV0ZXJhbiJdLCJyaWdodE9mQWNjZXNzQWNjZXB0ZWQiOnRydWUsImV4cCI6MTYzNjA1OTUwMSwianRpIjoiMTYzNjZkMzItNjBkZC00NjczLWJiNDEtNDI1NjBhYWIxMmQzIiwiaWRUeXBlIjoiSUNOIiwiZGF0ZU9mQmlydGgiOiIxOTUzMDQwMSIsInZlcnNpb24iOjIuNiwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNjM2MDU4NDIxLCJkb2IiOiIxOTUzMDQwMSIsImxvYSI6Mn0.TM5D5Xp3z19SuQHy86VaNHMdEzajjtdMFa5LUSc6THpV447Mpz8WxhRd5oFgUxOiUL1jjluwVj-9LLX37JDpNpshdj74LGY24ul4wcnK-BoYK2p8uLcRuTN4I5jMCgKlzw3rITyZbDyLw_IBJp-Kmc-e0gl2euCyE2yrjCHlAMXzbGOwPn9iBofAcjlLYNTwHZrTEGngOcmU2udeBzfSjTXmiQy_DFfL2-uvfZS7Y0S9Xji977MkW5F9Omr-vuLhfW15I41d3DxbDkbVqQs0CrvADw8VCNIZhXzj_JzaAyvlf7ltvoUMmSmLlG353LpACUxUZBUMkNC3_5x1KLP8DA
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 500
+      message: Internal Server Error
+    headers:
+      Date:
+      - Thu, 04 Nov 2021 20:43:23 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '300'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 1.12.1
+      B3:
+      - 130ef0c0bfa886c1-ca59d0077c0c97fc-1
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 661c259
+      X-Vamf-Timestamp:
+      - '2021-11-01T15:35:46+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+    body:
+      encoding: UTF-8
+      string: '{"id":"1e4682f6-39b1-4d9c-838f-0797818217ec","code":500,"errorCode":7004,"traceId":"130ef0c0bfa886c1","message":"failed
+        to create appointment","detail":"An error occurred while trying to validate
+        the appointment. reason: field is required","meta":{"upstreamErrorSource":"mobile-appointment-service"}}'
+  recorded_at: Thu, 04 Nov 2021 20:43:23 GMT
+recorded_with: VCR 6.0.0

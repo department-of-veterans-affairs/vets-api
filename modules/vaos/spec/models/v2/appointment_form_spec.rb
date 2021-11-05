@@ -6,7 +6,7 @@ describe VAOS::V2::AppointmentForm, type: :model do
   let(:user) { build(:user, :vaos) }
 
   describe 'valid object' do
-    subject { build(:appointment_form_v2, :eligible, user: user) }
+    subject { build(:appointment_form_v2, :community_cares, user: user) }
 
     it 'validates presence of required attributes' do
       expect(subject).to be_valid
@@ -17,9 +17,8 @@ describe VAOS::V2::AppointmentForm, type: :model do
       expect(params[:kind]).to be('cc')
       expect(params[:status]).to be('proposed')
       expect(params[:location_id]).to be('983')
-      expect(params[:reason]).to be('Testing')
       expect(params[:contact]).to be_a(Hash)
-      expect(params[:service_type]).to be('CCPOD')
+      expect(params[:service_type]).to be('podiatry')
       expect(params[:requested_periods]).to be_a(Array)
     end
   end

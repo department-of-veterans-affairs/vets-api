@@ -298,7 +298,7 @@
                 "description": "a list of times the patient prefers to be contacted by phone",
                 "items": {
                   "type": [
-                    "object"
+                    "string"
                   ],
                   "enum": [
                     "Morning",

@@ -18,6 +18,21 @@ module VAOS
       attribute :service_type, String
       attribute :requested_periods, Array[Hash]
       attribute :preferred_language, String
+      attribute :minutes_duration, Integer
+      attribute :reason_code, Hash
+      attribute :priority, Integer
+      attribute :practitioners, Array[Hash]
+      attribute :preferred_times_for_phone_call, Array[String]
+      attribute :preferred_location, Hash
+      attribute :cancellation_reason, Hash
+      attribute :cancelation_reason, Hash
+      attribute :description, String
+      attribute :comment, String
+      attribute :preferred_language, String
+      attribute :cancellable, Boolean
+      attribute :patient_instruction, String
+      attribute :telehealth, Hash
+      attribute :extension, Hash
 
       def initialize(user, json_hash)
         @user = user

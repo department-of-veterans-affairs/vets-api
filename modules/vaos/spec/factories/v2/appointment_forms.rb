@@ -8,14 +8,11 @@ FactoryBot.define do
 
     initialize_with { new(user, attributes) }
 
-    trait :eligible do
+    trait :community_cares do
       kind { 'cc' }
       status { 'proposed' }
       location_id { '983' }
-      practitioner_ids { [{ system: 'HSRM', value: '1234567890' }] }
-      preferred_language { 'English' }
-      reason { 'Testing' }
-
+      service_type { 'podiatry' } # transforms on the front-end need to change
       contact do
         {
           'telecom' => [
@@ -30,8 +27,6 @@ FactoryBot.define do
           ]
         }
       end
-
-      service_type { 'CCPOD' }
       requested_periods do
         [
           {
@@ -39,6 +34,82 @@ FactoryBot.define do
             'end' => DateTime.new(2021, 0o6, 15, 23, 59, 0).iso8601(3)
           }
         ]
+      end
+      preferred_time_for_phone_call { ['morning'] }
+      preferred_language { 'English' }
+      preferred_location do
+        {
+          'city': 'Helena',
+          'state': 'MT'
+        }
+      end
+      practitioners do
+        [
+          {
+            'identifier' => [
+              {
+                'system': 'test',
+                'value': 'test'
+              },
+              {
+                'system': 'test2',
+                'value': 'test2'
+              }
+            ],
+            'name': {
+              'family': 'test',
+              'given': ['test']
+            },
+            'first_name': 'deprecated',
+            'last_name': 'deprecated',
+            'practice_name': 'deprecated'
+          }
+        ]
+      end
+    end
+
+    trait :va_booked do
+      kind { 'clinic' }
+      status { 'booked' }
+      location_id { '983' }
+      clinic { '1081' }
+      comment { 'test' }
+      slot do
+        {
+          'id': 'test'
+        }
+      end
+      extension do
+        {
+          'desired_date': DateTime.new(2021, 0o6, 15, 23, 59, 0).iso8601(3)
+        }
+      end
+    end
+
+    trait :va_proposed do # this has an error, bring up in SOS
+      kind { 'clinic' }
+      status { 'proposed' }
+      location_id { '983' }
+      service_type { 'primaryCare' }
+      comment { 'test' }
+      contact do
+        {
+          'telecom' => [
+            {
+              'type': 'phone',
+              'value': '2125688889'
+            },
+            {
+              'type': 'email',
+              'value': 'judymorisooooooooooooon@gmail.com'
+            }
+          ]
+        }
+      end
+      extension do
+        {
+          'desired_date': DateTime.new(2021, 0o6, 15, 23, 59, 0).iso8601(3)
+        }
       end
     end
 
@@ -77,7 +148,7 @@ FactoryBot.define do
     end
 
     trait :with_empty_slot_hash do
-      eligible
+      community_cares
       slot { {} }
     end
   end

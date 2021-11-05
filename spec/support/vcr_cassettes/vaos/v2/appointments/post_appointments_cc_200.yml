@@ -1,0 +1,59 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://veteran.apps.va.gov/vaos/v1/patients/1012845331V153043/appointments
+    body:
+      encoding: UTF-8
+      string: '{"kind":"cc","status":"proposed","locationId":"983","contact":{"telecom":[{"type":"phone","value":"2125688889"},{"type":"email","value":"judymorisooooooooooooon@gmail.com"}]},"serviceType":"podiatry","requestedPeriods":[{"start":"2021-06-15T12:00:00.000+00:00","end":"2021-06-15T23:59:00.000+00:00"}],"preferredLanguage":"English","practitioners":[{"identifier":[{"system":"test","value":"test"},{"system":"test2","value":"test2"}],"name":{"family":"test","given":["test"]},"firstName":"deprecated","lastName":"deprecated","practiceName":"deprecated"}],"preferredLocation":{"city":"Helena","state":"MT"},"patientIcn":"1012845331V153043"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjIiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInNzbiI6Ijc5NjA2MTk3NiIsInNzdCI6MTYzNTk3MzQ5OCwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKdWR5IiwibGFzdE5hbWUiOiJNb3JyaXNvbiIsImdlbmRlciI6IkZFTUFMRSIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIiwiZG9iIjoiMTk1My0wNC0wMSIsImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInNzbiI6Ijc5NjA2MTk3NiJ9LCJ2YW1mLmF1dGgucm9sZXMiOlsidmV0ZXJhbiJdLCJyaWdodE9mQWNjZXNzQWNjZXB0ZWQiOnRydWUsImV4cCI6MTYzNTk3NDM5OCwianRpIjoiOWI1MTk3YjQtODJiMS00MTUyLThiMGQtYjQxZWE5YmM0ODE5IiwiaWRUeXBlIjoiSUNOIiwiZGF0ZU9mQmlydGgiOiIxOTUzMDQwMSIsInZlcnNpb24iOjIuNiwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNjM1OTczMzE4LCJkb2IiOiIxOTUzMDQwMSIsImxvYSI6Mn0.qj_tAZ6YWOAWltQeZCce3o4ipMl1_WyGTvdlUyWYv_beakpieCjN3DzyRoACmyNwm2VMfRqhHikKUbTrACfWIP1fqqdCYpnVxHQM0TVJgwkNiuVTuuyOOWD5o8YmA28NWHtUH8SBuiVl5QQkgrdbojULm_ZGDEMJVz3O0ZwVoBzFs0hRmSO-5syQ1Z8z8GLKN5uzGt0Ef_dRq_GGNnmyrR7Cpn4EA3MnC29EXPSgDqdpED8xPRJQ5XYB1gnEu8gV9Q9IiO8-x4_tAI5eND_REe0QZpqY-s03l4mXm48FLCdSFt8dVzjKz3zmEaKtpwmtrRZN0zFEcoZZpb1uadNc8g
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 03 Nov 2021 21:05:20 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '551'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 1.12.1
+      B3:
+      - df82a6e92e6e6c51-acd186a6b0c7818f-1
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 661c259
+      X-Vamf-Timestamp:
+      - '2021-11-01T15:35:46+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: '{"id":"62104","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/hsrm/id","value":"12732"}],"kind":"cc","status":"proposed","serviceType":"Podiatry","patientIcn":"1012845331V153043","locationId":"983","requestedPeriods":[{"start":"2021-06-15T12:00:00Z","end":"2021-06-15T23:59:00Z"}],"contact":{"telecom":[{"type":"phone","value":"2125688889"},{"type":"email","value":"judymorisooooooooooooon@gmail.com"}]},"preferredLocation":{"city":"Helena","state":"MT"},"cancellationReason":{"code":"other"},"preferredLanguage":"English","cancellable":true}'
+  recorded_at: Wed, 03 Nov 2021 21:05:20 GMT
+recorded_with: VCR 6.0.0
