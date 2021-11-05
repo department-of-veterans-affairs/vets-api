@@ -125,6 +125,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
       ]
       # ^ relevant security schemes (from Rswag config)
 
+      consumes 'application/json'
       produces 'application/json'
 
       parameter name: :uuid, in: :path, type: :string, description: 'Higher-Level Review UUID'
