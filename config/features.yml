@@ -54,10 +54,6 @@ features:
     actor_type: user
     description: Enables the health care check-in experiences to show demographics page.
     enable_in_development: true
-  check_in_experience_low_authentication_enabled:
-    actor_type: user
-    description: Enables the health care check-in experiences to use the lowest tier of authentication, i.e. last 4 and last name
-    enable_in_development: true
   check_in_experience_next_of_kin_enabled:
     actor_type: user
     description: Enables the health care check-in experiences to show the next of kin page.
