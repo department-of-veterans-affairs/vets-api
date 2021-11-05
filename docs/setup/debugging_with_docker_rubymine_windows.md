@@ -68,8 +68,8 @@ forms:
   mock: false
 
 va_forms:
-  drupal_username: api
-  drupal_password: drupal8
+  drupal_username: <Drupal Username>
+  drupal_password: <Drupal Password>
   drupal_url: https://prod.cms.va.gov
 
 database_url: 'postgis://postgres:password@postgres:5432/vets_api_development?pool=4'
