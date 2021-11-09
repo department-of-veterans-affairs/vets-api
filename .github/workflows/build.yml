@@ -2,7 +2,7 @@ name: Build & Push to ECR
 on:
   workflow_run:
     workflows: ["Code Checks"]
-    branches: [master]
+    branches: [k8s]
     types: [completed]
 permissions:
   contents: read
@@ -36,9 +36,8 @@ jobs:
             sidekiq_license=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
             userid=${{ env.VETS_API_USER_ID }}
           context: .
-          target: production
           push: true
           tags: |
-            ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:edo-${{ github.sha }}
           cache-from: type=registry,ref=$ECR_REGISTRY/$ECR_REPOSITORY
           cache-to: type=inline
