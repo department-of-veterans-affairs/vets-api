@@ -2,9 +2,3 @@
   # For NATIVE installation
   # The relative path to department-of-veterans-affairs/vets-api-mockdata
   # cache_dir: ../vets-api-mockdata
-
-# binaries:
-  # For NATIVE and DOCKER installation
-  # A "virus scanner" that always returns success for development purposes
-  # NOTE: You may need to specify a full path instead of a relative path
-  # clamdscan: ./bin/fake_clamdscan

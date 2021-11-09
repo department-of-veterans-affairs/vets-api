@@ -1,5 +1,9 @@
 version: '3.4'
 services:
+  clamav:
+    image: clamav/clamav
+    ports:
+      - "3310:3310"
   redis:
     image: redis:5.0-alpine
     ports:
@@ -40,15 +44,16 @@ services:
       "Settings.test_database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_test}"
       "Settings.redis.app_data.url": "redis://redis:6379"
       "Settings.redis.sidekiq.url": "redis://redis:6379"
-      "Settings.binaries.clamdscan": "clamscan" # Not running a separate process within the container for clamdscan, so we use clamscan which requires no daemon
       POSTGRES_HOST: "${POSTGRES_HOST:-postgres}"
       POSTGRES_PORT: "${POSTGRES_PORT:-5432}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
     depends_on:
+      - clamav
       - postgres
       - redis
     links:
+      - clamav
       - postgres
       - redis
 
