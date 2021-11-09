@@ -267,6 +267,10 @@ features:
     actor_type: cookie
     description: Enables/disables the usage of the new service provider Login.gov (VSP Identity)
     enable_in_development: true
+  loop_pages:
+    actor_type: user
+    description: Enable new list loop pattern
+    enable_in_development: true
   mega_menu_mobile_v2:
     actor_type: user
     description: Separates mobile mega menu from desktop mega menu
