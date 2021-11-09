@@ -505,6 +505,8 @@ claims_api:
     environment_name: ~
   v2_docs:
     enabled: false
+  token_validation:
+    api_key: 
 
 redis:
   host: localhost

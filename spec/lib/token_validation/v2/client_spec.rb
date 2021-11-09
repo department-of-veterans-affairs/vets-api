@@ -22,7 +22,7 @@ describe 'token validation' do # rubocop:disable RSpec/DescribeClass
     expect(response).to be false
   end
 
-  context 'when token is valid, but is not granted access for the requested scopes' do
+  context 'when token is valid, but is not granted access for the requested scope' do
     scope = 'some_invalid_scope.read'
     it 'indicates token is invalid', vcr: 'token_validation/v2/indicates token is valid' do
       response = client.token_valid?(audience: audience, token: token, scope: scope)

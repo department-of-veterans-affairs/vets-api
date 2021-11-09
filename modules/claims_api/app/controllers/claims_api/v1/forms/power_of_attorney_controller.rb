@@ -11,8 +11,9 @@ module ClaimsApi
         include ClaimsApi::PoaVerification
 
         before_action except: %i[schema] do
-          permit_scopes %w[claim.write]
+          permit_scopes %w[claim.read] if request.get?
         end
+        before_action { permit_scopes %w[claim.write] if request.post? || request.put? }
 
         FORM_NUMBER = '2122'
 
@@ -91,7 +92,7 @@ module ClaimsApi
         #
         # @return [JSON] Last POA change request through Claims API
         def active # rubocop:disable Metrics/MethodLength
-          validate_user_is_accredited! if header_request?
+          validate_user_is_accredited! if header_request? && !token.client_credentials_token?
 
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'POA not found') unless current_poa_code
 

@@ -77,7 +77,7 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
                                                       'power_of_attorney', 'submission.json')))
 
-          let(:scopes) { %w[claim.write] }
+          let(:scopes) { %w[claim.read claim.write] }
           let(:data) do
             temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json'))
             temp = JSON.parse(temp)
@@ -117,7 +117,7 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
                                                       'default.json')))
 
-          let(:scopes) { %w[claim.write] }
+          let(:scopes) { %w[claim.read claim.write] }
           let(:data) do
             temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json'))
             temp = JSON.parse(temp)
@@ -154,7 +154,7 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
                                                       'default_with_source.json')))
 
-          let(:scopes) { %w[claim.write] }
+          let(:scopes) { %w[claim.read claim.write] }
           let(:data) do
             temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json'))
             temp = JSON.parse(temp)
@@ -241,7 +241,7 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
                                                       'power_of_attorney', 'upload.json')))
 
-          let(:scopes) { %w[claim.write] }
+          let(:scopes) { %w[claim.read claim.write] }
           let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
           let(:attachment) do
             Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf")
@@ -277,7 +277,7 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
                                                       'default.json')))
 
-          let(:scopes) { %w[claim.write] }
+          let(:scopes) { %w[claim.read claim.write] }
           let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
           let(:attachment) do
             Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf")
@@ -314,7 +314,7 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
                                                       'default.json')))
 
-          let(:scopes) { %w[claim.write] }
+          let(:scopes) { %w[claim.read claim.write] }
           let(:attachment) do
             Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf")
           end
@@ -387,7 +387,7 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
               'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
               'X-VA-Gender': 'M' }
           end
-          let(:scopes) { %w[claim.write] }
+          let(:scopes) { %w[claim.read claim.write] }
           let(:power_of_attorney) { create(:power_of_attorney, auth_headers: headers) }
           let(:id) { power_of_attorney.id }
 
@@ -427,7 +427,7 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
               'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
               'X-VA-Gender': 'M' }
           end
-          let(:scopes) { %w[claim.write] }
+          let(:scopes) { %w[claim.read claim.write] }
           let(:power_of_attorney) { create(:power_of_attorney, auth_headers: headers) }
           let(:id) { power_of_attorney.id }
           let(:Authorization) { nil }
@@ -468,7 +468,7 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
               'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
               'X-VA-Gender': 'M' }
           end
-          let(:scopes) { %w[claim.write] }
+          let(:scopes) { %w[claim.read claim.write] }
           let(:id) { 999_999_999 }
 
           before do |example|
@@ -531,7 +531,7 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
                                                       'power_of_attorney', 'active.json')))
 
-          let(:scopes) { %w[claim.write] }
+          let(:scopes) { %w[claim.read claim.write] }
           let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
           let(:representative_info) do
             {
@@ -577,7 +577,7 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
                                                       'default.json')))
 
-          let(:scopes) { %w[claim.write] }
+          let(:scopes) { %w[claim.read claim.write] }
           let(:Authorization) { nil }
 
           before do |example|
@@ -608,7 +608,7 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
                                                       'default.json')))
 
-          let(:scopes) { %w[claim.write] }
+          let(:scopes) { %w[claim.read claim.write] }
           let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
 
           before do |example|
@@ -676,7 +676,7 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
                                                       'power_of_attorney', 'validate.json')))
 
-          let(:scopes) { %w[claim.write] }
+          let(:scopes) { %w[claim.read claim.write] }
           let(:data) do
             temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json'))
             temp = JSON.parse(temp)
@@ -716,7 +716,7 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
                                                       'default.json')))
 
-          let(:scopes) { %w[claim.write] }
+          let(:scopes) { %w[claim.read claim.write] }
           let(:data) do
             temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json'))
             temp = JSON.parse(temp)
@@ -753,7 +753,7 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
                                                       'default_with_source.json')))
 
-          let(:scopes) { %w[claim.write] }
+          let(:scopes) { %w[claim.read claim.write] }
           let(:data) { { data: { attributes: nil } } }
 
           before do |example|
