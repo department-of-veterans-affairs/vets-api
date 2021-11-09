@@ -1,0 +1,36 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://localhost:8070/vets/v1/claimType/Chapter33/claimants
+    body:
+      encoding: UTF-8
+      string: '{"ssn":"539139735"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer eyJhbGciOiJSUzUxMiJ9.eyJhcHBOYW1lIjoidmV0LWJpby1lYXBpIiwidXNlclR5cGUiOiJTVEFGRiIsInN0YXRpb25JZCI6MTIzLCJpZCI6ImFiY2QxMjM0Iiwic3ViIjoiZGdpLXZldC1iaW8tc2VydmljZSIsImF1ZCI6InZldC1iaW8tbXVsZS1lYXBpIiwiaXNzIjoiREdJLVZBLUJHIiwiaWF0IjoxNjMzNjE2NjQ0LCJleHAiOjE2MzM2MTg1NjR9.D0TMEQuMRzq39TapgKGDV0TtvqAjBBRJNBg9Db-Sb8GhhAXylT0SrJfjhld4jJwzcCsnysnRAY1dXoZIUfHC398Cs4kHQOE9dWdlAEM03_ENOPlx48cCu-KDsZj1AveBSD5X89SU0X_105Y1Umh9WpHRY6ogkkQKhuIKngD3R1HNgz6Lr2zPHxKBw0thb_v09maFLI8kdBM1RM_lQp0jcjbp3ji9xgglbk1XDoqvcxAAJ74WlvU-y9PO_sxA33hFQFRhXT3fQHyA5qYKwLrtZFgVvSNY-sTLomCScBN2xcEnVbxUKkBgXL-jy-Mp36OJAvaQucNM1UP42MzEw3vgxQ
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 201
+      message: ''
+    headers:
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Fri, 29 Oct 2021 20:32:17 GMT
+    body:
+      encoding: UTF-8
+      string: '{"militaryClaimant":{"claimant":{"claimantId":1000000000000261,"suffix":null,"dateOfBirth":"1970-01-01","firstName":"Herbert","lastName":"Hoover","middleName":null,"notificationMethod":"NONE","contactInfo":{"addressLine1":"123
+        Martin Luther King Blvd","addressLine2":null,"city":"New Orleans","zipcode":"70115","emailAddress":"test@test.com","addressType":"MILITARY_OVERSEAS","mobilePhoneNumber":null,"homePhoneNumber":null,"countryCode":"US","stateCode":"ME"}},"dobChanged":false,"firstAndLastNameChanged":false,"contactInfoChanged":false,"preferredContact":null},"serviceData":[{"branchOfService":"ArmyActiveDuty","beginDate":"2015-08-01","endDate":"2019-08-01","characterOfService":"Honorable","reasonForSeperation":"ExpirationTimeOfService","exclusionPeriods":[],"trainingPeriods":[]}]}'
+  recorded_at: Fri, 29 Oct 2021 20:32:17 GMT
+recorded_with: VCR 6.0.0

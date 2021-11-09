@@ -3,6 +3,17 @@
 require 'rails_helper'
 
 Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
+  include SchemaMatchers
+
+  let(:user) { create(:user, :loa3) }
+  let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  let(:faraday_response) { double('faraday_connection') }
+
+  before do
+    allow(faraday_response).to receive(:env)
+    sign_in_as(user)
+  end
+
   describe 'GET /meb_api/v0/claimant_info' do
     it 'successfully returns JSON' do
       get '/meb_api/v0/claimant_info'
@@ -20,10 +31,15 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
   end
 
   describe 'GET /meb_api/v0/eligibility' do
-    it 'successfully returns JSON' do
-      get '/meb_api/v0/eligibility'
-      expect(response).to have_http_status(:ok)
-      JSON.parse(response.body).to_yaml
+    context 'Veteran who has benefit eligibility' do
+      it 'returns a 200 with eligibility data' do
+        VCR.use_cassette('dgi/get_eligibility') do
+          get '/meb_api/v0/eligibility'
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to be_a(String)
+          expect(response).to match_response_schema('dgi/eligibility_response', { strict: false })
+        end
+      end
     end
   end
 

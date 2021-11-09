@@ -9,6 +9,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'CARMA'
   inflect.acronym 'CC'
   inflect.acronym 'DOD'
+  inflect.acronym 'DGI' # Digital GI
   inflect.acronym 'EMIS'
   inflect.acronym 'EVSS'
   inflect.acronym 'FHIR'

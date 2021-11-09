@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'dgi/eligibility/service'
+
 module MebApi
   module V0
     class EducationBenefitsController < MebApi::V0::BaseController
@@ -54,17 +56,9 @@ module MebApi
       end
 
       def eligibility
-        render json:
-        { data: [
-          {
-            'veteranIsEligible': true,
-            'chapter': 'chapter33'
-          },
-          {
-            'veteranIsEligible': true,
-            'chapter': 'chapter1606'
-          }
-        ] }
+        response = eligibility_service.get_eligibility
+
+        render json: response, serializer: EligibilitySerializer
       end
 
       def claim_status
@@ -80,6 +74,12 @@ module MebApi
                { data: {
                  'status': 'received'
                } }
+      end
+
+      private
+
+      def eligibility_service
+        MebApi::DGI::Eligibility::Service.new @current_user
       end
     end
   end

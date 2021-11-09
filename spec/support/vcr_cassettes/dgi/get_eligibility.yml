@@ -1,0 +1,35 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://localhost:8070/vets/v1/eligibility
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer eyJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE2MzYxMjcwODMsImV4cCI6MTYzNjEyNzM4M30.QS-mLN7EqzHM2VNL1DulKNBSFVDoYm3QBCABaBGv19fnNmDG6xahv1jg9RdA5pTzrn5kirCiyJmehjm7OHRoBUfS3HJLbt8NCl7xw2H74BWDTBDrr0PAlnZ8qNAtdozDhyuzUhDEqmLwb4r5dFYPuJ66o8_o2iLVFEw-vg_gxk0b3qfsxWYiopTBeAIIIuYp5Eo035dHICtLuXudXZDi3EwGMnontKl-PCCFVQ7jwo_SPWmBtkDiVeM8tyooSTQJBzk3NOItcWSHGa2HWdDd-OL3zsTkpSQrtBnB5Wg7LUAlTLsQXYeI44NWqztsTLfKq-VWWq13co3B4RrKZJG29g
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Fri, 05 Nov 2021 15:44:43 GMT
+    body:
+      encoding: UTF-8
+      string: '{"veteranIsEligible":true,"chapter":"Chapter33"}'
+  recorded_at: Fri, 05 Nov 2021 15:44:43 GMT
+recorded_with: VCR 6.0.0
