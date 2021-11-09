@@ -1,62 +1,55 @@
-version: '3.4'
+version: '3.8'
+
+x-app: &common
+  build:
+    args:
+      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
+    context: .
+  environment:
+    BUNDLE_ENTERPRISE__CONTRIBSYS__COM: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
+    "Settings.database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_development}?pool=4"
+    "Settings.test_database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_test}"
+    "Settings.redis.app_data.url": "redis://redis:6379"
+    "Settings.redis.sidekiq.url": "redis://redis:6379"
+    "Settings.redis.rails_cache.url": "redis://redis:6379"
+  image: vets-api:${DOCKER_IMAGE:-latest}
+  volumes:
+    - "../vets-api-mockdata:/cache"
+    - .:/app:cached
+  working_dir: /app
+  depends_on:
+    - clamav
+    - postgres
+    - redis
+  links:
+    - clamav
+    - postgres
+    - redis
+
 services:
   clamav:
     image: clamav/clamav
     ports:
-      - "3310:3310"
+      - 33100:3310
   redis:
     image: redis:5.0-alpine
     ports:
-      - "63790:6379"
+      - 63790:6379
   postgres:
-    image: mdillon/postgis:11-alpine
+    command: postgres -c shared_preload_libraries=pg_stat_statements -c pg_stat_statements.track=all -c max_connections=200
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
+      PGDATA: /tmp
+    image: mdillon/postgis:11-alpine
+    ports:
+      - 54320:5432
     volumes:
       - ./data:/var/lib/postgresql/data:cached
+  web:
+    <<: *common
     ports:
-      - "54320:5432"
-  vets-api:
-    build:
-      context: .
-      target: development
-      args:
-        sidekiq_license: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
-        userid: "${VETS_API_USER_ID}"
-    image: "vets-api:${DOCKER_IMAGE:-latest}"
-    volumes:
-      - .:/srv/vets-api/src:cached
-      - "../vets-api-mockdata:/cache"
-      - dev_bundle:/usr/local/bundle
-    ports:
-      - "3000:3000"
-      # dispatcher-port 26162 for debugger, for example:
-      # rdebug-ide -d --host 0.0.0.0 --port 1234 --dispatcher-port 26162 -- /usr/local/bundle/bin/rails s -b 0.0.0.0 -p 3000 -e development
-      - "26162:26162"
-      # Main debugger handshake port
-      - "1234:1234"
-      # Ports 58430-58450 will be opened by the debugging gems.  See:
-      # https://github.com/ruby-debug/ruby-debug-ide/issues/107
-      - "58430-58450:58430-58450"
-    environment:
-      "Settings.database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_development}?pool=4"
-      "Settings.test_database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_test}"
-      "Settings.redis.app_data.url": "redis://redis:6379"
-      "Settings.redis.sidekiq.url": "redis://redis:6379"
-      POSTGRES_HOST: "${POSTGRES_HOST:-postgres}"
-      POSTGRES_PORT: "${POSTGRES_PORT:-5432}"
-      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
-    depends_on:
-      - clamav
-      - postgres
-      - redis
-    links:
-      - clamav
-      - postgres
-      - redis
-
-volumes:
-  db-data:
-  dev_bundle:
+      - 3000:3000
+  worker:
+    <<: *common
+    command: bundle exec sidekiq -q critical,4 -q tasker,3 -q default,2 -q low,1

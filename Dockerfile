@@ -1,87 +1,54 @@
-# XXX: using stretch here for pdftk dep, which is not availible after
-#      stretch (or in alpine) and is switched automatically to pdftk-java in buster
-#      https://github.com/department-of-veterans-affairs/va.gov-team/issues/3032
+FROM ruby:2.7-slim
 
-###
-# shared build/settings for all child images, reuse these layers yo
-###
-FROM ruby:2.7.4-slim-buster AS base
+# Allow for setting ENV vars via --build-arg
+ARG BUNDLE_ENTERPRISE__CONTRIBSYS__COM \
+  RAILS_ENV=development \
+  USER_ID=1000
+ENV RAILS_ENV=$RAILS_ENV \
+  BUNDLE_ENTERPRISE__CONTRIBSYS__COM=$BUNDLE_ENTERPRISE__CONTRIBSYS__COM \
+  BUNDLER_VERSION=2.1.4
 
-ARG userid=993
-SHELL ["/bin/bash", "-c"]
-RUN groupadd -g $userid -r vets-api && \
-    useradd -u $userid -r -m -d /srv/vets-api -g vets-api vets-api
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    dumb-init clamdscan imagemagick pdftk curl poppler-utils libpq5 vim
-# The pki work below is for parity with the non-docker BRD deploys to mount certs into
-# the container, we need to get rid of it and refactor the configuration bits into
-# something more continer friendly in a later bunch of work
-RUN mkdir -p /srv/vets-api/{clamav/database,pki/tls,secure,src} && \
-    chown -R vets-api:vets-api /srv/vets-api && \
-    ln -s /srv/vets-api/pki /etc/pki
-COPY config/clamd.conf /etc/clamav/clamd.conf
-# XXX: get rid of the CA trust manipulation when we have a better model for it
-COPY config/ca-trust/* /usr/local/share/ca-certificates/
-# rename .pem files to .crt because update-ca-certificates ignores files that are not .crt
-RUN cd /usr/local/share/ca-certificates ; for i in *.pem ; do mv $i ${i/pem/crt} ; done ; update-ca-certificates
+RUN groupadd --gid $USER_ID nonroot \
+  && useradd --uid $USER_ID --gid nonroot --shell /bin/bash --create-home nonroot --home-dir /app
+
+WORKDIR /app
+
+RUN apt-get update \
+  && apt-get install -y build-essential libpq-dev git imagemagick curl wget pdftk poppler-utils file \
+  && apt-get clean \
+  && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 # Relax ImageMagick PDF security. See https://stackoverflow.com/a/59193253.
 RUN sed -i '/rights="none" pattern="PDF"/d' /etc/ImageMagick-6/policy.xml
-WORKDIR /srv/vets-api/src
 
-###
-# dev stage; use --target=development to stop here
-# Be sure to pass required ARGs as `--build-arg`
-# This stage useful for mounting your local checkout with compose
-# into the container to dev against.
-###
-FROM base AS development
+COPY config/clamd.conf /etc/clamav/clamd.conf
 
-ARG sidekiq_license
-ARG rails_env=development
+# Download VA Certs
+RUN wget -q -r -np -nH -nd -a .cer -P /usr/local/share/ca-certificates http://aia.pki.va.gov/PKI/AIA/VA/ \
+  && for f in /usr/local/share/ca-certificates/*.cer; do openssl x509 -inform der -in $f -out $f.crt; done \
+  && update-ca-certificates \
+  && rm .cer
 
-ENV BUNDLE_ENTERPRISE__CONTRIBSYS__COM=$sidekiq_license
-ENV RAILS_ENV=$rails_env
+ENV LANG=C.UTF-8 \
+   BUNDLE_JOBS=4 \
+   BUNDLE_PATH=/usr/local/bundle/cache \
+   BUNDLE_RETRY=3
 
-# only extra dev/build opts go here, common packages go in base 👆
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    git build-essential libxml2-dev libxslt-dev libpq-dev
-COPY --chown=vets-api:vets-api config/freshclam.conf docker-entrypoint.sh ./
-USER vets-api
-# XXX: this is tacky
-RUN freshclam --config-file freshclam.conf
-RUN gem install vtk
-ENTRYPOINT ["/usr/bin/dumb-init", "--", "./docker-entrypoint.sh"]
+RUN gem install bundler:${BUNDLER_VERSION} --no-document
 
-###
-# build stage; use --target=builder to stop here
-# Also be sure to add build-args from development stage above
-#
-# This is development with the app copied in and built.  The build results are used in
-# prod below, but also useful if you want to have a container with the app and not
-# mount your local checkout.
-###
-FROM development AS builder
-# XXX: move modules/ to seperate repos so we can only copy Gemfile* and install a slim layer
-ARG bundler_opts
-COPY --chown=vets-api:vets-api . .
-USER vets-api
-# --no-cache doesn't do the right thing, so trim it during build
-# https://github.com/bundler/bundler/issues/6680
-RUN bundle install --binstubs="${BUNDLE_APP_CONFIG}/bin" $bundler_opts && \
-    find ${BUNDLE_APP_CONFIG}/cache -type f -name \*.gem -delete
+RUN wget -q https://vets-api-build-artifacts.s3-us-gov-west-1.amazonaws.com/bundle_cache.tar.bz2 -O - \
+  | tar -xjvf - -C /usr/local/bundle/
+COPY modules ./modules
+COPY Gemfile Gemfile.lock ./
+RUN bundle install \
+  && rm -rf /usr/local/bundle/cache/*.gem \
+  && find /usr/local/bundle/gems/ -name "*.c" -delete \
+  && find /usr/local/bundle/gems/ -name "*.o" -delete \
+  && find /usr/local/bundle/gems/ -name ".git" -type d -prune -execdir rm -rf {} +
+COPY --chown=nonroot:nonroot . .
 
-###
-# prod stage; default if no target given
-# to build prod you probably want options like below to get a good build
-# --build-arg sidekiq_license="$BUNDLE_ENTERPRISE__CONTRIBSYS__COM" --build-arg rails_env=production --build-arg bundler_opts="--no-cache --without development test"
-# This inherits from base again to avoid bringing in extra built time binary packages
-###
-FROM base AS production
+EXPOSE 3000
 
-ENV RAILS_ENV=production
-COPY --from=builder $BUNDLE_APP_CONFIG $BUNDLE_APP_CONFIG
-COPY --from=builder --chown=vets-api:vets-api /srv/vets-api/src ./
-COPY --from=builder --chown=vets-api:vets-api /srv/vets-api/clamav/database ../clamav/database
-RUN if [ -d certs-tmp ] ; then cd certs-tmp ; for i in * ; do cp $i /usr/local/share/ca-certificates/${i/pem/crt} ; done ; fi && update-ca-certificates
-USER vets-api
-ENTRYPOINT ["/usr/bin/dumb-init", "--", "./docker-entrypoint.sh"]
+USER nonroot
+
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]

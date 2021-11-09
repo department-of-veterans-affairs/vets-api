@@ -39,10 +39,10 @@ jobs:
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       CI: true
-      NODE_EXTRA_CA_CERTS: '/etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem' # Needed for self-hosted runners (cache, upload-artifact)
       RAILS_ENV: test
       TERM: xterm-256color
       DOCKER_IMAGE: ${{ github.sha }}-${{ github.run_id }}${{ github.run_number }}
+      NODE_EXTRA_CA_CERTS: '/etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem' # Needed for self-hosted runners (cache, upload-artifact)
     runs-on: asg
     steps:
       - uses: actions/checkout@v2
@@ -54,36 +54,25 @@ jobs:
 
       - name: Setup Environment
         run: |
-          echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
-
-      - name: Setup Docker
-        run: |
-          docker volume create --name=test_bundle_v2_7
-          cp /etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem config/ca-trust/
+          echo "USER_ID=$(id -u)" >> $GITHUB_ENV
 
       - name: Build Docker Image
         uses: docker/build-push-action@v2
         with:
           build-args: |
-            sidekiq_license=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
-            userid=${{ env.VETS_API_USER_ID }}
+            BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+            USER_ID=${{ env.USER_ID }}
           context: .
-          target: development
           push: false
           load: true
           tags: vets-api:${{ env.DOCKER_IMAGE }}
 
-      - name: Setup Database
+      - name: Setup Database and Run Specs
         run: |
-             docker-compose -f docker-compose.test.yml -f  docker-compose.gha.yml -p ${{ env.DOCKER_IMAGE}} \
-             run --rm --service-ports vets-api bash \
-             -c "RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -n 14 -e 'bundle exec rake db:reset'"
-
-      - name: Run Specs
-        run: |
-             docker-compose -f docker-compose.test.yml -f docker-compose.gha.yml -p ${{ env.DOCKER_IMAGE}} \
-             run --rm --service-ports vets-api bash \
-             -c "DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 14 -o '--color --tty'"
+             docker-compose -p ${{ env.DOCKER_IMAGE}} run --rm --service-ports web bash \
+             -c "RAILS_ENV=test DISABLE_BOOTSNAP=true; \
+             bundle exec parallel_test -n 14 -e 'bundle exec rails db:reset' \
+             && bundle exec parallel_rspec spec/ modules/ -n 14 -o '--color --tty'"
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v2
@@ -100,15 +89,13 @@ jobs:
           path: log/*.xml
           if-no-files-found: ignore
 
-      # rm -rf .git is a temporary fix for actions/checkout@v2 action
-      # see: https://github.com/actions/checkout/issues/582
       - name: Cleanup
         if: always()
         run: |
           docker rmi -f vets-api:${{ env.DOCKER_IMAGE }} 2> /dev/null || true
           docker rm -f ${{ env.DOCKER_IMAGE }}-postgres-1 2> /dev/null || true
-          docker network prune -f
-          rm -rf .git
+          docker rm -f ${{ env.DOCKER_IMAGE }}-clamav-1  2> /dev/null || true
+          docker rm -f ${{ env.DOCKER_IMAGE }}-redis-1 2> /dev/null || true
 
   publish_results:
     name: Publish Results
@@ -158,33 +145,3 @@ jobs:
           result_path: Coverage Report/.last_run.json
           min_coverage: 90
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        if: always()
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: 'us-gov-west-1'
-
-      - name: Set BIGQUERY_SERVICE_CREDENTIALS Environment Variable
-        uses: 'marvinpinto/action-inject-ssm-secrets@v1.2.1'
-        if: always()
-        with:
-          ssm_parameter: '/dsva-vagov/testing-team/bigquery_service_credentials'
-          env_variable_name: 'BIGQUERY_SERVICE_CREDENTIALS'
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@master
-        if: always()
-        with:
-          project_id: vsp-analytics-and-insights
-          service_account_key: ${{ env.BIGQUERY_SERVICE_CREDENTIALS }}
-          export_default_credentials: true
-
-      - name: Push unit test data to BigQuery
-        run:  bundle exec ruby rakelib/test_stats_to_bigquery.rb
-        if: always()
-        env:
-          BIGQUERY_CREDENTIALS: ${{ env.BIGQUERY_SERVICE_CREDENTIALS }}
-          BRANCH_NAME: ${{ github.ref }}
