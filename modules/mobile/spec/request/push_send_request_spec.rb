@@ -17,8 +17,8 @@ RSpec.describe 'push send', type: :request do
           appName: 'va_mobile_app',
           templateId: '0EF7C8C9390847D7B3B521426EFF5814',
           personalization: {
-            "%APPOINTMENT_DATE%": 'DEC 14',
-            "%APPOINTMENT_TIME%": '10:00'
+            '%APPOINTMENT_DATE%': 'DEC 14',
+            '%APPOINTMENT_TIME%': '10:00'
           }
         }
       end
@@ -38,8 +38,8 @@ RSpec.describe 'push send', type: :request do
           appName: 'va_mobile_app',
           templateId: 'bad_id',
           personalization: {
-            "%APPOINTMENT_DATE%": 'DEC 14',
-            "%APPOINTMENT_TIME%": '10:00'
+            '%APPOINTMENT_DATE%': 'DEC 14',
+            '%APPOINTMENT_TIME%': '10:00'
           }
         }
       end
@@ -59,8 +59,8 @@ RSpec.describe 'push send', type: :request do
           appName: 'va_mobile_app',
           templateId: '0EF7C8C9390847D7B3B521426EFF5814',
           personalization: {
-            "%APPOINTMENT_DATE%": 'DEC 14',
-            "%APPOINTMENT_TIME%": '10:00'
+            '%APPOINTMENT_DATE%': 'DEC 14',
+            '%APPOINTMENT_TIME%': '10:00'
           }
         }
       end
@@ -80,8 +80,8 @@ RSpec.describe 'push send', type: :request do
           appName: 'bad_name',
           templateId: '0EF7C8C9390847D7B3B521426EFF5814',
           personalization: {
-            "%APPOINTMENT_DATE%": 'DEC 14',
-            "%APPOINTMENT_TIME%": '10:00'
+            '%APPOINTMENT_DATE%': 'DEC 14',
+            '%APPOINTMENT_TIME%': '10:00'
           }
         }
       end

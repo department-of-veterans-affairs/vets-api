@@ -121,7 +121,7 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
               error_message: 'Invalid routing number',
               return_message: 'FAILURE'
             },
-            "@xmlns:ns0": 'http://services.share.benefits.vba.va.gov/'
+            '@xmlns:ns0': 'http://services.share.benefits.vba.va.gov/'
           }
         }
 

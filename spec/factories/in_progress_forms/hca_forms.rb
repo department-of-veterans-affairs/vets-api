@@ -14,11 +14,11 @@ FactoryBot.define do
     form_data do
       {
         isEssentialAcaCoverage: true,
-        "view:preferredFacility": {
-          "view:facilityState": 'AL',
+        'view:preferredFacility': {
+          'view:facilityState': 'AL',
           vaMedicalFacility: '520GA'
         },
-        "view:locator": {
+        'view:locator': {
         },
         wantsInitialVaContact: true,
         isCoveredByHealthInsurance: true,
@@ -39,7 +39,7 @@ FactoryBot.define do
         veteranGrossIncome: 3_242_434,
         veteranNetIncome: 23_424,
         veteranOtherIncome: 23_424,
-        "view:spouseIncome": {
+        'view:spouseIncome': {
           spouseGrossIncome: 23_424,
           spouseNetIncome: 23_424,
           spouseOtherIncome: 23_424
@@ -66,7 +66,7 @@ FactoryBot.define do
             otherIncome: 0
           }
         ],
-        "view:reportDependents": true,
+        'view:reportDependents': true,
         spouseFullName: {
           first: 'Jane',
           middle: 'Pam',
@@ -79,7 +79,7 @@ FactoryBot.define do
         cohabitedLastYear: false,
         provideSupportLastYear: true,
         sameAddress: false,
-        "view:spouseContactInformation": {
+        'view:spouseContactInformation': {
           spouseAddress: {
             street: '123 maple st',
             street2: 'Apt 1',
@@ -107,7 +107,7 @@ FactoryBot.define do
         lastDischargeDate: '2005-02-01',
         dischargeType: 'general',
         email: 'test@test.com',
-        "view:emailConfirmation": 'test@test.com',
+        'view:emailConfirmation': 'test@test.com',
         homePhone: '5555555555',
         mobilePhone: '4444444444',
         veteranAddress: {
@@ -121,7 +121,7 @@ FactoryBot.define do
         },
         gender: 'M',
         maritalStatus: 'Married',
-        "view:demographicCategories": {
+        'view:demographicCategories': {
           isSpanishHispanicLatino: true,
           isAmericanIndianOrAlaskanNative: true,
           isBlackOrAfricanAmerican: true,
@@ -131,7 +131,7 @@ FactoryBot.define do
         },
         veteranDateOfBirth: '1980-03-02',
         veteranSocialSecurityNumber: '324234444',
-        "view:placeOfBirth": {
+        'view:placeOfBirth': {
           cityOfBirth: 'Boston',
           stateOfBirth: 'MA'
         },

@@ -78,7 +78,7 @@ module MebApi
       def submit_claim
         render json:
                { data: {
-                 "status": 'received'
+                 'status': 'received'
                } }
       end
     end

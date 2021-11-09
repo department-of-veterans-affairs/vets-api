@@ -41,7 +41,7 @@ class VSOAppointmentForm
       relationship: @appt.relationship,
       Dateappt: @appt.appointment_date,
       nameofservice: @appt.organization_name,
-      "e-mailaddressoftheorganizationnamedinitem3a": @appt.organization_email,
+      'e-mailaddressoftheorganizationnamedinitem3a': @appt.organization_email,
       jobtitile: "#{@appt.organization_representative_name}, #{@appt.organization_representative_title}",
       drugabuse: @appt.disclosure_exception_drug_abuse ? 1 : 0,
       alcoholismoralcohoabuse: @appt.disclosure_exception_alcoholism ? 1 : 0,
@@ -52,7 +52,7 @@ class VSOAppointmentForm
 
   def generate_pdf
     tmpf = Tempfile.new(['vsopdf', '.pdf'])
-    args = to_pdf_args.merge("F[0].Page_1[0].authorize[0]": 1, "F[0].Page_1[0].authorize[1]": 1)
+    args = to_pdf_args.merge('F[0].Page_1[0].authorize[0]': 1, 'F[0].Page_1[0].authorize[1]': 1)
     PdfForms.new(Settings.binaries.pdftk).fill_form 'lib/vso_pdf/VBA-21-22-ARE.pdf', tmpf.path, args
     tmpf.close
     tmpf.path

@@ -188,8 +188,8 @@ describe 'VEText::Service' do
 
     let(:personalization) do
       {
-        "%appointment_date%": 'DEC 14',
-        "%appointment_time%": '10:00'
+        '%appointment_date%': 'DEC 14',
+        '%appointment_time%': '10:00'
       }
     end
 

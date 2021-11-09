@@ -1249,7 +1249,7 @@ RSpec.describe FormProfile, type: :model do
     context 'with a notice of disagreement (NOD) form' do
       let(:schema_name) { '10182' }
       let(:schema) do
-        DecisionReview::Schemas::NOD_CREATE_REQUEST.merge "$schema": 'http://json-schema.org/draft-04/schema#'
+        DecisionReview::Schemas::NOD_CREATE_REQUEST.merge '$schema': 'http://json-schema.org/draft-04/schema#'
       end
 
       let(:form_profile) { described_class.for(form_id: schema_name, user: user) }

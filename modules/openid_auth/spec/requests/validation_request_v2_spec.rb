@@ -126,12 +126,12 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   let(:openid_response) do
     instance_double(RestClient::Response,
                     code: 200,
-                    body: { "issuer": 'https://example.com/issuer',
-                            "authorization_endpoint": 'https://example.com/authorization',
-                            "token_endpoint": 'https://example.com/token',
-                            "userinfo_endpoint": 'https://example.com/userinfo',
-                            "introspection_endpoint": 'https://example.com/introspect',
-                            "revocation_endpoint": 'https://example.com/revoke' }.to_json)
+                    body: { 'issuer': 'https://example.com/issuer',
+                            'authorization_endpoint': 'https://example.com/authorization',
+                            'token_endpoint': 'https://example.com/token',
+                            'userinfo_endpoint': 'https://example.com/userinfo',
+                            'introspection_endpoint': 'https://example.com/introspect',
+                            'revocation_endpoint': 'https://example.com/revoke' }.to_json)
   end
 
   let(:ssoi_introspect_response) do

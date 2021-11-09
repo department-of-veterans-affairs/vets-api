@@ -2399,7 +2399,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
                 error_message: 'Invalid routing number',
                 return_message: 'FAILURE'
               },
-              "@xmlns:ns0": 'http://services.share.benefits.vba.va.gov/'
+              '@xmlns:ns0': 'http://services.share.benefits.vba.va.gov/'
             }
           }
 

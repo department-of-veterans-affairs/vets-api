@@ -14,8 +14,8 @@ describe AppealsApi::JsonSchemaToSwaggerConverter do
           root: {
             type: 'object',
             properties: {
-              aardvark: { "$ref": '#/definitions/cat' },
-              bat: { "$ref": '#/definitions/dog' }
+              aardvark: { '$ref': '#/definitions/cat' },
+              bat: { '$ref': '#/definitions/dog' }
             },
             additionalProperties: false,
             required: %w[aardvark bat]

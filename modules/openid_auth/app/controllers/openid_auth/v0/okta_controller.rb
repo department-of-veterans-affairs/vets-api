@@ -88,7 +88,7 @@ module OpenidAuth
             attributeValues: [
               {
                 attributes: {
-                  "xsi:type": 'xs:string'
+                  'xsi:type': 'xs:string'
                 },
                 value: value
               }

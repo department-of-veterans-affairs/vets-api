@@ -38,7 +38,7 @@ class EVSSClaimDocumentUploaderBase < CarrierWave::Uploader::Base
   # PDF's can be larger than other files
   def validate_file_size(file)
     if file.content_type != 'application/pdf' && file.size > max_file_size_non_pdf
-      raise CarrierWave::IntegrityError, I18n.t(:"errors.messages.max_size_error",
+      raise CarrierWave::IntegrityError, I18n.t(:'errors.messages.max_size_error',
                                                 max_size: '50MB')
     end
   end
