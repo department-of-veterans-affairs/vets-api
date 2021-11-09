@@ -1,5 +1,12 @@
+.bundle
 .git
-coverage/
-data/
-log/*
-tmp/
+.github
+.gitignore
+.rspec
+coverage
+data
+docs
+modules/**/spec
+log
+spec
+tmp
