@@ -60,7 +60,7 @@ http_interactions:
       - 1; mode=block
     body:
       encoding: UTF-8
-      string: '{"error":{"code":"","message":"An error has occurred."}}'
+      string: '{"error":{"code":"","message":"Unable to Geocode the given address. For At Home Services Search you must provide a full Street Address and City as well as a State or ZipCode."}}'
     http_version:
   recorded_at: Fri, 27 Jul 2018 21:30:16 GMT
 - request:
@@ -119,7 +119,7 @@ http_interactions:
       - 1; mode=block
     body:
       encoding: UTF-8
-      string: '{"error":{"code":"","message":"An error has occurred."}}'
+      string: '{"error":{"code":"","message":"Unable to Geocode the given address. For At Home Services Search you must provide a full Street Address and City as well as a State or ZipCode."}}'
     http_version:
   recorded_at: Fri, 27 Jul 2018 21:30:16 GMT
 recorded_with: VCR 3.0.3

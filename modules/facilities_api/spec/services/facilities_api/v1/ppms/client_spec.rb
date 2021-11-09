@@ -24,8 +24,10 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
       end
 
       if feature_flag
+        let(:url) { Settings.ppms.apim_url }
         let(:path) { '/dws/v1.0/ProviderLocator' }
       else
+        let(:url) { Settings.ppms.url }
         let(:path) { '/v1.0/ProviderLocator' }
       end
 
@@ -61,7 +63,10 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
           end
         end
 
-        context 'PPMS responds with a Failure', vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms_500') do
+        context 'PPMS responds with a Failure', vcr: vcr_options.merge(
+          cassette_name: 'facilities/ppms/ppms_500',
+          match_requests_on: %i[path]
+        ) do
           it "sends a 'facilities.ppms.request.faraday' notification to any subscribers listening" do
             allow(StatsD).to receive(:measure)
             allow(StatsD).to receive(:increment)
@@ -112,15 +117,64 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
         end
       end
 
-      context 'with an unknown error from PPMS', vcr: {
+      context 'with an unknown error from PPMS', vcr: vcr_options.merge(
         cassette_name: 'facilities/ppms/ppms_500',
         match_requests_on: %i[path]
-      } do
+      ) do
         it 'raises BackendUnhandledException when errors happen' do
           expect { FacilitiesApi::V1::PPMS::Client.new.provider_locator(params.merge(specialties: ['213E00000X'])) }
             .to raise_error(Common::Exceptions::BackendServiceException) do |e|
+              expect(e.response_values).to match(
+                {
+                  status: 500,
+                  detail: 'An error has occurred.',
+                  code: 'PPMS_502',
+                  source: nil
+                }
+              )
               expect(e.message).to match(/PPMS_502/)
             end
+        end
+      end
+
+      context 'with a stack trace from PPMS', vcr: vcr_options.merge(
+        cassette_name: 'facilities/ppms/ppms_500_stack_trace',
+        match_requests_on: %i[path]
+      ) do
+        it 'raises BackendUnhandledException when PPMS raises a stack trace' do
+          expect { FacilitiesApi::V1::PPMS::Client.new.provider_locator(params.merge(specialties: ['213E00000X'])) }
+            .to raise_error(Common::Exceptions::BackendServiceException) do |e|
+            expect(e.response_values).to match(
+              {
+                status: 500,
+                detail: 'An error has occurred.',
+                code: 'PPMS_502',
+                source: 'Operation is not valid due to the current state of the object.'
+              }
+            )
+            expect(e.message).to match(/PPMS_502/)
+          end
+        end
+      end
+
+      context 'with a Geocode error from PPMS', vcr: vcr_options.merge(
+        cassette_name: 'facilities/ppms/ppms_500_geo_error',
+        match_requests_on: %i[path]
+      ) do
+        it 'raises BackendUnhandledException when PPMS raises a stack trace' do
+          expect { FacilitiesApi::V1::PPMS::Client.new.provider_locator(params.merge(specialties: ['213E00000X'])) }
+            .to raise_error(Common::Exceptions::BackendServiceException) do |e|
+            expect(e.response_values).to match(
+              {
+                status: 500,
+                detail: 'Unable to Geocode the given address. For At Home Services Search you must provide a full ' \
+                        'Street Address and City as well as a State or ZipCode.',
+                code: 'PPMS_502',
+                source: nil
+              }
+            )
+            expect(e.message).to match(/Unable to Geocode the given address/)
+          end
         end
       end
 

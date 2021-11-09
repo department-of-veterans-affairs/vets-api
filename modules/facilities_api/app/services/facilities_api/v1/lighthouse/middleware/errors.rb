@@ -28,5 +28,4 @@ module FacilitiesApi
     end
   end
 end
-
 Faraday::Response.register_middleware lighthouse_facilities_errors: FacilitiesApi::V1::Lighthouse::Middleware::Errors
