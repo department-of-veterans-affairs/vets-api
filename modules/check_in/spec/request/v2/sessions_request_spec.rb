@@ -149,36 +149,16 @@ RSpec.describe 'V2::SessionsController', type: :request do
         }
       end
 
-      context 'with service_refactor feature flag off' do
-        before do
-          allow(Flipper).to receive(:enabled?)
-            .with('check_in_experience_services_refactor').and_return(false)
-          allow_any_instance_of(::V2::Lorota::Service).to receive(:token_with_permissions).and_return(service_resp)
-          expect_any_instance_of(::V2::Lorota::Service).to receive(:token_with_permissions).once
-        end
-
-        it 'returns a success response' do
-          post '/check_in/v2/sessions', session_params
-
-          expect(response.status).to eq(200)
-          expect(JSON.parse(response.body)).to eq(service_resp[:permission_data])
-        end
+      before do
+        allow_any_instance_of(::V2::Lorota::Service).to receive(:token).and_return(service_resp)
+        expect_any_instance_of(::V2::Lorota::Service).to receive(:token).once
       end
 
-      context 'with service_refactor feature flag on' do
-        before do
-          allow(Flipper).to receive(:enabled?)
-            .with('check_in_experience_services_refactor').and_return(true)
-          allow_any_instance_of(::V2::Lorota::Service).to receive(:token).and_return(service_resp)
-          expect_any_instance_of(::V2::Lorota::Service).to receive(:token).once
-        end
+      it 'returns a success response' do
+        post '/check_in/v2/sessions', session_params
 
-        it 'returns a success response' do
-          post '/check_in/v2/sessions', session_params
-
-          expect(response.status).to eq(200)
-          expect(JSON.parse(response.body)).to eq(service_resp[:permission_data])
-        end
+        expect(response.status).to eq(200)
+        expect(JSON.parse(response.body)).to eq(service_resp[:permission_data])
       end
     end
   end

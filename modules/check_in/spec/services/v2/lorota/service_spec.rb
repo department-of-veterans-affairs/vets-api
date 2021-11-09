@@ -213,23 +213,6 @@ describe V2::Lorota::Service do
     end
   end
 
-  describe '#token_with_permissions' do
-    it 'returns data from lorota' do
-      allow_any_instance_of(V2::Lorota::Session).to receive(:from_lorota).and_return('abc123')
-
-      hsh = {
-        permission_data: {
-          permissions: 'read.full',
-          uuid: id,
-          status: 'success'
-        },
-        jwt: 'abc123'
-      }
-
-      expect(subject.build(check_in: valid_check_in).token_with_permissions).to eq(hsh)
-    end
-  end
-
   describe '#token' do
     let(:token) { 'abc123' }
     let(:token_response) do
@@ -253,23 +236,7 @@ describe V2::Lorota::Service do
     end
   end
 
-  context 'with next of kin flag turned off' do
-    describe '#get_check_in_data' do
-      before do
-        allow_any_instance_of(::V2::Lorota::Session).to receive(:from_redis).and_return('123abc')
-        allow_any_instance_of(::V2::Lorota::Request).to receive(:get)
-          .and_return(Faraday::Response.new(body: appointment_data.to_json, status: 200))
-        allow(Flipper).to receive(:enabled?)
-          .with(:check_in_experience_next_of_kin_enabled).and_return(false)
-      end
-
-      it 'returns approved data without next of kin' do
-        expect(subject.build(check_in: valid_check_in).get_check_in_data).to eq(approved_response)
-      end
-    end
-  end
-
-  context 'with next of kin flag turned on' do
+  describe '#check_in_data' do
     let(:next_of_kin_data) do
       {
         payload: {
@@ -299,25 +266,25 @@ describe V2::Lorota::Service do
       approved_response.deep_merge(next_of_kin_data)
     end
 
-    describe '#get_check_in_data' do
+    before do
+      allow_any_instance_of(::V2::Lorota::RedisClient).to receive(:get).and_return('123abc')
+      allow_any_instance_of(::V2::Lorota::Client).to receive(:data)
+        .and_return(Faraday::Response.new(body: appointment_data.to_json, status: 200))
+    end
+
+    context 'with next of kin flag turned off' do
       before do
-        allow_any_instance_of(::V2::Lorota::Session).to receive(:from_redis).and_return('123abc')
-        allow_any_instance_of(::V2::Lorota::Request).to receive(:get)
-          .and_return(Faraday::Response.new(body: appointment_data.to_json, status: 200))
         allow(Flipper).to receive(:enabled?)
-          .with(:check_in_experience_next_of_kin_enabled).and_return(true)
+          .with(:check_in_experience_next_of_kin_enabled).and_return(false)
       end
 
-      it 'returns approved data with next of kin' do
-        expect(subject.build(check_in: valid_check_in).get_check_in_data).to eq(response_with_next_of_kin)
+      it 'returns approved data without next of kin' do
+        expect(subject.build(check_in: valid_check_in).check_in_data).to eq(approved_response)
       end
     end
 
-    describe '#check_in_data' do
+    context 'with next of kin flag turned on' do
       before do
-        allow_any_instance_of(::V2::Lorota::RedisClient).to receive(:get).and_return('123abc')
-        allow_any_instance_of(::V2::Lorota::Client).to receive(:data)
-          .and_return(Faraday::Response.new(body: appointment_data.to_json, status: 200))
         allow(Flipper).to receive(:enabled?)
           .with(:check_in_experience_next_of_kin_enabled).and_return(true)
       end
@@ -325,12 +292,6 @@ describe V2::Lorota::Service do
       it 'returns approved data with next of kin' do
         expect(subject.build(check_in: valid_check_in).check_in_data).to eq(response_with_next_of_kin)
       end
-    end
-  end
-
-  describe '#base_path' do
-    it 'returns base_path' do
-      expect(subject.build(check_in: valid_check_in).base_path).to eq('dev')
     end
   end
 end

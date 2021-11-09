@@ -10,12 +10,7 @@ module CheckIn
           render json: check_in_session.unauthorized_message, status: :unauthorized and return
         end
 
-        resp =
-          if Flipper.enabled?('check_in_experience_services_refactor')
-            ::V2::Lorota::Service.build(check_in: check_in_session).check_in_data
-          else
-            ::V2::Lorota::Service.build(check_in: check_in_session).get_check_in_data
-          end
+        resp = ::V2::Lorota::Service.build(check_in: check_in_session).check_in_data
 
         render json: resp
       end
