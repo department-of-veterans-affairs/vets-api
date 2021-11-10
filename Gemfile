@@ -51,6 +51,7 @@ gem 'connect_vbms', git: 'https://github.com/department-of-veterans-affairs/conn
 gem 'date_validator'
 gem 'dry-struct'
 gem 'dry-types'
+gem 'ethon', '>=0.13.0'
 gem 'faraday'
 gem 'faraday_middleware'
 gem 'fastimage'
