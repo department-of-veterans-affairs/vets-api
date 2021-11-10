@@ -7,12 +7,40 @@ module V0
     class VirtualAgentAppealController < AppealsBaseController
       def index
         # @appeal_status_description
-        appeals_response = appeals_service.get_appeals(current_user)
-        appeals_data_array = appeals_response.body['data']
+
+        if Settings.vsp_environment == 'staging'
+          # use user 228 for mock data
+          @user_ssan = '796104437'
+          @user_name = 'vets.gov.user+228@gmail.com'
+
+          appeals_response = get_appeal_from_lighthouse(@user_ssan, @user_name)
+          appeals_data_array = appeals_response['data']
+        else
+          appeals_response = appeals_service.get_appeals(current_user)
+          appeals_data_array = appeals_response.body['data']
+        end
         data = data_for_first_comp_appeal(appeals_data_array)
         render json: {
           data: data
         }
+      end
+
+      def get_appeal_from_lighthouse(ssan, user_name)
+        uri = URI(Settings.virtual_agent.lighthouse_api_uri)
+
+        req = Net::HTTP::Get.new(uri)
+        req['apikey'] = Settings.virtual_agent.lighthouse_api_key
+        req['X-VA-SSN'] = ssan
+        req['X-VA-User'] = user_name
+
+        http = Net::HTTP.new(uri.hostname, uri.port)
+        # http.set_debug_output($stdout)
+
+        http.use_ssl = true
+
+        response = http.request(req)
+
+        JSON.parse(response.body)
       end
 
       def data_for_first_comp_appeal(appeals)

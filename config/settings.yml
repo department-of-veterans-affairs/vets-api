@@ -948,6 +948,8 @@ covid_vaccine:
 virtual_agent:
   webchat_secret_a: fake_secret_a
   webchat_secret_b: fake_secret_b
+  lighthouse_api_uri: https://sandbox-api.va.gov/services/appeals/v0/appeals
+  lighthouse_api_key: fake_api_key
 
 # Settings for notifications client
 vanotify:
