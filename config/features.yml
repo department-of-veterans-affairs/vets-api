@@ -488,3 +488,7 @@ features:
     actor_type: user
     description: Enhances Yellow Ribbon MVP.
     enable_in_development: true
+  show_edu_benefits_1990EZ_Wizard:
+    actor_type: user
+    description: Navigates user to 1990EZ or 1990 depending on form questions.
+    enable_in_development: true
