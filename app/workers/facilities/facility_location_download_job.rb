@@ -59,7 +59,7 @@ module Facilities
     end
 
     def klass
-      BaseFacility::CLASS_MAP[@type]
+      Facilities::Mappings::CLASS_MAP[@type]
     end
 
     def updatable_attrs(record)

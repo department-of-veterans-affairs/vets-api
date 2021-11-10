@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'support/controller_spec_helper'
+require 'claims_api/vbms_uploader'
 
 RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller do
   let(:loa3_user) { create(:evss_user) }

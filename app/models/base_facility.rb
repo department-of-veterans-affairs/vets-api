@@ -42,13 +42,6 @@ class BaseFacility < ApplicationRecord
     'dod_health' => 'Facilities::DODFacility'
   }.freeze
 
-  CLASS_MAP = {
-    'nca' => Facilities::NCAFacility,
-    'vha' => Facilities::VHAFacility,
-    'vba' => Facilities::VBAFacility,
-    'vc' => Facilities::VCFacility
-  }.freeze
-
   TYPE_MAP = {
     CEMETERY => 'Facilities::NCAFacility',
     HEALTH => 'Facilities::VHAFacility',
@@ -120,11 +113,6 @@ class BaseFacility < ApplicationRecord
   end
 
   DAYS = DateTime::DAYNAMES.rotate.each_with_index.map { |day, index| [day, index] }.to_h.freeze
-
-  PATHMAP = { 'NCA_Facilities' => Facilities::NCAFacility,
-              'VBA_Facilities' => Facilities::VBAFacility,
-              'VHA_VetCenters' => Facilities::VCFacility,
-              'FacilitySitePoint_VHA' => Facilities::VHAFacility }.freeze
 
   def facility_type_prefix
     PREFIX_MAP[facility_type]

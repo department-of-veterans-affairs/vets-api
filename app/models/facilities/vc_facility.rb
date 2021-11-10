@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'facilities/metadata/client'
+
 module Facilities
   class VCFacility < BaseFacility
     class << self

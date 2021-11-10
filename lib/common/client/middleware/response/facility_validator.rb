@@ -52,7 +52,7 @@ module Common
           end
 
           def facility_klass(path_part)
-            BaseFacility::PATHMAP[path_part]
+            Facilities::Mappings::PATHMAP[path_part]
           end
         end
       end

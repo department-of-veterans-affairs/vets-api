@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'evss/intent_to_file/response_strategy'
+require 'evss/intent_to_file/service'
 
 describe EVSS::IntentToFile::ResponseStrategy do
   let(:user) { build(:user, :loa3) }

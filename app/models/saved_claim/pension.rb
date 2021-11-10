@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pension_burial/processing_office'
+
 class SavedClaim::Pension < CentralMailClaim
   FORM = '21P-527EZ'
 
