@@ -13,14 +13,6 @@
   - :method: :post
     :path: "/services/data/v47.0/composite/tree/ContentVersion"
     :file_path: "carma/attachment"
-
-- :name: 'dgi'
-  :base_uri: <%= "{URI(Settings.dgi.['veteran-services'].url" %>
-  :endpoints:
-  - :method: :get
-    :path: "/eligibility"
-    :file_path: "/dgi/eligibillity"
-    :cache_multiple_responses:
       
 - :name: 'DMC'
   :base_uri: <%= "#{URI(Settings.dmc.url).host}:#{URI(Settings.dmc.url).port}" %>
