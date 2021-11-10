@@ -77,7 +77,8 @@ module MedicalCopays
     def headers
       {
         'Host' => host,
-        'Content-Type' => 'application/json'
+        'Content-Type' => 'application/json',
+        'x-api-key' => settings.api_key
       }
     end
 

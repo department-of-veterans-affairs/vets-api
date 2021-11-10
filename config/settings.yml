@@ -68,6 +68,7 @@ mcp:
     service_name: VBS
     mock: false
     mock_vista: false
+    api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
 
 fsr:
   prefill: true
