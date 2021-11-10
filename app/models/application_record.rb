@@ -6,4 +6,14 @@ class ApplicationRecord < ActiveRecord::Base
   def self.lockbox_options
     { previous_versions: [{ padding: true, master_key: Settings.lockbox.master_key }] }
   end
+
+  def self.descendants_using_encryption
+    Rails.application.eager_load!
+    ApplicationRecord.descendants.select do |model|
+      model = model.name.constantize
+      model.descendants.empty? &&
+        model.respond_to?(:lockbox_attributes) &&
+        model.lockbox_attributes.any?
+    end
+  end
 end
