@@ -5,7 +5,7 @@ module AppealsApi
     extend ActiveSupport::Concern
 
     included do
-      OUTSIDE_WINDOWS_1252_PATTERN = /[^\u0000-\u0255]+/.freeze
+      OUTSIDE_WINDOWS_1252_PATTERN ||= /[^\u0000-\u0255]+/.freeze
 
       def validate_characters
         characters = request.headers.to_s + params.to_s
