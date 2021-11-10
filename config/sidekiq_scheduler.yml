@@ -262,3 +262,13 @@ TestUserDashboard::DailyMaintenance:
   cron: "0 0 * * * America/New_York"
   class: TestUserDashboard::DailyMaintenance
   description: "Checks in TUD users that weren't properly checked in."
+
+TestUserDashboard::TrackAccountStatusesInBigQuery:
+  cron: "0 * * * * America/New_York"
+  class: TestUserDashboard::TrackAccountStatusesInBigQuery
+  description: "Posts the checked_out status of each TUD account to BigQuery."
+
+TestUserDashboard::MirrorAccountsInBigQuery:
+  cron: "0 * * * * America/New_York"
+  class: TestUserDashboard::MirrorAccountsInBigQuery
+  description: "Mirrors TUD accounts in BigQuery."
