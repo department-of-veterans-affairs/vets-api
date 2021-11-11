@@ -14,11 +14,14 @@ unless Rails.env.test?
     end
 
     # Measure the count/duration of GET/POST calls for LoROTA/CHIP services
-    V2::Lorota::Request.extend(StatsD::Instrument)
+    V2::Lorota::Client.extend(StatsD::Instrument)
+    %i[token data].each do |method|
+      V2::Lorota::Client.statsd_count_success method, "api.check_in.v2.lorota.#{method}.count"
+      V2::Lorota::Client.statsd_measure method, "api.check_in.v2.lorota.#{method}.measure"
+    end
+
     V2::Chip::Request.extend(StatsD::Instrument)
     %i[get post].each do |method|
-      V2::Lorota::Request.statsd_count_success method, "api.check_in.v2.lorota.#{method}.count"
-      V2::Lorota::Request.statsd_measure method, "api.check_in.v2.lorota.#{method}.measure"
       V2::Chip::Request.statsd_count_success method, "api.check_in.v2.chip.#{method}.count"
       V2::Chip::Request.statsd_measure method, "api.check_in.v2.chip.#{method}.measure"
     end
