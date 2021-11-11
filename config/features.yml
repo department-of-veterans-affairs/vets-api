@@ -354,6 +354,9 @@ features:
   show_edu_benefits_5495_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the 5495 introduction page
+  show_events_v2:
+    actor_type: user
+    description: Enables the events v2 page
   show_financial_status_report:
     actor_type: user
     description: Enables VA Form 5655 (Financial Status Report)
