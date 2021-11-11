@@ -14,7 +14,7 @@ module AppealsApi
                    :insurance_policy_number, :mailing_address_number_and_street,
                    :mailing_address_apartment_or_unit_number, :mailing_address_city_and_box, :mailing_address_state,
                    :mailing_address_country, :zip_code_5, :phone, :email, :contestable_issues, :soc_opt_in,
-                   :new_evidence_locations, :new_evidence_dates, :notice_acknowledgement, :date_signed,
+                   :new_evidence_locations, :new_evidence_dates, :date_signed,
                    to: :supplemental_claim
 
           def ssn_first_three
@@ -43,6 +43,10 @@ module AppealsApi
             return '' unless date
 
             "SOC/SSOC Date: #{date}"
+          end
+
+          def notice_acknowledgement
+            supplemental_claim.notice_acknowledgement ? 1 : 'Off'
           end
 
           def signature_of_veteran_claimant_or_rep

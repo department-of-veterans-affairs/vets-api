@@ -45,7 +45,7 @@ module AppealsApi
               # Name and Location, and Date text filled out through autosize text boxes
 
               # Section IV: 5103 Notice Acknowledgement
-              form_fields.notice_acknowledgement => form_data.notice_acknowledgement, # default to check 'YES' for now
+              form_fields.notice_acknowledgement => form_data.notice_acknowledgement,
 
               # Section V: Signatures
               # Signatures filled out through autosize text box, not pdf fields

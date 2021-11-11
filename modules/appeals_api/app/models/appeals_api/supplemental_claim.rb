@@ -176,7 +176,7 @@ module AppealsApi
     end
 
     def notice_acknowledgement
-      data_attributes['notice_acknowledgement']
+      data_attributes['noticeAcknowledgement']
     end
 
     def date_signed
