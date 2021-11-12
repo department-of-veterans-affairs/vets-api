@@ -30,34 +30,36 @@ describe VAProfileRedis::ContactInformation do
     allow(VAProfile::Models::Person).to receive(:build_from).and_return(person)
   end
 
-  context 'with a 404 from get_person', skip_vet360: true do
-    let(:get_person_calls) { 'once' }
+  [404, 400].each do |status|
+    context "with a #{status} from get_person", skip_vet360: true do
+      let(:get_person_calls) { 'once' }
 
-    before do
-      allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
+      before do
+        allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
 
-      service = double
-      allow(VAProfile::ContactInformation::Service).to receive(:new).with(user).and_return(service)
-      expect(service).to receive(:get_person).public_send(
-        get_person_calls
-      ).and_return(
-        VAProfile::ContactInformation::PersonResponse.new(404, person: nil)
-      )
-    end
+        service = double
+        allow(VAProfile::ContactInformation::Service).to receive(:new).with(user).and_return(service)
+        expect(service).to receive(:get_person).public_send(
+          get_person_calls
+        ).and_return(
+          VAProfile::ContactInformation::PersonResponse.new(status, person: nil)
+        )
+      end
 
-    it 'caches the empty response' do
-      expect(contact_info.email).to eq(nil)
-      expect(contact_info.home_phone).to eq(nil)
-    end
-
-    context 'when the cache is destroyed' do
-      let(:get_person_calls) { 'twice' }
-
-      it 'makes a new request' do
+      it 'caches the empty response' do
         expect(contact_info.email).to eq(nil)
-        VAProfileRedis::Cache.invalidate(user)
+        expect(contact_info.home_phone).to eq(nil)
+      end
 
-        expect(VAProfileRedis::ContactInformation.for_user(user).email).to eq(nil)
+      context 'when the cache is destroyed' do
+        let(:get_person_calls) { 'twice' }
+
+        it 'makes a new request' do
+          expect(contact_info.email).to eq(nil)
+          VAProfileRedis::Cache.invalidate(user)
+
+          expect(VAProfileRedis::ContactInformation.for_user(user).email).to eq(nil)
+        end
       end
     end
   end

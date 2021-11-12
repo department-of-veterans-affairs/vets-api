@@ -20,7 +20,7 @@ module VAProfile
       end
 
       def cache?
-        super || status == 404
+        super || (status >= 400 && status < 500)
       end
     end
   end

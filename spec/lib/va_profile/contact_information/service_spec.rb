@@ -37,6 +37,16 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
     context 'when not successful' do
       let(:vet360_id) { '6767671' }
 
+      context 'with a 400 error' do
+        it 'returns nil person' do
+          VCR.use_cassette('va_profile/contact_information/person_error_400', VCR::MATCH_EVERYTHING) do
+            response = subject.get_person
+            expect(response).not_to be_ok
+            expect(response.person).to be_nil
+          end
+        end
+      end
+
       it 'returns a status of 404' do
         VCR.use_cassette('va_profile/contact_information/person_error', VCR::MATCH_EVERYTHING) do
           expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(

@@ -41,6 +41,8 @@ module VAProfile
           )
 
           return PersonResponse.new(404, person: nil)
+        elsif e.status >= 400 && e.status < 500
+          return PersonResponse.new(e.status, person: nil)
         end
 
         handle_error(e)
