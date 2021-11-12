@@ -109,11 +109,19 @@ jobs:
 
   publish_results:
     name: Publish Results
+    env:
+      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
     if: always()
     needs: [linting_and_security, tests]
     runs-on: ubuntu-20.04 # Doesn't run on self-hosted runners as there are SSL issues within the TIC
 
     steps:
+      - uses: actions/checkout@v2
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
       - uses: actions/download-artifact@v2
 
       - uses: duderman/rubocop-annotate-action@v0.1.0
@@ -127,7 +135,7 @@ jobs:
           REPORT_PATH: Linting and Security Results/brakeman.json
         if: hashFiles('Linting and Security/brakeman.json') != ''
 
-      - name: Publish Test Results
+      - name: Publish Test Results to GitHub
         uses: docker://ghcr.io/enricomi/publish-unit-test-result-action:v1
         if: always()
         with:
@@ -139,7 +147,7 @@ jobs:
       - name: Fix up coverage report to work with coverage-check-action
         run: sed -i 's/"line"/"covered_percent"/g' 'Coverage Report/.last_run.json'
 
-      - name: Publish Coverage Report
+      - name: Publish Coverage Report to GitHub
         uses: devmasx/coverage-check-action@v1.2.0
         if: hashFiles('Coverage Report/.last_run.json') != ''
         with:
@@ -148,3 +156,31 @@ jobs:
           min_coverage: 90
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        if: always()
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: 'us-gov-west-1'
+
+      - name: Set BIGQUERY_SERVICE_CREDENTIALS Environment Variable
+        uses: 'marvinpinto/action-inject-ssm-secrets@v1.2.1'
+        if: always()
+        with:
+          ssm_parameter: '/dsva-vagov/testing-team/bigquery_service_credentials'
+          env_variable_name: 'BIGQUERY_SERVICE_CREDENTIALS'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        if: always()
+        with:
+          project_id: vsp-analytics-and-insights
+          service_account_key: ${{ env.BIGQUERY_SERVICE_CREDENTIALS }}
+          export_default_credentials: true
+
+      - name: Push unit test data to BigQuery
+        run:  bundle exec ruby rakelib/test_stats_to_bigquery.rb
+        if: always()
+        env:
+          BIGQUERY_CREDENTIALS: ${{ env.BIGQUERY_SERVICE_CREDENTIALS }}
