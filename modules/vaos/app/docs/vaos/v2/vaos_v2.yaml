@@ -942,6 +942,10 @@ components:
             The reason for an Express Care request, or the purpose for
             a a non-Express Care request.
           type: string
+        comment:
+          description:
+            A free-form comment section to provide additional information about an appointment request.
+          type: string
         slot:
           "$ref": "#/components/schemas/Slot"
         contact:
