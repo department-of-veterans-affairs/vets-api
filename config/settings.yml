@@ -507,7 +507,7 @@ claims_api:
   v2_docs:
     enabled: false
   token_validation:
-    api_key: 
+    api_key:
 
 redis:
   host: localhost
@@ -1076,6 +1076,8 @@ veteran_readiness_and_employment:
       - VRE.VBAPIT@va.gov
       - VRE-CMS.VBAVACO@va.gov
       - Jason.Wolf@va.gov
+      - Kathleen.Crawford@va.gov
+      - Kevin.Musiorski@va.gov
     staging_emails:
       - kcrawford@governmentcio.com
 

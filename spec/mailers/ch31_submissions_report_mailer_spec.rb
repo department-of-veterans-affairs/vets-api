@@ -56,8 +56,8 @@ RSpec.describe Ch31SubmissionsReportMailer, type: %i[mailer aws_helpers] do
         subject
         expect(FeatureFlipper).to receive(:staging_email?).once.and_return(false)
 
-        expect(mail.to).to eq(
-          %w[
+        expect(mail.to).to include(
+          *%w[
             VRC.VBABOS@va.gov
             VRE.VBAPRO@va.gov
             VRE.VBANYN@va.gov
@@ -118,7 +118,6 @@ RSpec.describe Ch31SubmissionsReportMailer, type: %i[mailer aws_helpers] do
             VRE.VBAANC@va.gov
             VRE.VBAPIT@va.gov
             VRE-CMS.VBAVACO@va.gov
-            Jason.Wolf@va.gov
           ]
         )
       end
