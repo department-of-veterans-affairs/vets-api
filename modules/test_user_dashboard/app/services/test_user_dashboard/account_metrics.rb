@@ -14,7 +14,7 @@ module TestUserDashboard
       return unless tud_account
 
       row = {
-        uuid: tud_account.account_uuid,
+        account_uuid: tud_account.account_uuid,
         event: 'checkin',
         maintenance_update: maintenance_update,
         timestamp: checkin_time
@@ -27,7 +27,7 @@ module TestUserDashboard
       return unless tud_account
 
       row = {
-        uuid: tud_account.account_uuid,
+        account_uuid: tud_account.account_uuid,
         event: 'checkout',
         timestamp: tud_account.checkout_time
       }

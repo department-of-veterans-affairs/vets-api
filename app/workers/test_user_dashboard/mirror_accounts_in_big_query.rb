@@ -14,8 +14,8 @@ module TestUserDashboard
 
     def mirror_tud_accounts_in_bigquery
       client = TestUserDashboard::BigQuery.new
-      client.drop(table_name: TUD_ACCOUNTS_TABLE)
-      client.create(table_name: TUD_ACCOUNTS_TABLE, rows: accounts)
+      client.delete_from(table_name: TUD_ACCOUNTS_TABLE)
+      client.insert_into(table_name: TUD_ACCOUNTS_TABLE, rows: accounts)
     end
 
     def accounts

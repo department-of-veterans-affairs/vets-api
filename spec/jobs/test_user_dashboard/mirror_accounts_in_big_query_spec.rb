@@ -6,8 +6,8 @@ RSpec.describe TestUserDashboard::MirrorAccountsInBigQuery do
   describe '#perform' do
     let!(:client) do
       instance_double('TestUserDashboard::BigQuery',
-                      drop: true,
-                      create: true)
+                      delete_from: true,
+                      insert_into: true)
     end
 
     before do
@@ -15,8 +15,8 @@ RSpec.describe TestUserDashboard::MirrorAccountsInBigQuery do
     end
 
     it 'mirrors TUD accounts in BigQuery' do
-      expect(client).to receive(:drop)
-      expect(client).to receive(:create)
+      expect(client).to receive(:delete_from)
+      expect(client).to receive(:insert_into)
       described_class.new.perform
     end
   end

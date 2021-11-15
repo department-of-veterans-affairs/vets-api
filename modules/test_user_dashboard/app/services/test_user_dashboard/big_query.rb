@@ -7,6 +7,7 @@ module TestUserDashboard
   class BigQuery
     include SentryLogging
 
+    PROJECT = 'vsp-analytics-and-insights'
     DATASET = 'vsp_testing_tools'
 
     attr_reader :bigquery
@@ -17,19 +18,14 @@ module TestUserDashboard
       log_exception_to_sentry(e)
     end
 
-    def drop(table_name:)
-      table(table_name: table_name).delete
-    rescue => e
-      log_exception_to_sentry(e)
-    end
+    # BigQuery requires a row indentifier in DELETE FROM statements
+    def delete_from(table_name:, row_identifier: 'account_uuid')
+      sql = "DELETE FROM `#{PROJECT}.#{DATASET}.#{table_name}` " \
+            "WHERE #{row_identifier} IS NOT NULL"
 
-    def create(table_name:, rows:)
-      case table_name
-      when TestUserDashboard::DailyMaintenance::TUD_ACCOUNTS_TABLE
-        create_tud_accounts
+      bigquery.query sql do |config|
+        config.location = 'US'
       end
-
-      insert_into(table_name: table_name, rows: rows)
     rescue => e
       log_exception_to_sentry(e)
     end
@@ -51,34 +47,5 @@ module TestUserDashboard
     def table(table_name:)
       dataset.table table_name, skip_lookup: true
     end
-
-    # rubocop:disable Metrics/MethodLength
-    def create_tud_accounts
-      table_name = TestUserDashboard::DailyMaintenance::TUD_ACCOUNTS_TABLE
-
-      dataset.create_table table_name do |schema|
-        schema.string 'account_uuid', mode: :required
-        schema.string 'first_name', mode: :required
-        schema.string 'middle_name'
-        schema.string 'last_name', mode: :required
-        schema.string 'gender', mode: :required
-        schema.timestamp 'birth_date', mode: :required
-        schema.integer 'ssn', mode: :required
-        schema.string 'phone'
-        schema.string 'email', mode: :required
-        schema.timestamp 'checkout_time'
-        schema.timestamp 'created_at', mode: :required
-        schema.timestamp 'updated_at', mode: :required
-        schema.string 'services', mode: :repeated
-        schema.string 'id_type', mode: :required
-        schema.string 'loa', mode: :required
-        schema.string 'account_type'
-        schema.string 'idme_uuid'
-        schema.string 'notes'
-      end
-    rescue => e
-      log_exception_to_sentry(e)
-    end
-    # rubocop:enable Metrics/MethodLength
   end
 end
