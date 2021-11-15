@@ -3,7 +3,7 @@
 module AppealsApi
   class JsonSchemaReferenceString
     JSON_SCHEMA_DEF_PATH_WITH_TRAILING_SLASH_LENGTH = (
-      JSON_SCHEMA_DEF_PATH_WITH_TRAILING_SLASH = (JSON_SCHEMA_DEF_PATH = '#/definitions') + '/'
+      JSON_SCHEMA_DEF_PATH_WITH_TRAILING_SLASH = "#{JSON_SCHEMA_DEF_PATH = '#/definitions'}/"
     ).length
 
     SWAGGER_DEF_PATH = '#/components/schemas'

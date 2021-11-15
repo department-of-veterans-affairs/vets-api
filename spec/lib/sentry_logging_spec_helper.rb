@@ -30,7 +30,7 @@ shared_examples 'a sentry logger' do
 
     describe '#log_exception_to_sentry' do
       it 'warn logs to Rails logger' do
-        expect(Rails.logger).to receive(:error).with(exception.message + '.')
+        expect(Rails.logger).to receive(:error).with("#{exception.message}.")
         subject.log_exception_to_sentry(exception)
       end
 
@@ -56,7 +56,7 @@ shared_examples 'a sentry logger' do
 
     describe '#log_exception_to_sentry' do
       it 'error logs to Rails logger' do
-        expect(Rails.logger).to receive(:error).with(exception.message + '.')
+        expect(Rails.logger).to receive(:error).with("#{exception.message}.")
         subject.log_exception_to_sentry(exception)
       end
 

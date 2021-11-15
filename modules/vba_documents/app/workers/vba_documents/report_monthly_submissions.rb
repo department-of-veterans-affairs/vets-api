@@ -84,7 +84,7 @@ module VBADocuments
     # add the median pages to the modes hash
     def get_median_results
       @monthly_mode.each do |row|
-        zero_pad = ('0' + row['mm'].to_s)[-2..2]
+        zero_pad = ("0#{row['mm']}")[-2..2]
         yyyymm = "#{row['yyyy']}#{zero_pad}"
         median = run_sql(SQLSupport::MEDIAN_SQL, yyyymm)
         row['median_pages'] = median.first['median_pages']
@@ -98,7 +98,7 @@ module VBADocuments
       12.times do |ym|
         from = (ym + 1).months.ago.beginning_of_month
         to = (ym + 1).month.ago.end_of_month
-        yyyymm = from.year.to_s + ('00' + from.month.to_s).last(2)
+        yyyymm = from.year.to_s + ("00#{from.month}").last(2)
         results = UploadSubmission.status_elapsed_times(from, to)
         break if results.empty?
 

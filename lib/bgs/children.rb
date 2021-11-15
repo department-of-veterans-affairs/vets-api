@@ -154,7 +154,7 @@ module BGS
     def format_date(date)
       return nil if date.nil?
 
-      DateTime.parse(date + ' 12:00:00').to_time.iso8601
+      DateTime.parse("#{date} 12:00:00").to_time.iso8601
     end
 
     def bgs_service

@@ -19,7 +19,7 @@ RSpec.describe 'Caregivers Assistance Claims' do
       post endpoint, params: body, headers: headers
     end
 
-    let(:endpoint) { uri + '/v0/caregivers_assistance_claims' }
+    let(:endpoint) { "#{uri}/v0/caregivers_assistance_claims" }
     let(:body) do
       form_data = build_valid_form_submission.call
 

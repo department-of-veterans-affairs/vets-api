@@ -23,7 +23,7 @@ module CypressViewportUpdater
         end
       end
 
-      self.updated_content = new_lines.join("\n") + "\n"
+      self.updated_content = "#{new_lines.join("\n")}\n"
       self
     end
 

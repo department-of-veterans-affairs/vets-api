@@ -91,7 +91,7 @@ RSpec.describe 'breakers', type: :request do
 
     it 'measures request times' do
       path = 'mhv-api/patient/v1/prescription/gethistoryrx'
-      stub_varx_request(:get, path, history_rxs, status_code: 200, tags: ['endpoint:/' + path])
+      stub_varx_request(:get, path, history_rxs, status_code: 200, tags: ["endpoint:/#{path}"])
       expect { get '/v0/prescriptions' }.to trigger_statsd_measure('api.external_http_request.Rx.time', times: 1)
     end
   end

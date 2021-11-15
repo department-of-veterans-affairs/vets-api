@@ -36,7 +36,7 @@ class PreneedAttachmentUploader < CarrierWave::Uploader::Base
   end
 
   def filename
-    super.chomp(File.extname(super)) + '.pdf' if original_filename.present?
+    "#{super.chomp(File.extname(super))}.pdf" if original_filename.present?
   end
 
   private

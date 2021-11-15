@@ -5,8 +5,8 @@ require './lib/tasks/support/schema_camelizer'
 
 describe SchemaCamelizer do
   TEST_DIRECTORY = 'tmp/camel_schema_tests'
-  TEST_SCHEMA_DIRECTORY = TEST_DIRECTORY + '/schemas'
-  TEST_RESULT_DIRECTORY = TEST_DIRECTORY + '/schemas_camelized'
+  TEST_SCHEMA_DIRECTORY = "#{TEST_DIRECTORY}/schemas"
+  TEST_RESULT_DIRECTORY = "#{TEST_DIRECTORY}/schemas_camelized"
 
   before(:context) do
     # create directories for source and result schemas
@@ -69,7 +69,7 @@ describe SchemaCamelizer do
       referenced_schema_name = 'refer_to_me'
       referenced_filename = create_source_schema(referenced_schema_name, referenced_schema)
 
-      schema = { 'refer_to' => 'something', '$ref' => referenced_filename.gsub(TEST_SCHEMA_DIRECTORY + '/', '') }
+      schema = { 'refer_to' => 'something', '$ref' => referenced_filename.gsub("#{TEST_SCHEMA_DIRECTORY}/", '') }
       filename = create_source_schema('references', schema)
       subject = SchemaCamelizer.new(filename)
 
@@ -101,7 +101,7 @@ describe SchemaCamelizer do
 
     it 'can be set in the initializer' do
       filename = create_source_schema('manual_camel_path', { 'who' => 'cares' })
-      camel_output = TEST_DIRECTORY + '/other/schemas/camel_destination.json'
+      camel_output = "#{TEST_DIRECTORY}/other/schemas/camel_destination.json"
       subject = SchemaCamelizer.new(filename, camel_output)
       expect(subject.camel_path).to include(camel_output)
     end
@@ -127,9 +127,9 @@ describe SchemaCamelizer do
 
       schema = {
         'refer_to' => 'something',
-        '$ref' => referenced_filename1.gsub(TEST_SCHEMA_DIRECTORY + '/', ''),
+        '$ref' => referenced_filename1.gsub("#{TEST_SCHEMA_DIRECTORY}/", ''),
         'deep_reference' => {
-          '$ref' => referenced_filename2.gsub(TEST_SCHEMA_DIRECTORY + '/', '')
+          '$ref' => referenced_filename2.gsub("#{TEST_SCHEMA_DIRECTORY}/", '')
         }
       }
       filename = create_source_schema('references', schema)

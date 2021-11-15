@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec::Matchers.define :encrypt_attr do |attribute|
-  encrypted_attribute = (attribute.to_s + '_ciphertext')
+  encrypted_attribute = "#{attribute}_ciphertext"
 
   match do |model|
     model.respond_to?(attribute) &&

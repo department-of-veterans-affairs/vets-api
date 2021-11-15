@@ -51,7 +51,7 @@ namespace :mvi do
     task :idme_saml_stage_attributes, [:csvfile] => [:environment] do |_, args|
       raise 'No input CSV provided' unless args[:csvfile]
 
-      CSV.open(args[:csvfile] + '.out', 'w', write_headers: true) do |dest|
+      CSV.open("#{args[:csvfile]}.out", 'w', write_headers: true) do |dest|
         existing_headers = CSV.open(args[:csvfile], &:readline)
         appended_headers = %w[first_name middle_name last_name gender birth_date ssn address]
         CSV.open(args[:csvfile], headers: true) do |source|

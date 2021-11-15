@@ -9,7 +9,7 @@ describe Webhooks::Subscription, type: :model do
   let(:api_id) { SecureRandom.uuid }
   let(:api_id_invalid) { SecureRandom.uuid }
   let(:fixture_path) { './modules/vba_documents/spec/fixtures/subscriptions/' }
-  let(:observers) { JSON.parse File.read(fixture_path + 'subscriptions.json') }
+  let(:observers) { JSON.parse File.read("#{fixture_path}subscriptions.json") }
   # let(:event) do VBADocuments::Registrations::WEBHOOK_STATUS_CHANGE_EVENT end
 
   before do

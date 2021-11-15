@@ -19,8 +19,8 @@ module CentralMail
 
     def generate_stamp(stamp_path, text, x, y, text_only)
       unless text_only
-        text += ' ' + I18n.l(Time.zone.now, format: :pdf_stamp)
-        text += ('. ' + @append_to_stamp) if @append_to_stamp
+        text += " #{I18n.l(Time.zone.now, format: :pdf_stamp)}"
+        text += ". #{@append_to_stamp}" if @append_to_stamp
       end
 
       Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|

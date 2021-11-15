@@ -20,7 +20,7 @@ module VBADocuments
     private
 
     def process(upload)
-      Rails.logger.info('VBADocuments: Processing: ' + upload.inspect)
+      Rails.logger.info("VBADocuments: Processing: #{upload.inspect}")
       object = bucket.object(upload.guid)
       return false unless object.exists?
 

@@ -115,18 +115,18 @@ module PdfFill
         incident_overflow = ["Incident Number: #{index}"]
 
         incident_date = incident['incidentDate'] || ''
-        incident_overflow.push('Incident Date: ' + incident_date)
+        incident_overflow.push("Incident Date: #{incident_date}")
 
-        incident_overflow.push('Dates of Unit Assignment: ' + get_unit_date_overflow(incident['unitAssignedDates']))
+        incident_overflow.push("Dates of Unit Assignment: #{get_unit_date_overflow(incident['unitAssignedDates'])}")
 
         incident_location = incident['incidentLocation'] || ''
-        incident_overflow.push("Incident Location: \n\n" + incident_location)
+        incident_overflow.push("Incident Location: \n\n#{incident_location}")
 
         incident_unit_assigned = incident['unitAssigned'] || ''
-        incident_overflow.push("Unit Assignment During Incident: \n\n" + incident_unit_assigned)
+        incident_overflow.push("Unit Assignment During Incident: \n\n#{incident_unit_assigned}")
 
         incident_description = incident['incidentDescription'] || ''
-        incident_overflow.push("Description of Incident: \n\n" + incident_description)
+        incident_overflow.push("Description of Incident: \n\n#{incident_description}")
 
         incident_overflow
       end

@@ -33,7 +33,7 @@ module Breakers
       metric_base = "api.external_http_request.#{service.name}."
       StatsD.increment(metric_base + status, 1, tags: tags)
       if response_env && response_env[:duration]
-        StatsD.measure(metric_base + 'time', response_env[:duration], tags: tags)
+        StatsD.measure("#{metric_base}time", response_env[:duration], tags: tags)
       end
     end
   end

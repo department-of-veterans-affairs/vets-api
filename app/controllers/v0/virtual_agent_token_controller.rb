@@ -50,7 +50,7 @@ module V0
                else
                  Settings.virtual_agent.webchat_secret_b
                end
-      @bearer_token ||= 'Bearer ' + secret
+      @bearer_token ||= "Bearer #{secret}"
     end
 
     def service_exception_handler(exception)

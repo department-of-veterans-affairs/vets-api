@@ -69,7 +69,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
           with_settings(Settings.vba_documents.location,
                         prefix: 'https://fake.s3.url/foo/',
                         replacement: 'https://api.vets.gov/proxy/') do
-            observers_json = File.read(fixture_path + 'subscriptions.json')
+            observers_json = File.read("#{fixture_path}subscriptions.json")
             observers = Rack::Test::UploadedFile.new("#{fixture_path}subscriptions.json", 'application/json')
             observers = observers_json if multipart_fashion == :text
             post vba_documents.v2_uploads_path,

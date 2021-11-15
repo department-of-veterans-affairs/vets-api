@@ -434,7 +434,7 @@ module PdfFill
         expand_veteran_address
         transform_various_unemployment_fields(@form_data['unemployability'])
         expand_signature(@form_data['veteranFullName'])
-        @form_data['signature'] = '/es/ ' + @form_data['signature']
+        @form_data['signature'] = "/es/ #{@form_data['signature']}"
 
         @form_data.except!('unemployability')
 
@@ -559,7 +559,7 @@ module PdfFill
         overflow = []
         name = training['name'] || ''
         dates = combine_date_ranges([training['dates']])
-        overflow.push(name + "\n" + dates)
+        overflow.push("#{name}\n#{dates}")
         overflow.compact.join("\n\n")
       end
 
@@ -594,7 +594,7 @@ module PdfFill
 
       def compress_previous_employer_info(employer)
         address = combine_full_address(employer['employerAddress'])
-        employer['nameAndAddress'] = employer['name'] + "\n" + address
+        employer['nameAndAddress'] = "#{employer['name']}\n#{address}"
         employer['fromDate'] = employer['dates']['from']
         employer['toDate'] = employer['dates']['to']
         employer.except!('name')
@@ -642,7 +642,7 @@ module PdfFill
         unemployability['appliedEmployers'].each do |employer|
           overflow = format_applied_employer_overflow(employer)
           address = combine_full_address(employer['address'])
-          employer['nameAndAddress'] = employer['name'] + "\n" + address
+          employer['nameAndAddress'] = "#{employer['name']}\n#{address}"
           employer.except!('name')
           employer.except!('address')
           employer['appliedEmployerOverflow'] = PdfFill::FormValue.new('', overflow)
@@ -654,12 +654,12 @@ module PdfFill
         return if applied_employer.blank?
 
         overflow = []
-        name = 'Name: ' + applied_employer['name'] || ''
-        address = 'Address: ' + combine_full_address(applied_employer['address']) || ''
-        work = 'Type of Work: ' + applied_employer['workType'] || ''
-        date = 'Date Applied: ' + applied_employer['date'] || ''
+        name = "Name: #{applied_employer['name']}" || ''
+        address = "Address: #{combine_full_address(applied_employer['address'])}" || ''
+        work = "Type of Work: #{applied_employer['workType']}" || ''
+        date = "Date Applied: #{applied_employer['date']}" || ''
 
-        overflow.push(name + "\n" + address + "\n" + work + "\n" + date)
+        overflow.push("#{name}\n#{address}\n#{work}\n#{date}")
         overflow.compact.join("\n\n")
       end
     end

@@ -225,7 +225,7 @@ module PdfFill
         expand_other_information
 
         expand_signature(@form_data['veteranFullName'])
-        @form_data['signature'] = '/es/ ' + @form_data['signature']
+        @form_data['signature'] = "/es/ #{@form_data['signature']}"
 
         @form_data
       end
@@ -277,7 +277,7 @@ module PdfFill
 
         return if incident_overflow.nil?
 
-        incident_overflow.push("Other Sources of Information: \n\n" + format_sources_overflow(incident))
+        incident_overflow.push("Other Sources of Information: \n\n#{format_sources_overflow(incident)}")
         incident['incidentOverflow'] = PdfFill::FormValue.new('', incident_overflow.compact.join("\n\n"))
       end
 

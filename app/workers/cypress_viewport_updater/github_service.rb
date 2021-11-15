@@ -90,7 +90,7 @@ module CypressViewportUpdater
     def set_feature_branch_name
       prefix = DateTime.now.strftime('%m%d%Y%H%M%S%L')
       name = 'update_cypress_viewport_data'
-      self.feature_branch_name = prefix + '_' + name
+      self.feature_branch_name = "#{prefix}_#{name}"
     end
 
     def pr_title

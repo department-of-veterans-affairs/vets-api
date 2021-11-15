@@ -7,7 +7,7 @@ RSpec.describe 'Appeals Status' do
 
   appeals_endpoint = '/v0/appeals'
   hlr_endpoint = '/v0/higher_level_reviews'
-  hlr_get_contestable_issues_endpoint = hlr_endpoint + '/contestable_issues'
+  hlr_get_contestable_issues_endpoint = "#{hlr_endpoint}/contestable_issues"
 
   before { sign_in_as(user) }
 

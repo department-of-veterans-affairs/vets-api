@@ -25,7 +25,7 @@ class InProgressForm < ApplicationRecord
                                        "(metadata -> 'submission' -> 'error_message')::text !='false' ")
                                }
   # the double quotes in return_url are part of the value
-  scope :return_url, ->(url) { where(%( #{RETURN_URL_SQL} = ? ), '"' + url + '"') }
+  scope :return_url, ->(url) { where(%( #{RETURN_URL_SQL} = ? ), "\"#{url}\"") }
 
   attribute :user_uuid, CleanUUID.new
   serialize :form_data, JsonMarshal::Marshaller

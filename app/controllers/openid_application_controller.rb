@@ -238,7 +238,7 @@ class OpenidApplicationController < ApplicationController
   # Fetch data from various OAuth Proxy endpoints
   def fetch_smart_launch_context
     response = RestClient.get(Settings.oidc.smart_launch_url,
-                              { Authorization: 'Bearer ' + token.token_string })
+                              { Authorization: "Bearer #{token.token_string}" })
     raise error_klass('Invalid launch context') if response.nil?
 
     if response.code == 200
@@ -246,7 +246,7 @@ class OpenidApplicationController < ApplicationController
       json_response['launch']
     end
   rescue => e
-    log_message_to_sentry('Error retrieving smart launch context for OIDC token: ' + e.message, :error)
+    log_message_to_sentry("Error retrieving smart launch context for OIDC token: #{e.message}", :error)
     raise error_klass('Invalid launch context')
   end
 
@@ -254,7 +254,7 @@ class OpenidApplicationController < ApplicationController
     return nil unless Settings.oidc.issued_url
 
     response = RestClient.get(Settings.oidc.issued_url,
-                              { Authorization: 'Bearer ' + token_string })
+                              { Authorization: "Bearer #{token_string}" })
     raise error_klass('Invalid token') if response.nil?
 
     if response.code == 200
@@ -274,7 +274,7 @@ class OpenidApplicationController < ApplicationController
   def fetch_openid_configuration(proxy_url)
     return nil unless proxy_url
 
-    response = RestClient.get(proxy_url + '/.well-known/openid-configuration')
+    response = RestClient.get("#{proxy_url}/.well-known/openid-configuration")
     raise error_klass('Invalid OpenID configuration.') if response.nil?
 
     JSON.parse(response.body) if response.code == 200
@@ -296,7 +296,7 @@ class OpenidApplicationController < ApplicationController
     payload['client_id'] = client_id unless client_id.nil?
     response = RestClient.post(openid_configuration['introspection_endpoint'],
                                payload,
-                               { Authorization: 'Bearer ' + token_string })
+                               { Authorization: "Bearer #{token_string}" })
     raise error_klass('Invalid token') if response.nil?
 
     JSON.parse(response.body) if response.code == 200

@@ -195,13 +195,12 @@ RSpec.describe SAML::URLService do
 
             it 'has a login redirect url with success' do
               expect(subject.login_redirect_url)
-                .to eq(values[:base_redirect] + SAML::URLService::LOGIN_REDIRECT_PARTIAL + '?type=idme')
+                .to eq("#{values[:base_redirect]}#{SAML::URLService::LOGIN_REDIRECT_PARTIAL}?type=idme")
             end
 
             it 'has a login redirect url with fail' do
               expect(subject.login_redirect_url(auth: 'fail', code: SAML::Responses::Base::CLICKED_DENY_ERROR_CODE))
-                .to eq(values[:base_redirect] +
-                       SAML::URLService::LOGIN_REDIRECT_PARTIAL +
+                .to eq("#{values[:base_redirect]}#{SAML::URLService::LOGIN_REDIRECT_PARTIAL}"\
                        '?auth=fail&code=001&type=idme')
             end
           end
@@ -221,13 +220,12 @@ RSpec.describe SAML::URLService do
 
             it 'is successful' do
               expect(subject.login_redirect_url)
-                .to eq(values[:base_redirect] + SAML::URLService::LOGIN_REDIRECT_PARTIAL + '?type=custom')
+                .to eq("#{values[:base_redirect]}#{SAML::URLService::LOGIN_REDIRECT_PARTIAL}?type=custom")
             end
 
             it 'is a failure' do
               expect(subject.login_redirect_url(auth: 'fail', code: SAML::Responses::Base::CLICKED_DENY_ERROR_CODE))
-                .to eq(values[:base_redirect] +
-                       SAML::URLService::LOGIN_REDIRECT_PARTIAL +
+                .to eq("#{values[:base_redirect]}#{SAML::URLService::LOGIN_REDIRECT_PARTIAL}"\
                        '?auth=force-needed&code=001&type=custom')
             end
           end
@@ -464,13 +462,12 @@ RSpec.describe SAML::URLService do
 
             it 'has a login redirect url with success' do
               expect(subject.login_redirect_url)
-                .to eq(values[:base_redirect] + SAML::URLService::LOGIN_REDIRECT_PARTIAL + '?type=idme')
+                .to eq("#{values[:base_redirect]}#{SAML::URLService::LOGIN_REDIRECT_PARTIAL}?type=idme")
             end
 
             it 'has a login redirect url with fail' do
               expect(subject.login_redirect_url(auth: 'fail', code: SAML::Responses::Base::CLICKED_DENY_ERROR_CODE))
-                .to eq(values[:base_redirect] +
-                       SAML::URLService::LOGIN_REDIRECT_PARTIAL +
+                .to eq("#{values[:base_redirect]}#{SAML::URLService::LOGIN_REDIRECT_PARTIAL}"\
                        '?auth=fail&code=001&type=idme')
             end
           end

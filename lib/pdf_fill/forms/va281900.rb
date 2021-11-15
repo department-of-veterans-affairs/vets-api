@@ -272,8 +272,8 @@ module PdfFill
         street3 = address['street3'] || ''
         state = address['state'] || ''
 
-        address['addressLine1'] = address['street'] + ' ' + street2 + ' ' + street3
-        address['addressLine2'] = address['city'] + ' ' + state + ' ' + address['postalCode']
+        address['addressLine1'] = "#{address['street']} #{street2} #{street3}"
+        address['addressLine2'] = "#{address['city']} #{state} #{address['postalCode']}"
         address['addressLine3'] = address['country']
       end
 

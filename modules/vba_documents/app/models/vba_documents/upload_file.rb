@@ -47,10 +47,10 @@ module VBADocuments
       parsed = multipart.open do |file|
         VBADocuments::MultipartParser.parse(file.path)
       end
-      parsed_files.attach(io: StringIO.new(parsed['metadata'].to_s), filename: guid + '_' + 'metadata.json')
+      parsed_files.attach(io: StringIO.new(parsed['metadata'].to_s), filename: "#{guid}_metadata.json")
       pdf_keys = parsed.keys - ['metadata']
       pdf_keys.each do |k|
-        parsed_files.attach(io: File.open(parsed[k]), filename: guid + '_' + "#{k}.pdf")
+        parsed_files.attach(io: File.open(parsed[k]), filename: "#{guid}_#{k}.pdf")
       end
       save!
     end

@@ -90,7 +90,7 @@ module PdfFill
       def combine_date_ranges(date_range_array)
         return if date_range_array.nil?
 
-        date_range_array.map { |r| 'from: ' + r['from'] + ' to: ' + r['to'] if r }.join("\n")
+        date_range_array.map { |r| "from: #{r['from']} to: #{r['to']}" if r }.join("\n")
       end
 
       def address_block(address)

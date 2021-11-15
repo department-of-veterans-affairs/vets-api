@@ -46,7 +46,7 @@ RSpec.describe Form526Submission do
         expect { subject.start_but_use_a_birls_id_that_hasnt_been_tried_yet! }.to(
           change(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.jobs, :size).by(0)
         )
-        next_birls_id = subject.birls_id + 'cat'
+        next_birls_id = "#{subject.birls_id}cat"
         subject.add_birls_ids next_birls_id
         expect { subject.start_but_use_a_birls_id_that_hasnt_been_tried_yet! }.to(
           change(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.jobs, :size).by(1)

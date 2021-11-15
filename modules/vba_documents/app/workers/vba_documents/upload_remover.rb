@@ -21,7 +21,7 @@ module VBADocuments
       rows = VBADocuments::UploadSubmission.where(REMOVAL_QUERY, EXPIRATION_TIME.ago)
 
       rows.find_each do |upload|
-        Rails.logger.info('VBADocuments: Cleaning up s3: ' + upload.inspect)
+        Rails.logger.info("VBADocuments: Cleaning up s3: #{upload.inspect}")
         store.delete(upload.guid) if store.object(upload.guid).exists?
         upload.s3_deleted = true
         upload.save!(touch: false)

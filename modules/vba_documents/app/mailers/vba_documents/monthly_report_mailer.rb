@@ -9,7 +9,7 @@ module VBADocuments
       env = 'prod' if env.eql?(:unknown_environment)
       # the above shouldn't get hit, but if an environment becomes undetectable we will send that env to everyone
       # and tag it as 'unknown_environment' to motivate a quick repair.
-      hash = YAML.load_file(__dir__ + '/monthly_report_recipients.yml')
+      hash = YAML.load_file("#{__dir__}/monthly_report_recipients.yml")
       env_hash = hash[env.to_s].nil? ? [] : hash[env.to_s]
       env_hash + hash['common']
     end

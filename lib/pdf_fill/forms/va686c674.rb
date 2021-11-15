@@ -1878,7 +1878,7 @@ module PdfFill
         veteran_ssn = @form_data['veteran_information']['ssn']
         @form_data['veteran_ssn'] = {}
         8.times do |i|
-          @form_data['veteran_ssn']['ssn' + (i + 1).to_s] = veteran_ssn
+          @form_data['veteran_ssn']["ssn#{i + 1}"] = veteran_ssn
         end
       end
 

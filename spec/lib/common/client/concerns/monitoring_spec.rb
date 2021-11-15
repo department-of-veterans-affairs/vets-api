@@ -20,8 +20,8 @@ RSpec.describe Common::Client::Concerns::Monitoring, type: :model do
   end
 
   let(:service) { Specs::Common::Client::MonitoringTestService.new }
-  let(:total_key) { service.class.const_get('STATSD_KEY_PREFIX') + '.request.total' }
-  let(:fail_key) { service.class.const_get('STATSD_KEY_PREFIX') + '.request.fail' }
+  let(:total_key) { "#{service.class.const_get('STATSD_KEY_PREFIX')}.request.total" }
+  let(:fail_key) { "#{service.class.const_get('STATSD_KEY_PREFIX')}.request.fail" }
 
   it 'increments the total' do
     VCR.use_cassette('shared/success') do

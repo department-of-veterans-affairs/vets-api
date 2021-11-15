@@ -5,7 +5,7 @@ require 'sentry_logging'
 module SentryLogging
   def log_message_to_sentry(message, level, extra_context = {}, tags_context = {})
     level = normalize_level(level, nil)
-    formatted_message = extra_context.empty? ? message : message + ' : ' + extra_context.to_s
+    formatted_message = extra_context.empty? ? message : "#{message} : #{extra_context}"
     rails_logger(level, formatted_message)
 
     if Settings.sentry.dsn.present?

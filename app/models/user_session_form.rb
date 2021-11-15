@@ -96,7 +96,7 @@ class UserSessionForm
   end
 
   def errors_message
-    @errors_message ||= 'Login Failed! ' + errors_hash[:short_message] if errors.any?
+    @errors_message ||= "Login Failed! #{errors_hash[:short_message]}" if errors.any?
   end
 
   def errors_hash
