@@ -19,6 +19,46 @@ module AppealsApi
               expect(form_data.stamp_text).to eq 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdd... - 6789'
             end
           end
+
+          describe '#new_evidence_locations' do
+            let(:supplemental_claim) { build(:extra_supplemental_claim) }
+            let(:form_data) { described_class.new(supplemental_claim) }
+
+            it 'returns all the new evidence locations (with upload evidence indicated)' do
+              evidence_locations = ['X-Ray VAMC', 'Blood Lab VA Facility',
+                                    "Doctor's Notes VAMC", 'CT scan VA Medical Facility',
+                                    'Lab work VAMC',
+                                    'Veteran indicated they will send evidence documents to VA.']
+              expect(form_data.new_evidence_locations).to eq(evidence_locations)
+            end
+
+            it 'returns all the new evidence locations (without upload evidence indicated)' do
+              # manually setting this to simulate a submission without upload indicated
+              supplemental_claim.evidence_submission_indicated = false
+
+              evidence_locations = ['X-Ray VAMC', 'Blood Lab VA Facility',
+                                    "Doctor's Notes VAMC", 'CT scan VA Medical Facility',
+                                    'Lab work VAMC']
+              expect(form_data.new_evidence_locations).to eq(evidence_locations)
+            end
+          end
+
+          describe '#new_evidence_dates' do
+            let(:supplemental_claim) { build(:extra_supplemental_claim) }
+            let(:form_data) { described_class.new(supplemental_claim) }
+
+            it 'returns all the new evidence dates' do
+              evidence_dates = [
+                %w[2020-04-10 2020-01-02 2019-02-07 2021-02-20 2020-04-10 2020-01-02 2019-02-07 2021-02-20],
+                %w[2021-01-02 2021-02-06 2021-02-27],
+                ['2021-05-26'],
+                %w[2020-07-19 2018-03-06 2019-02-12],
+                %w[2020-12-14 2018-01-15],
+                ['']
+              ]
+              expect(form_data.new_evidence_dates).to eq(evidence_dates)
+            end
+          end
         end
       end
     end

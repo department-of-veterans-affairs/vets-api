@@ -82,6 +82,30 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       end
     end
 
+    context 'evidenceType' do
+      it 'with upload' do
+        post(path, params: data, headers: headers)
+
+        sc_guid = JSON.parse(response.body)['data']['id']
+        sc = AppealsApi::SupplementalClaim.find(sc_guid)
+
+        expect(sc.evidence_submission_indicated).to be_truthy
+      end
+
+      it 'without upload' do
+        mod_data = JSON.parse(fixture_to_s('valid_200995_extra.json'))
+        # manually setting this to simulate a submission without upload indicated
+        mod_data['data']['attributes']['evidenceSubmission']['evidenceType'] = ['retrieval']
+
+        post(path, params: mod_data.to_json, headers: headers)
+
+        sc_guid = JSON.parse(response.body)['data']['id']
+        sc = AppealsApi::SupplementalClaim.find(sc_guid)
+
+        expect(sc.evidence_submission_indicated).to be_falsey
+      end
+    end
+
     context 'when request.body is a Puma::NullIO' do
       it 'responds with a 422' do
         fake_puma_null_io_object = Object.new.tap do |obj|

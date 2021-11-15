@@ -27,6 +27,7 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
       auth_headers: request_headers,
       form_data: @json_body,
       source: request_headers['X-Consumer-Username'],
+      evidence_submission_indicated: evidence_submission_indicated?,
       api_version: 'V2'
     )
 
@@ -120,5 +121,9 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
       end
       render json: { errors: va_exception.errors }, status: va_exception.status_code
     end
+  end
+
+  def evidence_submission_indicated?
+    @json_body.dig('data', 'attributes', 'evidenceSubmission', 'evidenceType').include?('upload')
   end
 end

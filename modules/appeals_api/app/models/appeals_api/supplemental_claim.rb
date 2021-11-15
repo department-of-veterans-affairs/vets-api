@@ -7,6 +7,16 @@ module AppealsApi
   class SupplementalClaim < ApplicationRecord
     include ScStatus
 
+    EVIDENCE = Struct.new(:type, :attributes) do
+      def location
+        attributes['locationAndName']
+      end
+
+      def dates
+        attributes['evidenceDates']
+      end
+    end
+
     def self.past?(date)
       date < Time.zone.today
     end
@@ -159,19 +169,11 @@ module AppealsApi
       data_attributes&.dig('socOptIn')
     end
 
-    def new_evidence_locations
+    def new_evidence
       evidence_submissions = evidence_submission['retrieveFrom'] || []
 
-      @evidence_locations ||= evidence_submissions.map do |retrieve_from|
-        retrieve_from['attributes']['locationAndName']
-      end
-    end
-
-    def new_evidence_dates
-      evidence_submissions = evidence_submission['retrieveFrom'] || []
-
-      @new_evidence_dates ||= evidence_submissions.map do |retrieve_from|
-        retrieve_from['attributes']['evidenceDates']
+      evidence_submissions.map do |evidence|
+        EVIDENCE.new(evidence['type'], evidence['attributes'])
       end
     end
 

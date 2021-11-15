@@ -17,7 +17,7 @@ module AppealsApi
     end
 
     def faulty_hlr
-      @faulty_hlr ||= HigherLevelReview.where(created_at: from..to, status: FAULTY_STATUSES)
+      @faulty_hlr ||= HigherLevelReview.where(created_at: from..to, status: FAULTY_STATUSES).order(created_at: :desc)
     end
 
     # NOD
@@ -26,7 +26,7 @@ module AppealsApi
     end
 
     def faulty_nod
-      @faulty_nod ||= NoticeOfDisagreement.where(created_at: from..to, status: FAULTY_STATUSES)
+      @faulty_nod ||= NoticeOfDisagreement.where(created_at: from..to, status: FAULTY_STATUSES).order(created_at: :desc)
     end
 
     # SC
@@ -35,7 +35,7 @@ module AppealsApi
     end
 
     def faulty_sc
-      @faulty_sc ||= SupplementalClaim.where(created_at: from..to, status: FAULTY_STATUSES)
+      @faulty_sc ||= SupplementalClaim.where(created_at: from..to, status: FAULTY_STATUSES).order(created_at: :desc)
     end
 
     # Evidence submissions - NOD

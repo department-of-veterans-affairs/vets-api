@@ -5,6 +5,8 @@ module AppealsApi
     module SupplementalClaim
       module V2
         class FormData
+          UPLOAD_INDICATED = 'Veteran indicated they will send evidence documents to VA.'
+
           def initialize(supplemental_claim)
             @supplemental_claim = supplemental_claim
           end
@@ -61,9 +63,34 @@ module AppealsApi
             "#{veteran_last_name.truncate(35)} - #{ssn_last_four}"
           end
 
+          def new_evidence_locations
+            evidence_records.map(&:location)
+          end
+
+          def new_evidence_dates
+            evidence_records.map(&:dates)
+          end
+
           private
 
           attr_accessor :supplemental_claim
+
+          def evidence_records
+            return @evidence_records if @evidence_records
+
+            @evidence_records = supplemental_claim.new_evidence
+            if evidence_submission_indicated?
+              upload = AppealsApi::SupplementalClaim::EVIDENCE.new(:upload,
+                                                                   { 'locationAndName' => UPLOAD_INDICATED,
+                                                                     'evidenceDates' => [''] })
+              @evidence_records.append(upload)
+            end
+            @evidence_records
+          end
+
+          def evidence_submission_indicated?
+            supplemental_claim.evidence_submission_indicated?
+          end
 
           def benefit_type_form_codes
             {
