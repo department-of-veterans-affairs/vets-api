@@ -9,10 +9,7 @@ module V0
         # @appeal_status_description
 
         if Settings.vsp_environment == 'staging'
-          # use user 228 for mock data
-          @user_ssan = '796104437'
-          @user_name = 'vets.gov.user+228@gmail.com'
-
+          @user_ssan, @user_name = set_user_credentials
           appeals_response = get_appeal_from_lighthouse(@user_ssan, @user_name)
           appeals_data_array = appeals_response['data']
         else
@@ -34,7 +31,6 @@ module V0
         req['X-VA-User'] = user_name
 
         http = Net::HTTP.new(uri.hostname, uri.port)
-        # http.set_debug_output($stdout)
 
         http.use_ssl = true
 
@@ -160,6 +156,19 @@ module V0
           appeal_status_description.gsub('{aoj_desc}', AOJ_DESCRIPTIONS[aoj])
         else
           appeal_status_description
+        end
+      end
+
+      def set_user_credentials
+        case @current_user.email
+        when 'vets.gov.user+228@gmail.com'
+          ['796104437', 'vets.gov.user+228@gmail.com']
+        when 'vets.gov.user+54@gmail.com'
+          ['796378881', 'vets.gov.user+54@gmail.com']
+        when 'vets.gov.user+36@gmail.com'
+          ['796043735', 'vets.gov.user+36@gmail.com']
+        else
+          ['796378881', 'vets.gov.user+54@gmail.com']
         end
       end
     end

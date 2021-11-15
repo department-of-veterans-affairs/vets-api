@@ -267,34 +267,137 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
       end
     end
 
-    describe 'call Lighthouse mock or appeals service based on environment' do
-      it 'calls Lighthouse mock when environment is staging' do
-        sign_in_as(user)
+    describe 'call Lighthouse mock when environment is staging' do
+      describe 'when logged in with user+228' do
+        let(:user) { create(:user, :loa3, ssn: '111223333', email: 'vets.gov.user+228@gmail.com') }
 
-        old_value = Settings.vsp_environment
-        allow(Settings).to receive(:vsp_environment).and_return('staging')
+        it 'returns single appeal' do
+          sign_in_as(user)
 
-        # new cassette to use for lighthouse mock request
-        VCR.use_cassette('caseflow/virtual_agent_appeals/lighthouse_mock_appeal') do
-          get '/v0/virtual_agent/appeal'
+          old_value = Settings.vsp_environment
+          allow(Settings).to receive(:vsp_environment).and_return('staging')
+
+          # new cassette to use for lighthouse mock request
+          VCR.use_cassette('caseflow/virtual_agent_appeals/lighthouse_mock_appeal', match_requests_on: [:headers]) do
+            get '/v0/virtual_agent/appeal'
+          end
+          res_body = JSON.parse(response.body)['data']
+          expect(response).to have_http_status(:ok)
+          expect(res_body).to be_kind_of(Array)
+          expect(res_body.length).to equal(1)
+          expect(res_body).to eq([{
+                                   'appeal_type' => 'Compensation',
+                                   'filing_date' => '08/10/2017',
+                                   'appeal_status' => 'Please review your Statement of the Case',
+                                   'updated_date' => '05/15/2018',
+                                   'description' => ' (Service connection, sleep apnea) ',
+                                   'appeal_or_review' => 'appeal'
+                                 }])
+          expect(Settings.vsp_environment).to eq('staging')
+          # cleanup Settings mock
+          allow(Settings).to receive(:vsp_environment).and_call_original
+          expect(Settings.vsp_environment).to eq(old_value)
         end
+      end
 
-        res_body = JSON.parse(response.body)['data']
-        expect(response).to have_http_status(:ok)
-        expect(res_body).to be_kind_of(Array)
-        expect(res_body.length).to equal(1)
-        expect(res_body).to eq([{
-                                 'appeal_type' => 'Compensation',
-                                 'filing_date' => '08/10/2017',
-                                 'appeal_status' => 'Please review your Statement of the Case',
-                                 'updated_date' => '05/15/2018',
-                                 'description' => ' (Service connection, sleep apnea) ',
-                                 'appeal_or_review' => 'appeal'
-                               }])
-        expect(Settings.vsp_environment).to eq('staging')
-        # cleanup Settings mock
-        allow(Settings).to receive(:vsp_environment).and_call_original
-        expect(Settings.vsp_environment).to eq(old_value)
+      describe 'when logged in with user+54' do
+        let(:user) { create(:user, :loa3, ssn: '111223333', email: 'vets.gov.user+54@gmail.com') }
+
+        it 'returns no appeals' do
+          sign_in_as(user)
+
+          old_value = Settings.vsp_environment
+          allow(Settings).to receive(:vsp_environment).and_return('staging')
+
+          # new cassette to use for lighthouse mock request
+          VCR.use_cassette('caseflow/virtual_agent_appeals/lighthouse_mock_no_appeals',
+                           match_requests_on: [:headers]) do
+            get '/v0/virtual_agent/appeal'
+          end
+          res_body = JSON.parse(response.body)['data']
+          expect(response).to have_http_status(:ok)
+          expect(res_body).to be_kind_of(Array)
+          expect(res_body.length).to equal(0)
+          expect(res_body).to eq([])
+          expect(Settings.vsp_environment).to eq('staging')
+          # cleanup Settings mock
+          allow(Settings).to receive(:vsp_environment).and_call_original
+          expect(Settings.vsp_environment).to eq(old_value)
+        end
+      end
+
+      describe 'when logged in with user+36' do
+        let(:user) { create(:user, :loa3, ssn: '796043735', email: 'vets.gov.user+36@gmail.com') }
+
+        it 'returns multiple appeal' do
+          sign_in_as(user)
+
+          old_value = Settings.vsp_environment
+          allow(Settings).to receive(:vsp_environment).and_return('staging')
+
+          VCR.use_cassette('caseflow/virtual_agent_appeals/lighthouse_mock_multiple_appeals',
+                           match_requests_on: [:headers]) do
+            get '/v0/virtual_agent/appeal'
+          end
+          res_body = JSON.parse(response.body)['data']
+          expect(response).to have_http_status(:ok)
+          expect(res_body).to be_kind_of(Array)
+          expect(res_body.length).to equal(3)
+          expect(res_body).to eq([{
+                                   'appeal_type' => 'Compensation',
+                                   'filing_date' => '08/10/2020',
+                                   'appeal_status' => 'Please review your Statement of the Case',
+                                   'updated_date' => '05/15/2021',
+                                   'description' => ' (Service connection, lumbosacral strain) ',
+                                   'appeal_or_review' => 'appeal'
+                                 },
+                                  {
+                                    'appeal_type' => 'Compensation',
+                                    'filing_date' => '02/19/2019',
+                                    'appeal_status' => 'The Veterans Benefits Administration made a decision',
+                                    'updated_date' => '08/05/2019',
+                                    'description' => ' (Severance of service connection, hypothyroidism, and 1 other) ',
+                                    'appeal_or_review' => 'review'
+                                  },
+                                  {
+                                    'appeal_type' => 'Compensation',
+                                    'filing_date' => '08/10/2017',
+                                    'appeal_status' => 'Please review your Statement of the Case',
+                                    'updated_date' => '05/15/2018',
+                                    'description' => ' (Service connection, sleep apnea) ',
+                                    'appeal_or_review' => 'appeal'
+                                  }])
+          expect(Settings.vsp_environment).to eq('staging')
+          # cleanup Settings mock
+          allow(Settings).to receive(:vsp_environment).and_call_original
+          expect(Settings.vsp_environment).to eq(old_value)
+        end
+      end
+
+      describe 'when logged in with another user' do
+        let(:user) { create(:user, :loa3, ssn: '111222333', email: 'vets.gov.user+420@gmail.com') }
+
+        it 'returns no appeals' do
+          sign_in_as(user)
+
+          old_value = Settings.vsp_environment
+          allow(Settings).to receive(:vsp_environment).and_return('staging')
+
+          # new cassette to use for lighthouse mock request
+          VCR.use_cassette('caseflow/virtual_agent_appeals/lighthouse_mock_no_appeals',
+                           match_requests_on: [:headers]) do
+            get '/v0/virtual_agent/appeal'
+          end
+          res_body = JSON.parse(response.body)['data']
+          expect(response).to have_http_status(:ok)
+          expect(res_body).to be_kind_of(Array)
+          expect(res_body.length).to equal(0)
+          expect(res_body).to eq([])
+          expect(Settings.vsp_environment).to eq('staging')
+          # cleanup Settings mock
+          allow(Settings).to receive(:vsp_environment).and_call_original
+          expect(Settings.vsp_environment).to eq(old_value)
+        end
       end
     end
   end
