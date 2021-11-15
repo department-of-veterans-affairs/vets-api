@@ -20,6 +20,7 @@ module EVSS
           job_id = msg['jid']
           error_class = msg['error_class']
           error_message = msg['error_message']
+          timestamp = Time.now.utc
 
           values = {
             form526_submission_id: msg['args'].first,
@@ -29,16 +30,17 @@ module EVSS
             error_class: error_class,
             error_message: error_message,
             bgjob_errors: {},
-            updated_at: Time.now.utc
+            updated_at: timestamp
           }
 
           form_job_status = Form526JobStatus.find_by(job_id: job_id)
           bgjob_errors = form_job_status.bgjob_errors || {}
           new_error = {
-            "#{__method__}": {
+            "#{timestamp.to_i}": {
+              caller_method: __method__.to_s,
               error_class: error_class,
               error_message: error_message,
-              timestamp: Time.now.utc
+              timestamp: timestamp
             }
           }
           bgjob_errors.merge!(new_error)
@@ -118,16 +120,16 @@ module EVSS
       private
 
       def upsert_job_status(status, error = nil)
-        values = {
-          form526_submission_id: @status_submission_id,
-          job_id: jid,
-          job_class: klass,
-          status: status,
-          error_class: nil,
-          error_message: nil,
-          bgjob_errors: {},
-          updated_at: Time.now.utc
-        }
+        timestamp = Time.now.utc
+
+        values = { form526_submission_id: @status_submission_id,
+                   job_id: jid,
+                   job_class: klass,
+                   status: status,
+                   error_class: nil,
+                   error_message: nil,
+                   bgjob_errors: {},
+                   updated_at: timestamp }
 
         caller_method = caller[0][/`.*'/][1..-2]
         error_class = error.class if error
@@ -138,22 +140,24 @@ module EVSS
         values[:bgjob_errors] = update_background_job_errors(job_id: jid,
                                                              error_class: error_class,
                                                              error_message: error_message,
-                                                             caller_method: caller_method)
+                                                             caller_method: caller_method,
+                                                             timestamp: timestamp)
 
         Form526JobStatus.upsert(values, unique_by: :job_id)
       end
 
-      def update_background_job_errors(job_id:, error_class:, error_message:, caller_method:)
+      def update_background_job_errors(job_id:, error_class:, error_message:, caller_method:, timestamp: Time.now.utc)
         form_job_status = Form526JobStatus.find_by(job_id: job_id)
         return unless form_job_status
 
         bgjob_errors = form_job_status.bgjob_errors || {}
 
         new_error = {
-          "#{caller_method.to_sym}": {
+          "#{timestamp.to_i}": {
+            caller_method: caller_method,
             error_class: error_class,
             error_message: error_message,
-            timestamp: Time.now.utc
+            timestamp: timestamp
           }
         }
 

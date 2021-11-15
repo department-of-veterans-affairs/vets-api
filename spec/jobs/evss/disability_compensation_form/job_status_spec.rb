@@ -29,8 +29,11 @@ describe EVSS::DisabilityCompensationForm::JobStatus do
       expect(job_status.job_class).to eq 'SubmitForm526AllClaim'
       expect(job_status.error_message).to eq msg['error_message']
       expect(job_status.form526_submission_id).to eq 123
+
       expect(job_status.bgjob_errors).to be_a Hash
-      expect(job_status.bgjob_errors.keys).to match_array %w[job_exhausted]
+      key = job_status.bgjob_errors.keys.first
+      expect(job_status.bgjob_errors[key].keys).to match_array %w[timestamp caller_method error_class error_message]
+      expect(job_status.bgjob_errors[key]['caller_method']).to match 'job_exhausted'
     end
   end
 end

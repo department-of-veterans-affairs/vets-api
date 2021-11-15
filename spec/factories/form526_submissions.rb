@@ -45,4 +45,10 @@ FactoryBot.define do
       create(:form526_job_status, :retryable_error, form526_submission: submission)
     end
   end
+
+  trait :with_pif_in_use_error do
+    after(:create) do |submission|
+      create(:form526_job_status, :pif_in_use_error, form526_submission: submission)
+    end
+  end
 end

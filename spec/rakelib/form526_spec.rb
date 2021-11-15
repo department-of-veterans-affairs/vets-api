@@ -137,6 +137,18 @@ describe 'form526 rake tasks', type: :request do
       expect { silently { run_rake_task } }.not_to raise_error
     end
   end
+
+  describe 'rake form526:pif_errors' do
+    let!(:submission) { create :form526_submission, :with_pif_in_use_error }
+    let :run_rake_task do
+      Rake::Task['form526:pif_errors'].reenable
+      Rake.application.invoke_task 'form526:pif_errors'
+    end
+
+    it 'runs without errors' do
+      expect { silently { run_rake_task } }.not_to raise_error
+    end
+  end
 end
 
 def silently
