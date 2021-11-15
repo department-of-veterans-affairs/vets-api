@@ -44,7 +44,7 @@ class AppealsApi::RswagConfig
           },
           schemas: [
             generic_schemas('#/components/schemas'),
-            hlr_v2_create_schemas('#/components/schemas'),
+            hlr_v2_create_schemas,
             hlr_v2_response_schemas('#/components/schemas'),
             contestable_issues_schema('#/components/schemas'),
             nod_create_schemas('#/components/schemas'),
@@ -84,17 +84,6 @@ class AppealsApi::RswagConfig
 
   def generic_schemas(ref_root)
     {
-      'nonBlankString': {
-        'type': 'string',
-        'pattern': '[^ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]',
-        '$comment': "The pattern used ensures that a string has at least one non-whitespace character. The pattern comes from JavaScript's \\s character class. \"\\s Matches a single white space character, including space, tab, form feed, line feed, and other Unicode spaces. Equivalent to [ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff].\": https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Character_Classes  We are using simple character classes at JSON Schema's recommendation: https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-4.3"
-      },
-      'date': {
-        'type': 'string',
-        'pattern': '^[0-9]{4}-[0-9]{2}-[0-9]{2}$',
-        'maxLength': 10,
-        'minLength': 10
-      },
       'errorModel': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', 'default.json'))),
       'errorWithTitleAndDetail': {
         'type': 'array',
@@ -195,317 +184,8 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def hlr_v2_create_schemas(ref_root)
-    {
-      'hlrCreatePhone': {
-        'type': 'object',
-        'properties': {
-          'countryCode': {
-            'type': 'string',
-            'pattern': '^[0-9]+$',
-            'minLength': 1,
-            'maxLength': 3
-          },
-          'areaCode': {
-            'type': 'string',
-            'pattern': '^[2-9][0-9]{2}$',
-            'minLength': 1,
-            'maxLength': 4
-          },
-          'phoneNumber': {
-            'type': 'string',
-            'pattern': '^[0-9]{1,14}$',
-            'minLength': 1,
-            'maxLength': 14
-          },
-          'phoneNumberExt': {
-            'type': 'string',
-            'pattern': '^[a-zA-Z0-9]{1,10}$',
-            'minLength': 1,
-            'maxLength': 10
-          }
-        },
-        'required': %w[
-          areaCode
-          phoneNumber
-        ]
-      },
-      'hlrCreate': {
-        'type': 'object',
-        'properties': {
-          'data': {
-            'type': 'object',
-            'properties': {
-              'type': {
-                'type': 'string',
-                'enum': [
-                  'higherLevelReview'
-                ]
-              },
-              'attributes': {
-                'description': 'If informal conference requested (`informalConference: true`), contact (`informalConferenceContact`) and time (`informalConferenceTime`) must be specified.',
-                'type': 'object',
-                'additionalProperties': false,
-                'properties': {
-                  'informalConference': {
-                    'type': 'boolean'
-                  },
-                  'benefitType': {
-                    'type': 'string',
-                    'enum': [
-                      'compensation'
-                    ]
-                  },
-                  'veteran': {
-                    'type': 'object',
-                    'properties': {
-                      'homeless': {
-                        'type': 'boolean'
-                      },
-                      'address': {
-                        'type': 'object',
-                        'properties': {
-                          'addressLine1': {
-                            'type': 'string',
-                            'maxLength': 60
-                          },
-                          'addressLine2': {
-                            'type': 'string',
-                            'maxLength': 30
-                          },
-                          'addressLine3': {
-                            'type': 'string',
-                            'maxLength': 10
-                          },
-                          'city': {
-                            'type': 'string',
-                            'maxLength': 60
-                          },
-                          'stateCode': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'state_codes.json'))),
-                          'countryCodeISO2': {
-                            'type': 'string',
-                            'pattern': '^[A-Z]{2}$'
-                          },
-                          'zipCode5': {
-                            'type': 'string',
-                            'description': '5-digit zipcode. Use "00000" if Veteran is outside the United States',
-                            'pattern': '^[0-9]{5}$'
-                          },
-                          'internationalPostalCode': { 'type': 'string', 'maxLength': 16 }
-                        },
-                        'additionalProperties': false,
-                        'required': %w[addressLine1 city countryCodeISO2 zipCode5]
-                      },
-                      'phone': {
-                        '$ref': "#{ref_root}/hlrCreatePhone"
-                      },
-                      'email': {
-                        'type': 'string',
-                        'format': 'email',
-                        'minLength': 6,
-                        'maxLength': 255
-                      },
-                      # Generated using: File.write('timezones.json', (TZInfo::Timezone.all.map(&:name) + ActiveSupport::TimeZone.all.map(&:name)).uniq.sort) #Although this might seem like it should be generated dynamically, it's been written to file in case TZInfo or ActiveSupport deletes/modifies a timezone with a future version, which would change our APIs enum (a non-additve change to the current API version).
-                      'timezone': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'time_zones.json')))
-                    },
-                    'additionalProperties': false,
-                    'required': ['homeless'],
-                    'if': { 'properties': { 'homeless': { 'const': false } } },
-                    'then': { 'required': ['address'] }
-                  },
-                  'informalConferenceContact': {
-                    'type': 'string',
-                    'enum': %w[
-                      veteran
-                      representative
-                    ]
-                  },
-                  'informalConferenceTime': {
-                    'type': 'string',
-                    'enum': [
-                      '800-1200 ET',
-                      '1200-1630 ET'
-                    ]
-                  },
-                  'informalConferenceRep': {
-                    'type': 'object',
-                    'description': 'The Representative information listed MUST match the current Power of Attorney for the Veteran.  Any changes to the Power of Attorney must be submitted via a VA 21-22 form separately.',
-                    'properties': {
-                      'firstName': {
-                        'type': 'string',
-                        'maxLength': 30
-                      },
-                      'lastName': {
-                        'type': 'string',
-                        'maxLength': 40
-                      },
-                      'phone': {
-                        '$ref': "#{ref_root}/hlrCreatePhone"
-                      },
-                      'email': {
-                        'type': 'string',
-                        'format': 'email',
-                        'minLength': 6,
-                        'maxLength': 255
-                      }
-                    },
-                    'additionalProperties': false,
-                    'required': %w[
-                      firstName
-                      lastName
-                      phone
-                    ]
-                  },
-                  'socOptIn': {
-                    'type': 'boolean'
-                  }
-                },
-                'required': %w[
-                  informalConference
-                  benefitType
-                  veteran
-                  socOptIn
-                ],
-                'if': {
-                  'properties': {
-                    'informalConference': {
-                      'const': true
-                    }
-                  }
-                },
-                'then': {
-                  'required': %w[
-                    informalConferenceContact
-                    informalConferenceTime
-                  ]
-                }
-              }
-            },
-            'additionalProperties': false,
-            'required': %w[
-              type
-              attributes
-            ]
-          },
-          'included': {
-            'type': 'array',
-            'items': {
-              'type': 'object',
-              'properties': {
-                'type': {
-                  'type': 'string',
-                  'enum': [
-                    'contestableIssue'
-                  ]
-                },
-                'attributes': {
-                  'type': 'object',
-                  'properties': {
-                    'issue': {
-                      'allOf': [
-                        {
-                          '$ref': "#{ref_root}/nonBlankString"
-                        },
-                        {
-                          'maxLength': 140
-                        }
-                      ]
-                    },
-                    'decisionDate': {
-                      '$ref': "#{ref_root}/date"
-                    },
-                    'decisionIssueId': {
-                      'type': 'integer'
-                    },
-                    'ratingIssueReferenceId': {
-                      'type': 'string'
-                    },
-                    'ratingDecisionReferenceId': {
-                      'type': 'string'
-                    },
-                    'socDate': {
-                      '$ref': "#{ref_root}/date"
-                    }
-                  },
-                  'additionalProperties': false,
-                  'required': %w[
-                    issue
-                    decisionDate
-                  ]
-                }
-              },
-              'additionalProperties': false,
-              'required': %w[
-                type
-                attributes
-              ]
-            },
-            'minItems': 1,
-            'uniqueItems': true
-          }
-        },
-        'additionalProperties': false,
-        'required': %w[
-          data
-          included
-        ]
-      },
-      'hlrCreateParameters': {
-        'type': 'object',
-        'properties': {
-          'X-VA-SSN': {
-            'type': 'string',
-            'description': "Veteran's SSN",
-            'pattern': '^[0-9]{9}$'
-          },
-          'X-VA-First-Name': {
-            'type': 'string',
-            'description': "Veteran's first name",
-            'maxLength': 30,
-            '$comment': 'can be whitespace, to accommodate those with 1 legal name'
-          },
-          'X-VA-Middle-Initial': {
-            'allOf': [
-              { 'description': "Veteran's middle initial", 'maxLength': 1 },
-              { '$ref': "#{ref_root}/nonBlankString" }
-            ]
-          },
-          'X-VA-Last-Name': { 'allOf': [
-            { 'description': "Veteran's last name", 'maxLength': 40 },
-            { '$ref': "#{ref_root}/nonBlankString" }
-          ] },
-          'X-VA-Birth-Date': { 'allOf': [
-            { 'description': "Veteran's birth date" },
-            { '$ref': "#{ref_root}/date" }
-          ] },
-          'X-VA-File-Number': { 'allOf': [
-            { 'description': "Veteran's file number", 'maxLength': 9 },
-            { '$ref': "#{ref_root}/nonBlankString" }
-          ] },
-          'X-VA-Insurance-Policy-Number': { 'allOf': [
-            { 'description': "Veteran's insurance policy number", 'maxLength': 18 },
-            { '$ref': "#{ref_root}/nonBlankString" }
-          ] },
-          'X-Consumer-Username': {
-            'allOf': [
-              { 'description': 'Consumer User Name (passed from Kong)' },
-              { '$ref': "#{ref_root}/nonBlankString" }
-            ]
-          },
-          'X-Consumer-ID': { 'allOf': [
-            { 'description': 'Consumer GUID' },
-            { '$ref': "#{ref_root}/nonBlankString" }
-          ] }
-        },
-        'additionalProperties': false,
-        'required': %w[
-          X-VA-SSN
-          X-VA-First-Name
-          X-VA-Last-Name
-          X-VA-Birth-Date
-        ]
-      }
-    }
+  def hlr_v2_create_schemas
+    parse_create_schema('v2', '200996.json')
   end
 
   def hlr_v2_response_schemas(ref_root)
@@ -536,7 +216,7 @@ class AppealsApi::RswagConfig
                     '$ref': "#{ref_root}/timeStamp"
                   },
                   'formData': {
-                    '$ref' => "#{ref_root}/hlrCreate"
+                    '$ref': "#{ref_root}/hlrCreate"
                   }
                 }
               }
@@ -1225,6 +905,13 @@ class AppealsApi::RswagConfig
       },
       'legacyAppeal': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'legacy_appeal.json')))
     }
+  end
+
+  def parse_create_schema(version, schema_file)
+    file = File.read(AppealsApi::Engine.root.join('config', 'schemas', version, schema_file))
+    file.gsub! '#/definitions/', '#/components/schemas/'
+    schema = JSON.parse file
+    schema['definitions']
   end
 end
 # rubocop:enable Metrics/MethodLength, Layout/LineLength, Metrics/ClassLength
