@@ -206,6 +206,35 @@ modules_appeals_api:
   notice_of_disagreement_pii_expunge_enabled: true
   notice_of_disagreement_updater_enabled: true
   supplemental_claim_updater_enabled: true
+  job_schedules:
+    appeals_api_daily_report:
+      class: AppealsApi::DecisionReviewReportDaily
+      description: "Daily report of appeals submissions"
+      cron: "0 23 * * MON-FRI America/New_York"
+    appeals_api_weekly_report:
+      class: AppealsApi::DecisionReviewReportWeekly
+      description: "Weekly report of appeals submissions"
+      cron: "0 23 * * SUN America/New_York"
+    appeals_api_daily_error_report:
+      class: AppealsApi::DailyErrorReport
+      description: "Daily report of appeals errors"
+      cron: "0 23 * * MON-FRI America/New_York"
+    appeals_api_hlr_cleanup_pii:
+      class: AppealsApi::HigherLevelReviewCleanUpWeekOldPii
+      description: "Remove PII of HigherLevelReviews"
+      every: ['24h', first_in: '45m']
+    appeals_api_hlr_status_batch:
+      class: AppealsApi::HigherLevelReviewUploadStatusBatch
+      description: "Update HigherLevelReview statuses with their Central Mail status"
+      every: "60m"
+    appeals_api_nod_cleanup_pii:
+      class: AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii
+      description: "Remove PII of NoticeOfDisagreements"
+      every: ['24h', first_in: '45m']
+    appeals_api_nod_status_batch:
+      class: AppealsApi::NoticeOfDisagreementUploadStatusBatch
+      description: "Update NoticeOfDisagreement statuses with their Central Mail status"
+      every: "60m"
   reports:
     daily_decision_review:
       enabled: false
