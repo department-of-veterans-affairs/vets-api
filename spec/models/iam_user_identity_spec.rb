@@ -6,6 +6,19 @@ RSpec.describe IAMUserIdentity, type: :model do
   let(:idme_attrs) { build(:idme_loa3_introspection_payload) }
   let(:dslogon_attrs) { build(:dslogon_level2_introspection_payload) }
   let(:mhv_attrs) { build(:mhv_premium_introspection_payload) }
+  let(:logingov_attrs) { build(:logingov_ial2_introspection_payload) }
+
+  context 'for a Login.gov user' do
+    it 'returns IAL2 for a premium assurance level' do
+      id = described_class.build_from_iam_profile(logingov_attrs)
+      expect(id.loa[:current]).to eq(3)
+    end
+
+    it 'returns multifactor as false' do
+      id = described_class.build_from_iam_profile(logingov_attrs)
+      expect(id.multifactor).to be(false)
+    end
+  end
 
   context 'for an ID.me user' do
     it 'returns LOA3 for a premium assurance level' do

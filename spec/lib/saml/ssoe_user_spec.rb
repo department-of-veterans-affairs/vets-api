@@ -93,10 +93,10 @@ RSpec.describe SAML::User do
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          email: 'vets.gov.user+262@example.com',
-          first_name: 'JERRY',
+          email: 'testemail@test.com',
+          first_name: nil,
           middle_name: nil,
-          last_name: 'GPKTESTNINE',
+          last_name: nil,
           common_name: nil,
           zip: nil,
           gender: nil,
@@ -105,6 +105,7 @@ RSpec.describe SAML::User do
           uuid: '54e78de6140d473f87960f211be49c08',
           idme_uuid: nil,
           logingov_uuid: '54e78de6140d473f87960f211be49c08',
+          verified_at: nil,
           sec_id: nil,
           mhv_icn: nil,
           mhv_correlation_id: nil,
@@ -120,6 +121,50 @@ RSpec.describe SAML::User do
           birls_id: nil,
           icn: nil,
           person_types: [],
+          authn_context: authn_context
+        )
+      end
+
+      it 'is not changing multifactor' do
+        expect(subject).not_to be_changing_multifactor
+      end
+
+      it 'passes ID.me UUID validation with a Login.gov UUID' do
+        expect { subject.validate! }.not_to raise_error
+      end
+    end
+
+    context 'Login.gov IAL2 user' do
+      let(:authn_context) { IAL::LOGIN_GOV_IAL1 }
+      let(:saml_attributes) { build(:ssoe_logingov_ial2) }
+
+      it 'has various important attributes' do
+        expect(subject.to_hash).to eq(
+          birth_date: '1982-04-12',
+          first_name: 'ROBERT',
+          last_name: 'TESTER',
+          common_name: 'vets.gov.user+1000@example.com',
+          middle_name: 'LOGIN',
+          gender: 'M',
+          ssn: '1231231',
+          zip: '39876',
+          mhv_icn: '1200049153V217987',
+          mhv_correlation_id: '65f9f3b5-5449-47a6-b272-9d6019e7c2e3',
+          mhv_account_type: nil,
+          edipi: nil,
+          uuid: '67f687a8ecd3448fbed4e5489b7eafc9',
+          email: 'vets.gov.user+1000@example.com',
+          idme_uuid: nil,
+          logingov_uuid: '67f687a8ecd3448fbed4e5489b7eafc9',
+          verified_at: '2021-10-28T23:54:46Z',
+          loa: { current: 3, highest: 3 },
+          sign_in: { service_name: 'logingov', account_type: 'N/A' },
+          sec_id: '1200049153',
+          participant_id: nil,
+          birls_id: nil,
+          icn: '1200049153V217987',
+          person_types: [],
+          multifactor: false,
           authn_context: authn_context
         )
       end
@@ -154,6 +199,7 @@ RSpec.describe SAML::User do
           email: 'vets.gov.user+262@example.com',
           idme_uuid: '54e78de6140d473f87960f211be49c08',
           logingov_uuid: nil,
+          verified_at: nil,
           multifactor: false,
           loa: { current: 1, highest: 1 },
           sign_in: {
@@ -195,6 +241,7 @@ RSpec.describe SAML::User do
           email: 'vets.gov.user+262@example.com',
           idme_uuid: '54e78de6140d473f87960f211be49c08',
           logingov_uuid: nil,
+          verified_at: nil,
           multifactor: true,
           loa: { current: 1, highest: 3 },
           sign_in: {
@@ -237,6 +284,7 @@ RSpec.describe SAML::User do
           email: 'vets.gov.user+262@example.com',
           idme_uuid: '54e78de6140d473f87960f211be49c08',
           logingov_uuid: nil,
+          verified_at: nil,
           multifactor: true,
           loa: { current: 3, highest: 3 },
           sign_in: { service_name: 'idme', account_type: 'N/A' },
@@ -278,6 +326,7 @@ RSpec.describe SAML::User do
           email: 'alexmac_0@example.com',
           idme_uuid: '881571066e5741439652bc80759dd88c',
           logingov_uuid: nil,
+          verified_at: nil,
           loa: { current: 1, highest: 3 },
           sign_in: { service_name: 'myhealthevet', account_type: 'Advanced' },
           sec_id: nil,
@@ -321,6 +370,7 @@ RSpec.describe SAML::User do
           email: 'alexmac_0@example.com',
           idme_uuid: '881571066e5741439652bc80759dd88c',
           logingov_uuid: nil,
+          verified_at: nil,
           loa: { current: 3, highest: 3 },
           sign_in: { service_name: 'myhealthevet', account_type: 'Advanced' },
           sec_id: '1013183292',
@@ -359,6 +409,7 @@ RSpec.describe SAML::User do
           email: 'pv+mhvtestb@example.com',
           idme_uuid: '72782a87a807407f83e8a052d804d7f7',
           logingov_uuid: nil,
+          verified_at: nil,
           loa: { current: 1, highest: 1 },
           sign_in: {
             service_name: 'myhealthevet',
@@ -403,6 +454,7 @@ RSpec.describe SAML::User do
           email: 'k+tristanmhv@example.com',
           idme_uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           logingov_uuid: nil,
+          verified_at: nil,
           loa: { current: 3, highest: 3 },
           sign_in: {
             service_name: 'myhealthevet',
@@ -448,6 +500,7 @@ RSpec.describe SAML::User do
           email: 'k+tristanmhv@example.com',
           idme_uuid: nil,
           logingov_uuid: nil,
+          verified_at: nil,
           loa: { current: 3, highest: 3 },
           sign_in: {
             service_name: 'myhealthevet',
@@ -860,6 +913,7 @@ RSpec.describe SAML::User do
           email: 'iam.tester@example.com',
           idme_uuid: '363761e8857642f7b77ef7d99200e711',
           logingov_uuid: nil,
+          verified_at: nil,
           loa: { current: 3, highest: 3 },
           sign_in: {
             service_name: 'dslogon',
@@ -905,6 +959,7 @@ RSpec.describe SAML::User do
           email: 'Test0206@gmail.com',
           idme_uuid: '1655c16aa0784dbe973814c95bd69177',
           logingov_uuid: nil,
+          verified_at: nil,
           loa: { current: 3, highest: 3 },
           sign_in: {
             service_name: 'dslogon',
@@ -949,6 +1004,7 @@ RSpec.describe SAML::User do
           email: 'Test0206@gmail.com',
           idme_uuid: '1655c16aa0784dbe973814c95bd69177',
           logingov_uuid: nil,
+          verified_at: nil,
           loa: { current: 3, highest: 3 },
           sign_in: {
             service_name: 'dslogon',
@@ -1010,6 +1066,7 @@ RSpec.describe SAML::User do
           email: nil,
           idme_uuid: nil,
           logingov_uuid: nil,
+          verified_at: nil,
           loa: { current: 3, highest: 3 },
           sign_in: {
             service_name: 'dslogon',
@@ -1071,6 +1128,7 @@ RSpec.describe SAML::User do
           email: nil,
           idme_uuid: '53f065475a794e14a32d707bfd9b215f',
           logingov_uuid: nil,
+          verified_at: nil,
           loa: { current: 3, highest: 3 },
           sign_in: {
             service_name: 'myhealthevet',
@@ -1114,6 +1172,7 @@ RSpec.describe SAML::User do
           email: 'vets.gov.user+262@gmail.com',
           idme_uuid: '54e78de6140d473f87960f211be49c08',
           logingov_uuid: nil,
+          verified_at: nil,
           loa: { current: 3, highest: 3 },
           sign_in: {
             service_name: 'idme',

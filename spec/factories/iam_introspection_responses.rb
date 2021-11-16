@@ -205,4 +205,65 @@ FactoryBot.define do
 
     initialize_with { attributes }
   end
+
+  factory :logingov_ial2_introspection_payload, class: Hash do
+    fediamtransaction_id { '3wlWGAfhBKPFi8O1ToVhXz0kVGYieq7pMw8zYrjj3TE' }
+    fediam_is_delegate { 'false' }
+    fediam_birls_number { 'NOT_FOUND' }
+    birthdate { '1982-07-04' }
+    fediamss_issue_instant { '2021-11-10T16:51:27Z' }
+    fediam_mviicn { '1200049153V217987' }
+    fediam_street { '700 21st St South' }
+    fediamsecid { '1200049153' }
+    client_id { 'VAMobile' }
+    fediam_country { 'NOT_FOUND' }
+    fediam_gender { 'FEMALE' }
+    exp { 1_596_667_726 }
+    code_challenge { 'tDKCgVeM7b8X2Mw7ahEeSPPFxr7TGPc25IV5ex0PvHI' }
+    fediam_street1 { '700 21st St South' }
+    fediam_do_dedipn_id { 'NOT_FOUND' }
+    fediam_gc_id {
+      '1200049153V217987^NI^200M^USVHA^P|65f9f3b5-5449-47a6-b272-9d6019e7c2e3^PN^200VLGN^USDVA^A|' \
+        '1200049153^PN^200PROV^USDVA^A|67f687a8ecd3448fbed4e5489b7eafc9^PN^200VIDM^USDVA^A'
+    }
+    active { true }
+    fediamauth_n_type { 'LOGINGOV' }
+    fediam_not_on_or_after { '2021-11-10T16:56:27' }
+    aud { 'VAMobile' }
+    fediam_mcid { 'WSSOE2111101151267411988803863' }
+    fediamidsource { 'ssoe' }
+    fediam_vaafi_proof_authority { 'FICAM' }
+    phone_number { '(202)123-0203' }
+    tokens_generated_by { 'OAuth AZN Code Flow' }
+    fediamissuer { 'https://int.eauth.va.gov/isam/sps/saml20idp/saml20' }
+    fediamproofing_auth { 'FICAM' }
+    fediam_authentication_method { 'http://idmanagement.gov/ns/assurance/ial/2' }
+    fediamam_eai_xattr_session_lifetime { '1596667722' }
+    fediam_suffix { 'NOT_FOUND' }
+    sub { '1200049153' }
+    fediam_mhvien { '65f9f3b5-5449-47a6-b272-9d6019e7c2e3' }
+    fediam_authentication_instant { '2021-11-10T16:51:26Z' }
+    token_type { 'bearer' }
+    fediam_common_name { 'va.api.user+logingov.123@gmail.com' }
+    scope { 'openid' }
+    fediam_postal_code { '22202' }
+    fediam_vaafi_csp_id { '200VLGN_65f9f3b5-5449-47a6-b272-9d6019e7c2e3' }
+    fediam_pn_id { '123123123' }
+    fediam_pn_id_type { 'SSN' }
+    iat { 1_596_664_126 }
+    email { 'va.api.user+logingov.123@gmail.com' }
+    code_challenge_method { 'S256' }
+    given_name { 'Tessa' }
+    middle_name { 'A' }
+    fediamassur_level { '3' }
+    fediam_not_before { '2021-11-10T16:46:27Z' }
+    fediam_prefix { 'NOT_FOUND' }
+    fediam_state { 'VA' }
+    fediam_city { 'Arlington' }
+    fediam_pid { 'NOT_FOUND' }
+    family_name { 'WHIPPLE' }
+    username { '1200049153' }
+
+    initialize_with { attributes }
+  end
 end

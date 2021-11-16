@@ -22,7 +22,8 @@ module SAML
       'dslogon_loa3' => { loa_current: '3', sign_in: { service_name: 'dslogon' } },
       'myhealthevet' => { loa_current: nil, sign_in: { service_name: 'myhealthevet' } },
       'dslogon' => { loa_current: nil, sign_in: { service_name: 'dslogon' } },
-      IAL::LOGIN_GOV_IAL1 => { ial_current: '1', sign_in: { service_name: 'logingov' } }
+      IAL::LOGIN_GOV_IAL1 => { loa_current: '1', sign_in: { service_name: 'logingov' } },
+      IAL::LOGIN_GOV_IAL2 => { loa_current: '3', sign_in: { service_name: 'logingov' } }
     }.freeze
     UNKNOWN_AUTHN_CONTEXT = 'unknown'
     attr_reader :saml_response, :saml_attributes, :user_attributes, :tracker_uuid

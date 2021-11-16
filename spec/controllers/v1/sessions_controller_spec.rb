@@ -94,7 +94,10 @@ RSpec.describe V1::SessionsController, type: :controller do
               when 'dslogon'
                 ['dslogon', AuthnContext::ID_ME]
               when 'logingov'
-                [IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2, AuthnContext::LOGIN_GOV]
+                [IAL::LOGIN_GOV_IAL1,
+                 AAL::LOGIN_GOV_AAL2,
+                 IAL::LOGIN_GOV_ATTR,
+                 AuthnContext::LOGIN_GOV]
               end
             end
 

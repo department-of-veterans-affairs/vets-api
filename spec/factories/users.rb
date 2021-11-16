@@ -16,6 +16,7 @@ FactoryBot.define do
       ssn { '796111863' }
       idme_uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
       logingov_uuid { nil }
+      verified_at { nil }
       sec_id { '123498767' }
       participant_id { nil }
       birls_id { nil }
@@ -56,6 +57,7 @@ FactoryBot.define do
                              ssn: t.ssn,
                              idme_uuid: t.idme_uuid,
                              logingov_uuid: t.logingov_uuid,
+                             verified_at: t.verified_at,
                              sec_id: t.sec_id,
                              participant_id: t.participant_id,
                              birls_id: t.birls_id,
@@ -87,6 +89,8 @@ FactoryBot.define do
       ssn { nil }
       multifactor { nil }
       idme_uuid { nil }
+      logingov_uuid { nil }
+      verified_at { nil }
       mhv_account_type { nil }
       va_patient { nil }
       loa { nil }
@@ -178,6 +182,24 @@ FactoryBot.define do
       loa do
         { current: LOA::THREE, highest: LOA::THREE }
       end
+    end
+
+    trait :ial1 do
+      logingov_uuid { '42fc7a21-c05f-4e6b-9985-67d11e2fbf76' }
+      verified_at { '2021-11-09T16:46:27Z' }
+      authn_context { IAL::LOGIN_GOV_IAL1 }
+      sign_in do
+        {
+          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
+        }
+      end
+
+      loa do
+        { current: LOA::ONE, highest: LOA::ONE }
+      end
+    end
+
+    factory :logingov_ial1_user, traits: [:ial1] do
     end
 
     factory :user_with_no_ids, traits: [:loa3] do

@@ -9,8 +9,9 @@ module SAML
     class SSOe
       include SentryLogging
       include Identity::Parsers::GCIds
-      SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name common_name zip gender ssn birth_date
-                                   uuid idme_uuid logingov_uuid sec_id mhv_icn mhv_correlation_id mhv_account_type
+      SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name common_name zip gender ssn
+                                   birth_date uuid idme_uuid logingov_uuid verified_at sec_id
+                                   mhv_icn mhv_correlation_id mhv_account_type
                                    edipi loa sign_in multifactor participant_id birls_id icn
                                    person_types].freeze
       INBOUND_AUTHN_CONTEXT = 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
@@ -109,8 +110,12 @@ module SAML
 
       def logingov_uuid
         return safe_attr('va_eauth_uid') if csid == 'logingov'
+      end
 
-        mvi_ids[:logingov_uuid]
+      # only applies to Login.gov IAL2 verification
+      # used to automatically upcert IAL1 users without additional service calls
+      def verified_at
+        safe_attr('va_eauth_verifiedAt')
       end
 
       def sec_id

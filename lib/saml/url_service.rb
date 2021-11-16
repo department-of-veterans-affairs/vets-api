@@ -107,7 +107,10 @@ module SAML
     def logingov_url
       @type = 'logingov'
       build_sso_url(
-        build_authn_context([IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2], AuthnContext::LOGIN_GOV),
+        build_authn_context(
+          [IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2, IAL::LOGIN_GOV_ATTR],
+          AuthnContext::LOGIN_GOV
+        ),
         'minimum'
       )
     end
@@ -129,7 +132,7 @@ module SAML
       # For verification from a login callback, type should be the initial login policy.
       # In that case, it will have been set to the type from RelayState.
       @type ||= 'verify'
-      return callback_verify_url if %w[idme mhv dslogon].include?(type)
+      return callback_verify_url if %w[idme logingov mhv dslogon].include?(type)
 
       link_authn_context =
         case authn_context
@@ -140,7 +143,12 @@ module SAML
         when 'dslogon', 'dslogon_multifactor'
           build_authn_context('dslogon_loa3')
         when SAML::UserAttributes::SSOe::INBOUND_AUTHN_CONTEXT
-          "#{@user.identity.sign_in[:service_name]}_loa3"
+          sign_in_service = @user.identity.sign_in[:service_name]
+          if sign_in_service == 'logingov'
+            build_authn_context([IAL::LOGIN_GOV_IAL2, AAL::LOGIN_GOV_AAL2], AuthnContext::LOGIN_GOV)
+          else
+            "#{sign_in_service}_loa3"
+          end
         end
 
       build_sso_url(link_authn_context)
@@ -151,6 +159,8 @@ module SAML
         case type
         when 'idme'
           build_authn_context(@loa3_context)
+        when 'logingov'
+          build_authn_context([IAL::LOGIN_GOV_IAL2, AAL::LOGIN_GOV_AAL2], AuthnContext::LOGIN_GOV)
         when 'mhv'
           build_authn_context('myhealthevet_loa3')
         when 'dslogon'

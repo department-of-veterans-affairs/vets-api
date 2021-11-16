@@ -270,6 +270,7 @@ class User < Common::RedisStore
   delegate :mhv_icn, to: :identity, allow_nil: true
   delegate :idme_uuid, to: :identity, allow_nil: true
   delegate :logingov_uuid, to: :identity, allow_nil: true
+  delegate :verified_at, to: :identity, allow_nil: true
   delegate :common_name, to: :identity, allow_nil: true
   delegate :person_types, to: :identity, allow_nil: true, prefix: true
 

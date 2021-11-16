@@ -164,20 +164,76 @@ FactoryBot.define do
       authn_context { IAL::LOGIN_GOV_IAL1 }
     end
     va_eauth_csid { ['LOGINGOV'] }
-    va_eauth_lastname { ['GPKTESTNINE'] }
+    va_eauth_lastname { ['NOT_FOUND'] }
     va_eauth_credentialassurancelevel { ['1'] }
     va_eauth_ial { ['1'] }
-    va_eauth_firstname { ['JERRY'] }
+    va_eauth_firstname { ['NOT_FOUND'] }
     va_eauth_csponly { ['true'] }
     va_eauth_authenticationMethod { ['http://idmanagement.gov/ns/assurance/ial/1'] }
     va_eauth_aal { ['2'] }
-    va_eauth_emailaddress { ['vets.gov.user+262@example.com'] }
-    va_eauth_transactionid { ['abcd1234xyz'] }
+    va_eauth_emailaddress { ['testemail@test.com'] }
+    va_eauth_transactionid { ['VaxGP1nMv39/NeLQsr01Lg056gaHCchCiMmIf2kpUhs='] }
     va_eauth_authncontextclassref { ['http://idmanagement.gov/ns/assurance/ial/1'] }
     va_eauth_uid { ['54e78de6140d473f87960f211be49c08'] }
     va_eauth_issueinstant { ['2020-02-05T21:14:20Z'] }
     va_eauth_middlename { ['NOT_FOUND'] }
+    va_eauth_verifiedAt { ['NOT_FOUND'] }
 
+    initialize_with { new(attributes.stringify_keys) }
+  end
+
+  factory :ssoe_logingov_ial2, class: 'OneLogin::RubySaml::Attributes' do
+    transient do
+      authn_context { IAL::LOGIN_GOV_IAL2 }
+    end
+    va_eauth_phone { ['(123)123-1234'] }
+    va_eauth_lastname { ['TESTER'] }
+    va_eauth_ial { ['2'] }
+    va_eauth_icn { ['1200049153V217987'] }
+    va_eauth_city { ['Seattle'] }
+    va_eauth_country { ['NOT_FOUND'] }
+    va_eauth_csp_identifier { ['200VLGN'] }
+    va_eauth_gender { ['MALE'] }
+    va_eauth_street2 { ['NOT_FOUND'] }
+    va_eauth_aal { ['2'] }
+    va_eauth_csp_method { ['LOGINGOV'] }
+    va_eauth_dodedipnid { ['NOT_FOUND'] }
+    va_eauth_emailaddress { ['vets.gov.user+1000@example.com'] }
+    va_eauth_cspid { ['200VLGN_65f9f3b5-5449-47a6-b272-9d6019e7c2e3'] }
+    va_eauth_issueinstant { ['2021-11-10T18:47:50Z'] }
+    va_eauth_birthDate_v1 { ['19820412'] }
+    va_eauth_middlename { ['LOGIN'] }
+    va_eauth_state { ['WA'] }
+    va_eauth_birlsfilenumber { ['NOT_FOUND'] }
+    va_eauth_postalcode { ['39876'] }
+    va_eauth_street3 { ['NOT_FOUND'] }
+    va_eauth_proofingAuthority { ['FICAM'] }
+    va_eauth_pid { ['NOT_FOUND'] }
+    va_eauth_csid { ['LOGINGOV'] }
+    va_eauth_credentialassurancelevel { ['3'] }
+    va_eauth_pnidtype { ['SSN'] }
+    va_eauth_mcid { ['WSSOE2111101347520361419017657'] }
+    va_eauth_firstname { ['ROBERT'] }
+    va_eauth_prefix { ['NOT_FOUND'] }
+    va_eauth_street { ['123 Fantasy Lane'] }
+    va_eauth_csponly { ['false'] }
+    va_eauth_pnid { ['1231231'] }
+    va_eauth_commonname { ['vets.gov.user+1000@example.com'] }
+    va_eauth_transactionid { ['abcd1234xyz'] }
+    va_eauth_suffix { ['NOT_FOUND'] }
+    va_eauth_uid { ['67f687a8ecd3448fbed4e5489b7eafc9'] }
+    va_eauth_isDelegate { ['false'] }
+    va_eauth_secid { ['1200049153'] }
+    va_eauth_gcIds {
+      ['1200049153V217987^NI^200M^USVHA^P|' \
+       '65f9f3b5-5449-47a6-b272-9d6019e7c2e3^PN^200VLGN^USDVA^A|' \
+       '1200049153^PN^200PROV^USDVA^A|']
+    }
+    va_eauth_persontype { ['NOT_FOUND'] }
+    va_eauth_npi { ['NOT_FOUND'] }
+    va_eauth_street1 { ['123 Fantasy Lane'] }
+    va_eauth_mhvien { ['65f9f3b5-5449-47a6-b272-9d6019e7c2e3'] }
+    va_eauth_verifiedAt { ['2021-10-28T23:54:46Z'] }
     initialize_with { new(attributes.stringify_keys) }
   end
 
