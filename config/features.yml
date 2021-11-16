@@ -381,6 +381,10 @@ features:
     actor_type: user
     description: Enables the Wizard for VA Form 5655 (Financial Status Report)
     enable_in_development: true
+  show_form_i18n:
+    actor_type: user
+    description: Enables the internationalization features for forms
+    enable_in_development: true
   show_header_v2:
     action_type: user
     description: Enables the new header
