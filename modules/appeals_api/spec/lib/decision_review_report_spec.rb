@@ -49,6 +49,14 @@ describe AppealsApi::DecisionReviewReport do
     end
   end
 
+  describe '#total_hlr_successes' do
+    it 'shows correct count of all successful HLRs regardless of timeframe' do
+      create_list :higher_level_review, 5, created_at: 3.weeks.ago
+      create_list :higher_level_review, 5, status: 'success', created_at: 3.weeks.ago
+      expect(subject.total_hlr_successes).to eq 5
+    end
+  end
+
   it 'can correctly calculate nods' do
     create :notice_of_disagreement, created_at: 1.week.ago, status: 'success'
     create :notice_of_disagreement, status: 'success'
@@ -86,6 +94,14 @@ describe AppealsApi::DecisionReviewReport do
     end
   end
 
+  describe '#total_nod_successes' do
+    it 'shows correct count of all successful NODs regardless of timeframe' do
+      create_list :notice_of_disagreement, 5, created_at: 3.weeks.ago
+      create_list :notice_of_disagreement, 5, status: 'success', created_at: 3.weeks.ago
+      expect(subject.total_nod_successes).to eq 5
+    end
+  end
+
   it 'can correctly calculate SCs' do
     create :supplemental_claim, :status_success, created_at: 1.week.ago
     create :supplemental_claim, :status_success
@@ -120,6 +136,14 @@ describe AppealsApi::DecisionReviewReport do
       subject = described_class.new(from: nil, to: nil)
 
       expect(subject.faulty_sc).to eq([recent_error, old_error])
+    end
+  end
+
+  describe '#total_sc_successes' do
+    it 'shows correct count of all successful SCs regardless of timeframe' do
+      create_list :supplemental_claim, 5, created_at: 3.weeks.ago
+      create_list :supplemental_claim, 5, :status_success, created_at: 3.weeks.ago
+      expect(subject.total_sc_successes).to eq 5
     end
   end
 

@@ -30,5 +30,18 @@ RSpec.describe AppealsApi::DecisionReviewMailer, type: [:mailer] do
         expect(subject.to).to match_array(recipients)
       end
     end
+
+    it 'displays totals on weekly report' do
+      create :notice_of_disagreement, status: 'success', created_at: 3.weeks.ago
+      create_list :supplemental_claim, 2, :status_success, created_at: 3.weeks.ago
+
+      mail = described_class.build(date_from: 7.days.ago, date_to: Time.zone.now, friendly_duration: 'Weekly',
+                                   recipients: recipients).deliver_now
+
+      body = mail.body.to_s
+      expect(body).to include 'Total HLR: 0'
+      expect(body).to include 'Total NOD: 1'
+      expect(body).to include 'Total SC: 2'
+    end
   end
 end

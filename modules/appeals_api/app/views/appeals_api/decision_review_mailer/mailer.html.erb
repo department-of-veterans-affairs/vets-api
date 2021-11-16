@@ -42,26 +42,26 @@
   <body>
     <h1><%= @friendly_duration %> <%= @friendly_env %> Decision Review Report from <%= @report.from %> -- <%= @report.to %> </h1>
 
-    <%= render partial: 'appeal_table', locals: { appeal_name: 'HLR', appeal_status_and_count: @report.hlr_by_status_and_count, faulty_appeals: @report.faulty_hlr } %>
+    <%= render partial: 'appeal_table', locals: { appeal_name: 'HLR', appeal_status_and_count: @report.hlr_by_status_and_count, faulty_appeals: @report.faulty_hlr, total_count: @friendly_duration == 'Weekly' ? @report.total_hlr_successes : nil } %>
 
     <br />
     <hr />
 
-    <%= render partial: 'appeal_table', locals: { appeal_name: 'NOD', appeal_status_and_count: @report.nod_by_status_and_count, faulty_appeals: @report.faulty_nod } %>
+    <%= render partial: 'appeal_table', locals: { appeal_name: 'NOD', appeal_status_and_count: @report.nod_by_status_and_count, faulty_appeals: @report.faulty_nod, total_count: @friendly_duration == 'Weekly' ? @report.total_nod_successes : nil } %>
 
     <br />
     <hr />
 
-    <%= render partial: 'appeal_table', locals: { appeal_name: 'NOD Evidence', appeal_status_and_count: @report.evidence_submission_by_status_and_count, faulty_appeals: @report.faulty_evidence_submission } %>
+    <%= render partial: 'appeal_table', locals: { appeal_name: 'NOD Evidence', appeal_status_and_count: @report.evidence_submission_by_status_and_count, faulty_appeals: @report.faulty_evidence_submission, total_count: nil } %>
 
     <br />
     <hr />
 
-    <%= render partial: 'appeal_table', locals: { appeal_name: 'SC', appeal_status_and_count: @report.sc_by_status_and_count, faulty_appeals: @report.faulty_sc } %>
+    <%= render partial: 'appeal_table', locals: { appeal_name: 'SC', appeal_status_and_count: @report.sc_by_status_and_count, faulty_appeals: @report.faulty_sc, total_count: @friendly_duration == 'Weekly' ? @report.total_sc_successes : nil } %>
 
     <br />
     <hr />
 
-    <%= render partial: 'appeal_table', locals: { appeal_name: 'SC Evidence', appeal_status_and_count: @report.sc_evidence_submission_by_status_and_count, faulty_appeals: @report.sc_faulty_evidence_submission } %>
+    <%= render partial: 'appeal_table', locals: { appeal_name: 'SC Evidence', appeal_status_and_count: @report.sc_evidence_submission_by_status_and_count, faulty_appeals: @report.sc_faulty_evidence_submission, total_count: nil } %>
   </body>
 </html>
