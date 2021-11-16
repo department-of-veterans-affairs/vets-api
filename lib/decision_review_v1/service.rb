@@ -22,6 +22,7 @@ module DecisionReviewV1
     HLR_CREATE_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-CREATE-RESPONSE-200_V1'
     HLR_SHOW_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-SHOW-RESPONSE-200_V1'
     HLR_GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200'
+    HLR_GET_LEGACY_APPEALS_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-GET-LEGACY-APPEALS-RESPONSE-200'
     REQUIRED_CREATE_HEADERS = %w[X-VA-First-Name X-VA-Last-Name X-VA-SSN X-VA-Birth-Date].freeze
 
     ##
@@ -78,6 +79,27 @@ module DecisionReviewV1
       end
     end
 
+    ##
+    # Get Legacy Appeals for a Higher-Level Review
+    #
+    # @param user [User] Veteran who the form is in regard to
+    # @return [Faraday::Response]
+    #
+    def get_legacy_appeals(user:)
+      with_monitoring_and_error_handling do
+        path = 'legacy_appeals'
+        headers = get_legacy_appeals_headers(user)
+        response = perform :get, path, nil, headers
+        raise_schema_error_unless_200_status response.status
+        validate_against_schema(
+          json: response.body,
+          schema: HLR_GET_LEGACY_APPEALS_RESPONSE_SCHEMA,
+          append_to_error_class: ' (HLR)'
+        )
+        response
+      end
+    end
+
     # upstream requirements
     # ^[a-zA-Z\-\/\s]{1,50}$
     # Cannot be missing or empty or longer than 50 characters.
@@ -121,6 +143,14 @@ module DecisionReviewV1
       {
         'X-VA-SSN' => user.ssn.to_s,
         'X-VA-Receipt-Date' => Time.zone.now.strftime('%Y-%m-%d')
+      }
+    end
+
+    def get_legacy_appeals_headers(user)
+      raise Common::Exceptions::Forbidden.new source: "#{self.class}##{__method__}" unless user.ssn
+
+      {
+        'X-VA-SSN' => user.ssn.to_s
       }
     end
 
