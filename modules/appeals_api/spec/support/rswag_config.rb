@@ -47,7 +47,7 @@ class AppealsApi::RswagConfig
             hlr_v2_create_schemas,
             hlr_v2_response_schemas('#/components/schemas'),
             contestable_issues_schema('#/components/schemas'),
-            nod_create_schemas('#/components/schemas'),
+            nod_create_schemas,
             nod_response_schemas('#/components/schemas'),
             sc_create_schemas('#/components/schemas'),
             sc_response_schemas('#/components/schemas'),
@@ -365,147 +365,8 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def nod_create_schemas(ref_root)
-    {
-      'nodCreateRoot': {
-        'type': 'object',
-        'additionalProperties': false,
-        'properties': {
-          'data': {
-            'type': 'object',
-            'additionalProperties': false,
-            'properties': {
-              'type': { 'type': 'string', 'enum': ['noticeOfDisagreement'] },
-              'attributes': {
-                'type': 'object',
-                'additionalProperties': false,
-                'properties': {
-                  'veteran': {
-                    'type': 'object',
-                    'additionalProperties': false,
-                    'properties': {
-                      'homeless': { 'type': 'boolean' },
-                      'address': {
-                        'type': 'object',
-                        'additionalProperties': false,
-                        'properties': {
-                          'addressLine1': { 'type': 'string' },
-                          'addressLine2': { 'type': 'string' },
-                          'addressLine3': { 'type': 'string' },
-                          'city': { 'type': 'string' },
-                          'stateCode': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'state_codes.json'))),
-                          'countryName': { 'type': 'string' },
-                          'zipCode5': {
-                            'type': 'string',
-                            'pattern': '^[0-9]{5}$',
-                            'minLength': 5, 'maxLength': 5,
-                            'description': '5-digit zipcode. Use "00000" if Veteran is outside the United States'
-                          },
-                          'internationalPostalCode': { 'type': 'string' }
-                        },
-                        'required': %w[addressLine1 city countryName zipCode5]
-                      },
-                      'phone': {
-                        '$comment': 'the phone fields must not exceed 20 chars, when concatenated',
-                        'type': 'object',
-                        'additionalProperties': false,
-                        'properties': {
-                          'countryCode': { 'type': 'string', 'pattern': '^[0-9]+$', 'minLength': 1, 'maxLength': 3 },
-                          'areaCode': { 'type': 'string', 'pattern': '^[0-9]{1,4}$', 'minLength': 1, 'maxLength': 4 },
-                          'phoneNumber': { 'type': 'string', 'pattern': '^[0-9]{1,14}$', 'minLength': 1, 'maxLength': 14 },
-                          'phoneNumberExt': { 'type': 'string', 'pattern': '^[a-zA-Z0-9]{1,10}$', 'minLength': 1, 'maxLength': 10 }
-                        },
-                        'required': %w[areaCode phoneNumber]
-                      },
-                      'emailAddressText': { 'type': 'string', 'minLength': 6, 'maxLength': 255, 'format': 'email' },
-                      'representativesName': { 'type': 'string', 'maxLength': 120 }
-                    },
-                    'required': %w[homeless phone emailAddressText],
-                    'if': { 'properties': { 'homeless': { 'const': false } } },
-                    'then': { 'required': ['address'] }
-                  },
-                  'boardReviewOption': { 'type': 'string', 'enum': %w[direct_review evidence_submission hearing] },
-                  'hearingTypePreference': { 'type': 'string', 'enum': %w[virtual_hearing video_conference central_office] },
-                  # Generated using: File.write('timezones.json', (TZInfo::Timezone.all.map(&:name) + ActiveSupport::TimeZone.all.map(&:name)).uniq.sort) #Although this might seem like it should be generated dynamically, it's been written to file in case TZInfo or ActiveSupport deletes/modifies a timezone with a future version, which would change our APIs enum (a non-additve change to the current API version).
-                  'timezone': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'time_zones.json'))),
-                  'socOptIn': { 'type': 'boolean' }
-                },
-                'required': %w[boardReviewOption socOptIn]
-              }
-            },
-            'required': %w[type attributes]
-          },
-          'included': {
-            'type': 'array',
-            'items': {
-              'type': 'object',
-              'additionalProperties': false,
-              'properties': {
-                'type': { 'type': 'string', 'enum': ['contestableIssue'] },
-                'attributes': {
-                  'type': 'object',
-                  'additionalProperties': false,
-                  'properties': {
-                    'issue': { '$ref': "#{ref_root}/nonBlankString", 'maxLength': 180 },
-                    'decisionDate': { '$ref': "#{ref_root}/nodCreateHeadersDate" },
-                    'decisionIssueId': { 'type': 'integer' },
-                    'ratingIssueReferenceId': { 'type': 'string' },
-                    'ratingDecisionReferenceId': { 'type': 'string' },
-                    'disagreementArea': { 'type': 'string', 'maxLength': 90 }
-                  },
-                  'required': %w[issue decisionDate]
-                }
-              },
-              'required': %w[type attributes]
-            },
-            'minItems': 1,
-            'maxItems': 100,
-            'uniqueItems': true
-          }
-        },
-        'required': %w[data included]
-      },
-      'nodCreateHeadersDate': {
-        'type': 'string',
-        'pattern': '^[0-9]{4}(-[0-9]{2}){2}$'
-      },
-      'nodCreateHeadersRoot': {
-        'type': 'object',
-        'additionalProperties': false,
-        'properties': {
-          'X-VA-First-Name': {
-            '$ref': "#{ref_root}/X-VA-First-Name"
-          },
-          'X-VA-Middle-Initial': {
-            '$ref': "#{ref_root}/X-VA-Middle-Initial"
-          },
-          'X-VA-Last-Name': {
-            '$ref': "#{ref_root}/X-VA-Last-Name"
-          },
-          'X-VA-SSN': {
-            '$ref': "#{ref_root}/X-VA-SSN"
-          },
-          'X-VA-File-Number': {
-            '$ref': "#{ref_root}/X-VA-File-Number"
-          },
-          'X-VA-Birth-Date': {
-            '$ref': "#{ref_root}/X-VA-Birth-Date"
-          },
-          'X-Consumer-Username': {
-            '$ref': "#{ref_root}/X-Consumer-Username"
-          },
-          'X-Consumer-ID': {
-            '$ref': "#{ref_root}/X-Consumer-ID"
-          }
-        },
-        'required': %w[
-          X-VA-First-Name
-          X-VA-Last-Name
-          X-VA-SSN
-          X-VA-Birth-Date
-        ]
-      }
-    }
+  def nod_create_schemas
+    parse_create_schema('v1', '10182.json')
   end
 
   def nod_response_schemas(ref_root)
