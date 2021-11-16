@@ -76,7 +76,7 @@ module VBADocuments
       alert_on.each do |model|
         text += "\tGUID: #{model.guid} has invalid parts: #{model.metadata['invalid_parts']}\n"
       end
-      text = text.gsub(/\"/, "'")
+      text = text.gsub(/"/, "'")
       resp = send_to_slack(text, @invalid_parts_alert_url) if alert_on.any?
       if resp&.success?
         alert_on.each do |model|

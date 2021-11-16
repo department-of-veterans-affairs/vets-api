@@ -18,7 +18,7 @@ namespace :va_forms do
       error = stderr.read
       exit_code = wait_thr.value
     end
-    results =~ /(\{\"data.*)/m
+    results =~ /(\{"data.*)/m
     data = Regexp.last_match(1)
     unless exit_code.success?
       puts "Failed to fetch data from #{FORMS_URL}\n #{error}"

@@ -10,7 +10,7 @@ describe HealthQuest::QuestionnaireManager::QuestionnaireResponseCollector do
 
   describe 'constants' do
     it 'has an ID_MATCHER' do
-      expect(subject::ID_MATCHER).to eq(%r{Questionnaire\/([a-z0-9-]+)\z}i)
+      expect(subject::ID_MATCHER).to eq(%r{Questionnaire/([a-z0-9-]+)\z}i)
     end
   end
 

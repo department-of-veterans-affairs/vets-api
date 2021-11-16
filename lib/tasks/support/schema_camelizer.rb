@@ -12,7 +12,7 @@ class SchemaCamelizer
     raw_schema = File.read(schema_path)
     # OliveBranch only changes keys, but the required key's value is an arrray of keys,
     #  these need to be camelized to match the keys to which they refer
-    modified_schema = raw_schema.gsub(/"required": \[(["\w*\,? \n]*)\]/) do
+    modified_schema = raw_schema.gsub(/"required": \[(["\w*,? \n]*)\]/) do
       # rubocop:disable Style/PerlBackrefs
       # use $1 to refer to the matched part of the gsub, which would be a string of quoted keys
       # split the string into an array of quoted keys
@@ -57,7 +57,7 @@ class SchemaCamelizer
   def save!
     raise "expected `#camel_path` (#{camel_path}) to be different from the given path" if original_path == camel_path
 
-    camel_path_directories = camel_path.gsub(%r{[^\/]*$}, '')
+    camel_path_directories = camel_path.gsub(%r{[^/]*$}, '')
     FileUtils.mkdir_p(camel_path_directories)
 
     File.open(camel_path, 'w') do |file|

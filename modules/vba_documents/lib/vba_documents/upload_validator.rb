@@ -11,7 +11,7 @@ module VBADocuments
   module UploadValidations
     include CentralMail::Utilities
 
-    VALID_NAME = %r{^[a-zA-Z\-\/\s]{1,50}$}.freeze
+    VALID_NAME = %r{^[a-zA-Z\-/\s]{1,50}$}.freeze
 
     def update_pdf_metadata(model, inspector)
       model.update(uploaded_pdf: inspector.pdf_data)

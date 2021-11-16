@@ -92,7 +92,7 @@ describe Preneeds::Service do
             pre_need_request: burial_form_foreign_address.as_eoas
           }
         )
-        expect(soap.body).to match(%r{<\/postalZip><state><\/state>})
+        expect(soap.body).to match(%r{</postalZip><state></state>})
       end
     end
   end

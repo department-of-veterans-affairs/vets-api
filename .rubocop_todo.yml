@@ -298,12 +298,6 @@ Style/OptionalBooleanParameter:
     - 'modules/vaos/app/services/vaos/appointment_service.rb'
     - 'spec/support/authenticated_session_helper.rb'
 
-# Offense count: 63
-# Cop supports --auto-correct.
-# NOTE: These should not be auto-corrected because it will incorrectly remove escaped forward slashes
-Style/RedundantRegexpEscape:
-  Enabled: false
-
 # Offense count: 4
 # Cop supports --auto-correct.
 Style/RedundantSelfAssignmentBranch:

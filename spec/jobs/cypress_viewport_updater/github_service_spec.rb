@@ -23,7 +23,7 @@ RSpec.describe CypressViewportUpdater::GithubService do
              '"permissions":{"contents":"write","metadata":"read","pull_requests":"write"},'\
              '"repository_selection":"selected"}'
     c.filter_sensitive_data(string) do |interaction|
-      if (match = interaction.response.body.match(/^{\"token.+/))
+      if (match = interaction.response.body.match(/^{"token.+/))
         match[0]
       end
     end
@@ -72,7 +72,7 @@ RSpec.describe CypressViewportUpdater::GithubService do
     end
 
     it 'returns the ref for the new feature branch' do
-      expect(@create_branch.ref).to match(%r{refs\/heads\/\d+_update_cypress_viewport_data})
+      expect(@create_branch.ref).to match(%r{refs/heads/\d+_update_cypress_viewport_data})
     end
   end
 
@@ -156,7 +156,7 @@ RSpec.describe CypressViewportUpdater::GithubService do
 
     it 'returns the url to the pr' do
       expect(@submit_pr.url)
-        .to match(%r{\bhttps:\/\/api.github.com\/repos\/department-of-veterans-affairs\/vets-website\/pulls\/\d+\b})
+        .to match(%r{\bhttps://api.github.com/repos/department-of-veterans-affairs/vets-website/pulls/\d+\b})
     end
 
     it 'returns the pr title' do

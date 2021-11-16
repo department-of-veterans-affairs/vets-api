@@ -377,7 +377,7 @@ module ClaimsApi
         end
 
         def validate_form_526_disability_secondary_disability_name!(secondary_disability)
-          return if %r{([a-zA-Z0-9\-'.,/\(\)]([a-zA-Z0-9\-',. ])?)+$}.match?(secondary_disability['name']) &&
+          return if %r{([a-zA-Z0-9\-'.,/()]([a-zA-Z0-9\-',. ])?)+$}.match?(secondary_disability['name']) &&
                     secondary_disability['name'].length <= 255
 
           raise ::Common::Exceptions::InvalidFieldValue.new(

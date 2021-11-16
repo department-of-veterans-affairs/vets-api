@@ -26,7 +26,7 @@ RSpec.describe CypressViewportUpdater::ViewportPresetJsFile do
     # end
 
     c.filter_sensitive_data('{"access_token":"removed","expires_in":3599,"token_type":"Bearer"}') do |interaction|
-      if (match = interaction.response.body.match(/^{\"access_token.+/))
+      if (match = interaction.response.body.match(/^{"access_token.+/))
         match[0]
       end
     end
@@ -37,7 +37,7 @@ RSpec.describe CypressViewportUpdater::ViewportPresetJsFile do
              '"permissions":{"contents":"write","metadata":"read","pull_requests":"write"},'\
              '"repository_selection":"selected"}'
     c.filter_sensitive_data(string) do |interaction|
-      if (match = interaction.response.body.match(/^{\"token.+/))
+      if (match = interaction.response.body.match(/^{"token.+/))
         match[0]
       end
     end

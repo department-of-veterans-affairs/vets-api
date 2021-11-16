@@ -5,7 +5,7 @@ require 'rails_helper'
 class OliveBranchPatchController < ActionController::API
   def respond_with_data
     response = params['data']
-    render json: response.to_json.gsub(/\"(true|false|\d+)\"/) { |quoted_value| quoted_value.gsub('"', '') }
+    render json: response.to_json.gsub(/"(true|false|\d+)"/) { |quoted_value| quoted_value.gsub('"', '') }
   end
 
   def document

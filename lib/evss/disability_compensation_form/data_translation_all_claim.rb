@@ -507,7 +507,7 @@ module EVSS
       end
 
       def scrub_disability_condition(condition)
-        re = %r{([a-zA-Z0-9\-'.,\/() ]+)}
+        re = %r{([a-zA-Z0-9\-'.,/() ]+)}
         condition.scan(re).join.squish
       end
 

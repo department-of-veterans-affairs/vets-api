@@ -29,7 +29,7 @@ class LogsProcessor
         stdout_str = stdout.read
         stderr_str = stderr.read
 
-        stdout_arr = stdout_str.split(%r{dsva-vagov-prod\/srv\/vets-api\/src\/log\/vets-api-server.log[^|]+\| })
+        stdout_arr = stdout_str.split(%r{dsva-vagov-prod/srv/vets-api/src/log/vets-api-server.log[^|]+\| })
         stdout_arr = stdout_arr[1..]
 
         puts stderr_str if stderr_str
@@ -54,7 +54,7 @@ class LogsProcessor
   end
 
   def self.data_scrub(string)
-    string.gsub(%r{\/ICN\/\S+\/}, '/ICN/REDACTED_ICN/')
-          .gsub(%r{\/appointments\/v1\/patients\/\S+\/}, '/appointments/v1/patients/REDACTED_ICN/')
+    string.gsub(%r{/ICN/\S+/}, '/ICN/REDACTED_ICN/')
+          .gsub(%r{/appointments/v1/patients/\S+/}, '/appointments/v1/patients/REDACTED_ICN/')
   end
 end

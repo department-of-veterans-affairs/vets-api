@@ -38,16 +38,16 @@ module StringHelpers
     # * (possibly negative) digit identifiers
     # * uuid's with or without dashes
     # * institution id's of form 111A2222 or 11A22222
-    digit = /\-?\d+/
+    digit = /-?\d+/
     contact_id = /\d{10}V\d{6}(%5ENI%5E200M%5EUSVHA)*/
-    uuids = /[a-fA-F0-9]{8}(\-?[a-fA-F0-9]{4}){3}\-?[a-fA-F0-9]{12}/
+    uuids = /[a-fA-F0-9]{8}(-?[a-fA-F0-9]{4}){3}-?[a-fA-F0-9]{12}/
     institution_ids = /[\dA-Z]{8}/
     provider_ids = /Providers\(\d{10}\)/
-    okta_users = %r{(?<user_path>api\/v1\/users\/)\w*}
+    okta_users = %r{(?<user_path>api/v1/users/)\w*}
     r = %r{
-      (?<first_slash>\/)
+      (?<first_slash>/)
       (#{okta_users} |#{digit} |#{contact_id} |#{uuids} |#{institution_ids} |#{provider_ids})
-      (?<ending_slash>\/|$)
+      (?<ending_slash>/|$)
     }x
 
     # replace  ids sent in the endpoint with 'xxx'

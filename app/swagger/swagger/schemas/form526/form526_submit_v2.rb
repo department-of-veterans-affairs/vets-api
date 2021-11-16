@@ -355,7 +355,7 @@ module Swagger
               property :separationLocationName,
                        type: :string,
                        maxLength: 256,
-                       pattern: %r{^([a-zA-Z0-9\/\-'.#,*()&][a-zA-Z0-9\/\-'.#,*()& ]?)*$},
+                       pattern: %r{^([a-zA-Z0-9/\-'.#,*()&][a-zA-Z0-9/\-'.#,*()& ]?)*$},
                        example: 'AF Academy'
             end
           end

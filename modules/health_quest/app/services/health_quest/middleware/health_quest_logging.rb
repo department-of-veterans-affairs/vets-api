@@ -67,7 +67,7 @@ module HealthQuest
       #
       # @return [Boolean] true if user session request, false otherwise
       def user_session_request?(env)
-        env.url.to_s.match?(%r{(health\/system\/v1\/token|pgd\/v1\/token)})
+        env.url.to_s.match?(%r{(health/system/v1/token|pgd/v1/token)})
       end
 
       # #jti is the value from the JWT key value pair in the response and needed for logging and audit purposes

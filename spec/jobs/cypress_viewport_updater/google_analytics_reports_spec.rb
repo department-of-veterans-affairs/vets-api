@@ -14,7 +14,7 @@ RSpec.describe CypressViewportUpdater::GoogleAnalyticsReports do
     end
 
     c.filter_sensitive_data('{"access_token":"removed","expires_in":3599,"token_type":"Bearer"}') do |interaction|
-      if (match = interaction.response.body.match(/^{\"access_token.+/))
+      if (match = interaction.response.body.match(/^{"access_token.+/))
         match[0]
       end
     end
