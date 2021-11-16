@@ -64,6 +64,44 @@ RSpec.describe SAML::URLService do
         end
 
         context 'verify_url' do
+          context 'from a login callback' do
+            context 'with ID.me as CSP' do
+              let(:params) { { action: 'saml_callback', RelayState: '{"type":"idme"}' } }
+
+              it 'has uplevel url with ID.me' do
+                expect_any_instance_of(OneLogin::RubySaml::Settings)
+                  .to receive(:authn_context=).with([LOA::IDME_LOA3_VETS, AuthnContext::ID_ME])
+                expect(subject.verify_url)
+                  .to be_a_saml_url(expected_saml_url)
+                  .with_relay_state('originating_request_id' => '123', 'type' => 'idme')
+              end
+            end
+
+            context 'with MHV as CSP' do
+              let(:params) { { action: 'saml_callback', RelayState: '{"type":"mhv"}' } }
+
+              it 'has uplevel url with MHV' do
+                expect_any_instance_of(OneLogin::RubySaml::Settings)
+                  .to receive(:authn_context=).with(['myhealthevet_loa3', AuthnContext::ID_ME])
+                expect(subject.verify_url)
+                  .to be_a_saml_url(expected_saml_url)
+                  .with_relay_state('originating_request_id' => '123', 'type' => 'mhv')
+              end
+            end
+
+            context 'with DSLogon as CSP' do
+              let(:params) { { action: 'saml_callback', RelayState: '{"type":"dslogon"}' } }
+
+              it 'has uplevel url with DSLogon' do
+                expect_any_instance_of(OneLogin::RubySaml::Settings)
+                  .to receive(:authn_context=).with(['dslogon_loa3', AuthnContext::ID_ME])
+                expect(subject.verify_url)
+                  .to be_a_saml_url(expected_saml_url)
+                  .with_relay_state('originating_request_id' => '123', 'type' => 'dslogon')
+              end
+            end
+          end
+
           it 'has sign in url: with (default authn_context)' do
             expect(user.authn_context).to eq('http://idmanagement.gov/ns/assurance/loa/1/vets')
             expect_any_instance_of(OneLogin::RubySaml::Settings)

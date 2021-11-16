@@ -129,6 +129,7 @@ module SAML
       # For verification from a login callback, type should be the initial login policy.
       # In that case, it will have been set to the type from RelayState.
       @type ||= 'verify'
+      return callback_verify_url if %w[idme mhv dslogon].include?(type)
 
       link_authn_context =
         case authn_context
@@ -140,6 +141,20 @@ module SAML
           build_authn_context('dslogon_loa3')
         when SAML::UserAttributes::SSOe::INBOUND_AUTHN_CONTEXT
           "#{@user.identity.sign_in[:service_name]}_loa3"
+        end
+
+      build_sso_url(link_authn_context)
+    end
+
+    def callback_verify_url
+      link_authn_context =
+        case type
+        when 'idme'
+          build_authn_context(@loa3_context)
+        when 'mhv'
+          build_authn_context('myhealthevet_loa3')
+        when 'dslogon'
+          build_authn_context('dslogon_loa3')
         end
 
       build_sso_url(link_authn_context)
@@ -190,12 +205,8 @@ module SAML
     end
 
     def build_authn_context(assurance_level_url, identity_provider = AuthnContext::ID_ME)
-      if identity_provider
-        assurance_level_url = [assurance_level_url] unless assurance_level_url.is_a?(Array)
-        assurance_level_url.push(identity_provider)
-      else
-        assurance_level_url
-      end
+      assurance_level_url = [assurance_level_url] unless assurance_level_url.is_a?(Array)
+      assurance_level_url.push(identity_provider)
     end
 
     def relay_state_params
