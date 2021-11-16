@@ -275,6 +275,18 @@ features:
     actor_type: cookie
     description: Enables/disables the usage of the new service provider Login.gov to create an account (VSP Identity)
     enable_in_development: true
+  login_gov_mhv:
+    actor_type: cookie
+    description: Enables/disables the Login.gov button for MHV (VSP Identity)
+    enable_in_development: true
+  login_gov_myvahealth:
+    actor_type: cookie
+    description: Enables/disables the Login.gov button for MyVAHealth (VSP Identity)
+    enable_in_development: true
+  login_old_design:
+    actor_type: cookie
+    description: Enables/disables the new Sign in design (VSP Identity)
+    enable_in_development: true
   loop_pages:
     actor_type: user
     description: Enable new list loop pattern
