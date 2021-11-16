@@ -463,7 +463,7 @@ GEM
     google-cloud-env (1.5.0)
       faraday (>= 0.17.3, < 2.0)
     google-cloud-errors (1.2.0)
-    google-protobuf (3.18.1)
+    google-protobuf (3.19.1)
     googleauth (1.1.0)
       faraday (>= 0.17.3, < 2.0)
       jwt (>= 1.4, < 3.0)
@@ -648,7 +648,7 @@ GEM
       ruby-rc4
       ttfunk
     pg (1.2.3)
-    pg_query (2.1.1)
+    pg_query (2.1.2)
       google-protobuf (>= 3.17.1)
     pg_search (2.3.5)
       activerecord (>= 5.2)
