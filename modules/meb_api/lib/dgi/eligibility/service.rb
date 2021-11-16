@@ -25,7 +25,7 @@ module MebApi
         private
 
         def end_point
-          'eligibility'
+          'claimant/1111111111/eligibility'
         end
 
         def json

@@ -1027,8 +1027,8 @@ dgi:
   jwt:
     public_key_path: modules/meb_api/spec/fixtures/dgi_public_test.pem
     private_key_path: modules/meb_api/spec/fixtures/dgi_private_test.pem
-  veteran-services:
-    url: "http://localhost:8070/vets/v1" # Docker setup for microservice
+  vets:
+    url: "https://dgi-afs002-apigw.np.afsp.io/vets-service/v1/" # Docker setup for microservice
     mock: false
 
 # Settings for the VEText integration (mobile push notifications)

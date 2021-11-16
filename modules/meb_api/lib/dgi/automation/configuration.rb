@@ -7,7 +7,7 @@ module MebApi
     module Automation
       class Configuration < MebApi::DGI::Configuration
         def base_path
-          Settings.dgi['veteran-services'].url.to_s
+          Settings.dgi.vets.url.to_s
         end
 
         def service_name
@@ -15,7 +15,7 @@ module MebApi
         end
 
         def mock_enabled?
-          Settings.dgi['veteran-services'].mock || false
+          Settings.dgi.vets.mock || false
         end
       end
     end

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: http://localhost:8070/vets/v1/claimType/Chapter33/claimants
+    uri: http://localhost:8070/vets-service/v1/claimType/Chapter33/claimants
     body:
       encoding: UTF-8
       string: '{"ssn":"539139735"}'
@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Authorization:
-      - Bearer eyJhbGciOiJSUzUxMiJ9.eyJhcHBOYW1lIjoidmV0LWJpby1lYXBpIiwidXNlclR5cGUiOiJTVEFGRiIsInN0YXRpb25JZCI6MTIzLCJpZCI6ImFiY2QxMjM0Iiwic3ViIjoiZGdpLXZldC1iaW8tc2VydmljZSIsImF1ZCI6InZldC1iaW8tbXVsZS1lYXBpIiwiaXNzIjoiREdJLVZBLUJHIiwiaWF0IjoxNjMzNjE2NjQ0LCJleHAiOjE2MzM2MTg1NjR9.D0TMEQuMRzq39TapgKGDV0TtvqAjBBRJNBg9Db-Sb8GhhAXylT0SrJfjhld4jJwzcCsnysnRAY1dXoZIUfHC398Cs4kHQOE9dWdlAEM03_ENOPlx48cCu-KDsZj1AveBSD5X89SU0X_105Y1Umh9WpHRY6ogkkQKhuIKngD3R1HNgz6Lr2zPHxKBw0thb_v09maFLI8kdBM1RM_lQp0jcjbp3ji9xgglbk1XDoqvcxAAJ74WlvU-y9PO_sxA33hFQFRhXT3fQHyA5qYKwLrtZFgVvSNY-sTLomCScBN2xcEnVbxUKkBgXL-jy-Mp36OJAvaQucNM1UP42MzEw3vgxQ
+      - Bearer eyJraWQiOiJ2YW5vdGlmeSIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJpYXQiOjE2MzY1NjkyMDUsImV4cCI6MTYzNjU2OTUwNX0.aKPPITFYId582BH5FenTdQKkrmkTSRmEcuiX_G3gDSdSESueHnwCnv0-18qYR5dMricJOD2TgjtaouV8oVDC-G9bYus_LnJrzFoMkzd9AJSg2DVlEMyiVm4uM3-KVbDFSlBwcuvhWNn3LTQnDIO2VkHkhBLYCcQl5WgWOttjpMdeLDl_vIhVHNnyD8Qh0Z2f8LYeSEzYhP2fqzpim02Rv0ZOoeW5G6-_woZVIa0uN_XMCHOOheyrxxI_eaxu4iAavg13p63vRB6SGy0q4preUpLJb7vOCdV6Z8E-8uG5VhjPg1NIsikGJLGcLl5TZuB_Hr6WNEYDj-sOyCHeNVLh9Q
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -27,10 +27,11 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Fri, 29 Oct 2021 20:32:17 GMT
+      - Wed, 10 Nov 2021 18:33:25 GMT
     body:
       encoding: UTF-8
-      string: '{"militaryClaimant":{"claimant":{"claimantId":1000000000000261,"suffix":null,"dateOfBirth":"1970-01-01","firstName":"Herbert","lastName":"Hoover","middleName":null,"notificationMethod":"NONE","contactInfo":{"addressLine1":"123
-        Martin Luther King Blvd","addressLine2":null,"city":"New Orleans","zipcode":"70115","emailAddress":"test@test.com","addressType":"MILITARY_OVERSEAS","mobilePhoneNumber":null,"homePhoneNumber":null,"countryCode":"US","stateCode":"ME"}},"dobChanged":false,"firstAndLastNameChanged":false,"contactInfoChanged":false,"preferredContact":null},"serviceData":[{"branchOfService":"ArmyActiveDuty","beginDate":"2015-08-01","endDate":"2019-08-01","characterOfService":"Honorable","reasonForSeperation":"ExpirationTimeOfService","exclusionPeriods":[],"trainingPeriods":[]}]}'
-  recorded_at: Fri, 29 Oct 2021 20:32:17 GMT
+      string: '{"claimant":{"claimantId":1000000000000261,"suffix":null,"dateOfBirth":"1970-01-01","firstName":"Herbert","lastName":"Hoover","middleName":null,"notificationMethod":"NONE","contactInfo":{"addressLine1":"123
+        Martin Luther King Blvd","addressLine2":null,"city":"New Orleans","zipcode":"70115","emailAddress":"test@test.com","addressType":"MILITARY_OVERSEAS","mobilePhoneNumber":null,"homePhoneNumber":null,"countryCode":"US","stateCode":"ME"},"preferredContact":null},"serviceData":[{"branchOfService":"Army","beginDate":"2015-08-01","endDate":"2019-08-01","characterOfService":"Honorable","reasonForSeperation":"Expiration
+        Term Of Service","exclusionPeriods":[],"trainingPeriods":[]}]}'
+  recorded_at: Wed, 10 Nov 2021 18:33:25 GMT
 recorded_with: VCR 6.0.0

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:8070/vets/v1/eligibility
+    uri: http://localhost:8070/vets-service/v1/claimant/1111111111/eligibility
     body:
       encoding: US-ASCII
       string: ''
@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Authorization:
-      - Bearer eyJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE2MzYxMjcwODMsImV4cCI6MTYzNjEyNzM4M30.QS-mLN7EqzHM2VNL1DulKNBSFVDoYm3QBCABaBGv19fnNmDG6xahv1jg9RdA5pTzrn5kirCiyJmehjm7OHRoBUfS3HJLbt8NCl7xw2H74BWDTBDrr0PAlnZ8qNAtdozDhyuzUhDEqmLwb4r5dFYPuJ66o8_o2iLVFEw-vg_gxk0b3qfsxWYiopTBeAIIIuYp5Eo035dHICtLuXudXZDi3EwGMnontKl-PCCFVQ7jwo_SPWmBtkDiVeM8tyooSTQJBzk3NOItcWSHGa2HWdDd-OL3zsTkpSQrtBnB5Wg7LUAlTLsQXYeI44NWqztsTLfKq-VWWq13co3B4RrKZJG29g
+      - Bearer eyJraWQiOiJ2YW5vdGlmeSIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJpYXQiOjE2MzY1NjgyNzcsImV4cCI6MTYzNjU2ODU3N30.ZdkfNyhvUl0tOiOR5ugF4Piglih44TjiVZMcFw09zheGanA1iGL4ML3oD2gSt9O-067SInt6rw-sCc5vJN_8atoibDyLvYNTGWqBGPe9kQbFxMHF6t2Kr-8MmlALci7cE_64fnZ3jVP_sXxmJMqoDNt3BRbBqEQ3Y_XR7SMUSmVpEytSfUhXyPd-JqQOlb17nJDgDoIW7T_sa80QSDQhehOG9QqqDGYswbTsAoi6w19GZMQPW_6t_A-4b-KoyLH7NH7ir638PLfq3UFbLR2Lr6curyaa1i2o_Xn9TLfrXzmOoF6wp8di3n4D2SV_feTeWWo7rPn6qwL4lEeyO3WqQA
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -27,9 +27,9 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Fri, 05 Nov 2021 15:44:43 GMT
+      - Wed, 10 Nov 2021 18:17:57 GMT
     body:
       encoding: UTF-8
       string: '{"veteranIsEligible":true,"chapter":"Chapter33"}'
-  recorded_at: Fri, 05 Nov 2021 15:44:43 GMT
+  recorded_at: Wed, 10 Nov 2021 18:17:57 GMT
 recorded_with: VCR 6.0.0

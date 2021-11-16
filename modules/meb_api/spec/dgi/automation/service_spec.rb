@@ -15,12 +15,12 @@ Rspec.describe MebApi::DGI::Automation::Service do
     end
 
     context 'with a successful submission and info exists' do
-      it 'successfully receives an military Claimant object' do
+      it 'successfully receives an Claimant object' do
         VCR.use_cassette('dgi/post_claimant_info') do
           response = service.post_claimant_info({ 'ssn': '539139735' })
 
           expect(response.status).to eq(201)
-          expect(response.body['military_claimant']['claimant']['claimant_id']).to eq(1_000_000_000_000_261)
+          expect(response.body['claimant']['claimant_id']).to eq(1_000_000_000_000_261)
         end
       end
     end

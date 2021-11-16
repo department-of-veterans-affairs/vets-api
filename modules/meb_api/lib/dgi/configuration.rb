@@ -3,7 +3,7 @@
 module MebApi
   module DGI
     class Configuration < Common::Client::Configuration::REST
-      BASE_URL = Settings.dgi['veteran-services'].url.to_s
+      BASE_URL = Settings.dgi.vets.url.to_s
 
       def connection
         @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
