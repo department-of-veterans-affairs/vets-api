@@ -28,7 +28,6 @@ module SAML
         settings.sp_entity_id = Settings.saml_ssoe.issuer
         settings.assertion_consumer_service_url = Settings.saml_ssoe.callback_url
         settings.compress_request = false
-        settings.authn_context_comparison = Settings.saml_ssoe.authn_context_comparison
 
         settings.security[:authn_requests_signed] = Settings.saml_ssoe.request_signing
         settings.security[:want_assertions_signed] = Settings.saml_ssoe.response_signing

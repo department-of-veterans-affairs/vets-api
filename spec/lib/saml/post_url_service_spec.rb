@@ -158,6 +158,8 @@ RSpec.describe SAML::PostURLService do
         end
 
         it 'has sign in url: idme_url' do
+          expect_any_instance_of(OneLogin::RubySaml::Settings)
+            .to receive(:authn_context_comparison=).with('minimum')
           url, params = subject.idme_url
           expect(url).to eq('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login')
           expect_saml_form_parameters(params,
@@ -428,6 +430,8 @@ RSpec.describe SAML::PostURLService do
         end
 
         it 'has sign in url: idme_url' do
+          expect_any_instance_of(OneLogin::RubySaml::Settings)
+            .to receive(:authn_context_comparison=).with('minimum')
           url, params = subject.idme_url
           expect(url).to eq('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login')
           expect_saml_form_parameters(params,

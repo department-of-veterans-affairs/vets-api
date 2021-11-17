@@ -44,6 +44,8 @@ RSpec.describe SAML::URLService do
         end
 
         it 'has sign in url: idme_url' do
+          expect_any_instance_of(OneLogin::RubySaml::Settings)
+            .to receive(:authn_context_comparison=).with('minimum')
           expect(subject.idme_url)
             .to be_a_saml_url(expected_saml_url)
             .with_relay_state('originating_request_id' => '123', 'type' => 'idme')
@@ -320,6 +322,8 @@ RSpec.describe SAML::URLService do
         end
 
         it 'has sign in url: idme_url' do
+          expect_any_instance_of(OneLogin::RubySaml::Settings)
+            .to receive(:authn_context_comparison=).with('minimum')
           expect(subject.idme_url)
             .to be_a_saml_url(expected_saml_url)
             .with_relay_state('originating_request_id' => '123', 'type' => 'idme')

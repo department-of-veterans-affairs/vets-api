@@ -89,7 +89,11 @@ module SAML
 
     def idme_url
       @type = 'idme'
-      build_sso_url(build_authn_context(LOA::IDME_LOA1_VETS))
+      if Settings.vsp_environment != 'production'
+        build_sso_url(build_authn_context(LOA::IDME_LOA1_VETS), AuthnContext::MINIMUM)
+      else
+        build_sso_url(build_authn_context(LOA::IDME_LOA1_VETS))
+      end
     end
 
     def signup_url
@@ -111,15 +115,14 @@ module SAML
           [IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2, IAL::LOGIN_GOV_ATTR],
           AuthnContext::LOGIN_GOV
         ),
-        'minimum'
+        AuthnContext::MINIMUM
       )
     end
 
     def logingov_signup_url
       @type = 'signup'
       build_sso_url(
-        build_authn_context([IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2], AuthnContext::LOGIN_GOV),
-        'minimum'
+        build_authn_context([IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2], AuthnContext::LOGIN_GOV)
       )
     end
 
@@ -205,10 +208,11 @@ module SAML
 
     # Builds the urls to trigger various SSO policies: mhv, dslogon, idme, mfa, or verify flows.
     # link_authn_context is the new proposed authn_context
-    def build_sso_url(link_authn_context)
+    def build_sso_url(link_authn_context, authn_con_compare = AuthnContext::EXACT)
       @query_params[:RelayState] = relay_state_params
       new_url_settings = url_settings
       new_url_settings.authn_context = link_authn_context
+      new_url_settings.authn_context_comparison = authn_con_compare
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
       save_saml_request_tracker(saml_auth_request.uuid, link_authn_context)
       saml_auth_request.create(new_url_settings, query_params)
