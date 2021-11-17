@@ -41,5 +41,19 @@ RSpec.describe MedicalCopays::VBS::Service do
 
       expect(subject.get_copays).to eq({ data: [{ 'fooBar' => 'bar' }], status: 200 })
     end
+
+    it 'includes zero balance statements if available' do
+      url = '/base/path/GetStatementsByEDIPIAndVistaAccountNumber'
+      data = { edipi: '123456789', vistaAccountNumbers: [36_546] }
+      response = Faraday::Response.new(body: [{ 'foo_bar' => 'bar' }], status: 200)
+      zero_balance_response = [{ 'bar_baz' => 'baz' }]
+
+      allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:valid?).and_return(true)
+      allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:to_hash).and_return(data)
+      allow_any_instance_of(MedicalCopays::Request).to receive(:post).with(url, data).and_return(response)
+      allow_any_instance_of(MedicalCopays::ZeroBalanceStatements).to receive(:list).and_return(zero_balance_response)
+
+      expect(subject.get_copays).to eq({ data: [{ 'fooBar' => 'bar' }, { 'barBaz' => 'baz' }], status: 200 })
+    end
   end
 end
