@@ -77,7 +77,7 @@ module EMIS
     # @return [EMIS::Responses] Whatever +response_type+ was passed in will be returned
     #
     # rubocop:disable Metrics/ParameterLists
-    def make_request(edipi: nil, icn: nil, response_type:, operation:, request_name:, version: 'V1')
+    def make_request(response_type:, operation:, request_name:, edipi: nil, icn: nil, version: 'V1')
       message = create_edipi_or_icn_message(
         edipi: edipi,
         icn: icn,

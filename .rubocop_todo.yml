@@ -273,15 +273,6 @@ Style/HashLikeCase:
     - 'lib/identity/parsers/gc_ids.rb'
     - 'spec/controllers/v1/sessions_controller_spec.rb'
 
-# Offense count: 8
-# Cop supports --auto-correct.
-Style/KeywordParametersOrder:
-  Exclude:
-    - 'lib/emis/messages/edipi_or_icn_message.rb'
-    - 'lib/emis/service.rb'
-    - 'modules/appeals_api/spec/support/shared_examples_contestable_issues.rb'
-    - 'modules/vaos/app/models/vaos/v1/operation_outcome.rb'
-
 # Offense count: 13
 # Configuration parameters: AllowedMethods.
 # AllowedMethods: respond_to_missing?

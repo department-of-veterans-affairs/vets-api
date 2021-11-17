@@ -22,7 +22,7 @@ module VAOS
       # @param id String the id, if available, of the resource
       # @param issue StandardError the original error that caused the issue
       # @return issue VAOS::V1::OperationOutcome the instance
-      def initialize(resource_type:, id: nil, issue:)
+      def initialize(resource_type:, issue:, id: nil)
         @resource_type = resource_type
         @id = id
         @issue = issue

@@ -18,7 +18,7 @@ module EMIS
       # @param icn [String] User's Integration Control Number
       # @param request_name [String] Request name used in XML request body
       # @param custom_namespaces [Hash] Namespace for API to be called
-      def initialize(edipi: nil, icn: nil, request_name:, custom_namespaces: {})
+      def initialize(request_name:, edipi: nil, icn: nil, custom_namespaces: {})
         if (edipi.present? && icn.present?) || (edipi.nil? && icn.nil?)
           raise ArgumentError, 'must include either an EDIPI or ICN, but not both'
         end

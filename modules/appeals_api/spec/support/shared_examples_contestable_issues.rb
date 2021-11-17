@@ -92,7 +92,7 @@ RSpec.shared_examples 'contestable issues index requests' do |options|
 
   private
 
-  def get_issues(ssn: '872958715', file_number: nil, receipt_date: '2019-12-01', options:)
+  def get_issues(options:, ssn: '872958715', file_number: nil, receipt_date: '2019-12-01')
     headers = {}
 
     headers['X-VA-Receipt-Date'] = receipt_date unless receipt_date.nil?
