@@ -116,7 +116,6 @@ module EMISRedis
         }
       end
     end
-    # rubocop:disable Metrics/CyclomaticComplexity, Lint/DuplicateBranch
 
     # Convert service branch code from a military service episode
     # into a formatted readable string.
@@ -159,7 +158,6 @@ module EMISRedis
         ''
       end
     end
-    # rubocop:enable Metrics/CyclomaticComplexity,  Lint/DuplicateBranch
 
     # @return [Array<Hash>] Data about the veteran's service periods
     #  including service branch served under and date range of each

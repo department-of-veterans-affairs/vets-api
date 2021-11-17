@@ -3,7 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe Facilities::PSSGDownload, type: :job do
-  # rubocop:disable RSpec/VariableName
   let(:drive_time_data_648A4) do
     fixture_file_name = "#{::Rails.root}/spec/fixtures/pssg/drive_time_data_648A4.json"
     File.open(fixture_file_name, 'rb') do |f|
@@ -31,8 +30,6 @@ RSpec.describe Facilities::PSSGDownload, type: :job do
       JSON.parse(f.read)
     end
   end
-  # rubocop:enable RSpec/VariableName
-
   let(:drive_time_data_bad_band) do
     bands = drive_time_data_648A4
 

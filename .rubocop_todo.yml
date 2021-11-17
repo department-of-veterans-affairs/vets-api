@@ -35,16 +35,6 @@ Lint/NonDeterministicRequireOrder:
     - 'spec/requests/v1/apidoc/apidoc_spec.rb'
     - 'spec/service_consumers/pact_helper.rb'
 
-# Offense count: 5
-# Cop supports --auto-correct.
-Lint/RedundantCopDisableDirective:
-  Exclude:
-    - 'app/models/emis_redis/military_information_v2.rb'
-    - 'app/models/saved_claim/education_benefits/va_10203.rb'
-    - 'app/policies/evss_policy.rb'
-    - 'spec/jobs/facilities/pssg_download_spec.rb'
-    - 'spec/support/saml/response_builder.rb'
-
 # Offense count: 1
 Lint/StructNewOverride:
   Exclude:

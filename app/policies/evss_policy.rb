@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/BlockLength
 EVSSPolicy = Struct.new(:user, :evss) do
   def access?
     if user.edipi.present? && user.ssn.present? && user.participant_id.present?
@@ -40,4 +39,3 @@ EVSSPolicy = Struct.new(:user, :evss) do
     false
   end
 end
-# rubocop:enable Metrics/BlockLength

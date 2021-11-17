@@ -9,7 +9,6 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
   class Submit10203EVSSError < StandardError
   end
 
-  # rubocop:disable Metrics/CyclomaticComplexity
   def after_submit(user)
     @user = user
     if @user.present?
@@ -32,7 +31,6 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
       end
     end
   end
-  # rubocop:enable Metrics/CyclomaticComplexity
 
   def create_stem_automated_decision
     logger.info "EDIPI available for submit STEM claim id=#{education_benefits_claim.id}: #{@user.edipi.present?}"
