@@ -83,14 +83,14 @@
                     }
                   },
                   "additionalProperties": false,
-                  "required": [ ]
+                  "required": ["address", "phone", "email"]
                 },
                 "evidenceSubmission": {
                   "type": "object",
                   "properties": {
                     "evidenceType":{
                       "type": "array",
-                      "items": { "enum": ["upload", "retrieval"] },
+                      "items": { "type": "string", "enum": ["upload", "retrieval"] },
                       "minItems": 1,
                       "uniqueItems": true
                     },
@@ -123,25 +123,15 @@
                     }
                   },
                   "required": ["evidenceType"],
-                  "anyOf": [
-                    {
-                      "not": {
-                        "properties": {
-                          "evidenceType": { "contains": { "enum": ["retrieval"] } }
-                        }
-                      }
-                    },
-                    { "required": ["retrieveFrom"] }
-                  ]
+                  "if": { "properties": { "evidenceType": { "const": "retrieval" } } },
+                  "then": { "required": ["retrieveFrom"] }
                 },
-                "noticeAcknowledgement": {
-                  "enum": [true, false]
-                },
+                "noticeAcknowledgement": { "type": "boolean" },
                 "socOptIn": { "type": "boolean" }
               },
               "required": ["veteran", "evidenceSubmission", "socOptIn", "noticeAcknowledgement"],
               "if": { "properties": { "benefitType": { "const": "compensation" } } },
-              "then": { "properties": { "noticeAcknowledgement": { "const": true } } }
+              "then": { "properties": { "noticeAcknowledgement": { "enum": [true] } } }
             }
           },
           "additionalProperties": false,
@@ -155,7 +145,12 @@
               "attributes": {
                 "type": "object",
                 "properties": {
-                  "issue": { "allOf": [ { "$ref": "#/definitions/nonBlankString" }, { "maxLength": 140 } ] },
+                  "issue": {
+                    "allOf": [
+                      { "$ref": "#/definitions/nonBlankString" },
+                      { "maxLength": 140 }
+                    ]
+                  },
                   "decisionDate":{ "$ref": "#/definitions/date" },
                   "decisionIssueId":{ "type": "integer" },
                   "ratingIssueReferenceId":{ "type": "string" },

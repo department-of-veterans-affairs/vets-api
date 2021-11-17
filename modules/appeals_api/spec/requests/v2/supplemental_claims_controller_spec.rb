@@ -56,6 +56,20 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       end
     end
 
+    context 'when contestable issue text is too long' do
+      it 'responds with status :unprocessable_entity ' do
+        mod_data = JSON.parse(data)
+        mod_data['included'][0]['attributes']['issue'] =
+          'Powder chocolate bar shortbread jelly beans brownie. Jujubes gummies sweet tart dragée halvah fruitcake. '\
+          'Cake tart I love apple pie candy canes tiramisu. Lemon drops muffin marzipan apple pie.'
+
+        post(path, params: mod_data.to_json, headers: headers)
+        expect(response.status).to eq(422)
+        expect(response.body).to include('Invalid length')
+        expect(response.body).to include('attributes/issue')
+      end
+    end
+
     context 'when invalid headers supplied' do
       it 'returns an error' do
         invalid_headers = headers.merge!(
