@@ -19,7 +19,7 @@ module Mobile
               group_name: Mobile::CDC_CVX_CODE_MAP[cvx_code],
               location_id: location_id(immunization.dig(:location, :reference)),
               manufacturer: nil,
-              note: immunization[:note].first[:text],
+              note: note(immunization[:note]),
               reaction: reaction(immunization[:reaction]),
               short_description: vaccine_code[:text]
             )
@@ -48,6 +48,12 @@ module Mobile
           series = protocol_applied.first
 
           series[:series_doses_positive_int] || series[:series_doses_string]
+        end
+
+        def note(note)
+          return nil if note.blank?
+
+          note.first[:text]
         end
 
         def reaction(reaction)
