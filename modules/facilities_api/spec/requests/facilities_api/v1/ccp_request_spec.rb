@@ -79,7 +79,10 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
       end
 
       describe '#index' do
-        context 'Empty Results', vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms_empty_search') do
+        context 'Empty Results', vcr: vcr_options.merge(
+          cassette_name: 'facilities/ppms/ppms_empty_search',
+          match_requests_on: [:method]
+        ) do
           it 'responds to GET #index with success even if no providers are found' do
             get '/facilities_api/v1/ccp', params: params
 

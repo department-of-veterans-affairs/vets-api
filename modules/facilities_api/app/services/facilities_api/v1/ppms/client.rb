@@ -157,7 +157,9 @@ module FacilitiesApi
             radius: radius,
             maxResults: per_page,
             pageNumber: page,
-            pageSize: per_page
+            pageSize: per_page,
+            telehealthSearch: 0,
+            homeHealthSearch: 0
           }.merge(specialty_codes)
         end
 
@@ -172,7 +174,9 @@ module FacilitiesApi
           {
             address: [latitude, longitude].join(','),
             radius: radius,
-            maxResults: max_results
+            maxResults: max_results,
+            telehealthSearch: 0,
+            homeHealthSearch: 0
           }
         end
 

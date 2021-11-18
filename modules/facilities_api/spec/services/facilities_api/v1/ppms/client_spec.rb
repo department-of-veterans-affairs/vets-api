@@ -65,7 +65,7 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
 
         context 'PPMS responds with a Failure', vcr: vcr_options.merge(
           cassette_name: 'facilities/ppms/ppms_500',
-          match_requests_on: %i[path]
+          match_requests_on: [:method]
         ) do
           it "sends a 'facilities.ppms.request.faraday' notification to any subscribers listening" do
             allow(StatsD).to receive(:measure)
@@ -119,7 +119,7 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
 
       context 'with an unknown error from PPMS', vcr: vcr_options.merge(
         cassette_name: 'facilities/ppms/ppms_500',
-        match_requests_on: %i[path]
+        match_requests_on: [:method]
       ) do
         it 'raises BackendUnhandledException when errors happen' do
           expect { FacilitiesApi::V1::PPMS::Client.new.provider_locator(params.merge(specialties: ['213E00000X'])) }
@@ -139,7 +139,7 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
 
       context 'with a stack trace from PPMS', vcr: vcr_options.merge(
         cassette_name: 'facilities/ppms/ppms_500_stack_trace',
-        match_requests_on: %i[path]
+        match_requests_on: [:method]
       ) do
         it 'raises BackendUnhandledException when PPMS raises a stack trace' do
           expect { FacilitiesApi::V1::PPMS::Client.new.provider_locator(params.merge(specialties: ['213E00000X'])) }
@@ -159,7 +159,7 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
 
       context 'with a Geocode error from PPMS', vcr: vcr_options.merge(
         cassette_name: 'facilities/ppms/ppms_500_geo_error',
-        match_requests_on: %i[path]
+        match_requests_on: [:method]
       ) do
         it 'raises BackendUnhandledException when PPMS raises a stack trace' do
           expect { FacilitiesApi::V1::PPMS::Client.new.provider_locator(params.merge(specialties: ['213E00000X'])) }
@@ -178,7 +178,10 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
         end
       end
 
-      context 'with an empty result', vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms_empty_search') do
+      context 'with an empty result', vcr: vcr_options.merge(
+        cassette_name: 'facilities/ppms/ppms_empty_search',
+        match_requests_on: [:method]
+      ) do
         it 'returns an empty array' do
           r = described_class.new.provider_locator(params.merge(specialties: ['213E00000X']))
 
@@ -201,9 +204,11 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
               path,
               {
                 address: '40.415217,-74.057114',
+                homeHealthSearch: 0,
                 maxResults: 11,
                 radius: 200,
-                specialtycode1: 'Code1'
+                specialtycode1: 'Code1',
+                telehealthSearch: 0
               }
             ).and_return(fake_response)
 
@@ -216,9 +221,11 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
               path,
               {
                 address: '40.415217,-74.057114',
+                homeHealthSearch: 0,
                 maxResults: 50,
                 radius: 200,
-                specialtycode1: 'Code1'
+                specialtycode1: 'Code1',
+                telehealthSearch: 0
               }
             ).exactly(3).and_return(fake_response)
 
@@ -233,9 +240,11 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
               path,
               {
                 address: '40.415217,-74.057114',
+                homeHealthSearch: 0,
                 maxResults: 2,
                 radius: 200,
-                specialtycode1: 'Code1'
+                specialtycode1: 'Code1',
+                telehealthSearch: 0
               }
             ).exactly(4).and_return(fake_response)
 
@@ -253,9 +262,11 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
               path,
               {
                 address: '40.415217,-74.057114',
+                homeHealthSearch: 0,
                 maxResults: 11,
                 radius: 500,
-                specialtycode1: 'Code1'
+                specialtycode1: 'Code1',
+                telehealthSearch: 0
               }
             ).and_return(fake_response)
 
@@ -268,9 +279,11 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
               path,
               {
                 address: '40.415217,-74.057114',
+                homeHealthSearch: 0,
                 maxResults: 11,
                 radius: 1,
-                specialtycode1: 'Code1'
+                specialtycode1: 'Code1',
+                telehealthSearch: 0
               }
             ).and_return(fake_response)
 
@@ -285,9 +298,11 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
               path,
               {
                 address: '40.123457,-74.123457',
+                homeHealthSearch: 0,
                 maxResults: 11,
                 radius: 200,
-                specialtycode1: 'Code1'
+                specialtycode1: 'Code1',
+                telehealthSearch: 0
               }
             ).and_return(fake_response)
 
@@ -318,6 +333,7 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
               path,
               {
                 address: '40.415217,-74.057114',
+                homeHealthSearch: 0,
                 maxResults: 10,
                 pageNumber: 1,
                 pageSize: 10,
@@ -326,7 +342,8 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
                 specialtycode2: 'Code2',
                 specialtycode3: 'Code3',
                 specialtycode4: 'Code4',
-                specialtycode5: 'Code5'
+                specialtycode5: 'Code5',
+                telehealthSearch: 0
               }
             ).and_return(fake_response)
 
@@ -340,6 +357,7 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
               path,
               {
                 address: '40.415217,-74.057114',
+                homeHealthSearch: 0,
                 maxResults: 10,
                 pageNumber: 1,
                 pageSize: 10,
@@ -348,7 +366,8 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
                 specialtycode2: 'Code2',
                 specialtycode3: 'Code3',
                 specialtycode4: 'Code4',
-                specialtycode5: 'Code5'
+                specialtycode5: 'Code5',
+                telehealthSearch: 0
               }
             ).and_return(fake_response)
 
@@ -361,8 +380,10 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
             let!(:response) do
               FacilitiesApi::V1::PPMS::Client.new.facility_service_locator(
                 params.merge(
+                  homeHealthSearch: 0,
                   maxResults: 20,
                   specialties: ['213E00000X'],
+                  telehealthSearch: 0,
                   page: 1,
                   per_page: 20
                 )
@@ -385,7 +406,7 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
                 latitude: 40.414248,
                 longitude: -74.097581,
                 main_phone: nil,
-                miles: 2.5066,
+                miles: 2.5153,
                 provider_identifier: '1437189941',
                 provider_name: 'LILLIE, ROBERT C'
               )
@@ -449,8 +470,8 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
                 '1275625261',
                 '1679589261',
                 '1063819092',
-                '1912382888',
-                '1417171638'
+                '1417171638',
+                '1265505630'
               )
             end
           end
@@ -488,7 +509,7 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
                 '1518230663',
                 '1083043236',
                 '1548209356',
-                '1811067119'
+                '1912382888'
               )
             end
           end
@@ -507,13 +528,15 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
               path,
               {
                 address: '40.415217,-74.057114',
+                homeHealthSearch: 0,
                 maxResults: 11,
                 radius: 200,
                 specialtycode1: 'Code1',
                 specialtycode2: 'Code2',
                 specialtycode3: 'Code3',
                 specialtycode4: 'Code4',
-                specialtycode5: 'Code5'
+                specialtycode5: 'Code5',
+                telehealthSearch: 0
               }
             ).and_return(fake_response)
 
@@ -527,13 +550,15 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
               path,
               {
                 address: '40.415217,-74.057114',
+                homeHealthSearch: 0,
                 maxResults: 11,
                 radius: 200,
                 specialtycode1: 'Code1',
                 specialtycode2: 'Code2',
                 specialtycode3: 'Code3',
                 specialtycode4: 'Code4',
-                specialtycode5: 'Code5'
+                specialtycode5: 'Code5',
+                telehealthSearch: 0
               }
             ).and_return(fake_response)
 
@@ -559,7 +584,7 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
             latitude: 40.414248,
             longitude: -74.097581,
             main_phone: nil,
-            miles: 2.5066,
+            miles: 2.5153,
             provider_identifier: '1437189941',
             provider_name: 'LILLIE, ROBERT C'
           )
@@ -585,7 +610,7 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
             latitude: 40.409114,
             longitude: -74.041849,
             main_phone: nil,
-            miles: 1.019,
+            miles: 1.0277,
             pos_codes: %w[
               17
               20

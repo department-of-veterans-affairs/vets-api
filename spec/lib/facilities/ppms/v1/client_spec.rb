@@ -4,10 +4,9 @@ require 'rails_helper'
 require 'facilities/ppms/v1/client'
 
 vcr_options = {
-  cassette_name: 'facilities/ppms/ppms',
+  cassette_name: 'facilities/ppms/ppms_old',
   match_requests_on: %i[path query],
-  allow_playback_repeats: true,
-  record: :new_episodes
+  allow_playback_repeats: true
 }
 
 RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options do
@@ -55,7 +54,10 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
       end
     end
 
-    context 'PPMS responds with a Failure', vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms_500') do
+    context 'PPMS responds with a Failure', vcr: vcr_options.merge(
+      cassette_name: 'facilities/ppms/ppms_500',
+      match_requests_on: [:method]
+    ) do
       it "sends a 'facilities.ppms.request.faraday' notification to any subscribers listening" do
         allow(StatsD).to receive(:measure)
         allow(StatsD).to receive(:increment)
@@ -108,7 +110,7 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
 
   context 'with an unknown error from PPMS', vcr: {
     cassette_name: 'facilities/ppms/ppms_500',
-    match_requests_on: %i[path]
+    match_requests_on: [:method]
   } do
     it 'raises BackendUnhandledException when errors happen' do
       expect { Facilities::PPMS::V1::Client.new.provider_locator(params.merge(specialties: ['213E00000X'])) }
@@ -118,7 +120,10 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
     end
   end
 
-  context 'with an empty result', vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms_empty_search') do
+  context 'with an empty result', vcr: vcr_options.merge(
+    cassette_name: 'facilities/ppms/ppms_empty_search',
+    match_requests_on: [:method]
+  ) do
     it 'returns an empty array' do
       r = described_class.new.provider_locator(params.merge(specialties: ['213E00000X']))
 

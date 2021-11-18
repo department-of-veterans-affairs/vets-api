@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'facilities/ppms/v1/client'
 
 vcr_options = {
-  cassette_name: 'facilities/ppms/ppms',
+  cassette_name: 'facilities/ppms/ppms_old',
   match_requests_on: %i[path query],
   allow_playback_repeats: true
 }
@@ -83,7 +83,10 @@ RSpec.describe 'Community Care Providers', team: :facilities, vcr: vcr_options d
       end
     end
 
-    context 'Empty Results', vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms_empty_search') do
+    context 'Empty Results', vcr: vcr_options.merge(
+      cassette_name: 'facilities/ppms/ppms_empty_search',
+      match_requests_on: [:method]
+    ) do
       it 'responds to GET #index with success even if no providers are found' do
         get '/v1/facilities/ccp', params: params
 
