@@ -151,7 +151,12 @@ module SAML
       # It is currently returning a value of "2" for DSLogon level 2
       # so we are interpreting any value greater than 1 as "LOA 3".
       def loa_current
-        assurance = safe_attr('va_eauth_credentialassurancelevel')&.to_i
+        assurance =
+          if csid == 'logingov'
+            safe_attr('va_eauth_ial')&.to_i
+          else
+            safe_attr('va_eauth_credentialassurancelevel')&.to_i
+          end
         @loa_current ||= assurance.present? && assurance > 1 ? 3 : 1
       rescue NoMethodError, KeyError => e
         @warnings << "loa_current error: #{e.message}"

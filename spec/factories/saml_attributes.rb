@@ -165,7 +165,6 @@ FactoryBot.define do
     end
     va_eauth_csid { ['LOGINGOV'] }
     va_eauth_lastname { ['NOT_FOUND'] }
-    va_eauth_credentialassurancelevel { ['1'] }
     va_eauth_ial { ['1'] }
     va_eauth_firstname { ['NOT_FOUND'] }
     va_eauth_csponly { ['true'] }
@@ -210,7 +209,6 @@ FactoryBot.define do
     va_eauth_proofingAuthority { ['FICAM'] }
     va_eauth_pid { ['NOT_FOUND'] }
     va_eauth_csid { ['LOGINGOV'] }
-    va_eauth_credentialassurancelevel { ['3'] }
     va_eauth_pnidtype { ['SSN'] }
     va_eauth_mcid { ['WSSOE2111101347520361419017657'] }
     va_eauth_firstname { ['ROBERT'] }
