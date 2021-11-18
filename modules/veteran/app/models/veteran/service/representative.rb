@@ -10,7 +10,7 @@ module Veteran
 
       self.primary_key = :representative_id
       has_kms_key
-      encrypts :dob, :ssn, key: :kms_key, **lockbox_options
+      encrypts :dob, :ssn, key: :kms_key
 
       scope :attorneys, -> { where(user_types: ['attorney']) }
       scope :veteran_service_officers, -> { where(user_types: ['veteran_service_officer']) }

@@ -9,7 +9,7 @@ class PersistentAttachment < ApplicationRecord
   include SetGuid
 
   has_kms_key
-  encrypts :file_data, key: :kms_key, **lockbox_options
+  encrypts :file_data, key: :kms_key
   belongs_to :saved_claim, inverse_of: :persistent_attachments, optional: true
   delegate :original_filename, :size, to: :file
 
