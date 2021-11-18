@@ -260,6 +260,10 @@ features:
   gibct_school_ratings:
     actor_type: user
     description: Show/Hide the school ratings section of the Comparison Tool School Profile Page.
+  gi_sandbox_comparision_tool_toggle:
+    actor_type: user
+    description: Shows gi-bill-comparison-tool-sandbox CT if active else shows the gi-bill-comparison-tool CT.
+    enable_in_development: true
   hlr_v2:
     actor_type: user
     description: Enable showing Higher-Level Review v2
