@@ -36,7 +36,6 @@ RSpec.describe SAML::PostURLService do
             .to receive(:authn_context=).with(
               [IAL::LOGIN_GOV_IAL1,
                AAL::LOGIN_GOV_AAL2,
-               IAL::LOGIN_GOV_ATTR,
                AuthnContext::LOGIN_GOV]
             )
           expect_any_instance_of(OneLogin::RubySaml::Settings)

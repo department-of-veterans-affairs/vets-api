@@ -112,7 +112,7 @@ module SAML
       @type = 'logingov'
       build_sso_url(
         build_authn_context(
-          [IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2, IAL::LOGIN_GOV_ATTR],
+          [IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2],
           AuthnContext::LOGIN_GOV
         ),
         AuthnContext::MINIMUM
