@@ -103,13 +103,13 @@ module SAML
       end
 
       def idme_uuid
-        return safe_attr('va_eauth_uid') if csid == 'idme'
+        return safe_attr('va_eauth_uid') if csid == SAML::User::IDME_CSID
 
         mvi_ids[:idme_id]
       end
 
       def logingov_uuid
-        return safe_attr('va_eauth_uid') if csid == 'logingov'
+        return safe_attr('va_eauth_uid') if csid == SAML::User::LOGINGOV_CSID
       end
 
       # only applies to Login.gov IAL2 verification
@@ -202,7 +202,7 @@ module SAML
 
       def sign_in
         sign_in = if @authn_context == INBOUND_AUTHN_CONTEXT
-                    { service_name: csid == 'mhv' ? 'myhealthevet' : csid }
+                    { service_name: csid == SAML::User::MHV_ORIGINAL_CSID ? SAML::User::MHV_MAPPED_CSID : csid }
                   else
                     SAML::User::AUTHN_CONTEXTS.fetch(@authn_context).fetch(:sign_in)
                   end

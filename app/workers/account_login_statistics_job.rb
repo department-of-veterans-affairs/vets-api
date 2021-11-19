@@ -36,7 +36,7 @@ class AccountLoginStatisticsJob
   end
 
   def count_column_sql_statements
-    AccountLoginStat::LOGIN_TYPES.map do |type|
+    SAML::User::LOGIN_TYPES.map do |type|
       %(
         COUNT(#{type}_at) FILTER (WHERE #{type}_at IS NOT NULL) AS "account_login_stats.total_#{type}_accounts",
         COUNT(#{type}_at) FILTER (WHERE #{type}_at > $1) AS "account_login_stats.#{type}_past_year",

@@ -3,8 +3,6 @@
 # It's important that the datetime columns on this table fit a "#{name}_at" pattern
 # where the name matches one of the service_names in the SAML::User::AUTHN_CONTEXTS hash.
 class AccountLoginStat < ApplicationRecord
-  # ['idme', 'myhealthevet', 'dslogon']
-  LOGIN_TYPES = SAML::User::AUTHN_CONTEXTS.map { |_k, v| v[:sign_in][:service_name] }.uniq.freeze
   VERIFICATION_LEVELS = %w[loa1 loa3 ial1 ial2].freeze
 
   belongs_to :account, inverse_of: :login_stats

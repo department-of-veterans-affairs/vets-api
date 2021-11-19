@@ -241,7 +241,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         it 'makes a call to AfterLoginActions' do
           allow(SAML::User).to receive(:new).and_return(saml_user)
-          expect_any_instance_of(AfterLoginActions).to receive(:perform)
+          expect_any_instance_of(Login::AfterLoginActions).to receive(:perform)
           post :saml_callback
         end
       end

@@ -11,21 +11,30 @@ module SAML
   class User
     include SentryLogging
 
-    AUTHN_CONTEXTS = {
-      LOA::IDME_LOA1_VETS => { loa_current: '1', sign_in: { service_name: 'idme' } },
-      LOA::IDME_LOA3_VETS => { loa_current: '3', sign_in: { service_name: 'idme' } },
-      LOA::IDME_LOA3 => { loa_current: '3', sign_in: { service_name: 'idme' } },
-      'multifactor' => { loa_current: nil, sign_in: { service_name: 'idme' } },
-      'myhealthevet_multifactor' => { loa_current: nil, sign_in: { service_name: 'myhealthevet' } },
-      'myhealthevet_loa3' => { loa_current: '3', sign_in: { service_name: 'myhealthevet' } },
-      'dslogon_multifactor' => { loa_current: nil, sign_in: { service_name: 'dslogon' } },
-      'dslogon_loa3' => { loa_current: '3', sign_in: { service_name: 'dslogon' } },
-      'myhealthevet' => { loa_current: nil, sign_in: { service_name: 'myhealthevet' } },
-      'dslogon' => { loa_current: nil, sign_in: { service_name: 'dslogon' } },
-      IAL::LOGIN_GOV_IAL1 => { loa_current: '1', sign_in: { service_name: 'logingov' } },
-      IAL::LOGIN_GOV_IAL2 => { loa_current: '3', sign_in: { service_name: 'logingov' } }
-    }.freeze
     UNKNOWN_AUTHN_CONTEXT = 'unknown'
+    MHV_ORIGINAL_CSID = 'mhv'
+    MHV_MAPPED_CSID = 'myhealthevet'
+    IDME_CSID = 'idme'
+    DSLOGON_CSID = 'dslogon'
+    LOGINGOV_CSID = 'logingov'
+
+    AUTHN_CONTEXTS = {
+      LOA::IDME_LOA1_VETS => { loa_current: LOA::ONE, sign_in: { service_name: IDME_CSID } },
+      LOA::IDME_LOA3_VETS => { loa_current: LOA::THREE, sign_in: { service_name: IDME_CSID } },
+      LOA::IDME_LOA3 => { loa_current: LOA::THREE, sign_in: { service_name: IDME_CSID } },
+      'multifactor' => { loa_current: nil, sign_in: { service_name: IDME_CSID } },
+      'myhealthevet_multifactor' => { loa_current: nil, sign_in: { service_name: MHV_MAPPED_CSID } },
+      'myhealthevet_loa3' => { loa_current: LOA::THREE, sign_in: { service_name: MHV_MAPPED_CSID } },
+      'dslogon_multifactor' => { loa_current: nil, sign_in: { service_name: DSLOGON_CSID } },
+      'dslogon_loa3' => { loa_current: LOA::THREE, sign_in: { service_name: DSLOGON_CSID } },
+      'myhealthevet' => { loa_current: nil, sign_in: { service_name: MHV_MAPPED_CSID } },
+      'dslogon' => { loa_current: nil, sign_in: { service_name: DSLOGON_CSID } },
+      IAL::LOGIN_GOV_IAL1 => { loa_current: LOA::ONE, sign_in: { service_name: LOGINGOV_CSID } },
+      IAL::LOGIN_GOV_IAL2 => { loa_current: LOA::THREE, sign_in: { service_name: LOGINGOV_CSID } }
+    }.freeze
+
+    LOGIN_TYPES = [MHV_MAPPED_CSID, IDME_CSID, DSLOGON_CSID, LOGINGOV_CSID].freeze
+
     attr_reader :saml_response, :saml_attributes, :user_attributes, :tracker_uuid
 
     def initialize(saml_response)

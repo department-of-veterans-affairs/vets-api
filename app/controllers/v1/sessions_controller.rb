@@ -6,6 +6,7 @@ require 'saml/post_url_service'
 require 'saml/responses/login'
 require 'saml/responses/logout'
 require 'saml/ssoe_settings_service'
+require 'login/after_login_actions'
 
 module V1
   class SessionsController < ApplicationController
@@ -351,7 +352,7 @@ module V1
     end
 
     def after_login_actions
-      AfterLoginActions.new(@current_user).perform
+      Login::AfterLoginActions.new(@current_user).perform
       log_persisted_session_and_warnings
     end
 
