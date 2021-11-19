@@ -307,6 +307,10 @@ features:
     description: >
       [Front-end only] When enabled, the 10-10EZ will collect a home and mailing address for the veteran
       vs only collecting a single, "permanent" address.
+  omni_channel_link:
+    actor_type: user
+    description: This determines the visibility of the OmniChannel link in the claim status tool
+    enable_in_development: true
   pre_entry_covid19_screener:
     actor_type: user
     description: >
