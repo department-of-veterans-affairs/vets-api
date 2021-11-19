@@ -82,7 +82,7 @@ module MedicalCopays
     # @return [Hash]
     #
     def request_data
-      vha_formatted_ids = zero_balance_facilities_ids.map { |i| i.dup.prepend('vha_') }
+      vha_formatted_ids = zero_balance_facilities_ids.map { |i| i.dup.prepend('vha_') }.join(',')
       { ids: vha_formatted_ids }
     end
 
