@@ -13,17 +13,11 @@ RSpec.describe Ch31SubmissionsReportMailer, type: %i[mailer aws_helpers] do
         create(:veteran_readiness_employment_claim, updated_at: '2017-07-26 23:59:59 UTC')
       end
 
-      let(:time) { Time.zone.now }
-
       let(:submitted_claims) do
-        VRE::CreateCh31SubmissionsReport.new.get_claims_submitted_in_range
+        [vre_claim_1, vre_claim_2]
       end
 
       let(:mail) { described_class.build(submitted_claims).deliver_now }
-
-      before do
-        subject.instance_variable_set(:@time, time)
-      end
 
       it 'sends the right email' do
         subject

@@ -22,7 +22,7 @@
         <td style="white-space:nowrap"><%= ERB::Util.html_escape(index + 1) %></td>
         <td style="white-space:nowrap"><%= ERB::Util.html_escape(parsed_form['veteranInformation']['regionalOffice']) %></td>
         <td style="white-space:nowrap"><%= ERB::Util.html_escape(parsed_form['veteranInformation']['pid']) %></td>
-        <td style="white-space:nowrap"><%= ERB::Util.html_escape(claim.updated_at.to_s) %></td>
+        <td style="white-space:nowrap"><%= ERB::Util.html_escape(claim.created_at.to_s) %></td>
         <td style="white-space:nowrap"><%= ERB::Util.html_escape(claim.form_id) %></td>
         <td style="white-space:nowrap"><%= ERB::Util.html_escape(parsed_form['useEva'] ? 'Yes' : 'No') %></td>
         <td style="white-space:nowrap"><%= ERB::Util.html_escape(parsed_form['useTelecounseling'] ? 'Yes' : 'No') %></td>

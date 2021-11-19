@@ -3,27 +3,44 @@
 require 'rails_helper'
 
 describe VRE::CreateCh31SubmissionsReport do
-  describe '#get_claims_submitted_in_range' do
-    let!(:vre_claim1) do
-      create :veteran_readiness_employment_claim, regional_office: '377 - San Diego'
-    end
-    let!(:vre_claim2) do
-      create :veteran_readiness_employment_claim, regional_office: '349 - Waco'
-    end
-    let!(:vre_claim3) do
-      create :veteran_readiness_employment_claim, regional_office: '351 - Muskogee'
+  let!(:vre_claim1) do
+    create :veteran_readiness_employment_claim, regional_office: '377 - San Diego', created_at: Time.zone.now.yesterday
+  end
+  let!(:vre_claim2) do
+    create :veteran_readiness_employment_claim, regional_office: '349 - Waco', created_at: Time.zone.now.yesterday
+  end
+  let!(:vre_claim3) do
+    create :veteran_readiness_employment_claim, regional_office: '351 - Muskogee', created_at: Time.zone.now.yesterday
+  end
+  let!(:vre_claim4) do
+    create :veteran_readiness_employment_claim, regional_office: '377 - San Diego',
+                                                created_at: '2021-11-15 11:59:59 -0500'
+  end
+  let!(:vre_claim5) do
+    create :veteran_readiness_employment_claim, regional_office: '349 - Waco', created_at: '2021-11-15 11:59:59 -0500'
+  end
+  let!(:vre_claim6) do
+    create :veteran_readiness_employment_claim, regional_office: '351 - Muskogee',
+                                                created_at: '2021-11-15 11:59:59 -0500'
+  end
+
+  describe '#perform' do
+    context 'passed sidekiq_scheduler_args' do
+      it 'sparks mailer with claims sorted by Regional Office' do
+        submitted_claims = [vre_claim2, vre_claim3, vre_claim1]
+        sidekiq_scheduler_args = { 'scheduled_at' => Time.zone.now.to_i }
+        expect(Ch31SubmissionsReportMailer).to receive(:build).with(submitted_claims).and_call_original
+        described_class.new.perform(sidekiq_scheduler_args)
+      end
     end
 
-    before do
-      vre_claim1.update(updated_at: 3.minutes.ago)
-      vre_claim2.update(updated_at: 2.minutes.ago)
-      vre_claim3.update(updated_at: 1.minute.ago)
-    end
-
-    it 'sorts them by Regional Office' do
-      expected = [vre_claim2.id, vre_claim3.id, vre_claim1.id]
-      result = described_class.new.get_claims_submitted_in_range.map(&:id)
-      expect(result).to eq(expected)
+    context 'passed specific date in YYYY-MM-DD format' do
+      it 'sparks mailer with claims sorted by Regional Office' do
+        submitted_claims = [vre_claim5, vre_claim6, vre_claim4]
+        specific_date = '2021-11-15'
+        expect(Ch31SubmissionsReportMailer).to receive(:build).with(submitted_claims).and_call_original
+        described_class.new.perform({}, specific_date)
+      end
     end
   end
 end

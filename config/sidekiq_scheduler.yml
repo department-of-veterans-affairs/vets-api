@@ -240,6 +240,7 @@ CovidVaccine::ExpandedSubmissionStateJob:
 
 VRE::CreateCh31SubmissionsReport:
   cron: "0 0 * * * America/New_York"
+  include_metadata: true
   description: "Send a daily report to the VRE team about Chapter 31 submissions"
 
 PgHeroQueryStatsJob:
