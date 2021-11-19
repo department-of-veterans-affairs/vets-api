@@ -28,7 +28,7 @@ module PagerDuty
 
       # Delete any existing records that are not present in the PagerDuty API results
       # These indicate deleted maintenance windows so we want to stop reporting them
-      open_ids = pd_windows.map { |x| x[:pagerduty_id] }
+      open_ids = pd_windows.pluck(:pagerduty_id)
       MaintenanceWindow.end_after(Time.zone.now).each do |api_win|
         api_win.delete unless open_ids.include?(api_win.pagerduty_id)
       end

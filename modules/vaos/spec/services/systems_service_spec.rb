@@ -176,7 +176,7 @@ describe VAOS::SystemsService do
       it 'includes express care data' do
         VCR.use_cassette('vaos/systems/get_system_facilities_express_care', match_requests_on: %i[method uri]) do
           response = subject.get_system_facilities('983', '983', 'CR1')
-          expect(response.map { |facility| facility[:express_times] }).to eq(
+          expect(response.pluck(:express_times)).to eq(
             [
               {
                 start: '09:17',

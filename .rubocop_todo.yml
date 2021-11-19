@@ -138,18 +138,6 @@ Rails/MatchRoute:
     - 'modules/va_forms/config/routes.rb'
     - 'modules/vba_documents/config/routes.rb'
 
-# Offense count: 7
-# Cop supports --auto-correct.
-Rails/Pluck:
-  Exclude:
-    - 'app/serializers/evss_claim_detail_serializer.rb'
-    - 'app/workers/pager_duty/poll_maintenance_windows.rb'
-    - 'lib/bb/client.rb'
-    - 'modules/appeals_api/spec/services/appeals_api/central_mail_updater_spec.rb'
-    - 'modules/claims_api/app/workers/claims_api/special_issue_updater.rb'
-    - 'modules/vaos/spec/services/systems_service_spec.rb'
-    - 'spec/lib/common/exceptions/detailed_schema_errors_spec.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Rails/RedundantForeignKey:

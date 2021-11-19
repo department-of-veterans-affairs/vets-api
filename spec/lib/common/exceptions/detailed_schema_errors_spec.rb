@@ -209,7 +209,7 @@ describe Common::Exceptions::DetailedSchemaErrors do
       data['pattern'] = 'A'
       expect(subject.size).to eq 2
       expect(subject.map { |e| e[:source][:pointer] }).to eq %w[/pattern /pattern]
-      expect(subject.map { |e| e[:code] }).to match_array %w[142 143]
+      expect(subject.pluck(:code)).to match_array %w[142 143]
     end
   end
 

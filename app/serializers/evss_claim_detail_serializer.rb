@@ -144,6 +144,6 @@ class EVSSClaimDetailSerializer < EVSSClaimBaseSerializer
   end
 
   def latest_upload_date(documents)
-    documents.map { |doc| doc[:upload_date] }.sort.reverse.first
+    documents.pluck(:upload_date).sort.reverse.first
   end
 end

@@ -93,7 +93,7 @@ module BB
     end
 
     def log_refresh_errors(attrs)
-      failed = attrs.select { |e| e[:status] == 'ERROR' }.map { |e| e[:extract_type] }
+      failed = attrs.select { |e| e[:status] == 'ERROR' }.pluck(:extract_type)
       if failed.present?
         log_message_to_sentry('Final health record refresh contained one or more error statuses', :warn,
                               refresh_failures: failed.sort)
