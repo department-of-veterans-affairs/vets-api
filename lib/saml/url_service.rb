@@ -137,17 +137,15 @@ module SAML
         case authn_context
         when LOA::IDME_LOA1_VETS, 'multifactor'
           build_authn_context(@loa3_context)
+        # broken on localhost, ISAM sends back SAML::UserAttributes::SSOe::INBOUND_AUTHN_CONTEXT
+        when IAL::LOGIN_GOV_IAL1
+          build_authn_context([IAL::LOGIN_GOV_IAL2, AAL::LOGIN_GOV_AAL2], AuthnContext::LOGIN_GOV)
         when 'myhealthevet', 'myhealthevet_multifactor'
           build_authn_context('myhealthevet_loa3')
         when 'dslogon', 'dslogon_multifactor'
           build_authn_context('dslogon_loa3')
         when SAML::UserAttributes::SSOe::INBOUND_AUTHN_CONTEXT
-          sign_in_service = @user.identity.sign_in[:service_name]
-          if sign_in_service == 'logingov'
-            build_authn_context([IAL::LOGIN_GOV_IAL2, AAL::LOGIN_GOV_AAL2], AuthnContext::LOGIN_GOV)
-          else
-            "#{sign_in_service}_loa3"
-          end
+          "#{@user.identity.sign_in[:service_name]}_loa3"
         end
 
       build_sso_url(link_authn_context)

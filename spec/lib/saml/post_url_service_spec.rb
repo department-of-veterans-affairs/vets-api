@@ -103,7 +103,7 @@ RSpec.describe SAML::PostURLService do
 
           it 'has sign in url: with (logingov authn_context)' do
             allow(user).to receive(:authn_context)
-              .and_return(SAML::UserAttributes::SSOe::INBOUND_AUTHN_CONTEXT)
+              .and_return(IAL::LOGIN_GOV_IAL1)
             expect_any_instance_of(OneLogin::RubySaml::Settings)
               .to receive(:authn_context=)
               .with([IAL::LOGIN_GOV_IAL2, AAL::LOGIN_GOV_AAL2, AuthnContext::LOGIN_GOV])
