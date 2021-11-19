@@ -20,5 +20,7 @@ CheckIn::Engine.routes.draw do
     resources :patient_check_ins, only: %i[show create]
     resources :sessions, only: %i[show create]
     resources :pre_check_ins, only: %i[show create]
+
+    get 'apidocs', to: 'apidocs#index'
   end
 end
