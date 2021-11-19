@@ -43,7 +43,8 @@ describe 'PowerOfAttorney', swagger_doc: 'modules/claims_api/app/swagger/claims_
             expect_any_instance_of(BGS::ClaimantWebService).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
             allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
-            Veteran::Service::Representative.new(poa_codes: [poa_code],
+            Veteran::Service::Representative.new(representative_id: '12345',
+                                                 poa_codes: [poa_code],
                                                  first_name: 'Firstname',
                                                  last_name: 'Lastname',
                                                  phone: '555-555-5555').save!
@@ -199,7 +200,8 @@ describe 'PowerOfAttorney', swagger_doc: 'modules/claims_api/app/swagger/claims_
             expect_any_instance_of(BGS::ClaimantWebService).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
             allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
-            Veteran::Service::Representative.new(poa_codes: [individual_poa_code],
+            Veteran::Service::Representative.new(representative_id: '67890',
+                                                 poa_codes: [individual_poa_code],
                                                  first_name: 'Firstname',
                                                  last_name: 'Lastname',
                                                  phone: '555-555-5555').save!
@@ -287,7 +289,8 @@ describe 'PowerOfAttorney', swagger_doc: 'modules/claims_api/app/swagger/claims_
                 .and_return({ person_poa_history: nil })
               Authorization = auth_header # rubocop:disable Naming/ConstantName
               data[:serviceOrganization][:poaCode] = '083'
-              Veteran::Service::Representative.new(poa_codes: [organization_poa_code], first_name: 'George',
+              Veteran::Service::Representative.new(representative_id: '00000',
+                                                   poa_codes: [organization_poa_code], first_name: 'George',
                                                    last_name: 'Washington', user_types: ['veteran_service_officer'])
                                               .save!
               Veteran::Service::Organization.create(poa: organization_poa_code,

@@ -67,8 +67,8 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
       context 'when there are multiple representatives with the same POA code' do
         it 'returns a 500 error code' do
-          Veteran::Service::Representative.new(poa_codes: [individual_poa_code], first_name: 'Thomas',
-                                               last_name: 'Jefferson').save!
+          Veteran::Service::Representative.new(representative_id: '12345', poa_codes: [individual_poa_code],
+                                               first_name: 'Thomas', last_name: 'Jefferson').save!
 
           with_okta_user(scopes) do |auth_header|
             put appoint_individual_path, params: data, headers: auth_header

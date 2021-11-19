@@ -68,7 +68,8 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
   describe 'generating the filled and signed pdf' do
     context 'when representative is an individual' do
       before do
-        Veteran::Service::Representative.new(poa_codes: ['ABC'], user_types: ['attorney']).save!
+        Veteran::Service::Representative.new(representative_id: '12345', poa_codes: ['ABC'],
+                                             user_types: ['attorney']).save!
       end
 
       it 'generates the pdf to match example' do
@@ -80,7 +81,8 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
 
     context 'when representative is part of an organization' do
       before do
-        Veteran::Service::Representative.new(poa_codes: ['ABC'], user_types: ['veteran_service_officer']).save!
+        Veteran::Service::Representative.new(representative_id: '67890',
+                                             poa_codes: ['ABC'], user_types: ['veteran_service_officer']).save!
       end
 
       it 'generates the pdf to match example' do

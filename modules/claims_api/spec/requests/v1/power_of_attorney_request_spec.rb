@@ -34,12 +34,13 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
     context 'when poa code is valid' do
       before do
-        Veteran::Service::Representative.new(poa_codes: ['074']).save!
+        Veteran::Service::Representative.new(representative_id: '01234', poa_codes: ['074']).save!
       end
 
       context 'when poa code is associated with current user' do
         before do
-          Veteran::Service::Representative.new(poa_codes: ['074'], first_name: 'Abraham', last_name: 'Lincoln').save!
+          Veteran::Service::Representative.new(representative_id: '56789', poa_codes: ['074'],
+                                               first_name: 'Abraham', last_name: 'Lincoln').save!
         end
 
         context 'when Veteran has all necessary identifiers' do
@@ -268,7 +269,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
       context 'when there is no BGS active power of attorney' do
         before do
-          Veteran::Service::Representative.new(poa_codes: ['074'], first_name: 'Abraham', last_name: 'Lincoln').save!
+          Veteran::Service::Representative.new(representative_id: '00000', poa_codes: ['074'], first_name: 'Abraham',
+                                               last_name: 'Lincoln').save!
         end
 
         it 'returns a 404' do
@@ -284,7 +286,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
       context 'when there is a BGS active power of attorney' do
         before do
-          Veteran::Service::Representative.new(poa_codes: ['074'], first_name: 'Abraham', last_name: 'Lincoln').save!
+          Veteran::Service::Representative.new(representative_id: '11111', poa_codes: ['074'], first_name: 'Abraham',
+                                               last_name: 'Lincoln').save!
         end
 
         let(:representative_info) do
@@ -363,7 +366,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
       describe 'additional POA info' do
         before do
-          Veteran::Service::Representative.new(poa_codes: ['074'], first_name: 'Abraham', last_name: 'Lincoln').save!
+          Veteran::Service::Representative.new(representative_id: '22222',
+                                               poa_codes: ['074'], first_name: 'Abraham', last_name: 'Lincoln').save!
         end
 
         context 'when representative is part of an organization' do
