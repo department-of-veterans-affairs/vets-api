@@ -32,7 +32,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
     context 'when poa code is valid' do
       before do
-        Veteran::Service::Representative.new(poa_codes: ['074']).save!
+        Veteran::Service::Representative.new(representative_id: '67890', poa_codes: ['074'], first_name: 'Abraham',
+                                             last_name: 'Lincoln').save!
       end
 
       it 'sets the source' do
