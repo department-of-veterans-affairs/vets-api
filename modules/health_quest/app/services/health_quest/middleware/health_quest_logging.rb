@@ -8,10 +8,6 @@ module HealthQuest
     class HealthQuestLogging < Faraday::Middleware
       JTI_ERROR_MSG = 'unknown jti'
 
-      def initialize(app)
-        super(app)
-      end
-
       # #call
       #
       # Logs all outbound token request / responses to the lighthouse as :info when success and :warn when fail

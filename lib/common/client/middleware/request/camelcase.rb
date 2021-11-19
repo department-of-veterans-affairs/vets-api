@@ -5,10 +5,6 @@ module Common
     module Middleware
       module Request
         class Camelcase < Faraday::Middleware
-          def initialize(app)
-            super(app)
-          end
-
           def call(env)
             env[:body] = camelcase(env[:body]) unless env.request_headers['Content-Type'] == 'text/plain'
             @app.call(env)

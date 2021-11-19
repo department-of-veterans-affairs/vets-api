@@ -8,10 +8,6 @@ module EVSS
     # Custom error for when the upstream service is unavailable
     #
     class ExternalServiceUnavailable < Common::Exceptions::BaseError
-      def initialize
-        super
-      end
-
       ##
       # @return [Array[Common::Exceptions::SerializableError]] An array containing the error
       #

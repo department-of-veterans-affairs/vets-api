@@ -9,10 +9,6 @@ module EVSS
     # outside of working hours
     #
     class OutsideWorkingHours < Common::Exceptions::BaseError
-      def initialize
-        super
-      end
-
       ##
       # @return [Array[Common::Exceptions::SerializableError]] An array containing the error
       #
