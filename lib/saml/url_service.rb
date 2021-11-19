@@ -89,11 +89,7 @@ module SAML
 
     def idme_url
       @type = 'idme'
-      if Settings.vsp_environment != 'production'
-        build_sso_url(build_authn_context(LOA::IDME_LOA1_VETS), AuthnContext::MINIMUM)
-      else
-        build_sso_url(build_authn_context(LOA::IDME_LOA1_VETS))
-      end
+      build_sso_url(build_authn_context(LOA::IDME_LOA1_VETS), AuthnContext::MINIMUM)
     end
 
     def signup_url
@@ -135,7 +131,7 @@ module SAML
       # For verification from a login callback, type should be the initial login policy.
       # In that case, it will have been set to the type from RelayState.
       @type ||= 'verify'
-      return callback_verify_url if %w[idme logingov mhv dslogon].include?(type)
+      return callback_verify_url if %w[logingov mhv dslogon].include?(type)
 
       link_authn_context =
         case authn_context
@@ -160,8 +156,6 @@ module SAML
     def callback_verify_url
       link_authn_context =
         case type
-        when 'idme'
-          build_authn_context(@loa3_context)
         when 'logingov'
           build_authn_context([IAL::LOGIN_GOV_IAL2, AAL::LOGIN_GOV_AAL2], AuthnContext::LOGIN_GOV)
         when 'mhv'

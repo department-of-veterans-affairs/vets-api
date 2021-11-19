@@ -323,20 +323,7 @@ RSpec.describe SAML::PostURLService do
             end
           end
 
-          context 'with an user that needs to verify' do
-            it 'goes to verify URL before login redirect' do
-              expect(user.authn_context).to eq('http://idmanagement.gov/ns/assurance/loa/1/vets')
-              expect_any_instance_of(OneLogin::RubySaml::Settings)
-                .to receive(:authn_context=).with([LOA::IDME_LOA3_VETS, AuthnContext::ID_ME])
-              expect(subject.should_uplevel?).to be(true)
-              url, params = subject.verify_url
-              expect(url).to eq('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login')
-              expect_saml_form_parameters(params,
-                                          'originating_request_id' => '123', 'type' => 'idme')
-            end
-          end
-
-          context 'with user that does not need to verify' do
+          context 'for login' do
             let(:user) { build(:user, :loa3) }
 
             it 'has a login redirect url with success' do
@@ -604,20 +591,7 @@ RSpec.describe SAML::PostURLService do
             expect(subject.base_redirect_url).to eq(values[:base_redirect])
           end
 
-          context 'with an user that needs to verify' do
-            it 'goes to verify URL before login redirect' do
-              expect(user.authn_context).to eq('http://idmanagement.gov/ns/assurance/loa/1/vets')
-              expect_any_instance_of(OneLogin::RubySaml::Settings)
-                .to receive(:authn_context=).with([LOA::IDME_LOA3, AuthnContext::ID_ME])
-              expect(subject.should_uplevel?).to be(true)
-              url, params = subject.verify_url
-              expect(url).to eq('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login')
-              expect_saml_form_parameters(params,
-                                          'originating_request_id' => '123', 'type' => 'idme')
-            end
-          end
-
-          context 'with user that does not need to verify' do
+          context 'for login' do
             let(:user) { build(:user, :loa3) }
 
             it 'has a login redirect url with success' do
@@ -683,24 +657,6 @@ RSpec.describe SAML::PostURLService do
         expect(url).to eq('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login')
         expect_saml_form_parameters(params,
                                     'originating_request_id' => '123', 'type' => 'mhv',
-                                    'review_instance_slug' => slug_id)
-      end
-    end
-
-    context 'up-leveling' do
-      let(:params) do
-        { action: 'saml_callback', RelayState: "{\"type\":\"idme\",\"review_instance_slug:\":\"#{slug_id}\"}" }
-      end
-
-      it 'goes to verify URL before login redirect' do
-        expect(user.authn_context).to eq('http://idmanagement.gov/ns/assurance/loa/1/vets')
-        expect_any_instance_of(OneLogin::RubySaml::Settings)
-          .to receive(:authn_context=).with([LOA::IDME_LOA3_VETS, AuthnContext::ID_ME])
-        expect(subject.should_uplevel?).to be(true)
-        url, params = subject.verify_url
-        expect(url).to eq('https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login')
-        expect_saml_form_parameters(params,
-                                    'originating_request_id' => '123', 'type' => 'idme',
                                     'review_instance_slug' => slug_id)
       end
     end

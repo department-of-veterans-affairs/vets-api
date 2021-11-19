@@ -185,6 +185,7 @@ FactoryBot.define do
     end
 
     trait :ial1 do
+      uuid { '42fc7a21-c05f-4e6b-9985-67d11e2fbf76' }
       logingov_uuid { '42fc7a21-c05f-4e6b-9985-67d11e2fbf76' }
       verified_at { '2021-11-09T16:46:27Z' }
       authn_context { IAL::LOGIN_GOV_IAL1 }
