@@ -849,7 +849,6 @@ flipper:
     - zach.morel@gcio.com
     - abelardo.blanco@va.gov
     - eugenia.gina.ronat@accenturefederal.com
-    - morgan.whaley@accenturefederal.com
     - m.c.shah@accenturefederal.com
     - patrick.arthur@accenturefederal.com
     - adam.freemer@accenturefederal.com
@@ -859,6 +858,10 @@ flipper:
     - nick.barthelemy@accenturefederal.com
     - bradley.bergeron@accenturefederal.com
     - adam.whitlock@adhocteam.us
+    - d.a.barnes@accenturefederal.com
+    - hocine.halli@accenturefederal.com
+    - jacob.finnern@accenturefederal.com
+    - brandon.clapp@accenturefederal.com
 
 bgs:
   application: ~
