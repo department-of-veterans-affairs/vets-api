@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_03_172528) do
+ActiveRecord::Schema.define(version: 2021_11_18_205345) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -745,6 +745,27 @@ ActiveRecord::Schema.define(version: 2021_11_03_172528) do
     t.index ["user_uuid"], name: "index_terms_and_conditions_acceptances_on_user_uuid"
   end
 
+  create_table "test_user_dashboard_tud_account_availability_logs", force: :cascade do |t|
+    t.string "account_uuid"
+    t.datetime "checkout_time"
+    t.datetime "checkin_time"
+    t.boolean "has_checkin_error"
+    t.boolean "is_manual_checkin"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["account_uuid"], name: "tud_account_availability_logs"
+  end
+
+  create_table "test_user_dashboard_tud_account_checkouts", force: :cascade do |t|
+    t.string "account_uuid"
+    t.datetime "checkout_time"
+    t.datetime "checkin_time"
+    t.boolean "has_checkin_error"
+    t.boolean "is_manual_checkin"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
   create_table "test_user_dashboard_tud_accounts", force: :cascade do |t|
     t.string "account_uuid"
     t.string "first_name"
@@ -759,10 +780,10 @@ ActiveRecord::Schema.define(version: 2021_11_03_172528) do
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.text "services"
     t.string "id_type"
     t.string "loa"
     t.string "account_type"
-    t.text "services"
     t.uuid "idme_uuid"
     t.text "notes"
   end
