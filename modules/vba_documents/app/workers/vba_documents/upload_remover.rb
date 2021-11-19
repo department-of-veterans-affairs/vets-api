@@ -9,7 +9,7 @@ module VBADocuments
 
     EXPIRATION_TIME = 10.days
 
-    REMOVAL_QUERY = <<-SQL
+    REMOVAL_QUERY = <<-SQL.squish
         status IN ('received', 'processing', 'error', 'success', 'vbms')
         AND s3_deleted IS NOT True
         AND created_at < ?
