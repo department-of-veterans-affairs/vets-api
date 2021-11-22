@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_18_205345) do
+ActiveRecord::Schema.define(version: 2021_11_19_153822) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -904,6 +904,7 @@ ActiveRecord::Schema.define(version: 2021_11_18_205345) do
     t.text "dob_ciphertext"
     t.text "encrypted_kms_key"
     t.index ["representative_id", "first_name", "last_name"], name: "index_vso_grp", unique: true
+    t.check_constraint "representative_id IS NOT NULL", name: "veteran_representatives_representative_id_null"
   end
 
   create_table "vic_submissions", id: :serial, force: :cascade do |t|
