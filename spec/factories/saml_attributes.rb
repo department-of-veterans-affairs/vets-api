@@ -219,12 +219,13 @@ FactoryBot.define do
     va_eauth_commonname { ['vets.gov.user+1000@example.com'] }
     va_eauth_transactionid { ['abcd1234xyz'] }
     va_eauth_suffix { ['NOT_FOUND'] }
-    va_eauth_uid { ['67f687a8ecd3448fbed4e5489b7eafc9'] }
+    va_eauth_uid { ['aa478abc-e494-4af1-9f87-d002f8fe1cda'] }
     va_eauth_isDelegate { ['false'] }
     va_eauth_secid { ['1200049153'] }
     va_eauth_gcIds {
       ['1200049153V217987^NI^200M^USVHA^P|' \
        '65f9f3b5-5449-47a6-b272-9d6019e7c2e3^PN^200VLGN^USDVA^A|' \
+       'aa478abc-e494-4af1-9f87-d002f8fe1cda^PN^200VLGN^USDVA^A|' \
        '1200049153^PN^200PROV^USDVA^A|']
     }
     va_eauth_persontype { ['NOT_FOUND'] }
@@ -1019,6 +1020,7 @@ FactoryBot.define do
        '666271151^PI^200BRLS^USVBA^A|'\
        '1320002060^NI^200DOD^USDOD^A|'\
        '20381^PI^200VETS^USDVA^A|'\
+       'aa478abc-e494-4ae1-8f87-d002f8fe1bbd^PN^200VLGN^USDVA^A|'\
        '54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A|'\
        '1012827134^PN^200PROV^USDVA^A|'\
        '600152411^PI^200CORP^USVBA^A']

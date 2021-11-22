@@ -152,10 +152,10 @@ RSpec.describe SAML::User do
           mhv_correlation_id: '65f9f3b5-5449-47a6-b272-9d6019e7c2e3',
           mhv_account_type: nil,
           edipi: nil,
-          uuid: '67f687a8ecd3448fbed4e5489b7eafc9',
+          uuid: 'aa478abc-e494-4af1-9f87-d002f8fe1cda',
           email: 'vets.gov.user+1000@example.com',
           idme_uuid: nil,
-          logingov_uuid: '67f687a8ecd3448fbed4e5489b7eafc9',
+          logingov_uuid: 'aa478abc-e494-4af1-9f87-d002f8fe1cda',
           verified_at: '2021-10-28T23:54:46Z',
           loa: { current: 3, highest: 3 },
           sign_in: { service_name: 'logingov', account_type: 'N/A' },
@@ -1145,7 +1145,7 @@ RSpec.describe SAML::User do
       end
     end
 
-    context 'IDME LOA3 inbound user' do
+    context 'IDME LOA3 inbound user with logingov_uuid in GCIDs' do
       let(:authn_context) { LOA::IDME_LOA3 }
       let(:highest_attained_loa) { '3' }
       let(:multifactor) { true }
@@ -1171,7 +1171,7 @@ RSpec.describe SAML::User do
           uuid: '54e78de6140d473f87960f211be49c08',
           email: 'vets.gov.user+262@gmail.com',
           idme_uuid: '54e78de6140d473f87960f211be49c08',
-          logingov_uuid: nil,
+          logingov_uuid: 'aa478abc-e494-4ae1-8f87-d002f8fe1bbd',
           verified_at: nil,
           loa: { current: 3, highest: 3 },
           sign_in: {

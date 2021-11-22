@@ -110,6 +110,8 @@ module SAML
 
       def logingov_uuid
         return safe_attr('va_eauth_uid') if csid == SAML::User::LOGINGOV_CSID
+
+        mvi_ids[:logingov_id]
       end
 
       # only applies to Login.gov IAL2 verification

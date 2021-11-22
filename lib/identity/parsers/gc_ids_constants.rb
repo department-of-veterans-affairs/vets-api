@@ -34,6 +34,9 @@ module Identity
       # IDME_ID_REGEX, ex. 54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A
       IDME_ID_REGEX = /^\w+\^PN\^200VIDM\^USDVA\^A$/.freeze
 
+      # LOGINGOV_ID_REGEX, ex. aa478abc-e494-4af1-9f87-d002f8fe1cda^PN^200VLGN^USDVA^A
+      LOGINGOV_ID_REGEX = /^[\w-]+\^PN\^200VLGN\^USDVA\^A$/.freeze
+
       # VHA_FACILITY_IDS_REGEX, ex. 123456^PI^200MHV^USVHA^A
       VHA_FACILITY_IDS_REGEX = /^\w+\^PI\^\w+\^USVHA\^\w+$/.freeze
 
@@ -62,6 +65,7 @@ module Identity
         edipi: { regex: EDIPI_REGEX, root_oid: DOD_ROOT_OID, type: :single_id },
         vba_corp_id: { regex: VBA_CORP_ID_REGEX, root_oid: VA_ROOT_OID, type: :single_id },
         idme_id: { regex: IDME_ID_REGEX, root_oid: VA_ROOT_OID, type: :single_id },
+        logingov_id: { regex: LOGINGOV_ID_REGEX, root_oid: VA_ROOT_OID, type: :single_id },
         cerner_id: { regex: CERNER_ID_REGEX, root_oid: VA_ROOT_OID, type: :single_id },
         vet360_id: { regex: VET360_ID_REGEX, root_oid: VA_ROOT_OID, type: :single_id },
         birls_id: { regex: BIRLS_IDS_REGEX, root_oid: VA_ROOT_OID, type: :single_id },
