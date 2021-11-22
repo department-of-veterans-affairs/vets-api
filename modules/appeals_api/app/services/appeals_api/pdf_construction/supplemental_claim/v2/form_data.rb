@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'appeals_api/sc_evidence'
+
 module AppealsApi
   module PdfConstruction
     module SupplementalClaim
@@ -80,9 +82,9 @@ module AppealsApi
 
             @evidence_records = supplemental_claim.new_evidence
             if evidence_submission_indicated?
-              upload = AppealsApi::SupplementalClaim::EVIDENCE.new(:upload,
-                                                                   { 'locationAndName' => UPLOAD_INDICATED,
-                                                                     'evidenceDates' => [''] })
+              upload = AppealsApi::ScEvidence.new(:upload,
+                                                  { 'locationAndName' => UPLOAD_INDICATED,
+                                                    'evidenceDates' => nil })
               @evidence_records.append(upload)
             end
             @evidence_records
