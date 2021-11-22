@@ -4,6 +4,14 @@ require 'rails_helper'
 
 RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
   include SchemaMatchers
+  mock_clinic = {
+    'service_name': 'service_name',
+    'physical_location': 'physical_location'
+  }
+
+  mock_clinic_without_physical_location = {
+    'service_name': 'service_name'
+  }
 
   mock_facility = {
     'test' => 'test'
@@ -13,7 +21,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
     Flipper.enable('va_online_scheduling')
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
-    allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_clinic_name).and_return('test_clinic')
+    allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_clinic).and_return(mock_clinic)
     allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_facility).and_return(mock_facility)
   end
 
@@ -69,7 +77,24 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
             expect(data.size).to eq(23)
-            expect(data[0]['attributes']['serviceName']).to eq('test_clinic')
+            expect(data[0]['attributes']['serviceName']).to eq('service_name')
+            expect(data[0]['attributes']['physicalLocation']).to eq('physical_location')
+            expect(data[0]['attributes']['location']).to eq(mock_facility)
+            expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+          end
+        end
+
+        it 'has access and returns va appointments and honors includes with no physical_location field' do
+          allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_clinic)
+            .and_return(mock_clinic_without_physical_location)
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri],
+                                                                        allow_playback_repeats: true) do
+            get '/vaos/v2/appointments?_include=facilities,clinics', params: params, headers: inflection_header
+            data = JSON.parse(response.body)['data']
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(data.size).to eq(23)
+            expect(data[0]['attributes']['serviceName']).to eq('service_name')
             expect(data[0]['attributes']['location']).to eq(mock_facility)
             expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
           end
@@ -90,7 +115,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
 
         it 'has access and returns va appointments when systems service fails' do
-          allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_clinic_name).and_call_original
+          allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_clinic).and_call_original
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_system_service_500',
                            match_requests_on: %i[method uri], allow_playback_repeats: true) do
             get '/vaos/v2/appointments', params: params, headers: inflection_header

@@ -8,7 +8,7 @@ module VAOS
       def index
         appointments
 
-        _include&.include?('clinics') && merge_clinic_names(appointments[:data])
+        _include&.include?('clinics') && merge_clinics(appointments[:data])
         _include&.include?('facilities') && merge_facilities(appointments[:data])
 
         serializer = VAOS::V2::VAOSSerializer.new
@@ -19,7 +19,9 @@ module VAOS
       def show
         appointment
         unless appointment[:clinic].nil?
-          appointment[:service_name] = get_clinic_name(appointment[:location_id], appointment[:clinic])
+          clinic = get_clinic(appointment[:location_id], appointment[:clinic])
+          appointment[:service_name] = clinic[:service_name]
+          appointment[:physical_location] = clinic[:physical_location] if clinic[:physical_location]
         end
 
         # rubocop:disable Style/IfUnlessModifier
@@ -36,7 +38,9 @@ module VAOS
       def create
         new_appointment
         unless new_appointment[:clinic].nil?
-          new_appointment[:service_name] = get_clinic_name(new_appointment[:location_id], new_appointment[:clinic])
+          clinic = get_clinic(new_appointment[:location_id], new_appointment[:clinic])
+          new_appointment[:service_name] = clinic[:service_name]
+          new_appointment[:physical_location] = clinic[:physical_location] if clinic[:physical_location]
         end
 
         unless new_appointment[:location_id].nil?
@@ -50,8 +54,9 @@ module VAOS
       def update
         updated_appointment
         unless updated_appointment[:clinic].nil?
-          updated_appointment[:service_name] =
-            get_clinic_name(updated_appointment[:location_id], updated_appointment[:clinic])
+          clinic = get_clinic(new_appointment[:location_id], new_appointment[:clinic])
+          updated_appointment[:service_name] = clinic[:service_name]
+          updated_appointment[:physical_location] = clinic[:physical_location] if clinic[:physical_location]
         end
 
         unless updated_appointment[:location_id].nil?
@@ -97,16 +102,20 @@ module VAOS
           appointments_service.update_appointment(update_appt_id, status_update)
       end
 
-      def merge_clinic_names(appointments)
-        cached_clinic_names = {}
+      def merge_clinics(appointments)
+        cached_clinics = {}
         appointments.each do |appt|
           unless appt[:clinic].nil?
-            unless cached_clinic_names[:clinic]
-              clinic_name = get_clinic_name(appt[:location_id], appt[:clinic])
-              cached_clinic_names[appt[:clinic]] = clinic_name
+            unless cached_clinics[:clinic]
+              clinic = get_clinic(appt[:location_id], appt[:clinic])
+              cached_clinics[appt[:clinic]] = clinic
             end
-
-            appt[:service_name] = cached_clinic_names[appt[:clinic]] if cached_clinic_names[appt[:clinic]]
+            if cached_clinics[appt[:clinic]][:service_name]
+              appt[:service_name] = cached_clinics[appt[:clinic]][:service_name]
+            end
+            if cached_clinics[appt[:clinic]][:physical_location]
+              appt[:physical_location] = cached_clinics[appt[:clinic]][:physical_location]
+            end
           end
         end
       end
@@ -125,9 +134,9 @@ module VAOS
         end
       end
 
-      def get_clinic_name(location_id, clinic_id)
+      def get_clinic(location_id, clinic_id)
         clinics = systems_service.get_facility_clinics(location_id: location_id, clinic_ids: clinic_id)
-        clinics.first[:service_name] unless clinics.empty?
+        clinics.first unless clinics.empty?
       rescue Common::Exceptions::BackendServiceException
         Rails.logger.error(
           "Error fetching clinic #{clinic_id} for location #{location_id}",
