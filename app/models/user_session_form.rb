@@ -54,21 +54,25 @@ class UserSessionForm
     saml_user.validate!
     saml_user.to_hash
   rescue SAML::UserAttributeError => e
-    raise unless e.code == SAML::UserAttributeError::IDME_UUID_MISSING_CODE
+    raise unless e.code == SAML::UserAttributeError::UUID_MISSING_CODE
 
-    idme_uuid = idme_uuid_from_account(e&.identifier)
-    raise if idme_uuid.blank?
+    idme_uuid, logingov_uuid = uuid_from_account(e&.identifier)
+    raise if idme_uuid.blank? && logingov_uuid.blank?
 
     Rails.logger.info('Account UUID injected into user SAML attributes')
-    saml_user.to_hash.merge({ uuid: idme_uuid,
-                              idme_uuid: idme_uuid })
+    saml_user.to_hash.merge({ uuid: idme_uuid || logingov_uuid,
+                              idme_uuid: idme_uuid,
+                              logingov_uuid: logingov_uuid })
   end
 
-  def idme_uuid_from_account(identifier)
+  def uuid_from_account(identifier)
     return if identifier.blank?
 
-    accounts = Account.where(icn: identifier)
-    accounts.size == 1 ? accounts&.first&.idme_uuid : nil
+    matching_accounts = Account.where(icn: identifier)
+    Rails.logger.info("[UserSessionForm] Multiple matching accounts for icn:#{identifier}")
+    return unless matching_accounts.count == 1
+
+    [matching_accounts.first&.idme_uuid, matching_accounts.first&.logingov_uuid]
   end
 
   def valid?

@@ -1033,7 +1033,7 @@ RSpec.describe SAML::User do
       it 'does not validate' do
         expect { subject.validate! }.to raise_error { |error|
           expect(error).to be_a(SAML::UserAttributeError)
-          expect(error.message).to eq('User attributes is missing an ID.me UUID')
+          expect(error.message).to eq('User attributes is missing an ID.me and Login.gov UUID')
           expect(error.identifier).to eq('1012740600V714187')
         }
       end
@@ -1088,15 +1088,12 @@ RSpec.describe SAML::User do
                 va_eauth_uid: ['NOT_FOUND'])
         end
         let(:expected_log_params) { { sec_id_identifier: subject.user_attributes.uuid } }
-        let(:expected_log_message) { 'Inbound Authentication without ID.me UUID' }
+        let(:icn) { subject.user_attributes.icn }
+        let(:expected_error) { SAML::UserAttributeError }
+        let(:expected_error_message) { 'User attributes is missing an ID.me and Login.gov UUID' }
 
-        it 'validates' do
-          expect { subject.validate! }.not_to raise_error
-        end
-
-        it 'logs to rails logger' do
-          expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_params)
-          subject.validate!
+        it 'raises an error during validation' do
+          expect { subject.validate! }.to raise_error(expected_error, expected_error_message)
         end
       end
     end

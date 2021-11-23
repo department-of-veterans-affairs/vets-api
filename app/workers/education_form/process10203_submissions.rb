@@ -58,7 +58,7 @@ module EducationForm
     def process_user_submissions(user_submissions)
       user_submissions.each do |user_uuid, submissions|
         auth_headers = submissions.last.education_stem_automated_decision.auth_headers
-        account = Account.find_by(idme_uuid: user_uuid)
+        account = Account.where(idme_uuid: user_uuid).or(Account.where(logingov_uuid: user_uuid)).first
 
         claim_ids = submissions.map(&:id).join(', ')
         log_info "EDIPI available for process STEM claim ids=#{claim_ids}: #{auth_headers&.key?('va_eauth_dodedipnid')}"

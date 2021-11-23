@@ -217,8 +217,8 @@ module SAML
 
       # Raise any fatal exceptions due to validation issues
       def validate!
-        if should_raise_idme_uuid_error
-          data = SAML::UserAttributeError::ERRORS[:idme_uuid_missing].merge({ identifier: mhv_icn })
+        if should_raise_missing_uuid_error
+          data = SAML::UserAttributeError::ERRORS[:uuid_missing].merge({ identifier: mhv_icn })
           raise SAML::UserAttributeError, data
         end
 
@@ -254,19 +254,8 @@ module SAML
         end
       end
 
-      def should_raise_idme_uuid_error
-        return false if idme_uuid || logingov_uuid
-
-        if auth_context_is_inbound
-          Rails.logger.info('Inbound Authentication without ID.me UUID', sec_id_identifier: uuid)
-          return false
-        end
-
-        true
-      end
-
-      def auth_context_is_inbound
-        @authn_context == INBOUND_AUTHN_CONTEXT
+      def should_raise_missing_uuid_error
+        idme_uuid.blank? && logingov_uuid.blank?
       end
 
       def mvi_ids

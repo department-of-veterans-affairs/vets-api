@@ -13,7 +13,8 @@ namespace :login do
           User.find(@args[:uuid])
         else
           # Find last logged in user by looking at most recently updated AccountLoginStat
-          User.find(AccountLoginStat.last&.account&.idme_uuid)
+          User.find(AccountLoginStat.last&.account&.idme_uuid) ||
+            User.find(AccountLoginStat.last&.account&.logingov_uuid)
         end
     end
 
@@ -44,6 +45,12 @@ namespace :login do
       user.idme_uuid == user.account&.idme_uuid,
       'User ID.me UUID matches user account ID.me UUID',
       'User ID.me UUID does not match user account ID.me UUID'
+    )
+
+    validate(
+      user.logingov_uuid == user.account&.logingov_uuid,
+      'User Login.gov UUID matches user account Login.gov UUID',
+      'User Login.gov UUID does not match user account Login.gov UUID'
     )
 
     validate(

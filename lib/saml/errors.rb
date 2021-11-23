@@ -9,7 +9,7 @@ module SAML
     MULTIPLE_MHV_IDS_CODE = '101'
     MULTIPLE_EDIPIS_CODE = '102'
     MHV_ICN_MISMATCH_CODE = '103'
-    IDME_UUID_MISSING_CODE = '104'
+    UUID_MISSING_CODE = '104'
     MULTPLE_CORP_IDS_CODE = '106'
 
     ERRORS = {
@@ -22,9 +22,9 @@ module SAML
       mhv_icn_mismatch: { code: MHV_ICN_MISMATCH_CODE,
                           tag: :mhv_icn_mismatch,
                           message: 'MHV credential ICN does not match MPI record' }.freeze,
-      idme_uuid_missing: { code: IDME_UUID_MISSING_CODE,
-                           tag: :idme_uuid_missing,
-                           message: 'User attributes is missing an ID.me UUID' }.freeze,
+      uuid_missing: { code: UUID_MISSING_CODE,
+                      tag: :uuid_missing,
+                      message: 'User attributes is missing an ID.me and Login.gov UUID' }.freeze,
       multiple_corp_ids: { code: MULTPLE_CORP_IDS_CODE,
                            tag: :multiple_corp_ids,
                            message: 'User attributes contain multiple distinct CORP ID values' }.freeze

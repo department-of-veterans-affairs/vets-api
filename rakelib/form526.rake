@@ -505,7 +505,7 @@ namespace :form526 do
         end
 
         vname = "#{fs.auth_headers['va_eauth_firstName']} #{fs.auth_headers['va_eauth_lastName']}"
-        icn = Account.where(idme_uuid: fs.user_uuid).first&.icn
+        icn = Account.where(idme_uuid: fs.user_uuid).or(Account.where(logingov_uuid: fs.user_uuid)).first&.icn
         if icn.blank?
           # TODO: make this work for blank icn's
           puts "icn blank #{fs.id}"
