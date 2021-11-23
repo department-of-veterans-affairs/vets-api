@@ -41,6 +41,7 @@
               "type": "string",
               "description": "The status of the Intent to File",
               "enum": [
+                "active",
                 "duplicate"
               ]
             }
