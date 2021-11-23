@@ -10,9 +10,19 @@ RSpec.describe AppealsApi::DailyErrorReportMailer, type: [:mailer] do
 
     it 'sends the email' do
       with_settings(Settings, vsp_environment: 'mary Poppins') do
-        create(:notice_of_disagreement, :status_error)
+        AppealsApi::Events::Handler.subscribe(:nod_status_updated, 'AppealsApi::Events::StatusUpdated')
+        errored_nod = create(:notice_of_disagreement, :status_error)
+        stuck_nod = create(:notice_of_disagreement, created_at: 1.year.ago)
+
+        Timecop.freeze(6.months.ago) do
+          Sidekiq::Testing.inline! do
+            stuck_nod.update_status! status: :processing
+          end
+        end
 
         expect(subject.subject).to eq 'Daily Error Decision Review API report (Mary Poppins)'
+        expect(subject.body).to include errored_nod.id
+        expect(subject.body).to include stuck_nod.id
       end
     end
 

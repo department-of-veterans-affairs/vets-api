@@ -19,10 +19,19 @@
       <td class="right-align"><%= appeal.id %></td>
       <td class="right-align"><%= appeal.source %></td>
       <td class="right-align"><%= appeal.status %></td>
-      <td class="right-align"><%= appeal.code %></td>
-      <td class="right-align"><%= appeal.detail %></td>
-      <td class="right-align"><%= appeal.created_at %></td>
-      <td class="right-align"><%= appeal.updated_at %></td>
+      <td><%= appeal.code %></td>
+      <td><%= appeal.detail %></td>
+      <td class="center-align">
+        <% time = appeal.created_at.in_time_zone('Eastern Time (US & Canada)') %>
+        <%= time %><br />
+        (<%= distance_of_time_in_words_to_now time %> ago)
+      </td>
+      </td>
+      <td class="center-align">
+        <% time = appeal.updated_at.in_time_zone('Eastern Time (US & Canada)') %>
+        <%= time %><br />
+        (<%= distance_of_time_in_words_to_now time %> ago)
+      </td>
     </tr>
     <% end %>
   </tbody>
