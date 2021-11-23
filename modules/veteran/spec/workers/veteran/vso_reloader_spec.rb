@@ -18,6 +18,7 @@ RSpec.describe Veteran::VSOReloader, type: :job do
         expect(Veteran::Service::Representative.attorneys.count).to eq 241
         expect(Veteran::Service::Representative.veteran_service_officers.count).to eq 152
         expect(Veteran::Service::Representative.claim_agents.count).to eq 42
+        expect(Veteran::Service::Representative.where(representative_id: '').count).to eq 0
       end
     end
 
@@ -25,6 +26,7 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       VCR.use_cassette('veteran/ogc_attorney_data') do
         Veteran::VSOReloader.new.reload_attorneys
         expect(Veteran::Service::Representative.last.poa_codes).to include('9GB')
+        expect(Veteran::Service::Representative.where(representative_id: '').count).to eq 0
       end
     end
 
@@ -32,6 +34,7 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       VCR.use_cassette('veteran/ogc_claim_agent_data') do
         Veteran::VSOReloader.new.reload_claim_agents
         expect(Veteran::Service::Representative.last.poa_codes).to include('FDN')
+        expect(Veteran::Service::Representative.where(representative_id: '').count).to eq 0
       end
     end
 
@@ -39,6 +42,35 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       VCR.use_cassette('veteran/ogc_vso_rep_data') do
         Veteran::VSOReloader.new.reload_vso_reps
         expect(Veteran::Service::Representative.last.poa_codes).to include('091')
+        expect(Veteran::Service::Representative.where(representative_id: '').count).to eq 0
+      end
+    end
+
+    context 'leaving test users alone' do
+      before do
+        Veteran::Service::Representative.create(
+          representative_id: '999999999999',
+          first_name: 'Tamara',
+          last_name: 'Ellis',
+          email: 'va.api.user+idme.001@gmail.com',
+          poa_codes: %w[A1Q 095 074 083 1NY]
+        )
+
+        Veteran::Service::Representative.create(
+          representative_id: '9999999999999',
+          first_name: 'John',
+          last_name: 'Doe',
+          email: 'va.api.user+idme.007@gmail.com',
+          poa_codes: %w[A1Q 095 074 083 1NY]
+        )
+      end
+
+      it 'does not destroy test users' do
+        VCR.use_cassette('veteran/ogc_poa_data') do
+          Veteran::VSOReloader.new.perform
+          expect(Veteran::Service::Representative.where(first_name: 'Tamara', last_name: 'Ellis').count).to eq 1
+          expect(Veteran::Service::Representative.where(first_name: 'John', last_name: 'Doe').count).to eq 1
+        end
       end
     end
 

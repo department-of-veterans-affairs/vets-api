@@ -48,7 +48,12 @@ http_interactions:
         Num</td>\r\n</TR>\r\n<!-- server-side loop adding Table entries -->\r\n\r\n<TR>\r\n
         \  <TD>African American PTSD Association</TD>\r\n   <TD>'091</TD>\r\n   <TD>253-589-0766</TD>\r\n
         \  <TD>Lakewood</TD>\r\n   <TD>WA</TD>\r\n   <TD>Anderson, Edgar B</TD>\r\n
-        \  <TD>Chicago</TD>\r\n   <TD>IL</TD>\r\n   <TD>'60635</TD>\r\n   <TD>8239</TD>\r\n</TR>\r\n\r\n</TABLE>\r\n</BODY>\r\n</HTML>\r\n"
+        \  <TD>Chicago</TD>\r\n   <TD>IL</TD>\r\n   <TD>'60635</TD>\r\n   <TD>8239</TD>\r\n</TR>\r\n\r\n
+        \  <TR>\r\n
+        \  <TD>NOT A REAL PLACE</TD>\r\n   <TD>'ZZZ</TD>\r\n   <TD>555-555-5555</TD>\r\n
+        \  <TD>NOWHERE</TD>\r\n   <TD>MO</TD>\r\n   <TD>PERSON, FAKE</TD>\r\n
+        \  <TD>NOWHERE</TD>\r\n   <TD>MO</TD>\r\n   <TD>'60635</TD>\r\n   <TD></TD>\r\n</TR>\r\n\r\n
+        \  </TABLE>\r\n</BODY>\r\n</HTML>\r\n"
     http_version:
   recorded_at: Mon, 15 Apr 2019 13:02:15 GMT
 recorded_with: VCR 3.0.3

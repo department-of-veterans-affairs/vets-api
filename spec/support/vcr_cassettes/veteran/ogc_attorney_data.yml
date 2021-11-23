@@ -48,7 +48,10 @@ http_interactions:
         server-side loop adding Table entries -->\r\n\r\n<TR>\r\n   <TD>Rohrberger</TD>\r\n
         \  <TD>Risa</TD>\r\n   <TD>6/5/2013</TD>\r\n   <TD>27840</TD>\r\n   <TD>9GB</TD>\r\n
         \  <TD>Midland Park</TD>\r\n   <TD>NJ</TD>\r\n   <TD>'07432</TD>\r\n   <TD>201-932-1972</TD>\r\n</TR>\r\n\r\n
+        \  \r\n\r\n<TR>\r\n   <TD>PERSON</TD>\r\n
+        \  <TD>FAKE</TD>\r\n   <TD>1/1/1970</TD>\r\n   <TD></TD>\r\n   <TD>ZZZ</TD>\r\n
+        \  <TD>NOWHERE</TD>\r\n   <TD>MO</TD>\r\n   <TD>'07432</TD>\r\n   <TD>555-555-5555</TD>\r\n</TR>\r\n\r\n
         \  \r\n\r\n</TABLE>\r\n</BODY>\r\n</HTML>\r\n"
-    http_version: 
+    http_version:
   recorded_at: Tue, 29 Oct 2019 13:12:58 GMT
 recorded_with: VCR 3.0.3

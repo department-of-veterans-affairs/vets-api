@@ -12,7 +12,13 @@ module Veteran
       array_of_organizations = reload_representatives
 
       # This Where Not statement is for removing anyone no longer on the lists pulled down from OGC
-      Veteran::Service::Representative.where.not(representative_id: array_of_organizations).destroy_all
+      Veteran::Service::Representative.where.not(representative_id: array_of_organizations).each do |rep|
+        # These are test users that Sandbox requires.  Don't delete them.
+        next if rep.first_name == 'Tamara' && rep.last_name == 'Ellis'
+        next if rep.first_name == 'John' && rep.last_name == 'Doe'
+
+        rep.destroy!
+      end
     rescue Faraday::ConnectionFailed => e
       log_message_to_sentry("OGC connection failed: #{e.message}", :warn)
       log_to_slack('VSO Reloader failed to connect to OGC')
@@ -23,7 +29,7 @@ module Veteran
 
     def reload_attorneys
       fetch_data('attorneyexcellist.asp').map do |attorney|
-        find_or_create_attorneys(attorney)
+        find_or_create_attorneys(attorney) if attorney['Registration Num'].present?
 
         attorney['Registration Num']
       end
@@ -31,7 +37,7 @@ module Veteran
 
     def reload_claim_agents
       fetch_data('caexcellist.asp').map do |claim_agent|
-        find_or_create_claim_agents(claim_agent)
+        find_or_create_claim_agents(claim_agent) if claim_agent['Registration Num'].present?
         claim_agent['Registration Num']
       end
     end
@@ -41,7 +47,7 @@ module Veteran
       vso_orgs = fetch_data('orgsexcellist.asp').map do |vso_rep|
         next unless vso_rep['Representative']
 
-        find_or_create_vso(vso_rep)
+        find_or_create_vso(vso_rep) if vso_rep['Registration Num'].present?
         vso_reps << vso_rep['Registration Num']
         {
           poa: vso_rep['POA'].gsub(/\W/, ''),
