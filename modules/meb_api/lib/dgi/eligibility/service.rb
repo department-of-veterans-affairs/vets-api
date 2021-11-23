@@ -5,6 +5,7 @@ require 'dgi/eligibility/configuration'
 require 'dgi/service'
 require 'dgi/eligibility/eligibility_response'
 require 'authentication_token_service'
+
 module MebApi
   module DGI
     module Eligibility

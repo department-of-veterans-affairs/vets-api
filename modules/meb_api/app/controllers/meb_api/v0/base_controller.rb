@@ -4,7 +4,6 @@ module MebApi
   module V0
     class BaseController < ::ApplicationController
       before_action :check_flipper
-      skip_before_action :authenticate
 
       protected
 
