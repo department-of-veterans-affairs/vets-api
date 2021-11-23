@@ -56,19 +56,19 @@ module V0
           :email,
           :date_of_birth,
           :married,
-          ages_of_other_dependents: [],
-          veteran_full_name: full_name,
-          address: address,
-          spouse_full_name: full_name,
-          employment_history: [
-            :veteran_or_spouse,
-            :occupation_name,
-            :from,
-            :to,
-            :present,
-            :employer_name,
-            employer_address: address
-          ]
+          { ages_of_other_dependents: [],
+            veteran_full_name: full_name,
+            address: address,
+            spouse_full_name: full_name,
+            employment_history: [
+              :veteran_or_spouse,
+              :occupation_name,
+              :from,
+              :to,
+              :present,
+              :employer_name,
+              { employer_address: address }
+            ] }
         ],
         income: [
           :veteran_or_spouse,
@@ -76,13 +76,13 @@ module V0
           :total_deductions,
           :net_take_home_pay,
           :total_monthly_net_income,
-          deductions: [
+          { deductions: [
             :taxes,
             :retirement,
             :social_security,
-            other_deductions: name_amount
+            { other_deductions: name_amount }
           ],
-          other_income: name_amount
+            other_income: name_amount }
         ],
         expenses: [
           :rent_or_mortgage,
@@ -91,7 +91,7 @@ module V0
           :other_living_expenses,
           :expenses_installment_contracts_and_other_debts,
           :total_monthly_expenses,
-          other_living_expenses: name_amount
+          { other_living_expenses: name_amount }
         ],
         discretionary_income: %i[
           net_monthly_income_less_expenses
@@ -105,8 +105,8 @@ module V0
           :stocks_and_other_bonds,
           :real_estate_owned,
           :total_assets,
-          automobiles: %i[make model year resale_value],
-          other_assets: name_amount
+          { automobiles: %i[make model year resale_value],
+            other_assets: name_amount }
         ],
         installment_contracts_and_other_debts: [
           :creditor_name,
@@ -116,7 +116,7 @@ module V0
           :unpaid_balance,
           :amount_due_monthly,
           :amount_past_due,
-          creditor_address: address
+          { creditor_address: address }
         ],
         total_of_installment_contracts_and_other_debts: %i[
           original_amount
@@ -126,12 +126,12 @@ module V0
         ],
         additional_data: [
           :additional_comments,
-          bankruptcy: %i[
+          { bankruptcy: %i[
             has_been_adjudicated_bankrupt
             date_discharged
             court_location
             docket_number
-          ]
+          ] }
         ],
         applicant_certifications: %i[
           veteran_signature

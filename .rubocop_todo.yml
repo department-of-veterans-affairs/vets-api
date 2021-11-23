@@ -202,20 +202,6 @@ Style/ExplicitBlockArgument:
     - 'lib/mpi/service.rb'
     - 'spec/lib/debt_management_center/debt_letter_downloader_spec.rb'
 
-# Offense count: 16
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: braces, no_braces
-Style/HashAsLastArrayItem:
-  Exclude:
-    - 'app/controllers/v0/financial_status_reports_controller.rb'
-    - 'app/models/preneeds/applicant.rb'
-    - 'app/models/preneeds/claimant.rb'
-    - 'app/models/preneeds/currently_buried_person.rb'
-    - 'app/models/preneeds/service_record.rb'
-    - 'app/models/preneeds/veteran.rb'
-    - 'modules/vaos/app/controllers/vaos/v0/appointment_requests_controller.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: AllowedReceivers.

@@ -47,7 +47,7 @@ module Preneeds
     def self.permitted_params
       [
         :service_branch, :discharge_type, :highest_rank, :national_guard_state,
-        date_range: Preneeds::DateRange.permitted_params
+        { date_range: Preneeds::DateRange.permitted_params }
       ]
     end
   end

@@ -23,7 +23,7 @@ module Preneeds
     # (see Preneeds::Applicant.permitted_params)
     #
     def self.permitted_params
-      [:cemetery_number, name: Preneeds::FullName.permitted_params]
+      [:cemetery_number, { name: Preneeds::FullName.permitted_params }]
     end
   end
 end

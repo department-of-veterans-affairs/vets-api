@@ -45,7 +45,7 @@ module Preneeds
     def self.permitted_params
       [
         :applicant_email, :applicant_phone_number, :applicant_relationship_to_claimant, :completing_reason,
-        mailing_address: Preneeds::Address.permitted_params, name: Preneeds::FullName.permitted_params
+        { mailing_address: Preneeds::Address.permitted_params, name: Preneeds::FullName.permitted_params }
       ]
     end
   end
