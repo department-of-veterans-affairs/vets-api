@@ -78,9 +78,11 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
 
   describe 'POST `create`' do
     before do
-      allow_any_instance_of(::V2::Chip::Service).to receive(:check_in).and_return(check_in)
+      allow_any_instance_of(::V2::Chip::Service).to receive(:check_in).and_return('jwt-token-abc-123')
+      allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
       allow_any_instance_of(::V2::Chip::Service).to receive(:create_check_in).and_return(resp)
       allow_any_instance_of(CheckIn::V2::Session).to receive(:redis_session_prefix).and_return('check_in_lorota_v2')
+      allow_any_instance_of(CheckIn::V2::Session).to receive(:authorized?).and_return(true)
       allow_any_instance_of(CheckIn::V2::Session).to receive(:jwt).and_return('jwt-123-1bc')
 
       Rails.cache.write(key, 'jwt-123-1bc', namespace: 'check-in-lorota-v2-cache')

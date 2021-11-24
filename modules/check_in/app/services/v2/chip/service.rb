@@ -5,7 +5,7 @@ module V2
     class Service
       extend Forwardable
 
-      attr_reader :check_in, :request, :response, :session, :settings, :check_in_body
+      attr_reader :check_in, :request, :response, :session, :settings, :check_in_body, :chip_client, :redis_client
 
       def_delegators :check_in, :client_error, :uuid, :valid?
       def_delegators :settings, :base_path
@@ -21,33 +21,63 @@ module V2
         @request = Request.build
         @response = Response
         @session = Session.build
+
+        @chip_client = Client.build(check_in_session: check_in)
+        @redis_client = RedisClient.build
       end
 
       def create_check_in
-        token = session.retrieve
-        resp =
-          if token.present?
-            request.post(
-              path: "/#{base_path}/actions/check-in/#{uuid}",
-              access_token: token,
-              params: { appointmentIEN: check_in_body[:appointment_ien] }
-            )
-
-          else
-            Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
-          end
+        resp = if Flipper.enabled?('check_in_experience_chip_service_refactor')
+                 if token.present?
+                   chip_client.check_in_appointment(token: token, appointment_ien: check_in_body[:appointment_ien])
+                 else
+                   Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
+                 end
+               else
+                 token = session.retrieve
+                 if token.present?
+                   request.post(
+                     path: "/#{base_path}/actions/check-in/#{uuid}",
+                     access_token: token,
+                     params: { appointmentIEN: check_in_body[:appointment_ien] }
+                   )
+                 else
+                   Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
+                 end
+               end
 
         response.build(response: resp).handle
       end
 
       def refresh_appointments
-        token = session.retrieve
+        if Flipper.enabled?('check_in_experience_chip_service_refactor')
+          if token.present?
+            chip_client.refresh_appointments(token: token, identifier_params: identifier_params)
+          else
+            Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
+          end
+        else
+          token = session.retrieve
+          request.post(
+            path: "/#{base_path}/actions/refresh-appointments/#{uuid}",
+            access_token: token,
+            params: identifier_params
+          )
+        end
+      end
 
-        request.post(
-          path: "/#{base_path}/actions/refresh-appointments/#{uuid}",
-          access_token: token,
-          params: identifier_params
-        )
+      def token
+        @token ||= begin
+          token = redis_client.get
+
+          return token if token.present?
+
+          resp = chip_client.token
+
+          Oj.load(resp.body)&.fetch('token').tap do |jwt_token|
+            redis_client.save(token: jwt_token)
+          end
+        end
       end
 
       def identifier_params
@@ -62,7 +92,7 @@ module V2
 
       def appointment_identifiers
         Rails.cache.read(
-          "check_in_lorota_v2_appointment_identifiers_#{uuid}",
+          "check_in_lorota_v2_appointment_identifiers_#{check_in.uuid}",
           namespace: 'check-in-lorota-v2-cache'
         )
       end

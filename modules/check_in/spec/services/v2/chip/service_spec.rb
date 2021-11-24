@@ -23,77 +23,179 @@ describe V2::Chip::Service do
   end
 
   describe '#create_check_in' do
-    let(:opts) do
-      {
-        path: '/dev/actions/check-in/d602d9eb-9a31-484f-9637-13ab0b507e0d',
-        access_token: 'abc123',
-        params: { appointmentIEN: '123-456-abc' }
-      }
-    end
     let(:resp) { 'Checkin successful' }
     let(:faraday_response) { Faraday::Response.new(body: resp, status: 200) }
+    let(:hsh) { { data: faraday_response.body, status: faraday_response.status } }
 
-    it 'returns a Faraday::Response' do
-      allow_any_instance_of(V2::Chip::Session).to receive(:retrieve).and_return('abc123')
-      allow_any_instance_of(V2::Chip::Request).to receive(:post).with(opts).and_return(faraday_response)
+    context 'with service_refactor feature flag on' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with('check_in_experience_chip_service_refactor').and_return(true)
+      end
 
-      hsh = { data: faraday_response.body, status: faraday_response.status }
+      context 'when token is already present' do
+        before do
+          allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
+          allow_any_instance_of(::V2::Chip::Client).to receive(:check_in_appointment)
+            .and_return(Faraday::Response.new(body: 'Checkin successful', status: 200))
+        end
 
-      Rails.cache.write(
-        'check_in_lorota_v2_d602d9eb-9a31-484f-9637-13ab0b507e0d_read.full',
-        '12345',
-        namespace: 'check-in-lorota-v2-cache'
-      )
+        it 'returns correct response' do
+          expect(subject.build(check_in: valid_check_in, params: { appointment_ien: '123-456-abc' })
+            .create_check_in).to eq(hsh)
+        end
+      end
 
-      expect(subject.build(check_in: valid_check_in, params: { appointment_ien: '123-456-abc' })
-        .create_check_in).to eq(hsh)
+      context 'when token is not present' do
+        let(:hsh) { { data: { error: true, message: 'Unauthorized' }, status: 401 } }
+
+        before do
+          allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return(nil)
+        end
+
+        it 'returns unauthorized' do
+          expect(subject.build(check_in: valid_check_in, params: { appointment_ien: '123-456-abc' })
+            .create_check_in).to eq(hsh)
+        end
+      end
+    end
+
+    context 'with service_refactor feature flag off' do
+      let(:opts) do
+        {
+          path: '/dev/actions/check-in/d602d9eb-9a31-484f-9637-13ab0b507e0d',
+          access_token: 'abc123',
+          params: { appointmentIEN: '123-456-abc' }
+        }
+      end
+
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with('check_in_experience_chip_service_refactor').and_return(false)
+      end
+
+      context 'when token is already present' do
+        before do
+          allow_any_instance_of(V2::Chip::Session).to receive(:retrieve).and_return('abc123')
+          allow_any_instance_of(V2::Chip::Request).to receive(:post).with(opts).and_return(faraday_response)
+        end
+
+        it 'returns correct response' do
+          expect(subject.build(check_in: valid_check_in, params: { appointment_ien: '123-456-abc' })
+            .create_check_in).to eq(hsh)
+        end
+      end
+
+      context 'when token is not present' do
+        let(:hsh) { { data: { error: true, message: 'Unauthorized' }, status: 401 } }
+
+        before do
+          allow_any_instance_of(V2::Chip::Session).to receive(:retrieve).and_return(nil)
+        end
+
+        it 'returns unauthorized' do
+          expect(subject.build(check_in: valid_check_in, params: { appointment_ien: '123-456-abc' })
+            .create_check_in).to eq(hsh)
+        end
+      end
     end
   end
 
   describe '#refresh_appointments' do
-    let(:opts) do
-      {
-        path: '/dev/actions/refresh-appointments/d602d9eb-9a31-484f-9637-13ab0b507e0d',
-        access_token: 'abc123',
-        params: { patientDFN: '123', stationNo: '888' }
-      }
-    end
+    let(:uuid) { 'd602d9eb-9a31-484f-9637-13ab0b507e0d' }
     let(:appointment_identifiers) do
       {
         data: {
-          id: 'e602d9eb-8a31-384f-1637-33ab0b507e0d',
+          id: uuid,
           type: :appointment_identifier,
           attributes: { patientDFN: '123', stationNo: '888' }
         }
       }
     end
     let(:resp) { 'Refresh successful' }
-    let(:faraday_response) { Faraday::Response.new(body: resp, status: 200) }
 
-    it 'returns a Faraday::Response' do
-      allow_any_instance_of(V2::Chip::Session).to receive(:retrieve).and_return('abc123')
-      allow_any_instance_of(V2::Chip::Request).to receive(:post).with(opts).and_return(faraday_response)
+    context 'with service_refactor feature flag on' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with('check_in_experience_chip_service_refactor').and_return(true)
+      end
 
-      Rails.cache.write(
-        'check_in_lorota_v2_d602d9eb-9a31-484f-9637-13ab0b507e0d_read.full',
-        '12345',
-        namespace: 'check-in-lorota-v2-cache'
-      )
+      context 'when token is already present' do
+        before do
+          allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
+          allow_any_instance_of(::V2::Chip::Client).to receive(:refresh_appointments)
+            .and_return(Faraday::Response.new(body: 'Refresh successful', status: 200))
+          Rails.cache.write(
+            "check_in_lorota_v2_appointment_identifiers_#{uuid}",
+            appointment_identifiers.to_json,
+            namespace: 'check-in-lorota-v2-cache'
+          )
+        end
 
-      Rails.cache.write(
-        'check_in_lorota_v2_appointment_identifiers_d602d9eb-9a31-484f-9637-13ab0b507e0d',
-        appointment_identifiers.to_json,
-        namespace: 'check-in-lorota-v2-cache'
-      )
+        it 'returns correct response' do
+          expect(subject.build(check_in: valid_check_in, params: { appointment_ien: '123-456-abc' })
+            .refresh_appointments.body).to eq(resp)
+        end
+      end
 
-      expect(subject.build(check_in: valid_check_in, params: { appointment_ien: '123-456-abc' })
-        .refresh_appointments.body).to eq(resp)
+      context 'when token is not present' do
+        before do
+          allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return(nil)
+        end
+
+        it 'returns unauthorized' do
+          expect(subject.build(check_in: valid_check_in, params: { appointment_ien: '123-456-abc' })
+            .refresh_appointments.body).to eq({ permissions: 'read.none', status: 'success', uuid: uuid }.to_json)
+        end
+      end
+    end
+
+    context 'with service_refactor feature flag off' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with('check_in_experience_chip_service_refactor').and_return(false)
+      end
+
+      context 'when token is already present' do
+        before do
+          allow_any_instance_of(V2::Chip::Session).to receive(:retrieve).and_return('abc123')
+          allow_any_instance_of(V2::Chip::Request).to receive(:post)
+            .and_return(Faraday::Response.new(body: 'Refresh successful', status: 200))
+          Rails.cache.write(
+            "check_in_lorota_v2_appointment_identifiers_#{uuid}",
+            appointment_identifiers.to_json,
+            namespace: 'check-in-lorota-v2-cache'
+          )
+        end
+
+        it 'returns correct response' do
+          expect(subject.build(check_in: valid_check_in, params: { appointment_ien: '123-456-abc' })
+            .refresh_appointments.body).to eq(resp)
+        end
+      end
     end
   end
 
-  describe '#base_path' do
-    it 'returns base_path' do
-      expect(subject.build(check_in: valid_check_in, params: {}).base_path).to eq('dev')
+  describe '#token' do
+    context 'when it exists in redis' do
+      before do
+        allow_any_instance_of(::V2::Chip::RedisClient).to receive(:get).and_return('jwt-token-123-abc')
+      end
+
+      it 'returns token from redis' do
+        expect(subject.build.token).to eq('jwt-token-123-abc')
+      end
+    end
+
+    context 'when it does not exist in redis' do
+      before do
+        allow_any_instance_of(::V2::Chip::Client).to receive(:token)
+          .and_return(Faraday::Response.new(body: { token: 'jwt-token-123-abc' }.to_json, status: 200))
+      end
+
+      it 'returns token from redis' do
+        expect(subject.build.token).to eq('jwt-token-123-abc')
+      end
     end
   end
 end
