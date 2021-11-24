@@ -152,12 +152,6 @@ Rails/UniqueValidationWithoutIndex:
     - 'modules/claims_api/app/models/claims_api/auto_established_claim.rb'
     - 'modules/va_forms/app/models/va_forms/form.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Rails/WhereNot:
-  Exclude:
-    - 'modules/claims_api/lib/tasks/claims_tasks.rake'
-
 # Offense count: 10
 # Cop supports --auto-correct.
 # Configuration parameters: IgnoredMethods.
