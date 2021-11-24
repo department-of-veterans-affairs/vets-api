@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 VBADocuments::Engine.routes.draw do
-  match '/metadata', to: 'metadata#index', via: [:get]
-  match '/v0/healthcheck', to: 'metadata#healthcheck', via: [:get]
-  match '/v1/healthcheck', to: 'metadata#healthcheck', via: [:get]
-  match '/v0/upstream_healthcheck', to: 'metadata#upstream_healthcheck', via: [:get]
-  match '/v1/upstream_healthcheck', to: 'metadata#upstream_healthcheck', via: [:get]
+  get '/metadata', to: 'metadata#index'
+  get '/v0/healthcheck', to: 'metadata#healthcheck'
+  get '/v1/healthcheck', to: 'metadata#healthcheck'
+  get '/v0/upstream_healthcheck', to: 'metadata#upstream_healthcheck'
+  get '/v1/upstream_healthcheck', to: 'metadata#upstream_healthcheck'
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/v1/*path', to: 'application#cors_preflight', via: [:options]
 
-  match '/v2/uploads/submit', to: 'v2/uploads#submit', via: [:post] if Settings.vba_documents.v2_upload_endpoint_enabled
+  post '/v2/uploads/submit', to: 'v2/uploads#submit' if Settings.vba_documents.v2_upload_endpoint_enabled
 
   namespace :internal, defaults: { format: 'json' } do
     namespace :v0 do

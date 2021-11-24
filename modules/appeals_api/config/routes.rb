@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 AppealsApi::Engine.routes.draw do
-  match '/appeals_status/metadata', to: 'metadata#appeals_status', via: [:get]
-  match '/decision_reviews/metadata', to: 'metadata#decision_reviews', via: [:get]
-  match '/v0/healthcheck', to: 'metadata#healthcheck', via: [:get]
-  match '/v1/healthcheck', to: 'metadata#healthcheck', via: [:get]
-  match '/v2/healthcheck', to: 'metadata#healthcheck', via: [:get]
-  match '/v0/upstream_healthcheck', to: 'metadata#appeals_status_upstream_healthcheck', via: [:get]
-  match '/v1/upstream_healthcheck', to: 'metadata#decision_reviews_upstream_healthcheck', via: [:get]
-  match '/v2/upstream_healthcheck', to: 'metadata#decision_reviews_upstream_healthcheck', via: [:get]
-  match '/v0/appeals', to: 'v0/appeals#index', via: [:get]
+  get '/appeals_status/metadata', to: 'metadata#appeals_status'
+  get '/decision_reviews/metadata', to: 'metadata#decision_reviews'
+  get '/v0/healthcheck', to: 'metadata#healthcheck'
+  get '/v1/healthcheck', to: 'metadata#healthcheck'
+  get '/v2/healthcheck', to: 'metadata#healthcheck'
+  get '/v0/upstream_healthcheck', to: 'metadata#appeals_status_upstream_healthcheck'
+  get '/v1/upstream_healthcheck', to: 'metadata#decision_reviews_upstream_healthcheck'
+  get '/v2/upstream_healthcheck', to: 'metadata#decision_reviews_upstream_healthcheck'
+  get '/v0/appeals', to: 'v0/appeals#index'
 
   namespace :v1, defaults: { format: 'json' } do
     namespace :decision_reviews do

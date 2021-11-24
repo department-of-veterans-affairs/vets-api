@@ -114,18 +114,6 @@ RSpec/RepeatedExampleGroupDescription:
 RSpec/StubbedMock:
   Enabled: false
 
-# Offense count: 23
-# Cop supports --auto-correct.
-# Configuration parameters: Include.
-# Include: config/routes.rb, config/routes/**/*.rb
-Rails/MatchRoute:
-  Exclude:
-    - 'modules/appeals_api/config/routes.rb'
-    - 'modules/apps_api/config/routes.rb'
-    - 'modules/claims_api/config/routes.rb'
-    - 'modules/va_forms/config/routes.rb'
-    - 'modules/vba_documents/config/routes.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Rails/RedundantForeignKey:

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 AppsApi::Engine.routes.draw do
-  match '/metadata', to: 'metadata#index', via: [:get]
+  get '/metadata', to: 'metadata#index'
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
-  match '/v0/healthcheck', to: 'metadata#healthcheck', via: [:get]
+  get '/v0/healthcheck', to: 'metadata#healthcheck'
 
   namespace :v0, defaults: { format: 'json' } do
     scope_default = { category: 'unknown_category' }
