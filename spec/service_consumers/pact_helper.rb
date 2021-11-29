@@ -13,7 +13,7 @@ require 'support/stub_emis'
 require 'support/stub_session'
 require 'support/va_profile/stub_vet360'
 require 'support/vcr'
-Dir.glob(File.expand_path('provider_states_for/*.rb', __dir__), &method(:require))
+Dir.glob(File.expand_path('provider_states_for/*.rb', __dir__)).sort.each(&method(:require))
 
 VCR.configure do |c|
   # PACT requests are performed before insert_cassette is invoked

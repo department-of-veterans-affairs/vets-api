@@ -28,13 +28,6 @@ Lint/EmptyFile:
 Lint/MissingSuper:
   Enabled: false
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Lint/NonDeterministicRequireOrder:
-  Exclude:
-    - 'spec/requests/v1/apidoc/apidoc_spec.rb'
-    - 'spec/service_consumers/pact_helper.rb'
-
 # Offense count: 1
 Lint/StructNewOverride:
   Exclude:
