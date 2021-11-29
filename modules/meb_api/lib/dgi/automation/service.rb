@@ -17,7 +17,7 @@ module MebApi
           with_monitoring do
             headers = request_headers
             options = { timeout: 60 }
-            raw_response = perform(:post, end_point, @user.ssn, headers, options)
+            raw_response = perform(:post, end_point, @user.ssn.to_s, headers, options)
 
             MebApi::DGI::Automation::ClaimantResponse.new(raw_response.status, raw_response)
           end
