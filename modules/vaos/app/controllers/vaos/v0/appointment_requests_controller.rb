@@ -12,7 +12,7 @@ module VAOS
         phone_number facility
       ].freeze
 
-      BASE_PARAMS_WHITELIST = [
+      BASE_PARAMS_ALLOWLIST = [
         :type, :option_date1, :option_time1, :option_date2, :option_time2, :option_date3, :option_time3, :status,
         :appointment_type, :visit_type, :phone_number, :email, :purpose_of_visit, :other_purpose_of_visit,
         :provider_id, :provider_name, :second_request, :second_request_submitted, :requested_phone_call,
@@ -70,13 +70,13 @@ module VAOS
       def params_for_update
         params.require(BASE_REQUIRED_PARAMS + [:created_date])
         params[:facility].require(%i[name facility_code parent_site_code])
-        params.permit(*(BASE_PARAMS_WHITELIST + [:created_date]))
+        params.permit(*(BASE_PARAMS_ALLOWLIST + [:created_date]))
       end
 
       def params_for_create
         params.require(BASE_REQUIRED_PARAMS)
         params[:facility].require(%i[name facility_code parent_site_code])
-        params.permit(*BASE_PARAMS_WHITELIST)
+        params.permit(*BASE_PARAMS_ALLOWLIST)
       end
 
       def appointment_requests_service

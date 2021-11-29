@@ -72,14 +72,6 @@ Metrics/PerceivedComplexity:
 Naming/FileName:
   Enabled: false
 
-# Offense count: 5
-# Configuration parameters: CheckIdentifiers, CheckConstants, CheckVariables, CheckStrings, CheckSymbols, CheckComments, CheckFilepaths, FlaggedTerms.
-Naming/InclusiveLanguage:
-  Exclude:
-    - 'lib/pagerduty/maintenance_client.rb'
-    - 'lib/statsd_middleware.rb'
-    - 'modules/vaos/app/controllers/vaos/v0/appointment_requests_controller.rb'
-
 # Offense count: 3
 RSpec/IdenticalEqualityAssertion:
   Exclude:

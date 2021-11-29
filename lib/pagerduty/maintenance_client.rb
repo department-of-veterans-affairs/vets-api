@@ -9,7 +9,7 @@ module PagerDuty
     configuration PagerDuty::Configuration
 
     def get_all(options = {})
-      return [] if PagerDuty::Configuration.service_ids.blank? # require whitelisted services
+      return [] if PagerDuty::Configuration.service_ids.blank? # require allowlisted services
 
       raw_mws = get_all_raw(options)
       convert(raw_mws)
