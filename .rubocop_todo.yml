@@ -18,12 +18,6 @@ Lint/DeprecatedOpenSSLConstant:
   Exclude:
     - 'lib/vic/url_helper.rb'
 
-# Offense count: 1
-# Configuration parameters: AllowComments.
-Lint/EmptyFile:
-  Exclude:
-    - 'spec/factories/686c/step_child_relationships.rb'
-
 # Offense count: 96
 Lint/MissingSuper:
   Enabled: false
