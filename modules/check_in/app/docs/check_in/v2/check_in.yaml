@@ -108,6 +108,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetCheckInData'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadPermission'
+              examples:
+                UnauthorizedReadPermission:
+                  value:
+                    permissions: 'read.none'
+                    status: 'success'
+                    uuid: 'e602d9eb-8a31-384f-1637-33ab0b507e0d'
         '403':
           description: Forbidden
           content:
@@ -198,6 +210,80 @@ paths:
                     data:
                       error: true
                       message: 'Veteran check in failed'
+  /pre_check_ins/${uuid}:
+    get:
+      tags:
+        - Get PreCheck-in
+      summary: Returns patient PreCheck-in data for a given UUID
+      operationId: get_pre_check_in
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          description: uuid for getting the patient pre-check-in data
+          schema:
+            type: string
+            example: 'e602d9eb-8a31-384f-1637-33ab0b507e0d'
+      responses:
+        '200':
+          description: Pre-Check-in data with given UUID retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCheckInData'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadPermission'
+              examples:
+                UnauthorizedReadPermission:
+                  value:
+                    permissions: 'read.none'
+                    status: 'success'
+                    uuid: 'e602d9eb-8a31-384f-1637-33ab0b507e0d'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+              examples:
+                DataExpired:
+                  value:
+                    status: 403
+                    data:
+                      error: true
+                      message: 'data has expired'
+                DataInaccesible:
+                  value:
+                    status: 403
+                    data:
+                      error: true
+                      message: 'data is inaccesible right now due to a time constraint'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+              example:
+                status: 404
+                data:
+                  error: true
+                  message: 'id not found'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+              example:
+                status: 500
+                data:
+                  error: true
+                  message: 'Internal service error message'
 components:
   schemas:
     ReadPermission:

@@ -6,11 +6,14 @@ unless Rails.env.test?
     # duration/success/fail of GET, POST calls for controllers
     CheckIn::V2::SessionsController.extend(StatsD::Instrument)
     CheckIn::V2::PatientCheckInsController.extend(StatsD::Instrument)
+    CheckIn::V2::PreCheckInsController.extend(StatsD::Instrument)
     %i[show create].each do |method|
       CheckIn::V2::SessionsController.statsd_measure method, "api.check_in.v2.sessions.#{method}.measure"
       CheckIn::V2::SessionsController.statsd_count_success method, "api.check_in.v2.sessions.#{method}.count"
       CheckIn::V2::PatientCheckInsController.statsd_measure method, "api.check_in.v2.checkins.#{method}.measure"
       CheckIn::V2::PatientCheckInsController.statsd_count_success method, "api.check_in.v2.checkins.#{method}.count"
+      CheckIn::V2::PreCheckInsController.statsd_measure method, "api.check_in.v2.pre_checkins.#{method}.measure"
+      CheckIn::V2::PreCheckInsController.statsd_count_success method, "api.check_in.v2.pre_checkins.#{method}.count"
     end
 
     # Measure the count/duration of GET/POST calls for LoROTA/CHIP services
