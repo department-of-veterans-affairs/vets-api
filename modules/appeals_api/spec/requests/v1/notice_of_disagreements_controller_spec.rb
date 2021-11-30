@@ -49,6 +49,15 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       end
     end
 
+    it 'errors when included issue text is too long' do
+      mod_data = fixture_as_json 'valid_10182.json'
+      mod_data['included'][0]['attributes']['issue'] = Faker::Lorem.characters(number: 500)
+      post(path, params: JSON.dump(mod_data), headers: @minimum_required_headers)
+      expect(response.status).to eq 422
+      expect(parsed['errors'][0]['title']).to eq 'Invalid length'
+      expect(parsed['errors'][0]['source']['pointer']).to eq '/included/0/attributes/issue'
+    end
+
     it 'create the job to build the PDF' do
       client_stub = instance_double('CentralMail::Service')
       faraday_response = instance_double('Faraday::Response')

@@ -108,7 +108,12 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
-                  "issue": { "$ref": "#/definitions/nonBlankString", "maxLength": 180 },
+                  "issue": {
+                    "allOf": [
+                      { "$ref": "#/definitions/nonBlankString" },
+                      { "maxLength": 180 }
+                    ]
+                  },
                   "decisionDate": { "$ref": "#/definitions/date" },
                   "decisionIssueId": { "type": "integer" },
                   "ratingIssueReferenceId": { "type": "string" },
