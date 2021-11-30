@@ -1,0 +1,75 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://www2.cdc.gov/vaccines/iis/iisstandards/XML.asp?rpt=vax2vg
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Cache-Control:
+      - private
+      Content-Type:
+      - text/xml
+      Set-Cookie:
+      - ASPSESSIONIDCUARTDDC=APBLHDMDFEBAHEFCBPFADHPJ; secure; path=/
+      - TS01b0bf6c=015d0abe87763a1b3ed734a5c6ecb18b544d3b0839a7be2f3fe637d1f211ad4323ae16dbdbd964e40f5e359196baf0dab90ff7eb971cff8fac99b1227956050596023fa857;
+        Path=/; Domain=.www2.cdc.gov
+      Strict-Transport-Security:
+      - max-age=31536000
+      Date:
+      - Fri, 19 Nov 2021 19:16:40 GMT
+      Content-Length:
+      - '62535'
+    body:
+      encoding: UTF-8
+      string: "<?xml version=\"1.0\"?>\r\n<VGCodes>\r\n</VGCodes>\r\n"
+  recorded_at: Fri, 19 Nov 2021 19:16:41 GMT
+- request:
+    method: get
+    uri: https://www2a.cdc.gov/vaccines/iis/iisstandards/XML.asp?rpt=tradename
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Cache-Control:
+      - private
+      Content-Type:
+      - text/xml
+      Set-Cookie:
+      - ASPSESSIONIDCUARTDDC=EPBLHDMDAIMBDCPECCIHCBBF; secure; path=/
+      - TS016300fb=015d0abe87b020ceaa96a1aa1d7f142e815c89cbc06a57c39ce2941df59948ab8aea70be78dc227dbe80268c9701669d896449a5221248c6c2384da5435229b80c83021b11;
+        Path=/; Domain=.www2a.cdc.gov
+      Strict-Transport-Security:
+      - max-age=31536000
+      Date:
+      - Fri, 19 Nov 2021 19:16:40 GMT
+      Content-Length:
+      - '80824'
+    body:
+      encoding: UTF-8
+      string: "<?xml version=\"1.0\"?>\r\n<productnames>\r\n</productnames>\r\n"
+  recorded_at: Fri, 19 Nov 2021 19:16:41 GMT
+recorded_with: VCR 6.0.0

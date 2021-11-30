@@ -273,3 +273,8 @@ TestUserDashboard::MirrorAccountsInBigQuery:
   cron: "0 * * * * America/New_York"
   class: TestUserDashboard::MirrorAccountsInBigQuery
   description: "Mirrors TUD accounts in BigQuery."
+
+  Mobile::V0::VaccinesUpdaterJob:
+  cron: "0 * * * * America/New_York"
+  class: Mobile::V0::VaccinesUpdaterJob
+  description: "Creates and updates vaccine records from CDC"
