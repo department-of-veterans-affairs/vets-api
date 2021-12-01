@@ -143,7 +143,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
             end
           end
 
-          it "sends a 'facilities.ppms.request.faraday' notification to any subscribers listening" do
+          it "sends a 'facilities.ppms.v1.request.faraday' notification to any subscribers listening" do
             allow(StatsD).to receive(:measure)
 
             if feature_flags[:paginated]
@@ -174,49 +174,35 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
 
             expect do
               get '/facilities_api/v1/ccp', params: params
-            end.to instrument('facilities.ppms.request.faraday')
+            end.to instrument('facilities.ppms.v1.request.faraday')
           end
 
-          [
-            [1, 5, 6],
-            [2, 5, 11],
-            [3, 1, 4]
-          ].each do |(page, per_page, total_entries)|
-            it "paginates ppms responses (page: #{page}, per_page: #{per_page}, total_items: #{total_entries})" do
-              params_with_pagination = params.merge(
-                page: page.to_s,
-                per_page: per_page.to_s
-              )
+          if feature_flags[:paginated]
+            [
+              [1, 20],
+              [2, 20],
+              [3, 20]
+            ].each do |(page, per_page, _total_entries)|
+              it "paginates ppms responses (page: #{page}, per_page: #{per_page}" do
+                params_with_pagination = params.merge(
+                  page: page.to_s,
+                  per_page: per_page.to_s
+                )
 
-              client = FacilitiesApi::V1::PPMS::Client.new
-              expect(FacilitiesApi::V1::PPMS::Client).to receive(:new).and_return(client)
+                get '/facilities_api/v1/ccp', params: params_with_pagination
+                bod = JSON.parse(response.body)
 
-              mock_method = if feature_flags[:paginated]
-                              :facility_service_locator
-                            else
-                              :provider_locator
-                            end
-
-              expect(client).to receive(mock_method).and_return(
-                FacilitiesApi::V1::PPMS::Response.new(
-                  FactoryBot.build_list(:facilities_api_v1_ppms_provider, total_entries).collect(&:attributes),
-                  params_with_pagination
-                ).providers
-              )
-
-              get '/facilities_api/v1/ccp', params: params_with_pagination
-              bod = JSON.parse(response.body)
-
-              prev_page = page == 1 ? nil : page - 1
-              expect(bod['meta']).to include(
-                'pagination' => {
-                  'current_page' => page,
-                  'prev_page' => prev_page,
-                  'next_page' => page + 1,
-                  'total_pages' => page + 1,
-                  'total_entries' => total_entries
-                }
-              )
+                prev_page = page == 1 ? nil : page - 1
+                expect(bod['meta']).to include(
+                  'pagination' => {
+                    'current_page' => page,
+                    'prev_page' => prev_page,
+                    'next_page' => page + 1,
+                    'total_pages' => 120,
+                    'total_entries' => 2394
+                  }
+                )
+              end
             end
           end
 

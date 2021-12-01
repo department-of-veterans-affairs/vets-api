@@ -11,6 +11,7 @@ vcr_options = {
 
 RSpec.describe 'Community Care Providers', team: :facilities, vcr: vcr_options do
   before do
+    get v1_facilities_ccp_index_url
     Flipper.enable(:facility_locator_ppms_skip_additional_round_trips, true)
   end
 

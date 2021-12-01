@@ -4,26 +4,28 @@ require 'rails_helper'
 
 module FacilitiesApi
   describe V1::PPMS::Response, team: :facilities do
+    let(:response) { double('response', status: 200, body: { 'value' => body }) }
+
     let(:body) do
       FactoryBot.build_list(
         :facilities_api_v1_ppms_provider, 10, :from_provider_locator
-      ).collect { |x| x.attributes.except(:id) }
+      ).collect do |x|
+        x.attributes.except(:id)
+      end
     end
+
     let(:params) do
       {
         page: 2,
         per_page: 5
       }
     end
-    let(:ppms_response) { V1::PPMS::Response.new(body, params) }
+
+    let(:ppms_response) { V1::PPMS::Response.new(response, params) }
 
     describe '.initialize' do
       it 'takes a body argument and sets the body attribute' do
         expect(ppms_response.body).to eql(body)
-      end
-
-      it 'stores the param argument in the param attribute' do
-        expect(ppms_response.params).to eql(params)
       end
 
       it 'parses current_page from the params' do
@@ -31,7 +33,7 @@ module FacilitiesApi
       end
 
       it 'has a default current_page of 1' do
-        expect(V1::PPMS::Response.new(body).current_page).to be(1)
+        expect(V1::PPMS::Response.new(response).current_page).to be(1)
       end
 
       it 'parses the per_page from the params' do
@@ -39,15 +41,11 @@ module FacilitiesApi
       end
 
       it 'has a default per_page of 10' do
-        expect(V1::PPMS::Response.new(body).per_page).to be(10)
-      end
-
-      it 'calculates offset' do
-        expect(ppms_response.offset).to be(5)
+        expect(V1::PPMS::Response.new(response).per_page).to be(10)
       end
 
       it 'calculates total_entries' do
-        expect(ppms_response.total_entries).to be(11)
+        expect(ppms_response.total_entries).to be(10)
       end
     end
 
@@ -56,7 +54,7 @@ module FacilitiesApi
         ppms_response_attributes = ppms_response.providers.collect do |provider|
           provider.attributes.except(:id)
         end
-        expect(ppms_response_attributes).to match(body[5, 5])
+        expect(ppms_response_attributes).to match(body)
       end
 
       it 'sets all Providers ID to a sha256' do
@@ -70,7 +68,7 @@ module FacilitiesApi
         ppms_response_attributes = ppms_response.places_of_service.collect do |provider|
           provider.attributes.except(:id)
         end
-        expect(ppms_response_attributes).to match(body[5, 5])
+        expect(ppms_response_attributes).to match(body)
       end
 
       it 'sets all Providers ID to a sha256' do

@@ -11,7 +11,7 @@ module FacilitiesApi
 
     def initialize(attr = {})
       super(attr)
-      new_attr = attr.dup
+      new_attr = attr.dup.transform_keys { |k| k.to_s.snakecase.to_sym }
       new_attr[:specialty_code] ||= new_attr.delete(:coded_specialty)
 
       self.attributes = new_attr

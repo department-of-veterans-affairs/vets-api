@@ -36,11 +36,7 @@ module FacilitiesApi
     end
 
     def specialties
-      api_results = api.specialties.collect do |result|
-        V1::PPMS::Specialty.new(
-          result.transform_keys { |k| k.to_s.snakecase.to_sym }
-        )
-      end
+      api_results = api.specialties
 
       render_json(V1::PPMS::SpecialtySerializer, params, api_results)
     end

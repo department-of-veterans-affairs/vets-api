@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'apivore'
 
 RSpec.describe 'FacilitiesApi::Apidocs' do
   before(:all) do
@@ -16,7 +17,9 @@ RSpec.describe 'FacilitiesApi::Apidocs' do
   end
 
   context 'API Documentation', type: %i[apivore request] do
-    subject(:apivore) { Apivore::SwaggerChecker.instance_for('/facilities_api/apidocs.json') }
+    subject(:apivore) do
+      Apivore::SwaggerChecker.instance_for('/facilities_api/apidocs.json')
+    end
 
     vcr_options = {
       match_requests_on: %i[path query],

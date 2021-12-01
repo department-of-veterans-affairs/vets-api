@@ -59,7 +59,7 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
 
             expect do
               FacilitiesApi::V1::PPMS::Client.new.provider_locator(params.merge(specialties: ['213E00000X']))
-            end.to instrument('facilities.ppms.request.faraday')
+            end.to instrument('facilities.ppms.v1.request.faraday')
           end
         end
 
@@ -103,7 +103,7 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
               FacilitiesApi::V1::PPMS::Client.new.provider_locator(params.merge(specialties: ['213E00000X']))
             end.to raise_error(
               Common::Exceptions::BackendServiceException
-            ).and instrument('facilities.ppms.request.faraday')
+            ).and instrument('facilities.ppms.v1.request.faraday')
           end
         end
       end
@@ -119,7 +119,7 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
 
       context 'with an unknown error from PPMS', vcr: vcr_options.merge(
         cassette_name: 'facilities/ppms/ppms_500',
-        match_requests_on: [:method]
+        match_requests_on: %i[method]
       ) do
         it 'raises BackendUnhandledException when errors happen' do
           expect { FacilitiesApi::V1::PPMS::Client.new.provider_locator(params.merge(specialties: ['213E00000X'])) }
@@ -568,7 +568,7 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
 
         it 'returns a list of providers' do
           r = FacilitiesApi::V1::PPMS::Client.new.provider_locator(params.merge(specialties: ['213E00000X']))
-          expect(r.length).to be 10
+          expect(r.length).to be 11
           expect(r[0]).to have_attributes(
             acc_new_patients: 'true',
             address_city: 'BELFORD',
@@ -594,7 +594,7 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
       describe '#pos_locator' do
         it 'finds places of service' do
           r = FacilitiesApi::V1::PPMS::Client.new.pos_locator(params)
-          expect(r.length).to be 10
+          expect(r.length).to be 11
           expect(r[0]).to have_attributes(
             acc_new_patients: 'false',
             address_city: 'ATLANTIC HIGHLANDS',
@@ -625,7 +625,7 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
         it 'returns some Specialties' do
           r = FacilitiesApi::V1::PPMS::Client.new.specialties
           expect(r.each_with_object(Hash.new(0)) do |specialty, count|
-            count[specialty['SpecialtyCode']] += 1
+            count[specialty.specialty_code] += 1
           end).to match(
             '101Y00000X' => 1,
             '101YA0400X' => 1,

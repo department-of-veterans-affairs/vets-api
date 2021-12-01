@@ -7,31 +7,30 @@ module FacilitiesApi
     module PPMS
       class Response < Common::Base
         attribute :body, String
-        attribute :params, Hash
         attribute :current_page, Integer
         attribute :per_page, Integer
         attribute :offset, Integer
         attribute :total_entries, Integer
 
-        def initialize(body, params = {})
+        def initialize(response, params = {})
           super()
-          self.body = body
-          self.params = params
-          self.current_page = Integer(params[:page] || 1)
-          self.per_page = Integer(params[:per_page] || 10)
-          self.offset = (current_page - 1) * per_page
-          self.total_entries = current_page * per_page + 1
+
+          self.body = response.body.fetch('value')
+
+          self.current_page = Integer(response.body['PageNumber'] || params[:page] || 1)
+          self.per_page =     Integer(response.body['PageSize'] || params[:per_page] || 10)
+          self.total_entries = Integer(response.body['TotalResults'] || (current_page * per_page))
+
+          trim_response_attributes!
         end
 
-        def providers(paginated: false)
-          providers = if paginated
-                        body
-                      else
-                        body[offset, per_page]
-                      end
-
-          providers.map! do |attr|
-            provider = FacilitiesApi::V1::PPMS::Provider.new(attr)
+        def providers
+          providers = body.map do |attr|
+            provider = if attr.key?('ProviderServices')
+                         FacilitiesApi::V1::PPMS::Provider.new(attr['ProviderServices'].first)
+                       else
+                         FacilitiesApi::V1::PPMS::Provider.new(attr)
+                       end
             provider.set_hexdigest_as_id!
             provider
           end.uniq(&:id)
@@ -40,8 +39,12 @@ module FacilitiesApi
         end
 
         def places_of_service
-          providers = body[offset, per_page].map do |attr|
-            provider = FacilitiesApi::V1::PPMS::Provider.new(attr)
+          providers = body.map do |attr|
+            provider = if attr.key?('ProviderServices')
+                         FacilitiesApi::V1::PPMS::Provider.new(attr['ProviderServices'].first)
+                       else
+                         FacilitiesApi::V1::PPMS::Provider.new(attr)
+                       end
             provider.set_hexdigest_as_id!
             provider.set_group_practice_or_agency!
             provider
@@ -50,7 +53,25 @@ module FacilitiesApi
           paginate_response(providers)
         end
 
+        def specialties
+          body.map do |attr|
+            FacilitiesApi::V1::PPMS::Specialty.new(attr)
+          end
+        end
+
         private
+
+        def trim_response_attributes!
+          body.collect! do |hsh|
+            hsh.each_pair.collect do |attr, value|
+              if value.is_a? String
+                [attr, value.gsub(/ +/, ' ').strip]
+              else
+                [attr, value]
+              end
+            end.to_h
+          end
+        end
 
         def paginate_response(providers)
           WillPaginate::Collection.create(current_page, per_page) do |pager|

@@ -212,6 +212,51 @@ Rails.application.reloader.to_prepare do
   end
 
   ActiveSupport::Notifications.subscribe(
+    'facilities.ppms.v1.request.faraday'
+  ) do |_name, start_time, end_time, _id, payload|
+    payload_statuses = ["http_status:#{payload.status}"]
+    StatsD.increment('facilities.ppms.response.failures', tags: payload_statuses) unless payload.success?
+    StatsD.increment('facilities.ppms.response.total', tags: payload_statuses)
+
+    duration = end_time - start_time
+
+    measurement = case payload[:url].path
+                  when /FacilityServiceLocator/
+                    'facilities.ppms.facility_service_locator'
+                  when /ProviderLocator/
+                    'facilities.ppms.provider_locator'
+                  when /PlaceOfServiceLocator/
+                    'facilities.ppms.place_of_service_locator'
+                  when %r{Providers\(\d+\)/ProviderServices}
+                    'facilities.ppms.providers.provider_services'
+                  when /Providers\(\d+\)/
+                    'facilities.ppms.providers'
+                  end
+
+    if measurement
+      tags = ['facilities.ppms']
+      params = Rack::Utils.parse_nested_query payload[:url].query
+
+      if params['radius']
+        count =
+          case payload.body
+          when Hash
+            payload.dig(:body, :value)&.count
+          when Array
+            payload.body&.count
+          else
+            0
+          end
+
+        tags << "facilities.ppms.radius:#{params['radius']}"
+        tags << "facilities.ppms.results:#{count || 0}"
+      end
+
+      StatsD.measure(measurement, duration, tags: tags)
+    end
+  end
+
+  ActiveSupport::Notifications.subscribe(
     'lighthouse.facilities.request.faraday'
   ) do |_, start_time, end_time, _, payload|
     payload_statuses = ["http_status:#{payload.status}"]
