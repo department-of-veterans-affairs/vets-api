@@ -55,5 +55,15 @@ RSpec.describe MedicalCopays::VBS::Service do
 
       expect(subject.get_copays).to eq({ data: [{ 'fooBar' => 'bar' }, { 'barBaz' => 'baz' }], status: 200 })
     end
+
+    context 'user is deceased' do
+      let(:user) { create(:user, :accountable) }
+      let(:notification) { create(:notification, account: user.account, status: Notification::DECEASED) }
+
+      it 'returns a 403 body with deceased message' do
+        expect(user.account.notifications).to include(notification)
+        expect(subject.get_copays).to eq({ data: { message: 'Deceased' }, status: 403 })
+      end
+    end
   end
 end
