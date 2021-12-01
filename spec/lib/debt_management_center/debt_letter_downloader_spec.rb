@@ -31,11 +31,9 @@ RSpec.describe DebtManagementCenter::DebtLetterDownloader do
     get_fixture("vbms/#{path}").map { |r| OpenStruct.new(r) }
   end
 
-  def use_person_and_letter_cassettes
+  def use_person_and_letter_cassettes(&block)
     VCR.use_cassette('bgs/people_service/person_data') do
-      VCR.use_cassette('debts/get_letters') do
-        yield
-      end
+      VCR.use_cassette('debts/get_letters', &block)
     end
   end
 

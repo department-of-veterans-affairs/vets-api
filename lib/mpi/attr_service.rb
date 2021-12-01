@@ -13,8 +13,8 @@ module MPI
       message_user_attributes(user_attributes, search_type)
     end
 
-    def measure_info(_user_attributes)
-      Rails.logger.measure_info('Performed MVI Query') { yield }
+    def measure_info(_user_attributes, &block)
+      Rails.logger.measure_info('Performed MVI Query', &block)
     end
   end
 end

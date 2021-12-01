@@ -154,10 +154,8 @@ module DecisionReviewV1
       }
     end
 
-    def with_monitoring_and_error_handling
-      with_monitoring(2) do
-        yield
-      end
+    def with_monitoring_and_error_handling(&block)
+      with_monitoring(2, &block)
     rescue => e
       handle_error(e)
     end

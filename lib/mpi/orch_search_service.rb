@@ -8,10 +8,10 @@ module MPI
 
     private
 
-    def measure_info(user_identity)
+    def measure_info(user_identity, &block)
       Rails.logger.measure_info(
-        'Performed MVI Orchestrated Search Query', payload: logging_context(user_identity)
-      ) { yield }
+        'Performed MVI Orchestrated Search Query', payload: logging_context(user_identity), &block
+      )
     end
 
     def create_profile_message(user_identity, search_type: MPI::Constants::CORRELATION_WITH_RELATIONSHIP_DATA)

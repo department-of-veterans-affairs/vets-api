@@ -125,25 +125,6 @@ Style/ClassEqualityComparison:
     - 'modules/covid_research/app/serializers/covid_research/genisis_serializer.rb'
     - 'modules/va_forms/app/workers/va_forms/form_reloader.rb'
 
-# Offense count: 14
-# Cop supports --auto-correct.
-Style/ExplicitBlockArgument:
-  Exclude:
-    - 'config/initializers/integration_recorder.rb'
-    - 'lib/common/hash_helpers.rb'
-    - 'lib/debt_management_center/base_service.rb'
-    - 'lib/decision_review/service.rb'
-    - 'lib/decision_review_v1/service.rb'
-    - 'lib/evss/intent_to_file/response_strategy.rb'
-    - 'lib/evss/pciu_address/response_strategy.rb'
-    - 'lib/evss/reference_data/response_strategy.rb'
-    - 'lib/evss/service.rb'
-    - 'lib/mdot/client.rb'
-    - 'lib/mpi/attr_service.rb'
-    - 'lib/mpi/orch_search_service.rb'
-    - 'lib/mpi/service.rb'
-    - 'spec/lib/debt_management_center/debt_letter_downloader_spec.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: AllowedReceivers.

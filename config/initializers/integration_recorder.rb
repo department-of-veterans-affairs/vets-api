@@ -147,8 +147,8 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
 
       # These mini-middlewares are defined below and enabled with options passed in to
       # DualDeck::RackMiddleware
-      def middlewares
-        time_freeze_middleware { insecure_middleware { yield } }
+      def middlewares(&block)
+        time_freeze_middleware { insecure_middleware(&block) }
       end
 
       # Its unclear if Timecop's block method ensures that Time is returned so
@@ -163,18 +163,18 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
       end
 
       # Only freeze the time if this setting is passed to the middleware
-      def time_freeze_middleware
+      def time_freeze_middleware(&block)
         if @time_freeze
-          freeze_time { yield }
+          freeze_time(&block)
         else
           yield
         end
       end
 
       # Only disable randomness if this setting is passed to the middleware
-      def insecure_middleware
+      def insecure_middleware(&block)
         if @insecure_random
-          SecureRandom.with_disabled_randomness { yield }
+          SecureRandom.with_disabled_randomness(&block)
         else
           yield
         end

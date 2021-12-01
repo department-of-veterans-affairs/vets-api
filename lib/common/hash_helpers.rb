@@ -27,14 +27,14 @@ module Common
       end
     end
 
-    def deep_remove_helper(hash)
+    def deep_remove_helper(hash, &block)
       delete_if_block = proc do |_k, v|
         case v
         when Hash
           v.delete_if(&delete_if_block)
           nil
         when Array
-          v.reject! { |i| yield(i) }
+          v.reject!(&block)
           v.each do |item|
             delete_if_block.call(nil, item)
           end

@@ -98,8 +98,8 @@ module MPI
 
     private
 
-    def measure_info(user_identity)
-      Rails.logger.measure_info('Performed MVI Query', payload: logging_context(user_identity)) { yield }
+    def measure_info(user_identity, &block)
+      Rails.logger.measure_info('Performed MVI Query', payload: logging_context(user_identity), &block)
     end
 
     def get_mvi_error_key(e)
