@@ -17,7 +17,7 @@ To gain access to the decision reviews API you must [request an API Key](/apply)
 
 Use the correct GET endpoint to check the appeal’s submission status. The endpoint returns the current status of the submission to VA but not the status of the appeal in the AMA process.
 
-### Higher Level Review (HLR) and Notice of Disagreement (NOD) Submission Statuses
+### Decision Review/Appeal Submission Statuses
 
 The submission statuses begin with pending and end with caseflow.
 
@@ -35,7 +35,7 @@ The submission statuses begin with pending and end with caseflow.
 
 Sandbox test submissions do not progress through the same statuses as in the Production environment. In the lower environments (i.e. Sandbox or Staging), the final status of a submission is `submitted`. In the lower environments, we allow passing a `Status-Simulation` header on the show endpoints so that you can simulate the other statuses.
 
-Statuses can be simulated for both HLR/NOD submissions as well as evidence document uploads.
+Statuses can be simulated for all submissions as well as evidence document uploads.
 
 The **submission statuses** available for simulation are the statuses listed in the Submission Statuses table above.
 
