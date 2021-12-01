@@ -18,7 +18,7 @@ module TestUserDashboard
 
         TestUserDashboard::AccountMetrics
           .new(account)
-          .checkin(checkin_time: Time.current, maintenance_update: true)
+          .checkin(is_manual_checkin: true)
       end
     end
   end
