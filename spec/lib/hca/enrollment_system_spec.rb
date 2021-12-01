@@ -1098,7 +1098,8 @@ describe HCA::EnrollmentSystem do
           isWhite: true,
           maritalStatus: 'Married',
           vaMedicalFacility: '608',
-          isEssentialAcaCoverage: true
+          isEssentialAcaCoverage: true,
+          sigiIsAmericanIndian: true
         }.deep_stringify_keys,
         {
           'appointmentRequestResponse' => true,
@@ -1119,9 +1120,11 @@ describe HCA::EnrollmentSystem do
           'maritalStatus' => 'M',
           'preferredFacility' => '608',
           'races' => { 'race' => ['2106-3'] },
-          'acaIndicator' => true
+          'acaIndicator' => true,
+          'indianIndicator' => true
         }
       ],
+
       [
         {
           veteranAddress: {
@@ -1151,7 +1154,8 @@ describe HCA::EnrollmentSystem do
           isWhite: true,
           maritalStatus: 'Married',
           vaMedicalFacility: '608',
-          isEssentialAcaCoverage: true
+          isEssentialAcaCoverage: true,
+          sigiIsAmericanIndian: true
         }.deep_stringify_keys,
         {
           'appointmentRequestResponse' => true,
@@ -1190,7 +1194,8 @@ describe HCA::EnrollmentSystem do
           'maritalStatus' => 'M',
           'preferredFacility' => '608',
           'races' => { 'race' => ['2106-3'] },
-          'acaIndicator' => true
+          'acaIndicator' => true,
+          'indianIndicator' => true
         }
       ]
     ]

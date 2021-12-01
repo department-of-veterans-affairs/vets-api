@@ -107,7 +107,8 @@
             "2106-3"
           ]
         },
-        "eeSummary:acaIndicator": "true"
+        "eeSummary:acaIndicator": "true",
+        "eeSummary:indianIndicator": "true"
       },
       "eeSummary:enrollmentDeterminationInfo": {
         "eeSummary:eligibleForMedicaid": "true",

@@ -23,6 +23,8 @@ class HealthCareApplication < ApplicationRecord
     hca.saved_change_to_attribute?(:state) && hca.failed? && hca.form.present? && hca.parsed_form['email']
   end)
 
+  # @param [Account] user
+  # @return [Hash]
   def self.get_user_identifier(user)
     return if user.nil?
 

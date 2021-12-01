@@ -8,10 +8,12 @@ module HCA
   class Service < Common::Client::Base
     configuration HCA::Configuration
 
+    # @param [Hash] user_identifier
     def initialize(user_identifier = nil)
       @user_identifier = user_identifier
     end
 
+    # @param [HashWithIndifferentAccess] form JSON form data
     def submit_form(form)
       formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(form, @user_identifier)
       content = Gyoku.xml(formatted)

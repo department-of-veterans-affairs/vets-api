@@ -595,7 +595,8 @@ module HCA
         'maritalStatus' => marital_status_to_sds_code(veteran['maritalStatus']),
         'preferredFacility' => veteran['vaMedicalFacility'],
         'races' => veteran_to_races(veteran),
-        'acaIndicator' => veteran['isEssentialAcaCoverage'].present?
+        'acaIndicator' => veteran['isEssentialAcaCoverage'].present?,
+        'indianIndicator' => veteran['sigiIsAmericanIndian'].present?
       }
     end
 
@@ -734,6 +735,8 @@ module HCA
       }
     end
 
+    # @param [Hash] veteran data in JSON format
+    # @param [Account] current_user
     def veteran_to_save_submit_form(veteran, current_user)
       return {} if veteran.blank?
 
