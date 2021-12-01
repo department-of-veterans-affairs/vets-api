@@ -111,14 +111,8 @@ module ClaimsApi
 
       def authenticate_token
         super
-      rescue => e
-        raise e if e.message == 'Token Validation Error'
-
-        log_message_to_sentry('Authentication Error in claims',
-                              :warning,
-                              body: e.message)
-        message = 'User not a valid or authorized Veteran for this end point.'
-        raise ::Common::Exceptions::Unauthorized.new(detail: message)
+      rescue ::Common::Exceptions::TokenValidationError => e
+        raise ::Common::Exceptions::Unauthorized.new(detail: e.detail)
       end
 
       def set_tags_and_extra_context

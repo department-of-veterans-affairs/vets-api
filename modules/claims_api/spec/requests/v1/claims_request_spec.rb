@@ -240,4 +240,22 @@ RSpec.describe 'EVSS Claims management', type: :request do
       end
     end
   end
+
+  context "when a 'Token Validation Error' is received" do
+    it "raises a 'Common::Exceptions::Unauthorized' exception", run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
+      expect_any_instance_of(Token).to receive(:initialize).and_raise(
+        Common::Exceptions::TokenValidationError.new(detail: 'Some Error')
+      )
+
+      with_okta_user(scopes) do |auth_header|
+        VCR.use_cassette('evss/claims/claims') do
+          get '/services/claims/v1/claims', params: nil, headers: request_headers.merge(auth_header)
+          parsed_response = JSON.parse(response.body)
+
+          expect(response.status).to eq(401)
+          expect(parsed_response['errors'].first['title']).to eq('Not authorized')
+        end
+      end
+    end
+  end
 end
