@@ -142,7 +142,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     form_path = PdfFill::Filler.fill_form(self)
 
     uploader = ClaimsApi::VBMSUploader.new(
-      filepath: form_path,
+      filepath: Rails.root.join(form_path),
       file_number: parsed_form['veteranInformation']['VAFileNumber'] || parsed_form['veteranInformation']['ssn'],
       doc_type: doc_type
     )
