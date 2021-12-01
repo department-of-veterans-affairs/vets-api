@@ -6,6 +6,7 @@ require 'nokogiri'
 TABLE = 'rspec_statistics'
 DATASET = 'vsp_testing_tools'
 
+# rubocop:disable Metrics/ParameterLists
 def read_files(total_tests = 0, total_failures = 0, total_skipped = 0, total_time = 0)
   date = 0
 
@@ -27,6 +28,7 @@ def read_files(total_tests = 0, total_failures = 0, total_skipped = 0, total_tim
     total_time: total_time
   }]
 end
+# rubocop:enable Metrics/ParameterLists
 
 def upload_test_stats
   bigquery = Google::Cloud::Bigquery.new

@@ -11,6 +11,7 @@ module Common
     class BackendServiceException < BaseError
       attr_reader :response_values, :original_status, :original_body, :key
 
+      # rubocop:disable Metrics/ParameterLists
       def initialize(key = nil, response_values = {}, original_status = nil, original_body = nil)
         @response_values = response_values
         @key = key || 'VA900'
@@ -18,6 +19,7 @@ module Common
         @original_body = original_body
         validate_arguments!
       end
+      # rubocop:enable Metrics/ParameterLists
 
       # The message will be the actual backend service response from middleware,
       # not the I18n version.

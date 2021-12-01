@@ -43,11 +43,6 @@ Metrics/BlockLength:
 Metrics/CyclomaticComplexity:
   Max: 29
 
-# Offense count: 2
-# Configuration parameters: Max, CountKeywordArgs.
-Metrics/ParameterLists:
-  MaxOptionalParameters: 4
-
 # Offense count: 46
 # Configuration parameters: IgnoredMethods.
 Metrics/PerceivedComplexity:
@@ -129,14 +124,6 @@ Style/ClassEqualityComparison:
     - 'modules/claims_api/app/controllers/concerns/claims_api/json_format_validation.rb'
     - 'modules/covid_research/app/serializers/covid_research/genisis_serializer.rb'
     - 'modules/va_forms/app/workers/va_forms/form_reloader.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty, nil, both
-Style/EmptyElse:
-  Exclude:
-    - 'Gemfile'
 
 # Offense count: 14
 # Cop supports --auto-correct.
