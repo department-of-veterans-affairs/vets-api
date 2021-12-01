@@ -24,11 +24,12 @@ Rails.application.routes.draw do
     resources :debts, only: :index
     resources :debt_letters, only: %i[index show]
     resources :education_career_counseling_claims, only: :create
-    resources :medical_copays, only: :index
     resources :veteran_readiness_employment_claims, only: :create
     resource :virtual_agent_token, only: [:create], controller: :virtual_agent_token
-
     resources :preferred_facilities, only: %i[index create destroy]
+
+    resources :medical_copays, only: :index
+    get 'medical_copays/get_pdf_statement_by_id/:statement_id', to: 'medical_copays#get_pdf_statement_by_id'
 
     resources :apps, only: %i[index show]
     scope_default = { category: 'unknown_category' }

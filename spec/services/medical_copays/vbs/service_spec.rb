@@ -66,4 +66,25 @@ RSpec.describe MedicalCopays::VBS::Service do
       end
     end
   end
+
+  describe '#get_pdf_statement_by_id' do
+    statement_id = '123456789'
+    it 'raises an error when request data is invalid' do
+      allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:valid?).and_return(false)
+
+      expect do
+        subject.get_pdf_statement_by_id(statement_id)
+      end.to raise_error(VCR::Errors::UnhandledHTTPRequestError)
+    end
+
+    it 'returns a response hash' do
+      url = "/base/path/GetPDFStatementById/#{statement_id}"
+      response = Faraday::Response.new(body: { 'statement' => Base64.encode64('foo bar') }, status: 200)
+
+      allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:valid?).and_return(true)
+      allow_any_instance_of(MedicalCopays::Request).to receive(:get).with(url).and_return(response)
+
+      expect(subject.get_pdf_statement_by_id(statement_id)).to eq('foo bar')
+    end
+  end
 end

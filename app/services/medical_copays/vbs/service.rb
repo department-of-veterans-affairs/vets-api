@@ -49,6 +49,17 @@ module MedicalCopays
         ResponseData.build(response: response).handle
       end
 
+      ##
+      # Gets the PDF medical copay statment by statment_id
+      #
+      # @return [Hash]
+      #
+      def get_pdf_statement_by_id(statement_id)
+        response = request.get("#{settings.base_path}/GetPDFStatementById/#{statement_id}")
+
+        Base64.decode64(response.body['statement'])
+      end
+
       def settings
         Settings.mcp.vbs
       end

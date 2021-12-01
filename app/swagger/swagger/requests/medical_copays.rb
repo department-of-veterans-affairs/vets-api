@@ -111,6 +111,32 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/v0/medical_copays/get_pdf_statement_by_id/{statement_id}' do
+        operation :get do
+          key :description, 'Endpoint to get PDF statement by medical_copay id'
+          key :operationId, 'getPDFStatementsById'
+          key :tags, %w[medical_copays]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :id
+            key :in, :path
+            key :description, 'The type of letter to be downloaded'
+            key :required, true
+            key :type, :string
+          end
+
+          response 200 do
+            key :description, 'Successful PDF download'
+
+            schema do
+              property :data, type: :string, format: 'binary'
+            end
+          end
+        end
+      end
     end
   end
 end

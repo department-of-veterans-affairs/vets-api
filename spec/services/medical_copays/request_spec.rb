@@ -64,6 +64,20 @@ RSpec.describe MedicalCopays::Request do
     end
   end
 
+  describe '#get' do
+    let(:path) { '/foo/bar/:statement_id' }
+    let(:response) { Faraday::Response.new }
+
+    it 'connection is called with get' do
+      allow_any_instance_of(Faraday::Connection).to receive(:get).with(path).and_return(response)
+
+      expect_any_instance_of(Faraday::Connection).to receive(:get)
+        .with(path).once
+
+      subject.get(path)
+    end
+  end
+
   describe '#connection' do
     let(:stubs) { Faraday::Adapter::Test::Stubs.new }
     let(:conn) { Faraday.new { |b| b.adapter(:test, stubs) } }

@@ -52,6 +52,19 @@ module MedicalCopays
     end
 
     ##
+    # Make a HTTP GET call to the VBS service in order to obtain copays or PDFs by id
+    #
+    # @param path [String]
+    #
+    # @return [Faraday::Response]
+    #
+    def get(path)
+      with_monitoring do
+        connection.get(path)
+      end
+    end
+
+    ##
     # Create a connection object that manages the attributes
     # and the middleware stack for making our HTTP requests to VBS
     #
