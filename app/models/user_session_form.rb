@@ -69,7 +69,10 @@ class UserSessionForm
     return if identifier.blank?
 
     matching_accounts = Account.where(icn: identifier)
-    Rails.logger.info("[UserSessionForm] Multiple matching accounts for icn:#{identifier}")
+
+    if matching_accounts.count > 1
+      Rails.logger.info("[UserSessionForm] Multiple matching accounts for icn:#{identifier}")
+    end
     return unless matching_accounts.count == 1
 
     [matching_accounts.first&.idme_uuid, matching_accounts.first&.logingov_uuid]
