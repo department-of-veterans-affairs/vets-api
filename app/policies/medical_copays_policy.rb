@@ -8,6 +8,20 @@ MedicalCopaysPolicy = Struct.new(:user, :medical_copays) do
   # @return [Boolean]
   #
   def access?
-    Flipper.enabled?('show_medical_copays', user) && user.edipi.present? && user.icn.present?
+    accessible = Flipper.enabled?('show_medical_copays', user) &&
+                 user.edipi.present? &&
+                 user.icn.present?
+
+    increment_statsd(accessible)
+
+    accessible
+  end
+
+  def increment_statsd(accessible)
+    if accessible
+      StatsD.increment('api.mcp.policy.success')
+    else
+      StatsD.increment('api.mcp.policy.failure')
+    end
   end
 end

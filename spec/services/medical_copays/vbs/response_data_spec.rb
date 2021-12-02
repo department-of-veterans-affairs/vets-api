@@ -32,6 +32,10 @@ RSpec.describe MedicalCopays::VBS::ResponseData do
 
         expect(subject.build({ response: resp }).handle).to eq(hsh)
       end
+
+      it 'increments statsD success' do
+        expect { subject.build({ response: resp }).handle }.to trigger_statsd_increment('api.mcp.vbs.success')
+      end
     end
 
     context 'when status 404' do
@@ -40,6 +44,12 @@ RSpec.describe MedicalCopays::VBS::ResponseData do
         hsh = { data: { message: 'Resource not found' }, status: resp.status }
 
         expect(subject.build({ response: resp }).handle).to eq(hsh)
+      end
+
+      it 'increments statsD failure' do
+        resp = Faraday::Response.new(body: 'Resource not found', status: 404)
+
+        expect { subject.build({ response: resp }).handle }.to trigger_statsd_increment('api.mcp.vbs.failure')
       end
     end
 
@@ -50,6 +60,12 @@ RSpec.describe MedicalCopays::VBS::ResponseData do
 
         expect(subject.build({ response: resp }).handle).to eq(hsh)
       end
+
+      it 'increments statsD failure' do
+        resp = Faraday::Response.new(body: 'Forbidden', status: 403)
+
+        expect { subject.build({ response: resp }).handle }.to trigger_statsd_increment('api.mcp.vbs.failure')
+      end
     end
 
     context 'when status 401' do
@@ -58,6 +74,12 @@ RSpec.describe MedicalCopays::VBS::ResponseData do
         hsh = { data: { message: 'Unauthorized' }, status: resp.status }
 
         expect(subject.build({ response: resp }).handle).to eq(hsh)
+      end
+
+      it 'increments statsD failure' do
+        resp = Faraday::Response.new(body: 'Unauthorized', status: 401)
+
+        expect { subject.build({ response: resp }).handle }.to trigger_statsd_increment('api.mcp.vbs.failure')
       end
     end
 
@@ -68,6 +90,12 @@ RSpec.describe MedicalCopays::VBS::ResponseData do
 
         expect(subject.build({ response: resp }).handle).to eq(hsh)
       end
+
+      it 'increments statsD failure' do
+        resp = Faraday::Response.new(body: { error: true, message: 'Bad request' }, status: 400)
+
+        expect { subject.build({ response: resp }).handle }.to trigger_statsd_increment('api.mcp.vbs.failure')
+      end
     end
 
     context 'when status 500' do
@@ -76,6 +104,12 @@ RSpec.describe MedicalCopays::VBS::ResponseData do
         hsh = { data: { message: 'Something went wrong' }, status: resp.status }
 
         expect(subject.build({ response: resp }).handle).to eq(hsh)
+      end
+
+      it 'increments statsD failure' do
+        resp = Faraday::Response.new(body: 'Something went wrong', status: 500)
+
+        expect { subject.build({ response: resp }).handle }.to trigger_statsd_increment('api.mcp.vbs.failure')
       end
     end
   end

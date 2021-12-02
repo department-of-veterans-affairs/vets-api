@@ -14,6 +14,8 @@ module MedicalCopays
         @errors = json_schema_errors
         message = json_schema_errors.pluck(:message)
 
+        StatsD.increment('api.mcp.vbs.failure')
+
         super(message)
       end
     end

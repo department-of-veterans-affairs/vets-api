@@ -12,6 +12,8 @@ module MedicalCopays
     class ResponseData
       attr_reader :body, :status
 
+      STATSD_KEY_PREFIX = 'api.mcp.vbs'
+
       ##
       # Builds a ResponseData instance
       #
@@ -35,16 +37,22 @@ module MedicalCopays
       def handle
         case status
         when 200
+          StatsD.increment("#{STATSD_KEY_PREFIX}.success")
           { data: transformed_body, status: status }
         when 400
+          StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
           { data: { message: 'Bad request' }, status: status }
         when 401
+          StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
           { data: { message: 'Unauthorized' }, status: status }
         when 403
+          StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
           { data: { message: 'Forbidden' }, status: status }
         when 404
+          StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
           { data: { message: 'Resource not found' }, status: status }
         else
+          StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
           { data: { message: 'Something went wrong' }, status: status }
         end
       end

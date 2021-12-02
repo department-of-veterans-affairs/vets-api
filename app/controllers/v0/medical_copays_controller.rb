@@ -5,6 +5,7 @@ module V0
     before_action { authorize :medical_copays, :access? }
 
     def index
+      StatsD.increment('api.mcp.total')
       render json: vbs_service.get_copays
     end
 

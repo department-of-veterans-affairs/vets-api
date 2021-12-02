@@ -28,6 +28,7 @@ RSpec.describe MedicalCopays::VBS::Service do
       allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:valid?).and_return(false)
 
       expect { subject.get_copays }.to raise_error(MedicalCopays::VBS::InvalidVBSRequestError)
+        .and trigger_statsd_increment('api.mcp.vbs.failure')
     end
 
     it 'returns a response hash' do
