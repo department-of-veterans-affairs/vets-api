@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require_relative '../../../modules/claims_api/spec/support/fake_vbms'
+require 'claims_api/vbms_uploader'
 
 RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   let(:claim) { create(:veteran_readiness_employment_claim) }

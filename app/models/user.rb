@@ -47,7 +47,7 @@ class User < Common::RedisStore
   # @return [Account] an instance of the Account object
   #
   def account
-    @account ||= Account.create_by!(self)
+    @account ||= Identity::AccountCreator.new(self).call
   end
 
   def account_uuid
