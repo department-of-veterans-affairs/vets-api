@@ -62,6 +62,10 @@ features:
     actor_type: user
     description: Enables the health care check-in experiences to show the next of kin page.
     enable_in_development: true
+  check_in_experience_emergency_contact_enabled:
+    actor_type: user
+    description: Enables the health care check-in experiences to show the emergency contact page.
+    enable_in_development: true
   check_in_experience_pre_check_in_enabled:
     actor_type: user
     description: Enables the health care check-in experiences to show the pre-check-in experience.
