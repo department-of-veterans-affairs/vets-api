@@ -402,9 +402,6 @@ Lint/NoReturnInBeginEndBlocks:
   Exclude:
     - 'app/services/form1010cg/service.rb'
 
-Lint/SymbolConversion:
-  Enabled: false
-
 Layout/EmptyLineBetweenDefs:
   AllowAdjacentOneLineDefs: true
 
