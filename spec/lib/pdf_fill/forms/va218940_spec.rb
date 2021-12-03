@@ -205,26 +205,6 @@ describe PdfFill::Forms::Va218940 do
     end
   end
 
-  describe '#expand_provided_care_date_range' do
-    context 'date range is not empty' do
-      provided_care = [
-        {
-          'dates' => 'From to 1994-01-01 to 1995-01-01'
-        }
-      ]
-      it 'expands the doctorsCare date range correctly' do
-        new_form_class.send(:expand_provided_care_date_range, provided_care, 'doctorsCare')
-        expect(
-          JSON.parse(class_form_data.to_json)
-        ).to eq(
-          'doctorsCareDateRanges' => [
-            'From to 1994-01-01 to 1995-01-01'
-          ]
-        )
-      end
-    end
-  end
-
   describe '#expand_provided_care_details' do
     context 'care name and address is not empty' do
       provided_care = [

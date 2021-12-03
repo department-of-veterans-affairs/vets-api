@@ -812,7 +812,7 @@ RSpec.describe FormProfile, type: :model do
       test_pciu_us_phone('5557940976', '5557940976')
     end
 
-    context 'with a us phone number' do
+    context 'with a us 1+ phone number' do
       test_pciu_us_phone('15557940976', '5557940976')
     end
   end

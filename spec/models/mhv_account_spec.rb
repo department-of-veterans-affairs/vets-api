@@ -232,7 +232,7 @@ RSpec.describe MHVAccount, type: :model do
               end
             end
 
-            context 'account level unknown' do
+            context 'account level error' do
               let(:account_type) { 'Error' }
 
               it 'has existing' do

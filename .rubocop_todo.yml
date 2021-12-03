@@ -72,18 +72,6 @@ RSpec/RepeatedExampleGroupBody:
     - 'spec/lib/pdf_fill/forms/common_ptsd_spec.rb'
     - 'spec/models/va_profile_redis/contact_information_spec.rb'
 
-# Offense count: 18
-RSpec/RepeatedExampleGroupDescription:
-  Exclude:
-    - 'modules/vaos/spec/request/systems_request_spec.rb'
-    - 'modules/vaos/spec/services/systems_service_spec.rb'
-    - 'spec/lib/evss/disability_compensation_form/form0781_spec.rb'
-    - 'spec/lib/hca/service_spec.rb'
-    - 'spec/lib/pdf_fill/forms/common_ptsd_spec.rb'
-    - 'spec/lib/pdf_fill/forms/va218940_spec.rb'
-    - 'spec/models/form_profile_spec.rb'
-    - 'spec/models/mhv_account_spec.rb'
-
 # Offense count: 538
 RSpec/StubbedMock:
   Enabled: false

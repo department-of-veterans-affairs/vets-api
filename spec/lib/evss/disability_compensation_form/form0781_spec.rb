@@ -59,7 +59,7 @@ describe EVSS::DisabilityCompensationForm::Form0781 do
   end
 
   describe '#split_incidents' do
-    context 'when there are no incidents' do
+    context 'when there are incidents' do
       let(:incidents) do
         [
           {

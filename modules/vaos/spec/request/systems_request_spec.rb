@@ -228,33 +228,7 @@ RSpec.describe 'systems', type: :request do
           end
         end
       end
-    end
 
-    describe 'GET /vaos/v0/systems/:system_id/pact' do
-      context 'with a valid GET system pact response' do
-        it 'returns a 200 with the correct schema' do
-          VCR.use_cassette('vaos/systems/get_system_pact', match_requests_on: %i[method uri]) do
-            get '/vaos/v0/systems/688/pact'
-
-            expect(response).to have_http_status(:ok)
-            expect(response.body).to be_a(String)
-            expect(response).to match_response_schema('vaos/system_pact')
-          end
-        end
-
-        it 'returns a 200 with the correct camel-inflected schema' do
-          VCR.use_cassette('vaos/systems/get_system_pact', match_requests_on: %i[method uri]) do
-            get '/vaos/v0/systems/688/pact', headers: inflection_header
-
-            expect(response).to have_http_status(:ok)
-            expect(response.body).to be_a(String)
-            expect(response).to match_camelized_response_schema('vaos/system_pact')
-          end
-        end
-      end
-    end
-
-    describe 'GET /vaos/v0/systems/:system_id/facilities' do
       context 'with a set of clinic ids' do
         it 'returns a 200 with the correct schema' do
           VCR.use_cassette('vaos/systems/get_institutions', match_requests_on: %i[method uri]) do
@@ -297,6 +271,30 @@ RSpec.describe 'systems', type: :request do
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
             expect(response).to match_camelized_response_schema('vaos/system_institutions')
+          end
+        end
+      end
+    end
+
+    describe 'GET /vaos/v0/systems/:system_id/pact' do
+      context 'with a valid GET system pact response' do
+        it 'returns a 200 with the correct schema' do
+          VCR.use_cassette('vaos/systems/get_system_pact', match_requests_on: %i[method uri]) do
+            get '/vaos/v0/systems/688/pact'
+
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(response).to match_response_schema('vaos/system_pact')
+          end
+        end
+
+        it 'returns a 200 with the correct camel-inflected schema' do
+          VCR.use_cassette('vaos/systems/get_system_pact', match_requests_on: %i[method uri]) do
+            get '/vaos/v0/systems/688/pact', headers: inflection_header
+
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(response).to match_camelized_response_schema('vaos/system_pact')
           end
         end
       end

@@ -319,16 +319,6 @@ describe VAOS::SystemsService do
 
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
-        VCR.use_cassette('vaos/systems/get_system_pact_500', match_requests_on: %i[method uri]) do
-          expect { subject.get_system_pact('688') }.to raise_error(
-            Common::Exceptions::BackendServiceException
-          )
-        end
-      end
-    end
-
-    context 'when the upstream server returns a 500' do
-      it 'raises a backend exception' do
         VCR.use_cassette('vaos/systems/get_facility_visits_500', match_requests_on: %i[method uri]) do
           expect { subject.get_facility_visits('688', '688', '323', 'direct') }.to raise_error(
             Common::Exceptions::BackendServiceException
@@ -358,11 +348,11 @@ describe VAOS::SystemsService do
       end
     end
 
-    context 'with a 200 response for a set of clinic ids' do
+    context 'with a 200 response for a single clinic id' do
       let(:system_id) { 442 }
       let(:clinic_ids) { 16 }
 
-      it 'returns only those clinics parsed correctly', :aggregate_failures do
+      it 'returns the correctly parsed clinic', :aggregate_failures do
         VCR.use_cassette('vaos/systems/get_institutions_single', match_requests_on: %i[method uri]) do
           response = subject.get_clinic_institutions(system_id, clinic_ids)
           expect(response.map { |c| c[:location_ien].to_i }).to eq([*clinic_ids])

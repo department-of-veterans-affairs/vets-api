@@ -32,16 +32,6 @@ describe PdfFill::Forms::CommonPtsd do
     end
   end
 
-  describe '#expand_incident_date' do
-    it 'expands the incident date correctly' do
-      expect(including_class.new.expand_incident_date('incidentDate' => '2000-01-01')).to eq(
-        'month' => '01',
-        'day' => '01',
-        'year' => '2000'
-      )
-    end
-  end
-
   describe '#expand_incident_location' do
     it 'expands the incident location into three lines one word each' do
       expect(including_class.new.expand_incident_location(
