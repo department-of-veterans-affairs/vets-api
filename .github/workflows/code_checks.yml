@@ -1,5 +1,8 @@
 name: Code Checks
 on: [push]
+permissions:
+  contents: read
+  checks: write
 jobs:
   linting_and_security:
     name: Linting and Security

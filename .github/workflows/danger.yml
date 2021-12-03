@@ -1,5 +1,9 @@
 name: Danger
 on: [pull_request]
+permissions:
+  contents: read
+  pull-requests: write
+  statuses: write
 jobs:
   danger:
     name: Danger

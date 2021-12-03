@@ -4,6 +4,8 @@ on:
     workflows: ["Code Checks"]
     branches: [master]
     types: [completed]
+permissions:
+  contents: read
 jobs:
   build_and_push:
     name: Build and Push

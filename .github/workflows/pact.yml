@@ -1,5 +1,7 @@
 name: Pact Contract Tests
 on: [workflow_dispatch]
+permissions:
+  contents: read
 jobs:
   tests:
     name: Pact Contract Tests
