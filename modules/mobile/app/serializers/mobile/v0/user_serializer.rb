@@ -74,7 +74,11 @@ module Mobile
       end
 
       attribute :authorized_services do |user|
-        SERVICE_DICTIONARY.filter { |_k, policies| authorized_for_service(policies, user) }.keys
+        auth_services = SERVICE_DICTIONARY.filter { |_k, policies| authorized_for_service(policies, user) }.keys
+        if auth_services.include?(:directDepositBenefits) && user.authorize(:ppiu, :access_update?)
+          auth_services.push(:directDepositBenefitsUpdate)
+        end
+        auth_services
       end
 
       attribute :health do |user|

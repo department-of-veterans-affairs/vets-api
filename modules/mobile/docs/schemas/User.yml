@@ -69,6 +69,7 @@ properties:
           - appeals
           - directDepositBenefits
           - militaryServiceHistory
+          - directDepositBenefitsUpdate
       health:
         type: object
         required:

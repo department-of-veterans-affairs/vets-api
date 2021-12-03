@@ -20,8 +20,10 @@ RSpec.describe 'user', type: :request do
 
     context 'with no upstream errors' do
       before do
-        VCR.use_cassette('user/get_facilities', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/user', headers: iam_headers
+        VCR.use_cassette('payment_information/payment_information') do
+          VCR.use_cassette('user/get_facilities') do
+            get '/mobile/v0/user', headers: iam_headers
+          end
         end
       end
 
@@ -157,6 +159,7 @@ RSpec.describe 'user', type: :request do
             lettersAndDocuments
             militaryServiceHistory
             userProfileUpdate
+            directDepositBenefitsUpdate
           ]
         )
       end
@@ -200,8 +203,10 @@ RSpec.describe 'user', type: :request do
       context 'when user object birth_date is nil' do
         before do
           iam_sign_in(FactoryBot.build(:iam_user, :no_birth_date))
-          VCR.use_cassette('user/get_facilities_no_ids', match_requests_on: %i[method uri]) do
-            get '/mobile/v0/user', headers: iam_headers
+          VCR.use_cassette('payment_information/payment_information') do
+            VCR.use_cassette('user/get_facilities_no_ids', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/user', headers: iam_headers
+            end
           end
         end
 
@@ -216,8 +221,10 @@ RSpec.describe 'user', type: :request do
       context 'with a user who does not have access to evss' do
         before do
           iam_sign_in(FactoryBot.build(:iam_user, :no_edipi_id))
-          VCR.use_cassette('user/get_facilities_no_ids', match_requests_on: %i[method uri]) do
-            get '/mobile/v0/user', headers: iam_headers
+          VCR.use_cassette('payment_information/payment_information') do
+            VCR.use_cassette('user/get_facilities_no_ids', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/user', headers: iam_headers
+            end
           end
         end
 
@@ -232,12 +239,14 @@ RSpec.describe 'user', type: :request do
         end
       end
 
-      context 'with a user who has access to evss but not ppiu (not multifactor)' do
+      context 'with a user who has access to evss but not ppiu (not idme)' do
         before do
           user = FactoryBot.build(:iam_user, :no_multifactor)
           iam_sign_in(user)
-          VCR.use_cassette('user/get_facilities', match_requests_on: %i[method uri]) do
-            get '/mobile/v0/user', headers: iam_headers
+          VCR.use_cassette('payment_information/payment_information') do
+            VCR.use_cassette('user/get_facilities', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/user', headers: iam_headers
+            end
           end
         end
 
@@ -247,7 +256,6 @@ RSpec.describe 'user', type: :request do
               appeals
               appointments
               claims
-              directDepositBenefits
               disabilityRating
               lettersAndDocuments
               militaryServiceHistory
@@ -333,16 +341,20 @@ RSpec.describe 'user', type: :request do
     context 'after a profile request' do
       it 'kicks off a pre cache appointments job' do
         expect(Mobile::V0::PreCacheAppointmentsJob).to receive(:perform_async).once
-        VCR.use_cassette('user/get_facilities', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/user', headers: iam_headers
+        VCR.use_cassette('payment_information/payment_information') do
+          VCR.use_cassette('user/get_facilities', match_requests_on: %i[method uri]) do
+            get '/mobile/v0/user', headers: iam_headers
+          end
         end
       end
     end
 
     context 'empty get_facility test' do
       before do
-        VCR.use_cassette('user/get_facilities_empty', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/user', headers: iam_headers
+        VCR.use_cassette('payment_information/payment_information') do
+          VCR.use_cassette('user/get_facilities_empty', match_requests_on: %i[method uri]) do
+            get '/mobile/v0/user', headers: iam_headers
+          end
         end
       end
 
