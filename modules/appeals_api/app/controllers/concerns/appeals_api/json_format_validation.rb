@@ -6,10 +6,13 @@ module AppealsApi
 
     included do
       def validate_json_format
-        if request.body.class.name == 'Puma::NullIO' # testing string b/c NullIO class doesn't always exist
+        # rubocop:disable Style/ClassEqualityComparison
+        # testing string b/c NullIO class doesn't always exist
+        if request.body.class.name == 'Puma::NullIO'
           render_body_is_not_a_hash_error request.body
           return
         end
+        # rubocop:enable Style/ClassEqualityComparison
 
         @json_body = JSON.parse request.body.string
         return if @json_body.is_a? Hash

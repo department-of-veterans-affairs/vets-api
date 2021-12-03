@@ -62,7 +62,7 @@ module EducationForm::Forms
     def initialize(app)
       @record = app
       @form = app.open_struct_form
-      @text = format unless self.class == Base
+      @text = format unless instance_of?(Base)
     end
 
     # @note

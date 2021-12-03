@@ -26,7 +26,7 @@ class DependentsVerificationsSerializer < ActiveModel::Serializer
 
   def formatted_payload
     dependency_decs = object[:dependency_decs]
-    ensured_array = dependency_decs.class == Hash ? [dependency_decs] : dependency_decs
+    ensured_array = dependency_decs.instance_of?(Hash) ? [dependency_decs] : dependency_decs
 
     @formatted_payload ||= ensured_array.map { |hash| hash.except(:social_security_number) }
   end

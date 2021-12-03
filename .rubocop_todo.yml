@@ -96,23 +96,6 @@ Rails/UniqueValidationWithoutIndex:
     - 'modules/claims_api/app/models/claims_api/auto_established_claim.rb'
     - 'modules/va_forms/app/models/va_forms/form.rb'
 
-# Offense count: 10
-# Cop supports --auto-correct.
-# Configuration parameters: IgnoredMethods.
-# IgnoredMethods: ==, equal?, eql?
-Style/ClassEqualityComparison:
-  Exclude:
-    - 'app/controllers/appeals_base_controller.rb'
-    - 'app/controllers/appeals_base_controller_v1.rb'
-    - 'app/serializers/dependents_serializer.rb'
-    - 'app/serializers/dependents_verifications_serializer.rb'
-    - 'app/serializers/vet_payment_history_serializer.rb'
-    - 'app/workers/education_form/forms/base.rb'
-    - 'modules/appeals_api/app/controllers/concerns/appeals_api/json_format_validation.rb'
-    - 'modules/claims_api/app/controllers/concerns/claims_api/json_format_validation.rb'
-    - 'modules/covid_research/app/serializers/covid_research/genisis_serializer.rb'
-    - 'modules/va_forms/app/workers/va_forms/form_reloader.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: AllowedReceivers.

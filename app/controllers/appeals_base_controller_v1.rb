@@ -19,8 +19,10 @@ class AppealsBaseControllerV1 < ApplicationController
   end
 
   def get_hash_from_request_body
+    # rubocop:disable Style/ClassEqualityComparison
     # testing string b/c NullIO class doesn't always exist
     raise request_body_is_not_a_hash_error if request.body.class.name == 'Puma::NullIO'
+    # rubocop:enable Style/ClassEqualityComparison
 
     body = JSON.parse request.body.string
     raise request_body_is_not_a_hash_error unless body.is_a?(Hash)

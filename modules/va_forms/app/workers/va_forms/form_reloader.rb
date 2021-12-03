@@ -115,7 +115,7 @@ module VAForms
     end
 
     def get_sha256(content)
-      if content.class == Tempfile
+      if content.instance_of?(Tempfile)
         Digest::SHA256.file(content).hexdigest
       else
         Digest::SHA256.hexdigest(content.string)

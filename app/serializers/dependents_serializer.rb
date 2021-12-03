@@ -10,7 +10,7 @@ class DependentsSerializer < ActiveModel::Serializer
   end
 
   def persons
-    return [object[:persons]] if object[:persons].class == Hash
+    return [object[:persons]] if object[:persons].instance_of?(Hash)
 
     object[:persons]
   end
