@@ -14,7 +14,7 @@ module FacilitiesApi
           def parse_body(env)
             hsh = JSON.parse(env.body).with_indifferent_access
 
-            if hsh['error'] && hsh['error']['message'].match?(/No Providers found/)
+            if hsh['error'] && hsh['error']['message'].match?(/No (Provider|Facility)/)
               env[:status] = 200
               hsh['value'] = []
               hsh

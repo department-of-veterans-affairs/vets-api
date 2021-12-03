@@ -22,7 +22,7 @@ module FacilitiesApi
           'PPMS'
         end
 
-        def base_request_header
+        def base_request_headers
           if Flipper.enabled?(:facility_locator_ppms_use_secure_api)
             super.merge(Settings.ppms.api_keys.to_h.stringify_keys)
           else

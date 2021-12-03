@@ -369,7 +369,8 @@ ppms:
   apim_url: https://some.other.fakesite.com
   open_timeout: 15
   read_timeout: 55
-  api_keys: fakekey
+  api_keys:
+    fakekey: fakevalue
 
 # Settings for MyHealthEVet
 mhv:
