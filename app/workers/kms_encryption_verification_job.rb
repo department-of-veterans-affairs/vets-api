@@ -7,10 +7,17 @@ class KmsEncryptionVerificationJob
   def perform(models = ApplicationRecord.descendants_using_encryption.map(&:name))
     corrupted_records = models.map(&:constantize).flat_map do |model|
       attributes = model.lockbox_attributes.keys
-      model.where.not(encrypted_kms_key: nil).in_batches.flat_map do |relation|
+      model.where(verified_decryptable_at: nil).where.not(encrypted_kms_key: nil).in_batches.flat_map do |relation|
         relation.flat_map do |record|
-          attributes.flat_map do |attribute|
-            record unless can_decrypt?(record, attribute)
+          decryption_verified = true
+          decryption_verification = attributes.flat_map do |attribute|
+            unless can_decrypt?(record, attribute)
+              decryption_verified = false
+              record
+            end
+          end
+          decryption_verification.tap do
+            record.update(verified_decryptable_at: Time.zone.today) if decryption_verified
           end
         end
       end
