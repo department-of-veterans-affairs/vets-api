@@ -66,6 +66,14 @@ module V2
         end
       end
 
+      def pre_check_in
+        if token.present?
+          chip_client.pre_check_in(token: token, demographic_confirmations: demographic_confirmations)
+        else
+          Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
+        end
+      end
+
       def token
         @token ||= begin
           token = redis_client.get
@@ -87,6 +95,19 @@ module V2
         {
           patientDFN: hashed_identifiers[:patientDFN],
           stationNo: hashed_identifiers[:stationNo]
+        }
+      end
+
+      def demographic_confirmations
+        demographics_needs_update = check_in_body[:demographics_up_to_date] ? false : true
+        next_of_kin_needs_update = check_in_body[:next_of_kin_up_to_date] ? false : true
+        {
+          demographicConfirmations: {
+            demographicsNeedsUpdate: demographics_needs_update,
+            demographicsConfirmedAt: Time.zone.now.iso8601,
+            nextOfKinNeedsUpdate: next_of_kin_needs_update,
+            nextOfConfirmedAt: Time.zone.now.iso8601
+          }
         }
       end
 

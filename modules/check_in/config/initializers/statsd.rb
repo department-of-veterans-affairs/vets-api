@@ -23,6 +23,12 @@ unless Rails.env.test?
       V2::Lorota::Client.statsd_measure method, "api.check_in.v2.lorota.#{method}.measure"
     end
 
+    V2::Chip::Client.extend(StatsD::Instrument)
+    %i[check_in_appointment refresh_appointments pre_check_in token].each do |method|
+      V2::Chip::Client.statsd_count_success method, "api.check_in.v2.chip.#{method}.count"
+      V2::Chip::Client.statsd_measure method, "api.check_in.v2.chip.#{method}.measure"
+    end
+
     V2::Chip::Request.extend(StatsD::Instrument)
     %i[get post].each do |method|
       V2::Chip::Request.statsd_count_success method, "api.check_in.v2.chip.#{method}.count"

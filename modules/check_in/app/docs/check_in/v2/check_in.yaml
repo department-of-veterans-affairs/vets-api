@@ -284,6 +284,57 @@ paths:
                 data:
                   error: true
                   message: 'Internal service error message'
+  /pre_check_ins:
+    post:
+      tags:
+        - Create PreCheck-in
+      summary: Confirm Pre Check-in data
+      operationId: create_pre_check_in
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePreCheckInBody'
+      responses:
+        '200':
+          description: Pre Check-in data was confirmed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessfulPreCheckIn'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadPermission'
+              examples:
+                UnauthorizedReadPermission:
+                  value:
+                    permissions: 'read.none'
+                    status: 'success'
+                    uuid: 'e602d9eb-8a31-384f-1637-33ab0b507e0d'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+              examples:
+                ChipError:
+                  value:
+                    status: 500
+                    data:
+                      error: true
+                      message: 'There was a problem: error message from chip'
+                VistaError:
+                  value:
+                    status: 500
+                    data:
+                      error: true
+                      message: 'Pre check-in failed'
+
 components:
   schemas:
     ReadPermission:
@@ -338,6 +389,29 @@ components:
             appointment_ien:
               type: string
               example: '460'
+    CreatePreCheckInBody:
+      type: object
+      properties:
+        pre_check_in:
+          type: object
+          required:
+            - uuid
+            - demographicsUpToDate
+            - nextOfKinUpToDate
+            - checkInType
+          properties:
+            uuid:
+              type: string
+              example: 'a7ed2558-3be5-473e-b958-2c8c9728ac3e'
+            demographicsUpToDate:
+              type: boolean
+              example: true
+            nextOfKinUpToDate:
+              type: boolean
+              example: true
+            checkInType:
+              type: string
+              example: 'preCheckIn'
     AuthorisedReadSession:
       type: object
       properties:
@@ -363,6 +437,18 @@ components:
         data:
           type: string
           example: 'Checkin successful'
+      required:
+        - data
+        - status
+    SuccessfulPreCheckIn:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 200
+        data:
+          type: string
+          example: 'Pre-checkin successful'
       required:
         - data
         - status

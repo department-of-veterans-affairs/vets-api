@@ -16,7 +16,16 @@ module CheckIn
       end
 
       def create
-        head :not_implemented
+        pre_check_in_session =
+          CheckIn::V2::Session.build(data: { uuid: pre_check_in_params[:uuid] }, jwt: session[:jwt])
+
+        unless pre_check_in_session.authorized?
+          render json: pre_check_in_session.unauthorized_message, status: :unauthorized and return
+        end
+
+        resp = ::V2::Chip::Service.build(check_in: pre_check_in_session, params: pre_check_in_params).pre_check_in
+
+        render json: resp
       end
 
       private

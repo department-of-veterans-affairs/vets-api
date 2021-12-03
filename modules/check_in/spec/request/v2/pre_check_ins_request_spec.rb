@@ -12,14 +12,6 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
     Rails.cache.clear
   end
 
-  describe 'POST `create`' do
-    it 'returns not implemented' do
-      post '/check_in/v2/pre_check_ins', {}
-
-      expect(response.status).to eq(501)
-    end
-  end
-
   describe 'GET `show`' do
     context 'when JWT token and Redis entries are absent' do
       let(:resp) do
@@ -158,6 +150,50 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
         get "/check_in/v2/pre_check_ins/#{id}"
 
         expect(JSON.parse(response.body)).to eq(resp)
+      end
+    end
+  end
+
+  describe 'POST `create`' do
+    let(:post_params) do
+      {
+        pre_check_in: {
+          uuid: id,
+          demographics_up_to_date: true,
+          next_of_kin_up_to_date: true,
+          check_in_type: :preCheckIn
+        }
+      }
+    end
+
+    context 'when session is authorized' do
+      let(:success_resp) { Faraday::Response.new(body: 'Pre-checkin successful', status: 200) }
+
+      before do
+        allow_any_instance_of(CheckIn::V2::Session).to receive(:authorized?).and_return(true)
+        allow_any_instance_of(::V2::Chip::Service).to receive(:pre_check_in).and_return(success_resp)
+      end
+
+      it 'returns successful response' do
+        post '/check_in/v2/pre_check_ins', params: post_params
+
+        expect(response.body).to eq(success_resp.to_json)
+      end
+    end
+
+    context 'when session is not authorized' do
+      let(:body) { { 'permissions' => 'read.none', 'status' => 'success', 'uuid' => id } }
+      let(:unauth_response) { Faraday::Response.new(body: body, status: 401) }
+
+      before do
+        allow_any_instance_of(::V2::Chip::Service).to receive(:pre_check_in).and_return(unauth_response)
+      end
+
+      it 'returns unauthorized response' do
+        post '/check_in/v2/pre_check_ins', params: post_params
+
+        expect(response.body).to eq(unauth_response.body.to_json)
+        expect(response.status).to eq(unauth_response.status)
       end
     end
   end

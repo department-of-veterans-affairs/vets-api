@@ -77,6 +77,18 @@ module V2
         end
       end
 
+      ##
+      # HTTP POST call to the CHIP API to confirm pre check-in
+      #
+      # @return [Faraday::Response]
+      #
+      def pre_check_in(token:, demographic_confirmations:)
+        connection.post("/#{base_path}/actions/pre-checkin/#{check_in_session.uuid}") do |req|
+          req.headers = default_headers.merge('Authorization' => "Bearer #{token}")
+          req.body = demographic_confirmations.to_json
+        end
+      end
+
       private
 
       ##

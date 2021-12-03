@@ -176,6 +176,50 @@ describe V2::Chip::Service do
     end
   end
 
+  describe '#pre_check_in' do
+    let(:uuid) { 'd602d9eb-9a31-484f-9637-13ab0b507e0d' }
+    let(:params) do
+      {
+        demographics_up_to_date: true,
+        next_of_kin_up_to_date: true,
+        check_in_type: :pre_check_in
+      }
+    end
+
+    context 'when token is already present' do
+      let(:resp) { 'Pre-checkin successful' }
+
+      before do
+        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
+        allow_any_instance_of(::V2::Chip::Client).to receive(:pre_check_in)
+          .and_return(Faraday::Response.new(body: 'Pre-checkin successful', status: 200))
+      end
+
+      it 'returns correct response' do
+        expect(subject.build(check_in: valid_check_in, params: params)
+                      .pre_check_in.body).to eq(resp)
+      end
+    end
+
+    context 'when token is not present' do
+      let(:resp) { { permissions: 'read.none', status: 'success', uuid: uuid } }
+
+      before do
+        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return(nil)
+      end
+
+      it 'returns unauthorized message in response body' do
+        expect(subject.build(check_in: valid_check_in, params: params)
+                      .pre_check_in.body).to eq(resp.to_json)
+      end
+
+      it 'returns unauthorized status' do
+        expect(subject.build(check_in: valid_check_in, params: params)
+                      .pre_check_in.status).to eq(401)
+      end
+    end
+  end
+
   describe '#token' do
     context 'when it exists in redis' do
       before do
