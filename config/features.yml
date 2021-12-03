@@ -521,6 +521,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for VAOS community care flow iterations.
+  va_online_scheduling_poc_health_apt:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for health apartment proof of concept   
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
