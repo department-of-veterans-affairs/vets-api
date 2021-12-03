@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_23_181757) do
+ActiveRecord::Schema.define(version: 2021_12_03_132446) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -99,6 +99,7 @@ ActiveRecord::Schema.define(version: 2021_11_23_181757) do
     t.string "board_review_option"
     t.text "upload_metadata_ciphertext"
     t.text "encrypted_kms_key"
+    t.date "verified_decryptable_at"
   end
 
   create_table "appeals_api_event_subscriptions", force: :cascade do |t|
@@ -119,6 +120,7 @@ ActiveRecord::Schema.define(version: 2021_11_23_181757) do
     t.integer "upload_submission_id", null: false
     t.text "file_data_ciphertext"
     t.text "encrypted_kms_key"
+    t.date "verified_decryptable_at"
     t.index ["guid"], name: "index_appeals_api_evidence_submissions_on_guid"
     t.index ["supportable_type", "supportable_id"], name: "evidence_submission_supportable_id_type_index"
     t.index ["upload_submission_id"], name: "index_appeals_api_evidence_submissions_on_upload_submission_id", unique: true
@@ -136,6 +138,7 @@ ActiveRecord::Schema.define(version: 2021_11_23_181757) do
     t.text "form_data_ciphertext"
     t.text "auth_headers_ciphertext"
     t.text "encrypted_kms_key"
+    t.date "verified_decryptable_at"
   end
 
   create_table "appeals_api_notice_of_disagreements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -151,6 +154,7 @@ ActiveRecord::Schema.define(version: 2021_11_23_181757) do
     t.text "form_data_ciphertext"
     t.text "auth_headers_ciphertext"
     t.text "encrypted_kms_key"
+    t.date "verified_decryptable_at"
   end
 
   create_table "appeals_api_status_updates", force: :cascade do |t|
@@ -177,6 +181,7 @@ ActiveRecord::Schema.define(version: 2021_11_23_181757) do
     t.text "auth_headers_ciphertext"
     t.text "encrypted_kms_key"
     t.boolean "evidence_submission_indicated"
+    t.date "verified_decryptable_at"
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -191,6 +196,7 @@ ActiveRecord::Schema.define(version: 2021_11_23_181757) do
     t.datetime "updated_at", null: false
     t.text "metadata_ciphertext"
     t.text "encrypted_kms_key"
+    t.date "verified_decryptable_at"
     t.index ["created_at"], name: "index_async_transactions_on_created_at"
     t.index ["id", "type"], name: "index_async_transactions_on_id_and_type"
     t.index ["source_id"], name: "index_async_transactions_on_source_id"
@@ -258,6 +264,7 @@ ActiveRecord::Schema.define(version: 2021_11_23_181757) do
     t.text "bgs_flash_responses_ciphertext"
     t.text "bgs_special_issue_responses_ciphertext"
     t.text "encrypted_kms_key"
+    t.date "verified_decryptable_at"
     t.index ["evss_id"], name: "index_claims_api_auto_established_claims_on_evss_id"
     t.index ["md5"], name: "index_claims_api_auto_established_claims_on_md5"
     t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
@@ -280,6 +287,7 @@ ActiveRecord::Schema.define(version: 2021_11_23_181757) do
     t.text "file_data_ciphertext"
     t.text "source_data_ciphertext"
     t.text "encrypted_kms_key"
+    t.date "verified_decryptable_at"
     t.index ["header_md5"], name: "index_claims_api_power_of_attorneys_on_header_md5"
   end
 
@@ -289,6 +297,7 @@ ActiveRecord::Schema.define(version: 2021_11_23_181757) do
     t.uuid "auto_established_claim_id"
     t.text "file_data_ciphertext"
     t.text "encrypted_kms_key"
+    t.date "verified_decryptable_at"
   end
 
   create_table "covid_vaccine_expanded_registration_submissions", id: :serial, force: :cascade do |t|
@@ -305,6 +314,7 @@ ActiveRecord::Schema.define(version: 2021_11_23_181757) do
     t.text "eligibility_info_ciphertext"
     t.text "form_data_ciphertext"
     t.text "encrypted_kms_key"
+    t.date "verified_decryptable_at"
     t.index ["batch_id"], name: "index_covid_vaccine_expanded_reg_submissions_on_batch_id"
     t.index ["state"], name: "index_covid_vaccine_expanded_registration_submissions_on_state"
     t.index ["submission_uuid"], name: "index_covid_vaccine_expanded_on_submission_id", unique: true
@@ -323,6 +333,7 @@ ActiveRecord::Schema.define(version: 2021_11_23_181757) do
     t.text "form_data_ciphertext"
     t.text "raw_form_data_ciphertext"
     t.text "encrypted_kms_key"
+    t.date "verified_decryptable_at"
     t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
     t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
   end
@@ -385,6 +396,7 @@ ActiveRecord::Schema.define(version: 2021_11_23_181757) do
     t.integer "saved_claim_id", null: false
     t.text "form_ciphertext"
     t.text "encrypted_kms_key"
+    t.date "verified_decryptable_at"
     t.index ["created_at"], name: "index_education_benefits_claims_on_created_at"
     t.index ["saved_claim_id"], name: "index_education_benefits_claims_on_saved_claim_id"
     t.index ["submitted_at"], name: "index_education_benefits_claims_on_submitted_at"
@@ -423,6 +435,7 @@ ActiveRecord::Schema.define(version: 2021_11_23_181757) do
     t.datetime "confirmation_email_sent_at"
     t.text "auth_headers_json_ciphertext"
     t.text "encrypted_kms_key"
+    t.date "verified_decryptable_at"
     t.index ["education_benefits_claim_id"], name: "index_education_stem_automated_decisions_on_claim_id"
     t.index ["user_uuid"], name: "index_education_stem_automated_decisions_on_user_uuid"
   end
@@ -503,6 +516,7 @@ ActiveRecord::Schema.define(version: 2021_11_23_181757) do
     t.text "form_json_ciphertext"
     t.text "birls_ids_tried_ciphertext"
     t.text "encrypted_kms_key"
+    t.date "verified_decryptable_at"
     t.index ["saved_claim_id"], name: "index_form526_submissions_on_saved_claim_id", unique: true
     t.index ["submitted_claim_id"], name: "index_form526_submissions_on_submitted_claim_id", unique: true
     t.index ["user_uuid"], name: "index_form526_submissions_on_user_uuid"
@@ -515,6 +529,7 @@ ActiveRecord::Schema.define(version: 2021_11_23_181757) do
     t.string "type", null: false
     t.text "file_data_ciphertext"
     t.text "encrypted_kms_key"
+    t.date "verified_decryptable_at"
     t.index ["guid", "type"], name: "index_form_attachments_on_guid_and_type", unique: true
     t.index ["id", "type"], name: "index_form_attachments_on_id_and_type"
   end
@@ -528,6 +543,7 @@ ActiveRecord::Schema.define(version: 2021_11_23_181757) do
     t.datetime "updated_at", null: false
     t.text "ssn_ciphertext"
     t.text "encrypted_kms_key"
+    t.date "verified_decryptable_at"
     t.index ["edipi"], name: "index_gibs_not_found_users_on_edipi"
   end
 
@@ -548,6 +564,7 @@ ActiveRecord::Schema.define(version: 2021_11_23_181757) do
     t.text "questionnaire_response_data_ciphertext"
     t.text "user_demographics_data_ciphertext"
     t.text "encrypted_kms_key"
+    t.date "verified_decryptable_at"
     t.index ["user_uuid", "questionnaire_response_id"], name: "find_by_user_qr", unique: true
   end
 
@@ -567,6 +584,7 @@ ActiveRecord::Schema.define(version: 2021_11_23_181757) do
     t.datetime "expires_at"
     t.text "form_data_ciphertext"
     t.text "encrypted_kms_key"
+    t.date "verified_decryptable_at"
     t.index ["form_id", "user_uuid"], name: "index_in_progress_forms_on_form_id_and_user_uuid", unique: true
     t.index ["user_uuid"], name: "index_in_progress_forms_on_user_uuid"
   end
@@ -643,6 +661,7 @@ ActiveRecord::Schema.define(version: 2021_11_23_181757) do
     t.datetime "completed_at"
     t.text "file_data_ciphertext"
     t.text "encrypted_kms_key"
+    t.date "verified_decryptable_at"
     t.index ["guid"], name: "index_persistent_attachments_on_guid", unique: true
     t.index ["id", "type"], name: "index_persistent_attachments_on_id_and_type"
     t.index ["saved_claim_id"], name: "index_persistent_attachments_on_saved_claim_id"
@@ -695,6 +714,7 @@ ActiveRecord::Schema.define(version: 2021_11_23_181757) do
     t.string "type"
     t.text "form_ciphertext"
     t.text "encrypted_kms_key"
+    t.date "verified_decryptable_at"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
@@ -912,6 +932,7 @@ ActiveRecord::Schema.define(version: 2021_11_23_181757) do
     t.text "ssn_ciphertext"
     t.text "dob_ciphertext"
     t.text "encrypted_kms_key"
+    t.date "verified_decryptable_at"
     t.index ["representative_id", "first_name", "last_name"], name: "index_vso_grp", unique: true
     t.check_constraint "representative_id IS NOT NULL", name: "veteran_representatives_representative_id_null"
   end
