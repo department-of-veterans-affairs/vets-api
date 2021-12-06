@@ -51,8 +51,10 @@ RSpec.describe Identity::AccountCreator, type: :model do
                  sec_id: account_sec_id)
         end
         let(:expected_sentry_message) { 'multiple Account records with matching ids' }
-        let(:expected_sentry_message_data) do
-          [account_idme, account_logingov].map { |a| "Account:#{a.id}" }
+        let(:expected_sentry_message_data) { "Account IDs: #{[account_idme, account_logingov].map(&:id)}" }
+
+        it 'does not create an account' do
+          expect { subject }.not_to change(Account, :count)
         end
 
         it 'logs a message to sentry' do
@@ -62,8 +64,111 @@ RSpec.describe Identity::AccountCreator, type: :model do
           account_creator_instance.call
         end
 
-        it 'returns the account with matching idme uuid' do
-          expect(subject).to eq(account_idme)
+        context 'and set of matched accounts includes account with matching idme uuid' do
+          let(:idme_uuid) { 'some-idme-uuid' }
+          let(:logingov_uuid) { 'some-logingov-uuid' }
+          let(:match_sec_id) { 'some-matched-sec-id' }
+
+          let!(:account_sec) do
+            create(:account,
+                   edipi: account_edipi,
+                   icn: account_icn,
+                   sec_id: match_sec_id)
+          end
+
+          context 'and account attributes match relevant user attributes' do
+            it 'returns existing account with matching idme_uuid, without changes' do
+              expect(subject).to eq(account_idme)
+            end
+          end
+
+          context 'and account attributes do not match relevant user attributes' do
+            let(:icn) { 'kitty-icn' }
+            let(:account_icn) { 'puppy-icn' }
+
+            context 'and another account with current user logingov_uuid exists' do
+              it 'deletes the account with conflicting logingov_uuid' do
+                expect { subject }.to change(Account, :count).by(-1)
+              end
+            end
+
+            it 'updates account with user attributes' do
+              expect do
+                subject
+                account_idme.reload
+              end.to change(account_idme, :icn).from(account_icn).to(icn)
+            end
+
+            it 'returns account with updated user attributes' do
+              expect(subject.icn).to eq(icn)
+            end
+          end
+        end
+
+        context 'and set of matched accounts does not include account with matched idme uuid' do
+          let(:idme_uuid) { nil }
+          let(:account_idme_uuid) { 'banana-uuid' }
+          let(:account_sec_id) { 'some-account-sec-id' }
+
+          let!(:account_sec) do
+            create(:account,
+                   edipi: account_edipi,
+                   icn: account_icn,
+                   sec_id: sec_id)
+          end
+
+          context 'and set of matched accounts includes account with matching logingov uuid' do
+            let(:logingov_uuid) { 'some-logingov-uuid' }
+
+            context 'and account attributes match relevant user attributes' do
+              it 'returns existing account with matching logingov_uuid, without changes' do
+                expect(subject).to eq(account_logingov)
+              end
+            end
+
+            context 'and account attributes do not match relevant user attributes' do
+              let(:icn) { 'kitty-icn' }
+              let(:account_icn) { 'puppy-icn' }
+
+              it 'updates account with user attributes' do
+                expect do
+                  subject
+                  account_logingov.reload
+                end.to change(account_logingov, :icn).from(account_icn).to(icn)
+              end
+
+              it 'returns account with updated user attributes' do
+                expect(subject.icn).to eq(icn)
+              end
+            end
+          end
+
+          context 'and set of matched accounts does not include account with matching logingov uuid' do
+            let(:logingov_uuid) { nil }
+            let(:account_logingov_uuid) { 'banana-logingov-uuid' }
+
+            context 'and account attributes match relevant user attributes' do
+              it 'returns existing account with matching sec_id, without changes' do
+                expect(subject).to eq(account_sec)
+              end
+            end
+
+            context 'and account attributes do not match relevant user attributes' do
+              let(:icn) { 'kitty-icn' }
+              let(:account_icn) { 'puppy-icn' }
+
+              it 'updates account with user attributes' do
+                expect do
+                  subject
+                  account_sec.reload
+                end.to change(account_sec, :icn).from(account_icn).to(icn)
+              end
+
+              it 'returns account with updated user attributes' do
+                expect(subject.icn).to eq(icn)
+              end
+            end
+          end
         end
       end
 

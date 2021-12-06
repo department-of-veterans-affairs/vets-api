@@ -12,69 +12,93 @@ module Identity
 
     attr_accessor :user
 
-    # Returns the one Account record for the passed in user.
-    # @param user [User] An instance of User
-    # @return [Account] A persisted instance of Account
-    #
     def call
       return unless user.idme_uuid || user.sec_id || user.logingov_uuid
 
-      acct = create_if_needed!(user)
+      account = create_if_needed!
 
-      update_if_needed!(acct, user)
+      update_if_needed!(account)
     end
 
     private
 
-    def create_if_needed!(user)
-      accts = Account.idme_uuid_match(user.idme_uuid)
-                     .or(Account.sec_id_match(user.sec_id))
-                     .or(Account.logingov_uuid_match(user.logingov_uuid))
-      accts = sort_with_idme_uuid_priority(accts, user)
-      accts.length.positive? ? accts[0] : Account.create(**account_attrs_from_user(user))
+    def create_if_needed!
+      accounts = get_accounts_for_user
+      account = accounts.length > 1 ? find_matching_account(accounts) : accounts.first
+      account.presence || Account.create(**create_account_attribute_hash(user))
     end
 
-    def update_if_needed!(account, user)
+    def get_accounts_for_user
+      Account.idme_uuid_match(user.idme_uuid)
+             .or(Account.sec_id_match(user.sec_id))
+             .or(Account.logingov_uuid_match(user.logingov_uuid))
+    end
+
+    def find_matching_account(accounts)
+      log_message_to_sentry('multiple Account records with matching ids',
+                            'warning',
+                            "Account IDs: #{accounts.map(&:id)}")
+      match_account_for_identifier(accounts, :idme_uuid) ||
+        match_account_for_identifier(accounts, :logingov_uuid) ||
+        match_account_for_identifier(accounts, :sec_id) ||
+        accounts.first
+    end
+
+    def match_account_for_identifier(accounts, identifier)
+      user_identifier_id = user.send(identifier)
+      return unless user_identifier_id
+
+      accounts.find { |account| account.send(identifier) == user_identifier_id }
+    end
+
+    def create_account_attribute_hash(identity)
+      {
+        idme_uuid: identity.idme_uuid,
+        logingov_uuid: identity.logingov_uuid,
+        sec_id: identity.sec_id,
+        edipi: identity.edipi,
+        icn: identity.icn
+      }.compact
+    end
+
+    def update_if_needed!(account)
       # account has yet to be saved, no need to update
       return account unless account.persisted?
 
       # return account as is if all non-nil user attributes match up to be the same
-      attrs = account_attrs_from_user(user)
-      return account if attrs.all? { |k, v| account.try(k) == v }
+      account_attributes = create_account_attribute_hash(account)
+      user_attributes = create_account_attribute_hash(user)
+      attribute_diff = hash_diff(user_attributes, account_attributes)
 
-      diff = { account: account_attrs_from_user(account), user: attrs }
-      log_message_to_sentry('Account record does not match User', 'warning', diff)
-      Account.update(account.id, **attrs)
-    end
+      return account if attribute_diff.blank?
 
-    # Build an account attribute hash from the given User attributes
-    #
-    # @return [Hash]
-    #
-    def account_attrs_from_user(user)
-      {
-        idme_uuid: user.idme_uuid,
-        logingov_uuid: user.logingov_uuid,
-        sec_id: user.sec_id,
-        edipi: user.edipi,
-        icn: user.icn
-      }.compact
-    end
-
-    # Sort the given list of Accounts so the ones with matching ID.me UUID values
-    # come first in the array, this will provide users with a more consistent
-    # experience in the case they have multiple credentials to login with
-    # https://github.com/department-of-veterans-affairs/va.gov-team/issues/6702
-    #
-    # @return [Array]
-    #
-    def sort_with_idme_uuid_priority(accts, user)
-      if accts.length > 1
-        data = accts.map { |a| "Account:#{a.id}" }
-        log_message_to_sentry('multiple Account records with matching ids', 'warning', data)
-        accts = accts.sort_by { |a| a.idme_uuid == user.idme_uuid ? 0 : 1 }
+      log_message_to_sentry('Account record does not match User',
+                            'warning',
+                            { account: account_attributes, user: user_attributes })
+      if attribute_diff[:logingov_uuid]
+        clean_up_deprecated_accounts(account.id,
+                                     attribute_diff[:logingov_uuid],
+                                     :logingov_uuid)
       end
-      accts
+
+      Account.update(account.id, **user_attributes)
+    end
+
+    def hash_diff(first_hash, second_hash)
+      (first_hash.to_a - second_hash.to_a).to_h
+    end
+
+    def clean_up_deprecated_accounts(current_account_id, uuid, identifier)
+      return unless uuid
+
+      account = Account.find_by(identifier => uuid)
+
+      if account && account.id != current_account_id
+        log_message_to_sentry('Deleting deprecated account',
+                              'warning',
+                              "Account ID: #{account.id}, Conflicting Identifier: #{identifier}, UUID: #{uuid}")
+        account.destroy
+      end
     end
   end
 end
