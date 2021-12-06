@@ -12,12 +12,6 @@
 Lint/ConstantDefinitionInBlock:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Lint/DeprecatedOpenSSLConstant:
-  Exclude:
-    - 'lib/vic/url_helper.rb'
-
 # Offense count: 96
 Lint/MissingSuper:
   Enabled: false
