@@ -334,6 +334,10 @@ Rails.application.routes.draw do
     namespace :contact_us do
       resources :inquiries, only: %i[index create]
     end
+
+    namespace :coe do
+      get 'status'
+    end
   end
 
   namespace :v1, defaults: { format: 'json' } do
