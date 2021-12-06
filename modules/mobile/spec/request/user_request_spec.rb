@@ -274,7 +274,9 @@ RSpec.describe 'user', type: :request do
       end
 
       it 'returns a service unavailable error' do
-        get '/mobile/v0/user', headers: iam_headers
+        VCR.use_cassette('user/get_facilities', match_requests_on: %i[method uri]) do
+          get '/mobile/v0/user', headers: iam_headers
+        end
 
         expect(response).to have_http_status(:bad_gateway)
         expect(response.body).to match_json_schema('errors')
@@ -289,7 +291,9 @@ RSpec.describe 'user', type: :request do
       end
 
       it 'returns a record not found error' do
-        get '/mobile/v0/user', headers: iam_headers
+        VCR.use_cassette('user/get_facilities', match_requests_on: %i[method uri]) do
+          get '/mobile/v0/user', headers: iam_headers
+        end
 
         expect(response).to have_http_status(:not_found)
         expect(response.body).to match_json_schema('errors')
@@ -331,7 +335,9 @@ RSpec.describe 'user', type: :request do
       end
 
       it 'returns a bad gateway error' do
-        get '/mobile/v0/user', headers: iam_headers
+        VCR.use_cassette('user/get_facilities', match_requests_on: %i[method uri]) do
+          get '/mobile/v0/user', headers: iam_headers
+        end
 
         expect(response).to have_http_status(:bad_gateway)
         expect(response.body).to match_json_schema('errors')
