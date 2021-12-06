@@ -49,7 +49,7 @@ RSpec.describe 'immunizations', type: :request do
                   'date' => '2009-03-19T12:24:55Z',
                   'doseNumber' => 'Booster',
                   'doseSeries' => 1,
-                  'groupName' => 'FLU',
+                  'groupName' => nil,
                   'manufacturer' => nil,
                   'note' =>
                     'Dose #45 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
@@ -64,7 +64,7 @@ RSpec.describe 'immunizations', type: :request do
                    'date' => '2010-03-25T12:24:55Z',
                    'doseNumber' => nil,
                    'doseSeries' => nil,
-                   'groupName' => 'FLU',
+                   'groupName' => nil,
                    'manufacturer' => nil,
                    'note' =>
                      'Dose #46 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
@@ -79,7 +79,7 @@ RSpec.describe 'immunizations', type: :request do
                    'date' => '2011-03-31T12:24:55Z',
                    'doseNumber' => 'Series 1',
                    'doseSeries' => 1,
-                   'groupName' => 'FLU',
+                   'groupName' => nil,
                    'manufacturer' => nil,
                    'note' =>
                      'Dose #47 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
@@ -100,7 +100,7 @@ RSpec.describe 'immunizations', type: :request do
                    'date' => '2012-04-05T12:24:55Z',
                    'doseNumber' => 'Booster',
                    'doseSeries' => 1,
-                   'groupName' => 'FLU',
+                   'groupName' => nil,
                    'manufacturer' => nil,
                    'note' =>
                      'Dose #48 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
@@ -121,7 +121,7 @@ RSpec.describe 'immunizations', type: :request do
                    'date' => '2012-04-05T12:24:55Z',
                    'doseNumber' => 'Booster',
                    'doseSeries' => 1,
-                   'groupName' => 'Td',
+                   'groupName' => nil,
                    'manufacturer' => nil,
                    'note' =>
                      'Dose #3 of 8 of Td (adult) preservative free vaccine administered.',
@@ -141,7 +141,7 @@ RSpec.describe 'immunizations', type: :request do
                    'date' => '2013-04-11T12:24:55Z',
                    'doseNumber' => 'Series 1',
                    'doseSeries' => 2,
-                   'groupName' => 'FLU',
+                   'groupName' => nil,
                    'manufacturer' => nil,
                    'note' =>
                      'Dose #49 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
@@ -162,7 +162,7 @@ RSpec.describe 'immunizations', type: :request do
                    'date' => '2014-04-17T12:24:55Z',
                    'doseNumber' => 'Series 1',
                    'doseSeries' => 2,
-                   'groupName' => 'FLU',
+                   'groupName' => nil,
                    'manufacturer' => nil,
                    'note' =>
                      'Dose #50 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
@@ -183,7 +183,7 @@ RSpec.describe 'immunizations', type: :request do
                    'date' => '2015-04-23T12:24:55Z',
                    'doseNumber' => 'Series 1',
                    'doseSeries' => 2,
-                   'groupName' => 'FLU',
+                   'groupName' => nil,
                    'manufacturer' => nil,
                    'note' =>
                      'Dose #51 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
@@ -204,7 +204,7 @@ RSpec.describe 'immunizations', type: :request do
                    'date' => '2015-04-23T12:24:55Z',
                    'doseNumber' => nil,
                    'doseSeries' => nil,
-                   'groupName' => 'PneumoPCV',
+                   'groupName' => nil,
                    'manufacturer' => nil,
                    'note' =>
                      'Dose #1 of 5 of Pneumococcal conjugate PCV 13 vaccine administered.',
@@ -218,7 +218,7 @@ RSpec.describe 'immunizations', type: :request do
                    'date' => '2016-04-28T12:24:55Z',
                    'doseNumber' => nil,
                    'doseSeries' => nil,
-                   'groupName' => 'FLU',
+                   'groupName' => nil,
                    'manufacturer' => nil,
                    'note' =>
                      'Dose #52 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
@@ -239,7 +239,7 @@ RSpec.describe 'immunizations', type: :request do
                    'date' => '2016-04-28T12:24:55Z',
                    'doseNumber' => 'Series 1',
                    'doseSeries' => 1,
-                   'groupName' => 'PneumoPPV',
+                   'groupName' => nil,
                    'manufacturer' => nil,
                    'note' =>
                      'Dose #1 of 1 of pneumococcal polysaccharide vaccine  23 valent vaccine administered.',
@@ -259,7 +259,7 @@ RSpec.describe 'immunizations', type: :request do
                    'date' => '2017-05-04T12:24:55Z',
                    'doseNumber' => nil,
                    'doseSeries' => nil,
-                   'groupName' => 'FLU',
+                   'groupName' => nil,
                    'manufacturer' => nil,
                    'note' =>
                      'Dose #53 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
@@ -274,7 +274,7 @@ RSpec.describe 'immunizations', type: :request do
                    'date' => '2018-05-10T12:24:55Z',
                    'doseNumber' => nil,
                    'doseSeries' => nil,
-                   'groupName' => 'FLU',
+                   'groupName' => nil,
                    'manufacturer' => nil,
                    'note' =>
                      'Dose #54 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
@@ -295,7 +295,7 @@ RSpec.describe 'immunizations', type: :request do
                    'date' => '2020-12-18T12:24:55Z',
                    'doseNumber' => nil,
                    'doseSeries' => nil,
-                   'groupName' => 'COVID-19',
+                   'groupName' => nil,
                    'manufacturer' => nil,
                    'note' =>
                      'Dose #1 of 2 of COVID-19, mRNA, LNP-S, PF, 100 mcg/ 0.5 mL dose vaccine administered.',
@@ -315,7 +315,7 @@ RSpec.describe 'immunizations', type: :request do
                    'date' => '2021-01-14T09:30:21Z',
                    'doseNumber' => nil,
                    'doseSeries' => nil,
-                   'groupName' => 'COVID-19',
+                   'groupName' => nil,
                    'manufacturer' => nil,
                    'note' =>
                      'Dose #2 of 2 of COVID-19, mRNA, LNP-S, PF, 100 mcg/ 0.5 mL dose vaccine administered.',
@@ -339,7 +339,7 @@ RSpec.describe 'immunizations', type: :request do
               'date' => '2009-03-19T12:24:55Z',
               'doseNumber' => 'Booster',
               'doseSeries' => 1,
-              'groupName' => 'FLU',
+              'groupName' => nil,
               'manufacturer' => nil,
               'note' => 'Dose #45 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
               'reaction' => 'Vomiting',
@@ -370,7 +370,7 @@ RSpec.describe 'immunizations', type: :request do
               'date' => '2011-03-31T12:24:55Z',
               'doseNumber' => 'Series 1',
               'doseSeries' => 1,
-              'groupName' => 'FLU',
+              'groupName' => nil,
               'manufacturer' => nil,
               'note' => 'Dose #47 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
               'reaction' => 'Other',
@@ -420,6 +420,56 @@ RSpec.describe 'immunizations', type: :request do
         expect(response.parsed_body['data'][2]['attributes']['note']).to eq(
           'Dose #47 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.'
         )
+      end
+    end
+
+    describe 'vaccine group name and manufacturer population' do
+      let(:immunizations_request) do
+        VCR.use_cassette('lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+          get '/mobile/v0/health/immunizations', headers: iam_headers, params: nil
+        end
+      end
+
+      context 'when the vaccine record exists' do
+        let!(:vaccine) { create(:vaccine, cvx_code: 140, group_name: 'COVID-19', manufacturer: 'Moderna') }
+
+        it 'uses the vaccine group name and manufacturer in the response' do
+          immunizations_request
+
+          expect(response.parsed_body['data'][2]['attributes']).to eq(
+            {
+              'cvxCode' => 140,
+              'date' => '2011-03-31T12:24:55Z',
+              'doseNumber' => 'Series 1',
+              'doseSeries' => 1,
+              'groupName' => vaccine.group_name,
+              'manufacturer' => vaccine.manufacturer,
+              'note' => 'Dose #47 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
+              'reaction' => 'Other',
+              'shortDescription' => 'Influenza  seasonal  injectable  preservative free'
+            }
+          )
+        end
+      end
+
+      context 'when the vaccine record does not exist' do
+        it 'sets group name and manufacturer to nil' do
+          immunizations_request
+
+          expect(response.parsed_body['data'][2]['attributes']).to eq(
+            {
+              'cvxCode' => 140,
+              'date' => '2011-03-31T12:24:55Z',
+              'doseNumber' => 'Series 1',
+              'doseSeries' => 1,
+              'groupName' => nil,
+              'manufacturer' => nil,
+              'note' => 'Dose #47 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
+              'reaction' => 'Other',
+              'shortDescription' => 'Influenza  seasonal  injectable  preservative free'
+            }
+          )
+        end
       end
     end
   end

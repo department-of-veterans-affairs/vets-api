@@ -5,10 +5,13 @@ module Mobile
     module Adapters
       class Immunizations
         def parse(immunizations)
+          vaccines = vaccines(immunizations)
+
           immunizations[:entry].map do |i|
             immunization = i[:resource]
             vaccine_code = immunization[:vaccine_code]
             cvx_code = vaccine_code[:coding].first[:code].to_i
+            vaccine = vaccines&.find_by(cvx_code: cvx_code)
 
             Mobile::V0::Immunization.new(
               id: immunization[:id],
@@ -16,9 +19,9 @@ module Mobile
               date: immunization[:occurrence_date_time],
               dose_number: dose_number(immunization[:protocol_applied]),
               dose_series: dose_series(immunization[:protocol_applied]),
-              group_name: Mobile::CDC_CVX_CODE_MAP[cvx_code],
+              group_name: vaccine&.group_name,
               location_id: location_id(immunization.dig(:location, :reference)),
-              manufacturer: nil,
+              manufacturer: vaccine&.manufacturer,
               note: note(immunization[:note]),
               reaction: reaction(immunization[:reaction]),
               short_description: vaccine_code[:text]
@@ -60,6 +63,11 @@ module Mobile
           return nil unless reaction
 
           reaction.map { |r| r[:detail][:display] }.join(',')
+        end
+
+        def vaccines(immunizations)
+          cvx_codes = immunizations[:entry].collect { |i| i.dig(:resource, :vaccine_code, :coding, 0, :code) }.uniq
+          Mobile::V0::Vaccine.where(cvx_code: cvx_codes)
         end
       end
     end
