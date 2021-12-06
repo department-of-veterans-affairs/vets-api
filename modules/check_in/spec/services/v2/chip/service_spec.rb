@@ -188,34 +188,31 @@ describe V2::Chip::Service do
 
     context 'when token is already present' do
       let(:resp) { 'Pre-checkin successful' }
+      let(:faraday_response) { Faraday::Response.new(body: resp, status: 200) }
+      let(:hsh) { { data: faraday_response.body, status: faraday_response.status } }
 
       before do
         allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
         allow_any_instance_of(::V2::Chip::Client).to receive(:pre_check_in)
-          .and_return(Faraday::Response.new(body: 'Pre-checkin successful', status: 200))
+          .and_return(faraday_response)
       end
 
       it 'returns correct response' do
         expect(subject.build(check_in: valid_check_in, params: params)
-                      .pre_check_in.body).to eq(resp)
+                      .pre_check_in).to eq(hsh)
       end
     end
 
     context 'when token is not present' do
-      let(:resp) { { permissions: 'read.none', status: 'success', uuid: uuid } }
+      let(:hsh) { { data: { error: true, message: 'Unauthorized' }, status: 401 } }
 
       before do
         allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return(nil)
       end
 
-      it 'returns unauthorized message in response body' do
+      it 'returns unauthorized message' do
         expect(subject.build(check_in: valid_check_in, params: params)
-                      .pre_check_in.body).to eq(resp.to_json)
-      end
-
-      it 'returns unauthorized status' do
-        expect(subject.build(check_in: valid_check_in, params: params)
-                      .pre_check_in.status).to eq(401)
+                      .pre_check_in).to eq(hsh)
       end
     end
   end

@@ -67,11 +67,13 @@ module V2
       end
 
       def pre_check_in
-        if token.present?
-          chip_client.pre_check_in(token: token, demographic_confirmations: demographic_confirmations)
-        else
-          Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
-        end
+        resp = if token.present?
+                 chip_client.pre_check_in(token: token, demographic_confirmations: demographic_confirmations)
+               else
+                 Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
+               end
+
+        response.build(response: resp).handle
       end
 
       def token
