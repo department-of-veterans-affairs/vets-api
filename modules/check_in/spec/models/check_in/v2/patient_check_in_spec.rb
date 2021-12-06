@@ -44,6 +44,17 @@ RSpec.describe CheckIn::V2::PatientCheckIn do
     end
   end
 
+  describe 'check_in_type' do
+    let(:uuid) { Faker::Internet.uuid }
+    let(:check_in) { double('Session', uuid: uuid, check_in_type: 'preCheckIn') }
+
+    it 'delegates check_in_type to check_in' do
+      patient_check_in = subject.build(check_in: check_in)
+
+      expect(patient_check_in.check_in_type).to eq('preCheckIn')
+    end
+  end
+
   describe '#unauthorized_message' do
     let(:uuid) { Faker::Internet.uuid }
     let(:check_in) { double('Session', uuid: uuid) }

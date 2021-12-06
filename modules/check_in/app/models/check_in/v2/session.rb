@@ -25,7 +25,7 @@ module CheckIn
       LAST_FOUR_REGEX = /^[0-9]{4}$/.freeze
       LAST_NAME_REGEX = /^.{1,600}$/.freeze
 
-      attr_reader :uuid, :last4, :last_name, :settings, :jwt
+      attr_reader :uuid, :last4, :last_name, :settings, :jwt, :check_in_type
 
       def_delegators :settings, :redis_session_prefix
 
@@ -44,6 +44,7 @@ module CheckIn
         @uuid = opts.dig(:data, :uuid)
         @last4 = opts.dig(:data, :last4)
         @last_name = opts.dig(:data, :last_name)
+        @check_in_type = opts.dig(:data, :check_in_type)
       end
 
       #

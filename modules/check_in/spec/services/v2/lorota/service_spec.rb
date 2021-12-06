@@ -272,6 +272,38 @@ describe V2::Lorota::Service do
         .and_return(Faraday::Response.new(body: appointment_data.to_json, status: 200))
     end
 
+    context 'when check_in_type is preCheckIn' do
+      let(:opts) { { data: { check_in_type: 'preCheckIn' } } }
+      let(:pre_check_in) { CheckIn::V2::Session.build(opts) }
+
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_next_of_kin_enabled).and_return(true)
+      end
+
+      it 'does not save appointment identifiers' do
+        expect_any_instance_of(CheckIn::V2::PatientCheckIn).not_to receive(:save)
+
+        subject.build(check_in: pre_check_in).check_in_data
+      end
+    end
+
+    context 'when check_in_type is not preCheckIn' do
+      let(:opts) { { data: { check_in_type: 'anything else' } } }
+      let(:check_in) { CheckIn::V2::Session.build(opts) }
+
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_next_of_kin_enabled).and_return(true)
+      end
+
+      it 'does not save appointment identifiers' do
+        expect_any_instance_of(CheckIn::V2::PatientCheckIn).to receive(:save).once
+
+        subject.build(check_in: check_in).check_in_data
+      end
+    end
+
     context 'with next of kin flag turned off' do
       before do
         allow(Flipper).to receive(:enabled?)

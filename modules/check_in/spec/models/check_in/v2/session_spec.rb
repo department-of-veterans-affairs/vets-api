@@ -55,6 +55,10 @@ RSpec.describe CheckIn::V2::Session do
     it 'responds to jwt' do
       expect(subject.build({}).respond_to?(:jwt)).to be(true)
     end
+
+    it 'responds to check_in_type' do
+      expect(subject.build({}).respond_to?(:check_in_type)).to be(true)
+    end
   end
 
   describe '#valid?' do
@@ -64,7 +68,8 @@ RSpec.describe CheckIn::V2::Session do
           data: {
             uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
             last4: '5555',
-            last_name: 'Johnson'
+            last_name: 'Johnson',
+            check_in_type: 'preCheckIn'
           }
         }
 

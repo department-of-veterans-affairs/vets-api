@@ -4,7 +4,9 @@ module CheckIn
   module V2
     class PreCheckInsController < CheckIn::ApplicationController
       def show
-        pre_check_in_session = CheckIn::V2::Session.build(data: { uuid: params[:id] }, jwt: session[:jwt])
+        pre_check_in_session = CheckIn::V2::Session.build(
+          data: { uuid: params[:id], check_in_type: params[:checkInType] }, jwt: session[:jwt]
+        )
 
         unless pre_check_in_session.authorized?
           render json: pre_check_in_session.unauthorized_message, status: :unauthorized and return
@@ -16,8 +18,9 @@ module CheckIn
       end
 
       def create
-        pre_check_in_session =
-          CheckIn::V2::Session.build(data: { uuid: pre_check_in_params[:uuid] }, jwt: session[:jwt])
+        pre_check_in_session = CheckIn::V2::Session.build(
+          data: { uuid: pre_check_in_params[:uuid], check_in_type: params[:checkInType] }, jwt: session[:jwt]
+        )
 
         unless pre_check_in_session.authorized?
           render json: pre_check_in_session.unauthorized_message, status: :unauthorized and return

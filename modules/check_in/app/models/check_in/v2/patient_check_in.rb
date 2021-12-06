@@ -8,6 +8,7 @@ module CheckIn
       attr_reader :settings, :check_in, :data, :http_status, :http_body
 
       def_delegators :settings, :redis_session_prefix, :redis_token_expiry
+      def_delegator :check_in, :check_in_type
 
       def self.build(opts = {})
         new(opts)

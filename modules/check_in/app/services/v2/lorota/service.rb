@@ -45,7 +45,7 @@ module V2
         return patient_check_in.unauthorized_message if token.blank?
         return patient_check_in.error_message if patient_check_in.error_status?
 
-        patient_check_in.save
+        patient_check_in.save unless patient_check_in.check_in_type == 'preCheckIn'
         patient_check_in.approved
       end
 
