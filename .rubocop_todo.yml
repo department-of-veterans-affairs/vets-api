@@ -54,13 +54,6 @@ Metrics/PerceivedComplexity:
 Naming/FileName:
   Enabled: false
 
-# Offense count: 3
-RSpec/IdenticalEqualityAssertion:
-  Exclude:
-    - 'modules/vba_documents/spec/models/git_items_spec.rb'
-    - 'spec/lib/search/service_spec.rb'
-    - 'spec/models/user_spec.rb'
-
 # Offense count: 1098
 # Configuration parameters: AllowSubject.
 RSpec/MultipleMemoizedHelpers:

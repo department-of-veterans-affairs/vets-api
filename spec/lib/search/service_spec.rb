@@ -29,10 +29,10 @@ describe Search::Service do
         VCR.use_cassette('search/success', VCR::MATCH_EVERYTHING) do
           response = subject.results
 
-          query = response.body['query']
+          response_query = response.body['query']
           total = response.body['web']['total']
 
-          expect([query, total]).to eq [query, total]
+          expect([response_query, total]).to eq [query, total]
         end
       end
     end

@@ -75,6 +75,6 @@ describe VBADocuments::GitItems, type: :model do
     record_count_benefits = VBADocuments::GitItems.populate('BenefitsIntake') # second populate with the same data
     record_count_forms = VBADocuments::GitItems.populate('Forms') # second populate with the same data
     expect(record_count_benefits).to be(3)
-    expect(record_count_forms).to be(record_count_forms)
+    expect(record_count_forms).to be(4)
   end
 end

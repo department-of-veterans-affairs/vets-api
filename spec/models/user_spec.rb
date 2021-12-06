@@ -205,7 +205,7 @@ RSpec.describe User, type: :model do
     it 'returns false if user is not loa3?' do
       allow(user.identity).to receive(:loa3?).and_return(false)
       expect(user).not_to be_loa3
-      expect(user.ssn).to eq(user.ssn)
+      expect(user.ssn).not_to eq(mismatched_ssn)
       expect(user.ssn_mpi).to be_falsey
       expect(user).not_to be_ssn_mismatch
     end
