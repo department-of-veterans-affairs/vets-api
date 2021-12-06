@@ -5,7 +5,9 @@ require 'rails_helper'
 # Note these specs MUST be run in order
 RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
   OUTBOUND_CASSETTE = 'complex_interaction/external_interactions'
+  # rubocop:disable Lint/StructNewOverride
   Episode = Struct.new(:method, :uri, :body, :headers, :recorded_at, :response)
+  # rubocop:enable Lint/StructNewOverride
 
   EPISODES = begin
     inbound_cassette_path = 'spec/support/vcr_cassettes/complex_interaction/internal_interactions.yml'

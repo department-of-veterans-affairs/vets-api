@@ -22,11 +22,6 @@ Lint/DeprecatedOpenSSLConstant:
 Lint/MissingSuper:
   Enabled: false
 
-# Offense count: 1
-Lint/StructNewOverride:
-  Exclude:
-    - 'spec/requests/authentication/standard_authentication_spec.rb'
-
 # Offense count: 505
 # Configuration parameters: IgnoredMethods, CountRepeatedAttributes.
 Metrics/AbcSize:
