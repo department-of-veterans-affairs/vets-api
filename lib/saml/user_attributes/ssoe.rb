@@ -184,7 +184,11 @@ module SAML
       end
 
       def multifactor
-        safe_attr('va_eauth_multifactor')&.downcase == 'true'
+        if csid == SAML::User::LOGINGOV_CSID
+          safe_attr('va_eauth_aal') == AAL::TWO
+        else
+          safe_attr('va_eauth_multifactor')&.downcase == 'true'
+        end
       end
 
       def account_type

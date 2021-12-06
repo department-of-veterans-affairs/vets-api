@@ -116,7 +116,7 @@ RSpec.describe SAML::User do
             service_name: 'logingov',
             account_type: 'N/A'
           },
-          multifactor: false,
+          multifactor: true,
           participant_id: nil,
           birls_id: nil,
           icn: nil,
@@ -164,7 +164,7 @@ RSpec.describe SAML::User do
           birls_id: nil,
           icn: '1200049153V217987',
           person_types: [],
-          multifactor: false,
+          multifactor: true,
           authn_context: authn_context
         )
       end
