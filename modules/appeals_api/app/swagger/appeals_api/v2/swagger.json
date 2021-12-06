@@ -553,7 +553,15 @@
                   "benefitType": {
                     "type": "string",
                     "enum": [
-                      "compensation"
+                      "compensation",
+                      "pensionSurvivorsBenefits",
+                      "fiduciary",
+                      "lifeInsurance",
+                      "veteransHealthAdministration",
+                      "veteranReadinessAndEmployment",
+                      "loanGuaranty",
+                      "education",
+                      "nationalCemeteryAdministration"
                     ]
                   },
                   "veteran": {
@@ -3437,7 +3445,7 @@
                               "type": "higherLevelReview",
                               "attributes": {
                                 "informalConference": false,
-                                "benefitType": "compensation",
+                                "benefitType": "lifeInsurance",
                                 "veteran": {
                                   "homeless": false,
                                   "address": {
@@ -3478,7 +3486,7 @@
                               "type": "higherLevelReview",
                               "attributes": {
                                 "informalConference": true,
-                                "benefitType": "compensation",
+                                "benefitType": "fiduciary",
                                 "veteran": {
                                   "address": {
                                     "addressLine1": "123 Somestreet",
@@ -3618,7 +3626,7 @@
                       "type": "higherLevelReview",
                       "attributes": {
                         "informalConference": false,
-                        "benefitType": "compensation",
+                        "benefitType": "lifeInsurance",
                         "veteran": {
                           "homeless": false,
                           "address": {
@@ -3647,7 +3655,7 @@
                     "data": {
                       "type": "higherLevelReview",
                       "attributes": {
-                        "benefitType": "compensation",
+                        "benefitType": "education",
                         "veteran": {
                           "homeless": true,
                           "address": {
@@ -3854,7 +3862,7 @@
                           "type": "higherLevelReview",
                           "attributes": {
                             "informalConference": false,
-                            "benefitType": "compensation",
+                            "benefitType": "lifeInsurance",
                             "veteran": {
                               "homeless": false,
                               "address": {
@@ -5702,7 +5710,7 @@
                       "type": "higherLevelReview",
                       "attributes": {
                         "informalConference": false,
-                        "benefitType": "compensation",
+                        "benefitType": "lifeInsurance",
                         "veteran": {
                           "homeless": false,
                           "address": {
@@ -5732,7 +5740,7 @@
                       "type": "higherLevelReview",
                       "attributes": {
                         "informalConference": true,
-                        "benefitType": "compensation",
+                        "benefitType": "fiduciary",
                         "veteran": {
                           "address": {
                             "addressLine1": "123 Somestreet",

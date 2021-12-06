@@ -11,9 +11,9 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
   end
 
   before(:all) do
-    @data = fixture_to_s 'valid_200996_v2.json'
+    @data = fixture_to_s 'valid_200996_minimum_v2.json'
     @invalid_data = fixture_to_s 'invalid_200996_v2.json'
-    @headers = fixture_as_json 'valid_200996_headers.json'
+    @headers = fixture_as_json 'valid_200996_headers_v2.json'
     @minimum_required_headers = fixture_as_json 'valid_200996_headers_minimum.json'
     @invalid_headers = fixture_as_json 'invalid_200996_headers.json'
   end

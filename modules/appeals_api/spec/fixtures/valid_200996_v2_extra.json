@@ -2,7 +2,7 @@
     "data": {
       "type": "higherLevelReview",
       "attributes": {
-        "benefitType": "compensation",
+        "benefitType": "education",
         "veteran": {
           "homeless": true,
           "address": {

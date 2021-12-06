@@ -42,13 +42,13 @@ module AppealsApi
 
             # Section III: Benefit Type
             form_fields.benefit_type(0) => form_data.benefit_type('education'),
-            form_fields.benefit_type(1) => form_data.benefit_type('nca'),
-            form_fields.benefit_type(2) => form_data.benefit_type('vha'),
-            form_fields.benefit_type(3) => form_data.benefit_type('insurance'),
-            form_fields.benefit_type(4) => form_data.benefit_type('loan_guaranty'),
+            form_fields.benefit_type(1) => form_data.benefit_type('nationalCemeteryAdministration'),
+            form_fields.benefit_type(2) => form_data.benefit_type('veteransHealthAdministration'),
+            form_fields.benefit_type(3) => form_data.benefit_type('lifeInsurance'),
+            form_fields.benefit_type(4) => form_data.benefit_type('loanGuaranty'),
             form_fields.benefit_type(5) => form_data.benefit_type('fiduciary'),
-            form_fields.benefit_type(6) => form_data.benefit_type('readiness_and_employment'),
-            form_fields.benefit_type(7) => form_data.benefit_type('pension_survivors_benefits'),
+            form_fields.benefit_type(6) => form_data.benefit_type('readinessAndEmployment'),
+            form_fields.benefit_type(7) => form_data.benefit_type('pensionSurvivorsBenefits'),
             form_fields.benefit_type(8) => form_data.benefit_type('compensation'),
 
             # Section IV: Optional Informal Conference

@@ -96,7 +96,7 @@ describe AppealsApi::PdfConstruction::Generator do
         context 'pdf minimum content verification' do
           let(:minimal_hlr_v2) { create(:minimal_higher_level_review_v2, created_at: '2021-02-03T14:15:16Z') }
 
-          it "generates a pdf and prints 'USE ADDRESS ON FILE'" do
+          it 'generates the expected pdf' do
             generated_pdf = described_class.new(minimal_hlr_v2, version: 'V2').generate
             expected_pdf = fixture_filepath('expected_200996_minimum_v2.pdf')
             expect(generated_pdf).to match_pdf(expected_pdf)
