@@ -202,7 +202,7 @@ describe VAProfileRedis::ContactInformation do
 
       describe '#residential_address' do
         it 'raises a Common::Exceptions::BackendServiceException error' do
-          expect { contact_info.mailing_address }.to raise_error(
+          expect { contact_info.residential_address }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end
@@ -287,7 +287,7 @@ describe VAProfileRedis::ContactInformation do
 
       describe '#residential_address' do
         it 'returns nil' do
-          expect(contact_info.mailing_address).to be_nil
+          expect(contact_info.residential_address).to be_nil
         end
       end
 
