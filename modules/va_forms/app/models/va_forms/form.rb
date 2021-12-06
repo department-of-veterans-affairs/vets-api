@@ -16,7 +16,7 @@ module VAForms
     has_paper_trail only: ['sha256']
 
     validates :title, presence: true
-    validates :form_name, presence: true, uniqueness: true
+    validates :form_name, presence: true
     validates :row_id, uniqueness: true
     validates :url, presence: true
     validates :sha256, presence: true
