@@ -513,29 +513,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
         let(:nod_uuid) { FactoryBot.create(:minimal_notice_of_disagreement, board_review_option: 'evidence_submission').id }
         let(:'X-VA-SSN') { '000000000' }
 
-        schema type: :object,
-               properties: {
-                 title: {
-                   type: 'string',
-                   enum: [
-                     'unprocessable_entity'
-                   ],
-                   example: 'unprocessable_entity'
-                 },
-                 detail: {
-                   type: 'string',
-                   enum: [
-                     "Request header 'X-VA-SSN' does not match the associated Notice of Disagreement's SSN",
-                     "Corresponding Notice of Disagreement 'boardReviewOption' must be 'evidence_submission'"
-                   ],
-                   example: "Corresponding Notice of Disagreement 'boardReviewOption' must be 'evidence_submission'"
-                 },
-                 status: {
-                   type: 'integer',
-                   description: 'Standard HTTP error response code.',
-                   example: 422
-                 }
-               }
+        schema '$ref' => '#/components/schemas/errorModel'
 
         before do |example|
           submit_request(example.metadata)
