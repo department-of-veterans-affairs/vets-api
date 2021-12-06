@@ -225,3 +225,8 @@ bid:
 
 test_user_dashboard:
   env: staging
+
+lgy:
+  base_url: https://fake_url.com
+  app_id: fake_app_id
+  api_key: fake_api_key

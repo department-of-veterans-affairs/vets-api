@@ -1215,3 +1215,9 @@ sidekiq:
   github_oauth_key: ~
   github_oauth_secret: ~
   github_api_key: ~
+
+lgy:
+  base_url: ~
+  app_id: ~
+  api_key: ~
+  mock_coe: false
