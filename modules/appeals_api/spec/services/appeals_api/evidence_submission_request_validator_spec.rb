@@ -28,7 +28,9 @@ module AppealsApi
                                {
                                  title: 'unprocessable_entity',
                                  detail: "Corresponding Notice of Disagreement 'boardReviewOption' " \
-                                         "must be 'evidence_submission'"
+                                         "must be 'evidence_submission'",
+                                 code: 'InvalidReviewOption',
+                                 status: '422'
                                }
                              ])
       end
@@ -48,7 +50,9 @@ module AppealsApi
                                :error,
                                {
                                  title: 'unprocessable_entity',
-                                 detail: 'This evidence submission is outside the 90 day legal window for submission.'
+                                 detail: 'This evidence submission is outside the 90 day legal window for submission.',
+                                 code: 'OutsideLegalWindow',
+                                 status: '422'
                                }
                              ])
       end
@@ -78,7 +82,9 @@ module AppealsApi
                                :error,
                                {
                                  title: 'unprocessable_entity',
-                                 detail: "Request header 'X-VA-SSN' does not match the associated appeal's SSN"
+                                 detail: "Request header 'X-VA-SSN' does not match the associated appeal's SSN",
+                                 code: 'DecisionReviewMismatchedSSN',
+                                 status: '422'
                                }
                              ])
       end

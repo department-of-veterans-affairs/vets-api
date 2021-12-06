@@ -61,15 +61,30 @@ module AppealsApi
     end
 
     def invalid_review_option_error
-      { title: 'unprocessable_entity', detail: I18n.t('appeals_api.errors.no_evidence_submission_accepted') }
+      {
+        title: 'unprocessable_entity',
+        detail: I18n.t('appeals_api.errors.no_evidence_submission_accepted'),
+        code: 'InvalidReviewOption',
+        status: '422'
+      }
     end
 
     def invalid_veteran_id_error
-      { title: 'unprocessable_entity', detail: I18n.t('appeals_api.errors.mismatched_ssns') }
+      {
+        title: 'unprocessable_entity',
+        detail: I18n.t('appeals_api.errors.mismatched_ssns'),
+        code: 'DecisionReviewMismatchedSSN',
+        status: '422'
+      }
     end
 
     def outside_legal_window_error
-      { title: 'unprocessable_entity', detail: I18n.t('appeals_api.errors.outside_legal_window') }
+      {
+        title: 'unprocessable_entity',
+        detail: I18n.t('appeals_api.errors.outside_legal_window'),
+        code: 'OutsideLegalWindow',
+        status: '422'
+      }
     end
 
     def raise_unacceptable_appeal_type?
