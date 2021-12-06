@@ -49,7 +49,7 @@ shared_examples_for 'a FormAttachmentCreate controller' do |user_factory: nil, a
     it 'requires file_data to be a file' do
       params = { param_namespace => { file_data: 'not_a_file_just_a_string' } }
       post(:create, params: params)
-      expect(response).to have_http_status(400)
+      expect(response).to have_http_status(:bad_request)
       response_body_errors = JSON.parse(response.body)['errors']
 
       expect(response_body_errors.size).to eq(1)

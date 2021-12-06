@@ -9,7 +9,7 @@ require:
 
 AllCops:
   NewCops: disable
-  TargetRailsVersion: 6.0
+  TargetRailsVersion: 6.1
   Include:
     - '**/Dangerfile'
     - '**/Gemfile'
@@ -21,32 +21,13 @@ AllCops:
     - db/schema.rb
     - db/seeds.rb
     - db/migrate/*.rb
-    - 'script/**/*'
     - 'vendor/**/*'
     - modules/**/db/migrate/*.rb
-
-# This allows you to use have writers like self.method_name(name) vs self.method_name=(name)
-Style/TrivialAccessors:
-  AllowDSLWriters: true
-
-# This is the rubocop default but putting it here explicitly
-# strong benefit for code readability and speed in reviewing PRs for code review
-# only use double quote when doing interpolation or complex escape sequences
-Style/StringLiterals:
-  EnforcedStyle: single_quotes
 
 Style/Documentation:
   Enabled: false
 
 Style/ClassAndModuleChildren:
-  Enabled: false
-
-# Bug in 1.11.0
-RSpec/FactoryBot/CreateList:
-  Enabled: false
-
-# Bug in 1.11.0
-RSpec/Rails/HttpStatus:
   Enabled: false
 
 # Bug in 1.11.0
