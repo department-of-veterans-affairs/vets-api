@@ -103,15 +103,6 @@ Style/HashEachMethods:
   Exclude:
     - 'lib/common/hash_helpers.rb'
 
-# Offense count: 4
-# Configuration parameters: MinBranchesCount.
-Style/HashLikeCase:
-  Exclude:
-    - 'app/services/form1010cg/auditor.rb'
-    - 'app/workers/education_form/forms/base.rb'
-    - 'lib/identity/parsers/gc_ids.rb'
-    - 'spec/controllers/v1/sessions_controller_spec.rb'
-
 # Offense count: 13
 # Configuration parameters: AllowedMethods.
 # AllowedMethods: respond_to_missing?

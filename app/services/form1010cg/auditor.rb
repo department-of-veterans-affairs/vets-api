@@ -74,14 +74,8 @@ module Form1010cg
     end
 
     def log_mpi_search_result(claim_guid:, form_subject:, result:)
-      result_label = case result
-                     when :found
-                       'found'
-                     when :not_found
-                       'NOT FOUND'
-                     when :skipped
-                       'search was skipped'
-                     end
+      labels = { found: 'found', not_found: 'NOT FOUND', skipped: 'search was skipped' }
+      result_label = labels[result]
 
       log "MPI Profile #{result_label} for #{form_subject.titleize}", claim_guid: claim_guid
     end

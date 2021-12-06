@@ -17,11 +17,8 @@ module EducationForm::Forms
     end
 
     def direct_deposit_type(type)
-      case type&.upcase
-      when 'STARTUPDATE' then 'Start or Update'
-      when 'STOP' then 'Stop'
-      when 'NOCHANGE' then 'Do Not Change'
-      end
+      dd_types = { 'STARTUPDATE' => 'Start or Update', 'STOP' => 'Stop', 'NOCHANGE' => 'Do Not Change' }
+      dd_types[type&.upcase]
     end
 
     def ssn_gender_dob(veteran = true)

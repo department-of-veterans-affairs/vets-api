@@ -67,13 +67,8 @@ module Identity
       end
 
       def select_token_position(token_symbol)
-        case token_symbol
-        when :id then 0
-        when :id_type then 1
-        when :assigning_facility then 2
-        when :assigning_authority then 3
-        when :id_state then 4
-        end
+        token_positions = { id: 0, id_type: 1, assigning_facility: 2, assigning_authority: 3, id_state: 4 }
+        token_positions[token_symbol]
       end
 
       def select_extension(ids, pattern, root)
