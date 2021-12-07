@@ -885,7 +885,7 @@ GEM
       faraday (>= 0.9)
       json (>= 1.8)
     socksify (1.7.1)
-    spring (3.0.0)
+    spring (3.1.1)
     spring-commands-rspec (1.0.4)
       spring (>= 0.9.1)
     sprockets (4.0.2)
