@@ -143,12 +143,12 @@
                   "if": { "properties": { "evidenceType": { "const": "retrieval" } } },
                   "then": { "required": ["retrieveFrom"] }
                 },
-                "noticeAcknowledgement": { "type": "boolean" },
+                "5103NoticeAcknowledged": { "type": "boolean" },
                 "socOptIn": { "type": "boolean" }
               },
-              "required": ["veteran", "evidenceSubmission", "socOptIn", "noticeAcknowledgement"],
+              "required": ["veteran", "evidenceSubmission", "socOptIn"],
               "if": { "properties": { "benefitType": { "const": "compensation" } } },
-              "then": { "properties": { "noticeAcknowledgement": { "enum": [true] } } }
+              "then": { "required":  ["5103NoticeAcknowledged"], "properties": { "5103NoticeAcknowledged": { "enum": [true] } } }
             }
           },
           "additionalProperties": false,

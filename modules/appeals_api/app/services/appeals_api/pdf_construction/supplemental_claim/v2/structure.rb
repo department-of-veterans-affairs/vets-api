@@ -45,7 +45,7 @@ module AppealsApi
               # Name and Location, and Date text filled out through autosize text boxes
 
               # Section IV: 5103 Notice Acknowledgement
-              form_fields.notice_acknowledgement => form_data.notice_acknowledgement,
+              form_fields.form_5103_notice_acknowledged => form_data.form_5103_notice_acknowledged,
 
               # Section V: Signatures
               # Signatures filled out through autosize text box, not pdf fields

@@ -22,7 +22,7 @@
         "timezone": "America/Chicago"
       },
       "socOptIn": true,
-      "noticeAcknowledgement": true,
+      "5103NoticeAcknowledged": true,
       "evidenceSubmission": {
         "evidenceType": ["upload", "retrieval"],
         "retrieveFrom": [

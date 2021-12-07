@@ -83,16 +83,29 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       end
     end
 
-    context 'noticeAcknowledgement' do
-      it 'benefitType = compensation and noticeAcknowledgement = false' do
-        mod_data = JSON.parse(data)
-        mod_data['data']['attributes']['noticeAcknowledgement'] = false
+    context '5103NoticeAcknowledged' do
+      context 'when benefitType = compensation' do
+        it 'fails if 5103NoticeAcknowledged = false' do
+          mod_data = JSON.parse(data)
+          mod_data['data']['attributes']['5103NoticeAcknowledged'] = false
 
-        post(path, params: mod_data.to_json, headers: headers)
-        expect(response.status).to eq(422)
-        expect(parsed['errors']).to be_an Array
-        expect(response.body).to include('/data/attributes/noticeAcknowledgement')
-        expect(response.body).to include('https://www.va.gov/disability/how-to-file-claim/evidence-needed')
+          post(path, params: mod_data.to_json, headers: headers)
+          expect(response.status).to eq(422)
+          expect(parsed['errors']).to be_an Array
+          expect(response.body).to include('/data/attributes/5103NoticeAcknowledged')
+          expect(response.body).to include('https://www.va.gov/disability/how-to-file-claim/evidence-needed')
+        end
+
+        it 'fails if 5103NoticeAcknowledged is missing' do
+          mod_data = JSON.parse(data)
+          mod_data['data']['attributes'].delete('5103NoticeAcknowledged')
+
+          post(path, params: mod_data.to_json, headers: headers)
+          expect(response.status).to eq(422)
+          expect(parsed['errors']).to be_an Array
+          expect(response.body).to include('Missing required fields')
+          expect(response.body).to include('5103NoticeAcknowledged')
+        end
       end
     end
 

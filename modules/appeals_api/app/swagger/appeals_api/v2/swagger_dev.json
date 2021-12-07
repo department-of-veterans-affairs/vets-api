@@ -3964,7 +3964,7 @@
                       }
                     ]
                   },
-                  "noticeAcknowledgement": {
+                  "5103NoticeAcknowledged": {
                     "enum": [
                       true,
                       false
@@ -3978,7 +3978,7 @@
                   "veteran",
                   "evidenceSubmission",
                   "socOptIn",
-                  "noticeAcknowledgement"
+                  "5103NoticeAcknowledged"
                 ],
                 "if": {
                   "properties": {
@@ -3989,7 +3989,7 @@
                 },
                 "then": {
                   "properties": {
-                    "noticeAcknowledgement": {
+                    "5103NoticeAcknowledged": {
                       "const": true
                     }
                   }
@@ -9748,7 +9748,7 @@
                                   "timezone": "America/Chicago"
                                 },
                                 "socOptIn": false,
-                                "noticeAcknowledgement": true,
+                                "5103NoticeAcknowledged": true,
                                 "evidenceSubmission": {
                                   "evidenceType": [
                                     "upload"
@@ -9803,7 +9803,7 @@
                                   "timezone": "America/Chicago"
                                 },
                                 "socOptIn": true,
-                                "noticeAcknowledgement": true,
+                                "5103NoticeAcknowledged": true,
                                 "evidenceSubmission": {
                                   "evidenceType": [
                                     "upload",
@@ -9973,7 +9973,7 @@
                       "status": "422",
                       "meta": {
                         "missing_fields": [
-                          "noticeAcknowledgement"
+                          "5103NoticeAcknowledged"
                         ]
                       }
                     }
@@ -10014,7 +10014,7 @@
                           "timezone": "America/Chicago"
                         },
                         "socOptIn": false,
-                        "noticeAcknowledgement": true,
+                        "5103NoticeAcknowledged": true,
                         "evidenceSubmission": {
                           "evidenceType": [
                             "upload"
@@ -10058,7 +10058,7 @@
                           "timezone": "America/Chicago"
                         },
                         "socOptIn": true,
-                        "noticeAcknowledgement": true,
+                        "5103NoticeAcknowledged": true,
                         "evidenceSubmission": {
                           "evidenceType": [
                             "upload",
@@ -10267,7 +10267,7 @@
                               "timezone": "America/Chicago"
                             },
                             "socOptIn": false,
-                            "noticeAcknowledgement": true,
+                            "5103NoticeAcknowledged": true,
                             "evidenceSubmission": {
                               "evidenceType": [
                                 "upload"

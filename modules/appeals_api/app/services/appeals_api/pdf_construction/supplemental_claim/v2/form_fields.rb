@@ -79,7 +79,7 @@ module AppealsApi
           end
 
           # currently defaults to YES
-          def notice_acknowledgement
+          def form_5103_notice_acknowledged
             'form1[0].#subform[3].TIME1230TO2PM[0]'
           end
 

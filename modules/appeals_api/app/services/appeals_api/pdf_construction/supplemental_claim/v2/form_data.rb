@@ -49,8 +49,8 @@ module AppealsApi
             "SOC/SSOC Date: #{date}"
           end
 
-          def notice_acknowledgement
-            supplemental_claim.notice_acknowledgement ? 1 : 'Off'
+          def form_5103_notice_acknowledged
+            supplemental_claim.form_5103_notice_acknowledged ? 1 : 'Off'
           end
 
           def signature_of_veteran_claimant_or_rep
