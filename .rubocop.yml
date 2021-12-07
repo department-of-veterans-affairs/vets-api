@@ -121,7 +121,10 @@ Lint/AmbiguousBlockAssociation:
 # This file does not need to be snake case
 Naming/FileName:
   Exclude:
-    - "Guardfile"
+    - '**/Gemfile'
+    - '**/Guardfile'
+    - '**/Rakefile'
+    - 'config/initializers/rswag-ui.rb'
 
 # TODO: REVIEW THESE AND MAKE CHANGES
 

@@ -15,7 +15,7 @@ describe 'LGY API' do
           allow_any_instance_of(V0::CoeController).to receive(:lgy_service) { lgy_service }
           expect(lgy_service).to receive(:get_determination_and_application).and_return 'automatic'
           get '/v0/coe/status'
-          expect(response).to have_http_status(200)
+          expect(response).to have_http_status(:ok)
         end
 
         it 'response is in JSON format' do
