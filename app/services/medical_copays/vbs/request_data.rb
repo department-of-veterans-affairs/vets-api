@@ -71,7 +71,7 @@ module MedicalCopays
         @user = opts[:user]
         @edipi = user.edipi
         @vha_facility_hash = user.vha_facility_hash
-        @vista_account_numbers = MedicalCopays::VistaAccountNumbers.build(data: vha_facility_hash)
+        @vista_account_numbers = MedicalCopays::VistaAccountNumbers.build(data: vha_facility_hash, user: @user)
         @errors = []
       end
 

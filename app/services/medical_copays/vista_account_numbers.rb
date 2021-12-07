@@ -7,7 +7,7 @@ module MedicalCopays
   # @!attribute data
   #   @return [Hash]
   class VistaAccountNumbers
-    attr_reader :data
+    attr_reader :data, :user
 
     ##
     # Builds a VistaAccountNumbers instance
@@ -21,6 +21,7 @@ module MedicalCopays
 
     def initialize(opts)
       @data = opts[:data]
+      @user = opts[:user]
     end
 
     ##
@@ -48,6 +49,13 @@ module MedicalCopays
     # @return [String]
     #
     def vista_account_id(key, id)
+      Rails.logger.info(
+        'Building Vista Account ID',
+        user_uuid: user.uuid,
+        facility_id: key,
+        vista_id_length: id.to_s.length
+      )
+
       offset = 16 - (key + id).length
       padding = '0' * offset if offset >= 0
 

@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe MedicalCopays::VistaAccountNumbers do
-  subject { described_class.build(data: data) }
+  subject { described_class.build(data: data, user: user) }
 
   let(:data) do
     {
@@ -19,9 +19,15 @@ RSpec.describe MedicalCopays::VistaAccountNumbers do
     }
   end
 
+  let(:user) { build(:user, :loa3) }
+
   describe 'attributes' do
     it 'responds to data' do
       expect(subject.respond_to?(:data)).to be(true)
+    end
+
+    it 'responds to user' do
+      expect(subject.respond_to?(:user)).to be(true)
     end
   end
 
