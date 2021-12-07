@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/corgibytes/ruby-debug-ide
-  revision: 4869a6721579a7d88b7d105929c27325e184a5dd
+  revision: 4778461bf622c208f355bc193c9726871a8ed71d
   branch: feature-add-fixed-port-range
   specs:
-    ruby-debug-ide (0.7.2)
+    ruby-debug-ide (0.7.3)
       rake (>= 0.8.1)
 
 GIT
