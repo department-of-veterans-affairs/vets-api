@@ -16,7 +16,7 @@ http_interactions:
       Referer:
       - https://review-instance.va.gov
       X-Vamf-Jwt:
-      - eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjIiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInNzbiI6Ijc5NjA2MTk3NiIsInNzdCI6MTYzNjY1NjI2OSwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKdWR5IiwibGFzdE5hbWUiOiJNb3JyaXNvbiIsImdlbmRlciI6IkZFTUFMRSIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIiwiZG9iIjoiMTk1My0wNC0wMSIsImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInNzbiI6Ijc5NjA2MTk3NiJ9LCJ2YW1mLmF1dGgucm9sZXMiOlsidmV0ZXJhbiJdLCJyaWdodE9mQWNjZXNzQWNjZXB0ZWQiOnRydWUsImV4cCI6MTYzNjY1NzE3MCwianRpIjoiMTZlZGNhNTItZGY5OC00YzllLThhM2EtMjhhYTZiNDczNzM3IiwiaWRUeXBlIjoiSUNOIiwiZGF0ZU9mQmlydGgiOiIxOTUzMDQwMSIsInZlcnNpb24iOjIuNiwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNjM2NjU2MDkwLCJkb2IiOiIxOTUzMDQwMSIsImxvYSI6Mn0.v5fD_UBVT5aOBRbVkYxCn-lIy2eaB3F3PTKowDT83YONWRbGvnERbEGdqJ6R-MDjZoITbq4XfZkuz-1_zabiVNyIXitT84OeFCGZu80fbMjGlpgjB4hd9k78gsGuaNKalHnug3HI6o7PSPLENIWKtGB6r2c2gAzrMvF0GJwSu3Dn6U4uZwHa88G6QhvAd8uN5C2i5nD-9xS2xxopWhpJPRm4jXfKxyK87lQbe9UmBQb0sq3_AE1IsPoP3OG6Lww9lSqghj4won1RQlvBvxOXTADVPhfuOkTMdxrdKzA6mzBhv6P_PEIbMT5leMlu5wcIUtWDF45-6WHpiby6FBjpmQ
+      - eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjIiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInNzbiI6Ijc5NjA2MTk3NiIsInNzdCI6MTYzODU0NzMxOCwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKdWR5IiwibGFzdE5hbWUiOiJNb3JyaXNvbiIsImdlbmRlciI6IkZFTUFMRSIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIiwiZG9iIjoiMTk1My0wNC0wMSIsImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInNzbiI6Ijc5NjA2MTk3NiJ9LCJ2YW1mLmF1dGgucm9sZXMiOlsidmV0ZXJhbiJdLCJyaWdodE9mQWNjZXNzQWNjZXB0ZWQiOnRydWUsImV4cCI6MTYzODU0ODIxOSwianRpIjoiOTI1NTZhMWMtYjkzNC00NjQ4LTkzNDYtM2E0NTA3ZmMwZDM3IiwiaWRUeXBlIjoiSUNOIiwiZGF0ZU9mQmlydGgiOiIxOTUzMDQwMSIsInZlcnNpb24iOjIuNiwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNjM4NTQ3MTM5LCJkb2IiOiIxOTUzMDQwMSIsImxvYSI6Mn0.GnNQsJX2nMASHWoEH0lbPcLeEQPx6rO1LB0LGc6JDHSbCojOKYq-zmmZ2GzNid2f6qjR6wVYR0grnyHLPYyAKAlmhUkPxbL947oP8A_WadaS_COb5ptHL5q-yWlhFlZp8wjnZWppqygJDouxOUHq45T53w8Hq8vIXS5pbi5ozsPzt4U6cRfskTtqIVSaWfxvvfNtUAQI6sw7Iinpy-_TZ56xtK9JeHsjX7oPJtHCMd2-GA_Bn56D4AI6hBvBWFNNqiarkksH2e7re73n-mOLWsg0DpqXa9Lv4LfZHjiwaXHsEwx9oeKCBX4Bb9I69N0eibVvpXLCynqavF7WDriung
       X-Request-Id:
       - ''
       Accept-Encoding:
@@ -27,33 +27,35 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 11 Nov 2021 18:44:57 GMT
+      - Fri, 03 Dec 2021 16:02:21 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '534'
+      - '623'
       Server:
       - openresty
       X-Vamf-Version:
-      - 1.12.1
+      - 1.14.1
       B3:
-      - 25e391ea9921692d-6af19784e901c635-1
+      - 1a8d1af96b03b04440ea6bf1534feadb-129e2f1b79b4b8a7-0
       Access-Control-Allow-Headers:
       - x-vamf-jwt
       X-Vamf-Build:
-      - 661c259
+      - 20a82ca
       X-Vamf-Timestamp:
-      - '2021-11-01T15:35:46+0000'
+      - '2021-11-26T16:29:10+0000'
       Access-Control-Allow-Origin:
       - "*"
       Access-Control-Allow-Methods:
       - GET,OPTIONS
       Access-Control-Max-Age:
       - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '21652'
       Strict-Transport-Security:
       - max-age=63072000; includeSubDomains; preload
     body:
       encoding: UTF-8
-      string: '{"id":"63146","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/hsrm/id","value":"12784"}],"kind":"cc","serviceType":"Podiatry","patientIcn":"1012845331V153043","locationId":"983","practitioners":[],"requestedPeriods":[{"start":"2021-06-15T12:00:00Z"}],"contact":{"telecom":[{"type":"phone","value":"2125688889"},{"type":"email","value":"judymorisooooooooooooon@gmail.com"}]},"preferredLocation":{"city":"Helena","state":"MT"},"cancellationReason":{"code":"other"},"comment":"","preferredLanguage":"English","cancellable":true}'
-  recorded_at: Thu, 11 Nov 2021 18:44:57 GMT
+      string: '{"id":"68404","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/hsrm/id","value":"13031"}],"kind":"cc","status":"proposed","serviceType":"podiatry","patientIcn":"1012845331V153043","locationId":"983","practitioners":[],"created":"2021-12-03T16:02:21.004511Z","requestedPeriods":[{"start":"2021-06-15T12:00:00Z"}],"contact":{"telecom":[{"type":"phone","value":"2125688889"},{"type":"email","value":"judymorisooooooooooooon@gmail.com"}]},"preferredLocation":{"city":"Helena","state":"MT"},"cancellationReason":{"code":"other"},"preferredLanguage":"English","cancellable":true,"extension":{"ccLocation":{"address":{}}}}'
+  recorded_at: Fri, 03 Dec 2021 16:02:21 GMT
 recorded_with: VCR 6.0.0
