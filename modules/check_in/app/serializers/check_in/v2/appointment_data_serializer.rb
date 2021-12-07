@@ -8,6 +8,7 @@ module CheckIn
       set_id(&:id)
       set_type :appointment_data
 
+      # rubocop:disable Metrics/BlockLength
       attribute :payload do |object|
         appointments =
           object.payload[:appointments].map do |appt|
@@ -65,11 +66,34 @@ module CheckIn
             demographics.merge!(nextOfKin1: next_of_kin1)
           end
 
+          if Flipper.enabled?(:check_in_experience_emergency_contact_enabled)
+            raw_emergency_contact = object.payload.dig(:demographics, :emergencyContact)
+            emergency_contact = {
+              name: raw_emergency_contact[:name],
+              relationship: raw_emergency_contact[:relationship],
+              phone: raw_emergency_contact[:phone],
+              workPhone: raw_emergency_contact[:workPhone],
+              address: {
+                street1: raw_emergency_contact.dig(:address, :street1),
+                street2: raw_emergency_contact.dig(:address, :street2),
+                street3: raw_emergency_contact.dig(:address, :street3),
+                city: raw_emergency_contact.dig(:address, :city),
+                county: raw_emergency_contact.dig(:address, :county),
+                state: raw_emergency_contact.dig(:address, :state),
+                zip: raw_emergency_contact.dig(:address, :zip),
+                zip4: raw_emergency_contact.dig(:address, :zip4),
+                country: raw_emergency_contact.dig(:address, :country)
+              }
+            }
+            demographics.merge!(emergencyContact: emergency_contact)
+          end
+
           { demographics: demographics, appointments: appointments }
         else
           { appointments: appointments }
         end
       end
+      # rubocop:enable Metrics/BlockLength
     end
   end
 end

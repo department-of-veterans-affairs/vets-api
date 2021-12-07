@@ -51,20 +51,20 @@ RSpec.describe CheckIn::V2::AppointmentDataSerializer do
             }
           },
           emergencyContact: {
-            name: '',
-            relationship: nil,
-            phone: '',
-            workPhone: '',
+            name: 'VETERAN,JONAH',
+            relationship: 'BROTHER',
+            phone: '1112223333',
+            workPhone: '4445556666',
             address: {
-              street1: '',
-              street2: '',
+              street1: '123 Main St',
+              street2: 'Ste 234',
               street3: '',
-              city: '',
-              county: nil,
-              state: '',
-              zip: '',
-              zip4: '',
-              country: ''
+              city: 'Los Angeles',
+              county: 'Los Angeles',
+              state: 'CA',
+              zip: '90089',
+              zip4: nil,
+              country: 'USA'
             }
           },
           mailingAddress: {
@@ -203,6 +203,8 @@ RSpec.describe CheckIn::V2::AppointmentDataSerializer do
     context 'with next of kin flag turned off' do
       it 'returns a serialized hash without next of kin' do
         allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_emergency_contact_enabled).and_return(false)
+        allow(Flipper).to receive(:enabled?)
           .with(:check_in_experience_next_of_kin_enabled).and_return(false)
 
         appt_struct = OpenStruct.new(appointment_data)
@@ -248,12 +250,75 @@ RSpec.describe CheckIn::V2::AppointmentDataSerializer do
 
       it 'returns a serialized hash with next of kin' do
         allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_emergency_contact_enabled).and_return(false)
+        allow(Flipper).to receive(:enabled?)
           .with(:check_in_experience_next_of_kin_enabled).and_return(true)
 
         appt_struct = OpenStruct.new(appointment_data)
         appt_serializer = CheckIn::V2::AppointmentDataSerializer.new(appt_struct)
 
         expect(appt_serializer.serializable_hash).to eq(serialized_hash_response_with_next_of_kin)
+      end
+    end
+
+    context 'with emergency contact flag turned off' do
+      it 'returns a serialized hash without emergency contact' do
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_next_of_kin_enabled).and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_emergency_contact_enabled).and_return(false)
+
+        appt_struct = OpenStruct.new(appointment_data)
+        appt_serializer = CheckIn::V2::AppointmentDataSerializer.new(appt_struct)
+
+        expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)
+      end
+    end
+
+    context 'with emergency contact flag turned on' do
+      let(:emergency_contact_data) do
+        {
+          data: {
+            attributes: {
+              payload: {
+                demographics: {
+                  emergencyContact: {
+                    name: 'VETERAN,JONAH',
+                    relationship: 'BROTHER',
+                    phone: '1112223333',
+                    workPhone: '4445556666',
+                    address: {
+                      street1: '123 Main St',
+                      street2: 'Ste 234',
+                      street3: '',
+                      city: 'Los Angeles',
+                      county: 'Los Angeles',
+                      state: 'CA',
+                      zip: '90089',
+                      zip4: nil,
+                      country: 'USA'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      end
+      let(:serialized_hash_response_with_emergency_contact) do
+        serialized_hash_response.deep_merge(emergency_contact_data)
+      end
+
+      it 'returns a serialized hash with emergency contact' do
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_next_of_kin_enabled).and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_emergency_contact_enabled).and_return(true)
+
+        appt_struct = OpenStruct.new(appointment_data)
+        appt_serializer = CheckIn::V2::AppointmentDataSerializer.new(appt_struct)
+
+        expect(appt_serializer.serializable_hash).to eq(serialized_hash_response_with_emergency_contact)
       end
     end
   end

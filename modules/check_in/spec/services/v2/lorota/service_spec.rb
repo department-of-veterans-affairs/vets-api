@@ -58,20 +58,20 @@ describe V2::Lorota::Service do
             }
           },
           emergencyContact: {
-            name: '',
-            relationship: nil,
-            phone: '',
-            workPhone: '',
+            name: 'VETERAN,JONAH',
+            relationship: 'BROTHER',
+            phone: '1112223333',
+            workPhone: '4445556666',
             address: {
-              street1: '',
-              street2: '',
+              street1: '123 Main St',
+              street2: 'Ste 234',
               street3: '',
-              city: '',
-              county: nil,
-              state: '',
-              zip: '',
-              zip4: '',
-              country: ''
+              city: 'Los Angeles',
+              county: 'Los Angeles',
+              state: 'CA',
+              zip: '90089',
+              zip4: nil,
+              country: 'USA'
             }
           },
           mailingAddress: {
@@ -262,8 +262,39 @@ describe V2::Lorota::Service do
         }
       }
     end
+    let(:emergency_contact_data) do
+      {
+        payload: {
+          demographics: {
+            emergencyContact: {
+              name: 'VETERAN,JONAH',
+              relationship: 'BROTHER',
+              phone: '1112223333',
+              workPhone: '4445556666',
+              address: {
+                street1: '123 Main St',
+                street2: 'Ste 234',
+                street3: '',
+                city: 'Los Angeles',
+                county: 'Los Angeles',
+                state: 'CA',
+                zip: '90089',
+                zip4: nil,
+                country: 'USA'
+              }
+            }
+          }
+        }
+      }
+    end
     let(:response_with_next_of_kin) do
       approved_response.deep_merge(next_of_kin_data)
+    end
+    let(:response_with_emergency_contact) do
+      approved_response.deep_merge(emergency_contact_data)
+    end
+    let(:response_with_emergency_contact_and_next_of_kin) do
+      approved_response.deep_merge(emergency_contact_data).deep_merge(next_of_kin_data)
     end
 
     before do
@@ -279,6 +310,8 @@ describe V2::Lorota::Service do
       before do
         allow(Flipper).to receive(:enabled?)
           .with(:check_in_experience_next_of_kin_enabled).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_emergency_contact_enabled).and_return(true)
       end
 
       it 'does not save appointment identifiers' do
@@ -295,6 +328,8 @@ describe V2::Lorota::Service do
       before do
         allow(Flipper).to receive(:enabled?)
           .with(:check_in_experience_next_of_kin_enabled).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_emergency_contact_enabled).and_return(true)
       end
 
       it 'does not save appointment identifiers' do
@@ -307,6 +342,8 @@ describe V2::Lorota::Service do
     context 'with next of kin flag turned off' do
       before do
         allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_emergency_contact_enabled).and_return(false)
+        allow(Flipper).to receive(:enabled?)
           .with(:check_in_experience_next_of_kin_enabled).and_return(false)
       end
 
@@ -318,11 +355,53 @@ describe V2::Lorota::Service do
     context 'with next of kin flag turned on' do
       before do
         allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_emergency_contact_enabled).and_return(false)
+        allow(Flipper).to receive(:enabled?)
           .with(:check_in_experience_next_of_kin_enabled).and_return(true)
       end
 
       it 'returns approved data with next of kin' do
         expect(subject.build(check_in: valid_check_in).check_in_data).to eq(response_with_next_of_kin)
+      end
+    end
+
+    context 'with emergency contact flag turned off' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_emergency_contact_enabled).and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_next_of_kin_enabled).and_return(false)
+      end
+
+      it 'returns approved data without emergency contact' do
+        expect(subject.build(check_in: valid_check_in).check_in_data).to eq(approved_response)
+      end
+    end
+
+    context 'with emergency contact flag turned on' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_emergency_contact_enabled).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_next_of_kin_enabled).and_return(false)
+      end
+
+      it 'returns approved data with emergency contact' do
+        expect(subject.build(check_in: valid_check_in).check_in_data).to eq(response_with_emergency_contact)
+      end
+    end
+
+    context 'with emergency contact and next of kin flags turned on' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_emergency_contact_enabled).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_next_of_kin_enabled).and_return(true)
+      end
+
+      it 'returns approved data with emergency contact and next of kin' do
+        expect(subject.build(check_in: valid_check_in).check_in_data)
+          .to eq(response_with_emergency_contact_and_next_of_kin)
       end
     end
   end
