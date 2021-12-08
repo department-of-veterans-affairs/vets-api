@@ -1,0 +1,150 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/oauth2/health/system/v1/token
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIwb2FheTM4a3I4TFFicU5XUTJwNyIsInN1YiI6IjBvYWF5MzhrcjhMUWJxTldRMnA3IiwiYXVkIjoiaHR0cHM6Ly9kZXB0dmEtZXZhbC5va3RhLmNvbS9vYXV0aDIvYXVzOG5tMXEwZjdWUTBhNDgycDcvdjEvdG9rZW4iLCJleHAiOjE2Mzg0NjcxNzR9.UKpsOmQqmsD8uxI4Sai3-YHWMn9ehZl7Uckz9pZNewKMXLHB5coy7Jc9ptLi8QDIKoxwlONGs8PcuJ5N2xAurBYT9u56HtROKl0VwLYaHM1iuLfE3CAUcfGl7KCXuConOTfGQFaoNIr9TnqVFRO4IuyoBSOUIzty0RR1wpEGgEkzP4uridqSu0MX4hhFMwJnVBTocgluI_Ra95xvyXr3g7UKGKdzZZ2qUhajkqyZg4Cb6_TIv0-KeL8een6vtOz7B0uw1eirbYnjlEVhhBW3d4Wis7c3TNq1iVKI5BIAPcota4eEIWVjSvYJLrHjVyIKkkrTsQie7USHUnLKszPP7XqpCooUrxB9y9DJlvW2fYsa2GzeqOUkxdETyzZ1Kk4BD5Ov6KYpYtJmjVMbkQ9HM7GZZJeCpMjLaOtwaGSeYY1yT0C1byFoBy3aA1K22qRKcpiLvnmVMDtTmC1xV66mWQzCwNxGz_X08ZBx9idnFZkjyns28invrBfTmEZA5H3AI3O9OdrMI1T3CWVHRywfbbySEHc9TtEfsGInDHGHcGv-Vt307O26n9UsiocQL1wCRHrEk75Z7f6Zn8brRWDPZrtPZlVUpV7S1hA0HVEFDfIFUeEKf6eFoBeVrAHXE2DV2KNorzwRdV8DTsr3idpRmXl_1VelXmdK2QfzoLA9f-8&scope=launch+launch%2Fpatient+patient%2FPatient.read+patient%2FCondition.read+patient%2FObservation.read+patient%2FPractitioner.read+patient%2FMedication.read+patient%2FMedicationRequest.read+system%2FEndpoint.read&launch=2000163
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 02 Dec 2021 17:31:15 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Vary:
+      - Origin
+      Etag:
+      - W/"564-ObhqQ5J5sFidsfMa2PQ9lBejYB4"
+      Cache-Control:
+      - ''
+      Set-Cookie:
+      - TS01dd66bd=01c8917e483d8587eca2dee784a572c3d5b309b609a2e83afa5f92291a3240a5867a71dc67878364891ebdec9afc7b1c43b1b029cc;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"access_token":"eyJraWQiOiIyWGlHcG5XRjR0U0wtdENPX19zNDZhMGlkd3I1UUd6YVlwTm4xeEZNX1Y4IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULmdVNE9oUnFzM0MtdEhBa0VKMlY4VnJzeW93YUhtV3VIaS1CMHV0VU9XcHciLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXM4bm0xcTBmN1ZRMGE0ODJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2ZoaXIiLCJpYXQiOjE2Mzg0NjYyNzUsImV4cCI6MTYzODQ2NjU3NSwiY2lkIjoiMG9hYXkzOGtyOExRYnFOV1EycDciLCJzY3AiOlsibGF1bmNoIiwicGF0aWVudC9QYXRpZW50LnJlYWQiLCJsYXVuY2gvcGF0aWVudCIsInBhdGllbnQvUHJhY3RpdGlvbmVyLnJlYWQiLCJwYXRpZW50L01lZGljYXRpb24ucmVhZCIsInN5c3RlbS9FbmRwb2ludC5yZWFkIiwicGF0aWVudC9Db25kaXRpb24ucmVhZCIsInBhdGllbnQvT2JzZXJ2YXRpb24ucmVhZCIsInBhdGllbnQvTWVkaWNhdGlvblJlcXVlc3QucmVhZCJdLCJzdWIiOiIwb2FheTM4a3I4TFFicU5XUTJwNyJ9.AEu7_Kg6mYggBdZYgzT_fji_YiYJBUm9jiyegET_jWGftvYyx3awwlUEWvkYnRh0n6fkADil5bDzDvEpKwnDTPC19vKLV7EHQ0chJXqgECvw651ozSiRKRi3r72MtiCNOufjIVUKDSQojYLSjAjJCKSTVCxu5Q3gV9Xti1D7xIsdRCB57-iWkpYDlOzKnMYzZxmv7gXtgIuThk-A7Qok4fbkh0Kh1kxSSt_Rop4FBfqtPYmNBQqZtHep4UDdZXDnAb4RTqCsWs0Q-A5IAPJooyQ4o7uTGENYdS0UTcUIyhZEtMpULQqOSFm1uHiAD7Q55vqmMutOADhUXtVDdS6Kag","token_type":"Bearer","scope":"launch
+        patient/Patient.read launch/patient patient/Practitioner.read patient/Medication.read
+        system/Endpoint.read patient/Condition.read patient/Observation.read patient/MedicationRequest.read","expires_in":300,"state":null,"patient":"2000163"}'
+  recorded_at: Thu, 02 Dec 2021 17:31:15 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest?patient=2000163
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer eyJraWQiOiIyWGlHcG5XRjR0U0wtdENPX19zNDZhMGlkd3I1UUd6YVlwTm4xeEZNX1Y4IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULmdVNE9oUnFzM0MtdEhBa0VKMlY4VnJzeW93YUhtV3VIaS1CMHV0VU9XcHciLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXM4bm0xcTBmN1ZRMGE0ODJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2ZoaXIiLCJpYXQiOjE2Mzg0NjYyNzUsImV4cCI6MTYzODQ2NjU3NSwiY2lkIjoiMG9hYXkzOGtyOExRYnFOV1EycDciLCJzY3AiOlsibGF1bmNoIiwicGF0aWVudC9QYXRpZW50LnJlYWQiLCJsYXVuY2gvcGF0aWVudCIsInBhdGllbnQvUHJhY3RpdGlvbmVyLnJlYWQiLCJwYXRpZW50L01lZGljYXRpb24ucmVhZCIsInN5c3RlbS9FbmRwb2ludC5yZWFkIiwicGF0aWVudC9Db25kaXRpb24ucmVhZCIsInBhdGllbnQvT2JzZXJ2YXRpb24ucmVhZCIsInBhdGllbnQvTWVkaWNhdGlvblJlcXVlc3QucmVhZCJdLCJzdWIiOiIwb2FheTM4a3I4TFFicU5XUTJwNyJ9.AEu7_Kg6mYggBdZYgzT_fji_YiYJBUm9jiyegET_jWGftvYyx3awwlUEWvkYnRh0n6fkADil5bDzDvEpKwnDTPC19vKLV7EHQ0chJXqgECvw651ozSiRKRi3r72MtiCNOufjIVUKDSQojYLSjAjJCKSTVCxu5Q3gV9Xti1D7xIsdRCB57-iWkpYDlOzKnMYzZxmv7gXtgIuThk-A7Qok4fbkh0Kh1kxSSt_Rop4FBfqtPYmNBQqZtHep4UDdZXDnAb4RTqCsWs0Q-A5IAPJooyQ4o7uTGENYdS0UTcUIyhZEtMpULQqOSFm1uHiAD7Q55vqmMutOADhUXtVDdS6Kag
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Thu, 02 Dec 2021 17:31:17 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '292'
+      X-Ratelimit-Limit-Minute:
+      - '300'
+      Ratelimit-Remaining:
+      - '292'
+      Ratelimit-Limit:
+      - '300'
+      Ratelimit-Reset:
+      - '44'
+      Vary:
+      - Accept-Encoding
+      - Origin
+      X-Va-Includes-Icn:
+      - '2000163'
+      Pragma:
+      - no-cache
+      - no-cache
+      X-Kong-Upstream-Latency:
+      - '1283'
+      X-Kong-Proxy-Latency:
+      - '1'
+      Via:
+      - kong/2.3.2
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - no-cache, no-store
+      Set-Cookie:
+      - TS01dd66bd=01c8917e48c2ed745cc8b8628d7dd5f5164c88325fc58d354193c2996457af36de10ad05646b3b351078e1c5b8b4b52999172b2bc9;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"resourceType":"Bundle","type":"searchset","total":16,"link":[{"relation":"first","url":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest?patient=2000163&page=1&_count=30"},{"relation":"self","url":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest?patient=2000163&page=1&_count=30"},{"relation":"next","url":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest?patient=2000163&page=2&_count=30"},{"relation":"last","url":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest?patient=2000163&page=2&_count=30"}],"entry":[{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest/I2-EOXHYGQVWVC3KY3LTUWOVMC2KQ000000","resource":{"resourceType":"MedicationRequest","id":"I2-EOXHYGQVWVC3KY3LTUWOVMC2KQ000000","status":"active","intent":"plan","reportedBoolean":true,"medicationReference":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Medication/I2-P5K4DYBAAOZHY5ZNT7GMNQ33KA000000","display":"Hydrochlorothiazide
+        6.25 MG"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/2000163","display":"Mr.
+        Aurelio227 Cruickshank494"},"authoredOn":"1995-02-06T02:15:52Z","_requester":{"extension":[{"url":"https://hl7.org/fhir/extension-data-absent-reason.html","valueCode":"unknown"}]},"note":[{"text":"Hydrochlorothiazide
+        6.25 MG"}],"dosageInstruction":[{"text":"Once per day.","timing":{"repeat":{"boundsPeriod":{"start":"1995-02-06T02:15:52Z"}},"code":{"text":"As
+        directed by physician."}},"route":{"text":"As directed by physician."}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest/I2-LD3OMR743BUVMUDOIOOW4PQWT4000000","resource":{"resourceType":"MedicationRequest","id":"I2-LD3OMR743BUVMUDOIOOW4PQWT4000000","status":"active","intent":"plan","reportedBoolean":true,"medicationReference":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Medication/I2-AORGYTON63GNFEQXZ7OGP47SA4000000","display":"Loratadine
+        5 MG Chewable Tablet"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/2000163","display":"Mr.
+        Aurelio227 Cruickshank494"},"authoredOn":"1995-04-30T01:15:52Z","_requester":{"extension":[{"url":"https://hl7.org/fhir/extension-data-absent-reason.html","valueCode":"unknown"}]},"note":[{"text":"Loratadine
+        5 MG Chewable Tablet"}],"dosageInstruction":[{"text":"Once per day.","timing":{"repeat":{"boundsPeriod":{"start":"1995-04-30T01:15:52Z"}},"code":{"text":"As
+        directed by physician."}},"route":{"text":"As directed by physician."}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest/I2-Z7Z7UGT7DGC5L2WOOUQ5T6RV7Y000000","resource":{"resourceType":"MedicationRequest","id":"I2-Z7Z7UGT7DGC5L2WOOUQ5T6RV7Y000000","status":"active","intent":"plan","reportedBoolean":true,"medicationReference":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Medication/I2-QNZB6VUM2PSTJBAMFD3KKV4RNM000000","display":"0.3
+        ML EPINEPHrine 0.5 MG/ML Auto-Injector"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/2000163","display":"Mr.
+        Aurelio227 Cruickshank494"},"authoredOn":"1995-04-30T01:15:52Z","_requester":{"extension":[{"url":"https://hl7.org/fhir/extension-data-absent-reason.html","valueCode":"unknown"}]},"note":[{"text":"0.3
+        ML EPINEPHrine 0.5 MG/ML Auto-Injector"}],"dosageInstruction":[{"text":"Once
+        per day.","timing":{"repeat":{"boundsPeriod":{"start":"1995-04-30T01:15:52Z"}},"code":{"text":"As
+        directed by physician."}},"route":{"text":"As directed by physician."}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest/I2-NEABKIZV24I2OXORZDEVBBK4KU000000","resource":{"resourceType":"MedicationRequest","id":"I2-NEABKIZV24I2OXORZDEVBBK4KU000000","status":"active","intent":"plan","reportedBoolean":true,"medicationReference":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Medication/I2-INMS7LYERW3FR4ML2WRNK74F2Q000000","display":"120
+        ACTUAT Fluticasone propionate 0.044 MG/ACTUAT Metered Dose Inhaler"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/2000163","display":"Mr.
+        Aurelio227 Cruickshank494"},"authoredOn":"1998-02-12T02:15:52Z","_requester":{"extension":[{"url":"https://hl7.org/fhir/extension-data-absent-reason.html","valueCode":"unknown"}]},"note":[{"text":"120
+        ACTUAT Fluticasone propionate 0.044 MG/ACTUAT Metered Dose Inhaler"}],"dosageInstruction":[{"text":"Once
+        per day.","timing":{"repeat":{"boundsPeriod":{"start":"1998-02-12T02:15:52Z"}},"code":{"text":"As
+        directed by physician."}},"route":{"text":"As directed by physician."}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest/I2-QXUA7RBW5DIGCVJ3KVDRQNP3CA000000","resource":{"resourceType":"MedicationRequest","id":"I2-QXUA7RBW5DIGCVJ3KVDRQNP3CA000000","status":"active","intent":"plan","reportedBoolean":true,"medicationReference":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Medication/I2-LIQSX2BOLCA6ILIGRGOVWPHWCY000000","display":"200
+        ACTUAT Albuterol 0.09 MG/ACTUAT Metered Dose Inhaler"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/2000163","display":"Mr.
+        Aurelio227 Cruickshank494"},"authoredOn":"1998-02-12T02:15:52Z","_requester":{"extension":[{"url":"https://hl7.org/fhir/extension-data-absent-reason.html","valueCode":"unknown"}]},"note":[{"text":"200
+        ACTUAT Albuterol 0.09 MG/ACTUAT Metered Dose Inhaler"}],"dosageInstruction":[{"text":"Once
+        per day.","timing":{"repeat":{"boundsPeriod":{"start":"1998-02-12T02:15:52Z"}},"code":{"text":"As
+        directed by physician."}},"route":{"text":"As directed by physician."}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest/I2-3TCBV3RAFLJW5X23X24CVL4YQE000000","resource":{"resourceType":"MedicationRequest","id":"I2-3TCBV3RAFLJW5X23X24CVL4YQE000000","status":"active","intent":"plan","reportedBoolean":true,"medicationReference":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Medication/I2-3KI3RMYAJXTO5ZA6PNEZMJOQMA000000","display":"Hydrocortisone
+        10 MG/ML Topical Cream"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/2000163","display":"Mr.
+        Aurelio227 Cruickshank494"},"authoredOn":"2009-03-25T01:15:52Z","_requester":{"extension":[{"url":"https://hl7.org/fhir/extension-data-absent-reason.html","valueCode":"unknown"}]},"note":[{"text":"Hydrocortisone
+        10 MG/ML Topical Cream"}],"dosageInstruction":[{"text":"Once per day.","timing":{"repeat":{"boundsPeriod":{"start":"2009-03-25T01:15:52Z"}},"code":{"text":"As
+        directed by physician."}},"route":{"text":"As directed by physician."}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest/I2-3SWMOWGVQF62Z373OBD3ZJJ7OU000000","resource":{"resourceType":"MedicationRequest","id":"I2-3SWMOWGVQF62Z373OBD3ZJJ7OU000000","status":"active","intent":"plan","reportedBoolean":true,"medicationReference":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Medication/I2-NPJ6CNRXW47TSB3TJ2NRG4CX4M000000","display":"predniSONE
+        5 MG Oral Tablet"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/2000163","display":"Mr.
+        Aurelio227 Cruickshank494"},"authoredOn":"2012-08-18T06:15:52Z","_requester":{"extension":[{"url":"https://hl7.org/fhir/extension-data-absent-reason.html","valueCode":"unknown"}]},"note":[{"text":"predniSONE
+        5 MG Oral Tablet"}],"dosageInstruction":[{"text":"1 dose(s) 1 time(s) per
+        1 days","timing":{"repeat":{"boundsPeriod":{"start":"2012-08-18T06:15:52Z"}},"code":{"text":"As
+        directed by physician."}},"route":{"text":"As directed by physician."}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest/I2-FRYLILLHREIRTD4ACLU7H2QB7Y000000","resource":{"resourceType":"MedicationRequest","id":"I2-FRYLILLHREIRTD4ACLU7H2QB7Y000000","status":"active","intent":"plan","reportedBoolean":true,"medicationReference":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Medication/I2-D7TIQIJ5JP32ICSNNAS7CZFFJ4000000","display":"Hydrochlorothiazide
+        25 MG"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/2000163","display":"Mr.
+        Aurelio227 Cruickshank494"},"authoredOn":"2013-04-15T01:15:52Z","_requester":{"extension":[{"url":"https://hl7.org/fhir/extension-data-absent-reason.html","valueCode":"unknown"}]},"note":[{"text":"Hydrochlorothiazide
+        25 MG"}],"dosageInstruction":[{"text":"Once per day.","timing":{"repeat":{"boundsPeriod":{"start":"2013-04-15T01:15:52Z"}},"code":{"text":"As
+        directed by physician."}},"route":{"text":"As directed by physician."}}]},"search":{"mode":"match"}}]}'
+  recorded_at: Thu, 02 Dec 2021 17:31:17 GMT
+recorded_with: VCR 6.0.0

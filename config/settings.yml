@@ -908,6 +908,7 @@ hqva_mobile:
     host: "sandbox-api.va.gov"
     pgd_aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7"
     health_aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7"
+    condition_aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7/v1/token"
     claim_common_id: "0oabja2lpllERXWxo2p7"
     grant_type: "client_credentials"
     client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
@@ -930,10 +931,30 @@ hqva_mobile:
       - "patient/Location.read"
       - "patient/Organization.read"
       - "patient/Patient.read"
+      - "patient/Condition.read"
+      - "patient/Observation.read"
+      - "patient/Practitioner.read"
+      - "patient/Medication.read"
+      - "system/Endpoint.read"
 
 # settings va.gov uses related to lighthouse api's
 lighthouse:
   api_key: fake_key
+  veterans_health:
+    url: https://sandbox-api.va.gov
+    fast_tracker:
+      client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+      api_scope:
+        - "launch"
+        - "patient/Patient.read"
+        - "system/Patient.read"
+        - "patient/Observation.read"
+        - "patient/Practitioner.read"
+        - "patient/MedicationRequest.read"
+      aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7/v1/token"
+      client_id: "0oaaxkp0aeXEJkMFw2p7"
+      grant_type: "client_credentials"
+      api_key: /srv/vets-api/secret/lighthouse_fast_track_api.key
   facilities:
     url: https://sandbox-api.va.gov
     api_key: fake_key

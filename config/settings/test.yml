@@ -158,6 +158,25 @@ hqva_mobile:
       - "patient/Organization.read"
       - "patient/Patient.read"
 
+# settings va.gov uses related to lighthouse api's
+lighthouse:
+  api_key: fake_key
+  veterans_health:
+    url: https://sandbox-api.va.gov
+    fast_tracker:
+      client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+      api_scope:
+        - "launch"
+        - "patient/Patient.read"
+        - "system/Patient.read"
+        - "patient/Observation.read"
+        - "patient/Practitioner.read"
+        - "patient/MedicationRequest.read"
+      aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7/v1/token"
+      client_id: "fake_client_id"
+      grant_type: "client_credentials"
+      api_key: spec/support/fake_api_key_for_lighthouse.txt
+
 sidekiq:
   github_organization: "organization"
   github_team: 0000000

@@ -5,6 +5,8 @@
 class SupportingEvidenceAttachment < FormAttachment
   ATTACHMENT_UPLOADER_CLASS = SupportingEvidenceAttachmentUploader
 
+  # this uploads the file to S3 through its parent class
+  # the final filename comes from the uploader once the file is successfully uploaded to S3
   def set_file_data!(file, file_password = nil)
     file_data_json = super
     au = get_attachment_uploader

@@ -1,0 +1,160 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/oauth2/health/system/v1/token
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIwb2FheTM4a3I4TFFicU5XUTJwNyIsInN1YiI6IjBvYWF5MzhrcjhMUWJxTldRMnA3IiwiYXVkIjoiaHR0cHM6Ly9kZXB0dmEtZXZhbC5va3RhLmNvbS9vYXV0aDIvYXVzOG5tMXEwZjdWUTBhNDgycDcvdjEvdG9rZW4iLCJleHAiOjE2Mzg0NjcxNjB9.PxGejrc8J8Uk5-oAx0tolP1uFInG7-AQIERtivrIcQvE7bG95OBSKOD4fZk_pJ-mQN0wmNyvR02VpMbYMyVagsX-wPMZ3EpSrJGh0lH7Cah7C4aFmTcBjfPVyUpsmvlBwL-Neu5-lH3j6ccXZVHce55p8-TiHQ3QWnNdfOFSEa7ODgHse73-1V-mTeK6YWWSHyP4oejqVrB-06JliWtWG5Fj_UNxjcIUhPxSE4QZmXh1hpJJeWTNoL796tDElY1aMxDXKOuY0fzaUs7q7PrwicmWz8hV_eZqSKBQoiWhspih3-ZPQTfis09RTRpgfccwbHSl5hMmKt3oBBI8faGhJmEdvIna7tA0Zp2AAIkSQh_HT5wc_OvB4w71BZf6MQuX77v43nal14NiM9PV_21Al5zwDIozbjx4KWkD2yA5VUkYRMYHwi0VqtvQC3AyEdf381n6q___0KRlqD1-qzi4lLktoqnTNLJKMjCX25rPqyHLD5JUf5WxkExaQDOEM0VjNW27LiEqVHOvRTvcS8ALofnALEf7hE9uuNM5FLrf-EOvgSQcvj5m95zfXzk8Vl2tqtbz9JSFyhS8liyQoHc2Bnp-mg_7ThAWZCqGQFM8zjme4qDcM0jcgJGeQFll_JbDlO4g93t2O3EmGFdLcWCxWcU5BltE7lY_98mvezfwPtY&scope=launch+launch%2Fpatient+patient%2FPatient.read+patient%2FCondition.read+patient%2FObservation.read+patient%2FPractitioner.read+patient%2FMedication.read+patient%2FMedicationRequest.read+system%2FEndpoint.read&launch=2000163
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 02 Dec 2021 17:31:01 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Vary:
+      - Origin
+      Etag:
+      - W/"564-Q+BqYWA80hI0Yr/6Ol/kw6RAMcA"
+      Cache-Control:
+      - ''
+      Set-Cookie:
+      - TS01dd66bd=01c8917e48b54cba3080b91d7fa14d2bc800b1c24a53d7666978536065f206e51c980bcc0818987733637b4e6d8c78cfb32977d2c8;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"access_token":"eyJraWQiOiIyWGlHcG5XRjR0U0wtdENPX19zNDZhMGlkd3I1UUd6YVlwTm4xeEZNX1Y4IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULlBQanpvMkstSWlDa3VIS2RRd2kzWGRHNHByLW1tUGFYdV82aE1nNVRVT0kiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXM4bm0xcTBmN1ZRMGE0ODJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2ZoaXIiLCJpYXQiOjE2Mzg0NjYyNjEsImV4cCI6MTYzODQ2NjU2MSwiY2lkIjoiMG9hYXkzOGtyOExRYnFOV1EycDciLCJzY3AiOlsibGF1bmNoIiwicGF0aWVudC9QYXRpZW50LnJlYWQiLCJsYXVuY2gvcGF0aWVudCIsInBhdGllbnQvUHJhY3RpdGlvbmVyLnJlYWQiLCJwYXRpZW50L01lZGljYXRpb24ucmVhZCIsInN5c3RlbS9FbmRwb2ludC5yZWFkIiwicGF0aWVudC9Db25kaXRpb24ucmVhZCIsInBhdGllbnQvT2JzZXJ2YXRpb24ucmVhZCIsInBhdGllbnQvTWVkaWNhdGlvblJlcXVlc3QucmVhZCJdLCJzdWIiOiIwb2FheTM4a3I4TFFicU5XUTJwNyJ9.NVXGjOFMe7F0_WZw41JyQaKKmpZ4KdYUgpwiCMoekdul-kkcesmhTycmtTOfZqy4KdhuW7PDOp1GXrFqR887KtQBcu3zxYHyusm_lJNeep5Xb0r2VXUwN1bRzYSPOlDEPiiXUN0hYLAUmdiOH23VtBdn08zc6oG_rRqUSXfqYGoITAu__E3-P3uLcHKMZU0sBoRUNKnXG1B5Oz7DLgybAYjXs2eEBYT0HFr-iKVW_ye0FoP7z3p1piYF3I-vjK1KFgZUS9AGXs_oRYHJjlIhpKCVX7D5y2p0yZBdpuGhjgz1FAkmJtbvsXOkajaiw_axbo4emtmA-ppY0-vu9GhCjw","token_type":"Bearer","scope":"launch
+        patient/Patient.read launch/patient patient/Practitioner.read patient/Medication.read
+        system/Endpoint.read patient/Condition.read patient/Observation.read patient/MedicationRequest.read","expires_in":300,"state":null,"patient":"2000163"}'
+  recorded_at: Thu, 02 Dec 2021 17:31:01 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/fhir/v0/r4/Observation?category=vital-signs&code=85354-9&patient=2000163
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer eyJraWQiOiIyWGlHcG5XRjR0U0wtdENPX19zNDZhMGlkd3I1UUd6YVlwTm4xeEZNX1Y4IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULlBQanpvMkstSWlDa3VIS2RRd2kzWGRHNHByLW1tUGFYdV82aE1nNVRVT0kiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXM4bm0xcTBmN1ZRMGE0ODJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2ZoaXIiLCJpYXQiOjE2Mzg0NjYyNjEsImV4cCI6MTYzODQ2NjU2MSwiY2lkIjoiMG9hYXkzOGtyOExRYnFOV1EycDciLCJzY3AiOlsibGF1bmNoIiwicGF0aWVudC9QYXRpZW50LnJlYWQiLCJsYXVuY2gvcGF0aWVudCIsInBhdGllbnQvUHJhY3RpdGlvbmVyLnJlYWQiLCJwYXRpZW50L01lZGljYXRpb24ucmVhZCIsInN5c3RlbS9FbmRwb2ludC5yZWFkIiwicGF0aWVudC9Db25kaXRpb24ucmVhZCIsInBhdGllbnQvT2JzZXJ2YXRpb24ucmVhZCIsInBhdGllbnQvTWVkaWNhdGlvblJlcXVlc3QucmVhZCJdLCJzdWIiOiIwb2FheTM4a3I4TFFicU5XUTJwNyJ9.NVXGjOFMe7F0_WZw41JyQaKKmpZ4KdYUgpwiCMoekdul-kkcesmhTycmtTOfZqy4KdhuW7PDOp1GXrFqR887KtQBcu3zxYHyusm_lJNeep5Xb0r2VXUwN1bRzYSPOlDEPiiXUN0hYLAUmdiOH23VtBdn08zc6oG_rRqUSXfqYGoITAu__E3-P3uLcHKMZU0sBoRUNKnXG1B5Oz7DLgybAYjXs2eEBYT0HFr-iKVW_ye0FoP7z3p1piYF3I-vjK1KFgZUS9AGXs_oRYHJjlIhpKCVX7D5y2p0yZBdpuGhjgz1FAkmJtbvsXOkajaiw_axbo4emtmA-ppY0-vu9GhCjw
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Thu, 02 Dec 2021 17:31:02 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '299'
+      X-Ratelimit-Limit-Minute:
+      - '300'
+      Ratelimit-Remaining:
+      - '299'
+      Ratelimit-Limit:
+      - '300'
+      Ratelimit-Reset:
+      - '58'
+      Vary:
+      - Accept-Encoding
+      - Origin
+      X-Va-Includes-Icn:
+      - '2000163'
+      Pragma:
+      - no-cache
+      - no-cache
+      X-Kong-Upstream-Latency:
+      - '327'
+      X-Kong-Proxy-Latency:
+      - '1'
+      Via:
+      - kong/2.3.2
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - no-cache, no-store
+      Set-Cookie:
+      - TS01dd66bd=01c8917e48100b23ec44882293508949056fb2c5b0e9fce13f2aa65891c88d041ea446d857fc8d869c328769824c2f892c47c31ff6;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"resourceType":"Bundle","type":"searchset","total":7,"link":[{"relation":"first","url":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation?category=vital-signs&code=85354-9&patient=2000163&_count=30&page=1"},{"relation":"self","url":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation?category=vital-signs&code=85354-9&patient=2000163&_count=30&page=1"},{"relation":"last","url":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation?category=vital-signs&code=85354-9&patient=2000163&_count=30&page=1"}],"entry":[{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-METNQZKXULAJF6MCMAVFMQONHY000000","resource":{"resourceType":"Observation","id":"I2-METNQZKXULAJF6MCMAVFMQONHY000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
+        pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/2000163","display":"Mr.
+        Aurelio227 Cruickshank494"},"effectiveDateTime":"2009-03-23T01:15:52Z","issued":"2009-03-23T01:15:52Z","performer":[{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Organization/I2-TYIC2AW2NXNADER4SKRKJQZWRE000000","display":"LYONS
+        VA MEDICAL CENTER"},{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-4ZXYC2SQAZCHMOWPPFNLOY65GE000000","display":"DR.
+        THOMAS359 REYNOLDS206 PHD"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
+        blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":115.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":87.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-UPUTAX5OOVLASWDJPHMIYLU5GE000000","resource":{"resourceType":"Observation","id":"I2-UPUTAX5OOVLASWDJPHMIYLU5GE000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
+        pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/2000163","display":"Mr.
+        Aurelio227 Cruickshank494"},"effectiveDateTime":"2010-03-29T01:15:52Z","issued":"2010-03-29T01:15:52Z","performer":[{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Organization/I2-YCRI7L52BYQL63ZFALGWIWF2WU000000","display":"WASHINGTON
+        VA MEDICAL CENTER"},{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-HRJI2MVST2IQSPR7U5SACWIWZA000000","display":"DR.
+        JANE460 DOE922 MD"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
+        blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":102.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":70.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-J3QAX2FTDLGLYQ427ORBU7CXR4000000","resource":{"resourceType":"Observation","id":"I2-J3QAX2FTDLGLYQ427ORBU7CXR4000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
+        pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/2000163","display":"Mr.
+        Aurelio227 Cruickshank494"},"effectiveDateTime":"2011-04-04T01:15:52Z","issued":"2011-04-04T01:15:52Z","performer":[{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Organization/I2-AKOTGEFSVKFJOPUKHIVJAH5VQU000000","display":"NEW
+        AMSTERDAM CBOC"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
+        blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":137.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":86.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-VKSBLPBVPCOHDZP6IEIJSX3DFA000000","resource":{"resourceType":"Observation","id":"I2-VKSBLPBVPCOHDZP6IEIJSX3DFA000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
+        pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/2000163","display":"Mr.
+        Aurelio227 Cruickshank494"},"effectiveDateTime":"2012-04-09T01:15:52Z","issued":"2012-04-09T01:15:52Z","performer":[{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Organization/I2-TYIC2AW2NXNADER4SKRKJQZWRE000000","display":"LYONS
+        VA MEDICAL CENTER"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
+        blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":124.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":80.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-MPK3NM7COBNKV3RMIP3N537CUA000000","resource":{"resourceType":"Observation","id":"I2-MPK3NM7COBNKV3RMIP3N537CUA000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
+        pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/2000163","display":"Mr.
+        Aurelio227 Cruickshank494"},"effectiveDateTime":"2013-04-15T01:15:52Z","issued":"2013-04-15T01:15:52Z","performer":[{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Organization/I2-AKOTGEFSVKFJOPUKHIVJAH5VQU000000","display":"NEW
+        AMSTERDAM CBOC"},{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-QXZOEMHBZNNC7BUGOTHVWYSZAI000000","display":"DR.
+        JOHN248 SMITH811 MD"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
+        blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":156.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":118.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-E4VTK6Q5XIWP2T7QYM4MODNRK4000000","resource":{"resourceType":"Observation","id":"I2-E4VTK6Q5XIWP2T7QYM4MODNRK4000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
+        pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/2000163","display":"Mr.
+        Aurelio227 Cruickshank494"},"effectiveDateTime":"2014-04-21T01:15:52Z","issued":"2014-04-21T01:15:52Z","performer":[{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-HRJI2MVST2IQSPR7U5SACWIWZA000000","display":"DR.
+        JANE460 DOE922 MD"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
+        blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":192.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":93.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-ADC2KFW2PUXAHYQ44AW5ZYKTVU000000","resource":{"resourceType":"Observation","id":"I2-ADC2KFW2PUXAHYQ44AW5ZYKTVU000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
+        pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/2000163","display":"Mr.
+        Aurelio227 Cruickshank494"},"effectiveDateTime":"2017-04-24T01:15:52Z","issued":"2017-04-24T01:15:52Z","performer":[{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Organization/I2-YCRI7L52BYQL63ZFALGWIWF2WU000000","display":"WASHINGTON
+        VA MEDICAL CENTER"},{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-HRJI2MVST2IQSPR7U5SACWIWZA000000","display":"DR.
+        JANE460 DOE922 MD"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
+        blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":153.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":99.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}}]}'
+  recorded_at: Thu, 02 Dec 2021 17:31:02 GMT
+recorded_with: VCR 6.0.0
