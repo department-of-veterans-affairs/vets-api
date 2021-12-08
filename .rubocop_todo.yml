@@ -123,6 +123,7 @@ Lint/MissingSuper:
     - 'lib/json_schema/json_api_missing_attribute.rb'
     - 'lib/json_schema/missing_schema.rb'
     - 'lib/lgy/service.rb'
+    - 'lib/lighthouse/veterans_health/client.rb'
     - 'lib/mdot/client.rb'
     - 'lib/mdot/response.rb'
     - 'lib/mpi/responses/add_parser.rb'
