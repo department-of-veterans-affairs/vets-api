@@ -254,7 +254,8 @@ GEM
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
     colored2 (3.1.2)
-    combine_pdf (1.0.21)
+    combine_pdf (1.0.22)
+      matrix
       ruby-rc4 (>= 0.1.5)
     concurrent-ruby (1.1.9)
     config (3.1.0)
@@ -549,6 +550,7 @@ GEM
     mail (2.7.1)
       mini_mime (>= 0.1.1)
     marcel (1.0.1)
+    matrix (0.4.2)
     memoist (0.16.2)
     method_source (1.0.0)
     mime-types (3.3.1)
