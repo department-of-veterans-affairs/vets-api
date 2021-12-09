@@ -3,9 +3,17 @@
 require 'evss/ppiu/service'
 
 PPIUPolicy = Struct.new(:user, :ppiu) do
+  def allowed_providers
+    %w[
+      idme
+      oauth_IDME
+      logingov
+    ].freeze
+  end
+
   def access?
     user.loa3? &&
-      %w[idme oauth_IDME].include?(user.identity.sign_in[:service_name]) &&
+      allowed_providers.include?(user.identity.sign_in[:service_name]) &&
       Flipper.enabled?(:direct_deposit_cnp, user)
   end
 

@@ -22,6 +22,16 @@ describe PPIUPolicy do
       end
     end
 
+    context 'with a login.gov user' do
+      before do
+        allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: 'logingov')
+      end
+
+      it 'allows access' do
+        expect(described_class).to permit(user, :ppiu)
+      end
+    end
+
     context 'with a oauth idme user' do
       before do
         allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: 'oauth_IDME')
