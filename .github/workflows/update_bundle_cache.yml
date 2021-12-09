@@ -1,0 +1,63 @@
+name: Update Bundle Cache
+on:
+  push:
+    branches:
+    - master
+jobs:
+  build_and_upload_cache:
+    name: Build and Upload Cache
+    env:
+      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+      CI: true
+      RAILS_ENV: production
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker/setup-buildx-action@v1
+
+      - uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Setup Environment
+        run: |
+          echo "DOCKER_USER_ID=$(id -u)" >> $GITHUB_ENV
+
+      - name: Build Docker Image
+        uses: docker/build-push-action@v2
+        with:
+          build-args: |
+            BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+            USER_ID=${{ env.DOCKER_USER_ID }}
+          context: .
+          push: false
+          load: true
+          tags: vets-api:latest
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      - name: Move cache into place # This is to prevent the buildx cache from ballooning
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+      - name: Copy out bundle cache
+        run: |
+          docker cp $(docker create --rm vets-api:latest --no-create):/usr/local/bundle/cache/ - | bzip2 > tmp/bundle_cache.tar.bz2
+
+      - name: Upload to S3
+        run: |
+          aws s3 cp tmp/bundle_cache.tar.bz2 s3://vets-api-build-artifacts/bundle_cache.tar.bz2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-gov-west-1
