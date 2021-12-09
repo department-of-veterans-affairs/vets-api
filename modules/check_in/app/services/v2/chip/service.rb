@@ -5,64 +5,38 @@ module V2
     class Service
       extend Forwardable
 
-      attr_reader :check_in, :request, :response, :session, :settings, :check_in_body, :chip_client, :redis_client
+      attr_reader :check_in, :response, :check_in_body, :chip_client, :redis_client
 
       def_delegators :check_in, :client_error, :uuid, :valid?
-      def_delegators :settings, :base_path
 
       def self.build(opts = {})
         new(opts)
       end
 
       def initialize(opts = {})
-        @settings = Settings.check_in.chip_api_v2
         @check_in = opts[:check_in]
         @check_in_body = opts[:params]
-        @request = Request.build
         @response = Response
-        @session = Session.build
 
         @chip_client = Client.build(check_in_session: check_in)
         @redis_client = RedisClient.build
       end
 
       def create_check_in
-        resp = if Flipper.enabled?('check_in_experience_chip_service_refactor')
-                 if token.present?
-                   chip_client.check_in_appointment(token: token, appointment_ien: check_in_body[:appointment_ien])
-                 else
-                   Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
-                 end
+        resp = if token.present?
+                 chip_client.check_in_appointment(token: token, appointment_ien: check_in_body[:appointment_ien])
                else
-                 token = session.retrieve
-                 if token.present?
-                   request.post(
-                     path: "/#{base_path}/actions/check-in/#{uuid}",
-                     access_token: token,
-                     params: { appointmentIEN: check_in_body[:appointment_ien] }
-                   )
-                 else
-                   Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
-                 end
+                 Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
                end
 
         response.build(response: resp).handle
       end
 
       def refresh_appointments
-        if Flipper.enabled?('check_in_experience_chip_service_refactor')
-          if token.present?
-            chip_client.refresh_appointments(token: token, identifier_params: identifier_params)
-          else
-            Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
-          end
+        if token.present?
+          chip_client.refresh_appointments(token: token, identifier_params: identifier_params)
         else
-          token = session.retrieve
-          request.post(
-            path: "/#{base_path}/actions/refresh-appointments/#{uuid}",
-            access_token: token,
-            params: identifier_params
-          )
+          Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
         end
       end
 
