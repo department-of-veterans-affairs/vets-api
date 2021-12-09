@@ -584,7 +584,7 @@ module HCA
     end
 
     def veteran_to_demographics_info(veteran)
-      {
+      result = {
         'appointmentRequestResponse' => veteran['wantsInitialVaContact'].present?,
         'contactInfo' => {
           'addresses' => address_from_veteran(veteran),
@@ -595,9 +595,13 @@ module HCA
         'maritalStatus' => marital_status_to_sds_code(veteran['maritalStatus']),
         'preferredFacility' => veteran['vaMedicalFacility'],
         'races' => veteran_to_races(veteran),
-        'acaIndicator' => veteran['isEssentialAcaCoverage'].present?,
-        'indianIndicator' => veteran['sigiIsAmericanIndian'].present?
+        'acaIndicator' => veteran['isEssentialAcaCoverage'].present?
       }
+      # Only add American Indian question to payload if feature is enabled
+      if Flipper.enabled?(:hca_american_indian_enabled)
+        result['indianIndicator'] = veteran['sigiIsAmericanIndian'].present?
+      end
+      result
     end
 
     def veteran_to_summary(veteran)

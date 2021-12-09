@@ -1201,6 +1201,50 @@ describe HCA::EnrollmentSystem do
     ]
   )
 
+  describe 'vet_to_demo_info' do
+    describe 'American Indian question' do
+      let(:veteran) { create(:account).as_json }
+      let(:subject) { described_class.veteran_to_demographics_info(veteran) }
+
+      context 'feature is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:hca_american_indian_enabled).and_return(false)
+        end
+
+        it 'is not included in the payload' do
+          expect(subject.keys).not_to be_nil
+          expect(subject.keys).not_to include('indianIndicator')
+        end
+      end
+
+      context 'feature is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:hca_american_indian_enabled).and_return(true)
+        end
+
+        it 'indianIndicator is included in the payload' do
+          expect(subject.keys).to include('indianIndicator')
+        end
+
+        context 'veteran is American Indian' do
+          let(:veteran) { { 'sigiIsAmericanIndian' => true } }
+
+          it 'payload value is true' do
+            expect(subject['indianIndicator']).to be_truthy
+          end
+        end
+
+        context 'veteran is not American Indian' do
+          let(:veteran) { { 'sigiIsAmericanIndian' => false } }
+
+          it 'payload value is false' do
+            expect(subject['indianIndicator']).to be_falsey
+          end
+        end
+      end
+    end
+  end
+
   describe '#veteran_to_summary' do
     let(:veteran) do
       {
