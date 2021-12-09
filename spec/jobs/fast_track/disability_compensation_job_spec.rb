@@ -50,7 +50,7 @@ RSpec.describe FastTrack::DisabilityCompensationJob, type: :worker do
 
         it 'returns from the class if the claim observations does NOT include bp readings from the past year' do
           expect(FastTrack::HypertensionMedicationRequestData).not_to receive(:new)
-          subject.new.perform(submission_for_user_wo_bp.id, user_full_name)
+          expect(subject.new.perform(submission_for_user_wo_bp.id, user_full_name)).to be_nil
         end
       end
 

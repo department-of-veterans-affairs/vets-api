@@ -53,6 +53,8 @@ module FastTrack
     private
 
     def no_recent_bp_readings(bp_readings)
+      return true if bp_readings.blank?
+
       last_reading = bp_readings.map { |reading| reading[:issued] }.max
       last_reading < 1.year.ago
     end
