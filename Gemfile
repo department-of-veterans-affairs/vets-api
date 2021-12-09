@@ -121,7 +121,6 @@ gem 'rgeo-geojson'
 gem 'rswag-ui'
 gem 'ruby-saml'
 gem 'rubyzip'
-gem 'sass-rails' # Needed for PgHero dashboard
 gem 'savon'
 gem 'sentry-raven'
 gem 'shrine'

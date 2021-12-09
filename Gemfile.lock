@@ -823,16 +823,6 @@ GEM
     rufus-scheduler (3.7.0)
       fugit (~> 1.1, >= 1.1.6)
     safe_shell (1.1.0)
-    sass-rails (6.0.0)
-      sassc-rails (~> 2.1, >= 2.1.1)
-    sassc (2.4.0)
-      ffi (~> 1.9)
-    sassc-rails (2.1.2)
-      railties (>= 4.0.0)
-      sassc (>= 2.0)
-      sprockets (> 3.0)
-      sprockets-rails
-      tilt
     savon (2.12.1)
       akami (~> 1.2)
       builder (>= 2.1.2)
@@ -1123,7 +1113,6 @@ DEPENDENCIES
   ruby-debug-ide!
   ruby-saml
   rubyzip
-  sass-rails
   savon
   seedbank
   sentry-raven

@@ -75,7 +75,6 @@ module VetsAPI
     config.middleware.use StatsdMiddleware
     config.middleware.use Rack::Attack
     config.middleware.use ActionDispatch::Cookies
-    config.middleware.use ActionDispatch::Flash
     config.middleware.use Warden::Manager do |config|
       config.failure_app = proc do |_env|
         ['401', { 'Content-Type' => 'application/json' }, { error: 'Unauthorized', code: 401 }]

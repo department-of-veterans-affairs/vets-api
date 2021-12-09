@@ -1155,10 +1155,6 @@ github_cvu:
   integration_id: ~
   private_pem: ~
 
-pg_hero:
-  username: ~
-  password: ~
-
 check_in:
   chip_api:
     url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
