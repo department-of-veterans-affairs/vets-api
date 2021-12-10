@@ -141,6 +141,43 @@ RSpec.describe MedicalCopays::ZeroBalanceStatements do
       end
     end
 
+    context 'there exists a duplicated facility with a zero balance' do
+      before do
+        allow_any_instance_of(Lighthouse::Facilities::Client).to receive(:get_facilities).and_return(
+          [
+            Lighthouse::Facilities::Facility.new(
+              {
+                'id' => 'vha_358',
+                'type' => 'facility',
+                'attributes' => vha_358_attributes
+              }
+            )
+          ]
+        )
+      end
+
+      let(:statements) { [] }
+      # rubocop:disable Lint/DuplicateHashKey
+      let(:facility_hash) { { '358' => ['123456'], '358' => ['654321'] } }
+      # rubocop:enable Lint/DuplicateHashKey
+
+      let(:listed_zero_balances) do
+        [
+          {
+            'pH_AMT_DUE' => 0,
+            'station' => {
+              'facilitY_NUM' => '358',
+              'city' => 'PASAY CITY'
+            }
+          }
+        ]
+      end
+
+      it 'lists only the one facility for zero balances' do
+        expect(subject.build(statements: statements, facility_hash: facility_hash).list).to eq(listed_zero_balances)
+      end
+    end
+
     context 'there exists multiple facilities with zero balance' do
       before do
         allow_any_instance_of(Lighthouse::Facilities::Client).to receive(:get_facilities).and_return(

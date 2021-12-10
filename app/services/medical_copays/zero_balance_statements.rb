@@ -73,7 +73,7 @@ module MedicalCopays
     # @return [Array<String>]
     #
     def zero_balance_facilities_ids
-      facilities_ids - statements_facilities_ids unless facilities_ids.nil?
+      facilities_ids.uniq - statements_facilities_ids unless facilities_ids.nil?
     end
 
     ##
