@@ -249,6 +249,20 @@ module AppealsApi
       AppealsApi::HigherLevelReview::Phone.new informal_conference_rep&.dig('phone')
     end
 
+    def lob
+      {
+        'compensation' => 'CMP',
+        'pensionSurvivorsBenefits' => 'PMC',
+        'fiduciary' => 'FID',
+        'lifeInsurance' => 'INS',
+        'veteransHealthAdministration' => 'OTH',
+        'veteranReadinessAndEmployment' => 'VRE',
+        'loanGuaranty' => 'OTH',
+        'education' => 'EDU',
+        'nationalCemeteryAdministration' => 'OTH'
+      }[benefit_type]
+    end
+
     private
 
     def mpi_veteran
