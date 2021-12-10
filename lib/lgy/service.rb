@@ -16,8 +16,16 @@ module LGY
       @icn = icn
     end
 
+    def coe_status
+      if get_determination.body['status'] == 'ELIGIBLE' && get_application.status == 404
+        'eligible'
+      elsif get_determination.body['status'] == 'UNABLE_TO_DETERMINE_AUTOMATICALLY' && get_application.status == 404
+        'unable-to-determine-eligibility'
+      end
+    end
+
     def get_determination
-      with_monitoring do
+      @get_determination ||= with_monitoring do
         perform(
           :get,
           "#{end_point}/determination",
@@ -28,7 +36,7 @@ module LGY
     end
 
     def get_application
-      with_monitoring do
+      @get_application ||= with_monitoring do
         perform(
           :get,
           "#{end_point}/application",
@@ -38,7 +46,7 @@ module LGY
       end
     rescue Common::Client::Errors::ClientError => e
       # if the Veteran is automatically approved, LGY will return a 404 (no application exists)
-      return e if e.body.key?('lgy_request_uuid') && e.status == 404
+      return e if e.status == 404
 
       raise e
     end
