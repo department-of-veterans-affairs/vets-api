@@ -155,6 +155,17 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
           expect(error_detail).to eq('User record global deny flag')
         end
       end
+
+      context 'with a user who has a non-cached active iam session via logingov' do
+        it 'returns ok and the sign in type has been remapped to IDME' do
+          VCR.use_cassette('iam_ssoe_oauth/introspect_active_logingov') do
+            get :index
+          end
+
+          expect(response).to have_http_status(:ok)
+          expect(subject.instance_eval { current_user.identity.sign_in[:service_name] }).to eq('oauth_IDME')
+        end
+      end
     end
   end
 end

@@ -45,6 +45,7 @@ module Mobile
 
       session_manager = IAMSSOeOAuth::SessionManager.new(access_token)
       @current_user = session_manager.find_or_create_user
+      map_logingov_to_idme
       link_user_with_vets360 if @current_user.vet360_id.blank?
       @current_user
     end
@@ -89,6 +90,13 @@ module Mobile
     def set_tags_and_extra_context
       RequestStore.store['additional_request_attributes'] = { 'source' => 'mobile' }
       Raven.tags_context(source: 'mobile')
+    end
+
+    # this method is a temporary solution so old app version will still treat LOGINGOV accounts as multifactor
+    def map_logingov_to_idme
+      if @current_user.identity.sign_in[:service_name].include? 'LOGINGOV'
+        @current_user.identity.sign_in[:service_name] = 'oauth_IDME'
+      end
     end
   end
 end
