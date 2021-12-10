@@ -136,7 +136,7 @@ RSpec.describe Login::AfterLoginActions do
       end
     end
 
-    context 'user_verification creation' do
+    context 'user_verification update and creation' do
       subject { described_class.new(user).perform }
 
       let(:user) do
@@ -145,35 +145,140 @@ RSpec.describe Login::AfterLoginActions do
                edipi: 'some-edipi',
                mhv_correlation_id: 'some-correlation-id',
                idme_uuid: 'some-idme-uuid',
-               logingov_uuid: 'some-logingov-uuid')
+               logingov_uuid: 'some-logingov-uuid',
+               icn: icn)
       end
+      let(:icn) { nil }
       let(:authn_context) { nil }
+
+      shared_examples 'user_verification and user_account upkeep' do
+        context 'and current user is verified, with an ICN value' do
+          let(:icn) { 'some-icn' }
+
+          context 'and user_verification for user credential already exists' do
+            let(:user_account) { UserAccount.new(icn: user.icn) }
+            let!(:user_verification) do
+              UserVerification.create!(authn_identifier_type => authn_identifier,
+                                       user_account: user_account)
+            end
+
+            it 'does not create a new user_verification' do
+              expect { subject }.not_to change(UserVerification, :count)
+            end
+
+            context 'and user_account with the current user ICN exists' do
+              let(:user_account) { UserAccount.new(icn: user.icn) }
+
+              context 'and this user account is already associated with the user_verification' do
+                it 'does not change user_verification user_account associations' do
+                  expect do
+                    subject
+                    user_verification.reload
+                  end.not_to change(user_verification, :user_account)
+                end
+              end
+
+              context 'and this user account is not already associated with the user_verification' do
+                let(:user_account) { UserAccount.new(icn: 'some-other-icn') }
+                let(:other_user_account) { UserAccount.new(icn: user.icn) }
+                let(:expected_log_message) do
+                  "[AfterLoginActions] Deprecating UserAccount id=#{user_account.id}, " \
+                    "Updating UserVerification id=#{user_verification.id} with " \
+                    "UserAccount id=#{other_user_account.id}"
+                end
+
+                before do
+                  UserVerification.create!(authn_identifier_type => 'some-other-authn-identifier',
+                                           user_account: other_user_account)
+                end
+
+                it 'changes user_verification user_account associations' do
+                  expect do
+                    subject
+                    user_verification.reload
+                  end.to change(user_verification, :user_account).from(user_account).to(other_user_account)
+                end
+
+                it 'creates a deprecated user account' do
+                  expect { subject }.to change(DeprecatedUserAccount, :count).by(1)
+                end
+
+                it 'writes a log to rails logger' do
+                  expect(Rails.logger).to receive(:info).with(expected_log_message)
+                  subject
+                end
+
+                it 'sets the deprecated user account to the initial user_verification user_account' do
+                  subject
+                  deprecated_account = DeprecatedUserAccount.find_by(user_verification: user_verification).user_account
+                  expect(deprecated_account).to eq(user_account)
+                end
+              end
+            end
+
+            context 'and user_account with the current user ICN does not exist' do
+              let(:user_account) { UserAccount.new(icn: nil) }
+
+              it 'updates the associated user_account with the current user ICN' do
+                expect do
+                  subject
+                  user_account.reload
+                end.to change(user_account, :icn).from(nil).to(user.icn)
+              end
+            end
+          end
+
+          context 'and user_verification for user credential does not already exist' do
+            it 'creates a new user_verification record' do
+              expect { subject }.to change(UserVerification, :count)
+            end
+
+            it 'sets the current user ICN on the user_account record' do
+              subject
+              account_icn = UserVerification.where(authn_identifier_type => authn_identifier).first.user_account.icn
+              expect(account_icn).to eq user.icn
+            end
+
+            it 'creates a user_account record attached to the user_verification record' do
+              expect { subject }.to change(UserAccount, :count)
+              expect(UserVerification.where(authn_identifier_type => authn_identifier).first.user_account).not_to be_nil
+            end
+          end
+        end
+
+        context 'and current user is not verified, without an ICN value' do
+          let(:icn) { nil }
+
+          context 'and user_verification for user credential already exists' do
+            before do
+              UserVerification.create!(authn_identifier_type => authn_identifier,
+                                       user_account: UserAccount.new(icn: nil))
+            end
+
+            it 'returns without creating user_verification' do
+              expect { subject }.not_to change(UserVerification, :count)
+            end
+          end
+
+          context 'and user_verification for user credential does not already exist' do
+            it 'creates a new user_verification record' do
+              expect { subject }.to change(UserVerification, :count)
+            end
+
+            it 'creates a user_account record attached to the user_verification record' do
+              expect { subject }.to change(UserAccount, :count)
+              expect(UserVerification.where(authn_identifier_type => authn_identifier).first.user_account).not_to be_nil
+            end
+          end
+        end
+      end
 
       context 'when user credential is mhv' do
         let(:authn_context) { 'myhealthevet' }
         let(:authn_identifier) { user.mhv_correlation_id }
         let(:authn_identifier_type) { :mhv_uuid }
 
-        context 'and user_verification for user credential already exists' do
-          before do
-            UserVerification.create!(authn_identifier_type => authn_identifier, user_account: UserAccount.new(icn: nil))
-          end
-
-          it 'returns without creating user_verification' do
-            expect { subject }.not_to change(UserVerification, :count)
-          end
-        end
-
-        context 'and user_verification for user credential does not already exist' do
-          it 'creates a new user_verification record' do
-            expect { subject }.to change(UserVerification, :count)
-          end
-
-          it 'creates a user_account record attached to the user_verification record' do
-            expect { subject }.to change(UserAccount, :count)
-            expect(UserVerification.where(authn_identifier_type => authn_identifier).first.user_account).not_to be_nil
-          end
-        end
+        it_behaves_like 'user_verification and user_account upkeep'
       end
 
       context 'when user credential is idme' do
@@ -181,26 +286,7 @@ RSpec.describe Login::AfterLoginActions do
         let(:authn_identifier) { user.idme_uuid }
         let(:authn_identifier_type) { :idme_uuid }
 
-        context 'and user_verification for user credential already exists' do
-          before do
-            UserVerification.create!(authn_identifier_type => authn_identifier, user_account: UserAccount.new(icn: nil))
-          end
-
-          it 'returns without creating user_verification' do
-            expect { subject }.not_to change(UserVerification, :count)
-          end
-        end
-
-        context 'and user_verification for user credential does not already exist' do
-          it 'creates a new user_verification record' do
-            expect { subject }.to change(UserVerification, :count)
-          end
-
-          it 'creates a user_account record attached to the user_verification record' do
-            expect { subject }.to change(UserAccount, :count)
-            expect(UserVerification.where(authn_identifier_type => authn_identifier).first.user_account).not_to be_nil
-          end
-        end
+        it_behaves_like 'user_verification and user_account upkeep'
       end
 
       context 'when user credential is dslogon' do
@@ -208,26 +294,7 @@ RSpec.describe Login::AfterLoginActions do
         let(:authn_identifier) { user.identity.edipi }
         let(:authn_identifier_type) { :dslogon_uuid }
 
-        context 'and user_verification for user credential already exists' do
-          before do
-            UserVerification.create!(authn_identifier_type => authn_identifier, user_account: UserAccount.new(icn: nil))
-          end
-
-          it 'returns without creating user_verification' do
-            expect { subject }.not_to change(UserVerification, :count)
-          end
-        end
-
-        context 'and user_verification for user credential does not already exist' do
-          it 'creates a new user_verification record' do
-            expect { subject }.to change(UserVerification, :count)
-          end
-
-          it 'creates a user_account record attached to the user_verification record' do
-            expect { subject }.to change(UserAccount, :count)
-            expect(UserVerification.where(authn_identifier_type => authn_identifier).first.user_account).not_to be_nil
-          end
-        end
+        it_behaves_like 'user_verification and user_account upkeep'
       end
 
       context 'when user credential is logingov' do
@@ -235,26 +302,7 @@ RSpec.describe Login::AfterLoginActions do
         let(:authn_identifier) { user.logingov_uuid }
         let(:authn_identifier_type) { :logingov_uuid }
 
-        context 'and user_verification for user credential already exists' do
-          before do
-            UserVerification.create!(authn_identifier_type => authn_identifier, user_account: UserAccount.new(icn: nil))
-          end
-
-          it 'returns without creating user_verification' do
-            expect { subject }.not_to change(UserVerification, :count)
-          end
-        end
-
-        context 'and user_verification for user credential does not already exist' do
-          it 'creates a new user_verification record' do
-            expect { subject }.to change(UserVerification, :count)
-          end
-
-          it 'creates a user_account record attached to the user_verification record' do
-            expect { subject }.to change(UserAccount, :count)
-            expect(UserVerification.where(authn_identifier_type => authn_identifier).first.user_account).not_to be_nil
-          end
-        end
+        it_behaves_like 'user_verification and user_account upkeep'
       end
 
       context 'when user credential is some other arbitrary value' do
