@@ -6,12 +6,14 @@ require_relative '../../../../app/services/covid_research/volunteer/form_service
 require_relative '../../../../lib/redis_format' # No Rails helper no auto-load
 
 RSpec.describe CovidResearch::Volunteer::FormService do
+  subject { described_class.new('COVID-VACCINE-TRIAL') }
+
   let(:valid)   { JSON.parse(read_fixture('valid-submission.json')) }
   let(:invalid) { JSON.parse(read_fixture('no-name-submission.json')) }
 
   context 'JSON Schema validation' do
     describe '#valid?' do
-      it 'returns true if the JSON is valid' do
+      it 'returns true if the JSON is valid - test case' do
         expect(subject.valid?(valid)).to be(true)
       end
 
@@ -44,7 +46,7 @@ RSpec.describe CovidResearch::Volunteer::FormService do
 
   context 'genISIS delivery' do
     describe '#queue_delivery' do
-      let(:subject)       { described_class.new(worker_double) }
+      let(:subject)       { described_class.new('COVID-VACCINE-TRIAL', worker_double) }
       let(:worker_double) { double('worker', perform_async: true) }
       let(:redis_format)  { 'redis' }
       let(:encrypted)     { 'encrypted' } # For sanity, it doesn't really matter
