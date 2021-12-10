@@ -32,6 +32,14 @@ RSpec.describe BGS::Service do
           end.to trigger_statsd_increment('api.bgs.find_ch33_dd_eft.total')
         end
       end
+
+      it 'runs statsd measure' do
+        VCR.use_cassette('bgs/service/find_ch33_dd_eft_no_icn', VCR::MATCH_EVERYTHING) do
+          expect do
+            bgs_service.find_ch33_dd_eft
+          end.to trigger_statsd_measure('api.bgs.find_ch33_dd_eft.duration')
+        end
+      end
     end
 
     describe '#find_bank_name_by_routng_trnsit_nbr' do
@@ -40,6 +48,14 @@ RSpec.describe BGS::Service do
           expect do
             bgs_service.find_bank_name_by_routng_trnsit_nbr('122400724')
           end.to trigger_statsd_increment('api.bgs.find_bank_name_by_routng_trnsit_nbr.total')
+        end
+      end
+
+      it 'runs statsd measure' do
+        VCR.use_cassette('bgs/ddeft/find_bank_name_valid', VCR::MATCH_EVERYTHING) do
+          expect do
+            bgs_service.find_bank_name_by_routng_trnsit_nbr('122400724')
+          end.to trigger_statsd_measure('api.bgs.find_bank_name_by_routng_trnsit_nbr.duration')
         end
       end
     end
@@ -92,6 +108,18 @@ RSpec.describe BGS::Service do
       VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
         response = bgs_service.find_ch33_dd_eft
         expect(response.body[:find_ch33_dd_eft_response][:return][:dposit_acnt_nbr]).to eq('123')
+      end
+    end
+
+    it 'runs statsd measure' do
+      VCR.use_cassette('bgs/service/update_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
+        expect do
+          bgs_service.update_ch33_dd_eft(
+            '122239982',
+            '444',
+            true
+          )
+        end.to trigger_statsd_measure('api.bgs.update_ch33_dd_eft.duration')
       end
     end
 
