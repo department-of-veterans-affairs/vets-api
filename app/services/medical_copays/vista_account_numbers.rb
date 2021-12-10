@@ -20,8 +20,8 @@ module MedicalCopays
     end
 
     def initialize(opts)
-      @data = opts[:data]
       @user = opts[:user]
+      @data = treatment_facility_data(opts[:data])
     end
 
     ##
@@ -69,6 +69,12 @@ module MedicalCopays
     #
     def default
       [0]
+    end
+
+    def treatment_facility_data(complete_facility_hash)
+      complete_facility_hash.select do |facility_id|
+        user.va_treatment_facility_ids.include?(facility_id)
+      end
     end
   end
 end

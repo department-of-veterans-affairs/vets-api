@@ -16,6 +16,7 @@ RSpec.describe MedicalCopays::VBS::RequestData do
   before do
     allow(user).to receive(:vha_facility_hash).and_return(facility_vista_data)
     allow(user).to receive(:edipi).and_return('123')
+    allow(user).to receive(:va_treatment_facility_ids).and_return(facility_vista_data.keys)
   end
 
   describe 'attributes' do

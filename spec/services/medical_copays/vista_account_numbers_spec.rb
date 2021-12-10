@@ -21,6 +21,10 @@ RSpec.describe MedicalCopays::VistaAccountNumbers do
 
   let(:user) { build(:user, :loa3) }
 
+  before do
+    allow(user).to receive(:va_treatment_facility_ids).and_return(data.keys)
+  end
+
   describe 'attributes' do
     it 'responds to data' do
       expect(subject.respond_to?(:data)).to be(true)
@@ -107,6 +111,35 @@ RSpec.describe MedicalCopays::VistaAccountNumbers do
   describe '#default' do
     it 'returns a default value' do
       expect(subject.default).to eq([0])
+    end
+  end
+
+  describe '#treatment_facility_data' do
+    it 'returns full hash if all treatment facilities' do
+      expect(subject.treatment_facility_data(data)).to eq(data)
+    end
+
+    context 'non treatment facilities' do
+      before do
+        allow_any_instance_of(User).to receive(:va_treatment_facility_ids).and_return(%w[516 553])
+      end
+
+      let(:data) do
+        {
+          '516' => %w[12345 67891234],
+          '553' => %w[2 87234689],
+          '200HI' => %w[123456789101112131415]
+        }
+      end
+
+      it 'excludes non treatment facilities' do
+        expect(subject.treatment_facility_data(data)).to eq(
+          {
+            '516' => %w[12345 67891234],
+            '553' => %w[2 87234689]
+          }
+        )
+      end
     end
   end
 end
