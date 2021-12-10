@@ -33,12 +33,6 @@ unless Rails.env.test?
       V2::Chip::Client.statsd_measure method, "api.check_in.v2.chip.#{method}.measure"
     end
 
-    V2::Chip::Request.extend(StatsD::Instrument)
-    %i[get post].each do |method|
-      V2::Chip::Request.statsd_count_success method, "api.check_in.v2.chip.#{method}.count"
-      V2::Chip::Request.statsd_measure method, "api.check_in.v2.chip.#{method}.measure"
-    end
-
     # Measure the duration of GET and POST calls for Check-in data to the CHIP API
     ChipApi::Service.extend(StatsD::Instrument)
     ChipApi::Service.statsd_measure :get_check_in, 'check_in.chip_api.get_check_in.measure'
