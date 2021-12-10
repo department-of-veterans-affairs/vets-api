@@ -145,7 +145,7 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
                                  'numberAttachments' => 0,
                                  'receiveDt' => '2019-12-31 18:00:00',
                                  'numberPages' => 2,
-                                 'lob' => 'CMP',
+                                 'lob' => 'FID',
                                  'docType' => '20-0995'
                                })
         expect(capture_body).to have_key('document')

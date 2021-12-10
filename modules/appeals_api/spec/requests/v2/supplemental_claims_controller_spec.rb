@@ -10,7 +10,9 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
     "/services/appeals/v2/decision_reviews/#{path}"
   end
 
+  let(:minimum_data) { fixture_to_s 'valid_200995_minimum.json' }
   let(:data) { fixture_to_s 'valid_200995.json' }
+  let(:extra_data) { fixture_to_s 'valid_200995_extra.json' }
   let(:headers) { fixture_as_json 'valid_200995_headers.json' }
 
   let(:parsed) { JSON.parse(response.body) }
@@ -83,28 +85,35 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       end
     end
 
-    context '5103NoticeAcknowledged' do
+    context 'form5103Acknowledged' do
       context 'when benefitType = compensation' do
-        it 'fails if 5103NoticeAcknowledged = false' do
-          mod_data = JSON.parse(data)
-          mod_data['data']['attributes']['5103NoticeAcknowledged'] = false
+        it 'fails if form5103Acknowledged = false' do
+          mod_data = JSON.parse(extra_data)
+          mod_data['data']['attributes']['form5103Acknowledged'] = false
 
           post(path, params: mod_data.to_json, headers: headers)
           expect(response.status).to eq(422)
           expect(parsed['errors']).to be_an Array
-          expect(response.body).to include('/data/attributes/5103NoticeAcknowledged')
+          expect(response.body).to include('/data/attributes/form5103Acknowledged')
           expect(response.body).to include('https://www.va.gov/disability/how-to-file-claim/evidence-needed')
         end
 
-        it 'fails if 5103NoticeAcknowledged is missing' do
-          mod_data = JSON.parse(data)
-          mod_data['data']['attributes'].delete('5103NoticeAcknowledged')
+        it 'fails if form5103Acknowledged is missing' do
+          mod_data = JSON.parse(extra_data)
+          mod_data['data']['attributes'].delete('form5103Acknowledged')
 
           post(path, params: mod_data.to_json, headers: headers)
           expect(response.status).to eq(422)
           expect(parsed['errors']).to be_an Array
           expect(response.body).to include('Missing required fields')
-          expect(response.body).to include('5103NoticeAcknowledged')
+          expect(response.body).to include('form5103Acknowledged')
+        end
+      end
+
+      context 'when benefitType is not compensation' do
+        it 'does not fail when form5103Acknowledged is missing' do
+          post(path, params: minimum_data, headers: headers)
+          expect(response.status).to eq(200)
         end
       end
     end

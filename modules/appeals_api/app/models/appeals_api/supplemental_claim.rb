@@ -168,7 +168,7 @@ module AppealsApi
     end
 
     def form_5103_notice_acknowledged
-      data_attributes['5103NoticeAcknowledged']
+      data_attributes['form5103Acknowledged']
     end
 
     def date_signed

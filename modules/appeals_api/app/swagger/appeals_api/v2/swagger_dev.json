@@ -2978,6 +2978,7 @@
                 "properties": {
                   "benefitType": {
                     "type": "string",
+                    "description": "If the contested issue is a Disability Compensation issue, acknowledgement of form 5103 is required - see form5103Acknowledged.",
                     "enum": [
                       "compensation",
                       "pensionSurvivorsBenefits",
@@ -3880,7 +3881,9 @@
                     },
                     "additionalProperties": false,
                     "required": [
-
+                      "address",
+                      "phone",
+                      "email"
                     ]
                   },
                   "evidenceSubmission": {
@@ -3943,32 +3946,22 @@
                     "required": [
                       "evidenceType"
                     ],
-                    "anyOf": [
-                      {
-                        "not": {
-                          "properties": {
-                            "evidenceType": {
-                              "contains": {
-                                "enum": [
-                                  "retrieval"
-                                ]
-                              }
-                            }
-                          }
+                    "if": {
+                      "properties": {
+                        "evidenceType": {
+                          "const": "retrieval"
                         }
-                      },
-                      {
-                        "required": [
-                          "retrieveFrom"
-                        ]
                       }
-                    ]
+                    },
+                    "then": {
+                      "required": [
+                        "retrieveFrom"
+                      ]
+                    }
                   },
-                  "5103NoticeAcknowledged": {
-                    "enum": [
-                      true,
-                      false
-                    ]
+                  "form5103Acknowledged": {
+                    "type": "boolean",
+                    "description": "The 5103 Notice regarding new & relevant evidence must be acknowledged when the issue being contested is a Disability Compensation issue. The notice can be found here: http://www.va.gov/disability/how-to-file-claim/evidence-needed."
                   },
                   "socOptIn": {
                     "type": "boolean"
@@ -3976,9 +3969,9 @@
                 },
                 "required": [
                   "veteran",
+                  "benefitType",
                   "evidenceSubmission",
-                  "socOptIn",
-                  "5103NoticeAcknowledged"
+                  "socOptIn"
                 ],
                 "if": {
                   "properties": {
@@ -3988,9 +3981,14 @@
                   }
                 },
                 "then": {
+                  "required": [
+                    "form5103Acknowledged"
+                  ],
                   "properties": {
-                    "5103NoticeAcknowledged": {
-                      "const": true
+                    "form5103Acknowledged": {
+                      "enum": [
+                        true
+                      ]
                     }
                   }
                 }
@@ -9737,7 +9735,7 @@
                             "data": {
                               "type": "supplementalClaim",
                               "attributes": {
-                                "benefitType": "compensation",
+                                "benefitType": "fiduciary",
                                 "veteran": {
                                   "address": {
                                     "addressLine1": "123 Main St",
@@ -9753,7 +9751,6 @@
                                   "timezone": "America/Chicago"
                                 },
                                 "socOptIn": false,
-                                "5103NoticeAcknowledged": true,
                                 "evidenceSubmission": {
                                   "evidenceType": [
                                     "upload"
@@ -9788,7 +9785,7 @@
                             "data": {
                               "type": "supplementalClaim",
                               "attributes": {
-                                "benefitType": "fiduciary",
+                                "benefitType": "compensation",
                                 "veteran": {
                                   "address": {
                                     "addressLine1": "123 Main St",
@@ -9808,7 +9805,7 @@
                                   "timezone": "America/Chicago"
                                 },
                                 "socOptIn": true,
-                                "5103NoticeAcknowledged": true,
+                                "form5103Acknowledged": true,
                                 "evidenceSubmission": {
                                   "evidenceType": [
                                     "upload",
@@ -9978,7 +9975,7 @@
                       "status": "422",
                       "meta": {
                         "missing_fields": [
-                          "5103NoticeAcknowledged"
+                          "form5103Acknowledged"
                         ]
                       }
                     }
@@ -10019,7 +10016,7 @@
                           "timezone": "America/Chicago"
                         },
                         "socOptIn": false,
-                        "5103NoticeAcknowledged": true,
+                        "form5103Acknowledged": true,
                         "evidenceSubmission": {
                           "evidenceType": [
                             "upload"
@@ -10063,7 +10060,7 @@
                           "timezone": "America/Chicago"
                         },
                         "socOptIn": true,
-                        "5103NoticeAcknowledged": true,
+                        "form5103Acknowledged": true,
                         "evidenceSubmission": {
                           "evidenceType": [
                             "upload",
@@ -10272,7 +10269,7 @@
                               "timezone": "America/Chicago"
                             },
                             "socOptIn": false,
-                            "5103NoticeAcknowledged": true,
+                            "form5103Acknowledged": true,
                             "evidenceSubmission": {
                               "evidenceType": [
                                 "upload"

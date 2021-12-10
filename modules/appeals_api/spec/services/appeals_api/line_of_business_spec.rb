@@ -14,8 +14,8 @@ module AppealsApi
 
         lob = LineOfBusiness.new(upload_submission)
 
-        # compensation is the default value of valid_200995.json
-        expect(lob.value).to eq('CMP')
+        # fiduciary is the default value of valid_200995.json
+        expect(lob.value).to eq('FID')
       end
     end
   end

@@ -70,6 +70,36 @@ module AppealsApi
               expect(form_data.new_evidence_dates).to eq(evidence_dates)
             end
           end
+
+          describe '#form_5103_notice_acknowledged' do
+            context "when benefit_type is not 'compensation'" do
+              context "when 'form5103Acknowledged' value supplied" do
+                let(:supplemental_claim) { build(:supplemental_claim) }
+                let(:form_data) { described_class.new(supplemental_claim) }
+
+                it 'returns a nil value' do
+                  supplemental_claim.form_data['data']['attributes'].merge({ form5103Acknowledged: true })
+                  expect(form_data.form_5103_notice_acknowledged).to eq nil
+                end
+              end
+
+              context "when benefit_type == 'compensation'" do
+                let(:supplemental_claim) { build(:extra_supplemental_claim) }
+                let(:form_data) { described_class.new(supplemental_claim) }
+
+                context "when 'form5103Acknowledged' == true" do
+                  it { expect(form_data.form_5103_notice_acknowledged).to eq 1 }
+                end
+
+                context "when 'form5103Acknowledged' == false" do
+                  it do
+                    supplemental_claim.form_data['data']['attributes']['form5103Acknowledged'] = false
+                    expect(form_data.form_5103_notice_acknowledged).to eq 'Off'
+                  end
+                end
+              end
+            end
+          end
         end
       end
     end

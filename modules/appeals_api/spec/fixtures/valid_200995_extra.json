@@ -2,7 +2,7 @@
   "data": {
     "type": "supplementalClaim",
     "attributes": {
-      "benefitType": "fiduciary",
+      "benefitType": "compensation",
       "veteran": {
         "address": {
           "addressLine1": "123 Main St",
@@ -22,7 +22,7 @@
         "timezone": "America/Chicago"
       },
       "socOptIn": true,
-      "5103NoticeAcknowledged": true,
+      "form5103Acknowledged": true,
       "evidenceSubmission": {
         "evidenceType": ["upload", "retrieval"],
         "retrieveFrom": [

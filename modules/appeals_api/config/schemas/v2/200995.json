@@ -42,17 +42,21 @@
               "type": "object",
               "additionalProperties": false,
               "properties": {
-                "benefitType": { "type": "string", "enum": [
-                  "compensation",
-                  "pensionSurvivorsBenefits",
-                  "fiduciary",
-                  "lifeInsurance",
-                  "veteransHealthAdministration",
-                  "veteranReadinessAndEmployment",
-                  "loanGuaranty",
-                  "education",
-                  "nationalCemeteryAdministration"
-                ] },
+                "benefitType": {
+                  "type": "string",
+                  "description": "If the contested issue is a Disability Compensation issue, acknowledgement of form 5103 is required - see form5103Acknowledged.",
+                  "enum": [
+                    "compensation",
+                    "pensionSurvivorsBenefits",
+                    "fiduciary",
+                    "lifeInsurance",
+                    "veteransHealthAdministration",
+                    "veteranReadinessAndEmployment",
+                    "loanGuaranty",
+                    "education",
+                    "nationalCemeteryAdministration"
+                  ]
+                },
                 "veteran": {
                   "type": "object",
                   "properties": {
@@ -143,12 +147,15 @@
                   "if": { "properties": { "evidenceType": { "const": "retrieval" } } },
                   "then": { "required": ["retrieveFrom"] }
                 },
-                "5103NoticeAcknowledged": { "type": "boolean" },
+                "form5103Acknowledged": {
+                  "type": "boolean",
+                  "description": "The 5103 Notice regarding new & relevant evidence must be acknowledged when the issue being contested is a Disability Compensation issue. The notice can be found here: http://www.va.gov/disability/how-to-file-claim/evidence-needed."
+                },
                 "socOptIn": { "type": "boolean" }
               },
-              "required": ["veteran", "evidenceSubmission", "socOptIn"],
+              "required": ["veteran", "benefitType", "evidenceSubmission", "socOptIn"],
               "if": { "properties": { "benefitType": { "const": "compensation" } } },
-              "then": { "required":  ["5103NoticeAcknowledged"], "properties": { "5103NoticeAcknowledged": { "enum": [true] } } }
+              "then": { "required":  ["form5103Acknowledged"], "properties": { "form5103Acknowledged": { "enum": [true] } } }
             }
           },
           "additionalProperties": false,

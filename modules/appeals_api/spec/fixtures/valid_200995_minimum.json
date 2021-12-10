@@ -2,7 +2,7 @@
   "data": {
     "type": "supplementalClaim",
     "attributes": {
-      "benefitType": "fiduciary",
+      "benefitType": "lifeInsurance",
       "veteran": {
         "address": {
           "addressLine1": "123 Main St",

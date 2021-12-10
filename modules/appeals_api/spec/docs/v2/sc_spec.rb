@@ -27,7 +27,7 @@ describe 'Supplemental Claims', swagger_doc: 'modules/appeals_api/app/swagger/ap
 
       parameter in: :body, examples: {
         'minimum fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200995.json')))
+          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200995_minimum.json')))
         },
         'all fields used' => {
           value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200995_extra.json')))
@@ -114,8 +114,8 @@ describe 'Supplemental Claims', swagger_doc: 'modules/appeals_api/app/swagger/ap
         schema '$ref' => '#/components/schemas/errorModel'
 
         let(:sc_body) do
-          request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200995.json')))
-          request_body['data']['attributes'].delete('5103NoticeAcknowledged')
+          request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200995_extra.json')))
+          request_body['data']['attributes'].delete('form5103Acknowledged')
           request_body
         end
 
