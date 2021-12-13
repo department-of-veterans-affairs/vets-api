@@ -5,8 +5,8 @@ module CovidResearch
     class ConfirmationMailerJob
       include Sidekiq::Worker
 
-      def perform(recipient)
-        SubmissionMailer.build(recipient).deliver
+      def perform(recipient, template_name)
+        SubmissionMailer.build(recipient, template_name).deliver
       end
     end
   end
