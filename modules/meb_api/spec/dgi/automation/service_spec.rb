@@ -30,7 +30,7 @@ Rspec.describe MebApi::DGI::Automation::Service do
           response = service.get_claimant_info
 
           expect(response.status).to eq(201)
-          expect(response['claimant_id']).to eq(1_000_000_000_000_261)
+          expect(response['claimant']['claimant_id']).to eq(1_000_000_000_000_261)
         end
       end
     end
