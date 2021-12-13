@@ -496,7 +496,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "20a74522-1eb1-4d91-bc85-e1fa8ac0bc80",
+                    "id": "8748043d-c60e-46be-a27b-ab68ccbabd47",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -545,11 +545,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "495de334-5d8f-4c9b-985d-03a229c554bd",
+                          "id": "170fbcae-7f03-4f62-abfa-c114c552c867",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-11-18T22:51:55.047Z"
+                          "uploaded_at": "2021-12-13T19:04:02.658Z"
                         }
                       ]
                     }
@@ -2301,7 +2301,7 @@
                           ],
                           "properties": {
                             "accountType": {
-                              "description": "Veteran Account Type.",
+                              "description": "Veteran Account Type (value is case insensitive).",
                               "type": "string",
                               "enum": [
                                 "CHECKING",
@@ -2436,7 +2436,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d61816b2-bfaa-4394-bfb3-55883c7713ce",
+                    "id": "1bd55afe-9255-4a80-93f5-a15c2d7b335b",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2454,13 +2454,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-11-18T22:51:55.598Z",
+                      "updated_at": "2021-12-13T19:04:03.177Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "d61816b2-bfaa-4394-bfb3-55883c7713ce",
+                      "token": "1bd55afe-9255-4a80-93f5-a15c2d7b335b",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -4162,7 +4162,7 @@
                             ],
                             "properties": {
                               "accountType": {
-                                "description": "Veteran Account Type.",
+                                "description": "Veteran Account Type (value is case insensitive).",
                                 "type": "string",
                                 "enum": [
                                   "CHECKING",
@@ -4310,7 +4310,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3a55695e-db48-4b93-97cb-fa3661b0e74d",
+                    "id": "8105752f-5fc1-4dc5-a8e8-c1a8bde62c52",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4328,13 +4328,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-11-18T22:51:55.994Z",
+                      "updated_at": "2021-12-13T19:04:03.661Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "3a55695e-db48-4b93-97cb-fa3661b0e74d",
+                      "token": "8105752f-5fc1-4dc5-a8e8-c1a8bde62c52",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -6432,7 +6432,7 @@
                             ],
                             "properties": {
                               "accountType": {
-                                "description": "Veteran Account Type.",
+                                "description": "Veteran Account Type (value is case insensitive).",
                                 "type": "string",
                                 "enum": [
                                   "CHECKING",
@@ -6580,7 +6580,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f85d0db2-e26d-4a53-ae34-9a3882b36b7c",
+                    "id": "74cd344b-ed6d-43b3-98fa-1ee256cfb0af",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6594,7 +6594,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-11-18T22:51:56.836Z",
+                      "updated_at": "2021-12-13T19:04:04.594Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6603,7 +6603,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "be05ce17-745e-427c-8b57-7b24f9605b42",
+                          "id": "35cb5af1-b550-466b-853f-205351883e82",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8561,11 +8561,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "079c81c6-9c78-4172-8372-1cffc113bc35",
+                    "id": "1c0b4d99-f7ff-4dad-9ee8-3178ad8317b5",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2021-11-18",
+                      "date_request_accepted": "2021-12-13",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9274,11 +9274,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "97916e0d-a727-4136-aa2c-c382caae8e1d",
+                    "id": "feb52031-cddc-4d72-965d-74d63b14314a",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-11-18",
+                      "date_request_accepted": "2021-12-13",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9599,11 +9599,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b22c4552-7e12-477f-a15a-9f65a9d90e7f",
+                    "id": "b55e0b71-f90e-4c5f-8bf1-c93d4526ff3d",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-11-18",
+                      "date_request_accepted": "2021-12-13",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"

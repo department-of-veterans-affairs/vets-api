@@ -2197,6 +2197,33 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
       end
     end
+
+    describe "'directDeposit.accountType" do
+      describe 'is case insensitive' do
+        it 'is properly transformed to uppercase before submission to EVSS' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                direct_deposit_info = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures',
+                                                                'form_526_direct_deposit.json'))
+                json_data = JSON.parse data
+                params = json_data
+                params['data']['attributes']['directDeposit'] = JSON.parse direct_deposit_info
+                expect(params['data']['attributes']['directDeposit']['accountType']).to eq('Checking')
+
+                post path, params: params.to_json, headers: headers.merge(auth_header)
+
+                expect(response.status).to eq(200)
+                response_body = JSON.parse response.body
+                claim_id = response_body['data']['id']
+                claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+                expect(claim.form_data['directDeposit']['accountType']).to eq('CHECKING')
+              end
+            end
+          end
+        end
+      end
+    end
   end
 
   describe '#upload_documents' do

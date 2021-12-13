@@ -1273,7 +1273,7 @@
       "required": ["accountType", "accountNumber", "routingNumber"],
       "properties": {
         "accountType": {
-          "description": "Veteran Account Type.",
+          "description": "Veteran Account Type (value is case insensitive).",
           "type": "string",
           "enum": ["CHECKING", "SAVINGS"],
           "example": "CHECKING"

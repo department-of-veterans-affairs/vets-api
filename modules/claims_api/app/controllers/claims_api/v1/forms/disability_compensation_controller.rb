@@ -29,6 +29,7 @@ module ClaimsApi
         #
         # @return [JSON] Record in pending state
         def submit_form_526 # rubocop:disable Metrics/MethodLength
+          sanitize_account_type if form_attributes.dig('directDeposit', 'accountType')
           validate_json_schema
           validate_form_526_submission_values!
           validate_veteran_identifiers(require_birls: true)
@@ -142,6 +143,10 @@ module ClaimsApi
         # rubocop:enable Metrics/MethodLength
 
         private
+
+        def sanitize_account_type
+          form_attributes['directDeposit']['accountType'] = form_attributes['directDeposit']['accountType'].upcase
+        end
 
         #
         # Any custom 526 submission validations above and beyond json schema validation
