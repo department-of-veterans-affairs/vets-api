@@ -52,7 +52,7 @@ class Form526Submission < ApplicationRecord
       workflow_batch.on(
         :success,
         'Form526Submission#start_evss_submission',
-        { submission_id: id }
+        submission_id: id
       )
       jids = workflow_batch.jobs do
         FastTrack::DisabilityCompensationJob.perform_async(id, full_name)

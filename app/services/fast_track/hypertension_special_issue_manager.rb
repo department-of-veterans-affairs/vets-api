@@ -23,11 +23,11 @@ module FastTrack
     end
 
     def add_rrd(disability)
-      rrd_hash = { code: 'RRD', name: 'Rapid Ready for Decision' }
+      rrd_code = 'RRD'
       if disability[:specialIssues].blank?
-        disability[:specialIssues] = [rrd_hash]
-      elsif !disability[:specialIssues].include? rrd_hash
-        disability[:specialIssues].append(rrd_hash)
+        disability[:specialIssues] = [rrd_code]
+      elsif !disability[:specialIssues].include? rrd_code
+        disability[:specialIssues].append(rrd_code)
       end
       disability
     end

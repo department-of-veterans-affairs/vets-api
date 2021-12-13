@@ -33,7 +33,7 @@ RSpec.describe FastTrack::HypertensionSpecialIssueManager do
   describe '#add_special_issue' do
     subject(:special_issue_manager) { FastTrack::HypertensionSpecialIssueManager.new(form526_submission) }
 
-    let(:special_issues_list) { [{ code: 'RRD', name: 'Rapid Ready for Decision' }] }
+    let(:special_issues_list) { ['RRD'] }
 
     it 'matches the email address after manipulation' do
       address_before = form526_hash(form526_submission.form_json)[:veteran][:emailAddress]
