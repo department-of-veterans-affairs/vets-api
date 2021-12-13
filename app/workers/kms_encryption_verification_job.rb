@@ -5,6 +5,7 @@ class KmsEncryptionVerificationJob
   include SentryLogging
 
   def perform(models = ApplicationRecord.descendants_using_encryption.map(&:name))
+    HealthQuest::QuestionnaireResponse.skip_callback(:save, :before, :set_user_demographics, raise: false)
     corrupted_records = models.map(&:constantize).flat_map do |model|
       attributes = model.lockbox_attributes.keys
       model.where(verified_decryptable_at: nil).where.not(encrypted_kms_key: nil).in_batches.flat_map do |relation|

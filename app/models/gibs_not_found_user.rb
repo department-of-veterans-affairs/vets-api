@@ -6,7 +6,7 @@ class GibsNotFoundUser < ApplicationRecord
   encrypts :ssn, key: :kms_key, **lockbox_options
 
   validates :edipi, presence: true, uniqueness: true
-  validates :first_name, :last_name, :encrypted_ssn, :encrypted_ssn_iv, :dob, presence: true
+  validates :first_name, :last_name, :ssn_ciphertext, :dob, presence: true
 
   def self.log(user)
     create_with(
