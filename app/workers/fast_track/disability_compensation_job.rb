@@ -47,7 +47,7 @@ module FastTrack
       # on this feature and the visibility is imporved.
       ActionMailer::Base.mail(
         from: ApplicationMailer.default[:from],
-        to: 'emily.theis@va.gov, zachary.goldfine@va.gov, Julia.Allen1@va.gov',
+        to: 'emily.theis@va.gov, zachary.goldfine@va.gov, Julia.Allen1@va.gov, paul.shute@va.gov',
         subject: 'Fast Track Hypertension Claim Submitted',
         body: "A claim was just submitted on the #{Rails.env} environment with submission id: #{form526_submission_id}"
       ).deliver_now
