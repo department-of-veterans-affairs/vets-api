@@ -19,7 +19,7 @@ module AppealsApi
     private
 
     def enabled?
-      Settings.modules_appeals_api.reports.daily_decision_review.enabled
+      Settings.modules_appeals_api.reports.daily_decision_review.enabled && FeatureFlipper.send_email?
     end
   end
 end
