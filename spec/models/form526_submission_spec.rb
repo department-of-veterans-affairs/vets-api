@@ -33,7 +33,7 @@ RSpec.describe Form526Submission do
     context 'when it is all claims' do
       it 'queues an all claims job' do
         expect do
-          subject.start_evss_submission(nil, submission_id: subject.id)
+          subject.start_evss_submission(nil, 'submission_id' => subject.id)
         end.to change(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.jobs, :size).by(1)
       end
     end

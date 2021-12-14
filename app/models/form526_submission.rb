@@ -52,19 +52,19 @@ class Form526Submission < ApplicationRecord
       workflow_batch.on(
         :success,
         'Form526Submission#start_evss_submission',
-        submission_id: id
+        'submission_id' => id
       )
       jids = workflow_batch.jobs do
         FastTrack::DisabilityCompensationJob.perform_async(id, full_name)
       end
       jids.first
     else
-      start_evss_submission(nil, { submission_id: id })
+      start_evss_submission(nil, { 'submission_id' => id })
     end
   rescue => e
     Rails.logger.error 'The fast track was skipped due to the following error ' \
                        " and start_evss_submission wass called: #{e}"
-    start_evss_submission(nil, { submission_id: id })
+    start_evss_submission(nil, { 'submission_id' => id })
   end
 
   # Kicks off a 526 submit workflow batch. The first step in a submission workflow is to submit
@@ -75,7 +75,7 @@ class Form526Submission < ApplicationRecord
   #
 
   def start_evss_submission(_status, options)
-    submission = Form526Submission.find(options[:submission_id])
+    submission = Form526Submission.find(options['submission_id'])
     id = submission.id
     workflow_batch = Sidekiq::Batch.new
     workflow_batch.on(
