@@ -25,6 +25,9 @@ module Identity
       # ACTIVE_MHV_IDS_REGEX, ex. 123456^PI^200MHV^USVHA^A
       ACTIVE_MHV_IDS_REGEX = /^\w+\^PI\^200MH.{0,1}\^\w+\^A$/.freeze
 
+      # MHV_IEN_REGEX, ex. 123456^PI^200MHS^USVHA^A
+      MHV_IEN_REGEX = /^\w+\^PI\^200MHS\^USVHA\^A$/.freeze
+
       # EDIPI_REGEX, ex. 2107307560^NI^200DOD^USDOD^A
       EDIPI_REGEX = /^\w+\^NI\^200DOD\^USDOD\^A$/.freeze
 
@@ -70,6 +73,8 @@ module Identity
         vet360_id: { regex: VET360_ID_REGEX, root_oid: VA_ROOT_OID, type: :single_id },
         birls_id: { regex: BIRLS_IDS_REGEX, root_oid: VA_ROOT_OID, type: :single_id },
         mhv_ids: { regex: MHV_IDS_REGEX, root_oid: VA_ROOT_OID, type: :multiple_ids },
+        mhv_ien: { regex: MHV_IEN_REGEX, root_oid: VA_ROOT_OID, type: :single_id },
+        mhv_iens: { regex: MHV_IEN_REGEX, root_oid: VA_ROOT_OID, type: :multiple_ids },
         active_mhv_ids: { regex: ACTIVE_MHV_IDS_REGEX, root_oid: VA_ROOT_OID, type: :multiple_ids },
         birls_ids: { regex: BIRLS_IDS_REGEX, root_oid: VA_ROOT_OID, type: :multiple_ids },
         vha_facility_ids: { regex: VHA_FACILITY_IDS_REGEX, root_oid: VA_ROOT_OID, type: :facility },

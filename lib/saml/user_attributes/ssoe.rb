@@ -129,7 +129,7 @@ module SAML
       end
 
       def mhv_correlation_id
-        safe_attr('va_eauth_mhvuuid') || safe_attr('va_eauth_mhvien')&.split(',')&.first
+        safe_attr('va_eauth_mhvuuid') || mvi_ids[:mhv_ien]
       end
 
       def mhv_account_type
@@ -292,11 +292,8 @@ module SAML
       end
 
       def mhv_ids
-        return @mhv_ids if @mhv_ids
-
-        uuid = safe_attr('va_eauth_mhvuuid')
-        iens = safe_attr('va_eauth_mhvien')&.split(',') || []
-        @mhvs_ids = iens.append(uuid).reject(&:nil?).uniq
+        mhv_iens = mvi_ids[:mhv_iens] || []
+        mhv_iens.append(safe_attr('va_eauth_mhvuuid')).reject(&:nil?).uniq
       end
 
       def mhv_id_mismatch?

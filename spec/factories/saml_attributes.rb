@@ -226,12 +226,12 @@ FactoryBot.define do
       ['1200049153V217987^NI^200M^USVHA^P|' \
        '65f9f3b5-5449-47a6-b272-9d6019e7c2e3^PN^200VLGN^USDVA^A|' \
        'aa478abc-e494-4af1-9f87-d002f8fe1cda^PN^200VLGN^USDVA^A|' \
+       '123456^PI^200MHS^USVHA^A|' \
        '1200049153^PN^200PROV^USDVA^A|']
     }
     va_eauth_persontype { ['NOT_FOUND'] }
     va_eauth_npi { ['NOT_FOUND'] }
     va_eauth_street1 { ['123 Fantasy Lane'] }
-    va_eauth_mhvien { ['65f9f3b5-5449-47a6-b272-9d6019e7c2e3'] }
     va_eauth_verifiedAt { ['2021-10-28T23:54:46Z'] }
     initialize_with { new(attributes.stringify_keys) }
   end
@@ -567,7 +567,8 @@ FactoryBot.define do
     va_eauth_gcIds {
       ['1013183292V131165^NI^200M^USVHA^P|'\
        '1013183292^PN^200PROV^USDVA^A|'\
-       '881571066e5741439652bc80759dd88c^PN^200VIDM^USDVA^A']
+       '881571066e5741439652bc80759dd88c^PN^200VIDM^USDVA^A|'\
+       '15001594^PI^200MHS^USVHA^A']
     }
     va_eauth_persontype { ['NOT_FOUND'] }
     va_eauth_multifactor { ['true'] }
@@ -646,7 +647,8 @@ FactoryBot.define do
        '552161765^PI^984^USVHA^A|'\
        '2107307560^NI^200DOD^USDOD^A|'\
        '7b9b5861203244f0b99b02b771159044^PN^200VIDM^USDVA^A|'\
-       '0e1bb5723d7c4f0686f46ca4505642ad^PN^200VIDM^USDVA^A']
+       '0e1bb5723d7c4f0686f46ca4505642ad^PN^200VIDM^USDVA^A|'\
+       '12345748^PI^200MHS^USVHA^A']
     }
     va_eauth_mhv_ien { ['12345748'] }
 

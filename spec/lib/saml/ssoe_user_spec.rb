@@ -149,7 +149,7 @@ RSpec.describe SAML::User do
           ssn: '1231231',
           zip: '39876',
           mhv_icn: '1200049153V217987',
-          mhv_correlation_id: '65f9f3b5-5449-47a6-b272-9d6019e7c2e3',
+          mhv_correlation_id: '123456',
           mhv_account_type: nil,
           edipi: nil,
           uuid: 'aa478abc-e494-4af1-9f87-d002f8fe1cda',
@@ -526,7 +526,7 @@ RSpec.describe SAML::User do
         let(:saml_attributes) do
           build(:ssoe_idme_mhv_loa3,
                 va_eauth_mhvuuid: ['999888'],
-                va_eauth_mhvien: ['NOT_FOUND'])
+                va_eauth_gcIds: ['nothing'])
         end
 
         it 'resolves mhv id' do
@@ -541,15 +541,16 @@ RSpec.describe SAML::User do
       end
 
       context 'with an identifier from person index' do
+        let(:mhv_ien) { '12334567890' }
         let(:saml_attributes) do
           build(:ssoe_idme_mhv_loa3,
                 va_eauth_mhvuuid: ['NOT_FOUND'],
-                va_eauth_mhvien: ['888777'])
+                va_eauth_gcIds: ["#{mhv_ien}^PI^200MHS^USVHA^A"])
         end
 
         it 'resolves mhv id' do
           expect(subject.to_hash).to include(
-            mhv_correlation_id: '888777'
+            mhv_correlation_id: mhv_ien
           )
         end
 
@@ -559,15 +560,16 @@ RSpec.describe SAML::User do
       end
 
       context 'with matching identifiers' do
+        let(:mhv_ien) { '1234567890' }
         let(:saml_attributes) do
           build(:ssoe_idme_mhv_loa3,
-                va_eauth_mhvuuid: ['888777'],
-                va_eauth_mhvien: ['888777'])
+                va_eauth_mhvuuid: [mhv_ien],
+                va_eauth_gcIds: ["#{mhv_ien}^PI^200MHS^USVHA^A"])
         end
 
         it 'resolves mhv id' do
           expect(subject.to_hash).to include(
-            mhv_correlation_id: '888777'
+            mhv_correlation_id: mhv_ien
           )
         end
 
@@ -577,15 +579,17 @@ RSpec.describe SAML::User do
       end
 
       context 'with mismatching identifiers' do
+        let(:mhv_uuid) { '999888' }
+        let(:mhv_ien) { '888777' }
         let(:saml_attributes) do
           build(:ssoe_idme_mhv_loa3,
-                va_eauth_mhvuuid: ['999888'],
-                va_eauth_mhvien: ['888777'])
+                va_eauth_mhvuuid: [mhv_uuid],
+                va_eauth_gcIds: ["#{mhv_ien}^PI^200MHS^USVHA^A"])
         end
 
         it 'resolves mhv id from credential provider' do
           expect(subject.to_hash).to include(
-            mhv_correlation_id: '999888'
+            mhv_correlation_id: mhv_uuid
           )
         end
 
@@ -611,7 +615,7 @@ RSpec.describe SAML::User do
             expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
               'User attributes contain multiple distinct MHV ID values.',
               'warn',
-              { mhv_ids: %w[888777 999888] }
+              { mhv_ids: [mhv_ien, mhv_uuid] }
             )
             subject.validate!
           end
@@ -634,15 +638,17 @@ RSpec.describe SAML::User do
       end
 
       context 'with multi-value mhvien' do
+        let(:gcids) { "#{first_ien}^PI^200MHS^USVHA^A|#{second_ien}^PI^200MHS^USVHA^A" }
         let(:saml_attributes) do
           build(:ssoe_idme_mhv_loa3,
                 va_eauth_mhvuuid: [uuid],
-                va_eauth_mhvien: [ien])
+                va_eauth_gcIds: [gcids])
         end
 
         context 'with matching values' do
           let(:uuid) { 'NOT_FOUND' }
-          let(:ien) { '888777,888777' }
+          let(:first_ien) { '888777' }
+          let(:second_ien) { '888777' }
 
           it 'de-duplicates values' do
             expect(subject.to_hash).to include(
@@ -657,7 +663,7 @@ RSpec.describe SAML::User do
 
         context 'with uuid only' do
           let(:uuid) { '888777' }
-          let(:ien) { 'NOT_FOUND' }
+          let(:gcids) { 'nothing' }
 
           it 'de-duplicates values' do
             expect(subject.to_hash).to include(
@@ -672,7 +678,7 @@ RSpec.describe SAML::User do
 
         context 'with no mhv ids' do
           let(:uuid) { 'NOT_FOUND' }
-          let(:ien) { 'NOT_FOUND' }
+          let(:gcids) { 'nothing' }
 
           it 'de-duplicates values' do
             expect(subject.to_hash).to include(
@@ -685,9 +691,10 @@ RSpec.describe SAML::User do
           end
         end
 
-        context 'with matching mhvien and mhvuuid' do
+        context 'with matching active mhvien from gcids and mhvuuid' do
           let(:uuid) { '888777' }
-          let(:ien) { '888777,888777' }
+          let(:first_ien) { '888777' }
+          let(:second_ien) { '888777' }
 
           it 'de-duplicates values' do
             expect(subject.to_hash).to include(
@@ -700,15 +707,10 @@ RSpec.describe SAML::User do
           end
         end
 
-        context 'with mis-matching mhvien and mhvuuid' do
+        context 'with mis-matching active mhvien from gcids and mhvuuid' do
           let(:uuid) { '888777' }
-          let(:ien) { '888777,999888' }
-
-          let(:saml_attributes) do
-            build(:ssoe_idme_mhv_loa3,
-                  va_eauth_mhvuuid: ['888777'],
-                  va_eauth_mhvien: ['999888,888777'])
-          end
+          let(:first_ien) { '999888' }
+          let(:second_ien) { '888777' }
 
           it 'does not validate' do
             expect { subject.validate! }
@@ -719,9 +721,10 @@ RSpec.describe SAML::User do
           end
         end
 
-        context 'with mis-matching mhvien values' do
+        context 'with mis-matching active mhvien values from gcids' do
           let(:uuid) { 'NOT_FOUND' }
-          let(:ien) { '999888,888777' }
+          let(:first_ien) { '999888' }
+          let(:second_ien) { '888777' }
 
           it 'does not validate' do
             expect { subject.validate! }
@@ -953,7 +956,7 @@ RSpec.describe SAML::User do
           ssn: '796123607',
           zip: '20571-0001',
           mhv_icn: '1012740600V714187',
-          mhv_correlation_id: nil,
+          mhv_correlation_id: '14384899',
           mhv_account_type: nil,
           uuid: '1655c16aa0784dbe973814c95bd69177',
           email: 'Test0206@gmail.com',
@@ -998,7 +1001,7 @@ RSpec.describe SAML::User do
           ssn: '796123607',
           zip: '20571-0001',
           mhv_icn: '1012740600V714187',
-          mhv_correlation_id: nil,
+          mhv_correlation_id: '14384899',
           mhv_account_type: nil,
           uuid: '1655c16aa0784dbe973814c95bd69177',
           email: 'Test0206@gmail.com',
