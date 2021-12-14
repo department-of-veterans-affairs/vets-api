@@ -70,7 +70,9 @@ RSpec.describe FastTrack::DisabilityCompensationJob, type: :worker do
         end
 
         it 'finishes successfully' do
-          expect(FastTrack::DisabilityCompensationJob.new.perform(submission.id, user_full_name)).to eq true
+          expect do
+            FastTrack::DisabilityCompensationJob.new.perform(submission.id, user_full_name)
+          end.not_to raise_error
         end
 
         context 'failure' do

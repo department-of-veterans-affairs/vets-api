@@ -59,7 +59,9 @@ module FastTrack
 
     def upload_pdf_and_attach_special_issue(form526_submission, pdf)
       FastTrack::HypertensionUploadManager.new(form526_submission).handle_attachment(pdf.render)
-      FastTrack::HypertensionSpecialIssueManager.new(form526_submission).add_special_issue
+      if Flipper.enabled?(:disability_hypertension_compensation_fast_track_add_rrd)
+        FastTrack::HypertensionSpecialIssueManager.new(form526_submission).add_special_issue
+      end
     end
 
     def filtered_bp_readings(bp_readings)

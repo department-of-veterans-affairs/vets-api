@@ -152,6 +152,10 @@ features:
     actor_type: user
     description: Fast tracks 526 disability compensation claims by submitting additional health data
     enable_in_development: true
+  disability_hypertension_compensation_fast_track_add_rrd:
+    actor_type: user
+    description: Fast tracks 526 disability compensation claims by submitting additional health data and adding the RRD special issue to the claim.
+    enable_in_development: true
   disability_compensation_flashes:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
