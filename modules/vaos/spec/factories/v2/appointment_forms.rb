@@ -18,7 +18,7 @@ FactoryBot.define do
           'telecom' => [
             {
               'type': 'phone',
-              'value': '2125688889'
+              'value': '2125688887'
             },
             {
               'type': 'email',
@@ -87,7 +87,6 @@ FactoryBot.define do
     end
 
     trait :va_proposed do # this has an error, bring up in SOS
-      kind { 'clinic' }
       status { 'proposed' }
       location_id { '983' }
       service_type { 'audiology' }
@@ -118,6 +117,16 @@ FactoryBot.define do
           'start': '2022-01-04T00:00:00Z'
         }
       end
+    end
+
+    trait :va_proposed_clinic do
+      va_proposed
+      kind { 'clinic' }
+    end
+
+    trait :va_proposed_phone do
+      va_proposed
+      kind { 'phone' }
     end
 
     trait :with_direct_scheduling do

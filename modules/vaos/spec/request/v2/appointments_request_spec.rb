@@ -63,11 +63,11 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
       end
 
       let(:va_proposed_request_body) do
-        FactoryBot.build(:appointment_form_v2, :va_proposed).attributes
+        FactoryBot.build(:appointment_form_v2, :va_proposed_clinic).attributes
       end
 
       it 'creates the va appointment' do
-        VCR.use_cassette('vaos/v2/appointments/post_appointments_va_proposed_200',
+        VCR.use_cassette('vaos/v2/appointments/post_appointments_va_proposed_clinic_200',
                          match_requests_on: %i[method uri]) do
           post '/vaos/v2/appointments', params: va_proposed_request_body, headers: inflection_header
           expect(response).to have_http_status(:created)
