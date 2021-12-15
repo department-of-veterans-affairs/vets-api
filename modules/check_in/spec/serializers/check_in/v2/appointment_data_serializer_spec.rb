@@ -147,6 +147,7 @@ RSpec.describe CheckIn::V2::AppointmentDataSerializer do
                   county: 'SAN BERNARDINO',
                   state: 'Tennessee',
                   zip: '101010',
+                  zip4: nil,
                   country: 'USA'
                 },
                 homeAddress: {
@@ -157,6 +158,7 @@ RSpec.describe CheckIn::V2::AppointmentDataSerializer do
                   county: 'FOO',
                   state: 'Florida',
                   zip: '445545',
+                  zip4: nil,
                   country: 'USA'
                 },
                 homePhone: '5552223333',

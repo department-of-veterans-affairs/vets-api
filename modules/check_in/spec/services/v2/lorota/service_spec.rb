@@ -148,6 +148,7 @@ describe V2::Lorota::Service do
             county: 'SAN BERNARDINO',
             state: 'Tennessee',
             zip: '101010',
+            zip4: nil,
             country: 'USA'
           },
           homeAddress: {
@@ -158,6 +159,7 @@ describe V2::Lorota::Service do
             county: 'FOO',
             state: 'Florida',
             zip: '445545',
+            zip4: nil,
             country: 'USA'
           },
           homePhone: '5552223333',
@@ -332,7 +334,7 @@ describe V2::Lorota::Service do
           .with(:check_in_experience_emergency_contact_enabled).and_return(true)
       end
 
-      it 'does not save appointment identifiers' do
+      it 'saves appointment identifiers' do
         expect_any_instance_of(CheckIn::V2::PatientCheckIn).to receive(:save).once
 
         subject.build(check_in: check_in).check_in_data
