@@ -6,6 +6,7 @@ RSpec.describe MedicalCopays::VBS::Service do
   subject { described_class.build(user: user) }
 
   let(:user) { build(:user, :loa3) }
+  let(:today_date) { Time.zone.today.strftime('%m%d%y') }
 
   describe 'attributes' do
     it 'responds to request' do
@@ -34,27 +35,55 @@ RSpec.describe MedicalCopays::VBS::Service do
     it 'returns a response hash' do
       url = '/base/path/GetStatementsByEDIPIAndVistaAccountNumber'
       data = { edipi: '123456789', vistaAccountNumbers: [36_546] }
-      response = Faraday::Response.new(body: [{ 'foo_bar' => 'bar' }], status: 200)
+      response = Faraday::Response.new(status: 200, body:
+        [
+          {
+            'foo_bar' => 'bar',
+            'pS_STATEMENT_DATE' => today_date
+          }
+        ])
 
       allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:valid?).and_return(true)
       allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:to_hash).and_return(data)
       allow_any_instance_of(MedicalCopays::Request).to receive(:post).with(url, data).and_return(response)
 
-      expect(subject.get_copays).to eq({ data: [{ 'fooBar' => 'bar' }], status: 200 })
+      expect(subject.get_copays).to eq({ status: 200, data:
+        [
+          {
+            'fooBar' => 'bar',
+            'pSStatementDate' => today_date
+          }
+        ] })
     end
 
     it 'includes zero balance statements if available' do
       url = '/base/path/GetStatementsByEDIPIAndVistaAccountNumber'
       data = { edipi: '123456789', vistaAccountNumbers: [36_546] }
-      response = Faraday::Response.new(body: [{ 'foo_bar' => 'bar' }], status: 200)
-      zero_balance_response = [{ 'bar_baz' => 'baz' }]
+      response = Faraday::Response.new(status: 200, body:
+        [
+          {
+            'foo_bar' => 'bar',
+            'pS_STATEMENT_DATE' => today_date
+          }
+        ])
+      zero_balance_response = [{ 'bar_baz' => 'baz', 'pS_STATEMENT_DATE' => today_date }]
 
       allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:valid?).and_return(true)
       allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:to_hash).and_return(data)
       allow_any_instance_of(MedicalCopays::Request).to receive(:post).with(url, data).and_return(response)
       allow_any_instance_of(MedicalCopays::ZeroBalanceStatements).to receive(:list).and_return(zero_balance_response)
 
-      expect(subject.get_copays).to eq({ data: [{ 'fooBar' => 'bar' }, { 'barBaz' => 'baz' }], status: 200 })
+      expect(subject.get_copays).to eq({ status: 200, data:
+        [
+          {
+            'fooBar' => 'bar',
+            'pSStatementDate' => today_date
+          },
+          {
+            'barBaz' => 'baz',
+            'pSStatementDate' => today_date
+          }
+        ] })
     end
 
     context 'user is deceased' do

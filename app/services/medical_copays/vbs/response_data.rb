@@ -63,9 +63,32 @@ module MedicalCopays
       # @return [Array]
       #
       def transformed_body
-        body.each do |copay|
+        last_six_months_statements.each do |copay|
           copay.deep_transform_keys! { |key| key.camelize(:lower) }
         end
+      end
+
+      private
+
+      ##
+      # Filter statements by only the last six months
+      #
+      # @return [Array]
+      #
+      def last_six_months_statements
+        cutoff_date = Time.zone.today - 6.months
+        body.select do |statement|
+          statement_date(statement) > cutoff_date
+        end
+      end
+
+      ##
+      # The Date object of the statement date string
+      #
+      # @return [Date]
+      #
+      def statement_date(statement)
+        Time.zone.strptime(statement['pS_STATEMENT_DATE'], '%m%d%y')
       end
     end
   end

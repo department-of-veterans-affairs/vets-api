@@ -6,7 +6,8 @@ RSpec.describe MedicalCopays::VBS::ResponseData do
   subject { described_class }
 
   let(:resp) { Faraday::Response.new(body: body, status: status) }
-  let(:body) { [{ 'foo_bar' => 'bar' }] }
+  let(:today_date) { Time.zone.today.strftime('%m%d%y') }
+  let(:body) { [{ 'foo_bar' => 'bar', 'pS_STATEMENT_DATE' => today_date }] }
   let(:status) { 200 }
 
   describe 'attributes' do
@@ -28,7 +29,7 @@ RSpec.describe MedicalCopays::VBS::ResponseData do
   describe '#handle' do
     context 'when status 200' do
       it 'returns a formatted response' do
-        hsh = { data: [{ 'fooBar' => 'bar' }], status: 200 }
+        hsh = { data: [{ 'fooBar' => 'bar', 'pSStatementDate' => today_date }], status: 200 }
 
         expect(subject.build({ response: resp }).handle).to eq(hsh)
       end
@@ -121,12 +122,20 @@ RSpec.describe MedicalCopays::VBS::ResponseData do
         {
           'ppS_SEQ_NUM' => 0,
           'details' => [{ 'pD_TRANS_DESC_Output' => 0, 'pD_REF_NO' => 0 }],
-          'city' => 'string'
+          'city' => 'string',
+          'pS_STATEMENT_DATE' => today_date
         },
         {
           'pH_ICN_NUMBER' => 0,
           'station' => [{ 'cyclE_NUM' => 0, 'lbX_FEDEX_BAR_CDE' => 0 }],
-          'state' => 'string'
+          'state' => 'string',
+          'pS_STATEMENT_DATE' => today_date
+        },
+        {
+          'pH_DFN_NUMBER' => 0,
+          'station' => [{ 'pD_TRANS_AMT' => 0, 'pD_DATE_POSTED' => 0 }],
+          'state' => 'string',
+          'pS_STATEMENT_DATE' => (Time.zone.today - 8.months).strftime('%m%d%y')
         }
       ]
     end
@@ -135,18 +144,31 @@ RSpec.describe MedicalCopays::VBS::ResponseData do
         {
           'ppSSeqNum' => 0,
           'details' => [{ 'pDTransDescOutput' => 0, 'pDRefNo' => 0 }],
-          'city' => 'string'
+          'city' => 'string',
+          'pSStatementDate' => today_date
         },
         {
           'pHIcnNumber' => 0,
           'station' => [{ 'cyclENum' => 0, 'lbXFedexBarCde' => 0 }],
-          'state' => 'string'
+          'state' => 'string',
+          'pSStatementDate' => today_date
         }
       ]
     end
 
     it 'transforms all the keys in an array of hashes' do
       expect(subject.build({ response: resp }).transformed_body).to eq(transformed_hsh)
+    end
+
+    it 'excludes the outdated statement' do
+      expect(subject.build({ response: resp }).transformed_body).not_to include(
+        {
+          'pHDfnNumber' => 0,
+          'station' => [{ 'pDTransAmt' => 0, 'pDDatePosted' => 0 }],
+          'state' => 'string',
+          'pSStatementDate' => (Time.zone.today - 8.months).strftime('%m%d%y')
+        }
+      )
     end
   end
 end
