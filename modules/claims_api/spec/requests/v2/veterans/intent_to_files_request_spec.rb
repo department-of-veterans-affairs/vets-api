@@ -7,6 +7,13 @@ RSpec.describe 'IntentToFiles', type: :request do
 
   describe 'IntentToFiles' do
     describe 'type' do
+      before do
+        allow_any_instance_of(BGS::IntentToFileWebService)
+          .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return(
+            stub_response
+          )
+      end
+
       let(:type) { 'compensation' }
       let(:itf_type_path) { "/services/benefits/v2/veterans/#{veteran_id}/intent-to-files/#{type}" }
       let(:scopes) { %w[claim.read] }
@@ -25,11 +32,6 @@ RSpec.describe 'IntentToFiles', type: :request do
         context 'when provided' do
           it 'returns a 200' do
             with_okta_user(scopes) do |auth_header|
-              expect_any_instance_of(BGS::IntentToFileWebService)
-                .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return(
-                  stub_response
-                )
-
               get itf_type_path, headers: auth_header
               expect(response.status).to eq(200)
             end
@@ -74,11 +76,6 @@ RSpec.describe 'IntentToFiles', type: :request do
 
             it 'returns a 200' do
               with_okta_user(scopes) do |auth_header|
-                expect_any_instance_of(BGS::IntentToFileWebService)
-                  .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return(
-                    stub_response
-                  )
-
                 get itf_type_path, headers: auth_header
                 expect(response.status).to eq(200)
               end
@@ -90,11 +87,6 @@ RSpec.describe 'IntentToFiles', type: :request do
 
             it 'returns a 200' do
               with_okta_user(scopes) do |auth_header|
-                expect_any_instance_of(BGS::IntentToFileWebService)
-                  .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return(
-                    stub_response
-                  )
-
                 get itf_type_path, headers: auth_header
                 expect(response.status).to eq(200)
               end
@@ -106,11 +98,6 @@ RSpec.describe 'IntentToFiles', type: :request do
 
             it 'returns a 200' do
               with_okta_user(scopes) do |auth_header|
-                expect_any_instance_of(BGS::IntentToFileWebService)
-                  .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return(
-                    stub_response
-                  )
-
                 get itf_type_path, headers: auth_header
                 expect(response.status).to eq(200)
               end
@@ -120,13 +107,10 @@ RSpec.describe 'IntentToFiles', type: :request do
       end
 
       context 'when no record is found in BGS' do
+        let(:stub_response) { nil }
+
         it 'returns a 404' do
           with_okta_user(scopes) do |auth_header|
-            expect_any_instance_of(BGS::IntentToFileWebService)
-              .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return(
-                nil
-              )
-
             get itf_type_path, headers: auth_header
             expect(response.status).to eq(404)
           end
@@ -156,11 +140,6 @@ RSpec.describe 'IntentToFiles', type: :request do
 
           it 'chooses the first non-expired ITF' do
             with_okta_user(scopes) do |auth_header|
-              expect_any_instance_of(BGS::IntentToFileWebService)
-                .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return(
-                  stub_response
-                )
-
               get itf_type_path, headers: auth_header
 
               parsed_response = JSON.parse(response.body)
@@ -192,11 +171,6 @@ RSpec.describe 'IntentToFiles', type: :request do
 
           it 'returns 404' do
             with_okta_user(scopes) do |auth_header|
-              expect_any_instance_of(BGS::IntentToFileWebService)
-                .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return(
-                  stub_response
-                )
-
               get itf_type_path, headers: auth_header
 
               expect(response.status).to eq(404)
@@ -226,11 +200,6 @@ RSpec.describe 'IntentToFiles', type: :request do
 
           it 'returns 404' do
             with_okta_user(scopes) do |auth_header|
-              expect_any_instance_of(BGS::IntentToFileWebService)
-                .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return(
-                  stub_response
-                )
-
               get itf_type_path, headers: auth_header
 
               expect(response.status).to eq(404)
@@ -253,11 +222,6 @@ RSpec.describe 'IntentToFiles', type: :request do
 
           it 'returns a 404' do
             with_okta_user(scopes) do |auth_header|
-              expect_any_instance_of(BGS::IntentToFileWebService)
-                .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return(
-                  stub_response
-                )
-
               get itf_type_path, headers: auth_header
 
               expect(response.status).to eq(404)
@@ -278,14 +242,145 @@ RSpec.describe 'IntentToFiles', type: :request do
 
           it 'returns a 404' do
             with_okta_user(scopes) do |auth_header|
-              expect_any_instance_of(BGS::IntentToFileWebService)
-                .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return(
-                  stub_response
-                )
-
               get itf_type_path, headers: auth_header
 
               expect(response.status).to eq(404)
+            end
+          end
+        end
+      end
+    end
+
+    describe 'submit' do
+      before do
+        allow_any_instance_of(BGS::IntentToFileWebService).to receive(:insert_intent_to_file).and_return(
+          stub_response
+        )
+      end
+
+      let(:itf_submit_path) { "/services/benefits/v2/veterans/#{veteran_id}/intent-to-files" }
+      let(:scopes) { %w[claim.write] }
+      let(:data) do
+        {
+          type: 'compensation'
+        }
+      end
+      let(:stub_response) do
+        {
+          intent_to_file_id: '1',
+          create_dt: Time.zone.now.to_date,
+          exprtn_dt: Time.zone.now.to_date + 1.year,
+          itf_status_type_cd: 'Active',
+          itf_type_cd: 'compensation'
+        }
+      end
+
+      describe 'auth header' do
+        context 'when provided' do
+          it 'returns a 200' do
+            with_okta_user(scopes) do |auth_header|
+              post itf_submit_path, params: data, headers: auth_header
+              expect(response.status).to eq(200)
+            end
+          end
+        end
+
+        context 'when not provided' do
+          it 'returns a 401 error code' do
+            with_okta_user(scopes) do
+              post itf_submit_path, params: data
+              expect(response.status).to eq(401)
+            end
+          end
+        end
+      end
+
+      describe 'submitting a payload' do
+        context 'when payload is valid' do
+          it 'returns a 200' do
+            with_okta_user(scopes) do |auth_header|
+              post itf_submit_path, params: data, headers: auth_header
+              expect(response.status).to eq(200)
+            end
+          end
+        end
+
+        context 'when payload is invalid' do
+          context "when 'type' is invalid" do
+            context "when 'type' is blank" do
+              it 'returns a 400' do
+                with_okta_user(scopes) do |auth_header|
+                  invalid_data = data
+                  invalid_data[:type] = ''
+
+                  post itf_submit_path, params: invalid_data, headers: auth_header
+                  expect(response.status).to eq(400)
+                end
+              end
+            end
+
+            context "when 'type' is nil" do
+              it 'returns a 400' do
+                with_okta_user(scopes) do |auth_header|
+                  invalid_data = data
+                  invalid_data[:type] = nil
+
+                  post itf_submit_path, params: invalid_data, headers: auth_header
+                  expect(response.status).to eq(400)
+                end
+              end
+            end
+
+            context "when 'type' is not an accepted value" do
+              it 'returns a 400' do
+                with_okta_user(scopes) do |auth_header|
+                  invalid_data = data
+                  invalid_data[:type] = 'foo'
+
+                  post itf_submit_path, params: invalid_data, headers: auth_header
+                  expect(response.status).to eq(400)
+                end
+              end
+            end
+          end
+
+          context "when optional 'participant_claimant_id' is invalid" do
+            context "when optional 'participant_claimant_id' is blank" do
+              it 'returns a 400' do
+                with_okta_user(scopes) do |auth_header|
+                  invalid_data = data
+                  invalid_data[:participant_claimant_id] = ''
+
+                  post itf_submit_path, params: invalid_data, headers: auth_header
+                  expect(response.status).to eq(400)
+                end
+              end
+            end
+          end
+
+          context "when optional 'participant_vet_id' is invalid" do
+            context "when optional 'participant_vet_id' is blank" do
+              it 'returns a 400' do
+                with_okta_user(scopes) do |auth_header|
+                  invalid_data = data
+                  invalid_data[:participant_vet_id] = ''
+
+                  post itf_submit_path, params: invalid_data, headers: auth_header
+                  expect(response.status).to eq(400)
+                end
+              end
+            end
+          end
+        end
+
+        context "when 'type' is mixed-case" do
+          it 'returns a 200' do
+            with_okta_user(scopes) do |auth_header|
+              valid_data = data
+              valid_data[:type] = 'CoMpEnSaTiOn'
+
+              post itf_submit_path, params: valid_data, headers: auth_header
+              expect(response.status).to eq(200)
             end
           end
         end
