@@ -90,8 +90,14 @@ FactoryBot.define do
       kind { 'clinic' }
       status { 'proposed' }
       location_id { '983' }
-      service_type { 'primaryCare' }
-      comment { 'test' }
+      service_type { 'audiology' }
+      comment { 'Follow-up/Routine: testing' }
+      reason_code do
+        { 'codeing' => [
+          'code': 'Routine Follow-up'
+        ],
+          'text': 'text' }
+      end
       contact do
         {
           'telecom' => [
@@ -106,9 +112,10 @@ FactoryBot.define do
           ]
         }
       end
-      extension do
+      requested_periods do
         {
-          'desired_date': DateTime.new(2021, 0o6, 15, 23, 59, 0).iso8601(3)
+          'end': '2022-01-04T11:59:00Z',
+          'start': '2022-01-04T00:00:00Z'
         }
       end
     end

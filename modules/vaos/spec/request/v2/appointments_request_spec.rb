@@ -30,20 +30,12 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
   context 'loa3 user' do
     let(:current_user) { build(:user, :vaos) }
 
-    describe 'CREATE appointment' do
-      let(:va_booked_request_body) do
-        FactoryBot.build(:appointment_form_v2, :va_booked).attributes
-      end
-
-      let(:va_proposed_request_body) do
-        FactoryBot.build(:appointment_form_v2, :va_proposed).attributes
-      end
-
+    describe 'CREATE cc appointment' do
       let(:community_cares_request_body) do
         FactoryBot.build(:appointment_form_v2, :community_cares).attributes
       end
 
-      it 'creates the appointment' do
+      it 'creates the cc appointment' do
         VCR.use_cassette('vaos/v2/appointments/post_appointments_cc_200', match_requests_on: %i[method uri]) do
           post '/vaos/v2/appointments', params: community_cares_request_body, headers: inflection_header
           expect(response).to have_http_status(:created)
@@ -59,6 +51,27 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
             'the patientIcn must match the ICN in the request URI'
           )
+        end
+      end
+    end
+
+    describe 'CREATE va appointment' do
+      let(:current_user) { build(:user, :jac) }
+
+      let(:va_booked_request_body) do
+        FactoryBot.build(:appointment_form_v2, :va_booked).attributes
+      end
+
+      let(:va_proposed_request_body) do
+        FactoryBot.build(:appointment_form_v2, :va_proposed).attributes
+      end
+
+      it 'creates the va appointment' do
+        VCR.use_cassette('vaos/v2/appointments/post_appointments_va_proposed_200',
+                         match_requests_on: %i[method uri]) do
+          post '/vaos/v2/appointments', params: va_proposed_request_body, headers: inflection_header
+          expect(response).to have_http_status(:created)
+          expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
         end
       end
     end

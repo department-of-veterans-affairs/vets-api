@@ -16,25 +16,21 @@ describe VAOS::V2::AppointmentsService do
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#post_appointment' do
-    let(:va_booked_request_body) do
-      FactoryBot.build(:appointment_form_v2, :va_booked).attributes
-    end
-
     let(:va_proposed_request_body) do
       FactoryBot.build(:appointment_form_v2, :va_proposed).attributes
+    end
+
+    let(:va_booked_request_body) do
+      FactoryBot.build(:appointment_form_v2, :va_booked).attributes
     end
 
     let(:community_cares_request_body) do
       FactoryBot.build(:appointment_form_v2, :community_cares).attributes
     end
 
-    context 'when request is valid' do
-      it 'returns the created appointment - cc - request' do
-        VCR.use_cassette('vaos/v2/appointments/post_appointments_cc_200', match_requests_on: %i[method uri]) do
-          response = subject.post_appointment(community_cares_request_body)
-          expect(response[:id]).to be_a(String)
-        end
-      end
+    context 'when va appointment create request is valid' do
+      # appointment created using the Jacqueline Morgan user
+      let(:user) { build(:user, :jac) }
 
       # it 'returns the created appointment - va - booked' do
       #   VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200', record: :new_episodes) do
@@ -43,12 +39,22 @@ describe VAOS::V2::AppointmentsService do
       #   end
       # end
 
-      # it 'returns the created appointment - va - request' do
-      #   VCR.use_cassette('vaos/v2/appointments/post_appointments_va_proposed_200', record: :new_episodes) do
-      #     response = subject.post_appointment(va_proposed_request_body)
-      #     expect(response[:id]).to be_a(String)
-      #   end
-      # end
+      it 'returns the created appointment - va - request' do
+        VCR.use_cassette('vaos/v2/appointments/post_appointments_va_proposed_200',
+                         match_requests_on: %i[method uri]) do
+          response = subject.post_appointment(va_proposed_request_body)
+          expect(response[:id]).to eq('70065')
+        end
+      end
+    end
+
+    context 'when cc appointment create request is valid' do
+      it 'returns the created appointment - cc - request' do
+        VCR.use_cassette('vaos/v2/appointments/post_appointments_cc_200', match_requests_on: %i[method uri]) do
+          response = subject.post_appointment(community_cares_request_body)
+          expect(response[:id]).to be_a(String)
+        end
+      end
     end
 
     context 'when the patientIcn is missing' do
