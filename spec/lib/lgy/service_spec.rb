@@ -60,5 +60,27 @@ describe LGY::Service do
         end
       end
     end
+
+    context 'when get_determination is Eligible and get_application is a 200' do
+      it 'returns available' do
+        VCR.use_cassette 'lgy/determination_eligible' do
+          body = File.read(Rails.root.join('spec', 'fixtures', 'json', 'get_application_200.json'))
+          stub_request(:get, 'https://fake_url.com/eligibility-manager/api/eligibility/application')
+            .with(query: { edipi: user.edipi, icn: user.icn })
+            .to_return(body: body, status: 200, headers: { 'Content-Type' => 'application/json' })
+          expect(subject.coe_status).to eq 'available'
+        end
+      end
+    end
+
+    context 'when get_determination is NOT_ELIGIBLE (needs supporting docs)' do
+      it 'returns ineligible' do
+        body = File.read(Rails.root.join('spec', 'fixtures', 'json', 'get_determination_not_eligible.json'))
+        stub_request(:get, 'https://fake_url.com/eligibility-manager/api/eligibility/determination')
+          .with(query: { edipi: user.edipi, icn: user.icn })
+          .to_return(body: body, status: 200, headers: { 'Content-Type' => 'application/json' })
+        expect(subject.coe_status).to eq 'ineligible'
+      end
+    end
   end
 end

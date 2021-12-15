@@ -1,0 +1,65 @@
+{
+  "id": 0,
+  "createDate": "2021-12-14T02:56:59.977Z",
+  "status": "SUBMITTED",
+  "veteran": {
+    "firstName": "string",
+    "middleName": "string",
+    "lastName": "string",
+    "suffixName": "string",
+    "vetAddress1": "string",
+    "vetAddress2": "string",
+    "vetCity": "string",
+    "vetState": "string",
+    "vetZip": "string",
+    "vetZipSuffix": "string",
+    "mailingAddress1": "string",
+    "mailingAddress2": "string",
+    "mailingCity": "string",
+    "mailingState": "string",
+    "mailingZip": "string",
+    "mailingZipSuffix": "string",
+    "contactPhone": "string",
+    "contactEmail": "string",
+    "vaLoanIndicator": true,
+    "vaHomeOwnIndicator": true,
+    "activeDutyIndicator": true,
+    "disabilityIndicator": true
+  },
+  "relevantPriorLoans": [
+    {
+      "vaLoanNumber": "string",
+      "startDate": "2021-12-14T02:56:59.977Z",
+      "paidOffDate": "2021-12-14T02:56:59.977Z",
+      "loanAmount": 0,
+      "loanEntitlementCharged": 0,
+      "propertyOwned": true,
+      "oneTimeRestorationRequested": true,
+      "irrrlRequested": true,
+      "cashoutRefinaceRequested": true,
+      "homeSellIndicator": true,
+      "noRestorationEntitlementIndicator": true,
+      "propertyAddress1": "string",
+      "propertyAddress2": "string",
+      "propertyCity": "string",
+      "propertyState": "string",
+      "propertyCounty": "string",
+      "propertyZip": "string",
+      "propertyZipSuffix": "string"
+    }
+  ],
+  "periodsOfService": [
+    {
+      "enteredOnDuty": "2021-12-14T02:56:59.977Z",
+      "releasedActiveDuty": "2021-12-14T02:56:59.977Z",
+      "serviceType": "ACTIVE_DUTY",
+      "characterOfService": "HONORABLE",
+      "militaryBranch": "ARMY",
+      "activeDutyPoints": "string",
+      "inactiveDutyPoints": "string",
+      "qualifies": true,
+      "rankCode": "OFFICER",
+      "disabilityIndicator": true
+    }
+  ]
+}
