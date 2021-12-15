@@ -39,6 +39,7 @@ module MedicalCopays
       facilities.map do |facility|
         {
           'pH_AMT_DUE' => 0,
+          'pS_STATEMENT_DATE' => Time.zone.today.strftime('%m%d%Y'),
           'station' => {
             'facilitY_NUM' => facility['id'].sub('vha_', ''),
             'city' => facility['address']['physical']['city'].upcase

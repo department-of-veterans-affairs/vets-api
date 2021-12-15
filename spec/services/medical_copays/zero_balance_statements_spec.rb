@@ -7,6 +7,7 @@ RSpec.describe MedicalCopays::ZeroBalanceStatements do
 
   let(:statements) { [{ 'foo' => 'bar' }] }
   let(:facility_hash) { { 'foo' => ['123'] } }
+  let(:today_date) { Time.zone.today.strftime('%m%d%Y') }
 
   let(:default_params) { { statements: statements, facility_hash: facility_hash } }
 
@@ -128,6 +129,7 @@ RSpec.describe MedicalCopays::ZeroBalanceStatements do
         [
           {
             'pH_AMT_DUE' => 0,
+            'pS_STATEMENT_DATE' => today_date,
             'station' => {
               'facilitY_NUM' => '358',
               'city' => 'PASAY CITY'
@@ -165,6 +167,7 @@ RSpec.describe MedicalCopays::ZeroBalanceStatements do
         [
           {
             'pH_AMT_DUE' => 0,
+            'pS_STATEMENT_DATE' => today_date,
             'station' => {
               'facilitY_NUM' => '358',
               'city' => 'PASAY CITY'
@@ -213,6 +216,7 @@ RSpec.describe MedicalCopays::ZeroBalanceStatements do
         [
           {
             'pH_AMT_DUE' => 0,
+            'pS_STATEMENT_DATE' => today_date,
             'station' => {
               'facilitY_NUM' => '358',
               'city' => 'PASAY CITY'
@@ -220,6 +224,7 @@ RSpec.describe MedicalCopays::ZeroBalanceStatements do
           },
           {
             'pH_AMT_DUE' => 0,
+            'pS_STATEMENT_DATE' => today_date,
             'station' => {
               'facilitY_NUM' => '359',
               'city' => 'DES MOINES'

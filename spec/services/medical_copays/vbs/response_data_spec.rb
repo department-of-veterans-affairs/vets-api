@@ -6,7 +6,7 @@ RSpec.describe MedicalCopays::VBS::ResponseData do
   subject { described_class }
 
   let(:resp) { Faraday::Response.new(body: body, status: status) }
-  let(:today_date) { Time.zone.today.strftime('%m%d%y') }
+  let(:today_date) { Time.zone.today.strftime('%m%d%Y') }
   let(:body) { [{ 'foo_bar' => 'bar', 'pS_STATEMENT_DATE' => today_date }] }
   let(:status) { 200 }
 
@@ -135,7 +135,7 @@ RSpec.describe MedicalCopays::VBS::ResponseData do
           'pH_DFN_NUMBER' => 0,
           'station' => [{ 'pD_TRANS_AMT' => 0, 'pD_DATE_POSTED' => 0 }],
           'state' => 'string',
-          'pS_STATEMENT_DATE' => (Time.zone.today - 8.months).strftime('%m%d%y')
+          'pS_STATEMENT_DATE' => (Time.zone.today - 8.months).strftime('%m%d%Y')
         }
       ]
     end
@@ -166,7 +166,7 @@ RSpec.describe MedicalCopays::VBS::ResponseData do
           'pHDfnNumber' => 0,
           'station' => [{ 'pDTransAmt' => 0, 'pDDatePosted' => 0 }],
           'state' => 'string',
-          'pSStatementDate' => (Time.zone.today - 8.months).strftime('%m%d%y')
+          'pSStatementDate' => (Time.zone.today - 8.months).strftime('%m%d%Y')
         }
       )
     end

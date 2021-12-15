@@ -88,7 +88,7 @@ module MedicalCopays
       # @return [Date]
       #
       def statement_date(statement)
-        Time.zone.strptime(statement['pS_STATEMENT_DATE'], '%m%d%y')
+        Time.zone.strptime(statement['pS_STATEMENT_DATE'], '%m%d%Y')
       end
     end
   end

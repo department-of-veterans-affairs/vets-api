@@ -6,7 +6,7 @@ RSpec.describe MedicalCopays::VBS::Service do
   subject { described_class.build(user: user) }
 
   let(:user) { build(:user, :loa3) }
-  let(:today_date) { Time.zone.today.strftime('%m%d%y') }
+  let(:today_date) { Time.zone.today.strftime('%m%d%Y') }
 
   describe 'attributes' do
     it 'responds to request' do
