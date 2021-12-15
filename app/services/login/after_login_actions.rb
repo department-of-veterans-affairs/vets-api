@@ -60,19 +60,19 @@ module Login
 
     def find_or_create_user_verification(credential_type, credential_identifier)
       user_verification = UserVerification.find_by(credential_type => credential_identifier)
-      icn = current_user.icn.presence
+      current_user_icn = current_user.icn.presence
+      user_account = UserAccount.find_by(icn: current_user_icn)
 
       if user_verification
-        update_existing_user_verification(user_verification, icn)
+        update_existing_user_verification(user_verification, current_user_icn, user_account)
       else
-        UserVerification.create!(credential_type => credential_identifier, user_account: UserAccount.new(icn: icn))
+        UserVerification.create!(credential_type => credential_identifier,
+                                 user_account: user_account || UserAccount.new(icn: current_user_icn))
       end
     end
 
-    def update_existing_user_verification(user_verification, icn)
-      return user_verification if icn.nil? || user_verification.user_account.icn == icn
-
-      user_account = UserAccount.find_by(icn: icn)
+    def update_existing_user_verification(user_verification, user_icn, user_account)
+      return user_verification if user_icn.nil? || user_verification.user_account == user_account
 
       if user_account
         deprecated_user_account = user_verification.user_account
@@ -82,7 +82,7 @@ module Login
         Rails.logger.info("[AfterLoginActions] Deprecating UserAccount id=#{deprecated_user_account.id}, " \
                           "Updating UserVerification id=#{user_verification.id} with UserAccount id=#{user_account.id}")
       else
-        user_verification.user_account.update(icn: icn)
+        user_verification.user_account.update(icn: user_icn)
       end
     end
   end

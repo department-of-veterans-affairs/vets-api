@@ -229,19 +229,40 @@ RSpec.describe Login::AfterLoginActions do
           end
 
           context 'and user_verification for user credential does not already exist' do
-            it 'creates a new user_verification record' do
-              expect { subject }.to change(UserVerification, :count)
+            context 'and user_account matching icn does not already exist' do
+              it 'creates a new user_verification record' do
+                expect { subject }.to change(UserVerification, :count)
+              end
+
+              it 'sets the current user ICN on the user_account record' do
+                subject
+                account_icn = UserVerification.where(authn_identifier_type => authn_identifier).first.user_account.icn
+                expect(account_icn).to eq user.icn
+              end
+
+              it 'creates a user_account record attached to the user_verification record' do
+                expect { subject }.to change(UserAccount, :count)
+                user_account = UserVerification.where(authn_identifier_type => authn_identifier).first.user_account
+                expect(user_account).not_to be_nil
+              end
             end
 
-            it 'sets the current user ICN on the user_account record' do
-              subject
-              account_icn = UserVerification.where(authn_identifier_type => authn_identifier).first.user_account.icn
-              expect(account_icn).to eq user.icn
-            end
+            context 'and user_account matching icn already exists' do
+              let!(:existing_user_account) { UserAccount.create!(icn: icn) }
 
-            it 'creates a user_account record attached to the user_verification record' do
-              expect { subject }.to change(UserAccount, :count)
-              expect(UserVerification.where(authn_identifier_type => authn_identifier).first.user_account).not_to be_nil
+              it 'creates a new user_verification record' do
+                expect { subject }.to change(UserVerification, :count)
+              end
+
+              it 'does not create a new user_account record' do
+                expect { subject }.not_to change(UserAccount, :count)
+              end
+
+              it 'attaches the existing user_account to the new user_verification record' do
+                subject
+                account_icn = UserVerification.where(authn_identifier_type => authn_identifier).first.user_account
+                expect(account_icn).to eq existing_user_account
+              end
             end
           end
         end
