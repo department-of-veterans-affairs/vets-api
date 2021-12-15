@@ -56,37 +56,40 @@ RSpec.describe Rack::Attack do
     context 'when more than 10 requests' do
       context 'when GET endpoint' do
         before do
-          allow_any_instance_of(ChipApi::Service).to receive(:get_check_in).and_return(data)
+          allow_any_instance_of(CheckIn::V2::Session).to receive(:authorized?).and_return(true)
+          allow_any_instance_of(V2::Lorota::Service).to receive(:check_in_data).and_return(data)
 
           10.times do
-            get '/check_in/v0/patient_check_ins/d602d9eb-9a31-484f-9637-13ab0b507e0d', headers: headers
+            get '/check_in/v2/patient_check_ins/d602d9eb-9a31-484f-9637-13ab0b507e0d', headers: headers
 
             expect(last_response.status).to eq(200)
           end
         end
 
         it 'throttles with status 429' do
-          get '/check_in/v0/patient_check_ins/d602d9eb-9a31-484f-9637-13ab0b507e0d', headers: headers
+          get '/check_in/v2/patient_check_ins/d602d9eb-9a31-484f-9637-13ab0b507e0d', headers: headers
 
           expect(last_response.status).to eq(429)
         end
       end
 
       context 'when POST endpoint' do
-        let(:post_params) { { patient_check_ins: { id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d' } } }
+        let(:post_params) do
+          { patient_check_ins: { uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d', appointment_ien: '450' } }
+        end
 
         before do
-          allow_any_instance_of(ChipApi::Service).to receive(:create_check_in).and_return(data)
+          allow_any_instance_of(V2::Chip::Service).to receive(:create_check_in).and_return(data)
 
           10.times do
-            post '/check_in/v0/patient_check_ins', post_params, headers # rubocop:disable Rails/HttpPositionalArguments
+            post '/check_in/v2/patient_check_ins', post_params, headers # rubocop:disable Rails/HttpPositionalArguments
 
             expect(last_response.status).to eq(200)
           end
         end
 
         it 'throttles with status 429' do
-          post '/check_in/v0/patient_check_ins', post_params, headers # rubocop:disable Rails/HttpPositionalArguments
+          post '/check_in/v2/patient_check_ins', post_params, headers # rubocop:disable Rails/HttpPositionalArguments
 
           expect(last_response.status).to eq(429)
         end
