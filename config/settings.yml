@@ -769,13 +769,17 @@ search_click_tracking:
 flipper:
   admin_user_emails:
     - adewitt@thoughtworks.com
+    - adrian.rollett@agile6.com # Adrian Rollett (Agile6), Engineer/Product Manager Health Care Experience/Check-In
     - agarcia@clarityinnovates.com
     - alastair@adhocteam.us
     - bill.ryan@adhocteam.us
+    - brian.seek@civicactions.com # Brian Seek (Civic Actions), FE Engineer Health Care Experience/Check-In
     - clark@governmentcio.com # Designer on GCIO
     - cameron@oddball.io
+    - corey.parker@gcio.com # Corey Parker (GCIO), Product Manager Health Care Experience/Check-In
     - cory.trimm@va.gov
     - craig.wheeler@gcio.com
+    - dan.goodwin@civicactions.com # Dan Goodwin (Civic Actions), FE Engineer Health Care Experience/Check-In
     - dan.hinze@adhocteam.us
     - dat.tran@gcio.com
     - devinmccurdy@gmail.com
@@ -786,6 +790,7 @@ flipper:
     - erik@adhocteam.us
     - filip.fafara@gmail.com
     - fahmed@governmentcio.com
+    - ggupta@kindsys.us # Gaurav Gupta (Kindsys), BE Engineer Health Care Experience/Check-In
     - gescobar@governmentcio.com
     - grodriguez@governmentcio.com
     - hshin@thoughtworks.com
@@ -799,6 +804,7 @@ flipper:
     - jlinn@governmentcio.com
     - joeyn414@gmail.com # Joe Niquette Oddball VSP Identity Team Sr Security Engineer
     - john.bramley@adhocteam.us
+    - julie.adair@agile6.com # Julie Adair (Agile6), Product Manager Health Care Experience/Check-In
     - jwolf@governmentcio.com # Jason Wolf Product Manager for GCIO
     - kabrown@thoughtworks.com
     - kadams@governmentcio.com
@@ -808,6 +814,7 @@ flipper:
     - kevin.musiorski@gcio.com # Kevin Musiorski (GCIO), Engineer
     - kmircovich@governmentcio.com
     - kyle.woolley@oddball.io # VSP Identity Engineer
+    - ksuriyamoorthy@kindsys.us # Kanchana Suriyamoorthy (Kindsys), BE Engineer Health Care Experience/Check-In
     - lauren.alexanderson@va.gov
     - lauren.ernest@adhocteam.us
     - lihan@adhocteam.us
@@ -837,6 +844,7 @@ flipper:
     - ryan.thurlwell@va.gov
     - saman.moshafi@thoughtworks.com
     - samara.strauss@va.gov
+    - sarah.knopp@agile6.com # Sarah Knopp (Agile 6), Scrum Master
     - scy0846@gmail.com # Taylor Mitchell - GCIO
     - shefai.nayak@thoughtworks.com
     - ssuddath@governmentcio.com
