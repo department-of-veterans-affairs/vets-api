@@ -7,6 +7,7 @@ RSpec::Matchers.define :match_pdf do |expected|
     normalize_page_data = lambda do |pages|
       # Write-to-write, the xobject keys & order may be different, so get the raw content & sort it
       # Using xobjects rather than page text lets us check against non-text fields like checkboxes, etc.
+      # Radio buttons cannot be matched because we flatten the pdf earlier in the process for security reasons
       pages.map { |pg| pg.xobjects.values.map(&:unfiltered_data).sort }
     end
     actual_reader = PDF::Reader.new(actual)
