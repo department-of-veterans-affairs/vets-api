@@ -103,7 +103,7 @@ describe V2::Chip::Client do
           demographicsNeedsUpdate: true,
           demographicsConfirmedAt: '2021-11-30T20:45:03.779Z',
           nextOfKinNeedsUpdate: true,
-          nextOfConfirmedAt: '2021-11-30T20:45:03.779Z',
+          nextOfKinConfirmedAt: '2021-11-30T20:45:03.779Z',
           emergencyContactNeedsUpdate: true,
           emergencyContactConfirmedAt: '2021-11-30T20:45:03.779Z'
         }

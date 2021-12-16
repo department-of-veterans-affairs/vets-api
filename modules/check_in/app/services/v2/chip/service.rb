@@ -77,14 +77,24 @@ module V2
       def demographic_confirmations
         demographics_needs_update = check_in_body[:demographics_up_to_date] ? false : true
         next_of_kin_needs_update = check_in_body[:next_of_kin_up_to_date] ? false : true
-        {
-          demographicConfirmations: {
-            demographicsNeedsUpdate: demographics_needs_update,
-            demographicsConfirmedAt: Time.zone.now.iso8601,
-            nextOfKinNeedsUpdate: next_of_kin_needs_update,
-            nextOfConfirmedAt: Time.zone.now.iso8601
+        confirmed_at = Time.zone.now.iso8601
+
+        result =
+          {
+            demographicConfirmations: {
+              demographicsNeedsUpdate: demographics_needs_update,
+              demographicsConfirmedAt: confirmed_at,
+              nextOfKinNeedsUpdate: next_of_kin_needs_update,
+              nextOfConfirmedAt: confirmed_at
+            }
           }
-        }
+
+        result.tap do |hash|
+          if Flipper.enabled?(:check_in_experience_chip_service_nok_confirmation_update_enabled)
+            hash[:demographicConfirmations].delete(:nextOfConfirmedAt)
+            hash[:demographicConfirmations].store(:nextOfKinConfirmedAt, confirmed_at)
+          end
+        end
       end
 
       def appointment_identifiers

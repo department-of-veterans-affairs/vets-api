@@ -160,4 +160,52 @@ describe V2::Chip::Service do
       end
     end
   end
+
+  describe '#demographic_confirmations' do
+    Timecop.freeze(Time.zone.now) do
+      let(:result) do
+        {
+          demographicConfirmations: {
+            demographicsNeedsUpdate: true,
+            demographicsConfirmedAt: Time.zone.now.iso8601,
+            nextOfKinNeedsUpdate: true,
+            nextOfConfirmedAt: Time.zone.now.iso8601
+          }
+        }
+      end
+
+      context 'with check_in_experience_chip_service_nok_confirmation_update_enabled turned off' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:check_in_experience_chip_service_nok_confirmation_update_enabled).and_return(false)
+        end
+
+        it 'returns a hash which includes the key nextOfConfirmedAt' do
+          expect(subject.build(check_in: valid_check_in, params: {}).demographic_confirmations).to eq(result)
+        end
+      end
+
+      context 'with check_in_experience_chip_service_nok_confirmation_update_enabled turned on' do
+        let(:result) do
+          {
+            demographicConfirmations: {
+              demographicsNeedsUpdate: true,
+              demographicsConfirmedAt: Time.zone.now.iso8601,
+              nextOfKinNeedsUpdate: true,
+              nextOfKinConfirmedAt: Time.zone.now.iso8601
+            }
+          }
+        end
+
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:check_in_experience_chip_service_nok_confirmation_update_enabled).and_return(true)
+        end
+
+        it 'returns a hash which includes the key nextOfKinConfirmedAt' do
+          expect(subject.build(check_in: valid_check_in, params: {}).demographic_confirmations).to eq(result)
+        end
+      end
+    end
+  end
 end
