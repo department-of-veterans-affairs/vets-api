@@ -371,8 +371,6 @@ RSpec.describe 'Power of Attorney ', type: :request do
         end
 
         context 'when representative is part of an organization' do
-          let(:user_types) { ['veteran_service_officer'] }
-
           it "returns the organization's name and phone" do
             with_okta_user(scopes) do |auth_header|
               expect_any_instance_of(
@@ -381,12 +379,9 @@ RSpec.describe 'Power of Attorney ', type: :request do
               allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
               expect(bgs_poa_verifier).to receive(:current_poa).and_return(Struct.new(:code).new('HelloWorld'))
               expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
-              expect(::Veteran::Service::Representative).to receive(:where).and_return(
-                [OpenStruct.new(user_types: user_types)]
-              )
               expect(::Veteran::Service::Organization).to receive(:find_by).and_return(
                 OpenStruct.new(name: 'Some Great Organization', phone: '555-555-5555')
-              )
+              ).twice
 
               get('/services/claims/v1/forms/2122/active', params: nil, headers: headers.merge(auth_header))
 
@@ -406,8 +401,6 @@ RSpec.describe 'Power of Attorney ', type: :request do
         end
 
         context 'when representative is not part of an organization' do
-          let(:user_types) { [] }
-
           it "returns the representative's name and phone" do
             with_okta_user(scopes) do |auth_header|
               expect_any_instance_of(
@@ -421,8 +414,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
                   OpenStruct.new(
                     first_name: 'Tommy',
                     last_name: 'Testerson',
-                    phone: '555-555-5555',
-                    user_types: user_types
+                    phone: '555-555-5555'
                   )
                 ]
               )

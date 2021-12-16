@@ -174,7 +174,6 @@ module ClaimsApi
         def build_representative_info(poa_code)
           if poa_code_in_organization?(poa_code)
             veteran_service_organization = ::Veteran::Service::Organization.find_by(poa: poa_code)
-            raise 'Veteran Service Organization not found' if veteran_service_organization.blank?
 
             {
               name: veteran_service_organization.name,

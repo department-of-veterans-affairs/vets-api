@@ -26,7 +26,7 @@ module ClaimsApi
     end
 
     def pdf_constructor(power_of_attorney)
-      return ClaimsApi::PoaPdfConstructor::Organization.new if poa_in_organization?(power_of_attorney)
+      return ClaimsApi::PoaPdfConstructor::Organization.new if poa_code_in_organization?(power_of_attorney.current_poa)
 
       ClaimsApi::PoaPdfConstructor::Individual.new
     end
@@ -48,18 +48,8 @@ module ClaimsApi
                                              })
     end
 
-    #
-    # Determine if POA that submitted this request is an individual or part of an organization.
-    #
-    # @param power_of_attorney [ClaimsApi::PowerOfAttorney] Record for this poa change request
-    #
-    # @return [Boolean] True if POA is part of an organization, false if not
-    def poa_in_organization?(power_of_attorney)
-      representatives = ::Veteran::Service::Representative.where('? = ANY(poa_codes)', power_of_attorney.current_poa)
-      raise 'Power of Attorney not found' if representatives.blank?
-      return false if representatives.first.user_types.blank?
-
-      representatives.first.user_types.include?('veteran_service_officer')
+    def poa_code_in_organization?(poa_code)
+      ::Veteran::Service::Organization.find_by(poa: poa_code).present?
     end
   end
 end

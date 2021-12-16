@@ -289,10 +289,8 @@ describe 'PowerOfAttorney', swagger_doc: 'modules/claims_api/app/swagger/claims_
                 .and_return({ person_poa_history: nil })
               Authorization = auth_header # rubocop:disable Naming/ConstantName
               data[:serviceOrganization][:poaCode] = '083'
-              Veteran::Service::Representative.new(representative_id: '00000',
-                                                   poa_codes: [organization_poa_code], first_name: 'George',
-                                                   last_name: 'Washington', user_types: ['veteran_service_officer'])
-                                              .save!
+              Veteran::Service::Representative.new(representative_id: '00000', poa_codes: [organization_poa_code],
+                                                   first_name: 'George', last_name: 'Washington').save!
               Veteran::Service::Organization.create(poa: organization_poa_code,
                                                     name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS")
               submit_request(example.metadata)
