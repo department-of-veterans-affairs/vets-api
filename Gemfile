@@ -27,7 +27,7 @@ path 'modules' do
   gem 'veteran_verification'
 end
 
-gem 'rails', '>= 6.1.4.2'
+gem 'rails', '~> 6.1'
 
 gem 'aasm'
 gem 'active_model_serializers', git: 'https://github.com/department-of-veterans-affairs/active_model_serializers', branch: 'master'
