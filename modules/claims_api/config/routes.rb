@@ -67,7 +67,10 @@ ClaimsApi::Engine.routes.draw do
       get '/:veteranId/claims', to: 'claims#index'
       get '/:veteranId/claims/:id', to: 'claims#show'
       get '/:veteranId/power-of-attorney', to: 'power_of_attorney#show'
-      put '/:veteranId/power-of-attorney:appointIndividual', to: 'power_of_attorney#appoint_individual'
+      put '/:veteranId/power-of-attorney:appoint-organization', to: 'power_of_attorney#appoint_organization',
+                                                                constraints: { 'appoint-organization': /:appoint-organization/ } # rubocop:disable Layout/LineLength
+      put '/:veteranId/power-of-attorney:appoint-individual', to: 'power_of_attorney#appoint_individual',
+                                                              constraints: { 'appoint-individual': /:appoint-individual/ } # rubocop:disable Layout/LineLength
       get '/:veteranId/intent-to-files/:type',
           to: 'intent_to_files#type',
           constraints: (lambda do |request|
