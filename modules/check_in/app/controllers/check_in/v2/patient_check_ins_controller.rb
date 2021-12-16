@@ -36,7 +36,7 @@ module CheckIn
       end
 
       def authorize
-        routing_error unless Flipper.enabled?('check_in_experience_multiple_appointment_support')
+        routing_error unless Flipper.enabled?('check_in_experience_enabled')
       end
     end
   end

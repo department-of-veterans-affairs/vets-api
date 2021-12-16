@@ -54,14 +54,6 @@ features:
     actor_type: user
     description: Enables the health care check-in experiences
     enable_in_development: true
-  check_in_experience_demographics_page_enabled:
-    actor_type: user
-    description: Enables the health care check-in experiences to show demographics page.
-    enable_in_development: true
-  check_in_experience_next_of_kin_enabled:
-    actor_type: user
-    description: Enables the health care check-in experiences to show the next of kin page.
-    enable_in_development: true
   check_in_experience_emergency_contact_enabled:
     actor_type: user
     description: Enables the health care check-in experiences to show the emergency contact page.
@@ -78,10 +70,6 @@ features:
     actor_type: user
     description: Enables the Update Information question in the health care check-in experience application
     enable_in_development: false
-  check_in_experience_multiple_appointment_support:
-    actor_type: user
-    description: Enables the health care check-in experiences to show multiple appointments
-    enable_in_development: true
   coe_access:
     actor_type: user
     description: Feature gates the certificate of eligibility application
