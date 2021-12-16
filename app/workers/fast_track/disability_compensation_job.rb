@@ -16,7 +16,7 @@ module FastTrack
     sidekiq_retries_exhausted do |msg, _ex|
       submission_id = msg['args'].first
       submission = Form526Submission.new
-      submission.start_evss_submission(nil, { submission_id: submission_id })
+      submission.start_evss_submission(nil, { 'submission_id' => submission_id })
     end
 
     def perform(form526_submission_id, full_name)

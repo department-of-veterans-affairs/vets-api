@@ -32,8 +32,8 @@ module FastTrack
     end
 
     def get_text_from_dosage_instruction(dosage_instructions)
-      toplevel_texts = dosage_instructions.map { |instr| instr['text'] }
-      code_texts = dosage_instructions.map { |instr| instr['timing']['code']['text'] }
+      toplevel_texts = dosage_instructions.map { |instr| instr['text'] || [] }
+      code_texts = dosage_instructions.map { |instr| instr.dig('timing', 'code', 'text') || [] }
       { 'dosageInstructions': toplevel_texts + code_texts }
     end
   end
