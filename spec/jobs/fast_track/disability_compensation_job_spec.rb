@@ -64,9 +64,9 @@ RSpec.describe FastTrack::DisabilityCompensationJob, type: :worker do
         it 'emails the stakeholders' do
           expect { FastTrack::DisabilityCompensationJob.new.perform(submission.id, user_full_name) }
             .to change { ActionMailer::Base.deliveries.count }.by(1)
-          expect(ActionMailer::Base.deliveries.last.subject).to eq 'Fast Track Hypertension Claim Submitted'
+          expect(ActionMailer::Base.deliveries.last.subject).to eq 'Fast Track Hypertension Code Hit'
           expect(ActionMailer::Base.deliveries.last.body.raw_source)
-            .to eq "A claim was just submitted on the #{Rails.env} environment with submission id: #{submission.id}"
+            .to match 'A claim was just submitted'
         end
 
         it 'finishes successfully' do

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <p>
+      <% if @submission.form_json.include? "VAMC_Hypertension_Rapid_Decision_Evidence.pdf" %>
+        A single issue hypertension claim for increase was just submitted on va.gov. 
+        A health summary PDF was generated and added to the claim’s documentation.
+      <% else %>
+        A single issue hypertension claim for increase was just submitted on va.gov. 
+        There was not sufficient data to generate a health summary PDF associated with this claim. 
+      <% end %>
+    </p>
+      Submission ID: <%= @submission.id %>
+      Benefit Claim Id: <%= @submission_claim_id %>
+      Time Submission Was Made: <%= @submission.created_at %>
+    <p>
+      
+    </p>
+  </body>
+</html>

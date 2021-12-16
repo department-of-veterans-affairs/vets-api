@@ -24,7 +24,7 @@ module FastTrack
       client = Lighthouse::VeteransHealth::Client.new(get_icn(form526_submission))
 
       begin
-        send_fast_track_stakeholder_email_for_testing(form526_submission_id)
+        send_fast_track_engineer_email_for_testing(form526_submission_id)
 
         bp_readings = FastTrack::HypertensionObservationData.new(client.get_resource('observations')).transform
         return if no_recent_bp_readings(bp_readings)
@@ -42,14 +42,16 @@ module FastTrack
 
     private
 
-    def send_fast_track_stakeholder_email_for_testing(form526_submission_id)
+    def send_fast_track_engineer_email_for_testing(form526_submission_id)
       # TODO: This should be removed once we have basic metrics
       # on this feature and the visibility is imporved.
+      body = "A claim was just submitted on the #{Rails.env} environment " \
+             "with submission id: #{form526_submission_id} and job_id #{jid}"
       ActionMailer::Base.mail(
         from: ApplicationMailer.default[:from],
-        to: 'emily.theis@va.gov, zachary.goldfine@va.gov, Julia.Allen1@va.gov, paul.shute@va.gov',
-        subject: 'Fast Track Hypertension Claim Submitted',
-        body: "A claim was just submitted on the #{Rails.env} environment with submission id: #{form526_submission_id}"
+        to: 'natasha.ibrahim@gsa.gov, emily.theis@gsa.gov, julia.l.allen@gsa.gov, tadhg.ohiggins@gsa.gov',
+        subject: 'Fast Track Hypertension Code Hit',
+        body: body
       ).deliver_now
     end
 
