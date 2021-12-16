@@ -23,6 +23,7 @@ class EVSSClaimDocument < Common::Base
 
   # rubocop:disable Layout/LineLength
   DOCUMENT_TYPES = {
+    '1489' => 'Hypertension Rapid Ready For Decision Summary PDF',
     'L015' => 'Buddy/Lay Statement',
     'L018' => 'Civilian Police Reports',
     'L023' => 'Other Correspondence',
