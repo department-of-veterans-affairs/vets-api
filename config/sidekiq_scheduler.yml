@@ -169,6 +169,11 @@ AppealsApi::NoticeOfDisagreementUploadStatusBatch:
   class: AppealsApi::NoticeOfDisagreementUploadStatusBatch
   description: "Update NoticeOfDisagreement statuses with their Central Mail status"
 
+AppealsApi::SupplementalClaimCleanUpPii:
+  every: ['24h', first_in: '45m']
+  class: AppealsApi::SupplementalClaimCleanUpPii
+  description: "Remove PII of SupplementalClaims that have 1) reached one of the 'completed' statuses and 2) are a week old"
+
 TransactionalEmailAnalyticsJob:
   cron: "0 1 * * * America/New_York"
   description: "posts Transactional email (HCA Failure and Direct Deposit Update) sends and failures to Google Analytics"
