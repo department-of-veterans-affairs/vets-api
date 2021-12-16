@@ -36,8 +36,11 @@ module V0
       private
 
       def render_find_ch33_dd_eft
+        Rails.logger.info('[Ch33BankAccountsController] GET After BGS Calls', sso_logging_info)
+        get_ch33_dd_eft_info = service.get_ch33_dd_eft_info
+        Rails.logger.info('[Ch33BankAccountsController] GET Before BGS Calls', sso_logging_info)
         render(
-          json: service.get_ch33_dd_eft_info,
+          json: get_ch33_dd_eft_info,
           serializer: Ch33BankAccountSerializer
         )
       end

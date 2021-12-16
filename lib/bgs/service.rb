@@ -174,8 +174,10 @@ module BGS
     end
 
     def get_ch33_dd_eft_info
+      Rails.logger.info('[BGS::Service] get_ch33_dd_eft_info start', @user&.uuid)
       find_ch33_dd_eft_res = find_ch33_dd_eft.body[:find_ch33_dd_eft_response][:return]
       routing_number = find_ch33_dd_eft_res[:routng_trnsit_nbr]
+      Rails.logger.info('[BGS::Service] get_ch33_dd_eft_info after first call', @user&.uuid)
 
       find_ch33_dd_eft_res.slice(
         :dposit_acnt_nbr,
