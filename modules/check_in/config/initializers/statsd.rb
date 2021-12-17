@@ -33,11 +33,6 @@ unless Rails.env.test?
       V2::Chip::Client.statsd_measure method, "api.check_in.v2.chip.#{method}.measure"
     end
 
-    # Measure the duration of GET and POST calls for Check-in data to the CHIP API
-    ChipApi::Service.extend(StatsD::Instrument)
-    ChipApi::Service.statsd_measure :get_check_in, 'check_in.chip_api.get_check_in.measure'
-    ChipApi::Service.statsd_measure :create_check_in, 'check_in.chip_api.create_check_in.measure'
-
     # Measure the duration of POST calls to the CHIP API for JWT access tokens
     ChipApi::Token.extend(StatsD::Instrument)
     ChipApi::Token.statsd_measure :fetch, 'check_in.chip_api.fetch_token.measure'
