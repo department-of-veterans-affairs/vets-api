@@ -3,7 +3,13 @@
 # Add your own tasks in files placed in lib/tasks ending in .rake,
 # for example lib/tasks/capistrano.rake, and they will automatically be available to Rake.
 
+require 'rake'
+require 'ddtrace'
 require_relative 'config/application'
+
+Datadog.configure do |c|
+  c.use :rake
+end
 
 # Load rake support files
 Dir[Rails.root.join('lib', 'tasks', 'support', '**', '*.rb')].sort.each { |f| require f }
