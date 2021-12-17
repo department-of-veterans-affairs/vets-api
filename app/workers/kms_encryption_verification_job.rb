@@ -33,7 +33,8 @@ class KmsEncryptionVerificationJob
     decrypted_data_key = box.decrypt(record.encrypted_kms_key,
                                      context: { model_name: record.class.name, model_id: record.id })
     lockbox = Lockbox.new(key: decrypted_data_key, encode: true)
-    lockbox.decrypt record.public_send("#{attribute}_ciphertext")
+    ciphertext = record.public_send("#{attribute}_ciphertext")
+    lockbox.decrypt ciphertext unless ciphertext.nil?
   rescue NoMethodError
     Rails.logger.error("Record with nil attr but has encrypted_kms_key:
                         #{record.class.name} - id: #{record.id} - attribute: #{attribute}")
