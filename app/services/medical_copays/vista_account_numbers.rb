@@ -68,7 +68,7 @@ module MedicalCopays
     # @return [Array]
     #
     def default
-      [0]
+      [1_234_567_891_011_121]
     end
 
     def treatment_facility_data(complete_facility_hash)
