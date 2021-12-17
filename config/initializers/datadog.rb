@@ -8,4 +8,6 @@ Datadog.configure do |c|
   c.service = 'vets-api'
   c.env = Settings.vsp_environment
   c.tracer.enabled = envs.include? Settings.vsp_environment
+  c.tracer hostname: 'datadog-agent',
+           port: 8126
 end
