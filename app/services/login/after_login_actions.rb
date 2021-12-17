@@ -55,19 +55,26 @@ module Login
         )
       end
     rescue => e
-      Rails.logger.info("[AfterLoginActions] UserVerification cannot be created, error=#{e.message}")
+      Rails.logger.info("[AfterLoginActions] UserVerification cannot be created or updated, error=#{e.message}")
     end
 
     def find_or_create_user_verification(credential_type, credential_identifier)
+      if credential_identifier.nil?
+        Rails.logger.info('[AfterLoginActions] No User Verification created for nil identifier')
+        return
+      end
+
       user_verification = UserVerification.find_by(credential_type => credential_identifier)
       current_user_icn = current_user.icn.presence
-      user_account = UserAccount.find_by(icn: current_user_icn)
+      user_account = current_user_icn ? UserAccount.find_by(icn: current_user_icn) : nil
 
       if user_verification
         update_existing_user_verification(user_verification, current_user_icn, user_account)
       else
+        verified_at = current_user.icn.present? ? Time.zone.now : nil
         UserVerification.create!(credential_type => credential_identifier,
-                                 user_account: user_account || UserAccount.new(icn: current_user_icn))
+                                 user_account: user_account || UserAccount.new(icn: current_user_icn),
+                                 verified_at: verified_at)
       end
     end
 
@@ -78,11 +85,13 @@ module Login
         deprecated_user_account = user_verification.user_account
         DeprecatedUserAccount.create!(user_account: deprecated_user_account,
                                       user_verification: user_verification)
-        user_verification.update(user_account: user_account)
+        user_verification.update(user_account: user_account, verified_at: Time.zone.now)
         Rails.logger.info("[AfterLoginActions] Deprecating UserAccount id=#{deprecated_user_account.id}, " \
                           "Updating UserVerification id=#{user_verification.id} with UserAccount id=#{user_account.id}")
       else
-        user_verification.user_account.update(icn: user_icn)
+        user_verification_account = user_verification.user_account
+        user_verification_account.update(icn: user_icn)
+        user_verification.update(verified_at: Time.zone.now)
       end
     end
   end

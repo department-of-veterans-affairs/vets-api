@@ -142,16 +142,50 @@ RSpec.describe Login::AfterLoginActions do
       let(:user) do
         create(:user,
                authn_context: authn_context,
-               edipi: 'some-edipi',
-               mhv_correlation_id: 'some-correlation-id',
-               idme_uuid: 'some-idme-uuid',
-               logingov_uuid: 'some-logingov-uuid',
+               edipi: edipi_identifier,
+               mhv_correlation_id: mhv_correlation_id_identifier,
+               idme_uuid: idme_uuid_identifier,
+               logingov_uuid: logingov_uuid_identifier,
                icn: icn)
       end
+      let(:edipi_identifier) { 'some-edipi' }
+      let(:mhv_correlation_id_identifier) { 'some-correlation-id' }
+      let(:idme_uuid_identifier) { 'some-idme-uuid' }
+      let(:logingov_uuid_identifier) { 'some-logingov-uuid' }
+
       let(:icn) { nil }
       let(:authn_context) { nil }
+      let(:time_freeze_time) { '10-10-2021' }
+
+      before do
+        Timecop.freeze(time_freeze_time)
+      end
+
+      after do
+        Timecop.return
+      end
 
       shared_examples 'user_verification and user_account upkeep' do
+        context 'and user credential identifier is nil' do
+          let(:authn_identifier) { nil }
+          let(:edipi_identifier) { authn_identifier }
+          let(:mhv_correlation_id_identifier) { authn_identifier }
+          let(:idme_uuid_identifier) { authn_identifier }
+          let(:logingov_uuid_identifier) { authn_identifier }
+          let(:expected_log) do
+            '[AfterLoginActions] No User Verification created for nil identifier'
+          end
+
+          it 'logs a message to rails logger' do
+            expect(Rails.logger).to receive(:info).with(expected_log)
+            subject
+          end
+
+          it 'returns nil' do
+            expect(subject).to be nil
+          end
+        end
+
         context 'and current user is verified, with an ICN value' do
           let(:icn) { 'some-icn' }
 
@@ -186,10 +220,18 @@ RSpec.describe Login::AfterLoginActions do
                     "Updating UserVerification id=#{user_verification.id} with " \
                     "UserAccount id=#{other_user_account.id}"
                 end
+                let(:expected_verified_at_time) { Time.zone.now }
 
                 before do
                   UserVerification.create!(authn_identifier_type => 'some-other-authn-identifier',
                                            user_account: other_user_account)
+                end
+
+                it 'sets the user_verification verified_at time to now' do
+                  expect do
+                    subject
+                    user_verification.reload
+                  end.to change(user_verification, :verified_at).from(nil).to(expected_verified_at_time)
                 end
 
                 it 'changes user_verification user_account associations' do
@@ -218,6 +260,7 @@ RSpec.describe Login::AfterLoginActions do
 
             context 'and user_account with the current user ICN does not exist' do
               let(:user_account) { UserAccount.new(icn: nil) }
+              let(:expected_verified_at_time) { Time.zone.now }
 
               it 'updates the associated user_account with the current user ICN' do
                 expect do
@@ -225,15 +268,30 @@ RSpec.describe Login::AfterLoginActions do
                   user_account.reload
                 end.to change(user_account, :icn).from(nil).to(user.icn)
               end
+
+              it 'sets the user_verification verified_at time to now' do
+                expect do
+                  subject
+                  user_verification.reload
+                end.to change(user_verification, :verified_at).from(nil).to(expected_verified_at_time)
+              end
             end
           end
 
           context 'and user_verification for user credential does not already exist' do
-            context 'and user_account matching icn does not already exist' do
-              it 'creates a new user_verification record' do
-                expect { subject }.to change(UserVerification, :count)
-              end
+            let(:expected_verified_at_time) { Time.zone.now }
 
+            it 'creates a new user_verification record' do
+              expect { subject }.to change(UserVerification, :count)
+            end
+
+            it 'sets the user_verification verified_at time to now' do
+              subject
+              user_verification = UserVerification.where(authn_identifier_type => authn_identifier).first
+              expect(user_verification.verified_at).to eq(expected_verified_at_time)
+            end
+
+            context 'and user_account matching icn does not already exist' do
               it 'sets the current user ICN on the user_account record' do
                 subject
                 account_icn = UserVerification.where(authn_identifier_type => authn_identifier).first.user_account.icn
@@ -249,10 +307,6 @@ RSpec.describe Login::AfterLoginActions do
 
             context 'and user_account matching icn already exists' do
               let!(:existing_user_account) { UserAccount.create!(icn: icn) }
-
-              it 'creates a new user_verification record' do
-                expect { subject }.to change(UserVerification, :count)
-              end
 
               it 'does not create a new user_account record' do
                 expect { subject }.not_to change(UserAccount, :count)
@@ -344,7 +398,7 @@ RSpec.describe Login::AfterLoginActions do
         let(:expected_error_message) { 'Some expected error message' }
         let(:expected_error) { StandardError.new(expected_error_message) }
         let(:expected_log) do
-          "[AfterLoginActions] UserVerification cannot be created, error=#{expected_error_message}"
+          "[AfterLoginActions] UserVerification cannot be created or updated, error=#{expected_error_message}"
         end
 
         before do
