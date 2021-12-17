@@ -514,9 +514,9 @@
       :uid_location: header
       :uid_locator: X-VA-SSN
   - :method: :get
-      :path: "/api/v3/decision_reviews/supplemental_claims/contestable_issues/compensation"
-      :file_path: "modules_appeals_api/contestable_issues"
-      :cache_multiple_responses:
+    :path: "/api/v3/decision_reviews/supplemental_claims/contestable_issues/compensation"
+    :file_path: "modules_appeals_api/contestable_issues"
+    :cache_multiple_responses:
       :uid_location: header
       :uid_locator: X-VA-SSN
   - :method: :get
