@@ -3,6 +3,7 @@
 # add metrics via statsd metaprogramming methods https://github.com/Shopify/statsd-instrument#metaprogramming-methods
 # and set initial values for increments to 0 (does not reset values, ensures counts carry over server instances)
 # statsd_count_success automatically appends .success or .failure
+# rubocop: disable Metrics/BlockLength
 
 StatsD.logger = Logger.new 'log/statsd.log' if Rails.env.development?
 
@@ -119,4 +120,10 @@ Rails.application.reloader.to_prepare do
   # SM cache hit ratio
   StatsD.increment('mobile.sm.cache.hit', 0)
   StatsD.increment('mobile.sm.cache.miss', 0)
+
+  # CDC Vaccine Background Job #--------------------------------------------------
+  StatsD.increment('mobile.vaccine_updater_job.success', 0)
+  StatsD.increment('mobile.vaccine_updater_job.failure', 0)
+
+  # rubocop: enable Metrics/BlockLength
 end

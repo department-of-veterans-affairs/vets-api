@@ -31,6 +31,10 @@ module Mobile
         results.each_pair { |k, v| logger.info("#{k.capitalize} vaccine records: #{v}") }
 
         logger.info('Updating vaccine records from CDC end')
+        StatsD.increment('mobile.vaccine_updater_job.success')
+      rescue => e
+        StatsD.increment('mobile.vaccine_updater_job.failure')
+        raise e
       end
 
       private

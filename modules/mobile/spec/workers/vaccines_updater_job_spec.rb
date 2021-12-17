@@ -17,6 +17,8 @@ RSpec.describe Mobile::V0::VaccinesUpdaterJob, type: :job do
         expect do
           service.perform
         end.to change { Mobile::V0::Vaccine.count }.from(0).to(3)
+                                                   .and trigger_statsd_increment('mobile.vaccine_updater_job.success',
+                                                                                 times: 1)
 
         covid_no_manufacturer = Mobile::V0::Vaccine.find_by(cvx_code: 503)
         expect(covid_no_manufacturer.group_name).to eq('COVID-19')
@@ -32,8 +34,7 @@ RSpec.describe Mobile::V0::VaccinesUpdaterJob, type: :job do
     VCR.use_cassette('vaccines/group_names') do
       VCR.use_cassette('vaccines/manufacturers') do
         service = described_class.new
-        service.perform
-
+        expect { service.perform }.to trigger_statsd_increment('mobile.vaccine_updater_job.success', times: 1)
         covid_no_manufacturer = Mobile::V0::Vaccine.find_by(cvx_code: 503)
         expect(covid_no_manufacturer.manufacturer).to be_nil
         covid_with_manufacturer = Mobile::V0::Vaccine.find_by(cvx_code: 207)
@@ -53,8 +54,7 @@ RSpec.describe Mobile::V0::VaccinesUpdaterJob, type: :job do
       VCR.use_cassette('vaccines/group_names') do
         VCR.use_cassette('vaccines/manufacturers') do
           service = described_class.new
-          service.perform
-
+          expect { service.perform }.to trigger_statsd_increment('mobile.vaccine_updater_job.success', times: 1)
           expect(covid_no_manufacturer.reload.manufacturer).to be_nil
           expect(covid_no_manufacturer.group_name).to eq('COVID-19')
           expect(covid_with_manufacturer.reload.manufacturer).to eq('Moderna US, Inc.')
@@ -73,6 +73,7 @@ RSpec.describe Mobile::V0::VaccinesUpdaterJob, type: :job do
         expect do
           service.perform
         end.to raise_error(Mobile::V0::VaccinesUpdaterJob::VaccinesUpdaterError, 'Property name CVXCode not found')
+          .and trigger_statsd_increment('mobile.vaccine_updater_job.failure', times: 1)
       end
     end
   end
