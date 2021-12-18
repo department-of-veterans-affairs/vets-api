@@ -126,11 +126,21 @@ class Form526Submission < ApplicationRecord
     user&.first_name&.upcase
   end
 
+  # Checks against the User record first, and then resorts to checking the auth_headers
+  # for the name attributes if the User record doesn't exist or contain the full name
+  #
   # @return [Hash] of the user's full name (first, middle, last, suffix)
   #
   def full_name
-    user = User.find(user_uuid)
-    user&.full_name_normalized
+    name_hash = User.find(user_uuid)&.full_name_normalized
+    return name_hash if name_hash&.[](:first).present?
+
+    {
+      first: auth_headers&.dig('va_eauth_firstName')&.capitalize,
+      middle: nil,
+      last: auth_headers&.dig('va_eauth_lastName')&.capitalize,
+      suffix: nil
+    }
   end
 
   # @return [Hash] parsed version of the form json

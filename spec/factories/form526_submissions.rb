@@ -51,4 +51,8 @@ FactoryBot.define do
       create(:form526_job_status, :pif_in_use_error, form526_submission: submission)
     end
   end
+
+  trait :with_empty_auth_headers do
+    auth_headers_json { { bogus: nil }.to_json }
+  end
 end
