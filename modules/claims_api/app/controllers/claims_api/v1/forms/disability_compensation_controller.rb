@@ -114,6 +114,7 @@ module ClaimsApi
         # rubocop:disable Metrics/MethodLength
         def validate_form_526
           add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
+          sanitize_account_type if form_attributes.dig('directDeposit', 'accountType')
           validate_json_schema
           validate_veteran_identifiers(require_birls: true)
           validate_initial_claim
