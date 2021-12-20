@@ -20,7 +20,7 @@ module Mobile
       end
 
       def index
-        validated_params = validate_params(params)
+        validated_params = validate_params
 
         json, status = fetch_all_cached_or_service(validated_params, params[:showCompleted])
         render json: json, status: status
@@ -53,9 +53,9 @@ module Mobile
 
       private
 
-      def fetch_all_cached_or_service(params, show_completed)
+      def fetch_all_cached_or_service(validated_params, show_completed)
         list = nil
-        list = Mobile::V0::ClaimOverview.get_cached(@current_user) if params[:use_cache]
+        list = Mobile::V0::ClaimOverview.get_cached(@current_user) if validated_params[:use_cache]
         list, errors = if list.blank?
                          Rails.logger.info('mobile claims and appeals service fetch', user_uuid: @current_user.uuid)
                          service_list, service_errors = claims_proxy.get_claims_and_appeals
@@ -67,11 +67,12 @@ module Mobile
                        end
 
         status = get_response_status(errors)
-        list = filter_by_date(params[:start_date], params[:end_date], list)
+        list = filter_by_date(validated_params[:start_date], validated_params[:end_date], list)
         list = filter_by_completed(list, show_completed) if show_completed.present?
-        list, pagination_meta, links_meta = paginate(list, params, show_completed)
-        options = { meta: { errors: errors, pagination: pagination_meta },
-                    links: format_for_claims(links_meta, show_completed) }
+        list, meta = paginate(list, validated_params)
+
+        options = { meta: { errors: errors, pagination: meta.dig(:meta, :pagination) },
+                    links: meta[:links] }
 
         [Mobile::V0::ClaimOverviewSerializer.new(list, options), status]
       end
@@ -80,14 +81,9 @@ module Mobile
         @claims_proxy ||= Mobile::V0::Claims::Proxy.new(@current_user)
       end
 
-      def validate_params(params)
-        params = fill_missing_params(params)
+      def validate_params
         validated_params = Mobile::V0::Contracts::GetPaginatedList.new.call(
-          start_date: params[0],
-          end_date: params[1],
-          page_number: params[2][:number],
-          page_size: params[2][:size],
-          use_cache: params[3]
+          pagination_params
         )
 
         raise Mobile::V0::Exceptions::ValidationErrors, validated_params if validated_params.failure?
@@ -95,26 +91,21 @@ module Mobile
         validated_params
       end
 
-      def paginate(list, params, _show_completed)
-        total_entries = list.length
-        page_size = params[:page_size]
-        page_number = params[:page_number]
-        total_pages = (total_entries / page_size.to_f).ceil
-        [list.slice(((page_number - 1) * page_size), page_size),
-         { currentPage: page_number, perPage: page_size, totalPages: total_pages, totalEntries: total_entries },
-         Mobile::PaginationLinksHelper.links(total_pages,
-                                             { page_size: page_size, page_number: page_number,
-                                               start_date: params[:start_date], end_date: params[:end_date] },
-                                             request)]
+      def paginate(list, validated_params)
+        url = request.base_url + request.path
+        Mobile::PaginationHelper.paginate(list: list, validated_params: validated_params, url: url)
       end
 
-      def fill_missing_params(params)
-        [
-          params[:startDate] || DateTime.new(1700).iso8601,
-          params[:endDate] || (DateTime.now.utc.beginning_of_day + 1.year).iso8601,
-          params[:page] || { number: 1, size: 10 },
-          params[:useCache] || true
-        ]
+      def pagination_params
+        pagination_params = {
+          start_date: params[:startDate] || DateTime.new(1700).iso8601,
+          end_date: params[:endDate] || (DateTime.now.utc.beginning_of_day + 1.year).iso8601,
+          page_number: params.dig(:page, :number),
+          page_size: params.dig(:page, :size),
+          use_cache: params[:useCache] || true
+        }
+        pagination_params[:show_completed] = params[:showCompleted] if params[:showCompleted].present?
+        pagination_params
       end
 
       def get_response_status(errors)
@@ -138,18 +129,6 @@ module Mobile
       def filter_by_completed(list, filter)
         list.filter do |entry|
           entry[:completed] == ActiveRecord::Type::Boolean.new.deserialize(filter)
-        end
-      end
-
-      def format_for_claims(links, show_completed)
-        if show_completed.present?
-          {
-            self: "#{links[:self]}&showCompleted=#{show_completed}",
-            first: "#{links[:first]}&showCompleted=#{show_completed}",
-            prev: links[:prev].present? ? "#{links[:prev]}&showCompleted=#{show_completed}" : links[:prev],
-            next: links[:next].present? ? "#{links[:next]}&showCompleted=#{show_completed}" : links[:next],
-            last: "#{links[:last]}&showCompleted=#{show_completed}"
-          }
         end
       end
     end

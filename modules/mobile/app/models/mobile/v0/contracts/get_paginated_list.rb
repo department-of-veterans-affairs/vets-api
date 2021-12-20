@@ -11,6 +11,7 @@ module Mobile
           optional(:page_size).maybe(:integer, :filled?)
           optional(:use_cache).maybe(:bool, :filled?)
           optional(:reverse_sort).maybe(:bool, :filled?)
+          optional(:show_completed).maybe(:bool, :filled?)
         end
       end
     end

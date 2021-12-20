@@ -13,21 +13,23 @@ module Mobile
         use_cache = params[:useCache] || true
         start_date = params[:startDate] || one_year_ago.iso8601
         end_date = params[:endDate] || one_year_from_now.iso8601
-        page = params[:page] || { number: 1, size: 10 }
         reverse_sort = !(params[:sort] =~ /-startDateUtc/).nil?
 
         validated_params = Mobile::V0::Contracts::GetPaginatedList.new.call(
           start_date: start_date,
           end_date: end_date,
-          page_number: page[:number],
-          page_size: page[:size],
+          page_number: params.dig(:page, :number),
+          page_size: params.dig(:page, :size),
           use_cache: use_cache,
           reverse_sort: reverse_sort
         )
 
         raise Mobile::V0::Exceptions::ValidationErrors, validated_params if validated_params.failure?
 
-        render json: fetch_cached_or_service(validated_params)
+        appointments = fetch_cached_or_service(validated_params)
+        page_appointments, page_meta_data = paginate(appointments, validated_params)
+
+        render json: Mobile::V0::AppointmentSerializer.new(page_appointments, page_meta_data)
       end
 
       def cancel
@@ -77,43 +79,15 @@ module Mobile
         end
 
         appointments.reverse! if validated_params[:reverse_sort]
+        appointments
+      end
 
-        # filter by request start and end date params here
+      def paginate(appointments, validated_params)
         appointments = appointments.filter do |appointment|
           appointment.start_date_utc.between? validated_params[:start_date], validated_params[:end_date]
         end
-        page_appointments, page_meta_data = paginate(list: appointments, validated_params: validated_params)
-
-        Mobile::V0::AppointmentSerializer.new(page_appointments, options(page_meta_data))
-      end
-
-      def paginate(list:, validated_params:)
-        page_number = validated_params[:page_number]
-        page_size = validated_params[:page_size]
-        pages = list.each_slice(page_size).to_a
-        page_meta_data = {
-          links: Mobile::PaginationLinksHelper.links(pages.size, validated_params, request),
-          pagination: {
-            current_page: page_number,
-            per_page: page_size,
-            total_pages: pages.size,
-            total_entries: list.size
-          }
-        }
-
-        return [[], page_meta_data] if page_number > pages.size
-
-        [pages[page_number - 1], page_meta_data]
-      end
-
-      def options(page_meta_data)
-        {
-          errors: nil,
-          meta: {
-            pagination: page_meta_data[:pagination]
-          },
-          links: page_meta_data[:links]
-        }
+        url = request.base_url + request.path
+        Mobile::PaginationHelper.paginate(list: appointments, validated_params: validated_params, url: url)
       end
 
       def appointments_proxy
