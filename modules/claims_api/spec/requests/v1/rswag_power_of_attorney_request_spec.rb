@@ -3,7 +3,7 @@
 require 'swagger_helper'
 require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
-require_relative '../../support/swagger_shared_components'
+require_relative '../../support/swagger_shared_components/v1'
 
 describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do  # rubocop:disable RSpec/DescribeClass
   path '/forms/2122' do
@@ -57,20 +57,20 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
       VERBIAGE
       description post_description
 
-      parameter SwaggerSharedComponents.header_params[:veteran_ssn_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_ssn_header]
       let(:'X-VA-SSN') { '796-04-3735' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_first_name_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_first_name_header]
       let(:'X-VA-First-Name') { 'WESLEY' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_last_name_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_last_name_header]
       let(:'X-VA-Last-Name') { 'FORD' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_birth_date_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_birth_date_header]
       let(:'X-VA-Birth-Date') { '1986-05-06T00:00:00+00:00' }
       let(:Authorization) { 'Bearer token' }
 
-      parameter SwaggerSharedComponents.body_examples[:power_of_attorney]
+      parameter SwaggerSharedComponents::V1.body_examples[:power_of_attorney]
 
       describe 'Getting a successful response' do
         response '200', '2122 Response' do
@@ -207,16 +207,16 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
 
       parameter name: :id, in: :path, type: :string, description: 'UUID given when Power of Attorney was submitted'
 
-      parameter SwaggerSharedComponents.header_params[:veteran_ssn_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_ssn_header]
       let(:'X-VA-SSN') { '796-04-3735' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_first_name_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_first_name_header]
       let(:'X-VA-First-Name') { 'WESLEY' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_last_name_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_last_name_header]
       let(:'X-VA-Last-Name') { 'FORD' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_birth_date_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_birth_date_header]
       let(:'X-VA-Birth-Date') { '1986-05-06T00:00:00+00:00' }
       let(:Authorization) { 'Bearer token' }
 
@@ -360,16 +360,16 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
 
       parameter name: :id, in: :path, type: :string, description: 'The ID of the 21-22 submission'
 
-      parameter SwaggerSharedComponents.header_params[:veteran_ssn_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_ssn_header]
       let(:'X-VA-SSN') { '796-04-3735' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_first_name_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_first_name_header]
       let(:'X-VA-First-Name') { 'WESLEY' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_last_name_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_last_name_header]
       let(:'X-VA-Last-Name') { 'FORD' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_birth_date_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_birth_date_header]
       let(:'X-VA-Birth-Date') { '1986-05-06T00:00:00+00:00' }
 
       let(:Authorization) { 'Bearer token' }
@@ -512,16 +512,16 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
       VERBIAGE
       description active_description
 
-      parameter SwaggerSharedComponents.header_params[:veteran_ssn_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_ssn_header]
       let(:'X-VA-SSN') { '796-04-3735' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_first_name_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_first_name_header]
       let(:'X-VA-First-Name') { 'WESLEY' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_last_name_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_last_name_header]
       let(:'X-VA-Last-Name') { 'FORD' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_birth_date_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_birth_date_header]
       let(:'X-VA-Birth-Date') { '1986-05-06T00:00:00+00:00' }
 
       let(:Authorization) { 'Bearer token' }
@@ -656,20 +656,20 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
       VERBIAGE
       description validation_description
 
-      parameter SwaggerSharedComponents.header_params[:veteran_ssn_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_ssn_header]
       let(:'X-VA-SSN') { '796-04-3735' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_first_name_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_first_name_header]
       let(:'X-VA-First-Name') { 'WESLEY' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_last_name_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_last_name_header]
       let(:'X-VA-Last-Name') { 'FORD' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_birth_date_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_birth_date_header]
       let(:'X-VA-Birth-Date') { '1986-05-06T00:00:00+00:00' }
       let(:Authorization) { 'Bearer token' }
 
-      parameter SwaggerSharedComponents.body_examples[:power_of_attorney]
+      parameter SwaggerSharedComponents::V1.body_examples[:power_of_attorney]
 
       describe 'Getting a successful response' do
         response '200', '2122 Response' do

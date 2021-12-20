@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Intent To File",
+  "type": "object",
+  "required": ["type"],
+  "properties": {
+    "type": {
+      "type": "string",
+      "example": "compensation",
+      "description": "Type of Intent To File being submitted.",
+      "enum": ["compensation", "pension"]
+    },
+    "participant_claimant_id": {
+      "type": "string",
+      "example": "123456789"
+    },
+    "participant_vet_id": {
+      "type": "string",
+      "example": "123456789"
+    }
+  },
+  "example": {
+    "type": "compensation"
+  }
+}

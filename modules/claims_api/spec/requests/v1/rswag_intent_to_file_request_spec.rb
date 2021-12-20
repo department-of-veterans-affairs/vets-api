@@ -3,7 +3,7 @@
 require 'swagger_helper'
 require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
-require_relative '../../support/swagger_shared_components'
+require_relative '../../support/swagger_shared_components/v1'
 
 describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do # rubocop:disable RSpec/DescribeClass
   path '/forms/0966' do
@@ -51,20 +51,20 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
       VERBIAGE
       description post_description
 
-      parameter SwaggerSharedComponents.header_params[:veteran_ssn_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_ssn_header]
       let(:'X-VA-SSN') { '796-04-3735' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_first_name_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_first_name_header]
       let(:'X-VA-First-Name') { 'WESLEY' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_last_name_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_last_name_header]
       let(:'X-VA-Last-Name') { 'FORD' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_birth_date_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_birth_date_header]
       let(:'X-VA-Birth-Date') { '1986-05-06T00:00:00+00:00' }
       let(:Authorization) { 'Bearer token' }
 
-      parameter SwaggerSharedComponents.body_examples[:intent_to_file]
+      parameter SwaggerSharedComponents::V1.body_examples[:intent_to_file]
 
       describe 'Getting a successful response' do
         response '200', '0966 Response' do
@@ -216,16 +216,16 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
       produces 'application/json'
       description 'Returns the last active 0966 form for a Veteran.'
 
-      parameter SwaggerSharedComponents.header_params[:veteran_ssn_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_ssn_header]
       let(:'X-VA-SSN') { '796-04-3735' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_first_name_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_first_name_header]
       let(:'X-VA-First-Name') { 'WESLEY' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_last_name_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_last_name_header]
       let(:'X-VA-Last-Name') { 'FORD' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_birth_date_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_birth_date_header]
       let(:'X-VA-Birth-Date') { '1986-05-06T00:00:00+00:00' }
 
       parameter name: 'type',
@@ -393,20 +393,20 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
       VERBIAGE
       description validate_description
 
-      parameter SwaggerSharedComponents.header_params[:veteran_ssn_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_ssn_header]
       let(:'X-VA-SSN') { '796-04-3735' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_first_name_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_first_name_header]
       let(:'X-VA-First-Name') { 'WESLEY' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_last_name_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_last_name_header]
       let(:'X-VA-Last-Name') { 'FORD' }
 
-      parameter SwaggerSharedComponents.header_params[:veteran_birth_date_header]
+      parameter SwaggerSharedComponents::V1.header_params[:veteran_birth_date_header]
       let(:'X-VA-Birth-Date') { '1986-05-06T00:00:00+00:00' }
       let(:Authorization) { 'Bearer token' }
 
-      parameter SwaggerSharedComponents.body_examples[:intent_to_file]
+      parameter SwaggerSharedComponents::V1.body_examples[:intent_to_file]
 
       describe 'Getting a successful response' do
         response '200', '0966 Response' do

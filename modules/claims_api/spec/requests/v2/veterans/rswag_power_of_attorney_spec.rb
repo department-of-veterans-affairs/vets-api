@@ -3,7 +3,7 @@
 require 'swagger_helper'
 require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
-require_relative '../../../support/swagger_shared_components'
+require_relative '../../../support/swagger_shared_components/v2'
 
 describe 'PowerOfAttorney', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v2/swagger.json' do
   path '/veterans/{veteranId}/power-of-attorney' do
@@ -171,7 +171,7 @@ describe 'PowerOfAttorney', swagger_doc: 'modules/claims_api/app/swagger/claims_
                 type: :string,
                 description: 'ID of Veteran'
 
-      parameter SwaggerSharedComponents.body_examples[:power_of_attorney]
+      parameter SwaggerSharedComponents::V2.body_examples[:power_of_attorney]
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:scopes) { %w[claim.write] }
@@ -333,7 +333,7 @@ describe 'PowerOfAttorney', swagger_doc: 'modules/claims_api/app/swagger/claims_
                 type: :string,
                 description: 'ID of Veteran'
 
-      parameter SwaggerSharedComponents.body_examples[:power_of_attorney]
+      parameter SwaggerSharedComponents::V2.body_examples[:power_of_attorney]
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:scopes) { %w[claim.write] }

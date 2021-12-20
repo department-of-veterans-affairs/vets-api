@@ -3,7 +3,7 @@
 require 'swagger_helper'
 require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
-require_relative '../../support/swagger_shared_components'
+require_relative '../../support/swagger_shared_components/v2'
 
 describe 'Veteran Identifier', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v2/swagger.json' do # rubocop:disable RSpec/DescribeClass
   path '/veteran-id:find' do
@@ -20,7 +20,7 @@ describe 'Veteran Identifier', swagger_doc: 'modules/claims_api/app/swagger/clai
       description "Allows authenticated Veterans and Veteran representatives to retrieve a Veteran's id."
 
       let(:Authorization) { 'Bearer token' }
-      parameter SwaggerSharedComponents.body_examples[:veteran_identifier]
+      parameter SwaggerSharedComponents::V2.body_examples[:veteran_identifier]
 
       let(:data) do
         {
