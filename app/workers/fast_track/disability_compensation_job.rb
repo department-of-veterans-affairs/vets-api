@@ -35,7 +35,8 @@ module FastTrack
         upload_pdf_and_attach_special_issue(form526_submission, pdf)
       rescue => e
         Rails.logger.error 'Disability Compensation Fast Track Job failing for form' \
-                           "id:#{form526_submission.id}. With error: #{e}"
+                           "id:#{form526_submission.id}. With error message: #{e.message}" \
+                           "with backtrace: #{e.backtrace}"
         raise
       end
     end
