@@ -27,6 +27,7 @@ module Lighthouse
       # @return [Lighthouse::VeteransHealth::Client]
       def initialize(icn)
         @icn = icn
+        raise ArgumentError, 'no ICN passed in for LH API request.' if icn.blank?
       end
 
       # Handles the Lighthouse request for the passed-in resource.
