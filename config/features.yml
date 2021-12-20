@@ -414,6 +414,10 @@ features:
     actor_type: user
     description: Enables the medical copays application on route /manage-va-debt/medical-copays/
     enable_in_development: true
+  medical_copays_zero_debt:
+    actor_type: user
+    description: Enables zero debt balances feature on the medical copays application
+    enable_in_development: false
   show_healthcare_experience_questionnaire:
     actor_type: cookie_id
     description: Enables showing the pre-appointment questionnaire feature.
