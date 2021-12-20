@@ -14,7 +14,7 @@ module FastTrack
       new_upload = {
         name: 'VAMC_Hypertension_Rapid_Decision_Evidence.pdf',
         confirmationCode: confirmation_code,
-        attachmentId: '1489'
+        attachmentId: 'L023'
       }
       uploads.append(new_upload)
       data['form526_uploads'] = uploads

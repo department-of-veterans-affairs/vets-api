@@ -34,7 +34,7 @@ RSpec.describe FastTrack::HypertensionUploadManager do
         expect(parsed_json).to match original_form_json_uploads + [
           { 'name' => 'VAMC_Hypertension_Rapid_Decision_Evidence.pdf',
             'confirmationCode' => 'fake_confirmation_code',
-            'attachmentId' => '1489' }
+            'attachmentId' => 'L023' }
         ]
       end
 
@@ -50,7 +50,7 @@ RSpec.describe FastTrack::HypertensionUploadManager do
           expect(parsed_json).to match [
             { 'name' => 'VAMC_Hypertension_Rapid_Decision_Evidence.pdf',
               'confirmationCode' => 'fake_confirmation_code',
-              'attachmentId' => '1489' }
+              'attachmentId' => 'L023' }
           ]
         end
       end

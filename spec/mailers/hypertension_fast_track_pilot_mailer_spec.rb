@@ -15,7 +15,7 @@ RSpec.describe HypertensionFastTrackPilotMailer, type: [:mailer] do
     let(:pdf_json_string) do
       { 'name' => 'VAMC_Hypertension_Rapid_Decision_Evidence.pdf',
         'confirmationCode' => 'fake_confirmation_code',
-        'attachmentId' => '1489' }.to_s
+        'attachmentId' => 'L023' }.to_s
     end
 
     let(:saved_claim) { FactoryBot.create(:va526ez) }
