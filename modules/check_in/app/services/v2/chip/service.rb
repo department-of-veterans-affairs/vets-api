@@ -75,17 +75,17 @@ module V2
       end
 
       def demographic_confirmations
-        demographics_needs_update = check_in_body[:demographics_up_to_date] ? false : true
-        next_of_kin_needs_update = check_in_body[:next_of_kin_up_to_date] ? false : true
         confirmed_at = Time.zone.now.iso8601
 
         result =
           {
             demographicConfirmations: {
-              demographicsNeedsUpdate: demographics_needs_update,
+              demographicsNeedsUpdate: check_in_body[:demographics_up_to_date] ? false : true,
               demographicsConfirmedAt: confirmed_at,
-              nextOfKinNeedsUpdate: next_of_kin_needs_update,
-              nextOfConfirmedAt: confirmed_at
+              nextOfKinNeedsUpdate: check_in_body[:next_of_kin_up_to_date] ? false : true,
+              nextOfConfirmedAt: confirmed_at,
+              emergencyContactNeedsUpdate: check_in_body[:emergency_contact_up_to_date] ? false : true,
+              emergencyContactConfirmedAt: confirmed_at
             }
           }
 

@@ -169,7 +169,9 @@ describe V2::Chip::Service do
             demographicsNeedsUpdate: true,
             demographicsConfirmedAt: Time.zone.now.iso8601,
             nextOfKinNeedsUpdate: true,
-            nextOfConfirmedAt: Time.zone.now.iso8601
+            nextOfConfirmedAt: Time.zone.now.iso8601,
+            emergencyContactNeedsUpdate: true,
+            emergencyContactConfirmedAt: Time.zone.now.iso8601
           }
         }
       end
@@ -192,7 +194,9 @@ describe V2::Chip::Service do
               demographicsNeedsUpdate: true,
               demographicsConfirmedAt: Time.zone.now.iso8601,
               nextOfKinNeedsUpdate: true,
-              nextOfKinConfirmedAt: Time.zone.now.iso8601
+              nextOfKinConfirmedAt: Time.zone.now.iso8601,
+              emergencyContactNeedsUpdate: true,
+              emergencyContactConfirmedAt: Time.zone.now.iso8601
             }
           }
         end

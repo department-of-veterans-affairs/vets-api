@@ -161,6 +161,7 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
           uuid: id,
           demographics_up_to_date: true,
           next_of_kin_up_to_date: true,
+          emergency_contact_up_to_date: true,
           check_in_type: :preCheckIn
         }
       }

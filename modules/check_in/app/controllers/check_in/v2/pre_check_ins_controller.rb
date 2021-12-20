@@ -34,7 +34,8 @@ module CheckIn
       private
 
       def pre_check_in_params
-        params.require(:pre_check_in).permit(:uuid, :demographics_up_to_date, :next_of_kin_up_to_date, :check_in_type)
+        params.require(:pre_check_in).permit(:uuid, :demographics_up_to_date, :next_of_kin_up_to_date,
+                                             :emergency_contact_up_to_date, :check_in_type)
       end
 
       def authorize
