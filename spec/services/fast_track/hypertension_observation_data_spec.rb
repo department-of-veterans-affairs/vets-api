@@ -144,5 +144,11 @@ RSpec.describe FastTrack::HypertensionObservationData, :vcr do
       expect(described_class.new(empty_response).transform)
         .to eq([])
     end
+
+    it 'returns nil from missing component field' do
+      empty_response = OpenStruct.new
+      empty_response.body = { 'entry': [{ 'resource': {} }] }.with_indifferent_access
+      expect(described_class.new(empty_response).transform).to eq([{ issued: nil }])
+    end
   end
 end

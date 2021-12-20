@@ -36,16 +36,10 @@ module FastTrack
     def get_bp_readings_from_entry(entry)
       result = {}
       # Each component should contain a BP pair, so after filtering there should only be one reading of each type:
-      systolic = filter_components_by_code('8480-6', entry['component']).first
-      diastolic = filter_components_by_code('8462-4', entry['component']).first
+      systolic = filter_components_by_code('8480-6', entry['component'])&.first
+      diastolic = filter_components_by_code('8462-4', entry['component'])&.first
 
-      if systolic.blank? || diastolic.blank?
-        # TODO: if either are missing from the entry I don't think we can use
-        # it. However, it's possible that there may be entire entries that we
-        # could skip if we still got some valid entries, so again I'm not certain
-        # that raising an error here is correct.
-        raise 'missing systolic or diastolic'
-      else
+      if systolic.present? && diastolic.present?
         result[:systolic] = extract_bp_data_from_component(systolic)
         result[:diastolic] = extract_bp_data_from_component(diastolic)
       end
@@ -55,7 +49,7 @@ module FastTrack
 
     def filter_components_by_code(code, components)
       # Filter the components to only those that have at least one code.coding element with the code:
-      components.filter { |item| item['code']['coding'].filter { |el| el['code'] == code }.length.positive? }
+      components&.filter { |item| item.dig('code', 'coding')&.filter { |el| el['code'] == code }&.length&.positive? }
     end
 
     def extract_bp_data_from_component(component)
