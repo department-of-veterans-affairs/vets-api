@@ -66,6 +66,10 @@ features:
     actor_type: user
     description: This updates a key name in the demographics confirmation hash in the CHIP service.
     enable_in_development: true
+  check_in_experience_demographics_confirmation_enabled:
+    actor_type: user
+    description: Enables the health care pre-check-in experiences to send demographics confirmation.
+    enable_in_development: true
   check_in_experience_update_information_page_enabled:
     actor_type: user
     description: Enables the Update Information question in the health care check-in experience application

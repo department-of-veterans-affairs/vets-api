@@ -46,7 +46,24 @@ module CheckIn
           demographics.merge!(emergencyContact: emergency_contact)
         end
 
-        { demographics: demographics, appointments: appointments }
+        if Flipper.enabled?(:check_in_experience_demographics_confirmation_enabled)
+          raw_confirmation = object.payload[:patientDemographicsStatus]
+          demographics_confirmation = {
+            demographicsNeedsUpdate: raw_confirmation[:demographicsNeedsUpdate],
+            demographicsConfirmedAt: raw_confirmation[:demographicsConfirmedAt],
+            nextOfKinNeedsUpdate: raw_confirmation[:nextOfKinNeedsUpdate],
+            nextOfKinConfirmedAt: raw_confirmation[:nextOfKinConfirmedAt],
+            emergencyContactNeedsUpdate: raw_confirmation[:emergencyContactNeedsUpdate],
+            emergencyContactConfirmedAt: raw_confirmation[:emergencyContactConfirmedAt]
+          }
+          {
+            demographics: demographics,
+            appointments: appointments,
+            patientDemographicsStatus: demographics_confirmation
+          }
+        else
+          { demographics: demographics, appointments: appointments }
+        end
       end
 
       def self.address_helper(address)

@@ -297,6 +297,8 @@ describe V2::Lorota::Service do
       before do
         allow(Flipper).to receive(:enabled?)
           .with(:check_in_experience_emergency_contact_enabled).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_demographics_confirmation_enabled).and_return(false)
       end
 
       it 'does not save appointment identifiers' do
@@ -313,6 +315,8 @@ describe V2::Lorota::Service do
       before do
         allow(Flipper).to receive(:enabled?)
           .with(:check_in_experience_emergency_contact_enabled).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_demographics_confirmation_enabled).and_return(false)
       end
 
       it 'saves appointment identifiers' do
@@ -326,6 +330,8 @@ describe V2::Lorota::Service do
       before do
         allow(Flipper).to receive(:enabled?)
           .with(:check_in_experience_emergency_contact_enabled).and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_demographics_confirmation_enabled).and_return(false)
       end
 
       it 'returns approved data without emergency contact' do
@@ -337,6 +343,8 @@ describe V2::Lorota::Service do
       before do
         allow(Flipper).to receive(:enabled?)
           .with(:check_in_experience_emergency_contact_enabled).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_demographics_confirmation_enabled).and_return(false)
       end
 
       it 'returns approved data with emergency contact' do
