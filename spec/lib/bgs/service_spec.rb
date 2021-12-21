@@ -87,6 +87,21 @@ RSpec.describe BGS::Service do
         end
       end
 
+      context 'when user does not have bank information' do
+        it 'returns nil for bank name, and does not log a sentry exception' do
+          VCR.use_cassette('bgs/service/find_ch33_dd_eft_no_bank_info', VCR::MATCH_EVERYTHING) do
+            expect(bgs_service).not_to receive(:log_exception_to_sentry)
+
+            res = bgs_service.get_ch33_dd_eft_info
+            expect(res).to eq(
+              {
+                financial_institution_name: nil
+              }
+            )
+          end
+        end
+      end
+
       it 'retrieves a users dd eft details including bank name' do
         VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
           VCR.use_cassette('bgs/ddeft/find_bank_name_valid', VCR::MATCH_EVERYTHING) do

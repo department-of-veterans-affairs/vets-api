@@ -16,6 +16,10 @@ module BGS
     # (I = Input, U = Update, D = Delete)
     JOURNAL_STATUS_TYPE_CODE = 'U'
 
+    # It appears that a find_ch33_dd_eft that returns empty bank account information
+    # will set the routing number field to '0' instead of 'nil', at least in certain cases
+    EMPTY_ROUTING_NUMBER = '0'
+
     def initialize(user)
       @user = user
     end
@@ -192,7 +196,7 @@ module BGS
     end
 
     def find_bank_name_by_routng_trnsit_nbr(routing_number)
-      return if routing_number.blank?
+      return if routing_number.blank? || routing_number == EMPTY_ROUTING_NUMBER
 
       with_monitoring do
         res = StatsD.measure("#{self.class::STATSD_KEY_PREFIX}.find_bank_name_by_routng_trnsit_nbr.duration") do
