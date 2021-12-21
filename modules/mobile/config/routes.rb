@@ -64,4 +64,8 @@ Mobile::Engine.routes.draw do
       end
     end
   end
+
+  namespace :v1 do
+    get '/health/immunizations', to: 'immunizations#index'
+  end
 end
