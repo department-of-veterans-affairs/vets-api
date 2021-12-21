@@ -167,12 +167,12 @@ module SAML
 
       def mhv_loa_highest
         mhv_assurance = mhv_account_type
-        SAML::UserAttributes::MHV::PREMIUM_LOAS.include?(mhv_assurance) ? 3 : nil
+        LOA::MHV_PREMIUM_VERIFIED.include?(mhv_assurance) ? 3 : nil
       end
 
       def dslogon_loa_highest
         dslogon_assurance = dslogon_account_type
-        SAML::UserAttributes::DSLogon::PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : nil
+        LOA::DSLOGON_PREMIUM_VERIFIED.include?(dslogon_assurance) ? 3 : nil
       end
 
       # This is the ID.me highest level of assurance attained
@@ -207,16 +207,16 @@ module SAML
       end
 
       def sign_in
-        sign_in = if @authn_context == INBOUND_AUTHN_CONTEXT
+        sign_in = if authn_context == INBOUND_AUTHN_CONTEXT
                     { service_name: csid == SAML::User::MHV_ORIGINAL_CSID ? SAML::User::MHV_MAPPED_CSID : csid }
                   else
-                    SAML::User::AUTHN_CONTEXTS.fetch(@authn_context).fetch(:sign_in)
+                    SAML::User::AUTHN_CONTEXTS.fetch(authn_context).fetch(:sign_in)
                   end
         sign_in.merge(account_type: account_type)
       end
 
       def to_hash
-        SERIALIZABLE_ATTRIBUTES.index_with { |k| send(k) }
+        SERIALIZABLE_ATTRIBUTES.index_with { |k| send(k) }.merge(authn_context: authn_context)
       end
 
       # Raise any fatal exceptions due to validation issues

@@ -49,8 +49,6 @@ class UserIdentity < Common::RedisStore
   # It could also be DSLogon or MHV Premium users.
   # It could also be DSLogon or MHV NON PREMIUM users who have done ID.me FICAM LOA3.
   # Additionally, LOA3 does not automatically mean user has opted to have MFA.
-  # See also lib/saml/user_attributes/dslogon.rb
-  # See also lib/saml/user_attributes/mhv
   def loa3?
     loa[:current].try(:to_i) == LOA::THREE
   end
