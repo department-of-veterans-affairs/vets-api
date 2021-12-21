@@ -20,8 +20,9 @@ module FastTrack
     end
 
     def stringify_patient
-      full_name = [patient[:first], patient[:middle], patient[:last]].reject(&:blank?).join ' '
-      [full_name, patient[:suffix]].reject(&:blank?).join ', '
+      names = patient.with_indifferent_access
+      full_name = [names[:first], names[:middle], names[:last]].reject(&:blank?).join ' '
+      [full_name, names[:suffix]].reject(&:blank?).join ', '
     end
 
     def add_intro(pdf)
