@@ -437,5 +437,108 @@ RSpec.describe 'immunizations', type: :request do
         )
       end
     end
+
+    describe 'vaccine group name and manufacturer population' do
+      let(:immunizations_request) do
+        VCR.use_cassette('lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+          get '/mobile/v1/health/immunizations', headers: iam_headers, params: nil
+        end
+      end
+
+      context 'when the vaccine record exists' do
+        let!(:vaccine) { create(:vaccine, cvx_code: 140, group_name: 'COVID-19', manufacturer: 'Moderna') }
+
+        it 'uses the vaccine group name and manufacturer in the response' do
+          immunizations_request
+
+          expect(response.parsed_body['data'][2]['attributes']).to eq(
+            {
+              'cvxCode' => 140,
+              'date' => '2011-03-31T12:24:55Z',
+              'doseNumber' => 'Series 1',
+              'doseSeries' => 1,
+              'groupName' => vaccine.group_name,
+              'manufacturer' => vaccine.manufacturer,
+              'note' => 'Dose #47 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
+              'reaction' => 'Other',
+              'shortDescription' => 'Influenza  seasonal  injectable  preservative free'
+            }
+          )
+        end
+      end
+
+      context 'when the vaccine record does not exist' do
+        it 'sets group name and manufacturer to nil' do
+          immunizations_request
+
+          expect(response.parsed_body['data'][2]['attributes']).to eq(
+            {
+              'cvxCode' => 140,
+              'date' => '2011-03-31T12:24:55Z',
+              'doseNumber' => 'Series 1',
+              'doseSeries' => 1,
+              'groupName' => nil,
+              'manufacturer' => nil,
+              'note' => 'Dose #47 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
+              'reaction' => 'Other',
+              'shortDescription' => 'Influenza  seasonal  injectable  preservative free'
+            }
+          )
+        end
+      end
+    end
+
+    describe 'pagination' do
+      it 'defaults to the first page with ten results per page', :aggregate_failures do
+        VCR.use_cassette('lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+          get '/mobile/v1/health/immunizations', headers: iam_headers, params: nil
+        end
+        ids = response.parsed_body['data'].map { |i| i['id'] }
+        # these are the first ten records in the vcr cassette
+        expected_ids = %w[
+          I2-A7XD2XUPAZQ5H4Y5D6HJ352GEQ000000
+          I2-6SIQZNJCIOAQOGES6YOTSQAWJY000000
+          I2-RWRNZDHNNCHLJJKJDJVVVAZHNQ000000
+          I2-YYBTWDMLX6WLFV3GBSIGT5CZO4000000
+          I2-LA34JJPECU7NQFSNCRULFSVQ3M000000
+          I2-DOUHUYLFJLLPSJLACUDAJF5GF4000000
+          I2-VLMNAJAIAEAA3TR34PW5VHUFPM000000
+          I2-GY27FURWILSYXZTY2GQRNJH57U000000
+          I2-F3CW7J5IRY6PVIEVDMRL4R4W6M000000
+          I2-JYYSRLCG3BN646ZPICW25IEOFQ000000
+        ]
+
+        expect(ids).to eq(expected_ids)
+      end
+
+      it 'returns the correct page and number of records' do
+        VCR.use_cassette('lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+          get '/mobile/v1/health/immunizations', headers: iam_headers, params: { page: { size: 2, number: 3 } }
+          ids = response.parsed_body['data'].map { |i| i['id'] }
+
+          # these are the fifth and sixth records in the vcr cassette
+          expect(ids).to eq(%w[I2-LA34JJPECU7NQFSNCRULFSVQ3M000000 I2-DOUHUYLFJLLPSJLACUDAJF5GF4000000])
+        end
+      end
+
+      it 'creates navigation links for the client' do
+        VCR.use_cassette('lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+          size = 2
+          number = 3
+          get '/mobile/v1/health/immunizations', headers: iam_headers, params: { page: { size: size, number: number } }
+          expected_links = {
+            'self' => "http://www.example.com/mobile/v1/health/immunizations?page[size]=#{size}&page[number]=#{number}",
+            'first' => "http://www.example.com/mobile/v1/health/immunizations?page[size]=#{size}&page[number]=1",
+            'prev' =>
+              "http://www.example.com/mobile/v1/health/immunizations?page[size]=#{size}&page[number]=#{number - 1}",
+            'next' =>
+              "http://www.example.com/mobile/v1/health/immunizations?page[size]=#{size}&page[number]=#{number + 1}",
+            'last' => "http://www.example.com/mobile/v1/health/immunizations?page[size]=#{size}&page[number]=8"
+          }
+
+          expect(response.parsed_body['links']).to eq(expected_links)
+        end
+      end
+    end
   end
 end
