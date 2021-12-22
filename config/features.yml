@@ -540,6 +540,10 @@ features:
     actor_type: user
     description: Enables connection to webchat
     enable_in_development: true
+  virtual_agent_auth:
+    actor_type: user
+    description: Enables auth lock in order to access bot
+    enable_in_development: true
   yellow_ribbon_mvp_enhancement:
     actor_type: user
     description: Enhances Yellow Ribbon MVP.
