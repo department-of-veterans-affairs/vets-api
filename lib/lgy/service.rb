@@ -23,7 +23,7 @@ module LGY
         'unable-to-determine-eligibility'
       elsif get_determination.body['status'] == 'ELIGIBLE' && get_application.status == 200
         'available'
-      elsif get_determination.body['status'] == 'NOT ELIGIBLE'
+      elsif get_determination.body['status'] == 'NOT_ELIGIBLE'
         'ineligible'
       end
     end

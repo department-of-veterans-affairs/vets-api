@@ -73,13 +73,13 @@ describe LGY::Service do
       end
     end
 
-    context 'when get_determination is NOT_ELIGIBLE (needs supporting docs)' do
+    context 'when get_determination is NOT_ELIGIBLE' do
+      subject { described_class.new(edipi: '1005135644', icn: '1012845631V882122') }
+
       it 'returns ineligible' do
-        body = File.read(Rails.root.join('spec', 'fixtures', 'json', 'get_determination_not_eligible.json'))
-        stub_request(:get, 'https://fake_url.com/eligibility-manager/api/eligibility/determination')
-          .with(query: { edipi: user.edipi, icn: user.icn })
-          .to_return(body: body, status: 200, headers: { 'Content-Type' => 'application/json' })
-        expect(subject.coe_status).to eq 'ineligible'
+        VCR.use_cassette 'lgy/determination_not_eligible' do
+          expect(subject.coe_status).to eq 'ineligible'
+        end
       end
     end
   end
