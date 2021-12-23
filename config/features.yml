@@ -308,6 +308,10 @@ features:
     actor_type: user
     description: Enable new list loop pattern
     enable_in_development: true
+  medical_copays_six_mo_window:
+    actor_type: user
+    description: This will filter to only show medical copays within the last 6 months
+    enable_in_development: true
   mega_menu_mobile_v2:
     actor_type: user
     description: Separates mobile mega menu from desktop mega menu

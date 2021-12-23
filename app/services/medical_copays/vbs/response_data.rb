@@ -63,7 +63,8 @@ module MedicalCopays
       # @return [Array]
       #
       def transformed_body
-        last_six_months_statements.each do |copay|
+        statements = Flipper.enabled?(:medical_copays_six_mo_window) ? last_six_months_statements : body
+        statements.each do |copay|
           copay.deep_transform_keys! { |key| key.camelize(:lower) }
         end
       end
