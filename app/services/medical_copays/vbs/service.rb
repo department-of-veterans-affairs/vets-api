@@ -36,7 +36,6 @@ module MedicalCopays
       # @return [Hash]
       #
       def get_copays
-        return { data: { message: 'Deceased' }, status: 403 } if user.account.notifications.any?(&:deceased?)
         raise InvalidVBSRequestError, request_data.errors unless request_data.valid?
 
         response = request.post("#{settings.base_path}/GetStatementsByEDIPIAndVistaAccountNumber", request_data.to_hash)

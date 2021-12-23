@@ -45,20 +45,4 @@ RSpec.describe V0::MedicalCopaysController, type: :controller do
       expect(response).to have_http_status(:ok)
     end
   end
-
-  context 'user is deceased' do
-    let(:user) { create(:user, :accountable) }
-    let(:notification) { create(:notification, account: user.account, status: Notification::DECEASED) }
-
-    before do
-      sign_in_as(user)
-    end
-
-    it 'returns success with deceased message payload' do
-      expect(user.account.notifications).to include(notification)
-      get(:index)
-      expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body)).to eq({ 'data' => { 'message' => 'Deceased' }, 'status' => 403 })
-    end
-  end
 end
