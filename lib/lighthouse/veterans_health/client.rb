@@ -79,7 +79,7 @@ module Lighthouse
       end
 
       def base64_icn
-        @base64_icn ||= Base64.encode64 JSON.generate({ patient: @icn }, space: ' ')
+        @base64_icn ||= Base64.encode64 JSON.generate({ patient: @icn.to_s }, space: ' ')
       end
 
       def bearer_token
