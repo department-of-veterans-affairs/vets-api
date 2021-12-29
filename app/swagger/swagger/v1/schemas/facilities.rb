@@ -111,10 +111,4 @@ class Swagger::V1::Schemas::Facilities
     property :state, type: %i[string null], example: 'NY'
     property :zip, type: %i[string null], example: '00001'
   end
-
-  swagger_schema :Provider do
-  end
-
-  swagger_schema :Specialty do
-  end
 end

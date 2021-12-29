@@ -352,12 +352,6 @@ Rails.application.routes.draw do
 
     namespace :facilities, module: 'facilities' do
       resources :va, only: %i[index show]
-      resources :ccp, only: %i[index show] do
-        get 'specialties', on: :collection, to: 'ccp#specialties'
-      end
-      resources :va_ccp, only: [] do
-        get 'urgent_care', on: :collection
-      end
     end
 
     namespace :gi, module: 'gids' do
