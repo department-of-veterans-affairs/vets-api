@@ -3,6 +3,7 @@ required:
   - type
   - id
   - attributes
+  - relationships
 properties:
   type:
     type: string
@@ -20,6 +21,7 @@ properties:
       - groupName
       - manufacturer
       - note
+      - reaction
       - shortDescription
     properties:
       cvxCode:
@@ -46,3 +48,37 @@ properties:
       shortDescription:
         type: string
         example: "Influenza  seasonal  injectable  preservative free"
+      reaction:
+        type: string
+        example: "Swelling"
+  relationships:
+    type: object
+    required:
+      - location
+    properties:
+      location:
+        type: object
+        required:
+          - data
+          - links
+        properties:
+          data:
+            type: [object, null]
+            required:
+              - id
+              - type
+            properties:
+              id:
+                type: string
+                example: "I2-4KG3N5YUSPTWD3DAFMLMRL5V5U000000"
+              type:
+                type: string
+                example: "location"
+          links:
+            type: object
+            required:
+              - related
+            properties:
+              related:
+                type: [string, null]
+                example: "staging-api.va.gov/mobile/v0/health/locations/I2-2FPCKUIXVR7RJLLG34XVWGZERM000000"
