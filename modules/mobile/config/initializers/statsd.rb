@@ -125,5 +125,8 @@ Rails.application.reloader.to_prepare do
   StatsD.increment('mobile.vaccine_updater_job.success', 0)
   StatsD.increment('mobile.vaccine_updater_job.failure', 0)
 
+  # Immunizations #------------------------------------------------------------
+  StatsD.increment('mobile.immunizations.cvx_code_missing', 0)
+  StatsD.increment('mobile.immunizations.date_missing', 0)
   # rubocop: enable Metrics/BlockLength
 end

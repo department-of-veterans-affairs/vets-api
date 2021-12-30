@@ -25,31 +25,31 @@ properties:
       - shortDescription
     properties:
       cvxCode:
-        type: integer
+        type: integer, null
         example: 140
       date:
-        type: string
+        type: string, null
         example: 2009-03-19T12:24:55Z
       doseNumber:
-        type: string
+        type: string, null
         example: "Booster"
       doseSeries:
-        type: integer
+        type: integer, null
         example: 1
       groupName:
-        type: string
+        type: string, null
         example: "FLU"
       manufacturer:
-        type: string
+        type: string, null
         example: nil
       note:
-        type: string
+        type: string, null
         example: "Dose #45 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered."
       shortDescription:
-        type: string
+        type: string, null
         example: "Influenza  seasonal  injectable  preservative free"
       reaction:
-        type: string
+        type: string, null
         example: "Swelling"
   relationships:
     type: object

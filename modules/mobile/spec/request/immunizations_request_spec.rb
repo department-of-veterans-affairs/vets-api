@@ -471,6 +471,57 @@ RSpec.describe 'immunizations', type: :request do
           )
         end
       end
+
+      context 'when cvx_code is missing' do
+        let(:immunizations_request_missing_cvx) do
+          VCR.use_cassette('lighthouse_health/get_immunizations_cvx_code_missing', match_requests_on: %i[method uri]) do
+            get '/mobile/v0/health/immunizations', headers: iam_headers, params: nil
+          end
+        end
+
+        it 'increments statsd' do
+          expect do
+            immunizations_request_missing_cvx
+          end.to trigger_statsd_increment('mobile.immunizations.cvx_code_missing', times: 1)
+        end
+
+        it 'returns a 200' do
+          immunizations_request_missing_cvx
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'sets cvxCode, manufacturer and group name to nil' do
+          immunizations_request_missing_cvx
+          attributes = response.parsed_body.dig('data', 0, 'attributes')
+          expect(attributes['cvxCode']).to be_nil
+          expect(attributes['manufacturer']).to be_nil
+          expect(attributes['groupName']).to be_nil
+        end
+      end
+
+      context 'when date is missing' do
+        let(:immunizations_request_missing_date) do
+          VCR.use_cassette('lighthouse_health/get_immunizations_date_missing', match_requests_on: %i[method uri]) do
+            get '/mobile/v0/health/immunizations', headers: iam_headers, params: nil
+          end
+        end
+
+        it 'increments statsd' do
+          expect do
+            immunizations_request_missing_date
+          end.to trigger_statsd_increment('mobile.immunizations.date_missing', times: 1)
+        end
+
+        it 'returns a 200' do
+          immunizations_request_missing_date
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'sets date to nil' do
+          immunizations_request_missing_date
+          expect(response.parsed_body.dig('data', 0, 'attributes', 'date')).to be_nil
+        end
+      end
     end
   end
 end

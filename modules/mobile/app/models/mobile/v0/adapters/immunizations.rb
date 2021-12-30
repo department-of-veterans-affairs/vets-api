@@ -10,13 +10,13 @@ module Mobile
           immunizations[:entry].map do |i|
             immunization = i[:resource]
             vaccine_code = immunization[:vaccine_code]
-            cvx_code = vaccine_code[:coding].first[:code].to_i
+            cvx_code = cvx_code(vaccine_code)
             vaccine = vaccines&.find_by(cvx_code: cvx_code)
 
             Mobile::V0::Immunization.new(
               id: immunization[:id],
               cvx_code: cvx_code,
-              date: immunization[:occurrence_date_time],
+              date: date(immunization),
               dose_number: dose_number(immunization[:protocol_applied]),
               dose_series: dose_series(immunization[:protocol_applied]),
               group_name: vaccine&.group_name,
@@ -30,6 +30,20 @@ module Mobile
         end
 
         private
+
+        def date(immunization)
+          date = immunization[:occurrence_date_time]
+          StatsD.increment('mobile.immunizations.date_missing') if date.blank?
+
+          date.presence
+        end
+
+        def cvx_code(vaccine_code)
+          code = vaccine_code[:coding].first[:code]
+          StatsD.increment('mobile.immunizations.cvx_code_missing') if code.blank?
+
+          code.presence&.to_i
+        end
 
         def location_id(reference)
           return nil unless reference

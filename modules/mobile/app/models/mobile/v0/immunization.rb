@@ -6,8 +6,8 @@ module Mobile
   module V0
     class Immunization < Common::Resource
       attribute :id, Types::String
-      attribute :cvx_code, Types::Coercible::Integer
-      attribute :date, Types::DateTime
+      attribute :cvx_code, Types::Coercible::Integer.optional
+      attribute :date, Types::DateTime.optional
       attribute :dose_number, Types::String.optional
       attribute :dose_series, Types::String.optional
       attribute :group_name, Types::String.optional
