@@ -14,13 +14,14 @@ Vets API requires:
 
 1. Follow the common [base setup](../../README.md#Base%20setup).
 
-1. Install Bundler to manage dependencies
+1. Install Bundler to manage Ruby dependencies
 
    ```bash
    gem install bundler
    ```
 
-1. Follow the platform specific notes below for OSX or Ubuntu to get dependencies installed.
+1. Follow the platform specific notes below for [OSX](#osx) or [Ubuntu](#alternative-ubuntu-2004-lts) to get dependencies installed.
+
 1. Install gem dependencies:
 
    ```bash
@@ -95,8 +96,6 @@ Specific notes for our most common native installation platforms are in this sec
 
 All of the OSX instructions assume `homebrew` is your [package manager](https://brew.sh/)
 
-1. Install Redis
-   - `brew install redis`
 1. Install Postgresql & PostGIS
 
    1. It is MUCH easier to use the [Postgres.app](https://postgresapp.com/downloads.html) which installs the correct combination of Postgresql and PostGIS versions.
@@ -114,18 +113,21 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
          PG_CPPFLAGS='-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H -I/usr/local/include' CFLAGS='-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H -I/usr/local/include' pex install postgis
         ```
 
-1. Install ImageMagick
-   - `brew install imagemagick`
-1. Install Poppler
-   - `brew install poppler`
-1. Install ClamAV or _use the fake scanner for development_
+1. Install binary dependencies:
+    ```bash
+    brew bundle
+    ```
+
+1. Among other things, the above `brew bundle` command installs ClamAV, but does not enable it. To enable ClamAV:
 
    ```bash
-   brew install clamav # Take note of the the post-install instructions "To finish installation & run clamav you will need to edit the example conf files at `${conf_files_dir}`", which will be displayed as part of the installation process. Recent installations have been to `/usr/local/etc/clamav/`
-   cd ${conf_files_dir}
+   brew info clamav
+   # See the "Caveats" section: "To finish installation & run clamav you will need to edit the example conf files at `${conf_files_dir}`"
+   cd $(brew --prefix clamav)
    touch clamd.sock
-   echo "LocalSocket ${conf_files_dir}" > clamd.conf
+   echo "LocalSocket $(brew --prefix clamav)" > clamd.conf
    echo "DatabaseMirror database.clamav.net" > freshclam.conf
+   # Update the local ClamAV database
    freshclam -v
    ```
 
