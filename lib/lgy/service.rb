@@ -25,6 +25,13 @@ module LGY
         'available'
       elsif get_determination.body['status'] == 'NOT_ELIGIBLE'
         'ineligible'
+      elsif get_determination.body['status'] == 'PENDING' && get_application.status == 404
+        # need confirmation from LGY on this
+        'pending'
+      elsif get_determination.body['status'] == 'PENDING' && get_application.body['status'] == 'SUBMITTED'
+        'pending'
+      elsif get_determination.body['status'] == 'PENDING' && get_application.body['status'] == 'RETURNED'
+        'pending-upload'
       end
     end
 

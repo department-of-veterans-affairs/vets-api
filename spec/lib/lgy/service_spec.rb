@@ -74,11 +74,19 @@ describe LGY::Service do
     end
 
     context 'when get_determination is NOT_ELIGIBLE' do
-      subject { described_class.new(edipi: '1005135644', icn: '1012845631V882122') }
-
       it 'returns ineligible' do
         VCR.use_cassette 'lgy/determination_not_eligible' do
           expect(subject.coe_status).to eq 'ineligible'
+        end
+      end
+    end
+
+    context 'when get_determination is Pending and get_application is a 404' do
+      it 'returns pending' do
+        VCR.use_cassette 'lgy/determination_pending' do
+          VCR.use_cassette 'lgy/application_not_found' do
+            expect(subject.coe_status).to eq 'pending'
+          end
         end
       end
     end
