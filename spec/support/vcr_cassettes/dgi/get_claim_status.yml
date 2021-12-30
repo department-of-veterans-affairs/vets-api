@@ -1,0 +1,35 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://localhost:8070/vets-service/v1/claimant/99900000200000001/claimType/Chapter33/claimstatus
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer eyJraWQiOiJ2YW5vdGlmeSIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJpYXQiOjE2NDA2NTY1NTMsImV4cCI6MTY0MDY1Njg1M30.SaNufUrg32Tq8IBfoxCy7e6bYCjHrmdKUnMF6-3MsYPSxGPX1rkaJhWbD5RiQgHJ_DsiV4qt-H64inIAxtrvOLdWDHDxxdy0DMci20L7Ag2PrP8RCXPwdeW8FuzCJnJ8DcvUyLipLgGvP9qFuI2zOFuj1Q7GKW4eFHdA596uWaadmR7w_aJNolcFFnDf4-kLpmoD0aDtrM4x0PIqDVURHrFNUezSGLN3YM1nWfwFFa8yyAMPOvE6YQv8yUZEnM90sRP5U3y3uC9jm0iSVIjUEjsIdq4hYaoBudrXydIkTYGD_abTGFofZkcRN0jhssYZo_30VCxVk_Syj-VVbUTs7Q
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Mon, 27 Dec 2021 14:55:53 GMT
+    body:
+      encoding: UTF-8
+      string: '{"claimantId":990000000000000021,"claimServiceId":99000000113358489,"claimStatus":"ELIGIBLE","confirmationNumber":null,"receivedDate":null}'
+  recorded_at: Mon, 27 Dec 2021 14:55:53 GMT
+recorded_with: VCR 6.0.0
