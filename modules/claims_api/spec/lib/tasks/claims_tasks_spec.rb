@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'rake'
 
-describe 'rake claims:export', type: :task do # rubocop:disable RSpec/DescribeClass
+describe 'rake claims:export', type: :task do
   subject(:task) { tasks[task_name] }
 
   let(:task_name) { self.class.top_level_description.sub(/\Arake /, '') }
