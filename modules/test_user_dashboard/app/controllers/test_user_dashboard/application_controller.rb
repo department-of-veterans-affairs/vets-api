@@ -20,9 +20,9 @@ module TestUserDashboard
       return false unless token && pub_key
 
       rsa_public = OpenSSL::PKey::RSA.new(Base64.decode64(pub_key))
-      token.gsub!('Bearer ', '')
+      raw_token = token.gsub('Bearer ', '')
       begin
-        JWT.decode token, rsa_public, true, { algorithm: 'RS256' }
+        JWT.decode raw_token, rsa_public, true, { algorithm: 'RS256' }
         return true
       rescue JWT::DecodeError => e
         log_message_to_sentry('Error decoding TUD JWT: ', :error, body: e.message)

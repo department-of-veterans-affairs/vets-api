@@ -27,6 +27,14 @@ RSpec.describe 'Test User Dashboard', type: :request do
         expect(response.content_type).to eq 'application/json; charset=utf-8'
       end
     end
+
+    context 'with invalid authentication headers' do
+      it 'returns a 403' do
+        get('/test_user_dashboard/tud_accounts', params: '', headers: { 'JWT' => 'invalid', 'PK' => pub_key })
+
+        expect(response.status).to eq 403
+      end
+    end
   end
 
   describe '#update' do
