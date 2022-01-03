@@ -13,9 +13,12 @@ module ClaimsApi
     encrypts :auth_headers, :form_data, :source_data, key: :kms_key, **lockbox_options
 
     PENDING = 'pending'
-    UPDATED = 'updated'
     SUBMITTED = 'submitted'
+    UPLOADED = 'uploaded'
+    UPDATED = 'updated'
     ERRORED = 'errored'
+
+    ALL_STATUSES = [PENDING, SUBMITTED, UPLOADED, UPDATED, ERRORED].freeze
 
     before_save :set_md5
 

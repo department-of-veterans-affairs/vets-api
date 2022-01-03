@@ -1,0 +1,18 @@
+<table>
+  <thead>
+    <tr>
+      <th>GUID</th>
+      <th>Created At</th>
+      <th>Error Message</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% poa_errors.each do |poa_submission| %>
+      <tr>
+        <td><%= poa_submission[:id] %></td>
+        <td><%= poa_submission[:created_at] %></td>
+        <td><%= poa_submission[:vbms_error_message] %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

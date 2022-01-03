@@ -10,35 +10,41 @@ module ClaimsApi
       if Settings.claims_api.report_enabled
         @to = Time.zone.now
         @from = @to.monday? ? 7.days.ago : 1.day.ago
-        @consumers = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to).pluck(:source).uniq
+        @claims_consumers = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to).pluck(:source).uniq
 
-        ClaimsApi::UnsuccessfulReportMailer.build(@from, @to, consumer_totals: totals,
-                                                              pending_submissions: pending,
-                                                              unsuccessful_submissions: unsuccessful_submissions,
-                                                              grouped_errors: errors_hash[:uniq_errors],
-                                                              grouped_warnings: errors_hash[:uniq_warnings],
-                                                              flash_statistics: flash_statistics,
-                                                              special_issues_statistics: si_statistics).deliver_now
+        ClaimsApi::UnsuccessfulReportMailer.build(
+          @from,
+          @to,
+          consumer_claims_totals: claims_totals,
+          pending_claims_submissions: pending_claims,
+          unsuccessful_claims_submissions: unsuccessful_claims_submissions,
+          grouped_claims_errors: claims_errors_hash[:uniq_errors],
+          grouped_claims_warnings: claims_errors_hash[:uniq_warnings],
+          flash_statistics: flash_statistics,
+          special_issues_statistics: si_statistics,
+          poa_totals: poa_totals,
+          unsuccessful_poa_submissions: unsuccessful_poa_submissions
+        ).deliver_now
       end
     end
 
-    def unsuccessful_submissions
-      errored.pluck(:source, :status, :id).map do |source, status, id|
+    def unsuccessful_claims_submissions
+      errored_claims.pluck(:source, :status, :id).map do |source, status, id|
         { id: id, status: status, source: source }
       end
     end
 
-    def errored
+    def errored_claims
       ClaimsApi::AutoEstablishedClaim.where(
         created_at: @from..@to,
         status: %w[errored]
       ).order(:source, :status)
     end
 
-    def errors_hash
-      return @errors_hash if @errors_hash
+    def claims_errors_hash
+      return @claims_errors_hash if @claims_errors_hash
 
-      errors_array = errored.flat_map do |error|
+      errors_array = errored_claims.flat_map do |error|
         if error.evss_response.present?
           uuid_regex = /[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}/
           error.evss_response = error.evss_response.to_s.gsub(uuid_regex, '%<uuid>')
@@ -53,10 +59,10 @@ module ClaimsApi
         end
       end
 
-      @errors_hash = { uniq_errors: count_uniqs(errors_array.select do |n|
-                                                  %w[ERROR FATAL].include?(n['severity']) if n
-                                                end),
-                       uniq_warnings: count_uniqs(errors_array.select { |n| n['severity'] == 'WARN' if n }) }
+      @claims_errors_hash = { uniq_errors: count_uniqs(errors_array.select do |n|
+                                                         %w[ERROR FATAL].include?(n['severity']) if n
+                                                       end),
+                              uniq_warnings: count_uniqs(errors_array.select { |n| n['severity'] == 'WARN' if n }) }
     end
 
     def count_uniqs(array)
@@ -67,7 +73,7 @@ module ClaimsApi
       end
     end
 
-    def pending
+    def pending_claims
       ClaimsApi::AutoEstablishedClaim.where(
         created_at: @from..@to,
         status: 'pending'
@@ -136,8 +142,8 @@ module ClaimsApi
       claims.order(:source, :status)
     end
 
-    def totals
-      @consumers.map do |name|
+    def claims_totals
+      @claims_consumers.map do |name|
         counts = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to, source: name).group(:status).count
         totals = counts.sum { |_k, v| v }
         error_rate = counts['errored'] ? (100.0 / totals * counts['errored']).round : 0
@@ -153,6 +159,17 @@ module ClaimsApi
           }
         end
       end
+    end
+
+    def poa_totals
+      totals = ClaimsApi::PowerOfAttorney.where(created_at: @from..@to).group(:status).count
+      total_submissions = totals.sum { |_k, v| v }
+      totals.merge(total: total_submissions)
+    end
+
+    def unsuccessful_poa_submissions
+      ClaimsApi::PowerOfAttorney.where(created_at: @from..@to, status: %w[errored]).order(:created_at,
+                                                                                          :vbms_error_message)
     end
   end
 end

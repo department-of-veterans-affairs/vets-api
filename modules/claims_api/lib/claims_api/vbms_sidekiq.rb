@@ -6,7 +6,7 @@ module ClaimsApi
   module VBMSSidekiq
     def rescue_file_not_found(power_of_attorney)
       power_of_attorney.update(
-        status: 'failed',
+        status: ClaimsApi::PowerOfAttorney::ERRORED,
         vbms_error_message: 'File could not be retrieved from AWS'
       )
     end
@@ -30,7 +30,7 @@ module ClaimsApi
       )
       upload_response = uploader.upload!
       power_of_attorney.update(
-        status: 'uploaded',
+        status: ClaimsApi::PowerOfAttorney::UPLOADED,
         vbms_new_document_version_ref_id: upload_response[:vbms_new_document_version_ref_id],
         vbms_document_series_ref_id: upload_response[:vbms_document_series_ref_id]
       )

@@ -78,7 +78,7 @@ RSpec.describe ClaimsApi::VBMSUploadJob, type: :job do
         allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:upload_document).and_raise(Errno::ENOENT)
         subject.new.perform(power_of_attorney.id)
         power_of_attorney.reload
-        expect(power_of_attorney.status).to eq('failed')
+        expect(power_of_attorney.status).to eq('errored')
       end
     end
 

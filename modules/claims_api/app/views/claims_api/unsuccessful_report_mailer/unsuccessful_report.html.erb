@@ -6,6 +6,7 @@
       body {
         font-family: sans-serif;
         font-size: smaller;
+        padding: 10px 0;
       }
       table {
         border-collapse: collapse;
@@ -30,81 +31,77 @@
       table tr td.right-align {
         text-align: right;
       }
-      h2 {
+      h3 {
         margin: 30px 0 2px;
       }
-      h2 span.title {
+      h3 span.title {
         color: #808080;
+      }
+      hr {
+        margin: 25px 0;
       }
     </style>
   </head>
   <body>
     <h1>From <%= @date_from %> -- <%= @date_to %> </h1>
 
-    <h2><span class="title">Per Consumer Status Counts</span></h2>
-    <table>
-      <thead>
-        <tr>
-            <th>consumer</th>
-            <% ClaimsApi::AutoEstablishedClaim::ALL_STATUSES.each do |status| %>
-            <th><%= status %></th>
-            <% end %>
-            <th>totals</th>
-            <th>errored rate</th>
-            <th>percentage with flashes</th>
-            <th>percentage with special issues</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @consumer_totals.each do |consumer| %>
-          <tr>
-            <td><%= consumer.keys.first %></td>
-            <% ClaimsApi::AutoEstablishedClaim::ALL_STATUSES.map(&:to_sym).each do |status| %>
-            <td class="right-align"><%= consumer.values.first[status] || 0 %></td>
-            <% end %>
-            <td class="right-align"><%= consumer.values.first[:totals] %></td>
-            <td class="right-align"><%= consumer.values.first[:error_rate] %></td>
-            <td class="right-align"><%= consumer.values.first[:percentage_with_flashes] %></td>
-            <td class="right-align"><%= consumer.values.first[:percentage_with_special_issues] %></td>
-          </tr>
-        <% end if @consumer_totals %>
-      </tbody>
-    </table>
+    <hr>
 
-    <h2>
-      <%= @grouped_errors.count %>
+    <h2>Claims Totals</h2>
+
+    <h3><span class="title">Per Consumer Status Counts</span></h3>
+    <%= render partial: 'claims_status_table', locals: {claims_consumers: @consumer_claims_totals } unless @consumer_claims_totals.count.zero? %>
+
+    <h3>
+      <%= @grouped_claims_errors.count %>
       <span class="title">Error Counts</span>
-    </h2>
-    <%= render partial: 'counts_table', locals: { statistics: @grouped_errors } unless @grouped_errors.count.zero? %>
+    </h3>
+    <%= render partial: 'counts_table', locals: { statistics: @grouped_claims_errors } unless @grouped_claims_errors.count.zero? %>
 
-    <h2>
-      <%= @grouped_warnings.count %>
+    <h3>
+      <%= @grouped_claims_warnings.count %>
       <span class="title">Warning Counts</span>
-    </h2>
-    <%= render partial: 'counts_table', locals: { statistics: @grouped_warnings } unless @grouped_warnings.count.zero? %>
+    </h3>
+    <%= render partial: 'counts_table', locals: { statistics: @grouped_claims_warnings } unless @grouped_claims_warnings.count.zero? %>
 
-    <h2>
+    <h3>
       <%= @flash_statistics.count %>
       <span class="title">Flash Counts</span>
-    </h2>
+    </h3>
     <%= render partial: 'counts_table', locals: { statistics: @flash_statistics } unless @flash_statistics.count.zero? %>
 
-    <h2>
+    <h3>
       <%= @special_issues_statistics.count %>
       <span class="title">Special Issues Counts</span>
-    </h2>
+    </h3>
     <%= render partial: 'counts_table', locals: { statistics: @special_issues_statistics } unless @special_issues_statistics.count.zero? %>
 
-    <h2>
-      <%= @pending_submissions.count %>
+    <h3>
+      <%= @pending_claims_submissions.count %>
       <span class="title">Pending Submissions</span>
-    </h2>
-    <%= render partial: 'submission_table', locals: { claims: @pending_submissions } unless @pending_submissions.count.zero? %>
+    </h3>
+    <%= render partial: 'submission_table', locals: { claims: @pending_claims_submissions } unless @pending_claims_submissions.count.zero? %>
 
-    <h2>
-      <%= @unsuccessful_submissions.count %>
-      <span class="title">Errorred Submissions</span>
-    </h2>
-    <%= render partial: 'submission_table', locals: { claims: @unsuccessful_submissions } unless @unsuccessful_submissions.count.zero? %>
+    <h3>
+      <%= @unsuccessful_claims_submissions.count %>
+      <span class="title">Errored Submissions</span>
+    </h3>
+    <%= render partial: 'submission_table', locals: { claims: @unsuccessful_claims_submissions } unless @unsuccessful_claims_submissions.count.zero? %>
+
+    <hr/>
+
+    <h2>Power of Attorney Totals</h2>
+
+    <h3>
+      <%= @poa_totals[:total] %>
+      <span class="title">POA Submissions</span>
+    </h3>
+    <%= render partial: 'poa_status_table', locals: { poa_submissions: @poa_totals } unless @poa_totals.blank? %>
+
+    <h3>
+      <%= @unsuccessful_poa_submissions.count %>
+      <span class="title">Errored Submissions</span>
+    </h3>
+    <%= render partial: 'poa_errors_table', locals: { poa_errors: @unsuccessful_poa_submissions } unless @unsuccessful_poa_submissions.count.zero? %>
   </body>
 </html>

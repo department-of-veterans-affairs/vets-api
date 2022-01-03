@@ -1,0 +1,28 @@
+<table>
+      <thead>
+        <tr>
+            <th>consumer</th>
+            <% ClaimsApi::AutoEstablishedClaim::ALL_STATUSES.each do |status| %>
+            <th><%= status %></th>
+            <% end %>
+            <th>totals</th>
+            <th>errored rate</th>
+            <th>percentage with flashes</th>
+            <th>percentage with special issues</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% claims_consumers.each do |consumer| %>
+          <tr>
+            <td><%= consumer.keys.first %></td>
+            <% ClaimsApi::AutoEstablishedClaim::ALL_STATUSES.map(&:to_sym).each do |status| %>
+            <td class="right-align"><%= consumer.values.first[status] || 0 %></td>
+            <% end %>
+            <td class="right-align"><%= consumer.values.first[:totals] %></td>
+            <td class="right-align"><%= consumer.values.first[:error_rate] %></td>
+            <td class="right-align"><%= consumer.values.first[:percentage_with_flashes] %></td>
+            <td class="right-align"><%= consumer.values.first[:percentage_with_special_issues] %></td>
+          </tr>
+        <% end if claims_consumers %>
+      </tbody>
+    </table>

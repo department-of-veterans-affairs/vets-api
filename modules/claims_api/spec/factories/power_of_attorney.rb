@@ -22,6 +22,11 @@ FactoryBot.define do
       }
     end
 
+    trait :errored do
+      status { 'errored' }
+      vbms_error_message { 'An unknown error has occurred when uploading document' }
+    end
+
     after(:build) do |power_of_attorney|
       power_of_attorney.set_file_data!(
         Rack::Test::UploadedFile.new(
