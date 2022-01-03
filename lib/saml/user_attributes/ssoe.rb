@@ -331,7 +331,9 @@ module SAML
       end
 
       def corp_id_mismatch?
-        attribute_has_multiple_values?('vba_corp_id')
+        return if mvi_ids[:vba_corp_ids].blank?
+
+        mvi_ids[:vba_corp_ids].reject(&:nil?).uniq.size > 1
       end
 
       def sec_id_mismatch?

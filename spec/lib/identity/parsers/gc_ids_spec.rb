@@ -23,6 +23,7 @@ describe Identity::Parsers::GCIds do
           edipi: nil,
           edipis: nil,
           vba_corp_id: nil,
+          vba_corp_ids: nil,
           idme_id: nil,
           logingov_id: nil,
           vha_facility_ids: nil,

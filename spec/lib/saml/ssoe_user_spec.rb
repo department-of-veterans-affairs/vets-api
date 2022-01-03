@@ -792,11 +792,11 @@ RSpec.describe SAML::User do
     context 'with multi-value corp_id' do
       let(:saml_attributes) do
         build(:ssoe_idme_mhv_loa3,
-              vba_corp_id: [corp_id])
+              va_eauth_gcIds: [corp_id])
       end
 
       context 'with different values' do
-        let(:corp_id) { '0123456789,0000000054' }
+        let(:corp_id) { '0123456789^PI^200CORP^USVBA^A|0000000054^PI^200CORP^USVBA^A' }
 
         it 'does not validate' do
           expect { subject.validate! }
