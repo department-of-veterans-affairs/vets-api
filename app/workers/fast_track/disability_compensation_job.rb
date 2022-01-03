@@ -89,7 +89,7 @@ module FastTrack
     end
 
     def pdf(full_name, bpreadings, medications)
-      FastTrack::HypertensionPdfGenerator.new(full_name, bpreadings, medications, Time.zone.today).generate
+      FastTrack::HypertensionPdfGenerator.new(full_name, bpreadings, medications).generate
     end
 
     def no_recent_bp_readings(bp_readings)

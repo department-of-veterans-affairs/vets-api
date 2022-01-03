@@ -4,11 +4,11 @@ module FastTrack
   class HypertensionPdfGenerator
     attr_accessor :patient, :bp_data, :medications
 
-    def initialize(patient, bp_data, medications, date)
+    def initialize(patient, bp_data, medications)
       @patient = patient
       @bp_data = bp_data
       @medications = medications
-      @date = date
+      @date = Time.zone.today
     end
 
     def generate
