@@ -3,6 +3,7 @@
 require 'dgi/eligibility/service'
 require 'dgi/automation/service'
 require 'dgi/status/service'
+require 'dgi/submission/service'
 
 module MebApi
   module V0
@@ -26,10 +27,15 @@ module MebApi
       end
 
       def submit_claim
-        render json:
-               { data: {
-                 'status': 'received'
-               } }
+        response = submission_service.submit_claim(params)
+
+        # @NOTE: Need front end to send in_progress_form_id as well as claimant_id to clear form for front end
+        # Add serializer for response to the front end when the sending data back
+        render json: {
+          data: {
+            'status': response.status
+          }
+        }
       end
 
       private
@@ -44,6 +50,10 @@ module MebApi
 
       def claim_status_service
         MebApi::DGI::Status::Service.new(@current_user)
+      end
+
+      def submission_service
+        MebApi::DGI::Submission::Service.new(@current_user)
       end
     end
   end

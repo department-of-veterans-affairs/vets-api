@@ -60,12 +60,4 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
       end
     end
   end
-
-  describe 'POST /meb_api/v0/submit_claim' do
-    it 'successfully returns JSON' do
-      post '/meb_api/v0/submit_claim'
-      expect(response).to have_http_status(:ok)
-      JSON.parse(response.body).to_yaml
-    end
-  end
 end
