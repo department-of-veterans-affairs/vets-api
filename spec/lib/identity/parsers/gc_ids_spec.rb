@@ -21,6 +21,7 @@ describe Identity::Parsers::GCIds do
           mhv_iens: nil,
           active_mhv_ids: nil,
           edipi: nil,
+          edipis: nil,
           vba_corp_id: nil,
           idme_id: nil,
           logingov_id: nil,

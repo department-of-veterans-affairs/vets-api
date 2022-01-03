@@ -253,7 +253,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
       context 'for a user with semantically invalid SAML attributes' do
         let(:invalid_attributes) do
-          build(:ssoe_idme_mhv_loa3, va_eauth_dodedipnid: ['999888, 888777'])
+          build(:ssoe_idme_mhv_loa3, va_eauth_gcIds: ['0123456789^NI^200DOD^USDOD^A|0000000054^NI^200DOD^USDOD^A|'])
         end
         let(:valid_saml_response) do
           build_saml_response(
@@ -849,7 +849,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       context 'when EDIPI user attribute validation fails' do
         let(:saml_attributes) do
           build(:ssoe_idme_mhv_loa3,
-                va_eauth_dodedipnid: ['0123456789,1111111111'])
+                va_eauth_gcIds: ['0123456789^NI^200DOD^USDOD^A|0000000054^NI^200DOD^USDOD^A|'])
         end
         let(:saml_response) do
           build_saml_response(

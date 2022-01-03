@@ -66,6 +66,7 @@ module Identity
         icn: { regex: PERMANENT_ICN_REGEX, root_oid: VA_ROOT_OID, type: :single_id },
         sec_id: { regex: SEC_ID_REGEX, root_oid: VA_ROOT_OID, type: :single_id },
         edipi: { regex: EDIPI_REGEX, root_oid: DOD_ROOT_OID, type: :single_id },
+        edipis: { regex: EDIPI_REGEX, root_oid: DOD_ROOT_OID, type: :multiple_ids },
         vba_corp_id: { regex: VBA_CORP_ID_REGEX, root_oid: VA_ROOT_OID, type: :single_id },
         idme_id: { regex: IDME_ID_REGEX, root_oid: VA_ROOT_OID, type: :single_id },
         logingov_id: { regex: LOGINGOV_ID_REGEX, root_oid: VA_ROOT_OID, type: :single_id },

@@ -478,7 +478,7 @@ RSpec.describe SAML::User do
         build(:ssoe_idme_mhv_premium,
               va_eauth_uid: ['NOT_FOUND'],
               va_eauth_csid: ['NOT_FOUND'],
-              va_eauth_gcIds: [''])
+              va_eauth_gcIds: ['2107307560^NI^200DOD^USDOD^A|'])
       end
       let(:multifactor) { true }
 
@@ -811,11 +811,11 @@ RSpec.describe SAML::User do
     context 'with multi-value edipi' do
       let(:saml_attributes) do
         build(:ssoe_idme_mhv_loa3,
-              va_eauth_dodedipnid: [edipi])
+              va_eauth_gcIds: [edipi])
       end
 
       context 'with different values' do
-        let(:edipi) { '0123456789,0000000054' }
+        let(:edipi) { '0123456789^NI^200DOD^USDOD^A|0000000054^NI^200DOD^USDOD^A|' }
 
         it 'does not validate' do
           expect { subject.validate! }
@@ -827,7 +827,7 @@ RSpec.describe SAML::User do
       end
 
       context 'with matching values' do
-        let(:edipi) { '0123456789,0123456789' }
+        let(:edipi) { '0123456789^NI^200DOD^USDOD^A|0123456789^NI^200DOD^USDOD^A|' }
 
         it 'de-duplicates values' do
           expect(subject.to_hash).to include(
@@ -841,7 +841,7 @@ RSpec.describe SAML::User do
       end
 
       context 'with empty value' do
-        let(:edipi) { 'NOT_FOUND' }
+        let(:edipi) { '' }
 
         it 'de-duplicates values' do
           expect(subject.to_hash).to include(
@@ -896,7 +896,14 @@ RSpec.describe SAML::User do
       let(:authn_context) { 'dslogon' }
       let(:highest_attained_loa) { '3' }
       let(:multifactor) { true }
-      let(:saml_attributes) { build(:ssoe_idme_dslogon_level2_singlefactor) }
+      let(:saml_attributes) do
+        build(:ssoe_idme_dslogon_level2_singlefactor,
+              va_eauth_gcIds: ['1013173963V366678^NI^200M^USVHA^P|'\
+                               '2106798217^NI^200DOD^USDOD^A'\
+                               '363761e8857642f7b77ef7d99200e711^PN^200VIDM^USDVA^A|'\
+                               '2106798217^NI^200DOD^USDOD^A|'\
+                               '1013173963^PN^200PROV^USDVA^A'])
+      end
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(

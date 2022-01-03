@@ -141,7 +141,7 @@ module SAML
       end
 
       def edipi
-        safe_attr('va_eauth_dodedipnid')&.split(',')&.first
+        edipi_ids[:edipi]
       end
 
       def sponsor_dod_epi_pn_id
@@ -273,6 +273,15 @@ module SAML
         @mvi_ids = parse_string_gcids(gcids)
       end
 
+      def edipi_ids
+        @edipi_ids ||= begin
+          gcids = safe_attr('va_eauth_gcIds')
+          return {} unless gcids
+
+          parse_string_gcids(gcids, DOD_ROOT_OID)
+        end
+      end
+
       def safe_attr(key)
         @attributes[key] == 'NOT_FOUND' ? nil : @attributes[key]
       end
@@ -312,7 +321,9 @@ module SAML
       end
 
       def edipi_mismatch?
-        attribute_has_multiple_values?('va_eauth_dodedipnid')
+        return if edipi_ids[:edipis].blank?
+
+        edipi_ids[:edipis].reject(&:nil?).uniq.size > 1
       end
 
       def birls_id_mismatch?
