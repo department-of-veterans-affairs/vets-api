@@ -68,11 +68,11 @@ RSpec.describe 'immunizations', type: :request do
             { 'currentPage' => 1, 'perPage' => 1, 'totalPages' => 15, 'totalEntries' => 15 } },
           'links' =>
           {
-            'self' => 'http://www.example.com/mobile/v1/health/immunizations?page[size]=1&page[number]=1',
-            'first' => 'http://www.example.com/mobile/v1/health/immunizations?page[size]=1&page[number]=1',
+            'self' => 'http://www.example.com/mobile/v1/health/immunizations?useCache=true&page[size]=1&page[number]=1',
+            'first' => 'http://www.example.com/mobile/v1/health/immunizations?useCache=true&page[size]=1&page[number]=1',
             'prev' => nil,
-            'next' => 'http://www.example.com/mobile/v1/health/immunizations?page[size]=1&page[number]=2',
-            'last' => 'http://www.example.com/mobile/v1/health/immunizations?page[size]=1&page[number]=15'
+            'next' => 'http://www.example.com/mobile/v1/health/immunizations?useCache=true&page[size]=1&page[number]=2',
+            'last' => 'http://www.example.com/mobile/v1/health/immunizations?useCache=true&page[size]=1&page[number]=15'
           }
         }
 
@@ -240,14 +240,13 @@ RSpec.describe 'immunizations', type: :request do
           get '/mobile/v1/health/immunizations', headers: iam_headers, params: { page: { size: size, number: number } }
         end
 
+        base_url = 'http://www.example.com/mobile/v1/health/immunizations'
         expected_links = {
-          'self' => "http://www.example.com/mobile/v1/health/immunizations?page[size]=#{size}&page[number]=#{number}",
-          'first' => "http://www.example.com/mobile/v1/health/immunizations?page[size]=#{size}&page[number]=1",
-          'prev' =>
-            "http://www.example.com/mobile/v1/health/immunizations?page[size]=#{size}&page[number]=#{number - 1}",
-          'next' =>
-            "http://www.example.com/mobile/v1/health/immunizations?page[size]=#{size}&page[number]=#{number + 1}",
-          'last' => "http://www.example.com/mobile/v1/health/immunizations?page[size]=#{size}&page[number]=8"
+          'self' => "#{base_url}?useCache=true&page[size]=#{size}&page[number]=#{number}",
+          'first' => "#{base_url}?useCache=true&page[size]=#{size}&page[number]=1",
+          'prev' => "#{base_url}?useCache=true&page[size]=#{size}&page[number]=#{number - 1}",
+          'next' => "#{base_url}?useCache=true&page[size]=#{size}&page[number]=#{number + 1}",
+          'last' => "#{base_url}?useCache=true&page[size]=#{size}&page[number]=8"
         }
 
         expect(response.parsed_body['links']).to eq(expected_links)
@@ -279,6 +278,50 @@ RSpec.describe 'immunizations', type: :request do
                               2010-03-25T12:24:55Z
                               2009-03-19T12:24:55Z
                             ])
+      end
+    end
+
+    describe 'caching' do
+      context 'when data is not cached' do
+        it 'calls service' do
+          expect_any_instance_of(Mobile::V0::LighthouseHealth::Service).to receive(:get_immunizations)
+
+          VCR.use_cassette('lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+            get '/mobile/v1/health/immunizations', headers: iam_headers, params: {}
+          end
+        end
+
+        it 'calls service even when useCache is true' do
+          expect_any_instance_of(Mobile::V0::LighthouseHealth::Service).to receive(:get_immunizations)
+
+          VCR.use_cassette('lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+            get '/mobile/v1/health/immunizations', headers: iam_headers, params: { useCache: true }
+          end
+        end
+      end
+
+      context 'when cache is set' do
+        before do
+          VCR.use_cassette('lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+            get '/mobile/v1/health/immunizations', headers: iam_headers, params: {}
+          end
+        end
+
+        it 'uses cached data instead of calling service' do
+          expect_any_instance_of(Mobile::V0::LighthouseHealth::Service).not_to receive(:get_immunizations)
+
+          VCR.use_cassette('lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+            get '/mobile/v1/health/immunizations', headers: iam_headers, params: {}
+          end
+        end
+
+        it 'does not use cache when useCache is false' do
+          expect_any_instance_of(Mobile::V0::LighthouseHealth::Service).to receive(:get_immunizations)
+
+          VCR.use_cassette('lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+            get '/mobile/v1/health/immunizations', headers: iam_headers, params: { useCache: false }
+          end
+        end
       end
     end
   end
