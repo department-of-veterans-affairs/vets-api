@@ -9,8 +9,8 @@ module VeteranConfirmation
     NOT_CONFIRMED = 'not confirmed'
 
     def get_by_attributes(user_attributes)
-      attrs = OpenStruct.new(user_attributes)
-      mvi_resp = AttrService.new.find_profile(attrs)
+      attrs = UserIdentity.new(user_attributes.merge(uuid: SecureRandom.uuid, loa: { current: 3, highest: 3 }))
+      mvi_resp = MPI::Service.new.find_profile(attrs)
       return NOT_CONFIRMED if mvi_resp.not_found?
       raise mvi_resp.error unless mvi_resp.ok?
 

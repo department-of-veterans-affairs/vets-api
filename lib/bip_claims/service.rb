@@ -2,7 +2,7 @@
 
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
-require 'mpi/attr_service'
+require 'mpi/service'
 require_relative 'configuration'
 require_relative 'veteran'
 
@@ -35,7 +35,7 @@ module BipClaims
     end
 
     def lookup_veteran_from_mpi(claim)
-      veteran = MPI::AttrService.new.find_profile(veteran_attributes(claim))
+      veteran = MPI::Service.new.find_profile(veteran_attributes(claim))
       if veteran.profile&.participant_id
         StatsD.increment("#{STATSD_KEY_PREFIX}.mvi_lookup_hit")
         veteran.profile

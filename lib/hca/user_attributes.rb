@@ -12,12 +12,15 @@ class HCA::UserAttributes
 
   validates(:first_name, :last_name, :birth_date, :ssn, presence: true)
 
+  # These attributes, along with uuid, are required by mpi/service.
+  # They can be nil as they're not part of the HCA form
+  attr_reader :mhv_icn, :edipi, :gender, :authn_context
+
   def ssn=(new_ssn)
     super(new_ssn&.gsub(/\D/, ''))
   end
 
-  def gender
-    # MVI message_user_attributes expects a gender value but it's not asked on the HCA form
-    nil
+  def uuid
+    SecureRandom.uuid
   end
 end
