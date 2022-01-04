@@ -25,12 +25,6 @@ describe Middleware::CheckInLogging do
     }.to_json
   end
 
-  before do
-    Timecop.freeze
-  end
-
-  after { Timecop.return }
-
   describe '#call' do
     let(:log_tags) do
       {
@@ -45,10 +39,12 @@ describe Middleware::CheckInLogging do
       it 'rails logger should receive the success log tags' do
         url = { url: "(POST) #{chip_token_req}" }
 
-        expect(Rails.logger).to receive(:info)
-          .with('CheckIn service call succeeded!', log_tags.merge(url)).and_call_original
+        Timecop.freeze(Time.current) do
+          expect(Rails.logger).to receive(:info)
+            .with('CheckIn service call succeeded!', log_tags.merge(url)).and_call_original
 
-        client.post(chip_token_req)
+          client.post(chip_token_req)
+        end
       end
     end
 
@@ -57,11 +53,12 @@ describe Middleware::CheckInLogging do
 
       it 'rails logger should receive the failed log tags' do
         url = { url: "(POST) #{chip_token_req}" }
+        Timecop.freeze(Time.current) do
+          expect(Rails.logger).to receive(:warn)
+            .with('CheckIn service call failed!', log_tags.merge(url)).and_call_original
 
-        expect(Rails.logger).to receive(:warn)
-          .with('CheckIn service call failed!', log_tags.merge(url)).and_call_original
-
-        client.post(chip_token_req)
+          client.post(chip_token_req)
+        end
       end
     end
   end
