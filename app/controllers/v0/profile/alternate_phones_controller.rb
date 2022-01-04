@@ -22,7 +22,7 @@ module V0
 
         if phone.valid?
           response = service.post_alternate_phone phone
-          Rails.logger.info('AlternatePhonesController#create request completed', sso_logging_info)
+          Rails.logger.warn('AlternatePhonesController#create request completed', sso_logging_info)
 
           render json: response, serializer: PhoneNumberSerializer
         else

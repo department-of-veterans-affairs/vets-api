@@ -17,7 +17,7 @@ module V0
 
     def update
       response = service.update_payment_information(pay_info)
-      Rails.logger.info('PPIUController#update request completed', sso_logging_info)
+      Rails.logger.warn('PPIUController#update request completed', sso_logging_info)
       send_confirmation_email
       render json: response,
              serializer: PPIUSerializer

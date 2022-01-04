@@ -28,7 +28,7 @@ module V0
           DirectDepositEmailJob.send_to_emails(current_user.all_emails, params[:ga_client_id], :ch33)
         end
 
-        Rails.logger.info('Ch33BankAccountsController#update request completed', sso_logging_info)
+        Rails.logger.warn('Ch33BankAccountsController#update request completed', sso_logging_info)
 
         render_find_ch33_dd_eft
       end
