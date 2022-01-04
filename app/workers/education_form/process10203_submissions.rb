@@ -151,11 +151,14 @@ module EducationForm
     #
     # This is only checking EVSS data until form questions that affect setting to DENIED have been reviewed
     def process_submission(submission, user_has_poa)
-      status = if more_than_six_months?(submission.education_stem_automated_decision&.remaining_entitlement)
-                 EducationStemAutomatedDecision::DENIED
-               else
-                 EducationStemAutomatedDecision::PROCESSED
-               end
+      # This effectively disables the auto decision process
+      # Uncommenting the below logic and removing the following line will re-enable.
+      # status = if more_than_six_months?(submission.education_stem_automated_decision&.remaining_entitlement)
+      #            EducationStemAutomatedDecision::DENIED
+      #          else
+      #            EducationStemAutomatedDecision::PROCESSED
+      #          end
+      status = EducationStemAutomatedDecision::PROCESSED
       update_automated_decision(submission, status, user_has_poa)
     end
 
