@@ -9,6 +9,7 @@ FactoryBot.define do
     form_data do
       JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/valid_10182.json"
     end
+    board_review_option { 'hearing' } # set manually in the controller
     trait :status_error do
       status { 'error' }
     end
@@ -39,5 +40,6 @@ FactoryBot.define do
     form_data do
       JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/valid_10182_minimum.json"
     end
+    board_review_option { 'evidence_submission' } # set manually in the controller
   end
 end

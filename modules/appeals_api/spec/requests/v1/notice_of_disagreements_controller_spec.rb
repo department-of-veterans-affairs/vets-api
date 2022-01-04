@@ -74,6 +74,24 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       expect(nod.status).to eq('submitted')
     end
 
+    context 'keeps track of board_review_option' do
+      let(:path) { base_path('notice_of_disagreements') }
+
+      it 'evidence_submission' do
+        post(path, params: @minimum_valid_data, headers: @minimum_required_headers)
+        nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
+
+        expect(nod.board_review_option).to eq('evidence_submission')
+      end
+
+      it 'hearing' do
+        post(path, params: @data, headers: @headers)
+        nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
+
+        expect(nod.board_review_option).to eq('hearing')
+      end
+    end
+
     context 'keeps track of which version of the api it is serving' do
       it 'V1' do
         path = base_path('notice_of_disagreements')
