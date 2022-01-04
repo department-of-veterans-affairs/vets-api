@@ -200,8 +200,10 @@ describe 'Supplemental Claims', swagger_doc: 'modules/appeals_api/app/swagger/ap
       tags 'Supplemental Claims'
       operationId 'postSupplementalClaimEvidenceSubmission'
       description <<~DESC
-        This is the first step to submitting supporting evidence for an SC.  (See the Evidence Uploads section above for additional information.)
+        This is the first step to submitting supporting evidence for a Supplemental Claim.  (See the Evidence Uploads section above for additional information.)
         The Supplemental Claim GUID that is returned when the SC is submitted, is supplied to this endpoint to ensure the SC is in a valid state for sending supporting evidence documents.
+
+        Evidence may be uploaded up to 7 days from the 'created_at' date of the associated Supplemental Claim via 'supplemental_claims/evidence_submissions'.
       DESC
 
       parameter name: :sc_uuid, in: :query, type: :string, required: true, description: 'Associated Supplemental Claim UUID'

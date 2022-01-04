@@ -18,7 +18,7 @@ module AppealsApi
     def call
       return [:error, record_not_found_error] if appeal.blank?
       return [:error, invalid_review_option_error] unless evidence_accepted?
-      return [:error, outside_legal_window_error] unless within_legal_window?
+      return [:error, submission_window_error] unless within_submission_window?
       return [:error, invalid_veteran_id_error] unless ssn_match?
 
       [:ok, {}]
@@ -42,7 +42,7 @@ module AppealsApi
                             .where(to: 'submitted').order(created_at: :desc).first
     end
 
-    def within_legal_window?
+    def within_submission_window?
       return true unless submitted_status
 
       submitted_status.status_update_time >=
@@ -78,17 +78,12 @@ module AppealsApi
       }
     end
 
-    def outside_legal_window_error
-      {
-        title: 'unprocessable_entity',
-        detail: I18n.t('appeals_api.errors.outside_legal_window'),
-        code: 'OutsideLegalWindow',
-        status: '422'
-      }
-    end
-
     def raise_unacceptable_appeal_type?
       raise UnacceptableAppealType unless @appeal_type.in?(ACCEPTED_APPEAL_TYPES)
+    end
+
+    def submission_window_error
+      appeal.outside_submission_window_error
     end
   end
 end

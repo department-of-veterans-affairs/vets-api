@@ -134,6 +134,15 @@ module AppealsApi
       91
     end
 
+    def outside_submission_window_error
+      {
+        title: 'unprocessable_entity',
+        detail: I18n.t('appeals_api.errors.nod_outside_legal_window'),
+        code: 'OutsideLegalWindow',
+        status: '422'
+      }
+    end
+
     def update_status!(status:, code: nil, detail: nil)
       handler = Events::Handler.new(event_type: :nod_status_updated, opts: {
                                       from: self.status,

@@ -107,6 +107,7 @@
                   "required": ["address", "phone", "email"]
                 },
                 "evidenceSubmission": {
+                  "description": "Evidence may be uploaded up to 7 days from the 'created_at' date of the associated Supplemental Claim via 'supplemental_claims/evidence_submissions'.",
                   "type": "object",
                   "properties": {
                     "evidenceType":{

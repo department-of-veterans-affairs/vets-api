@@ -3887,11 +3887,13 @@
                     ]
                   },
                   "evidenceSubmission": {
+                    "description": "Evidence may be uploaded up to 7 days from the 'created_at' date of the associated Supplemental Claim via 'supplemental_claims/evidence_submissions'.",
                     "type": "object",
                     "properties": {
                       "evidenceType": {
                         "type": "array",
                         "items": {
+                          "type": "string",
                           "enum": [
                             "upload",
                             "retrieval"
@@ -3920,10 +3922,10 @@
                                 "evidenceDates": {
                                   "type": "array",
                                   "items": {
-                                    "$ref": "#/components/schemas/date"
+                                    "$ref": "#/components/schemas/dateRange"
                                   },
                                   "minItems": 1,
-                                  "maxItems": 8
+                                  "maxItems": 4
                                 }
                               },
                               "additionalProperties": false,
@@ -10345,7 +10347,7 @@
           "Supplemental Claims"
         ],
         "operationId": "postSupplementalClaimEvidenceSubmission",
-        "description": "This is the first step to submitting supporting evidence for an SC.  (See the Evidence Uploads section above for additional information.)\nThe Supplemental Claim GUID that is returned when the SC is submitted, is supplied to this endpoint to ensure the SC is in a valid state for sending supporting evidence documents.\n",
+        "description": "This is the first step to submitting supporting evidence for an SC.  (See the Evidence Uploads section above for additional information.)\nThe Supplemental Claim GUID that is returned when the SC is submitted, is supplied to this endpoint to ensure the SC is in a valid state for sending supporting evidence documents.\n\nOnce a Supplemental Claim has been submitted, evidence may be uploaded up to 7 days from the Supplemental Claim's created_at date via 'supplemental_claims/evidence_submissions'.\n",
         "parameters": [
           {
             "name": "sc_uuid",
