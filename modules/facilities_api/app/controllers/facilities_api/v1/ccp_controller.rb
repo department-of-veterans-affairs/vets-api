@@ -113,11 +113,7 @@ module FacilitiesApi
     end
 
     def provider_locator(locator_params)
-      if Flipper.enabled?(:facility_locator_ppms_use_paginated_endpoint)
-        api.facility_service_locator(locator_params)
-      else
-        api.provider_locator(locator_params)
-      end
+      api.facility_service_locator(locator_params)
     end
   end
 end

@@ -61,35 +61,19 @@ module FacilitiesApi
         private
 
         def facility_service_locator_url
-          if Flipper.enabled?(:facility_locator_ppms_use_secure_api)
-            '/dws/v1.0/FacilityServiceLocator'
-          else
-            '/v1.0/FacilityServiceLocator'
-          end
+          '/dws/v1.0/FacilityServiceLocator'
         end
 
         def provider_locator_url
-          if Flipper.enabled?(:facility_locator_ppms_use_secure_api)
-            '/dws/v1.0/ProviderLocator'
-          else
-            '/v1.0/ProviderLocator'
-          end
+          '/dws/v1.0/ProviderLocator'
         end
 
         def place_of_service_locator_url
-          if Flipper.enabled?(:facility_locator_ppms_use_secure_api)
-            '/dws/v1.0/PlaceOfServiceLocator'
-          else
-            '/v1.0/PlaceOfServiceLocator'
-          end
+          '/dws/v1.0/PlaceOfServiceLocator'
         end
 
         def specialties_url
-          if Flipper.enabled?(:facility_locator_ppms_use_secure_api)
-            '/dws/v1.0/Specialties'
-          else
-            '/v1.0/Specialties'
-          end
+          '/dws/v1.0/Specialties'
         end
 
         def fetch_lat_long_and_radius(params)

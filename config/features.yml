@@ -202,12 +202,6 @@ features:
   facility_locator_ppms_legacy_urgent_care_to_pos_locator:
     actor_type: user
     description: force the legacy urgent care path to use the new POS locator
-  facility_locator_ppms_use_secure_api:
-    actor_type: user
-    description: Use the new secure ppms api with new auth headers
-  facility_locator_ppms_use_paginated_endpoint:
-    actor_type: user
-    description: Use the new paginated endpoint for providers
   facility_locator_predictive_location_search:
     actor_type: user
     description: Use predictive location search in the Facility Locator UI
