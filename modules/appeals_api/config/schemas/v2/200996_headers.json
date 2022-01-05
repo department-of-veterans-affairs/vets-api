@@ -47,6 +47,31 @@
           { "description": "Veteran's insurance policy number", "maxLength": 18 },
           { "$ref": "#/definitions/nonBlankString" }
         ] },
+        "X-Claimant-SSN": {
+          "type": "string",
+          "description": "Non-Veteran Claimants's SSN",
+          "pattern": "^[0-9]{9}$"
+        },
+        "X-Claimant-First-Name": {
+          "type": "string",
+          "description": "Non-Veteran Claimant's first name",
+          "maxLength": 30,
+          "$comment": "can be whitespace, to accommodate those with 1 legal name"
+        },
+        "X-Claimant-Middle-Initial": {
+          "allOf": [
+            { "description": "Non-Veteran Claimant's middle initial", "maxLength": 1 },
+            { "$ref": "#/definitions/nonBlankString" }
+          ]
+        },
+        "X-Claimant-Last-Name": { "allOf": [
+          { "description": "Non-Veteran Claimant's last name", "maxLength": 40 },
+          { "$ref": "#/definitions/nonBlankString" }
+        ] },
+        "X-Claimant-Birth-Date": { "allOf": [
+          { "description": "Non-Veteran Claimant's birth date" },
+          { "$ref": "#/definitions/date" }
+        ] },
         "X-Consumer-Username": {
           "allOf": [
             { "description": "Consumer User Name (passed from Kong)" },
