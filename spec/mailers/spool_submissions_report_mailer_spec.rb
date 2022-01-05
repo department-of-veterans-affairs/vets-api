@@ -44,6 +44,7 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
             d.a.barnes@accenturefederal.com
             jacob.finnern@accenturefederal.com
             hocine.halli@accenturefederal.com
+            adam.freemer@accenturefederal.com
           ]
         )
       end

@@ -595,6 +595,7 @@ reports:
       - d.a.barnes@accenturefederal.com
       - jacob.finnern@accenturefederal.com
       - hocine.halli@accenturefederal.com
+      - adam.freemer@accenturefederal.com
   spool_submission:
     emails:
       - Brian.Grubb@va.gov
@@ -624,6 +625,7 @@ reports:
       - d.a.barnes@accenturefederal.com
       - jacob.finnern@accenturefederal.com
       - hocine.halli@accenturefederal.com
+      - adam.freemer@accenturefederal.com
   year_to_date_report:
     emails:
       - 222A.VBAVACO@va.gov
@@ -664,6 +666,7 @@ reports:
       - d.a.barnes@accenturefederal.com
       - jacob.finnern@accenturefederal.com
       - hocine.halli@accenturefederal.com
+      - adam.freemer@accenturefederal.com
 
 oidc:
   auth_server_metadata_url: ~
