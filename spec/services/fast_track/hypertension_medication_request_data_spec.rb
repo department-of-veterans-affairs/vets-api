@@ -209,7 +209,7 @@ RSpec.describe FastTrack::HypertensionMedicationRequestData, :vcr do
             'description' => 'Hydrochlorothiazide 25 MG',
             'notes' => ['Hydrochlorothiazide 25 MG'],
             'dosageInstructions' => ['Once per day.', 'As directed by physician.'] }
-        ]
+        ].sort_by { |med| med['authoredOn'].to_date }.reverse!
       )
     end
   end

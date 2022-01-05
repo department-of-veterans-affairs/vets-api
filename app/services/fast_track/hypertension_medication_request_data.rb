@@ -9,32 +9,51 @@ module FastTrack
     end
 
     def transform
-      entries = response.body['entry']
-      filtered = entries.filter { |entry| entry['resource']['status'] == 'active' }
-      filtered.map { |entry| transform_entry(entry) }
+      transformed_entries = filtered_entries.map { |entry| transform_entry(entry) }
+      sorted_entries(transformed_entries)
     end
 
     private
+
+    def sorted_entries(transformed_entries)
+      transformed_entries.sort_by { |med| med[:authoredOn].to_date }.reverse!
+    end
+
+    def filtered_entries
+      response.body['entry'].filter { |entry| entry['resource']['status'] == 'active' }
+    end
 
     def transform_entry(raw_entry)
       entry = raw_entry['resource'].slice(
         'status', 'medicationReference', 'subject', 'authoredOn', 'note', 'dosageInstruction'
       )
-      result = entry.slice('status', 'authoredOn', entry)
-      description_hash = { description: entry['medicationReference']['display'] }
-      notes_hash = get_notes_from_note(entry['note'] || [])
-      dosage_hash = get_text_from_dosage_instruction(entry['dosageInstruction'] || [])
-      result.merge(description_hash, notes_hash, dosage_hash).with_indifferent_access
+
+      MedicationEntry.new(entry).result
     end
 
-    def get_notes_from_note(verbose_notes)
-      { 'notes': verbose_notes.map { |note| note['text'] } }
-    end
+    MedicationEntry = Struct.new(:entry) do
+      def result
+        entry.slice('status', 'authoredOn', entry)
+             .merge(description_hash, notes_hash, dosage_hash).with_indifferent_access
+      end
 
-    def get_text_from_dosage_instruction(dosage_instructions)
-      toplevel_texts = dosage_instructions.map { |instr| instr['text'] || [] }
-      code_texts = dosage_instructions.map { |instr| instr.dig('timing', 'code', 'text') || [] }
-      { 'dosageInstructions': toplevel_texts + code_texts }
+      def description_hash
+        { description: entry['medicationReference']['display'] }
+      end
+
+      def notes_hash
+        verbose_notes = (entry['note'] || [])
+
+        { 'notes': verbose_notes.map { |note| note['text'] } }
+      end
+
+      def dosage_hash
+        dosage_instructions = (entry['dosageInstruction'] || [])
+        toplevel_texts = dosage_instructions.map { |instr| instr['text'] || [] }
+        code_texts = dosage_instructions.map { |instr| instr.dig('timing', 'code', 'text') || [] }
+
+        { 'dosageInstructions': toplevel_texts + code_texts }
+      end
     end
   end
 end

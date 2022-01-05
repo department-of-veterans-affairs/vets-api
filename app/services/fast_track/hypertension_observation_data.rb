@@ -10,10 +10,24 @@ module FastTrack
 
     def transform
       entries = response.body['entry']
-      entries.map { |entry| transform_entry(entry) }
+      entries = entries.map { |entry| transform_entry(entry) }
+
+      filtered_entries(entries)
     end
 
     private
+
+    def filtered_entries(bp_readings)
+      return [] if bp_readings.empty?
+
+      bp_readings = bp_readings.filter do |reading|
+        reading[:issued].to_date > 1.year.ago
+      end
+
+      bp_readings.sort_by do |reading|
+        reading[:issued].to_date
+      end.reverse!
+    end
 
     def transform_entry(raw_entry)
       entry = raw_entry['resource'].slice('issued', 'component', 'performer')
