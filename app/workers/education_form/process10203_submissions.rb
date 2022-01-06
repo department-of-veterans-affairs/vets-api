@@ -153,7 +153,7 @@ module EducationForm
     def process_submission(submission, user_has_poa)
       remaining_entitlement = submission.education_stem_automated_decision&.remaining_entitlement
       # This code will be updated once QA and additional evaluation is completed
-      status = if Settings.vsp_environment == 'staging' && more_than_six_months?(remaining_entitlement)
+      status = if Settings.vsp_environment == 'production' && more_than_six_months?(remaining_entitlement)
                  EducationStemAutomatedDecision::PROCESSED
                elsif more_than_six_months?(remaining_entitlement)
                  EducationStemAutomatedDecision::DENIED
