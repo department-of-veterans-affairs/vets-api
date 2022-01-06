@@ -1,8 +1,42 @@
 ---
 http_interactions:
 - request:
+    method: post
+    uri: http://localhost:8070/vets-service/v1/claimType/Chapter33/claimants
+    body:
+      encoding: UTF-8
+      string: '{"ssn":"796126859"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer eyJraWQiOiJ2YW5vdGlmeSIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJpYXQiOjE2NDE0MzAyMTcsImV4cCI6MTY0MTQzMDUxN30.FOC8Sla06yZW2Unc3g8m6yPY3OlIK9tX8-mo6EX2BRdGqGI0U7PQ36kX6egbOyNgf3T8vjFb8CYvuWqO2wM3OrPZyk65Uko9lx5vgjcXtEmW7-UpYuA1lKtfSUJ3VgtsWHwqlYYOMqW-kgZJc-5tBhdxEq_fcgRyRzq7v32QoGt_Lz0cPxSSsh1jWuFEe9EErqu4DSS1CjZ3yN2GNAJ1DdJSZQ8xeRvrYVso-x2JRAr_SE1Px-JZj1qhSH-6fWzJxJ4tpV7XupaEv402QuhtPi5Z2yP1Jp5dQ3vDQKit8T81JgWoDkzdJDANP82H7PrgM1WctzGSCUgxawKwQQbJEw
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 201
+      message: ''
+    headers:
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Thu, 06 Jan 2022 00:50:16 GMT
+    body:
+      encoding: UTF-8
+      string: '{"claimant":{"claimantId":99900000200000000,"suffix":"","dateOfBirth":"1993-08-11","firstName":"Hector","lastName":"Allen","middleName":"Jacob","notificationMethod":"NONE","contactInfo":{"addressLine1":"1291
+        Boston Post Rd","addressLine2":"","city":"Madison","zipcode":"06443","emailAddress":"test@test.com","addressType":"DOMESTIC","mobilePhoneNumber":"1231231234","homePhoneNumber":"1231231234","countryCode":"US","stateCode":"CT"},"preferredContact":null},"serviceData":[{"branchOfService":"Army","beginDate":"2010-01-01","endDate":"2019-02-15","characterOfService":"Honorable","reasonForSeparation":"Expiration
+        Term Of Service","exclusionPeriods":[],"trainingPeriods":[]}]}'
+  recorded_at: Thu, 06 Jan 2022 00:50:17 GMT
+- request:
     method: get
-    uri: http://localhost:8070/vets-service/v1/claimant/99900000200000001/claimType/Chapter33/claimstatus
+    uri: http://localhost:8070/vets-service/v1/claimant/99900000200000000/claimType/Chapter33/claimstatus
     body:
       encoding: US-ASCII
       string: ''
@@ -14,7 +48,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Authorization:
-      - Bearer eyJraWQiOiJ2YW5vdGlmeSIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJpYXQiOjE2NDA2NTY1NTMsImV4cCI6MTY0MDY1Njg1M30.SaNufUrg32Tq8IBfoxCy7e6bYCjHrmdKUnMF6-3MsYPSxGPX1rkaJhWbD5RiQgHJ_DsiV4qt-H64inIAxtrvOLdWDHDxxdy0DMci20L7Ag2PrP8RCXPwdeW8FuzCJnJ8DcvUyLipLgGvP9qFuI2zOFuj1Q7GKW4eFHdA596uWaadmR7w_aJNolcFFnDf4-kLpmoD0aDtrM4x0PIqDVURHrFNUezSGLN3YM1nWfwFFa8yyAMPOvE6YQv8yUZEnM90sRP5U3y3uC9jm0iSVIjUEjsIdq4hYaoBudrXydIkTYGD_abTGFofZkcRN0jhssYZo_30VCxVk_Syj-VVbUTs7Q
+      - Bearer eyJraWQiOiJ2YW5vdGlmeSIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJpYXQiOjE2NDE0MzAyMTcsImV4cCI6MTY0MTQzMDUxN30.FOC8Sla06yZW2Unc3g8m6yPY3OlIK9tX8-mo6EX2BRdGqGI0U7PQ36kX6egbOyNgf3T8vjFb8CYvuWqO2wM3OrPZyk65Uko9lx5vgjcXtEmW7-UpYuA1lKtfSUJ3VgtsWHwqlYYOMqW-kgZJc-5tBhdxEq_fcgRyRzq7v32QoGt_Lz0cPxSSsh1jWuFEe9EErqu4DSS1CjZ3yN2GNAJ1DdJSZQ8xeRvrYVso-x2JRAr_SE1Px-JZj1qhSH-6fWzJxJ4tpV7XupaEv402QuhtPi5Z2yP1Jp5dQ3vDQKit8T81JgWoDkzdJDANP82H7PrgM1WctzGSCUgxawKwQQbJEw
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -27,9 +61,9 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Mon, 27 Dec 2021 14:55:53 GMT
+      - Thu, 06 Jan 2022 00:50:16 GMT
     body:
       encoding: UTF-8
-      string: '{"claimantId":990000000000000021,"claimServiceId":99000000113358489,"claimStatus":"ELIGIBLE","confirmationNumber":null,"receivedDate":null}'
-  recorded_at: Mon, 27 Dec 2021 14:55:53 GMT
+      string: '{"claimantId":990000000000000001,"claimServiceId":99000000113358289,"claimStatus":"ELIGIBLE","confirmationNumber":null,"receivedDate":null}'
+  recorded_at: Thu, 06 Jan 2022 00:50:17 GMT
 recorded_with: VCR 6.0.0

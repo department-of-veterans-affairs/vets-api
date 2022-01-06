@@ -5,7 +5,7 @@ http_interactions:
     uri: http://localhost:8070/vets-service/v1/claimType/Chapter33/claimants
     body:
       encoding: UTF-8
-      string: '{"ssn":"539139735"}'
+      string: '{"ssn":"796126859"}'
     headers:
       Accept:
       - application/json
@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Authorization:
-      - Bearer eyJraWQiOiJ2YW5vdGlmeSIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJpYXQiOjE2MzY1NjkyMDUsImV4cCI6MTYzNjU2OTUwNX0.aKPPITFYId582BH5FenTdQKkrmkTSRmEcuiX_G3gDSdSESueHnwCnv0-18qYR5dMricJOD2TgjtaouV8oVDC-G9bYus_LnJrzFoMkzd9AJSg2DVlEMyiVm4uM3-KVbDFSlBwcuvhWNn3LTQnDIO2VkHkhBLYCcQl5WgWOttjpMdeLDl_vIhVHNnyD8Qh0Z2f8LYeSEzYhP2fqzpim02Rv0ZOoeW5G6-_woZVIa0uN_XMCHOOheyrxxI_eaxu4iAavg13p63vRB6SGy0q4preUpLJb7vOCdV6Z8E-8uG5VhjPg1NIsikGJLGcLl5TZuB_Hr6WNEYDj-sOyCHeNVLh9Q
+      - Bearer eyJraWQiOiJ2YW5vdGlmeSIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJpYXQiOjE2NDE0MzAyMTcsImV4cCI6MTY0MTQzMDUxN30.FOC8Sla06yZW2Unc3g8m6yPY3OlIK9tX8-mo6EX2BRdGqGI0U7PQ36kX6egbOyNgf3T8vjFb8CYvuWqO2wM3OrPZyk65Uko9lx5vgjcXtEmW7-UpYuA1lKtfSUJ3VgtsWHwqlYYOMqW-kgZJc-5tBhdxEq_fcgRyRzq7v32QoGt_Lz0cPxSSsh1jWuFEe9EErqu4DSS1CjZ3yN2GNAJ1DdJSZQ8xeRvrYVso-x2JRAr_SE1Px-JZj1qhSH-6fWzJxJ4tpV7XupaEv402QuhtPi5Z2yP1Jp5dQ3vDQKit8T81JgWoDkzdJDANP82H7PrgM1WctzGSCUgxawKwQQbJEw
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -27,11 +27,11 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Wed, 10 Nov 2021 18:33:25 GMT
+      - Thu, 06 Jan 2022 00:50:18 GMT
     body:
       encoding: UTF-8
-      string: '{"claimant":{"claimantId":1000000000000261,"suffix":null,"dateOfBirth":"1970-01-01","firstName":"Herbert","lastName":"Hoover","middleName":null,"notificationMethod":"NONE","contactInfo":{"addressLine1":"123
-        Martin Luther King Blvd","addressLine2":null,"city":"New Orleans","zipcode":"70115","emailAddress":"test@test.com","addressType":"MILITARY_OVERSEAS","mobilePhoneNumber":null,"homePhoneNumber":null,"countryCode":"US","stateCode":"ME"},"preferredContact":null},"serviceData":[{"branchOfService":"Army","beginDate":"2015-08-01","endDate":"2019-08-01","characterOfService":"Honorable","reasonForSeperation":"Expiration
+      string: '{"claimant":{"claimantId":99900000200000000,"suffix":"","dateOfBirth":"1993-08-11","firstName":"Hector","lastName":"Allen","middleName":"Jacob","notificationMethod":"NONE","contactInfo":{"addressLine1":"1291
+        Boston Post Rd","addressLine2":"","city":"Madison","zipcode":"06443","emailAddress":"test@test.com","addressType":"DOMESTIC","mobilePhoneNumber":"1231231234","homePhoneNumber":"1231231234","countryCode":"US","stateCode":"CT"},"preferredContact":null},"serviceData":[{"branchOfService":"Army","beginDate":"2010-01-01","endDate":"2019-02-15","characterOfService":"Honorable","reasonForSeparation":"Expiration
         Term Of Service","exclusionPeriods":[],"trainingPeriods":[]}]}'
-  recorded_at: Wed, 10 Nov 2021 18:33:25 GMT
+  recorded_at: Thu, 06 Jan 2022 00:50:18 GMT
 recorded_with: VCR 6.0.0

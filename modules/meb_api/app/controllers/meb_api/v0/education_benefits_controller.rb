@@ -4,6 +4,7 @@ require 'dgi/eligibility/service'
 require 'dgi/automation/service'
 require 'dgi/status/service'
 require 'dgi/submission/service'
+require 'dgi/letters/service'
 
 module MebApi
   module V0
@@ -22,8 +23,27 @@ module MebApi
       end
 
       def claim_status
-        response = claim_status_service.get_claim_status(params[:claimant_id])
-        render json: response, serializer: ClaimStatusSerializer
+        automation_response = automation_service.get_claimant_info
+        claimant_id = automation_response['claimant']['claimant_id']
+
+        claim_status_response = claim_status_service.get_claim_status(claimant_id)
+
+        response = automation_response.status == 201 ? claim_status_response : automation_response
+        serializer = automation_response.status == 201 ? ClaimStatusSerializer : AutomationSerializer
+
+        render json: response, serializer: serializer
+      end
+
+      def claim_letter
+        automation_response = automation_service.get_claimant_info
+        claimant_id = automation_response['claimant']['claimant_id']
+
+        claim_letter_response = claim_letters_service.get_claim_letter(claimant_id)
+
+        response = automation_response.status == 201 ? claim_letter_response : automation_response
+
+        send_data response.body, filename: 'testing.pdf', type: 'application/pdf', disposition: 'attachment'
+        nil
       end
 
       def submit_claim
@@ -54,6 +74,10 @@ module MebApi
 
       def submission_service
         MebApi::DGI::Submission::Service.new(@current_user)
+      end
+
+      def claim_letters_service
+        MebApi::DGI::Letters::Service.new(@current_user)
       end
     end
   end

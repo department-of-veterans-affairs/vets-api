@@ -10,7 +10,7 @@ Rspec.describe MebApi::DGI::Automation::Service do
       last_name: 'Hoover',
       middle_name: '',
       birth_date: '1970-01-01',
-      ssn: '539139735'
+      ssn: '796126859'
     }
   end
 
@@ -28,9 +28,8 @@ Rspec.describe MebApi::DGI::Automation::Service do
       it 'successfully receives an Claimant object' do
         VCR.use_cassette('dgi/post_claimant_info') do
           response = service.get_claimant_info
-
           expect(response.status).to eq(201)
-          expect(response['claimant']['claimant_id']).to eq(1_000_000_000_000_261)
+          expect(response['claimant']['claimant_id']).to eq(99_900_000_200_000_000)
         end
       end
     end
