@@ -5,10 +5,15 @@ require_relative '../support/iam_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'discovery', type: :request do
-  include JsonSchemaMatchers
   describe 'GET /mobile' do
-    context 'when the mobile_api flipper feature is enabled' do
-      let(:expected_body) do
+    before { get '/mobile' }
+
+    it 'returns a 200' do
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns a welcome message' do
+      expect(response.parsed_body).to eq(
         {
           'data' => {
             'attributes' => {
@@ -16,17 +21,7 @@ RSpec.describe 'discovery', type: :request do
             }
           }
         }
-      end
-    end
-
-    context 'when the mobile_api flipper feature is disabled' do
-      before { Flipper.disable('mobile_api') }
-
-      it 'returns a 404' do
-        get '/mobile'
-
-        expect(response).to have_http_status(:not_found)
-      end
+      )
     end
   end
 end

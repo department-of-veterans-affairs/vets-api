@@ -8,7 +8,7 @@ module Mobile
     include SentryLogging
     include SentryControllerLogging
 
-    before_action :check_feature_flag, :authenticate
+    before_action :authenticate
     before_action :set_tags_and_extra_context
     skip_before_action :authenticate, only: :cors_preflight
 
@@ -21,23 +21,6 @@ module Mobile
     private
 
     attr_reader :current_user
-
-    def check_feature_flag
-      return nil if Flipper.enabled?(:mobile_api)
-
-      message = {
-        errors: [
-          {
-            title: 'Not found',
-            detail: 'There are no routes matching your request',
-            code: '411',
-            status: '404'
-          }
-        ]
-      }
-
-      render json: message, status: :not_found
-    end
 
     def authenticate
       raise_unauthorized('Missing Authorization header') if request.headers['Authorization'].nil?
