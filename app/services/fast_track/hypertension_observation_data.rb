@@ -25,7 +25,7 @@ module FastTrack
       end
 
       bp_readings.sort_by do |reading|
-        reading[:issued].to_date
+        reading[:issued].to_datetime
       end.reverse!
     end
 

@@ -18,7 +18,7 @@ RSpec.describe FastTrack::HypertensionPdfGenerator, :vcr do
   let(:parsed_bp_data) do
     # At least one of the bp readings must be from the last year
     original_first_bp_reading = bp_data.body['entry'].first
-    original_first_bp_reading['resource']['issued'] = (Time.zone.today - 2.weeks).to_s
+    original_first_bp_reading['resource']['issued'] = (DateTime.now - 2.weeks).iso8601
 
     FastTrack::HypertensionObservationData.new(bp_data).transform
   end
