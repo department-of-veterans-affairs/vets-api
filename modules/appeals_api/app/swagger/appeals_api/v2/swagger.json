@@ -3074,7 +3074,7 @@
           "Contestable Issues"
         ],
         "operationId": "getContestableIssues",
-        "description": "Returns all issues associated with a Veteran that have not previously been decided as of the `receiptDate`. Not all issues returned are guaranteed to be eligible for appeal.",
+        "description": "Returns all issues associated with a Veteran that have been decided as of the `receiptDate`. Not all issues returned are guaranteed to be eligible for appeal.",
         "security": [
           {
             "apikey": [
@@ -3947,7 +3947,7 @@
           "Higher-Level Reviews"
         ],
         "operationId": "hlrContestableIssues",
-        "description": "Returns all issues associated with a Veteran that have not previously been decided by a Higher-Level Review as of the receiptDate and bound by benefitType. Not all issues returned are guaranteed to be eligible for appeal. Associate these results when creating a new Higher-Level Review.",
+        "description": "Returns all issues associated with a Veteran that have been decided by a Higher-Level Review as of the receiptDate and bound by benefitType. Not all issues returned are guaranteed to be eligible for appeal. Associate these results when creating a new Higher-Level Review.",
         "security": [
           {
             "apikey": [

@@ -202,7 +202,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
     get 'Returns all contestable issues for a specific veteran.' do
       tags 'Higher-Level Reviews'
       operationId 'hlrContestableIssues'
-      description = 'Returns all issues associated with a Veteran that have not previously been decided by a ' \
+      description = 'Returns all issues associated with a Veteran that have been decided by a ' \
                     'Higher-Level Review as of the receiptDate and bound by benefitType. Not all issues returned are guaranteed '\
                     'to be eligible for appeal. Associate these results when creating a new Higher-Level Review.'
       description description

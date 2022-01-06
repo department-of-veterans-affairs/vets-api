@@ -132,7 +132,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       key :summary, 'Returns all contestable issues for a specific veteran.'
 
       description = 'Returns all issues associated with a Veteran that have' \
-                    'not previously been decided by a Notice of Disagreement' \
+                    ' been decided by a Notice of Disagreement' \
                     'as of the `receiptDate`. Not all issues returned are guaranteed to be eligible for appeal.' \
                     'Associate these results when creating a new Notice of Disagreement.'
       key :description, description

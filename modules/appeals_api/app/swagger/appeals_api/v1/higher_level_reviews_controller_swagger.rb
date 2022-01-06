@@ -104,7 +104,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       key :deprecated, true
       key :operationId, 'getContestableIssues'
       key :summary, 'Returns all contestable issues for a specific veteran.'
-      desc = 'Returns all issues associated with a Veteran that have not previously been decided by a Higher-Level ' \
+      desc = 'Returns all issues associated with a Veteran that have been decided by a Higher-Level ' \
              'Review as of the `receiptDate` and bound by `benefitType`. Not all issues returned are guaranteed to be ' \
              'eligible for appeal. Associate these results when creating a new Higher-Level Review.'
       key :description, desc
