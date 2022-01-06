@@ -4,6 +4,8 @@ require 'claims_api/vbms_uploader'
 
 module ClaimsApi
   module VBMSSidekiq
+    include SentryLogging
+
     def rescue_file_not_found(power_of_attorney)
       power_of_attorney.update(
         status: ClaimsApi::PowerOfAttorney::ERRORED,
@@ -20,6 +22,15 @@ module ClaimsApi
         power_of_attorney.status = 'failed'
       end
       power_of_attorney.save
+    end
+
+    def rescue_vbms_file_number_not_found(power_of_attorney)
+      error_message = "VBMS is unable to locate file number #{power_of_attorney.auth_headers['va_eauth_pnid']}"
+      power_of_attorney.update(
+        status: ClaimsApi::PowerOfAttorney::ERRORED,
+        vbms_error_message: error_message
+      )
+      log_message_to_sentry(self.class.name, :warning, body: error_message)
     end
 
     def upload_to_vbms(power_of_attorney, path)
