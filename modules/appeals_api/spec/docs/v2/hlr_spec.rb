@@ -51,6 +51,21 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header]
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_insurance_policy_number_header]
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_first_name_header]
+      let(:'X-Claimant-First-Name') { 'first' }
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_middle_initial_header]
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_last_name_header]
+      let(:'X-Claimant-Last-Name') { 'last' }
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_ssn_header]
+      let(:'X-Claimant-SSN') { '999999999' }
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_birth_date_header]
+      let(:'X-Claimant-Birth-Date') { '1921-08-08' }
+
       parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_username_header]
       parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_id_header]
 

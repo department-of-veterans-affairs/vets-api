@@ -78,6 +78,41 @@ class AppealsApi::SwaggerSharedComponents
         required: false,
         description: 'Veteran\'s insurance policy number'
       },
+      claimant_ssn_header: {
+        in: :header,
+        type: :string,
+        name: 'X-Claimant-SSN',
+        required: false,
+        description: 'Non-Veteran Claimant\'s SSN'
+      },
+      claimant_first_name_header: {
+        in: :header,
+        type: :string,
+        name: 'X-Claimant-First-Name',
+        required: false,
+        description: 'Non-Veteran Claimant\'s first name'
+      },
+      claimant_middle_initial_header: {
+        in: :header,
+        type: :string,
+        name: 'X-Claimant-Middle-Initial',
+        required: false,
+        description: 'Non-Veteran Claimant\'s middle initial'
+      },
+      claimant_last_name_header: {
+        in: :header,
+        type: :string,
+        name: 'X-Claimant-Last-Name',
+        required: false,
+        description: 'Non-Veteran Claimant\'s last name'
+      },
+      claimant_birth_date_header: {
+        in: :header,
+        type: :string,
+        name: 'X-Claimant-Birth-Date',
+        required: false,
+        description: 'Non-Veteran Claimant\'s Birth Date'
+      },
       consumer_username_header: {
         in: :header,
         type: :string,
