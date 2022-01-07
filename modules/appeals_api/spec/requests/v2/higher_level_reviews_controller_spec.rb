@@ -15,6 +15,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
     @invalid_data = fixture_to_s 'invalid_200996_v2.json'
     @headers = fixture_as_json 'valid_200996_headers_v2.json'
     @minimum_required_headers = fixture_as_json 'valid_200996_headers_minimum.json'
+    @extra_headers = fixture_as_json 'valid_200996_headers_extra_v2.json'
     @invalid_headers = fixture_as_json 'invalid_200996_headers.json'
   end
 
@@ -37,6 +38,14 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
     context 'with minimum required headers' do
       it 'creates an HLR and persists the data' do
         post(path, params: @data, headers: @minimum_required_headers)
+        expect(parsed['data']['type']).to eq('higherLevelReview')
+        expect(parsed['data']['attributes']['status']).to eq('pending')
+      end
+    end
+
+    context 'with optional claimant headers' do
+      it 'creates an HLR and persists the data' do
+        post(path, params: @data, headers: @extra_headers)
         expect(parsed['data']['type']).to eq('higherLevelReview')
         expect(parsed['data']['attributes']['status']).to eq('pending')
       end
