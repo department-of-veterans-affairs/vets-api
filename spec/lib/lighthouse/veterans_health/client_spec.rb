@@ -17,6 +17,22 @@ RSpec.describe Lighthouse::VeteransHealth::Client do
         expect(@client.instance_variable_get(:@icn)).to eq 12_345
       end
     end
+
+    describe 'when the caller passes no icn' do
+      it 'raises an ArgumentError to the caller' do
+        expect do
+          Lighthouse::VeteransHealth::Client.new(nil)
+        end.to raise_error(ArgumentError, 'no ICN passed in for LH API request.')
+      end
+    end
+
+    describe 'when the caller passes a blank icn' do
+      it 'raises an ArgumentError to the caller' do
+        expect do
+          Lighthouse::VeteransHealth::Client.new(' ')
+        end.to raise_error(ArgumentError, 'no ICN passed in for LH API request.')
+      end
+    end
   end
 
   describe '#get_resource' do

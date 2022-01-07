@@ -64,10 +64,14 @@ module FastTrack
     end
 
     def get_icn(form526_submission)
-      account = Account.where(idme_uuid: form526_submission.user_uuid).first
-      account = Account.where(logingov_uuid: form526_submission.user_uuid).first if account.blank?
-      account = Account.where(edipi: form526_submission.auth_headers['va_eauth_dodedipnid']).first if account.blank?
-      account.icn if account.present? && account.icn.present?
+      account(form526_submission).icn.presence
+    end
+
+    def account(form526_submission)
+      user_uuid = form526_submission.user_uuid
+      @account ||= Account.where(idme_uuid: user_uuid)
+                          .or(Account.where(logingov_uuid: user_uuid))
+                          .or(Account.where(edipi: form526_submission.auth_headers['va_eauthdodedipnid'])).first!
     end
 
     def upload_pdf_and_attach_special_issue(form526_submission, pdf)
