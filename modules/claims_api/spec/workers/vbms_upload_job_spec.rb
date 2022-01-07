@@ -92,7 +92,7 @@ RSpec.describe ClaimsApi::VBMSUploadJob, type: :job do
 
         expect(power_of_attorney.status).to eq('errored')
         expect(power_of_attorney.vbms_error_message).to eq(
-          "VBMS is unable to locate file number #{power_of_attorney.auth_headers['va_eauth_pnid']}"
+          'VBMS is unable to locate file number'
         )
       end
     end

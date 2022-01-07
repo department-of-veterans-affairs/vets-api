@@ -25,7 +25,7 @@ module ClaimsApi
     end
 
     def rescue_vbms_file_number_not_found(power_of_attorney)
-      error_message = "VBMS is unable to locate file number #{power_of_attorney.auth_headers['va_eauth_pnid']}"
+      error_message = 'VBMS is unable to locate file number'
       power_of_attorney.update(
         status: ClaimsApi::PowerOfAttorney::ERRORED,
         vbms_error_message: error_message
