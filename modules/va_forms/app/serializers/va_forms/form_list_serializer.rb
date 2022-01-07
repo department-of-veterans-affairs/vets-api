@@ -11,7 +11,7 @@ module VAForms
                :va_form_administration
 
     def id
-      object.form_name
+      object.row_id
     end
 
     def last_sha256_change

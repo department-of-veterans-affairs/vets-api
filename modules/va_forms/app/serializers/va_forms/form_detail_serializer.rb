@@ -11,7 +11,7 @@ module VAForms
                :benefit_categories, :va_form_administration, :versions
 
     def id
-      object.form_name
+      object.row_id
     end
 
     def versions
