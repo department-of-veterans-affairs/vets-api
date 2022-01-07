@@ -5,7 +5,7 @@ require CovidResearch::Engine.root.join('spec', 'rails_helper.rb')
 
 RSpec.describe 'covid research volunteer submissions', type: :request do
   describe 'POST /covid-research/volunteer/create' do
-    let(:valid)   { read_fixture('valid-submission.json') }
+    let(:valid)   { read_fixture('valid-intake-submission.json') }
     let(:invalid) { read_fixture('no-name-submission.json') }
     let(:email_template) { 'signup_confirmation.html.erb' }
 
@@ -93,20 +93,19 @@ RSpec.describe 'covid research volunteer submissions', type: :request do
       post '/covid-research/volunteer/update', params: valid
     end
 
-    # TODO: - implement StatsD and then fix these tests
-    # context 'metrics' do
-    #   it 'records a metric for each call' do
-    #     expect { post '/covid-research/volunteer/update', params: valid }.to trigger_statsd_increment(
-    #       'api.covid_research.volunteer.create.total', times: 1, value: 1
-    #     )
-    #   end
+    context 'metrics' do
+      it 'records a metric for each call' do
+        expect { post '/covid-research/volunteer/update', params: valid }.to trigger_statsd_increment(
+          'api.covid_research.volunteer.update.total', times: 1, value: 1
+        )
+      end
 
-    #   it 'records a metric on failure' do
-    #     expect { post '/covid-research/volunteer/update', params: invalid }.to trigger_statsd_increment(
-    #       'api.covid_research.volunteer.create.fail', times: 1, value: 1
-    #     )
-    #   end
-    # end
+      it 'records a metric on failure' do
+        expect { post '/covid-research/volunteer/update', params: invalid }.to trigger_statsd_increment(
+          'api.covid_research.volunteer.update.fail', times: 1, value: 1
+        )
+      end
+    end
 
     context 'with a valid payload' do
       it 'returns a 202' do

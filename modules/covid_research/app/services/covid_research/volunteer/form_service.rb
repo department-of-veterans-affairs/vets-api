@@ -7,12 +7,10 @@ module CovidResearch
   module Volunteer
     class FormService
       SCHEMA = 'COVID-VACCINE-TRIAL'
-      # TODO: pass in correct vets-json-schema name for intake vs update
 
       attr_reader :worker
 
       delegate :valid?, to: :schema
-
       def initialize(schema_name = SCHEMA, worker = GenisisDeliveryJob)
         @worker = worker
         @schema_name = schema_name

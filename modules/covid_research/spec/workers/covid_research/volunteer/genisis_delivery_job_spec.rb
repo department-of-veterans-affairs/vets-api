@@ -12,7 +12,7 @@ RSpec.describe CovidResearch::Volunteer::GenisisDeliveryJob do
   let(:form_data)       { read_fixture('encrypted-form.json') }
   let(:response_double) { double('response') }
   let(:service_double)  { double('Service Instance', deliver_form: true) }
-  let(:submission)      { read_fixture('valid-submission.json') }
+  let(:submission)      { read_fixture('valid-update-submission.json') }
 
   before do
     allow(CovidResearch::RedisFormat).to receive(:new).and_return(fmt_double)

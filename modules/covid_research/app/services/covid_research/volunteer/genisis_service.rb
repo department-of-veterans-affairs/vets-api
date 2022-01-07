@@ -24,18 +24,22 @@ module CovidResearch
         @serializer = ser == :default ? GenisisSerializer.new : ser
         @submission = form_data
         @delivery_respone = :unattempted
+        @parsed_form = JSON.parse(@submission)
+        @submission_type = @parsed_form.key?('previousSubmissionId') ? 'update' : 'intake'
       end
 
       def deliver_form
         with_monitoring do
           @delivery_response = post(payload)
 
-          StatsD.increment("#{STATSD_KEY_PREFIX}.deliver_form.fail") unless @delivery_response.success?
+          unless @delivery_response.success?
+            StatsD.increment("#{STATSD_KEY_PREFIX}.deliver_form.#{@submission_type}.fail")
+          end
         end
       end
 
       def payload
-        serializer.serialize(JSON.parse(submission))
+        serializer.serialize(@parsed_form)
       end
 
       private

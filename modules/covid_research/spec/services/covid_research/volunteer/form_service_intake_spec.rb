@@ -8,7 +8,7 @@ require_relative '../../../../lib/redis_format' # No Rails helper no auto-load
 RSpec.describe CovidResearch::Volunteer::FormService do
   subject { described_class.new('COVID-VACCINE-TRIAL') }
 
-  let(:valid)   { JSON.parse(read_fixture('valid-submission.json')) }
+  let(:valid)   { JSON.parse(read_fixture('valid-intake-submission.json')) }
   let(:invalid) { JSON.parse(read_fixture('no-name-submission.json')) }
 
   context 'JSON Schema validation' do

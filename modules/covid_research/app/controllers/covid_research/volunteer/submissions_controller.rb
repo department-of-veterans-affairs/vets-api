@@ -10,8 +10,11 @@ module CovidResearch
       INTAKE_EMAIL_TEMPLATE_NAME = 'signup_confirmation.html.erb'
       UPDATE_EMAIL_TEMPLATE_NAME = 'update_confirmation.html.erb'
 
+      INTAKE_SCHEMA = 'COVID-VACCINE-TRIAL'
+      UPDATE_SCHEMA = 'COVID-VACCINE-TRIAL-UPDATE'
+
       def create
-        form_service = FormService.new('COVID-VACCINE-TRIAL')
+        form_service = FormService.new(INTAKE_SCHEMA)
         with_monitoring do
           if form_service.valid?(payload)
             ConfirmationMailerJob.perform_async(payload['email'], INTAKE_EMAIL_TEMPLATE_NAME)
@@ -30,7 +33,7 @@ module CovidResearch
       end
 
       def update
-        form_service = FormService.new('COVID-VACCINE-TRIAL-UPDATE')
+        form_service = FormService.new(UPDATE_SCHEMA)
         with_monitoring do
           if form_service.valid?(payload)
             ConfirmationMailerJob.perform_async(payload['email'], UPDATE_EMAIL_TEMPLATE_NAME)
@@ -39,8 +42,7 @@ module CovidResearch
 
             render json: { status: 'accepted' }, status: :accepted
           else
-            # TODO: Add STATSD for Update. Not sure what is needed, if anything, for that.
-            StatsD.increment("#{STATSD_KEY_PREFIX}.create.fail")
+            StatsD.increment("#{STATSD_KEY_PREFIX}.update.fail")
 
             error = {
               errors: form_service.submission_errors(payload)
