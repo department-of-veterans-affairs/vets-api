@@ -44,18 +44,6 @@ module AppealsApi
           'form1[0].#subform[2].ClaimantsLastName[1]'
         end
 
-        def mailing_address_street
-          'form1[0].#subform[2].CurrentMailingAddress_NumberAndStreet[0]'
-        end
-
-        def mailing_address_unit_number
-          'form1[0].#subform[2].CurrentMailingAddress_ApartmentOrUnitNumber[0]'
-        end
-
-        def mailing_address_city
-          'form1[0].#subform[2].CurrentMailingAddress_City[0]'
-        end
-
         def mailing_address_state
           'form1[0].#subform[2].CurrentMailingAddress_StateOrProvince[0]'
         end
@@ -92,8 +80,64 @@ module AppealsApi
           'form1[0].#subform[2].International_Telephone_Number_If_Applicable[0]'
         end
 
-        def veteran_email
-          'form1[0].#subform[2].CurrentMailingAddress_NumberAndStreet[2]'
+        def claimant_middle_initial
+          'form1[0].#subform[2].Veteran_Middle_Initial1[1]'
+        end
+
+        def claimant_first_three_ssn
+          'form1[0].#subform[2].ClaimantsSocialSecurityNumber_FirstThreeNumbers[1]'
+        end
+
+        def claimant_second_two_ssn
+          'form1[0].#subform[2].ClaimantsSocialSecurityNumber_SecondTwoNumbers[1]'
+        end
+
+        def claimant_last_four_ssn
+          'form1[0].#subform[2].ClaimantsSocialSecurityNumber_LastFourNumbers[1]'
+        end
+
+        def claimant_birth_month
+          'form1[0].#subform[2].DOBmonth[1]'
+        end
+
+        def claimant_birth_day
+          'form1[0].#subform[2].DOBday[1]'
+        end
+
+        def claimant_birth_year
+          'form1[0].#subform[2].DOByear[1]'
+        end
+
+        def claimant_mailing_address_state
+          'form1[0].#subform[2].CurrentMailingAddress_StateOrProvince[1]'
+        end
+
+        def claimant_mailing_address_country
+          'form1[0].#subform[2].CurrentMailingAddress_Country[1]'
+        end
+
+        def claimant_mailing_address_zip_first_5
+          'form1[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[1]'
+        end
+
+        def claimant_mailing_address_zip_last_4
+          'form1[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[1]'
+        end
+
+        def claimant_phone_area_code
+          'form1[0].#subform[2].Daytime_Phone_Number_Area_Code[1]'
+        end
+
+        def claimant_phone_prefix
+          'form1[0].#subform[2].Daytime_Phone_Middle_Three_Numbers[1]'
+        end
+
+        def claimant_phone_line_number
+          'form1[0].#subform[2].Daytime_Phone_Last_Four_Numbers[1]'
+        end
+
+        def claimant_phone_international_number
+          'form1[0].#subform[2].International_Telephone_Number_If_Applicable[1]'
         end
 
         def benefit_type(index)
@@ -138,10 +182,6 @@ module AppealsApi
 
         def sso_ssoc_opt_in
           'form1[0].#subform[3].RadioButtonList[0]'
-        end
-
-        def signature
-          'form1[0].#subform[4].SIGNATUREOFVETERANORCLAIMANT[0]'
         end
 
         def date_signed_month

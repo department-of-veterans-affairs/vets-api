@@ -62,26 +62,6 @@ module AppealsApi
             it { expect(form_fields.insurance_policy_number).to eq 'form1[0].#subform[2].ClaimantsLastName[1]' }
           end
 
-          describe 'mailing_address_street' do
-            it do
-              expect(
-                form_fields.mailing_address_street
-              ).to eq 'form1[0].#subform[2].CurrentMailingAddress_NumberAndStreet[0]'
-            end
-          end
-
-          describe 'mailing_address_unit_number' do
-            it do
-              expect(
-                form_fields.mailing_address_unit_number
-              ).to eq 'form1[0].#subform[2].CurrentMailingAddress_ApartmentOrUnitNumber[0]'
-            end
-          end
-
-          describe 'mailing_address_city' do
-            it { expect(form_fields.mailing_address_city).to eq 'form1[0].#subform[2].CurrentMailingAddress_City[0]' }
-          end
-
           describe 'mailing_address_state' do
             it do
               expect(
@@ -146,9 +126,123 @@ module AppealsApi
             end
           end
 
-          describe 'veteran_email' do
+          describe 'claimant_middle_initial' do
             it do
-              expect(form_fields.veteran_email).to eq 'form1[0].#subform[2].CurrentMailingAddress_NumberAndStreet[2]'
+              expect(
+                form_fields.claimant_middle_initial
+              ).to eq 'form1[0].#subform[2].Veteran_Middle_Initial1[1]'
+            end
+          end
+
+          describe 'claimant_first_three_ssn' do
+            it do
+              expect(
+                form_fields.claimant_first_three_ssn
+              ).to eq 'form1[0].#subform[2].ClaimantsSocialSecurityNumber_FirstThreeNumbers[1]'
+            end
+          end
+
+          describe 'claimant_second_two_ssn' do
+            it do
+              expect(
+                form_fields.claimant_second_two_ssn
+              ).to eq 'form1[0].#subform[2].ClaimantsSocialSecurityNumber_SecondTwoNumbers[1]'
+            end
+          end
+
+          describe 'claimant_last_four_ssn' do
+            it do
+              expect(
+                form_fields.claimant_last_four_ssn
+              ).to eq 'form1[0].#subform[2].ClaimantsSocialSecurityNumber_LastFourNumbers[1]'
+            end
+          end
+
+          describe 'claimant_birth_month' do
+            it do
+              expect(
+                form_fields.claimant_birth_month
+              ).to eq 'form1[0].#subform[2].DOBmonth[1]'
+            end
+          end
+
+          describe 'claimant_birth_day' do
+            it do
+              expect(
+                form_fields.claimant_birth_day
+              ).to eq 'form1[0].#subform[2].DOBday[1]'
+            end
+          end
+
+          describe 'claimant_birth_year' do
+            it do
+              expect(
+                form_fields.claimant_birth_year
+              ).to eq 'form1[0].#subform[2].DOByear[1]'
+            end
+          end
+
+          describe 'claimant_mailing_address_state' do
+            it do
+              expect(
+                form_fields.claimant_mailing_address_state
+              ).to eq 'form1[0].#subform[2].CurrentMailingAddress_StateOrProvince[1]'
+            end
+          end
+
+          describe 'claimant_mailing_address_country' do
+            it do
+              expect(
+                form_fields.claimant_mailing_address_country
+              ).to eq 'form1[0].#subform[2].CurrentMailingAddress_Country[1]'
+            end
+          end
+
+          describe 'claimant_mailing_address_zip_first_5' do
+            it do
+              expect(
+                form_fields.claimant_mailing_address_zip_first_5
+              ).to eq 'form1[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[1]'
+            end
+          end
+
+          describe 'claimant_mailing_address_zip_last_4' do
+            it do
+              expect(
+                form_fields.claimant_mailing_address_zip_last_4
+              ).to eq 'form1[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[1]'
+            end
+          end
+
+          describe 'claimant_phone_area_code' do
+            it do
+              expect(
+                form_fields.claimant_phone_area_code
+              ).to eq 'form1[0].#subform[2].Daytime_Phone_Number_Area_Code[1]'
+            end
+          end
+
+          describe 'claimant_phone_prefix' do
+            it do
+              expect(
+                form_fields.claimant_phone_prefix
+              ).to eq 'form1[0].#subform[2].Daytime_Phone_Middle_Three_Numbers[1]'
+            end
+          end
+
+          describe 'claimant_phone_line_number' do
+            it do
+              expect(
+                form_fields.claimant_phone_line_number
+              ).to eq 'form1[0].#subform[2].Daytime_Phone_Last_Four_Numbers[1]'
+            end
+          end
+
+          describe 'claimant_phone_international_number' do
+            it do
+              expect(
+                form_fields.claimant_phone_international_number
+              ).to eq 'form1[0].#subform[2].International_Telephone_Number_If_Applicable[1]'
             end
           end
 
@@ -196,16 +290,8 @@ module AppealsApi
             end
           end
 
-          describe 'rep_email' do
-            it { expect(form_fields.rep_email).to eq 'form1[0].#subform[3].CurrentMailingAddress_NumberAndStreet[4]' }
-          end
-
           describe 'sso_ssoc_opt_in' do
             it { expect(form_fields.sso_ssoc_opt_in).to eq 'form1[0].#subform[3].RadioButtonList[0]' }
-          end
-
-          describe 'signature' do
-            it { expect(form_fields.signature).to eq 'form1[0].#subform[4].SIGNATUREOFVETERANORCLAIMANT[0]' }
           end
 
           describe 'date_signed_month' do
