@@ -608,3 +608,37 @@
   - :method: :get
     :path: "/appointments/v1/patients/*/appointments/*"
     :file_path: "hqva_mobile/appointments/default"
+
+#LoROTA (CheckIn)
+- :name: "LoROTA"
+  :base_uri: <%= "#{URI(Settings.check_in.lorota_v2.url).host}:#{URI(Settings.check_in.lorota_v2.url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: "/dev/token"
+      :file_path: "/lorota/token"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'SSN4":[\s]*"(\w+)"'
+    - :method: :get
+      :path: "/dev/data/*"
+      :file_path: "/lorota/data"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/data\/(.+)'
+
+#CHIP
+- :name: "CHIP"
+  :base_uri: <%= "#{URI(Settings.check_in.chip_api_v2.url).host}:#{URI(Settings.check_in.chip_api_v2.url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: "/dev/token"
+      :file_path: "/chip/token/default"
+    - :method: :post
+      :path: "/dev/actions/check-in/*"
+      :file_path: "/chip/check-in/default"
+    - :method: :post
+      :path: "/dev/actions/refresh-appointments/*"
+      :file_path: "/chip/refresh-appointments/default"
+    - :method: :post
+      :path: "/dev/actions/pre-checkin/*"
+      :file_path: "/chip/pre-checkin/default"

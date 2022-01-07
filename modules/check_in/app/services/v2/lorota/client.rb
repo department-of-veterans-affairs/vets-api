@@ -38,6 +38,8 @@ module V2
         Faraday.new(url: url) do |conn|
           conn.use :breakers
           conn.response :raise_error, error_prefix: service_name
+          conn.response :betamocks if Settings.check_in.lorota_v2.mock
+
           conn.adapter Faraday.default_adapter
         end
       end
