@@ -24,10 +24,15 @@ RSpec.describe 'Power Of Attorney', type: :request do
     end
 
     describe 'appoint_individual' do
+      b64_image = File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
       let(:data) do
         {
           serviceOrganization: {
             poaCode: individual_poa_code.to_s
+          },
+          signatures: {
+            veteran: b64_image,
+            representative: b64_image
           }
         }
       end
@@ -57,6 +62,50 @@ RSpec.describe 'Power Of Attorney', type: :request do
         end
       end
 
+      context 'when a POA code isn\'t provided' do
+        it 'returns a 400 error code' do
+          with_okta_user(scopes) do |auth_header|
+            data[:serviceOrganization] = nil
+
+            put appoint_individual_path, params: data, headers: auth_header
+            expect(response.status).to eq(400)
+          end
+        end
+      end
+
+      context 'when no signatures are provided' do
+        it 'returns a 400 error code' do
+          with_okta_user(scopes) do |auth_header|
+            data[:signatures] = nil
+
+            put appoint_individual_path, params: data, headers: auth_header
+            expect(response.status).to eq(400)
+          end
+        end
+      end
+
+      context 'when a veteran signature isn\'t provided' do
+        it 'returns a 400 error code' do
+          with_okta_user(scopes) do |auth_header|
+            data[:signatures][:veteran] = nil
+
+            put appoint_individual_path, params: data, headers: auth_header
+            expect(response.status).to eq(400)
+          end
+        end
+      end
+
+      context 'when a representative signature isn\'t provided' do
+        it 'returns a 400 error code' do
+          with_okta_user(scopes) do |auth_header|
+            data[:signatures][:representative] = nil
+
+            put appoint_individual_path, params: data, headers: auth_header
+            expect(response.status).to eq(400)
+          end
+        end
+      end
+
       context 'when the POA code is for an organization instead of an individual' do
         it 'returns a 422 error code' do
           with_okta_user(scopes) do |auth_header|
@@ -82,10 +131,15 @@ RSpec.describe 'Power Of Attorney', type: :request do
     end
 
     describe 'appoint_organization' do
+      b64_image = File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
       let(:data) do
         {
           serviceOrganization: {
             poaCode: organization_poa_code.to_s
+          },
+          signatures: {
+            veteran: b64_image,
+            representative: b64_image
           }
         }
       end

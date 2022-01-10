@@ -180,7 +180,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
       let(:power_of_attorney) { create(:power_of_attorney, auth_headers: headers) }
 
-      it 'return the status of a PoA based on GUID' do
+      it 'return the status of a POA based on GUID' do
         with_okta_user(scopes) do |auth_header|
           get("/services/claims/v1/forms/2122/#{power_of_attorney.id}",
               params: nil, headers: headers.merge(auth_header))

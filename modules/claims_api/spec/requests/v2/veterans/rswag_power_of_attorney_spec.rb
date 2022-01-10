@@ -178,10 +178,15 @@ describe 'PowerOfAttorney', swagger_doc: 'modules/claims_api/app/swagger/claims_
       let(:individual_poa_code) { 'A1H' }
       let(:organization_poa_code) { '083' }
       let(:bgs_poa) { { person_org_name: "#{individual_poa_code} name-here" } }
+      b64_image = File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
       let(:data) do
         {
           serviceOrganization: {
             poaCode: individual_poa_code.to_s
+          },
+          signatures: {
+            veteran: b64_image,
+            representative: b64_image
           }
         }
       end
@@ -340,10 +345,15 @@ describe 'PowerOfAttorney', swagger_doc: 'modules/claims_api/app/swagger/claims_
       let(:individual_poa_code) { 'A1H' }
       let(:organization_poa_code) { '083' }
       let(:bgs_poa) { { person_org_name: "#{individual_poa_code} name-here" } }
+      b64_image = File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
       let(:data) do
         {
           serviceOrganization: {
             poaCode: organization_poa_code.to_s
+          },
+          signatures: {
+            veteran: b64_image,
+            representative: b64_image
           }
         }
       end

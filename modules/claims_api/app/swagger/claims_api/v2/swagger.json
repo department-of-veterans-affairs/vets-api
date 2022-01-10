@@ -1257,8 +1257,8 @@
               "application/json": {
                 "example": {
                   "id": "1",
-                  "creationDate": "2021-12-16",
-                  "expirationDate": "2022-12-16",
+                  "creationDate": "2022-01-07",
+                  "expirationDate": "2023-01-07",
                   "status": "active",
                   "type": "compensation"
                 },
@@ -2098,7 +2098,8 @@
                         "type": "object",
                         "additionalProperties": false,
                         "required": [
-                          "serviceOrganization"
+                          "serviceOrganization",
+                          "signatures"
                         ],
                         "properties": {
                           "veteran": {
@@ -2806,7 +2807,8 @@
                         "type": "object",
                         "additionalProperties": false,
                         "required": [
-                          "serviceOrganization"
+                          "serviceOrganization",
+                          "signatures"
                         ],
                         "properties": {
                           "veteran": {

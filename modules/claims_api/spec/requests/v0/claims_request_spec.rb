@@ -177,7 +177,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
             'X-VA-SSN' => '796-04-3735', 'X-VA-First-Name' => 'WESLEY',
             'X-VA-Last-Name' => 'FORD',
             'X-Consumer-Username' => 'TestConsumer',
-            'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00', 'X-Consumer-PoA' => 'A1Q'
+            'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00', 'X-Consumer-POA' => 'A1Q'
           }
         )
       end

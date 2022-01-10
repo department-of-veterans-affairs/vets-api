@@ -91,7 +91,7 @@ module SwaggerSharedComponents
                 properties: {
                   attributes: JSON.parse(
                     File.read(
-                      Rails.root.join('modules', 'claims_api', 'config', 'schemas', '2122.json')
+                      Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '2122.json')
                     )
                   )
                 }

@@ -61,8 +61,8 @@ module ClaimsApi
                                                  target_veteran.participant_id)
           end
 
-          data = power_of_attorney.form_data
-          ClaimsApi::PoaFormBuilderJob.perform_async(power_of_attorney.id) if data['signatures'].present?
+          # This builds the POA form *AND* uploads it to VBMS
+          ClaimsApi::PoaFormBuilderJob.perform_async(power_of_attorney.id)
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
             representative(poa_code).merge({ code: poa_code })

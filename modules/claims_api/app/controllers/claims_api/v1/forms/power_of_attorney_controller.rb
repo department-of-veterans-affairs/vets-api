@@ -46,7 +46,7 @@ module ClaimsApi
             power_of_attorney.save!
           end
 
-          # This job only occurs when a Veteran submits a PoA request, they are not required to submit a document.
+          # This job only occurs when a Veteran submits a POA request, they are not required to submit a document.
           ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id) unless header_request?
           if enable_vbms_access?
             ClaimsApi::VBMSUpdater.perform_async(power_of_attorney.id,
@@ -67,7 +67,7 @@ module ClaimsApi
           validate_documents_page_size
           find_poa_by_id
 
-          # This job only occurs when a Representative submits a PoA request to ensure they've also uploaded a document.
+          # This job only occurs when a Representative submits a POA request to ensure they've also uploaded a document.
           ClaimsApi::PoaUpdater.perform_async(@power_of_attorney.id) if header_request?
 
           @power_of_attorney.set_file_data!(documents.first, params[:doc_type])
