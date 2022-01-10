@@ -10,7 +10,6 @@ module ClaimsApi
       emily.goodrich@oddball.io
       lee.deboom@oddball.io
       dan.hinze@adhocteam.us
-      ryan.link@oddball.io
       christopher.stone@libertyits.com
       jeff.wallace@oddball.io
     ].freeze
@@ -33,7 +32,7 @@ module ClaimsApi
 
       mail(
         to: RECIPIENTS,
-        subject: 'Benefits Claims Unsuccessful Submission Report',
+        subject: 'Benefits Claims Daily Submission Report',
         content_type: 'text/html',
         body: body
       )

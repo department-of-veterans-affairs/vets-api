@@ -164,7 +164,7 @@ module ClaimsApi
     def poa_totals
       totals = ClaimsApi::PowerOfAttorney.where(created_at: @from..@to).group(:status).count
       total_submissions = totals.sum { |_k, v| v }
-      totals.merge(total: total_submissions)
+      totals.merge(total: total_submissions).deep_symbolize_keys
     end
 
     def unsuccessful_poa_submissions

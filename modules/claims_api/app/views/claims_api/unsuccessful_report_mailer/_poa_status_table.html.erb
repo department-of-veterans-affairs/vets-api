@@ -9,7 +9,7 @@
   <tbody>
       <tr>
         <% ClaimsApi::PowerOfAttorney::ALL_STATUSES.map(&:to_sym).each do |status| %>
-        <td class="right-align"><%= poa_submissions[status] %></td>
+        <td class="right-align"><%= poa_submissions.fetch(status, 0) %></td>
         <% end %>
       </tr>
   </tbody>

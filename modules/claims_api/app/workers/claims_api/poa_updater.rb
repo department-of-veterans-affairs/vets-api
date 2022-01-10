@@ -18,11 +18,12 @@ module ClaimsApi
         poa_code: poa_form.form_data['serviceOrganization']['poaCode']
       )
 
-      poa_form.status = if response[:return_code] == 'BMOD0001'
-                          ClaimsApi::PowerOfAttorney::UPDATED
-                        else
-                          ClaimsApi::PowerOfAttorney::ERRORED
-                        end
+      if response[:return_code] == 'BMOD0001'
+        poa_form.status = ClaimsApi::PowerOfAttorney::UPDATED
+      else
+        poa_form.status = ClaimsApi::PowerOfAttorney::ERRORED
+        poa_form.vbms_error_message = "BGS Error: update_birls_record failed with code #{response[:return_code]}"
+      end
 
       poa_form.save
     end

@@ -64,7 +64,7 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
     end
 
     it 'sends the email' do
-      expect(subject.subject).to eq('Benefits Claims Unsuccessful Submission Report')
+      expect(subject.subject).to eq('Benefits Claims Daily Submission Report')
     end
 
     it 'sends to the right people' do
@@ -77,7 +77,6 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
           emily.goodrich@oddball.io
           lee.deboom@oddball.io
           dan.hinze@adhocteam.us
-          ryan.link@oddball.io
           christopher.stone@libertyits.com
           jeff.wallace@oddball.io
         ]

@@ -19,7 +19,7 @@ module ClaimsApi
       if power_of_attorney.vbms_upload_failure_count < 5
         self.class.perform_in(30.minutes, power_of_attorney.id)
       else
-        power_of_attorney.status = 'failed'
+        power_of_attorney.status = ClaimsApi::PowerOfAttorney::ERRORED
       end
       power_of_attorney.save
     end
