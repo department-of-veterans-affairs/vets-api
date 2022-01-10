@@ -656,8 +656,6 @@ GEM
     pg_search (2.3.5)
       activerecord (>= 5.2)
       activesupport (>= 5.2)
-    pghero (2.8.2)
-      activerecord (>= 5)
     prawn (2.4.0)
       pdf-core (~> 0.9.0)
       ttfunk (~> 1.7)
@@ -1079,7 +1077,6 @@ DEPENDENCIES
   pg
   pg_query
   pg_search
-  pghero
   prawn
   prawn-table
   pry-byebug

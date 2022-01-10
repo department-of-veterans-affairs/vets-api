@@ -244,14 +244,6 @@ VRE::CreateCh31SubmissionsReport:
   include_metadata: true
   description: "Send a daily report to the VRE team about Chapter 31 submissions"
 
-PgHeroQueryStatsJob:
-  cron: "0 8 * * * America/New_York"
-  description: captures PgHero query stats every day
-
-PgHeroCleanQueryStatsJob:
-  cron: "0 0 1,15 * * America/New_York"
-  description: Remove old PgHero query stats twice per month (1 and 15)
-
 Webhooks::SchedulerJob:
   at: "<%=Settings.vba_documents.v2_enabled ? 0.seconds.from_now : 100.years.from_now%>"
   description: Starts off webhook based notifications
@@ -284,3 +276,4 @@ Mobile::V0::VaccinesUpdaterJob:
   cron: "0 * * * * America/New_York"
   class: Mobile::V0::VaccinesUpdaterJob
   description: "Creates and updates vaccine records from the CDC"
+
