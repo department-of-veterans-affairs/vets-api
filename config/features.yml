@@ -550,3 +550,6 @@ features:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.
     enable_in_development: true
+  show_payment_and_debt_section:
+    actor_type: user
+    description: Enables payment and debt section
