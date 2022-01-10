@@ -8,12 +8,7 @@ class Ch31SubmissionsReportMailer < ApplicationMailer
   def build(submitted_claims)
     opt = {}
 
-    opt[:to] =
-      if FeatureFlipper.staging_email?
-        Settings.veteran_readiness_and_employment.daily_report.staging_emails.dup
-      else
-        Settings.veteran_readiness_and_employment.daily_report.emails.dup
-      end
+    opt[:to] = Settings.veteran_readiness_and_employment.daily_report.emails.dup
 
     @submitted_claims = submitted_claims
     @total = submitted_claims.size

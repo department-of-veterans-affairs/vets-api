@@ -1150,8 +1150,7 @@ veteran_readiness_and_employment:
       - Jason.Wolf@va.gov
       - Kathleen.Crawford@va.gov
       - Kevin.Musiorski@va.gov
-    staging_emails:
-      - kcrawford@governmentcio.com
+      - Amanda.Leaders@va.gov
 
 # Settings for connecting to the va.gov Google Analytics for the Cypress Viewport Updater
 google_analytics_cvu:

@@ -239,7 +239,7 @@ CovidVaccine::ExpandedSubmissionStateJob:
   class: CovidVaccine::ExpandedSubmissionStateJob
   description: Logs count of states in the covid_vaccine_expanded_registration_submissions table.
 
-VRE::CreateCh31SubmissionsReport:
+VRE::CreateCh31SubmissionsReportJob:
   cron: "0 0 * * * America/New_York"
   include_metadata: true
   description: "Send a daily report to the VRE team about Chapter 31 submissions"

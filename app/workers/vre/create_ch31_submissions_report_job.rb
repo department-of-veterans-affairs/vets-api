@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VRE
-  class CreateCh31SubmissionsReport
+  class CreateCh31SubmissionsReportJob
     require 'csv'
     include Sidekiq::Worker
 
@@ -14,7 +14,7 @@ module VRE
              end
 
       submitted_claims = get_claims_created_between(build_range(date))
-      Ch31SubmissionsReportMailer.build(submitted_claims).deliver_now
+      Ch31SubmissionsReportMailer.build(submitted_claims).deliver_now unless FeatureFlipper.staging_email?
     end
 
     private

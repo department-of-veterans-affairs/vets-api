@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe VRE::CreateCh31SubmissionsReport do
+describe VRE::CreateCh31SubmissionsReportJob do
   let(:zone) { 'Eastern Time (US & Canada)' }
   let(:time) { ActiveSupport::TimeZone[zone].parse('2021-11-15 00:00:00') }
 
@@ -33,7 +33,10 @@ describe VRE::CreateCh31SubmissionsReport do
   describe '#perform' do
     subject { described_class.new.perform(sidekiq_scheduler_args, specific_date) }
 
-    before { expect(Ch31SubmissionsReportMailer).to receive(:build).with(submitted_claims).and_call_original }
+    before do
+      expect(Ch31SubmissionsReportMailer).to receive(:build).with(submitted_claims).and_call_original
+      expect(FeatureFlipper).to receive(:staging_email?).once.and_return(false)
+    end
 
     context 'passed sidekiq_scheduler_args' do
       let(:sidekiq_scheduler_args) { { 'scheduled_at' => Time.zone.now.to_i } }
@@ -43,6 +46,14 @@ describe VRE::CreateCh31SubmissionsReport do
       it 'sparks mailer with claims sorted by Regional Office' do
         Timecop.freeze(ActiveSupport::TimeZone[zone].parse('2021-11-16 00:00:01')) { subject }
       end
+
+      it 'does not send if FeatureFlipper.staging_email?  is true' do
+        RSpec::Mocks.space.proxy_for(Ch31SubmissionsReportMailer).reset
+        RSpec::Mocks.space.proxy_for(FeatureFlipper).reset
+        expect(FeatureFlipper).to receive(:staging_email?).once.and_return(true)
+        expect(Ch31SubmissionsReportMailer).not_to receive(:build).with(submitted_claims)
+        subject
+      end
     end
 
     context 'passed specific date in YYYY-MM-DD format' do
@@ -51,6 +62,14 @@ describe VRE::CreateCh31SubmissionsReport do
       let(:submitted_claims) { [vre_claim5, vre_claim6, vre_claim4] }
 
       it 'sparks mailer with claims sorted by Regional Office' do
+        subject
+      end
+
+      it 'does not send if FeatureFlipper.staging_email?  is true' do
+        RSpec::Mocks.space.proxy_for(Ch31SubmissionsReportMailer).reset
+        RSpec::Mocks.space.proxy_for(FeatureFlipper).reset
+        expect(FeatureFlipper).to receive(:staging_email?).once.and_return(true)
+        expect(Ch31SubmissionsReportMailer).not_to receive(:build).with(submitted_claims)
         subject
       end
     end

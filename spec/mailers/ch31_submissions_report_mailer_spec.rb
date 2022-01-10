@@ -35,21 +35,8 @@ RSpec.describe Ch31SubmissionsReportMailer, type: %i[mailer aws_helpers] do
         )
       end
 
-      it 'emails the the right staging recipients' do
-        subject
-        expect(FeatureFlipper).to receive(:staging_email?).once.and_return(true)
-
-        expect(mail.to).to eq(
-          %w[
-            kcrawford@governmentcio.com
-          ]
-        )
-      end
-
       it 'emails the the right recipients' do
         subject
-        expect(FeatureFlipper).to receive(:staging_email?).once.and_return(false)
-
         expect(mail.to).to include(
           *%w[
             VRC.VBABOS@va.gov
