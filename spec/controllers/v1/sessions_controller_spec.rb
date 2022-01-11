@@ -166,17 +166,6 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
         end
 
-        context 'routes /sessions/signup/new to SessionsController#new' do
-          it 'redirects' do
-            expect { get(:new, params: { type: :signup, client_id: '123123' }) }
-              .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                           tags: ['context:signup', 'version:v1'], **once)
-            expect(response).to have_http_status(:ok)
-            expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
-                                  'originating_request_id' => nil, 'type' => 'signup')
-          end
-        end
-
         context 'routes /sessions/idme_signup/new to SessionsController#new' do
           it 'redirects' do
             expect { get(:new, params: { type: :idme_signup, client_id: '123123' }) }

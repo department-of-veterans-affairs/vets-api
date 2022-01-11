@@ -166,8 +166,6 @@ module V1
       raise Common::Exceptions::RoutingError, type unless REDIRECT_URLS.include?(type)
 
       case type
-      when 'signup'
-        url_service.signup_url
       when 'mhv'
         url_service.mhv_url
       when 'dslogon'

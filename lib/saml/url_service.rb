@@ -92,12 +92,6 @@ module SAML
       build_sso_url(build_authn_context(LOA::IDME_LOA1_VETS), AuthnContext::MINIMUM)
     end
 
-    def signup_url
-      @type = 'signup'
-      @query_params[:op] = 'signup'
-      build_sso_url(build_authn_context(LOA::IDME_LOA1_VETS))
-    end
-
     def idme_signup_url
       @type = 'signup'
       @query_params[:op] = 'signup'

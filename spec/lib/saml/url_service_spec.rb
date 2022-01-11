@@ -51,13 +51,6 @@ RSpec.describe SAML::URLService do
             .with_relay_state('originating_request_id' => '123', 'type' => 'idme')
         end
 
-        it 'has sign up url: signup_url' do
-          expect(subject.signup_url)
-            .to be_a_saml_url(expected_saml_url)
-            .with_relay_state('originating_request_id' => '123', 'type' => 'signup')
-            .with_params('op' => 'signup')
-        end
-
         it 'has sign up url: idme_signup_url' do
           expect(subject.idme_signup_url)
             .to be_a_saml_url(expected_saml_url)
@@ -336,13 +329,6 @@ RSpec.describe SAML::URLService do
           expect(subject.custom_url('X'))
             .to be_a_saml_url(expected_saml_url)
             .with_relay_state('originating_request_id' => '123', 'type' => 'custom')
-        end
-
-        it 'has sign up url: signup_url' do
-          expect(subject.signup_url)
-            .to be_a_saml_url(expected_saml_url)
-            .with_relay_state('originating_request_id' => '123', 'type' => 'signup')
-            .with_params('op' => 'signup')
         end
 
         it 'has sign up url: idme_signup_url' do
