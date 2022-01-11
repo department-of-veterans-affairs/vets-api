@@ -170,5 +170,41 @@ RSpec.describe MedicalCopays::VBS::ResponseData do
         }
       )
     end
+
+    context 'cerner statements' do
+      let(:status) { 200 }
+      let(:body) do
+        [
+          {
+            'pH_CERNER_ACCOUNT_NUMBER' => '456',
+            'pS_FACILITY_NUM' => '123',
+            'pH_CERNER_PATIENT_ID' => '456',
+            'pS_STATEMENT_DATE' => today_date
+          },
+          {
+            'pH_CERNER_ACCOUNT_NUMBER' => '0',
+            'pS_STATEMENT_DATE' => today_date
+          }
+        ]
+      end
+      let(:transformed_hsh) do
+        [
+          {
+            'pHCernerAccountNumber' => '1231000000000456',
+            'pSFacilityNum' => '123',
+            'pHCernerPatientId' => '456',
+            'pSStatementDate' => today_date
+          },
+          {
+            'pHCernerAccountNumber' => '0',
+            'pSStatementDate' => today_date
+          }
+        ]
+      end
+
+      it 'calculates the cerner account number' do
+        expect(subject.build({ response: resp }).transformed_body).to eq(transformed_hsh)
+      end
+    end
   end
 end
