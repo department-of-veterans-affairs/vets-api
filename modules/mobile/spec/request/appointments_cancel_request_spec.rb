@@ -75,6 +75,8 @@ RSpec.describe 'appointments', type: :request do
         it 'returns bad request with detail in errors' do
           VCR.use_cassette('appointments/put_cancel_appointment_409', match_requests_on: %i[method uri]) do
             VCR.use_cassette('appointments/get_cancel_reasons', match_requests_on: %i[method uri]) do
+              expect_any_instance_of(SentryLogging).not_to receive(:log_exception_to_sentry)
+
               put "/mobile/v0/appointments/cancel/#{cancel_id}", headers: iam_headers
 
               expect(response).to have_http_status(:conflict)

@@ -44,6 +44,7 @@ en:
         code: 'MOBL_409_facility_not_supported'
         detail: 'The facility does not support online scheduling or cancellation of appointments'
         status: 409
+        sentry_type: 'none'
       MOBL_422_validation_error:
         <<: *external_defaults
         title: Validation Error
