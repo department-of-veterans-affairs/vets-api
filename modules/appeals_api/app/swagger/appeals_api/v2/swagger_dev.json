@@ -3922,7 +3922,19 @@
                                 "evidenceDates": {
                                   "type": "array",
                                   "items": {
-                                    "$ref": "#/components/schemas/dateRange"
+                                    "type": "object",
+                                    "properties": {
+                                      "startDate": {
+                                        "$ref": "#/components/schemas/date"
+                                      },
+                                      "endDate": {
+                                        "$ref": "#/components/schemas/date"
+                                      }
+                                    },
+                                    "required": [
+                                      "startDate",
+                                      "endDate"
+                                    ]
                                   },
                                   "minItems": 1,
                                   "maxItems": 4
@@ -9819,14 +9831,22 @@
                                       "attributes": {
                                         "locationAndName": "X-Ray VAMC",
                                         "evidenceDates": [
-                                          "2020-04-10",
-                                          "2020-01-02",
-                                          "2019-02-07",
-                                          "2021-02-20",
-                                          "2020-04-10",
-                                          "2020-01-02",
-                                          "2019-02-07",
-                                          "2021-02-20"
+                                          {
+                                            "startDate": "2020-04-10",
+                                            "endDate": "2020-04-10"
+                                          },
+                                          {
+                                            "startDate": "2019-07-22",
+                                            "endDate": "2021-01-17"
+                                          },
+                                          {
+                                            "startDate": "2018-05-18",
+                                            "endDate": "2019-02-01"
+                                          },
+                                          {
+                                            "startDate": "2021-06-30",
+                                            "endDate": "2021-11-19"
+                                          }
                                         ]
                                       }
                                     },
@@ -9835,9 +9855,14 @@
                                       "attributes": {
                                         "locationAndName": "Blood Lab VA Facility",
                                         "evidenceDates": [
-                                          "2021-01-02",
-                                          "2021-02-06",
-                                          "2021-02-27"
+                                          {
+                                            "startDate": "2020-02-20",
+                                            "endDate": "2020-02-22"
+                                          },
+                                          {
+                                            "startDate": "2020-02-02",
+                                            "endDate": "2020-02-07"
+                                          }
                                         ]
                                       }
                                     },
@@ -9846,7 +9871,10 @@
                                       "attributes": {
                                         "locationAndName": "Doctor's Notes VAMC",
                                         "evidenceDates": [
-                                          "2021-05-26"
+                                          {
+                                            "startDate": "2020-04-10",
+                                            "endDate": "2020-04-10"
+                                          }
                                         ]
                                       }
                                     },
@@ -9855,9 +9883,14 @@
                                       "attributes": {
                                         "locationAndName": "CT scan VA Medical Facility",
                                         "evidenceDates": [
-                                          "2020-07-19",
-                                          "2018-03-06",
-                                          "2019-02-12"
+                                          {
+                                            "startDate": "2020-07-19",
+                                            "endDate": "2020-07-19"
+                                          },
+                                          {
+                                            "startDate": "2018-03-06",
+                                            "endDate": "2019-02-12"
+                                          }
                                         ]
                                       }
                                     },
@@ -9866,8 +9899,14 @@
                                       "attributes": {
                                         "locationAndName": "Lab work VAMC",
                                         "evidenceDates": [
-                                          "2020-12-14",
-                                          "2018-01-15"
+                                          {
+                                            "startDate": "2018-03-06",
+                                            "endDate": "2018-03-06"
+                                          },
+                                          {
+                                            "startDate": "2018-01-15",
+                                            "endDate": "2018-01-15"
+                                          }
                                         ]
                                       }
                                     }
@@ -10074,14 +10113,22 @@
                               "attributes": {
                                 "locationAndName": "X-Ray VAMC",
                                 "evidenceDates": [
-                                  "2020-04-10",
-                                  "2020-01-02",
-                                  "2019-02-07",
-                                  "2021-02-20",
-                                  "2020-04-10",
-                                  "2020-01-02",
-                                  "2019-02-07",
-                                  "2021-02-20"
+                                  {
+                                    "startDate": "2020-04-10",
+                                    "endDate": "2020-04-10"
+                                  },
+                                  {
+                                    "startDate": "2019-07-22",
+                                    "endDate": "2021-01-17"
+                                  },
+                                  {
+                                    "startDate": "2018-05-18",
+                                    "endDate": "2019-02-01"
+                                  },
+                                  {
+                                    "startDate": "2021-06-30",
+                                    "endDate": "2021-11-19"
+                                  }
                                 ]
                               }
                             },
@@ -10090,9 +10137,14 @@
                               "attributes": {
                                 "locationAndName": "Blood Lab VA Facility",
                                 "evidenceDates": [
-                                  "2021-01-02",
-                                  "2021-02-06",
-                                  "2021-02-27"
+                                  {
+                                    "startDate": "2020-02-20",
+                                    "endDate": "2020-02-22"
+                                  },
+                                  {
+                                    "startDate": "2020-02-02",
+                                    "endDate": "2020-02-07"
+                                  }
                                 ]
                               }
                             },
@@ -10101,7 +10153,10 @@
                               "attributes": {
                                 "locationAndName": "Doctor's Notes VAMC",
                                 "evidenceDates": [
-                                  "2021-05-26"
+                                  {
+                                    "startDate": "2020-04-10",
+                                    "endDate": "2020-04-10"
+                                  }
                                 ]
                               }
                             },
@@ -10110,9 +10165,14 @@
                               "attributes": {
                                 "locationAndName": "CT scan VA Medical Facility",
                                 "evidenceDates": [
-                                  "2020-07-19",
-                                  "2018-03-06",
-                                  "2019-02-12"
+                                  {
+                                    "startDate": "2020-07-19",
+                                    "endDate": "2020-07-19"
+                                  },
+                                  {
+                                    "startDate": "2018-03-06",
+                                    "endDate": "2019-02-12"
+                                  }
                                 ]
                               }
                             },
@@ -10121,8 +10181,14 @@
                               "attributes": {
                                 "locationAndName": "Lab work VAMC",
                                 "evidenceDates": [
-                                  "2020-12-14",
-                                  "2018-01-15"
+                                  {
+                                    "startDate": "2018-03-06",
+                                    "endDate": "2018-03-06"
+                                  },
+                                  {
+                                    "startDate": "2018-01-15",
+                                    "endDate": "2018-01-15"
+                                  }
                                 ]
                               }
                             }
