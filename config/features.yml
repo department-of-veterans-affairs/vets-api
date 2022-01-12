@@ -523,10 +523,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for VAOS variant testing.
-  va_online_scheduling_cc_iterations:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for VAOS community care flow iterations.
   va_online_scheduling_poc_health_apt:
     actor_type: user
     enable_in_development: true
