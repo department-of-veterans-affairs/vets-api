@@ -20,6 +20,7 @@ module DebtManagementCenter
 
     STATSD_KEY_PREFIX = 'api.dmc'
     DATE_TIMEZONE = 'Central Time (US & Canada)'
+    CONFIRMATION_TEMPLATE = Settings.vanotify.services.va_gov.template_id.fsr_confirmation_email
 
     ##
     # Submit a financial status report to the Debt Management Center
@@ -33,11 +34,13 @@ module DebtManagementCenter
         raise_client_error unless form.key?('personalIdentification')
         form['personalIdentification']['fileNumber'] = @file_number
         set_certification_date(form)
-        response = DebtManagementCenter::FinancialStatusReportResponse.new(
-          perform(:post, 'financial-status-report/formtopdf', form).body
-        )
-        update_filenet_id(response)
-        { status: response.status }
+        response = perform(:post, 'financial-status-report/formtopdf', form)
+        fsr_response = DebtManagementCenter::FinancialStatusReportResponse.new(response.body)
+
+        send_confirmation_email if response.success?
+
+        update_filenet_id(fsr_response)
+        { status: fsr_response.status }
       end
     end
 
@@ -84,6 +87,15 @@ module DebtManagementCenter
       date_formatted  = date.strftime('%m/%d/%Y')
 
       form['applicantCertifications']['veteranDateSigned'] = date_formatted if form['applicantCertifications']
+    end
+
+    def send_confirmation_email
+      return unless Flipper.enabled?(:fsr_confirmation_email)
+
+      email = @user.email&.downcase
+      return if email.blank?
+
+      VANotifyEmailJob.perform_async(email, CONFIRMATION_TEMPLATE)
     end
   end
 end

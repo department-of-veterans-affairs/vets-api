@@ -251,6 +251,10 @@ features:
     actor_type: user
     description: Form 10182 Notice of Disagreement - Request a board appeal
     enable_in_development: true
+  fsr_confirmation_email:
+    actor_type: user
+    description: Enables notifications to be sent via email upon FSR submission
+    enable_in_development: false
   get_help_ask_form:
     actor_type: user
     description: Enables inquiry form for users to submit questions, suggestions, and complaints.

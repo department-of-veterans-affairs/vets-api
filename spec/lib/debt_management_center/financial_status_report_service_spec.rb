@@ -26,6 +26,19 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
           end
         end
       end
+
+      it 'sends a confirmation email' do
+        VCR.use_cassette('dmc/submit_fsr') do
+          VCR.use_cassette('bgs/people_service/person_data') do
+            service = described_class.new(user)
+            expect(VANotifyEmailJob).to receive(:perform_async).with(
+              user.email.downcase,
+              described_class::CONFIRMATION_TEMPLATE
+            )
+            service.submit_financial_status_report(valid_form_data)
+          end
+        end
+      end
     end
 
     context 'with malformed form' do
