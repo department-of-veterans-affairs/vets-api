@@ -91,4 +91,22 @@ describe LGY::Service do
       end
     end
   end
+
+  describe '#get_coe_file' do
+    context 'when coe is available' do
+      it 'returns a coe pdf file' do
+        VCR.use_cassette 'lgy/documents_coe_file' do
+          expect(subject.get_coe_file.status).to eq 200
+        end
+      end
+    end
+
+    context 'when coe is not available' do
+      it 'returns a 404 not found' do
+        VCR.use_cassette 'lgy/documents_coe_file_not_found' do
+          expect(subject.get_coe_file.status).to eq 404
+        end
+      end
+    end
+  end
 end

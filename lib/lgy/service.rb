@@ -62,9 +62,31 @@ module LGY
       raise e
     end
 
+    def get_coe_file
+      with_monitoring do
+        perform(
+          :get,
+          "#{end_point}/documents/coe/file",
+          { 'edipi' => @edipi, 'icn' => @icn },
+          request_headers.merge(pdf_headers)
+        )
+      end
+    rescue Common::Client::Errors::ClientError => e
+      # a 404 is expected if no COE is available
+      return e if e.status == 404
+
+      raise e
+    end
+
     def request_headers
       {
         Authorization: "api-key { \"appId\":\"#{Settings.lgy.app_id}\", \"apiKey\": \"#{Settings.lgy.api_key}\"}"
+      }
+    end
+
+    def pdf_headers
+      {
+        'Accept' => 'application/octet-stream', 'Content-Type' => 'application/octet-stream'
       }
     end
 
