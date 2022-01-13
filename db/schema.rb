@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_01_04_185549) do
+ActiveRecord::Schema.define(version: 2022_01_11_214111) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -649,6 +649,15 @@ ActiveRecord::Schema.define(version: 2022_01_04_185549) do
     t.index ["account_id"], name: "index_notifications_on_account_id"
     t.index ["status"], name: "index_notifications_on_status"
     t.index ["subject"], name: "index_notifications_on_subject"
+  end
+
+  create_table "onsite_notifications", force: :cascade do |t|
+    t.string "template_id", null: false
+    t.string "va_profile_id", null: false
+    t.boolean "dismissed", default: false, null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["va_profile_id", "dismissed"], name: "show_onsite_notifications_index"
   end
 
   create_table "persistent_attachments", id: :serial, force: :cascade do |t|
