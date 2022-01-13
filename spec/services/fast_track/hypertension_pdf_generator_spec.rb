@@ -12,7 +12,7 @@ RSpec.describe FastTrack::HypertensionPdfGenerator, :vcr do
   end
 
   let(:bp_data) do
-    client.get_resource('observations')
+    client.list_resource('observations')
   end
 
   let(:parsed_bp_data) do
@@ -24,7 +24,7 @@ RSpec.describe FastTrack::HypertensionPdfGenerator, :vcr do
   end
 
   let(:parsed_medications_data) do
-    FastTrack::HypertensionMedicationRequestData.new(client.get_resource('medications')).transform
+    FastTrack::HypertensionMedicationRequestData.new(client.list_resource('medications')).transform
   end
 
   let(:patient_name) { { first: 'Cat', middle: 'Marie', last: 'Power', suffix: 'Jr.' } }
@@ -45,8 +45,10 @@ RSpec.describe FastTrack::HypertensionPdfGenerator, :vcr do
 
     it 'includes the veterans medications' do
       dosages = parsed_medications_data.map do |per|
+        next if per['dosageInstructions'].blank?
+
         "Dosage instructions: #{per['dosageInstructions'].join('; ')}"
-      end
+      end.compact
 
       expect(pdf).to include(*dosages)
     end

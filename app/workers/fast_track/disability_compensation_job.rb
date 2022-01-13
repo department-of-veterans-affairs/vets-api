@@ -40,12 +40,12 @@ module FastTrack
     private
 
     def bp_readings(client)
-      @bp_readings ||= client.get_resource('observations')
+      @bp_readings ||= client.list_resource('observations')
       @bp_readings.present? ? FastTrack::HypertensionObservationData.new(@bp_readings).transform : []
     end
 
     def medications(client)
-      @medications ||= client.get_resource('medications')
+      @medications ||= client.list_resource('medications')
       @medications.present? ? FastTrack::HypertensionMedicationRequestData.new(@medications).transform : []
     end
 

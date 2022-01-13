@@ -5,7 +5,7 @@ http_interactions:
     uri: https://sandbox-api.va.gov/oauth2/health/system/v1/token
     body:
       encoding: US-ASCII
-      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIwb2FheGtwMGFlWEVKa01GdzJwNyIsInN1YiI6IjBvYWF4a3AwYWVYRUprTUZ3MnA3IiwiYXVkIjoiaHR0cHM6Ly9kZXB0dmEtZXZhbC5va3RhLmNvbS9vYXV0aDIvYXVzOG5tMXEwZjdWUTBhNDgycDcvdjEvdG9rZW4iLCJleHAiOjE2Mzg5OTA3OTd9.UNPcGlJhtilRSCgq549rOoxcOTkm4BBNfjn05B3hInwQ8yDccONu5RSiLzrffFhv5xfE8IxK94pVSJYXcnr4Genh53Ga6ErS42O8hY4WLlMvagaPgOre8hqCxmqslmNztmco_nZ4uuOa28TFVAnrivjZrjpCVuA0E2XXT1MMuuoVvQoCHXlAxnsGFqGDvp0RF3a_5zFaUI2mvDpQ26P4JwLio1kWSL534fyFyU66Opt7hnIw3D8vNTZgpC7wrgV1AAYugxfW1YbWFAcgzDhUl-ptC05pWtWClCMhn0cgRt42F0NBjXlH8TrR3GXXj6BTMqhS89BePf2yDQw6XCrb1qLIj3mj9Va8SMQdg1aJSOwWKF4ZCeLwh5albNJZeuWD06WPmNpop9VSMpkbhwvzM4czusFxOxnGIKVNx5RB-RpvN5wI20kTw9z-ebM1QHEhHobWCWjGofHttmW6w9qae8ZvNjHxU_iFfuxV1S5KSlDkX6ZawZwtv83F2c2A7LdHUFeIFS2o27On893Qx6r1RkkfG4WZu6TVCGQzyRdf33Viju4yed9muhP0yKpq9Gv-nurF06sDKyBAEACRu2GYhIqM2yI_Cjj7DSqKd_9JDjIGaCzg75FSJS9fLAKHJKqHkFIpamvDMzUsVFIkSeDZ4MfNY_JYELt3tsn3pjlA_2I&scope=launch+patient%2FPatient.read+system%2FPatient.read+patient%2FObservation.read+patient%2FPractitioner.read+patient%2FMedicationRequest.read&launch=eyJwYXRpZW50IjogIjE3MDAwMTUxIn0%3D
+      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIwb2FheGtwMGFlWEVKa01GdzJwNyIsInN1YiI6IjBvYWF4a3AwYWVYRUprTUZ3MnA3IiwiYXVkIjoiaHR0cHM6Ly9kZXB0dmEtZXZhbC5va3RhLmNvbS9vYXV0aDIvYXVzOG5tMXEwZjdWUTBhNDgycDcvdjEvdG9rZW4iLCJleHAiOjE2NDE4NzQ1NjB9.TI5RPBdDR4mXvFJ9n1QFEHvyfSQjDLmnYzWBZ_20m6EmY01VvHo93ppJKPbftgSv_BTbKl77HL0NvyHysT4sKMO2Bs4AzOupvHAofbrWryOH2xGtS4wCaJWwFSxEiGLuTMN9468ylWL_UzhiOoalSzfTWwC3i_Y-QfTLdD8We5qGioaJrk4T1q0SwL3t2GmsAkQ8_193WXjig-_31TTiUDpDUWpY9kDNI8yNeaJ1EHgKG2Uw773D3AEmuvrawJYfSyAd1NyKT_-jNgDU154gfea3V7qjhuhSBzMQUxIjA-Sr5snBn8hUl0leQqOuqHHmNAAsj9Bre8LnC4pOl6IwANsx79jHyIDJi8xdtM6hUEnR76KDbF1zfd2-rclWOt7Sx_SBX2XdtSW4FZFwilrFn8lH0YLN4ZfVLE47cy8WIT1Rl6A3v4YlZXRYVqd9jRpEbrLBgCx2Na6OQtsZ2o-tmT86OtQCnO-4hUrvJ6ilsD9tJzOw7uS8erQPltqzR-D-knjoXGnG9-3LJKgZsfP4HBg3zV_qmJ3x_GR3iHSOZxrp69rP90El0yNeHH1JtSGdRgsM1Qw1afkur94W3c_qiEHUTMQpK1hym63yP1RefZY66hxoHHB_IdZrnDbk2gtunJzRpNkQTM8vlugMdJhu2J337-H0cE0dtn6-pSZokY8&scope=launch+patient%2FPatient.read+system%2FPatient.read+patient%2FObservation.read+patient%2FPractitioner.read+patient%2FMedicationRequest.read&launch=eyJwYXRpZW50IjogIjE3MDAwMTUxIn0%3D
     headers:
       Accept:
       - application/json
@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 08 Dec 2021 18:58:18 GMT
+      - Tue, 11 Jan 2022 04:01:01 GMT
       Content-Type:
       - application/json; charset=utf-8
       Connection:
@@ -29,23 +29,23 @@ http_interactions:
       Vary:
       - Origin
       Etag:
-      - W/"4ca-Y8hmyOSx9Z3/S00c1hyM4e4kkic"
+      - W/"4ca-9tK9Lv3SIGIJJnq1tiEehB+cTeA"
       Cache-Control:
       - ''
       Set-Cookie:
-      - TS01dd66bd=01c16e2d81c346a537f12a6bde22817cceef36c1461a7fadcd173fa243c898f337e4fabb5845a4d87fbf138b8eb9fecaad636fa560;
+      - TS01dd66bd=01874af5a4e4c25b762a024a911b3d49387c0a65e02390bafcbc14525e455fe46c02c14cff8f7a75025c0c735b63178d0c46ba3e9d;
         Max-Age=900; Path=/
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"access_token":"eyJraWQiOiIyWGlHcG5XRjR0U0wtdENPX19zNDZhMGlkd3I1UUd6YVlwTm4xeEZNX1Y4IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULlNPR2VtQ205Z1puZHJDdU1SZGJsRUdtOEp2OUM1elV6MERxTDNhSnRvRjQiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXM4bm0xcTBmN1ZRMGE0ODJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2ZoaXIiLCJpYXQiOjE2Mzg5ODk4OTgsImV4cCI6MTYzODk5MDE5OCwiY2lkIjoiMG9hYXhrcDBhZVhFSmtNRncycDciLCJzY3AiOlsibGF1bmNoIiwicGF0aWVudC9QYXRpZW50LnJlYWQiLCJwYXRpZW50L1ByYWN0aXRpb25lci5yZWFkIiwicGF0aWVudC9PYnNlcnZhdGlvbi5yZWFkIiwicGF0aWVudC9NZWRpY2F0aW9uUmVxdWVzdC5yZWFkIiwic3lzdGVtL1BhdGllbnQucmVhZCJdLCJzdWIiOiIwb2FheGtwMGFlWEVKa01GdzJwNyJ9.ayYkqSHtOYR8W_PdU60sJvLRx6akPRklXGYKDY39izFOIR1vgSnC1RkiWPE8IyEI1gveyrLFPaiu5nvkRtHHaKg7SWWuiBQckHxmvDvRZnchyzkK9KincgvXkjWXShhzDj8HJO3LfXoUbu6Gy2k0BYQVoSpf5op-76D84D7Vao4akNp3kXL7p_p2HgBQdX4EJVfb5LHWsALkTdvKtbwXtAZoABjiiMLt4vpN87ghxPMEIlptCtugUQevZJq479i3E8JeQcTIdd8xqlI3VBBWU-a2PSueL_xJXURKaEMG6AxdtClMtqU-1KRkLIGMvSaxszhA8PspEI1YGQrDhWtTaw","token_type":"Bearer","scope":"launch
+      string: '{"access_token":"eyJraWQiOiIyWGlHcG5XRjR0U0wtdENPX19zNDZhMGlkd3I1UUd6YVlwTm4xeEZNX1Y4IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULkp1WmRyM0RBZ2VaQjA2b3JTUlVLMU1KNjRZN0hfMVZ5Y2I5SzZWczBBVDQiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXM4bm0xcTBmN1ZRMGE0ODJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2ZoaXIiLCJpYXQiOjE2NDE4NzM2NjEsImV4cCI6MTY0MTg3Mzk2MSwiY2lkIjoiMG9hYXhrcDBhZVhFSmtNRncycDciLCJzY3AiOlsibGF1bmNoIiwicGF0aWVudC9QYXRpZW50LnJlYWQiLCJwYXRpZW50L1ByYWN0aXRpb25lci5yZWFkIiwicGF0aWVudC9PYnNlcnZhdGlvbi5yZWFkIiwicGF0aWVudC9NZWRpY2F0aW9uUmVxdWVzdC5yZWFkIiwic3lzdGVtL1BhdGllbnQucmVhZCJdLCJzdWIiOiIwb2FheGtwMGFlWEVKa01GdzJwNyJ9.EPdyeVmjFZ-cZDxTwqFTG7wmFoQNJEbrdSl5x58iAPiyqozJk_97-VJ2KZvUqFxhlHu0fnegwJgPkamPyYdC5FxZhZWeyUD6zjhWknsN7LPoqt_OSapajqaDhQqIzoOxZ8OKd27SduyyoxAP-kQe56Y4ioHgMjxfe5tDqgP6mG1_zRyBmRgWmgTc3TWPtIlfj9MoF-Tsizyi0Zt1_HD-qMXTlnjZjToO4aihUrzLbxW8O8Mx5Oxqn9Bk75cvJBub2k13YRJQKC_0ny-zZ0eZuW97sHxhffrBxAOiwCjpUj9gDsvGUYwBqZbq4-nMbO0rnisfmeL6xtBoZIsuVX3w3A","token_type":"Bearer","scope":"launch
         patient/Patient.read patient/Practitioner.read patient/Observation.read patient/MedicationRequest.read
         system/Patient.read","expires_in":300,"state":null,"patient":"17000151"}'
-  recorded_at: Wed, 08 Dec 2021 18:58:18 GMT
+  recorded_at: Tue, 11 Jan 2022 04:01:01 GMT
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/services/fhir/v0/r4/Observation?category=vital-signs&code=85354-9&patient=17000151
+    uri: https://sandbox-api.va.gov/services/fhir/v0/r4/Observation?_count=100&category=vital-signs&code=85354-9&patient=17000151
     body:
       encoding: US-ASCII
       string: ''
@@ -57,7 +57,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Authorization:
-      - Bearer eyJraWQiOiIyWGlHcG5XRjR0U0wtdENPX19zNDZhMGlkd3I1UUd6YVlwTm4xeEZNX1Y4IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULlNPR2VtQ205Z1puZHJDdU1SZGJsRUdtOEp2OUM1elV6MERxTDNhSnRvRjQiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXM4bm0xcTBmN1ZRMGE0ODJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2ZoaXIiLCJpYXQiOjE2Mzg5ODk4OTgsImV4cCI6MTYzODk5MDE5OCwiY2lkIjoiMG9hYXhrcDBhZVhFSmtNRncycDciLCJzY3AiOlsibGF1bmNoIiwicGF0aWVudC9QYXRpZW50LnJlYWQiLCJwYXRpZW50L1ByYWN0aXRpb25lci5yZWFkIiwicGF0aWVudC9PYnNlcnZhdGlvbi5yZWFkIiwicGF0aWVudC9NZWRpY2F0aW9uUmVxdWVzdC5yZWFkIiwic3lzdGVtL1BhdGllbnQucmVhZCJdLCJzdWIiOiIwb2FheGtwMGFlWEVKa01GdzJwNyJ9.ayYkqSHtOYR8W_PdU60sJvLRx6akPRklXGYKDY39izFOIR1vgSnC1RkiWPE8IyEI1gveyrLFPaiu5nvkRtHHaKg7SWWuiBQckHxmvDvRZnchyzkK9KincgvXkjWXShhzDj8HJO3LfXoUbu6Gy2k0BYQVoSpf5op-76D84D7Vao4akNp3kXL7p_p2HgBQdX4EJVfb5LHWsALkTdvKtbwXtAZoABjiiMLt4vpN87ghxPMEIlptCtugUQevZJq479i3E8JeQcTIdd8xqlI3VBBWU-a2PSueL_xJXURKaEMG6AxdtClMtqU-1KRkLIGMvSaxszhA8PspEI1YGQrDhWtTaw
+      - Bearer eyJraWQiOiIyWGlHcG5XRjR0U0wtdENPX19zNDZhMGlkd3I1UUd6YVlwTm4xeEZNX1Y4IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULkp1WmRyM0RBZ2VaQjA2b3JTUlVLMU1KNjRZN0hfMVZ5Y2I5SzZWczBBVDQiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXM4bm0xcTBmN1ZRMGE0ODJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2ZoaXIiLCJpYXQiOjE2NDE4NzM2NjEsImV4cCI6MTY0MTg3Mzk2MSwiY2lkIjoiMG9hYXhrcDBhZVhFSmtNRncycDciLCJzY3AiOlsibGF1bmNoIiwicGF0aWVudC9QYXRpZW50LnJlYWQiLCJwYXRpZW50L1ByYWN0aXRpb25lci5yZWFkIiwicGF0aWVudC9PYnNlcnZhdGlvbi5yZWFkIiwicGF0aWVudC9NZWRpY2F0aW9uUmVxdWVzdC5yZWFkIiwic3lzdGVtL1BhdGllbnQucmVhZCJdLCJzdWIiOiIwb2FheGtwMGFlWEVKa01GdzJwNyJ9.EPdyeVmjFZ-cZDxTwqFTG7wmFoQNJEbrdSl5x58iAPiyqozJk_97-VJ2KZvUqFxhlHu0fnegwJgPkamPyYdC5FxZhZWeyUD6zjhWknsN7LPoqt_OSapajqaDhQqIzoOxZ8OKd27SduyyoxAP-kQe56Y4ioHgMjxfe5tDqgP6mG1_zRyBmRgWmgTc3TWPtIlfj9MoF-Tsizyi0Zt1_HD-qMXTlnjZjToO4aihUrzLbxW8O8Mx5Oxqn9Bk75cvJBub2k13YRJQKC_0ny-zZ0eZuW97sHxhffrBxAOiwCjpUj9gDsvGUYwBqZbq4-nMbO0rnisfmeL6xtBoZIsuVX3w3A
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -66,21 +66,21 @@ http_interactions:
       message: ''
     headers:
       Date:
-      - Wed, 08 Dec 2021 18:58:19 GMT
+      - Tue, 11 Jan 2022 04:01:02 GMT
       Content-Type:
       - application/json
       Connection:
       - keep-alive
       X-Ratelimit-Remaining-Minute:
-      - '295'
+      - '299'
       X-Ratelimit-Limit-Minute:
       - '300'
       Ratelimit-Remaining:
-      - '295'
+      - '299'
       Ratelimit-Limit:
       - '300'
       Ratelimit-Reset:
-      - '42'
+      - '58'
       Vary:
       - Accept-Encoding
       - Origin
@@ -90,9 +90,9 @@ http_interactions:
       - no-cache
       - no-cache
       X-Kong-Upstream-Latency:
-      - '1053'
+      - '309'
       X-Kong-Proxy-Latency:
-      - '1'
+      - '0'
       Via:
       - kong/2.3.2
       Strict-Transport-Security:
@@ -103,122 +103,122 @@ http_interactions:
       Cache-Control:
       - no-cache, no-store
       Set-Cookie:
-      - TS01dd66bd=01c16e2d81f76ac70a48894fc02cf3f4d697ab286ff2ee8c9c49cc83fa449343414e89bbde7a21782bd0f7a9e9639af39f50f0b34a;
+      - TS01dd66bd=01874af5a4390580f52f82529d32b6106956277bd850b6ddc801070ccdbf87a3420200dd138103e352f708e8919c1e20a5adc4b050;
         Max-Age=900; Path=/
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"resourceType":"Bundle","type":"searchset","total":18,"link":[{"relation":"first","url":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation?category=vital-signs&code=85354-9&patient=17000151&_count=30&page=1"},{"relation":"self","url":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation?category=vital-signs&code=85354-9&patient=17000151&_count=30&page=1"},{"relation":"last","url":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation?category=vital-signs&code=85354-9&patient=17000151&_count=30&page=1"}],"entry":[{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-WANXO6OMHEP3BZG42IPA5LYOQQ000000","resource":{"resourceType":"Observation","id":"I2-WANXO6OMHEP3BZG42IPA5LYOQQ000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+      string: '{"resourceType":"Bundle","type":"searchset","total":18,"link":[{"relation":"first","url":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation?category=vital-signs&code=85354-9&patient=17000151&_count=100&page=1"},{"relation":"self","url":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation?category=vital-signs&code=85354-9&patient=17000151&_count=100&page=1"},{"relation":"last","url":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation?category=vital-signs&code=85354-9&patient=17000151&_count=100&page=1"}],"entry":[{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-WANXO6OMHEP3BZG42IPA5LYOQQ000000","resource":{"resourceType":"Observation","id":"I2-WANXO6OMHEP3BZG42IPA5LYOQQ000000","meta":{"lastUpdated":"1976-11-12T13:19:47Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
         Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
         pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
         Gorczany269"},"effectiveDateTime":"1976-10-13T13:19:47Z","issued":"1976-10-13T13:19:47Z","performer":[{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Organization/I2-AKOTGEFSVKFJOPUKHIVJAH5VQU000000","display":"NEW
         AMSTERDAM CBOC"},{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-QXZOEMHBZNNC7BUGOTHVWYSZAI000000","display":"DR.
         JOHN248 SMITH811 MD"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
         blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":111.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
-        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":81.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-77E66TIMATGO34U2BG6WA6OM7Q000000","resource":{"resourceType":"Observation","id":"I2-77E66TIMATGO34U2BG6WA6OM7Q000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":81.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-77E66TIMATGO34U2BG6WA6OM7Q000000","resource":{"resourceType":"Observation","id":"I2-77E66TIMATGO34U2BG6WA6OM7Q000000","meta":{"lastUpdated":"1977-01-14T14:19:47Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
         Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
         pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
         Gorczany269"},"effectiveDateTime":"1976-12-15T14:19:47Z","issued":"1976-12-15T14:19:47Z","component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
         blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":102.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
-        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":82.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-OEDMSTKZ2MXY4RQJAUQFU5BHBQ000000","resource":{"resourceType":"Observation","id":"I2-OEDMSTKZ2MXY4RQJAUQFU5BHBQ000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":82.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-OEDMSTKZ2MXY4RQJAUQFU5BHBQ000000","resource":{"resourceType":"Observation","id":"I2-OEDMSTKZ2MXY4RQJAUQFU5BHBQ000000","meta":{"lastUpdated":"1977-03-18T14:19:47Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
         Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
         pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
         Gorczany269"},"effectiveDateTime":"1977-02-16T14:19:47Z","issued":"1977-02-16T14:19:47Z","component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
         blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":109.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
-        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":88.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-LXMAAGTPKU4ZZOF6JZ4BCQUSRY000000","resource":{"resourceType":"Observation","id":"I2-LXMAAGTPKU4ZZOF6JZ4BCQUSRY000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":88.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-LXMAAGTPKU4ZZOF6JZ4BCQUSRY000000","resource":{"resourceType":"Observation","id":"I2-LXMAAGTPKU4ZZOF6JZ4BCQUSRY000000","meta":{"lastUpdated":"1977-06-17T13:19:47Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
         Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
         pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
         Gorczany269"},"effectiveDateTime":"1977-05-18T13:19:47Z","issued":"1977-05-18T13:19:47Z","component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
         blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":132.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
-        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":78.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-FBDIPZQNQ2RYEZC2S33YZVQXRA000000","resource":{"resourceType":"Observation","id":"I2-FBDIPZQNQ2RYEZC2S33YZVQXRA000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":78.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-FBDIPZQNQ2RYEZC2S33YZVQXRA000000","resource":{"resourceType":"Observation","id":"I2-FBDIPZQNQ2RYEZC2S33YZVQXRA000000","meta":{"lastUpdated":"1977-09-16T13:19:47Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
         Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
         pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
         Gorczany269"},"effectiveDateTime":"1977-08-17T13:19:47Z","issued":"1977-08-17T13:19:47Z","performer":[{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Organization/I2-AKOTGEFSVKFJOPUKHIVJAH5VQU000000","display":"NEW
         AMSTERDAM CBOC"},{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-4ZXYC2SQAZCHMOWPPFNLOY65GE000000","display":"DR.
         THOMAS359 REYNOLDS206 PHD"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
         blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":136.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
-        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":78.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-ULSQCDH3SUDISJY5ISA3JHCPQE000000","resource":{"resourceType":"Observation","id":"I2-ULSQCDH3SUDISJY5ISA3JHCPQE000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":78.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-ULSQCDH3SUDISJY5ISA3JHCPQE000000","resource":{"resourceType":"Observation","id":"I2-ULSQCDH3SUDISJY5ISA3JHCPQE000000","meta":{"lastUpdated":"1977-12-16T14:19:47Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
         Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
         pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
         Gorczany269"},"effectiveDateTime":"1977-11-16T14:19:47Z","issued":"1977-11-16T14:19:47Z","performer":[{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Organization/I2-YCRI7L52BYQL63ZFALGWIWF2WU000000","display":"WASHINGTON
         VA MEDICAL CENTER"},{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-QXZOEMHBZNNC7BUGOTHVWYSZAI000000","display":"DR.
         JOHN248 SMITH811 MD"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
         blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":132.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
-        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":83.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-KN3N77LGVTG6XE2QPGUONP7PQI000000","resource":{"resourceType":"Observation","id":"I2-KN3N77LGVTG6XE2QPGUONP7PQI000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":83.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-KN3N77LGVTG6XE2QPGUONP7PQI000000","resource":{"resourceType":"Observation","id":"I2-KN3N77LGVTG6XE2QPGUONP7PQI000000","meta":{"lastUpdated":"1978-03-17T14:19:47Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
         Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
         pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
         Gorczany269"},"effectiveDateTime":"1978-02-15T14:19:47Z","issued":"1978-02-15T14:19:47Z","performer":[{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Organization/I2-AKOTGEFSVKFJOPUKHIVJAH5VQU000000","display":"NEW
         AMSTERDAM CBOC"},{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-4ZXYC2SQAZCHMOWPPFNLOY65GE000000","display":"DR.
         THOMAS359 REYNOLDS206 PHD"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
         blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":135.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
-        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":82.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-KE3A257NZDNQ2VCKXOWQGZ22SU000000","resource":{"resourceType":"Observation","id":"I2-KE3A257NZDNQ2VCKXOWQGZ22SU000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":82.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-KE3A257NZDNQ2VCKXOWQGZ22SU000000","resource":{"resourceType":"Observation","id":"I2-KE3A257NZDNQ2VCKXOWQGZ22SU000000","meta":{"lastUpdated":"1978-09-15T13:19:47Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
         Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
         pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
         Gorczany269"},"effectiveDateTime":"1978-08-16T13:19:47Z","issued":"1978-08-16T13:19:47Z","performer":[{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Organization/I2-TYIC2AW2NXNADER4SKRKJQZWRE000000","display":"LYONS
         VA MEDICAL CENTER"},{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-QXZOEMHBZNNC7BUGOTHVWYSZAI000000","display":"DR.
         JOHN248 SMITH811 MD"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
         blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":129.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
-        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":86.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-GMPJHTNEUY7Q7G5SDU5H7ZIAMA000000","resource":{"resourceType":"Observation","id":"I2-GMPJHTNEUY7Q7G5SDU5H7ZIAMA000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":86.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-GMPJHTNEUY7Q7G5SDU5H7ZIAMA000000","resource":{"resourceType":"Observation","id":"I2-GMPJHTNEUY7Q7G5SDU5H7ZIAMA000000","meta":{"lastUpdated":"1979-03-16T14:19:47Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
         Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
         pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
         Gorczany269"},"effectiveDateTime":"1979-02-14T14:19:47Z","issued":"1979-02-14T14:19:47Z","performer":[{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Organization/I2-YCRI7L52BYQL63ZFALGWIWF2WU000000","display":"WASHINGTON
         VA MEDICAL CENTER"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
         blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":121.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
-        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":81.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-6IIJ4DJ5VJIFXRFGZM7V3XZ5ZU000000","resource":{"resourceType":"Observation","id":"I2-6IIJ4DJ5VJIFXRFGZM7V3XZ5ZU000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":81.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-6IIJ4DJ5VJIFXRFGZM7V3XZ5ZU000000","resource":{"resourceType":"Observation","id":"I2-6IIJ4DJ5VJIFXRFGZM7V3XZ5ZU000000","meta":{"lastUpdated":"1979-09-14T13:19:47Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
         Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
         pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
         Gorczany269"},"effectiveDateTime":"1979-08-15T13:19:47Z","issued":"1979-08-15T13:19:47Z","performer":[{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Organization/I2-AKOTGEFSVKFJOPUKHIVJAH5VQU000000","display":"NEW
         AMSTERDAM CBOC"},{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-HRJI2MVST2IQSPR7U5SACWIWZA000000","display":"DR.
         JANE460 DOE922 MD"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
         blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":132.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
-        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":77.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-Z3XWC6WSVGB7IXB7E3JLBRPPVU000000","resource":{"resourceType":"Observation","id":"I2-Z3XWC6WSVGB7IXB7E3JLBRPPVU000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":77.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-Z3XWC6WSVGB7IXB7E3JLBRPPVU000000","resource":{"resourceType":"Observation","id":"I2-Z3XWC6WSVGB7IXB7E3JLBRPPVU000000","meta":{"lastUpdated":"1979-11-02T13:19:47Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
         Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
         pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
         Gorczany269"},"effectiveDateTime":"1979-10-03T13:19:47Z","issued":"1979-10-03T13:19:47Z","performer":[{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Organization/I2-AKOTGEFSVKFJOPUKHIVJAH5VQU000000","display":"NEW
         AMSTERDAM CBOC"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
         blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":122.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
-        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":82.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-YCGUQPI24BY3TC2KEWZQAY5LZE000000","resource":{"resourceType":"Observation","id":"I2-YCGUQPI24BY3TC2KEWZQAY5LZE000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":82.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-YCGUQPI24BY3TC2KEWZQAY5LZE000000","resource":{"resourceType":"Observation","id":"I2-YCGUQPI24BY3TC2KEWZQAY5LZE000000","meta":{"lastUpdated":"1980-05-02T14:19:47Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
         Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
         pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
         Gorczany269"},"effectiveDateTime":"1980-04-02T14:19:47Z","issued":"1980-04-02T14:19:47Z","performer":[{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Organization/I2-YCRI7L52BYQL63ZFALGWIWF2WU000000","display":"WASHINGTON
         VA MEDICAL CENTER"},{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-HRJI2MVST2IQSPR7U5SACWIWZA000000","display":"DR.
         JANE460 DOE922 MD"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
         blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":137.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
-        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":75.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-NREOYVA4U5C3H3VNQAWYAB4AOY000000","resource":{"resourceType":"Observation","id":"I2-NREOYVA4U5C3H3VNQAWYAB4AOY000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":75.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-NREOYVA4U5C3H3VNQAWYAB4AOY000000","resource":{"resourceType":"Observation","id":"I2-NREOYVA4U5C3H3VNQAWYAB4AOY000000","meta":{"lastUpdated":"1981-05-08T13:19:47Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
         Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
         pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
         Gorczany269"},"effectiveDateTime":"1981-04-08T13:19:47Z","issued":"1981-04-08T13:19:47Z","performer":[{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-QXZOEMHBZNNC7BUGOTHVWYSZAI000000","display":"DR.
         JOHN248 SMITH811 MD"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
         blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":109.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
-        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":76.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-V5VZRL4HHUK4YK6DTJH6DO2E5I000000","resource":{"resourceType":"Observation","id":"I2-V5VZRL4HHUK4YK6DTJH6DO2E5I000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":76.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-V5VZRL4HHUK4YK6DTJH6DO2E5I000000","resource":{"resourceType":"Observation","id":"I2-V5VZRL4HHUK4YK6DTJH6DO2E5I000000","meta":{"lastUpdated":"1982-05-14T13:19:47Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
         Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
         pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
         Gorczany269"},"effectiveDateTime":"1982-04-14T13:19:47Z","issued":"1982-04-14T13:19:47Z","performer":[{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Organization/I2-YCRI7L52BYQL63ZFALGWIWF2WU000000","display":"WASHINGTON
         VA MEDICAL CENTER"},{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-QXZOEMHBZNNC7BUGOTHVWYSZAI000000","display":"DR.
         JOHN248 SMITH811 MD"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
         blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":124.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
-        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":70.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-GMOPYB3SM36WKAPVGLNZKA5TIA000000","resource":{"resourceType":"Observation","id":"I2-GMOPYB3SM36WKAPVGLNZKA5TIA000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":70.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-GMOPYB3SM36WKAPVGLNZKA5TIA000000","resource":{"resourceType":"Observation","id":"I2-GMOPYB3SM36WKAPVGLNZKA5TIA000000","meta":{"lastUpdated":"1983-05-20T13:19:47Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
         Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
         pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
         Gorczany269"},"effectiveDateTime":"1983-04-20T13:19:47Z","issued":"1983-04-20T13:19:47Z","performer":[{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Organization/I2-TYIC2AW2NXNADER4SKRKJQZWRE000000","display":"LYONS
         VA MEDICAL CENTER"},{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-QXZOEMHBZNNC7BUGOTHVWYSZAI000000","display":"DR.
         JOHN248 SMITH811 MD"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
         blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":133.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
-        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":82.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-5CDBDZAW6V3RYLRFSO5QNB5LX4000000","resource":{"resourceType":"Observation","id":"I2-5CDBDZAW6V3RYLRFSO5QNB5LX4000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":82.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-5CDBDZAW6V3RYLRFSO5QNB5LX4000000","resource":{"resourceType":"Observation","id":"I2-5CDBDZAW6V3RYLRFSO5QNB5LX4000000","meta":{"lastUpdated":"1984-05-25T13:19:47Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
         Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
         pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
         Gorczany269"},"effectiveDateTime":"1984-04-25T13:19:47Z","issued":"1984-04-25T13:19:47Z","performer":[{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Organization/I2-YCRI7L52BYQL63ZFALGWIWF2WU000000","display":"WASHINGTON
         VA MEDICAL CENTER"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
         blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":100.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
-        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":80.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-SR7FWSBMSCWTFFLQ5LGWN3NPZU000000","resource":{"resourceType":"Observation","id":"I2-SR7FWSBMSCWTFFLQ5LGWN3NPZU000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":80.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-SR7FWSBMSCWTFFLQ5LGWN3NPZU000000","resource":{"resourceType":"Observation","id":"I2-SR7FWSBMSCWTFFLQ5LGWN3NPZU000000","meta":{"lastUpdated":"1985-05-31T13:19:47Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
         Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
         pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
         Gorczany269"},"effectiveDateTime":"1985-05-01T13:19:47Z","issued":"1985-05-01T13:19:47Z","performer":[{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Organization/I2-AKOTGEFSVKFJOPUKHIVJAH5VQU000000","display":"NEW
         AMSTERDAM CBOC"},{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-HRJI2MVST2IQSPR7U5SACWIWZA000000","display":"DR.
         JANE460 DOE922 MD"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
         blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":131.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
-        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":71.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-ZBVCXZUQFRF2K2TZQQ57UV6F6E000000","resource":{"resourceType":"Observation","id":"I2-ZBVCXZUQFRF2K2TZQQ57UV6F6E000000","status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":71.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-ZBVCXZUQFRF2K2TZQQ57UV6F6E000000","resource":{"resourceType":"Observation","id":"I2-ZBVCXZUQFRF2K2TZQQ57UV6F6E000000","meta":{"lastUpdated":"1986-06-06T13:19:47Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
         Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
         pressure systolic and diastolic"}],"text":"Blood pressure systolic and diastolic"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
         Gorczany269"},"effectiveDateTime":"1986-05-07T13:19:47Z","issued":"1986-05-07T13:19:47Z","performer":[{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Organization/I2-YCRI7L52BYQL63ZFALGWIWF2WU000000","display":"WASHINGTON
@@ -226,104 +226,5 @@ http_interactions:
         THOMAS359 REYNOLDS206 PHD"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
         blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":108.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
         blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":86.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}}]}'
-  recorded_at: Wed, 08 Dec 2021 18:58:19 GMT
-- request:
-    method: get
-    uri: https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest?patient=17000151
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Agent
-      Authorization:
-      - Bearer eyJraWQiOiIyWGlHcG5XRjR0U0wtdENPX19zNDZhMGlkd3I1UUd6YVlwTm4xeEZNX1Y4IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULlNPR2VtQ205Z1puZHJDdU1SZGJsRUdtOEp2OUM1elV6MERxTDNhSnRvRjQiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXM4bm0xcTBmN1ZRMGE0ODJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2ZoaXIiLCJpYXQiOjE2Mzg5ODk4OTgsImV4cCI6MTYzODk5MDE5OCwiY2lkIjoiMG9hYXhrcDBhZVhFSmtNRncycDciLCJzY3AiOlsibGF1bmNoIiwicGF0aWVudC9QYXRpZW50LnJlYWQiLCJwYXRpZW50L1ByYWN0aXRpb25lci5yZWFkIiwicGF0aWVudC9PYnNlcnZhdGlvbi5yZWFkIiwicGF0aWVudC9NZWRpY2F0aW9uUmVxdWVzdC5yZWFkIiwic3lzdGVtL1BhdGllbnQucmVhZCJdLCJzdWIiOiIwb2FheGtwMGFlWEVKa01GdzJwNyJ9.ayYkqSHtOYR8W_PdU60sJvLRx6akPRklXGYKDY39izFOIR1vgSnC1RkiWPE8IyEI1gveyrLFPaiu5nvkRtHHaKg7SWWuiBQckHxmvDvRZnchyzkK9KincgvXkjWXShhzDj8HJO3LfXoUbu6Gy2k0BYQVoSpf5op-76D84D7Vao4akNp3kXL7p_p2HgBQdX4EJVfb5LHWsALkTdvKtbwXtAZoABjiiMLt4vpN87ghxPMEIlptCtugUQevZJq479i3E8JeQcTIdd8xqlI3VBBWU-a2PSueL_xJXURKaEMG6AxdtClMtqU-1KRkLIGMvSaxszhA8PspEI1YGQrDhWtTaw
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: ''
-    headers:
-      Date:
-      - Wed, 08 Dec 2021 18:58:20 GMT
-      Content-Type:
-      - application/json
-      Connection:
-      - keep-alive
-      X-Ratelimit-Remaining-Minute:
-      - '294'
-      X-Ratelimit-Limit-Minute:
-      - '300'
-      Ratelimit-Remaining:
-      - '294'
-      Ratelimit-Limit:
-      - '300'
-      Ratelimit-Reset:
-      - '40'
-      Vary:
-      - Accept-Encoding
-      - Origin
-      X-Va-Includes-Icn:
-      - '17000151'
-      Pragma:
-      - no-cache
-      - no-cache
-      X-Kong-Upstream-Latency:
-      - '76'
-      X-Kong-Proxy-Latency:
-      - '1'
-      Via:
-      - kong/2.3.2
-      Strict-Transport-Security:
-      - max-age=15724800; includeSubDomains
-      - max-age=31536000; includeSubDomains; preload
-      Access-Control-Allow-Origin:
-      - "*"
-      Cache-Control:
-      - no-cache, no-store
-      Set-Cookie:
-      - TS01dd66bd=01c16e2d81ca3b079b7891dd9bfe5dde6255c9f13dd00948c013ef91da69f930280350bb178d7d9def65d7c2222ea95af021890302;
-        Max-Age=900; Path=/
-      Transfer-Encoding:
-      - chunked
-    body:
-      encoding: ASCII-8BIT
-      string: '{"resourceType":"Bundle","type":"searchset","total":14,"link":[{"relation":"first","url":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest?patient=17000151&page=1&_count=30"},{"relation":"self","url":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest?patient=17000151&page=1&_count=30"},{"relation":"next","url":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest?patient=17000151&page=2&_count=30"},{"relation":"last","url":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest?patient=17000151&page=2&_count=30"}],"entry":[{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest/I2-QZEIMGQ5DHE3TA7WEHQASO4VJQ000000","resource":{"resourceType":"MedicationRequest","id":"I2-QZEIMGQ5DHE3TA7WEHQASO4VJQ000000","status":"active","intent":"plan","reportedBoolean":true,"medicationReference":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Medication/I2-KJAEAPZHGRAJZGMKS76LHORFA4000000","display":"Hydrochlorothiazide
-        6.25 MG"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
-        Gorczany269"},"authoredOn":"1976-09-08T13:19:47Z","_requester":{"extension":[{"url":"https://hl7.org/fhir/extension-data-absent-reason.html","valueCode":"unknown"}]},"note":[{"text":"Hydrochlorothiazide
-        6.25 MG"}],"dosageInstruction":[{"text":"Once per day.","timing":{"repeat":{"boundsPeriod":{"start":"1976-09-08T13:19:47Z"}},"code":{"text":"As
-        directed by physician."}},"route":{"text":"As directed by physician."}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest/I2-WMOOMJJ5FEHJS72FWW27ZLQOJY000000","resource":{"resourceType":"MedicationRequest","id":"I2-WMOOMJJ5FEHJS72FWW27ZLQOJY000000","status":"active","intent":"plan","reportedBoolean":true,"medicationReference":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Medication/I2-S5KCGQYT24AUJUXOJJWHFWIUME000000","display":"Doxycycline
-        Monohydrate 50 MG Oral Tablet"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
-        Gorczany269"},"authoredOn":"1978-05-01T13:19:47Z","_requester":{"extension":[{"url":"https://hl7.org/fhir/extension-data-absent-reason.html","valueCode":"unknown"}]},"note":[{"text":"Doxycycline
-        Monohydrate 50 MG Oral Tablet"}],"dosageInstruction":[{"text":"1 dose(s) 2
-        time(s) per 1 days","timing":{"repeat":{"boundsPeriod":{"start":"1978-05-01T13:19:47Z"}},"code":{"text":"As
-        directed by physician."}},"route":{"text":"As directed by physician."}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest/I2-BVB7M2J2YXF7VNGKWM445FFGDU000000","resource":{"resourceType":"MedicationRequest","id":"I2-BVB7M2J2YXF7VNGKWM445FFGDU000000","status":"active","intent":"plan","reportedBoolean":true,"medicationReference":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Medication/I2-3BHVOLIHVGSFI5SIVSIN7ZEALQ000000","display":"Ibuprofen
-        100 MG Oral Tablet"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
-        Gorczany269"},"authoredOn":"1978-05-01T13:19:47Z","_requester":{"extension":[{"url":"https://hl7.org/fhir/extension-data-absent-reason.html","valueCode":"unknown"}]},"note":[{"text":"Ibuprofen
-        100 MG Oral Tablet"}],"dosageInstruction":[{"text":"Once per day.","timing":{"repeat":{"boundsPeriod":{"start":"1978-05-01T13:19:47Z"}},"code":{"text":"As
-        directed by physician."}},"route":{"text":"As directed by physician."}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest/I2-YGL4JNUIYGI7BZNSENCES27XOQ000000","resource":{"resourceType":"MedicationRequest","id":"I2-YGL4JNUIYGI7BZNSENCES27XOQ000000","status":"active","intent":"plan","reportedBoolean":true,"medicationReference":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Medication/I2-56HGLPQFHZLBPTRMS2HHAYDOWY000000","display":"Amoxicillin
-        200 MG Oral Tablet"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
-        Gorczany269"},"authoredOn":"1981-06-01T13:19:47Z","_requester":{"extension":[{"url":"https://hl7.org/fhir/extension-data-absent-reason.html","valueCode":"unknown"}]},"note":[{"text":"Amoxicillin
-        200 MG Oral Tablet"}],"dosageInstruction":[{"text":"1 dose(s) 2 time(s) per
-        1 days","timing":{"repeat":{"boundsPeriod":{"start":"1981-06-01T13:19:47Z"}},"code":{"text":"As
-        directed by physician."}},"route":{"text":"As directed by physician."}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest/I2-YZEY77QCXHI3Z64WCMOZ3SS3XY000000","resource":{"resourceType":"MedicationRequest","id":"I2-YZEY77QCXHI3Z64WCMOZ3SS3XY000000","status":"active","intent":"plan","reportedBoolean":true,"medicationReference":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Medication/I2-SOZQU2AUUIFBOLB6YTO2GPWTUM000000","display":"Aspirin
-        81 MG Oral Tablet"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
-        Gorczany269"},"authoredOn":"1981-06-01T13:19:47Z","_requester":{"extension":[{"url":"https://hl7.org/fhir/extension-data-absent-reason.html","valueCode":"unknown"}]},"note":[{"text":"Aspirin
-        81 MG Oral Tablet"}],"dosageInstruction":[{"text":"Once per day.","timing":{"repeat":{"boundsPeriod":{"start":"1981-06-01T13:19:47Z"}},"code":{"text":"As
-        directed by physician."}},"route":{"text":"As directed by physician."}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest/I2-DSO23SK5TIWUL6Q5SXWZZTR2HE000000","resource":{"resourceType":"MedicationRequest","id":"I2-DSO23SK5TIWUL6Q5SXWZZTR2HE000000","status":"active","intent":"plan","reportedBoolean":true,"medicationReference":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Medication/I2-56HGLPQFHZLBPTRMS2HHAYDOWY000000","display":"Amoxicillin
-        200 MG Oral Tablet"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
-        Gorczany269"},"authoredOn":"1985-06-27T13:19:47Z","_requester":{"extension":[{"url":"https://hl7.org/fhir/extension-data-absent-reason.html","valueCode":"unknown"}]},"note":[{"text":"Amoxicillin
-        200 MG Oral Tablet"}],"dosageInstruction":[{"text":"1 dose(s) 2 time(s) per
-        1 days","timing":{"repeat":{"boundsPeriod":{"start":"1985-06-27T13:19:47Z"}},"code":{"text":"As
-        directed by physician."}},"route":{"text":"As directed by physician."}}]},"search":{"mode":"match"}},{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest/I2-C6DOZ4NKCAIKWXYJIQ6ZOMLIKE000000","resource":{"resourceType":"MedicationRequest","id":"I2-C6DOZ4NKCAIKWXYJIQ6ZOMLIKE000000","status":"active","intent":"plan","reportedBoolean":true,"medicationReference":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Medication/I2-3BHVOLIHVGSFI5SIVSIN7ZEALQ000000","display":"Ibuprofen
-        100 MG Oral Tablet"},"subject":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/17000151","display":"Jasper743
-        Gorczany269"},"authoredOn":"1985-06-27T13:19:47Z","_requester":{"extension":[{"url":"https://hl7.org/fhir/extension-data-absent-reason.html","valueCode":"unknown"}]},"note":[{"text":"Ibuprofen
-        100 MG Oral Tablet"}],"dosageInstruction":[{"text":"Once per day.","timing":{"repeat":{"boundsPeriod":{"start":"1985-06-27T13:19:47Z"}},"code":{"text":"As
-        directed by physician."}},"route":{"text":"As directed by physician."}}]},"search":{"mode":"match"}}]}'
-  recorded_at: Wed, 08 Dec 2021 18:58:20 GMT
+  recorded_at: Tue, 11 Jan 2022 04:01:02 GMT
 recorded_with: VCR 6.0.0

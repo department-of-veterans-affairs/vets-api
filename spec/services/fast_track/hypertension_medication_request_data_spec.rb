@@ -135,10 +135,11 @@ RSpec.describe FastTrack::HypertensionMedicationRequestData, :vcr do
   subject { described_class }
 
   let(:response) do
-    # Using specific test ICN below:
-    client = Lighthouse::VeteransHealth::Client.new(2_000_163)
-    client.get_resource('medications')
+    # Using specific test ICN that returns multiple pages below:
+    client = Lighthouse::VeteransHealth::Client.new(32_000_225)
+    client.list_resource('medications')
   end
+  let(:transformed_response) { described_class.new(response).transform }
 
   describe '#transform' do
     empty_response = OpenStruct.new
@@ -158,59 +159,115 @@ RSpec.describe FastTrack::HypertensionMedicationRequestData, :vcr do
     end
 
     it 'returns the expected hash from a single-entry list' do
-      expect(described_class.new(response).transform).to match(
-        [
-          {
-            'status' => 'active',
-            'authoredOn' => '1995-02-06T02:15:52Z',
-            'description' => 'Hydrochlorothiazide 6.25 MG',
-            'notes' => ['Hydrochlorothiazide 6.25 MG'],
-            'dosageInstructions' => ['Once per day.', 'As directed by physician.']
-          },
-          { 'status' => 'active',
-            'authoredOn' => '1995-04-30T01:15:52Z',
-            'description' => 'Loratadine 5 MG Chewable Tablet',
-            'notes' => ['Loratadine 5 MG Chewable Tablet'],
-            'dosageInstructions' => ['Once per day.', 'As directed by physician.'] },
-          { 'status' => 'active',
-            'authoredOn' => '1995-04-30T01:15:52Z',
-            'description' => '0.3 ML EPINEPHrine 0.5 MG/ML Auto-Injector',
-            'notes' => [
-              '0.3 ML EPINEPHrine 0.5 MG/ML Auto-Injector'
-            ],
-            'dosageInstructions' => ['Once per day.', 'As directed by physician.'] },
-          { 'status' => 'active',
-            'authoredOn' => '1998-02-12T02:15:52Z',
-            'description' => '120 ACTUAT Fluticasone propionate 0.044 MG/ACTUAT Metered Dose Inhaler',
-            'notes' => [
-              '120 ACTUAT Fluticasone propionate 0.044 MG/ACTUAT Metered Dose Inhaler'
-            ],
-            'dosageInstructions' => ['Once per day.', 'As directed by physician.'] },
-          { 'status' => 'active',
-            'authoredOn' => '1998-02-12T02:15:52Z',
-            'description' => '200 ACTUAT Albuterol 0.09 MG/ACTUAT Metered Dose Inhaler',
-            'notes' => ['200 ACTUAT Albuterol 0.09 MG/ACTUAT Metered Dose Inhaler'],
-            'dosageInstructions' => ['Once per day.', 'As directed by physician.'] },
-          { 'status' => 'active',
-            'authoredOn' => '2009-03-25T01:15:52Z',
-            'description' => 'Hydrocortisone 10 MG/ML ' \
-                             'Topical Cream',
-            'notes' => ['Hydrocortisone 10 MG/ML Topical Cream'],
-            'dosageInstructions' => ['Once per day.', 'As directed by physician.'] },
-          { 'status' => 'active',
-            'authoredOn' => '2012-08-18T06:15:52Z',
-            'description' => 'predniSONE 5 MG Oral Tablet',
-            'notes' => ['predniSONE 5 MG Oral Tablet'],
-            'dosageInstructions' => [
-              '1 dose(s) 1 time(s) per 1 days', 'As directed by physician.'
-            ] },
-          { 'status' => 'active',
-            'authoredOn' => '2013-04-15T01:15:52Z',
-            'description' => 'Hydrochlorothiazide 25 MG',
-            'notes' => ['Hydrochlorothiazide 25 MG'],
-            'dosageInstructions' => ['Once per day.', 'As directed by physician.'] }
-        ].sort_by { |med| med['authoredOn'].to_date }.reverse!
+      expect(transformed_response[0..19]).to match(
+        [{ 'status' => 'active',
+           'authoredOn' => '2006-04-17T02:42:52Z',
+           'description' => 'PACLitaxel 100 MG Injection',
+           'notes' => ['PACLitaxel 100 MG Injection'],
+           'dosageInstructions' => ['Once per day.', 'As directed by physician.'] },
+         { 'status' => 'active',
+           'authoredOn' => '2006-04-17T02:42:52Z',
+           'description' => 'PACLitaxel 100 MG Injection',
+           'notes' => ['PACLitaxel 100 MG Injection'],
+           'dosageInstructions' => ['Once per day.', 'As directed by physician.'] },
+         { 'status' => 'active',
+           'authoredOn' => '2006-04-17T02:42:52Z',
+           'description' => 'Cisplatin 50 MG Injection',
+           'notes' => ['Cisplatin 50 MG Injection'],
+           'dosageInstructions' => ['Once per day.', 'As directed by physician.'] },
+         { 'status' => 'active',
+           'authoredOn' => '2006-04-17T02:42:52Z',
+           'description' => 'Cisplatin 50 MG Injection',
+           'notes' => ['Cisplatin 50 MG Injection'],
+           'dosageInstructions' => ['Once per day.', 'As directed by physician.'] },
+         { 'status' => 'active',
+           'authoredOn' => '2006-03-16T03:42:52Z',
+           'description' => 'PACLitaxel 100 MG Injection',
+           'notes' => ['PACLitaxel 100 MG Injection'],
+           'dosageInstructions' => ['Once per day.', 'As directed by physician.'] },
+         { 'status' => 'active',
+           'authoredOn' => '2006-03-16T03:42:52Z',
+           'description' => 'PACLitaxel 100 MG Injection',
+           'notes' => ['PACLitaxel 100 MG Injection'],
+           'dosageInstructions' => ['Once per day.', 'As directed by physician.'] },
+         { 'status' => 'active',
+           'authoredOn' => '2006-03-16T03:42:52Z',
+           'description' => 'Cisplatin 50 MG Injection',
+           'notes' => ['Cisplatin 50 MG Injection'],
+           'dosageInstructions' => ['Once per day.', 'As directed by physician.'] },
+         { 'status' => 'active',
+           'authoredOn' => '2006-03-16T03:42:52Z',
+           'description' => 'Cisplatin 50 MG Injection',
+           'notes' => ['Cisplatin 50 MG Injection'],
+           'dosageInstructions' => ['Once per day.', 'As directed by physician.'] },
+         { 'status' => 'active',
+           'authoredOn' => '2006-02-11T03:42:52Z',
+           'description' => 'Simvistatin 10 MG',
+           'notes' => [],
+           'dosageInstructions' => [] },
+         { 'status' => 'active',
+           'authoredOn' => '2006-02-10T03:42:52Z',
+           'description' => 'PACLitaxel 100 MG Injection',
+           'notes' => ['PACLitaxel 100 MG Injection'],
+           'dosageInstructions' => ['Once per day.', 'As directed by physician.'] },
+         { 'status' => 'active',
+           'authoredOn' => '2006-02-10T03:42:52Z',
+           'description' => 'PACLitaxel 100 MG Injection',
+           'notes' => ['PACLitaxel 100 MG Injection'],
+           'dosageInstructions' => ['Once per day.', 'As directed by physician.'] },
+         { 'status' => 'active',
+           'authoredOn' => '2006-02-10T03:42:52Z',
+           'description' => 'Cisplatin 50 MG Injection',
+           'notes' => ['Cisplatin 50 MG Injection'],
+           'dosageInstructions' => ['Once per day.', 'As directed by physician.'] },
+         { 'status' => 'active',
+           'authoredOn' => '2006-02-10T03:42:52Z',
+           'description' => 'Cisplatin 50 MG Injection',
+           'notes' => ['Cisplatin 50 MG Injection'],
+           'dosageInstructions' => ['Once per day.', 'As directed by physician.'] },
+         { 'status' => 'active',
+           'authoredOn' => '2006-01-12T03:42:52Z',
+           'description' => 'Simvistatin 10 MG',
+           'notes' => ['Simvistatin 10 MG'],
+           'dosageInstructions' =>
+           ['1 dose(s) 1 time(s) per 1 days', 'As directed by physician.'] },
+         { 'status' => 'active',
+           'authoredOn' => '2006-01-12T03:42:52Z',
+           'description' => 'Simvistatin 10 MG',
+           'notes' => ['Simvistatin 10 MG'],
+           'dosageInstructions' =>
+           ['1 dose(s) 1 time(s) per 1 days', 'As directed by physician.'] },
+         { 'status' => 'active',
+           'authoredOn' => '2006-01-12T03:42:52Z',
+           'description' => 'PACLitaxel 100 MG Injection',
+           'notes' => ['PACLitaxel 100 MG Injection'],
+           'dosageInstructions' => ['Once per day.', 'As directed by physician.'] },
+         { 'status' => 'active',
+           'authoredOn' => '2006-01-12T03:42:52Z',
+           'description' => 'PACLitaxel 100 MG Injection',
+           'notes' => ['PACLitaxel 100 MG Injection'],
+           'dosageInstructions' => ['Once per day.', 'As directed by physician.'] },
+         { 'status' => 'active',
+           'authoredOn' => '2006-01-12T03:42:52Z',
+           'description' => 'Cisplatin 50 MG Injection',
+           'notes' => ['Cisplatin 50 MG Injection'],
+           'dosageInstructions' => ['Once per day.', 'As directed by physician.'] },
+         { 'status' => 'active',
+           'authoredOn' => '2006-01-12T03:42:52Z',
+           'description' => 'Cisplatin 50 MG Injection',
+           'notes' => ['Cisplatin 50 MG Injection'],
+           'dosageInstructions' => ['Once per day.', 'As directed by physician.'] },
+         { 'status' => 'active',
+           'authoredOn' => '2005-12-11T03:42:52Z',
+           'description' => 'PACLitaxel 100 MG Injection',
+           'notes' => ['PACLitaxel 100 MG Injection'],
+           'dosageInstructions' => ['Once per day.', 'As directed by physician.'] }]
       )
+    end
+
+    it 'returns all of the medications that are active' do
+      only_active_meds = response.body['entry'].select { |med| med.dig('resource', 'status') == 'active' }
+      expect(transformed_response.count).to match only_active_meds.count
     end
   end
 end

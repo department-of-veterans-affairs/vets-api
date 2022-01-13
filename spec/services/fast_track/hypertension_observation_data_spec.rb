@@ -10,7 +10,7 @@ RSpec.describe FastTrack::HypertensionObservationData, :vcr do
   let(:response) do
     # Using specific test ICN below:
     client = Lighthouse::VeteransHealth::Client.new(32_000_225)
-    client.get_resource('observations')
+    client.list_resource('observations')
   end
 
   let(:response_with_recent_bp) do

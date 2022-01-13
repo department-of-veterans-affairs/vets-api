@@ -16,7 +16,7 @@ module FastTrack
     private
 
     def sorted_entries(transformed_entries)
-      transformed_entries.sort_by { |med| med[:authoredOn].to_date }.reverse!
+      transformed_entries.sort_by { |med| [med[:authoredOn].to_datetime, med[:description]] }.reverse!
     end
 
     def filtered_entries
