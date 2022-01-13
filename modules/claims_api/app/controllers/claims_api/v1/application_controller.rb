@@ -42,8 +42,13 @@ module ClaimsApi
       end
 
       def source_name
-        user = header_request? ? @current_user : target_veteran
-        "#{user.first_name} #{user.last_name}"
+        if header_request?
+          return request.headers['X-Consumer-Username'] if token.client_credentials_token?
+
+          "#{@current_user.first_name} #{@current_user.last_name}"
+        else
+          "#{target_veteran.first_name} #{target_veteran.last_name}"
+        end
       end
 
       private
