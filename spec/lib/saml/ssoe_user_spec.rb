@@ -633,6 +633,10 @@ RSpec.describe SAML::User do
           expect { subject.validate! }.to raise_error { |error|
             expect(error).to be_a(SAML::UserAttributeError)
             expect(error.message).to eq('MHV credential ICN does not match MPI record')
+            expect(error.identifier).to include(
+              icn: '22222222V888888',
+              mhv_icn: '111111111V666666'
+            )
           }
         end
       end
@@ -803,6 +807,10 @@ RSpec.describe SAML::User do
             .to raise_error { |error|
                   expect(error).to be_a(SAML::UserAttributeError)
                   expect(error.message).to eq('User attributes contain multiple distinct CORP ID values')
+                  expect(error.identifier).to include(
+                    icn: '1013183292V131165',
+                    corp_ids: %w[0123456789 0000000054]
+                  )
                 }
         end
       end
@@ -822,6 +830,10 @@ RSpec.describe SAML::User do
             .to raise_error { |error|
                   expect(error).to be_a(SAML::UserAttributeError)
                   expect(error.message).to eq('User attributes contain multiple distinct EDIPI values')
+                  expect(error.identifier).to include(
+                    edipis: %w[0123456789 0000000054],
+                    icn: '1013183292V131165'
+                  )
                 }
         end
       end

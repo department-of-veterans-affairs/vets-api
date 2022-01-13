@@ -233,9 +233,9 @@ module SAML
 
       def multiple_id_validations
         # EDIPI, ICN, and CORP ID all trigger errors if multiple unique IDs are found
-        raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:multiple_edipis] if edipi_mismatch?
-        raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:mhv_icn_mismatch] if mhv_icn_mismatch?
-        raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:multiple_corp_ids] if corp_id_mismatch?
+        check_edipi_mismatch
+        check_mhv_icn_mismatch
+        check_corp_id_mismatch
 
         # temporary conditional validation for MHV, can be only a warning if user is MHV inbound-outbound
         conditional_validate_mhv_ids
@@ -314,26 +314,43 @@ module SAML
         tracker&.payload_attr(:skip_dupe) == 'mhv'
       end
 
-      def mhv_icn_mismatch?
-        mhvicn_val = safe_attr('va_eauth_mhvicn')
+      def check_mhv_icn_mismatch
         icn_val = safe_attr('va_eauth_icn')
-        icn_val.present? && mhvicn_val.present? && icn_val != mhvicn_val
+        mhvicn_val = safe_attr('va_eauth_mhvicn')
+        if icn_val.present? && mhvicn_val.present? && icn_val != mhvicn_val
+          error_data = SAML::UserAttributeError::ERRORS[:mhv_icn_mismatch].merge(
+            { identifier: { icn: icn_val, mhv_icn: mhvicn_val } }
+          )
+          raise SAML::UserAttributeError, error_data
+        end
       end
 
-      def edipi_mismatch?
-        return if edipi_ids[:edipis].blank?
+      def check_edipi_mismatch
+        edipis = edipi_ids[:edipis]
+        return if edipis.blank?
 
-        edipi_ids[:edipis].reject(&:nil?).uniq.size > 1
+        if edipis.reject(&:nil?).uniq.size > 1
+          error_data = SAML::UserAttributeError::ERRORS[:multiple_edipis].merge(
+            { identifier: { edipis: edipis, icn: mhv_icn } }
+          )
+          raise SAML::UserAttributeError, error_data
+        end
       end
 
       def birls_id_mismatch?
         attribute_has_multiple_values?('va_eauth_birlsfilenumber')
       end
 
-      def corp_id_mismatch?
-        return if mvi_ids[:vba_corp_ids].blank?
+      def check_corp_id_mismatch
+        corp_ids = mvi_ids[:vba_corp_ids]
+        return if corp_ids.blank?
 
-        mvi_ids[:vba_corp_ids].reject(&:nil?).uniq.size > 1
+        if corp_ids.reject(&:nil?).uniq.size > 1
+          error_data = SAML::UserAttributeError::ERRORS[:multiple_corp_ids].merge(
+            { identifier: { corp_ids: corp_ids, icn: mhv_icn } }
+          )
+          raise SAML::UserAttributeError, error_data
+        end
       end
 
       def sec_id_mismatch?
