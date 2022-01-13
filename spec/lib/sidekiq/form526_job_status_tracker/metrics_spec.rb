@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-describe EVSS::DisabilityCompensationForm::Metrics do
+describe Sidekiq::Form526JobStatusTracker::Metrics do
   subject { described_class.new('job.prefix') }
 
   let(:job_prefix) { 'job.prefix' }

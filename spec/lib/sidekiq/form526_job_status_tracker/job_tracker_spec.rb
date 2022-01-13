@@ -2,8 +2,8 @@
 
 require 'rails_helper'
 
-describe EVSS::DisabilityCompensationForm::JobStatus do
-  let(:dummy_class) { Class.new { include EVSS::DisabilityCompensationForm::JobStatus } }
+describe Sidekiq::Form526JobStatusTracker::JobTracker do
+  let(:dummy_class) { Class.new { include Sidekiq::Form526JobStatusTracker::JobTracker } }
 
   context 'with an exhausted callback message' do
     let(:msg) do
@@ -21,7 +21,7 @@ describe EVSS::DisabilityCompensationForm::JobStatus do
     end
 
     it 'tracks an exhausted job' do
-      expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_exhausted)
+      expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_exhausted)
       dummy_class.job_exhausted(msg, 'stats_key')
       job_status = Form526JobStatus.last
 

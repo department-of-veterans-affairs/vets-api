@@ -26,7 +26,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
     def expect_retryable_error(error_class)
       subject.perform_async(submission.id)
-      expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
+      expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_retryable).once
       expect(Form526JobStatus).to receive(:upsert).twice
       expect { described_class.drain }.to raise_error(error_class)
     end
@@ -61,7 +61,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             updated_at: Time.now.utc
           }
           Form526JobStatus.upsert(values, unique_by: :job_id)
-          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to(
+          expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to(
             receive(:increment_success).with(false).once
           )
           described_class.drain
@@ -82,7 +82,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       it 'runs the retryable_error_handler and raises a EVSS::DisabilityCompensationForm::GatewayTimeout' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
           subject.perform_async(submission.id)
-          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
+          expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_retryable).once
           expect(Rails.logger).to receive(:error).once
           expect { described_class.drain }.to raise_error(Common::Exceptions::GatewayTimeout)
           job_status = Form526JobStatus.find_by(form526_submission_id: submission.id,
@@ -118,7 +118,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         VCR.use_cassette('evss/disability_compensation_form/submit_400') do
           expect_any_instance_of(described_class).to receive(:log_exception_to_sentry)
           subject.perform_async(submission.id)
-          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
+          expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_non_retryable).once
           described_class.drain
           form_job_status = Form526JobStatus.last
           expect(form_job_status.error_class).to eq 'EVSS::DisabilityCompensationForm::ServiceException'
@@ -166,7 +166,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       it 'sets the transaction to "non_retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_200_with_ep_not_valid') do
           subject.perform_async(submission.id)
-          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
+          expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_non_retryable).once
           described_class.drain
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
         end
@@ -177,7 +177,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       it 'sets the transaction to "non_retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_500_with_max_ep_code') do
           subject.perform_async(submission.id)
-          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
+          expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_non_retryable).once
           described_class.drain
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
         end
@@ -188,7 +188,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       it 'sets the transaction to "retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_200_with_418') do
           subject.perform_async(submission.id)
-          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
+          expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_retryable).once
           expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::ServiceException)
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:retryable_error]
         end
@@ -199,7 +199,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       it 'sets the transaction to "retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_200_with_bgs_error') do
           subject.perform_async(submission.id)
-          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
+          expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_retryable).once
           expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::ServiceException)
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:retryable_error]
         end
@@ -210,7 +210,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       it 'sets the transaction to "non_retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_500_with_pif_in_use') do
           subject.perform_async(submission.id)
-          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
+          expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_non_retryable).once
           described_class.drain
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
         end
