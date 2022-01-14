@@ -62,13 +62,25 @@ RSpec.describe 'V2::SessionsController', type: :request do
           'uuid' => uuid
         }
       end
+      let(:session_params) do
+        {
+          params: {
+            session: {
+              uuid: uuid,
+              last4: '5555',
+              last_name: 'Johnson'
+            }
+          }
+        }
+      end
+
+      before do
+        VCR.use_cassette 'check_in/lorota/token/token_200' do
+          post '/check_in/v2/sessions', session_params
+        end
+      end
 
       it 'returns read.full permissions' do
-        allow_any_instance_of(CheckIn::V2::Session).to receive(:redis_session_prefix).and_return('check_in_lorota_v2')
-        allow_any_instance_of(CheckIn::V2::Session).to receive(:jwt).and_return('jwt-123-1bc')
-
-        Rails.cache.write(key, 'jwt-123-1bc', namespace: 'check-in-lorota-v2-cache')
-
         get "/check_in/v2/sessions/#{uuid}"
 
         expect(response.status).to eq(200)
@@ -142,23 +154,13 @@ RSpec.describe 'V2::SessionsController', type: :request do
     end
 
     context 'when JWT token and Redis entries are absent' do
-      let(:service_resp) do
-        {
-          'permission_data' => { 'permissions' => 'read.full', 'uuid' => uuid, 'status' => 'success' },
-          'jwt' => 'jwt-123-abc'
-        }
-      end
-
-      before do
-        allow_any_instance_of(::V2::Lorota::Service).to receive(:token).and_return(service_resp)
-        expect_any_instance_of(::V2::Lorota::Service).to receive(:token).once
-      end
-
       it 'returns a success response' do
-        post '/check_in/v2/sessions', session_params
+        VCR.use_cassette 'check_in/lorota/token/token_200' do
+          post '/check_in/v2/sessions', session_params
 
-        expect(response.status).to eq(200)
-        expect(JSON.parse(response.body)).to eq(service_resp[:permission_data])
+          expect(response.status).to eq(200)
+          expect(JSON.parse(response.body)).to eq(resp)
+        end
       end
     end
   end
