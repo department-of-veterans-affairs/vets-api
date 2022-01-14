@@ -187,3 +187,4 @@ jobs:
         if: always()
         env:
           BIGQUERY_CREDENTIALS: ${{ env.BIGQUERY_SERVICE_CREDENTIALS }}
+          BRANCH_NAME: ${{ github.ref }}

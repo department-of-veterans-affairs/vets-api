@@ -35,7 +35,7 @@ describe TestStatsToBigquery do
     end
   end
 
-  describe '#upload_test_stats' do
+  describe '#upload_stats_data' do
     context 'when there are no failures' do
       before do
         allow(Google::Cloud::Bigquery).to receive(:new).and_return(bigquery)
@@ -43,21 +43,7 @@ describe TestStatsToBigquery do
       end
 
       it 'uploads to Bigquery successfully' do
-        expect($stdout).to receive(:puts).with('Uploaded RSpec data to BigQuery.')
-        described_class.new.upload_test_stats
-      end
-    end
-
-    context 'when there is at least one failure' do
-      before do
-        allow(Google::Cloud::Bigquery).to receive(:new).and_return(bigquery)
-        allow(Dir).to receive(:"[]").and_return(['spec/rakelib/fixtures/rspec_failure.xml'])
-      end
-
-      it 'uploads failure data' do
-        expect($stdout).to receive(:puts).with('Uploaded RSpec data to BigQuery.')
-        expect($stdout).to receive(:puts).with('Uploaded RSpec failure data to BigQuery.')
-        described_class.new.upload_test_stats
+        expect(described_class.new.upload_stats_data).to eql('Uploaded RSpec statistics data to BigQuery.')
       end
     end
 
@@ -70,21 +56,43 @@ describe TestStatsToBigquery do
       end
 
       it 'raises an error' do
-        expect { described_class.new.upload_test_stats }.to raise_error(RuntimeError)
+        expect { described_class.new.upload_stats_data }.to raise_error(RuntimeError)
       end
     end
   end
 
-  describe '#read_files' do
-    context 'when there are no failures' do
-      before do
-        allow(Google::Cloud::Bigquery).to receive(:new).and_return(bigquery)
-        allow(Dir).to receive(:"[]").and_return(['spec/rakelib/fixtures/rspec.xml'])
-      end
+  describe '#upload_coverage_data' do
+    before do
+      allow(Google::Cloud::Bigquery).to receive(:new).and_return(bigquery)
+      allow(File).to receive(:read).and_return(File.read('spec/rakelib/fixtures/index.html'))
+    end
 
-      it 'returns test statistics with no failures' do
-        expect(described_class.new.read_files).to eq [{ date: '2021-12-14', total_tests: 803, total_failures: 0,
-                                                        total_skipped: 0, total_time: 156 }]
+    context 'when there are no failures' do
+      it 'uploads to Bigquery successfully' do
+        expect(described_class.new.upload_coverage_data).to eql('Uploaded RSpec test coverage data to BigQuery.')
+      end
+    end
+
+    context 'when the upload fails' do
+      let!(:response) { double(success?: false) }
+
+      it 'raises an error' do
+        expect { described_class.new.upload_coverage_data }.to raise_error(RuntimeError)
+      end
+    end
+  end
+
+  describe '#upload_failure_data' do
+    before do
+      allow(Google::Cloud::Bigquery).to receive(:new).and_return(bigquery)
+      allow(Dir).to receive(:"[]").and_return(['spec/rakelib/fixtures/rspec.xml'])
+    end
+
+    context 'when there are no failures' do
+      it 'does not upload failure data' do
+        test_stats_to_bigquery = described_class.new
+        test_stats_to_bigquery.upload_stats_data
+        expect(test_stats_to_bigquery.upload_failure_data).to eql('No failures to upload to BigQuery.')
       end
     end
 
@@ -94,9 +102,10 @@ describe TestStatsToBigquery do
         allow(Dir).to receive(:"[]").and_return(['spec/rakelib/fixtures/rspec_failure.xml'])
       end
 
-      it 'returns test statistics with one failure' do
-        expect(described_class.new.read_files).to eq [{ date: '2021-12-14', total_tests: 1224, total_failures: 1,
-                                                        total_skipped: 1, total_time: 118 }]
+      it 'uploads failure data' do
+        test_stats_to_bigquery = described_class.new
+        test_stats_to_bigquery.upload_stats_data
+        expect(test_stats_to_bigquery.upload_failure_data).to eql('Uploaded RSpec failure data to BigQuery.')
       end
     end
   end
