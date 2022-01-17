@@ -40,7 +40,7 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
                     report_enabled: true) do
         Timecop.freeze
         to = Time.zone.now
-        from = to.monday? ? 7.days.ago : 1.day.ago
+        from = to.monday? ? 3.days.ago : 1.day.ago
         expect(ClaimsApi::UnsuccessfulReportMailer).to receive(:build).once.with(
           from,
           to,

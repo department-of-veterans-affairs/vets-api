@@ -3,14 +3,8 @@
 module ClaimsApi
   class UnsuccessfulReportMailer < ApplicationMailer
     RECIPIENTS = %w[
-      zachary.goldfine@va.gov
-      david.mazik@va.gov
-      premal.shah@va.gov
       kayla.watanabe@adhocteam.us
-      emily.goodrich@oddball.io
-      lee.deboom@oddball.io
       dan.hinze@adhocteam.us
-      christopher.stone@libertyits.com
       jeff.wallace@oddball.io
     ].freeze
 
