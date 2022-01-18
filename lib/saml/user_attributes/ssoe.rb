@@ -236,9 +236,7 @@ module SAML
         check_edipi_mismatch
         check_mhv_icn_mismatch
         check_corp_id_mismatch
-
-        # temporary conditional validation for MHV, can be only a warning if user is MHV inbound-outbound
-        conditional_validate_mhv_ids
+        check_mhv_ien_mismatch
 
         # SEC & BIRLS multiple IDs are more common, only log a warning
         if sec_id_mismatch?
@@ -286,27 +284,24 @@ module SAML
         @attributes[key] == 'NOT_FOUND' ? nil : @attributes[key]
       end
 
-      def conditional_validate_mhv_ids
-        if mhv_id_mismatch?
+      def check_mhv_ien_mismatch
+        if mhv_iens.size > 1
+          # only a warning if user is MHV outbound-redirect
           if mhv_inbound_outbound
             log_message_to_sentry(
-              'User attributes contain multiple distinct MHV ID values.',
-              'warn',
-              { mhv_ids: mhv_ids }
+              'User attributes contain multiple distinct MHV ID values.', 'warn', { mhv_iens: mhv_iens }
             )
           else
-            raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:multiple_mhv_ids]
+            error_data = SAML::UserAttributeError::ERRORS[:multiple_mhv_ids].dup
+            error_data[:message] += JSON.generate({ mhv_iens: mhv_iens, icn: mhv_icn })
+            raise SAML::UserAttributeError, error_data
           end
         end
       end
 
-      def mhv_ids
+      def mhv_iens
         mhv_iens = mvi_ids[:mhv_iens] || []
         mhv_iens.append(safe_attr('va_eauth_mhvuuid')).reject(&:nil?).uniq
-      end
-
-      def mhv_id_mismatch?
-        mhv_ids.size > 1
       end
 
       def mhv_inbound_outbound
@@ -318,10 +313,7 @@ module SAML
         icn_val = safe_attr('va_eauth_icn')
         mhvicn_val = safe_attr('va_eauth_mhvicn')
         if icn_val.present? && mhvicn_val.present? && icn_val != mhvicn_val
-          error_data = SAML::UserAttributeError::ERRORS[:mhv_icn_mismatch].merge(
-            { identifier: { icn: icn_val, mhv_icn: mhvicn_val } }
-          )
-          raise SAML::UserAttributeError, error_data
+          raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:mhv_icn_mismatch]
         end
       end
 
@@ -330,9 +322,8 @@ module SAML
         return if edipis.blank?
 
         if edipis.reject(&:nil?).uniq.size > 1
-          error_data = SAML::UserAttributeError::ERRORS[:multiple_edipis].merge(
-            { identifier: { edipis: edipis, icn: mhv_icn } }
-          )
+          error_data = SAML::UserAttributeError::ERRORS[:multiple_edipis].dup
+          error_data[:message] += JSON.generate({ edipis: edipis, icn: mhv_icn })
           raise SAML::UserAttributeError, error_data
         end
       end
@@ -346,9 +337,8 @@ module SAML
         return if corp_ids.blank?
 
         if corp_ids.reject(&:nil?).uniq.size > 1
-          error_data = SAML::UserAttributeError::ERRORS[:multiple_corp_ids].merge(
-            { identifier: { corp_ids: corp_ids, icn: mhv_icn } }
-          )
+          error_data = SAML::UserAttributeError::ERRORS[:multiple_corp_ids].dup
+          error_data[:message] += JSON.generate({ corp_ids: corp_ids, icn: mhv_icn })
           raise SAML::UserAttributeError, error_data
         end
       end

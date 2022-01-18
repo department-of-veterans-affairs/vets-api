@@ -816,7 +816,8 @@ RSpec.describe V1::SessionsController, type: :controller do
         let(:expected_error_message) { SAML::UserAttributeError::ERRORS[:multiple_mhv_ids][:message] }
         let(:version) { 'v1' }
         let(:expected_warn_message) do
-          "SessionsController version:#{version} context:{} message:#{expected_error_message}"
+          "SessionsController version:#{version} context:{} message:#{expected_error_message}" \
+            '{"mhv_iens":["15001594","999888"],"icn":"1013183292V131165"}'
         end
 
         before { allow(SAML::User).to receive(:new).and_return(saml_user) }
