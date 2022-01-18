@@ -274,6 +274,9 @@ modules_appeals_api:
     bucket: "bucket"
   status_simulation_enabled: false
 
+onsite_notifications:
+  template_ids:
+    - "f9947b27-df3b-4b09-875c-7f76594d766d"
 
 vre_counseling:
   prefill: true
