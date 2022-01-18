@@ -658,24 +658,20 @@ components:
             - physical
             - both
         line:
-          description: 'Street name, number, direction & P.O. Box etc. The order of lines in the array is the order in which lines should appear in an address label.'
           type: array
+          description: Street name, number, direction & P.O. Box etc. The order of the items is order in which lines should appear in an address label.
           items:
             type: string
-          example:
-            - '50 Irving Street, Northwest'
         city:
-          description: 'Name of city, town etc.'
           type: string
-          example: Washington
         state:
-          description: Sub-unit of country (abbreviations ok)
           type: string
-          example: DC
         postalCode:
-          description: Postal code for area
           type: string
-          example: 20422-0001
+        country:
+          type: string
+        text:
+          type: string
     Appointment:
       description: Information about a future or past meeting.
       type: object
@@ -684,6 +680,10 @@ components:
           description: A unique identifier for this appointment.
           type: string
           maxLength: 64
+        identifier:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Identifier"
         kind:
           "$ref": "#/components/schemas/AppointmentKind"
         status:
@@ -691,6 +691,12 @@ components:
         serviceType:
           description: the care type for the appointment
           type: string
+        reasonCode:
+          "$ref": "#/components/schemas/CodeableConcept" 
+        priority:
+          minimum: 0
+          type: number
+          format: int32
         patientIcn:
           description: The patient ICN
           type: string
@@ -698,26 +704,17 @@ components:
         locationId:
           description: The sta6aid for the VAfacility where the appointment is registered.
           type: string
-        location:
-          "$ref": "#/components/schemas/Facility"
         clinic:
           description: The clinic ID for the Appointment
           type: string
         clinicName:
           description: The clinic name for the Appointment
           type: string
-        telehealth:
-          "$ref": "#/components/schemas/TelehealthInfo"
         practitioners:
           description: The practitioners participating in this appointment.
           type: array
           items:
             "$ref": "#/components/schemas/Practitioner"
-        reason:
-          description:
-            The reason for an Express Care request, or the purpose for
-            a a non-Express Care request.
-          type: string
         start:
           description: The start time of the appointment.
           type: string
@@ -730,7 +727,26 @@ components:
           type: integer
           description: The duration of the meeting, in minutes.
         slot:
-          "$ref": "#/components/schemas/Slot"
+          type: object
+          properties:
+            id:
+              pattern: '[A-Za-z0-9\-\.]{1,64}'
+              type: string
+              description: The slot ID
+            start:
+              type: string
+              description: Date/Time that the slot is to begin.
+              format: date-time
+            end:
+              type: string
+              description: Date/Time that the slot is to end.
+              format: date-time  
+        created:
+          type: string
+          description: The date this appointment was initially created.
+          format: date-time
+        preferredLocation:
+          "$ref": "#/components/schemas/PreferredLocation"
         requestedPeriods:
           type: array
           description: a list of requested periods for appointment
@@ -747,13 +763,8 @@ components:
               - Morning
               - Afternoon
               - Evening
-        priority:
-          description: an unsigned integer
-          type: integer
-          minimum: 0
-        cancellationReason:
-          description: The reason the appointment was cancelled.
-          type: string
+        cancelationReason:
+          "$ref": "#/components/schemas/CodeableConcept"
         description:
           description: Not used.
           type: string
@@ -761,6 +772,29 @@ components:
           type: string
         preferredLanguage:
           type: string
+        cancellable:
+          type: boolean
+          description: If true then this logical appointment can be cancelled.
+        patientInstruction:
+          type: string
+          description: 'Detailed information and instructions for the patient. See: https://www.hl7.org/fhir/appointment-definitions.html#Appointment.patientInstruction'
+        telehealth:
+          "$ref": "#/components/schemas/TelehealthInfo"
+        extension:
+          "$ref": "#/components/schemas/AppointmentExtensions"
+    AppointmentExtensions:
+      type: object
+      properties:
+        desiredDate:
+          type: string
+          description: Optional field indicating the date and time that the patient originally desired to have the appointment. Used for reporting with VistA appointments.
+          format: date-time
+        ccLocation:
+          $ref: '#/components/schemas/CommunityCareLocation'
+        ccRequestedCancellation:
+          type: boolean
+          description: Indicates if a cancellation request has been submitted for an appointment request.
+      description: Non-standard FHIR Appointment attributes.
     AppointmentKind:
       type: string
       enum:
@@ -779,19 +813,11 @@ components:
       enum:
         - facilities
         - clinics
-    AppointmentsResponse:
-      description: An array of appointments
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            "$ref": "#/components/schemas/Appointment"
     AppointmentStatus:
       type: string
       enum:
-        - cancelled
         - proposed
+        - cancelled
         - pending
         - booked
         - arrived
@@ -914,6 +940,14 @@ components:
       description: >- 
         A Coding is a representation of a defined concept using a symbol from a defined "code system". 
         FHIR reference: https://www.hl7.org/fhir/datatypes.html#Coding
+    CommunityCareLocation:
+      type: object
+      properties:
+        practiceName:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+      description: Information about the location of a community care appointment.
     CreateAppointmentRequest:
       description: A request to create a new appointment.
       type: object
@@ -922,6 +956,11 @@ components:
           "$ref": "#/components/schemas/AppointmentKind"
         status:
           "$ref": "#/components/schemas/AppointmentStatus"
+        serviceType:
+          type: string
+          description: the care type for the appointment
+        reasonCode:
+          "$ref": "#/components/schemas/CodeableConcept"
         patientIcn:
           description: The patient ICN
           type: string
@@ -929,36 +968,59 @@ components:
         locationId:
           description: The sta6aid for the VAfacility where the appointment is registered.
           type: string
-        practitionerIds:
-          description: A list of practitioner ids.
-          type: array
-          items:
-            "$ref": "#/components/schemas/PractitionerId"
         clinic:
           description: The clinic ID for the Appointment
           type: string
-        reason:
-          description:
-            The reason for an Express Care request, or the purpose for
-            a a non-Express Care request.
-          type: string
-        comment:
-          description:
-            A free-form comment section to provide additional information about an appointment request.
-          type: string
-        slot:
-          "$ref": "#/components/schemas/Slot"
-        contact:
-          "$ref": "#/components/schemas/PatientContact"
-        serviceType:
-          type: string
-          description: the care type for the appointment
+        practitioners:
+          type: array
+          description: The practioners participating in this appointment.
+          items:
+            "$ref": "#/components/schemas/PractitionerIds"
         requestedPeriods:
           type: array
           description: a list of requested periods for appointment
           items:
             "$ref": "#/components/schemas/Period"
+        contact:
+          "$ref": "#/components/schemas/PatientContact"
+        preferredTimesForPhoneCall:
+          type: array
+          description: A list of times the patient prefers to be contacted by phone.
+          items:
+            type: string
+            enum:
+              - Morning
+              - Afternoon
+              - Evening
+        preferredLocation:
+          $ref: '#/components/schemas/PreferredLocation'
+        comment:
+          description:
+            A free-form comment section to provide additional information about an appointment request.
+          type: string
         preferredLanguage:
+          type: string
+    HumanName:
+      type: object
+      properties:
+        family:
+          type: string
+          description: Family name (surname).
+        given:
+          type: array
+          description: Given names (not always first). Given Names appear in the correct order for presenting the name.
+          items:
+            type: string
+      description: A human name.  
+    Identifier:
+      required:
+        - system
+        - value
+      type: object
+      properties:
+        system:
+          type: string
+        value:
           type: string
     PatientEligibilityResponse:
       type: object
@@ -998,7 +1060,17 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/CodeableConcept'
-      description: The response for a patient scheduing eligibility request.        
+      description: The response for a patient scheduing eligibility request. 
+    PreferredLocation:
+      type: object
+      properties:
+        city:
+          maxLength: 64
+          type: string
+        state:
+          maxLength: 32
+          type: string
+      description: The location that the veteran requested the appointment to be scheduled in. This value is only relevant for community care appointment requests.
     UpdateAppointmentRequest:
       description: A request to create a new appointment.
       type: object
@@ -1162,25 +1234,21 @@ components:
     Practitioner:
       type: object
       properties:
-        id:
-          "$ref": "#/components/schemas/PractitionerId"
-        firstName:
-          type: string
-        lastName:
-          type: string
-        practiceName:
-          type: string
+        identifier:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Identifier"
+        name:
+          "$ref": "#/components/schemas/HumanName"
       description: Details about the practitioner.
-    PractitionerId:
-      description: A practitioner ID from an external system.
+    PractitionerIds:
+      description: Practitioner IDs from an external system.
       type: object
       properties:
-        system:
-          type: string
-          description: HSRM, Cerner, etc
-        value:
-          type: string
-          description: the practitioner ID
+        identifier:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Identifier"
     PhoneNumbers:
       type: object
       properties:
