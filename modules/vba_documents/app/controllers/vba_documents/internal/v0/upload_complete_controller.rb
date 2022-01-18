@@ -66,13 +66,17 @@ module VBADocuments
         end
 
         def process_upload(upload_id)
-          upload = VBADocuments::UploadSubmission.where(status: 'pending').find_by(guid: upload_id)
+          upload = VBADocuments::UploadSubmission.find_by(guid: upload_id)
           store = VBADocuments::ObjectStore.new
           raise Common::Exceptions::RecordNotFound, upload_id unless upload && store.bucket.object(upload.guid).exists?
 
-          Rails.logger.info("VBADocuments: Processing: #{upload.inspect}")
-          upload.update(status: 'uploaded')
-          VBADocuments::UploadProcessor.perform_async(upload_id, caller: self.class.name)
+          if upload.status.eql?('pending')
+            Rails.logger.info("VBADocuments: Processing: #{upload.inspect}")
+            upload.update(status: 'uploaded')
+            VBADocuments::UploadProcessor.perform_async(upload_id, caller: self.class.name)
+          else
+            Rails.logger.info("VBADocuments: upload_complete_controller late/duplicate notification: #{upload.inspect}")
+          end
         end
       end
     end
