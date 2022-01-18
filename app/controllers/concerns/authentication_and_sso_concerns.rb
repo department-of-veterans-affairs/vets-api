@@ -21,6 +21,14 @@ module AuthenticationAndSSOConcerns
     raise Common::Exceptions::Unauthorized
   end
 
+  def validate_authn_context
+    authn = params[:authn]
+    raise Common::Exceptions::ParameterMissing, 'authn' if authn.blank?
+    raise Common::Exceptions::InvalidFieldValue.new('authn', authn) if SAML::User::AUTHN_CONTEXTS.keys.exclude?(authn)
+
+    true
+  end
+
   def validate_session
     load_user
 

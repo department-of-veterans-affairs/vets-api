@@ -164,6 +164,22 @@ RSpec.describe V1::SessionsController, type: :controller do
                        }]
                      })
           end
+
+          it 'raises exception when authn parameter is not in list of AUTHN_CONTEXTS' do
+            expect { get(:new, params: { type: :custom, authn: 'qwerty', client_id: '123123' }) }
+              .not_to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                               tags: ['context:custom', 'version:v1'], **once)
+            expect(response).to have_http_status(:bad_request)
+            expect(JSON.parse(response.body))
+              .to eq({
+                       'errors' => [{
+                         'title' => 'Invalid field value',
+                         'detail' => '"qwerty" is not a valid value for "authn"',
+                         'code' => '103',
+                         'status' => '400'
+                       }]
+                     })
+          end
         end
 
         context 'routes /sessions/idme_signup/new to SessionsController#new' do

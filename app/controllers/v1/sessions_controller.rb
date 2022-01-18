@@ -183,9 +183,7 @@ module V1
       when 'verify'
         url_service.verify_url
       when 'custom'
-        raise Common::Exceptions::ParameterMissing, 'authn' if params[:authn].blank?
-
-        url_service(false).custom_url params[:authn]
+        url_service(false).custom_url params[:authn] if validate_authn_context
       end
     end
     # rubocop:enable Metrics/MethodLength
