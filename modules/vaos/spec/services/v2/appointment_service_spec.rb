@@ -5,11 +5,11 @@ require 'rails_helper'
 describe VAOS::V2::AppointmentsService do
   subject { described_class.new(user) }
 
-  let(:user) { build(:user, :vaos) }
+  let(:user) { build(:user, :jac) }
   let(:start_date) { Time.zone.parse('2021-06-04T04:00:00.000Z') }
   let(:end_date) { Time.zone.parse('2022-07-03T04:00:00.000Z') }
-  let(:start_date2) { Time.zone.parse('2021-09-01T19:25:00Z') }
-  let(:end_date2) { Time.zone.parse('2021-09-16T19:45:00Z') }
+  let(:start_date2) { Time.zone.parse('2022-01-01T19:25:00Z') }
+  let(:end_date2) { Time.zone.parse('2022-12-01T19:45:00Z') }
   let(:id) { '202006031600983000030800000000000000' }
   let(:appointment_id) { 123 }
 
@@ -34,14 +34,13 @@ describe VAOS::V2::AppointmentsService do
 
     context 'when va appointment create request is valid' do
       # appointment created using the Jacqueline Morgan user
-      let(:user) { build(:user, :jac) }
 
-      # it 'returns the created appointment - va - booked' do
-      #   VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_12_15', record: :new_episodes) do
-      #     response = subject.post_appointment(va_booked_request_body)
-      #     expect(response[:id]).to be_a(String)
-      #   end
-      # end
+      it 'returns the created appointment - va - booked' do
+        VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_JACQUELINE_M', record: :new_episodes) do
+          response = subject.post_appointment(va_booked_request_body)
+          expect(response[:id]).to be_a(String)
+        end
+      end
 
       it 'returns the created appointment-va-proposed-clinic' do
         VCR.use_cassette('vaos/v2/appointments/post_appointments_va_proposed_clinic_200',
@@ -181,23 +180,21 @@ describe VAOS::V2::AppointmentsService do
   describe '#get_appointment' do
     context 'with an appointment' do
       context 'with Jacqueline Morgan' do
-        let(:user) { build(:user, :jac) }
-
-        it 'returns a proposed appointment' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointment_200', match_requests_on: %i[method uri]) do
-            response = subject.get_appointment('70060')
-            expect(response[:id]).to eq('70060')
-            expect(response[:kind]).to eq('clinic')
-            expect(response[:status]).to eq('proposed')
-          end
-        end
+        # it 'returns a proposed appointment' do
+        #   VCR.use_cassette('vaos/v2/appointments/get_appointment_200_JUDY_BOOKED', record: :new_episodes) do
+        #     response = subject.get_appointment('71079')
+        #     expect(response[:id]).to eq('70060')
+        #     expect(response[:kind]).to eq('clinic')
+        #     expect(response[:status]).to eq('proposed')
+        #   end
+        # end
       end
     end
 
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/v2/appointments/get_appointment_500', match_requests_on: %i[method uri]) do
-          expect { subject.get_appointment('no_such_appointment') }.to raise_error(
+          expect { subject.get_appointment('00000') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end
@@ -208,8 +205,6 @@ describe VAOS::V2::AppointmentsService do
   describe '#cancel_appointment' do
     context 'when the upstream server attemps to cancel an appointment' do
       context 'with Jaqueline Morgan' do
-        let(:user) { build(:user, :jac) }
-
         it 'returns a cancelled status and the cancelled appointment information' do
           VCR.use_cassette('vaos/v2/appointments/cancel_appointments_200', match_requests_on: %i[method uri]) do
             response = subject.update_appointment('70060', 'cancelled')

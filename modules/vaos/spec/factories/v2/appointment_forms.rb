@@ -73,16 +73,17 @@ FactoryBot.define do
       kind { 'clinic' }
       status { 'booked' }
       location_id { '983' }
-      clinic { '1081' }
-      comment { 'test' }
+      clinic { '1020' } # this is the clinic id for audiology
       slot do
         {
-          'id': 'test'
+          # 'end': DateTime.new(2022, 0o1, 26, 16, 0, 0).iso8601(3),
+          'id': '3230323230313236313530303A323032323031323631363030'
+          # 'start': DateTime.new(2022, 0o1, 26, 15, 0, 0).iso8601(3)
         }
       end
       extension do
         {
-          'desired_date': DateTime.new(2021, 0o6, 15, 23, 59, 0).iso8601(3)
+          'desired_date': DateTime.new(2022, 0o1, 20)
         }
       end
     end
