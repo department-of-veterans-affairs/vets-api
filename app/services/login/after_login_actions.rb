@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'login/errors'
+
 module Login
   class AfterLoginActions
     include Accountable
@@ -51,20 +53,29 @@ module Login
         find_or_create_user_verification(:logingov_uuid, current_user.logingov_uuid)
       else
         Rails.logger.info(
-          "[AfterLoginActions] Unknown or missing login_type for user:#{current_user.uuid}, login_type:#{login_type}"
+          "[AfterLoginActions] Unknown or missing login_type for user=#{current_user.uuid}, login_type=#{login_type}"
         )
+
+        raise Login::Errors::UnknownLoginTypeError
       end
     rescue => e
       Rails.logger.info("[AfterLoginActions] UserVerification cannot be created or updated, error=#{e.message}")
     end
 
-    def find_or_create_user_verification(credential_type, credential_identifier)
-      if credential_identifier.nil?
-        Rails.logger.info('[AfterLoginActions] No User Verification created for nil identifier')
-        return
+    def find_or_create_user_verification(type, identifier)
+      if identifier.nil?
+        Rails.logger.info("[AfterLoginActions] Nil identifier for type=#{type}")
+
+        # ID.me uuid has historically been a primary identifier, even for non-ID.me credentials.
+        # For now it is still worth attempting to use it as a backup identifier
+        type = :idme_uuid
+        identifier = current_user.idme_uuid
+        raise Login::Errors::UserVerificationNotCreatedError if identifier.nil?
+
+        Rails.logger.info("[AfterLoginActions] Attempting alternate type=#{type}  identifier=#{identifier}")
       end
 
-      user_verification = UserVerification.find_by(credential_type => credential_identifier)
+      user_verification = UserVerification.find_by(type => identifier)
       current_user_icn = current_user.icn.presence
       user_account = current_user_icn ? UserAccount.find_by(icn: current_user_icn) : nil
 
@@ -72,7 +83,7 @@ module Login
         update_existing_user_verification(user_verification, current_user_icn, user_account)
       else
         verified_at = current_user.icn.present? ? Time.zone.now : nil
-        UserVerification.create!(credential_type => credential_identifier,
+        UserVerification.create!(type => identifier,
                                  user_account: user_account || UserAccount.new(icn: current_user_icn),
                                  verified_at: verified_at)
       end

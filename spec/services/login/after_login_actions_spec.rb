@@ -165,19 +165,22 @@ RSpec.describe Login::AfterLoginActions do
         Timecop.return
       end
 
-      shared_examples 'user_verification and user_account upkeep' do
-        context 'and user credential identifier is nil' do
-          let(:authn_identifier) { nil }
-          let(:edipi_identifier) { authn_identifier }
-          let(:mhv_correlation_id_identifier) { authn_identifier }
-          let(:idme_uuid_identifier) { authn_identifier }
-          let(:logingov_uuid_identifier) { authn_identifier }
-          let(:expected_log) do
-            '[AfterLoginActions] No User Verification created for nil identifier'
-          end
+      shared_examples 'user_verification with nil credential identifier' do
+        let(:authn_identifier) { nil }
+        let(:edipi_identifier) { authn_identifier }
+        let(:mhv_correlation_id_identifier) { authn_identifier }
+        let(:idme_uuid_identifier) { authn_identifier }
+        let(:logingov_uuid_identifier) { authn_identifier }
+        let(:expected_log) { "[AfterLoginActions] Nil identifier for type=#{authn_identifier_type}" }
+        let(:expected_error_log) do
+          "[AfterLoginActions] UserVerification cannot be created or updated, error=#{expected_error.message}"
+        end
+        let(:expected_error) { Login::Errors::UserVerificationNotCreatedError.new }
 
-          it 'logs a message to rails logger' do
-            expect(Rails.logger).to receive(:info).with(expected_log)
+        context 'and there is not an alternate idme credential identifier' do
+          it 'logs messages to rails logger' do
+            expect(Rails.logger).to receive(:info).with(expected_log).ordered
+            expect(Rails.logger).to receive(:info).with(expected_error_log).ordered
             subject
           end
 
@@ -186,6 +189,26 @@ RSpec.describe Login::AfterLoginActions do
           end
         end
 
+        context 'and there is an alternate idme credential identifier' do
+          let(:type) { :idme_uuid }
+          let(:expected_log_idme) do
+            "[AfterLoginActions] Attempting alternate type=#{type}  identifier=#{idme_uuid_identifier}"
+          end
+          let(:idme_uuid_identifier) { 'some-idme-uuid-identifier' }
+
+          it 'logs messages to rails logger' do
+            expect(Rails.logger).to receive(:info).with(expected_log).ordered
+            expect(Rails.logger).to receive(:info).with(expected_log_idme).ordered
+            subject
+          end
+
+          it 'returns nil' do
+            expect(subject).to be nil
+          end
+        end
+      end
+
+      shared_examples 'user_verification with defined credential identifier' do
         context 'and current user is verified, with an ICN value' do
           let(:icn) { 'some-icn' }
 
@@ -353,7 +376,8 @@ RSpec.describe Login::AfterLoginActions do
         let(:authn_identifier) { user.mhv_correlation_id }
         let(:authn_identifier_type) { :mhv_uuid }
 
-        it_behaves_like 'user_verification and user_account upkeep'
+        it_behaves_like 'user_verification with nil credential identifier'
+        it_behaves_like 'user_verification with defined credential identifier'
       end
 
       context 'when user credential is idme' do
@@ -361,7 +385,30 @@ RSpec.describe Login::AfterLoginActions do
         let(:authn_identifier) { user.idme_uuid }
         let(:authn_identifier_type) { :idme_uuid }
 
-        it_behaves_like 'user_verification and user_account upkeep'
+        context 'when credential identifier is nil' do
+          let(:authn_identifier) { nil }
+          let(:edipi_identifier) { authn_identifier }
+          let(:mhv_correlation_id_identifier) { authn_identifier }
+          let(:idme_uuid_identifier) { authn_identifier }
+          let(:logingov_uuid_identifier) { authn_identifier }
+          let(:expected_log) { "[AfterLoginActions] Nil identifier for type=#{authn_identifier_type}" }
+          let(:expected_error_log) do
+            "[AfterLoginActions] UserVerification cannot be created or updated, error=#{expected_error.message}"
+          end
+          let(:expected_error) { Login::Errors::UserVerificationNotCreatedError.new }
+
+          it 'logs messages to rails logger' do
+            expect(Rails.logger).to receive(:info).with(expected_log).ordered
+            expect(Rails.logger).to receive(:info).with(expected_error_log).ordered
+            subject
+          end
+
+          it 'returns nil' do
+            expect(subject).to be nil
+          end
+        end
+
+        it_behaves_like 'user_verification with defined credential identifier'
       end
 
       context 'when user credential is dslogon' do
@@ -369,7 +416,8 @@ RSpec.describe Login::AfterLoginActions do
         let(:authn_identifier) { user.identity.edipi }
         let(:authn_identifier_type) { :dslogon_uuid }
 
-        it_behaves_like 'user_verification and user_account upkeep'
+        it_behaves_like 'user_verification with nil credential identifier'
+        it_behaves_like 'user_verification with defined credential identifier'
       end
 
       context 'when user credential is logingov' do
@@ -377,18 +425,24 @@ RSpec.describe Login::AfterLoginActions do
         let(:authn_identifier) { user.logingov_uuid }
         let(:authn_identifier_type) { :logingov_uuid }
 
-        it_behaves_like 'user_verification and user_account upkeep'
+        it_behaves_like 'user_verification with nil credential identifier'
+        it_behaves_like 'user_verification with defined credential identifier'
       end
 
       context 'when user credential is some other arbitrary value' do
         let(:login_value) { 'banana' }
         let(:user) { create(:user, sign_in: { service_name: login_value }) }
         let(:expected_log) do
-          "[AfterLoginActions] Unknown or missing login_type for user:#{user.uuid}, login_type:#{login_value}"
+          "[AfterLoginActions] Unknown or missing login_type for user=#{user.uuid}, login_type=#{login_value}"
+        end
+        let(:expected_error) { Login::Errors::UnknownLoginTypeError.new }
+        let(:expected_error_log) do
+          "[AfterLoginActions] UserVerification cannot be created or updated, error=#{expected_error.message}"
         end
 
         it 'logs an unknown credential message' do
-          expect(Rails.logger).to receive(:info).with(expected_log)
+          expect(Rails.logger).to receive(:info).with(expected_log).ordered
+          expect(Rails.logger).to receive(:info).with(expected_error_log).ordered
           subject
         end
       end
