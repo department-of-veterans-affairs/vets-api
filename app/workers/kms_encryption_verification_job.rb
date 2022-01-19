@@ -18,7 +18,9 @@ class KmsEncryptionVerificationJob
             end
           end
           decryption_verification.tap do
-            record.update(verified_decryptable_at: Time.zone.today) if decryption_verified
+            # rubocop:disable Rails/SkipsModelValidations
+            record.update_column(:verified_decryptable_at, Time.zone.today) if decryption_verified
+            # rubocop:enable Rails/SkipsModelValidations
           end
         end
       end
