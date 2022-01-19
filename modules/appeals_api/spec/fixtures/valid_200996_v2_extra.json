@@ -34,7 +34,7 @@
             "zipCode5": "48070"
           },
           "phone": {
-            "countryCode": "01",
+            "countryCode": "1",
             "areaCode": "555",
             "phoneNumber": "8111100",
             "phoneNumberExt": "4"

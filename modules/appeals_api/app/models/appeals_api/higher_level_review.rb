@@ -48,7 +48,12 @@ module AppealsApi
       ).new(self)
     end
 
-    # 1. VETERAN'S NAME
+    def claimant
+      return unless auth_headers['X-VA-Claimant-First-Name'] && auth_headers['X-VA-Claimant-Last-Name']
+
+      NonVeteranClaimant.new(auth_headers: auth_headers, form_data: data_attributes&.dig('claimant'))
+    end
+
     def first_name
       auth_headers['X-VA-First-Name']
     end
@@ -65,17 +70,14 @@ module AppealsApi
       "#{first_name} #{middle_initial} #{last_name}".squeeze(' ').strip
     end
 
-    # 2. VETERAN'S SOCIAL SECURITY NUMBER
     def ssn
       auth_headers['X-VA-SSN']
     end
 
-    # 3. VA FILE NUMBER
     def file_number
       auth_headers['X-VA-File-Number']
     end
 
-    # 4. VETERAN'S DATE OF BIRTH
     def birth_mm
       birth_date.strftime '%m'
     end
@@ -88,20 +90,14 @@ module AppealsApi
       birth_date.strftime '%Y'
     end
 
-    # 5. VETERAN'S SERVICE NUMBER
     def service_number
       auth_headers['X-VA-Service-Number']
     end
 
-    # 6. INSURANCE POLICY NUMBER
     def insurance_policy_number
       auth_headers['X-VA-Insurance-Policy-Number']
     end
 
-    # 7. CLAIMANT'S NAME
-    # 8. CLAIMANT TYPE
-
-    # 9. CURRENT MAILING ADDRESS
     def number_and_street
       address_combined || 'USE ADDRESS ON FILE'
     end
@@ -132,7 +128,6 @@ module AppealsApi
       veteran.dig('address', 'zipCode5') || '00000'
     end
 
-    # 10. TELEPHONE NUMBER
     def veteran_phone_number
       veteran_phone.to_s
     end
@@ -145,7 +140,6 @@ module AppealsApi
       form_data&.dig('data', 'attributes', 'veteran', 'homeless')
     end
 
-    # 11. E-MAIL ADDRESS
     def email
       veteran&.dig('emailAddressText').to_s.strip
     end
@@ -154,17 +148,14 @@ module AppealsApi
       veteran&.dig('email').to_s.strip
     end
 
-    # 12. BENEFIT TYPE
     def benefit_type
       data_attributes&.dig('benefitType').to_s.strip
     end
 
-    # 13. IF YOU WOULD LIKE THE SAME OFFICE...
     def same_office
       data_attributes&.dig('sameOffice')
     end
 
-    # 14. ...INFORMAL CONFERENCE...
     def informal_conference
       data_attributes&.dig('informalConference')
     end
@@ -186,7 +177,6 @@ module AppealsApi
       data_attributes&.dig('socOptIn')
     end
 
-    # 15. YOU MUST INDICATE BELOW EACH ISSUE...
     def contestable_issues
       issues = form_data['included'] || []
 
@@ -195,7 +185,6 @@ module AppealsApi
       end
     end
 
-    # 16B. DATE SIGNED
     def date_signed
       veterans_local_time.strftime('%m/%d/%Y')
     end

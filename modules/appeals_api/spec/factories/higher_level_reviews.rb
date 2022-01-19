@@ -69,7 +69,7 @@ FactoryBot.define do
     id { SecureRandom.uuid }
     api_version { 'V2' }
     auth_headers do
-      JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/valid_200996_headers_v2.json"
+      JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/valid_200996_headers_extra_v2.json"
     end
     form_data do
       JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/valid_200996_v2_extra.json"
