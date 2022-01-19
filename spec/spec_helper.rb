@@ -12,6 +12,7 @@ require 'support/stub_emis'
 require 'support/okta_users_helpers'
 require 'pundit/rspec'
 require 'rspec/its'
+require 'rspec/retry'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']
@@ -114,6 +115,7 @@ RSpec.configure do |config|
   config.filter_run focus: true
   config.run_all_when_everything_filtered = true
   config.example_status_persistence_file_path = 'tmp/specs.txt'
+  config.default_retry_count = 3
 
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
