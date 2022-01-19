@@ -19,7 +19,8 @@ module CheckIn
 
       def create
         pre_check_in_session = CheckIn::V2::Session.build(
-          data: { uuid: pre_check_in_params[:uuid], check_in_type: params[:checkInType] }, jwt: session[:jwt]
+          data: { uuid: pre_check_in_params[:uuid], check_in_type: pre_check_in_params[:check_in_type] },
+          jwt: session[:jwt]
         )
 
         unless pre_check_in_session.authorized?
