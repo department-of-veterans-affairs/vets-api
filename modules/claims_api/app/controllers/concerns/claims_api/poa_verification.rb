@@ -67,6 +67,8 @@ module ClaimsApi
       #
       # @raise [Common::Exceptions::Unauthorized] if Veteran is not associated to one of the @current_user's poa codes
       def verify_power_of_attorney!
+        return if token.client_credentials_token?
+
         logged_in_representative_user = @current_user
         target_veteran_to_be_verified = target_veteran
         verify_representative_and_veteran(logged_in_representative_user, target_veteran_to_be_verified)
