@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'lgy/aws_uploader'
 require 'lgy/configuration'
 require 'common/client/base'
 
@@ -76,6 +77,23 @@ module LGY
       return e if e.status == 404
 
       raise e
+    end
+
+    def coe_url
+      response = get_coe_file
+      # return if 404
+
+      folder = 'tmp/lgy_coe'
+      FileUtils.mkdir_p(folder)
+      filename = "#{folder}/#{DateTime.now.strftime('%Q')}.pdf"
+      File.open(filename, 'wb') do |f|
+        f.write(response.body)
+      end
+
+      coe_url = LGY::AwsUploader.get_s3_link(filename)
+      File.delete(filename)
+
+      coe_url
     end
 
     def request_headers

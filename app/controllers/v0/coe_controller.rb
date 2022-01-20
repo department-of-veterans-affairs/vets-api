@@ -8,6 +8,11 @@ module V0
       render json: { data: { attributes: { status: coe_status } } }, status: :ok
     end
 
+    def download_coe
+      coe_url = lgy_service.coe_url
+      render json: { data: { attributes: { url: coe_url } } }, status: :ok
+    end
+
     private
 
     def lgy_service

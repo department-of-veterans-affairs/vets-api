@@ -39,5 +39,34 @@ describe 'LGY API' do
         end
       end
     end
+
+    describe 'GET v0/coe/download' do
+      context 'when COE file exists' do
+        it 'response code is 200' do
+          lgy_service = double('LGY Service')
+          allow_any_instance_of(V0::CoeController).to receive(:lgy_service) { lgy_service }
+          expect(lgy_service).to receive(:coe_url).and_return 'http://s3.aws.com/file'
+          get '/v0/coe/download_coe'
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'response is in JSON format' do
+          lgy_service = double('LGY Service')
+          allow_any_instance_of(V0::CoeController).to receive(:lgy_service) { lgy_service }
+          expect(lgy_service).to receive(:coe_url).and_return 'http://s3.aws.com/file'
+          get '/v0/coe/download_coe'
+          expect(response.content_type).to eq('application/json; charset=utf-8')
+        end
+
+        it 'response url key is correct' do
+          lgy_service = double('LGY Service')
+          allow_any_instance_of(V0::CoeController).to receive(:lgy_service) { lgy_service }
+          expect(lgy_service).to receive(:coe_url).and_return 'http://s3.aws.com/file'
+          get '/v0/coe/download_coe'
+          json_body = JSON.parse(response.body)
+          expect(json_body['data']['attributes']).to eq 'url' => 'http://s3.aws.com/file'
+        end
+      end
+    end
   end
 end

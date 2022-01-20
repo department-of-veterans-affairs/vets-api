@@ -335,6 +335,7 @@ Rails.application.routes.draw do
 
     namespace :coe do
       get 'status'
+      get 'download_coe'
     end
   end
 
