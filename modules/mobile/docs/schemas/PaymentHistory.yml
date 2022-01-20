@@ -1,0 +1,42 @@
+type: object
+required:
+  - data
+properties:
+  data:
+    type: array
+    items:
+      required:
+        - type
+        - id
+        - attributes
+      properties:
+        type:
+          type: string
+          example: "paymentHistoryInformation"
+        id:
+          type: string
+          example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+        attributes:
+          type: object
+          required:
+            - paymentAmount
+            - paymentDate
+            - paymentMethod
+            - paymentBank
+            - paymentAccount
+          properties:
+            paymentAmount:
+              type: string
+              example: "350.00"
+            paymentDate:
+              type: string
+              example: "2022-15-01"
+            paymentMethod:
+              type: string
+              example: "Direct Deposit"
+            paymentBank:
+              type: string
+              example: "PACIFIC PREMIER BANK"
+            paymentAccount:
+              type: string
+              example: "************6464"
