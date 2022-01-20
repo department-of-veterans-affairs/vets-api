@@ -2,6 +2,7 @@
 
 # This service manages the interactions between CaregiversAssistanceClaim, CARMA, and Form1010cg::Submission.
 
+require 'carma/client/mule_soft_client'
 require 'carma/models/submission'
 require 'carma/models/attachments'
 require 'mpi/service'
@@ -9,6 +10,8 @@ require 'emis/service'
 
 module Form1010cg
   class Service
+    extend Forwardable
+
     class InvalidVeteranStatus < StandardError
     end
 
@@ -38,7 +41,15 @@ module Form1010cg
 
       carma_attachments.add('10-10CG', claim_pdf_path)
       carma_attachments.add('POA', poa_attachment_path) if poa_attachment_path
-      carma_attachments.submit!
+      carma_attachments.submit!(carma_client)
+    end
+
+    def_delegator self, :carma_client # make accessible as instance method
+
+    def self.carma_client
+      client = Flipper.enabled?(:caregiver_mulesoft) ? CARMA::Client::MuleSoftClient.new : CARMA::Client::Client.new
+      Rails.logger.debug "[10-10CG] Using #{client.class} for submissions"
+      client
     end
 
     def initialize(claim, submission = nil)
@@ -73,7 +84,8 @@ module Form1010cg
 
       assert_veteran_status
 
-      carma_submission = CARMA::Models::Submission.from_claim(claim, build_metadata).submit!(carma_client)
+      carma_submission = CARMA::Models::Submission.from_claim(claim, build_metadata)
+                                                  .submit!(carma_client)
 
       @submission = Form1010cg::Submission.new(
         carma_case_id: carma_submission.carma_case_id,
@@ -184,10 +196,6 @@ module Form1010cg
 
     def mpi_service
       @mpi_service ||= MPI::Service.new
-    end
-
-    def carma_client
-      @carma_client ||= CARMA::Client::Client.new
     end
 
     def emis_service

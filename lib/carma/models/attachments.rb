@@ -43,7 +43,7 @@ module CARMA
         }
       end
 
-      def submit!(client = CARMA::Client::Client.new)
+      def submit!(client)
         return response if response
 
         @response = client.upload_attachments(to_request_payload)
@@ -55,7 +55,7 @@ module CARMA
             upload_result['referenceId'] == attachment.reference_id
           end
 
-          attachment.id = matching_result['id']
+          attachment.id = matching_result['id'] if matching_result
         end
 
         self

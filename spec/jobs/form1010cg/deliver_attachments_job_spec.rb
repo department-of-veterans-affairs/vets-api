@@ -295,7 +295,11 @@ RSpec.describe Form1010cg::DeliverAttachmentsJob do
     end
 
     describe 'integration' do
-      context 'with one docuemnt' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:caregiver_mulesoft).and_return(false)
+      end
+
+      context 'with one document' do
         let(:carma_case_id) { 'aB935000000F3VnCAK' }
         let(:claim_guid)    { SecureRandom.uuid }
         let(:claim)         { build(:caregivers_assistance_claim, guid: claim_guid) }

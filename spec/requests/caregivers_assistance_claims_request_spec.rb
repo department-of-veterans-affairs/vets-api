@@ -35,25 +35,31 @@ RSpec.describe 'Caregivers Assistance Claims' do
 
     timestamp = DateTime.parse('2020-03-09T06:48:59-04:00')
 
-    it 'can submit a valid submission', run_at: timestamp.iso8601 do
-      VCR.use_cassette 'mpi/find_candidate/valid', vcr_options do
-        VCR.use_cassette 'carma/auth/token/200', vcr_options do
-          VCR.use_cassette 'carma/submissions/create/201', vcr_options do
-            subject
-          end
-        end
+    context 'submitting to salesforce' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:caregiver_mulesoft).and_return(false)
       end
 
-      expect(response.code).to eq('200')
+      it 'can submit a valid submission', run_at: timestamp.iso8601 do
+        VCR.use_cassette 'mpi/find_candidate/valid', vcr_options do
+          VCR.use_cassette 'carma/auth/token/200', vcr_options do
+            VCR.use_cassette 'carma/submissions/create/201', vcr_options do
+              subject
+            end
+          end
+        end
 
-      res_body = JSON.parse(response.body)
+        expect(response.code).to eq('200')
 
-      expect(res_body['data']).to be_present
-      expect(res_body['data']['type']).to eq 'form1010cg_submissions'
-      expect(DateTime.parse(res_body['data']['attributes']['submittedAt'])).to eq timestamp
-      expect(res_body['data']['attributes']['confirmationNumber']).to eq 'aB935000000F3VnCAK'
+        res_body = JSON.parse(response.body)
 
-      expect(Form1010cg::DeliverAttachmentsJob.jobs.size).to eq(1)
+        expect(res_body['data']).to be_present
+        expect(res_body['data']['type']).to eq 'form1010cg_submissions'
+        expect(DateTime.parse(res_body['data']['attributes']['submittedAt'])).to eq timestamp
+        expect(res_body['data']['attributes']['confirmationNumber']).to eq 'aB935000000F3VnCAK'
+
+        expect(Form1010cg::DeliverAttachmentsJob.jobs.size).to eq(1)
+      end
     end
   end
 

@@ -16,6 +16,10 @@ features:
     actor_type: user
     description: Whether Self-Identifying Gender Identity is enabled for caregiver.
     enable_in_development: true
+  caregiver_mulesoft:
+    actor_type: user
+    description: Whether to use MuleSoft when submitting to CARMA.
+    enable_in_development: true
   hca_american_indian_enabled:
     actor_type: user
     description: Enables American Indian SIGI question page.
