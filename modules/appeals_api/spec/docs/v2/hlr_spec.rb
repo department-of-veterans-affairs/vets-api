@@ -53,18 +53,18 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_insurance_policy_number_header]
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_first_name_header]
-      let(:'X-Claimant-First-Name') { 'first' }
+      let(:'X-VA-Claimant-First-Name') { 'first' }
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_middle_initial_header]
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_last_name_header]
-      let(:'X-Claimant-Last-Name') { 'last' }
+      let(:'X-VA-Claimant-Last-Name') { 'last' }
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_ssn_header]
-      let(:'X-Claimant-SSN') { '999999999' }
+      let(:'X-VA-Claimant-SSN') { '999999999' }
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_birth_date_header]
-      let(:'X-Claimant-Birth-Date') { '1921-08-08' }
+      let(:'X-VA-Claimant-Birth-Date') { '1921-08-08' }
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_username_header]
       parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_id_header]
@@ -100,7 +100,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
 
       response '200', 'Info about a single Higher-Level Review' do
         let(:hlr_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_v2.json')))
+          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_v2_extra.json')))
         end
 
         schema '$ref' => '#/components/schemas/hlrShow'
@@ -390,7 +390,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
           value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_minimum_v2.json')))
         },
         'all fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_v2.json')))
+          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_v2_extra.json')))
         }
       }
 
@@ -410,6 +410,21 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header]
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_insurance_policy_number_header]
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_first_name_header]
+      let(:'X-VA-Claimant-First-Name') { 'first' }
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_middle_initial_header]
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_last_name_header]
+      let(:'X-VA-Claimant-Last-Name') { 'last' }
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_ssn_header]
+      let(:'X-VA-Claimant-SSN') { '999999999' }
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_birth_date_header]
+      let(:'X-VA-Claimant-Birth-Date') { '1921-08-08' }
+
       parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_username_header]
       parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_id_header]
 
@@ -444,7 +459,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
 
       response '200', 'Valid' do
         let(:hlr_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_v2.json')))
+          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_v2_extra.json')))
         end
 
         schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'hlr_validate.json')))
@@ -475,7 +490,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
         schema '$ref' => '#/components/schemas/errorModel'
 
         let(:hlr_body) do
-          request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_v2.json')))
+          request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_v2_extra.json')))
           request_body['data']['attributes'].delete('informalConference')
           request_body
         end
