@@ -11,7 +11,11 @@ module AppealsApi
         delegate :mailing_address, to: :notice_of_disagreement
 
         def veteran_name
-          name
+          formatted_full_name(first_name, middle_initial, last_name)
+        end
+
+        def claimant_name
+          formatted_full_name(claimant_first_name, claimant_middle_initial, claimant_last_name)
         end
 
         def veteran_ssn
@@ -24,6 +28,10 @@ module AppealsApi
 
         def veteran_dob
           dob
+        end
+
+        def claimant_dob
+          header_field_as_string 'X-VA-Claimant-Birth-Date'
         end
 
         def homeless
@@ -60,6 +68,7 @@ module AppealsApi
 
         def signature
           # 180 characters is the max allowed by the Name field on the pdf
+          name = claimant_name.presence || veteran_name
           "#{name[0...180]}\n- Signed by digital authentication to api.va.gov"
         end
 
@@ -87,14 +96,13 @@ module AppealsApi
 
         attr_accessor :notice_of_disagreement
 
-        def name
-          initial = middle_initial
-          initial = "#{initial}." if initial.size.positive?
+        def formatted_full_name(first, middle, last)
+          middle = "#{middle}." if middle.present?
 
           [
-            first_name,
-            initial,
-            last_name
+            first,
+            middle,
+            last
           ].map(&:presence).compact.join(' ')
         end
 
@@ -108,6 +116,18 @@ module AppealsApi
 
         def last_name
           header_field_as_string 'X-VA-Last-Name'
+        end
+
+        def claimant_first_name
+          header_field_as_string 'X-VA-Claimant-First-Name'
+        end
+
+        def claimant_middle_initial
+          header_field_as_string 'X-VA-Claimant-Middle-Initial'
+        end
+
+        def claimant_last_name
+          header_field_as_string 'X-VA-Claimant-Last-Name'
         end
 
         def dob

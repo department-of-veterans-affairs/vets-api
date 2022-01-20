@@ -5,6 +5,10 @@
   "X-VA-SSN": "123456789",
   "X-VA-File-Number": "987654321",
   "X-VA-Birth-Date": "1969-12-31",
+  "X-VA-Claimant-First-Name": "John",
+  "X-VA-Claimant-Middle-Initial": "A",
+  "X-VA-Claimant-Last-Name": "Doe",
+  "X-VA-Claimant-Birth-Date": "1969-12-30",
   "X-Consumer-Username": "va.gov",
   "X-Consumer-ID": "some-guid"
 }

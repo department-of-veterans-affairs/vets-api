@@ -16,6 +16,7 @@ module AppealsApi
             form_fields.veteran_ssn => form_data.veteran_ssn,
             form_fields.veteran_file_number => form_data.veteran_file_number,
             form_fields.veteran_dob => form_data.veteran_dob,
+            form_fields.claimant_dob => form_data.claimant_dob,
             form_fields.mailing_address => form_data.mailing_address,
             form_fields.homeless => form_data.homeless,
             form_fields.preferred_phone => form_data.preferred_phone,
@@ -49,6 +50,15 @@ module AppealsApi
               text_opts.merge(
                 at: [1, 660],
                 width: 435, # So the width of the name & signature field match, for truncation consistency
+                height: 16
+              )
+            )
+
+            pdf.text_box(
+              form_data.claimant_name,
+              text_opts.merge(
+                at: [1, 603],
+                width: 370, # So the width of the name & signature field match, for truncation consistency
                 height: 16
               )
             )
