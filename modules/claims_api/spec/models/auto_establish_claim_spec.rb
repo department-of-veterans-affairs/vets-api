@@ -586,6 +586,27 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
         'day' => '1'
       )
     end
+
+    context "when 'treatments.startDate' is not included" do
+      it "does not include 'treatment.startDate' after transformation " do
+        treatments = [
+          {
+            'center' => {
+              'name' => 'Some Treatment Center',
+              'country' => 'United States of America'
+            },
+            'treatedDisabilityNames' => [
+              'PTSD (post traumatic stress disorder)'
+            ]
+          }
+        ]
+
+        pending_record.form_data['treatments'] = treatments
+
+        payload = JSON.parse(pending_record.to_internal)
+        expect(payload['form526']['treatments'].first['startDate']).to be_nil
+      end
+    end
   end
 
   describe "breaking out 'treatments.endDate'" do

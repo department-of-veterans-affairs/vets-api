@@ -800,6 +800,11 @@
             "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
             "example": "2018-03-02"
           },
+          "serviceRelevance": {
+            "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury.",
+            "type": "string",
+            "example": "Heavy equipment operator in service."
+          },
           "secondaryDisabilities": {
             "description": "Identifies the Secondary Service Disability information of the Veteran.",
             "type": "array",
@@ -822,9 +827,9 @@
                   "example": "SECONDARY"
                 },
                 "serviceRelevance": {
-                  "description": "How the veteran got the disability.",
+                  "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury.",
                   "type": "string",
-                  "example": "Caused by a service-connected disability."
+                  "example": "Heavy equipment operator in service."
                 },
                 "specialIssues": {
                   "description": "The special issues related to the disability. Note :: Only add special issues that you are certain about.  Incorrect special issues can lead to processing delays or denials.  [See special issue descriptions.](https://www.knowva.ebenefits.va.gov/system/templates/selfservice/va_ssnew/help/customer/locale/en-US/portal/554400000001018/content/554400000179710/Appendix-E-Index-of-Corporate-Flashes-and-Special-Issues?query=special%20issues#2b)",
@@ -1046,14 +1051,13 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "startDate",
           "treatedDisabilityNames",
           "center"
         ],
         "properties": {
           "startDate": {
             "description": "Date Veteran started treatment.",
-            "type": "string",
+            "type": ["null", "string"],
             "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
             "example": "2018-03-02"
           },

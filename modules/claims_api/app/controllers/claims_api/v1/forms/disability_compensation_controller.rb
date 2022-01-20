@@ -512,7 +512,11 @@ module ClaimsApi
           end.min
 
           treatments.each do |treatment|
-            next if Date.parse(treatment['startDate']) > earliest_begin_date
+            treatment_start_date = treatment['startDate']
+
+            # 'treatment.startDate' is not required, but if it's provided it needs to be valid
+            next if treatment_start_date.blank?
+            next if Date.parse(treatment_start_date) > earliest_begin_date
 
             raise ::Common::Exceptions::InvalidFieldValue.new('treatments.startDate', treatment['startDate'])
           end

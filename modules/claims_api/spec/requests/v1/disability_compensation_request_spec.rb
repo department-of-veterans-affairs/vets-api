@@ -90,6 +90,54 @@ RSpec.describe 'Disability Claims ', type: :request do
             end
           end
         end
+
+        context "when 'treatment.startDate' is included but empty" do
+          let(:treatment_start_date) { '' }
+
+          it 'returns a 422' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['treatments'] = treatments
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(422)
+                end
+              end
+            end
+          end
+        end
+
+        context "when 'treatment.startDate' is not included" do
+          let(:treatments) do
+            [
+              {
+                center: {
+                  name: 'Some Treatment Center',
+                  country: 'United States of America'
+                },
+                treatedDisabilityNames: [
+                  'PTSD (post traumatic stress disorder)'
+                ]
+              }
+            ]
+          end
+
+          it 'returns a 200' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['treatments'] = treatments
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(200)
+                end
+              end
+            end
+          end
+        end
       end
 
       describe "'treatment.endDate' validations" do

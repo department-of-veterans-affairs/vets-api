@@ -496,7 +496,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8748043d-c60e-46be-a27b-ab68ccbabd47",
+                    "id": "d788836f-4d47-4ee6-bcd3-875f13d0b8a1",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -545,11 +545,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "170fbcae-7f03-4f62-abfa-c114c552c867",
+                          "id": "767ffe1f-6f62-449c-83e4-f62ce00da0a0",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-12-13T19:04:02.658Z"
+                          "uploaded_at": "2022-01-18T22:54:18.687Z"
                         }
                       ]
                     }
@@ -1793,6 +1793,11 @@
                                 "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                 "example": "2018-03-02"
                               },
+                              "serviceRelevance": {
+                                "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury.",
+                                "type": "string",
+                                "example": "Heavy equipment operator in service."
+                              },
                               "secondaryDisabilities": {
                                 "description": "Identifies the Secondary Service Disability information of the Veteran.",
                                 "type": "array",
@@ -1821,9 +1826,9 @@
                                       "example": "SECONDARY"
                                     },
                                     "serviceRelevance": {
-                                      "description": "How the veteran got the disability.",
+                                      "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury.",
                                       "type": "string",
-                                      "example": "Caused by a service-connected disability."
+                                      "example": "Heavy equipment operator in service."
                                     },
                                     "specialIssues": {
                                       "description": "The special issues related to the disability. Note :: Only add special issues that you are certain about.  Incorrect special issues can lead to processing delays or denials.  [See special issue descriptions.](https://www.knowva.ebenefits.va.gov/system/templates/selfservice/va_ssnew/help/customer/locale/en-US/portal/554400000001018/content/554400000179710/Appendix-E-Index-of-Corporate-Flashes-and-Special-Issues?query=special%20issues#2b)",
@@ -2056,14 +2061,16 @@
                             "type": "object",
                             "additionalProperties": false,
                             "required": [
-                              "startDate",
                               "treatedDisabilityNames",
                               "center"
                             ],
                             "properties": {
                               "startDate": {
                                 "description": "Date Veteran started treatment.",
-                                "type": "string",
+                                "type": [
+                                  "null",
+                                  "string"
+                                ],
                                 "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                 "example": "2018-03-02"
                               },
@@ -2436,7 +2443,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1bd55afe-9255-4a80-93f5-a15c2d7b335b",
+                    "id": "8942218e-aae6-44d6-8385-5305a76fc6e8",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2454,13 +2461,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-12-13T19:04:03.177Z",
+                      "updated_at": "2022-01-18T22:54:19.296Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "1bd55afe-9255-4a80-93f5-a15c2d7b335b",
+                      "token": "8942218e-aae6-44d6-8385-5305a76fc6e8",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3654,6 +3661,11 @@
                                   "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                   "example": "2018-03-02"
                                 },
+                                "serviceRelevance": {
+                                  "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury.",
+                                  "type": "string",
+                                  "example": "Heavy equipment operator in service."
+                                },
                                 "secondaryDisabilities": {
                                   "description": "Identifies the Secondary Service Disability information of the Veteran.",
                                   "type": "array",
@@ -3682,9 +3694,9 @@
                                         "example": "SECONDARY"
                                       },
                                       "serviceRelevance": {
-                                        "description": "How the veteran got the disability.",
+                                        "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury.",
                                         "type": "string",
-                                        "example": "Caused by a service-connected disability."
+                                        "example": "Heavy equipment operator in service."
                                       },
                                       "specialIssues": {
                                         "description": "The special issues related to the disability. Note :: Only add special issues that you are certain about.  Incorrect special issues can lead to processing delays or denials.  [See special issue descriptions.](https://www.knowva.ebenefits.va.gov/system/templates/selfservice/va_ssnew/help/customer/locale/en-US/portal/554400000001018/content/554400000179710/Appendix-E-Index-of-Corporate-Flashes-and-Special-Issues?query=special%20issues#2b)",
@@ -3917,14 +3929,16 @@
                               "type": "object",
                               "additionalProperties": false,
                               "required": [
-                                "startDate",
                                 "treatedDisabilityNames",
                                 "center"
                               ],
                               "properties": {
                                 "startDate": {
                                   "description": "Date Veteran started treatment.",
-                                  "type": "string",
+                                  "type": [
+                                    "null",
+                                    "string"
+                                  ],
                                   "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                   "example": "2018-03-02"
                                 },
@@ -4310,7 +4324,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8105752f-5fc1-4dc5-a8e8-c1a8bde62c52",
+                    "id": "a9a5c43e-0e66-433b-a387-9a616dee7e7a",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4328,13 +4342,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-12-13T19:04:03.661Z",
+                      "updated_at": "2022-01-18T22:54:19.741Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "8105752f-5fc1-4dc5-a8e8-c1a8bde62c52",
+                      "token": "a9a5c43e-0e66-433b-a387-9a616dee7e7a",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5924,6 +5938,11 @@
                                   "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                   "example": "2018-03-02"
                                 },
+                                "serviceRelevance": {
+                                  "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury.",
+                                  "type": "string",
+                                  "example": "Heavy equipment operator in service."
+                                },
                                 "secondaryDisabilities": {
                                   "description": "Identifies the Secondary Service Disability information of the Veteran.",
                                   "type": "array",
@@ -5952,9 +5971,9 @@
                                         "example": "SECONDARY"
                                       },
                                       "serviceRelevance": {
-                                        "description": "How the veteran got the disability.",
+                                        "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury.",
                                         "type": "string",
-                                        "example": "Caused by a service-connected disability."
+                                        "example": "Heavy equipment operator in service."
                                       },
                                       "specialIssues": {
                                         "description": "The special issues related to the disability. Note :: Only add special issues that you are certain about.  Incorrect special issues can lead to processing delays or denials.  [See special issue descriptions.](https://www.knowva.ebenefits.va.gov/system/templates/selfservice/va_ssnew/help/customer/locale/en-US/portal/554400000001018/content/554400000179710/Appendix-E-Index-of-Corporate-Flashes-and-Special-Issues?query=special%20issues#2b)",
@@ -6187,14 +6206,16 @@
                               "type": "object",
                               "additionalProperties": false,
                               "required": [
-                                "startDate",
                                 "treatedDisabilityNames",
                                 "center"
                               ],
                               "properties": {
                                 "startDate": {
                                   "description": "Date Veteran started treatment.",
-                                  "type": "string",
+                                  "type": [
+                                    "null",
+                                    "string"
+                                  ],
                                   "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                   "example": "2018-03-02"
                                 },
@@ -6580,7 +6601,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "74cd344b-ed6d-43b3-98fa-1ee256cfb0af",
+                    "id": "0d2347c2-ae73-410b-95d9-7cb0ba48ce73",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6594,7 +6615,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-12-13T19:04:04.594Z",
+                      "updated_at": "2022-01-18T22:54:20.646Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6603,7 +6624,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "35cb5af1-b550-466b-853f-205351883e82",
+                          "id": "a5546a71-c399-473f-815b-81c8edf34793",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8561,11 +8582,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1c0b4d99-f7ff-4dad-9ee8-3178ad8317b5",
+                    "id": "b84d9459-96d9-440c-9626-ce2bcc1e863f",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2021-12-13",
+                      "date_request_accepted": "2022-01-18",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9274,11 +9295,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "feb52031-cddc-4d72-965d-74d63b14314a",
+                    "id": "8037dc0d-fecf-488c-b9e6-105797ad94d2",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-12-13",
+                      "date_request_accepted": "2022-01-18",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9599,11 +9620,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b55e0b71-f90e-4c5f-8bf1-c93d4526ff3d",
+                    "id": "5ed40b41-9615-4634-8b2c-64f5e89b72c6",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-12-13",
+                      "date_request_accepted": "2022-01-18",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"

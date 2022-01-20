@@ -258,6 +258,9 @@ module ClaimsApi
     end
 
     def transform_treatment_start_date(treatment:)
+      # 'startDate' is not a required field in EVSS
+      return treatment if treatment['startDate'].blank?
+
       start_date = treatment['startDate']
       treatment['startDate'] = breakout_date_components(date: start_date)
       treatment
