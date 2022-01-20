@@ -348,6 +348,10 @@ features:
     actor_type: user
     description: Enables SchemaForm-based contact info edit forms on the VA.gov Veteran profile page
     enable_in_development: true
+  profile_show_address_change_modal:
+    actor_type: user
+    description: Shows a modal that allows addresses to be duplicated from home to mailing and vice versa
+    enable_in_development: true
   profile_show_receive_text_notifications:
     actor_type: user
     description: https://www.va.gov/profile/ show Receive Text Notifications
