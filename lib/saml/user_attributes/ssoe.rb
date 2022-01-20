@@ -233,11 +233,10 @@ module SAML
 
       def multiple_id_validations
         # EDIPI, ICN, and CORP ID all trigger errors if multiple unique IDs are found
-        check_edipi_mismatch
         check_mhv_icn_mismatch
-        check_corp_id_mismatch
-        check_mhv_ien_mismatch
-
+        check_id_mismatch(mvi_ids[:vba_corp_ids], :multiple_corp_ids)
+        check_id_mismatch(edipi_ids[:edipis], :multiple_edipis)
+        check_id_mismatch(mhv_iens, :multiple_mhv_ids, mhv_inbound_outbound: mhv_inbound_outbound)
         # SEC & BIRLS multiple IDs are more common, only log a warning
         if sec_id_mismatch?
           log_message_to_sentry(
@@ -284,21 +283,6 @@ module SAML
         @attributes[key] == 'NOT_FOUND' ? nil : @attributes[key]
       end
 
-      def check_mhv_ien_mismatch
-        if mhv_iens.size > 1
-          # only a warning if user is MHV outbound-redirect
-          if mhv_inbound_outbound
-            log_message_to_sentry(
-              'User attributes contain multiple distinct MHV ID values.', 'warn', { mhv_iens: mhv_iens }
-            )
-          else
-            error_data = SAML::UserAttributeError::ERRORS[:multiple_mhv_ids].dup
-            error_data[:message] += JSON.generate({ mhv_iens: mhv_iens, icn: mhv_icn })
-            raise SAML::UserAttributeError, error_data
-          end
-        end
-      end
-
       def mhv_iens
         mhv_iens = mvi_ids[:mhv_iens] || []
         mhv_iens.append(safe_attr('va_eauth_mhvuuid')).reject(&:nil?).uniq
@@ -317,29 +301,28 @@ module SAML
         end
       end
 
-      def check_edipi_mismatch
-        edipis = edipi_ids[:edipis]
-        return if edipis.blank?
-
-        if edipis.reject(&:nil?).uniq.size > 1
-          error_data = SAML::UserAttributeError::ERRORS[:multiple_edipis].dup
-          error_data[:message] += JSON.generate({ edipis: edipis, icn: mhv_icn })
-          raise SAML::UserAttributeError, error_data
-        end
-      end
-
       def birls_id_mismatch?
         attribute_has_multiple_values?('va_eauth_birlsfilenumber')
       end
 
       def check_corp_id_mismatch
-        corp_ids = mvi_ids[:vba_corp_ids]
-        return if corp_ids.blank?
+        check_id_mismatch(mvi_ids[:vba_corp_ids], :multiple_corp_ids)
+      end
 
-        if corp_ids.reject(&:nil?).uniq.size > 1
-          error_data = SAML::UserAttributeError::ERRORS[:multiple_corp_ids].dup
-          error_data[:message] += JSON.generate({ corp_ids: corp_ids, icn: mhv_icn })
-          raise SAML::UserAttributeError, error_data
+      def check_id_mismatch(ids, multiple_ids_error_type, mhv_inbound_outbound: false)
+        return if ids.blank?
+
+        if ids.reject(&:nil?).uniq.size > 1
+          if mhv_inbound_outbound
+            log_message_to_sentry(
+              'User attributes contain multiple distinct MHV ID values.', 'warn', { mhv_iens: ids }
+            )
+          else
+            mismatched_ids_error = SAML::UserAttributeError::ERRORS[multiple_ids_error_type]
+            error_data = { mismatched_ids: ids, icn: mhv_icn }
+            Rails.logger.warn("[SAML::UserAttributes::SSOe] #{mismatched_ids_error[:message]}, #{error_data}")
+            raise SAML::UserAttributeError, mismatched_ids_error
+          end
         end
       end
 

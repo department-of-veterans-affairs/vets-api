@@ -816,15 +816,15 @@ RSpec.describe V1::SessionsController, type: :controller do
         let(:expected_error_message) { SAML::UserAttributeError::ERRORS[:multiple_mhv_ids][:message] }
         let(:version) { 'v1' }
         let(:expected_warn_message) do
-          "SessionsController version:#{version} context:{} message:#{expected_error_message}" \
-            '{"mhv_iens":["15001594","999888"],"icn":"1013183292V131165"}'
+          "SessionsController version:#{version} context:{} message:#{expected_error_message}"
         end
 
         before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
         it 'logs a generic user validation error', :aggregate_failures do
           expect(controller).not_to receive(:log_message_to_sentry)
-          expect(Rails.logger).to receive(:warn).with(expected_warn_message)
+          expect(Rails.logger).to receive(:warn).ordered
+          expect(Rails.logger).to receive(:warn).ordered.with(expected_warn_message)
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=101')
 
           expect(response).to have_http_status(:found)

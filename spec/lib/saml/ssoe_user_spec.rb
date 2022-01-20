@@ -581,10 +581,12 @@ RSpec.describe SAML::User do
       context 'with mismatching identifiers' do
         let(:mhv_uuid) { '999888' }
         let(:mhv_ien) { '888777' }
+        let(:mhv_icn) { '123456789V98765431' }
         let(:saml_attributes) do
           build(:ssoe_idme_mhv_loa3,
                 va_eauth_mhvuuid: [mhv_uuid],
-                va_eauth_gcIds: ["#{mhv_ien}^PI^200MHS^USVHA^A"])
+                va_eauth_gcIds: ["#{mhv_ien}^PI^200MHS^USVHA^A"],
+                va_eauth_icn: [mhv_icn])
         end
 
         it 'resolves mhv id from credential provider' do
@@ -594,17 +596,16 @@ RSpec.describe SAML::User do
         end
 
         context 'normal validation flow' do
+          let(:expected_error) { SAML::UserAttributeError::ERRORS[:multiple_mhv_ids] }
+          let(:expected_error_data) { { mismatched_ids: [mhv_ien, mhv_uuid], icn: mhv_icn } }
+          let(:expected_error_message) { expected_error[:message] }
+          let(:expected_log) { "[SAML::UserAttributes::SSOe] #{expected_error_message}, #{expected_error_data}" }
+
           it 'does not validate and throws an error' do
-            SAMLRequestTracker.create(
-              uuid: '1234567890',
-              payload: { skip_dupe: false }
-            )
+            expect(Rails.logger).to receive(:warn).with(expected_log)
             expect { subject.validate! }.to raise_error { |error|
               expect(error).to be_a(SAML::UserAttributeError)
-              expect(error.message).to eq(
-                'User attributes contain multiple distinct MHV ID values: ' \
-                '{"mhv_iens":["888777","999888"],"icn":"1013183292V131165"}'
-              )
+              expect(error.message).to eq(expected_error_message)
             }
           end
         end
@@ -631,21 +632,24 @@ RSpec.describe SAML::User do
                 va_eauth_mhvicn: ['111111111V666666'],
                 va_eauth_icn: ['22222222V888888'])
         end
+        let(:expected_error_message) { 'MHV credential ICN does not match MPI record' }
 
         it 'does not validate' do
           expect { subject.validate! }.to raise_error { |error|
             expect(error).to be_a(SAML::UserAttributeError)
-            expect(error.message).to eq('MHV credential ICN does not match MPI record.')
+            expect(error.message).to eq(expected_error_message)
           }
         end
       end
 
       context 'with multi-value mhvien' do
         let(:gcids) { "#{first_ien}^PI^200MHS^USVHA^A|#{second_ien}^PI^200MHS^USVHA^A" }
+        let(:mhv_icn) { '123456789V98765431' }
         let(:saml_attributes) do
           build(:ssoe_idme_mhv_loa3,
                 va_eauth_mhvuuid: [uuid],
-                va_eauth_gcIds: [gcids])
+                va_eauth_gcIds: [gcids],
+                va_eauth_icn: [mhv_icn])
         end
 
         context 'with matching values' do
@@ -714,15 +718,17 @@ RSpec.describe SAML::User do
           let(:uuid) { '888777' }
           let(:first_ien) { '999888' }
           let(:second_ien) { '888777' }
+          let(:expected_error) { SAML::UserAttributeError::ERRORS[:multiple_mhv_ids] }
+          let(:expected_error_data) { { mismatched_ids: [first_ien, second_ien], icn: mhv_icn } }
+          let(:expected_error_message) { expected_error[:message] }
+          let(:expected_log) { "[SAML::UserAttributes::SSOe] #{expected_error_message}, #{expected_error_data}" }
 
           it 'does not validate' do
+            expect(Rails.logger).to receive(:warn).with(expected_log)
             expect { subject.validate! }
               .to raise_error { |error|
                 expect(error).to be_a(SAML::UserAttributeError)
-                expect(error.message).to eq(
-                  'User attributes contain multiple distinct MHV ID values: ' \
-                  '{"mhv_iens":["999888","888777"],"icn":"1013183292V131165"}'
-                )
+                expect(error.message).to eq(expected_error_message)
               }
           end
         end
@@ -731,15 +737,17 @@ RSpec.describe SAML::User do
           let(:uuid) { 'NOT_FOUND' }
           let(:first_ien) { '999888' }
           let(:second_ien) { '888777' }
+          let(:expected_error) { SAML::UserAttributeError::ERRORS[:multiple_mhv_ids] }
+          let(:expected_error_data) { { mismatched_ids: [first_ien, second_ien], icn: mhv_icn } }
+          let(:expected_error_message) { expected_error[:message] }
+          let(:expected_log) { "[SAML::UserAttributes::SSOe] #{expected_error_message}, #{expected_error_data}" }
 
           it 'does not validate' do
+            expect(Rails.logger).to receive(:warn).with(expected_log)
             expect { subject.validate! }
               .to raise_error { |error|
                 expect(error).to be_a(SAML::UserAttributeError)
-                expect(error.message).to eq(
-                  'User attributes contain multiple distinct MHV ID values: ' \
-                  '{"mhv_iens":["999888","888777"],"icn":"1013183292V131165"}'
-                )
+                expect(error.message).to eq(expected_error_message)
               }
           end
         end
@@ -799,50 +807,63 @@ RSpec.describe SAML::User do
     end
 
     context 'with multi-value corp_id' do
+      let(:mhv_icn) { '123456789V98765431' }
       let(:saml_attributes) do
         build(:ssoe_idme_mhv_loa3,
-              va_eauth_gcIds: [corp_id])
+              va_eauth_gcIds: [corp_id],
+              va_eauth_icn: [mhv_icn])
       end
+      let(:first_corp_id) { '0123456789' }
+      let(:second_corp_id) { '0000000054' }
+      let(:corp_id) { "#{first_corp_id}^PI^200CORP^USVBA^A|#{second_corp_id}^PI^200CORP^USVBA^A" }
 
       context 'with different values' do
-        let(:corp_id) { '0123456789^PI^200CORP^USVBA^A|0000000054^PI^200CORP^USVBA^A' }
+        let(:expected_error) { SAML::UserAttributeError::ERRORS[:multiple_corp_ids] }
+        let(:expected_error_data) { { mismatched_ids: [first_corp_id, second_corp_id], icn: mhv_icn } }
+        let(:expected_error_message) { expected_error[:message] }
+        let(:expected_log) { "[SAML::UserAttributes::SSOe] #{expected_error_message}, #{expected_error_data}" }
 
         it 'does not validate' do
+          expect(Rails.logger).to receive(:warn).with(expected_log)
           expect { subject.validate! }
             .to raise_error { |error|
                   expect(error).to be_a(SAML::UserAttributeError)
-                  expect(error.message).to eq(
-                    'User attributes contain multiple distinct CORP ID values: ' \
-                    '{"corp_ids":["0123456789","0000000054"],"icn":"1013183292V131165"}'
-                  )
+                  expect(error.message).to eq(expected_error_message)
                 }
         end
       end
     end
 
     context 'with multi-value edipi' do
+      let(:mhv_icn) { '123456789V98765431' }
       let(:saml_attributes) do
         build(:ssoe_idme_mhv_loa3,
-              va_eauth_gcIds: [edipi])
+              va_eauth_gcIds: [edipi],
+              va_eauth_icn: [mhv_icn])
       end
+      let(:edipi) { "#{first_edipi}^NI^200DOD^USDOD^A|#{second_edipi}^NI^200DOD^USDOD^A|" }
 
       context 'with different values' do
-        let(:edipi) { '0123456789^NI^200DOD^USDOD^A|0000000054^NI^200DOD^USDOD^A|' }
+        let(:first_edipi) { '0123456789' }
+        let(:second_edipi) { '0000000054' }
+        let(:expected_error) { SAML::UserAttributeError::ERRORS[:multiple_edipis] }
+        let(:expected_error_data) { { mismatched_ids: [first_edipi, second_edipi], icn: mhv_icn } }
+        let(:expected_error_message) { expected_error[:message] }
+        let(:expected_log) { "[SAML::UserAttributes::SSOe] #{expected_error_message}, #{expected_error_data}" }
 
         it 'does not validate' do
+          expect(Rails.logger).to receive(:warn).with(expected_log)
           expect { subject.validate! }
             .to raise_error { |error|
                   expect(error).to be_a(SAML::UserAttributeError)
-                  expect(error.message).to eq(
-                    'User attributes contain multiple distinct EDIPI values: ' \
-                    '{"edipis":["0123456789","0000000054"],"icn":"1013183292V131165"}'
-                  )
+                  expect(error.message).to eq('User attributes contain multiple distinct EDIPI values')
                 }
         end
       end
 
       context 'with matching values' do
-        let(:edipi) { '0123456789^NI^200DOD^USDOD^A|0123456789^NI^200DOD^USDOD^A|' }
+        let(:first_edipi) { '0123456789' }
+        let(:second_edipi) { first_edipi }
 
         it 'de-duplicates values' do
           expect(subject.to_hash).to include(

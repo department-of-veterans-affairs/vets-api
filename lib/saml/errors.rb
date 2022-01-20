@@ -15,19 +15,19 @@ module SAML
     ERRORS = {
       multiple_mhv_ids: { code: MULTIPLE_MHV_IDS_CODE,
                           tag: :multiple_mhv_ids,
-                          message: 'User attributes contain multiple distinct MHV ID values: ' }.freeze,
+                          message: 'User attributes contain multiple distinct MHV ID values' }.freeze,
       multiple_edipis: { code: MULTIPLE_EDIPIS_CODE,
                          tag: :multiple_edipis,
-                         message: 'User attributes contain multiple distinct EDIPI values: ' }.freeze,
+                         message: 'User attributes contain multiple distinct EDIPI values' }.freeze,
       mhv_icn_mismatch: { code: MHV_ICN_MISMATCH_CODE,
                           tag: :mhv_icn_mismatch,
-                          message: 'MHV credential ICN does not match MPI record.' }.freeze,
+                          message: 'MHV credential ICN does not match MPI record' }.freeze,
       uuid_missing: { code: UUID_MISSING_CODE,
                       tag: :uuid_missing,
                       message: 'User attributes is missing an ID.me and Login.gov UUID' }.freeze,
       multiple_corp_ids: { code: MULTPLE_CORP_IDS_CODE,
                            tag: :multiple_corp_ids,
-                           message: 'User attributes contain multiple distinct CORP ID values: ' }.freeze
+                           message: 'User attributes contain multiple distinct CORP ID values' }.freeze
     }.freeze
 
     attr_reader :identifier
