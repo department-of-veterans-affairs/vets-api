@@ -27,12 +27,13 @@ module LGY
       elsif get_determination.body['status'] == 'NOT_ELIGIBLE'
         { status: 'ineligible' }
       elsif get_determination.body['status'] == 'PENDING' && get_application.status == 404
-        # need confirmation from LGY on this
+        # Kelli said we'll never having a pending status w/o an application, but LGY sqa data is getting hand crafted
         { status: 'pending' }
       elsif get_determination.body['status'] == 'PENDING' && get_application.body['status'] == 'SUBMITTED'
-        { status: 'pending', application_create_date: get_application.body['create_date'].to_s }
+        # SUBMITTED & RECEIVED ARE COMBINED ON LGY SIDE
+        { status: 'pending', application_create_date: get_application.body['create_date'] }
       elsif get_determination.body['status'] == 'PENDING' && get_application.body['status'] == 'RETURNED'
-        { status: 'pending-upload', application_create_date: get_application.body['create_date'].to_s }
+        { status: 'pending-upload', application_create_date: get_application.body['create_date'] }
       end
     end
 

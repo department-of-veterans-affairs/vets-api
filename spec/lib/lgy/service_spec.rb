@@ -75,7 +75,7 @@ describe LGY::Service do
       end
     end
 
-    context 'when get_determination is Eligible and get_application is a 200' do
+    context 'when get_determination is ELIGIBLE and get_application is a 200' do
       it 'returns available' do
         VCR.use_cassette 'lgy/determination_eligible' do
           VCR.use_cassette 'lgy/application_200_status_submitted' do
@@ -114,7 +114,7 @@ describe LGY::Service do
         after { VCR.eject_cassette 'lgy/application_200_status_submitted' }
 
         it 'returns pending and the application createDate' do
-          expect(subject.coe_status).to eq status: 'pending', application_create_date: '1642619386000'
+          expect(subject.coe_status).to eq status: 'pending', application_create_date: 1_642_619_386_000
         end
       end
 
@@ -124,7 +124,7 @@ describe LGY::Service do
         after { VCR.eject_cassette 'lgy/application_200_status_returned' }
 
         it 'returns pending-upload and the application createDate' do
-          expect(subject.coe_status).to eq status: 'pending-upload', application_create_date: '1642619386000'
+          expect(subject.coe_status).to eq status: 'pending-upload', application_create_date: 1_642_619_386_000
         end
       end
     end
