@@ -33,7 +33,7 @@ describe 'LGY API' do
             VCR.use_cassette 'lgy/application_not_found' do
               get '/v0/coe/status'
               json_body = JSON.parse(response.body)
-              expect(json_body['data']['attributes']).to eq 'status' => 'eligible'
+              expect(json_body['data']['attributes']).to include 'status' => 'eligible'
             end
           end
         end

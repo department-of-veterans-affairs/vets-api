@@ -19,20 +19,20 @@ module LGY
 
     def coe_status
       if get_determination.body['status'] == 'ELIGIBLE' && get_application.status == 404
-        'eligible'
+        { status: 'eligible' }
       elsif get_determination.body['status'] == 'UNABLE_TO_DETERMINE_AUTOMATICALLY' && get_application.status == 404
-        'unable-to-determine-eligibility'
+        { status: 'unable-to-determine-eligibility' }
       elsif get_determination.body['status'] == 'ELIGIBLE' && get_application.status == 200
-        'available'
+        { status: 'available' }
       elsif get_determination.body['status'] == 'NOT_ELIGIBLE'
-        'ineligible'
+        { status: 'ineligible' }
       elsif get_determination.body['status'] == 'PENDING' && get_application.status == 404
         # need confirmation from LGY on this
-        'pending'
+        { status: 'pending' }
       elsif get_determination.body['status'] == 'PENDING' && get_application.body['status'] == 'SUBMITTED'
-        'pending'
+        { status: 'pending', application_create_date: get_application.body['create_date'].to_s }
       elsif get_determination.body['status'] == 'PENDING' && get_application.body['status'] == 'RETURNED'
-        'pending-upload'
+        { status: 'pending-upload', application_create_date: get_application.body['create_date'].to_s }
       end
     end
 

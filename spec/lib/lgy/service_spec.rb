@@ -38,6 +38,20 @@ describe LGY::Service do
         end
       end
     end
+
+    context 'when application is 200 and status is RETURNED' do
+      before { VCR.insert_cassette 'lgy/application_200_status_returned' }
+
+      after { VCR.eject_cassette 'lgy/application_200_status_returned' }
+
+      it 'response code is a 200' do
+        expect(subject.get_application.status).to eq 200
+      end
+
+      it 'response body has correct keys' do
+        expect(subject.get_application.body).to have_key 'status'
+      end
+    end
   end
 
   describe '#coe_status' do
@@ -45,7 +59,7 @@ describe LGY::Service do
       it 'returns eligible' do
         VCR.use_cassette 'lgy/determination_eligible' do
           VCR.use_cassette 'lgy/application_not_found' do
-            expect(subject.coe_status).to eq 'eligible'
+            expect(subject.coe_status).to eq status: 'eligible'
           end
         end
       end
@@ -55,7 +69,7 @@ describe LGY::Service do
       it 'returns unable-to-determine-eligibility' do
         VCR.use_cassette 'lgy/determination_unable_to_determine' do
           VCR.use_cassette 'lgy/application_not_found' do
-            expect(subject.coe_status).to eq 'unable-to-determine-eligibility'
+            expect(subject.coe_status).to eq status: 'unable-to-determine-eligibility'
           end
         end
       end
@@ -64,11 +78,9 @@ describe LGY::Service do
     context 'when get_determination is Eligible and get_application is a 200' do
       it 'returns available' do
         VCR.use_cassette 'lgy/determination_eligible' do
-          body = File.read(Rails.root.join('spec', 'fixtures', 'json', 'get_application_200.json'))
-          stub_request(:get, 'https://fake_url.com/eligibility-manager/api/eligibility/application')
-            .with(query: { edipi: user.edipi, icn: user.icn })
-            .to_return(body: body, status: 200, headers: { 'Content-Type' => 'application/json' })
-          expect(subject.coe_status).to eq 'available'
+          VCR.use_cassette 'lgy/application_200_status_submitted' do
+            expect(subject.coe_status).to eq status: 'available'
+          end
         end
       end
     end
@@ -76,17 +88,43 @@ describe LGY::Service do
     context 'when get_determination is NOT_ELIGIBLE' do
       it 'returns ineligible' do
         VCR.use_cassette 'lgy/determination_not_eligible' do
-          expect(subject.coe_status).to eq 'ineligible'
+          expect(subject.coe_status).to eq status: 'ineligible'
         end
       end
     end
 
-    context 'when get_determination is Pending and get_application is a 404' do
-      it 'returns pending' do
-        VCR.use_cassette 'lgy/determination_pending' do
-          VCR.use_cassette 'lgy/application_not_found' do
-            expect(subject.coe_status).to eq 'pending'
-          end
+    context 'when get_determination is Pending' do
+      before { VCR.insert_cassette 'lgy/determination_pending' }
+
+      after { VCR.eject_cassette 'lgy/determination_pending' }
+
+      context 'and get_application is a 404' do
+        before { VCR.insert_cassette 'lgy/application_not_found' }
+
+        after { VCR.eject_cassette 'lgy/application_not_found' }
+
+        it 'returns pending' do
+          expect(subject.coe_status).to eq status: 'pending'
+        end
+      end
+
+      context 'and get_application is 200 w/ status of SUBMITTED' do
+        before { VCR.insert_cassette 'lgy/application_200_status_submitted' }
+
+        after { VCR.eject_cassette 'lgy/application_200_status_submitted' }
+
+        it 'returns pending and the application createDate' do
+          expect(subject.coe_status).to eq status: 'pending', application_create_date: '1642619386000'
+        end
+      end
+
+      context 'and get_application is 200 w/ status of RETURNED' do
+        before { VCR.insert_cassette 'lgy/application_200_status_returned' }
+
+        after { VCR.eject_cassette 'lgy/application_200_status_returned' }
+
+        it 'returns pending-upload and the application createDate' do
+          expect(subject.coe_status).to eq status: 'pending-upload', application_create_date: '1642619386000'
         end
       end
     end
