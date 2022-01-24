@@ -29,7 +29,7 @@ module AppealsApi
     serialize :auth_headers, JsonMarshal::Marshaller
     serialize :form_data, JsonMarshal::Marshaller
     has_kms_key
-    encrypts :auth_headers, :form_data, key: :kms_key, **lockbox_options
+    encrypts :auth_headers, :form_data, key: :kms_key
 
     validate :validate_hearing_type_selection, if: :pii_present?
 

@@ -14,7 +14,7 @@ module CovidVaccine
       serialize :form_data, JsonMarshal::Marshaller
       serialize :raw_form_data, JsonMarshal::Marshaller
       has_kms_key
-      encrypts :form_data, :raw_form_data, key: :kms_key, **lockbox_options
+      encrypts :form_data, :raw_form_data, key: :kms_key
     end
   end
 end

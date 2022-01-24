@@ -24,7 +24,7 @@ module AppealsApi
     serialize :auth_headers, JsonMarshal::Marshaller
     serialize :form_data, JsonMarshal::Marshaller
     has_kms_key
-    encrypts :auth_headers, :form_data, key: :kms_key, **lockbox_options
+    encrypts :auth_headers, :form_data, key: :kms_key
 
     NO_ADDRESS_PROVIDED_SENTENCE = 'USE ADDRESS ON FILE'
     NO_EMAIL_PROVIDED_SENTENCE = 'USE EMAIL ON FILE'

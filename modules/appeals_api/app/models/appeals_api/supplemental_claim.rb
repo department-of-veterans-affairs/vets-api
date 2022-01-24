@@ -24,7 +24,7 @@ module AppealsApi
     serialize :auth_headers, JsonMarshal::Marshaller
     serialize :form_data, JsonMarshal::Marshaller
     has_kms_key
-    encrypts :auth_headers, :form_data, key: :kms_key, **lockbox_options
+    encrypts :auth_headers, :form_data, key: :kms_key
 
     has_many :evidence_submissions, as: :supportable, dependent: :destroy
     has_many :status_updates, as: :statusable, dependent: :destroy

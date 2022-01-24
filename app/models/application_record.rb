@@ -3,10 +3,6 @@
 class ApplicationRecord < ActiveRecord::Base
   self.abstract_class = true
 
-  def self.lockbox_options
-    { previous_versions: [{ padding: true, master_key: Settings.lockbox.master_key }] }
-  end
-
   def self.descendants_using_encryption
     Rails.application.eager_load!
     ApplicationRecord.descendants.select do |model|

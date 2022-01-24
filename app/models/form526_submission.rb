@@ -27,7 +27,7 @@ class Form526Submission < ApplicationRecord
   #   @return [Timestamp] updated at date.
   #
   has_kms_key
-  encrypts :auth_headers_json, :birls_ids_tried, :form_json, key: :kms_key, **lockbox_options
+  encrypts :auth_headers_json, :birls_ids_tried, :form_json, key: :kms_key
 
   belongs_to :saved_claim,
              class_name: 'SavedClaim::DisabilityCompensation',

@@ -3,7 +3,7 @@
 class GibsNotFoundUser < ApplicationRecord
   # :nocov:
   has_kms_key
-  encrypts :ssn, key: :kms_key, **lockbox_options
+  encrypts :ssn, key: :kms_key
 
   validates :edipi, presence: true, uniqueness: true
   validates :first_name, :last_name, :ssn_ciphertext, :dob, presence: true

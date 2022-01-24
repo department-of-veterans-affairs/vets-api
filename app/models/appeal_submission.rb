@@ -6,7 +6,7 @@ class AppealSubmission < ApplicationRecord
   validates :type_of_appeal, inclusion: APPEAL_TYPES
 
   has_kms_key
-  encrypts :upload_metadata, key: :kms_key, **lockbox_options
+  encrypts :upload_metadata, key: :kms_key
 
   has_many :appeal_submission_uploads, dependent: :destroy
 
