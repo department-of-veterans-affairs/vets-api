@@ -5,10 +5,10 @@
 #   # Task goes here
 # end
 
-desc 'Rebuild encrypted-form.json when valid-submission.json changes'
+desc 'Rebuild encrypted-form.json when valid-intake-submission.json changes'
 task rebuild_encrypted_fixture: :environment do
   fixture_dir = CovidResearch::Engine.root.join('spec', 'fixtures', 'files')
-  submission = JSON.parse(File.read(File.join(fixture_dir, 'valid-submission.json')))
+  submission = JSON.parse(File.read(File.join(fixture_dir, 'valid-intake-submission.json')))
   formatter = CovidResearch::RedisFormat.new
   formatter.form_data = JSON.generate(submission)
 

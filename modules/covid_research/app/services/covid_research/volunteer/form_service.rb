@@ -14,7 +14,6 @@ module CovidResearch
       def initialize(schema_name = SCHEMA, worker = GenisisDeliveryJob)
         @worker = worker
         @schema_name = schema_name
-        @schema = dev_schema
       end
 
       def valid!(json)
@@ -51,8 +50,12 @@ module CovidResearch
         @schema ||= JSONSchemer.schema(schema_data)
       end
 
+      # try to get schema locally and then from vets-json-schema.
+      # once `update` schema is in vets-json-schema this will be removed
       def schema_data
-        VetsJsonSchema::SCHEMAS[SCHEMA]
+        dev_schema
+      rescue
+        VetsJsonSchema::SCHEMAS[@schema_name]
       end
 
       class SchemaValidationError < StandardError
@@ -65,8 +68,7 @@ module CovidResearch
 
       # TODO: remove before deploy
       def dev_schema
-        file = File.read("./modules/covid_research/app/services/covid_research/volunteer/temp-#{@schema_name}.json")
-        JSONSchemer.schema(file)
+        File.read("./modules/covid_research/app/services/covid_research/volunteer/temp-#{@schema_name}.json")
       end
     end
   end
