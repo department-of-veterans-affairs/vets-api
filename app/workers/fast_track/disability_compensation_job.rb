@@ -26,9 +26,10 @@ module FastTrack
 
     def perform(form526_submission_id, full_name)
       form526_submission = Form526Submission.find(form526_submission_id)
-      client = Lighthouse::VeteransHealth::Client.new(get_icn(form526_submission))
 
       begin
+        client = Lighthouse::VeteransHealth::Client.new(get_icn(form526_submission))
+
         return if bp_readings(client).blank?
 
         with_tracking(self.class.name, form526_submission.saved_claim_id, form526_submission_id) do
@@ -73,10 +74,13 @@ module FastTrack
     end
 
     def account(form526_submission)
-      user_uuid = form526_submission.user_uuid
-      @account ||= Account.where(idme_uuid: user_uuid)
-                          .or(Account.where(logingov_uuid: user_uuid))
-                          .or(Account.where(edipi: form526_submission.auth_headers['va_eauthdodedipnid'])).first!
+      user_uuid = form526_submission.user_uuid.presence
+      edipi = form526_submission.auth_headers['va_eauth_dodedipnid'].presence
+      # rubocop:disable Lint/UselessAssignment
+      account = Account.where(idme_uuid: user_uuid).first if user_uuid
+      account ||= Account.where(logingov_uuid: user_uuid).first if user_uuid
+      account ||= Account.where(edipi: edipi).first if edipi
+      # rubocop:enable Lint/UselessAssignment
     end
 
     def upload_pdf_and_attach_special_issue(form526_submission, pdf)

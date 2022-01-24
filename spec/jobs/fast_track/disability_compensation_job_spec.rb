@@ -115,13 +115,45 @@ RSpec.describe FastTrack::DisabilityCompensationJob, type: :worker do
       end
     end
 
+    context 'when the user uuid is not associated with an Account AND the edipi auth header is blank' do
+      let(:submission_without_account_or_edpid) do
+        create(:form526_submission, :with_uploads,
+               user_uuid: 'nonsense',
+               auth_headers_json: auth_headers.delete('va_eauth_dodedipnid').to_json,
+               saved_claim_id: saved_claim.id,
+               submitted_claim_id: '600130094')
+      end
+
+      it 'raises an error' do
+        expect do
+          subject.new.perform(submission_without_account_or_edpid.id, user_full_name)
+        end.to raise_error NoMethodError
+      end
+    end
+
+    context 'when the user uuid is not associated with an Account AND the edipi auth header is present' do
+      let(:submission_without_account) do
+        create(:form526_submission, :with_uploads,
+               user_uuid: 'inconceivable',
+               auth_headers_json: auth_headers.to_json,
+               saved_claim_id: saved_claim.id,
+               submitted_claim_id: '600130094')
+      end
+
+      it 'finishes successfully' do
+        expect do
+          subject.new.perform(submission_without_account.id, user_full_name)
+        end.not_to raise_error
+      end
+    end
+
     context 'when an account for the user is NOT found' do
       before do
         allow(Account).to receive(:where).and_return Account.none
       end
 
       it 'raises ActiveRecord::RecordNotFound exception' do
-        expect { subject.new.perform(submission.id, user_full_name) }.to raise_error(ActiveRecord::RecordNotFound)
+        expect { subject.new.perform(submission.id, user_full_name) }.to raise_error(NoMethodError)
       end
     end
 
