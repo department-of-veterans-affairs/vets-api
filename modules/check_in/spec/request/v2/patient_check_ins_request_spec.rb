@@ -3,14 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe 'V2::PatientCheckIns', type: :request do
-  let(:id) { Faker::Internet.uuid }
-  let(:check_in) { CheckIn::V2::Session.build(data: { uuid: id }, jwt: nil) }
+  let(:id) { '5bcd636c-d4d3-4349-9058-03b2f6b38ced' }
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
-    allow(Flipper).to receive(:enabled?)
-      .with('check_in_experience_enabled').and_return(true)
+    allow(Flipper).to receive(:enabled?).with('check_in_experience_enabled').and_return(true)
 
     Rails.cache.clear
   end
@@ -38,7 +36,122 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
       end
     end
 
-    context 'when JWT token and Redis entries are present' do
+    context 'when the session is authorized' do
+      let(:next_of_kin1) do
+        {
+          'name' => 'Joe',
+          'workPhone' => '564-438-5739',
+          'relationship' => 'Brother',
+          'phone' => '738-573-2849',
+          'address' => {
+            'street1' => '432 Horner Street',
+            'street2' => 'Apt 53',
+            'street3' => '',
+            'city' => 'Akron',
+            'county' => 'OH',
+            'state' => 'OH',
+            'zip' => '44308',
+            'zip4' => '4252',
+            'country' => 'USA'
+          }
+        }
+      end
+      let(:emergency_contact) do
+        {
+          'name' => 'Michael',
+          'relationship' => 'Spouse',
+          'phone' => '415-322-9968',
+          'workPhone' => '630-835-1623',
+          'address' => {
+            'street1' => '3008 Millbrook Road',
+            'street2' => '',
+            'street3' => '',
+            'city' => 'Wheeling',
+            'county' => 'IL',
+            'state' => 'IL',
+            'zip' => '60090',
+            'zip4' => '7241',
+            'country' => 'USA'
+          }
+        }
+      end
+      let(:mailing_address) do
+        {
+          'street1' => '1025 Meadowbrook Mall Road',
+          'street2' => '',
+          'street3' => '',
+          'city' => 'Beverly Hills',
+          'county' => 'Los Angeles',
+          'state' => 'CA',
+          'zip' => '60090',
+          'zip4' => nil,
+          'country' => 'USA'
+        }
+      end
+      let(:home_address) do
+        {
+          'street1' => '3899 Southside Lane',
+          'street2' => '',
+          'street3' => '',
+          'city' => 'Los Angeles',
+          'county' => 'Los Angeles',
+          'state' => 'CA',
+          'zip' => '90017',
+          'zip4' => nil,
+          'country' => 'USA'
+        }
+      end
+      let(:home_phone) { '323-743-2569' }
+      let(:mobile_phone) { '323-896-8512' }
+      let(:work_phone) { '909-992-3911' }
+      let(:email_address) { 'utilside@goggleappsmail.com' }
+      let(:demographics) do
+        {
+          'nextOfKin1' => next_of_kin1,
+          'emergencyContact' => emergency_contact,
+          'mailingAddress' => mailing_address,
+          'homeAddress' => home_address,
+          'homePhone' => home_phone,
+          'mobilePhone' => mobile_phone,
+          'workPhone' => work_phone,
+          'emailAddress' => email_address
+        }
+      end
+      let(:appointment1) do
+        {
+          'appointmentIEN' => '460',
+          'clinicName' => 'Family Wellness',
+          'checkedInTime' => '',
+          'startTime' => '2021-12-23T08:30:00',
+          'clinicPhoneNumber' => '555-555-5555',
+          'clinicFriendlyName' => 'Health Wellness',
+          'facility' => 'VEHU DIVISION',
+          'checkInWindowStart' => '2021-12-23T08:00:00.000-05:00',
+          'checkInWindowEnd' => '2021-12-23T08:40:00.000-05:00',
+          'eligibility' => 'ELIGIBLE',
+          'status' => ''
+        }
+      end
+      let(:patient_demographic_status) do
+        {
+          'demographicsNeedsUpdate' => true,
+          'demographicsConfirmedAt' => nil,
+          'nextOfKinNeedsUpdate' => false,
+          'nextOfKinConfirmedAt' => '2021-12-10T05:15:00.000-05:00',
+          'emergencyContactNeedsUpdate' => true,
+          'emergencyContactConfirmedAt' => '2021-12-10T05:30:00.000-05:00'
+        }
+      end
+      let(:resp) do
+        {
+          'id' => id,
+          'payload' => {
+            'demographics' => demographics,
+            'appointments' => [appointment1],
+            'patientDemographicsStatus' => patient_demographic_status
+          }
+        }
+      end
       let(:session_params) do
         {
           params: {
@@ -50,24 +163,22 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
           }
         }
       end
-      let(:key) { "check_in_lorota_v2_#{id}_read.full" }
-      let(:resp) do
-        {
-          'id' => id,
-          'payload' => {
-            'appointments' => []
-          }
-        }
-      end
 
       before do
-        allow_any_instance_of(CheckIn::V2::Session).to receive(:authorized?).and_return(true)
-        allow_any_instance_of(::V2::Lorota::Service).to receive(:check_in_data).and_return(resp)
+        allow(Flipper).to receive(:enabled?).with(:check_in_experience_emergency_contact_enabled).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_demographics_confirmation_enabled).and_return(true)
       end
 
-      it 'returns a success response' do
-        get "/check_in/v2/patient_check_ins/#{id}"
+      it 'returns valid response' do
+        VCR.use_cassette 'check_in/lorota/token/token_200' do
+          post '/check_in/v2/sessions', session_params
+          expect(response.status).to eq(200)
+        end
 
+        VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
+          get "/check_in/v2/patient_check_ins/#{id}"
+        end
         expect(response.status).to eq(200)
         expect(JSON.parse(response.body)).to eq(resp)
       end
@@ -75,39 +186,62 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
   end
 
   describe 'POST `create`' do
-    before do
-      allow_any_instance_of(::V2::Chip::Service).to receive(:check_in).and_return('jwt-token-abc-123')
-      allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
-      allow_any_instance_of(::V2::Chip::Service).to receive(:create_check_in).and_return(resp)
-      allow_any_instance_of(CheckIn::V2::Session).to receive(:redis_session_prefix).and_return('check_in_lorota_v2')
-      allow_any_instance_of(CheckIn::V2::Session).to receive(:authorized?).and_return(true)
-      allow_any_instance_of(CheckIn::V2::Session).to receive(:jwt).and_return('jwt-123-1bc')
+    let(:post_params) { { patient_check_ins: { uuid: id, appointment_ien: '123-abc' } } }
 
-      Rails.cache.write(key, 'jwt-123-1bc', namespace: 'check-in-lorota-v2-cache')
-    end
-
-    let(:post_params) { { params: { patient_check_ins: { uuid: id, appointment_ien: '123-abc' } } } }
-    let(:session_params) do
-      {
-        params: {
-          session: {
-            uuid: id,
-            last4: '5555',
-            last_name: 'Johnson'
+    context 'when session is authorized' do
+      let(:session_params) do
+        {
+          params: {
+            session: {
+              uuid: id,
+              last4: '5555',
+              last_name: 'Johnson'
+            }
           }
         }
-      }
-    end
-    let(:resp) do
-      { 'data' => 'Successful checkin', 'status' => 200 }
-    end
-    let(:key) { "check_in_lorota_v2_#{id}_read.full" }
+      end
+      let(:body) { { 'data' => 'Checkin successful', 'status' => 200 } }
+      let(:success_resp) { Faraday::Response.new(body: body, status: 200) }
 
-    it 'returns a success hash' do
-      post '/check_in/v2/sessions', session_params
-      post '/check_in/v2/patient_check_ins', post_params
+      before do
+        allow(Flipper).to receive(:enabled?).with(:check_in_experience_emergency_contact_enabled).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_demographics_confirmation_enabled).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_chip_service_nok_confirmation_update_enabled).and_return(true)
+      end
 
-      expect(JSON.parse(response.body)).to eq(resp)
+      it 'returns a successful response' do
+        VCR.use_cassette 'check_in/lorota/token/token_200' do
+          post '/check_in/v2/sessions', session_params
+          expect(response.status).to eq(200)
+        end
+
+        VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
+          get "/check_in/v2/patient_check_ins/#{id}"
+          expect(response.status).to eq(200)
+        end
+
+        VCR.use_cassette('check_in/chip/check_in/check_in_200', match_requests_on: [:host]) do
+          VCR.use_cassette 'check_in/chip/token/token_200' do
+            post '/check_in/v2/patient_check_ins', params: post_params
+          end
+        end
+        expect(response.status).to eq(success_resp.status)
+        expect(response.body).to eq(success_resp.body.to_json)
+      end
+    end
+
+    context 'when session is not authorized' do
+      let(:body) { { 'permissions' => 'read.none', 'status' => 'success', 'uuid' => id } }
+      let(:unauth_response) { Faraday::Response.new(body: body, status: 200) }
+
+      it 'returns unauthorized response' do
+        post '/check_in/v2/patient_check_ins', params: post_params
+
+        expect(response.body).to eq(unauth_response.body.to_json)
+        expect(response.status).to eq(unauth_response.status)
+      end
     end
   end
 end
