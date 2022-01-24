@@ -39,6 +39,10 @@ module ClaimsApi
 
         add_response = @current_user.mpi_add_person
         raise add_response.error unless add_response.ok?
+      rescue ArgumentError
+        raise ::Common::Exceptions::UnprocessableEntity.new(
+          detail: 'Required values are missing. Please double check the accuracy of any request header values.'
+        )
       end
 
       def source_name

@@ -101,14 +101,16 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
         context 'when Veteran has participant_id' do
           context 'when Veteran is missing a birls_id' do
-            before do
-              stub_mpi(build(:mvi_profile, birls_id: nil))
-            end
+            context 'when birls_id isn`t required' do
+              before do
+                stub_mpi(build(:mvi_profile, birls_id: nil))
+              end
 
-            it 'returns an unprocessible entity status' do
-              with_okta_user(scopes) do |auth_header|
-                post path, params: data, headers: headers.merge(auth_header)
-                expect(response.status).to eq(200)
+              it 'returns a 200' do
+                with_okta_user(scopes) do |auth_header|
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(200)
+                end
               end
             end
           end
@@ -138,6 +140,30 @@ RSpec.describe 'Power of Attorney ', type: :request do
         with_okta_user(scopes) do |auth_header|
           post path, params: data, headers: headers.merge(auth_header)
           expect(response.status).to eq(400)
+        end
+      end
+    end
+
+    context 'validate_veteran_identifiers' do
+      context 'when Veteran identifiers are missing in MPI lookups' do
+        before do
+          stub_mpi(build(:mvi_profile, birth_date: nil, participant_id: nil))
+        end
+
+        it 'returns an unprocessible entity status' do
+          allow(MPI::Messages::FindProfileMessageFields).to receive(:new).and_return(
+            OpenStruct.new({
+                             given_names: ['abraham'],
+                             last_name: 'lincoln',
+                             birth_date: nil,
+                             ssn: '796111863',
+                             missing_values: [:birth_date]
+                           })
+          )
+          with_okta_user(scopes) do |auth_header|
+            post path, params: data, headers: headers.merge(auth_header)
+            expect(response.status).to eq(422)
+          end
         end
       end
     end
