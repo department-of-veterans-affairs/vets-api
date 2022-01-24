@@ -588,6 +588,7 @@ module ClaimsApi
                                   'Rating Decision Review - Level 1',
                                   'Rating Decision Review - Level 2',
                                   'Ready for Exam',
+                                  'RRD',
                                   'Same Station Review',
                                   'SHAD',
                                   'Sarcoidosis',

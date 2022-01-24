@@ -496,7 +496,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d788836f-4d47-4ee6-bcd3-875f13d0b8a1",
+                    "id": "f2317ae5-05b0-4549-b8e9-0e40f1fb02b7",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -545,11 +545,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "767ffe1f-6f62-449c-83e4-f62ce00da0a0",
+                          "id": "dc890974-7c3c-4f05-b53a-21d2513f0077",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2022-01-18T22:54:18.687Z"
+                          "uploaded_at": "2022-01-19T18:31:14.526Z"
                         }
                       ]
                     }
@@ -1712,6 +1712,7 @@
                                     "Rating Decision Review - Level 1",
                                     "Rating Decision Review - Level 2",
                                     "Ready for Exam",
+                                    "RRD",
                                     "Same Station Review",
                                     "SHAD",
                                     "Sarcoidosis",
@@ -2443,7 +2444,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8942218e-aae6-44d6-8385-5305a76fc6e8",
+                    "id": "3c827f50-61e2-4ee2-8984-eeec577e10da",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2461,13 +2462,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-01-18T22:54:19.296Z",
+                      "updated_at": "2022-01-19T18:31:15.110Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "8942218e-aae6-44d6-8385-5305a76fc6e8",
+                      "token": "3c827f50-61e2-4ee2-8984-eeec577e10da",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3580,6 +3581,7 @@
                                       "Rating Decision Review - Level 1",
                                       "Rating Decision Review - Level 2",
                                       "Ready for Exam",
+                                      "RRD",
                                       "Same Station Review",
                                       "SHAD",
                                       "Sarcoidosis",
@@ -4324,7 +4326,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a9a5c43e-0e66-433b-a387-9a616dee7e7a",
+                    "id": "6d3fc78d-e201-47cd-b7ee-ec6e9bc6ad68",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4342,13 +4344,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-01-18T22:54:19.741Z",
+                      "updated_at": "2022-01-19T18:31:15.511Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "a9a5c43e-0e66-433b-a387-9a616dee7e7a",
+                      "token": "6d3fc78d-e201-47cd-b7ee-ec6e9bc6ad68",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5857,6 +5859,7 @@
                                       "Rating Decision Review - Level 1",
                                       "Rating Decision Review - Level 2",
                                       "Ready for Exam",
+                                      "RRD",
                                       "Same Station Review",
                                       "SHAD",
                                       "Sarcoidosis",
@@ -6601,7 +6604,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0d2347c2-ae73-410b-95d9-7cb0ba48ce73",
+                    "id": "f1a6f42b-b1d4-4dee-b87b-b6c0f8ab5bc7",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6615,7 +6618,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-01-18T22:54:20.646Z",
+                      "updated_at": "2022-01-19T18:31:16.325Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6624,7 +6627,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "a5546a71-c399-473f-815b-81c8edf34793",
+                          "id": "5182ea5d-a218-4a5a-b7a8-dcf807ddf541",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8582,11 +8585,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b84d9459-96d9-440c-9626-ce2bcc1e863f",
+                    "id": "181a02a2-7231-416b-bdf6-ceeeac821838",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2022-01-18",
+                      "date_request_accepted": "2022-01-19",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9295,11 +9298,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8037dc0d-fecf-488c-b9e6-105797ad94d2",
+                    "id": "c61d0990-7400-4eaf-8e0f-94dc66c3c234",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-01-18",
+                      "date_request_accepted": "2022-01-19",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9620,11 +9623,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5ed40b41-9615-4634-8b2c-64f5e89b72c6",
+                    "id": "27c8d0b4-d479-4ccc-a8b8-81bc160fc170",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-01-18",
+                      "date_request_accepted": "2022-01-19",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
