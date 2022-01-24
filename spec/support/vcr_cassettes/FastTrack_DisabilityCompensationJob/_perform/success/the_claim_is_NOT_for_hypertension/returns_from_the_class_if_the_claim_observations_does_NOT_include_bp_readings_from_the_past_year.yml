@@ -5,7 +5,7 @@ http_interactions:
     uri: https://sandbox-api.va.gov/oauth2/health/system/v1/token
     body:
       encoding: US-ASCII
-      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIwb2FheGtwMGFlWEVKa01GdzJwNyIsInN1YiI6IjBvYWF4a3AwYWVYRUprTUZ3MnA3IiwiYXVkIjoiaHR0cHM6Ly9kZXB0dmEtZXZhbC5va3RhLmNvbS9vYXV0aDIvYXVzOG5tMXEwZjdWUTBhNDgycDcvdjEvdG9rZW4iLCJleHAiOjE2NDE4NzQ1NjB9.TI5RPBdDR4mXvFJ9n1QFEHvyfSQjDLmnYzWBZ_20m6EmY01VvHo93ppJKPbftgSv_BTbKl77HL0NvyHysT4sKMO2Bs4AzOupvHAofbrWryOH2xGtS4wCaJWwFSxEiGLuTMN9468ylWL_UzhiOoalSzfTWwC3i_Y-QfTLdD8We5qGioaJrk4T1q0SwL3t2GmsAkQ8_193WXjig-_31TTiUDpDUWpY9kDNI8yNeaJ1EHgKG2Uw773D3AEmuvrawJYfSyAd1NyKT_-jNgDU154gfea3V7qjhuhSBzMQUxIjA-Sr5snBn8hUl0leQqOuqHHmNAAsj9Bre8LnC4pOl6IwANsx79jHyIDJi8xdtM6hUEnR76KDbF1zfd2-rclWOt7Sx_SBX2XdtSW4FZFwilrFn8lH0YLN4ZfVLE47cy8WIT1Rl6A3v4YlZXRYVqd9jRpEbrLBgCx2Na6OQtsZ2o-tmT86OtQCnO-4hUrvJ6ilsD9tJzOw7uS8erQPltqzR-D-knjoXGnG9-3LJKgZsfP4HBg3zV_qmJ3x_GR3iHSOZxrp69rP90El0yNeHH1JtSGdRgsM1Qw1afkur94W3c_qiEHUTMQpK1hym63yP1RefZY66hxoHHB_IdZrnDbk2gtunJzRpNkQTM8vlugMdJhu2J337-H0cE0dtn6-pSZokY8&scope=launch+patient%2FPatient.read+system%2FPatient.read+patient%2FObservation.read+patient%2FPractitioner.read+patient%2FMedicationRequest.read&launch=eyJwYXRpZW50IjogIjE3MDAwMTUxIn0%3D
+      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIwb2FheTM4a3I4TFFicU5XUTJwNyIsInN1YiI6IjBvYWF5MzhrcjhMUWJxTldRMnA3IiwiYXVkIjoiaHR0cHM6Ly9kZXB0dmEtZXZhbC5va3RhLmNvbS9vYXV0aDIvYXVzOG5tMXEwZjdWUTBhNDgycDcvdjEvdG9rZW4iLCJleHAiOjE2NDIxNzUzMzR9.en2qQAeye7X2fKHB3m1TBX1RWw2iLNao3MH0wYlIayoWjxmvslu9EUPUNflKjA70uTJRtDyP1jkUBcxTe16ZzRH9Ns3Ci9OtzcZiHyM85Jpdz4m2BLcvQ6F0YmT2ICinRpFOYBT32sMm-csnfmHNlBCAhZixfXMmGZ38W0bQh5QZbZTSapre-tF06wjemWmQ8Oc0Xw2_yxvOCTa72yGHWXiI0_VhQQSZz2kq0XCpB-OX1l51YTboUsaNxemx_oMGrmNxq-CVJgOXQkB0aesej8tQo6e_m_CZlPM5wFMBEnyDAGUo-a4YnHPt_iGDAgQfpupRr7CVee-wqBM2b2kj340I06mspr3qDGI6alZ0R5UttGrnyA29tU_sJLVdVbK2PL0QqOothpAp9g8APtMjUjREnmbCo29sfAfNOXpNgRoVvYxLS75noWk0_ajdYQHLOvh4CrqIq8E_FGtkEV6Pk0TtcA_LR5CXfSAErl0xWRfy7gL_GXyOnPuGN9F4Xq0zAIXwYDG-9uozs5JyuKu4l_2wDFWgHkdJoHjkaYTznzR0FQbnZwUslWu4k7jTGd36aAg6Ah5H-qwNjZ_u48x8J9oQXOMl-FpImMuK-BSMhK3Hd0yrxjtLwqz2o1eRz98izZ8kGzdGEfEyX8_H53yywm3sT-KILKjGq7TGBrDnwdI&scope=launch+patient%2FPatient.read+system%2FPatient.read+patient%2FObservation.read+patient%2FPractitioner.read+patient%2FMedicationRequest.read&launch=eyJwYXRpZW50IjogIjE3MDAwMTUxIn0%3D
     headers:
       Accept:
       - application/json
@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 11 Jan 2022 04:01:01 GMT
+      - Fri, 14 Jan 2022 15:33:56 GMT
       Content-Type:
       - application/json; charset=utf-8
       Connection:
@@ -29,20 +29,20 @@ http_interactions:
       Vary:
       - Origin
       Etag:
-      - W/"4ca-9tK9Lv3SIGIJJnq1tiEehB+cTeA"
+      - W/"4ca-Pe397tFNwL3G93HSNeSBk2EWzos"
       Cache-Control:
       - ''
       Set-Cookie:
-      - TS01dd66bd=01874af5a4e4c25b762a024a911b3d49387c0a65e02390bafcbc14525e455fe46c02c14cff8f7a75025c0c735b63178d0c46ba3e9d;
+      - TS01dd66bd=01c16e2d817c01ba119908177a57629dcd07bab9ce508567b3384896f5dec706e677554545016abf2770103420f306f31c9fd135bb;
         Max-Age=900; Path=/
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"access_token":"eyJraWQiOiIyWGlHcG5XRjR0U0wtdENPX19zNDZhMGlkd3I1UUd6YVlwTm4xeEZNX1Y4IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULkp1WmRyM0RBZ2VaQjA2b3JTUlVLMU1KNjRZN0hfMVZ5Y2I5SzZWczBBVDQiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXM4bm0xcTBmN1ZRMGE0ODJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2ZoaXIiLCJpYXQiOjE2NDE4NzM2NjEsImV4cCI6MTY0MTg3Mzk2MSwiY2lkIjoiMG9hYXhrcDBhZVhFSmtNRncycDciLCJzY3AiOlsibGF1bmNoIiwicGF0aWVudC9QYXRpZW50LnJlYWQiLCJwYXRpZW50L1ByYWN0aXRpb25lci5yZWFkIiwicGF0aWVudC9PYnNlcnZhdGlvbi5yZWFkIiwicGF0aWVudC9NZWRpY2F0aW9uUmVxdWVzdC5yZWFkIiwic3lzdGVtL1BhdGllbnQucmVhZCJdLCJzdWIiOiIwb2FheGtwMGFlWEVKa01GdzJwNyJ9.EPdyeVmjFZ-cZDxTwqFTG7wmFoQNJEbrdSl5x58iAPiyqozJk_97-VJ2KZvUqFxhlHu0fnegwJgPkamPyYdC5FxZhZWeyUD6zjhWknsN7LPoqt_OSapajqaDhQqIzoOxZ8OKd27SduyyoxAP-kQe56Y4ioHgMjxfe5tDqgP6mG1_zRyBmRgWmgTc3TWPtIlfj9MoF-Tsizyi0Zt1_HD-qMXTlnjZjToO4aihUrzLbxW8O8Mx5Oxqn9Bk75cvJBub2k13YRJQKC_0ny-zZ0eZuW97sHxhffrBxAOiwCjpUj9gDsvGUYwBqZbq4-nMbO0rnisfmeL6xtBoZIsuVX3w3A","token_type":"Bearer","scope":"launch
+      string: '{"access_token":"eyJraWQiOiIyWGlHcG5XRjR0U0wtdENPX19zNDZhMGlkd3I1UUd6YVlwTm4xeEZNX1Y4IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULmtlNUtISlllcmRURThNYmVZWFctQm5Ha2ZlbmhLQVJYcEc0NW84QV82LWMiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXM4bm0xcTBmN1ZRMGE0ODJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2ZoaXIiLCJpYXQiOjE2NDIxNzQ0MzYsImV4cCI6MTY0MjE3NDczNiwiY2lkIjoiMG9hYXkzOGtyOExRYnFOV1EycDciLCJzY3AiOlsibGF1bmNoIiwicGF0aWVudC9QYXRpZW50LnJlYWQiLCJwYXRpZW50L1ByYWN0aXRpb25lci5yZWFkIiwicGF0aWVudC9PYnNlcnZhdGlvbi5yZWFkIiwicGF0aWVudC9NZWRpY2F0aW9uUmVxdWVzdC5yZWFkIiwic3lzdGVtL1BhdGllbnQucmVhZCJdLCJzdWIiOiIwb2FheTM4a3I4TFFicU5XUTJwNyJ9.HbEbokZPaoM27uzO1NZsEibQ83uMTrDfMVYgY7p9JiRtoU6wSoZfmw08gn_-hs6qy76p7BXcOgMqzt4HxSwb5CtgjyJkRO7catPI0slI0lnDHYwWx-LIoaEgdlb1PFbYG7QUhFyl6y5qrnTIUt8lDMeta_NDVx4kpgotWrk9SYVfXSTnRE99ztU-m9HhuWnWdKvNFjeIbYDXL3GfNK4dmficSS3oLQOmXXl103dBUO4VmwhWxLu3akBv7ydIlYuh-9Jl85KtP5dkyvXNV81viRKC9bxm-ykIbKBmb4Q8MQ0JR9Gtyt4apG466Q7J0LwGQ6kmJvmTt38R7lqiCl4RSg","token_type":"Bearer","scope":"launch
         patient/Patient.read patient/Practitioner.read patient/Observation.read patient/MedicationRequest.read
         system/Patient.read","expires_in":300,"state":null,"patient":"17000151"}'
-  recorded_at: Tue, 11 Jan 2022 04:01:01 GMT
+  recorded_at: Fri, 14 Jan 2022 15:33:56 GMT
 - request:
     method: get
     uri: https://sandbox-api.va.gov/services/fhir/v0/r4/Observation?_count=100&category=vital-signs&code=85354-9&patient=17000151
@@ -57,7 +57,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Authorization:
-      - Bearer eyJraWQiOiIyWGlHcG5XRjR0U0wtdENPX19zNDZhMGlkd3I1UUd6YVlwTm4xeEZNX1Y4IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULkp1WmRyM0RBZ2VaQjA2b3JTUlVLMU1KNjRZN0hfMVZ5Y2I5SzZWczBBVDQiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXM4bm0xcTBmN1ZRMGE0ODJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2ZoaXIiLCJpYXQiOjE2NDE4NzM2NjEsImV4cCI6MTY0MTg3Mzk2MSwiY2lkIjoiMG9hYXhrcDBhZVhFSmtNRncycDciLCJzY3AiOlsibGF1bmNoIiwicGF0aWVudC9QYXRpZW50LnJlYWQiLCJwYXRpZW50L1ByYWN0aXRpb25lci5yZWFkIiwicGF0aWVudC9PYnNlcnZhdGlvbi5yZWFkIiwicGF0aWVudC9NZWRpY2F0aW9uUmVxdWVzdC5yZWFkIiwic3lzdGVtL1BhdGllbnQucmVhZCJdLCJzdWIiOiIwb2FheGtwMGFlWEVKa01GdzJwNyJ9.EPdyeVmjFZ-cZDxTwqFTG7wmFoQNJEbrdSl5x58iAPiyqozJk_97-VJ2KZvUqFxhlHu0fnegwJgPkamPyYdC5FxZhZWeyUD6zjhWknsN7LPoqt_OSapajqaDhQqIzoOxZ8OKd27SduyyoxAP-kQe56Y4ioHgMjxfe5tDqgP6mG1_zRyBmRgWmgTc3TWPtIlfj9MoF-Tsizyi0Zt1_HD-qMXTlnjZjToO4aihUrzLbxW8O8Mx5Oxqn9Bk75cvJBub2k13YRJQKC_0ny-zZ0eZuW97sHxhffrBxAOiwCjpUj9gDsvGUYwBqZbq4-nMbO0rnisfmeL6xtBoZIsuVX3w3A
+      - Bearer eyJraWQiOiIyWGlHcG5XRjR0U0wtdENPX19zNDZhMGlkd3I1UUd6YVlwTm4xeEZNX1Y4IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULmtlNUtISlllcmRURThNYmVZWFctQm5Ha2ZlbmhLQVJYcEc0NW84QV82LWMiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXM4bm0xcTBmN1ZRMGE0ODJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2ZoaXIiLCJpYXQiOjE2NDIxNzQ0MzYsImV4cCI6MTY0MjE3NDczNiwiY2lkIjoiMG9hYXkzOGtyOExRYnFOV1EycDciLCJzY3AiOlsibGF1bmNoIiwicGF0aWVudC9QYXRpZW50LnJlYWQiLCJwYXRpZW50L1ByYWN0aXRpb25lci5yZWFkIiwicGF0aWVudC9PYnNlcnZhdGlvbi5yZWFkIiwicGF0aWVudC9NZWRpY2F0aW9uUmVxdWVzdC5yZWFkIiwic3lzdGVtL1BhdGllbnQucmVhZCJdLCJzdWIiOiIwb2FheTM4a3I4TFFicU5XUTJwNyJ9.HbEbokZPaoM27uzO1NZsEibQ83uMTrDfMVYgY7p9JiRtoU6wSoZfmw08gn_-hs6qy76p7BXcOgMqzt4HxSwb5CtgjyJkRO7catPI0slI0lnDHYwWx-LIoaEgdlb1PFbYG7QUhFyl6y5qrnTIUt8lDMeta_NDVx4kpgotWrk9SYVfXSTnRE99ztU-m9HhuWnWdKvNFjeIbYDXL3GfNK4dmficSS3oLQOmXXl103dBUO4VmwhWxLu3akBv7ydIlYuh-9Jl85KtP5dkyvXNV81viRKC9bxm-ykIbKBmb4Q8MQ0JR9Gtyt4apG466Q7J0LwGQ6kmJvmTt38R7lqiCl4RSg
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -66,21 +66,21 @@ http_interactions:
       message: ''
     headers:
       Date:
-      - Tue, 11 Jan 2022 04:01:02 GMT
+      - Fri, 14 Jan 2022 15:33:57 GMT
       Content-Type:
       - application/json
       Connection:
       - keep-alive
       X-Ratelimit-Remaining-Minute:
-      - '299'
+      - '284'
       X-Ratelimit-Limit-Minute:
       - '300'
       Ratelimit-Remaining:
-      - '299'
+      - '284'
       Ratelimit-Limit:
       - '300'
       Ratelimit-Reset:
-      - '58'
+      - '4'
       Vary:
       - Accept-Encoding
       - Origin
@@ -90,9 +90,9 @@ http_interactions:
       - no-cache
       - no-cache
       X-Kong-Upstream-Latency:
-      - '309'
+      - '312'
       X-Kong-Proxy-Latency:
-      - '0'
+      - '1'
       Via:
       - kong/2.3.2
       Strict-Transport-Security:
@@ -103,7 +103,7 @@ http_interactions:
       Cache-Control:
       - no-cache, no-store
       Set-Cookie:
-      - TS01dd66bd=01874af5a4390580f52f82529d32b6106956277bd850b6ddc801070ccdbf87a3420200dd138103e352f708e8919c1e20a5adc4b050;
+      - TS01dd66bd=01c16e2d818cbe1a8ac05e0cd46b3ae47cae13e8e7f2918776bb902c2cb74f6741391ea467dacd29aae95e6c565878c6a1f7c1b0a5;
         Max-Age=900; Path=/
       Transfer-Encoding:
       - chunked
@@ -226,5 +226,5 @@ http_interactions:
         THOMAS359 REYNOLDS206 PHD"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
         blood pressure"}],"text":"Systolic blood pressure"},"valueQuantity":{"value":108.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
         blood pressure"}],"text":"Diastolic blood pressure"},"valueQuantity":{"value":86.0,"unit":"mm[Hg]","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}}]}'
-  recorded_at: Tue, 11 Jan 2022 04:01:02 GMT
+  recorded_at: Fri, 14 Jan 2022 15:33:56 GMT
 recorded_with: VCR 6.0.0

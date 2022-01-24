@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'sidekiq/testing'
 
 RSpec.describe FastTrack::DisabilityCompensationJob, type: :worker do
   subject { described_class }
@@ -62,25 +63,53 @@ RSpec.describe FastTrack::DisabilityCompensationJob, type: :worker do
         end
 
         it 'finishes successfully' do
-          expect do
-            FastTrack::DisabilityCompensationJob.new.perform(submission.id, user_full_name)
-          end.not_to raise_error
+          Sidekiq::Testing.inline! do
+            expect do
+              FastTrack::DisabilityCompensationJob.perform_async(submission.id, user_full_name)
+            end.not_to raise_error
+          end
+        end
+
+        it 'creates a job status record' do
+          Sidekiq::Testing.inline! do
+            expect do
+              FastTrack::DisabilityCompensationJob.perform_async(submission.id, user_full_name)
+            end.to change(Form526JobStatus, :count).by(1)
+          end
+        end
+
+        it 'marks the new Form526JobStatus record as successful' do
+          Sidekiq::Testing.inline! do
+            FastTrack::DisabilityCompensationJob.perform_async(submission.id, user_full_name)
+            expect(Form526JobStatus.last.status).to eq 'success'
+          end
         end
 
         context 'failure' do
           before do
             allow_any_instance_of(
-              SupportingEvidenceAttachment
-            ).to receive(:save!).and_raise(StandardError)
+              FastTrack::HypertensionPdfGenerator
+            ).to receive(:generate).and_return(nil)
           end
 
           it 'raises a helpful error if the failure is after the api call and emails the engineers' do
-            expect do
-              FastTrack::DisabilityCompensationJob.new.perform(submission.id, user_full_name)
-            end.to raise_error(StandardError)
-            expect(ActionMailer::Base.deliveries.last.subject).to eq 'Fast Track Hypertension Errored'
-            expect(ActionMailer::Base.deliveries.last.body.raw_source)
-              .to match 'A claim just errored'
+            Sidekiq::Testing.inline! do
+              expect do
+                FastTrack::DisabilityCompensationJob.perform_async(submission.id, user_full_name)
+              end.to raise_error(NoMethodError)
+              expect(ActionMailer::Base.deliveries.last.subject).to eq 'Fast Track Hypertension Errored'
+              expect(ActionMailer::Base.deliveries.last.body.raw_source)
+                .to match 'A claim just errored'
+            end
+          end
+
+          it 'creates a job status record' do
+            Sidekiq::Testing.inline! do
+              expect do
+                FastTrack::DisabilityCompensationJob.perform_async(submission.id, user_full_name)
+              end.to raise_error(NoMethodError)
+              expect(Form526JobStatus.last.status).to eq 'retryable_error'
+            end
           end
         end
       end

@@ -3,10 +3,13 @@
 require 'prawn'
 require 'prawn/table'
 require 'lighthouse/veterans_health/client'
+require 'sidekiq/form526_job_status_tracker/job_tracker'
+require 'sidekiq/form526_job_status_tracker/metrics'
 
 module FastTrack
   class DisabilityCompensationJob
     include Sidekiq::Worker
+    include Sidekiq::Form526JobStatusTracker::JobTracker
 
     extend SentryLogging
     # NOTE: This is apparently at most about 4.5 hours.
@@ -19,6 +22,8 @@ module FastTrack
       submission.start_evss_submission(nil, { 'submission_id' => submission_id })
     end
 
+    STATSD_KEY_PREFIX = 'worker.fast_track.disability_compensation_job'
+
     def perform(form526_submission_id, full_name)
       form526_submission = Form526Submission.find(form526_submission_id)
       client = Lighthouse::VeteransHealth::Client.new(get_icn(form526_submission))
@@ -26,12 +31,12 @@ module FastTrack
       begin
         return if bp_readings(client).blank?
 
-        pdf = pdf(full_name, bp_readings(client), medications(client))
-        upload_pdf_and_attach_special_issue(form526_submission, pdf)
+        with_tracking(self.class.name, form526_submission.saved_claim_id, form526_submission_id) do
+          pdf = pdf(full_name, bp_readings(client), medications(client))
+          upload_pdf_and_attach_special_issue(form526_submission, pdf)
+        end
       rescue => e
-        Rails.logger.error 'Disability Compensation Fast Track Job failing for form' \
-                           "id:#{form526_submission.id}. With error message: #{e.message}" \
-                           "with backtrace: #{e.backtrace}"
+        retryable_error_handler(e)
         send_fast_track_engineer_email_for_testing(form526_submission_id, e.message, e.backtrace)
         raise
       end
