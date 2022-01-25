@@ -6,7 +6,7 @@ module CovidResearch
       attr_reader :kms
 
       def initialize
-        @kms = KmsEncrypted::Box.new
+        @kms = KmsEncrypted::Box.new(previous_versions: [{ key_id: Settings.lockbox.master_key }])
       end
 
       # @param form_data [String] encrypted form data
