@@ -2,4 +2,4 @@
 
 require 'lockbox'
 Lockbox.master_key = Settings.lockbox.master_key
-Lockbox.default_options = { padding: false }
+Lockbox.default_options = { padding: true }
