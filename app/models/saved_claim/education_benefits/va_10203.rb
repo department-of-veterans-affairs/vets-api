@@ -82,10 +82,9 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
     if Settings.vsp_environment != 'production'
       service = EVSS::GiBillStatus::Service.new(@user)
       Rails.logger.info '#### 10203 EVSS ##########'
-      Rails.logger.info '#### User Info ##########'
+      Rails.logger.info "#### User Info ########## \n@user.to_json"
       Rails.logger.info @user.to_json
-      Rails.logger.info '#### Request Info ##########'
-      Rails.logger.info service.inspect
+      Rails.logger.info "#### Request Info ########## \n#{service.inspect}"
 
       if @gi_bill_status == {} || @gi_bill_status.remaining_entitlement.blank?
         Rails.logger.info '#### remaining_entitlement data: none ##########'
@@ -93,8 +92,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
 
       return nil if @gi_bill_status == {} || @gi_bill_status.remaining_entitlement.blank?
 
-      Rails.logger.info '#### remaining_entitlement data ##########'
-      Rails.logger.info @gi_bill_status.to_json
+      Rails.logger.info "#### remaining_entitlement data ########## \n @gi_bill_status.to_json"
     elsif @gi_bill_status == {} || @gi_bill_status.remaining_entitlement.blank?
       return nil
     end
