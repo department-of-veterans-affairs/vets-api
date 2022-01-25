@@ -114,9 +114,43 @@ module FacilitiesApi
     end
 
     swagger_schema :Provider do
+      property :id, type: :string, example: '40c344a12877bf2dd2828067839d71d0f6affe1e076f267fdaa1aa4927c6da88'
+      property :type, type: :string, example: 'provider'
+
+      property :attributes, type: :object do
+        property :acc_new_patients, type: :boolean
+        property :address, type: :object do
+          property :street, type: :string, example: '308 Sherwood Inlet'
+          property :city, type: :string, example: 'Cormierton'
+          property :state, type: :string, example: 'MT'
+          property :zip, type: :string, example: '41390'
+        end
+        property :caresite_phone, type: :string, example: '6418432280'
+        property :email, type: %i[string null]
+        property :fax, type: %i[string null]
+        property :gender, type: :string, example: 'Female'
+        property :lat, type: :number, example: -85.085761
+        property :long, type: :number, example: -125.282372
+        property :name, type: :string, example: 'Madie Mayert'
+        property :phone, type: %i[string null]
+        property :pos_codes, type: %i[string null]
+        property :pref_contact, type: %i[string null]
+        property :unique_id, type: :integer, example: 7_960_178_946
+      end
     end
 
     swagger_schema :Specialty do
+      property :id, type: :string, example: '101Y00000X'
+      property :type, type: :string, example: 'specialty'
+
+      property :attributes, type: :object do
+        property :classification, type: :string, example: 'Counselor'
+        property :grouping, type: :string, example: 'Behavioral Health & Social Service Providers'
+        property :name, type: :string, example: 'Counselor'
+        property :specialization, type: %i[string null], example: 'Clinical'
+        property :specialty_code, type: :string, example: '101Y00000X'
+        property :specialty_description, type: :string, example: 'Definition to come...'
+      end
     end
   end
 end

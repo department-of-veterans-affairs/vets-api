@@ -81,11 +81,6 @@ RSpec.describe 'FacilitiesApi::Apidocs' do
       it { is_expected.to validate(:get, '/facilities_api/v1/ccp/provider', 200, params) }
     end
 
-    # describe 'facilities/ccp/{id}', team: :facilities, vcr: vcr_options.merge(
-    #   cassette_name: 'facilities/ppms/ppms') do
-    #   it { is_expected.to validate(:get, '/facilities_api/v1/ccp/{id}', 200, 'id' => '1154383230') }
-    # end
-
     describe 'facilities/ccp/specialties', team: :facilities,
                                            vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms_specialties') do
       it { is_expected.to validate(:get, '/facilities_api/v1/ccp/specialties', 200) }
