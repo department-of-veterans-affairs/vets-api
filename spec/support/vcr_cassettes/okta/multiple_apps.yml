@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://example.com/api/v1/users/00u1t20h2zOR2Upf42p7
+    uri: https://example.com/api/v1/users/1847a3eb4b904102882e24e4ddf12ff3
     body:
       encoding: US-ASCII
       string: ''

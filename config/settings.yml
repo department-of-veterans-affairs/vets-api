@@ -693,6 +693,7 @@ oidc:
     audience: ~
   base_api_url: https://example.com
   base_api_token: ~
+  base_api_profile_key_icn: false
   smart_launch_url: ~
   issued_url: ~
   issuers:

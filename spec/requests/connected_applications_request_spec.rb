@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe 'Connected Applications API endpoint' do
-  let(:user) { build(:user, :loa3, uuid: '00u2fqgvbyT23TZNm2p7') }
+  let(:user) { build(:user, :loa3, uuid: '1847a3eb4b904102882e24e4ddf12ff3') }
 
   before { sign_in_as(user) }
 
@@ -21,7 +21,7 @@ RSpec.describe 'Connected Applications API endpoint' do
 
     it 'deletes all the grants by app' do
       with_okta_configured do
-        VCR.use_cassette('okta/delete_grants') do
+        VCR.use_cassette('okta/delete_grants', allow_playback_repeats: true) do
           delete '/v0/profile/connected_applications/0oa2ey2m6kEL2897N2p7'
           expect(response).to have_http_status(:no_content)
         end

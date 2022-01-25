@@ -5,7 +5,7 @@ require 'rails_helper'
 describe OktaRedis::Grants, skip_emis: true do
   subject { described_class.with_user(user) }
 
-  let(:user) { build(:user, :loa3, uuid: '00u2fqgvbyT23TZNm2p7') }
+  let(:user) { build(:user, :loa3, uuid: '1847a3eb4b904102882e24e4ddf12ff3') }
 
   describe 'all' do
     context 'with response from okta' do
@@ -23,7 +23,7 @@ describe OktaRedis::Grants, skip_emis: true do
   describe 'delete_grants' do
     it 'returns true for successful deletion' do
       with_okta_configured do
-        VCR.use_cassette('okta/delete_grants') do
+        VCR.use_cassette('okta/delete_grants', allow_playback_repeats: true) do
           ids = [subject.all.first['id']]
           expect(subject.delete_grants(ids)).to be_truthy
         end

@@ -2735,7 +2735,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     describe 'profile/connected_applications' do
       let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
-      let(:user) { create(:user, :loa3, uuid: '00u2fqgvbyT23TZNm2p7') }
+      let(:user) { create(:user, :loa3, uuid: '1847a3eb4b904102882e24e4ddf12ff3') }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, token, true) } } }
 
       before do
@@ -2755,7 +2755,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         with_okta_configured do
           parameters = { 'application_id' => '0oa2ey2m6kEL2897N2p7' }
           expect(subject).to validate(:delete, '/v0/profile/connected_applications/{application_id}', 401, parameters)
-          VCR.use_cassette('okta/delete_grants') do
+          VCR.use_cassette('okta/delete_grants', allow_playback_repeats: true) do
             expect(subject).to(
               validate(
                 :delete,

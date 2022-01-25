@@ -5,7 +5,7 @@ require 'rails_helper'
 describe OktaRedis::App, skip_emis: true do
   subject { described_class.with_id(from_okta[:id]) }
 
-  let(:user) { build(:user, :loa3, uuid: '00u2fqgvbyT23TZNm2p7') }
+  let(:user) { build(:user, :loa3, uuid: '1847a3eb4b904102882e24e4ddf12ff3') }
   let(:from_okta) { { id: '0oa2ey2m6kEL2897N2p7', title: 'TestGrantRevoke' } }
 
   %i[id title].each do |body_attr|
@@ -49,7 +49,7 @@ describe OktaRedis::App, skip_emis: true do
 
   describe '#cache_key' do
     context 'with multiple apps' do
-      let(:user) { User.new uuid: '00u1t20h2zOR2Upf42p7' }
+      let(:user) { User.new uuid: '1847a3eb4b904102882e24e4ddf12ff3' }
       let(:apps) do
         user.okta_grants.all.map { |grant| grant['_links']['app']['href'].split('/').last }.uniq!
       end
