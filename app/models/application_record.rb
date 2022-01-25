@@ -4,7 +4,7 @@ class ApplicationRecord < ActiveRecord::Base
   self.abstract_class = true
 
   def self.lockbox_options
-    { previous_versions: [{ padding: true, master_key: Settings.lockbox.master_key }] }
+    { previous_versions: [{ padding: true, master_key: Settings.lockbox.master_key }, { padding: true }] }
   end
 
   def self.descendants_using_encryption
