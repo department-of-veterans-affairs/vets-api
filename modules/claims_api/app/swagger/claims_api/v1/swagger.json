@@ -496,7 +496,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f2317ae5-05b0-4549-b8e9-0e40f1fb02b7",
+                    "id": "a21034ce-a521-4521-a717-aeb5be07d6ca",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -545,11 +545,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "dc890974-7c3c-4f05-b53a-21d2513f0077",
+                          "id": "dc38789d-4978-43ee-a7cb-0dfa8a12f20c",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2022-01-19T18:31:14.526Z"
+                          "uploaded_at": "2022-01-20T21:06:47.437Z"
                         }
                       ]
                     }
@@ -1457,6 +1457,7 @@
                               }
                             },
                             "confinements": {
+                              "description": "Used if the Veteran was ever a prisoner of war.",
                               "type": "array",
                               "minItems": 1,
                               "uniqueItems": true,
@@ -1542,6 +1543,7 @@
                               }
                             },
                             "alternateNames": {
+                              "description": "List any other names under which the Veteran served, if applicable.",
                               "type": "array",
                               "minItems": 1,
                               "maxItems": 100,
@@ -1578,7 +1580,7 @@
                           }
                         },
                         "disabilities": {
-                          "description": "Identifies the Service Disability information of the Veteran.",
+                          "description": "Any current disabilities or symptoms the Veteran is claiming are related to their military service and/or are service-connected.",
                           "type": "array",
                           "minItems": 1,
                           "uniqueItems": true,
@@ -1591,7 +1593,7 @@
                             ],
                             "properties": {
                               "specialIssues": {
-                                "description": "The special issues related to the disability. Note :: Only add special issues that you are certain about.  Incorrect special issues can lead to processing delays or denials.  [See special issue descriptions.](https://www.knowva.ebenefits.va.gov/system/templates/selfservice/va_ssnew/help/customer/locale/en-US/portal/554400000001018/content/554400000179710/Appendix-E-Index-of-Corporate-Flashes-and-Special-Issues?query=special%20issues#2b)",
+                                "description": "The special issues related to the disability. Note :: Only add special issues that you are certain about.  Incorrect special issues can lead to processing delays or denials.  [See special issue descriptions.](https://www.knowva.ebenefits.va.gov/system/templates/selfservice/va_ssnew/help/customer/locale/en-US/portal/554400000001018/content/554400000179710/Appendix-E-Index-of-Corporate-Flashes-and-Special-Issues#2b)",
                                 "type": "array",
                                 "items": {
                                   "type": "string",
@@ -2082,7 +2084,7 @@
                                 "example": "2018-03-02"
                               },
                               "treatedDisabilityNames": {
-                                "description": "Identifies the Service Treatment nomenclature of the Veteran.",
+                                "description": "Names of any disabilities for which the Veteran was treated.",
                                 "type": "array",
                                 "minItems": 1,
                                 "maxItems": 101,
@@ -2094,7 +2096,7 @@
                                 }
                               },
                               "center": {
-                                "description": "Location of Veteran Treatment.",
+                                "description": "VA Medical Center(s) and Department of Defense Military Treatment Facilities where the Veteran received treatment after discharge for any claimed disabilities.",
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
@@ -2199,12 +2201,6 @@
                                     }
                                   }
                                 },
-                                "willReceiveInfuture": {
-                                  "description": "Will military retired pay be received in the future?",
-                                  "type": "boolean",
-                                  "default": false,
-                                  "example": false
-                                },
                                 "futurePayExplanation": {
                                   "description": "Explains why future pay will be received.",
                                   "type": "string",
@@ -2226,9 +2222,6 @@
                                   "futurePayExplanation"
                                 ]
                               }
-                            },
-                            "hasSeparationPay": {
-                              "type": "boolean"
                             },
                             "separationPay": {
                               "description": "Details about separation pay.",
@@ -2331,7 +2324,7 @@
                               "example": "123123123"
                             },
                             "bankName": {
-                              "description": "Veteran Bank Name.",
+                              "description": "Provide the name of the bank where the Veteran wants the direct deposit.",
                               "maxLength": 35,
                               "type": "string",
                               "example": "Some Bank"
@@ -2444,7 +2437,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3c827f50-61e2-4ee2-8984-eeec577e10da",
+                    "id": "c0fb7e92-67eb-4ac3-80e3-be3433c3ffc5",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2462,13 +2455,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-01-19T18:31:15.110Z",
+                      "updated_at": "2022-01-20T21:06:47.700Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "3c827f50-61e2-4ee2-8984-eeec577e10da",
+                      "token": "c0fb7e92-67eb-4ac3-80e3-be3433c3ffc5",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3326,6 +3319,7 @@
                                 }
                               },
                               "confinements": {
+                                "description": "Used if the Veteran was ever a prisoner of war.",
                                 "type": "array",
                                 "minItems": 1,
                                 "uniqueItems": true,
@@ -3411,6 +3405,7 @@
                                 }
                               },
                               "alternateNames": {
+                                "description": "List any other names under which the Veteran served, if applicable.",
                                 "type": "array",
                                 "minItems": 1,
                                 "maxItems": 100,
@@ -3447,7 +3442,7 @@
                             }
                           },
                           "disabilities": {
-                            "description": "Identifies the Service Disability information of the Veteran.",
+                            "description": "Any current disabilities or symptoms the Veteran is claiming are related to their military service and/or are service-connected.",
                             "type": "array",
                             "minItems": 1,
                             "uniqueItems": true,
@@ -3460,7 +3455,7 @@
                               ],
                               "properties": {
                                 "specialIssues": {
-                                  "description": "The special issues related to the disability. Note :: Only add special issues that you are certain about.  Incorrect special issues can lead to processing delays or denials.  [See special issue descriptions.](https://www.knowva.ebenefits.va.gov/system/templates/selfservice/va_ssnew/help/customer/locale/en-US/portal/554400000001018/content/554400000179710/Appendix-E-Index-of-Corporate-Flashes-and-Special-Issues?query=special%20issues#2b)",
+                                  "description": "The special issues related to the disability. Note :: Only add special issues that you are certain about.  Incorrect special issues can lead to processing delays or denials.  [See special issue descriptions.](https://www.knowva.ebenefits.va.gov/system/templates/selfservice/va_ssnew/help/customer/locale/en-US/portal/554400000001018/content/554400000179710/Appendix-E-Index-of-Corporate-Flashes-and-Special-Issues#2b)",
                                   "type": "array",
                                   "items": {
                                     "type": "string",
@@ -3951,7 +3946,7 @@
                                   "example": "2018-03-02"
                                 },
                                 "treatedDisabilityNames": {
-                                  "description": "Identifies the Service Treatment nomenclature of the Veteran.",
+                                  "description": "Names of any disabilities for which the Veteran was treated.",
                                   "type": "array",
                                   "minItems": 1,
                                   "maxItems": 101,
@@ -3963,7 +3958,7 @@
                                   }
                                 },
                                 "center": {
-                                  "description": "Location of Veteran Treatment.",
+                                  "description": "VA Medical Center(s) and Department of Defense Military Treatment Facilities where the Veteran received treatment after discharge for any claimed disabilities.",
                                   "type": "object",
                                   "additionalProperties": false,
                                   "required": [
@@ -4068,12 +4063,6 @@
                                       }
                                     }
                                   },
-                                  "willReceiveInfuture": {
-                                    "description": "Will military retired pay be received in the future?",
-                                    "type": "boolean",
-                                    "default": false,
-                                    "example": false
-                                  },
                                   "futurePayExplanation": {
                                     "description": "Explains why future pay will be received.",
                                     "type": "string",
@@ -4095,9 +4084,6 @@
                                     "futurePayExplanation"
                                   ]
                                 }
-                              },
-                              "hasSeparationPay": {
-                                "type": "boolean"
                               },
                               "separationPay": {
                                 "description": "Details about separation pay.",
@@ -4200,7 +4186,7 @@
                                 "example": "123123123"
                               },
                               "bankName": {
-                                "description": "Veteran Bank Name.",
+                                "description": "Provide the name of the bank where the Veteran wants the direct deposit.",
                                 "maxLength": 35,
                                 "type": "string",
                                 "example": "Some Bank"
@@ -4326,7 +4312,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6d3fc78d-e201-47cd-b7ee-ec6e9bc6ad68",
+                    "id": "c749613d-4ab6-4f1b-aebb-0ab093a9a45f",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4344,13 +4330,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-01-19T18:31:15.511Z",
+                      "updated_at": "2022-01-20T21:06:47.944Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "6d3fc78d-e201-47cd-b7ee-ec6e9bc6ad68",
+                      "token": "c749613d-4ab6-4f1b-aebb-0ab093a9a45f",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5604,6 +5590,7 @@
                                 }
                               },
                               "confinements": {
+                                "description": "Used if the Veteran was ever a prisoner of war.",
                                 "type": "array",
                                 "minItems": 1,
                                 "uniqueItems": true,
@@ -5689,6 +5676,7 @@
                                 }
                               },
                               "alternateNames": {
+                                "description": "List any other names under which the Veteran served, if applicable.",
                                 "type": "array",
                                 "minItems": 1,
                                 "maxItems": 100,
@@ -5725,7 +5713,7 @@
                             }
                           },
                           "disabilities": {
-                            "description": "Identifies the Service Disability information of the Veteran.",
+                            "description": "Any current disabilities or symptoms the Veteran is claiming are related to their military service and/or are service-connected.",
                             "type": "array",
                             "minItems": 1,
                             "uniqueItems": true,
@@ -5738,7 +5726,7 @@
                               ],
                               "properties": {
                                 "specialIssues": {
-                                  "description": "The special issues related to the disability. Note :: Only add special issues that you are certain about.  Incorrect special issues can lead to processing delays or denials.  [See special issue descriptions.](https://www.knowva.ebenefits.va.gov/system/templates/selfservice/va_ssnew/help/customer/locale/en-US/portal/554400000001018/content/554400000179710/Appendix-E-Index-of-Corporate-Flashes-and-Special-Issues?query=special%20issues#2b)",
+                                  "description": "The special issues related to the disability. Note :: Only add special issues that you are certain about.  Incorrect special issues can lead to processing delays or denials.  [See special issue descriptions.](https://www.knowva.ebenefits.va.gov/system/templates/selfservice/va_ssnew/help/customer/locale/en-US/portal/554400000001018/content/554400000179710/Appendix-E-Index-of-Corporate-Flashes-and-Special-Issues#2b)",
                                   "type": "array",
                                   "items": {
                                     "type": "string",
@@ -6229,7 +6217,7 @@
                                   "example": "2018-03-02"
                                 },
                                 "treatedDisabilityNames": {
-                                  "description": "Identifies the Service Treatment nomenclature of the Veteran.",
+                                  "description": "Names of any disabilities for which the Veteran was treated.",
                                   "type": "array",
                                   "minItems": 1,
                                   "maxItems": 101,
@@ -6241,7 +6229,7 @@
                                   }
                                 },
                                 "center": {
-                                  "description": "Location of Veteran Treatment.",
+                                  "description": "VA Medical Center(s) and Department of Defense Military Treatment Facilities where the Veteran received treatment after discharge for any claimed disabilities.",
                                   "type": "object",
                                   "additionalProperties": false,
                                   "required": [
@@ -6346,12 +6334,6 @@
                                       }
                                     }
                                   },
-                                  "willReceiveInfuture": {
-                                    "description": "Will military retired pay be received in the future?",
-                                    "type": "boolean",
-                                    "default": false,
-                                    "example": false
-                                  },
                                   "futurePayExplanation": {
                                     "description": "Explains why future pay will be received.",
                                     "type": "string",
@@ -6373,9 +6355,6 @@
                                     "futurePayExplanation"
                                   ]
                                 }
-                              },
-                              "hasSeparationPay": {
-                                "type": "boolean"
                               },
                               "separationPay": {
                                 "description": "Details about separation pay.",
@@ -6478,7 +6457,7 @@
                                 "example": "123123123"
                               },
                               "bankName": {
-                                "description": "Veteran Bank Name.",
+                                "description": "Provide the name of the bank where the Veteran wants the direct deposit.",
                                 "maxLength": 35,
                                 "type": "string",
                                 "example": "Some Bank"
@@ -6604,7 +6583,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f1a6f42b-b1d4-4dee-b87b-b6c0f8ab5bc7",
+                    "id": "42008294-dfb8-4114-9bf8-b85315255e2c",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6618,7 +6597,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-01-19T18:31:16.325Z",
+                      "updated_at": "2022-01-20T21:06:48.395Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6627,7 +6606,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "5182ea5d-a218-4a5a-b7a8-dcf807ddf541",
+                          "id": "b0801db7-bea8-47fd-9b70-6fc34c7a2bea",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8585,11 +8564,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "181a02a2-7231-416b-bdf6-ceeeac821838",
+                    "id": "c15570af-58cf-4f71-94f7-d2b6aeab33bc",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2022-01-19",
+                      "date_request_accepted": "2022-01-20",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9298,11 +9277,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c61d0990-7400-4eaf-8e0f-94dc66c3c234",
+                    "id": "9ffb5407-cd00-4732-af9b-3f618af8570f",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-01-19",
+                      "date_request_accepted": "2022-01-20",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9623,11 +9602,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "27c8d0b4-d479-4ccc-a8b8-81bc160fc170",
+                    "id": "c7c0232e-8892-4045-9779-cd713644b980",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-01-19",
+                      "date_request_accepted": "2022-01-20",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"

@@ -480,6 +480,7 @@
           }
         },
         "confinements": {
+          "description": "Used if the Veteran was ever a prisoner of war.",
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
@@ -559,6 +560,7 @@
           }
         },
         "alternateNames": {
+          "description": "List any other names under which the Veteran served, if applicable.",
           "type": "array",
           "minItems": 1,
           "maxItems": 100,
@@ -592,7 +594,7 @@
       }
     },
     "disabilities": {
-      "description": "Identifies the Service Disability information of the Veteran.",
+      "description": "Any current disabilities or symptoms the Veteran is claiming are related to their military service and/or are service-connected.",
       "type": "array",
       "minItems": 1,
       "uniqueItems": true,
@@ -602,7 +604,7 @@
         "required": ["disabilityActionType", "name"],
         "properties": {
           "specialIssues": {
-            "description": "The special issues related to the disability. Note :: Only add special issues that you are certain about.  Incorrect special issues can lead to processing delays or denials.  [See special issue descriptions.](https://www.knowva.ebenefits.va.gov/system/templates/selfservice/va_ssnew/help/customer/locale/en-US/portal/554400000001018/content/554400000179710/Appendix-E-Index-of-Corporate-Flashes-and-Special-Issues?query=special%20issues#2b)",
+            "description": "The special issues related to the disability. Note :: Only add special issues that you are certain about.  Incorrect special issues can lead to processing delays or denials.  [See special issue descriptions.](https://www.knowva.ebenefits.va.gov/system/templates/selfservice/va_ssnew/help/customer/locale/en-US/portal/554400000001018/content/554400000179710/Appendix-E-Index-of-Corporate-Flashes-and-Special-Issues#2b)",
             "type": "array",
             "items": {
               "type": "string",
@@ -1069,7 +1071,7 @@
             "example": "2018-03-02"
           },
           "treatedDisabilityNames": {
-            "description": "Identifies the Service Treatment nomenclature of the Veteran.",
+            "description": "Names of any disabilities for which the Veteran was treated.",
             "type": "array",
             "minItems": 1,
             "maxItems": 101,
@@ -1081,7 +1083,7 @@
             }
           },
           "center": {
-            "description": "Location of Veteran Treatment.",
+            "description":  "VA Medical Center(s) and Department of Defense Military Treatment Facilities where the Veteran received treatment after discharge for any claimed disabilities.",
             "type": "object",
             "additionalProperties": false,
             "required": ["name", "country"],
@@ -1178,12 +1180,6 @@
                 }
               }
             },
-            "willReceiveInfuture": {
-              "description": "Will military retired pay be received in the future?",
-              "type": "boolean",
-              "default": false,
-              "example": false
-            },
             "futurePayExplanation": {
               "description": "Explains why future pay will be received.",
               "type": "string",
@@ -1201,9 +1197,6 @@
           "then": {
             "required": ["futurePayExplanation"]
           }
-        },
-        "hasSeparationPay": {
-          "type": "boolean"
         },
         "separationPay": {
           "description": "Details about separation pay.",
@@ -1297,7 +1290,7 @@
           "example": "123123123"
         },
         "bankName": {
-          "description": "Veteran Bank Name.",
+          "description": "Provide the name of the bank where the Veteran wants the direct deposit.",
           "maxLength": 35,
           "type": "string",
           "example": "Some Bank"
