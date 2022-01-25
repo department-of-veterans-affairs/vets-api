@@ -37,7 +37,8 @@ module FastTrack
           upload_pdf_and_attach_special_issue(form526_submission, pdf)
         end
       rescue => e
-        retryable_error_handler(e)
+        # only retry if the error was raised within the "with_tracking" block
+        retryable_error_handler(e) if @status_job_title
         send_fast_track_engineer_email_for_testing(form526_submission_id, e.message, e.backtrace)
         raise
       end

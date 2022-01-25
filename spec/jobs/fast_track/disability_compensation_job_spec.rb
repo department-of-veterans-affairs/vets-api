@@ -117,7 +117,7 @@ RSpec.describe FastTrack::DisabilityCompensationJob, type: :worker do
 
     context 'when the user uuid is not associated with an Account AND the edipi auth header is blank' do
       let(:submission_without_account_or_edpid) do
-        create(:form526_submission, :with_uploads,
+        create(:form526_submission,
                user_uuid: 'nonsense',
                auth_headers_json: auth_headers.delete('va_eauth_dodedipnid').to_json,
                saved_claim_id: saved_claim.id,
