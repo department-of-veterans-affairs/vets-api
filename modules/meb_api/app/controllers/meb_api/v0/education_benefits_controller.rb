@@ -5,6 +5,7 @@ require 'dgi/automation/service'
 require 'dgi/status/service'
 require 'dgi/submission/service'
 require 'dgi/letters/service'
+require 'dgi/enrollment/service'
 
 module MebApi
   module V0
@@ -58,6 +59,15 @@ module MebApi
         }
       end
 
+      def enrollment
+        # Just mocking return value until data structure is confirmed
+        render json: {
+          data: {
+            status: 200
+          }
+        }
+      end
+
       private
 
       def eligibility_service
@@ -78,6 +88,10 @@ module MebApi
 
       def claim_letters_service
         MebApi::DGI::Letters::Service.new(@current_user)
+      end
+
+      def enrollment_service
+        MebApi::DGI::Enrollment::Service.new(@current_user)
       end
     end
   end

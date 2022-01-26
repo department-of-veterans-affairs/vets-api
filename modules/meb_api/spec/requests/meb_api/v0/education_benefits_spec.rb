@@ -71,4 +71,15 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
       end
     end
   end
+
+  describe 'GET /meb_api/v0/enrollment' do
+    context 'Retrieves a veterans enrollments' do
+      it 'returns a 200 status when it' do
+        VCR.use_cassette('dgi/enrollment') do
+          get '/meb_api/v0/enrollment'
+          expect(response).to have_http_status(:ok)
+        end
+      end
+    end
+  end
 end
