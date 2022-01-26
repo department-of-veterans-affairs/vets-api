@@ -3,6 +3,9 @@
 module CheckIn
   module V2
     class SessionsController < CheckIn::ApplicationController
+      before_action :before_logger, only: %i[show create], if: :additional_logging?
+      after_action :after_logger, only: %i[show create], if: :additional_logging?
+
       def show
         check_in_session = CheckIn::V2::Session.build(data: { uuid: params[:id] }, jwt: session[:jwt])
 
@@ -13,7 +16,7 @@ module CheckIn
       end
 
       def create
-        check_in_session = CheckIn::V2::Session.build(data: session_params, jwt: session[:jwt])
+        check_in_session = CheckIn::V2::Session.build(data: permitted_params, jwt: session[:jwt])
 
         render json: check_in_session.client_error, status: :bad_request and return unless check_in_session.valid?
         render json: check_in_session.success_message and return if check_in_session.authorized?
@@ -25,11 +28,11 @@ module CheckIn
         render json: token_data[:permission_data]
       end
 
-      private
-
-      def session_params
+      def permitted_params
         params.require(:session).permit(:uuid, :last4, :last_name)
       end
+
+      private
 
       def authorize
         routing_error unless Flipper.enabled?('check_in_experience_enabled')

@@ -3,6 +3,9 @@
 module CheckIn
   module V2
     class PatientCheckInsController < CheckIn::ApplicationController
+      before_action :before_logger, only: %i[show create], if: :additional_logging?
+      after_action :after_logger, only: %i[show create], if: :additional_logging?
+
       def show
         check_in_session = CheckIn::V2::Session.build(data: { uuid: params[:id] }, jwt: session[:jwt])
 
@@ -17,11 +20,11 @@ module CheckIn
 
       def create
         check_in_session =
-          CheckIn::V2::Session.build(data: { uuid: patient_check_in_params[:uuid] }, jwt: session[:jwt])
+          CheckIn::V2::Session.build(data: { uuid: permitted_params[:uuid] }, jwt: session[:jwt])
 
         resp =
           if check_in_session.authorized?
-            ::V2::Chip::Service.build(check_in: check_in_session, params: patient_check_in_params).create_check_in
+            ::V2::Chip::Service.build(check_in: check_in_session, params: permitted_params).create_check_in
           else
             check_in_session.unauthorized_message
           end
@@ -29,11 +32,11 @@ module CheckIn
         render json: resp
       end
 
-      private
-
-      def patient_check_in_params
+      def permitted_params
         params.require(:patient_check_ins).permit(:uuid, :appointment_ien)
       end
+
+      private
 
       def authorize
         routing_error unless Flipper.enabled?('check_in_experience_enabled')
