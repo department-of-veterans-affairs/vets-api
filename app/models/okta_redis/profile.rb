@@ -13,8 +13,7 @@ module OktaRedis
       do_cached_with(key: cache_key) do
         user_key = Settings.oidc.base_api_profile_key_icn ? @user.icn : @user.uuid
         if Settings.oidc.base_api_profile_key_icn
-          # Fall back to csp uuid in the exception
-          raise Common::Exceptions::RecordNotFound, @user.uuid if user_key.nil?
+          raise Common::Exceptions::RecordNotFound, 'ICN' if user_key.nil?
 
           user_response = service.user_search_by_icn(user_key)
         else
@@ -26,7 +25,7 @@ module OktaRedis
 
           return Settings.oidc.base_api_profile_key_icn ? user_response.body[0] : user_response.body
         else
-          raise Common::Exceptions::RecordNotFound, user_key
+          raise Common::Exceptions::RecordNotFound, Settings.oidc.base_api_profile_key_icn ? 'ICN' : 'CSP ID'
         end
       end
     end
