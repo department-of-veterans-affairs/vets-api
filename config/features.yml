@@ -578,3 +578,6 @@ features:
   show_payment_and_debt_section:
     actor_type: user
     description: Enables payment and debt section
+  show_dashboard_notifications:
+    actor_type: user
+    description: Enables on-site notifications
