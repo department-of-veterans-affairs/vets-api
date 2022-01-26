@@ -331,6 +331,10 @@ features:
     actor_type: user
     description: Separates mobile mega menu from desktop mega menu
     enable_in_development: true
+  mhv_to_logingov_account_transition:
+    actor_type: cookie_id
+    description: Enables/disables MHV to Login.gov account transfer experience
+    enable_in_development: false
   mobile_api:
     actor_type: user
     description: API endpoints consumed by the VA Mobile App (iOS/Android)
