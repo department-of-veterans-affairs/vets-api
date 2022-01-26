@@ -76,10 +76,10 @@ describe LGY::Service do
     end
 
     context 'when get_determination is ELIGIBLE and get_application is a 200' do
-      it 'returns available' do
+      it 'returns correct payload' do
         VCR.use_cassette 'lgy/determination_eligible' do
           VCR.use_cassette 'lgy/application_200_status_submitted' do
-            expect(subject.coe_status).to eq status: 'available'
+            expect(subject.coe_status).to eq status: 'available', application_create_date: 1_642_619_386_000
           end
         end
       end

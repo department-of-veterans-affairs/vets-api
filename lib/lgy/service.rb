@@ -23,7 +23,7 @@ module LGY
       elsif get_determination.body['status'] == 'UNABLE_TO_DETERMINE_AUTOMATICALLY' && get_application.status == 404
         { status: 'unable-to-determine-eligibility' }
       elsif get_determination.body['status'] == 'ELIGIBLE' && get_application.status == 200
-        { status: 'available' }
+        { status: 'available', application_create_date: get_application.body['create_date'] }
       elsif get_determination.body['status'] == 'NOT_ELIGIBLE'
         { status: 'ineligible' }
       elsif get_determination.body['status'] == 'PENDING' && get_application.status == 404
