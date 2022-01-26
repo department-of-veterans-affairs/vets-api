@@ -36,7 +36,11 @@ module Mobile
               appointment_id: appointment.id,
               facility_id: appointment.facility_id,
               sta6aid: appointment.sta6aid,
-              id_for_address: appointment.id_for_address
+              id_for_address: appointment.id_for_address,
+              type: appointment.appointment_type,
+              location: appointment.location,
+              status: appointment.status,
+              healthcare_service: appointment.healthcare_service
             }
           )
         end
