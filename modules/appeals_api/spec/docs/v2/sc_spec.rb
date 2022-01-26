@@ -14,9 +14,16 @@ describe 'Supplemental Claims', swagger_doc: 'modules/appeals_api/app/swagger/ap
     post 'Creates a new Supplemental Claim' do
       tags 'Supplemental Claims'
       operationId 'createSc'
-      description 'Submits an appeal of type Supplemental Claim.' \
-                  ' This endpoint is the same as submitting [VA form 200995](https://www.vba.va.gov/pubs/forms/VBA-20-0995-ARE.pdf)' \
-                  ' via mail or fax directly to the Board of Veterans’ Appeals.'
+      description = <<~DESC
+        Submits an appeal of type Supplemental Claim. This endpoint is the same as submitting [VA form 200995](https://www.vba.va.gov/pubs/forms/VBA-20-0995-ARE.pdf) via mail or fax directly to the Board of Veterans’ Appeals.
+        <br /><br />
+        <b>Note about the 5103 Notice of Acknowledgement</b>
+        <br /><br />
+        The 5103 Notice regarding new & relevant evidence must be acknowledged when the issue(s) being contested is a Disability Compensation issue. The notice can be found here: [http://www.va.gov/disability/how-to-file-claim/evidence-needed](http://www.va.gov/disability/how-to-file-claim/evidence-needed). If the issue(s) being submitted are Disability Compensation and 'No' is selected, the API will return an error.  Please ensure the Veteran reviews the content about the 5103 Notice at the link above.
+        <br /><br />
+        Supplemental Claims submitted via other avenues that do NOT select 'Yes' for the 5103 Notice are subject to a 30 day suspense so the 5103 Notice can be mailed to the Veteran.
+      DESC
+      description description
 
       security [{ apikey: [] }]
 

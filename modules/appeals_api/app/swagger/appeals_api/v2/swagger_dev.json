@@ -445,12 +445,12 @@
                   "minimum fields used": {
                     "value": {
                       "data": {
-                        "id": "a6f1563f-c173-4d0f-ad16-22ce798c33d4",
+                        "id": "20c8d189-db94-4e9e-8448-db18af364742",
                         "type": "higherLevelReview",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2022-01-20T19:35:46.283Z",
-                          "createdAt": "2022-01-20T19:35:46.235Z",
+                          "updatedAt": "2022-01-26T19:09:49.091Z",
+                          "createdAt": "2022-01-26T19:09:49.087Z",
                           "formData": {
                             "data": {
                               "type": "higherLevelReview",
@@ -486,12 +486,12 @@
                   "all fields used": {
                     "value": {
                       "data": {
-                        "id": "18fd929e-d905-4c6a-9d40-7371dd4b7a86",
+                        "id": "4c9c7921-315d-433f-8538-ad3ac99087b3",
                         "type": "higherLevelReview",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2022-01-20T19:35:46.474Z",
-                          "createdAt": "2022-01-20T19:35:46.465Z",
+                          "updatedAt": "2022-01-26T19:09:49.166Z",
+                          "createdAt": "2022-01-26T19:09:49.163Z",
                           "formData": {
                             "data": {
                               "type": "higherLevelReview",
@@ -968,12 +968,12 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "da606f63-9a3f-406d-9ca4-ac3444e16ca8",
+                    "id": "b6365609-fce7-4531-8290-d1381022609f",
                     "type": "higherLevelReview",
                     "attributes": {
                       "status": "pending",
-                      "updatedAt": "2022-01-20T19:35:46.633Z",
-                      "createdAt": "2022-01-20T19:35:46.631Z",
+                      "updatedAt": "2022-01-26T19:09:49.257Z",
+                      "createdAt": "2022-01-26T19:09:49.256Z",
                       "formData": {
                         "data": {
                           "type": "higherLevelReview",
@@ -4270,12 +4270,12 @@
                   "minimum fields used": {
                     "value": {
                       "data": {
-                        "id": "5194a2b1-5f39-43a6-a80c-7e6be62cba4e",
+                        "id": "799a10ee-f3b4-443e-b8d8-cee5bc94125b",
                         "type": "noticeOfDisagreement",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2022-01-20T19:35:48.081Z",
-                          "createdAt": "2022-01-20T19:35:48.077Z",
+                          "updatedAt": "2022-01-26T19:09:50.237Z",
+                          "createdAt": "2022-01-26T19:09:50.235Z",
                           "formData": {
                             "data": {
                               "type": "noticeOfDisagreement",
@@ -4316,12 +4316,12 @@
                   "all fields used": {
                     "value": {
                       "data": {
-                        "id": "c65f8615-6238-4798-9683-cba8e8560413",
+                        "id": "dc8c3d05-a2a9-452a-b291-f0ea51759257",
                         "type": "noticeOfDisagreement",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2022-01-20T19:35:48.181Z",
-                          "createdAt": "2022-01-20T19:35:48.177Z",
+                          "updatedAt": "2022-01-26T19:09:50.298Z",
+                          "createdAt": "2022-01-26T19:09:50.296Z",
                           "formData": {
                             "data": {
                               "type": "noticeOfDisagreement",
@@ -4617,12 +4617,12 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3be5e417-e89e-4dda-915b-5e1417a9eee0",
+                    "id": "1293c4b3-082f-4464-ac64-dd8fb0bef6dd",
                     "type": "noticeOfDisagreement",
                     "attributes": {
                       "status": "pending",
-                      "updatedAt": "2022-01-20T19:35:48.305Z",
-                      "createdAt": "2022-01-20T19:35:48.292Z",
+                      "updatedAt": "2022-01-26T19:09:50.371Z",
+                      "createdAt": "2022-01-26T19:09:50.369Z",
                       "formData": {
                         "data": {
                           "type": "noticeOfDisagreement",
@@ -6194,17 +6194,17 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a43196c2-91c6-40fe-9ae6-8f8fb90df2b2",
+                    "id": "f248901d-4b34-42e1-ab9e-13354e7c48ee",
                     "type": "evidenceSubmission",
                     "attributes": {
                       "status": "pending",
                       "code": null,
                       "detail": null,
                       "appealType": "NoticeOfDisagreement",
-                      "appealId": "f18801f3-4e1d-4ca9-abb6-1f32f11ef296",
+                      "appealId": "80ba8072-d834-4186-b23a-291175a5ad9f",
                       "location": "http://some.fakesite.com/path/uuid",
-                      "createdAt": "2022-01-20T19:35:49.028Z",
-                      "updatedAt": "2022-01-20T19:35:49.028Z"
+                      "createdAt": "2022-01-26T19:09:50.820Z",
+                      "updatedAt": "2022-01-26T19:09:50.820Z"
                     }
                   }
                 },
@@ -6439,17 +6439,17 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "df780f40-14ab-4a60-8c1b-3ffb2e443565",
+                    "id": "a8244663-9d06-4944-8856-f0d1d03349a9",
                     "type": "evidenceSubmission",
                     "attributes": {
                       "status": "pending",
                       "code": null,
                       "detail": null,
                       "appealType": "NoticeOfDisagreement",
-                      "appealId": "b1e87e21-ddcf-4275-bc91-ff52cbec659f",
+                      "appealId": "fc6f2b6c-ca7b-4db9-92ba-3bd54c2f9755",
                       "location": null,
-                      "createdAt": "2022-01-20T19:35:49.461Z",
-                      "updatedAt": "2022-01-20T19:35:49.461Z"
+                      "createdAt": "2022-01-26T19:09:51.067Z",
+                      "updatedAt": "2022-01-26T19:09:51.067Z"
                     }
                   }
                 },
@@ -6510,7 +6510,7 @@
           "Supplemental Claims"
         ],
         "operationId": "createSc",
-        "description": "Submits an appeal of type Supplemental Claim. This endpoint is the same as submitting [VA form 200995](https://www.vba.va.gov/pubs/forms/VBA-20-0995-ARE.pdf) via mail or fax directly to the Board of Veterans’ Appeals.",
+        "description": "Submits an appeal of type Supplemental Claim. This endpoint is the same as submitting [VA form 200995](https://www.vba.va.gov/pubs/forms/VBA-20-0995-ARE.pdf) via mail or fax directly to the Board of Veterans’ Appeals.\n<br /><br />\n<b>Note about the 5103 Notice of Acknowledgement</b>\n<br /><br />\nThe 5103 Notice regarding new & relevant evidence must be acknowledged when the issue(s) being contested is a Disability Compensation issue. The notice can be found here: [http://www.va.gov/disability/how-to-file-claim/evidence-needed](http://www.va.gov/disability/how-to-file-claim/evidence-needed). If the issue(s) being submitted are Disability Compensation and 'No' is selected, the API will return an error.  Please ensure the Veteran reviews the content about the 5103 Notice at the link above.\n<br /><br />\nSupplemental Claims submitted via other avenues that do NOT select 'Yes' for the 5103 Notice are subject to a 30 day suspense so the 5103 Notice can be mailed to the Veteran.\n",
         "security": [
           {
             "apikey": [
@@ -6601,12 +6601,12 @@
                   "minimum fields used": {
                     "value": {
                       "data": {
-                        "id": "a5d34851-69ce-46a4-9159-c48e9a7a8ff6",
+                        "id": "33351ab1-967a-4629-8d25-5b6cc3a82098",
                         "type": "supplementalClaim",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2022-01-20T19:35:49.729Z",
-                          "createdAt": "2022-01-20T19:35:49.725Z",
+                          "updatedAt": "2022-01-26T19:09:51.221Z",
+                          "createdAt": "2022-01-26T19:09:51.219Z",
                           "formData": {
                             "data": {
                               "type": "supplementalClaim",
@@ -6651,12 +6651,12 @@
                   "all fields used": {
                     "value": {
                       "data": {
-                        "id": "e9bffbd1-0dba-4fb4-96b9-d312b2a05a9c",
+                        "id": "bd99c72d-1af8-49bf-b0ad-dee392cace6c",
                         "type": "supplementalClaim",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2022-01-20T19:35:49.860Z",
-                          "createdAt": "2022-01-20T19:35:49.840Z",
+                          "updatedAt": "2022-01-26T19:09:51.285Z",
+                          "createdAt": "2022-01-26T19:09:51.282Z",
                           "formData": {
                             "data": {
                               "type": "supplementalClaim",
@@ -7172,12 +7172,12 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8150aff8-bb7b-4e6f-9b1f-06f488920632",
+                    "id": "55b7692c-1f70-4291-b386-f3232510133f",
                     "type": "supplementalClaim",
                     "attributes": {
                       "status": "pending",
-                      "updatedAt": "2022-01-20T19:35:49.977Z",
-                      "createdAt": "2022-01-20T19:35:49.975Z",
+                      "updatedAt": "2022-01-26T19:09:51.361Z",
+                      "createdAt": "2022-01-26T19:09:51.359Z",
                       "formData": {
                         "data": {
                           "type": "supplementalClaim",
@@ -7308,17 +7308,17 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "46500561-721f-4db5-8b25-258ec0d4edb6",
+                    "id": "95905009-a0ce-4269-b70c-a81452b7c110",
                     "type": "evidenceSubmission",
                     "attributes": {
                       "status": "pending",
                       "code": null,
                       "detail": null,
                       "appealType": "SupplementalClaim",
-                      "appealId": "43024238-21ff-45b3-b8e1-e5f034e5b569",
+                      "appealId": "df9ad156-1482-434f-830c-86a05d9eaf54",
                       "location": "http://some.fakesite.com/path/uuid",
-                      "createdAt": "2022-01-20T19:35:50.221Z",
-                      "updatedAt": "2022-01-20T19:35:50.221Z"
+                      "createdAt": "2022-01-26T19:09:51.516Z",
+                      "updatedAt": "2022-01-26T19:09:51.516Z"
                     }
                   }
                 },
@@ -7557,17 +7557,17 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1e2fc95e-8217-455d-b2e2-f68108793486",
+                    "id": "cce01f61-9256-4c9c-8bb1-65ce6f45338c",
                     "type": "evidenceSubmission",
                     "attributes": {
                       "status": "pending",
                       "code": null,
                       "detail": null,
                       "appealType": "SupplementalClaim",
-                      "appealId": "77a54051-0ddc-4dd0-a03a-c05958ee5af3",
+                      "appealId": "4516f02e-1214-4799-9780-790614ef66f6",
                       "location": null,
-                      "createdAt": "2022-01-20T19:35:50.629Z",
-                      "updatedAt": "2022-01-20T19:35:50.629Z"
+                      "createdAt": "2022-01-26T19:09:51.757Z",
+                      "updatedAt": "2022-01-26T19:09:51.757Z"
                     }
                   }
                 },
@@ -12320,7 +12320,7 @@
                   },
                   "form5103Acknowledged": {
                     "type": "boolean",
-                    "description": "The 5103 Notice regarding new & relevant evidence must be acknowledged when the issue being contested is a Disability Compensation issue. The notice can be found here: http://www.va.gov/disability/how-to-file-claim/evidence-needed."
+                    "description": "The 5103 Notice regarding new & relevant evidence must be acknowledged when the issue(s) being contested is a Disability Compensation issue. The notice can be found here: http://www.va.gov/disability/how-to-file-claim/evidence-needed. If the issue(s) being submitted are Disability Compensation and 'No' is selected, the API will return an error.  Please ensure the Veteran reviews the content about the 5103 Notice at the link above."
                   },
                   "socOptIn": {
                     "type": "boolean"
