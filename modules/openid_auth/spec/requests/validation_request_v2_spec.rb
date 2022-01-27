@@ -404,6 +404,26 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     end
   end
 
+  context 'when token request body is invalid' do
+    let(:req_headers) do
+      {
+        'content-type' => 'application/json',
+        'Authorization' => "Bearer #{opaque_token}",
+        'apiKey' => 'saml-key'
+      }
+    end
+
+    it 'v2 POST returns an unauthorized for a malformed request', :aggregate_failures do
+      with_okta_okta_and_issued_url_configured do
+        # bad json post
+        post '/internal/auth/v2/validation', params: '{\'aud\': \'whatever\'}', headers: req_headers
+
+        expect(response).to have_http_status(:bad_request)
+        expect(JSON.parse(response.body)['errors'].first['code']).to eq '400'
+      end
+    end
+  end
+
   context 'when token is from invalid issuer' do
     before do
       allow(JWT).to receive(:decode).and_return(invalid_issuer_jwt)

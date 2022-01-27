@@ -16,6 +16,10 @@ module OpenidAuth
 
     def fetch_aud
       params['aud']
+    rescue => e
+      # Handle a malformed body
+      log_message_to_sentry("Error processing request: #{e.message}", :error)
+      raise Common::Exceptions::TokenValidationError.new(detail: 'Invalid request', status: 400, code: 400)
     end
 
     def set_tags_and_extra_context
