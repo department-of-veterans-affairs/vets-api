@@ -7,6 +7,11 @@
       "veteran": {
         "address": "",
         "homeless": false
+      },
+      "claimant": {
+        "address": {
+          "city": "Boise"
+        }
       }
     }
   },

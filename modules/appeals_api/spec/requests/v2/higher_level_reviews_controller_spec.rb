@@ -12,10 +12,11 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
 
   before(:all) do
     @data = fixture_to_s 'valid_200996_minimum_v2.json'
+    @data_extra = fixture_to_s 'valid_200996_extra_v2.json'
     @invalid_data = fixture_to_s 'invalid_200996_v2.json'
     @headers = fixture_as_json 'valid_200996_headers_v2.json'
     @minimum_required_headers = fixture_as_json 'valid_200996_headers_minimum.json'
-    @extra_headers = fixture_as_json 'valid_200996_headers_extra_v2.json'
+    @headers_extra = fixture_as_json 'valid_200996_headers_extra_v2.json'
     @invalid_headers = fixture_as_json 'invalid_200996_headers.json'
   end
 
@@ -45,7 +46,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
 
     context 'with optional claimant headers' do
       it 'creates an HLR and persists the data' do
-        post(path, params: @data, headers: @extra_headers)
+        post(path, params: @data, headers: @headers_extra)
         expect(parsed['data']['type']).to eq('higherLevelReview')
         expect(parsed['data']['attributes']['status']).to eq('pending')
       end
@@ -166,8 +167,15 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
   describe '#validate' do
     let(:path) { base_path 'higher_level_reviews/validate' }
 
-    it 'returns a response when valid' do
+    it 'returns a response when minimal data valid' do
       post(path, params: @data, headers: @headers)
+      expect(parsed['data']['attributes']['status']).to eq('valid')
+      expect(parsed['data']['type']).to eq('higherLevelReviewValidation')
+    end
+
+    it 'returns a response when extra data valid' do
+      post(path, params: @data_extra, headers: @headers_extra)
+
       expect(parsed['data']['attributes']['status']).to eq('valid')
       expect(parsed['data']['type']).to eq('higherLevelReviewValidation')
     end

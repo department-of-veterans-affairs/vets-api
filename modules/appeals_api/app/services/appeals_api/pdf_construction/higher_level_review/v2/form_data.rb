@@ -10,7 +10,7 @@ module AppealsApi
 
         delegate :first_name, :middle_initial, :last_name, :number_and_street, :city, :state_code,
                  :country_code, :file_number, :zip_code, :insurance_policy_number, :contestable_issues, :birth_mm,
-                 :birth_dd, :birth_yyyy, :date_signed_mm, :date_signed_dd, :date_signed_yyyy,
+                 :birth_dd, :birth_yyyy, :date_signed_mm, :date_signed_dd, :date_signed_yyyy, :claimant,
                  to: :higher_level_review
 
         def first_three_ssn

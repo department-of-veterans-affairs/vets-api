@@ -49,9 +49,7 @@ module AppealsApi
     end
 
     def claimant
-      return unless auth_headers['X-VA-Claimant-First-Name'] && auth_headers['X-VA-Claimant-Last-Name']
-
-      NonVeteranClaimant.new(auth_headers: auth_headers, form_data: data_attributes&.dig('claimant'))
+      @claimant ||= NonVeteranClaimant.new(auth_headers: auth_headers, form_data: data_attributes&.dig('claimant'))
     end
 
     def first_name

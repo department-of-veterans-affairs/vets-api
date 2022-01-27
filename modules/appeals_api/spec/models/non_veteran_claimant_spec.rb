@@ -6,12 +6,12 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe AppealsApi::NonVeteranClaimant, type: :model do
   include FixtureHelpers
 
-  context 'when all headers and data are present' do
-    let(:auth_headers) { fixture_as_json 'valid_200996_headers_extra_v2.json' }
-    let(:default_form_data) { (fixture_as_json 'valid_200996_v2_extra.json') }
-    let(:claimant_form_data) { default_form_data.dig('data', 'attributes', 'claimant') }
-    let(:subject) { described_class.new(auth_headers: auth_headers, form_data: claimant_form_data) }
+  let(:auth_headers) { fixture_as_json 'valid_200996_headers_extra_v2.json' }
+  let(:default_form_data) { (fixture_as_json 'valid_200996_extra_v2.json') }
+  let(:claimant_form_data) { default_form_data.dig('data', 'attributes', 'claimant') }
+  let(:subject) { described_class.new(auth_headers: auth_headers, form_data: claimant_form_data) }
 
+  context 'when all headers and data are present' do
     describe '#first_name' do
       it { expect(subject.first_name).to eq 'Betty' }
     end
@@ -69,7 +69,7 @@ describe AppealsApi::NonVeteranClaimant, type: :model do
     end
 
     describe '#email' do
-      it { expect(subject.email).to eq 'chocolate_chips@ilovecookies.com' }
+      it { expect(subject.email).to eq 'email@emailaddress.com' }
     end
 
     describe '#phone_data' do
@@ -82,6 +82,44 @@ describe AppealsApi::NonVeteranClaimant, type: :model do
       it do
         expect(subject.phone_string).to eq '555-811-1100 ext 4'
       end
+    end
+  end
+
+  context 'when minimum headers and data are present' do
+    let(:minimum_headers) do
+      %w[X-VA-Claimant-Middle-Initial X-VA-Claimant-Birth-Date X-VA-Claimant-SSN].map { |k| auth_headers.except! k }
+      auth_headers
+    end
+
+    let(:minimum_claimant_data) do
+      {
+        'address' => {
+          'addressLine1' => '456 First St',
+          'addressLine3' => nil,
+          'city' => 'Detroit',
+          'countryCodeISO2' => 'US',
+          'stateCode' => '',
+          'zipCode5' => '48070'
+        }
+      }
+    end
+
+    let(:subject) { described_class.new(auth_headers: minimum_headers, form_data: minimum_claimant_data) }
+
+    describe '#full_name' do
+      it { expect(subject.full_name).to eq 'Betty Boop' }
+    end
+
+    describe '#state_code' do
+      it { expect(subject.state_code).to eq '' }
+    end
+
+    describe '#number_and_street' do
+      it { expect(subject.number_and_street).to eq '456 First St' }
+    end
+
+    describe '#zip_code' do
+      it { expect(subject.zip_code).to eq '48070' }
     end
   end
 end

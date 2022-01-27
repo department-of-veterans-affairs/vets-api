@@ -136,7 +136,15 @@
                         "internationalPostalCode": { "type": "string", "maxLength": 16 }
                       },
                       "additionalProperties": false,
-                      "required": [ "addressLine1", "city", "countryCodeISO2", "zipCode5" ]
+                      "oneOf": [
+                        {
+                          "required": [ "zipCode5" ]
+                        },
+                        {
+                          "required": [ "internationalPostalCode" ]
+                        }
+                      ],
+                      "required": [ "addressLine1", "city", "countryCodeISO2" ]
                     },
                     "phone":    { "$ref": "#/definitions/hlrCreatePhone" },
                     "email": {

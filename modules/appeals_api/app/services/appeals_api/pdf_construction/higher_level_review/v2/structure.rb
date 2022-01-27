@@ -16,9 +16,10 @@ module AppealsApi
         end
 
         # rubocop:disable Metrics/MethodLength
+        # rubocop:disable Metrics/AbcSize
         def form_fill
           options = {
-            # Section I: Vet's ID
+            # Vet's ID
             # Veteran name is filled out through autosize text box, not pdf fields
             form_fields.middle_initial => form_data.middle_initial,
             form_fields.first_three_ssn => form_data.first_three_ssn,
@@ -37,10 +38,23 @@ module AppealsApi
             form_fields.veteran_phone_line_number => form_data.veteran_phone_line_number,
             form_fields.veteran_phone_international_number => form_data.veteran_phone_international_number,
 
-            # Section II: Claimant's ID
-            # NOT YET SUPPORTED
+            # Claimant
+            # Claimant name is filled out through autosize text box, not pdf fields
+            form_fields.claimant_middle_initial => form_data.claimant.middle_initial,
+            form_fields.claimant_first_three_ssn => form_data.claimant.ssn_first_three,
+            form_fields.claimant_second_two_ssn => form_data.claimant.ssn_second_two,
+            form_fields.claimant_last_four_ssn => form_data.claimant.ssn_last_four,
+            form_fields.claimant_birth_month => form_data.claimant.birth_month,
+            form_fields.claimant_birth_day => form_data.claimant.birth_day,
+            form_fields.claimant_birth_year => form_data.claimant.birth_year,
+            form_fields.claimant_mailing_address_state => form_data.claimant.state_code,
+            form_fields.claimant_mailing_address_country => form_data.claimant.country_code,
+            form_fields.claimant_phone_area_code => form_data.claimant.area_code,
+            form_fields.claimant_phone_prefix => form_data.claimant.phone_prefix,
+            form_fields.claimant_phone_line_number => form_data.claimant.phone_line_number,
+            form_fields.claimant_phone_international_number => form_data.claimant.international_number,
 
-            # Section III: Benefit Type
+            # Benefit Type
             form_fields.benefit_type(0) => form_data.benefit_type('education'),
             form_fields.benefit_type(1) => form_data.benefit_type('nationalCemeteryAdministration'),
             form_fields.benefit_type(2) => form_data.benefit_type('veteransHealthAdministration'),
@@ -51,7 +65,7 @@ module AppealsApi
             form_fields.benefit_type(7) => form_data.benefit_type('pensionSurvivorsBenefits'),
             form_fields.benefit_type(8) => form_data.benefit_type('compensation'),
 
-            # Section IV: Optional Informal Conference
+            # Optional Informal Conference
             form_fields.informal_conference => form_data.informal_conference,
             form_fields.conference_8_to_12 => form_data.informal_conference_time('veteran', '800-1200 ET'),
             form_fields.conference_12_to_1630 => form_data.informal_conference_time('veteran', '1200-1630 ET'),
@@ -82,6 +96,7 @@ module AppealsApi
           fill_contestable_issues_dates!(options)
         end
         # rubocop:enable Metrics/MethodLength
+        # rubocop:enable Metrics/AbcSize
 
         def insert_overlaid_pages(form_fill_path)
           pdftk = PdfForms.new(Settings.binaries.pdftk)

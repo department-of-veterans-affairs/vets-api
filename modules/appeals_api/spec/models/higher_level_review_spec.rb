@@ -342,14 +342,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
       subject { higher_level_review_v2.claimant }
 
       it do
-        expect(subject.class).to eq(AppealsApi::NonVeteranClaimant)
-      end
-
-      it 'returns nil if claimant first and last names are not present in headers' do
-        hlr_no_claimant_headers = higher_level_review
-        higher_level_review.auth_headers.merge('X-VA-Claimant-Middle-Initial' => 'D')
-
-        expect(hlr_no_claimant_headers.claimant).to eq nil
+        expect(subject.class).to eq AppealsApi::NonVeteranClaimant
       end
     end
   end

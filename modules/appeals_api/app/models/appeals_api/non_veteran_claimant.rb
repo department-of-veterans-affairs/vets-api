@@ -3,8 +3,8 @@
 module AppealsApi
   class NonVeteranClaimant
     def initialize(auth_headers:, form_data:)
-      @auth_headers = auth_headers
-      @form_data = form_data
+      @auth_headers = auth_headers || {}
+      @form_data = form_data || {}
     end
 
     def first_name
@@ -48,19 +48,27 @@ module AppealsApi
     end
 
     def city
-      form_data['address']['city']
+      address['city']
     end
 
     def state_code
-      form_data['address']['stateCode']
+      address['stateCode']
     end
 
     def country_code
-      form_data['address']['countryCodeISO2'] || 'US'
+      address['countryCodeISO2']
     end
 
     def zip_code_5
-      form_data['address']['zipCode5'] || '00000'
+      address['zipCode5']
+    end
+
+    def international_postal_code
+      address['internationalPostalCode']
+    end
+
+    def zip_code
+      international_postal_code || zip_code_5
     end
 
     def email
@@ -84,25 +92,23 @@ module AppealsApi
     end
 
     def phone_prefix
-      return unless domestic_country_code_present?
-
       phone_data&.dig('phoneNumber')&.first(3)
     end
 
     def phone_line_number
-      return unless domestic_country_code_present?
-
       phone_data&.dig('phoneNumber')&.last(4)
     end
 
     def phone_ext
-      return unless domestic_country_code_present?
+      return unless domestic_phone?
 
-      phone_data&.dig('phoneNumberExt')
+      ext = phone_data&.dig('phoneNumberExt')
+
+      "x#{ext}" if ext.present?
     end
 
     def international_number
-      return if domestic_country_code_present?
+      return if domestic_phone?
 
       phone_string
     end
@@ -128,28 +134,26 @@ module AppealsApi
     attr_accessor :auth_headers, :form_data
 
     def birth_date
-      @birth_date = Date.parse(birth_date_string)
+      return if birth_date_string.blank?
+
+      @birth_date ||= Date.parse(birth_date_string)
     end
 
     def address_combined
-      return unless form_data['address']['addressLine1']
+      return if address.blank?
 
       @address_combined ||=
-        [form_data['address']['addressLine1'],
-         form_data['address']['addressLine2'],
-         form_data['address']['addressLine3']].compact.map(&:strip).join(' ')
+        [address['addressLine1'],
+         address['addressLine2'],
+         address['addressLine3']].compact.map(&:strip).join(' ')
     end
 
-    def zip_code
-      if zip_code_5 == '00000'
-        form_data['address']['internationalPostalCode'] || '00000'
-      else
-        zip_code_5
-      end
+    def domestic_phone?
+      phone_country_code == '1'
     end
 
-    def domestic_country_code_present?
-      country_code != '1'
+    def address
+      form_data['address'].presence || {}
     end
   end
 end

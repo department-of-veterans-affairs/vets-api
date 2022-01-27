@@ -72,7 +72,7 @@ FactoryBot.define do
       JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/valid_200996_headers_extra_v2.json"
     end
     form_data do
-      JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/valid_200996_v2_extra.json"
+      JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/valid_200996_extra_v2.json"
     end
   end
 
