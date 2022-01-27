@@ -34,6 +34,8 @@ module CovidResearch
       data.keys.map do |key|
         if key == 'veteranFullName'
           translate_name(data[key])
+        elsif key == 'vaLocation'
+          translate_facility(data[key])
         elsif data[key].instance_of?(Hash)
           formatted_qs(data[key])
         else
@@ -51,6 +53,10 @@ module CovidResearch
 
     def translate_name(data)
       Volunteer::NameSerializer.new.serialize(data)
+    end
+
+    def translate_facility(data)
+      Volunteer::FacilitySerializer.new.serialize(data)
     end
 
     def value(actual)

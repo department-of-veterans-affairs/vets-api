@@ -85,6 +85,6 @@
     {"QuestionName":"FACILITY", "QuestionValue":"Yes"},
     {"QuestionName":"zipCode", "QuestionValue":"22334"},
     {"QuestionName":"consentAgreementAccepted", "QuestionValue":"Yes"},
-    {"QuestionName":"previousSubmissionId", "QuestionValue":"123abc-789xyz"}
+    {"QuestionName":"registryUUID", "QuestionValue":"123abc-789xyz"}
   ]
 }

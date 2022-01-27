@@ -25,7 +25,7 @@ module CovidResearch
         @submission = form_data
         @delivery_respone = :unattempted
         @parsed_form = JSON.parse(@submission)
-        @submission_type = @parsed_form.key?('previousSubmissionId') ? 'update' : 'intake'
+        @submission_type = @parsed_form.key?('registryUUID') ? 'update' : 'intake'
       end
 
       def deliver_form
