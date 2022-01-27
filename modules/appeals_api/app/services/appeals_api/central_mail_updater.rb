@@ -113,7 +113,11 @@ module AppealsApi
         attributes = attributes.merge(detail: "Downstream status: #{central_mail_status.error_message}")
       end
 
-      appeal.update_status! attributes
+      begin
+        appeal.update_status! attributes
+      rescue => e
+        log_exception e, appeal, central_mail_status.status
+      end
     end
 
     def central_mail_status_lookup(appeal)
@@ -126,6 +130,25 @@ module AppealsApi
         else HLR_CENTRAL_STATUS_ATTRIBUTES
         end
       end
+    end
+
+    def log_exception(e, appeal, status)
+      details = {
+        class: self.class.to_s,
+        appeal_type: appeal.class.to_s,
+        appeal_id: appeal.id,
+        attempted_status: status
+      }
+
+      log_exception_to_sentry e, details
+
+      slack_details = {
+        exception: e.class.to_s,
+        exception_message: e.message,
+        detail: 'Error when trying to update appeal status'
+      }.merge(details)
+
+      AppealsApi::Slack::Messager.new(slack_details).notify!
     end
   end
 end

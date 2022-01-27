@@ -11,6 +11,10 @@ describe AppealsApi::HigherLevelReviewUploadStatusUpdater, type: :job do
     [{ uuid: 'ignored',
        status: 'In Process',
        errorMessage: '',
+       lastUpdated: '2018-04-25 00:02:39' },
+     { uuid: 'ignored',
+       status: 'In Process',
+       errorMessage: '',
        lastUpdated: '2018-04-25 00:02:39' }]
   end
 
@@ -28,6 +32,31 @@ describe AppealsApi::HigherLevelReviewUploadStatusUpdater, type: :job do
         AppealsApi::HigherLevelReviewUploadStatusUpdater.new.perform([upload])
         upload.reload
         expect(upload.status).to eq('processing')
+      end
+    end
+
+    it 'notifies sentry & slack of individual bad records without affecting good records' do
+      bad_upload = create(:higher_level_review, :status_received)
+      # Intentionally break decrypting
+      bad_upload.update_column :form_data_ciphertext, ':(' # rubocop:disable Rails/SkipsModelValidations
+
+      expect(CentralMail::Service).to receive(:new) { client_stub }
+      expect(client_stub).to receive(:status).and_return(faraday_response)
+      expect(faraday_response).to receive(:success?).and_return(true)
+
+      in_process_element[0]['uuid'] = bad_upload.id
+      in_process_element[1]['uuid'] = upload.id
+      expect(faraday_response).to receive(:body).at_least(:once).and_return(in_process_element.to_json)
+
+      expect_any_instance_of(AppealsApi::CentralMailUpdater).to receive(:log_exception_to_sentry).once
+      expect_any_instance_of(AppealsApi::Slack::Messager).to receive(:notify!).once
+
+      with_settings(Settings.modules_appeals_api, higher_level_review_updater_enabled: true) do
+        AppealsApi::HigherLevelReviewUploadStatusUpdater.new.perform([bad_upload, upload])
+        upload.reload
+        bad_upload.reload
+        expect(upload.status).to eq('processing')
+        expect(bad_upload.status).to eq('received')
       end
     end
   end
