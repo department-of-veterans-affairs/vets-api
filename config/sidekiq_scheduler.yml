@@ -126,7 +126,7 @@ VBADocuments::ReportMonthlySubmissions:
   description: "Monthly report of benefits intake submissions at 02:03:04 on the first of the month"
 
 ClaimsApi::ReportUnsuccessfulSubmissions:
-  cron: "0 0 * * MON-FRI America/New_York"
+  cron: "0 23 * * * America/New_York"
   class: ClaimsApi::ReportUnsuccessfulSubmissions
   description: "Weekly report of unsuccessful claims submissions"
 

@@ -9,7 +9,7 @@ module ClaimsApi
     def perform
       if Settings.claims_api.report_enabled
         @to = Time.zone.now
-        @from = @to.monday? ? 7.days.ago : 1.day.ago
+        @from = 1.day.ago
         @claims_consumers = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to).pluck(:source).uniq
 
         ClaimsApi::UnsuccessfulReportMailer.build(
