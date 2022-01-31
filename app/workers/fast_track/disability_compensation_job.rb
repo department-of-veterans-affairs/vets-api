@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'prawn'
-require 'prawn/table'
 require 'lighthouse/veterans_health/client'
 require 'sidekiq/form526_job_status_tracker/job_tracker'
 require 'sidekiq/form526_job_status_tracker/metrics'
