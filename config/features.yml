@@ -315,10 +315,6 @@ features:
     actor_type: cookie_id
     description: Enables/disables the Login.gov button for MyVAHealth (VSP Identity)
     enable_in_development: true
-  login_old_design:
-    actor_type: cookie_id
-    description: Enables/disables the new Sign in design (VSP Identity)
-    enable_in_development: true
   loop_pages:
     actor_type: user
     description: Enable new list loop pattern
