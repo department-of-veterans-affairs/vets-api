@@ -17,14 +17,14 @@ namespace :veteran do
     Veteran::Service::Organization.create(poa: '1NY', name: '1NY - SAMANTHA Y WARSHAUER')
     Veteran::Service::Representative.create(
       representative_id: '98765',
-      poa_codes: %w[A1Q 095 074 083 1NY],
+      poa_codes: %w[067 A1Q 095 074 083 1NY],
       first_name: 'Tamara',
       last_name: 'Ellis',
       email: 'va.api.user+idme.001@gmail.com'
     )
     Veteran::Service::Representative.create(
       representative_id: '12345',
-      poa_codes: %w[A1H 095 074 083 1NY],
+      poa_codes: %w[072 A1H 095 074 083 1NY],
       first_name: 'John',
       last_name: 'Doe',
       email: 'va.api.user+idme.007@gmail.com'

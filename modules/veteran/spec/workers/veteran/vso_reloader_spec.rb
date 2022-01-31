@@ -49,19 +49,19 @@ RSpec.describe Veteran::VSOReloader, type: :job do
     context 'leaving test users alone' do
       before do
         Veteran::Service::Representative.create(
-          representative_id: '999999999999',
+          representative_id: '98765',
           first_name: 'Tamara',
           last_name: 'Ellis',
           email: 'va.api.user+idme.001@gmail.com',
-          poa_codes: %w[A1Q 095 074 083 1NY]
+          poa_codes: %w[067 A1Q 095 074 083 1NY]
         )
 
         Veteran::Service::Representative.create(
-          representative_id: '9999999999999',
+          representative_id: '12345',
           first_name: 'John',
           last_name: 'Doe',
           email: 'va.api.user+idme.007@gmail.com',
-          poa_codes: %w[A1Q 095 074 083 1NY]
+          poa_codes: %w[072 A1H 095 074 083 1NY]
         )
       end
 
