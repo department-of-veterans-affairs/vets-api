@@ -11,6 +11,7 @@
     <% end %>
     <th>TOTALS</th>
     <th>SUCCESS %</th>
+    <th>PROCESSING %</th>
     <th>ERRORED %</th>
     <th>EXPIRED %</th>
     <th>LOBS</th>
@@ -26,6 +27,7 @@
         <% end %>
         <td style="text-align: right"><%= @consumer_totals[consumer][:totals] %></td>
         <td style="text-align: center"><%= @consumer_totals[consumer][:success_rate] %></td>
+        <td style="text-align: center"><%= @consumer_totals[consumer][:processing_rate]%></td>
         <td style="text-align: center"><%= @consumer_totals[consumer][:error_rate] %></td>
         <td style="text-align: center"><%= @consumer_totals[consumer][:expired_rate]%></td>
         <%
@@ -51,6 +53,7 @@
       <% end %>
       <td style="text-align: right"><%=sum_hash['total'] %></td>
       <td style="text-align: center"><%= sum_hash['success_rate'] %></td>
+      <td style="text-align: center"><%= sum_hash['processing_rate'] %></td>
       <td style="text-align: center"><%= sum_hash['error_rate'] %></td>
       <td style="text-align: center"><%= sum_hash['expired_rate'] %></td>
       <td></td>

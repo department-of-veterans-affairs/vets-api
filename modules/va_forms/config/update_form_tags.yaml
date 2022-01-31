@@ -102,3 +102,7 @@ form tags list:
   form_names:
   - 28-0588
   - 28-1900
+- tags:
+    - 526
+  form_names:
+    - 21-526EZ
