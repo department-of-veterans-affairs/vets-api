@@ -461,6 +461,24 @@ RSpec.describe 'Power of Attorney ', type: :request do
             end
           end
         end
+
+        context 'when representative POA code not found in OGC scraped data' do
+          it 'returns a 404' do
+            with_okta_user(scopes) do |auth_header|
+              expect_any_instance_of(
+                ClaimsApi::V1::Forms::PowerOfAttorneyController
+              ).to receive(:validate_user_is_accredited!).and_return(nil)
+              allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+              expect(bgs_poa_verifier).to receive(:current_poa).and_return(Struct.new(:code).new('HelloWorld'))
+              allow(::Veteran::Service::Organization).to receive(:find_by).and_return(nil)
+              allow(::Veteran::Service::Representative).to receive(:where).and_return([])
+
+              get('/services/claims/v1/forms/2122/active', params: nil, headers: headers.merge(auth_header))
+
+              expect(response.status).to eq(404)
+            end
+          end
+        end
       end
     end
   end
