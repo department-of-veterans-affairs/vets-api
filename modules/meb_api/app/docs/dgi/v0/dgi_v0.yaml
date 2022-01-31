@@ -1,0 +1,557 @@
+openapi: "3.0.0"
+info:
+  version: "0"
+  title: DGI Education Benefits
+  description: |
+    ## The API for Veterans My Education Benefits Application.
+
+    These endpoints are a relay service between form 22-1990, and a microservice that interfaces with Chapter 33 Long Term Solution (LTS). LTS is where forms are manually re-typed by a Vet Customer Experience (VCE) member. These endpoints retrieve data and help automate the process of feedbak when applying for education benefits
+  contact:
+    name: va.gov
+tags:
+  - name: claimant info
+    description: Claimant Information
+  - name: submit claim
+    description: Claim Submission
+  - name: claim status
+    description: Claim Status
+  - name: claim letter
+    description: Claim Letter
+servers:
+  - url: https://sandbox-api.va.gov/meb_api/v0
+    description: VA.gov API sandbox environment
+    variables:
+      version:
+        default: v0
+  - url: https://api.va.gov/meb_api/v0
+    description: VA.gov API production environment
+    variables:
+      version:
+        default: v0
+paths:
+  "/claimant_info":
+    post:
+      tags:
+        - claimant info
+      summary: Retrieves a JSON object containing bio and service data for an authenticated applicant.
+      operationId: getClaimant
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimantInfoRequestBody"
+      responses:
+        "201":
+          description: Retrives a Claimant object with bio and service data.
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      attributes:
+                        $ref: "#/components/schemas/ClaimantInfo"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
+          
+  "/submit_claim":
+    post:
+      tags:
+        - submit claim
+      summary: Formats the form data and submits the form data to the web service.
+      operationId: SubmitClaim
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitClaimRequestBody"
+      responses:
+        "201":
+          description: Submits a the parameters from the form.
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      attributes:
+                        $ref: "#/components/schemas/SubmitClaimResponse"
+  
+                          
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
+
+  "/claim_status":
+    post:
+      tags:
+        - claim status
+      summary: Retrieves a JSON object containing status data regarding the claim applied for.
+      operationId: getClaimStatus
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimantInfoRequestBody"
+      responses:
+        "200":
+          description: Retrives a Claim Status object.
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      attributes:
+                        $ref: "#/components/schemas/ClaimStatus"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
+          
+
+
+  "/claim_letter":
+    post:
+      tags:
+      - claim letter
+      summary: Dowloads an approval or denial letter to the client.
+      operationId: getClaimLetter
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimantInfoRequestBody"
+      responses:
+        "200":
+          description: Retrives a Claim Letter.
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+                
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
+
+    
+  
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: "http"
+      scheme: "bearer"
+      bearerFormat: "JWT"
+  schemas:
+    ClaimantInfoRequestBody:
+      description: Unique identifier in the request body to create the claimant information.
+      type: object
+      properties:
+        ssn:
+          type: string
+          example: 539139735
+    SubmitClaimRequestBody:
+      description: Submits the form data to the web service.
+      type: object
+      properties:
+          claimant:
+            description: Parent Object of the form body.
+            type: object
+            properties:
+              claimantId: 
+                type: number
+                example: 99_900_000_200_000_000
+              suffix:
+                type: string
+                example: null,
+              dateOfBirth:
+                type: string
+                example: 07/11/1994
+              firstName:
+                type: string
+                example: James
+              lastName:
+                type: string
+                example: Bond
+              middleName:
+                type: string
+                example: James
+              notificationMethod:
+                type: string
+                example: null
+              contactInfo: 
+                type: object
+                properties:
+                  addressLine1:
+                    type: string
+                  addressLine2:
+                    type: string
+                  city:
+                    type: string
+                  zipcode:
+                    type: string
+                  emailAddress:
+                    type: string
+                    example: james.bond@test.com
+                  addressType:
+                    type: string
+                  mobilePhoneNumber:
+                    type: string
+                    example: 1231231234
+                  homePhoneNumber:
+                    type: string
+                    example: 1231231234
+                  countryCode:
+                    type: string
+                    example: US
+                  stateCode:
+                    type: string
+              preferredContact: 
+                type: string
+                example: EMAIL
+              relinquishedBenefit:
+                type: object
+                properties:
+                  effRelinquishDate:
+                      type: string
+                      format: date
+                  relinquishedBenefit:
+                      type: string
+                      format: date
+              additionalConsiderations: 
+                type: object
+                properties:
+                  activeDutyKicker: 
+                    type: string
+                  reserveKicker:
+                    type: string
+                  academyRotcScholarship:
+                    type: string
+                  seniorRotcScholarship:
+                    type: string
+                  activeDutyDodRepayLoan:
+                    type: string
+                  terminalLeave:
+                    type: string
+              comments:
+                type: object
+                properties:
+                  disagreeWithServicePeriod: 
+                    type: boolean
+                    example: true
+    ClaimantInfo:
+      description: Information about an authenticated claimant.
+      type: object
+      properties:
+        claimant:
+          description: The Biographical data of the claimant
+          type: object
+          properties:
+            claimantId:
+              type: number
+              example: 990000000000000001
+            suffix:
+              type: string
+              example: III
+            dateOfBirth: 
+              type: string
+              example: 05/08/1933
+            firstName:
+              type: string
+              example: Francis
+            lastName:
+              type: string
+              example: Ouimet
+            middleName:
+              type: string
+              example: Desales
+            notificationMethod:
+              type: string
+              example: TEXT
+            contactInfo:
+              type: object
+              properties:
+                addressLine1:
+                  type: string
+                  example: 123 Maple St
+                addressLine2:
+                  type: string
+                  example: null
+                city:
+                  type: string
+                  example: Brookline
+                zipcode:
+                  type: string
+                emailAddress:
+                  type: string
+                  example: example123@testing.com
+                addressType:
+                  type: string
+                  example: MILLITARY_OVERSEAS
+                mobilePhoneNumber:
+                  type: string
+                  example: 1231231234
+                homePhoneNumber:
+                  type: string
+                  example: 1231231234
+                countryCode:
+                  type: string
+                  example: US
+                stateCode:
+                  type: string
+                  example: MA
+            preferredContact:
+              type: string
+            serviceData:
+              type: array
+              description: The claimants associated service data.
+              items:
+                type: object
+                properties:
+                  branchOfService:
+                    type: string
+                  beginDate:
+                    type: string
+                  endDate:
+                    type: string
+                  characterOfService:
+                    type: string
+                  reasonForSeperation:
+                    type: string
+                  exclusionPeriods:
+                    type: array
+                    description: The claimants periods of time where they were excluded from counting towards their benefit.
+                    items:
+                      type: string
+                  trainingPeriods:
+                    type: array
+                    description: The Claimants period of time spent training.
+                    items:
+                      type: string
+    SubmitClaimResponse:
+      description: Submitting Claim via form 22-1990
+      type: object
+      properties:
+        status:
+          type: string
+          example: 200
+                      
+    ClaimStatus:
+      description: Information about submitted claims status.
+      type: object
+      properties:
+        claimantId:
+          description: The unique identifier for the claimant.
+          type: number
+          example: 990000000000000001
+        claimServiceId:
+          description: The unique identifier for the specified claim.
+          type: number
+          example: 99000000113358489,
+        claimStatus:
+          description: The Status of the current claim
+          type: string
+          enum: 
+            - ELIGIBLE
+            - DENIED
+            - IN_PROGRESS
+        confirmationNumber:
+          type: number
+          example: null
+        receivedDate: 
+          type: string
+          format: date
+    Errors:
+      required:
+        - "errors"
+      properties:
+        errors:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+              code:
+                type: "string"
+              title:
+                type: "string"
+              detail:
+                type: "string"
+  responses:
+    "BadGateway":
+      description: "The server was acting as a gateway or proxy and received an invalid response from the upstream server."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    "BadRequest":
+      description: "Bad Request, the server cannot or will not process the request due to an apparent client error."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    "Conflict":
+      description: "Conflict, indicates that the request could not be processed because of conflict in the current state of the appointment."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    "Forbidden":
+      description: "Forbidden, user does not have access or is not authenticated."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    "GatewayTimeout":
+      description: "The server was acting as a gateway or proxy and did not receive a timely response from the upstream server."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    "InternalServerError":
+      description: "A generic error message, given when an unexpected condition was encountered and no more specific message is suitable."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    "NotFound":
+      description: "Requested resource could not be found."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    "NotImplemented":
+      description: "The server either does not recognize the request method, or it lacks the ability to fulfil the request. Usually this implies future availability (e.g., a new feature of a web-service API)."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    "ServiceUnavailable":
+      description: "The server cannot handle the request (because it is overloaded or down for maintenance). Generally, this is a temporary state."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    "Unauthorized":
+      description: "Unauthorized"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    "Unprocessable":
+      description: "Unprocessable Entity, the request was well-formed but was unable to be followed due to parameter validation errors."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
