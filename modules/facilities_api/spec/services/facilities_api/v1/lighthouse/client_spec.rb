@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 vcr_options = {
-  cassette_name: '/lighthouse/facilities',
+  cassette_name: '/facilities/va/lighthouse',
   match_requests_on: %i[path query],
   allow_playback_repeats: true,
   record: :new_episodes
@@ -17,6 +17,8 @@ RSpec.describe FacilitiesApi::V1::Lighthouse::Client, team: :facilities, vcr: vc
       bbox: [60.99, 10.54, 180.00, 20.55] # includes the Phillipines and Guam
     }
   end
+
+  let(:last_updated) { '2022-01-23' }
 
   let(:vha_358_attributes) do
     {
@@ -41,11 +43,11 @@ RSpec.describe FacilitiesApi::V1::Lighthouse::Client, team: :facilities, vcr: vc
       },
       phone: {
         'after_hours' => nil,
-        'enrollment_coordinator' => '632-550-3888 x3780',
-        'fax' => '632-310-5962',
-        'main' => '632-550-3888',
-        'patient_advocate' => '632-550-3888 x3716',
-        'pharmacy' => '632-550-3888 x5029'
+        'enrollment_coordinator' => '808-433-5254',
+        'fax' => nil,
+        'main' => '808-433-5254',
+        'patient_advocate' => '808-433-5254',
+        'pharmacy' => '808-433-5254'
       },
       hours: {
         'friday' => '730AM-430PM',
@@ -56,9 +58,9 @@ RSpec.describe FacilitiesApi::V1::Lighthouse::Client, team: :facilities, vcr: vc
         'tuesday' => '730AM-430PM',
         'wednesday' => '730AM-430PM'
       },
-      services: { 'health' => %w[Audiology Cardiology Dermatology EmergencyCare
-                                 Ophthalmology PrimaryCare SpecialtyCare],
-                  'last_updated' => '2021-04-05', 'other' => [] },
+      services: { 'health' => %w[Audiology Cardiology Dermatology Gastroenterology
+                                 MentalHealthCare Ophthalmology SpecialtyCare],
+                  'last_updated' => last_updated, 'other' => [] },
       feedback: {
         'effective_date' => '2021-03-05',
         'health' => {
@@ -69,14 +71,15 @@ RSpec.describe FacilitiesApi::V1::Lighthouse::Client, team: :facilities, vcr: vc
         }
       },
       access: {
-        'effective_date' => '2021-04-05',
+        'effective_date' => last_updated,
         'health' => [
-          { 'service' => 'Audiology',        'new' => 103.0,      'established' => 73.833333 },
-          { 'service' => 'Cardiology',       'new' => 42.285714,  'established' => 19.053571 },
-          { 'service' => 'Dermatology',      'new' => 140.25,     'established' => 18.666666 },
-          { 'service' => 'Ophthalmology',    'new' => 131.0,      'established' => 33.333333 },
-          { 'service' => 'PrimaryCare',      'new' => 30.111111,  'established' => 29.153846 },
-          { 'service' => 'SpecialtyCare',    'new' => 76.986666,  'established' => 38.891509 }
+          { service: 'Audiology',         new: 27.823529, established: 25.65 },
+          { service: 'Cardiology',        new: 60.75,     established: 53.222222  },
+          { service: 'Dermatology',       new: 58.0,      established: 113.166666 },
+          { service: 'Gastroenterology',  new: 33.0,      established: nil },
+          { service: 'MentalHealthCare',  new: 35.923076, established: 36.4 },
+          { service: 'Ophthalmology',     new: 98.363636, established: 52.439024 },
+          { service: 'SpecialtyCare',     new: 65.57931,  established: 15.320448 }
         ]
       },
       mobile: false,
@@ -86,7 +89,7 @@ RSpec.describe FacilitiesApi::V1::Lighthouse::Client, team: :facilities, vcr: vc
       operational_hours_special_instructions: nil,
       facility_type_prefix: 'vha',
       unique_id: '358'
-    }
+    }.with_indifferent_access
   end
 
   context 'with an http timeout' do
@@ -126,7 +129,7 @@ RSpec.describe FacilitiesApi::V1::Lighthouse::Client, team: :facilities, vcr: vc
 
         expect do
           FacilitiesApi::V1::Lighthouse::Client.new.get_facilities(params)
-        end.to instrument('lighthouse.facilities.request.faraday')
+        end.to instrument('lighthouse.facilities.v1.request.faraday')
       end
     end
 
@@ -156,7 +159,7 @@ RSpec.describe FacilitiesApi::V1::Lighthouse::Client, team: :facilities, vcr: vc
           FacilitiesApi::V1::Lighthouse::Client.new.get_by_id('vha_358')
         end.to raise_error(
           Common::Exceptions::BackendServiceException
-        ).and instrument('lighthouse.facilities.request.faraday')
+        ).and instrument('lighthouse.facilities.v1.request.faraday')
       end
     end
   end
@@ -169,11 +172,11 @@ RSpec.describe FacilitiesApi::V1::Lighthouse::Client, team: :facilities, vcr: vc
 
     it 'has operational_hours_special_instructions' do
       r = facilities_client.get_by_id('vc_0617V')
-      expect(r[:operational_hours_special_instructions]).to eql('Expanded or Nontraditional hours are available for ' \
-                                                                'some services on a routine and or requested basis. ' \
-                                                                'Please call our main phone number for details. ' \
-                                                                '| Vet Center after hours assistance is available by ' \
-                                                                'calling 1-877-WAR-VETS (1-877-927-8387).')
+      expect(r[:operational_hours_special_instructions]).to eql('More hours are available for some services. To ' \
+                                                                'learn more, call our main phone number. | If you ' \
+                                                                'need to talk to someone or get advice right away, ' \
+                                                                'call the Vet Center anytime at 1-877-WAR-VETS ' \
+                                                                '(1-877-927-8387).')
     end
 
     it 'returns a 404 error' do
@@ -191,14 +194,14 @@ RSpec.describe FacilitiesApi::V1::Lighthouse::Client, team: :facilities, vcr: vc
     it 'returns matching facilities for bbox request' do
       r = facilities_client.get_facilities(params)
       expect(r.length).to be 8
-      expect(r[0]).to have_attributes(vha_358_attributes)
+      expect(r[1]).to have_attributes(vha_358_attributes)
     end
 
     it 'returns matching facilities for lat and long request with distance' do
       r = facilities_client.get_facilities(lat: 13.54, long: 121.00)
       expect(r.length).to be 10
-      expect(r[0]).to have_attributes(vha_358_attributes)
-      expect(r[0].distance).to eq(69.38)
+      expect(r[1]).to have_attributes(vha_358_attributes)
+      expect(r[1].distance).to eq(69.38)
     end
 
     it 'returns an error message for a bad param' do

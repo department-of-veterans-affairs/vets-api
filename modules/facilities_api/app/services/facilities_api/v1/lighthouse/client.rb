@@ -32,8 +32,31 @@ module FacilitiesApi
         # @example  client.get_facilities(lat: 10.54, long: 180.00, per_page: 50, page: 2)
         # @return [Array<Lighthouse::Facilities::Facility>]
         #
+
+        # Lighthouse only accepts the following param combinations
+        # !bbox[],       !lat, !long, !radius, !state, !type,  visn, !zip
+        #  bbox[],       !lat, !long, !radius, !state,        !visn, !zip
+        # !bbox[],       !lat, !long, !radius,  state,        !visn, !zip
+        # !bbox[],       !lat, !long, !radius, !state,        !visn,  zip
+        # !bbox[],        lat,  long,          !state,        !visn, !zip
+        # !bbox[],  ids, !lat, !long, !radius, !state,        !visn, !zip
+
         def get_facilities(params)
-          response = perform(:get, '/services/va_facilities/v0/facilities', params)
+          filtered_params = params.slice(:ids, :mobile, :page, :per_page, :services, :type, :visn)
+
+          if    params.key?(:bbox)
+            filtered_params.merge!(params.slice(:bbox))
+          elsif params.key?(:lat) && params.key?(:long)
+            filtered_params.merge!(params.slice(:lat, :long, :radius))
+          elsif params.key?(:state)
+            filtered_params.merge!(params.slice(:state))
+          elsif params.key?(:zip)
+            filtered_params.merge!(params.slice(:zip))
+          elsif params.key?(:ids)
+            filtered_params.merge!(params.slice(:ids))
+          end
+
+          response = perform(:get, '/services/va_facilities/v0/facilities', filtered_params)
           V1::Lighthouse::Response.new(response.body, response.status).facilities
         end
       end

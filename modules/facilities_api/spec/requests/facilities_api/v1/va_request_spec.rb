@@ -5,6 +5,8 @@ require 'rails_helper'
 RSpec.shared_examples 'paginated request from params with expected IDs' do |request_params, ids, mobile = nil|
   let(:params) { request_params }
 
+  let(:request_host) { 'http://www.example.com' }
+
   context request_params do
     before do
       get '/facilities_api/v1/va', params: params
@@ -44,23 +46,23 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do |requ
       prev_params = params.merge({ page: prev_page, per_page: 10 }).to_query
       next_params = params.merge({ page: next_page, per_page: 10 }).to_query
 
-      prev_link = prev_page ? "http://www.example.com/facilities_api/v1/va?#{prev_params}" : nil
-      next_link = next_page ? "http://www.example.com/facilities_api/v1/va?#{next_params}" : nil
+      prev_link = prev_page ? "#{request_host}/facilities_api/v1/va?#{prev_params}" : nil
+      next_link = next_page ? "#{request_host}/facilities_api/v1/va?#{next_params}" : nil
 
       expect(parsed_body[:links]).to match(
-        self: "http://www.example.com/facilities_api/v1/va?#{params.merge({ page: current_page,
-                                                                            per_page: 10 }).to_query}",
-        first: "http://www.example.com/facilities_api/v1/va?#{params.merge({ per_page: 10 }).to_query}",
+        self: "#{request_host}/facilities_api/v1/va?#{params.merge({ page: current_page,
+                                                                     per_page: 10 }).to_query}",
+        first: "#{request_host}/facilities_api/v1/va?#{params.merge({ per_page: 10 }).to_query}",
         prev: prev_link,
         next: next_link,
-        last: "http://www.example.com/facilities_api/v1/va?#{params.merge({ page: last_page, per_page: 10 }).to_query}"
+        last: "#{request_host}/facilities_api/v1/va?#{params.merge({ page: last_page, per_page: 10 }).to_query}"
       )
     end
   end
 end
 
 vcr_options = {
-  cassette_name: '/lighthouse/facilities',
+  cassette_name: '/facilities/va/lighthouse',
   match_requests_on: %i[path query],
   allow_playback_repeats: true,
   record: :new_episodes
@@ -68,6 +70,10 @@ vcr_options = {
 
 RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: vcr_options do
   subject(:parsed_body) { JSON.parse(response.body).with_indifferent_access }
+
+  before(:all) do
+    get facilities_api.v1_va_index_url
+  end
 
   describe 'GET #index' do
     it 'returns 400 for invalid type parameter' do
@@ -102,8 +108,8 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
       )
 
       expect do
-        get '/facilities_api/v1/va', params: { bbox: [-122.786758, 45.451913, -122.440689, 45.64] }
-      end.to instrument('lighthouse.facilities.request.faraday')
+        get '/facilities_api/v1/va', params: { lat: 33.298639, long: -111.789659, radius: 50 }
+      end.to instrument('lighthouse.facilities.v1.request.faraday')
     end
 
     it_behaves_like 'paginated request from params with expected IDs',
@@ -112,8 +118,8 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
                       page: 2
                     },
                     %w[
-                      vc_0102V vc_0857MVC vc_0110V nca_808 nca_947
-                      vha_526 vha_526QA vc_0109V vha_561GD vc_0132V
+                      vc_0102V vc_0110V nca_808 nca_947 vha_526
+                      vha_526QA vc_0109V vc_0857MVC vha_561GD vc_0132V
                     ]
 
     it_behaves_like 'paginated request from params with expected IDs',
@@ -121,8 +127,8 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
                       bbox: [-122.786758, 45.451913, -122.440689, 45.64]
                     },
                     %w[
-                      vba_348e vha_648GI vba_348 vba_348a vc_0617V
-                      vba_348d vha_648 vba_348h vha_648A4 nca_954
+                      vha_648GI vba_348a vba_348 vc_0617V vba_348d
+                      vha_648 vba_348h vha_648A4 nca_954 nca_907
                     ]
 
     it_behaves_like 'paginated request from params with expected IDs',
@@ -137,7 +143,7 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
                       bbox: [-122.786758, 45.451913, -122.440689, 45.64],
                       type: 'benefits'
                     },
-                    %w[vba_348e vba_348 vba_348a vba_348d vba_348h]
+                    %w[vba_348a vba_348 vba_348d vba_348h]
 
     it_behaves_like 'paginated request from params with expected IDs',
                     {
@@ -153,8 +159,40 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
                       long: -111.789659
                     },
                     %w[
-                      vha_644BY vc_0524V vba_345f vba_345g vba_345
-                      vha_644QA vc_0517V vha_644GG vha_644 vha_644QB
+                      vha_644BY vc_0524V vba_345g vba_345 vha_644QA
+                      vc_0517V vha_644GG vha_644 vha_644QB vha_644GH
+                    ]
+
+    it_behaves_like 'paginated request from params with expected IDs',
+                    {
+                      lat: 33.298639,
+                      long: -111.789659,
+                      radius: 50
+                    },
+                    %w[
+                      vha_644BY vc_0524V vba_345g vba_345 vha_644QA
+                      vc_0517V vha_644GG vha_644 vha_644QB vha_644GH
+                    ]
+
+    it_behaves_like 'paginated request from params with expected IDs',
+                    {
+                      bbox: [-122.786758, 45.451913, -122.440689, 45.64],
+                      lat: 33.298639,
+                      long: -111.789659,
+                      radius: 50
+                    },
+                    %w[
+                      vha_648GI vba_348a vba_348 vc_0617V vba_348d
+                      vha_648 vba_348h vha_648A4 nca_954 nca_907
+                    ]
+
+    it_behaves_like 'paginated request from params with expected IDs',
+                    {
+                      state: 'TX'
+                    },
+                    %w[
+                      vc_0702V vc_0703V vc_0705V vc_0706V vc_0707V
+                      vc_0708V vc_0710V vc_0711V vc_0712V vc_0714V
                     ]
 
     it_behaves_like 'paginated request from params with expected IDs',
@@ -190,8 +228,8 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
                           page: 1
                         },
                         %w[
-                          vc_0857MVC vha_526QA vha_630QA vha_630QB
-                          vha_620QA vha_620QC vha_632QA vha_632QB
+                          vha_526QA vc_0857MVC vha_630QA vha_630QB vha_632QA
+                          vha_632QB
                         ],
                         true
       end
@@ -238,11 +276,21 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
             parsed_body['data']
 
             expect(parsed_body['data'][0]['attributes']['tmpCovidOnlineScheduling']).to be_truthy
-            expect(parsed_body['data'][1..]).to all(
-              a_hash_including(
-                attributes: a_hash_including(tmpCovidOnlineScheduling: false)
-              )
-            )
+
+            attributes_covid = parsed_body['data'].collect { |x| x['attributes']['tmpCovidOnlineScheduling'] }
+
+            expect(attributes_covid).to eql([
+                                              true,
+                                              false,
+                                              true,
+                                              false,
+                                              false,
+                                              false,
+                                              false,
+                                              true,
+                                              false,
+                                              false
+                                            ])
           end
         end
 
@@ -281,15 +329,15 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
             attributes: {
               access: {
                 health: [
-                  { service: 'Audiology',        new: 30.792207, established: 32.107981 },
-                  { service: 'Dermatology',      new: 17.095238, established: 56.152542 },
-                  { service: 'MentalHealthCare', new: 14.083333, established: 1.885372 },
-                  { service: 'Ophthalmology',    new: 33.0,      established: 6.691056 },
-                  { service: 'Optometry',        new: 46.035087, established: 43.350537 },
-                  { service: 'PrimaryCare',      new: 9.394957,  established: 7.711797 },
-                  { service: 'SpecialtyCare',    new: 24.126666, established: 23.555555 }
+                  { service: 'Audiology',        new: kind_of(Float), established: kind_of(Float) },
+                  { service: 'Dermatology',      new: kind_of(Float), established: kind_of(Float) },
+                  { service: 'MentalHealthCare', new: kind_of(Float), established: kind_of(Float) },
+                  { service: 'Ophthalmology',    new: kind_of(Float), established: kind_of(Float) },
+                  { service: 'Optometry',        new: kind_of(Float), established: kind_of(Float) },
+                  { service: 'PrimaryCare',      new: kind_of(Float), established: kind_of(Float) },
+                  { service: 'SpecialtyCare',    new: kind_of(Float), established: kind_of(Float) }
                 ],
-                effectiveDate: '2021-04-05'
+                effectiveDate: '2022-01-23'
 
               },
               activeStatus: 'A',
@@ -331,9 +379,8 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
               operatingStatus: {
                 code: 'NORMAL'
               },
-              operationalHoursSpecialInstructions: 'Expanded or Nontraditional hours are available for some services ' \
-                                                   'on a routine and or requested basis. Please call our main phone ' \
-                                                   'number for details. |',
+              operationalHoursSpecialInstructions: 'More hours are available for some services. ' \
+                                                   'To learn more, call our main phone number. |',
               phone: {
                 fax: '360-690-0864',
                 main: '360-759-1901',
@@ -349,20 +396,18 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
                   Audiology
                   DentalServices
                   Dermatology
-                  EmergencyCare
                   MentalHealthCare
-                  Nutrition
                   Ophthalmology
                   Optometry
                   Podiatry
                   PrimaryCare
                   SpecialtyCare
                 ],
-                lastUpdated: '2021-04-05'
+                lastUpdated: '2022-01-23'
               },
               uniqueId: '648A4',
               visn: '20',
-              website: 'https://www.portland.va.gov/locations/vancouver.asp',
+              website: 'https://www.va.gov/portland-health-care/locations/portland-va-medical-center-vancouver/',
               tmpCovidOnlineScheduling: nil
             }
           }

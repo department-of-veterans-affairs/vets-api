@@ -40,6 +40,7 @@ module FacilitiesApi
         :mobile,
         :page,
         :per_page,
+        :radius,
         :state,
         :type,
         :visn,
