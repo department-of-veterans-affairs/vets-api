@@ -18,3 +18,4 @@ jobs:
           days-before-issue-stale: -1
           days-before-issue-close: -1
           operations-per-run: 1000
+          delete-branch: true
