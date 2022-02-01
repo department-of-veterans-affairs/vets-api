@@ -50,8 +50,10 @@ RSpec.describe FastTrack::DisabilityCompensationJob, type: :worker do
         end
 
         it 'returns from the class if the claim observations does NOT include bp readings from the past year' do
-          expect(FastTrack::HypertensionMedicationRequestData).not_to receive(:new)
-          expect(subject.new.perform(submission_for_user_wo_bp.id, user_full_name)).to be_nil
+          Sidekiq::Testing.inline! do
+            expect(FastTrack::HypertensionMedicationRequestData).not_to receive(:new)
+            subject.perform_async(submission_for_user_wo_bp.id, user_full_name)
+          end
         end
       end
 
@@ -125,9 +127,11 @@ RSpec.describe FastTrack::DisabilityCompensationJob, type: :worker do
       end
 
       it 'raises an error' do
-        expect do
-          subject.new.perform(submission_without_account_or_edpid.id, user_full_name)
-        end.to raise_error NoMethodError
+        Sidekiq::Testing.inline! do
+          expect do
+            subject.new.perform_async(submission_without_account_or_edpid.id, user_full_name)
+          end.to raise_error NoMethodError
+        end
       end
     end
 
@@ -141,9 +145,11 @@ RSpec.describe FastTrack::DisabilityCompensationJob, type: :worker do
       end
 
       it 'finishes successfully' do
-        expect do
-          subject.new.perform(submission_without_account.id, user_full_name)
-        end.not_to raise_error
+        Sidekiq::Testing.inline! do
+          expect do
+            subject.perform_async(submission_without_account.id, user_full_name)
+          end.not_to raise_error
+        end
       end
     end
 
@@ -153,7 +159,9 @@ RSpec.describe FastTrack::DisabilityCompensationJob, type: :worker do
       end
 
       it 'raises ActiveRecord::RecordNotFound exception' do
-        expect { subject.new.perform(submission.id, user_full_name) }.to raise_error(NoMethodError)
+        Sidekiq::Testing.inline! do
+          expect { subject.new.perform_async(submission.id, user_full_name) }.to raise_error(NoMethodError)
+        end
       end
     end
 
@@ -163,10 +171,12 @@ RSpec.describe FastTrack::DisabilityCompensationJob, type: :worker do
       end
 
       it 'raises an ArgumentError' do
-        expect do
-          subject.new.perform(submission.id,
-                              user_full_name)
-        end.to raise_error(ArgumentError, 'no ICN passed in for LH API request.')
+        Sidekiq::Testing.inline! do
+          expect do
+            subject.perform_async(submission.id,
+                                  user_full_name)
+          end.to raise_error(ArgumentError, 'no ICN passed in for LH API request.')
+        end
       end
     end
   end

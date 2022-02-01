@@ -36,11 +36,11 @@ module FastTrack
       form526_submission = Form526Submission.find(form526_submission_id)
 
       begin
-        client = Lighthouse::VeteransHealth::Client.new(get_icn(form526_submission))
-
-        return if bp_readings(client).blank?
-
         with_tracking(self.class.name, form526_submission.saved_claim_id, form526_submission_id) do
+          client = Lighthouse::VeteransHealth::Client.new(get_icn(form526_submission))
+
+          return if bp_readings(client).blank?
+
           pdf = pdf(full_name, bp_readings(client), medications(client))
           upload_pdf_and_attach_special_issue(form526_submission, pdf)
         end
