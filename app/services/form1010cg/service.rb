@@ -48,7 +48,7 @@ module Form1010cg
 
     def self.carma_client
       client = Flipper.enabled?(:caregiver_mulesoft) ? CARMA::Client::MuleSoftClient.new : CARMA::Client::Client.new
-      Rails.logger.debug "[10-10CG] Using #{client.class} for submissions"
+      Rails.logger.info "[10-10CG] Using #{client.class} for submissions"
       client
     end
 

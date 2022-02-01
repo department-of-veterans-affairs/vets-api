@@ -32,7 +32,7 @@ module CARMA
 
       # @return [String]
       def base_path
-        "#{settings.host}/va-carma-caregiver-xapi/api/v1/application/1010CG"
+        "#{settings.host}/va-carma-caregiver-papi/api/v1/application/1010CG"
       end
 
       # @return [Config::Options]

@@ -61,7 +61,7 @@ module CARMA
         end
 
         it 'returns the correct value' do
-          expect(subject.send(:base_path)).to eq("#{host}/va-carma-caregiver-xapi/api/v1/application/1010CG")
+          expect(subject.send(:base_path)).to eq("#{host}/va-carma-caregiver-papi/api/v1/application/1010CG")
         end
       end
     end
