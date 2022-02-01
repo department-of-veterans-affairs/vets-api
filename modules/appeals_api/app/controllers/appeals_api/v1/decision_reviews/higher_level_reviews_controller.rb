@@ -142,7 +142,7 @@ class AppealsApi::V1::DecisionReviews::HigherLevelReviewsController < AppealsApi
   end
 
   def sunset_date
-    Date.new(2022, 1, 31)
+    Date.new(2022, 6, 30)
   end
 
   def deprecate_headers
