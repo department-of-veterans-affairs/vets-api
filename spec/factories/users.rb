@@ -31,6 +31,21 @@ FactoryBot.define do
       icn_with_aaid { nil }
       common_name { nil }
       person_types { ['VET'] }
+      phone { '(800) 867-5309' }
+      suffix { 'Jr' }
+      address {
+        {
+          street: '1600 Pennsylvania Ave',
+          city: 'Washington',
+          state: 'DC',
+          country: 'USA',
+          postal_code: '20500'
+        }
+      }
+      cerner_id { '123456' }
+      cerner_facility_ids { %w[200MHV] }
+      vha_facility_ids { %w[200CRNR 200MHV] }
+      vha_facility_hash { { '200CRNR' => %w[123456], '200MHV' => %w[123456] } }
 
       sign_in do
         {
@@ -70,7 +85,14 @@ FactoryBot.define do
                              mhv_account_type: t.mhv_account_type,
                              edipi: t.edipi,
                              sign_in: t.sign_in,
-                             common_name: t.common_name)
+                             common_name: t.common_name,
+                             phone: t.phone,
+                             suffix: t.suffix,
+                             address: t.address,
+                             cerner_id: t.cerner_id,
+                             cerner_facility_ids: t.cerner_facility_ids,
+                             vha_facility_hash: t.vha_facility_hash,
+                             vha_facility_ids: t.vha_facility_ids)
       user.instance_variable_set(:@identity, user_identity)
     end
 
@@ -481,6 +503,10 @@ FactoryBot.define do
       multifactor { true }
       mhv_account_type { 'Premium' }
       va_patient { true }
+      cerner_id {}
+      cerner_facility_ids { [] }
+      vha_facility_ids { %w[358 200MHS] }
+      vha_facility_hash { { '358' => %w[998877], '200MHS' => %w[998877] } }
 
       sign_in do
         {
@@ -553,6 +579,25 @@ FactoryBot.define do
           )
         )
       end
+    end
+
+    trait :no_vha_facilities do
+      vha_facility_ids {}
+      vha_facility_hash {}
+    end
+
+    trait :mvi_profile_street_and_suffix do
+      suffix { 'Jr.' }
+      address {
+        {
+          street: '49119 Jadon Mills',
+          street2: 'Apt. 832',
+          city: 'Washington',
+          state: 'DC',
+          country: 'USA',
+          postal_code: '20500'
+        }
+      }
     end
   end
 end

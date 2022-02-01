@@ -3,7 +3,11 @@
 require 'rails_helper'
 
 describe MPIData, skip_mvi: true do
-  let(:user) { build(:user, :loa3, edipi: nil, sec_id: nil, icn: nil) }
+  let(:user) do
+    build(:user, :loa3, :no_vha_facilities,
+          edipi: nil, sec_id: nil, icn: nil, cerner_id: nil,
+          cerner_facility_ids: nil)
+  end
   let(:mvi) { MPIData.for_user(user.identity) }
   let(:mvi_profile) { build(:mvi_profile) }
   let(:mvi_codes) do
@@ -78,12 +82,23 @@ describe MPIData, skip_mvi: true do
     context 'with a successful add' do
       let(:given_names) { %w[kitty puppy] }
       let(:family_name) { 'banana' }
+      let(:suffix) { 'Jr' }
       let(:birth_date) { '19801010' }
+      let(:address) do
+        {
+          street: '1600 Pennsylvania Ave',
+          city: 'Washington',
+          state: 'DC',
+          country: 'USA',
+          postal_code: '20500'
+        }
+      end
       let(:icn_with_aaid) { 'some-icn-with-aaid' }
       let(:edipi) { 'some-edipi' }
       let(:search_token) { 'some-search_token' }
       let(:gender) { 'M' }
       let(:ssn) { '987654321' }
+      let(:phone) { '(800) 867-5309' }
       let(:person_types) { ['VET'] }
       let(:mvi_profile) do
         build(:mvi_profile,
@@ -103,12 +118,15 @@ describe MPIData, skip_mvi: true do
               first_name: given_names.first,
               middle_name: given_names.last,
               last_name: family_name,
+              suffix: suffix,
               birth_date: birth_date,
+              address: address,
               icn_with_aaid: icn_with_aaid,
               edipi: edipi,
               search_token: search_token,
               gender: gender,
               ssn: ssn,
+              phone: phone,
               person_types: person_types,
               idme_uuid: user.idme_uuid)
       end

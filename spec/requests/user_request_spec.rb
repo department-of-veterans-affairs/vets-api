@@ -141,7 +141,7 @@ RSpec.describe 'Fetching user data' do
     end
 
     context 'for non VA patient' do
-      let(:mhv_user) { build(:user, :mhv, va_patient: false) }
+      let(:mhv_user) { build(:user, :mhv, :no_vha_facilities, va_patient: false) }
 
       before do
         sign_in_as(mhv_user)

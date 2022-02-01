@@ -135,7 +135,7 @@ class User < Common::RedisStore
   end
 
   def ssn
-    identity.ssn || ssn_mpi
+    identity&.ssn || ssn_mpi
   end
 
   def ssn_normalized
@@ -143,7 +143,7 @@ class User < Common::RedisStore
   end
 
   def zip
-    identity.zip || mpi&.profile&.address&.postal_code
+    identity&.zip || mpi&.profile&.address&.postal_code
   end
 
   # MPI getter methods
@@ -153,13 +153,14 @@ class User < Common::RedisStore
   end
 
   def address
-    address = mpi_profile&.address
+    address = identity&.address || mpi_profile&.address
     {
-      street: address&.street,
-      city: address&.city,
-      state: address&.state,
-      country: address&.country,
-      zip: address&.postal_code
+      street: address[:street],
+      street2: address[:street2],
+      city: address[:city],
+      state: address[:state],
+      country: address[:country],
+      zip: address[:postal_code]
     }
   end
 
@@ -199,7 +200,7 @@ class User < Common::RedisStore
   end
 
   def home_phone
-    mpi_profile&.home_phone
+    identity&.phone || mpi_profile&.home_phone
   end
 
   def last_name_mpi
@@ -231,7 +232,7 @@ class User < Common::RedisStore
   end
 
   def suffix
-    mpi_profile&.suffix
+    identity&.suffix || mpi_profile&.suffix
   end
 
   def mpi_profile?
@@ -276,8 +277,6 @@ class User < Common::RedisStore
 
   # mpi attributes
   delegate :birls_id, to: :mpi, prefix: true
-  delegate :cerner_id, to: :mpi
-  delegate :cerner_facility_ids, to: :mpi
   delegate :icn, to: :mpi, prefix: true
   delegate :icn_with_aaid, to: :mpi
   delegate :vet360_id, to: :mpi
@@ -321,11 +320,19 @@ class User < Common::RedisStore
   end
 
   def vha_facility_ids
-    mpi_profile&.vha_facility_ids || []
+    identity&.vha_facility_ids || mpi_profile&.vha_facility_ids || []
   end
 
   def vha_facility_hash
-    mpi_profile&.vha_facility_hash || {}
+    identity&.vha_facility_hash || mpi_profile&.vha_facility_hash || {}
+  end
+
+  def cerner_id
+    identity&.cerner_id || mpi_profile&.cerner_id
+  end
+
+  def cerner_facility_ids
+    identity&.cerner_facility_ids || mpi_profile&.cerner_facility_ids
   end
 
   def can_access_id_card?

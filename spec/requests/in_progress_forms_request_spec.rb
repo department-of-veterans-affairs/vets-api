@@ -134,7 +134,7 @@ RSpec.describe V0::InProgressFormsController do
     end
 
     describe '#show' do
-      let(:user) { loa3_user }
+      let(:user) { build(:user, :loa3, :mvi_profile_street_and_suffix) }
       let!(:in_progress_form) { FactoryBot.create(:in_progress_form, :with_nested_metadata, user_uuid: user.uuid) }
 
       context 'when the user is not loa3' do

@@ -37,6 +37,15 @@ RSpec.describe 'prescriptions' do
         before { get '/v0/prescriptions/13651310' }
 
         let(:va_patient) { false }
+        let(:current_user) do
+          build(:user,
+                :mhv,
+                :no_vha_facilities,
+                authn_context: LOA::IDME_LOA3_VETS,
+                va_patient: va_patient,
+                mhv_account_type: mhv_account_type,
+                sign_in: { service_name: 'idme' })
+        end
 
         include_examples 'for non va patient user', authorized: false, message: 'You do not have access to prescriptions'
       end

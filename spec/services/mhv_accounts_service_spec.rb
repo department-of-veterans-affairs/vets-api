@@ -34,7 +34,8 @@ RSpec.describe MHVAccountsService do
            last_name: mvi_profile.family_name,
            gender: mvi_profile.gender,
            birth_date: mvi_profile.birth_date,
-           email: 'vets.gov.user+0@gmail.com')
+           email: 'vets.gov.user+0@gmail.com',
+           vha_facility_ids: vha_facility_ids)
   end
 
   let(:mhv_ids) { [] }

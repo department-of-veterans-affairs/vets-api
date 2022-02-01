@@ -5,7 +5,11 @@ require 'rails_helper'
 RSpec.describe MedicalCopays::VBS::Service do
   subject { described_class.build(user: user) }
 
-  let(:user) { build(:user, :loa3) }
+  let(:user) do
+    build(:user, :loa3,
+          vha_facility_ids: %w[757 358],
+          vha_facility_hash: { '757' => %w[36546], '358' => %w[36546] })
+  end
   let(:today_date) { Time.zone.today.strftime('%m%d%Y') }
 
   describe 'attributes' do
@@ -47,13 +51,15 @@ RSpec.describe MedicalCopays::VBS::Service do
       allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:to_hash).and_return(data)
       allow_any_instance_of(MedicalCopays::Request).to receive(:post).with(url, data).and_return(response)
 
-      expect(subject.get_copays).to eq({ status: 200, data:
-        [
-          {
-            'fooBar' => 'bar',
-            'pSStatementDate' => today_date
-          }
-        ] })
+      VCR.use_cassette('user/get_facilities_empty', match_requests_on: %i[method uri]) do
+        expect(subject.get_copays).to eq({ status: 200, data:
+          [
+            {
+              'fooBar' => 'bar',
+              'pSStatementDate' => today_date
+            }
+          ] })
+      end
     end
 
     it 'includes zero balance statements if available' do
@@ -73,7 +79,8 @@ RSpec.describe MedicalCopays::VBS::Service do
       allow_any_instance_of(MedicalCopays::Request).to receive(:post).with(url, data).and_return(response)
       allow_any_instance_of(MedicalCopays::ZeroBalanceStatements).to receive(:list).and_return(zero_balance_response)
 
-      expect(subject.get_copays).to eq({ status: 200, data:
+      VCR.use_cassette('user/get_facilities_empty', match_requests_on: %i[method uri]) do
+        expect(subject.get_copays).to eq({ status: 200, data:
         [
           {
             'fooBar' => 'bar',
@@ -84,6 +91,7 @@ RSpec.describe MedicalCopays::VBS::Service do
             'pSStatementDate' => today_date
           }
         ] })
+      end
     end
   end
 

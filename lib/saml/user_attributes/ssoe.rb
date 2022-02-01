@@ -9,11 +9,11 @@ module SAML
     class SSOe
       include SentryLogging
       include Identity::Parsers::GCIds
-      SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name common_name zip gender ssn
-                                   birth_date uuid idme_uuid logingov_uuid verified_at sec_id
-                                   mhv_icn mhv_correlation_id mhv_account_type
+      SERIALIZABLE_ATTRIBUTES = %i[email phone first_name middle_name last_name common_name suffix address zip
+                                   gender ssn birth_date uuid idme_uuid logingov_uuid verified_at sec_id
+                                   mhv_icn mhv_correlation_id mhv_account_type cerner_id cerner_facility_ids
                                    edipi loa sign_in multifactor participant_id birls_id icn
-                                   person_types].freeze
+                                   person_types vha_facility_ids vha_facility_hash].freeze
       INBOUND_AUTHN_CONTEXT = 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
 
       attr_reader :attributes, :authn_context, :tracker_uuid, :warnings
@@ -42,6 +42,10 @@ module SAML
         safe_attr('va_eauth_commonname')
       end
 
+      def suffix
+        safe_attr('va_eauth_suffix')
+      end
+
       def participant_id
         sanitize_id(mvi_ids[:vba_corp_id])
       end
@@ -52,6 +56,17 @@ module SAML
 
       def icn
         mvi_ids[:icn]
+      end
+
+      def address
+        {
+          street: safe_attr('va_eauth_street'),
+          street2: safe_attr('va_eauth_street2'),
+          city: safe_attr('va_eauth_city'),
+          state: safe_attr('va_eauth_state'),
+          country: safe_attr('va_eauth_country'),
+          postal_code: zip
+        }
       end
 
       def zip
@@ -80,6 +95,10 @@ module SAML
 
       def email
         safe_attr('va_eauth_emailaddress')
+      end
+
+      def phone
+        safe_attr('va_eauth_phone')
       end
 
       # Returns an array because a person can have multipe types.
@@ -204,6 +223,22 @@ module SAML
 
       def transactionid
         safe_attr('va_eauth_transactionid')
+      end
+
+      def cerner_id
+        mvi_ids[:cerner_id]
+      end
+
+      def cerner_facility_ids
+        mvi_ids[:cerner_facility_ids]
+      end
+
+      def vha_facility_ids
+        mvi_ids[:vha_facility_ids]
+      end
+
+      def vha_facility_hash
+        mvi_ids[:vha_facility_hash]
       end
 
       def sign_in

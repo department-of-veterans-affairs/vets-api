@@ -293,7 +293,7 @@ class FormProfile
   def user_address_hash
     {
       street: user.address[:street],
-      street2: nil,
+      street2: user.address[:street2],
       city: user.address[:city],
       state: user.address[:state],
       country: user.address[:country],

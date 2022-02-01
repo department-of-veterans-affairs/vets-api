@@ -47,6 +47,9 @@ RSpec.describe 'Messages Integration' do
       before { post '/v0/messaging/health/message_drafts', params: params }
 
       let(:va_patient) { false }
+      let(:current_user) do
+        build(:user, :mhv, :no_vha_facilities, va_patient: va_patient, mhv_account_type: mhv_account_type)
+      end
 
       include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
     end

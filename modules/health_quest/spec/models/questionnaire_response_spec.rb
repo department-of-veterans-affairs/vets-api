@@ -22,7 +22,13 @@ describe HealthQuest::QuestionnaireResponse do
       middle_name: 'Baz',
       last_name: 'Bar',
       gender: 'M',
-      address: '221B Baker Street'
+      address: {
+        street: '221B Baker Street',
+        street2: nil,
+        city: 'London',
+        country: 'UK',
+        zip: '12345'
+      }
     )
   end
 
@@ -98,7 +104,13 @@ describe HealthQuest::QuestionnaireResponse do
         'last_name' => 'Bar',
         'gender' => 'M',
         'date_of_birth' => '01-01-1955',
-        'address' => '221B Baker Street',
+        'address' => {
+          'street' => '221B Baker Street',
+          'street2' => nil,
+          'city' => 'London',
+          'country' => 'UK',
+          'zip' => '12345'
+        },
         'mailing_address' => '123 abc',
         'home_address' => '123 abc',
         'home_phone' => '555-555-5555',

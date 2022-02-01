@@ -6,7 +6,7 @@ require 'decision_review/schemas'
 RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
 
-  let(:user) { build(:user, :loa3) }
+  let(:user) { build(:user, :loa3, :mvi_profile_street_and_suffix) }
   let(:mvi_profile) { build(:mvi_profile, suffix: 'Jr.') }
 
   before do
@@ -913,8 +913,9 @@ RSpec.describe FormProfile, type: :model do
 
     context 'user without an address' do
       it 'prefills properly' do
-        expect(user).to receive(:address).exactly(5).times.and_return(
+        expect(user).to receive(:address).exactly(6).times.and_return(
           street: nil,
+          street2: nil,
           city: nil,
           state: nil,
           country: nil,
@@ -1273,7 +1274,7 @@ RSpec.describe FormProfile, type: :model do
         address = veteran['address']
         phone = veteran['phone']
         expect(address['addressLine1']).to be_a String
-        expect(address['addressLine2']).to be_a String
+        expect(address['addressLine2']).to be_a(String).or be_nil
         expect(address['addressLine3']).to be_a(String).or be_nil
         expect(address['city']).to be_a String
         expect(address['stateCode']).to be_a String

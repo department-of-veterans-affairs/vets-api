@@ -227,7 +227,9 @@ FactoryBot.define do
        '65f9f3b5-5449-47a6-b272-9d6019e7c2e3^PN^200VLGN^USDVA^A|' \
        'aa478abc-e494-4af1-9f87-d002f8fe1cda^PN^200VLGN^USDVA^A|' \
        '123456^PI^200MHS^USVHA^A|' \
-       '1200049153^PN^200PROV^USDVA^A|']
+       '1200049153^PN^200PROV^USDVA^A|' \
+       '1200049153^PN^200PROV^USDVA^A|987656789^PI^200M^USVHA^P|' \
+       '123456789^PI^200M^USVHA^P']
     }
     va_eauth_persontype { ['NOT_FOUND'] }
     va_eauth_npi { ['NOT_FOUND'] }
@@ -358,14 +360,14 @@ FactoryBot.define do
     va_eauth_issueinstant { ['2020-02-05T21:15:14Z'] }
     va_eauth_middlename { ['NOT_FOUND'] }
 
-    va_eauth_phone { ['NOT_FOUND'] }
-    va_eauth_street { ['NOT_FOUND'] }
+    va_eauth_phone { ['(123)456-7890'] }
+    va_eauth_street { ['999 Pizza Place'] }
     va_eauth_street1 { ['NOT_FOUND'] }
     va_eauth_street2 { ['NOT_FOUND'] }
     va_eauth_street3 { ['NOT_FOUND'] }
-    va_eauth_city { ['NOT_FOUND'] }
-    va_eauth_state { ['NOT_FOUND'] }
-    va_eauth_postalcode { ['NOT_FOUND'] }
+    va_eauth_city { ['Dallas'] }
+    va_eauth_state { ['TX'] }
+    va_eauth_postalcode { ['77665'] }
     va_eauth_country { ['NOT_FOUND'] }
 
     va_eauth_prefix { ['NOT_FOUND'] }
@@ -390,7 +392,8 @@ FactoryBot.define do
     va_eauth_gcIds {
       ['1008830476V316605^NI^200M^USVHA^P|'\
        '54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A|'\
-       '1008830476^PN^200PROV^USDVA^A']
+       '1008830476^PN^200PROV^USDVA^A|123456^PI^200CRNR^USVHA^A|'\
+       '123456^PI^200MHV^USVHA^C']
     }
     va_eauth_persontype { ['NOT_FOUND'] }
     va_eauth_multifactor { ['true'] }
@@ -524,8 +527,8 @@ FactoryBot.define do
     va_eauth_ial { ['3'] }
     va_eauth_ial_idme_highest { ['classic_loa3'] }
     va_eauth_icn { ['1013183292V131165'] }
-    va_eauth_city { ['NOT_FOUND'] }
-    va_eauth_country { ['NOT_FOUND'] }
+    va_eauth_city { ['Washington'] }
+    va_eauth_country { ['USA'] }
     va_eauth_csp_identifier { ['200VIDM'] }
     va_eauth_gender { ['female'] }
     va_eauth_street2 { ['NOT_FOUND'] }
@@ -539,9 +542,9 @@ FactoryBot.define do
     va_eauth_issueinstant { ['2020-02-25T01:37:57Z'] }
     va_eauth_middlename { ['NOT_FOUND'] }
     va_eauth_birthDate_v1 { ['19881124'] }
-    va_eauth_state { ['NOT_FOUND'] }
+    va_eauth_state { ['DC'] }
     va_eauth_birlsfilenumber { ['NOT_FOUND'] }
-    va_eauth_postalcode { ['NOT_FOUND'] }
+    va_eauth_postalcode { ['20571-0001'] }
     va_eauth_mhvassurance { ['Advanced'] }
     va_eauth_street3 { ['NOT_FOUND'] }
     va_eauth_csid { ['idme'] }
@@ -586,8 +589,8 @@ FactoryBot.define do
     va_eauth_icn { ['1012853550V207686'] }
     va_eauth_cspid { ['200VIDM_0e1bb5723d7c4f0686f46ca4505642ad'] }
     va_eauth_birthDate_v1 { ['19770307'] }
-    va_eauth_state { ['NOT_FOUND'] }
-    va_eauth_postalcode { ['NOT_FOUND'] }
+    va_eauth_state { ['KY'] }
+    va_eauth_postalcode { ['56473'] }
     va_eauth_csid { ['idme'] }
     va_eauth_pid { ['NOT_FOUND'] }
     va_eauth_pnidtype { ['SSN'] }
@@ -598,7 +601,7 @@ FactoryBot.define do
        '"12":"Blue Button (all VA data)","1":"Blue Button self entered data.",'\
        '"11":"Blue Button (DoD) Military Service Information"}}']
     }
-    va_eauth_street { ['NOT_FOUND'] }
+    va_eauth_street { ['954 Bourbon Way'] }
     va_eauth_authenticationMethod { ['myhealthevet'] }
     va_eauth_uid { ['0e1bb5723d7c4f0686f46ca4505642ad'] }
     va_eauth_isDelegate { ['false'] }
@@ -610,8 +613,8 @@ FactoryBot.define do
     va_eauth_lastname { ['GPTESTSYSTWO'] }
     va_eauth_ial_idme_highest { ['classic_loa3'] }
     va_eauth_ial { ['3'] }
-    va_eauth_city { ['NOT_FOUND'] }
-    va_eauth_country { ['NOT_FOUND'] }
+    va_eauth_city { ['Lexington'] }
+    va_eauth_country { ['USA'] }
     va_eauth_csp_identifier { ['200VIDM'] }
     va_eauth_gender { ['MALE'] }
     va_eauth_street2 { ['NOT_FOUND'] }
@@ -972,14 +975,14 @@ FactoryBot.define do
     transient do
       authn_context { LOA::IDME_LOA3 }
     end
-    va_eauth_phone { ['NOT_FOUND'] }
+    va_eauth_phone { ['(111)111-1111'] }
     va_eauth_lastname { ['GPKTESTNINE'] }
     va_eauth_aal_idme_highest { ['2'] }
     va_eauth_ial { ['3'] }
     va_eauth_icn { ['1012827134V054550'] }
-    va_eauth_city { ['NOT_FOUND'] }
+    va_eauth_city { ['New York'] }
     va_eauth_ial_idme_highest { ['classic_loa3'] }
-    va_eauth_country { ['NOT_FOUND'] }
+    va_eauth_country { ['USA'] }
     va_eauth_csp_identifier { ['200VIDM'] }
     va_eauth_gender { ['MALE'] }
     va_eauth_street2 { ['NOT_FOUND'] }
@@ -992,9 +995,9 @@ FactoryBot.define do
     va_eauth_issueinstant { ['2020-03-20T20:50:12Z'] }
     va_eauth_middlename { ['NOT_FOUND'] }
     va_eauth_birthDate_v1 { ['19690407'] }
-    va_eauth_state { ['NOT_FOUND'] }
+    va_eauth_state { ['NY'] }
     va_eauth_birlsfilenumber { ['666271151'] }
-    va_eauth_postalcode { ['NOT_FOUND'] }
+    va_eauth_postalcode { ['10036'] }
     va_eauth_street3 { ['NOT_FOUND'] }
     va_eauth_csid { ['idme'] }
     va_eauth_proofingAuthority { ['FICAM'] }
@@ -1004,7 +1007,7 @@ FactoryBot.define do
     va_eauth_mcid { ['WSSOE2003201650138851548832059'] }
     va_eauth_firstname { ['JERRY'] }
     va_eauth_prefix { ['NOT_FOUND'] }
-    va_eauth_street { ['NOT_FOUND'] }
+    va_eauth_street { ['567 W 42nd St'] }
     va_eauth_csponly { ['false'] }
     va_eauth_pnid { ['666271152'] }
     va_eauth_commonname { ['vets.gov.user+262@gmail.com'] }

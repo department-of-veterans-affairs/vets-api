@@ -94,10 +94,20 @@ RSpec.describe SAML::User do
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
           email: 'testemail@test.com',
+          phone: nil,
           first_name: nil,
           middle_name: nil,
           last_name: nil,
           common_name: nil,
+          suffix: nil,
+          address: {
+            street: nil,
+            street2: nil,
+            city: nil,
+            state: nil,
+            country: nil,
+            postal_code: nil
+          },
           zip: nil,
           gender: nil,
           ssn: nil,
@@ -110,6 +120,8 @@ RSpec.describe SAML::User do
           mhv_icn: nil,
           mhv_correlation_id: nil,
           mhv_account_type: nil,
+          cerner_id: nil,
+          cerner_facility_ids: nil,
           edipi: nil,
           loa: { current: 1, highest: 1 },
           sign_in: {
@@ -121,6 +133,8 @@ RSpec.describe SAML::User do
           birls_id: nil,
           icn: nil,
           person_types: [],
+          vha_facility_ids: nil,
+          vha_facility_hash: nil,
           authn_context: authn_context
         )
       end
@@ -144,6 +158,15 @@ RSpec.describe SAML::User do
           first_name: 'ROBERT',
           last_name: 'TESTER',
           common_name: 'vets.gov.user+1000@example.com',
+          suffix: nil,
+          address: {
+            street: '123 Fantasy Lane',
+            street2: nil,
+            city: 'Seattle',
+            state: 'WA',
+            country: nil,
+            postal_code: '39876'
+          },
           middle_name: 'LOGIN',
           gender: 'M',
           ssn: '1231231',
@@ -151,9 +174,12 @@ RSpec.describe SAML::User do
           mhv_icn: '1200049153V217987',
           mhv_correlation_id: '123456',
           mhv_account_type: nil,
+          cerner_id: nil,
+          cerner_facility_ids: nil,
           edipi: nil,
           uuid: 'aa478abc-e494-4af1-9f87-d002f8fe1cda',
           email: 'vets.gov.user+1000@example.com',
+          phone: '(123)123-1234',
           idme_uuid: nil,
           logingov_uuid: 'aa478abc-e494-4af1-9f87-d002f8fe1cda',
           verified_at: '2021-10-28T23:54:46Z',
@@ -164,6 +190,11 @@ RSpec.describe SAML::User do
           birls_id: nil,
           icn: '1200049153V217987',
           person_types: [],
+          vha_facility_ids: %w[200MHS 200M 200M],
+          vha_facility_hash: {
+            '200M' => %w[987656789 123456789],
+            '200MHS' => %w[123456]
+          },
           multifactor: true,
           authn_context: authn_context
         )
@@ -211,7 +242,21 @@ RSpec.describe SAML::User do
           birls_id: nil,
           icn: nil,
           common_name: nil,
-          person_types: []
+          person_types: [],
+          suffix: nil,
+          address: {
+            street: nil,
+            street2: nil,
+            city: nil,
+            state: nil,
+            country: nil,
+            postal_code: nil
+          },
+          phone: nil,
+          cerner_id: nil,
+          cerner_facility_ids: nil,
+          vha_facility_ids: nil,
+          vha_facility_hash: nil
         )
       end
 
@@ -253,7 +298,21 @@ RSpec.describe SAML::User do
           birls_id: nil,
           icn: nil,
           common_name: nil,
-          person_types: []
+          person_types: [],
+          suffix: nil,
+          address: {
+            street: nil,
+            street2: nil,
+            city: nil,
+            state: nil,
+            country: nil,
+            postal_code: nil
+          },
+          phone: nil,
+          cerner_id: nil,
+          cerner_facility_ids: nil,
+          vha_facility_ids: nil,
+          vha_facility_hash: nil
         )
       end
 
@@ -273,15 +332,25 @@ RSpec.describe SAML::User do
           first_name: 'JERRY',
           last_name: 'GPKTESTNINE',
           middle_name: nil,
+          suffix: nil,
           gender: 'M',
           ssn: '666271152',
-          zip: nil,
+          address: {
+            street: '999 Pizza Place',
+            street2: nil,
+            city: 'Dallas',
+            state: 'TX',
+            postal_code: '77665',
+            country: nil
+          },
+          zip: '77665',
           mhv_icn: '1008830476V316605',
           mhv_correlation_id: nil,
           mhv_account_type: nil,
           edipi: nil,
           uuid: '54e78de6140d473f87960f211be49c08',
           email: 'vets.gov.user+262@example.com',
+          phone: '(123)456-7890',
           idme_uuid: '54e78de6140d473f87960f211be49c08',
           logingov_uuid: nil,
           verified_at: nil,
@@ -293,7 +362,11 @@ RSpec.describe SAML::User do
           birls_id: nil,
           icn: '1008830476V316605',
           common_name: 'vets.gov.user+262@example.com',
-          person_types: []
+          person_types: [],
+          cerner_id: '123456',
+          cerner_facility_ids: %w[200MHV],
+          vha_facility_ids: %w[200CRNR 200MHV],
+          vha_facility_hash: { '200CRNR' => %w[123456], '200MHV' => %w[123456] }
         )
       end
 
@@ -335,7 +408,21 @@ RSpec.describe SAML::User do
           icn: nil,
           multifactor: multifactor,
           common_name: nil,
-          person_types: []
+          person_types: [],
+          suffix: nil,
+          address: {
+            street: nil,
+            street2: nil,
+            city: nil,
+            state: nil,
+            country: nil,
+            postal_code: nil
+          },
+          phone: nil,
+          cerner_id: nil,
+          cerner_facility_ids: nil,
+          vha_facility_ids: nil,
+          vha_facility_hash: nil
         )
       end
 
@@ -362,7 +449,7 @@ RSpec.describe SAML::User do
           middle_name: nil,
           gender: 'F',
           ssn: '230595111',
-          zip: nil,
+          zip: '20571-0001',
           mhv_icn: '1013183292V131165',
           mhv_correlation_id: '15001594',
           mhv_account_type: 'Advanced',
@@ -379,7 +466,21 @@ RSpec.describe SAML::User do
           icn: '1013183292V131165',
           multifactor: multifactor,
           common_name: 'alexmac_0@example.com',
-          person_types: []
+          person_types: [],
+          suffix: nil,
+          address: {
+            street: '811 Vermont Ave NW',
+            street2: nil,
+            city: 'Washington',
+            state: 'DC',
+            country: 'USA',
+            postal_code: '20571-0001'
+          },
+          phone: nil,
+          cerner_id: nil,
+          cerner_facility_ids: nil,
+          vha_facility_ids: %w[200MHS],
+          vha_facility_hash: { '200MHS' => %w[15001594] }
         )
       end
     end
@@ -421,7 +522,21 @@ RSpec.describe SAML::User do
           participant_id: nil,
           multifactor: true,
           common_name: nil,
-          person_types: []
+          person_types: [],
+          suffix: nil,
+          address: {
+            street: nil,
+            street2: nil,
+            city: nil,
+            state: nil,
+            country: nil,
+            postal_code: nil
+          },
+          phone: nil,
+          cerner_id: nil,
+          cerner_facility_ids: nil,
+          vha_facility_ids: nil,
+          vha_facility_hash: nil
         )
       end
 
@@ -446,7 +561,7 @@ RSpec.describe SAML::User do
           middle_name: nil,
           gender: 'M',
           ssn: '666811850',
-          zip: nil,
+          zip: '56473',
           mhv_icn: '1012853550V207686',
           mhv_correlation_id: '12345748',
           mhv_account_type: 'Premium',
@@ -466,7 +581,28 @@ RSpec.describe SAML::User do
           icn: '1012853550V207686',
           multifactor: multifactor,
           common_name: 'k+tristan@example.com',
-          person_types: []
+          person_types: [],
+          suffix: nil,
+          address: {
+            street: '954 Bourbon Way',
+            street2: nil,
+            city: 'Lexington',
+            state: 'KY',
+            country: 'USA',
+            postal_code: '56473'
+          },
+          phone: nil,
+          cerner_id: nil,
+          cerner_facility_ids: nil,
+          vha_facility_ids: %w[989 979 200MH 983 984 200MHS],
+          vha_facility_hash: {
+            '989' => %w[552151510],
+            '979' => %w[943571],
+            '200MH' => %w[12345748],
+            '983' => %w[7219295],
+            '984' => %w[552161765],
+            '200MHS' => %w[12345748]
+          }
         )
       end
     end
@@ -492,7 +628,7 @@ RSpec.describe SAML::User do
           middle_name: nil,
           gender: 'M',
           ssn: '666811850',
-          zip: nil,
+          zip: '56473',
           mhv_icn: '1012853550V207686',
           mhv_correlation_id: '12345748',
           mhv_account_type: 'Premium',
@@ -512,7 +648,21 @@ RSpec.describe SAML::User do
           icn: nil,
           multifactor: multifactor,
           common_name: 'k+tristan@example.com',
-          person_types: []
+          person_types: [],
+          suffix: nil,
+          address: {
+            street: '954 Bourbon Way',
+            street2: nil,
+            city: 'Lexington',
+            state: 'KY',
+            country: 'USA',
+            postal_code: '56473'
+          },
+          phone: nil,
+          cerner_id: nil,
+          cerner_facility_ids: nil,
+          vha_facility_ids: nil,
+          vha_facility_hash: nil
         )
       end
     end
@@ -971,7 +1121,21 @@ RSpec.describe SAML::User do
           icn: '1013173963V366678',
           multifactor: false,
           common_name: 'iam.tester@example.com',
-          person_types: []
+          person_types: [],
+          suffix: nil,
+          address: {
+            street: nil,
+            street2: nil,
+            city: nil,
+            state: nil,
+            country: nil,
+            postal_code: nil
+          },
+          phone: nil,
+          cerner_id: nil,
+          cerner_facility_ids: nil,
+          vha_facility_ids: nil,
+          vha_facility_hash: nil
         )
       end
 
@@ -1017,7 +1181,25 @@ RSpec.describe SAML::User do
           icn: '1012740600V714187',
           multifactor: multifactor,
           common_name: 'dslogon10923109@gmail.com',
-          person_types: %w[PAT VET]
+          person_types: %w[PAT VET],
+          suffix: nil,
+          address: {
+            street: '811 Vermont Ave NW',
+            street2: nil,
+            city: 'Washington',
+            state: 'DC',
+            country: 'USA',
+            postal_code: '20571-0001'
+          },
+          phone: '(202)555-9320',
+          cerner_id: nil,
+          cerner_facility_ids: nil,
+          vha_facility_ids: %w[989 200ESR 200MHS],
+          vha_facility_hash: {
+            '989' => %w[552151338],
+            '200ESR' => %w[0000001012740600V714187000000],
+            '200MHS' => %w[14384899]
+          }
         )
       end
     end
@@ -1062,7 +1244,31 @@ RSpec.describe SAML::User do
           icn: '1012740600V714187',
           multifactor: multifactor,
           common_name: 'dslogon10923109@gmail.com',
-          person_types: %w[PAT VET]
+          person_types: %w[PAT VET],
+          suffix: nil,
+          address: {
+            street: '811 Vermont Ave NW',
+            street2: nil,
+            city: 'Washington',
+            state: 'DC',
+            country: 'USA',
+            postal_code: '20571-0001'
+          },
+          phone: '(202)555-9320',
+          cerner_id: nil,
+          cerner_facility_ids: nil,
+          vha_facility_ids: %w[989 200ESR 200MHS],
+          vha_facility_hash: {
+            '989' => [
+              '552151338'
+            ],
+            '200ESR' => [
+              '0000001012740600V714187000000'
+            ],
+            '200MHS' => [
+              '14384899'
+            ]
+          }
         )
       end
     end
@@ -1124,7 +1330,24 @@ RSpec.describe SAML::User do
           icn: '1012779219V964737',
           multifactor: multifactor,
           common_name: 'SOFIA MCKIBBENS',
-          person_types: []
+          person_types: [],
+          suffix: nil,
+          address: {
+            street: '6021 WEAVER RD',
+            street2: nil,
+            city: 'CHEYENNE',
+            state: 'WY',
+            country: 'USA',
+            postal_code: '82009'
+          },
+          phone: '(555)555-5555',
+          cerner_id: nil,
+          cerner_facility_ids: nil,
+          vha_facility_ids: %w[451 969],
+          vha_facility_hash: {
+            '451' => %w[38401],
+            '969' => %w[38401]
+          }
         )
       end
 
@@ -1183,7 +1406,25 @@ RSpec.describe SAML::User do
           icn: '1013062086V794840',
           multifactor: multifactor,
           common_name: 'mhvzack@mhv.va.gov',
-          person_types: []
+          person_types: [],
+          suffix: nil,
+          address: {
+            street: nil,
+            street2: nil,
+            city: nil,
+            state: nil,
+            country: nil,
+            postal_code: nil
+          },
+          phone: nil,
+          cerner_id: nil,
+          cerner_facility_ids: nil,
+          vha_facility_ids: %w[200MHS 989 200MH],
+          vha_facility_hash: {
+            '200MHS' => %w[15093546],
+            '989' => %w[552151869],
+            '200MH' => %w[15093546]
+          }
         )
       end
     end
@@ -1207,7 +1448,7 @@ RSpec.describe SAML::User do
           middle_name: nil,
           gender: 'M',
           ssn: '666271152',
-          zip: nil,
+          zip: '10036',
           mhv_icn: '1012827134V054550',
           mhv_correlation_id: '10894456',
           mhv_account_type: nil,
@@ -1227,7 +1468,25 @@ RSpec.describe SAML::User do
           icn: '1012827134V054550',
           multifactor: multifactor,
           common_name: 'vets.gov.user+262@gmail.com',
-          person_types: []
+          person_types: [],
+          suffix: nil,
+          address: {
+            street: '567 W 42nd St',
+            street2: nil,
+            city: 'New York',
+            state: 'NY',
+            country: 'USA',
+            postal_code: '10036'
+          },
+          phone: '(111)111-1111',
+          cerner_id: nil,
+          cerner_facility_ids: nil,
+          vha_facility_ids: %w[200MHS 979 989],
+          vha_facility_hash: {
+            '200MHS' => %w[10894456],
+            '979' => %w[943523],
+            '989' => %w[552151501]
+          }
         )
       end
     end

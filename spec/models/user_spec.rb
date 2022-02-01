@@ -405,11 +405,23 @@ RSpec.describe User, type: :model do
           expect(user.ssn).to be(user.identity.ssn)
         end
 
-        it 'fetches edipi from mvi when identity.edipi is empty' do
-          expect(user.edipi).to be(mvi_profile.edipi)
+        it 'fetches address information from IDENTITY' do
+          expect(user.address[:street]).to be(user.identity.address[:street])
+          expect(user.address[:street2]).to be(user.identity.address[:street2])
+          expect(user.address[:city]).to be(user.identity.address[:city])
+          expect(user.address[:zip]).to be(user.identity.address[:postal_code])
+          expect(user.address[:country]).to be(user.identity.address[:country])
         end
 
-        it 'fetches edipi from identity.edipi when available' do
+        it 'fetches phone from IDENTITY' do
+          expect(user.home_phone).to be(user.identity.phone)
+        end
+
+        it 'fetches suffix from IDENTITY' do
+          expect(user.suffix).to be(user.suffix)
+        end
+
+        it 'fetches edipi from IDENTITY' do
           user.identity.edipi = '001001999'
           expect(user.edipi).to be(user.identity.edipi)
         end
@@ -417,16 +429,32 @@ RSpec.describe User, type: :model do
         it 'has a vet360 id if one exists' do
           expect(user.vet360_id).to be(mvi_profile.vet360_id)
         end
+
+        it 'fetches cerner ids from IDENTITY' do
+          expect(user.cerner_id).to be(user.identity.cerner_id)
+          expect(user.cerner_facility_ids).to be(user.identity.cerner_facility_ids)
+        end
+
+        it 'fetches VHA facility ids from IDENTITY' do
+          expect(user.vha_facility_hash).to be(user.identity.vha_facility_hash)
+          expect(user.vha_facility_ids).to be(user.identity.vha_facility_ids)
+        end
       end
 
       context 'when saml user attributes blank and user LOA3' do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) do
-          build(:user, :loa3, first_name: '', middle_name: '', last_name: '', gender: '', mhv_icn: mvi_profile.icn)
+          build(:user, :loa3,
+                edipi: nil, first_name: '', middle_name: '', last_name: '',
+                gender: '', mhv_icn: mvi_profile.icn)
         end
 
         before do
           stub_mpi(mvi_profile)
+        end
+
+        it 'fetches edipi from MPI' do
+          expect(user.edipi).to be(mvi_profile.edipi)
         end
 
         it 'fetches first_name from MPI' do
@@ -448,7 +476,7 @@ RSpec.describe User, type: :model do
 
       context 'explicit MPI getter methods' do
         let(:mvi_profile) { build(:mvi_profile) }
-        let(:user) { build(:user, :loa3, middle_name: 'J', mhv_icn: mvi_profile.icn) }
+        let(:user) { build(:user, :loa3, middle_name: 'J', mhv_icn: mvi_profile.icn, phone: nil, suffix: nil) }
 
         before do
           stub_mpi(mvi_profile)
@@ -500,7 +528,7 @@ RSpec.describe User, type: :model do
       end
 
       describe '#vha_facility_hash' do
-        let(:user) { build(:user, :loa3) }
+        let(:user) { build(:user, :loa3, vha_facility_hash: nil) }
         let(:vha_facility_hash) { { '400' => %w[123456789 999888777] } }
         let(:mvi_profile) { build(:mvi_profile, vha_facility_hash: vha_facility_hash) }
 
@@ -530,7 +558,7 @@ RSpec.describe User, type: :model do
 
       context 'when saml user attributes NOT available, icn is available, and user LOA3' do
         let(:mvi_profile) { build(:mvi_profile) }
-        let(:user) { build(:user, :loa3, :mhv_sign_in, mhv_icn: mvi_profile.icn) }
+        let(:user) { build(:user, :loa3, :mhv_sign_in, mhv_icn: mvi_profile.icn, address: nil) }
 
         before { stub_mpi(mvi_profile) }
 
@@ -576,6 +604,10 @@ RSpec.describe User, type: :model do
 
         it 'fetches address data from MPI and stores it as a hash' do
           expect(user.address[:street]).to eq(mvi_profile.address.street)
+          expect(user.address[:street2]).to be(mvi_profile.address[:street2])
+          expect(user.address[:city]).to be(mvi_profile.address[:city])
+          expect(user.address[:zip]).to be(mvi_profile.address[:postal_code])
+          expect(user.address[:country]).to be(mvi_profile.address[:country])
         end
 
         it 'fetches zip from MPI' do
@@ -689,7 +721,7 @@ RSpec.describe User, type: :model do
   end
 
   describe '#va_patient?' do
-    let(:user) { build(:user, :loa3) }
+    let(:user) { build(:user, :loa3, vha_facility_ids: nil) }
 
     before do
       stub_mpi(mvi_profile)
@@ -793,7 +825,7 @@ RSpec.describe User, type: :model do
   end
 
   describe '#va_treatment_facility_ids' do
-    let(:user) { build(:user, :loa3) }
+    let(:user) { build(:user, :loa3, vha_facility_ids: nil) }
     let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[200MHS 400 741 744]) }
 
     before do

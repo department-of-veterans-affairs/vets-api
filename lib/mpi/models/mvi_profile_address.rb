@@ -6,6 +6,7 @@ module MPI
       include Virtus.model
 
       attribute :street, String
+      attribute :street2, String
       attribute :city, String
       attribute :state, String
       attribute :postal_code, String

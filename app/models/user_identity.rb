@@ -18,11 +18,14 @@ class UserIdentity < Common::RedisStore
   attribute :middle_name
   attribute :last_name
   attribute :common_name
+  attribute :suffix
   attribute :gender
   attribute :birth_date
   attribute :birls_id
   attribute :participant_id
   attribute :icn
+  attribute :address
+  attribute :phone
   attribute :zip
   attribute :ssn
   attribute :loa
@@ -40,6 +43,10 @@ class UserIdentity < Common::RedisStore
   attribute :icn_with_aaid
   attribute :search_token
   attribute :person_types
+  attribute :cerner_id
+  attribute :cerner_facility_ids
+  attribute :vha_facility_ids
+  attribute :vha_facility_hash
 
   validates :uuid, presence: true
   validates :loa, presence: true
