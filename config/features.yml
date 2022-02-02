@@ -137,6 +137,9 @@ features:
   decision_review_hlr_email:
     actor_type: user
     description: Send email notification for successful HLR submission
+  decision_review_nod_email:
+    actor_type: user
+    description: Send email notification for successful NOD submission
   decision_review_sc_email:
     actor_type: user
     description: Send email notification for successful SC submission

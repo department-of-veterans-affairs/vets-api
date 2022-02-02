@@ -22,6 +22,20 @@ module AppealsApi
         vanotify_service.send_email(params(template))
       end
 
+      def nod_received
+        return unless Flipper.enabled?(:decision_review_nod_email)
+
+        unless valid_email_identifier?
+          log_error(guid, 'NOD')
+          raise InvalidKeys
+        end
+
+        template_type = 'notice_of_disagreement_received'
+        template = { template_id: template_id(template_type) }
+
+        vanotify_service.send_email(params(template))
+      end
+
       def sc_received
         return unless Flipper.enabled?(:decision_review_sc_email)
 
