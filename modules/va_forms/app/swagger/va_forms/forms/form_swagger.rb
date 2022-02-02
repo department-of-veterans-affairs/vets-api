@@ -11,7 +11,7 @@ module VAForms
           property :id do
             key :description, 'JSON API identifier'
             key :type, :string
-            key :example, '10-10EZ'
+            key :example, '5403'
           end
           property :type do
             key :description, 'JSON API type specification'
