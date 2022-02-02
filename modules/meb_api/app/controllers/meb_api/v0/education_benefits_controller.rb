@@ -48,10 +48,10 @@ module MebApi
       end
 
       def submit_claim
-        response = submission_service.submit_claim(params)
+        response = submission_service.submit_claim(params[:education_benefit].except(:form_id))
 
-        # @NOTE: Need front end to send in_progress_form_id as well as claimant_id to clear form for front end
-        # Add serializer for response to the front end when the sending data back
+        clear_saved_form(params[:form_id]) if params[:form_id]
+
         render json: {
           data: {
             'status': response.status
