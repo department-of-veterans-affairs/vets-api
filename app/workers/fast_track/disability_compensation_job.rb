@@ -69,7 +69,7 @@ module FastTrack
       # on this feature and the visibility is imporved.
       body = "A claim just errored on the #{Rails.env} environment " \
              "with submission id: #{form526_submission_id} and job_id #{jid}." \
-             "The error was: #{error_message}. The backtrace was: #{backtrace}"
+             "The error was: #{error_message}. The backtrace was:\n #{backtrace.join(",\n ")}"
       ActionMailer::Base.mail(
         from: ApplicationMailer.default[:from],
         to: ERROR_REPORT_EMAILS.join(', '),

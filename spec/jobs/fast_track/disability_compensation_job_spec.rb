@@ -102,6 +102,7 @@ RSpec.describe FastTrack::DisabilityCompensationJob, type: :worker do
               expect(ActionMailer::Base.deliveries.last.subject).to eq 'Fast Track Hypertension Errored'
               expect(ActionMailer::Base.deliveries.last.body.raw_source)
                 .to match 'A claim just errored'
+              expect(ActionMailer::Base.deliveries.last.body.raw_source.scan(/\n /).count).to be > 10
             end
           end
 
