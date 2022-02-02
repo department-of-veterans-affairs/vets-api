@@ -1,6 +1,6 @@
 {
-  "$schema" : "http://json-schema.org/draft-04/schema#",
-  "type" : "array",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "array",
   "items": {
     "required": ["id", "type", "status", "@links"],
     "additionalProperties": false,
@@ -20,6 +20,32 @@
         "type": "string",
         "description": "Status of Claim",
         "example": "Complete"
+      },
+      "date_filed": {
+        "type": "string",
+        "format": "date",
+        "description": "Date in YYYY-MM-DD the claim was first filed",
+        "example": "2018-06-04"
+      },
+      "documents_needed": {
+        "type": "boolean",
+        "description": "Does the claim require additional documents to be submitted",
+        "example": "false"
+      },
+      "requested_decision": {
+        "type": ["boolean", "null"],
+        "description": "The claim filer has requested a claim decision be made",
+        "example": "false"
+      },
+      "development_letter_sent": {
+        "type": "boolean",
+        "description": "Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim",
+        "example": "false"
+      },
+      "decision_letter_sent": {
+        "type": "boolean",
+        "description": "Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim",
+        "example": "false"
       },
       "@links": {
         "type": "object",

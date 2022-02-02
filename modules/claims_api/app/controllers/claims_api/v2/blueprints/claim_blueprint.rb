@@ -7,7 +7,12 @@ module ClaimsApi
         identifier :id
         field :type
         field :status
+        field :date_filed
         field :end_product_code
+        field :documents_needed
+        field :requested_decision
+        field :development_letter_sent
+        field :decision_letter_sent
 
         field :@links do |claim, options|
           {

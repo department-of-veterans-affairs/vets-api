@@ -112,7 +112,12 @@ RSpec.describe 'Claims', type: :request do
                     {
                       benefit_claim_id: '111111111',
                       claim_status_type: 'Compensation',
-                      phase_type: 'Pending'
+                      claim_dt: '2017-05-02',
+                      phase_type: 'Pending',
+                      attention_needed: true,
+                      filed5103_waiver_ind: 'Y',
+                      development_letter_sent: 'Yes',
+                      decision_notification_sent: 'No'
                     }
                   ]
                 }
@@ -129,7 +134,7 @@ RSpec.describe 'Claims', type: :request do
               ]
             end
 
-            it 'returns a collection that contains the claim with the Lighthouse id, BGS type, & BGS status' do
+            it 'returns data for the claim with the given Lighthouse id, with other properties sourced from BGS' do
               with_okta_user(scopes) do |auth_header|
                 expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
                   .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_claims)
@@ -142,9 +147,18 @@ RSpec.describe 'Claims', type: :request do
                 expect(response.status).to eq(200)
                 expect(json_response).to be_an_instance_of(Array)
                 expect(json_response.count).to eq(1)
-                expect(json_response.first['id']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
-                expect(json_response.first['type']).to eq('Compensation')
-                expect(json_response.first['status']).to eq('Pending')
+                claim = json_response.first
+                expect(claim['id']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
+                expect(claim['type']).to eq('Compensation')
+                expect(claim['status']).to eq('Pending')
+                expect(claim['date_filed']).to eq('2017-05-02')
+                expect(claim['documents_needed']).to eq(true)
+                expect(claim['requested_decision']).to eq(true)
+                expect(claim['development_letter_sent']).to eq(true)
+                expect(claim['decision_letter_sent']).to eq(false)
+
+                # End Product Code is omitted when getting all claims
+                expect(claim['end_product_code']).to eq(nil)
               end
             end
           end
