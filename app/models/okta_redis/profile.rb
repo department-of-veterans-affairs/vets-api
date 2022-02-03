@@ -21,7 +21,9 @@ module OktaRedis
         end
 
         if user_response.success?
-          raise Common::Exceptions::RecordNotFound, user_key if user_response.body.length.zero?
+          if user_response.body.length.zero?
+            raise Common::Exceptions::RecordNotFound, Settings.oidc.base_api_profile_key_icn ? 'ICN' : 'CSP ID'
+          end
 
           return Settings.oidc.base_api_profile_key_icn ? user_response.body[0] : user_response.body
         else
