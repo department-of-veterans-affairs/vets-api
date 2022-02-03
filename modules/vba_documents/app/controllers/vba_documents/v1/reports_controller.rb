@@ -13,6 +13,8 @@ module VBADocuments
       ID_PARAM = 'ids'
 
       def create
+        Rails.logger.info "Request from Consumer #{consumer} has #{params[ID_PARAM].size}" \
+                          " total GUIDs and the first 5 are #{params[ID_PARAM].first(5)}"
         statuses = VBADocuments::UploadSubmission.where(guid: params[ID_PARAM])
         render json: with_spoofed(statuses),
                each_serializer: VBADocuments::V1::UploadSerializer

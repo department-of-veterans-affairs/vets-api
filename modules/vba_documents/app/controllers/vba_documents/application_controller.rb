@@ -9,5 +9,9 @@ module VBADocuments
       RequestStore.store['additional_request_attributes'] = { 'source' => 'vba_documents' }
       Raven.tags_context(source: 'vba_documents')
     end
+
+    def consumer
+      request.headers['X-Consumer-Username']
+    end
   end
 end
