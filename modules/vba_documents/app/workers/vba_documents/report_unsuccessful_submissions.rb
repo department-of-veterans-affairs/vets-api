@@ -51,15 +51,13 @@ module VBADocuments
         success_count = (counts['success'] || 0) + (counts['vbms'] || 0)
         success_rate = success_count.positive? ? (100.0 / totals * success_count).round : 0
 
-        # sum the count of pending, uploaded, received and processing statuses for the period
-        processing_count = (counts['pending'] || 0) + (counts['uploaded'] || 0) +
-                           (counts['received'] || 0) + (counts['processing'] || 0)
-        processing_rate = processing_count.positive? ? (100.0 / totals * processing_count).round : 0
+        # The remaining guids must be in processing
+        in_process_rate = 100 - error_rate - expired_rate - success_rate
 
         if totals.positive?
           ret_hash[name] = counts.merge(totals: totals,
                                         success_rate: "#{success_rate}%",
-                                        processing_rate: "#{processing_rate}%",
+                                        in_process_rate: "#{in_process_rate}%",
                                         error_rate: "#{error_rate}%",
                                         expired_rate: "#{expired_rate}%",
                                         lobs: format_lobs(lobs, name).join(', '))
@@ -75,27 +73,26 @@ module VBADocuments
       sum_total = sum_hash.sum { |_k, v| v }
 
       if sum_total.positive?
-        error_rate = "#{(100.0 / sum_total * sum_hash['error']).round}%"
-        expired_rate = "#{(100.0 / sum_total * sum_hash['expired']).round}%"
+        error_rate = (100.0 / sum_total * sum_hash['error']).round
+        expired_rate = (100.0 / sum_total * sum_hash['expired']).round
 
         # sum the count of success and vbms statuses for the period
         success_count = sum_hash['success'] + sum_hash['vbms']
-        success_rate = "#{success_count.positive? ? (100.0 / sum_total * success_count).round : 0}%"
+        success_rate = success_count.positive? ? (100.0 / sum_total * success_count).round : 0
 
-        # sum the count of pending, uploaded, received, and processing statuses for the period
-        processing_count = sum_hash['pending'] + sum_hash['uploaded'] + sum_hash['received'] + sum_hash['processing']
-        processing_rate = "#{processing_count.positive? ? (100.0 / sum_total * processing_count).round : 0}%"
+        # The remaining guids must be in processing
+        in_process_rate = 100 - error_rate - expired_rate - success_rate
 
         sum_hash['total'] = sum_total
-        sum_hash['success_rate'] = success_rate
-        sum_hash['processing_rate'] = processing_rate
-        sum_hash['error_rate'] = error_rate
-        sum_hash['expired_rate'] = expired_rate
+        sum_hash['success_rate'] = "#{success_rate}%"
+        sum_hash['in_process_rate'] = "#{in_process_rate}%"
+        sum_hash['error_rate'] = "#{error_rate}%"
+        sum_hash['expired_rate'] = "#{expired_rate}%"
       else
         # report returned no rows for the given time frame so report zeros
         sum_hash['total'] = 0
         sum_hash['success_rate'] = '0%'
-        sum_hash['processing_rate'] = '0%'
+        sum_hash['in_process_rate'] = '0%'
         sum_hash['error_rate'] = '0%'
         sum_hash['expired_rate'] = '0%'
       end
