@@ -357,6 +357,7 @@ module V1
     end
 
     def url_service(force_authn = true)
+      force_authn = false unless %w[production staging].include?(Settings.vsp_environment)
       @url_service ||= SAML::PostURLService.new(saml_settings(force_authn: force_authn),
                                                 session: @session_object,
                                                 user: current_user,

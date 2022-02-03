@@ -104,7 +104,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             it 'presents login form' do
               expect(SAML::SSOeSettingsService)
                 .to receive(:saml_settings)
-                .with(force_authn: true)
+                .with(force_authn: false)
 
               expect { get(:new, params: { type: type, clientId: '123123' }) }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
