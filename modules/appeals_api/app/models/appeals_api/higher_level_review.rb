@@ -48,8 +48,22 @@ module AppealsApi
       ).new(self)
     end
 
+    # V2
+    def veteran
+      @veteran ||= Appellant.new(
+        type: :veteran,
+        auth_headers: auth_headers,
+        form_data: data_attributes&.dig('veteran')
+      )
+    end
+
+    # V2
     def claimant
-      @claimant ||= NonVeteranClaimant.new(auth_headers: auth_headers, form_data: data_attributes&.dig('claimant'))
+      @claimant ||= Appellant.new(
+        type: :claimant,
+        auth_headers: auth_headers,
+        form_data: data_attributes&.dig('claimant')
+      )
     end
 
     def first_name
@@ -101,29 +115,29 @@ module AppealsApi
     end
 
     def city
-      veteran.dig('address', 'city') || ''
+      veteran_data.dig('address', 'city') || ''
     end
 
     def state_code
-      veteran.dig('address', 'stateCode') || ''
+      veteran_data.dig('address', 'stateCode') || ''
     end
 
     def country_code
       return '' unless address_combined
 
-      veteran.dig('address', 'countryCodeISO2') || 'US'
+      veteran_data.dig('address', 'countryCodeISO2') || 'US'
     end
 
     def zip_code
       if zip_code_5 == '00000'
-        veteran.dig('address', 'internationalPostalCode') || '00000'
+        veteran_data.dig('address', 'internationalPostalCode') || '00000'
       else
         zip_code_5
       end
     end
 
     def zip_code_5
-      veteran.dig('address', 'zipCode5') || '00000'
+      veteran_data.dig('address', 'zipCode5') || '00000'
     end
 
     def veteran_phone_number
@@ -131,7 +145,7 @@ module AppealsApi
     end
 
     def veteran_phone_data
-      veteran&.dig('phone')
+      veteran_data&.dig('phone')
     end
 
     def veteran_homeless?
@@ -139,11 +153,11 @@ module AppealsApi
     end
 
     def email
-      veteran&.dig('emailAddressText').to_s.strip
+      veteran_data&.dig('emailAddressText').to_s.strip
     end
 
     def email_v2
-      veteran&.dig('email').to_s.strip
+      veteran_data&.dig('email').to_s.strip
     end
 
     def benefit_type
@@ -197,6 +211,32 @@ module AppealsApi
 
     def date_signed_yyyy
       veterans_local_time.strftime '%Y'
+    end
+
+    def date_signed_v2
+      timezone = claimant.timezone || veteran.timezone
+
+      timezone ? created_at.in_time_zone(timezone) : created_at.utc
+    end
+
+    def signing_appellant
+      claimant.signing_appellant? ? claimant : veteran
+    end
+
+    def signature_v2
+      "#{signing_appellant.full_name[0...180]}\n- Signed by digital authentication to api.va.gov"
+    end
+
+    def date_signed_v2_mm
+      date_signed_v2.strftime '%m'
+    end
+
+    def date_signed_v2_dd
+      date_signed_v2.strftime '%d'
+    end
+
+    def date_signed_v2_yyyy
+      date_signed_v2.strftime '%Y'
     end
 
     def consumer_name
@@ -274,7 +314,7 @@ module AppealsApi
       form_data&.dig('data', 'attributes')
     end
 
-    def veteran
+    def veteran_data
       data_attributes&.dig('veteran')
     end
 
@@ -287,7 +327,7 @@ module AppealsApi
     end
 
     def veteran_phone
-      AppealsApi::HigherLevelReview::Phone.new veteran&.dig('phone')
+      AppealsApi::HigherLevelReview::Phone.new veteran_data&.dig('phone')
     end
 
     def veterans_local_time
@@ -295,7 +335,12 @@ module AppealsApi
     end
 
     def veterans_timezone
-      veteran&.dig('timezone').presence&.strip
+      veteran_data&.dig('timezone').presence&.strip
+    end
+
+    # V2 version of veterans_local_time
+    def appellant_local_time
+      signing_appellant.timezone ? created_at.in_time_zone(signing_appellant.timezone) : created_at.utc
     end
 
     # validation (header)
@@ -340,12 +385,12 @@ module AppealsApi
     end
 
     def address_combined
-      return unless veteran.dig('address', 'addressLine1')
+      return unless veteran_data.dig('address', 'addressLine1')
 
       @address_combined ||=
-        [veteran.dig('address', 'addressLine1'),
-         veteran.dig('address', 'addressLine2'),
-         veteran.dig('address', 'addressLine3')].compact.map(&:strip).join(' ')
+        [veteran_data.dig('address', 'addressLine1'),
+         veteran_data.dig('address', 'addressLine2'),
+         veteran_data.dig('address', 'addressLine3')].compact.map(&:strip).join(' ')
     end
   end
 end

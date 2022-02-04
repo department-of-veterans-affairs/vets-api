@@ -341,8 +341,26 @@ describe AppealsApi::HigherLevelReview, type: :model do
     describe '#claimant' do
       subject { higher_level_review_v2.claimant }
 
-      it do
-        expect(subject.class).to eq AppealsApi::NonVeteranClaimant
+      it { expect(subject.class).to eq AppealsApi::Appellant }
+    end
+
+    describe '#veteran' do
+      subject { higher_level_review_v2.veteran }
+
+      it { expect(subject.class).to eq AppealsApi::Appellant }
+    end
+
+    describe '#signing_appellant' do
+      context 'when both veteran and claimant data present' do
+        subject { higher_level_review_v2.signing_appellant.send(:type) }
+
+        it { expect(subject).to eq :claimant }
+      end
+
+      context 'when only veteran data present' do
+        subject { higher_level_review.signing_appellant.send(:type) }
+
+        it { expect(subject).to eq :veteran }
       end
     end
   end

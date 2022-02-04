@@ -145,6 +145,8 @@ module AppealsApi
     end
 
     def submission_email_identifier
+      return if claimant?
+
       return { id_type: 'email', id_value: email } if email.present?
 
       icn = mpi_veteran.mpi_icn
@@ -200,8 +202,6 @@ module AppealsApi
     end
 
     def mpi_veteran
-      return if claimant?
-
       ClaimsApi::Veteran.new(
         uuid: ssn,
         ssn: ssn,
