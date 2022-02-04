@@ -35,6 +35,7 @@ jobs:
           build-args: |
             sidekiq_license=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
             userid=${{ env.VETS_API_USER_ID }}
+            RAILS_ENV=production
           context: .
           push: true
           tags: |
