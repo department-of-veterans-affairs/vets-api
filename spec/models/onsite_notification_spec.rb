@@ -25,4 +25,18 @@ RSpec.describe OnsiteNotification, type: :model do
       expect_attr_valid(onsite_notification, :template_id)
     end
   end
+
+  describe '.for_user' do
+    let(:user) { create(:user, :loa3) }
+    let!(:onsite_notification) { create(:onsite_notification, va_profile_id: user.vet360_id) }
+
+    before do
+      create(:onsite_notification, dismissed: true, va_profile_id: user.vet360_id)
+      create(:onsite_notification)
+    end
+
+    it 'returns non-dismissed onsite_notifications for the user' do
+      expect(described_class.for_user(user)).to eq([onsite_notification])
+    end
+  end
 end

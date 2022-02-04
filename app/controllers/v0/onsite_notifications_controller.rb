@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module V1
-  class NotificationsController < ApplicationController
+module V0
+  class OnsiteNotificationsController < ApplicationController
     BEARER_PATTERN = /^Bearer /.freeze
 
     skip_before_action :verify_authenticity_token, only: [:create]
@@ -9,8 +9,29 @@ module V1
     skip_after_action :set_csrf_header, only: [:create]
     before_action :authenticate_jwt, only: [:create]
 
+    def index
+      render(json: OnsiteNotification.for_user(current_user))
+    end
+
+    def update
+      onsite_notification = OnsiteNotification.find_by(id: params[:id], va_profile_id: current_user.vet360_id)
+      raise Common::Exceptions::RecordNotFound, params[:id] if onsite_notification.nil?
+
+      unless onsite_notification.update(params.require(:onsite_notification).permit(:dismissed))
+        raise Common::Exceptions::ValidationErrors, onsite_notification
+      end
+
+      render(json: onsite_notification)
+    end
+
     def create
-      render text: 'OK'
+      onsite_notification = OnsiteNotification.new(
+        params.require(:onsite_notification).permit(:va_profile_id, :template_id)
+      )
+
+      raise Common::Exceptions::ValidationErrors, onsite_notification unless onsite_notification.save
+
+      render(json: onsite_notification)
     end
 
     private
