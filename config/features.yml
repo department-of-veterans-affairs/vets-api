@@ -372,6 +372,10 @@ features:
     actor_type: user
     description: Show/hide the fax number UI on the profile page
     enable_in_development: true
+  profile_show_gender:
+    actor_type: user
+    description: Show/hide the gender field UI on the profile page
+    enable_in_development: true
   profile_show_receive_text_notifications:
     actor_type: user
     description: https://www.va.gov/profile/ show Receive Text Notifications
