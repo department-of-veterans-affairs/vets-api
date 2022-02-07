@@ -2,6 +2,27 @@
 
 module CheckIn
   module V2
+    ##
+    # A class responsible for Check-in related business logic. This class is instantiated with
+    # {CheckIn::V2::Session} object and the raw response from LoROTA data, and provides
+    # functionality to get the serialized data or return appropriate error response.
+    #
+    # @!attribute [r] settings
+    #   @return [Config::Options]
+    # @!attribute [r] check_in
+    #   @return [Session] the session object
+    # @!attribute [r] data
+    #   @return [Faraday::Response] raw Response object
+    # @!attribute [r] http_status
+    #   @return [Integer] HTTP status of the raw response
+    # @!attribute [r] http_body
+    #   @return [String] HTTP body of the raw response
+    # @!method redis_session_prefix
+    #   @return (see Config::Options#redis_session_prefix)
+    # @!method redis_token_expiry
+    #   @return (see Config::Options#redis_token_expiry)
+    # @!method check_in_type
+    #   @return (see CheckIn::V2::Session#check_in_type)
     class PatientCheckIn
       extend Forwardable
 
@@ -10,6 +31,14 @@ module CheckIn
       def_delegators :settings, :redis_session_prefix, :redis_token_expiry
       def_delegator :check_in, :check_in_type
 
+      ##
+      # Builds an instance of the class
+      #
+      # @param opts [Hash] options to create the object
+      # @option opts [Session] :check_in the session object
+      # @option opts [Faraday::Response] :data the check in data
+
+      # @return [CheckIn::V2::PatientCheckIn] an instance of this class
       def self.build(opts = {})
         new(opts)
       end
@@ -22,6 +51,9 @@ module CheckIn
         @http_body = data&.body
       end
 
+      # Save the appointment identifiers in Redis
+      #
+      # @return [Boolean]
       def save
         Rails.cache.write(
           build_session_id_prefix,
@@ -31,6 +63,9 @@ module CheckIn
         )
       end
 
+      # Get the serialized patient data
+      #
+      # @return [Hash] payload with appointment, demographics and demographics status data
       def approved
         appt_hash = Oj.load(http_body).merge(uuid: check_in.uuid).with_indifferent_access
         appt_struct = OpenStruct.new(appt_hash)

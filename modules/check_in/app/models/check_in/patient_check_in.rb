@@ -31,7 +31,6 @@ module CheckIn
     ##
     # Returns true if the UUID is valid or false if it's not
     #
-    # @param opts [Hash]
     # @return [Boolean]
     #
     def valid?
