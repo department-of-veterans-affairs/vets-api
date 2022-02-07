@@ -54,7 +54,7 @@ module VAOS
       def update
         updated_appointment
         unless updated_appointment[:clinic].nil?
-          clinic = get_clinic(new_appointment[:location_id], new_appointment[:clinic])
+          clinic = get_clinic(updated_appointment[:location_id], updated_appointment[:clinic])
           updated_appointment[:service_name] = clinic[:service_name]
           updated_appointment[:physical_location] = clinic[:physical_location] if clinic[:physical_location]
         end
