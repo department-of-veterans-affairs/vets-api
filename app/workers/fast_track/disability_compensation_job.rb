@@ -52,6 +52,8 @@ module FastTrack
       end
     end
 
+    class AccountNotFoundError < StandardError; end
+
     private
 
     def bp_readings(client)
@@ -79,16 +81,19 @@ module FastTrack
     end
 
     def get_icn(form526_submission)
-      account(form526_submission).icn.presence
+      account_record = account(form526_submission)
+      raise AccountNotFoundError, "for user_uuid: #{form526_submission.user_uuid} or their edipi" unless account_record
+
+      account_record.icn.presence
     end
 
     def account(form526_submission)
       user_uuid = form526_submission.user_uuid.presence
       edipi = form526_submission.auth_headers['va_eauth_dodedipnid'].presence
       # rubocop:disable Lint/UselessAssignment
-      account = Account.where(idme_uuid: user_uuid).first if user_uuid
-      account ||= Account.where(logingov_uuid: user_uuid).first if user_uuid
-      account ||= Account.where(edipi: edipi).first if edipi
+      account = Account.find_by(idme_uuid: user_uuid) if user_uuid
+      account ||= Account.find_by(logingov_uuid: user_uuid) if user_uuid
+      account ||= Account.find_by(edipi: edipi) if edipi
       # rubocop:enable Lint/UselessAssignment
     end
 

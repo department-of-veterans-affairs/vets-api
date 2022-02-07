@@ -130,8 +130,8 @@ RSpec.describe FastTrack::DisabilityCompensationJob, type: :worker do
       it 'raises an error' do
         Sidekiq::Testing.inline! do
           expect do
-            subject.new.perform_async(submission_without_account_or_edpid.id, user_full_name)
-          end.to raise_error NoMethodError
+            FastTrack::DisabilityCompensationJob.perform_async(submission_without_account_or_edpid.id, user_full_name)
+          end.to raise_error FastTrack::DisabilityCompensationJob::AccountNotFoundError
         end
       end
     end
@@ -157,11 +157,14 @@ RSpec.describe FastTrack::DisabilityCompensationJob, type: :worker do
     context 'when an account for the user is NOT found' do
       before do
         allow(Account).to receive(:where).and_return Account.none
+        allow(Account).to receive(:find_by).and_return nil
       end
 
-      it 'raises ActiveRecord::RecordNotFound exception' do
+      it 'raises AccountNotFoundError exception' do
         Sidekiq::Testing.inline! do
-          expect { subject.new.perform_async(submission.id, user_full_name) }.to raise_error(NoMethodError)
+          expect do
+            FastTrack::DisabilityCompensationJob.perform_async(submission.id, user_full_name)
+          end.to raise_error FastTrack::DisabilityCompensationJob::AccountNotFoundError
         end
       end
     end
