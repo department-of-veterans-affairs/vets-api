@@ -16,6 +16,10 @@ module MebApi
           true
         end
 
+        def submit_enrollment
+          true
+        end
+
         private
 
         def request_headers

@@ -9,6 +9,7 @@ MebApi::Engine.routes.draw do
     get 'claim_letter', to: 'education_benefits#claim_letter'
     post 'submit_claim', to: 'education_benefits#submit_claim'
     get 'enrollment', to: 'education_benefits#enrollment'
+    post 'submit_enrollment_verification', to: 'education_benefits#submit_enrollment_verification'
     get 'apidocs', to: 'apidocs#index'
   end
 end

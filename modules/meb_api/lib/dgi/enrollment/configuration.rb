@@ -10,16 +10,6 @@ module MebApi
           Settings.dgi.vets.url.to_s
         end
 
-        def connection
-          @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
-            faraday.use Faraday::Response::RaiseError
-
-            faraday.request :multipart
-            faraday.response :betamocks if mock_enabled?
-            faraday.adapter Faraday.default_adapter
-          end
-        end
-
         def service_name
           'DGI/Enrollment'
         end

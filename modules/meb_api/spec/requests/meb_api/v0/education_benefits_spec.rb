@@ -82,4 +82,15 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
       end
     end
   end
+
+  describe 'POST /meb_api/v0/submit_enrollment_verification' do
+    context 'Creates a veterans enrollments' do
+      it 'returns a 200 status when it' do
+        VCR.use_cassette('dgi/submit_enrollment_verification') do
+          post '/meb_api/v0/submit_enrollment_verification'
+          expect(response).to have_http_status(:ok)
+        end
+      end
+    end
+  end
 end

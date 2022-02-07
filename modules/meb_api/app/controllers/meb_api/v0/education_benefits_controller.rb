@@ -68,6 +68,15 @@ module MebApi
         }
       end
 
+      def submit_enrollment_verification
+        # Just mocking return value until data structure is confirmed
+        render json: {
+          data: {
+            status: 200
+          }
+        }
+      end
+
       private
 
       def eligibility_service
