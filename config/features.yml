@@ -252,17 +252,9 @@ features:
     actor_type: user
     description: Display new field operationalHoursSpecialInstructions for VA facilities
     enable_in_development: true
-  find_forms_first_flag:
+  find_forms_show_pdf_modal:
     actor_type: user
-    description: Enhances Find A Forms Flag 1.
-    enable_in_development: true
-  find_forms_second_flag:
-    actor_type: user
-    description: Enhances Find A Forms Flag 2.
-    enable_in_development: true
-  find_forms_third_flag:
-    actor_type: user
-    description: Enhances Find A Forms Flag 3.
+    description: Shows the PDF modal for the Find VA Forms page.
     enable_in_development: true
   file_upload_short_workflow_enabled:
     actor_type: user
