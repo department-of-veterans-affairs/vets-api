@@ -56,8 +56,10 @@ RSpec.describe Form526Submission do
           Sidekiq::Worker.clear_all
         end
 
-        it 'queues a new FastTrack::DisabilityCompensationJob worker' do
-          expect { form_for_hypertension.start }.to change(FastTrack::DisabilityCompensationJob.jobs, :size).by(1)
+        it 'queues a new RapidReadyForDecision::DisabilityCompensationJob worker' do
+          expect do
+            form_for_hypertension.start
+          end.to change(RapidReadyForDecision::DisabilityCompensationJob.jobs, :size).by(1)
         end
 
         it_behaves_like '#start_evss_submission'
@@ -79,8 +81,8 @@ RSpec.describe Form526Submission do
           Sidekiq::Worker.clear_all
         end
 
-        it 'does NOT queue a new FastTrack::DisabilityCompensationJob worker' do
-          expect { subject.start }.to change(FastTrack::DisabilityCompensationJob.jobs, :size).by(0)
+        it 'does NOT queue a new RapidReadyForDecision::DisabilityCompensationJob worker' do
+          expect { subject.start }.to change(RapidReadyForDecision::DisabilityCompensationJob.jobs, :size).by(0)
         end
 
         it_behaves_like '#start_evss_submission'
@@ -90,8 +92,8 @@ RSpec.describe Form526Submission do
     context 'the submission is NOT for hypertension' do
       before { Sidekiq::Worker.clear_all }
 
-      it 'Does NOT queue a new FastTrack::DisabilityCompensationJob' do
-        expect { subject.start }.to change(FastTrack::DisabilityCompensationJob.jobs, :size).by(0)
+      it 'Does NOT queue a new RapidReadyForDecision::DisabilityCompensationJob' do
+        expect { subject.start }.to change(RapidReadyForDecision::DisabilityCompensationJob.jobs, :size).by(0)
       end
 
       it_behaves_like '#start_evss_submission'

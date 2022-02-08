@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'fast_track/disability_compensation_job'
+require 'rapid_ready_for_decision/disability_compensation_job'
 
-RSpec.describe FastTrack::HypertensionSpecialIssueManager do
+RSpec.describe RapidReadyForDecision::HypertensionSpecialIssueManager do
   let(:form526_submission) do
     Form526Submission.create(
       user_uuid: user.uuid,
@@ -31,7 +31,7 @@ RSpec.describe FastTrack::HypertensionSpecialIssueManager do
   end
 
   describe '#add_special_issue' do
-    subject(:special_issue_manager) { FastTrack::HypertensionSpecialIssueManager.new(form526_submission) }
+    subject(:special_issue_manager) { RapidReadyForDecision::HypertensionSpecialIssueManager.new(form526_submission) }
 
     let(:special_issues_list) { ['RRD'] }
 

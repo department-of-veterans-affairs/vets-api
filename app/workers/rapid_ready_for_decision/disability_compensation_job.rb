@@ -4,7 +4,7 @@ require 'lighthouse/veterans_health/client'
 require 'sidekiq/form526_job_status_tracker/job_tracker'
 require 'sidekiq/form526_job_status_tracker/metrics'
 
-module FastTrack
+module RapidReadyForDecision
   class DisabilityCompensationJob
     include Sidekiq::Worker
     include Sidekiq::Form526JobStatusTracker::JobTracker
@@ -48,12 +48,12 @@ module FastTrack
 
     def bp_readings(client)
       @bp_readings ||= client.list_resource('observations')
-      @bp_readings.present? ? FastTrack::HypertensionObservationData.new(@bp_readings).transform : []
+      @bp_readings.present? ? RapidReadyForDecision::HypertensionObservationData.new(@bp_readings).transform : []
     end
 
     def medications(client)
       @medications ||= client.list_resource('medications')
-      @medications.present? ? FastTrack::HypertensionMedicationRequestData.new(@medications).transform : []
+      @medications.present? ? RapidReadyForDecision::HypertensionMedicationRequestData.new(@medications).transform : []
     end
 
     def send_fast_track_engineer_email_for_testing(form526_submission_id, error_message, backtrace)
@@ -88,14 +88,14 @@ module FastTrack
     end
 
     def upload_pdf_and_attach_special_issue(form526_submission, pdf)
-      FastTrack::HypertensionUploadManager.new(form526_submission).handle_attachment(pdf.render)
+      RapidReadyForDecision::HypertensionUploadManager.new(form526_submission).handle_attachment(pdf.render)
       if Flipper.enabled?(:disability_hypertension_compensation_fast_track_add_rrd)
-        FastTrack::HypertensionSpecialIssueManager.new(form526_submission).add_special_issue
+        RapidReadyForDecision::HypertensionSpecialIssueManager.new(form526_submission).add_special_issue
       end
     end
 
     def pdf(full_name, bpreadings, medications)
-      FastTrack::HypertensionPdfGenerator.new(full_name, bpreadings, medications).generate
+      RapidReadyForDecision::HypertensionPdfGenerator.new(full_name, bpreadings, medications).generate
     end
   end
 end

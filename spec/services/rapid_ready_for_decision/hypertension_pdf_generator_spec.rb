@@ -5,7 +5,7 @@ require 'rails_helper'
 # require 'prawn/table'
 require 'lighthouse/veterans_health/client'
 
-RSpec.describe FastTrack::HypertensionPdfGenerator, :vcr do
+RSpec.describe RapidReadyForDecision::HypertensionPdfGenerator, :vcr do
   let(:client) do
     # Using specific test ICN below:
     Lighthouse::VeteransHealth::Client.new(2_000_163)
@@ -20,18 +20,21 @@ RSpec.describe FastTrack::HypertensionPdfGenerator, :vcr do
     original_first_bp_reading = bp_data.body['entry'].first
     original_first_bp_reading['resource']['issued'] = (DateTime.now - 2.weeks).iso8601
 
-    FastTrack::HypertensionObservationData.new(bp_data).transform
+    RapidReadyForDecision::HypertensionObservationData.new(bp_data).transform
   end
 
   let(:parsed_medications_data) do
-    FastTrack::HypertensionMedicationRequestData.new(client.list_resource('medications')).transform
+    RapidReadyForDecision::HypertensionMedicationRequestData.new(client.list_resource('medications')).transform
   end
 
   let(:patient_name) { { first: 'Cat', middle: 'Marie', last: 'Power', suffix: 'Jr.' } }
 
+  let(:pdf_generator) do
+    RapidReadyForDecision::HypertensionPdfGenerator.new(patient_name, parsed_bp_data, parsed_medications_data)
+  end
+
   let!(:pdf) do
-    pdf = FastTrack::HypertensionPdfGenerator.new(patient_name, parsed_bp_data, parsed_medications_data).generate
-    PDF::Inspector::Text.analyze(pdf.render).strings
+    PDF::Inspector::Text.analyze(pdf_generator.generate.render).strings
   end
 
   describe '#generate', :vcr do

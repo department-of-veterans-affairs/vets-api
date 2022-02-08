@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module FastTrack
+module RapidReadyForDecision
   class HypertensionMedicationRequestData
     attr_accessor :response
 

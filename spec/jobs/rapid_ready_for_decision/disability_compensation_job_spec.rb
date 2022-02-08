@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'sidekiq/testing'
 
-RSpec.describe FastTrack::DisabilityCompensationJob, type: :worker do
+RSpec.describe RapidReadyForDecision::DisabilityCompensationJob, type: :worker do
   subject { described_class }
 
   before do
@@ -51,7 +51,7 @@ RSpec.describe FastTrack::DisabilityCompensationJob, type: :worker do
 
         it 'returns from the class if the claim observations does NOT include bp readings from the past year' do
           Sidekiq::Testing.inline! do
-            expect(FastTrack::HypertensionMedicationRequestData).not_to receive(:new)
+            expect(RapidReadyForDecision::HypertensionMedicationRequestData).not_to receive(:new)
             subject.perform_async(submission_for_user_wo_bp.id, user_full_name)
           end
         end
@@ -60,14 +60,14 @@ RSpec.describe FastTrack::DisabilityCompensationJob, type: :worker do
       context 'the claim IS for hypertension', :vcr do
         before do
           # The bp reading needs to be 1 year or less old so actual API data will not test if this code is working.
-          allow_any_instance_of(FastTrack::HypertensionObservationData)
+          allow_any_instance_of(RapidReadyForDecision::HypertensionObservationData)
             .to receive(:transform).and_return(mocked_observation_data)
         end
 
         it 'finishes successfully' do
           Sidekiq::Testing.inline! do
             expect do
-              FastTrack::DisabilityCompensationJob.perform_async(submission.id, user_full_name)
+              RapidReadyForDecision::DisabilityCompensationJob.perform_async(submission.id, user_full_name)
             end.not_to raise_error
           end
         end
@@ -75,14 +75,14 @@ RSpec.describe FastTrack::DisabilityCompensationJob, type: :worker do
         it 'creates a job status record' do
           Sidekiq::Testing.inline! do
             expect do
-              FastTrack::DisabilityCompensationJob.perform_async(submission.id, user_full_name)
+              RapidReadyForDecision::DisabilityCompensationJob.perform_async(submission.id, user_full_name)
             end.to change(Form526JobStatus, :count).by(1)
           end
         end
 
         it 'marks the new Form526JobStatus record as successful' do
           Sidekiq::Testing.inline! do
-            FastTrack::DisabilityCompensationJob.perform_async(submission.id, user_full_name)
+            RapidReadyForDecision::DisabilityCompensationJob.perform_async(submission.id, user_full_name)
             expect(Form526JobStatus.last.status).to eq 'success'
           end
         end
@@ -90,14 +90,14 @@ RSpec.describe FastTrack::DisabilityCompensationJob, type: :worker do
         context 'failure' do
           before do
             allow_any_instance_of(
-              FastTrack::HypertensionPdfGenerator
+              RapidReadyForDecision::HypertensionPdfGenerator
             ).to receive(:generate).and_return(nil)
           end
 
           it 'raises a helpful error if the failure is after the api call and emails the engineers' do
             Sidekiq::Testing.inline! do
               expect do
-                FastTrack::DisabilityCompensationJob.perform_async(submission.id, user_full_name)
+                RapidReadyForDecision::DisabilityCompensationJob.perform_async(submission.id, user_full_name)
               end.to raise_error(NoMethodError)
               expect(ActionMailer::Base.deliveries.last.subject).to eq 'Fast Track Hypertension Errored'
               expect(ActionMailer::Base.deliveries.last.body.raw_source)
@@ -109,7 +109,7 @@ RSpec.describe FastTrack::DisabilityCompensationJob, type: :worker do
           it 'creates a job status record' do
             Sidekiq::Testing.inline! do
               expect do
-                FastTrack::DisabilityCompensationJob.perform_async(submission.id, user_full_name)
+                RapidReadyForDecision::DisabilityCompensationJob.perform_async(submission.id, user_full_name)
               end.to raise_error(NoMethodError)
               expect(Form526JobStatus.last.status).to eq 'retryable_error'
             end
@@ -130,8 +130,9 @@ RSpec.describe FastTrack::DisabilityCompensationJob, type: :worker do
       it 'raises an error' do
         Sidekiq::Testing.inline! do
           expect do
-            FastTrack::DisabilityCompensationJob.perform_async(submission_without_account_or_edpid.id, user_full_name)
-          end.to raise_error FastTrack::DisabilityCompensationJob::AccountNotFoundError
+            RapidReadyForDecision::DisabilityCompensationJob.perform_async(submission_without_account_or_edpid.id,
+                                                                           user_full_name)
+          end.to raise_error RapidReadyForDecision::DisabilityCompensationJob::AccountNotFoundError
         end
       end
     end
@@ -163,8 +164,8 @@ RSpec.describe FastTrack::DisabilityCompensationJob, type: :worker do
       it 'raises AccountNotFoundError exception' do
         Sidekiq::Testing.inline! do
           expect do
-            FastTrack::DisabilityCompensationJob.perform_async(submission.id, user_full_name)
-          end.to raise_error FastTrack::DisabilityCompensationJob::AccountNotFoundError
+            RapidReadyForDecision::DisabilityCompensationJob.perform_async(submission.id, user_full_name)
+          end.to raise_error RapidReadyForDecision::DisabilityCompensationJob::AccountNotFoundError
         end
       end
     end

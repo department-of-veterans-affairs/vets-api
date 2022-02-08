@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module FastTrack
+module RapidReadyForDecision
   class HypertensionSpecialIssueManager
     attr_accessor :submission
 
