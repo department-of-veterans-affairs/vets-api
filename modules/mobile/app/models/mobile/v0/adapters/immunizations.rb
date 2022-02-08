@@ -6,11 +6,9 @@ module Mobile
       class Immunizations
         def parse(immunizations)
           vaccines = vaccines(immunizations)
-
-          immunizations[:entry].map do |i|
+          vaccine_map = immunizations[:entry].map do |i|
             immunization = i[:resource]
-            vaccine_code = immunization[:vaccine_code]
-            cvx_code = cvx_code(vaccine_code)
+            cvx_code = cvx_code(immunization[:vaccine_code])
             vaccine = vaccines&.find_by(cvx_code: cvx_code)
 
             Mobile::V0::Immunization.new(
@@ -24,9 +22,10 @@ module Mobile
               manufacturer: vaccine&.manufacturer,
               note: note(immunization[:note]),
               reaction: reaction(immunization[:reaction]),
-              short_description: vaccine_code[:text]
+              short_description: immunization[:vaccine_code][:text]
             )
           end
+          vaccine_map.uniq { |immunization| [immunization[:date], immunization[:short_description]] }
         end
 
         private
