@@ -77,9 +77,7 @@ module AppealsApi
         raise Common::Exceptions::BadGateway
       end
 
-      ActiveRecord::Base.transaction do
-        update_appeals!(appeals, central_mail_response)
-      end
+      update_appeals!(appeals, central_mail_response)
     end
 
     private
@@ -137,6 +135,7 @@ module AppealsApi
         class: self.class.to_s,
         appeal_type: appeal.class.to_s,
         appeal_id: appeal.id,
+        appeal_status: appeal.status,
         attempted_status: status
       }
 
