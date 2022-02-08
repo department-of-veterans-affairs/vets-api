@@ -27,6 +27,9 @@ features:
   can_upload_10_10cg_poa:
     actor_type: cookie_id
     description: Allows users to upload POA documentation when completing the 10-10CG.
+  cerner_allow_partial_facilities:
+    actor_type: user
+    description: This will allow cerner facilities to be set to partially cerner or all cerner.
   cerner_override_463:
     actor_type: user
     description: This will show the Cerner facility 463 as `isCerner`.
