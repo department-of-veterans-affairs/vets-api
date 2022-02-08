@@ -1234,6 +1234,14 @@ bid:
     credentials: ~
     mock: true
 
+rrd:
+  alerts:
+    recipients:
+      - fake_email
+  event_tracking:
+    recipients:
+      - fake_email
+
 # Settings for Test User Dashboard modules
 test_user_dashboard:
   env: dev

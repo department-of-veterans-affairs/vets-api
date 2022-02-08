@@ -177,6 +177,14 @@ lighthouse:
       grant_type: "client_credentials"
       api_key: spec/support/fake_api_key_for_lighthouse.txt
 
+rrd:
+  alerts:
+    recipients:
+      - fake_email
+  event_tracking:
+    recipients:
+      - fake_email
+
 sidekiq:
   github_organization: "organization"
   github_team: 0000000
