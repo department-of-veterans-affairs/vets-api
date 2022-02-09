@@ -29,7 +29,7 @@ module CheckIn
       end
 
       def permitted_params
-        params.require(:session).permit(:uuid, :last4, :last_name)
+        params.require(:session).permit(:uuid, :last4, :last_name, :check_in_type)
       end
 
       private

@@ -9,10 +9,10 @@ unless Rails.env.test?
     CheckIn::V2::PreCheckInsController.extend(StatsD::Instrument)
     %i[show create].each do |method|
       CheckIn::V2::SessionsController.statsd_measure method, lambda { |object, _args|
-        "api.#{check_in_type(object.params[:checkInType])}.v2.sessions.#{method}.measure"
+        "api.#{check_in_type(object.params)}.v2.sessions.#{method}.measure"
       }
       CheckIn::V2::SessionsController.statsd_count_success method, lambda { |object, _args|
-        "api.#{check_in_type(object.params[:checkInType])}.v2.sessions.#{method}.count"
+        "api.#{check_in_type(object.params)}.v2.sessions.#{method}.count"
       }
       CheckIn::V2::PatientCheckInsController.statsd_measure method, "api.check_in.v2.checkins.#{method}.measure"
       CheckIn::V2::PatientCheckInsController.statsd_count_success method, "api.check_in.v2.checkins.#{method}.count"
@@ -36,7 +36,9 @@ unless Rails.env.test?
 
   private
 
-  def check_in_type(check_in_param)
+  def check_in_type(params)
+    check_in_param = params[:checkInType]
+    check_in_param = params[:session][:check_in_type] if check_in_param.nil?
     check_in_param == 'preCheckIn' ? 'pre_check_in' : 'check_in'
   end
 end
