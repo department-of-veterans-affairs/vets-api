@@ -1,8 +1,8 @@
 name: Build & Push to ECR
 on:
+  workflow_dispatch:
   workflow_run:
     workflows: ["Code Checks"]
-    branches: [k8s]
     types: [completed]
 permissions:
   contents: read
