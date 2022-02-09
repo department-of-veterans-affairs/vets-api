@@ -1,5 +1,6 @@
 name: Build & Push to ECR
 on:
+  workflow_dispatch:
   workflow_run:
     workflows: ["Code Checks"]
     branches: [master]
@@ -35,6 +36,7 @@ jobs:
           build-args: |
             sidekiq_license=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
             userid=${{ env.VETS_API_USER_ID }}
+            RAILS_ENV=production
           context: .
           target: production
           push: true
