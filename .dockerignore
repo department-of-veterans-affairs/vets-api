@@ -6,6 +6,5 @@
 coverage
 data
 docs
-modules/**/spec
 log
 tmp
