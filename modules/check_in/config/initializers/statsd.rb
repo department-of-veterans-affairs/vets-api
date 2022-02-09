@@ -38,7 +38,7 @@ unless Rails.env.test?
 
   def check_in_type(params)
     check_in_param = params[:checkInType]
-    check_in_param = params[:session][:check_in_type] if check_in_param.nil?
+    check_in_param = params.dig(:session, :check_in_type) if check_in_param.nil?
     check_in_param == 'preCheckIn' ? 'pre_check_in' : 'check_in'
   end
 end
