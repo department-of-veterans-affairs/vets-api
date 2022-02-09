@@ -59,13 +59,16 @@ module RapidReadyForDecision
     def send_fast_track_engineer_email_for_testing(form526_submission_id, error_message, backtrace)
       # TODO: This should be removed once we have basic metrics
       # on this feature and the visibility is imporved.
-      body = "A claim just errored on the #{Rails.env} environment " \
-             "with submission id: #{form526_submission_id} and job_id #{jid}." \
-             "The error was: #{error_message}. The backtrace was:\n #{backtrace.join(",\n ")}"
+      body = <<~BODY
+        A claim errored in the #{Settings.vsp_environment} environment \
+        with Form 526 submission id: #{form526_submission_id} and Sidekiq job id: #{jid}.<br/>
+        <br/>
+        The error was: #{error_message}. The backtrace was:\n #{backtrace.join(",<br/>\n ")}
+      BODY
       ActionMailer::Base.mail(
         from: ApplicationMailer.default[:from],
         to: Settings.rrd.alerts.recipients,
-        subject: 'Fast Track Hypertension Errored',
+        subject: 'Rapid Ready for Decision (RRD) Job Errored',
         body: body
       ).deliver_now
     end

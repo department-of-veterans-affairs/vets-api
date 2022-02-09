@@ -99,9 +99,9 @@ RSpec.describe RapidReadyForDecision::DisabilityCompensationJob, type: :worker d
               expect do
                 RapidReadyForDecision::DisabilityCompensationJob.perform_async(submission.id, user_full_name)
               end.to raise_error(NoMethodError)
-              expect(ActionMailer::Base.deliveries.last.subject).to eq 'Fast Track Hypertension Errored'
+              expect(ActionMailer::Base.deliveries.last.subject).to eq 'Rapid Ready for Decision (RRD) Job Errored'
               expect(ActionMailer::Base.deliveries.last.body.raw_source)
-                .to match 'A claim just errored'
+                .to match 'A claim errored'
               expect(ActionMailer::Base.deliveries.last.body.raw_source.scan(/\n /).count).to be > 10
             end
           end
