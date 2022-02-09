@@ -14,26 +14,26 @@ module AppealsApi
             it { expect(form_fields.middle_initial).to eq 'form1[0].#subform[2].Veteran_Middle_Initial1[0]' }
           end
 
-          describe 'first_three_ssn' do
+          describe 'ssn_first_three' do
             it do
               expect(
-                form_fields.first_three_ssn
+                form_fields.ssn_first_three
               ).to eq 'form1[0].#subform[2].ClaimantsSocialSecurityNumber_FirstThreeNumbers[0]'
             end
           end
 
-          describe 'second_two_ssn' do
+          describe 'ssn_second_two' do
             it do
               expect(
-                form_fields.second_two_ssn
+                form_fields.ssn_second_two
               ).to eq 'form1[0].#subform[2].ClaimantsSocialSecurityNumber_SecondTwoNumbers[0]'
             end
           end
 
-          describe 'last_four_ssn' do
+          describe 'ssn_last_four' do
             it do
               expect(
-                form_fields.last_four_ssn
+                form_fields.ssn_last_four
               ).to eq 'form1[0].#subform[2].ClaimantsSocialSecurityNumber_LastFourNumbers[0]'
             end
           end
