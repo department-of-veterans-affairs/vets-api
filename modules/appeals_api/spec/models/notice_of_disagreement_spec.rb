@@ -6,8 +6,8 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe AppealsApi::NoticeOfDisagreement, type: :model do
   include FixtureHelpers
 
-  let(:auth_headers) { fixture_as_json 'valid_10182_headers.json' }
-  let(:form_data) { fixture_as_json 'valid_10182.json' }
+  let(:auth_headers) { fixture_as_json 'valid_10182_headers.json', version: 'v1' }
+  let(:form_data) { fixture_as_json 'valid_10182.json', version: 'v1' }
   let(:notice_of_disagreement) do
     review_option = form_data['data']['attributes']['boardReviewOption']
     build(:notice_of_disagreement, form_data: form_data, auth_headers: auth_headers, board_review_option: review_option)
@@ -51,7 +51,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     end
 
     context "when board review option 'direct_review' or 'evidence_submission' is selected" do
-      let(:form_data) { fixture_as_json 'valid_10182_minimum.json' }
+      let(:form_data) { fixture_as_json 'valid_10182_minimum.json', version: 'v1' }
 
       context 'when hearing type provided' do
         before do

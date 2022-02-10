@@ -13,7 +13,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
   response_hlr_show_not_found = read_json_from_same_dir['response_hlr_show_not_found.json']
   response_hlr_create_error = read_json_from_same_dir['response_hlr_create_error.json']
 
-  example_all_fields_used = read_json[['spec', 'fixtures', 'valid_200996.json']]
+  example_all_fields_used = read_json[['spec', 'fixtures', 'v1', 'valid_200996.json']]
 
   response_hlr_show_success = lambda do
     properties = {
@@ -62,7 +62,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
   ).to_swagger['requestBody']
 
   hlr_create_request_body['content']['application/json']['examples'] = {
-    'minimum fields used': { value: read_json[['spec', 'fixtures', 'valid_200996_minimum.json']] },
+    'minimum fields used': { value: read_json[['spec', 'fixtures', 'v1', 'valid_200996_minimum.json']] },
     'all fields used': { value: example_all_fields_used }
   }
 

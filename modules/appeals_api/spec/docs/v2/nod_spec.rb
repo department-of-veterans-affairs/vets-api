@@ -29,10 +29,10 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
 
       parameter in: :body, examples: {
         'minimum fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_10182_minimum.json')))
+          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v1', 'valid_10182_minimum.json')))
         },
         'all fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_10182.json')))
+          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v1', 'valid_10182.json')))
         }
       }
 
@@ -56,7 +56,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
 
       response '200', 'Info about a single Notice of Disagreement' do
         let(:nod_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_10182_minimum.json')))
+          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v1', 'valid_10182_minimum.json')))
         end
 
         schema '$ref' => '#/components/schemas/nodCreateResponse'
@@ -85,7 +85,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
 
       response '200', 'Info about a single Notice of Disagreement' do
         let(:nod_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_10182.json')))
+          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v1', 'valid_10182.json')))
         end
 
         schema '$ref' => '#/components/schemas/nodCreateResponse'
@@ -116,7 +116,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
         schema '$ref' => '#/components/schemas/errorModel'
 
         let(:nod_body) do
-          request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_10182.json')))
+          request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v1', 'valid_10182.json')))
           request_body['data']['attributes'].delete('socOptIn')
           request_body
         end
@@ -244,10 +244,10 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
 
       parameter in: :body, examples: {
         'minimum fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_10182_minimum.json')))
+          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v1', 'valid_10182_minimum.json')))
         },
         'all fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_10182.json')))
+          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v1', 'valid_10182.json')))
         }
       }
 
@@ -271,7 +271,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
 
       response '200', 'Valid' do
         let(:nod_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_10182_minimum.json')))
+          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v1', 'valid_10182_minimum.json')))
         end
 
         schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'nod_validate.json')))
@@ -300,7 +300,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
 
       response '200', 'Info about a single Notice of Disagreement' do
         let(:nod_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_10182.json')))
+          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v1', 'valid_10182.json')))
         end
 
         schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'nod_validate.json')))
@@ -331,7 +331,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
         schema '$ref' => '#/components/schemas/errorModel'
 
         let(:nod_body) do
-          request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_10182_minimum.json')))
+          request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v1', 'valid_10182_minimum.json')))
           request_body['data']['attributes'].delete('socOptIn')
           request_body
         end

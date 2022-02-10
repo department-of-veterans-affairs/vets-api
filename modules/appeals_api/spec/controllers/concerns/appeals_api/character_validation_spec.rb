@@ -18,8 +18,8 @@ describe FakeController do
 
   let(:parsed) { JSON.parse(response.body) }
 
-  let(:invalid_data) { fixture_as_json 'invalid_200996_v2_characters.json' }
-  let(:invalid_headers) { fixture_as_json 'invalid_200996_headers_v2_characters.json' }
+  let(:invalid_data) { fixture_as_json 'invalid_200996_characters.json', version: 'v2' }
+  let(:invalid_headers) { fixture_as_json 'invalid_200996_headers_characters.json', version: 'v2' }
 
   context 'when data includes unsupported characters (chars outside of windows-1252)' do
     it 'returns an error' do

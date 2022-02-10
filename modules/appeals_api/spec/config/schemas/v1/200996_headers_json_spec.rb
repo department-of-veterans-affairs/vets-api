@@ -10,7 +10,7 @@ describe 'VA Form 20-0996 JSON Schema *for headers*', type: :request do
   let(:json_schema) { read_schema '200996_headers.json' }
 
   let(:errors) { validator.validate(json).to_a }
-  let(:json) { fixture_as_json 'valid_200996_headers.json' }
+  let(:json) { fixture_as_json 'valid_200996_headers.json', version: 'v1' }
   let(:validator) { JSONSchemer.schema(json_schema) }
 
   it('JSON is valid') { expect(json_schema).to be_a Hash }

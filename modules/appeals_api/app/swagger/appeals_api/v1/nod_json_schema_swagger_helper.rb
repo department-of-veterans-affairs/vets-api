@@ -61,11 +61,11 @@ class AppealsApi::V1::NodJsonSchemaSwaggerHelper
   end
 
   def example_min_fields_used
-    @example_min_fields_used ||= read_json(['spec', 'fixtures', 'valid_10182_minimum.json'])
+    @example_min_fields_used ||= read_json(['spec', 'fixtures', 'v1', 'valid_10182_minimum.json'])
   end
 
   def example_all_fields_used
-    @example_all_fields_used ||= read_json(['spec', 'fixtures', 'valid_10182.json'])
+    @example_all_fields_used ||= read_json(['spec', 'fixtures', 'v1', 'valid_10182.json'])
   end
 
   # rubocop:disable Metrics/MethodLength

@@ -20,7 +20,7 @@ describe AppealsApi::PdfConstruction::Generator do
 
         it 'generates the expected pdf' do
           generated_pdf = described_class.new(notice_of_disagreement).generate
-          expected_pdf = fixture_filepath('expected_10182_minimum.pdf')
+          expected_pdf = fixture_filepath('expected_10182_minimum.pdf', version: 'v1')
           expect(generated_pdf).to match_pdf expected_pdf
           File.delete(generated_pdf) if File.exist?(generated_pdf)
         end
@@ -31,7 +31,7 @@ describe AppealsApi::PdfConstruction::Generator do
 
         it 'generates the expected pdf' do
           generated_pdf = described_class.new(notice_of_disagreement).generate
-          expected_pdf = fixture_filepath('expected_10182_extra.pdf')
+          expected_pdf = fixture_filepath('expected_10182_extra.pdf', version: 'v1')
           expect(generated_pdf).to match_pdf expected_pdf
           File.delete(generated_pdf) if File.exist?(generated_pdf)
         end
@@ -46,7 +46,7 @@ describe AppealsApi::PdfConstruction::Generator do
       context 'pdf content verification' do
         it 'generates the expected pdf' do
           generated_pdf = described_class.new(higher_level_review).generate
-          expected_pdf = fixture_filepath('expected_200996.pdf')
+          expected_pdf = fixture_filepath('expected_200996.pdf', version: 'v1')
           expect(generated_pdf).to match_pdf expected_pdf
           File.delete(generated_pdf) if File.exist?(generated_pdf)
         end
@@ -55,7 +55,7 @@ describe AppealsApi::PdfConstruction::Generator do
       context 'pdf extra content verification' do
         it 'generates the expected pdf' do
           generated_pdf = described_class.new(extra_higher_level_review).generate
-          expected_pdf = fixture_filepath('expected_200996_extra.pdf')
+          expected_pdf = fixture_filepath('expected_200996_extra.pdf', version: 'v1')
           expect(generated_pdf).to match_pdf expected_pdf
           File.delete(generated_pdf) if File.exist?(generated_pdf)
         end
@@ -64,7 +64,7 @@ describe AppealsApi::PdfConstruction::Generator do
       context 'pdf minimum content verification' do
         it 'generates the expected pdf' do
           generated_pdf = described_class.new(minimal_higher_level_review).generate
-          expected_pdf = fixture_filepath('expected_200996_minimum.pdf')
+          expected_pdf = fixture_filepath('expected_200996_minimum.pdf', version: 'v1')
           expect(generated_pdf).to match_pdf(expected_pdf)
           File.delete(generated_pdf) if File.exist?(generated_pdf)
         end
@@ -76,7 +76,7 @@ describe AppealsApi::PdfConstruction::Generator do
 
           it 'generates the expected pdf' do
             generated_pdf = described_class.new(higher_level_review_v2, version: 'V2').generate
-            expected_pdf = fixture_filepath('expected_200996_v2.pdf')
+            expected_pdf = fixture_filepath('expected_200996.pdf', version: 'v2')
             # Manually test changes to radio buttons
             expect(generated_pdf).to match_pdf(expected_pdf)
             File.delete(generated_pdf) if File.exist?(generated_pdf)
@@ -88,7 +88,7 @@ describe AppealsApi::PdfConstruction::Generator do
 
           it 'generates the expected pdf' do
             generated_pdf = described_class.new(extra_hlr_v2, version: 'V2').generate
-            expected_pdf = fixture_filepath('expected_200996_v2_extra.pdf')
+            expected_pdf = fixture_filepath('expected_200996_extra.pdf', version: 'v2')
             # Manually test changes to radio buttons
             expect(generated_pdf).to match_pdf(expected_pdf)
             File.delete(generated_pdf) if File.exist?(generated_pdf)
@@ -100,7 +100,7 @@ describe AppealsApi::PdfConstruction::Generator do
 
           it 'generates the expected pdf' do
             generated_pdf = described_class.new(minimal_hlr_v2, version: 'V2').generate
-            expected_pdf = fixture_filepath('expected_200996_minimum_v2.pdf')
+            expected_pdf = fixture_filepath('expected_200996_minimum.pdf', version: 'v2')
             # Manually test changes to radio buttons
             expect(generated_pdf).to match_pdf(expected_pdf)
             File.delete(generated_pdf) if File.exist?(generated_pdf)
@@ -115,7 +115,7 @@ describe AppealsApi::PdfConstruction::Generator do
 
         it 'generates the expected pdf' do
           generated_pdf = described_class.new(supplemental_claim, version: 'V2').generate
-          expected_pdf = fixture_filepath('expected_200995.pdf')
+          expected_pdf = fixture_filepath('expected_200995.pdf', version: 'v2')
           expect(generated_pdf).to match_pdf(expected_pdf)
           File.delete(generated_pdf) if File.exist?(generated_pdf)
         end
@@ -126,7 +126,7 @@ describe AppealsApi::PdfConstruction::Generator do
 
         it 'generates the expected pdf' do
           generated_pdf = described_class.new(extra_supplemental_claim, version: 'V2').generate
-          expected_pdf = fixture_filepath('expected_200995_extra.pdf')
+          expected_pdf = fixture_filepath('expected_200995_extra.pdf', version: 'v2')
           expect(generated_pdf).to match_pdf(expected_pdf)
           File.delete(generated_pdf) if File.exist?(generated_pdf)
         end

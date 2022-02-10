@@ -11,11 +11,11 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
   end
 
   before(:all) do
-    @data = fixture_to_s 'valid_10182.json'
-    @minimum_valid_data = fixture_to_s 'valid_10182_minimum.json'
-    @invalid_data = fixture_to_s 'invalid_10182.json'
-    @headers = fixture_as_json 'valid_10182_headers.json'
-    @minimum_required_headers = fixture_as_json 'valid_10182_headers_minimum.json'
+    @data = fixture_to_s 'valid_10182.json', version: 'v1'
+    @minimum_valid_data = fixture_to_s 'valid_10182_minimum.json', version: 'v1'
+    @invalid_data = fixture_to_s 'invalid_10182.json', version: 'v1'
+    @headers = fixture_as_json 'valid_10182_headers.json', version: 'v1'
+    @minimum_required_headers = fixture_as_json 'valid_10182_headers_minimum.json', version: 'v1'
   end
 
   let(:parsed) { JSON.parse(response.body) }
@@ -50,7 +50,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
     end
 
     it 'errors when included issue text is too long' do
-      mod_data = fixture_as_json 'valid_10182.json'
+      mod_data = fixture_as_json 'valid_10182.json', version: 'v1'
       mod_data['included'][0]['attributes']['issue'] = Faker::Lorem.characters(number: 500)
       post(path, params: JSON.dump(mod_data), headers: @minimum_required_headers)
       expect(response.status).to eq 422

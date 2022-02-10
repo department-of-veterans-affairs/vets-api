@@ -6,7 +6,7 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmissionsController, type: :request do
   include FixtureHelpers
   let(:notice_of_disagreement) { create(:notice_of_disagreement, :board_review_hearing) }
-  let(:headers) { fixture_as_json 'valid_10182_headers.json' }
+  let(:headers) { fixture_as_json 'valid_10182_headers.json', version: 'v1' }
   let(:evidence_submissions) { create_list(:evidence_submission, 3, supportable: notice_of_disagreement) }
   let(:path) { '/services/appeals/v1/decision_reviews/notice_of_disagreements/evidence_submissions/' }
 

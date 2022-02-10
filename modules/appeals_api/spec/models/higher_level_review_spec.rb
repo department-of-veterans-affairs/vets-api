@@ -9,9 +9,9 @@ describe AppealsApi::HigherLevelReview, type: :model do
   let(:higher_level_review) { default_higher_level_review }
   let(:default_higher_level_review) { create :higher_level_review, :status_received }
   let(:auth_headers) { default_auth_headers }
-  let(:default_auth_headers) { fixture_as_json 'valid_200996_headers.json' }
+  let(:default_auth_headers) { fixture_as_json 'valid_200996_headers.json', version: 'v1' }
   let(:form_data) { default_form_data }
-  let(:default_form_data) { fixture_as_json 'valid_200996.json' }
+  let(:default_form_data) { fixture_as_json 'valid_200996.json', version: 'v1' }
   let(:form_data_attributes) { form_data.dig('data', 'attributes') }
 
   describe '#first_name' do

@@ -6,8 +6,8 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe AppealsApi::Appellant, type: :model do
   include FixtureHelpers
 
-  let(:auth_headers) { fixture_as_json 'valid_200996_headers_extra_v2.json' }
-  let(:form_data) { (fixture_as_json 'valid_200996_extra_v2.json') }
+  let(:auth_headers) { fixture_as_json 'valid_200996_headers_extra.json', version: 'v2' }
+  let(:form_data) { (fixture_as_json 'valid_200996_extra.json', version: 'v2') }
   let(:veteran_form_data) { form_data.dig('data', 'attributes', 'veteran') }
   let(:claimant_form_data) { form_data.dig('data', 'attributes', 'claimant') }
 
