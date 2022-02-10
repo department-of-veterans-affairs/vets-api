@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe TestUserDashboard::BigQuery do
+xdescribe TestUserDashboard::BigQuery do
   let!(:bigquery) { double(query: true, dataset: dataset) }
   let!(:dataset) { double(table: true) }
 

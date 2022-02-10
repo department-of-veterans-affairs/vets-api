@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe TestUserDashboard::TrackAccountStatusesInBigQuery do
-  describe '#perform' do
+  xdescribe '#perform' do
     let!(:accounts) { [create(:tud_account)] }
     let!(:client) { instance_double('TestUserDashboard::BigQuery', insert_into: true) }
 

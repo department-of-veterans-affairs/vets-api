@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe TestUserDashboard::TudAccount do
+xdescribe TestUserDashboard::TudAccount do
   let(:tud_account) { create(:tud_account) }
 
   describe '#available?' do

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe TestUserDashboard::UpdateUser do
+xdescribe TestUserDashboard::UpdateUser do
   let(:user) { create(:user) }
   let(:tud_account) { create(:tud_account, account_uuid: user.account_uuid) }
 

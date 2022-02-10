@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe TestUserDashboard::MirrorAccountAvailabilityLogsInBigQuery do
-  describe '#perform' do
+  xdescribe '#perform' do
     let!(:account) { create(:tud_account) }
     let!(:checkouts) { [create(:tud_account_availability_log, account_uuid: account.account_uuid)] }
 
