@@ -191,6 +191,10 @@ features:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
     enable_in_development: true
+  enrollment_verification:
+    actor_type: user
+    description: Enables access to the Enrollment Verification app
+    enable_in_development: true
   evss_upload_limit_150mb:
     actor_type: user
     description: Allow user to upload files up to 150 MB in size (EVSS endpoint for 526 & CST)
