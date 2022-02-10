@@ -15,7 +15,7 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
     }
   end
 
-  let(:claimant_id) { 1 }
+  let(:claimant_id) { 99_900_000_200_000_000 }
   let(:user) { build(:user, :loa3, user_details) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   let(:faraday_response) { double('faraday_connection') }

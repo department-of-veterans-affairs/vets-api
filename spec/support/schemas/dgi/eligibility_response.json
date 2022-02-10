@@ -6,29 +6,20 @@
       "properties": {
         "attributes": {
           "properties": {
-            "eligibility": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": [],
-              "properties": {
-                "veteran_is_eligible": {
-                  "type": "boolean"
-                },
-                "chapter": {
-                  "type": "string"
-                }
-              }
+            "veteran_is_eligible": {
+              "type": "boolean"
+            },
+            "chapter": {
+              "type": "string"
             }
-          }
+          },
+          "type": "object"
         },
-        "type": "object"
-      },
-      "id": {
-        "type": "string"
+        "id": {
+          "type": "string"
         },
-      "type": {
-         "type": "string"
+        "type": {
+          "type": "string"
         }
       },
       "type": "object"

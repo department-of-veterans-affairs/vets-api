@@ -10,6 +10,7 @@ require 'dgi/enrollment/service'
 module MebApi
   module V0
     class EducationBenefitsController < MebApi::V0::BaseController
+      # disabling checks while we serve big mock JSON objects. Check will be reinstated when we integrate with DGIB
       def claimant_info
         response = automation_service.get_claimant_info
 
@@ -17,14 +18,9 @@ module MebApi
       end
 
       def eligibility
-        automation_response = automation_service.get_claimant_info
-        claimant_id = automation_response['claimant']['claimant_id']
-        eligibility_response = eligibility_service.get_eligibility(claimant_id)
+        response = eligibility_service.get_eligibility
 
-        response = automation_response.status == 201 ? eligibility_response : automation_response
-        serializer = automation_response.status == 201 ? EligibilitySerializer : AutomationSerializer
-
-        render json: response, serializer: serializer
+        render json: response, serializer: EligibilitySerializer
       end
 
       def claim_status
@@ -64,6 +60,7 @@ module MebApi
       end
 
       def enrollment
+        # Just mocking return value until data structure is confirmed
         render json: {
           data: {
             status: 200
@@ -83,7 +80,7 @@ module MebApi
       private
 
       def eligibility_service
-        MebApi::DGI::Eligibility::Service.new(@current_user)
+        MebApi::DGI::Eligibility::Service.new @current_user
       end
 
       def automation_service
