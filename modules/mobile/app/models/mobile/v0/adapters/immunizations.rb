@@ -5,21 +5,19 @@ module Mobile
     module Adapters
       class Immunizations
         def parse(immunizations)
-          vaccines = vaccines(immunizations)
           vaccine_map = immunizations[:entry].map do |i|
             immunization = i[:resource]
-            cvx_code = cvx_code(immunization[:vaccine_code])
-            vaccine = vaccines&.find_by(cvx_code: cvx_code)
+            group_name = group_name(immunization[:vaccine_code])
 
             Mobile::V0::Immunization.new(
               id: immunization[:id],
-              cvx_code: cvx_code,
+              cvx_code: cvx_code(immunization[:vaccine_code]),
               date: date(immunization),
               dose_number: dose_number(immunization[:protocol_applied]),
               dose_series: dose_series(immunization[:protocol_applied]),
-              group_name: vaccine&.group_name,
+              group_name: group_name,
               location_id: location_id(immunization.dig(:location, :reference)),
-              manufacturer: vaccine&.manufacturer,
+              manufacturer: manufacturer(immunization, group_name),
               note: note(immunization[:note]),
               reaction: reaction(immunization[:reaction]),
               short_description: immunization[:vaccine_code][:text]
@@ -30,6 +28,21 @@ module Mobile
 
         private
 
+        def manufacturer(immunization, group_name)
+          if group_name == 'COVID-19'
+            manufacturer = immunization.dig(:manufacturer, :display)
+            StatsD.increment('mobile.immunizations.covid_manufacturer_missing') if manufacturer.blank?
+          end
+
+          manufacturer.presence
+        end
+
+        def group_name(vaccine_code)
+          group_name = vaccine_code.dig(:coding, 1, :display)
+          group_name&.slice!('VACCINE GROUP: ')
+          group_name.presence
+        end
+
         def date(immunization)
           date = immunization[:occurrence_date_time]
           StatsD.increment('mobile.immunizations.date_missing') if date.blank?
@@ -38,7 +51,7 @@ module Mobile
         end
 
         def cvx_code(vaccine_code)
-          code = vaccine_code[:coding].first[:code]
+          code = vaccine_code.dig(:coding, 0, :code)
           StatsD.increment('mobile.immunizations.cvx_code_missing') if code.blank?
 
           code.presence&.to_i
@@ -76,11 +89,6 @@ module Mobile
           return nil unless reaction
 
           reaction.map { |r| r[:detail][:display] }.join(',')
-        end
-
-        def vaccines(immunizations)
-          cvx_codes = immunizations[:entry].collect { |i| i.dig(:resource, :vaccine_code, :coding, 0, :code) }.uniq
-          Mobile::V0::Vaccine.where(cvx_code: cvx_codes)
         end
       end
     end
