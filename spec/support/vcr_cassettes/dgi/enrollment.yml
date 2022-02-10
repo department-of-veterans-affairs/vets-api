@@ -1,0 +1,35 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://localhost:8070/vets-service/v1/claimant/1/enrollments
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer eyJraWQiOiJ2YW5vdGlmeSIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJpYXQiOjE2NDQ0MTM3NjIsImV4cCI6MTY0NDQxNDA2Mn0.IhoSHqP-kisKJjHjG67CzpiLrJOYaHLTLd40gmtPxsHw7kgzynJ-kVTdq1Pd3qFjEq5l3yWKJ0jlbP6WTYeTXWhQKtf3l-gIpyLJMeG0a0_VeXetrDuDir1kAt79f-RujBhJ1TcDAbC2ELm5VWnFTeOaS97-tnwzOMzPU6rLrZy_EzCLNhXD59eNanCuyezfj9x2n25qt5OPaxp9-7ffO09U4oRx_QMOKoIshJTYSZQfuXYXq8ykLt-tpAqeWX8s40NMHs3CZL44ewOWzyr0M_PyfU-RuUWOl_xIyZN6l_FVBVfHhq57hNGk8rHG34e1p-pfkPnTQtBT3WDIKLhfIQ
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Wed, 09 Feb 2022 13:36:02 GMT
+    body:
+      encoding: UTF-8
+      string: '[{"enrollmentId":11},{"enrollmentId":22},{"enrollmentId":33}]'
+  recorded_at: Wed, 09 Feb 2022 13:36:02 GMT
+recorded_with: VCR 6.0.0

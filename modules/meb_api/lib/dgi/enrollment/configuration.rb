@@ -5,7 +5,7 @@ require 'dgi/configuration'
 module MebApi
   module DGI
     module Enrollment
-      class Configuration < Common::Client::Configuration::REST
+      class Configuration < MebApi::DGI::Configuration
         def base_path
           Settings.dgi.vets.url.to_s
         end
