@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'token_validation/v2/client'
 
 RSpec.describe 'Veteran Identifier Endpoint', type: :request do
   let(:path) { '/services/benefits/v2/veteran-id:find' }
@@ -63,6 +64,39 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request do
               expect(icn).to eq(test_user_icn)
               expect(response.status).to eq(200)
             end
+          end
+        end
+      end
+    end
+
+    context 'CCG (Client Credentials Grant) flow' do
+      let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: { 'scp' => [] }) }
+
+      context 'when provided' do
+        context 'when valid' do
+          it 'returns a 200' do
+            allow(JWT).to receive(:decode).and_return(nil)
+            allow(Token).to receive(:new).and_return(ccg_token)
+            allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
+            expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
+            allow(veteran).to receive(:mpi).and_return(veteran_mpi_data)
+            allow(veteran_mpi_data).to receive(:icn).and_return(test_user_icn)
+
+            post path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
+
+            expect(response.status).to eq(200)
+          end
+        end
+
+        context 'when not valid' do
+          it 'returns a 403' do
+            allow(JWT).to receive(:decode).and_return(nil)
+            allow(Token).to receive(:new).and_return(ccg_token)
+            allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(false)
+
+            post path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
+
+            expect(response.status).to eq(403)
           end
         end
       end
@@ -176,7 +210,7 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request do
 
     context 'when request is forbidden' do
       context 'when user is not a Veteran representative, nor the matching Veteran' do
-        it 'reutrns a 403 forbidden response' do
+        it 'returns a 403 forbidden response' do
           expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
           allow(veteran).to receive(:mpi).and_return(veteran_mpi_data)
           allow(veteran_mpi_data).to receive(:icn).and_return(test_user_icn)

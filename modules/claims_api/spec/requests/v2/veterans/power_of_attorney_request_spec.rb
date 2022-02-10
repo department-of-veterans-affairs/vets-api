@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'token_validation/v2/client'
 
 RSpec.describe 'Power Of Attorney', type: :request do
   let(:veteran_id) { '1013062086V794840' }
+  let(:get_poa_path) { "/services/benefits/v2/veterans/#{veteran_id}/power-of-attorney" }
   let(:appoint_individual_path) { "/services/benefits/v2/veterans/#{veteran_id}/power-of-attorney:appoint-individual" }
   let(:appoint_organization_path) do
     "/services/benefits/v2/veterans/#{veteran_id}/power-of-attorney:appoint-organization"
@@ -21,6 +23,41 @@ RSpec.describe 'Power Of Attorney', type: :request do
                                            first_name: 'George', last_name: 'Washington').save!
       Veteran::Service::Organization.create(poa: organization_poa_code,
                                             name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS")
+    end
+
+    describe 'show' do
+      context 'CCG (Client Credentials Grant) flow' do
+        let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: { 'scp' => [] }) }
+
+        context 'when provided' do
+          context 'when valid' do
+            context 'when current poa code does not exist' do
+              it 'returns a 204' do
+                allow(JWT).to receive(:decode).and_return(nil)
+                allow(Token).to receive(:new).and_return(ccg_token)
+                allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
+                allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(OpenStruct.new(current_poa_code: nil))
+
+                get get_poa_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
+
+                expect(response.status).to eq(204)
+              end
+            end
+          end
+
+          context 'when not valid' do
+            it 'returns a 403' do
+              allow(JWT).to receive(:decode).and_return(nil)
+              allow(Token).to receive(:new).and_return(ccg_token)
+              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(false)
+
+              get get_poa_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
+
+              expect(response.status).to eq(403)
+            end
+          end
+        end
+      end
     end
 
     describe 'appoint_individual' do
@@ -128,6 +165,40 @@ RSpec.describe 'Power Of Attorney', type: :request do
           end
         end
       end
+
+      context 'CCG (Client Credentials Grant) flow' do
+        let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: { 'scp' => [] }) }
+
+        context 'when provided' do
+          context 'when valid' do
+            it 'returns a 200' do
+              allow(JWT).to receive(:decode).and_return(nil)
+              allow(Token).to receive(:new).and_return(ccg_token)
+              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
+              expect_any_instance_of(BGS::ClaimantWebService).to receive(:find_poa_by_participant_id)
+                .and_return(bgs_poa)
+              allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id)
+                .and_return({ person_poa_history: nil })
+
+              put appoint_individual_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
+
+              expect(response.status).to eq(200)
+            end
+          end
+
+          context 'when not valid' do
+            it 'returns a 403' do
+              allow(JWT).to receive(:decode).and_return(nil)
+              allow(Token).to receive(:new).and_return(ccg_token)
+              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(false)
+
+              put appoint_individual_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
+
+              expect(response.status).to eq(403)
+            end
+          end
+        end
+      end
     end
 
     describe 'appoint_organization' do
@@ -175,6 +246,40 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
               put appoint_organization_path, params: data, headers: auth_header
               expect(response.status).to eq(422)
+            end
+          end
+        end
+      end
+
+      context 'CCG (Client Credentials Grant) flow' do
+        let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: { 'scp' => [] }) }
+
+        context 'when provided' do
+          context 'when valid' do
+            it 'returns a 200' do
+              allow(JWT).to receive(:decode).and_return(nil)
+              allow(Token).to receive(:new).and_return(ccg_token)
+              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
+              expect_any_instance_of(BGS::ClaimantWebService).to receive(:find_poa_by_participant_id)
+                .and_return(bgs_poa)
+              allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id)
+                .and_return({ person_poa_history: nil })
+
+              put appoint_organization_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
+
+              expect(response.status).to eq(200)
+            end
+          end
+
+          context 'when not valid' do
+            it 'returns a 403' do
+              allow(JWT).to receive(:decode).and_return(nil)
+              allow(Token).to receive(:new).and_return(ccg_token)
+              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(false)
+
+              put appoint_organization_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
+
+              expect(response.status).to eq(403)
             end
           end
         end
