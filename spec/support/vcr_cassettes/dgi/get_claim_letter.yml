@@ -30,13 +30,13 @@ http_interactions:
       - Thu, 06 Jan 2022 00:50:16 GMT
     body:
       encoding: UTF-8
-      string: '{"claimant":{"claimantId":99900000200000000,"suffix":"","dateOfBirth":"1993-08-11","firstName":"Hector","lastName":"Allen","middleName":"Jacob","notificationMethod":"NONE","contactInfo":{"addressLine1":"1291
+      string: '{"claimant":{"claimantId":1,"suffix":"","dateOfBirth":"1993-08-11","firstName":"Hector","lastName":"Allen","middleName":"Jacob","notificationMethod":"NONE","contactInfo":{"addressLine1":"1291
         Boston Post Rd","addressLine2":"","city":"Madison","zipcode":"06443","emailAddress":"test@test.com","addressType":"DOMESTIC","mobilePhoneNumber":"1231231234","homePhoneNumber":"1231231234","countryCode":"US","stateCode":"CT"},"preferredContact":null},"serviceData":[{"branchOfService":"Army","beginDate":"2010-01-01","endDate":"2019-02-15","characterOfService":"Honorable","reasonForSeparation":"Expiration
         Term Of Service","exclusionPeriods":[],"trainingPeriods":[]}]}'
   recorded_at: Thu, 06 Jan 2022 00:50:16 GMT
 - request:
     method: get
-    uri: http://localhost:8070/vets-service/v1/claimant/99900000200000000/claimType/Chapter33/letter
+    uri: http://localhost:8070/vets-service/v1/claimant/1/claimType/Chapter33/letter
     body:
       encoding: US-ASCII
       string: ''

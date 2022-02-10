@@ -29,7 +29,7 @@ Rspec.describe MebApi::DGI::Automation::Service do
         VCR.use_cassette('dgi/post_claimant_info') do
           response = service.get_claimant_info
           expect(response.status).to eq(201)
-          expect(response['claimant']['claimant_id']).to eq(99_900_000_200_000_000)
+          expect(response['claimant']['claimant_id']).to eq(1)
         end
       end
     end
