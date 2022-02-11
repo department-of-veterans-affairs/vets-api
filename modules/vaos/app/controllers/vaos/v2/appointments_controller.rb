@@ -175,6 +175,7 @@ module VAOS
                       :location_id,
                       :cancellable,
                       :clinic,
+                      :comment,
                       :reason,
                       :service_type,
                       :preferred_language,
