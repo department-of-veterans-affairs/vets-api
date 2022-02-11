@@ -21,6 +21,7 @@ module ClaimsApi
       rescue_file_not_found(power_of_attorney)
     rescue VBMS::FilenumberDoesNotExist
       rescue_vbms_file_number_not_found(power_of_attorney)
+      raise
     end
 
     def fetch_file_path(uploader)
