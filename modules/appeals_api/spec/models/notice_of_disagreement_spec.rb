@@ -250,4 +250,26 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       expect(AppealsApi::Events::Handler).to have_received(:new).exactly(2).times
     end
   end
+
+  describe 'V2 methods' do
+    let(:auth_headers) { fixture_as_json 'valid_10182_headers.json', version: 'v2' }
+    let(:form_data) { fixture_as_json 'valid_10182_extra.json', version: 'v2' }
+    let(:notice_of_disagreement_v2) do
+      review_option = form_data['data']['attributes']['boardReviewOption']
+      build(:notice_of_disagreement, form_data: form_data, auth_headers: auth_headers,
+                                     board_review_option: review_option)
+    end
+
+    describe '#extension_request?' do
+      it { expect(notice_of_disagreement_v2.extension_request?).to eq true }
+    end
+
+    describe '#extension_reason' do
+      it { expect(notice_of_disagreement_v2.extension_reason).to eq 'good cause substantive reason' }
+    end
+
+    describe '#appealing_vha_denial?' do
+      it { expect(notice_of_disagreement_v2.appealing_vha_denial?).to eq true }
+    end
+  end
 end

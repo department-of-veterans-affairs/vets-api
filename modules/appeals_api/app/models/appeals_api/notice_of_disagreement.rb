@@ -91,7 +91,7 @@ module AppealsApi
     end
 
     def email
-      veteran_contact_info['emailAddressText']
+      veteran_contact_info['email'] || veteran_contact_info['emailAddressText']
     end
 
     def veteran_homeless?
@@ -162,6 +162,18 @@ module AppealsApi
 
       handler.handle!
       email_handler.handle! if status == 'submitted' && email_identifier.present?
+    end
+
+    def extension_request?
+      data_attributes['extensionRequest']
+    end
+
+    def extension_reason
+      data_attributes['extensionReason']
+    end
+
+    def appealing_vha_denial?
+      data_attributes['appealingVhaDenial']
     end
 
     private
