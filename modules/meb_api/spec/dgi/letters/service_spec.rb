@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'dgi/letters/service'
 
 RSpec.describe MebApi::DGI::Letters::Service do
-  let(:claimant_id) { 99_900_000_200_000_000 }
+  let(:claimant_id) { 1 }
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:service) { MebApi::DGI::Letters::Service.new(user) }
 
