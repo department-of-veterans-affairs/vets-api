@@ -9,19 +9,19 @@ RSpec.describe TestUserDashboard::TudAccountSerializer, type: :serializer do
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 
-  xit 'returns serialized #first_name data' do
+  it 'returns serialized #first_name data' do
     expect(attributes['first_name']).to be_present
   end
 
-  xit 'returns serialized #last_name data' do
+  it 'returns serialized #last_name data' do
     expect(attributes['last_name']).to be_present
   end
 
-  xit 'returns serialized #email data' do
+  it 'returns serialized #email data' do
     expect(attributes['email']).to be_present
   end
 
-  xit 'returns serialized #gender data' do
+  it 'returns serialized #gender data' do
     expect(attributes['gender']).to be_present
   end
 end

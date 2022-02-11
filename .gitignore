@@ -80,3 +80,6 @@ Brewfile.lock.json
 
 # include data folder for vcr cassettes
 !/spec/**/data
+
+# Ignore Test User Dashboard csv
+test_users.csv

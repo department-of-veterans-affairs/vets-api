@@ -9,7 +9,7 @@ RSpec.describe 'Test User Dashboard', type: :request do
   let(:token) { JWT.encode 'test', rsa_private, 'RS256' }
   let(:headers) { { 'JWT' => token, 'PK' => pub_key } }
 
-  xdescribe '#index' do
+  describe '#index' do
     context 'without any authentication headers' do
       it 'refuses the request' do
         get('/test_user_dashboard/tud_accounts')
@@ -37,7 +37,7 @@ RSpec.describe 'Test User Dashboard', type: :request do
     end
   end
 
-  xdescribe '#update' do
+  describe '#update' do
     let(:tud_account) { create(:tud_account, id: '123') }
     let(:notes) { 'Test note string goes here.' }
 

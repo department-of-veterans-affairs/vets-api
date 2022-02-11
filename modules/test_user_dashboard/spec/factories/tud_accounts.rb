@@ -7,6 +7,6 @@ FactoryBot.define do
     last_name { Faker::Name.last_name }
     email { Faker::Internet.email }
     gender { Faker::Gender.short_binary_type.upcase }
-    id_type { 'idme' }
+    id_types { ['idme'] }
   end
 end

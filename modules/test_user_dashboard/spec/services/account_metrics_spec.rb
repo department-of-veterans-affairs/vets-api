@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-xdescribe TestUserDashboard::AccountMetrics do
+describe TestUserDashboard::AccountMetrics do
   describe '#initialize' do
     let!(:user) { create(:user) }
     let!(:tud_account) { create(:tud_account, account_uuid: user.account_uuid) }

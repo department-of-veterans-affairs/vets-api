@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe TestUserDashboard::DailyMaintenance do
-  xdescribe '#perform' do
+  describe '#perform' do
     let!(:accounts) { [create(:tud_account)] }
 
     before do

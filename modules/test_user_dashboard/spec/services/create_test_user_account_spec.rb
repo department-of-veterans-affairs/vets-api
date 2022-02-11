@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-xdescribe TestUserDashboard::CreateTestUserAccount do
+describe TestUserDashboard::CreateTestUserAccount do
   subject { described_class.new }
 
   let(:file_path) { Rails.root.join('modules', 'test_user_dashboard', 'spec', 'support', 'spec_users.csv') }
