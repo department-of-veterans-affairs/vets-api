@@ -1,0 +1,98 @@
+name: Release and Update Manifests
+
+on:
+  workflow_call:
+    inputs:
+      ecr_repository:
+        required: true
+        type: string
+      manifests_directory:
+        required: true
+        type: string
+      auto_deploy_envs:
+       required: true
+       type: string
+    secrets:
+      aws_access_key_id: #${{ secrets.AWS_ACCESS_KEY_ID }}
+        required: true
+      aws_secret_access_key: #${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        required: true
+
+jobs:
+  prepare-values:
+    runs-on: ubuntu-20.04
+    outputs:
+      environments: ${{ steps.set-environments.outputs.environments }}
+    steps:
+      - name: Set to auto deploy environments on push to master
+        run: |
+         echo "triggered via schedule"
+         echo "environments=${{inputs.auto_deploy_envs}}" >> $GITHUB_ENV
+      - name: Set output
+        id: set-environments
+        run: |
+          echo "::set-output name=environments::${{ env.environments }}"
+  release:
+    needs: [prepare-values]
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.aws_access_key_id }}
+          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+          aws-region: "us-gov-west-1"
+
+      - name: Log into ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Get bot token from Parameter Store
+        uses: marvinpinto/action-inject-ssm-secrets@latest
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
+      - name: Install yq if needed
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64
+          sudo add-apt-repository ppa:rmescandon/yq
+          sudo apt update
+          sudo apt install yq -y
+
+      - name: Check out Manifest Repo
+        uses: actions/checkout@v2
+        with:
+          repository: department-of-veterans-affairs/vsp-infra-application-manifests
+          ref: 'k8s/vets_api_manifest' # temp until we can get vets-api manifests merged into master
+          token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+          fetch-depth: 1
+          path: vsp-infra-application-manifests
+
+      - name: Update image name in Manifest repo
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
+        run: |
+          cd vsp-infra-application-manifests/apps/${{inputs.manifests_directory}}
+          # Update ecr image
+          image_name = "008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/${{inputs.ecr_repository}}:${{inputs.ecr_repository}}-${{ github.sha }}"
+          envs=( ${{ needs.prepare-values.outputs.environments }} )
+          for env in ${envs[*]};
+          do
+            yq e -i '.spec.template.spec.initContainers.[0].image = ${image_name}' $env/deployment.yml
+          done
+          git diff
+
+      - name: Add and Commit file
+        uses: EndBug/add-and-commit@v7
+        with:
+          branch: main
+          add: '*'
+          cwd: vsp-infra-application-manifests/apps/${{inputs.manifests_directory}}
+          author_name: va-vsp-bot
+          author_email: devops@va.gov
+          message: 'Release ${{ needs.prepare-values.outputs.environments }} for ${{inputs.ecr_repository}}.'
