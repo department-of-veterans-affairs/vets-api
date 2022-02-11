@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_02_07_193840) do
+ActiveRecord::Schema.define(version: 2022_02_08_161919) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -819,11 +819,12 @@ ActiveRecord::Schema.define(version: 2022_02_07_193840) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.text "services"
-    t.string "id_type"
     t.string "loa"
-    t.string "account_type"
     t.uuid "idme_uuid"
     t.text "notes"
+    t.string "mfa_code"
+    t.uuid "logingov_uuid"
+    t.text "id_types", default: [], array: true
   end
 
   create_table "user_accounts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
