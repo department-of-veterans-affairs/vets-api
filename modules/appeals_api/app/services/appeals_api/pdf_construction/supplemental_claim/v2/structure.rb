@@ -7,6 +7,7 @@ module AppealsApi
         class Structure
           MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM = 7
           MAX_NUMBER_OF_EVIDENCE_LOCATIONS_FORM = 3
+          SHORT_EMAIL_LENGTH = 50
 
           def initialize(supplemental_claim)
             @supplemental_claim = supplemental_claim
@@ -136,10 +137,10 @@ module AppealsApi
 
               pdf.font 'Courier'
 
-              whiteout_line pdf, :veteran_first_name
-              whiteout_line pdf, :veteran_last_name
-              whiteout_line pdf, :mailing_address_number_and_street
-              whiteout_line pdf, :email
+              fill_text pdf, :veteran_first_name
+              fill_text pdf, :veteran_last_name
+              fill_text pdf, :mailing_address_number_and_street
+              fill_text pdf, :email, long_text_override: 'See attached page for veteran email'
               fill_contestable_issues_text pdf
               pdf.start_new_page
 
@@ -205,12 +206,16 @@ module AppealsApi
             pdf.fill_color '000000'
           end
 
-          def whiteout_line(pdf, attr)
+          def fill_text(pdf, attr, long_text_override: nil, length_for_override: SHORT_EMAIL_LENGTH)
+            text = form_data.send(attr)
+
+            return if text.blank?
+
+            text = long_text_override if long_text_override.present? && text.length > length_for_override
             text_opts = form_fields.boxes[attr].merge(default_text_opts).merge(height: 13)
 
             whiteout pdf, form_fields.boxes[attr]
 
-            text = form_data.send(attr)
             pdf.text_box text, text_opts
           end
         end
