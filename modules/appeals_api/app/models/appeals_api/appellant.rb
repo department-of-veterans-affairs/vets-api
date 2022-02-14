@@ -155,9 +155,10 @@ module AppealsApi
     end
 
     def signing_appellant?
-      return true if claimant? && form_data.present?
+      # claimant is signer if present
+      return true if claimant? && claimant_headers_present?
 
-      veteran? && auth_headers.exclude?('X-VA-Claimant-Last-Name')
+      veteran? && !claimant_headers_present?
     end
 
     def veteran?
@@ -199,6 +200,10 @@ module AppealsApi
     def address
       # empty hash when claimant appellant but no address provided
       form_data['address'] || {}
+    end
+
+    def claimant_headers_present?
+      auth_headers.include?('X-VA-Claimant-Last-Name')
     end
 
     def mpi_veteran
