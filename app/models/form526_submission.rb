@@ -306,6 +306,8 @@ class Form526Submission < ApplicationRecord
       submission.send_form526_confirmation_email(options['first_name'])
       submission.workflow_complete = true
       submission.save
+    else
+      submission.send_form526_submission_failed_email(options['first_name'])
     end
   end
 
@@ -318,6 +320,17 @@ class Form526Submission < ApplicationRecord
       'first_name' => first_name
     }
     Form526ConfirmationEmailJob.perform_async(personalization_parameters)
+  end
+
+  def send_form526_submission_failed_email(first_name)
+    email_address = form['form526']['form526']['veteran']['emailAddress']
+    personalization_parameters = {
+      'email' => email_address,
+      'submitted_claim_id' => submitted_claim_id,
+      'date_submitted' => created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.'),
+      'first_name' => first_name
+    }
+    Form526SubmissionFailedEmailJob.perform_async(personalization_parameters)
   end
 
   def bdd?
