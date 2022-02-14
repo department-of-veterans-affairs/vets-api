@@ -9,7 +9,7 @@ on:
 
 jobs:
   deploy:
-    uses: department-of-veterans-affairs/vets-api/.github/workflows/deploy-template.yml@k8s-gha-deploy #change to master after testing is successful
+    uses: department-of-veterans-affairs/vets-api/.github/workflows/deploy-template.yml@k8s #change to master after testing is successful
     with:
       ecr_repository: 'vets-api'
       manifests_directory: 'vsp-tools-backend/vets-api'
