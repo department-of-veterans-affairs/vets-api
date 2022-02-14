@@ -183,7 +183,8 @@ module V1
       when 'verify'
         url_service.verify_url
       when 'custom'
-        url_service(false).custom_url params[:authn] if validate_authn_context
+        authn = validate_inbound_login_params
+        url_service(false).custom_url authn
       end
     end
     # rubocop:enable Metrics/MethodLength

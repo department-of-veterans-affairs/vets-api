@@ -21,12 +21,22 @@ module AuthenticationAndSSOConcerns
     raise Common::Exceptions::Unauthorized
   end
 
-  def validate_authn_context
-    authn = params[:authn]
-    raise Common::Exceptions::ParameterMissing, 'authn' if authn.blank?
-    raise Common::Exceptions::InvalidFieldValue.new('authn', authn) if SAML::User::AUTHN_CONTEXTS.keys.exclude?(authn)
+  def validate_inbound_login_params
+    csp_type = params[:csp_type] ||= ''
+    case csp_type
+    when 'logingov'
+      ial = params[:ial]
+      raise Common::Exceptions::ParameterMissing, 'ial' if ial.blank?
+      raise Common::Exceptions::InvalidFieldValue.new('ial', ial) if %w[1 2].exclude?(ial)
 
-    true
+      ial == '1' ? IAL::LOGIN_GOV_IAL1 : IAL::LOGIN_GOV_IAL2
+    else
+      authn = params[:authn]
+      raise Common::Exceptions::ParameterMissing, 'authn' if authn.blank?
+      raise Common::Exceptions::InvalidFieldValue.new('authn', authn) if SAML::User::AUTHN_CONTEXTS.keys.exclude?(authn)
+
+      authn
+    end
   end
 
   def validate_session

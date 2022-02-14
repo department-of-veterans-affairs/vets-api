@@ -127,58 +127,123 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         context 'routes /sessions/custom/new to SessionController#new' do
-          it 'redirects for an inbound ssoe' do
-            expect(SAML::SSOeSettingsService)
-              .to receive(:saml_settings)
-              .with(force_authn: false)
+          context 'logingov inbound ssoe' do
+            it 'redirects for an inbound ssoe' do
+              expect(SAML::SSOeSettingsService)
+                .to receive(:saml_settings)
+                .with(force_authn: false)
 
-            expect { get(:new, params: { type: 'custom', authn: 'myhealthevet', clientId: '123123' }) }
-              .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                           tags: ['context:custom', 'version:v1'], **once)
+              expect do
+                get(:new, params: {
+                      type: 'custom',
+                      csp_type: 'logingov',
+                      ial: IAL::TWO,
+                      client_id: '123123'
+                    })
+              end
+                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                             tags: ['context:custom', 'version:v1'], **once)
 
-            expect(response).to have_http_status(:ok)
-            expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
-                                  'originating_request_id' => nil, 'type' => 'custom')
-            expect(SAMLRequestTracker.keys.length).to eq(1)
-            payload = SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload
-            expect(payload)
-              .to eq({
-                       type: 'custom',
-                       authn_context: 'myhealthevet',
-                       transaction_id: payload[:transaction_id]
-                     })
+              expect(response).to have_http_status(:ok)
+              expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
+                                    'originating_request_id' => nil, 'type' => 'custom')
+              expect(SAMLRequestTracker.keys.length).to eq(1)
+              payload = SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload
+              expect(payload)
+                .to eq({
+                         type: 'custom',
+                         authn_context: IAL::LOGIN_GOV_IAL2,
+                         transaction_id: payload[:transaction_id]
+                       })
+            end
+
+            it 'raises exception when missing ial parameter' do
+              expect { get(:new, params: { type: :custom, csp_type: 'logingov', ial: '', client_id: '123123' }) }
+                .not_to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                                 tags: ['context:custom', 'version:v1'], **once)
+              expect(response).to have_http_status(:bad_request)
+              expect(JSON.parse(response.body))
+                .to eq({
+                         'errors' => [{
+                           'title' => 'Missing parameter',
+                           'detail' => 'The required parameter "ial", is missing',
+                           'code' => '108',
+                           'status' => '400'
+                         }]
+                       })
+            end
+
+            it 'raises exception when ial parameter is not 1 or 2' do
+              expect { get(:new, params: { type: :custom, csp_type: 'logingov', ial: '3', client_id: '123123' }) }
+                .not_to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                                 tags: ['context:custom', 'version:v1'], **once)
+              expect(response).to have_http_status(:bad_request)
+              expect(JSON.parse(response.body))
+                .to eq({
+                         'errors' => [{
+                           'title' => 'Invalid field value',
+                           'detail' => '"3" is not a valid value for "ial"',
+                           'code' => '103',
+                           'status' => '400'
+                         }]
+                       })
+            end
           end
 
-          it 'raises exception when missing authn parameter' do
-            expect { get(:new, params: { type: :custom, authn: '', client_id: '123123' }) }
-              .not_to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                               tags: ['context:custom', 'version:v1'], **once)
-            expect(response).to have_http_status(:bad_request)
-            expect(JSON.parse(response.body))
-              .to eq({
-                       'errors' => [{
-                         'title' => 'Missing parameter',
-                         'detail' => 'The required parameter "authn", is missing',
-                         'code' => '108',
-                         'status' => '400'
-                       }]
-                     })
-          end
+          context 'dslogon mhv idme inbound ssoe' do
+            it 'redirects for an inbound ssoe' do
+              expect(SAML::SSOeSettingsService)
+                .to receive(:saml_settings)
+                .with(force_authn: false)
 
-          it 'raises exception when authn parameter is not in list of AUTHN_CONTEXTS' do
-            expect { get(:new, params: { type: :custom, authn: 'qwerty', client_id: '123123' }) }
-              .not_to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                               tags: ['context:custom', 'version:v1'], **once)
-            expect(response).to have_http_status(:bad_request)
-            expect(JSON.parse(response.body))
-              .to eq({
-                       'errors' => [{
-                         'title' => 'Invalid field value',
-                         'detail' => '"qwerty" is not a valid value for "authn"',
-                         'code' => '103',
-                         'status' => '400'
-                       }]
-                     })
+              expect { get(:new, params: { type: 'custom', authn: 'myhealthevet', clientId: '123123' }) }
+                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                             tags: ['context:custom', 'version:v1'], **once)
+
+              expect(response).to have_http_status(:ok)
+              expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
+                                    'originating_request_id' => nil, 'type' => 'custom')
+              expect(SAMLRequestTracker.keys.length).to eq(1)
+              payload = SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload
+              expect(payload)
+                .to eq({
+                         type: 'custom',
+                         authn_context: 'myhealthevet',
+                         transaction_id: payload[:transaction_id]
+                       })
+            end
+
+            it 'raises exception when missing authn parameter' do
+              expect { get(:new, params: { type: :custom, authn: '', client_id: '123123' }) }
+                .not_to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                                 tags: ['context:custom', 'version:v1'], **once)
+              expect(response).to have_http_status(:bad_request)
+              expect(JSON.parse(response.body))
+                .to eq({
+                         'errors' => [{
+                           'title' => 'Missing parameter',
+                           'detail' => 'The required parameter "authn", is missing',
+                           'code' => '108',
+                           'status' => '400'
+                         }]
+                       })
+            end
+
+            it 'raises exception when authn parameter is not in list of AUTHN_CONTEXTS' do
+              expect { get(:new, params: { type: :custom, authn: 'qwerty', client_id: '123123' }) }
+                .not_to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                                 tags: ['context:custom', 'version:v1'], **once)
+              expect(response).to have_http_status(:bad_request)
+              expect(JSON.parse(response.body))
+                .to eq({
+                         'errors' => [{
+                           'title' => 'Invalid field value',
+                           'detail' => '"qwerty" is not a valid value for "authn"',
+                           'code' => '103',
+                           'status' => '400'
+                         }]
+                       })
+            end
           end
         end
 
