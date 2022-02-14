@@ -10,6 +10,7 @@ module Mobile
           @user = user
         end
 
+        # rubocop:disable Metrics/MethodLength
         def get_disability_ratings
           combine_response, individual_response = Parallel.map([get_combine_rating, get_individual_ratings],
                                                                in_threads: 2, &:call)
@@ -21,6 +22,7 @@ module Mobile
                                    [e.status_code, e.errors]
                                  end
           Rails.logger.info('Mobile Disability Rating Error Details: ', details: details)
+          Rails.logger.info('Mobile Disability Rating Expanded Error: ', e.inspect)
           case status_code
           when 400
             raise Common::Exceptions::BackendServiceException, 'MOBL_404_rating_not_found'
@@ -32,6 +34,7 @@ module Mobile
             raise e
           end
         end
+        # rubocop:enable Metrics/MethodLength
 
         private
 
