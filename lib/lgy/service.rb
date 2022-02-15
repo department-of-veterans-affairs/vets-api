@@ -64,6 +64,22 @@ module LGY
       raise e
     end
 
+    def put_application(payload:)
+      with_monitoring do
+        perform(
+          :put,
+          "#{end_point}/application?edipi=#{@edipi}&icn=#{@icn}",
+          payload.to_json,
+          request_headers
+        )
+      end
+    rescue Common::Client::Errors::ClientError => e
+      # catch any unsuccessful put
+      return e if e.status != 200
+
+      raise e
+    end
+
     def get_coe_file
       with_monitoring do
         perform(
