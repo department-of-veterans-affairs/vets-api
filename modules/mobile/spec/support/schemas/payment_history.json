@@ -57,7 +57,8 @@
     },
     "meta": {
       "required": [
-        "pagination"
+        "pagination",
+        "availableYears"
       ],
       "properties": {
         "errors": {
@@ -85,6 +86,9 @@
               "type": "integer"
             }
           }
+        },
+        "availableYears": {
+          "type": "array"
         }
       }
     },

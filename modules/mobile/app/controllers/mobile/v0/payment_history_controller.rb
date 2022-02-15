@@ -20,15 +20,11 @@ module Mobile
       private
 
       def validate_params(params)
-        start_date = params[:startDate] || (DateTime.now.utc.beginning_of_day - 1.year).iso8601
-        end_date = params[:endDate] || DateTime.now.utc.beginning_of_day.iso8601
-
         Mobile::V0::Contracts::GetPaginatedList.new.call(
-          start_date: start_date,
-          end_date: end_date,
+          start_date: params[:startDate],
+          end_date: params[:endDate],
           page_number: params.dig(:page, :number),
           page_size: params.dig(:page, :size),
-          use_cache: false,
           reverse_sort: false
         )
       end
@@ -43,8 +39,26 @@ module Mobile
       end
 
       def paginate(payments, validated_params)
+        available_years = payments.map { |p| p.date.year }.uniq.sort { |a, b| b <=> a }
+        start_date = validated_params[:start_date]
+        end_date = validated_params[:end_date]
+
+        unless start_date && end_date
+          most_recent_year = available_years.first
+          start_date = DateTime.new(most_recent_year).beginning_of_year.utc
+          end_date = DateTime.new(most_recent_year).end_of_year.utc
+        end
+
+        payments_filtered = payments.filter do |payment|
+          payment[:date].between? start_date, end_date
+        end
+
         url = request.base_url + request.path
-        Mobile::PaginationHelper.paginate(list: payments, validated_params: validated_params, url: url)
+        list, meta = Mobile::PaginationHelper.paginate(list: payments_filtered, validated_params: validated_params,
+                                                       url: url)
+        meta[:meta][:available_years] = available_years
+
+        [list, meta]
       end
     end
   end
