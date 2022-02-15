@@ -104,10 +104,10 @@ module RapidReadyForDecision
     end
 
     def add_medications_intro
-      return @pdf unless medications?
-
       @pdf.text "\n", size: 11
       @pdf.text 'Active Prescriptions', size: 16
+
+      return @pdf unless medications?
 
       med_search_window = 'VHA records searched for medication prescriptions active as of ' \
                           "#{Time.zone.today.strftime('%m/%d/%Y')}"
@@ -123,7 +123,11 @@ module RapidReadyForDecision
     end
 
     def add_medications_list
-      return @pdf unless medications?
+      unless medications?
+        @pdf.text 'No active medications were found in the last year', size: 8
+
+        return
+      end
 
       @medications.each do |medication|
         @pdf.text medication['description'], size: 11, style: :bold
