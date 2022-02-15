@@ -78,11 +78,10 @@ jobs:
         run: |
           cd vsp-infra-application-manifests/apps/${{inputs.manifests_directory}}
           # Update ecr image
-          image_name = "008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/${{inputs.ecr_repository}}:${{inputs.ecr_repository}}-${{ github.sha }}"
           envs=( ${{ needs.prepare-values.outputs.environments }} )
           for env in ${envs[*]};
           do
-            yq e -i '.spec.template.spec.initContainers.[0].image = ${image_name}' $env/deployment.yml
+            yq e -i '.spec.template.spec.containers.[0].image = "008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/${{inputs.ecr_repository}}:${{inputs.ecr_repository}}-${{ github.sha }}"' $env/deployment.yml
           done
           git diff
 
