@@ -138,53 +138,9 @@ describe AppealsApi::Appellant, type: :model do
     it { expect(claimant_appellant.phone_data).to include 'countryCode', 'areaCode', 'phoneNumber', 'phoneNumberExt' }
   end
 
-  describe '#phone_string' do
-    it { expect(veteran_appellant.phone_string).to eq '+34-555-800-1111 ex2' }
-    it { expect(claimant_appellant.phone_string).to eq '555-811-1100 ext 4' }
-  end
-
-  describe '#area_code' do
-    it { expect(veteran_appellant.area_code).to eq '555' }
-    it { expect(claimant_appellant.area_code).to eq '555' }
-  end
-
-  describe '#phone_prefix' do
-    it { expect(veteran_appellant.phone_prefix).to eq '800' }
-    it { expect(claimant_appellant.phone_prefix).to eq '811' }
-  end
-
-  describe '#phone_line_number' do
-    it { expect(veteran_appellant.phone_line_number).to eq '1111' }
-    it { expect(claimant_appellant.phone_line_number).to eq '1100' }
-  end
-
-  describe '#phone_ext' do
-    it { expect(veteran_appellant.phone_ext).to eq 'x2' }
-    it { expect(claimant_appellant.phone_ext).to eq 'x4' }
-  end
-
-  describe '#international_number' do
-    it { expect(veteran_appellant.international_number).to eq '+34-555-800-1111 ex2' }
-  end
-
   describe '#phone_country_code' do
     it { expect(veteran_appellant.phone_country_code).to eq '34' }
     it { expect(claimant_appellant.phone_country_code).to eq '1' }
-  end
-
-  describe '#ssn_first_three' do
-    it { expect(veteran_appellant.ssn_first_three).to eq '123' }
-    it { expect(claimant_appellant.ssn_first_three).to eq '829' }
-  end
-
-  describe '#ssn_second_two' do
-    it { expect(veteran_appellant.ssn_second_two).to eq '45' }
-    it { expect(claimant_appellant.ssn_second_two).to eq '34' }
-  end
-
-  describe '#ssn_last_four' do
-    it { expect(veteran_appellant.ssn_last_four).to eq '6789' }
-    it { expect(claimant_appellant.ssn_last_four).to eq '7561' }
   end
 
   describe '#timezone' do

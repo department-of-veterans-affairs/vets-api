@@ -22,9 +22,9 @@ module AppealsApi
             # Vet's ID
             # Veteran name is filled out through autosize text box, not pdf fields
             form_fields.middle_initial => form_data.veteran.middle_initial,
-            form_fields.ssn_first_three => form_data.veteran.ssn_first_three,
-            form_fields.ssn_second_two => form_data.veteran.ssn_second_two,
-            form_fields.ssn_last_four => form_data.veteran.ssn_last_four,
+            form_fields.ssn_first_three => form_data.veteran_ssn_first_three,
+            form_fields.ssn_second_two => form_data.veteran_ssn_second_two,
+            form_fields.ssn_last_four => form_data.veteran_ssn_last_four,
             form_fields.file_number => form_data.veteran.file_number,
             form_fields.birth_month => form_data.veteran.birth_month,
             form_fields.birth_day => form_data.veteran.birth_day,
@@ -33,26 +33,26 @@ module AppealsApi
             form_fields.mailing_address_state => form_data.veteran.state_code,
             form_fields.mailing_address_country => form_data.veteran.country_code,
             form_fields.veteran_homeless => form_data.veteran_homeless,
-            form_fields.veteran_phone_area_code => form_data.veteran.area_code,
-            form_fields.veteran_phone_prefix => form_data.veteran.phone_prefix,
-            form_fields.veteran_phone_line_number => form_data.veteran.phone_line_number,
-            form_fields.veteran_phone_international_number => form_data.veteran.international_number,
+            form_fields.veteran_phone_area_code => form_data.veteran_area_code,
+            form_fields.veteran_phone_prefix => form_data.veteran_phone_prefix,
+            form_fields.veteran_phone_line_number => form_data.veteran_phone_line_number,
+            form_fields.veteran_phone_international_number => form_data.veteran_international_number,
 
             # Claimant
             # Claimant name is filled out through autosize text box, not pdf fields
             form_fields.claimant_middle_initial => form_data.claimant.middle_initial,
-            form_fields.claimant_first_three_ssn => form_data.claimant.ssn_first_three,
-            form_fields.claimant_second_two_ssn => form_data.claimant.ssn_second_two,
-            form_fields.claimant_last_four_ssn => form_data.claimant.ssn_last_four,
+            form_fields.claimant_first_three_ssn => form_data.claimant_ssn_first_three,
+            form_fields.claimant_second_two_ssn => form_data.claimant_ssn_second_two,
+            form_fields.claimant_last_four_ssn => form_data.claimant_ssn_last_four,
             form_fields.claimant_birth_month => form_data.claimant.birth_month,
             form_fields.claimant_birth_day => form_data.claimant.birth_day,
             form_fields.claimant_birth_year => form_data.claimant.birth_year,
             form_fields.claimant_mailing_address_state => form_data.claimant.state_code,
             form_fields.claimant_mailing_address_country => form_data.claimant.country_code,
-            form_fields.claimant_phone_area_code => form_data.claimant.area_code,
-            form_fields.claimant_phone_prefix => form_data.claimant.phone_prefix,
-            form_fields.claimant_phone_line_number => form_data.claimant.phone_line_number,
-            form_fields.claimant_phone_international_number => form_data.claimant.international_number,
+            form_fields.claimant_phone_area_code => form_data.claimant_area_code,
+            form_fields.claimant_phone_prefix => form_data.claimant_phone_prefix,
+            form_fields.claimant_phone_line_number => form_data.claimant_phone_line_number,
+            form_fields.claimant_phone_international_number => form_data.claimant_international_number,
 
             # Benefit Type
             form_fields.benefit_type(0) => form_data.benefit_type('education'),
@@ -85,9 +85,9 @@ module AppealsApi
             # Issue text is filled out through autosize text boxes.
 
             # Section VII: Cert & Sig
-            form_fields.date_signed_month => form_data.date_signed_v2_mm,
-            form_fields.date_signed_day => form_data.date_signed_v2_dd,
-            form_fields.date_signed_year => form_data.date_signed_v2_yyyy
+            form_fields.date_signed_month => form_data.date_signed_mm,
+            form_fields.date_signed_day => form_data.date_signed_dd,
+            form_fields.date_signed_year => form_data.date_signed_yyyy
 
             # Section VIII: Authorized Rep Sig
             # NOT YET SUPPORTED
@@ -188,8 +188,8 @@ module AppealsApi
             fill_text pdf, :rep_domestic_ext
 
             fill_contestable_issues_text pdf
-            pdf.text_box form_data.signature_v2,
-                         default_text_opts.merge(form_fields.boxes[:signature_v2])
+            pdf.text_box form_data.signature,
+                         default_text_opts.merge(form_fields.boxes[:signature])
           end
           tmp_path
         end

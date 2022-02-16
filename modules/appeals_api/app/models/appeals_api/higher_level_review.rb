@@ -48,7 +48,7 @@ module AppealsApi
       ).new(self)
     end
 
-    # V2
+    # V2 Start
     def veteran
       @veteran ||= Appellant.new(
         type: :veteran,
@@ -57,7 +57,6 @@ module AppealsApi
       )
     end
 
-    # V2
     def claimant
       @claimant ||= Appellant.new(
         type: :claimant,
@@ -65,6 +64,16 @@ module AppealsApi
         form_data: data_attributes&.dig('claimant')
       )
     end
+
+    def signing_appellant
+      claimant.signing_appellant? ? claimant : veteran
+    end
+
+    def appellant_local_time
+      signing_appellant.timezone ? created_at.in_time_zone(signing_appellant.timezone) : created_at.utc
+    end
+
+    # V2 End
 
     def first_name
       auth_headers['X-VA-First-Name']
@@ -153,11 +162,8 @@ module AppealsApi
     end
 
     def email
-      veteran_data&.dig('emailAddressText').to_s.strip
-    end
-
-    def email_v2
-      veteran_data&.dig('email').to_s.strip
+      # V2 and V1 access the email data via different keys ('email' vs 'emailAddressText')
+      veteran.email.presence || veteran_data&.dig('emailAddressText').to_s.strip
     end
 
     def benefit_type
@@ -211,32 +217,6 @@ module AppealsApi
 
     def date_signed_yyyy
       veterans_local_time.strftime '%Y'
-    end
-
-    def date_signed_v2
-      timezone = claimant.timezone || veteran.timezone
-
-      timezone ? created_at.in_time_zone(timezone) : created_at.utc
-    end
-
-    def signing_appellant
-      claimant.signing_appellant? ? claimant : veteran
-    end
-
-    def signature_v2
-      "#{signing_appellant.full_name[0...180]}\n- Signed by digital authentication to api.va.gov"
-    end
-
-    def date_signed_v2_mm
-      date_signed_v2.strftime '%m'
-    end
-
-    def date_signed_v2_dd
-      date_signed_v2.strftime '%d'
-    end
-
-    def date_signed_v2_yyyy
-      date_signed_v2.strftime '%Y'
     end
 
     def consumer_name
@@ -303,7 +283,6 @@ module AppealsApi
 
     def email_identifier
       return { id_type: 'email', id_value: email } if email.present?
-      return { id_type: 'email', id_value: email_v2 } if email_v2.present?
 
       icn = mpi_veteran.mpi_icn
 
@@ -336,11 +315,6 @@ module AppealsApi
 
     def veterans_timezone
       veteran_data&.dig('timezone').presence&.strip
-    end
-
-    # V2 version of veterans_local_time
-    def appellant_local_time
-      signing_appellant.timezone ? created_at.in_time_zone(signing_appellant.timezone) : created_at.utc
     end
 
     # validation (header)

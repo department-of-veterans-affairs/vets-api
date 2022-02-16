@@ -253,7 +253,7 @@ module AppealsApi
             disagreement_area_pg2: [].tap do |n|
               number_of_issues_on_second_pg.times { |i| n << { at: [-3, 647 - (46.5 * i)], width: 369, height: 15 } }
             end,
-            signature_v2: { at: [-3, 329], width: 369, height: 18 },
+            signature: { at: [-3, 329], width: 369, height: 18 },
             # The rest aren't currently used, but kept for if/when we need them
             rep_signature_first_name: { at: [12, 229], width: 195 },
             rep_signature_last_name: { at: [226, 229], width: 293 },

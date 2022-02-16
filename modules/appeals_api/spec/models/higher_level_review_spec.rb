@@ -307,6 +307,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
 
   describe 'V2' do
     let(:higher_level_review_v2) { create :extra_higher_level_review_v2 }
+    let(:hlr_veteran_only) { create(:minimal_higher_level_review_v2) }
 
     describe '#number_and_street' do
       subject { higher_level_review_v2.number_and_street }
@@ -350,17 +351,27 @@ describe AppealsApi::HigherLevelReview, type: :model do
       it { expect(subject.class).to eq AppealsApi::Appellant }
     end
 
-    describe '#signing_appellant' do
-      context 'when both veteran and claimant data present' do
-        subject { higher_level_review_v2.signing_appellant.send(:type) }
+    context 'when veteran only data' do
+      describe '#signing_appellant' do
+        let(:appellant_type) { hlr_veteran_only.signing_appellant.send(:type) }
 
-        it { expect(subject).to eq :claimant }
+        it { expect(appellant_type).to eq :veteran }
       end
 
-      context 'when only veteran data present' do
-        subject { higher_level_review.signing_appellant.send(:type) }
+      describe '#appellant_local_time' do
+        it { expect(hlr_veteran_only.appellant_local_time.strftime('%Z')).to eq 'UTC' }
+      end
+    end
 
-        it { expect(subject).to eq :veteran }
+    context 'when veteran and claimant data' do
+      describe '#signing_appellant' do
+        let(:appellant_type) { higher_level_review_v2.signing_appellant.send(:type) }
+
+        it { expect(appellant_type).to eq :claimant }
+      end
+
+      describe '#appellant_local_time' do
+        it { expect(higher_level_review_v2.appellant_local_time.strftime('%Z')).to eq 'EST' }
       end
     end
   end
