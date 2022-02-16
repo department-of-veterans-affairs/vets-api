@@ -80,8 +80,8 @@ module RapidReadyForDecision
       @blood_pressure_data.each do |bp|
         @pdf.text "<b>Blood pressure: #{bp[:systolic]['value']}/#{bp[:diastolic]['value']} #{bp[:systolic]['unit']}",
                   inline_format: true, size: 11
-        @pdf.text "Taken on: #{bp[:issued].to_date.strftime('%m/%d/%Y')} " \
-                  "at #{Time.iso8601(bp[:issued]).strftime('%H:%M %Z')}",
+        @pdf.text "Taken on: #{bp[:effectiveDateTime].to_date.strftime('%m/%d/%Y')} " \
+                  "at #{Time.iso8601(bp[:effectiveDateTime]).strftime('%H:%M %Z')}",
                   size: 11
         @pdf.text "Location: #{bp[:organization] || 'Unknown'}", size: 11
         @pdf.text "\n", size: 8

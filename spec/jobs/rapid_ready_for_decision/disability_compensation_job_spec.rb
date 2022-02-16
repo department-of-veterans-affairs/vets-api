@@ -26,6 +26,7 @@ RSpec.describe RapidReadyForDecision::DisabilityCompensationJob, type: :worker d
   let(:user_full_name) { user.full_name_normalized }
   let(:mocked_observation_data) do
     [{ issued: "#{Time.zone.today.year}-03-23T01:15:52Z",
+       effectiveDateTime: "#{Time.zone.today.year}-06-21T02:42:52Z",
        practitioner: 'DR. THOMAS359 REYNOLDS206 PHD',
        organization: 'LYONS VA MEDICAL CENTER',
        systolic: { 'code' => '8480-6', 'display' => 'Systolic blood pressure', 'value' => 115.0,
