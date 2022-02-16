@@ -509,7 +509,7 @@ GEM
     httpi (2.4.5)
       rack
       socksify
-    i18n (1.9.1)
+    i18n (1.10.0)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     image_processing (1.12.1)
@@ -788,9 +788,9 @@ GEM
       activesupport (>= 3.1, < 7.0)
       json-schema (~> 2.2)
       railties (>= 3.1, < 7.0)
-    rswag-ui (2.4.0)
-      actionpack (>= 3.1, < 7.0)
-      railties (>= 3.1, < 7.0)
+    rswag-ui (2.5.1)
+      actionpack (>= 3.1, < 7.1)
+      railties (>= 3.1, < 7.1)
     rubocop (1.25.1)
       parallel (~> 1.10)
       parser (>= 3.1.0.0)
