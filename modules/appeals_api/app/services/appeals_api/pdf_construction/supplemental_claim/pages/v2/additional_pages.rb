@@ -14,6 +14,8 @@ module AppealsApi
             def build!
               pdf.start_new_page
 
+              pdf.text "\n<b>Veteran Email:</b>\n#{form_data.email}\n", inline_format: true unless short_veteran_email?
+
               pdf.text("\n<b>Additional Issues</b>\n", inline_format: true)
               pdf.table(extra_issues_table_data, width: 540, header: true)
 
@@ -56,6 +58,14 @@ module AppealsApi
 
             def max_evidence_locations_on_form
               AppealsApi::PdfConstruction::SupplementalClaim::V2::Structure::MAX_NUMBER_OF_EVIDENCE_LOCATIONS_FORM
+            end
+
+            def short_email_length
+              AppealsApi::PdfConstruction::SupplementalClaim::V2::Structure::SHORT_EMAIL_LENGTH
+            end
+
+            def short_veteran_email?
+              form_data.email.length <= short_email_length
             end
           end
         end

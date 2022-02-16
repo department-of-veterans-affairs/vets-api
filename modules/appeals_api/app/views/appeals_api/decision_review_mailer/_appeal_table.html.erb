@@ -47,5 +47,5 @@
 </table>
 
 <% if total_count %>
-<h2><span class="title">Total <%= appeal_name %>: <%= total_count %></span></h2>
+<h2><span class="title">Total <%= appeal_name %>: <%= number_with_delimiter(total_count) %></span></h2>
 <% end %>

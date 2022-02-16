@@ -6,13 +6,11 @@ module MebApi
   module DGI
     module Eligibility
       class EligibilityResponse < MebApi::DGI::Response
-        attribute :veteran_is_eligbile, Boolean
-        attribute :chapter, String
+        attribute :eligibility, Array
 
         def initialize(status, response = nil)
           attributes = {
-            veteran_is_eligbile: response&.body&.fetch('veteran_is_eligible'),
-            chapter: response&.body&.fetch('chapter')
+            eligibility: response.body
           }
 
           super(status, attributes)

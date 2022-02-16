@@ -8,15 +8,15 @@ module AppealsApi
           'form1[0].#subform[2].Veteran_Middle_Initial1[0]'
         end
 
-        def first_three_ssn
+        def ssn_first_three
           'form1[0].#subform[2].ClaimantsSocialSecurityNumber_FirstThreeNumbers[0]'
         end
 
-        def second_two_ssn
+        def ssn_second_two
           'form1[0].#subform[2].ClaimantsSocialSecurityNumber_SecondTwoNumbers[0]'
         end
 
-        def last_four_ssn
+        def ssn_last_four
           'form1[0].#subform[2].ClaimantsSocialSecurityNumber_LastFourNumbers[0]'
         end
 
@@ -210,13 +210,22 @@ module AppealsApi
           number_of_issues_on_second_pg = Structure::NUMBER_OF_ISSUES_SECOND_PAGE
           number_of_issues_on_first_pg = Structure::NUMBER_OF_ISSUES_FIRST_PAGE
 
-          { first_name: { at: [3, 560], width: 195 },
-            last_name: { at: [230, 560], width: 293 },
-            number_and_street: { at: [29, 462], width: 512 },
-            city: { at: [200, 441], width: 307 },
-            zip_code: { at: [297, 418], width: 82 },
+          { veteran_first_name: { at: [3, 560], width: 195 },
+            veteran_last_name: { at: [230, 560], width: 293 },
+            veteran_number_and_street: { at: [29, 462], width: 512 },
+            veteran_city: { at: [200, 441], width: 307 },
+            veteran_zip_code: { at: [297, 418], width: 82 },
             veteran_email: { at: [8, 335], width: 513 },
-            veteran_phone_extension: { at: [220, 378], width: 50, height: 10 },
+            veteran_phone_extension: { at: [225, 378], width: 50, height: 10 },
+
+            claimant_first_name: { at: [10, 290], width: 192 },
+            claimant_last_name: { at: [237, 290], width: 295 },
+            claimant_number_and_street: { at: [29, 219], width: 512 },
+            claimant_city: { at: [200, 200], width: 307 },
+            claimant_zip_code: { at: [297, 176], width: 82 },
+            claimant_email: { at: [8, 115], width: 513 },
+            claimant_phone_extension: { at: [225, 157], width: 50, height: 10 },
+
             rep_first_name: { at: [11, 586], width: 195 },
             rep_last_name: { at: [225, 586], width: 293 },
             rep_email: { at: [11, 525], width: 513 },
@@ -244,7 +253,7 @@ module AppealsApi
             disagreement_area_pg2: [].tap do |n|
               number_of_issues_on_second_pg.times { |i| n << { at: [-3, 647 - (46.5 * i)], width: 369, height: 15 } }
             end,
-            signature: { at: [-3, 329], width: 369, height: 18 },
+            signature_v2: { at: [-3, 329], width: 369, height: 18 },
             # The rest aren't currently used, but kept for if/when we need them
             rep_signature_first_name: { at: [12, 229], width: 195 },
             rep_signature_last_name: { at: [226, 229], width: 293 },

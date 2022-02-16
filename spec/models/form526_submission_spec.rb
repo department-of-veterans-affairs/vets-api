@@ -56,8 +56,10 @@ RSpec.describe Form526Submission do
           Sidekiq::Worker.clear_all
         end
 
-        it 'queues a new FastTrack::DisabilityCompensationJob worker' do
-          expect { form_for_hypertension.start }.to change(FastTrack::DisabilityCompensationJob.jobs, :size).by(1)
+        it 'queues a new RapidReadyForDecision::DisabilityCompensationJob worker' do
+          expect do
+            form_for_hypertension.start
+          end.to change(RapidReadyForDecision::DisabilityCompensationJob.jobs, :size).by(1)
         end
 
         it_behaves_like '#start_evss_submission'
@@ -79,8 +81,8 @@ RSpec.describe Form526Submission do
           Sidekiq::Worker.clear_all
         end
 
-        it 'does NOT queue a new FastTrack::DisabilityCompensationJob worker' do
-          expect { subject.start }.to change(FastTrack::DisabilityCompensationJob.jobs, :size).by(0)
+        it 'does NOT queue a new RapidReadyForDecision::DisabilityCompensationJob worker' do
+          expect { subject.start }.to change(RapidReadyForDecision::DisabilityCompensationJob.jobs, :size).by(0)
         end
 
         it_behaves_like '#start_evss_submission'
@@ -90,8 +92,8 @@ RSpec.describe Form526Submission do
     context 'the submission is NOT for hypertension' do
       before { Sidekiq::Worker.clear_all }
 
-      it 'Does NOT queue a new FastTrack::DisabilityCompensationJob' do
-        expect { subject.start }.to change(FastTrack::DisabilityCompensationJob.jobs, :size).by(0)
+      it 'Does NOT queue a new RapidReadyForDecision::DisabilityCompensationJob' do
+        expect { subject.start }.to change(RapidReadyForDecision::DisabilityCompensationJob.jobs, :size).by(0)
       end
 
       it_behaves_like '#start_evss_submission'
@@ -659,131 +661,141 @@ RSpec.describe Form526Submission do
   end
 
   describe '#workflow_complete_handler' do
-    let(:options) do
-      {
-        'submission_id' => subject.id,
-        'first_name' => 'firstname'
-      }
-    end
-
-    context 'with a single successful job' do
-      subject { create(:form526_submission, :with_one_succesful_job) }
-
-      it 'sets the submission.complete to true' do
-        expect(subject.workflow_complete).to be_falsey
-        subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
-        subject.reload
-        expect(subject.workflow_complete).to be_truthy
+    describe 'success' do
+      let(:options) do
+        {
+          'submission_id' => subject.id,
+          'first_name' => 'firstname'
+        }
       end
-    end
 
-    context 'with multiple successful jobs' do
-      subject { create(:form526_submission, :with_multiple_succesful_jobs) }
+      context 'with a single successful job' do
+        subject { create(:form526_submission, :with_one_succesful_job) }
 
-      it 'sets the submission.complete to true' do
-        expect(subject.workflow_complete).to be_falsey
-        subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
-        subject.reload
-        expect(subject.workflow_complete).to be_truthy
-      end
-    end
-
-    context 'with multiple successful jobs and email and submitted time in PM' do
-      subject { create(:form526_submission, :with_multiple_succesful_jobs, submitted_claim_id: 123_654_879) }
-
-      before { Timecop.freeze(Time.zone.parse('2012-07-20 14:15:00 UTC')) }
-
-      after { Timecop.return }
-
-      it 'calls confirmation email job with correct personalization' do
-        allow(Form526ConfirmationEmailJob).to receive(:perform_async) do |*args|
-          expect(args[0]['first_name']).to eql('firstname')
-          expect(args[0]['submitted_claim_id']).to be(123_654_879)
-          expect(args[0]['email']).to eql('test@email.com')
-          expect(args[0]['date_submitted']).to eql('July 20, 2012 2:15 p.m. UTC')
+        it 'sets the submission.complete to true' do
+          expect(subject.workflow_complete).to be_falsey
+          subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
+          subject.reload
+          expect(subject.workflow_complete).to be_truthy
         end
-
-        subject.workflow_complete_handler(nil, options)
       end
-    end
 
-    context 'with multiple successful jobs and email and submitted time in PM with two digit hour' do
-      subject { create(:form526_submission, :with_multiple_succesful_jobs, submitted_claim_id: 123_654_879) }
+      context 'with multiple successful jobs' do
+        subject { create(:form526_submission, :with_multiple_succesful_jobs) }
 
-      before { Timecop.freeze(Time.zone.parse('2012-07-20 11:12:00 UTC')) }
-
-      after { Timecop.return }
-
-      it 'calls confirmation email job with correct personalization' do
-        allow(Form526ConfirmationEmailJob).to receive(:perform_async) do |*args|
-          expect(args[0]['first_name']).to eql('firstname')
-          expect(args[0]['submitted_claim_id']).to be(123_654_879)
-          expect(args[0]['email']).to eql('test@email.com')
-          expect(args[0]['date_submitted']).to eql('July 20, 2012 11:12 a.m. UTC')
+        it 'sets the submission.complete to true' do
+          expect(subject.workflow_complete).to be_falsey
+          subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
+          subject.reload
+          expect(subject.workflow_complete).to be_truthy
         end
-
-        subject.workflow_complete_handler(nil, options)
       end
-    end
 
-    context 'with multiple successful jobs and email and submitted time in morning' do
-      subject { create(:form526_submission, :with_multiple_succesful_jobs, submitted_claim_id: 123_654_879) }
+      context 'with multiple successful jobs and email and submitted time in PM' do
+        subject { create(:form526_submission, :with_multiple_succesful_jobs, submitted_claim_id: 123_654_879) }
 
-      before { Timecop.freeze(Time.zone.parse('2012-07-20 8:07:00 UTC')) }
+        before { Timecop.freeze(Time.zone.parse('2012-07-20 14:15:00 UTC')) }
 
-      after { Timecop.return }
+        after { Timecop.return }
 
-      it 'calls confirmation email job with correct personalization' do
-        allow(Form526ConfirmationEmailJob).to receive(:perform_async) do |*args|
-          expect(args[0]['first_name']).to eql('firstname')
-          expect(args[0]['submitted_claim_id']).to be(123_654_879)
-          expect(args[0]['email']).to eql('test@email.com')
-          expect(args[0]['date_submitted']).to eql('July 20, 2012 8:07 a.m. UTC')
+        it 'calls confirmation email job with correct personalization' do
+          allow(Form526ConfirmationEmailJob).to receive(:perform_async) do |*args|
+            expect(args[0]['first_name']).to eql('firstname')
+            expect(args[0]['submitted_claim_id']).to be(123_654_879)
+            expect(args[0]['email']).to eql('test@email.com')
+            expect(args[0]['date_submitted']).to eql('July 20, 2012 2:15 p.m. UTC')
+          end
+
+          subject.workflow_complete_handler(nil, options)
         end
+      end
 
-        subject.workflow_complete_handler(nil, options)
+      context 'with multiple successful jobs and email and submitted time in PM with two digit hour' do
+        subject { create(:form526_submission, :with_multiple_succesful_jobs, submitted_claim_id: 123_654_879) }
+
+        before { Timecop.freeze(Time.zone.parse('2012-07-20 11:12:00 UTC')) }
+
+        after { Timecop.return }
+
+        it 'calls confirmation email job with correct personalization' do
+          allow(Form526ConfirmationEmailJob).to receive(:perform_async) do |*args|
+            expect(args[0]['first_name']).to eql('firstname')
+            expect(args[0]['submitted_claim_id']).to be(123_654_879)
+            expect(args[0]['email']).to eql('test@email.com')
+            expect(args[0]['date_submitted']).to eql('July 20, 2012 11:12 a.m. UTC')
+          end
+
+          subject.workflow_complete_handler(nil, options)
+        end
+      end
+
+      context 'with multiple successful jobs and email and submitted time in morning' do
+        subject { create(:form526_submission, :with_multiple_succesful_jobs, submitted_claim_id: 123_654_879) }
+
+        before { Timecop.freeze(Time.zone.parse('2012-07-20 8:07:00 UTC')) }
+
+        after { Timecop.return }
+
+        it 'calls confirmation email job with correct personalization' do
+          allow(Form526ConfirmationEmailJob).to receive(:perform_async) do |*args|
+            expect(args[0]['first_name']).to eql('firstname')
+            expect(args[0]['submitted_claim_id']).to be(123_654_879)
+            expect(args[0]['email']).to eql('test@email.com')
+            expect(args[0]['date_submitted']).to eql('July 20, 2012 8:07 a.m. UTC')
+          end
+
+          subject.workflow_complete_handler(nil, options)
+        end
+      end
+
+      context 'with submission confirmation email when successful job statuses' do
+        subject { create(:form526_submission, :with_multiple_succesful_jobs) }
+
+        it 'returns one job triggered' do
+          expect do
+            subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
+          end.to change(Form526ConfirmationEmailJob.jobs, :size).by(1)
+        end
       end
     end
 
-    context 'with mixed result jobs' do
-      subject { create(:form526_submission, :with_mixed_status) }
+    describe 'failure' do
+      context 'with mixed result jobs' do
+        subject { create(:form526_submission, :with_mixed_status) }
 
-      it 'sets the submission.complete to true' do
-        expect(subject.workflow_complete).to be_falsey
-        subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
-        subject.reload
-        expect(subject.workflow_complete).to be_falsey
+        it 'sets the submission.complete to true' do
+          expect(subject.workflow_complete).to be_falsey
+          subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
+          subject.reload
+          expect(subject.workflow_complete).to be_falsey
+        end
       end
-    end
 
-    context 'with a failing 526 form job' do
-      subject { create(:form526_submission, :with_one_failed_job) }
+      context 'with a failing 526 form job' do
+        subject { create(:form526_submission, :with_one_failed_job) }
 
-      it 'sets the submission.complete to true' do
-        expect(subject.workflow_complete).to be_falsey
-        subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
-        subject.reload
-        expect(subject.workflow_complete).to be_falsey
+        it 'sets the submission.complete to true' do
+          expect(subject.workflow_complete).to be_falsey
+          subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
+          subject.reload
+          expect(subject.workflow_complete).to be_falsey
+        end
       end
-    end
 
-    context 'with submission confirmation email when successful job statuses' do
-      subject { create(:form526_submission, :with_multiple_succesful_jobs) }
+      context 'with submission confirmation email when failed job statuses' do
+        subject { create(:form526_submission, :with_mixed_status) }
 
-      it 'returns one job triggered' do
+        it 'returns zero jobs triggered' do
+          expect do
+            subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
+          end.to change(Form526ConfirmationEmailJob.jobs, :size).by(0)
+        end
+      end
+
+      it 'sends a submission failed email notification' do
         expect do
           subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
-        end.to change(Form526ConfirmationEmailJob.jobs, :size).by(1)
-      end
-    end
-
-    context 'with submission confirmation email when failed job statuses' do
-      subject { create(:form526_submission, :with_mixed_status) }
-
-      it 'returns zero jobs triggered' do
-        expect do
-          subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
-        end.to change(Form526ConfirmationEmailJob.jobs, :size).by(0)
+        end.to change(Form526SubmissionFailedEmailJob.jobs, :size).by(1)
       end
     end
   end

@@ -34,10 +34,10 @@ describe 'Supplemental Claims', swagger_doc: 'modules/appeals_api/app/swagger/ap
 
       parameter in: :body, examples: {
         'minimum fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200995_minimum.json')))
+          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_minimum.json')))
         },
         'all fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200995_extra.json')))
+          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json')))
         }
       }
 
@@ -61,7 +61,7 @@ describe 'Supplemental Claims', swagger_doc: 'modules/appeals_api/app/swagger/ap
 
       response '200', 'Info about a single Supplemental Claim' do
         let(:sc_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200995.json')))
+          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995.json')))
         end
 
         schema '$ref' => '#/components/schemas/scCreateResponse'
@@ -90,7 +90,7 @@ describe 'Supplemental Claims', swagger_doc: 'modules/appeals_api/app/swagger/ap
 
       response '200', 'Info about a single Supplemental Claim' do
         let(:sc_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200995_extra.json')))
+          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json')))
         end
 
         schema '$ref' => '#/components/schemas/scCreateResponse'
@@ -121,7 +121,7 @@ describe 'Supplemental Claims', swagger_doc: 'modules/appeals_api/app/swagger/ap
         schema '$ref' => '#/components/schemas/errorModel'
 
         let(:sc_body) do
-          request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200995_extra.json')))
+          request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json')))
           request_body['data']['attributes'].delete('form5103Acknowledged')
           request_body
         end

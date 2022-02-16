@@ -2124,6 +2124,110 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    describe 'onsite notifications' do
+      let(:private_key) { OpenSSL::PKey::EC.new(File.read('spec/support/certificates/notification-private.pem')) }
+
+      before do
+        allow(Settings.notifications).to receive(:public_key).and_return(
+          File.read(
+            'spec/support/certificates/notification-public.pem'
+          )
+        )
+      end
+
+      it 'supports onsite_notifications #index' do
+        create(:onsite_notification, va_profile_id: mhv_user.vet360_id)
+        expect(subject).to validate(:get, '/v0/onsite_notifications', 401)
+
+        expect(subject).to validate(:get, '/v0/onsite_notifications', 200, headers)
+      end
+
+      it 'supports updating onsite notifications' do
+        expect(subject).to validate(
+          :patch,
+          '/v0/onsite_notifications/{id}',
+          401,
+          'id' => '1'
+        )
+
+        onsite_notification = create(:onsite_notification, va_profile_id: mhv_user.vet360_id)
+
+        expect(subject).to validate(
+          :patch,
+          '/v0/onsite_notifications/{id}',
+          404,
+          headers.merge(
+            'id' => onsite_notification.id + 1
+          )
+        )
+
+        expect(subject).to validate(
+          :patch,
+          '/v0/onsite_notifications/{id}',
+          200,
+          headers.merge(
+            'id' => onsite_notification.id,
+            '_data' => {
+              onsite_notification: {
+                dismissed: true
+              }
+            }
+          )
+        )
+
+        # rubocop:disable Rails/SkipsModelValidations
+        onsite_notification.update_column(:template_id, '1')
+        # rubocop:enable Rails/SkipsModelValidations
+        expect(subject).to validate(
+          :patch,
+          '/v0/onsite_notifications/{id}',
+          422,
+          headers.merge(
+            'id' => onsite_notification.id,
+            '_data' => {
+              onsite_notification: {
+                dismissed: true
+              }
+            }
+          )
+        )
+      end
+
+      it 'supports creating onsite notifications' do
+        expect(subject).to validate(:post, '/v0/onsite_notifications', 403)
+
+        expect(subject).to validate(
+          :post,
+          '/v0/onsite_notifications',
+          200,
+          '_headers' => {
+            'Authorization' => "Bearer #{JWT.encode({ user: 'va_notify' }, private_key, 'ES256')}"
+          },
+          '_data' => {
+            onsite_notification: {
+              template_id: 'f9947b27-df3b-4b09-875c-7f76594d766d',
+              va_profile_id: '1'
+            }
+          }
+        )
+
+        expect(subject).to validate(
+          :post,
+          '/v0/onsite_notifications',
+          422,
+          '_headers' => {
+            'Authorization' => "Bearer #{JWT.encode({ user: 'va_notify' }, private_key, 'ES256')}"
+          },
+          '_data' => {
+            onsite_notification: {
+              template_id: '1',
+              va_profile_id: '1'
+            }
+          }
+        )
+      end
+    end
+
     describe 'profiles' do
       it 'supports getting email address data' do
         expect(subject).to validate(:get, '/v0/profile/email', 401)

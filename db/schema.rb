@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_01_11_214111) do
+ActiveRecord::Schema.define(version: 2022_02_08_161919) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -628,15 +628,6 @@ ActiveRecord::Schema.define(version: 2022_01_11_214111) do
     t.index ["icn"], name: "index_mobile_users_on_icn", unique: true
   end
 
-  create_table "mobile_vaccines", force: :cascade do |t|
-    t.integer "cvx_code", null: false
-    t.string "group_name", null: false
-    t.string "manufacturer"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["cvx_code"], name: "index_mobile_vaccines_on_cvx_code", unique: true
-  end
-
   create_table "notifications", id: :serial, force: :cascade do |t|
     t.integer "account_id", null: false
     t.integer "subject", null: false
@@ -828,11 +819,12 @@ ActiveRecord::Schema.define(version: 2022_01_11_214111) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.text "services"
-    t.string "id_type"
     t.string "loa"
-    t.string "account_type"
     t.uuid "idme_uuid"
     t.text "notes"
+    t.string "mfa_code"
+    t.uuid "logingov_uuid"
+    t.text "id_types", default: [], array: true
   end
 
   create_table "user_accounts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

@@ -163,7 +163,9 @@ module SM
       validate_draft(args)
 
       json = perform(:post, 'message/draft', args, token_headers).body
-      MessageDraft.new(json)
+      draft = MessageDraft.new(json)
+      draft.body = draft.original_attributes[:body]
+      draft
     end
 
     ##
@@ -181,7 +183,9 @@ module SM
       json = perform(:post, "message/#{id}/replydraft", args, token_headers).body
       json[:data][:has_message] = true
 
-      MessageDraft.new(json).as_reply
+      draft = MessageDraft.new(json)
+      draft.body = draft.original_attributes[:body]
+      draft.as_reply
     end
     # @!endgroup
 

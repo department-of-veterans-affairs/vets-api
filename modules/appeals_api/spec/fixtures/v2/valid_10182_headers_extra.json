@@ -1,0 +1,13 @@
+{
+  "X-VA-First-Name": "Jäñe",
+  "X-VA-Middle-Initial": "Z",
+  "X-VA-Last-Name": "Doe",
+  "X-VA-File-Number": "987654321",
+  "X-VA-Birth-Date": "1969-12-31",
+  "X-VA-Claimant-Birth-Date": "1972-05-08",
+  "X-VA-Claimant-First-Name": "Betty",
+  "X-VA-Claimant-Middle-Initial": "D",
+  "X-VA-Claimant-Last-Name": "Boop",
+  "X-Consumer-Username": "va.gov",
+  "X-Consumer-ID": "some-guid"
+}

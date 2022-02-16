@@ -156,7 +156,7 @@ AppealsApi::HigherLevelReviewCleanUpWeekOldPii:
   description: "Remove PII of HigherLevelReviews that have 1) reached one of the 'completed' statuses and 2) are a week old"
 
 AppealsApi::HigherLevelReviewUploadStatusBatch:
-  every: "60m"
+  cron: "5 * * * *" # Every hour, 5 minutes after the hour
   class: AppealsApi::HigherLevelReviewUploadStatusBatch
   description: "Update HigherLevelReview statuses with their Central Mail status"
 
@@ -276,9 +276,3 @@ TestUserDashboard::MirrorAccountAvailabilityLogsInBigQuery:
   cron: "0 */2 * * * America/New_York"
   class: TestUserDashboard::MirrorAccountAvailabilityLogsInBigQuery
   description: "Mirrors the test_user_dashboard_tud_account_availability_logs table in BigQuery."
-
-Mobile::V0::VaccinesUpdaterJob:
-  cron: "0 * * * * America/New_York"
-  class: Mobile::V0::VaccinesUpdaterJob
-  description: "Creates and updates vaccine records from the CDC"
-

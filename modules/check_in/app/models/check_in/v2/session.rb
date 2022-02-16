@@ -7,15 +7,17 @@ module CheckIn
     # for a user for the Check-in experience.
     #
     # @!attribute uuid
-    #   @return [String]
+    #   @return [String] uuid of the session
     # @!attribute last4
-    #   @return [String]
+    #   @return [String] last4 of the user for Low Risk Auth
     # @!attribute last_name
-    #   @return [String]
+    #   @return [String] last name of the user for Low Risk Auth
     # @!attribute settings
     #   @return [Config::Options]
     # @!attribute jwt
     #   @return [String]
+    # @!attribute check_in_type
+    #   @return [String] whether this is a preCheckIn or (day of) CheckIn session
     # @!attribute redis_session_prefix
     #   @return (see Config::Options#redis_session_prefix)
     class Session

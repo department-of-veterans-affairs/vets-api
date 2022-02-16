@@ -2,11 +2,13 @@
 
 require 'rails_helper'
 require 'lgy/service'
+require 'saved_claim/coe_claim'
 
 describe LGY::Service do
   subject { described_class.new(edipi: user.edipi, icn: user.icn) }
 
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:coe_claim) { FactoryBot.create(:coe_claim) }
 
   describe '#get_determination' do
     subject { described_class.new(edipi: user.edipi, icn: user.icn).get_determination }
@@ -86,9 +88,9 @@ describe LGY::Service do
     end
 
     context 'when get_determination is NOT_ELIGIBLE' do
-      it 'returns ineligible' do
+      it 'returns denied' do
         VCR.use_cassette 'lgy/determination_not_eligible' do
-          expect(subject.coe_status).to eq status: 'ineligible'
+          expect(subject.coe_status).to eq status: 'denied'
         end
       end
     end
@@ -143,6 +145,19 @@ describe LGY::Service do
       it 'returns a 404 not found' do
         VCR.use_cassette 'lgy/documents_coe_file_not_found' do
           expect(subject.get_coe_file.status).to eq 404
+        end
+      end
+    end
+  end
+
+  describe '#put_application' do
+    context 'when submitting a valid coe claim' do
+      it 'returns a valid application response' do
+        VCR.use_cassette 'lgy/application_put' do
+          response = subject.put_application(payload: coe_claim)
+          expect(response.status).to eq 200
+          expect(response.body).to include('id')
+          expect(response.body).to include('create_date')
         end
       end
     end

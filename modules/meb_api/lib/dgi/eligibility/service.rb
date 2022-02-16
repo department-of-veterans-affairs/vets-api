@@ -13,20 +13,23 @@ module MebApi
         configuration MebApi::DGI::Eligibility::Configuration
         STATSD_KEY_PREFIX = 'api.dgi.eligibility'
 
-        def get_eligibility
+        def get_eligibility(claimant_id)
           with_monitoring do
             headers = request_headers
             options = { timeout: 60 }
-            raw_response = perform(:get, end_point, nil, headers, options)
 
+            raw_response = perform(:get, end_point(claimant_id), {}, headers, options)
             MebApi::DGI::Eligibility::EligibilityResponse.new(raw_response.status, raw_response)
           end
         end
 
         private
 
-        def end_point
-          'claimant/1111111111/eligibility'
+        def end_point(claimant_id)
+          date = Time.now.getlocal.prev_year.to_date
+          format_date = date.strftime('%Y-%m-%d')
+
+          "claimant/#{claimant_id}/effectiveDate/#{format_date}/eligibility"
         end
 
         def json

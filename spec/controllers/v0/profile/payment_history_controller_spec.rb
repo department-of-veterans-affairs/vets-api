@@ -6,18 +6,32 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
   let(:user) { create(:evss_user) }
 
   describe '#index' do
-    context 'with a valid bgs response' do
-      it 'returns true if a logged-in user has a valid va file number' do
+    context 'with only regular payments' do
+      it 'returns only payments and no return payments' do
         VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
           sign_in_as(user)
           get(:index)
 
           expect(response.code).to eq('200')
           expect(response).to have_http_status(:ok)
-          # not using "eq" for these counts in case additional payments are added for this user
 
-          expect(JSON.parse(response.body)['data']['attributes']['payments'].count).to be >= 47
-          expect(JSON.parse(response.body)['data']['attributes']['return_payments'].count).to be >= 0
+          expect(JSON.parse(response.body)['data']['attributes']['payments'].count).to eq(47)
+          expect(JSON.parse(response.body)['data']['attributes']['return_payments'].count).to eq(0)
+        end
+      end
+    end
+
+    context 'with mixed payments and return payments' do
+      it 'returns both' do
+        VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn_returns') do
+          sign_in_as(user)
+          get(:index)
+
+          expect(response.code).to eq('200')
+          expect(response).to have_http_status(:ok)
+
+          expect(JSON.parse(response.body)['data']['attributes']['payments'].count).to eq(2)
+          expect(JSON.parse(response.body)['data']['attributes']['return_payments'].count).to eq(2)
         end
       end
     end

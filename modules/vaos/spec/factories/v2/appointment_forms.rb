@@ -36,36 +36,13 @@ FactoryBot.define do
           }
         ]
       end
-      preferred_time_for_phone_call { ['morning'] }
+      preferred_times_for_phone_call { ['Morning'] }
       preferred_language { 'English' }
       preferred_location do
         {
           'city': 'Helena',
           'state': 'MT'
         }
-      end
-      practitioners do
-        [
-          {
-            'identifier' => [
-              {
-                'system': 'test',
-                'value': 'test'
-              },
-              {
-                'system': 'test2',
-                'value': 'test2'
-              }
-            ],
-            'name': {
-              'family': 'test',
-              'given': ['test']
-            },
-            'first_name': 'deprecated',
-            'last_name': 'deprecated',
-            'practice_name': 'deprecated'
-          }
-        ]
       end
     end
 

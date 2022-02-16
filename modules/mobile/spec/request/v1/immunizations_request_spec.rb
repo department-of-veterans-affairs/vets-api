@@ -49,11 +49,11 @@ RSpec.describe 'immunizations', type: :request do
               'date' => '2021-01-14T09:30:21Z',
               'doseNumber' => nil,
               'doseSeries' => nil,
-              'groupName' => nil,
+              'groupName' => 'COVID-19',
               'manufacturer' => nil,
               'note' => 'Dose #2 of 2 of COVID-19, mRNA, LNP-S, PF, 100 mcg/ 0.5 mL dose vaccine administered.',
               'reaction' => nil,
-              'shortDescription' => 'COVID-19, mRNA, LNP-S, PF, 100 mcg/ 0.5 mL dose'
+              'shortDescription' => 'COVID-19, mRNA, LNP-S, PF, 100 mcg or 50 mcg dose'
             },
             'relationships' => {
               'location' => {
@@ -65,15 +65,15 @@ RSpec.describe 'immunizations', type: :request do
             }
           }],
           'meta' => { 'pagination' =>
-            { 'currentPage' => 1, 'perPage' => 1, 'totalPages' => 15, 'totalEntries' => 15 } },
+                        { 'currentPage' => 1, 'perPage' => 1, 'totalPages' => 15, 'totalEntries' => 15 } },
           'links' =>
-          {
-            'self' => 'http://www.example.com/mobile/v1/health/immunizations?useCache=true&page[size]=1&page[number]=1',
-            'first' => 'http://www.example.com/mobile/v1/health/immunizations?useCache=true&page[size]=1&page[number]=1',
-            'prev' => nil,
-            'next' => 'http://www.example.com/mobile/v1/health/immunizations?useCache=true&page[size]=1&page[number]=2',
-            'last' => 'http://www.example.com/mobile/v1/health/immunizations?useCache=true&page[size]=1&page[number]=15'
-          }
+            {
+              'self' => 'http://www.example.com/mobile/v1/health/immunizations?useCache=true&page[size]=1&page[number]=1',
+              'first' => 'http://www.example.com/mobile/v1/health/immunizations?useCache=true&page[size]=1&page[number]=1',
+              'prev' => nil,
+              'next' => 'http://www.example.com/mobile/v1/health/immunizations?useCache=true&page[size]=1&page[number]=2',
+              'last' => 'http://www.example.com/mobile/v1/health/immunizations?useCache=true&page[size]=1&page[number]=15'
+            }
         }
 
         expect(response.parsed_body).to eq(expected_response)
@@ -133,52 +133,111 @@ RSpec.describe 'immunizations', type: :request do
       end
 
       it 'returns nil for blank notes' do
-        expect(response.parsed_body['data'][14]['attributes']['note']).to be_nil
+        expect(response.parsed_body['data'][2]['attributes']['note']).to be_nil
       end
 
       it 'returns nil for null notes' do
-        expect(response.parsed_body['data'][13]['attributes']['note']).to be_nil
+        expect(response.parsed_body['data'][1]['attributes']['note']).to be_nil
       end
 
       it 'returns a value for notes that have a value' do
-        expect(response.parsed_body['data'][12]['attributes']['note']).to eq(
+        expect(response.parsed_body['data'][0]['attributes']['note']).to eq(
           'Dose #47 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.'
         )
       end
     end
 
     describe 'vaccine group name and manufacturer population' do
-      let(:immunizations_request) do
+      let(:immunizations_request_non_covid_paginated) do
         VCR.use_cassette('lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
           get '/mobile/v1/health/immunizations', headers: iam_headers, params: { page: { size: 1, number: 13 } }
         end
       end
+      let(:immunizations_request_covid_paginated) do
+        VCR.use_cassette('lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+          get '/mobile/v1/health/immunizations', headers: iam_headers, params: { page: { size: 1, number: 2 } }
+        end
+      end
+      let(:immunizations_request_covid_no_manufacturer_paginated) do
+        VCR.use_cassette('lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+          get '/mobile/v1/health/immunizations', headers: iam_headers, params: { page: { size: 1, number: 1 } }
+        end
+      end
+      let(:immunizations_request_non_covid_with_manufacturer_paginated) do
+        VCR.use_cassette('lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+          get '/mobile/v1/health/immunizations', headers: iam_headers, params: { page: { size: 1, number: 5 } }
+        end
+      end
 
-      context 'when the vaccine record exists' do
-        let!(:vaccine) { create(:vaccine, cvx_code: 140, group_name: 'COVID-19', manufacturer: 'Moderna') }
-
-        it 'uses the vaccine group name and manufacturer in the response' do
-          immunizations_request
-
+      context 'when an immunization group name is COVID-19 and there is a manufacturer provided' do
+        it 'uses the vaccine manufacturer in the response' do
+          immunizations_request_covid_paginated
           expect(response.parsed_body['data'][0]['attributes']).to eq(
             {
-              'cvxCode' => 140,
-              'date' => '2011-03-31T12:24:55Z',
-              'doseNumber' => 'Series 1',
-              'doseSeries' => 1,
-              'groupName' => vaccine.group_name,
-              'manufacturer' => vaccine.manufacturer,
-              'note' => 'Dose #47 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
-              'reaction' => 'Other',
-              'shortDescription' => 'Influenza  seasonal  injectable  preservative free'
+              'cvxCode' => 207,
+              'date' => '2020-12-18T12:24:55Z',
+              'doseNumber' => nil,
+              'doseSeries' => nil,
+              'groupName' => 'COVID-19',
+              'manufacturer' => 'Moderna US, Inc.',
+              'note' =>
+                'Dose #1 of 2 of COVID-19, mRNA, LNP-S, PF, 100 mcg/ 0.5 mL dose vaccine administered.',
+              'reaction' => nil,
+              'shortDescription' => 'COVID-19, mRNA, LNP-S, PF, 100 mcg or 50 mcg dose'
             }
           )
         end
       end
 
-      context 'when the vaccine record does not exist' do
-        it 'sets group name and manufacturer to nil' do
-          immunizations_request
+      context 'when an immunization group name is COVID-19 and there is no manufacturer provided' do
+        it 'sets manufacturer to nil' do
+          immunizations_request_covid_no_manufacturer_paginated
+          expect(response.parsed_body['data'][0]['attributes']).to eq(
+            {
+              'cvxCode' => 207,
+              'date' => '2021-01-14T09:30:21Z',
+              'doseNumber' => nil,
+              'doseSeries' => nil,
+              'groupName' => 'COVID-19',
+              'manufacturer' => nil,
+              'note' =>
+                'Dose #2 of 2 of COVID-19, mRNA, LNP-S, PF, 100 mcg/ 0.5 mL dose vaccine administered.',
+              'reaction' => nil,
+              'shortDescription' => 'COVID-19, mRNA, LNP-S, PF, 100 mcg or 50 mcg dose'
+            }
+          )
+        end
+
+        it 'increments statsd' do
+          expect do
+            immunizations_request_covid_paginated
+          end.to trigger_statsd_increment('mobile.immunizations.covid_manufacturer_missing', times: 1)
+        end
+      end
+
+      context 'when an immunization group name is not COVID-19 and there is a manufacturer provided' do
+        it 'sets manufacturer to nil' do
+          immunizations_request_non_covid_with_manufacturer_paginated
+          expect(response.parsed_body['data'][0]['attributes']).to eq(
+            {
+              'cvxCode' => 33,
+              'date' => '2016-04-28T12:24:55Z',
+              'doseNumber' => 'Series 1',
+              'doseSeries' => 1,
+              'groupName' => 'PneumoPPV',
+              'manufacturer' => nil,
+              'note' =>
+                'Dose #1 of 1 of pneumococcal polysaccharide vaccine  23 valent vaccine administered.',
+              'reaction' => 'Other',
+              'shortDescription' => 'pneumococcal polysaccharide PPV23'
+            }
+          )
+        end
+      end
+
+      context 'when an immunization group name is not COVID-19 and there is no manufacturer provided' do
+        it 'sets manufacturer to nil' do
+          immunizations_request_non_covid_paginated
 
           expect(response.parsed_body['data'][0]['attributes']).to eq(
             {
@@ -186,11 +245,13 @@ RSpec.describe 'immunizations', type: :request do
               'date' => '2011-03-31T12:24:55Z',
               'doseNumber' => 'Series 1',
               'doseSeries' => 1,
-              'groupName' => nil,
+              'groupName' => 'FLU',
               'manufacturer' => nil,
-              'note' => 'Dose #47 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
+              'note' =>
+                'Dose #47 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
               'reaction' => 'Other',
-              'shortDescription' => 'Influenza  seasonal  injectable  preservative free'
+              'shortDescription' =>
+                'Influenza, seasonal, injectable, preservative free'
             }
           )
         end

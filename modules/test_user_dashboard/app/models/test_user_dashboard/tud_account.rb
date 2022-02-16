@@ -2,33 +2,18 @@
 
 module TestUserDashboard
   class TudAccount < ApplicationRecord
-    self.ignored_columns = %w[standard available]
+    self.ignored_columns = %w[standard available account_type id_type]
 
     ID_PROVIDERS = %w[idme dslogon mhv logingov].freeze
 
-    validates :first_name, :last_name, :email, :id_type, presence: true
+    validates :first_name, :last_name, :email, :id_types, presence: true
     validates :email, uniqueness: true
-    validates :id_type, inclusion: { in: ID_PROVIDERS }
+    validate :valid_id_types
 
     serialize :services
 
     def available?
       checkout_time.nil?
-    end
-
-    def user_values(user)
-      {
-        first_name: user.first_name,
-        middle_name: user.middle_name,
-        last_name: user.last_name,
-        gender: user.gender,
-        birth_date: user.birth_date,
-        ssn: user.ssn,
-        phone: user.pciu_primary_phone,
-        loa: user.loa,
-        idme_uuid: user.idme_uuid,
-        services: Users::Services.new(user).authorizations
-      }
     end
 
     def user_identity
@@ -59,6 +44,12 @@ module TestUserDashboard
       # ensure we have a user identity before instantiating
       user_identity
       User.new(uuid: user_identity.uuid)
+    end
+
+    private
+
+    def valid_id_types
+      errors.add(:id_types, 'id_type is invalid') if id_types.detect { |type| !ID_PROVIDERS.include?(type) }
     end
   end
 end

@@ -14,7 +14,7 @@ class AppealsApi::V2::HigherLevelReviewsControllerSwagger
   response_hlr_show_not_found = read_json_from_same_dir['response_hlr_show_not_found.json']
   response_hlr_create_error = read_json_from_same_dir['response_hlr_create_error.json']
 
-  example_all_fields_used = read_json[['spec', 'fixtures', 'valid_200996_v2.json']]
+  example_all_fields_used = read_json[['spec', 'fixtures', 'v2', 'valid_200996.json']]
 
   hlr_show_properties = {
     status: { type: 'string', enum: AppealsApi::HlrStatus::V2_STATUSES },
@@ -78,7 +78,7 @@ class AppealsApi::V2::HigherLevelReviewsControllerSwagger
   ).to_swagger['requestBody']
 
   hlr_create_request_body['content']['application/json']['examples'] = {
-    'minimum fields used': { value: read_json[['spec', 'fixtures', 'valid_200996_minimum_v2.json']] },
+    'minimum fields used': { value: read_json[['spec', 'fixtures', 'v2', 'valid_200996_minimum.json']] },
     'all fields used': { value: example_all_fields_used }
   }
 

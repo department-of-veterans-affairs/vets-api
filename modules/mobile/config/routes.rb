@@ -21,6 +21,7 @@ Mobile::Engine.routes.draw do
     get '/maintenance_windows', to: 'maintenance_windows#index'
     get '/messaging/health/messages/signature', to: 'messages#signature'
     get '/military-service-history', to: 'military_information#get_service_history'
+    get '/payment-history', to: 'payment_history#index'
     get '/payment-information/benefits', to: 'payment_information#index'
     put '/payment-information/benefits', to: 'payment_information#update'
     put '/push/register', to: 'push_notifications#register'

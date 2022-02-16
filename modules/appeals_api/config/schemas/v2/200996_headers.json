@@ -89,7 +89,11 @@
         "X-VA-First-Name",
         "X-VA-Last-Name",
         "X-VA-Birth-Date"
-      ]
+      ],
+      "dependencies": {
+        "X-VA-Claimant-First-Name": ["X-VA-Claimant-Last-Name"],
+        "X-VA-Claimant-Last-Name": ["X-VA-Claimant-First-Name"]
+      }
     }
   }
 }

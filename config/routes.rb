@@ -14,6 +14,8 @@ Rails.application.routes.draw do
   get '/v1/sessions/ssoe_logout', to: 'v1/sessions#ssoe_slo_callback'
 
   namespace :v0, defaults: { format: 'json' } do
+    resources :onsite_notifications, only: %i[create index update]
+
     resources :appointments, only: :index
     resources :in_progress_forms, only: %i[index show update destroy]
     resources :disability_compensation_in_progress_forms, only: %i[index show update destroy]
@@ -336,13 +338,12 @@ Rails.application.routes.draw do
     namespace :coe do
       get 'status'
       get 'download_coe'
+      post 'submit_coe_claim'
     end
   end
 
   namespace :v1, defaults: { format: 'json' } do
     resources :apidocs, only: [:index]
-
-    resources :notifications, only: %i[create]
 
     resource :sessions, only: [] do
       post :saml_callback, to: 'sessions#saml_callback'

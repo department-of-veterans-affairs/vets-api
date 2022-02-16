@@ -264,10 +264,10 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
 
       parameter in: :body, examples: {
         'minimum fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_minimum_v2.json')))
+          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200996_minimum.json')))
         },
         'all fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_v2.json')))
+          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200996.json')))
         }
       }
       # ^ the value of keys in the examples hash will be used in the request bodies drop down selector
@@ -282,7 +282,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
 
       response '200', 'Info about a single Higher-Level Review' do
         let(:hlr_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_minimum_v2.json')))
+          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200996_minimum.json')))
         end
         # ^ referencing the parameter named above (:hlr_body) so Rswag knows to send this json as the body of the request
 
@@ -314,7 +314,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
 
       response '200', 'Info about a single Higher-Level Review' do
         let(:hlr_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_v2.json')))
+          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200996.json')))
         end
 
         # schema ...

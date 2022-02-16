@@ -11,11 +11,11 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
 
   before { Sidekiq::Worker.clear_all }
 
-  let(:auth_headers) { fixture_to_s 'valid_200996_headers.json' }
+  let(:auth_headers) { fixture_to_s 'valid_200996_headers.json', version: 'v1' }
   let(:higher_level_review) { create_higher_level_review }
   let(:client_stub) { instance_double('CentralMail::Service') }
   let(:faraday_response) { instance_double('Faraday::Response') }
-  let(:valid_doc) { fixture_to_s 'valid_200996.json' }
+  let(:valid_doc) { fixture_to_s 'valid_200996.json', version: 'v1' }
 
   it_behaves_like 'a monitored worker'
 

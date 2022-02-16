@@ -11,11 +11,11 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
   end
 
   before(:all) do
-    @data = fixture_to_s 'valid_200996.json'
-    @invalid_data = fixture_to_s 'invalid_200996.json'
-    @headers = fixture_as_json 'valid_200996_headers.json'
-    @minimum_required_headers = fixture_as_json 'valid_200996_headers_minimum.json'
-    @invalid_headers = fixture_as_json 'invalid_200996_headers.json'
+    @data = fixture_to_s 'valid_200996.json', version: 'v1'
+    @invalid_data = fixture_to_s 'invalid_200996.json', version: 'v1'
+    @headers = fixture_as_json 'valid_200996_headers.json', version: 'v1'
+    @minimum_required_headers = fixture_as_json 'valid_200996_headers_minimum.json', version: 'v1'
+    @invalid_headers = fixture_as_json 'invalid_200996_headers.json', version: 'v1'
   end
 
   let(:parsed) { JSON.parse(response.body) }
@@ -69,6 +69,14 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
         post(path, params: data.to_json, headers: @minimum_required_headers)
         expect(response.status).to eq(422)
         expect(parsed['errors'][0]['detail']).to include('Informal conference rep will not fit on form')
+      end
+
+      it 'does not sunset in the next 30 days' do
+        # Safety test. Will fail if the sunset_date is within 30 days. We got burned by this before,
+        # so being heavy handed with it here.
+        Timecop.travel(30.days.from_now.beginning_of_day) do
+          expect(post(path, params: @data, headers: @headers)).not_to be 404
+        end
       end
     end
 

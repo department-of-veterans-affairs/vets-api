@@ -7,7 +7,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
   include FixtureHelpers
 
   context 'headers' do
-    let(:auth_headers) { fixture_as_json 'valid_200995_headers.json' }
+    let(:auth_headers) { fixture_as_json 'valid_200995_headers.json', version: 'v2' }
     let(:supplemental_claim) { create(:supplemental_claim) }
 
     describe 'veteran_first_name' do
@@ -60,7 +60,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
   end
 
   context 'extra form data' do
-    let(:form_data) { fixture_as_json 'valid_200995_extra.json' }
+    let(:form_data) { fixture_as_json 'valid_200995_extra.json', version: 'v2' }
     let(:supplemental_claim) { create(:extra_supplemental_claim) }
     let(:veteran) { form_data['data']['attributes']['veteran'] }
 
@@ -115,7 +115,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
     end
 
     # TODO: should be implemented with status checking
-    xit 'invalid status' do
+    it 'invalid status' do
       expect do
         supplemental_claim.update_status!(status: 'invalid_status')
       end.to raise_error(ActiveRecord::RecordInvalid,

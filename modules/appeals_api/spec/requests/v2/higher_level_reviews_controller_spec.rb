@@ -11,13 +11,13 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
   end
 
   before(:all) do
-    @data = fixture_to_s 'valid_200996_minimum_v2.json'
-    @data_extra = fixture_to_s 'valid_200996_extra_v2.json'
-    @invalid_data = fixture_to_s 'invalid_200996_v2.json'
-    @headers = fixture_as_json 'valid_200996_headers_v2.json'
-    @minimum_required_headers = fixture_as_json 'valid_200996_headers_minimum.json'
-    @headers_extra = fixture_as_json 'valid_200996_headers_extra_v2.json'
-    @invalid_headers = fixture_as_json 'invalid_200996_headers.json'
+    @data = fixture_to_s 'valid_200996_minimum.json', version: 'v2'
+    @data_extra = fixture_to_s 'valid_200996_extra.json', version: 'v2'
+    @invalid_data = fixture_to_s 'invalid_200996.json', version: 'v2'
+    @headers = fixture_as_json 'valid_200996_headers.json', version: 'v2'
+    @minimum_required_headers = fixture_as_json 'valid_200996_headers_minimum.json', version: 'v1'
+    @headers_extra = fixture_as_json 'valid_200996_headers_extra.json', version: 'v2'
+    @invalid_headers = fixture_as_json 'invalid_200996_headers.json', version: 'v1'
   end
 
   let(:parsed) { JSON.parse(response.body) }

@@ -5,6 +5,7 @@ require_dependency 'test_user_dashboard/application_controller'
 module TestUserDashboard
   class TudAccountsController < ApplicationController
     include ActionView::Helpers::SanitizeHelper
+    before_action :require_jwt
 
     def index
       tud_accounts = TudAccount.all

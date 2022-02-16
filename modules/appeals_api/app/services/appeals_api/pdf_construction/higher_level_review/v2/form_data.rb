@@ -8,10 +8,19 @@ module AppealsApi
           @higher_level_review = higher_level_review
         end
 
-        delegate :first_name, :middle_initial, :last_name, :number_and_street, :city, :state_code,
-                 :country_code, :file_number, :zip_code, :insurance_policy_number, :contestable_issues, :birth_mm,
-                 :birth_dd, :birth_yyyy, :date_signed_mm, :date_signed_dd, :date_signed_yyyy, :claimant,
+        delegate :contestable_issues, :date_signed_v2_mm, :date_signed_v2_dd, :date_signed_v2_yyyy,
+                 :signing_appellant, :signature_v2, :claimant, :veteran,
                  to: :higher_level_review
+
+        delegate :first_name, :last_name, :number_and_street, :city, :zip_code,
+                 to: :veteran, prefix: true
+
+        delegate :first_name, :last_name, :number_and_street, :city, :zip_code, :email,
+                 to: :claimant, prefix: true
+
+        def veteran_email
+          veteran.email.presence || 'USE EMAIL ON FILE'
+        end
 
         def first_three_ssn
           ssn.first(3)
@@ -64,11 +73,6 @@ module AppealsApi
 
         def veteran_country_code
           higher_level_review.veteran_phone_data&.dig('countryCode')
-        end
-
-        def veteran_email
-          higher_level_review.email_v2.presence ||
-            'USE EMAIL ON FILE'
         end
 
         def benefit_type(benefit_type)
@@ -149,12 +153,12 @@ module AppealsApi
           "SOC/SSOC Date: #{date}"
         end
 
-        def signature
-          "#{higher_level_review.full_name[0...180]}\n- Signed by digital authentication to api.va.gov"
+        def date_signed
+          signing_appellant.date_signed.strftime
         end
 
         def stamp_text
-          "#{last_name.truncate(35)} - #{ssn.last(4)}"
+          "#{signing_appellant.last_name.truncate(35)} - #{veteran.ssn.last(4)}"
         end
 
         private

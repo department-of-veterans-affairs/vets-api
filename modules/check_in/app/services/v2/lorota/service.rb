@@ -2,11 +2,31 @@
 
 module V2
   module Lorota
+    ##
+    # A service class to provide functionality related to LoROTA. This class needs to be instantiated
+    # with a {CheckIn::V2::Session} object so that {Client} and {V2::Chip::Service} can be instantiated
+    # appropriately.
+    #
+    # @!attribute [r] check_in
+    #   @return [CheckIn::V2::Session]
+    # @!attribute [r] chip_service
+    #   @return [V2::Chip::Service]
+    # @!attribute [r] lorota_client
+    #   @return [Client]
+    # @!attribute [r] redis_client
+    #   @return [RedisClient]
     class Service
       extend Forwardable
-
       attr_reader :check_in, :chip_service, :lorota_client, :redis_client
 
+      ##
+      # Builds a Service instance
+      #
+      # @param opts [Hash] options to create the object
+      # @option opts [CheckIn::V2::Session] :check_in the session object
+      #
+      # @return [Service] an instance of this class
+      #
       def self.build(opts = {})
         new(opts)
       end
@@ -18,6 +38,13 @@ module V2
         @redis_client = RedisClient.build
       end
 
+      # Get the token from LoROTA by making a POST call. If the call is successful, the token is saved
+      # in Redis as well for subsequent session retrieval.
+      #
+      # @see https://github.com/department-of-veterans-affairs/lorota#how-check-in-experience-uses-lorota How
+      # Check In Experience uses LoROTA
+      #
+      # @return [Hash] a hash with permission data and the jwt token
       def token
         resp = lorota_client.token
         jwt_token = Oj.load(resp.body)&.fetch('token')
@@ -30,6 +57,14 @@ module V2
         }
       end
 
+      # Get the check-in data from LoROTA. To get the data, the token (which is required for LoROTA auth)
+      # is retrieved from Redis. If token is not present, an unauthorized message is returned. If the data
+      # has been retrieved previously, it makes a call to CHIP to refresh the data in LoROTA first, and
+      # then gets the updated data from LoROTA.
+      #
+      # @return [Hash] data from LoROTA if token exists and LoROTA returns successfully
+      # @return [Hash] unauthorized message if token doesn't exist
+      # @return [Hash] error message if LoROTA returns error
       def check_in_data
         token = redis_client.get(check_in_uuid: check_in.uuid)
 

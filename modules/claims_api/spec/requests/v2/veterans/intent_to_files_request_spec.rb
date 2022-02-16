@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'token_validation/v2/client'
 
 RSpec.describe 'IntentToFiles', type: :request do
   let(:veteran_id) { '1013062086V794840' }
@@ -249,6 +250,44 @@ RSpec.describe 'IntentToFiles', type: :request do
           end
         end
       end
+
+      context 'CCG (Client Credentials Grant) flow' do
+        let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: { 'scp' => [] }) }
+        let(:stub_response) do
+          {
+            intent_to_file_id: '1',
+            create_dt: Time.zone.now.to_date,
+            exprtn_dt: Time.zone.now.to_date + 1.year,
+            itf_status_type_cd: 'Active',
+            itf_type_cd: type
+          }
+        end
+        let(:type) { 'compensation' }
+
+        context 'when provided' do
+          context 'when valid' do
+            it 'returns a 200' do
+              allow(JWT).to receive(:decode).and_return(nil)
+              allow(Token).to receive(:new).and_return(ccg_token)
+              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
+
+              get itf_type_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
+              expect(response.status).to eq(200)
+            end
+          end
+
+          context 'when not valid' do
+            it 'returns a 403' do
+              allow(JWT).to receive(:decode).and_return(nil)
+              allow(Token).to receive(:new).and_return(ccg_token)
+              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(false)
+
+              get itf_type_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
+              expect(response.status).to eq(403)
+            end
+          end
+        end
+      end
     end
 
     describe 'submit' do
@@ -381,6 +420,36 @@ RSpec.describe 'IntentToFiles', type: :request do
 
               post itf_submit_path, params: valid_data, headers: auth_header
               expect(response.status).to eq(200)
+            end
+          end
+        end
+      end
+
+      context 'CCG (Client Credentials Grant) flow' do
+        let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: { 'scp' => [] }) }
+
+        context 'when provided' do
+          context 'when valid' do
+            it 'returns a 200' do
+              allow(JWT).to receive(:decode).and_return(nil)
+              allow(Token).to receive(:new).and_return(ccg_token)
+              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
+
+              post itf_submit_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
+
+              expect(response.status).to eq(200)
+            end
+          end
+
+          context 'when not valid' do
+            it 'returns a 403' do
+              allow(JWT).to receive(:decode).and_return(nil)
+              allow(Token).to receive(:new).and_return(ccg_token)
+              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(false)
+
+              post itf_submit_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
+
+              expect(response.status).to eq(403)
             end
           end
         end

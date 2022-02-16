@@ -25,7 +25,7 @@ module LGY
       elsif get_determination.body['status'] == 'ELIGIBLE' && get_application.status == 200
         { status: 'available', application_create_date: get_application.body['create_date'] }
       elsif get_determination.body['status'] == 'NOT_ELIGIBLE'
-        { status: 'ineligible' }
+        { status: 'denied' }
       elsif get_determination.body['status'] == 'PENDING' && get_application.status == 404
         # Kelli said we'll never having a pending status w/o an application, but LGY sqa data is getting hand crafted
         { status: 'pending' }
@@ -60,6 +60,22 @@ module LGY
     rescue Common::Client::Errors::ClientError => e
       # if the Veteran is automatically approved, LGY will return a 404 (no application exists)
       return e if e.status == 404
+
+      raise e
+    end
+
+    def put_application(payload:)
+      with_monitoring do
+        perform(
+          :put,
+          "#{end_point}/application?edipi=#{@edipi}&icn=#{@icn}",
+          payload.to_json,
+          request_headers
+        )
+      end
+    rescue Common::Client::Errors::ClientError => e
+      # catch any unsuccessful put
+      return e if e.status != 200
 
       raise e
     end

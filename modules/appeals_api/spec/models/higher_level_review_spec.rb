@@ -9,9 +9,9 @@ describe AppealsApi::HigherLevelReview, type: :model do
   let(:higher_level_review) { default_higher_level_review }
   let(:default_higher_level_review) { create :higher_level_review, :status_received }
   let(:auth_headers) { default_auth_headers }
-  let(:default_auth_headers) { fixture_as_json 'valid_200996_headers.json' }
+  let(:default_auth_headers) { fixture_as_json 'valid_200996_headers.json', version: 'v1' }
   let(:form_data) { default_form_data }
-  let(:default_form_data) { fixture_as_json 'valid_200996.json' }
+  let(:default_form_data) { fixture_as_json 'valid_200996.json', version: 'v1' }
   let(:form_data_attributes) { form_data.dig('data', 'attributes') }
 
   describe '#first_name' do
@@ -341,8 +341,26 @@ describe AppealsApi::HigherLevelReview, type: :model do
     describe '#claimant' do
       subject { higher_level_review_v2.claimant }
 
-      it do
-        expect(subject.class).to eq AppealsApi::NonVeteranClaimant
+      it { expect(subject.class).to eq AppealsApi::Appellant }
+    end
+
+    describe '#veteran' do
+      subject { higher_level_review_v2.veteran }
+
+      it { expect(subject.class).to eq AppealsApi::Appellant }
+    end
+
+    describe '#signing_appellant' do
+      context 'when both veteran and claimant data present' do
+        subject { higher_level_review_v2.signing_appellant.send(:type) }
+
+        it { expect(subject).to eq :claimant }
+      end
+
+      context 'when only veteran data present' do
+        subject { higher_level_review.signing_appellant.send(:type) }
+
+        it { expect(subject).to eq :veteran }
       end
     end
   end

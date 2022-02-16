@@ -27,15 +27,26 @@ describe Mobile::V0::LighthouseHealth::Service do
         id: 'I2-A7XD2XUPAZQ5H4Y5D6HJ352GEQ000000',
         status: 'completed',
         vaccine_code: {
-          coding: [{ system: 'http://hl7.org/fhir/sid/cvx', code: '140' }],
-          text: 'Influenza  seasonal  injectable  preservative free'
+          coding: [
+            { system: 'http://hl7.org/fhir/sid/cvx', code: '140',
+              display: 'INFLUENZA, SEASONAL, INJECTABLE, PRESERVATIVE FREE' },
+            { system: 'http://hl7.org/fhir/sid/cvx', code: '88', display: 'VACCINE GROUP: FLU' }
+          ],
+          text: 'Influenza, seasonal, injectable, preservative free'
         },
         patient: {
-          reference: 'https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/9000682',
+          reference: 'https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845672V157064',
           display: 'Mr. Florentino8 Raynor401'
         },
         occurrence_date_time: '2009-03-19T12:24:55Z',
         primary_source: true,
+        dose_quantity:
+          {
+            value: 0.5,
+            unit: 'mL',
+            system: 'http://unitsofmeasure.org',
+            code: 'mL'
+          },
         note: [
           {
             text: 'Dose #45 of 101 of Influenza  seasonal  injectable  preservative free vaccine '\
@@ -91,7 +102,7 @@ describe Mobile::V0::LighthouseHealth::Service do
       end
 
       it 'returns multiple immunizations' do
-        expect(response[:total]).to eq(15)
+        expect(response[:total]).to eq(16)
       end
 
       it 'returns items as a FHIR Immunization' do

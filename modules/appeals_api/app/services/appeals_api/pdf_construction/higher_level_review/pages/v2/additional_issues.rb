@@ -17,7 +17,11 @@ module AppealsApi
               pdf.start_new_page
 
               unless short_veteran_email?
-                pdf.text "\n<b>Veteran Email:</b>\n#{form_data.veteran_email}\n", inline_format: true
+                pdf.text "\n<b>Veteran Email:</b>\n#{form_data.veteran.email}\n", inline_format: true
+              end
+
+              unless short_claimant_email?
+                pdf.text "\n<b>Claimant Email:</b>\n#{form_data.claimant.email}\n", inline_format: true
               end
 
               unless short_rep_email?
@@ -45,11 +49,15 @@ module AppealsApi
             end
 
             def all_emails_short?
-              short_veteran_email? && short_rep_email?
+              short_veteran_email? && short_claimant_email? && short_rep_email?
             end
 
             def short_veteran_email?
-              form_data.veteran_email.length <= short_email_length
+              form_data.veteran.email.length <= short_email_length
+            end
+
+            def short_claimant_email?
+              form_data.claimant.email.length <= short_email_length
             end
 
             def short_rep_email?

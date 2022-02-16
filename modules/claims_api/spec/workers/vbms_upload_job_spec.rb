@@ -82,12 +82,12 @@ RSpec.describe ClaimsApi::VBMSUploadJob, type: :job do
       end
     end
 
-    it "handles 'VBMS::FilenumberDoesNotExist' error" do
+    it "rescues 'VBMS::FilenumberDoesNotExist' error, updates record, and re-raises exception" do
       VCR.use_cassette('vbms/document_upload_success') do
         allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:fetch_upload_token)
           .and_raise(VBMS::FilenumberDoesNotExist.new(500, 'HelloWorld'))
 
-        subject.new.perform(power_of_attorney.id)
+        expect { subject.new.perform(power_of_attorney.id) }.to raise_error(VBMS::FilenumberDoesNotExist)
         power_of_attorney.reload
 
         expect(power_of_attorney.status).to eq('errored')

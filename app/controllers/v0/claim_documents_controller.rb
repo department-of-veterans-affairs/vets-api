@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'pension_burial/tag_sentry'
+require 'lgy/tag_sentry'
 
 module V0
   class ClaimDocumentsController < ApplicationController
@@ -25,6 +26,9 @@ module V0
         PersistentAttachments::PensionBurial
       when '21-686C', '686C-674'
         PersistentAttachments::DependencyClaim
+      when '26-1880'
+        LGY::TagSentry.tag_sentry
+        PersistentAttachments::LgyClaim
       end
     end
 

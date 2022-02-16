@@ -6,7 +6,7 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSubmissionsController, type: :request do
   include FixtureHelpers
   let(:supplemental_claim) { create(:supplemental_claim) }
-  let(:headers) { fixture_as_json 'valid_200995_headers.json' }
+  let(:headers) { fixture_as_json 'valid_200995_headers.json', version: 'v2' }
   let(:evidence_submissions) { create_list(:evidence_submission, 3, supportable: supplemental_claim) }
   let(:path) { '/services/appeals/v2/decision_reviews/supplemental_claims/evidence_submissions/' }
 

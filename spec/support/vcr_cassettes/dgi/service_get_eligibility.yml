@@ -1,0 +1,35 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://localhost:8070/vets-service/v1/claimant/1/effectiveDate/2021-02-09/eligibility
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer eyJraWQiOiJ2YW5vdGlmeSIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJpYXQiOjE2NDQ0MTYyMzksImV4cCI6MTY0NDQxNjUzOX0.U4jRWvmTurxBo_MbY0wQFYkZ5HSLLj9LPbcRFvc7xB3jv38YTyyNCHcppmC6d4_FzN_202GcrqBF7AwafRCdg0ZzPZAGvOF8-wqru1n5MKGozMNBZgaGiNwVsSRW9oev0_MzfqiCO4phmObVbFJzKq-6U8bcZRjkV0CHBmGto8O-cXgPQ1sQoEf5a6cLoplmjMf8gAg_bPZKMogowUPWGezrXZ51FtNjMwDTCTEQZ5p0t5E6H5XaVUYmiRV63_Yy3P1TejDmWnoYZChqDqMKw6iNflkb7eVj8XXS-38_jsjrfINAxpkP9nWEt5cyBjQrQZefDD-DEb8Url2QqCX8hw
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Wed, 09 Feb 2022 14:17:21 GMT
+    body:
+      encoding: UTF-8
+      string: '[{"veteranIsEligible":true,"chapter":"Chapter33"},{"veteranIsEligible":false,"chapter":"Chapter1606"},{"veteranIsEligible":false,"chapter":"Chapter30"}]'
+  recorded_at: Wed, 09 Feb 2022 14:17:21 GMT
+recorded_with: VCR 6.0.0
