@@ -2,7 +2,8 @@
 
 require 'rails_helper'
 
-RSpec.shared_examples 'paginated request from params with expected IDs' do |request_params, ids, mobile = nil|
+RSpec.shared_examples 'paginated request from params with expected IDs' do
+  |request_params, ids, distances = [], mobile = nil|
   let(:params) { request_params }
 
   let(:request_host) { 'http://www.example.com' }
@@ -16,6 +17,13 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do |requ
 
     it "is expected to contain ids: #{ids}" do
       expect(parsed_body['data'].collect { |x| x['id'] }).to match(ids)
+    end
+
+    if distances.any?
+      it 'each response is expected to have a distance' do
+        expected_array = ids.collect.with_index { |id, i| { id: id, distance: distances[i] } }
+        expect(parsed_body['data'].collect { |x| x['attributes'].slice(:id, :distance) }).to match(expected_array)
+      end
     end
 
     unless mobile.nil?
@@ -161,6 +169,10 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
                     %w[
                       vha_644BY vc_0524V vba_345g vba_345 vha_644QA
                       vc_0517V vha_644GG vha_644 vha_644QB vha_644GH
+                    ],
+                    [
+                      2.08, 7.68, 11.72, 18.3, 19.59,
+                      19.71, 20.31, 21.05, 21.06, 22.78
                     ]
 
     it_behaves_like 'paginated request from params with expected IDs',
@@ -172,6 +184,10 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
                     %w[
                       vha_644BY vc_0524V vba_345g vba_345 vha_644QA
                       vc_0517V vha_644GG vha_644 vha_644QB vha_644GH
+                    ],
+                    [
+                      2.08, 7.68, 11.72, 18.3, 19.59,
+                      19.71, 20.31, 21.05, 21.06, 22.78
                     ]
 
     it_behaves_like 'paginated request from params with expected IDs',
@@ -231,6 +247,7 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
                           vha_526QA vc_0857MVC vha_630QA vha_630QB vha_632QA
                           vha_632QB
                         ],
+                        [],
                         true
       end
 
@@ -245,6 +262,7 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
                           vha_630 vha_630GA vc_0133V vha_526GD vc_0106V
                           vc_0105V vha_561GE vc_0102V vc_0110V vha_526
                         ],
+                        [],
                         false
       end
     end
@@ -354,6 +372,7 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
               },
               classification: 'VA Medical Center (VAMC)',
               detailedServices: nil,
+              distance: nil,
               facilityType: 'va_health_facility',
               feedback: {
                 health: {

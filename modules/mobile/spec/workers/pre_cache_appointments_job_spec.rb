@@ -64,7 +64,14 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
                         time_zone: 'America/New_York',
                         vetext_id: nil,
                         reason: nil,
-                        is_covid_vaccine: false })
+                        is_covid_vaccine: false,
+                        is_pending: false,
+                        proposed_times: nil,
+                        type_of_care: nil,
+                        patient_phone_number: nil,
+                        patient_email: nil,
+                        best_time_to_call: nil,
+                        friendly_location_name: nil })
             end
           end
         end

@@ -13,7 +13,6 @@ module ClaimsApi
           lighthouse_claims = ClaimsApi::AutoEstablishedClaim.where(veteran_icn: target_veteran.mpi.icn)
 
           render json: [] && return unless bgs_claims || lighthouse_claims
-
           mapped_claims = map_claims(bgs_claims: bgs_claims, lighthouse_claims: lighthouse_claims)
 
           blueprint_options = { base_url: request.base_url, veteran_id: params[:veteranId], view: :list }
@@ -70,6 +69,8 @@ module ClaimsApi
         end
 
         def find_bgs_claim_in_lighthouse_collection(lighthouse_collection:, bgs_claim:)
+          # EVSS and BGS use the same ID to refer to a claim, hence the following
+          # search condition to see if we've stored the same claim in vets-api
           lighthouse_collection.find { |lighthouse_claim| lighthouse_claim.evss_id == bgs_claim[:benefit_claim_id] }
         end
 
@@ -88,8 +89,8 @@ module ClaimsApi
             benefit_claim_id: claim_id
           )
         rescue Savon::SOAPFault => e
-          # the ebenefits service raises an exception if a claim is not found
-          #  so catch the exception here and return a 404 instead
+          # the ebenefits service raises an exception if a claim is not found,
+          # so catch the exception here and return a 404 instead
           if e.message.include?("No BnftClaim found for #{claim_id}")
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
           end
@@ -101,14 +102,22 @@ module ClaimsApi
           claim_id.to_s.include?('-')
         end
 
-        # the 'ebenfits' services used in the 'index' and 'show' actions return differing data structures
+        # the 'ebenefits' services used in the 'index' and 'show' actions return differing data structures
         #  massage the 'show' data structure to be in a state that the BGSToLighthouseClaimsMapperService can use
         def massage_bgs_claim(bgs_claim:)
+          claim_details = bgs_claim[:benefit_claim_details_dto]
           {
-            benefit_claim_id: bgs_claim[:benefit_claim_details_dto][:benefit_claim_id],
-            claim_status_type: bgs_claim[:benefit_claim_details_dto][:claim_status_type],
-            phase_type: bgs_claim[:benefit_claim_details_dto][:bnft_claim_lc_status][:phase_type],
-            end_product_code: bgs_claim[:benefit_claim_details_dto][:end_prdct_type_cd]
+            benefit_claim_id: claim_details[:benefit_claim_id],
+            attention_needed: claim_details[:attention_needed],
+            claim_dt: claim_details[:claim_dt],
+            claim_status_type: claim_details[:claim_status_type],
+            contentions: claim_details[:contentions]&.split(','),
+            va_representative: claim_details[:poa]&.titleize,
+            phase_type: claim_details[:bnft_claim_lc_status][:phase_type],
+            end_product_code: claim_details[:end_prdct_type_cd],
+            filed5103_waiver_ind: claim_details[:filed5103_waiver_ind],
+            development_letter_sent: claim_details[:development_letter_sent],
+            decision_notification_sent: claim_details[:decision_notification_sent]
           }
         end
       end

@@ -21,7 +21,8 @@ module Mobile
           page_number: params.dig(:page, :number),
           page_size: params.dig(:page, :size),
           use_cache: use_cache,
-          reverse_sort: reverse_sort
+          reverse_sort: reverse_sort,
+          included: params[:included]
         )
 
         raise Mobile::V0::Exceptions::ValidationErrors, validated_params if validated_params.failure?
@@ -78,13 +79,16 @@ module Mobile
           Rails.logger.info('mobile appointments service fetch', user_uuid: @current_user.uuid)
         end
 
+        appointments.filter! { |appt| appt.is_pending == false } unless validated_params[:included]&.include?('pending')
         appointments.reverse! if validated_params[:reverse_sort]
         appointments
       end
 
       def paginate(appointments, validated_params)
         appointments = appointments.filter do |appointment|
-          appointment.start_date_utc.between? validated_params[:start_date], validated_params[:end_date]
+          appointment.start_date_utc.between?(
+            validated_params[:start_date], validated_params[:end_date]
+          )
         end
         url = request.base_url + request.path
         Mobile::PaginationHelper.paginate(list: appointments, validated_params: validated_params, url: url)
