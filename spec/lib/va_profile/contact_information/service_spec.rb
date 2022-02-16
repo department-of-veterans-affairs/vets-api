@@ -32,6 +32,14 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
           expect(response.person.addresses[0].province).to eq('province')
         end
       end
+
+      it 'has a bad address' do
+        VCR.use_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+          response = subject.get_person
+
+          expect(response.person.addresses[0].bad_address).to eq(true)
+        end
+      end
     end
 
     context 'when not successful' do

@@ -5,6 +5,8 @@ require_relative 'base_address'
 module VAProfile
   module Models
     class Address < BaseAddress
+      attribute :bad_address, Boolean
+
       validates(:source_date, presence: true)
 
       # Converts a decoded JSON response from VAProfile to an instance of the Address model
@@ -62,6 +64,7 @@ module VAProfile
           address_line3: body['address_line3'],
           address_pou: body['address_pou'],
           address_type: body['address_type'].upcase,
+          bad_address: body['bad_address'],
           city: body['city_name'],
           country_name: body['country_name'],
           country_code_iso2: body['country_code_iso2'],

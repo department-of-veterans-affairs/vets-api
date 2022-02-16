@@ -27,4 +27,22 @@ RSpec.describe V0::UsersController, type: :controller do
       expect(json['attributes']['profile']['email']).to eq(user.email)
     end
   end
+
+  context 'when logged in as a vet360 user' do
+    let(:user) { build(:vets360_user) }
+
+    before do
+      sign_in_as(user)
+    end
+
+    it 'returns a JSON user profile with a bad_address' do
+      get :show
+      json = json_body_for(response)
+
+      mailing_address = json.dig('attributes', 'vet360_contact_information', 'mailing_address')
+
+      expect(response).to be_successful
+      expect(mailing_address.key?('bad_address')).to be(true)
+    end
+  end
 end
