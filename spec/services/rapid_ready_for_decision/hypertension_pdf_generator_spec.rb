@@ -41,7 +41,7 @@ RSpec.describe RapidReadyForDecision::HypertensionPdfGenerator, :vcr do
     end
 
     it 'includes the veterans blood pressure readings' do
-      expect(subject).to include 'Blood pressure: 115.0/87.0 mm[Hg]'
+      expect(subject).to include 'Blood pressure: 115/87'
     end
 
     it 'includes the veterans medications' do
