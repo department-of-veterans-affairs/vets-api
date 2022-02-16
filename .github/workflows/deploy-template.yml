@@ -81,7 +81,7 @@ jobs:
           envs=( ${{ needs.prepare-values.outputs.environments }} )
           for env in ${envs[*]};
           do
-            yq e -i '.spec.template.spec.containers.[0].image = "008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/${{inputs.ecr_repository}}:${{inputs.ecr_repository}}"' $env/deployment.yaml
+            yq e -i '.spec.template.spec.containers.[0].image = "008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/${{inputs.ecr_repository}}:${{ github.sha }}"' $env/deployment.yaml
             yq e -i '.spec.template.spec.containers[0].env[0].GIT_REVISION.value = "${{ github.sha }}"' $env/deployment.yaml
           done
           git diff
