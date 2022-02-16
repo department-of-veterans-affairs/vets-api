@@ -24,7 +24,7 @@ jobs:
     outputs:
       environments: ${{ steps.set-environments.outputs.environments }}
     steps:
-      - name: Set to auto deploy environments on push to master
+      - name: Set to auto deploy environments on push to k8s
         run: |
          echo "triggered via schedule"
          echo "environments=${{inputs.auto_deploy_envs}}" >> $GITHUB_ENV
@@ -34,7 +34,7 @@ jobs:
           echo "::set-output name=environments::${{ env.environments }}"
   release:
     needs: [prepare-values]
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/k8s'
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2

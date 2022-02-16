@@ -1,10 +1,9 @@
 name: Release and Update Manifests
 
 on:
-  # only allow this to happen manually right now?
-  # push:
-  #   branches:
-  #     - master
+  push:
+    branches:
+      - k8s
   workflow_dispatch:
 
 jobs:
