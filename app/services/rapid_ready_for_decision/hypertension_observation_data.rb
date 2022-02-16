@@ -17,6 +17,7 @@ module RapidReadyForDecision
 
     private
 
+    # filter to include only readings from the last year
     def filtered_entries(bp_readings)
       return [] if bp_readings.empty?
 
@@ -30,12 +31,13 @@ module RapidReadyForDecision
     end
 
     def transform_entry(raw_entry)
-      entry = raw_entry['resource'].slice('issued', 'component', 'performer')
+      entry = raw_entry['resource'].slice('issued', 'component', 'performer', 'effectiveDateTime')
       practitioner_hash = get_display_hash_from_performer('Practitioner', entry)
       organization_hash = get_display_hash_from_performer('Organization', entry)
       bp_hash = get_bp_readings_from_entry(entry)
 
-      { issued: entry['issued'] }.merge(practitioner_hash, organization_hash, bp_hash)
+      { issued: entry['issued'], effectiveDateTime: entry['effectiveDateTime'] }.merge(practitioner_hash,
+                                                                                       organization_hash, bp_hash)
     end
 
     def get_display_hash_from_performer(term, entry)
