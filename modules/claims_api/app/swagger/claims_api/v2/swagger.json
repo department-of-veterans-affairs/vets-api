@@ -431,6 +431,11 @@
                       "type": "GET",
                       "url": "http://www.example.com/services/benefits/v2/veterans/1013062086V794840/claims/555555555"
                     },
+                    "date_filed": "05/02/17",
+                    "decision_letter_sent": false,
+                    "development_letter_sent": false,
+                    "documents_needed": false,
+                    "requested_decision": null,
                     "status": "Complete",
                     "type": "Compensation"
                   }
@@ -439,12 +444,6 @@
                   "$schema": "http://json-schema.org/draft-04/schema#",
                   "type": "array",
                   "items": {
-                    "required": [
-                      "id",
-                      "type",
-                      "status",
-                      "@links"
-                    ],
                     "additionalProperties": false,
                     "description": "Claim details.",
                     "properties": {
@@ -462,6 +461,35 @@
                         "type": "string",
                         "description": "Status of Claim",
                         "example": "Complete"
+                      },
+                      "date_filed": {
+                        "type": "string",
+                        "format": "date",
+                        "description": "Date in YYYY-MM-DD the claim was first filed",
+                        "example": "2018-06-04"
+                      },
+                      "documents_needed": {
+                        "type": "boolean",
+                        "description": "Does the claim require additional documents to be submitted",
+                        "example": "false"
+                      },
+                      "requested_decision": {
+                        "type": [
+                          "boolean",
+                          "null"
+                        ],
+                        "description": "The claim filer has requested a claim decision be made",
+                        "example": "false"
+                      },
+                      "development_letter_sent": {
+                        "type": "boolean",
+                        "description": "Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim",
+                        "example": "false"
+                      },
+                      "decision_letter_sent": {
+                        "type": "boolean",
+                        "description": "Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim",
+                        "example": "false"
                       },
                       "@links": {
                         "type": "object",
@@ -668,40 +696,38 @@
                     "type": "GET",
                     "url": "http://www.example.com/services/benefits/v2/veterans/1013062086V794840/claims/555555555"
                   },
+                  "contentionList": [
+                    "abnormal heart (New)",
+                    " abscess kidney (New)",
+                    " encephalitis lethargica residuals (New)",
+                    " dracunculiasis (New)",
+                    " gingivitis (New)",
+                    " abnormal weight loss (New)",
+                    " groin condition (New)",
+                    " metritis (New)"
+                  ],
+                  "dateFiled": "05/02/17",
+                  "decisionLetterSent": false,
+                  "developmentLetterSent": false,
+                  "documentsNeeded": false,
                   "endProductCode": "404",
+                  "requestedDecision": null,
                   "status": "Complete",
-                  "type": "Compensation"
+                  "supportingDocuments": [
+
+                  ],
+                  "type": "Compensation",
+                  "vaRepresentative": "Random E Person"
                 },
                 "schema": {
                   "$schema": "http://json-schema.org/draft-04/schema#",
                   "type": "object",
                   "additionalProperties": false,
-                  "required": [
-                    "id",
-                    "type",
-                    "status",
-                    "@links"
-                  ],
                   "properties": {
                     "id": {
                       "type": "string",
                       "description": "Claim ID",
                       "example": "600131328"
-                    },
-                    "type": {
-                      "type": "string",
-                      "description": "Name of Claim type",
-                      "example": "Appeals Control"
-                    },
-                    "status": {
-                      "type": "string",
-                      "description": "Status of Claim",
-                      "example": "Complete"
-                    },
-                    "endProductCode": {
-                      "type": "string",
-                      "description": "End Product Code of Claim",
-                      "example": "930"
                     },
                     "@links": {
                       "type": "object",
@@ -711,6 +737,81 @@
                         "type": "GET",
                         "url": "https://api.va.gov/services/claims/v2/claims/600131328"
                       }
+                    },
+                    "contentionList": {
+                      "type": "array",
+                      "description": "The contentions being submitted with a claim",
+                      "example": [
+                        "abnormal heart (New)",
+                        "abscess kidney (New)"
+                      ]
+                    },
+                    "dateFiled": {
+                      "type": "string",
+                      "description": "The date a claim was filed",
+                      "example": "5/17/20"
+                    },
+                    "decisionLetterSent": {
+                      "type": "boolean",
+                      "description": "Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim"
+                    },
+                    "developmentLetterSent": {
+                      "type": "boolean",
+                      "description": "Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim"
+                    },
+                    "documentsNeeded": {
+                      "type": "boolean",
+                      "description": "Indicates whether the claim requires additional documents to be submitted"
+                    },
+                    "endProductCode": {
+                      "type": "string",
+                      "description": "End product code of claim",
+                      "example": "930"
+                    },
+                    "requestedDecision": {
+                      "type": "boolean",
+                      "nullable": true,
+                      "description": "Indicates if a decision has been requested and/or if a Waiver 5103 has been submitted"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Status of claim",
+                      "example": "Complete"
+                    },
+                    "supportingDocuments": {
+                      "type": "array",
+                      "description": "Information regarding any supported documents attached to a claim",
+                      "items": {
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "description": "Unique identifier of document"
+                          },
+                          "md5": {
+                            "type": "string",
+                            "description": "Hashed representation of document"
+                          },
+                          "filename": {
+                            "type": "string",
+                            "description": "Name of document"
+                          },
+                          "uploaded_at": {
+                            "type": "string",
+                            "format": "date",
+                            "description": "Date and time document was uploaded"
+                          }
+                        }
+                      }
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Name of claim type",
+                      "example": "Appeals Control"
+                    },
+                    "vaRepresentative": {
+                      "type": "string",
+                      "description": "The current organization or individual representing the Veteran on a claim",
+                      "example": "American Legion"
                     }
                   }
                 }
@@ -1257,8 +1358,8 @@
               "application/json": {
                 "example": {
                   "id": "1",
-                  "creationDate": "2022-01-27",
-                  "expirationDate": "2023-01-27",
+                  "creationDate": "2022-02-15",
+                  "expirationDate": "2023-02-15",
                   "status": "active",
                   "type": "compensation"
                 },

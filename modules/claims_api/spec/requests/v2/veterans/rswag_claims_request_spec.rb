@@ -188,9 +188,7 @@ describe 'Claims', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v2/sw
           end
 
           it 'returns a valid 200 response' do |example|
-            skip 'need to update claim by id to map results similar to get all claims' do
-              assert_response_matches_metadata(example.metadata)
-            end
+            assert_response_matches_metadata(example.metadata)
           end
         end
       end

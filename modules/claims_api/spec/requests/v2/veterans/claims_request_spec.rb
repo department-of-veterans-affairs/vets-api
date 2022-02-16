@@ -151,7 +151,7 @@ RSpec.describe 'Claims', type: :request do
                       claim_status_type: 'Compensation',
                       claim_dt: '2017-05-02',
                       phase_type: 'Pending',
-                      attention_needed: true,
+                      attention_needed: 'Yes',
                       filed5103_waiver_ind: 'Y',
                       development_letter_sent: 'Yes',
                       decision_notification_sent: 'No'
@@ -188,7 +188,7 @@ RSpec.describe 'Claims', type: :request do
                 expect(claim['id']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
                 expect(claim['type']).to eq('Compensation')
                 expect(claim['status']).to eq('Pending')
-                expect(claim['date_filed']).to eq('2017-05-02')
+                expect(claim['date_filed']).to eq('05/02/17')
                 expect(claim['documents_needed']).to eq(true)
                 expect(claim['requested_decision']).to eq(true)
                 expect(claim['development_letter_sent']).to eq(true)

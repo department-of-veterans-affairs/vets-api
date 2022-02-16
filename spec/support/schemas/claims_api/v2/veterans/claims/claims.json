@@ -2,7 +2,6 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "array",
   "items": {
-    "required": ["id", "type", "status", "@links"],
     "additionalProperties": false,
     "description": "Claim details.",
     "properties": {

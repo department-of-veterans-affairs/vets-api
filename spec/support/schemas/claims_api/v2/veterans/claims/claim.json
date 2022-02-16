@@ -2,27 +2,11 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "additionalProperties": false,
-  "required": ["id", "type", "status", "@links"],
   "properties": {
     "id": {
       "type": "string",
       "description": "Claim ID",
       "example": "600131328"
-    },
-    "type": {
-      "type": "string",
-      "description": "Name of Claim type",
-      "example": "Appeals Control"
-    },
-    "status": {
-      "type": "string",
-      "description": "Status of Claim",
-      "example": "Complete"
-    },
-    "endProductCode": {
-      "type": "string",
-      "description": "End Product Code of Claim",
-      "example": "930"
     },
     "@links": {
       "type": "object",
@@ -32,6 +16,78 @@
         "type": "GET",
         "url": "https://api.va.gov/services/claims/v2/claims/600131328"
       }
+    },
+    "contentionList": {
+      "type": "array",
+      "description": "The contentions being submitted with a claim",
+      "example": ["abnormal heart (New)", "abscess kidney (New)"]
+    },
+    "dateFiled": {
+      "type": "string",
+      "description": "The date a claim was filed",
+      "example": "5/17/20"
+    },
+    "decisionLetterSent": {
+      "type": "boolean",
+      "description": "Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim"
+    },
+    "developmentLetterSent": {
+      "type": "boolean",
+      "description": "Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim"
+    },
+    "documentsNeeded": {
+      "type": "boolean",
+      "description": "Indicates whether the claim requires additional documents to be submitted"
+    },
+    "endProductCode": {
+      "type": "string",
+      "description": "End product code of claim",
+      "example": "930"
+    },
+    "requestedDecision": {
+      "type": "boolean",
+      "nullable": true,
+      "description": "Indicates if a decision has been requested and/or if a Waiver 5103 has been submitted"
+    },
+    "status": {
+      "type": "string",
+      "description": "Status of claim",
+      "example": "Complete"
+    },
+    "supportingDocuments": {
+      "type": "array",
+      "description": "Information regarding any supported documents attached to a claim",
+      "items": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of document"
+          },
+          "md5": {
+            "type": "string",
+            "description": "Hashed representation of document"
+          },
+          "filename": {
+            "type": "string",
+            "description": "Name of document"
+          },
+          "uploaded_at": {
+            "type": "string",
+            "format": "date",
+            "description": "Date and time document was uploaded"
+          }
+        }
+      }
+    },
+    "type": {
+      "type": "string",
+      "description": "Name of claim type",
+      "example": "Appeals Control"
+    },
+    "vaRepresentative": {
+      "type": "string",
+      "description": "The current organization or individual representing the Veteran on a claim",
+      "example": "American Legion"
     }
   }
 }
