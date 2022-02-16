@@ -54,6 +54,7 @@ module Swagger
                            type: :string,
                            enum: ::VAProfile::Models::Address::ADDRESS_TYPES,
                            example: ::VAProfile::Models::Address::DOMESTIC
+                  property :bad_address, type: :boolean
                   property :city, type: :string, example: 'Fulton'
                   property :country_code_iso3, type: %i[string], example: 'USA'
                   property :country_code_fips, type: %i[string null], example: 'US'
@@ -103,6 +104,7 @@ module Swagger
                            type: :string,
                            enum: ::VAProfile::Models::Address::ADDRESS_TYPES,
                            example: ::VAProfile::Models::Address::DOMESTIC
+                  property :bad_address, type: :boolean
                   property :city, type: :string, example: 'Fulton'
                   property :country_code_iso3, type: %i[string], example: 'USA'
                   property :country_code_fips, type: %i[string null], example: 'US'

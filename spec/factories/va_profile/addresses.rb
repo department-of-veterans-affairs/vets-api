@@ -5,6 +5,7 @@ FactoryBot.define do
     address_line1 { '140 Rock Creek Rd' }
     address_pou { VAProfile::Models::Address::RESIDENCE }
     address_type { VAProfile::Models::Address::DOMESTIC }
+    bad_address { true }
     city { 'Washington' }
     country_name { 'USA' }
     country_code_iso3 { 'USA' }
