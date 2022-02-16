@@ -19,30 +19,26 @@ module Mobile
         #
         # @return Hash two lists of appointments, va and cc (community care)
         #
-        def get_appointments(start_date, end_date)
+
+        def fetch_va_appointments(start_date, end_date)
+          get(va_url, start_date, end_date)
+        end
+
+        def fetch_cc_appointments(start_date, end_date)
+          get(cc_url, start_date, end_date)
+        end
+
+        private
+
+        def get(url, start_date, end_date)
           params = {
             startDate: start_date.utc.iso8601,
             endDate: end_date.utc.iso8601,
             pageSize: 0,
             useCache: false
           }
-
-          responses = { cc: nil, va: nil }
-          errors = { cc: nil, va: nil }
-
-          config.parallel_connection.in_parallel do
-            responses[:cc], errors[:cc] = parallel_get(cc_url, params)
-            responses[:va], errors[:va] = parallel_get(va_url, params)
-          end
-
-          [responses, errors]
-        end
-
-        private
-
-        def parallel_get(url, params)
-          response = config.parallel_connection.get(url, params, headers)
-          [response, nil]
+          response = config.connection.get(url, params, headers)
+          { response: response, error: nil }
         rescue VAOS::Exceptions::BackendServiceException => e
           vaos_error(e, url)
         rescue => e
@@ -79,7 +75,7 @@ module Mobile
             detail: e.message
           }
 
-          [nil, error]
+          { response: nil, error: error }
         end
 
         def vaos_error(e, url)
@@ -94,7 +90,7 @@ module Mobile
             detail: e.response_values[:detail]
           }
 
-          [nil, error]
+          { response: nil, error: error }
         end
 
         def log_clinic_details(action, clinic_id, site_code)

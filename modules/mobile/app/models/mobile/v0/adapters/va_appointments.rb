@@ -65,25 +65,18 @@ module Mobile
         # @return Hash the adapted list
         #
         def parse(appointments)
-          facilities = Set.new
           appointments_list = appointments.dig(:data, :appointment_list)
-          return [nil, nil] if appointments_list.size.zero?
+          return nil if appointments_list.size.zero?
 
-          appointments = appointments_list.map do |appointment_hash|
-            build_appointment_model(appointment_hash, facilities)
+          appointments_list.map do |appointment_hash|
+            build_appointment_model(appointment_hash)
           end
-
-          facilities.each do |facility_id|
-            Rails.logger.info('metric.mobile.appointment.facility', facility_id: facility_id)
-          end
-
-          [appointments, facilities]
         end
 
         private
 
         # rubocop:disable Metrics/MethodLength
-        def build_appointment_model(appointment_hash, facilities)
+        def build_appointment_model(appointment_hash)
           facility_id = Mobile::V0::Appointment.toggle_non_prod_id!(
             appointment_hash[:facility_id]
           )
@@ -126,15 +119,19 @@ module Mobile
             time_zone: time_zone,
             vetext_id: vetext_id(appointment_hash, start_date_local),
             reason: details[:booking_note],
-            is_covid_vaccine: covid_vaccine?(appointment_hash)
+            is_covid_vaccine: covid_vaccine?(appointment_hash),
+            is_pending: false,
+            proposed_times: nil,
+            type_of_care: nil,
+            patient_phone_number: nil,
+            patient_email: nil,
+            best_time_to_call: nil,
+            friendly_location_name: nil
           }
 
           Rails.logger.info('metric.mobile.appointment.type', type: type)
 
-          model = Mobile::V0::Appointment.new(adapted_hash)
-          facilities.add(model.id_for_address)
-
-          model
+          Mobile::V0::Appointment.new(adapted_hash)
         end
         # rubocop:enable Metrics/MethodLength
 

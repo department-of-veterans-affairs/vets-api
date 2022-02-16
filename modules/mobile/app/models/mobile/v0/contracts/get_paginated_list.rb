@@ -12,6 +12,7 @@ module Mobile
           optional(:use_cache).maybe(:bool, :filled?)
           optional(:reverse_sort).maybe(:bool, :filled?)
           optional(:show_completed).maybe(:bool, :filled?)
+          optional(:included).maybe(:array, :filled?)
         end
       end
     end

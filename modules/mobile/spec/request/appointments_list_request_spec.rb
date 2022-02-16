@@ -102,7 +102,7 @@ RSpec.describe 'appointments', type: :request do
         cc_json = File.read(cc_path)
         va_appointments = Mobile::V0::Adapters::VAAppointments.new.parse(
           JSON.parse(va_json, symbolize_names: true)
-        )[0]
+        )
         cc_appointments = Mobile::V0::Adapters::CommunityCareAppointments.new.parse(
           JSON.parse(cc_json, symbolize_names: true)
         )
@@ -125,7 +125,7 @@ RSpec.describe 'appointments', type: :request do
 
           before { get '/mobile/v0/appointments', headers: iam_headers, params: params }
 
-          it 'has 10 items' do
+          it 'has 5 items' do
             expect(response.parsed_body['data'].size).to eq(5)
           end
 
@@ -329,7 +329,15 @@ RSpec.describe 'appointments', type: :request do
                 'timeZone' => 'America/Denver',
                 'vetextId' => '308;20201103.090000',
                 'reason' => nil,
-                'isCovidVaccine' => false
+                'isCovidVaccine' => false,
+                'isPending' => false,
+                'proposedTimes' => nil,
+                'typeOfCare' => nil,
+                'patientPhoneNumber' => nil,
+                'patientEmail' => nil,
+                'bestTimeToCall' => nil,
+                'friendlyLocationName' => nil
+
               }
             }
           )
@@ -378,7 +386,14 @@ RSpec.describe 'appointments', type: :request do
                 'timeZone' => 'America/New_York',
                 'vetextId' => nil,
                 'reason' => nil,
-                'isCovidVaccine' => false
+                'isCovidVaccine' => false,
+                'isPending' => false,
+                'proposedTimes' => nil,
+                'typeOfCare' => nil,
+                'patientPhoneNumber' => nil,
+                'patientEmail' => nil,
+                'bestTimeToCall' => nil,
+                'friendlyLocationName' => nil
               }
             }
           )
@@ -456,7 +471,14 @@ RSpec.describe 'appointments', type: :request do
                 'timeZone' => 'America/Denver',
                 'vetextId' => '308;20201103.090000',
                 'reason' => nil,
-                'isCovidVaccine' => false
+                'isCovidVaccine' => false,
+                'isPending' => false,
+                'proposedTimes' => nil,
+                'typeOfCare' => nil,
+                'patientPhoneNumber' => nil,
+                'patientEmail' => nil,
+                'bestTimeToCall' => nil,
+                'friendlyLocationName' => nil
               }
             }
           )
@@ -505,7 +527,14 @@ RSpec.describe 'appointments', type: :request do
                 'timeZone' => 'America/New_York',
                 'vetextId' => nil,
                 'reason' => nil,
-                'isCovidVaccine' => false
+                'isCovidVaccine' => false,
+                'isPending' => false,
+                'proposedTimes' => nil,
+                'typeOfCare' => nil,
+                'patientPhoneNumber' => nil,
+                'patientEmail' => nil,
+                'bestTimeToCall' => nil,
+                'friendlyLocationName' => nil
               }
             }
           )
