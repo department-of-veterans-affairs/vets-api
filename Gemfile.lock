@@ -672,7 +672,7 @@ GEM
       nio4r (~> 2.0)
     puma-plugin-statsd (2.1.0)
       puma (>= 5.0, < 6)
-    pundit (2.1.1)
+    pundit (2.2.0)
       activesupport (>= 3.0.0)
     raabro (1.4.0)
     racc (1.6.0)

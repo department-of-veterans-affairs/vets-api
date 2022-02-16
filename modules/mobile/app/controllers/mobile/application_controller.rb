@@ -4,7 +4,7 @@ module Mobile
   class ApplicationController < ActionController::API
     include ExceptionHandling
     include Headers
-    include Pundit
+    include Pundit::Authorization
     include SentryLogging
     include SentryControllerLogging
 
