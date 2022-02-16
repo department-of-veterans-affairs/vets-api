@@ -21,6 +21,7 @@ module FacilitiesApi
         end
       end
     end
+    attribute :distance
     attribute :facility_type
     attribute :feedback do |obj|
       obj.feedback&.deep_stringify_keys&.deep_transform_keys { |key| key.camelize(:lower) }
