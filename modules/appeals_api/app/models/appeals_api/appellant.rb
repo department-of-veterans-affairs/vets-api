@@ -96,62 +96,12 @@ module AppealsApi
       AppealsApi::HigherLevelReview::Phone.new phone_data
     end
 
-    def phone_string
-      phone_formatted.to_s
-    end
-
-    def area_code
-      phone_data&.dig('areaCode')
-    end
-
-    def phone_prefix
-      phone_data&.dig('phoneNumber')&.first(3)
-    end
-
-    def phone_line_number
-      phone_data&.dig('phoneNumber')&.last(4)
-    end
-
-    def phone_ext
-      ext = phone_data&.dig('phoneNumberExt')
-
-      "x#{ext}" if ext.present?
-    end
-
-    def international_number
-      return if domestic_phone?
-
-      phone_string
-    end
-
     def phone_country_code
       phone_data&.dig('countryCode')
     end
 
-    def ssn_first_three
-      ssn&.first(3)
-    end
-
-    def ssn_second_two
-      ssn&.slice(3..4)
-    end
-
-    def ssn_last_four
-      ssn&.last(4)
-    end
-
     def timezone
       form_data&.dig('timezone').presence&.strip
-    end
-
-    def submission_email_identifier
-      return if claimant?
-
-      return { id_type: 'email', id_value: email } if email.present?
-
-      icn = mpi_veteran.mpi_icn
-
-      return { id_type: 'ICN', id_value: icn } if icn.present?
     end
 
     def signing_appellant?
@@ -167,6 +117,10 @@ module AppealsApi
 
     def claimant?
       type == :claimant
+    end
+
+    def domestic_phone?
+      phone_country_code == '1'
     end
 
     private
@@ -190,11 +144,6 @@ module AppealsApi
         [address['addressLine1'],
          address['addressLine2'],
          address['addressLine3']].compact.map(&:strip).join(' ')
-    end
-
-    def domestic_phone?
-      # TODO: revisit - in what ways are we differentiating between our handling of international vs domestic
-      phone_country_code == '1'
     end
 
     def address
