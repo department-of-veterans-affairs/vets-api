@@ -466,7 +466,7 @@ GEM
       faraday (>= 0.17.3, < 2.0)
     google-cloud-errors (1.2.0)
     google-protobuf (3.19.4)
-    googleauth (1.1.0)
+    googleauth (1.1.1)
       faraday (>= 0.17.3, < 2.0)
       jwt (>= 1.4, < 3.0)
       memoist (~> 0.16)
