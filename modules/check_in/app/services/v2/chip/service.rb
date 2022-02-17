@@ -101,6 +101,24 @@ module V2
         response.build(response: resp).handle
       end
 
+      # Call the CHIP API to set pre check-in started status. This status is set to indicate
+      # that the pre check-in process was started.
+      #
+      # A CHIP token is required and if it is either not present in Redis or cannot
+      # be retrieved from CHIP, an unauthorized message is returned.
+      #
+      # @see https://github.com/department-of-veterans-affairs/chip CHIP API details
+      #
+      # @return [Faraday::Response] response from CHIP
+      # @return [Faraday::Response] unauthorized message if token is not present
+      def set_precheckin_started
+        if token.present?
+          chip_client.set_precheckin_started(token: token)
+        else
+          Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
+        end
+      end
+
       # Get the CHIP token. If the token does not already exist in Redis, a call is made to CHIP token
       # endpoint to retrieve it.
       #

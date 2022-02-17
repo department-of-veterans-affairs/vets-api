@@ -125,4 +125,24 @@ describe V2::Chip::Client do
       expect(subject.pre_check_in(token: token, demographic_confirmations: demographic_confirmations)).to eq(response)
     end
   end
+
+  describe '#set_precheckin_started' do
+    let(:response) { Faraday::Response.new(body: { 'uuid' => uuid }.to_json, status: 200) }
+    let(:token) { 'abc123' }
+
+    before do
+      allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(response)
+    end
+
+    it 'yields to block' do
+      expect_any_instance_of(Faraday::Connection).to receive(:post)
+        .with("/dev/actions/set-precheckin-started/#{uuid}").and_yield(Faraday::Request.new)
+
+      subject.set_precheckin_started(token: token)
+    end
+
+    it 'returns success response' do
+      expect(subject.set_precheckin_started(token: token)).to eq(response)
+    end
+  end
 end
