@@ -7,7 +7,9 @@ class SavedClaim::CoeClaim < SavedClaim
 
   FORM = '26-1880'
 
-  def send_to_lgy
+  def send_to_lgy(edipi:, icn:)
+    @edipi = edipi
+    @icn = icn
     lgy_service.put_application(payload: prepare_form_data)
     log_message_to_sentry(
       "COE claim submitted to LGY: #{guid}",
@@ -59,7 +61,7 @@ class SavedClaim::CoeClaim < SavedClaim
   # rubocop:enable Metrics/MethodLength
 
   def lgy_service
-    @lgy_service ||= LGY::Service.new(edipi: @current_user.edipi, icn: @current_user.icn)
+    @lgy_service ||= LGY::Service.new(edipi: @edipi, icn: @icn)
   end
 
   # rubocop:disable Metrics/MethodLength
