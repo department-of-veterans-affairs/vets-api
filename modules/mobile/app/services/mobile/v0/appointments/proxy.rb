@@ -59,8 +59,10 @@ module Mobile
           va_appointments = va_appointments_adapter.parse(va_response[:response].body)
           cc_appointments = cc_appointments_adapter.parse(cc_response[:response].body)
 
-          facilities = fetch_facilities(va_appointments)
-          va_appointments = backfill_appointments_with_facilities(va_appointments, facilities)
+          if va_appointments.any?
+            facilities = fetch_facilities(va_appointments)
+            va_appointments = backfill_appointments_with_facilities(va_appointments, facilities)
+          end
 
           # There's currently a bug in the underlying Community Care service
           # where date ranges are not being respected
