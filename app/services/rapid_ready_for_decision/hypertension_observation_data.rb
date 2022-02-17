@@ -22,22 +22,22 @@ module RapidReadyForDecision
       return [] if bp_readings.empty?
 
       bp_readings = bp_readings.filter do |reading|
-        reading[:issued].to_date > 1.year.ago
+        reading[:effectiveDateTime].to_date > 1.year.ago
       end
 
       bp_readings.sort_by do |reading|
-        reading[:issued].to_datetime
+        reading[:effectiveDateTime].to_datetime
       end.reverse!
     end
 
     def transform_entry(raw_entry)
-      entry = raw_entry['resource'].slice('issued', 'component', 'performer', 'effectiveDateTime')
+      entry = raw_entry['resource'].slice('effectiveDateTime', 'component', 'performer')
       practitioner_hash = get_display_hash_from_performer('Practitioner', entry)
       organization_hash = get_display_hash_from_performer('Organization', entry)
       bp_hash = get_bp_readings_from_entry(entry)
 
-      { issued: entry['issued'], effectiveDateTime: entry['effectiveDateTime'] }.merge(practitioner_hash,
-                                                                                       organization_hash, bp_hash)
+      { effectiveDateTime: entry['effectiveDateTime'] }.merge(practitioner_hash,
+                                                              organization_hash, bp_hash)
     end
 
     def get_display_hash_from_performer(term, entry)

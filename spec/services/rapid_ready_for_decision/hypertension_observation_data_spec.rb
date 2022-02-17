@@ -15,7 +15,6 @@ RSpec.describe RapidReadyForDecision::HypertensionObservationData, :vcr do
 
   let(:response_with_recent_bp) do
     original_first_bp_reading = response.body['entry'].first
-    original_first_bp_reading['resource']['issued'] = (Time.zone.today - 2.weeks).to_s
     original_first_bp_reading['resource']['effectiveDateTime'] = (Time.zone.today - 2.weeks).to_s
     response
   end
@@ -26,7 +25,6 @@ RSpec.describe RapidReadyForDecision::HypertensionObservationData, :vcr do
         .to match(
           [
             {
-              issued: (Time.zone.today - 2.weeks).to_s,
               effectiveDateTime: (Time.zone.today - 2.weeks).to_s,
               practitioner: 'DR. THOMAS359 REYNOLDS206 PHD',
               organization: 'LYONS VA MEDICAL CENTER',
