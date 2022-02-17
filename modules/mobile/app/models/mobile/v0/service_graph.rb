@@ -35,7 +35,7 @@ module Mobile
               downstream_windows[s.name] =
                 create_or_update_window(downstream_windows[s.name], s.name, window)
             end
-            s.dependent_services.each do |ds|
+            s&.dependent_services&.each do |ds|
               queue.push(ds)
             end
           end
