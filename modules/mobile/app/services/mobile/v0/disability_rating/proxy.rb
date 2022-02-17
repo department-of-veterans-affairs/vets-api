@@ -22,7 +22,11 @@ module Mobile
                                    [e.status_code, e.errors]
                                  end
           Rails.logger.info('Mobile Disability Rating Error Details: ', details: details)
-          Rails.logger.info('Mobile Disability Rating Expanded Error: ', e.inspect)
+          Rails.logger.info('Mobile Disability Rating Expanded Error: ',
+                            "response value: #{e.response_values if defined? e.response_values}.
+                            original status: #{e.original_status if defined? e.original_status}.
+                            original body: #{e.original_body if defined? e.original_body}.
+                            key: #{e.key if defined? e.key}.")
           case status_code
           when 400
             raise Common::Exceptions::BackendServiceException, 'MOBL_404_rating_not_found'
