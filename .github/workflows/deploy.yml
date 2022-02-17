@@ -8,6 +8,7 @@ on:
   workflow_run:
     workflows: ["Code Checks"]
     types: [completed]
+    branches: [k8s]
 
 jobs:
   deploy:
