@@ -5,6 +5,9 @@ on:
     branches:
       - k8s
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Code Checks"]
+    types: [completed]
 
 jobs:
   deploy:
