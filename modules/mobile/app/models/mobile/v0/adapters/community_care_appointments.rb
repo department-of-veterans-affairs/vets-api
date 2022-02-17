@@ -21,8 +21,7 @@ module Mobile
         # @return Array<Mobile::V0::Appointment> the adapted list of appointment models
         #
         def parse(appointments)
-          appointments_list = appointments[:booked_appointment_collections].first[:booked_cc_appointments]
-          return [] if appointments_list.size.zero?
+          appointments_list = appointments.dig(:booked_appointment_collections, 0, :booked_cc_appointments) || []
 
           appointments_list.map do |appointment_hash|
             location = location(
