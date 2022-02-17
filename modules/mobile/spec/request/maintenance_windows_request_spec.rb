@@ -19,11 +19,12 @@ RSpec.describe 'maintenance windows', type: :request do
       end
     end
 
-    context 'when a maintenance with many dependent services is active' do
+    context 'when a maintenance with many dependent services and a window not in the service map is active' do
       before do
         Timecop.freeze('2021-05-25T23:33:39Z')
         FactoryBot.create(:mobile_maintenance_evss)
         FactoryBot.create(:mobile_maintenance_mpi)
+        FactoryBot.create(:mobile_maintenance_dslogon)
         get '/mobile/v0/maintenance_windows', headers: { 'X-Key-Inflection' => 'camel' }
       end
 
