@@ -216,5 +216,25 @@ RSpec.describe 'payment_history', type: :request do
         )
       end
     end
+
+    context 'when payments are an empty list' do
+      before do
+        allow_any_instance_of(BGS::PaymentService)
+          .to receive(:payment_history).and_return({ payments: { payment: [] } })
+        get '/mobile/v0/payment-history', headers: iam_headers
+      end
+
+      it 'returns a 200' do
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'matches expected schema' do
+        expect(response.body).to match_json_schema('payment_history')
+      end
+
+      it 'returns an empty list' do
+        expect(response.parsed_body['data'].size).to eq(0)
+      end
+    end
   end
 end
