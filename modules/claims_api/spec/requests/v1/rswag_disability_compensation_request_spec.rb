@@ -480,6 +480,7 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
             temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json'))
             temp = JSON.parse(temp)
             temp['data']['attributes']['autoCestPDFGenerationDisabled'] = auto_cest_pdf_generation_disabled
+            temp['data']['attributes']['applicationExpirationDate'] = (Time.zone.today + 1.day).to_s
 
             temp
           end
@@ -491,7 +492,9 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
             VCR.use_cassette('evss/disability_compensation_form/form_526_valid_validation') do
               with_okta_user(scopes) do
                 VCR.use_cassette('evss/claims/claims') do
-                  submit_request(example.metadata)
+                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    submit_request(example.metadata)
+                  end
                 end
               end
             end

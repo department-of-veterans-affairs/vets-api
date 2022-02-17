@@ -61,6 +61,8 @@ module ClaimsApi
           add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           validate_json_schema
           validate_veteran_identifiers(require_birls: true)
+          check_for_invalid_burial_submission! if form_type == 'burial'
+
           render json: validation_success
         end
 
