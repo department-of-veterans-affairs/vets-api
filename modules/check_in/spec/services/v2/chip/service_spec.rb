@@ -138,6 +138,54 @@ describe V2::Chip::Service do
     end
   end
 
+  describe '#set_precheckin_started' do
+    context 'when token is present and CHIP returns success response' do
+      let(:resp) { Faraday::Response.new(body: { 'uuid' => id }.to_json, status: 200) }
+
+      before do
+        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
+        allow_any_instance_of(::V2::Chip::Client).to receive(:set_precheckin_started)
+          .and_return(resp)
+      end
+
+      it 'returns success response' do
+        response = subject.build(check_in: valid_check_in).set_precheckin_started
+        expect(response.body).to eq(resp.body)
+        expect(response.status).to eq(200)
+      end
+    end
+
+    context 'when token is present but CHIP returns error' do
+      let(:resp) { Faraday::Response.new(body: { 'title' => 'An error was encountered.' }.to_json, status: 500) }
+
+      before do
+        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
+        allow_any_instance_of(::V2::Chip::Client).to receive(:set_precheckin_started)
+          .and_return(resp)
+      end
+
+      it 'returns a 500 response' do
+        response = subject.build(check_in: valid_check_in).set_precheckin_started
+        expect(response.body).to eq(resp.body)
+        expect(response.status).to eq(500)
+      end
+    end
+
+    context 'when token is not present' do
+      let(:resp) { { permissions: 'read.none', status: 'success', uuid: id } }
+
+      before do
+        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return(nil)
+      end
+
+      it 'returns unauthorized message' do
+        response = subject.build(check_in: valid_check_in).set_precheckin_started
+        expect(response.body).to eq(resp.to_json)
+        expect(response.status).to eq(401)
+      end
+    end
+  end
+
   describe '#token' do
     context 'when it exists in redis' do
       before do

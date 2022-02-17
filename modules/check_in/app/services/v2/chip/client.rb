@@ -97,6 +97,17 @@ module V2
         end
       end
 
+      ##
+      # HTTP POST call to the CHIP API to set pre check-in started status
+      #
+      # @return [Faraday::Response]
+      #
+      def set_precheckin_started(token:)
+        connection.post("/#{base_path}/actions/set-precheckin-started/#{check_in_session.uuid}") do |req|
+          req.headers = default_headers.merge('Authorization' => "Bearer #{token}")
+        end
+      end
+
       private
 
       ##
