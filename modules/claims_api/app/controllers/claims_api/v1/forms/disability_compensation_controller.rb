@@ -116,6 +116,7 @@ module ClaimsApi
           add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           sanitize_account_type if form_attributes.dig('directDeposit', 'accountType')
           validate_json_schema
+          validate_form_526_submission_values!
           validate_veteran_identifiers(require_birls: true)
           validate_initial_claim
 
@@ -123,7 +124,9 @@ module ClaimsApi
           auto_claim = ClaimsApi::AutoEstablishedClaim.new(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers: auth_headers,
-            form_data: form_attributes
+            form_data: form_attributes,
+            flashes: flashes,
+            special_issues: special_issues_per_disability
           )
           service.validate_form526(auto_claim.to_internal)
           render json: valid_526_response

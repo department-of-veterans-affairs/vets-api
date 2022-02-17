@@ -127,6 +127,11 @@ module ClaimsApi
         def validate
           add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           validate_json_schema
+
+          poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
+          validate_poa_code!(poa_code)
+          validate_poa_code_for_current_user!(poa_code) if header_request? && !token.client_credentials_token?
+
           render json: validation_success
         end
 

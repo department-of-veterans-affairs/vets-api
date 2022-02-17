@@ -258,6 +258,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
     describe '#validate' do
       before do
         stub_mpi
+        Veteran::Service::Representative.new(representative_id: '56789', poa_codes: ['074'],
+                                             first_name: 'Abraham', last_name: 'Lincoln').save!
       end
 
       it 'returns a response when valid' do

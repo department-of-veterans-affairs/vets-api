@@ -594,7 +594,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
       end
 
-      context 'validation' do
+      context '526 submission payload validations' do
         let(:json_data) { JSON.parse data }
 
         # rubocop:disable Layout/LineLength
@@ -812,18 +812,19 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
       end
 
-      context 'form 526 validation' do
+      context 'form 526 validation endpoint' do
         let(:path) { '/services/claims/v1/forms/526/validate' }
 
         it 'returns a successful response when valid' do
           VCR.use_cassette('evss/disability_compensation_form/form_526_valid_validation') do
             with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                data = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json'))
-                post path, params: data, headers: headers.merge(auth_header)
-                parsed = JSON.parse(response.body)
-                expect(parsed['data']['type']).to eq('claims_api_auto_established_claim_validation')
-                expect(parsed['data']['attributes']['status']).to eq('valid')
+              VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                VCR.use_cassette('evss/claims/claims') do
+                  post path, params: data, headers: headers.merge(auth_header)
+                  parsed = JSON.parse(response.body)
+                  expect(parsed['data']['type']).to eq('claims_api_auto_established_claim_validation')
+                  expect(parsed['data']['attributes']['status']).to eq('valid')
+                end
               end
             end
           end
@@ -832,11 +833,12 @@ RSpec.describe 'Disability Claims ', type: :request do
         it 'returns a list of errors when invalid hitting EVSS' do
           with_okta_user(scopes) do |auth_header|
             VCR.use_cassette('evss/disability_compensation_form/form_526_invalid_validation') do
-              VCR.use_cassette('evss/claims/claims') do
-                post path, params: data, headers: headers.merge(auth_header)
-                parsed = JSON.parse(response.body)
-                expect(response.status).to eq(422)
-                expect(parsed['errors'].size).to eq(2)
+              VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                VCR.use_cassette('evss/claims/claims') do
+                  post path, params: data, headers: headers.merge(auth_header)
+                  parsed = JSON.parse(response.body)
+                  expect(parsed['errors'].size).to eq(2)
+                end
               end
             end
           end
@@ -867,10 +869,12 @@ RSpec.describe 'Disability Claims ', type: :request do
           it 'is logged to PersonalInformationLog' do
             EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.begin_forced_outage!
             with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                post path, params: data, headers: headers.merge(auth_header)
-                expect(PersonalInformationLog.count).to be_positive
-                expect(PersonalInformationLog.last.error_class).to eq('validate_form_526 Breakers::OutageException')
+              VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                VCR.use_cassette('evss/claims/claims') do
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(PersonalInformationLog.count).to be_positive
+                  expect(PersonalInformationLog.last.error_class).to eq('validate_form_526 Breakers::OutageException')
+                end
               end
             end
             EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.end_forced_outage!
@@ -882,14 +886,16 @@ RSpec.describe 'Disability Claims ', type: :request do
             context error_klass.to_s do
               it 'is logged to PersonalInformationLog' do
                 with_okta_user(scopes) do |auth_header|
-                  VCR.use_cassette('evss/claims/claims') do
-                    allow_any_instance_of(ClaimsApi::DisabilityCompensation::MockOverrideService)
-                      .to receive(:validate_form526).and_raise(error_klass)
-                    allow_any_instance_of(EVSS::DisabilityCompensationForm::Service)
-                      .to receive(:validate_form526).and_raise(error_klass)
-                    post path, params: data, headers: headers.merge(auth_header)
-                    expect(PersonalInformationLog.count).to be_positive
-                    expect(PersonalInformationLog.last.error_class).to eq("validate_form_526 #{error_klass.name}")
+                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    VCR.use_cassette('evss/claims/claims') do
+                      allow_any_instance_of(ClaimsApi::DisabilityCompensation::MockOverrideService)
+                        .to receive(:validate_form526).and_raise(error_klass)
+                      allow_any_instance_of(EVSS::DisabilityCompensationForm::Service)
+                        .to receive(:validate_form526).and_raise(error_klass)
+                      post path, params: data, headers: headers.merge(auth_header)
+                      expect(PersonalInformationLog.count).to be_positive
+                      expect(PersonalInformationLog.last.error_class).to eq("validate_form_526 #{error_klass.name}")
+                    end
                   end
                 end
               end
