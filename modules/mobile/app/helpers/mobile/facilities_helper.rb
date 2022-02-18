@@ -19,13 +19,22 @@ module Mobile
 
     def address_from_facility(facility)
       address = facility.address['physical']
-      return nil unless address
 
       Mobile::V0::Address.new(
         street: address.slice('address_1', 'address_2', 'address_3').values.compact.join(', '),
         city: address['city'],
         state: address['state'],
         zip_code: address['zip']
+      )
+    end
+
+    def blank_location(appointment)
+      appointment.location.new(
+        name: 'No location provided',
+        address: Mobile::V0::Address.new(street: nil, city: nil, state: nil, zip_code: nil),
+        phone: nil,
+        lat: nil,
+        long: nil
       )
     end
 
