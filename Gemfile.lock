@@ -93,6 +93,7 @@ PATH
     meb_api (0.1.0)
     mobile (0.1.0)
       dry-validation
+    notify (0.1.0)
     openid_auth (0.0.1)
     test_user_dashboard (0.1.0)
       google-cloud-bigquery
@@ -1059,6 +1060,7 @@ DEPENDENCIES
   net-sftp
   nokogiri
   notifications-ruby-client
+  notify!
   octokit (= 4.21.0)
   oj
   okcomputer

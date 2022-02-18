@@ -60,6 +60,7 @@ unless ENV['NOCOVERAGE']
     add_group 'Identity', 'modules/identity/'
     add_group 'MebApi', 'modules/meb_api/'
     add_group 'Mobile', 'modules/mobile/'
+    add_group 'Notify', 'modules/notify/'
     add_group 'OpenidAuth', 'modules/openid_auth/'
     add_group 'Policies', 'app/policies'
     add_group 'Serializers', 'app/serializers'
