@@ -187,7 +187,7 @@ module BGS
         :routng_trnsit_nbr
       ).merge(
         financial_institution_name: lambda do
-          find_bank_name_by_routng_trnsit_nbr(routing_number)
+          BankName.get_bank_name(@user, routing_number)
         rescue => e
           log_exception_to_sentry(e, { routing_number: routing_number }, { error: 'ch33_dd' })
           nil

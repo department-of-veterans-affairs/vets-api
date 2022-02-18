@@ -144,6 +144,9 @@ development: &defaults
   old_email:
     namespace: old_email
     each_ttl: 604800
+  bank_name:
+    namespace: bank_name
+    each_ttl: 2592000
   transaction_notification:
     namespace: transaction_notification
     each_ttl: 2592000
