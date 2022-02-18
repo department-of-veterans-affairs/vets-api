@@ -75,6 +75,9 @@ module Mobile
 
         def fetch_facilities(appointments)
           facility_ids = appointments.collect { |appt| appt.sta6aid || appt.facility_id }.uniq
+
+          return nil unless facility_ids.any?
+
           facility_ids.each do |facility_id|
             Rails.logger.info('metric.mobile.appointment.facility', facility_id: facility_id)
           end

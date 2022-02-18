@@ -245,6 +245,35 @@ RSpec.describe 'appointments', type: :request do
       end
     end
 
+    context 'with at home video appointment with no location' do
+      before do
+        VCR.use_cassette('appointments/get_cc_appointments_empty', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/get_appointments_at_home_no_location', match_requests_on: %i[method uri]) do
+            get '/mobile/v0/appointments', headers: iam_headers, params: nil
+          end
+        end
+      end
+
+      it 'returns an ok response' do
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'defaults location data' do
+        appointment = response.parsed_body.dig('data', 0, 'attributes')
+
+        expect(appointment['appointmentType']).to eq('VA_VIDEO_CONNECT_HOME')
+        expect(appointment['location']).to eq({ 'id' => nil,
+                                                'name' => 'No location provided',
+                                                'address' => { 'street' => nil, 'city' => nil, 'state' => nil,
+                                                               'zipCode' => nil },
+                                                'lat' => nil,
+                                                'long' => nil,
+                                                'phone' => nil,
+                                                'url' => 'https://care2.evn.va.gov',
+                                                'code' => '5364921#' })
+      end
+    end
+
     context 'with valid params' do
       let(:params) { { page: { number: 1, size: 10 }, useCache: true } }
 

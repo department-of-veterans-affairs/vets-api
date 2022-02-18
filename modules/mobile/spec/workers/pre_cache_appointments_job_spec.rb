@@ -77,6 +77,31 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
         end
       end
 
+      context 'with at home video appointment with no location' do
+        it 'caches the expected appointments' do
+          VCR.use_cassette('appointments/get_cc_appointments_empty', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_appointments_at_home_no_location',
+                             match_requests_on: %i[method uri]) do
+              expect(Mobile::V0::Appointment.get_cached(user)).to be_nil
+              subject.perform(user.uuid)
+              appointment = Mobile::V0::Appointment.get_cached(user).first.to_h
+
+              expect(appointment[:appointment_type]).to eq('VA_VIDEO_CONNECT_HOME')
+              expect(appointment[:location]).to eq(
+                { id: nil,
+                  name: 'No location provided',
+                  address: { street: nil, city: nil, state: nil, zip_code: nil },
+                  lat: nil,
+                  long: nil,
+                  phone: nil,
+                  url: 'https://care2.evn.va.gov',
+                  code: '5364921#' }
+              )
+            end
+          end
+        end
+      end
+
       context 'with any errors' do
         it 'does not cache the appointments' do
           VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
