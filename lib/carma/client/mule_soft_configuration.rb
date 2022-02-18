@@ -11,7 +11,7 @@ module CARMA
       end
 
       def connection
-        Faraday.new(base_path, ssl: { verify: false }) do |conn|
+        Faraday.new(base_path) do |conn|
           conn.use :breakers
           conn.use :instrumentation, name: service_name
           conn.adapter Faraday.default_adapter
@@ -32,7 +32,7 @@ module CARMA
 
       # @return [String]
       def base_path
-        "https://#{settings.host}/va-carma-caregiver-papi/api/v1/application/1010CG"
+        "#{settings.host}/va-carma-caregiver-papi/api/v1/application/1010CG"
       end
 
       # @return [Config::Options]

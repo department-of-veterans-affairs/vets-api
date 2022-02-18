@@ -54,14 +54,14 @@ module CARMA
       describe 'base_path' do
         subject { described_class.instance }
 
-        let(:host) { 'www.somesite.gov' }
+        let(:host) { 'https://www.somesite.gov' }
 
         before do
           allow(Settings.form_10_10cg.carma.mulesoft).to receive(:host).and_return(host)
         end
 
         it 'returns the correct value' do
-          expect(subject.send(:base_path)).to eq("https://#{host}/va-carma-caregiver-papi/api/v1/application/1010CG")
+          expect(subject.send(:base_path)).to eq("#{host}/va-carma-caregiver-papi/api/v1/application/1010CG")
         end
       end
     end
