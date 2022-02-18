@@ -25,7 +25,7 @@ module LGY
       elsif get_determination.body['status'] == 'ELIGIBLE' && get_application.status == 200
         { status: 'available', application_create_date: get_application.body['create_date'] }
       elsif get_determination.body['status'] == 'NOT_ELIGIBLE'
-        { status: 'denied' }
+        { status: 'denied', application_create_date: get_determination.body['determination_date'] }
       elsif get_determination.body['status'] == 'PENDING' && get_application.status == 404
         # Kelli said we'll never having a pending status w/o an application, but LGY sqa data is getting hand crafted
         { status: 'pending' }
