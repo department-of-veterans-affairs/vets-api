@@ -32,7 +32,7 @@ RSpec.describe HypertensionFastTrackPilotMailer, type: [:mailer] do
     end
 
     it 'has the expected content' do
-      expect(email.body).to include 'A health summary PDF was generated and added to the claim’s documentation.'
+      expect(email.body).to include 'A health summary PDF was generated and added to the claim\'s documentation.'
     end
   end
 
