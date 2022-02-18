@@ -6,7 +6,7 @@ on:
       - k8s
   workflow_dispatch:
   workflow_run:
-    workflows: ["Code Checks"]
+    workflows: [Code Checks, Build & Push to ECR]
     types: [completed]
     branches: [k8s]
 
