@@ -61,7 +61,7 @@ module Mobile
       attribute :reason, Types::String.optional
       attribute :is_covid_vaccine, Types::Bool
       attribute :is_pending, Types::Bool
-      attribute :proposed_times, Types::Hash.optional
+      attribute :proposed_times, Types::Array.optional
       attribute :type_of_care, Types::String.optional
       attribute :patient_phone_number, Types::String.optional
       attribute :patient_email, Types::String.optional
