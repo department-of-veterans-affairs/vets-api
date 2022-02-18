@@ -149,6 +149,7 @@ Lint/MissingSuper:
     - 'modules/covid_research/app/workers/covid_research/volunteer/genisis_delivery_job.rb'
     - 'modules/meb_api/lib/dgi/service.rb'
     - 'modules/mobile/app/services/mobile/v0/lighthouse_health/service.rb'
+    - 'modules/notify/lib/notify/service.rb'
     - 'modules/openid_auth/app/controllers/openid_auth/v0/okta_controller.rb'
     - 'modules/vaos/app/services/vaos/session_service.rb'
     - 'modules/veteran/app/models/veteran/user.rb'
