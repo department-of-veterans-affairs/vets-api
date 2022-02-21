@@ -232,6 +232,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
       it 'submit binary and change the document status' do
         with_okta_user(scopes) do |auth_header|
+          allow_any_instance_of(BGS::PersonWebService)
+            .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
           allow_any_instance_of(ClaimsApi::PowerOfAttorneyUploader).to receive(:store!)
           expect(power_of_attorney.file_data).to be_nil
           put("/services/claims/v1/forms/2122/#{power_of_attorney.id}",
@@ -244,6 +246,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
       it 'submit base64 and change the document status' do
         with_okta_user(scopes) do |auth_header|
+          allow_any_instance_of(BGS::PersonWebService)
+            .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
           allow_any_instance_of(ClaimsApi::PowerOfAttorneyUploader).to receive(:store!)
           expect(power_of_attorney.file_data).to be_nil
           put("/services/claims/v1/forms/2122/#{power_of_attorney.id}",
@@ -251,6 +255,86 @@ RSpec.describe 'Power of Attorney ', type: :request do
           power_of_attorney.reload
           expect(power_of_attorney.file_data).not_to be_nil
           expect(power_of_attorney.status).to eq('submitted')
+        end
+      end
+
+      context "when checking if Veteran has a valid 'FileNumber'" do
+        context 'when the call to BGS raises an error' do
+          it 'returns a 424' do
+            with_okta_user(scopes) do |auth_header|
+              allow_any_instance_of(BGS::PersonWebService)
+                .to receive(:find_by_ssn).and_raise(BGS::ShareError.new('HelloWorld'))
+              expect(power_of_attorney.file_data).to be_nil
+              put("/services/claims/v1/forms/2122/#{power_of_attorney.id}",
+                  params: base64_params, headers: headers.merge(auth_header))
+              power_of_attorney.reload
+              parsed = JSON.parse(response.body)
+              expect(power_of_attorney.file_data).to be_nil
+              expect(response.status).to eq(424)
+              expect(parsed['errors'].first['title']).to eq('Failed Dependency')
+              expect(parsed['errors'].first['detail']).to eq('Failure occurred in a system dependency')
+            end
+          end
+        end
+
+        context 'BGS response is invalid' do
+          let(:error_detail) do
+            'Unable to locate Veteran file number.'
+          end
+
+          context "when the BGS response is 'nil'" do
+            it 'returns a 422' do
+              with_okta_user(scopes) do |auth_header|
+                allow_any_instance_of(BGS::PersonWebService)
+                  .to receive(:find_by_ssn).and_return(nil)
+                expect(power_of_attorney.file_data).to be_nil
+                put("/services/claims/v1/forms/2122/#{power_of_attorney.id}",
+                    params: base64_params, headers: headers.merge(auth_header))
+                power_of_attorney.reload
+                parsed = JSON.parse(response.body)
+                expect(power_of_attorney.file_data).to be_nil
+                expect(response.status).to eq(422)
+                expect(parsed['errors'].first['title']).to eq('Unprocessable Entity')
+                expect(parsed['errors'].first['detail']).to eq(error_detail)
+              end
+            end
+          end
+
+          context "when 'file_nbr' in the BGS response is 'nil'" do
+            it 'returns a 422' do
+              with_okta_user(scopes) do |auth_header|
+                allow_any_instance_of(BGS::PersonWebService)
+                  .to receive(:find_by_ssn).and_return({ file_nbr: nil })
+                expect(power_of_attorney.file_data).to be_nil
+                put("/services/claims/v1/forms/2122/#{power_of_attorney.id}",
+                    params: base64_params, headers: headers.merge(auth_header))
+                power_of_attorney.reload
+                parsed = JSON.parse(response.body)
+                expect(power_of_attorney.file_data).to be_nil
+                expect(response.status).to eq(422)
+                expect(parsed['errors'].first['title']).to eq('Unprocessable Entity')
+                expect(parsed['errors'].first['detail']).to eq(error_detail)
+              end
+            end
+          end
+
+          context "when 'file_nbr' in the BGS response is blank" do
+            it 'returns a 422' do
+              with_okta_user(scopes) do |auth_header|
+                allow_any_instance_of(BGS::PersonWebService)
+                  .to receive(:find_by_ssn).and_return({ file_nbr: '' })
+                expect(power_of_attorney.file_data).to be_nil
+                put("/services/claims/v1/forms/2122/#{power_of_attorney.id}",
+                    params: base64_params, headers: headers.merge(auth_header))
+                power_of_attorney.reload
+                parsed = JSON.parse(response.body)
+                expect(power_of_attorney.file_data).to be_nil
+                expect(response.status).to eq(422)
+                expect(parsed['errors'].first['title']).to eq('Unprocessable Entity')
+                expect(parsed['errors'].first['detail']).to eq(error_detail)
+              end
+            end
+          end
         end
       end
     end
