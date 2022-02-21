@@ -67,6 +67,7 @@ module ClaimsApi
           validate_documents_content_type
           validate_documents_page_size
           find_poa_by_id
+          check_file_number_exists!
 
           # This job only occurs when a Representative submits a POA request to ensure they've also uploaded a document.
           ClaimsApi::PoaUpdater.perform_async(@power_of_attorney.id) if header_request?
@@ -221,6 +222,22 @@ module ClaimsApi
               organization_name: nil,
               phone_number: representative.phone
             }
+          end
+        end
+
+        def check_file_number_exists!
+          ssn = target_veteran.ssn
+
+          begin
+            response = bgs_service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
+            unless response && response[:file_nbr].present?
+              error_message = 'Unable to locate Veteran file number.'
+              raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_message)
+            end
+          rescue BGS::ShareError => e
+            error_message = "A BGS failure occurred while trying to retrieve Veteran 'FileNumber'"
+            log_exception_to_sentry(e, nil, { message: error_message }, 'warn')
+            raise ::Common::Exceptions::FailedDependency
           end
         end
       end

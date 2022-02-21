@@ -119,6 +119,12 @@ en:
         detail: The requested resource could not be found
         code: 404
         status: 404
+      failed_dependency:
+        <<: *defaults
+        title: Failed Dependency
+        detail: Failure occurred in a system dependency
+        code: 424
+        status: 424
       routing_error:
         <<: *defaults
         title: Not found
