@@ -58,20 +58,20 @@ describe LGY::Service do
 
   describe '#coe_status' do
     context 'when get_determination is eligible and get_application is a 404' do
-      it 'returns eligible' do
+      it 'returns eligible and reference number' do
         VCR.use_cassette 'lgy/determination_eligible' do
           VCR.use_cassette 'lgy/application_not_found' do
-            expect(subject.coe_status).to eq status: 'eligible'
+            expect(subject.coe_status).to eq status: 'eligible', reference_number: '16934344'
           end
         end
       end
     end
 
     context 'when get_determination is Unable to Determine Automatically and get_application is a 404' do
-      it 'returns unable-to-determine-eligibility' do
+      it 'returns unable-to-determine-eligibility and reference number' do
         VCR.use_cassette 'lgy/determination_unable_to_determine' do
           VCR.use_cassette 'lgy/application_not_found' do
-            expect(subject.coe_status).to eq status: 'unable-to-determine-eligibility'
+            expect(subject.coe_status).to eq status: 'unable-to-determine-eligibility', reference_number: '16934339'
           end
         end
       end
@@ -81,16 +81,18 @@ describe LGY::Service do
       it 'returns correct payload' do
         VCR.use_cassette 'lgy/determination_eligible' do
           VCR.use_cassette 'lgy/application_200_status_submitted' do
-            expect(subject.coe_status).to eq status: 'available', application_create_date: 1_642_619_386_000
+            expect(subject.coe_status).to eq status: 'available', application_create_date: 1_642_619_386_000,
+                                             reference_number: '16934344'
           end
         end
       end
     end
 
     context 'when get_determination is NOT_ELIGIBLE' do
-      it 'returns denied' do
+      it 'returns denied and reference number' do
         VCR.use_cassette 'lgy/determination_not_eligible' do
-          expect(subject.coe_status).to eq status: 'denied', application_create_date: 1_640_016_802_000
+          expect(subject.coe_status).to eq status: 'denied', application_create_date: 1_640_016_802_000,
+                                           reference_number: '16934414'
         end
       end
     end
@@ -105,8 +107,8 @@ describe LGY::Service do
 
         after { VCR.eject_cassette 'lgy/application_not_found' }
 
-        it 'returns pending' do
-          expect(subject.coe_status).to eq status: 'pending'
+        it 'returns pending and reference number' do
+          expect(subject.coe_status).to eq status: 'pending', reference_number: '16934414'
         end
       end
 
@@ -115,8 +117,9 @@ describe LGY::Service do
 
         after { VCR.eject_cassette 'lgy/application_200_status_submitted' }
 
-        it 'returns pending and the application createDate' do
-          expect(subject.coe_status).to eq status: 'pending', application_create_date: 1_642_619_386_000
+        it 'returns pending and the application createDate and the reference number' do
+          expect(subject.coe_status).to eq status: 'pending', application_create_date: 1_642_619_386_000,
+                                           reference_number: '16934414'
         end
       end
 
@@ -125,8 +128,9 @@ describe LGY::Service do
 
         after { VCR.eject_cassette 'lgy/application_200_status_returned' }
 
-        it 'returns pending-upload and the application createDate' do
-          expect(subject.coe_status).to eq status: 'pending-upload', application_create_date: 1_642_619_386_000
+        it 'returns pending-upload and the application createDate and reference number' do
+          expect(subject.coe_status).to eq status: 'pending-upload', application_create_date: 1_642_619_386_000,
+                                           reference_number: '16934414'
         end
       end
     end
