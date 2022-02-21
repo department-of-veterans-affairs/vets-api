@@ -4,6 +4,8 @@ require 'debt_management_center/debts_service'
 
 module DebtManagementCenter
   class DebtLetterDownloader
+    include SentryLogging
+
     DEBTS_DOCUMENT_TYPES = %w[
       193
       194
@@ -20,6 +22,7 @@ module DebtManagementCenter
       @user = user
       @client = VBMS::Client.from_env_vars(env_name: Settings.vbms.env)
       @service = debts_service
+      @vbms_documents = get_vbms_documents
       verify_no_dependent_debts
     end
 
@@ -34,12 +37,12 @@ module DebtManagementCenter
     def file_name(document_id)
       verify_letter_in_folder(document_id)
 
-      document = vbms_documents.detect { |doc| doc.document_id == document_id }
+      document = @vbms_documents.detect { |doc| doc.document_id == document_id }
       "#{document.type_description} #{document.upload_date.to_formatted_s(:long)}"
     end
 
     def list_letters
-      debts_records = vbms_documents.find_all do |record|
+      debts_records = @vbms_documents.find_all do |record|
         DEBTS_DOCUMENT_TYPES.include?(record.doc_type)
       end
 
@@ -52,10 +55,13 @@ module DebtManagementCenter
 
     private
 
-    def vbms_documents
+    def get_vbms_documents
       @client.send_request(
         VBMS::Requests::FindDocumentVersionReference.new(@service.file_number)
       )
+    rescue => e
+      log_exception_to_sentry(e)
+      []
     end
 
     def debts_service
