@@ -12,7 +12,7 @@ class IAMUserIdentity < ::UserIdentity
 
   PREMIUM_LOAS = [2, 3].freeze
   UPGRADE_AUTH_TYPES = %w[DSL MHV].freeze
-  MULTIFACTOR_AUTH_TYPES = %w[IDME].freeze
+  MULTIFACTOR_AUTH_TYPES = %w[IDME LOGINGOV].freeze
 
   redis_store REDIS_CONFIG[:iam_user_identity][:namespace]
   redis_ttl REDIS_CONFIG[:iam_user_identity][:each_ttl]

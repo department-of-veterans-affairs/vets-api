@@ -157,13 +157,13 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
       end
 
       context 'with a user who has a non-cached active iam session via logingov' do
-        it 'returns ok and the sign in type has been remapped to IDME' do
+        it 'returns ok and the sign in type is LOGINGOV' do
           VCR.use_cassette('iam_ssoe_oauth/introspect_active_logingov') do
             get :index
           end
 
           expect(response).to have_http_status(:ok)
-          expect(subject.instance_eval { current_user.identity.sign_in[:service_name] }).to eq('oauth_IDME')
+          expect(subject.instance_eval { current_user.identity.sign_in[:service_name] }).to eq('oauth_LOGINGOV')
         end
       end
     end

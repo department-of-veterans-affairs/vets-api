@@ -2390,6 +2390,85 @@ paths:
       security:
         - Bearer: []
       summary: /v0/user
+  /v1/user:
+    get:
+      description: |
+        Returns the user profile, including the user's addresses and the services the user has the requisite ids to access. Meta data for this endpoint returns all the services available in the API. v1 includes LOGINGOV as login type.
+      operationId: user.getProfile
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: camel
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: ./schemas/v1/User.yml
+                  meta:
+                    properties:
+                      availableServices:
+                        example:
+                          - appeals
+                          - appointments
+                          - claims
+                          - directDepositBenefits
+                          - lettersAndDocuments
+                          - militaryServiceHistory
+                          - userProfileUpdate
+                        type: array
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Authentication is possible but has failed or not yet been provided.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The requested resource could not be found.
+        '408':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The response from this API timed out.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An internal API error occured.
+        '502':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An upstream service the API depends on returned an error.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An upstream service is unavailable, or its circuit breaker
+            may have been tripped.
+        '504':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: A response from an upstream service timed out.
+      security:
+        - Bearer: [ ]
+      summary: /v1/user
   /v0/user/addresses:
     delete:
       description: Deletes a user's address

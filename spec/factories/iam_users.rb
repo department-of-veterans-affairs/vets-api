@@ -138,5 +138,12 @@ FactoryBot.define do
         user.instance_variable_set(:@identity, user_identity)
       end
     end
+
+    trait :logingov do
+      callback(:after_build, :after_stub, :after_create) do |user, _t|
+        user_identity = create(:iam_user_identity, multifactor: true, sign_in: { service_name: 'oauth_LOGINGOV' })
+        user.instance_variable_set(:@identity, user_identity)
+      end
+    end
   end
 end

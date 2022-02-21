@@ -8,6 +8,7 @@ PPIUPolicy = Struct.new(:user, :ppiu) do
       idme
       oauth_IDME
       logingov
+      oauth_LOGINGOV
     ].freeze
   end
 
