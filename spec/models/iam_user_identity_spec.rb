@@ -14,9 +14,9 @@ RSpec.describe IAMUserIdentity, type: :model do
       expect(id.loa[:current]).to eq(3)
     end
 
-    it 'returns multifactor as false' do
+    it 'returns multifactor as true' do # all login.gov users are forced to use MFA
       id = described_class.build_from_iam_profile(logingov_attrs)
-      expect(id.multifactor).to be(false)
+      expect(id.multifactor).to be(true)
     end
   end
 
