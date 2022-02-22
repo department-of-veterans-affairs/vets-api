@@ -125,5 +125,12 @@ Rails.application.reloader.to_prepare do
   StatsD.increment('mobile.immunizations.cvx_code_missing', 0)
   StatsD.increment('mobile.immunizations.date_missing', 0)
   StatsD.increment('mobile.immunizations.covid_manufacturer_missing', 0)
+
+  # Payment History #------------------------------------------------------------
+  Mobile::V0::PaymentHistoryController.extend StatsD::Instrument
+  Mobile::V0::PaymentHistoryController.statsd_count_success :index,
+                                                            'mobile.payment_history.index'
+  StatsD.increment('mobile.payment_history.index.success', 0)
+  StatsD.increment('mobile.payment_history.index.failure', 0)
   # rubocop: enable Metrics/BlockLength
 end

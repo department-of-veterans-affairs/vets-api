@@ -19,9 +19,11 @@ RSpec.describe 'payment_history', type: :request do
   describe 'GET /mobile/v0/payment-history' do
     context 'with successful response with the default (no) parameters' do
       before do
-        VCR.use_cassette('payment_history/retrieve_payment_summary_with_bdn', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/payment-history', headers: iam_headers, params: nil
-        end
+        expect do
+          VCR.use_cassette('payment_history/retrieve_payment_summary_with_bdn', match_requests_on: %i[method uri]) do
+            get '/mobile/v0/payment-history', headers: iam_headers, params: nil
+          end
+        end.to trigger_statsd_increment('mobile.payment_history.index.success', times: 1)
       end
 
       it 'returns 200' do
@@ -111,9 +113,11 @@ RSpec.describe 'payment_history', type: :request do
       let(:params) { { page: { number: 'one', size: 'ten' } } }
 
       before do
-        VCR.use_cassette('payment_history/retrieve_payment_summary_with_bdn', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/payment-history', headers: iam_headers, params: params
-        end
+        expect do
+          VCR.use_cassette('payment_history/retrieve_payment_summary_with_bdn', match_requests_on: %i[method uri]) do
+            get '/mobile/v0/payment-history', headers: iam_headers, params: params
+          end
+        end.to trigger_statsd_increment('mobile.payment_history.index.failure', times: 1)
       end
 
       it 'returns a 422' do
