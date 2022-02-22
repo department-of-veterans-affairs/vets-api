@@ -540,6 +540,21 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
+      context 'medical copays show' do
+        stub_medical_copays_show
+
+        it 'validates the route' do
+          expect(subject).to validate(
+            :get,
+            '/v0/medical_copays/{id}',
+            200,
+            headers.merge(
+              'id' => CGI.escape(id)
+            )
+          )
+        end
+      end
+
       context 'medical copays get_pdf_statement_by_id' do
         stub_medical_copays(:get_pdf_statement_by_id)
 

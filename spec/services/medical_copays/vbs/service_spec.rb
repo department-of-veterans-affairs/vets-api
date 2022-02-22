@@ -5,6 +5,10 @@ require 'rails_helper'
 RSpec.describe MedicalCopays::VBS::Service do
   subject { described_class.build(user: user) }
 
+  def stub_get_copays(response)
+    allow_any_instance_of(MedicalCopays::VBS::Service).to receive(:get_copays).and_return(response)
+  end
+
   let(:user) do
     build(:user, :loa3,
           vha_facility_ids: %w[757 358],
@@ -92,6 +96,47 @@ RSpec.describe MedicalCopays::VBS::Service do
           }
         ] })
       end
+    end
+  end
+
+  describe '#get_copay_by_id' do
+    it 'filters multiple statements to return a single one' do
+      response = {
+        status: 200,
+        data: [
+          {
+            'id' => '2f1569ff-64cf-4300-8dd1-5ec3caded615',
+            'pSStatementDate' => today_date
+          },
+          {
+            'id' => 'b9cdcc61-2e5a-47c3-b314-4449606e65c7',
+            'pSStatementDate' => today_date
+          }
+        ]
+      }
+
+      stub_get_copays(response)
+
+      expect(subject.get_copay_by_id('b9cdcc61-2e5a-47c3-b314-4449606e65c7')).to eq({ status: 200, data:
+      {
+        'id' => 'b9cdcc61-2e5a-47c3-b314-4449606e65c7',
+        'pSStatementDate' => today_date
+      } })
+    end
+
+    it 'return error message when service error' do
+      response = { data: { message: 'Bad request' }, status: 400 }
+      stub_get_copays(response)
+
+      expect(subject.get_copay_by_id('b9cdcc61-2e5a-47c3-b314-4449606e65c7')).to eq(response)
+    end
+
+    it 'raises an error if no statement with that id' do
+      stub_get_copays({ status: 200, data: [] })
+
+      expect { subject.get_copay_by_id('b9cdcc61-2e5a-47c3-b314-4449606e65c7') }.to raise_error(
+        MedicalCopays::VBS::Service::StatementNotFound
+      )
     end
   end
 

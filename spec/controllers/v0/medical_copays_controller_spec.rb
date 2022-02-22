@@ -45,4 +45,34 @@ RSpec.describe V0::MedicalCopaysController, type: :controller do
       expect(response).to have_http_status(:ok)
     end
   end
+
+  describe '#show' do
+    before do
+      sign_in_as(user)
+    end
+
+    it 'returns success when record is found' do
+      allow_any_instance_of(MedicalCopays::VBS::Service).to receive(:get_copay_by_id).and_return(
+        {
+          data: [
+            {
+              'id' => '123',
+              'fooBar' => 'bar'
+            }
+          ],
+          status: 200
+        }
+      )
+      get(:show, params: { id: '123' })
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns 404 when record is not found' do
+      allow_any_instance_of(MedicalCopays::VBS::Service).to receive(:get_copay_by_id).and_raise(
+        MedicalCopays::VBS::Service::StatementNotFound
+      )
+      get(:show, params: { id: '123' })
+      expect(response).to have_http_status(:not_found)
+    end
+  end
 end

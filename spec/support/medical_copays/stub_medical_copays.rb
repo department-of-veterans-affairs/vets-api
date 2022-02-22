@@ -22,3 +22,11 @@ def stub_medical_copays(method)
     end
   end
 end
+
+def stub_medical_copays_show
+  let(:content) { File.read('spec/fixtures/medical_copays/show.json') }
+  let(:id) { '3fa85f64-5717-4562-b3fc-2c963f66afa6' }
+  before do
+    allow_any_instance_of(MedicalCopays::VBS::Service).to receive(:get_copay_by_id).and_return(content)
+  end
+end

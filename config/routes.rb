@@ -28,7 +28,7 @@ Rails.application.routes.draw do
     resource :virtual_agent_token, only: [:create], controller: :virtual_agent_token
     resources :preferred_facilities, only: %i[index create destroy]
 
-    resources :medical_copays, only: :index
+    resources :medical_copays, only: %i[index show]
     get 'medical_copays/get_pdf_statement_by_id/:statement_id', to: 'medical_copays#get_pdf_statement_by_id'
 
     resources :apps, only: %i[index show]
