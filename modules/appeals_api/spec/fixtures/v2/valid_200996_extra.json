@@ -63,7 +63,7 @@
       {
         "type": "contestableIssue",
         "attributes": {
-          "issue": "tinnitus",
+          "issue": "123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 xxxxxxxxxxxx",
           "decisionDate": "1900-01-01",
           "decisionIssueId": 1,
           "ratingIssueReferenceId": "2",
@@ -75,8 +75,9 @@
       {
         "type": "contestableIssue",
         "attributes": {
-          "issue": "left eye",
-          "decisionDate": "1900-01-02"
+          "issue": "left eye left eye left eye left eye left eye left eye left eye left eye left eye left eye left eye",
+          "decisionDate": "1900-01-02",
+          "disagreementArea": "123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 xxxxxxxxx"
         }
       },
       {
@@ -89,44 +90,50 @@
       {
         "type": "contestableIssue",
         "attributes": {
-          "issue": "left ear",
+          "issue": "left earleft earleft earleft earleft earleft earleft earleft earleft earleft earleft earleft earleft",
           "decisionDate": "1900-01-04",
-          "socDate": "2019-05-15"
+          "socDate": "2019-05-15",
+          "disagreementArea": "Rating"
         }
       },
       {
         "type": "contestableIssue",
         "attributes": {
           "issue": "right ear",
-          "decisionDate": "1900-01-05"
+          "decisionDate": "1900-01-05",
+          "disagreementArea": "Rating"
         }
       },
       {
         "type": "contestableIssue",
         "attributes": {
           "issue": "migraines",
-          "decisionDate": "1900-01-06"
+          "decisionDate": "1900-01-06",
+          "disagreementArea": "Rating"
         }
       },
       {
         "type": "contestableIssue",
         "attributes": {
           "issue": "left knee",
-          "decisionDate": "1900-01-07"
+          "decisionDate": "1900-01-07",
+          "disagreementArea": "Rating"
         }
       },
       {
         "type": "contestableIssue",
         "attributes": {
           "issue": "right knee",
-          "decisionDate": "1900-01-08"
+          "decisionDate": "1900-01-08",
+          "disagreementArea": "Rating"
         }
       },
       {
         "type": "contestableIssue",
         "attributes": {
           "issue": "left foot",
-          "decisionDate": "1900-01-09"
+          "decisionDate": "1900-01-09",
+          "disagreementArea": "Rating"
         }
       },
       {
@@ -134,21 +141,24 @@
         "attributes": {
           "issue": "right foot",
           "decisionDate": "1900-01-10",
-          "socDate": "2021-01-08"
+          "socDate": "2021-01-08",
+          "disagreementArea": "Rating"
         }
       },
       {
         "type": "contestableIssue",
         "attributes": {
           "issue": "left hand",
-          "decisionDate": "1900-01-11"
+          "decisionDate": "1900-01-11",
+          "disagreementArea": "Rating"
         }
       },
       {
         "type": "contestableIssue",
         "attributes": {
           "issue": "right hand",
-          "decisionDate": "1900-01-12"
+          "decisionDate": "1900-01-12",
+          "disagreementArea": "Rating"
         }
       },
       {
@@ -170,9 +180,9 @@
       {
         "type": "contestableIssue",
         "attributes": {
-          "issue": "cooties",
+          "issue": "cootiescootiescootiescootiescootiescootiescootiescootiescootiescootiescootiescootiescootiescootiescootiescooties",
           "decisionDate": "1900-01-15",
-          "disagreementArea": "Service connection"
+          "disagreementArea": "Service connectionService connectionService connectionService connectionService connection"
         }
       }
     ]

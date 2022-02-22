@@ -233,12 +233,12 @@ module AppealsApi
             rep_domestic_ext: { at: [225, 555], width: 50 },
             issues_pg1: [].tap do |n|
               number_of_issues_on_first_pg.times do |i|
-                n << { at: [-3, 312 - (46.5 * i)], width: 369, height: 43, valign: :top }
+                n << { at: [-3, 319 - (46.5 * i)], width: 369, height: 23, valign: :top }
               end
             end,
             issues_pg2: [].tap do |n|
               number_of_issues_on_second_pg.times do |i|
-                n << { at: [-3, 665 - (46.5 * i)], width: 369, height: 43, valign: :top }
+                n << { at: [-3, 671 - (46.5 * i)], width: 369, height: 23, valign: :top }
               end
             end,
             soc_date_pg1: [].tap do |n|
@@ -248,10 +248,10 @@ module AppealsApi
               number_of_issues_on_second_pg.times { |i| n << { at: [380, 670 - (46.5 * i)], width: 160, height: 15 } }
             end,
             disagreement_area_pg1: [].tap do |n|
-              number_of_issues_on_first_pg.times { |i| n << { at: [-3, 295 - (46.5 * i)], width: 369, height: 15 } }
+              number_of_issues_on_first_pg.times { |i| n << { at: [-5, 293 - (46.5 * i)], width: 380, height: 15 } }
             end,
             disagreement_area_pg2: [].tap do |n|
-              number_of_issues_on_second_pg.times { |i| n << { at: [-3, 647 - (46.5 * i)], width: 369, height: 15 } }
+              number_of_issues_on_second_pg.times { |i| n << { at: [-5, 647 - (46.5 * i)], width: 380, height: 15 } }
             end,
             signature: { at: [-3, 329], width: 369, height: 18 },
             # The rest aren't currently used, but kept for if/when we need them
