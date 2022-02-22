@@ -128,8 +128,8 @@ module AppealsApi
             end
           end
 
-          describe '#representatives_name' do
-            it { expect(form_data.representatives_name).to eq(notice_of_disagreement.veteran_representative) }
+          describe '#representative_name' do
+            it { expect(form_data.representative_name).to eq(notice_of_disagreement.representative_name) }
           end
         end
       end

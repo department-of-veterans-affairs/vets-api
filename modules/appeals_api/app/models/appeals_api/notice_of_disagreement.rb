@@ -42,6 +42,40 @@ module AppealsApi
       ).new(self)
     end
 
+    # V2 Specific
+    def veteran
+      @veteran ||= Appellant.new(
+        type: :veteran,
+        auth_headers: auth_headers,
+        form_data: data_attributes&.dig('veteran')
+      )
+    end
+
+    def signing_appellant
+      veteran
+    end
+
+    def appellant_local_time
+      signing_appellant.timezone ? created_at.in_time_zone(signing_appellant.timezone) : created_at.utc
+    end
+
+    def extension_request?
+      data_attributes['extensionRequest']
+    end
+
+    def extension_reason
+      data_attributes['extensionReason']
+    end
+
+    def appealing_vha_denial?
+      data_attributes['appealingVhaDenial']
+    end
+
+    def contestable_issues
+      form_data&.dig('included')
+    end
+    # V2 End
+
     def veteran_first_name
       header_field_as_string 'X-VA-First-Name'
     end
@@ -91,14 +125,15 @@ module AppealsApi
     end
 
     def email
-      veteran_contact_info['email'] || veteran_contact_info['emailAddressText']
+      # V2 and V1 access the email data via different keys ('email' vs 'emailAddressText')
+      veteran.email.presence || veteran_contact_info['emailAddressText']
     end
 
     def veteran_homeless?
       form_data&.dig('data', 'attributes', 'veteran', 'homeless')
     end
 
-    def veteran_representative
+    def representative_name
       form_data&.dig('data', 'attributes', 'veteran', 'representativesName')
     end
 
@@ -162,18 +197,6 @@ module AppealsApi
 
       handler.handle!
       email_handler.handle! if status == 'submitted' && email_identifier.present?
-    end
-
-    def extension_request?
-      data_attributes['extensionRequest']
-    end
-
-    def extension_reason
-      data_attributes['extensionReason']
-    end
-
-    def appealing_vha_denial?
-      data_attributes['appealingVhaDenial']
     end
 
     private

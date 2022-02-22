@@ -252,12 +252,22 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
   end
 
   describe 'V2 methods' do
-    let(:auth_headers) { fixture_as_json 'valid_10182_headers.json', version: 'v2' }
-    let(:form_data) { fixture_as_json 'valid_10182_extra.json', version: 'v2' }
-    let(:notice_of_disagreement_v2) do
-      review_option = form_data['data']['attributes']['boardReviewOption']
-      build(:notice_of_disagreement, form_data: form_data, auth_headers: auth_headers,
-                                     board_review_option: review_option)
+    let(:notice_of_disagreement_v2) { create(:extra_notice_of_disagreement_v2, :board_review_hearing) }
+
+    describe '#veteran' do
+      subject { notice_of_disagreement_v2.veteran }
+
+      it { expect(subject.class).to eq AppealsApi::Appellant }
+    end
+
+    describe '#signing_appellant' do
+      let(:appellant_type) { notice_of_disagreement_v2.signing_appellant.send(:type) }
+
+      it { expect(appellant_type).to eq :veteran }
+    end
+
+    describe '#appellant_local_time' do
+      it { expect(notice_of_disagreement_v2.appellant_local_time.strftime('%Z')).to eq 'UTC' }
     end
 
     describe '#extension_request?' do
