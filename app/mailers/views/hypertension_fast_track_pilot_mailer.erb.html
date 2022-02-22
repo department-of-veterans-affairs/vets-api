@@ -13,24 +13,27 @@
         There was not sufficient data to generate a health summary PDF associated with this claim. 
       <% end %>
     </p>
-      <table border="1" cellspacing="1" cellpadding="5">
-        <thead>
-          <tr>
-            <td>Submission ID</td>
-            <td>Benefit Claim Id</td>
-            <td>Time Submission Was Made</td>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><%= @submission.id %></td>
-            <td><%= @submission.submitted_claim_id %></td>
-            <td><%= @submission.created_at %></td>
-          </tr>
-        </tbody>
-      </table>
+    <table border="1" cellspacing="1" cellpadding="5">
+      <thead>
+        <tr>
+          <td>Benefit Claim Id</td>
+          <td>Submission Date</td>
+          <td>Submission Time</td>
+          <td>Submission ID</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><%= @submission.submitted_claim_id %></td>
+          <td><%= @submission.created_at.to_date %></td>
+          <td><%= @submission.created_at.strftime '%H:%M:%S' %></td>
+          <td><%= @submission.id %></td>
+        </tr>
+      </tbody>
+    </table>
+
     <p>
-      
+      (Note the time zone for Submission Date and Time: <%= @submission.created_at %>)
     </p>
   </body>
 </html>
