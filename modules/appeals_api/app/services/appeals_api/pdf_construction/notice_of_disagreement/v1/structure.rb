@@ -73,7 +73,7 @@ module AppealsApi
             )
 
             pdf.text_box(
-              form_data.representatives_name,
+              form_data.representative_name,
               text_opts.merge(
                 at: [350, 514],
                 width: 195,

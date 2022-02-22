@@ -86,8 +86,8 @@ module AppealsApi
           "#{last_name.truncate(35)} - #{veteran_ssn.last(4)}"
         end
 
-        def representatives_name
-          notice_of_disagreement.veteran_representative.to_s
+        def representative_name
+          notice_of_disagreement.representative_name.to_s
         end
 
         delegate :hearing_type_preference, to: :notice_of_disagreement
