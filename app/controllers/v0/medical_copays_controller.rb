@@ -4,9 +4,15 @@ module V0
   class MedicalCopaysController < ApplicationController
     before_action { authorize :medical_copays, :access? }
 
+    rescue_from ::MedicalCopays::VBS::Service::StatementNotFound, with: :render_not_found
+
     def index
       StatsD.increment('api.mcp.total')
       render json: vbs_service.get_copays
+    end
+
+    def show
+      render json: vbs_service.get_copay_by_id(params[:id])
     end
 
     def get_pdf_statement_by_id
@@ -25,6 +31,10 @@ module V0
 
     def vbs_service
       MedicalCopays::VBS::Service.build(user: current_user)
+    end
+
+    def render_not_found
+      render json: nil, status: :not_found
     end
   end
 end

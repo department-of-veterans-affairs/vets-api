@@ -12,6 +12,9 @@ module MedicalCopays
     # @!attribute response_data
     #   @return [ResponseData]
     class Service
+      class StatementNotFound < StandardError
+      end
+
       attr_reader :request, :request_data, :user
 
       ##
@@ -50,6 +53,25 @@ module MedicalCopays
         end
 
         ResponseData.build(response: response).handle
+      end
+
+      ##
+      # Get's the users' medical copay by statement id from list
+      #
+      # @param id [UUID] - uuid of the statement
+      # @return [Hash] - JSON data of statement and status
+      #
+      def get_copay_by_id(id)
+        all_statements = get_copays
+
+        # Return hash with error information if bad response
+        return all_statements unless all_statements[:status] == 200
+
+        statement = get_copays[:data].find { |copay| copay['id'] == id }
+
+        raise StatementNotFound if statement.nil?
+
+        { data: statement, status: 200 }
       end
 
       ##
