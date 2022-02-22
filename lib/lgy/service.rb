@@ -117,6 +117,22 @@ module LGY
       coe_url
     end
 
+    def post_document(payload:)
+      with_monitoring do
+        perform(
+          :post,
+          "#{end_point}/document?edipi=#{@edipi}&icn=#{@icn}",
+          payload.to_json,
+          request_headers
+        )
+      end
+    rescue Common::Client::Errors::ClientError => e
+      # catch any unsuccessful put
+      return e if e.status != 200
+
+      raise e
+    end
+
     def request_headers
       {
         Authorization: "api-key { \"appId\":\"#{Settings.lgy.app_id}\", \"apiKey\": \"#{Settings.lgy.api_key}\"}"

@@ -166,4 +166,24 @@ describe LGY::Service do
       end
     end
   end
+
+  describe '#post_document' do
+    context 'when uploading a document to LGY' do
+      it 'returns a valid response' do
+        VCR.use_cassette 'lgy/document_post' do
+          document_data = {
+            'documentType' => '.pdf',
+            'description' => 'Statement of service',
+            'contentsBase64' => Base64.encode64(File.read('spec/fixtures/files/lgy_file.pdf')),
+            'fileName' => 'lgy_file.pdf'
+          }
+
+          response = subject.post_document(payload: document_data)
+          expect(response.status).to eq 201
+          expect(response.body).to include('id')
+          expect(response.body).to include('create_date')
+        end
+      end
+    end
+  end
 end
