@@ -17,7 +17,7 @@ class SavedClaim::CoeClaim < SavedClaim
       { attachment_id: guid },
       { team: 'vfs-ebenefits' }
     )
-    # process_attachments!
+    process_attachments!
   end
 
   def regional_office
@@ -101,6 +101,39 @@ class SavedClaim::CoeClaim < SavedClaim
         'militaryBranch' => service_info['militaryBranch'].parameterize.underscore.upcase,
         'disabilityIndicator' => false
       }
+    end
+  end
+
+  def process_attachments!
+    supporting_documents = parsed_form['files']
+    if supporting_documents.present?
+      files = PersistentAttachment.where(guid: supporting_documents.map { |doc| doc['confirmationCode'] })
+      files.find_each { |f| f.update(saved_claim_id: id) }
+
+      prepare_document_data
+    end
+  end
+
+  def prepare_document_data
+    persistent_attachments.each do |attachment|
+      file_extension = File.extname(URI.parse(attachment.file.url).path)
+
+      if %w[.jpg .jpeg .png .pdf].include? file_extension.downcase
+        file_path = Common::FileHelpers.generate_temp_file(attachment.file.read)
+
+        File.rename(file_path, "#{file_path}#{file_extension}")
+        file_path = "#{file_path}#{file_extension}"
+
+        document_data = {
+          'documentType' => file_extension,
+          'description' => parsed_form['fileType'],
+          'contentsBase64' => Base64.encode64(File.read(file_path)),
+          'fileName' => attachment.file.metadata['filename']
+        }
+
+        lgy_service.post_document(payload: document_data)
+        Common::FileHelpers.delete_file_if_exists(file_path)
+      end
     end
   end
 end
