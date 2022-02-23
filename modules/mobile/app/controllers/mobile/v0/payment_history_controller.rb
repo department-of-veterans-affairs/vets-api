@@ -42,7 +42,7 @@ module Mobile
       end
 
       def available_years(payments)
-        payments.map { |p| p.date.year }.uniq.sort { |a, b| b <=> a }
+        payments.map { |p| p.date&.year }.compact.uniq.sort { |a, b| b <=> a }
       end
 
       def filter(payments, available_years, validated_params)
@@ -56,7 +56,13 @@ module Mobile
         end
 
         payments.filter do |payment|
-          payment[:date].between? start_date, end_date
+          # staging data have nil dates not sure this happens in production
+          if payment[:date].nil?
+            Rails.logger.warn('mobile payment history record found with no date',
+                              user_icn: current_user.icn, payment_id: payment.id)
+            next
+          end
+          payment[:date].between?(start_date, end_date)
         end
       end
 
