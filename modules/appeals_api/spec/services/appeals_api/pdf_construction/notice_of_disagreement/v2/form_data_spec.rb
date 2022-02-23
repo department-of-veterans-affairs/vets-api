@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 
+# rubocop:disable Metrics/ModuleLength
 module AppealsApi
   module PdfConstruction
     module NoticeOfDisagreement
@@ -11,12 +12,16 @@ module AppealsApi
           let(:signing_appellant) { notice_of_disagreement.signing_appellant }
           let(:form_data) { described_class.new(notice_of_disagreement) }
 
-          describe '#veteran_phone' do
-            it { expect(form_data.veteran_phone).to eq '555-800-1111' }
+          describe '#preferred_phone' do
+            it { expect(form_data.preferred_phone).to eq '555-800-1111' }
           end
 
-          describe '#veteran_email' do
-            it { expect(form_data.veteran_email).to eq 'clause@north.com' }
+          describe '#preferred_email' do
+            it { expect(form_data.preferred_email).to eq 'clause@north.com' }
+          end
+
+          describe '#mailing_address' do
+            it { expect(form_data.mailing_address).to eq '123 Main St, North Pole, 00000, CA' }
           end
 
           describe '#veteran_homeless' do
@@ -39,18 +44,18 @@ module AppealsApi
             it { expect(form_data.additional_pages).to eq 'Off' }
           end
 
+          describe '#rep_name' do
+            it { expect(form_data.rep_name).to eq 'Tony Danza' }
+          end
+
           describe '#signature' do
             it { expect(form_data.signature).to eq "Jäñe Doe\n- Signed by digital authentication to api.va.gov" }
           end
 
-          describe '#date_signed formatted' do
-            let(:month) { Time.now.in_time_zone(signing_appellant.timezone).strftime('%m') }
-            let(:day) { Time.now.in_time_zone(signing_appellant.timezone).strftime('%d') }
-            let(:year) { Time.now.in_time_zone(signing_appellant.timezone).strftime('%Y') }
+          describe '#date_signed' do
+            let(:date) { Time.now.in_time_zone(signing_appellant.timezone).strftime('%m/%d/%Y') }
 
-            it { expect(form_data.date_signed_mm).to eq month }
-            it { expect(form_data.date_signed_dd).to eq day }
-            it { expect(form_data.date_signed_yyyy).to eq year }
+            it { expect(form_data.date_signed).to eq date }
           end
 
           describe '#stamp_text' do
@@ -86,10 +91,24 @@ module AppealsApi
               end
             end
 
-            describe '#representative_name' do
+            describe '#extension_reason' do
               it do
-                expect(notice_of_disagreement).to receive(:representative_name)
-                form_data.representative_name
+                expect(notice_of_disagreement).to receive(:extension_reason)
+                form_data.extension_reason
+              end
+            end
+
+            describe '#hearing_type_preference' do
+              it do
+                expect(notice_of_disagreement).to receive(:hearing_type_preference)
+                form_data.hearing_type_preference
+              end
+            end
+
+            describe '#appealing_vha_denial?' do
+              it do
+                expect(notice_of_disagreement).to receive(:appealing_vha_denial?)
+                form_data.appealing_vha_denial?
               end
             end
 
@@ -107,10 +126,17 @@ module AppealsApi
               end
             end
 
-            describe '#veteran_homeless?' do
+            describe '#claimant' do
               it do
-                expect(notice_of_disagreement).to receive(:veteran_homeless?)
-                form_data.veteran_homeless?
+                expect(notice_of_disagreement).to receive(:claimant)
+                form_data.claimant
+              end
+            end
+
+            describe '#representative' do
+              it do
+                expect(notice_of_disagreement).to receive(:representative)
+                form_data.representative
               end
             end
           end
@@ -119,3 +145,4 @@ module AppealsApi
     end
   end
 end
+# rubocop:enable Metrics/ModuleLength

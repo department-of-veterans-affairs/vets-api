@@ -260,6 +260,12 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       it { expect(subject.class).to eq AppealsApi::Appellant }
     end
 
+    describe '#claimant' do
+      subject { notice_of_disagreement_v2.claimant }
+
+      it { expect(subject.class).to eq AppealsApi::Appellant }
+    end
+
     describe '#signing_appellant' do
       let(:appellant_type) { notice_of_disagreement_v2.signing_appellant.send(:type) }
 
@@ -267,7 +273,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     end
 
     describe '#appellant_local_time' do
-      it { expect(notice_of_disagreement_v2.appellant_local_time.strftime('%Z')).to eq 'UTC' }
+      it { expect(notice_of_disagreement_v2.appellant_local_time.strftime('%Z')).to eq 'CST' }
     end
 
     describe '#extension_request?' do

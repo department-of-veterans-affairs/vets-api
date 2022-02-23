@@ -20,11 +20,20 @@
           "phoneNumberExt": "2"
         },
         "email": "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789_123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789_12345678901234567890@bobbytablesemail.com",
-        "representativesName": "Tony Danza"
+        "timezone": "America/Chicago"
+      },
+      "representative": {
+        "name": "Tony Danza",
+        "phone": {
+          "countryCode": "1",
+          "areaCode": "444",
+          "phoneNumber": "110222",
+          "phoneNumberExt": "9"
+        },
+        "email": "represent@rep.com"
       },
       "boardReviewOption": "hearing",
       "hearingTypePreference": "central_office",
-      "timezone": "America/Chicago",
       "extensionRequest": true,
       "extensionReason": "good cause substantive reason",
       "appealingVhaDenial": true
