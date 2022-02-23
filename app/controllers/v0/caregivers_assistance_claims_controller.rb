@@ -15,6 +15,7 @@ module V0
     def create
       if @claim.valid?
         Raven.tags_context(claim_guid: @claim.guid)
+        auditor.record_caregivers(@claim)
         submission = ::Form1010cg::Service.new(@claim).process_claim!
         record_submission_success submission
         render json: submission, serializer: ::Form1010cg::SubmissionSerializer

@@ -130,6 +130,12 @@ Rails.application.reloader.to_prepare do
   StatsD.increment(Form1010cg::Auditor.metrics.submission.failure.client.qualification, 0)
   StatsD.increment(Form1010cg::Auditor.metrics.pdf_download, 0)
 
+  StatsD.increment(Form1010cg::Auditor.metrics.submission.caregivers.primary_no_secondary, 0)
+  StatsD.increment(Form1010cg::Auditor.metrics.submission.caregivers.primary_one_secondary, 0)
+  StatsD.increment(Form1010cg::Auditor.metrics.submission.caregivers.primary_two_secondary, 0)
+  StatsD.increment(Form1010cg::Auditor.metrics.submission.caregivers.no_primary_one_secondary, 0)
+  StatsD.increment(Form1010cg::Auditor.metrics.submission.caregivers.no_primary_two_secondary, 0)
+
   # init form 526 - disability compenstation
   StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.submit_form526.total", 0)
   StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.submit_form526.fail", 0)
