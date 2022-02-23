@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
-
 module Mobile
   module V0
     module Adapters
       class AppointmentRequests
         # accepts an array of appointment requests
-        # returns a list of appointments, filtering out any that are not SUBMITTED or CANCELLED
+        # returns a list of appointments (as open structs), filtering out any that are not SUBMITTED or CANCELLED
         def parse(requests)
           va_appointments = []
           cc_appointments = []
@@ -34,7 +32,7 @@ module Mobile
 
           Mobile::V0::Appointment.new(
             id: request[:appointment_request_id],
-            appointment_type: appointment_type(request, klass),
+            appointment_type: klass.appointment_type(request),
             cancel_id: nil,
             comment: nil,
             facility_id: klass.facility_id(request),
@@ -62,14 +60,6 @@ module Mobile
           )
         end
         # rubcop:enable Metrics/MethodLength
-
-        def appointment_type(request, klass)
-          # this is temporary because test data does not include video type
-          unless request[:visit_type].in?(['Office Visit', 'Express Care', 'Phone Call'])
-            log_message_to_sentry('Unknown appointment request type', :error, { visit_type: request[:visit_type] })
-          end
-          klass::APPOINTMENT_TYPE
-        end
 
         def phone_only?(request)
           request[:visit_type] == 'Phone Call'
@@ -131,7 +121,8 @@ module Mobile
           when 'DETCODE24'
             'CANCELLED - OTHER'
           else
-            log_message_to_sentry('Unknown appointment request cancellation code', :error, { detail: first_detail })
+            Rails.logger.error('Unknown appointment request cancellation code', :error,
+                               { appointment_request_id: request[:appointment_request_id], detail: first_detail })
             'CANCELLED - OTHER'
           end
         end
@@ -144,7 +135,21 @@ module Mobile
         end
 
         class VA
-          APPOINTMENT_TYPE = 'VA'
+          def self.appointment_type(request)
+            case request[:visit_type]
+            when 'Office Visit', 'Express Care', 'Phone Call'
+              'VA'
+            when 'Video Conference'
+              'VA_VIDEO_CONNECT_HOME'
+            else
+              Rails.logger.error(
+                'Unknown appointment request type',
+                { appointment_request_id: request[:appointment_request_id], appointment_type: 'VA',
+                  visit_type: request[:visit_type] }
+              )
+              'VA'
+            end
+          end
 
           def self.provider_name(_)
             nil
@@ -185,7 +190,16 @@ module Mobile
         # rubocop:enable Metrics/MethodLength
 
         class CC
-          APPOINTMENT_TYPE = 'COMMUNITY_CARE'
+          def self.appointment_type(request)
+            # if cc video conferences are possible, they will need a new appointment type
+            unless request[:visit_type].in?(['Office Visit', 'Phone Call'])
+              Rails.logger.error(
+                'Unknown appointment request type',
+                { appointment_type: 'COMMUNITY_CARE', visit_type: request[:visit_type] }
+              )
+            end
+            'COMMUNITY_CARE'
+          end
 
           def self.provider_name(request)
             provider_section = request.dig(:cc_appointment_request, :preferred_providers, 0)
@@ -206,16 +220,16 @@ module Mobile
 
           # rubocop:disable Metrics/MethodLength
           def self.location(request)
-            source = request.dig(:cc_appointment_request, :preferred_providers, 0, :address) || {}
-            phone_captures = phone_captures(request)
+            address = request.dig(:cc_appointment_request, :preferred_providers, 0, :address) || {}
+            phone_captures = phone_captures(request) || []
             {
               id: nil,
               name: practice_name(request),
               address: {
-                street: source[:street],
-                city: source[:city],
-                state: source[:state],
-                zip_code: source[:zip_code]
+                street: address[:street],
+                city: address[:city],
+                state: address[:state],
+                zip_code: address[:zip_code]
               },
               lat: nil,
               long: nil,

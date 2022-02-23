@@ -11,6 +11,7 @@ RSpec.describe 'appointments', type: :request do
     allow_any_instance_of(IAMUser).to receive(:icn).and_return('24811694708759028')
     iam_sign_in(build(:iam_user))
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+    Flipper.disable(:mobile_appointment_requests)
   end
 
   before(:all) do
@@ -953,6 +954,285 @@ RSpec.describe 'appointments', type: :request do
 
               expect(response.status).to eq 200
             end
+          end
+        end
+      end
+    end
+
+    describe 'pending appointments' do
+      let(:start_date) { (Time.now.utc - 3.months).iso8601 }
+      let(:end_date) { (Time.now.utc + 3.months).iso8601 }
+      let(:submitted_va_appt_request_id) { '8a48e8db6d70a38a016d72b354240002' }
+      let(:cancelled_cc_appt_request_id) { '8a48912a6d02b0fc016d20b4ccb9001a' }
+      let(:booked_request_id) { '8a48dea06c84a667016c866de87c000b' }
+      let(:resolved_request_id) { '8a48e8db6d7682c3016d88dc21650024' }
+      let(:get_appointments) do
+        VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/get_cc_appointments_default', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_appointments_default', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('appointments/get_appointment_requests', match_requests_on: %i[method uri]) do
+                get '/mobile/v0/appointments', headers: iam_headers, params: params
+              end
+            end
+          end
+        end
+      end
+
+      context 'with feature flag off' do
+        let(:params) do
+          {
+            included: ['pending'],
+            page: { number: 1, size: 100 },
+            startDate: start_date,
+            endDate: end_date
+          }
+        end
+
+        it 'does not return appointment requests' do
+          Flipper.disable(:mobile_appointment_requests)
+
+          get_appointments
+
+          pending = response.parsed_body['data'].select do |appt|
+            appt['attributes']['isPending'] == true
+          end
+          expect(pending).to be_empty
+        end
+      end
+
+      context 'with feature flag on' do
+        before { Flipper.enable(:mobile_appointment_requests) }
+
+        context 'when pending appointments are not included in the query params' do
+          let(:params) do
+            {
+              page: { number: 1, size: 100 },
+              startDate: start_date,
+              endDate: end_date
+            }
+          end
+
+          it 'does not include pending appointments' do
+            get_appointments
+
+            pending = response.parsed_body['data'].select do |appt|
+              appt['attributes']['isPending'] == true
+            end
+            expect(pending).to be_empty
+          end
+        end
+
+        context 'when pending appointments are included in the query params' do
+          let(:params) do
+            {
+              included: ['pending'],
+              page: { number: 1, size: 100 },
+              startDate: start_date,
+              endDate: end_date
+            }
+          end
+
+          it 'returns cancelled and submitted requests in the date range and omits other statuses' do
+            get_appointments
+
+            pending = response.parsed_body['data'].select do |appt|
+              appt['attributes']['isPending'] == true
+            end
+            requested = pending.pluck('id')
+            expect(requested).to include(submitted_va_appt_request_id, cancelled_cc_appt_request_id)
+            expect(requested).not_to include(booked_request_id, resolved_request_id)
+          end
+
+          it 'includes cc data for cc appointments' do
+            expected_response = {
+              'id' => '8a48912a6d02b0fc016d20b4ccb9001a',
+              'type' => 'appointment',
+              'attributes' => {
+                'appointmentType' => 'COMMUNITY_CARE',
+                'cancelId' => nil,
+                'comment' => nil,
+                'healthcareProvider' => 'Vilasini Reddy',
+                'healthcareService' => 'Test clinic 2',
+                'location' => {
+                  'id' => nil,
+                  'name' => 'Test clinic 2',
+                  'address' => {
+                    'street' => '123 Sesame St.',
+                    'city' => 'Cheyenne',
+                    'state' => 'VA',
+                    'zipCode' => '20171'
+                  },
+                  'lat' => nil,
+                  'long' => nil,
+                  'phone' => {
+                    'areaCode' => '703',
+                    'number' => '652-0000',
+                    'extension' => nil
+                  },
+                  'url' => nil,
+                  'code' => nil
+                },
+                'minutesDuration' => nil,
+                'phoneOnly' => false,
+                'startDateLocal' => '2020-10-01T06:00:00.000-06:00',
+                'startDateUtc' => '2020-10-01T12:00:00.000Z',
+                'status' => 'CANCELLED',
+                'statusDetail' => 'CANCELLED BY CLINIC',
+                'timeZone' => 'America/Denver',
+                'vetextId' => nil,
+                'reason' => 'routine-follow-up',
+                'isCovidVaccine' => nil,
+                'isPending' => true,
+                'proposedTimes' => [
+                  {
+                    'date' => '10/01/2020',
+                    'time' => 'PM'
+                  },
+                  {
+                    'date' => '10/02/2020',
+                    'time' => 'PM'
+                  },
+                  {
+                    'date' => nil,
+                    'time' => nil
+                  }
+                ],
+                'typeOfCare' => 'Optometry (routine eye exam)',
+                'patientPhoneNumber' => '(703) 652-0000',
+                'patientEmail' => 'samatha.girla@va.gov',
+                'bestTimeToCall' => %w[Afternoon Evening Morning],
+                'friendlyLocationName' => 'CHYSHR-Cheyenne VA Medical Center'
+              }
+            }
+
+            get_appointments
+
+            requested = response.parsed_body['data'].find { |appts| appts['id'] == cancelled_cc_appt_request_id }
+            expect(requested).to eq(expected_response)
+          end
+
+          it 'includes va data for va appointments' do
+            expected_response = {
+              'id' => '8a48e8db6d70a38a016d72b354240002',
+              'type' => 'appointment',
+              'attributes' => {
+                'appointmentType' => 'VA',
+                'cancelId' => nil,
+                'comment' => nil,
+                'healthcareProvider' => nil,
+                'healthcareService' => nil,
+                'location' => {
+                  'id' => '442',
+                  'name' => 'Cheyenne VA Medical Center',
+                  'address' => {
+                    'street' => '2360 East Pershing Boulevard',
+                    'city' => 'Cheyenne',
+                    'state' => 'WY',
+                    'zipCode' => '82001-5356'
+                  },
+                  'lat' => 41.148027,
+                  'long' => -104.7862575,
+                  'phone' => {
+                    'areaCode' => '307',
+                    'number' => '778-7550',
+                    'extension' => nil
+                  },
+                  'url' => nil,
+                  'code' => nil
+                },
+                'minutesDuration' => nil,
+                'phoneOnly' => false,
+                'startDateLocal' => '2020-11-02T01:00:00.000-07:00',
+                'startDateUtc' => '2020-11-02T08:00:00.000Z',
+                'status' => 'SUBMITTED',
+                'statusDetail' => nil,
+                'timeZone' => 'America/Denver',
+                'vetextId' => nil,
+                'reason' => 'New Issue',
+                'isCovidVaccine' => nil,
+                'isPending' => true,
+                'proposedTimes' => [
+                  {
+                    'date' => '10/01/2020',
+                    'time' => 'PM'
+                  },
+                  {
+                    'date' => '11/03/2020',
+                    'time' => 'AM'
+                  },
+                  {
+                    'date' => '11/02/2020',
+                    'time' => 'AM'
+                  }
+                ],
+                'typeOfCare' => 'Primary Care',
+                'patientPhoneNumber' => '(666) 666-6666',
+                'patientEmail' => 'Vilasini.reddy@va.gov',
+                'bestTimeToCall' => ['Morning'],
+                'friendlyLocationName' => 'DAYTSHR -Dayton VA Medical Center'
+              }
+            }
+
+            get_appointments
+
+            requested = response.parsed_body['data'].find { |appts| appts['id'] == submitted_va_appt_request_id }
+            expect(requested).to eq(expected_response)
+          end
+
+          it 'orders appointments by first proposed time' do
+            get_appointments
+
+            order_times = response.parsed_body['data'].collect do |a|
+              a.dig('attributes', 'startDateUtc')
+            end
+
+            # appointment request has one other proposed time, but this is the chronologically first in the future
+            first_proposed_time_in_future = '2020-11-02T08:00:00.000Z'
+            # request has one other proposed time, but both are past, so it selects the first chronologically
+            first_proposed_time_in_past = '2020-10-01T12:00:00.000Z'
+
+            expect(order_times).to include(first_proposed_time_in_future, first_proposed_time_in_past)
+            sorted = order_times.map(&:to_datetime).sort { |a, b| a <=> b }
+            expect(order_times.map(&:to_datetime)).to eq(sorted)
+          end
+
+          it 'forms navigation links with query params' do
+            get_appointments
+            expect(response.parsed_body['links']).to eq(
+              {
+                'self' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-08-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=100&page[number]=1&included[]=pending',
+                'first' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-08-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=100&page[number]=1&included[]=pending',
+                'prev' => nil,
+                'next' => nil,
+                'last' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-08-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=100&page[number]=1&included[]=pending'
+              }
+            )
+          end
+        end
+
+        context 'when the appointments request service fails' do
+          let(:params) do
+            {
+              included: ['pending'],
+              page: { number: 1, size: 100 },
+              startDate: start_date,
+              endDate: end_date
+            }
+          end
+
+          it 'returns 502' do
+            VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('appointments/get_cc_appointments_default', match_requests_on: %i[method uri]) do
+                VCR.use_cassette('appointments/get_appointments_default', match_requests_on: %i[method uri]) do
+                  VCR.use_cassette('appointments/get_appointment_requests_500',
+                                   match_requests_on: %i[method uri]) do
+                    get '/mobile/v0/appointments', headers: iam_headers, params: params
+                  end
+                end
+              end
+            end
+
+            expect(response.status).to eq(502)
           end
         end
       end

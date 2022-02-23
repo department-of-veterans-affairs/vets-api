@@ -16,7 +16,12 @@ module Mobile
         end
 
         def get_appointments(start_date:, end_date:)
-          legacy_fetch_appointments(start_date, end_date)
+          if Flipper.enabled?(:mobile_appointment_requests)
+            responses = fetch_appointments(start_date, end_date)
+            normalize_appointments(responses, start_date, end_date)
+          else
+            legacy_fetch_appointments(start_date, end_date)
+          end
         end
 
         def put_cancel_appointment(params)
@@ -43,6 +48,25 @@ module Mobile
         end
 
         private
+
+        def normalize_appointments(responses, start_date, end_date)
+          va_appointments = va_appointments_adapter.parse(responses[:va][:response].body)
+          cc_appointments = cc_appointments_adapter.parse(responses[:cc][:response].body)
+          va_appointment_requests, cc_appointment_requests = requests_adapter.parse(responses[:requests])
+
+          # There's currently a bug in the underlying Community Care service
+          # where date ranges are not being respected
+          cc_appointments.select! do |appointment|
+            appointment.start_date_utc.between?(start_date, end_date)
+          end
+
+          facilities = fetch_facilities(va_appointments + va_appointment_requests)
+          va_appointments = backfill_appointments_with_facilities(va_appointments, facilities)
+          va_appointment_requests = backfill_appointments_with_facilities(va_appointment_requests, facilities)
+
+          (va_appointments + cc_appointments + va_appointment_requests + cc_appointment_requests)
+            .sort_by(&:start_date_utc)
+        end
 
         def legacy_fetch_appointments(start_date, end_date)
           va_response, cc_response = Parallel.map(
@@ -71,6 +95,22 @@ module Mobile
           end
 
           (va_appointments + cc_appointments).sort_by(&:start_date_utc)
+        end
+
+        def fetch_appointments(start_date, end_date)
+          va_response, cc_response, requests_response = Parallel.map(
+            [
+              fetch_va_appointments(start_date, end_date),
+              fetch_cc_appointments(start_date, end_date),
+              fetch_appointment_requests
+            ], in_threads: 3, &:call
+          )
+
+          # appointment requests are fetched by a service that raises on error
+          errors = [va_response[:error], cc_response[:error]].compact
+          raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error' if errors.size.positive?
+
+          { va: va_response, cc: cc_response, requests: requests_response }
         end
 
         def fetch_facilities(appointments)
@@ -133,6 +173,18 @@ module Mobile
           }
         end
 
+        # fetches all appointment requests created in the past 90 days
+        # this mimics the behavior of the web app
+        def fetch_appointment_requests
+          lambda {
+            end_date = Time.zone.today
+            start_date = end_date - 90.days
+            service = VAOS::AppointmentRequestsService.new(@user)
+            response = service.get_requests(start_date, end_date)
+            response[:data]
+          }
+        end
+
         def vaos_appointments_service
           VAOS::AppointmentService.new(@user)
         end
@@ -151,6 +203,10 @@ module Mobile
 
         def cc_appointments_adapter
           Mobile::V0::Adapters::CommunityCareAppointments.new
+        end
+
+        def requests_adapter
+          Mobile::V0::Adapters::AppointmentRequests.new
         end
       end
     end
