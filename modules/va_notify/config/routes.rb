@@ -1,4 +1,4 @@
 # frozen_string_literal: true
 
-Notify::Engine.routes.draw do
+VaNotify::Engine.routes.draw do
 end
