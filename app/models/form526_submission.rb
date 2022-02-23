@@ -91,7 +91,7 @@ class Form526Submission < ApplicationRecord
     jids.first
   end
 
-  # Runs the start method above but first looks to see if the veteran has BIRLS IDs that previous start
+  # Runs start_evss_submission but first looks to see if the veteran has BIRLS IDs that previous start
   # attempts haven't used before (if so, swaps one of those into auth_headers).
   # If all BIRLS IDs for a veteran have been tried, does nothing and returns nil.
   # Note: this assumes that the current BIRLS ID has been used (that `start` has been attempted once).
@@ -99,7 +99,7 @@ class Form526Submission < ApplicationRecord
   # @return [String] the job id of the first job in the batch, i.e the 526 submit job
   # @return [NilClass] all BIRLS IDs for the veteran have been tried
   #
-  def start_but_use_a_birls_id_that_hasnt_been_tried_yet!(
+  def submit_with_birls_id_that_hasnt_been_tried_yet!(
     extra_content_for_sentry: {},
     silence_errors_and_log_to_sentry: false
   )
@@ -108,7 +108,7 @@ class Form526Submission < ApplicationRecord
 
     self.birls_id = untried_birls_id
     save!
-    start
+    start_evss_submission(nil, { 'submission_id' => id })
   rescue => e
     # 1) why have the 'silence_errors_and_log_to_sentry' option? (why not rethrow the error?)
     # This method is primarily intended to be triggered by a running Sidekiq job that has hit a dead end

@@ -104,7 +104,7 @@ RSpec.describe Form526Submission do
     it_behaves_like '#start_evss_submission'
   end
 
-  describe '#start_but_use_a_birls_id_that_hasnt_been_tried_yet!' do
+  describe '#submit_with_birls_id_that_hasnt_been_tried_yet!' do
     before do
       Sidekiq::Worker.clear_all
       Settings.mvi.edipi_search = true
@@ -116,12 +116,12 @@ RSpec.describe Form526Submission do
         expect(subject.birls_ids.count).to eq 1
         subject.birls_ids_tried = { subject.birls_id => ['some timestamp'] }.to_json
         subject.save!
-        expect { subject.start_but_use_a_birls_id_that_hasnt_been_tried_yet! }.to(
+        expect { subject.submit_with_birls_id_that_hasnt_been_tried_yet! }.to(
           change(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.jobs, :size).by(0)
         )
         next_birls_id = "#{subject.birls_id}cat"
         subject.add_birls_ids next_birls_id
-        expect { subject.start_but_use_a_birls_id_that_hasnt_been_tried_yet! }.to(
+        expect { subject.submit_with_birls_id_that_hasnt_been_tried_yet! }.to(
           change(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.jobs, :size).by(1)
         )
         expect(subject.birls_id).to eq next_birls_id
