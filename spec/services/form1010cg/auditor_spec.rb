@@ -23,6 +23,43 @@ RSpec.describe Form1010cg::Auditor do
     end
   end
 
+  describe '#record_caregivers' do
+    subject do
+      described_class.new.record_caregivers(claim)
+    end
+
+    let(:claim) { build(:caregivers_assistance_claim) }
+
+    it 'increments primary_no_secondary' do
+      allow(claim).to receive(:secondary_caregiver_one_data).and_return(nil)
+      expect { subject }.to trigger_statsd_increment('api.form1010cg.submission.caregivers.primary_no_secondary')
+    end
+
+    it 'increments primary_one_secondary' do
+      expect { subject }.to trigger_statsd_increment('api.form1010cg.submission.caregivers.primary_one_secondary')
+    end
+
+    it 'increments primary_two_secondary' do
+      allow(claim).to receive(:secondary_caregiver_two_data).and_return(claim.secondary_caregiver_one_data)
+      expect { subject }.to trigger_statsd_increment('api.form1010cg.submission.caregivers.primary_two_secondary')
+    end
+
+    context 'no primary' do
+      before do
+        allow(claim).to receive(:primary_caregiver_data).and_return(nil)
+      end
+
+      it 'increments no_primary_one_secondary' do
+        expect { subject }.to trigger_statsd_increment('api.form1010cg.submission.caregivers.no_primary_one_secondary')
+      end
+
+      it 'increments no_primary_two_secondary' do
+        allow(claim).to receive(:secondary_caregiver_two_data).and_return(claim.secondary_caregiver_one_data)
+        expect { subject }.to trigger_statsd_increment('api.form1010cg.submission.caregivers.no_primary_two_secondary')
+      end
+    end
+  end
+
   describe '#record_submission_attempt' do
     context 'increments' do
       it 'api.form1010cg.submission.attempt' do

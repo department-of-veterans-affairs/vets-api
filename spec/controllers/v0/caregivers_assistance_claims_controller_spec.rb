@@ -156,6 +156,14 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       end
     end
 
+    it 'records caregiver stats' do
+      form_data = claim.form
+      params = { caregivers_assistance_claim: { form: form_data } }
+      expect_any_instance_of(Form1010cg::Auditor).to receive(:record_caregivers)
+
+      post :create, params: params
+    end
+
     it 'submits claim using Form1010cg::Service' do
       form_data = claim.form
       params = { caregivers_assistance_claim: { form: form_data } }

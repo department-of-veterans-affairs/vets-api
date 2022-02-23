@@ -8,12 +8,20 @@ module Form1010cg
     LOGGER_PREFIX       = 'Form 10-10CG'
     LOGGER_FILTER_KEYS  = [:veteran_name].freeze
 
-    def self.metrics
+    METRICS = lambda do
       submission_prefix = "#{STATSD_KEY_PREFIX}.submission"
+
       OpenStruct.new(
         submission: OpenStruct.new(
           attempt: "#{submission_prefix}.attempt",
           success: "#{submission_prefix}.success",
+          caregivers: OpenStruct.new(
+            primary_no_secondary: "#{submission_prefix}.caregivers.primary_no_secondary",
+            primary_one_secondary: "#{submission_prefix}.caregivers.primary_one_secondary",
+            primary_two_secondary: "#{submission_prefix}.caregivers.primary_two_secondary",
+            no_primary_one_secondary: "#{submission_prefix}.caregivers.no_primary_one_secondary",
+            no_primary_two_secondary: "#{submission_prefix}.caregivers.no_primary_two_secondary"
+          ),
           failure: OpenStruct.new(
             client: OpenStruct.new(
               data: "#{submission_prefix}.failure.client.data",
@@ -23,6 +31,10 @@ module Form1010cg
         ),
         pdf_download: "#{STATSD_KEY_PREFIX}.pdf_download"
       )
+    end.call
+
+    def self.metrics
+      METRICS
     end
 
     def initialize(logger = Rails.logger)
@@ -49,6 +61,33 @@ module Form1010cg
         attachments_job_id: attachments_job_id
       )
     end
+
+    # rubocop:disable Metrics/MethodLength
+    def record_caregivers(claim)
+      secondaries_count = 0
+      %w[one two].each do |attr|
+        secondaries_count += 1 if claim.public_send("secondary_caregiver_#{attr}_data").present?
+      end
+
+      if claim.primary_caregiver_data.present?
+        case secondaries_count
+        when 0
+          increment(self.class.metrics.submission.caregivers.primary_no_secondary)
+        when 1
+          increment(self.class.metrics.submission.caregivers.primary_one_secondary)
+        when 2
+          increment(self.class.metrics.submission.caregivers.primary_two_secondary)
+        end
+      else
+        case secondaries_count
+        when 1
+          increment(self.class.metrics.submission.caregivers.no_primary_one_secondary)
+        when 2
+          increment(self.class.metrics.submission.caregivers.no_primary_two_secondary)
+        end
+      end
+    end
+    # rubocop:enable Metrics/MethodLength
 
     def record_submission_failure_client_data(errors:, claim_guid: nil)
       increment self.class.metrics.submission.failure.client.data
