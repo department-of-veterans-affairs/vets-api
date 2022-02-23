@@ -18,7 +18,7 @@ module EVSS
       sidekiq_retries_exhausted do |msg, _ex|
         job_exhausted(msg, STATSD_KEY_PREFIX)
         submission = Form526Submission.find msg['args'].first
-        submission.start_but_use_a_birls_id_that_hasnt_been_tried_yet!(
+        submission.submit_with_birls_id_that_hasnt_been_tried_yet!(
           silence_errors_and_log_to_sentry: true,
           extra_content_for_sentry: { job_class: msg['class'].demodulize, job_id: msg['jid'] }
         )
@@ -75,7 +75,7 @@ module EVSS
       def non_retryable_error_handler(error)
         # update JobStatus, log and metrics in JobStatus#non_retryable_error_handler
         super(error)
-        submission.start_but_use_a_birls_id_that_hasnt_been_tried_yet!(
+        submission.submit_with_birls_id_that_hasnt_been_tried_yet!(
           silence_errors_and_log_to_sentry: true,
           extra_content_for_sentry: { job_class: self.class.to_s.demodulize, job_id: jid }
         )
