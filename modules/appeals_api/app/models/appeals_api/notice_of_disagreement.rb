@@ -51,8 +51,16 @@ module AppealsApi
       )
     end
 
+    def claimant
+      @claimant ||= Appellant.new(
+        type: :claimant,
+        auth_headers: auth_headers,
+        form_data: data_attributes&.dig('claimant')
+      )
+    end
+
     def signing_appellant
-      veteran
+      claimant.signing_appellant? ? claimant : veteran
     end
 
     def appellant_local_time
@@ -73,6 +81,10 @@ module AppealsApi
 
     def contestable_issues
       form_data&.dig('included')
+    end
+
+    def representative
+      data_attributes['representative']
     end
     # V2 End
 
@@ -126,7 +138,7 @@ module AppealsApi
 
     def email
       # V2 and V1 access the email data via different keys ('email' vs 'emailAddressText')
-      veteran.email.presence || veteran_contact_info['emailAddressText']
+      signing_appellant.email.presence || veteran_contact_info['emailAddressText']
     end
 
     def veteran_homeless?

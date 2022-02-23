@@ -15,10 +15,12 @@
           "phoneNumber": "8001111"
         },
         "email": "clause@north.com",
-        "representativesName": "Tony Danza"
+        "timezone": "America/Chicago"
+      },
+      "representative": {
+        "name": "Tony Danza"
       },
       "boardReviewOption": "evidence_submission",
-      "timezone": "America/Chicago",
       "extensionRequest": false,
       "appealingVhaDenial": false
     }

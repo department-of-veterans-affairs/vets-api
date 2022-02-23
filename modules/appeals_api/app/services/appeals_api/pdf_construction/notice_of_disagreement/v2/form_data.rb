@@ -9,22 +9,37 @@ module AppealsApi
         end
 
         delegate :appellant_local_time, :board_review_value, :contestable_issues, :extension_request?,
-                 :representative_name, :signing_appellant, :veteran, :veteran_homeless?,
+                 :representative, :hearing_type_preference, :extension_request?, :extension_reason,
+                 :appealing_vha_denial?, :signing_appellant, :veteran, :claimant,
                  to: :notice_of_disagreement
 
-        delegate :first_name, :last_name, :phone_data, :number_and_street, :city, :zip_code,
+        delegate :first_name, :middle_initial, :last_name, :homeless?,
                  to: :veteran, prefix: true
 
-        def veteran_phone
-          veteran.phone_formatted.to_s || 'USE PHONE ON FILE'
+        delegate :first_name, :middle_initial, :last_name, :homeless?,
+                 to: :claimant, prefix: true
+
+        def preferred_phone
+          signing_appellant.phone_formatted.to_s
         end
 
-        def veteran_email
-          veteran.email.presence || 'USE EMAIL ON FILE'
+        def mailing_address
+          [
+            signing_appellant.number_and_street,
+            signing_appellant.city,
+            signing_appellant.state_code,
+            signing_appellant.zip_code,
+            signing_appellant.country_code,
+            signing_appellant.international_postal_code
+          ].compact.join(', ')
+        end
+
+        def preferred_email
+          signing_appellant.email.presence
         end
 
         def veteran_homeless
-          veteran_homeless? ? 1 : 'Off'
+          veteran.homeless? ? 1 : 'Off'
         end
 
         def direct_review
@@ -39,24 +54,41 @@ module AppealsApi
           board_review_value == 'hearing' ? 1 : 'Off'
         end
 
+        def central_office_hearing
+          hearing_type_preference == 'central_office' ? 1 : 'Off'
+        end
+
+        def video_conference_hearing
+          hearing_type_preference == 'video_conference' ? 1 : 'Off'
+        end
+
+        def virtual_tele_hearing
+          hearing_type_preference == 'virtual_hearing' ? 1 : 'Off'
+        end
+
+        def extension_request
+          extension_request? ? 1 : 'Off'
+        end
+
+        def appealing_vha_denial
+          appealing_vha_denial? ? 1 : 'Off'
+        end
+
         def additional_pages
           contestable_issues.size > 5 || extension_request? ? 1 : 'Off'
         end
 
+        def rep_name
+          representative&.dig('name')
+        end
+
         def signature
+          # TODO: need to eventually handle representative signature here as well
           "#{signing_appellant.full_name[0...180]}\n- Signed by digital authentication to api.va.gov"
         end
 
-        def date_signed_mm
-          appellant_local_time.strftime '%m'
-        end
-
-        def date_signed_dd
-          appellant_local_time.strftime '%d'
-        end
-
-        def date_signed_yyyy
-          appellant_local_time.strftime '%Y'
+        def date_signed
+          appellant_local_time.strftime('%m/%d/%Y')
         end
 
         def stamp_text

@@ -8,10 +8,10 @@
           "areaCode": "555",
           "phoneNumber": "8001111"
         },
-        "email": "clause@north.com"
+        "email": "clause@north.com",
+        "timezone": "America/Chicago"
       },
       "boardReviewOption": "evidence_submission",
-      "timezone": "America/Chicago",
       "extensionRequest": false,
       "appealingVhaDenial": false
     }

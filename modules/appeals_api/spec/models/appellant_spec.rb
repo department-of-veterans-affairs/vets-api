@@ -90,6 +90,11 @@ describe AppealsApi::Appellant, type: :model do
     it { expect(claimant_appellant.zip_code_5).to eq '48070' }
   end
 
+  describe '#homeless?' do
+    it { expect(veteran_appellant.homeless?).to eq true }
+    #  TODO: determine how to handle for non-veteran claimant in future
+  end
+
   context 'when no address for claimant' do
     let(:no_address_data) { claimant_form_data.delete('address') }
     let(:claimant_appellant) do

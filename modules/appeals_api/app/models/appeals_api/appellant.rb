@@ -40,6 +40,12 @@ module AppealsApi
       auth_headers['X-VA-Insurance-Policy-Number']
     end
 
+    def birth_date
+      return if birth_date_string.blank?
+
+      @birth_date ||= Date.parse(birth_date_string)
+    end
+
     def birth_month
       birth_date&.strftime('%m')
     end
@@ -82,6 +88,10 @@ module AppealsApi
 
     def zip_code
       international_postal_code || zip_code_5
+    end
+
+    def homeless?
+      form_data['homeless']
     end
 
     def email
@@ -129,12 +139,6 @@ module AppealsApi
 
     def header_prefix
       @header_prefix ||= veteran? ? '' : '-Claimant'
-    end
-
-    def birth_date
-      return if birth_date_string.blank?
-
-      @birth_date ||= Date.parse(birth_date_string)
     end
 
     def address_combined
