@@ -8,7 +8,7 @@ http_interactions:
       string: token=<PENSIONS_TOKEN>&uuid=%5B%2234656d73-7c31-456d-9c49-2024fff1cd47%22%5D
     headers:
       User-Agent:
-      - Faraday v0.17.4
+      - Faraday v0.17.5
       Content-Type:
       - application/x-www-form-urlencoded
       Accept-Encoding:
