@@ -5,18 +5,20 @@ require 'va_notify/service'
 
 describe VaNotify::Service do
   before(:example, test_service: false) do
-    @test_api_key = 'test-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
-    @test_base_url = 'http://fakeapi.com'
-    allow_any_instance_of(VaNotify::Configuration).to receive(:base_path).and_return(@test_base_url)
+    test_base_url = 'http://fakeapi.com'
+    allow_any_instance_of(VaNotify::Configuration).to receive(:base_path).and_return(test_base_url)
   end
 
-  send_email_parameters = {
-    email_address: 'test@email.com',
-    template_id: '1234',
-    personalisation: {
-      foo: 'bar'
+  let(:test_api_key) { 'test-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb' }
+  let(:send_email_parameters) do
+    {
+      email_address: 'test@email.com',
+      template_id: '1234',
+      personalisation: {
+        foo: 'bar'
+      }
     }
-  }
+  end
 
   describe 'service initialization', test_service: true do
     let(:notification_client) { double('Notifications::Client') }
@@ -60,7 +62,7 @@ describe VaNotify::Service do
   end
 
   describe '#send_email', test_service: false do
-    subject { VaNotify::Service.new(@test_api_key) }
+    subject { VaNotify::Service.new(test_api_key) }
 
     let(:notification_client) { double('Notifications::Client') }
 
@@ -74,7 +76,7 @@ describe VaNotify::Service do
   end
 
   describe 'error handling', test_service: false do
-    subject { VaNotify::Service.new(@test_api_key) }
+    subject { VaNotify::Service.new(test_api_key) }
 
     it 'raises a 400 exception' do
       VCR.use_cassette('va_notify/bad_request') do

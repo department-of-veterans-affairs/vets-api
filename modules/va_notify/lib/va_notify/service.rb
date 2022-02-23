@@ -2,6 +2,7 @@
 
 require 'notifications/client'
 require 'common/client/base'
+require 'common/client/concerns/monitoring'
 require_relative 'configuration'
 
 module VaNotify

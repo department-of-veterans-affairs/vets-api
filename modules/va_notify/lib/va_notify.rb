@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'notify/engine'
+require 'va_notify/engine'
 
-module Notify
+module VaNotify
   # Your code goes here...
 end

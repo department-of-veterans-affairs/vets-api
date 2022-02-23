@@ -93,7 +93,6 @@ PATH
     meb_api (0.1.0)
     mobile (0.1.0)
       dry-validation
-    notify (0.1.0)
     openid_auth (0.0.1)
     test_user_dashboard (0.1.0)
       google-cloud-bigquery
@@ -103,6 +102,7 @@ PATH
       nokogiri
       paper_trail
       sidekiq
+    va_notify (0.1.0)
     vaos (0.1.0)
       sidekiq
     vba_documents (1.0.0)
@@ -1060,7 +1060,6 @@ DEPENDENCIES
   net-sftp
   nokogiri
   notifications-ruby-client
-  notify!
   octokit (= 4.21.0)
   oj
   okcomputer
@@ -1137,6 +1136,7 @@ DEPENDENCIES
   tzinfo-data
   utf8-cleaner
   va_forms!
+  va_notify!
   vaos!
   vba_documents!
   vcr

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-module Notify
+module VaNotify
   class Engine < ::Rails::Engine
-    isolate_namespace Notify
+    isolate_namespace VaNotify
     config.generators.api_only = true
 
     initializer 'model_core.factories', after: 'factory_bot.set_factory_paths' do
