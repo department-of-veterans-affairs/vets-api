@@ -595,3 +595,6 @@ features:
   show_dashboard_notifications:
     actor_type: user
     description: Enables on-site notifications
+  check_va_inbox_enabled:
+    actor_type: user
+    description: Enables check inbox link
