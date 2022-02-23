@@ -23,6 +23,7 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
   describe '.perform_async' do
     before do
       Timecop.freeze(Time.zone.parse('2020-11-01T10:30:00Z'))
+      Flipper.disable(:mobile_appointment_requests)
     end
 
     after { Timecop.return }
