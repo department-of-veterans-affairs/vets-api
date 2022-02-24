@@ -39,7 +39,7 @@ module EVSS
           response = service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
           response_handler(response)
         end
-        send_hypertension_fast_track_pilot_email(submission)
+        send_hypertension_fast_track_pilot_email(submission) if submission.rrd_process_selector.rrd_applicable?
       rescue Common::Exceptions::BackendServiceException,
              Common::Exceptions::GatewayTimeout,
              Breakers::OutageException,
@@ -55,10 +55,7 @@ module EVSS
       private
 
       def send_hypertension_fast_track_pilot_email(submission)
-        if submission.single_issue_hypertension_claim? && Flipper
-           .enabled?(:disability_hypertension_compensation_fast_track)
-          HypertensionFastTrackPilotMailer.build(submission).deliver_now
-        end
+        HypertensionFastTrackPilotMailer.build(submission).deliver_now
       end
 
       def response_handler(response)
