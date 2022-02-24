@@ -56,7 +56,7 @@ class Rack::Attack
   end
 
   # Source: https://github.com/kickstarter/rack-attack#x-ratelimit-headers-for-well-behaved-clients
-  Rack::Attack.throttled_response = lambda do |env|
+  Rack::Attack.throttled_responder = lambda do |env|
     rate_limit = env['rack.attack.match_data']
 
     now = Time.zone.now
