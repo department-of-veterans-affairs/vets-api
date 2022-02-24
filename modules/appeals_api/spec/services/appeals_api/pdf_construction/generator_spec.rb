@@ -36,6 +36,41 @@ describe AppealsApi::PdfConstruction::Generator do
           File.delete(generated_pdf) if File.exist?(generated_pdf)
         end
       end
+
+      context 'v2' do
+        context 'pdf content verification' do
+          let(:nod_v2) { create(:notice_of_disagreement_v2, created_at: '2021-02-03T14:15:16Z') }
+
+          it 'generates the expected pdf' do
+            generated_pdf = described_class.new(nod_v2, version: 'V2').generate
+            expected_pdf = fixture_filepath('expected_10182.pdf', version: 'v2')
+            expect(generated_pdf).to match_pdf expected_pdf
+            File.delete(generated_pdf) if File.exist?(generated_pdf)
+          end
+        end
+
+        context 'pdf extra content verification' do
+          let(:extra_nod_v2) { create(:extra_notice_of_disagreement_v2, created_at: '2021-02-03T14:15:16Z') }
+
+          it 'generates the expected pdf' do
+            generated_pdf = described_class.new(extra_nod_v2, version: 'V2').generate
+            expected_pdf = fixture_filepath('expected_10182_extra.pdf', version: 'v2')
+            expect(generated_pdf).to match_pdf expected_pdf
+            File.delete(generated_pdf) if File.exist?(generated_pdf)
+          end
+        end
+
+        context 'pdf minimal content verification' do
+          let(:minimal_nod_v2) { create(:minimal_notice_of_disagreement_v2, created_at: '2021-02-03T14:15:16Z') }
+
+          it 'generates the expected pdf' do
+            generated_pdf = described_class.new(minimal_nod_v2, version: 'V2').generate
+            expected_pdf = fixture_filepath('expected_10182_minimal.pdf', version: 'v2')
+            expect(generated_pdf).to match_pdf expected_pdf
+            File.delete(generated_pdf) if File.exist?(generated_pdf)
+          end
+        end
+      end
     end
 
     context 'Higher Level Review' do
