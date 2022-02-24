@@ -51,7 +51,7 @@ module Mobile
     end
 
     def vets360_link_redis_lock
-      @redis ||= Redis::Namespace.new(REDIS_CONFIG[:mobile_vets360_account_link_lock][:namespace], redis: Redis.current)
+      @redis ||= Redis::Namespace.new(REDIS_CONFIG[:mobile_vets360_account_link_lock][:namespace], redis: $redis)
     end
 
     def lock_vets360_linking(account_uuid)

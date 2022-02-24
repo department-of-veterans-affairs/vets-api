@@ -46,7 +46,7 @@ module Common
     end
 
     def self.redis_namespace
-      @redis_namespace ||= Redis::Namespace.new(CACHE_NAMESPACE, redis: Redis.current)
+      @redis_namespace ||= Redis::Namespace.new(CACHE_NAMESPACE, redis: $redis)
     end
 
     def redis_namespace
