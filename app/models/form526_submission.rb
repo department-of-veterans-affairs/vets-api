@@ -47,17 +47,18 @@ class Form526Submission < ApplicationRecord
   SUBMIT_FORM_526_JOB_CLASSES = %w[SubmitForm526AllClaim SubmitForm526].freeze
 
   def start
-    if single_issue_hypertension_claim? && Flipper.enabled?(:disability_hypertension_compensation_fast_track)
+    rrd_processor_class = rrd_process_selector.processor_class
+    if rrd_processor_class
       workflow_batch = Sidekiq::Batch.new
       workflow_batch.on(
         :success,
         'Form526Submission#start_evss_submission',
         'submission_id' => id
       )
-      jids = workflow_batch.jobs do
-        RapidReadyForDecision::DisabilityCompensationJob.perform_async(id, full_name)
+      job_ids = workflow_batch.jobs do
+        rrd_processor_class.perform_async(id)
       end
-      jids.first
+      job_ids.first
     else
       start_evss_submission(nil, { 'submission_id' => id })
     end
@@ -65,6 +66,10 @@ class Form526Submission < ApplicationRecord
     Rails.logger.error 'The fast track was skipped due to the following error ' \
                        " and start_evss_submission wass called: #{e}"
     start_evss_submission(nil, { 'submission_id' => id })
+  end
+
+  def rrd_process_selector
+    @rrd_process_selector ||= RapidReadyForDecision::ProcessorSelector.new(self)
   end
 
   # Kicks off a 526 submit workflow batch. The first step in a submission workflow is to submit
@@ -84,11 +89,11 @@ class Form526Submission < ApplicationRecord
       'submission_id' => id,
       'first_name' => get_first_name
     )
-    jids = workflow_batch.jobs do
+    job_ids = workflow_batch.jobs do
       EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.perform_async(id)
     end
 
-    jids.first
+    job_ids.first
   end
 
   # Runs start_evss_submission but first looks to see if the veteran has BIRLS IDs that previous start
@@ -335,13 +340,6 @@ class Form526Submission < ApplicationRecord
 
   def bdd?
     form.dig('form526', 'form526', 'bddQualified') || false
-  end
-
-  def single_issue_hypertension_claim?
-    disabilities = form.dig('form526', 'form526', 'disabilities')
-    disabilities.count == 1 &&
-      disabilities.first['disabilityActionType'] == 'INCREASE' &&
-      disabilities.first['diagnosticCode'] == 7101
   end
 
   private

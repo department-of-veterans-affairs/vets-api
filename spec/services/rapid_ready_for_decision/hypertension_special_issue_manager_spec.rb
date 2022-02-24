@@ -27,7 +27,9 @@ RSpec.describe RapidReadyForDecision::HypertensionSpecialIssueManager do
   end
 
   def filter_disabilities(form)
-    form[:disabilities].filter { |item| item[:diagnosticCode] == 7101 }
+    form[:disabilities].filter do |item|
+      item[:diagnosticCode] == RapidReadyForDecision::DiagnosticCodes::HYPERTENSION
+    end
   end
 
   describe '#add_special_issue' do

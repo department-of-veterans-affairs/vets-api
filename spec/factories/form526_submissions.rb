@@ -20,6 +20,12 @@ FactoryBot.define do
     end
   end
 
+  trait :hypertension_claim_for_increase do
+    form_json do
+      File.read("#{::Rails.root}/spec/support/disability_compensation_form/submissions/only_526_hypertension.json")
+    end
+  end
+
   trait :with_one_succesful_job do
     after(:create) do |submission|
       create(:form526_job_status, form526_submission: submission)

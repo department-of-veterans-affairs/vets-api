@@ -22,7 +22,7 @@ module RapidReadyForDecision
 
     STATSD_KEY_PREFIX = 'worker.fast_track.disability_compensation_job'
 
-    def perform(form526_submission_id, full_name)
+    def perform(form526_submission_id)
       form526_submission = Form526Submission.find(form526_submission_id)
 
       begin
@@ -31,7 +31,7 @@ module RapidReadyForDecision
 
           return if bp_readings(client).blank?
 
-          pdf = pdf(full_name, bp_readings(client), medications(client))
+          pdf = pdf(form526_submission.full_name, bp_readings(client), medications(client))
           upload_pdf_and_attach_special_issue(form526_submission, pdf)
         end
       rescue => e
