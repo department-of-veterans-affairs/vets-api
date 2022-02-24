@@ -18,7 +18,7 @@ module Common
     end
 
     def self.redis_store(namespace)
-      @redis_namespace = Redis::Namespace.new(namespace, redis: $redis)
+      @redis_namespace = Redis::Namespace.new(namespace, redis: Redis.current)
     end
     delegate :redis_namespace, to: 'self.class'
 

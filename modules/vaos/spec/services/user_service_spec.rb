@@ -71,7 +71,7 @@ describe VAOS::UserService do
         it 'sets the cached token ttl to expire five seconds before the VAMF token expires' do
           VCR.use_cassette('vaos/users/post_session') do
             subject.session(user)
-            expect($redis.ttl("va-mobile-session:#{user.account_uuid}")).to eq(895)
+            expect(Redis.current.ttl("va-mobile-session:#{user.account_uuid}")).to eq(895)
           end
         end
       end

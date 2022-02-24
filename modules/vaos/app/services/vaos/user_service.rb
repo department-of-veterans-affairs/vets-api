@@ -46,7 +46,7 @@ module VAOS
     end
 
     def redis_session_lock
-      @redis ||= Redis::Namespace.new(REDIS_CONFIG[:va_mobile_session_refresh_lock][:namespace], redis: $redis)
+      @redis ||= Redis::Namespace.new(REDIS_CONFIG[:va_mobile_session_refresh_lock][:namespace], redis: Redis.current)
     end
 
     def lock_session_creation(account_uuid)

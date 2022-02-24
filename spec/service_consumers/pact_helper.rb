@@ -43,7 +43,7 @@ RSpec.configure do |config|
     stub_emis unless example.metadata[:skip_emis]
     stub_vet360 unless example.metadata[:skip_vet360]
 
-    $redis.flushall
+    Redis.current.flushall
   end
 end
 
