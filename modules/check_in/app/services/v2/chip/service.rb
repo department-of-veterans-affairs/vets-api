@@ -119,6 +119,28 @@ module V2
         end
       end
 
+      # Call the CHIP API to confirm demographics. A CHIP token is required
+      # and if it is either not present in Redis or cannot be retrieved from CHIP, an unauthorized
+      # message is returned.
+      #
+      # @see https://github.com/department-of-veterans-affairs/chip CHIP API details
+      #
+      # @return [Hash] success message if successful
+      # @return [Hash] unauthorized message if token is not present
+      # @return [Hash] invalid request message if demographic_confirmations is not present
+      def confirm_demographics
+        resp = if check_in_body.nil?
+                 Faraday::Response.new(body: check_in.invalid_request.to_json, status: 400)
+               elsif token.present?
+                 chip_client.confirm_demographics(token: token, demographic_confirmations:
+                   demographic_confirmations.merge(identifier_params))
+               else
+                 Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
+               end
+
+        response.build(response: resp).handle
+      end
+
       # Get the CHIP token. If the token does not already exist in Redis, a call is made to CHIP token
       # endpoint to retrieve it.
       #

@@ -114,6 +114,15 @@ module CheckIn
       def client_error
         { error: true, message: 'Invalid last4 or last name!' }
       end
+
+      #
+      # Returns the Faraday::Response for invalid request from client
+      #
+      # @return [Faraday::Response]
+      #
+      def invalid_request
+        { error: true, message: 'Invalid parameter request' }
+      end
     end
   end
 end
