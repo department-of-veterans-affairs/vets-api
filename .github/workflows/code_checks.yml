@@ -145,33 +145,3 @@ jobs:
           result_path: Coverage Report/.last_run.json
           min_coverage: 90
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        if: always()
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: 'us-gov-west-1'
-
-      - name: Set BIGQUERY_SERVICE_CREDENTIALS Environment Variable
-        uses: 'marvinpinto/action-inject-ssm-secrets@v1.2.1'
-        if: always()
-        with:
-          ssm_parameter: '/dsva-vagov/testing-team/bigquery_service_credentials'
-          env_variable_name: 'BIGQUERY_SERVICE_CREDENTIALS'
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@master
-        if: always()
-        with:
-          project_id: vsp-analytics-and-insights
-          service_account_key: ${{ env.BIGQUERY_SERVICE_CREDENTIALS }}
-          export_default_credentials: true
-
-      - name: Push unit test data to BigQuery
-        run:  bundle exec ruby rakelib/test_stats_to_bigquery.rb
-        if: always()
-        env:
-          BIGQUERY_CREDENTIALS: ${{ env.BIGQUERY_SERVICE_CREDENTIALS }}
-          BRANCH_NAME: ${{ github.ref }}
