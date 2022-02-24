@@ -6,6 +6,7 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
   subject { described_class }
 
   let(:power_of_attorney) { create(:power_of_attorney, :with_full_headers) }
+  let(:bad_b64_image) { File.read('modules/claims_api/spec/fixtures/signature_b64_prefix_bad.txt') }
 
   before do
     Sidekiq::Worker.clear_all
@@ -92,6 +93,30 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
         expect(ClaimsApi::PoaPdfConstructor::Organization).to receive(:new).and_call_original
         expect_any_instance_of(ClaimsApi::PoaPdfConstructor::Organization).to receive(:construct).and_call_original
         subject.new.perform(power_of_attorney.id)
+      end
+    end
+
+    context 'when signature has prefix' do
+      before do
+        Veteran::Service::Representative.new(representative_id: '67890', poa_codes: ['ABC']).save!
+        Veteran::Service::Organization.create(poa: 'ABC', name: 'Some org')
+        power_of_attorney.update(form_data: power_of_attorney.form_data.deep_merge(
+          {
+            signatures: {
+              veteran: bad_b64_image,
+              representative: bad_b64_image
+            }
+          }
+        ))
+      end
+
+      it 'sets the status and store the error' do
+        expect_any_instance_of(ClaimsApi::PoaPdfConstructor::Organization).to receive(:construct)
+          .and_raise(ClaimsApi::StampSignatureError)
+        subject.new.perform(power_of_attorney.id)
+        power_of_attorney.reload
+        expect(power_of_attorney.status).to eq(ClaimsApi::PowerOfAttorney::ERRORED)
+        expect(power_of_attorney.signature_errors).not_to be_empty
       end
     end
   end

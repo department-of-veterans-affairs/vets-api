@@ -22,7 +22,8 @@ module ClaimsApi
     rescue Errno::ENOENT
       rescue_file_not_found(power_of_attorney)
     rescue ClaimsApi::StampSignatureError => e
-      power_of_attorney.update(signature_errors: e.detail)
+      signature_errors = (power_of_attorney.signature_errors || []).push(e.detail)
+      power_of_attorney.update(status: ClaimsApi::PowerOfAttorney::ERRORED, signature_errors: signature_errors)
     end
 
     def pdf_constructor(power_of_attorney)
