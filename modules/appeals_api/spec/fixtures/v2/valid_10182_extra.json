@@ -63,7 +63,7 @@
     {
       "type": "contestableIssue",
       "attributes": {
-        "issue": "right knee",
+        "issue": "123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789x",
         "decisionDate": "1900-01-03",
         "ratingIssueReferenceId": "6",
         "ratingDecisionReferenceId": "7"
