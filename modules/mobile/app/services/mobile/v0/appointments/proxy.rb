@@ -114,7 +114,7 @@ module Mobile
         end
 
         def fetch_facilities(appointments)
-          facility_ids = appointments.collect { |appt| appt.sta6aid || appt.facility_id }.uniq
+          facility_ids = appointments.map(&:id_for_address).uniq
 
           return nil unless facility_ids.any?
 
