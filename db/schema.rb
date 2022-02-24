@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_02_08_161919) do
+ActiveRecord::Schema.define(version: 2022_02_23_000748) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -642,6 +642,21 @@ ActiveRecord::Schema.define(version: 2022_02_08_161919) do
     t.index ["subject"], name: "index_notifications_on_subject"
   end
 
+  create_table "oauth_sessions", force: :cascade do |t|
+    t.uuid "handle", null: false
+    t.uuid "user_account_id", null: false
+    t.string "hashed_refresh_token", null: false
+    t.datetime "refresh_expiration", null: false
+    t.datetime "refresh_creation", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["handle"], name: "index_oauth_sessions_on_handle", unique: true
+    t.index ["hashed_refresh_token"], name: "index_oauth_sessions_on_hashed_refresh_token", unique: true
+    t.index ["refresh_creation"], name: "index_oauth_sessions_on_refresh_creation"
+    t.index ["refresh_expiration"], name: "index_oauth_sessions_on_refresh_expiration"
+    t.index ["user_account_id"], name: "index_oauth_sessions_on_user_account_id"
+  end
+
   create_table "onsite_notifications", force: :cascade do |t|
     t.string "template_id", null: false
     t.string "va_profile_id", null: false
@@ -1002,5 +1017,6 @@ ActiveRecord::Schema.define(version: 2022_02_08_161919) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "deprecated_user_accounts", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_verifications"
+  add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "user_verifications", "user_accounts"
 end
