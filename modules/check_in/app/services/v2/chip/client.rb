@@ -108,6 +108,21 @@ module V2
         end
       end
 
+      ##
+      # HTTP POST call to the CHIP API to confirm demographics update
+      #
+      # @param token [String] CHIP token to call the endpoint
+      # @param demographic_confirmations [Hash] demographic confirmations with patientDFN & stationNo
+      #
+      # @return [Faraday::Response]
+      #
+      def confirm_demographics(token:, demographic_confirmations:)
+        connection.post("/#{base_path}/actions/confirm-demographics") do |req|
+          req.headers = default_headers.merge('Authorization' => "Bearer #{token}")
+          req.body = demographic_confirmations.to_json
+        end
+      end
+
       private
 
       ##
