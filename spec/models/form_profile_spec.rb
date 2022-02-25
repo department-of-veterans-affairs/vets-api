@@ -610,7 +610,7 @@ RSpec.describe FormProfile, type: :model do
       'income' => [
         {
           'veteranOrSpouse' => 'VETERAN',
-          'compensationAndPension' => '3444.7'
+          'compensationAndPension' => '3000'
         }
       ]
     }
@@ -882,6 +882,13 @@ RSpec.describe FormProfile, type: :model do
     end
 
     context 'with a user that can prefill financial status report' do
+      let(:comp_and_pen_payments) do
+        [
+          { payment_date: DateTime.now - 2.months, payment_amount: '1500' },
+          { payment_date: DateTime.now - 10.days, payment_amount: '3000' }
+        ]
+      end
+
       before do
         allow_any_instance_of(BGS::PeopleService).to(
           receive(:find_person_by_participant_id).and_return({ file_nbr: '796043735' })
@@ -889,13 +896,17 @@ RSpec.describe FormProfile, type: :model do
         allow_any_instance_of(User).to(
           receive(:participant_id).and_return('600061742')
         )
+        allow_any_instance_of(DebtManagementCenter::PaymentsService).to(
+          receive(:compensation_and_pension).and_return(comp_and_pen_payments)
+        )
+        allow_any_instance_of(DebtManagementCenter::PaymentsService).to(
+          receive(:education).and_return(nil)
+        )
         allow(user).to receive(:authorize).and_return(true)
       end
 
       it 'returns a prefilled 5655 form' do
-        VCR.use_cassette('bgs/payment_service/payment_history') do
-          expect_prefilled('5655')
-        end
+        expect_prefilled('5655')
       end
     end
 

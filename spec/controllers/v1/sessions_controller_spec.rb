@@ -84,18 +84,28 @@ RSpec.describe V1::SessionsController, type: :controller do
   context 'when not logged in' do
     describe 'new' do
       context 'routes not requiring auth' do
-        %w[mhv dslogon idme logingov].each do |type|
+        %w[mhv mhv_verified dslogon dslogon_verified idme idme_verified logingov logingov_verified].each do |type|
           context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             let(:authn) do
               case type
               when 'mhv'
                 ['myhealthevet', AuthnContext::ID_ME]
+              when 'mhv_verified'
+                ['myhealthevet_loa3', AuthnContext::ID_ME]
               when 'idme'
                 [LOA::IDME_LOA1_VETS, AuthnContext::ID_ME]
+              when 'idme_verified'
+                [LOA::IDME_LOA3, AuthnContext::ID_ME]
               when 'dslogon'
                 ['dslogon', AuthnContext::ID_ME]
+              when 'dslogon_verified'
+                ['dslogon_loa3', AuthnContext::ID_ME]
               when 'logingov'
                 [IAL::LOGIN_GOV_IAL1,
+                 AAL::LOGIN_GOV_AAL2,
+                 AuthnContext::LOGIN_GOV]
+              when 'logingov_verified'
+                [IAL::LOGIN_GOV_IAL2,
                  AAL::LOGIN_GOV_AAL2,
                  AuthnContext::LOGIN_GOV]
               end
@@ -113,7 +123,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
               expect(response).to have_http_status(:ok)
               expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
-                                    'originating_request_id' => nil, 'type' => type)
+                                    'originating_request_id' => nil, 'type' => type.gsub('_verified', ''))
               expect(SAMLRequestTracker.keys.length).to eq(1)
               payload = SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload
               expect(payload)
@@ -258,11 +268,33 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
         end
 
+        context 'routes /sessions/idme_signup_verified/new to SessionsController#new' do
+          it 'redirects' do
+            expect { get(:new, params: { type: :idme_signup_verified, client_id: '123123' }) }
+              .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                           tags: ['context:idme_signup_verified', 'version:v1'], **once)
+            expect(response).to have_http_status(:ok)
+            expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
+                                  'originating_request_id' => nil, 'type' => 'signup')
+          end
+        end
+
         context 'routes /sessions/logingov_signup/new to SessionsController#new' do
           it 'redirects' do
             expect { get(:new, params: { type: :logingov_signup, client_id: '123123' }) }
               .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                            tags: ['context:logingov_signup', 'version:v1'], **once)
+            expect(response).to have_http_status(:ok)
+            expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
+                                  'originating_request_id' => nil, 'type' => 'signup')
+          end
+        end
+
+        context 'routes /sessions/logingov_signup_verified/new to SessionsController#new' do
+          it 'redirects' do
+            expect { get(:new, params: { type: :logingov_signup_verified, client_id: '123123' }) }
+              .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                           tags: ['context:logingov_signup_verified', 'version:v1'], **once)
             expect(response).to have_http_status(:ok)
             expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
                                   'originating_request_id' => nil, 'type' => 'signup')
