@@ -32,13 +32,25 @@ RSpec.describe SAML::URLService do
         let(:params) { { action: 'new' } }
 
         it 'has sign in url: mhv_url' do
-          expect(subject.mhv_url)
+          expect(subject.login_url('mhv', 'myhealthevet'))
+            .to be_a_saml_url(expected_saml_url)
+            .with_relay_state('originating_request_id' => '123', 'type' => 'mhv')
+        end
+
+        it 'has sign in url: mhv_verified' do
+          expect(subject.login_url('mhv', 'myhealthevet_loa3'))
             .to be_a_saml_url(expected_saml_url)
             .with_relay_state('originating_request_id' => '123', 'type' => 'mhv')
         end
 
         it 'has sign in url: dslogon_url' do
-          expect(subject.dslogon_url)
+          expect(subject.login_url('dslogon', 'dslogon'))
+            .to be_a_saml_url(expected_saml_url)
+            .with_relay_state('originating_request_id' => '123', 'type' => 'dslogon')
+        end
+
+        it 'has sign in url: dslogon_verified' do
+          expect(subject.login_url('dslogon', 'dslogon_loa3'))
             .to be_a_saml_url(expected_saml_url)
             .with_relay_state('originating_request_id' => '123', 'type' => 'dslogon')
         end
@@ -46,13 +58,53 @@ RSpec.describe SAML::URLService do
         it 'has sign in url: idme_url' do
           expect_any_instance_of(OneLogin::RubySaml::Settings)
             .to receive(:authn_context_comparison=).with('minimum')
-          expect(subject.idme_url)
+          expect(subject.login_url('idme', LOA::IDME_LOA1_VETS, AuthnContext::ID_ME, AuthnContext::MINIMUM))
             .to be_a_saml_url(expected_saml_url)
             .with_relay_state('originating_request_id' => '123', 'type' => 'idme')
         end
 
+        it 'has sign in url: idme_verified' do
+          expect_any_instance_of(OneLogin::RubySaml::Settings)
+            .to receive(:authn_context_comparison=).with('minimum')
+          expect(subject.login_url('idme', LOA::IDME_LOA3, AuthnContext::ID_ME, AuthnContext::MINIMUM))
+            .to be_a_saml_url(expected_saml_url)
+            .with_relay_state('originating_request_id' => '123', 'type' => 'idme')
+        end
+
+        it 'has sign in url: logingov_url' do
+          expect_any_instance_of(OneLogin::RubySaml::Settings)
+            .to receive(:authn_context_comparison=).with('minimum')
+          expect(subject.login_url('logingov', [IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2],
+                                   AuthnContext::LOGIN_GOV, AuthnContext::MINIMUM))
+            .to be_a_saml_url(expected_saml_url)
+            .with_relay_state('originating_request_id' => '123', 'type' => 'logingov')
+        end
+
+        it 'has sign in url: logingov_verified' do
+          expect_any_instance_of(OneLogin::RubySaml::Settings)
+            .to receive(:authn_context_comparison=).with('minimum')
+          expect(subject.login_url('logingov', [IAL::LOGIN_GOV_IAL2, AAL::LOGIN_GOV_AAL2],
+                                   AuthnContext::LOGIN_GOV, AuthnContext::MINIMUM))
+            .to be_a_saml_url(expected_saml_url)
+            .with_relay_state('originating_request_id' => '123', 'type' => 'logingov')
+        end
+
+        it 'has sign up url: logingov_verified_signup' do
+          expect(subject.logingov_signup_url([IAL::LOGIN_GOV_IAL2, AAL::LOGIN_GOV_AAL2]))
+            .to be_a_saml_url(expected_saml_url)
+            .with_relay_state('originating_request_id' => '123', 'type' => 'signup')
+            .with_params('op' => 'signup')
+        end
+
         it 'has sign up url: idme_signup_url' do
-          expect(subject.idme_signup_url)
+          expect(subject.idme_signup_url(LOA::IDME_LOA1_VETS))
+            .to be_a_saml_url(expected_saml_url)
+            .with_relay_state('originating_request_id' => '123', 'type' => 'signup')
+            .with_params('op' => 'signup')
+        end
+
+        it 'has sign up url: idme_verified_signup' do
+          expect(subject.idme_signup_url(LOA::IDME_LOA3))
             .to be_a_saml_url(expected_saml_url)
             .with_relay_state('originating_request_id' => '123', 'type' => 'signup')
             .with_params('op' => 'signup')
@@ -303,13 +355,13 @@ RSpec.describe SAML::URLService do
         let(:params) { { action: 'new' } }
 
         it 'has sign in url: mhv_url' do
-          expect(subject.mhv_url)
+          expect(subject.login_url('mhv', 'myhealthevet'))
             .to be_a_saml_url(expected_saml_url)
             .with_relay_state('originating_request_id' => '123', 'type' => 'mhv')
         end
 
         it 'has sign in url: dslogon_url' do
-          expect(subject.dslogon_url)
+          expect(subject.login_url('dslogon', 'dslogon'))
             .to be_a_saml_url(expected_saml_url)
             .with_relay_state('originating_request_id' => '123', 'type' => 'dslogon')
         end
@@ -317,7 +369,7 @@ RSpec.describe SAML::URLService do
         it 'has sign in url: idme_url' do
           expect_any_instance_of(OneLogin::RubySaml::Settings)
             .to receive(:authn_context_comparison=).with('minimum')
-          expect(subject.idme_url)
+          expect(subject.login_url('idme', LOA::IDME_LOA1_VETS, AuthnContext::ID_ME, AuthnContext::MINIMUM))
             .to be_a_saml_url(expected_saml_url)
             .with_relay_state('originating_request_id' => '123', 'type' => 'idme')
         end
@@ -332,10 +384,17 @@ RSpec.describe SAML::URLService do
         end
 
         it 'has sign up url: idme_signup_url' do
-          expect(subject.idme_signup_url)
+          expect(subject.idme_signup_url(LOA::IDME_LOA1_VETS))
             .to be_a_saml_url(expected_saml_url)
             .with_relay_state('originating_request_id' => '123', 'type' => 'signup')
             .with_params('op' => 'signup')
+        end
+
+        it 'has sign up url: logingov_signup_url' do
+          expect(subject.logingov_signup_url([IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2]))
+            .to be_a_saml_url(expected_saml_url)
+            .with_relay_state('originating_request_id' => '123', 'type' => 'signup')
+            .with_params('op' => 'logingov')
         end
 
         context 'verify_url' do
@@ -549,7 +608,7 @@ RSpec.describe SAML::URLService do
       let(:params) { { action: 'new' } }
 
       it 'has sign in url: mhv_url' do
-        expect(subject.mhv_url)
+        expect(subject.login_url('mhv', 'myhealthevet'))
           .to be_a_saml_url(expected_saml_url)
           .with_relay_state('originating_request_id' => '123', 'type' => 'mhv', 'review_instance_slug' => slug_id)
       end

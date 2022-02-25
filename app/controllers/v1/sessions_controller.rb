@@ -12,7 +12,9 @@ module V1
   class SessionsController < ApplicationController
     skip_before_action :verify_authenticity_token
 
-    REDIRECT_URLS = %w[signup mhv dslogon idme idme_signup logingov logingov_signup custom mfa verify slo].freeze
+    REDIRECT_URLS = %w[signup mhv mhv_verified dslogon dslogon_verified idme idme_verified idme_signup
+                       idme_signup_verified logingov logingov_verified logingov_signup
+                       logingov_signup_verified custom mfa verify slo].freeze
     STATSD_SSO_NEW_KEY = 'api.auth.new'
     STATSD_SSO_SAMLREQUEST_KEY = 'api.auth.saml_request'
     STATSD_SSO_SAMLRESPONSE_KEY = 'api.auth.saml_response'
@@ -167,17 +169,39 @@ module V1
 
       case type
       when 'mhv'
-        url_service.mhv_url
+        url_service.login_url('mhv', 'myhealthevet')
+      when 'mhv_verified'
+        url_service.login_url('mhv', 'myhealthevet_loa3')
       when 'dslogon'
-        url_service.dslogon_url
+        url_service.login_url('dslogon', 'dslogon')
+      when 'dslogon_verified'
+        url_service.login_url('dslogon', 'dslogon_loa3')
       when 'idme'
-        url_service.idme_url
+        url_service.login_url('idme', LOA::IDME_LOA1_VETS, AuthnContext::ID_ME, AuthnContext::MINIMUM)
+      when 'idme_verified'
+        url_service.login_url('idme', LOA::IDME_LOA3, AuthnContext::ID_ME, AuthnContext::MINIMUM)
       when 'idme_signup'
-        url_service.idme_signup_url
+        url_service.idme_signup_url(LOA::IDME_LOA1_VETS)
+      when 'idme_signup_verified'
+        url_service.idme_signup_url(LOA::IDME_LOA3)
       when 'logingov'
-        url_service.logingov_url
+        url_service.login_url(
+          'logingov',
+          [IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2],
+          AuthnContext::LOGIN_GOV,
+          AuthnContext::MINIMUM
+        )
+      when 'logingov_verified'
+        url_service.login_url(
+          'logingov',
+          [IAL::LOGIN_GOV_IAL2, AAL::LOGIN_GOV_AAL2],
+          AuthnContext::LOGIN_GOV,
+          AuthnContext::MINIMUM
+        )
       when 'logingov_signup'
-        url_service.logingov_signup_url
+        url_service.logingov_signup_url([IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2])
+      when 'logingov_signup_verified'
+        url_service.logingov_signup_url([IAL::LOGIN_GOV_IAL2, AAL::LOGIN_GOV_AAL2])
       when 'mfa'
         url_service.mfa_url
       when 'verify'

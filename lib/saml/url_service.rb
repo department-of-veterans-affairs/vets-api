@@ -77,42 +77,21 @@ module SAML
     end
 
     # SIGN ON URLS
-    def mhv_url
-      @type = 'mhv'
-      build_sso_url(build_authn_context('myhealthevet'))
+    def login_url(type, authn_context, identity_provider = AuthnContext::ID_ME, authn_con_compare = AuthnContext::EXACT)
+      @type = type
+      build_sso_url(build_authn_context(authn_context, identity_provider), authn_con_compare)
     end
 
-    def dslogon_url
-      @type = 'dslogon'
-      build_sso_url(build_authn_context('dslogon'))
-    end
-
-    def idme_url
-      @type = 'idme'
-      build_sso_url(build_authn_context(LOA::IDME_LOA1_VETS), AuthnContext::MINIMUM)
-    end
-
-    def idme_signup_url
+    def idme_signup_url(authn_context)
       @type = 'signup'
       @query_params[:op] = 'signup'
-      build_sso_url(build_authn_context(LOA::IDME_LOA1_VETS))
+      build_sso_url(build_authn_context(authn_context))
     end
 
-    def logingov_url
-      @type = 'logingov'
-      build_sso_url(
-        build_authn_context(
-          [IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2],
-          AuthnContext::LOGIN_GOV
-        ),
-        AuthnContext::MINIMUM
-      )
-    end
-
-    def logingov_signup_url
+    def logingov_signup_url(authn_context)
       @type = 'signup'
       build_sso_url(
-        build_authn_context([IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2], AuthnContext::LOGIN_GOV)
+        build_authn_context(authn_context, AuthnContext::LOGIN_GOV)
       )
     end
 
