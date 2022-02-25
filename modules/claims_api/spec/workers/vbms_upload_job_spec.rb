@@ -76,7 +76,7 @@ RSpec.describe ClaimsApi::VBMSUploadJob, type: :job do
       end
     end
 
-    it 'handles the file not found from S3' do
+    it 'rescues file not found from S3, updates POA record, and re-raises to allow Sidekiq retries' do
       VCR.use_cassette('vbms/document_upload_success') do
         token_response = OpenStruct.new(upload_token: '<{573F054F-E9F7-4BF2-8C66-D43ADA5C62E7}')
         OpenStruct.new(upload_document_response: {
@@ -88,7 +88,7 @@ RSpec.describe ClaimsApi::VBMSUploadJob, type: :job do
           .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
         allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:fetch_upload_token).and_return(token_response)
         allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:upload_document).and_raise(Errno::ENOENT)
-        subject.new.perform(power_of_attorney.id)
+        expect { subject.new.perform(power_of_attorney.id) }.to raise_error(Errno::ENOENT)
         power_of_attorney.reload
         expect(power_of_attorney.status).to eq('errored')
       end
