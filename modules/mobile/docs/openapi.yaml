@@ -204,6 +204,12 @@ paths:
                 VA Video Connect Appointment:
                   value:
                     $ref: ./examples/appointments/va_video_connect_appointment.yml
+                Community Care Appointment Request:
+                  value:
+                    $ref: ./examples/appointments/cc_appointment_request.yml
+                VA Appointment Request:
+                  value:
+                    $ref: ./examples/appointments/va_appointment_request.yml
               schema:
                 $ref: ./schemas/Appointments.yml
           description: OK

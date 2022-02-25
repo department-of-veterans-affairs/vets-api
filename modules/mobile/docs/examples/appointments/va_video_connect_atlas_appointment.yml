@@ -5,8 +5,6 @@ data:
       appointmentType: VA_VIDEO_CONNECT_ATLAS
       cancelId: MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=
       comment: Please log on 5 minutes before the start of your appointment
-      clinicId: ~
-      facilityId: ~
       healthcareProvider: null
       healthcareService: ATLAS Conference Center
       location:
@@ -32,6 +30,15 @@ data:
       statusDetail: null
       timeZone: America/Los_Angeles
       vetextId: 308;20210106.140000
+      reason: "Follow-up/Routine: Reason 1"
+      is_covid_vaccine: false
+      is_pending: false
+      proposed_times: null
+      type_of_care: null
+      patient_phone_number: null
+      patient_email: null
+      best_time_to_call: null
+      friendly_location_name: null
 meta:
   errors: null
 links:
