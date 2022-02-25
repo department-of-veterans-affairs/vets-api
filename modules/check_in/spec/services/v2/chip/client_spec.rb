@@ -145,4 +145,58 @@ describe V2::Chip::Client do
       expect(subject.set_precheckin_started(token: token)).to eq(response)
     end
   end
+
+  describe '#confirm_demographics' do
+    let(:resp) do
+      {
+        data: {
+          attributes: {
+            id: 5,
+            patientDfn: '418',
+            demographicsNeedsUpdate: false,
+            demographicsConfirmedAt: '2021-11-30T20:45:03.779Z',
+            nextOfKinNeedsUpdate: false,
+            nextOfKinConfirmedAt: '2021-11-30T20:45:03.779Z',
+            emergencyContactNeedsUpdate: true,
+            emergencyContactConfirmedAt: '2021-11-30T20:45:03.779Z',
+            insuranceVerificationNeeded: nil
+          }
+        },
+        id: '418'
+      }
+    end
+
+    let(:faraday_response) { Faraday::Response.new(body: resp, status: 200) }
+
+    let(:token) { 'abc123' }
+    let(:demographic_confirmations) do
+      {
+        demographicConfirmations: {
+          demographicsNeedsUpdate: true,
+          demographicsConfirmedAt: '2021-11-30T20:45:03.779Z',
+          nextOfKinNeedsUpdate: true,
+          nextOfKinConfirmedAt: '2021-11-30T20:45:03.779Z',
+          emergencyContactNeedsUpdate: true,
+          emergencyContactConfirmedAt: '2021-11-30T20:45:03.779Z'
+        }
+      }
+    end
+
+    before do
+      allow_any_instance_of(Faraday::Connection).to receive(:post).with('/dev/actions/confirm-demographics')
+                                                                  .and_return(resp)
+    end
+
+    it 'yields to block' do
+      expect_any_instance_of(Faraday::Connection).to receive(:post).with('/dev/actions/confirm-demographics')
+                                                                   .and_yield(Faraday::Request.new)
+
+      subject.confirm_demographics(token: token, demographic_confirmations: demographic_confirmations)
+    end
+
+    it 'returns success response' do
+      expect(subject.confirm_demographics(token: token, demographic_confirmations: demographic_confirmations))
+        .to eq(resp)
+    end
+  end
 end

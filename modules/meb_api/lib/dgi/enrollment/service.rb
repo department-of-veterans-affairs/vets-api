@@ -23,8 +23,14 @@ module MebApi
           end
         end
 
-        def submit_enrollment
-          true
+        def submit_enrollment(params)
+          with_monitoring do
+            headers = request_headers
+            options = { timeout: 60 }
+            response = perform(:post, submit_enrollment_url, format_params(params), headers, options)
+
+            MebApi::DGI::Enrollment::Response.new(response)
+          end
         end
 
         private
@@ -33,11 +39,30 @@ module MebApi
           "claimant/#{claimant_id}/enrollments"
         end
 
+        def submit_enrollment_url
+          'enrollmentverification'
+        end
+
         def request_headers
           {
             "Content-Type": 'application/json',
             Authorization: "Bearer #{MebApi::AuthenticationTokenService.call}"
           }
+        end
+
+        def format_params(params)
+          camelize_keys_for_java_service(params)
+        end
+
+        def camelize_keys_for_java_service(params)
+          params.permit!.to_h.deep_transform_keys do |key|
+            if key.include?('_')
+              split_keys = key.split('_')
+              split_keys.collect { |key_part| split_keys[0] == key_part ? key_part : key_part.capitalize }.join
+            else
+              key
+            end
+          end
         end
       end
     end

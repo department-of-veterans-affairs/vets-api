@@ -70,12 +70,9 @@ module MebApi
       end
 
       def submit_enrollment_verification
-        # Just mocking return value until data structure is confirmed
-        render json: {
-          data: {
-            status: 200
-          }
-        }
+        response = enrollment_service.submit_enrollment(params)
+
+        render json: response, serializer: EnrollmentSerializer
       end
 
       private

@@ -79,6 +79,10 @@ module AppealsApi
         def issue_table_decision_date(index)
           "F[0].Page_1[0].Percentage2[#{index}]"
         end
+
+        def additional_issues
+          'F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[9]'
+        end
       end
     end
   end

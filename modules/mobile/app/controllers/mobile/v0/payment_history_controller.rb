@@ -38,7 +38,11 @@ module Mobile
 
       def bgs_service_response
         person = BGS::PeopleService.new(current_user).find_person_by_participant_id
-        BGS::PaymentService.new(current_user).payment_history(person)
+        Rails.logger.info('Mobile Payment History Person not found for user icn: ', current_user.icn) if person.empty?
+        payment_history = BGS::PaymentService.new(current_user).payment_history(person)
+        raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error' if payment_history.nil?
+
+        payment_history
       end
 
       def available_years(payments)

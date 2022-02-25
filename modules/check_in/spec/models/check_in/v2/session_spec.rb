@@ -192,4 +192,13 @@ RSpec.describe CheckIn::V2::Session do
       expect(error).to eq(hsh)
     end
   end
+
+  describe '#invalid_request' do
+    it 'returns a invalid parameter error' do
+      invalid_param = { error: true, message: 'Invalid parameter request' }
+      error = subject.build({}).invalid_request
+
+      expect(error).to eq(invalid_param)
+    end
+  end
 end

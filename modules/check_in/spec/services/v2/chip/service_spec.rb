@@ -260,4 +260,84 @@ describe V2::Chip::Service do
       end
     end
   end
+
+  describe '#confirm_demographics' do
+    let(:params) do
+      {
+        demographicConfirmations: {
+          demographicsNeedsUpdate: false,
+          demographicsConfirmedAt: '2021-11-30T20:45:03.779Z',
+          nextOfKinNeedsUpdate: false,
+          nextOfConfirmedAt: '2021-11-30T20:45:03.779Z',
+          emergencyContactNeedsUpdate: true,
+          emergencyContactConfirmedAt: '2021-11-30T20:45:03.779Z'
+        },
+        patientDFN: '888',
+        stationNo: '500'
+      }
+    end
+
+    context 'when token is already present' do
+      let(:uuid) { 'd602d9eb-9a31-484f-9637-13ab0b507e0d' }
+      let(:appointment_identifiers) do
+        {
+          data: {
+            id: uuid,
+            type: :appointment_identifier,
+            attributes: { patientDFN: '123', stationNo: '888' }
+          }
+        }
+      end
+
+      let(:resp) do
+        {
+          data: {
+            attributes: {
+              id: 5,
+              patientDfn: '888',
+              demographicsNeedsUpdate: false,
+              demographicsConfirmedAt: '2021-11-30T20:45:03.779Z',
+              nextOfKinNeedsUpdate: false,
+              nextOfKinConfirmedAt: '2021-11-30T20:45:03.779Z',
+              emergencyContactNeedsUpdate: true,
+              emergencyContactConfirmedAt: '2021-11-30T20:45:03.779Z',
+              insuranceVerificationNeeded: nil
+            }
+          },
+          id: '888'
+        }
+      end
+
+      let(:faraday_response) { Faraday::Response.new(body: resp, status: 200) }
+      let(:hsh) { { data: faraday_response.body, status: faraday_response.status } }
+
+      before do
+        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
+        allow_any_instance_of(::V2::Chip::Client).to receive(:confirm_demographics).and_return(faraday_response)
+        Rails.cache.write(
+          "check_in_lorota_v2_appointment_identifiers_#{uuid}",
+          appointment_identifiers.to_json,
+          namespace: 'check-in-lorota-v2-cache'
+        )
+      end
+
+      it 'returns demographics confirmation response' do
+        expect(subject.build(check_in: valid_check_in, params: params)
+                    .confirm_demographics).to eq(hsh)
+      end
+    end
+
+    context 'when token is not present' do
+      let(:error_response) { { data: { error: true, message: 'Unauthorized' }, status: 401 } }
+
+      before do
+        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return(nil)
+      end
+
+      it 'returns unauthorized message' do
+        expect(subject.build(check_in: valid_check_in, params: params)
+                      .confirm_demographics).to eq(error_response)
+      end
+    end
+  end
 end
