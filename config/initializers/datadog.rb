@@ -5,6 +5,7 @@ envs = %w[development staging sandbox production]
 Datadog.configure do |c|
   c.use :sidekiq
   c.use :rails
+  c.use :rake
   c.service = 'vets-api'
   c.env = Settings.vsp_environment
   c.tracer.enabled = envs.include? Settings.vsp_environment
