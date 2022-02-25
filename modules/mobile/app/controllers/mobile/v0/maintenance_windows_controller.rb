@@ -12,6 +12,7 @@ module Mobile
         %i[bgs evss],
         %i[mpi evss],
         %i[bgs caseflow],
+        %i[bgs payment_history],
         %i[arcgis facility_locator],
         %i[caseflow appeals],
         %i[emis military_service_history],

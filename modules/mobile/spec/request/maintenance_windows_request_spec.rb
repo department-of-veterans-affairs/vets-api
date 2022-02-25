@@ -77,5 +77,33 @@ RSpec.describe 'maintenance windows', type: :request do
         )
       end
     end
+
+    context 'when BGS is down' do
+      before do
+        Timecop.freeze('2021-05-25T23:33:39Z')
+        FactoryBot.create(:mobile_maintenance_bgs)
+        get '/mobile/v0/maintenance_windows', headers: { 'X-Key-Inflection' => 'camel' }
+      end
+
+      after { Timecop.return }
+
+      it 'matches the expected schema' do
+        expect(response.body).to match_json_schema('maintenance_windows')
+      end
+
+      it 'includes payment history as an affected service' do
+        expect(response.parsed_body['data']).to include(
+          {
+            'id' => '4ebb2370-3f56-5f24-a2f9-3b211f59077e',
+            'type' => 'maintenance_window',
+            'attributes' => {
+              'service' => 'payment_history',
+              'startTime' => '2021-05-25T23:33:39.000Z',
+              'endTime' => '2021-05-26T01:45:00.000Z'
+            }
+          }
+        )
+      end
+    end
   end
 end
