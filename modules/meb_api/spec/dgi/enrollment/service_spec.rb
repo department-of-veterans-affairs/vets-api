@@ -6,6 +6,19 @@ require 'dgi/enrollment/service'
 RSpec.describe MebApi::DGI::Enrollment::Service do
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:service) { MebApi::DGI::Enrollment::Service.new(user) }
+  let(:enrollment_verification_params) do
+    {
+      claimant_id: 1,
+      enrollments: [
+        {
+          "month": 'August',
+          "credit_hours": 60,
+          "start_date": '2022-02-15',
+          "end_date": '2022-04-15'
+        }
+      ]
+    }
+  end
 
   describe '#get_enrollment' do
     let(:faraday_response) { double('faraday_connection') }
@@ -35,8 +48,12 @@ RSpec.describe MebApi::DGI::Enrollment::Service do
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('dgi/submit_enrollment_verification') do
-          response = service.submit_enrollment
-          expect(response).to eq(true)
+          response = service.submit_enrollment(ActionController::Parameters.new(enrollment_verification_params))
+          expect(response.enrollment).to eq([['claimant_id', 1],
+                                             ['enrollments',
+                                              [{ 'month' => 'August', 'credit_hours' => 60,
+                                                 'start_date' => '2022-02-15', 'end_date' => '2022-04-15' }]]])
+          expect(response.status).to eq(200)
         end
       end
     end
