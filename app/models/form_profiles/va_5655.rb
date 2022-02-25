@@ -53,9 +53,16 @@ class FormProfiles::VA5655 < FormProfile
     payments = DebtManagementCenter::PaymentsService.new(user)
 
     DebtManagementCenter::Payment.new(
-      education_amount: payments.education&.last&.[](:payment_amount),
-      compensation_amount: payments.compensation_and_pension&.last&.[](:payment_amount),
+      education_amount: payment_amount(payments.education),
+      compensation_amount: payment_amount(payments.compensation_and_pension),
       veteran_or_spouse: 'VETERAN'
     )
+  end
+
+  def payment_amount(payments)
+    last_month = Time.zone.today - 30.days
+
+    # Filter to only use recent payments from last 30 days
+    payments&.select { |payment| payment[:payment_date] > last_month }&.last&.[](:payment_amount)
   end
 end
