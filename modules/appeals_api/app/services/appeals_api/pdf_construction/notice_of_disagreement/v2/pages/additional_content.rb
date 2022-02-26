@@ -42,7 +42,7 @@ module AppealsApi
           def preferred_email_text
             return unless form_data.long_preferred_email?
 
-            "\n<b>Preferred Email:</b>\n#{form_data.preferred_email}\n"
+            "\n<b>Preferred Email:</b>\n#{form_data.signing_appellant.email}\n"
           end
 
           def extra_issues_table_data
