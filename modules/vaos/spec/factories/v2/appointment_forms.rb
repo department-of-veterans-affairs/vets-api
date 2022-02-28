@@ -14,6 +14,29 @@ FactoryBot.define do
       location_id { '983' }
       service_type { 'podiatry' } # transforms on the front-end need to change
       comment { 'test' }
+      practitioners do
+        [
+          {
+            identifier: [
+              {
+                'system': 'http://hl7.org/fhir/sid/us-npi',
+                'value': '1407938061'
+              }
+            ],
+            address: {
+              'type': 'postal',
+              'line': [
+                '38143 Martha Ave'
+              ],
+              'city': 'Fremont',
+              'state': 'CA',
+              'postal_code': '94536',
+              'country': 'USA',
+              'text': 'test'
+            }
+          }
+        ]
+      end
       contact do
         {
           'telecom' => [

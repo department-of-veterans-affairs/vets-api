@@ -36,7 +36,8 @@ describe VAOS::V2::AppointmentsService do
       # appointment created using the Jacqueline Morgan user
 
       it 'returns the created appointment - va - booked' do
-        VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_JACQUELINE_M', record: :new_episodes) do
+        VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_JACQUELINE_M',
+                         match_requests_on: %i[method uri]) do
           response = subject.post_appointment(va_booked_request_body)
           expect(response[:id]).to be_a(String)
         end
@@ -61,7 +62,7 @@ describe VAOS::V2::AppointmentsService do
 
     context 'when cc appointment create request is valid' do
       it 'returns the created appointment - cc - proposed' do
-        VCR.use_cassette('vaos/v2/appointments/post_appointments_cc_200', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/v2/appointments/post_appointments_cc_200_2222022', match_requests_on: %i[method uri]) do
           response = subject.post_appointment(community_cares_request_body)
           expect(response[:id]).to be_a(String)
         end
