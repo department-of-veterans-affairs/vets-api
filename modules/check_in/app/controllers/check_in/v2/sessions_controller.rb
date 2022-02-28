@@ -23,6 +23,10 @@ module CheckIn
 
         token_data = ::V2::Lorota::Service.build(check_in: check_in_session).token
 
+        if Flipper.enabled?('check_in_experience_set_pre_checkin_status') && pre_checkin?
+          ::V2::Chip::Service.build(check_in: check_in_session).set_precheckin_started
+        end
+
         session[:jwt] = token_data[:jwt]
 
         render json: token_data[:permission_data]
@@ -33,6 +37,12 @@ module CheckIn
       end
 
       private
+
+      def pre_checkin?
+        check_in_param = params[:checkInType] # GET request
+        check_in_param = params.dig(:session, :check_in_type) if check_in_param.nil?
+        check_in_param == 'preCheckIn'
+      end
 
       def authorize
         routing_error unless Flipper.enabled?('check_in_experience_enabled')
