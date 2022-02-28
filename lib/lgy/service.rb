@@ -133,6 +133,18 @@ module LGY
       raise e
     end
 
+    def get_coe_documents
+      # which will look a lot like get_determination
+      with_monitoring do
+        perform(
+          :get,
+          "#{end_point}/documents",
+          { 'edipi' => @edipi, 'icn' => @icn },
+          request_headers
+        )
+      end
+    end
+
     def request_headers
       {
         Authorization: "api-key { \"appId\":\"#{Settings.lgy.app_id}\", \"apiKey\": \"#{Settings.lgy.api_key}\"}"
