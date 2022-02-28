@@ -13,6 +13,8 @@ module IAMSSOeOAuth
     CERT_PATH = Settings.iam_ssoe.client_cert_path
     KEY_PATH = Settings.iam_ssoe.client_key_path
 
+    self.read_timeout = Settings.iam_ssoe.timeout || 15
+
     # Override the parent's base path
     # @return String the service base path from the environment settings
     #
