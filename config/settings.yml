@@ -97,7 +97,7 @@ form_10_10cg:
       host: "https://fake-mulesoft.vapi.va.gov"
       client_id: BEEFCAFE1234
       client_secret: C0FFEEFACE4321
-      timeout: 10 
+      timeout: 10
   poa:
     s3:
       aws_access_key_id: my-aws-key-id
@@ -714,6 +714,7 @@ iam_ssoe:
   # oauth (rest) and sts (soap) services are on different hosts
   oauth_url: "https://int.fed.eauth.va.gov:444"
   sts_url: "https://preprod.services.eauth.va.gov:9301"
+  timeout: 20
 
 statsd:
   host: ~
