@@ -60,12 +60,8 @@ module Mobile
         end
 
         payments.filter do |payment|
-          # staging data have nil dates not sure this happens in production
-          if payment[:date].nil?
-            Rails.logger.warn('mobile payment history record found with no date',
-                              user_icn: current_user.icn, payment_id: payment.id)
-            next
-          end
+          next if payment[:date].nil? # filter out future scheduled payments
+
           payment[:date].between?(start_date, end_date)
         end
       end

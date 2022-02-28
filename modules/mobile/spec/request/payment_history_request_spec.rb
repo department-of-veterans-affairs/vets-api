@@ -280,12 +280,6 @@ RSpec.describe 'payment_history', type: :request do
       it 'returns a 200' do
         expect(response).to have_http_status(:ok)
       end
-
-      it 'logs that a payment with no date was found' do
-        expect(Rails.logger).to have_received(:warn).at_least(:once).with(
-          'mobile payment history record found with no date', { payment_id: '11213114', user_icn: '1008596379V859838' }
-        )
-      end
     end
   end
 end
