@@ -339,6 +339,7 @@ Rails.application.routes.draw do
       get 'status'
       get 'download_coe'
       post 'submit_coe_claim'
+      get 'documents'
     end
   end
 

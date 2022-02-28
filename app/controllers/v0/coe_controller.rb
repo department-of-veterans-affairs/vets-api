@@ -31,6 +31,11 @@ module V0
       render(json: claim)
     end
 
+    def documents
+      documents = lgy_service.get_coe_documents
+      render json: { data: { attributes: documents.body } }, status: :ok
+    end
+
     private
 
     def lgy_service
