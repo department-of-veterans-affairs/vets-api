@@ -27,6 +27,7 @@ module V2
     #   @return (see Config::Options#service_name)
     class Client
       extend Forwardable
+      include SentryLogging
 
       attr_reader :settings, :claims_token, :check_in_session
 
@@ -98,7 +99,8 @@ module V2
       end
 
       ##
-      # HTTP POST call to the CHIP API to set pre check-in started status
+      # HTTP POST call to the CHIP API to set pre check-in started status. Any downstream error (non HTTP 200 response)
+      # is handled by logging to Sentry and returning the original status and body.
       #
       # @return [Faraday::Response]
       #
@@ -106,6 +108,15 @@ module V2
         connection.post("/#{base_path}/actions/set-precheckin-started/#{check_in_session.uuid}") do |req|
           req.headers = default_headers.merge('Authorization' => "Bearer #{token}")
         end
+      rescue => e
+        log_exception_to_sentry(e,
+                                {
+                                  original_body: e.original_body,
+                                  original_status: e.original_status,
+                                  uuid: check_in_session.uuid
+                                },
+                                { external_service: :service_name, team: 'check-in' })
+        Faraday::Response.new(body: e.original_body, status: e.original_status)
       end
 
       ##

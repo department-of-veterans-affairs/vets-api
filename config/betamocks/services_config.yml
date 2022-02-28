@@ -645,3 +645,6 @@
     - :method: :post
       :path: "/dev/actions/confirm-demographics"
       :file_path: "/chip/confirm-demographics/default"
+    - :method: :post
+      :path: "/dev/actions/set-precheckin-started/*"
+      :file_path: "/chip/set-precheckin-started/default"

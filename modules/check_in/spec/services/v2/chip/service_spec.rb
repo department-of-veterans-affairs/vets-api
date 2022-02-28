@@ -164,10 +164,10 @@ describe V2::Chip::Service do
           .and_return(resp)
       end
 
-      it 'returns a 500 response' do
+      it 'returns the original response' do
         response = subject.build(check_in: valid_check_in).set_precheckin_started
         expect(response.body).to eq(resp.body)
-        expect(response.status).to eq(500)
+        expect(response.status).to eq(resp.status)
       end
     end
 
