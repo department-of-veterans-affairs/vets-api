@@ -5,6 +5,7 @@ Mobile::Engine.routes.draw do
 
   namespace :v0 do
     get '/appeal/:id', to: 'claims_and_appeals#get_appeal'
+    get '/appointment_requests/:appointment_request_id/messages', to: 'appointment_request_messages#index'
     get '/appointments', to: 'appointments#index'
     put '/appointments/cancel/:id', to: 'appointments#cancel'
     get '/claims-and-appeals-overview', to: 'claims_and_appeals#index'
@@ -40,7 +41,6 @@ Mobile::Engine.routes.draw do
     post '/user/phones', to: 'phones#create'
     put '/user/phones', to: 'phones#update'
     delete '/user/phones', to: 'phones#destroy'
-    get 'messaging/health/messages/signature', to: 'messages#signature'
 
     scope :messaging do
       scope :health do
