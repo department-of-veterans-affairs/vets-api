@@ -11,12 +11,19 @@ module ClaimsApi
     include Sidekiq::Worker
     include ClaimsApi::VBMSSidekiq
 
+    # Generate a 21-22 or 21-22a form for a given POA request.
+    # Uploads the generated form to VBMS. If successfully uploaded,
+    # it queues a job to update the POA code in BGS, as well.
+    #
+    # @param power_of_attorney_id [String] Unique identifier of the submitted POA
     def perform(power_of_attorney_id)
       power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
+      poa_code = power_of_attorney.form_data['serviceOrganization']['poaCode']
 
-      output_path = pdf_constructor(power_of_attorney).construct(data(power_of_attorney), id: power_of_attorney.id)
+      output_path = pdf_constructor(poa_code).construct(data(power_of_attorney), id: power_of_attorney.id)
 
       upload_to_vbms(power_of_attorney, output_path)
+      ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
     rescue VBMS::Unknown
       rescue_vbms_error(power_of_attorney)
     rescue Errno::ENOENT
@@ -26,10 +33,12 @@ module ClaimsApi
       power_of_attorney.update(status: ClaimsApi::PowerOfAttorney::ERRORED, signature_errors: signature_errors)
     end
 
-    def pdf_constructor(power_of_attorney)
-      return ClaimsApi::PoaPdfConstructor::Organization.new if poa_code_in_organization?(power_of_attorney.current_poa)
-
-      ClaimsApi::PoaPdfConstructor::Individual.new
+    def pdf_constructor(poa_code)
+      if poa_code_in_organization?(poa_code)
+        ClaimsApi::PoaPdfConstructor::Organization.new
+      else
+        ClaimsApi::PoaPdfConstructor::Individual.new
+      end
     end
 
     #

@@ -9,12 +9,17 @@ module ClaimsApi
     include Sidekiq::Worker
     include ClaimsApi::VBMSSidekiq
 
+    # Uploads a 21-22 or 21-22a form for a given POA request to VBMS.
+    # If successfully uploaded, it queues a job to update the POA code in BGS, as well.
+    #
+    # @param power_of_attorney_id [String] Unique identifier of the submitted POA
     def perform(power_of_attorney_id)
       power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
       uploader = ClaimsApi::PowerOfAttorneyUploader.new(power_of_attorney_id)
       uploader.retrieve_from_store!(power_of_attorney.file_data['filename'])
       file_path = fetch_file_path(uploader)
       upload_to_vbms(power_of_attorney, file_path)
+      ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
     rescue VBMS::Unknown
       rescue_vbms_error(power_of_attorney)
     rescue Errno::ENOENT
