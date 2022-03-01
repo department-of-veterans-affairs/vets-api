@@ -28,6 +28,117 @@ RSpec.describe 'appointments', type: :request do
 
     after { Timecop.return }
 
+    describe 'start and end date' do
+      let(:beginning_of_last_year) { (DateTime.now.utc.beginning_of_year - 1.year) }
+      let(:one_year_from_now) { (DateTime.now.utc.beginning_of_day + 1.year) }
+
+      context 'when omitted from query params' do
+        let(:params) { { page: { number: 1, size: 10 }, useCache: false } }
+
+        it 'defaults to beginning of the previous year to one year from now' do
+          expect_any_instance_of(Mobile::V0::Appointments::Service).to receive(:fetch_va_appointments).with(
+            beginning_of_last_year, one_year_from_now
+          )
+          expect_any_instance_of(Mobile::V0::Appointments::Service).to receive(:fetch_cc_appointments).with(
+            beginning_of_last_year, one_year_from_now
+          )
+
+          get '/mobile/v0/appointments', headers: iam_headers, params: params
+        end
+      end
+
+      context 'when provided start date is after beginning of the previous year' do
+        let(:start_date) { (DateTime.now.utc.beginning_of_year - 1.year + 1.day) }
+        let(:params) { { startDate: start_date.iso8601 } }
+
+        it 'defaults to the beginning of the the previous year' do
+          expect_any_instance_of(Mobile::V0::Appointments::Service).to receive(:fetch_va_appointments).with(
+            beginning_of_last_year, one_year_from_now
+          )
+
+          expect_any_instance_of(Mobile::V0::Appointments::Service).to receive(:fetch_cc_appointments).with(
+            beginning_of_last_year, one_year_from_now
+          )
+
+          get '/mobile/v0/appointments', headers: iam_headers, params: params
+        end
+      end
+
+      context 'when provided start date is before the beginning of the previous year' do
+        let(:start_date) { (DateTime.now.utc.beginning_of_year - 1.year - 1.day) }
+        let(:params) { { startDate: start_date.iso8601 } }
+
+        it 'uses the provided start date' do
+          expect_any_instance_of(Mobile::V0::Appointments::Service).to receive(:fetch_va_appointments).with(
+            start_date, one_year_from_now
+          )
+
+          expect_any_instance_of(Mobile::V0::Appointments::Service).to receive(:fetch_cc_appointments).with(
+            start_date, one_year_from_now
+          )
+
+          get '/mobile/v0/appointments', headers: iam_headers, params: params
+        end
+      end
+
+      context 'when provided end date is before one year from now' do
+        let(:end_date) { (DateTime.now.utc.beginning_of_day + 1.year - 1.day) }
+        let(:params) { { endDate: end_date.iso8601 } }
+
+        it 'defaults to one year from now' do
+          expect_any_instance_of(Mobile::V0::Appointments::Service).to receive(:fetch_va_appointments).with(
+            beginning_of_last_year, one_year_from_now
+          )
+
+          expect_any_instance_of(Mobile::V0::Appointments::Service).to receive(:fetch_cc_appointments).with(
+            beginning_of_last_year, one_year_from_now
+          )
+
+          get '/mobile/v0/appointments', headers: iam_headers, params: params
+        end
+      end
+
+      context 'when provided end date is after one year from now' do
+        let(:end_date) { (DateTime.now.utc.beginning_of_day + 1.year + 1.day) }
+        let(:params) { { endDate: end_date.iso8601 } }
+
+        it 'uses the provided end date' do
+          expect_any_instance_of(Mobile::V0::Appointments::Service).to receive(:fetch_va_appointments).with(
+            beginning_of_last_year, end_date
+          )
+
+          expect_any_instance_of(Mobile::V0::Appointments::Service).to receive(:fetch_cc_appointments).with(
+            beginning_of_last_year, end_date
+          )
+
+          get '/mobile/v0/appointments', headers: iam_headers, params: params
+        end
+      end
+
+      context 'with an invalid date in params' do
+        let(:start_date) { 42 }
+        let(:end_date) { (Time.now.utc + 3.months).iso8601 }
+        let(:params) { { startDate: start_date, endDate: end_date, useCache: true } }
+
+        it 'returns a bad request error' do
+          get '/mobile/v0/appointments', headers: iam_headers, params: params
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response.parsed_body).to eq(
+            {
+              'errors' => [
+                {
+                  'title' => 'Validation Error',
+                  'detail' => 'start_date must be a date time',
+                  'code' => 'MOBL_422_validation_error', 'status' => '422'
+                }
+              ]
+            }
+          )
+        end
+      end
+    end
+
     context 'with a missing params' do
       before do
         VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
@@ -39,31 +150,8 @@ RSpec.describe 'appointments', type: :request do
         end
       end
 
-      it 'defaults to a range of -1 year and +1 year' do
+      it 'returns an ok response' do
         expect(response).to have_http_status(:ok)
-      end
-    end
-
-    context 'with an invalid date in params' do
-      let(:start_date) { 42 }
-      let(:end_date) { (Time.now.utc + 3.months).iso8601 }
-      let(:params) { { startDate: start_date, endDate: end_date, useCache: true } }
-
-      it 'returns a bad request error' do
-        get '/mobile/v0/appointments', headers: iam_headers, params: params
-
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(response.parsed_body).to eq(
-          {
-            'errors' => [
-              {
-                'title' => 'Validation Error',
-                'detail' => 'start_date must be a date time',
-                'code' => 'MOBL_422_validation_error', 'status' => '422'
-              }
-            ]
-          }
-        )
       end
     end
 
@@ -91,24 +179,30 @@ RSpec.describe 'appointments', type: :request do
     end
 
     context 'with valid params when there are cached appointments' do
-      let(:start_date) { Time.now.utc.iso8601 }
+      va_path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'va_appointments.json')
+      cc_path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'cc_appointments.json')
+      va_json = File.read(va_path)
+      cc_json = File.read(cc_path)
+      va_appointments = Mobile::V0::Adapters::VAAppointments.new.parse(
+        JSON.parse(va_json, symbolize_names: true)
+      )
+      cc_appointments = Mobile::V0::Adapters::CommunityCareAppointments.new.parse(
+        JSON.parse(cc_json, symbolize_names: true)
+      )
+
+      appointments = (va_appointments + cc_appointments).sort_by(&:start_date_utc)
+
+      let(:start_date) { (Time.now.utc.beginning_of_year - 1.year).iso8601 }
       let(:end_date) { (Time.now.utc + 3.months).iso8601 }
-      let(:params) { { startDate: start_date, endDate: end_date, page: { number: 1, size: 10 }, useCache: true } }
+      let(:params) { { startDate: start_date, endDate: end_date, page: { number: 1, size: 30 }, useCache: true } }
       let(:user) { build(:iam_user) }
+      let(:total_appointments_within_range) do
+        appointments.filter { |p| p.start_date_utc.iso8601 >= start_date && p.start_date_utc.iso8601 <= end_date }.count
+      end
+      let(:total_appointments_outside_range) { appointments.count - total_appointments_within_range }
+      let(:request_appointments) { get '/mobile/v0/appointments', headers: iam_headers, params: params }
 
       before do
-        va_path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'va_appointments.json')
-        cc_path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'cc_appointments.json')
-        va_json = File.read(va_path)
-        cc_json = File.read(cc_path)
-        va_appointments = Mobile::V0::Adapters::VAAppointments.new.parse(
-          JSON.parse(va_json, symbolize_names: true)
-        )
-        cc_appointments = Mobile::V0::Adapters::CommunityCareAppointments.new.parse(
-          JSON.parse(cc_json, symbolize_names: true)
-        )
-
-        appointments = (va_appointments + cc_appointments).sort_by(&:start_date_utc)
         Mobile::V0::Appointment.set_cached(user, appointments)
       end
 
@@ -116,8 +210,14 @@ RSpec.describe 'appointments', type: :request do
 
       it 'retrieves the cached appointments rather than hitting the service' do
         expect_any_instance_of(VAOS::AppointmentService).not_to receive(:get_appointments)
-        get '/mobile/v0/appointments', headers: iam_headers, params: params
+        request_appointments
         expect(response).to have_http_status(:ok)
+      end
+
+      it 'retrieves the cached appointments only within date range' do
+        request_appointments
+        expect(response.parsed_body['data'].size).to eq(total_appointments_within_range)
+        expect(total_appointments_outside_range).to eq(2)
       end
 
       describe 'pagination' do
@@ -133,11 +233,11 @@ RSpec.describe 'appointments', type: :request do
           it 'has the correct links with no prev' do
             expect(response.parsed_body['links']).to eq(
               {
-                'self' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=1',
-                'first' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=1',
+                'self' => 'http://www.example.com/mobile/v0/appointments?startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=1',
+                'first' => 'http://www.example.com/mobile/v0/appointments?startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=1',
                 'prev' => nil,
-                'next' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=2',
-                'last' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=4'
+                'next' => 'http://www.example.com/mobile/v0/appointments?startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=2',
+                'last' => 'http://www.example.com/mobile/v0/appointments?startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=5'
               }
             )
           end
@@ -147,8 +247,8 @@ RSpec.describe 'appointments', type: :request do
               {
                 'currentPage' => 1,
                 'perPage' => 5,
-                'totalPages' => 4,
-                'totalEntries' => 17
+                'totalPages' => 5,
+                'totalEntries' => total_appointments_within_range
               }
             )
           end
@@ -166,11 +266,11 @@ RSpec.describe 'appointments', type: :request do
           it 'has the correct links both prev and next' do
             expect(response.parsed_body['links']).to eq(
               {
-                'self' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=2',
-                'first' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=1',
-                'prev' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=1',
-                'next' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=3',
-                'last' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=4'
+                'self' => 'http://www.example.com/mobile/v0/appointments?startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=2',
+                'first' => 'http://www.example.com/mobile/v0/appointments?startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=1',
+                'prev' => 'http://www.example.com/mobile/v0/appointments?startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=1',
+                'next' => 'http://www.example.com/mobile/v0/appointments?startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=3',
+                'last' => 'http://www.example.com/mobile/v0/appointments?startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=5'
               }
             )
           end
@@ -180,30 +280,30 @@ RSpec.describe 'appointments', type: :request do
               {
                 'currentPage' => 2,
                 'perPage' => 5,
-                'totalPages' => 4,
-                'totalEntries' => 17
+                'totalPages' => 5,
+                'totalEntries' => total_appointments_within_range
               }
             )
           end
         end
 
         context 'when the last page is requested' do
-          let(:params) { { startDate: start_date, endDate: end_date, page: { number: 4, size: 5 }, useCache: true } }
+          let(:params) { { startDate: start_date, endDate: end_date, page: { number: 5, size: 5 }, useCache: true } }
 
           before { get '/mobile/v0/appointments', headers: iam_headers, params: params }
 
-          it 'has 7 items' do
-            expect(response.parsed_body['data'].size).to eq(2)
+          it 'has 5 items' do
+            expect(response.parsed_body['data'].size).to eq(5)
           end
 
           it 'has the correct links with no next' do
             expect(response.parsed_body['links']).to eq(
               {
-                'self' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=4',
-                'first' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=1',
-                'prev' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=3',
+                'self' => 'http://www.example.com/mobile/v0/appointments?startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=5',
+                'first' => 'http://www.example.com/mobile/v0/appointments?startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=1',
+                'prev' => 'http://www.example.com/mobile/v0/appointments?startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=4',
                 'next' => nil,
-                'last' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=4'
+                'last' => 'http://www.example.com/mobile/v0/appointments?startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=5'
               }
             )
           end
@@ -211,10 +311,10 @@ RSpec.describe 'appointments', type: :request do
           it 'has the correct pagination meta data' do
             expect(response.parsed_body['meta']['pagination']).to eq(
               {
-                'currentPage' => 4,
+                'currentPage' => 5,
                 'perPage' => 5,
-                'totalPages' => 4,
-                'totalEntries' => 17
+                'totalPages' => 5,
+                'totalEntries' => total_appointments_within_range
               }
             )
           end
@@ -234,11 +334,11 @@ RSpec.describe 'appointments', type: :request do
           it 'has the correct links with no next' do
             expect(response.parsed_body['links']).to eq(
               {
-                'self' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=99',
-                'first' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=1',
-                'prev' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=4',
+                'self' => 'http://www.example.com/mobile/v0/appointments?startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=99',
+                'first' => 'http://www.example.com/mobile/v0/appointments?startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=1',
+                'prev' => 'http://www.example.com/mobile/v0/appointments?startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=5',
                 'next' => nil,
-                'last' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=4'
+                'last' => 'http://www.example.com/mobile/v0/appointments?startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=5&page[number]=5'
               }
             )
           end

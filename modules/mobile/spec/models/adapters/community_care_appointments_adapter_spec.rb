@@ -78,7 +78,7 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
     end
 
     it 'has a utc start date' do
-      expect(booked_cc[:start_date_utc]).to eq(DateTime.parse('2020-04-25T13:30:00.000-04:00'))
+      expect(booked_cc[:start_date_utc]).to eq(DateTime.parse('2018-12-20T13:30:00.000-04:00'))
     end
 
     it 'has a booked status' do
@@ -94,11 +94,11 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
     let(:booked_cc) { adapted_appointments[1] }
 
     it 'has a utc start date' do
-      expect(booked_cc[:start_date_utc].to_s).to eq('2020-12-20 23:15:00 UTC')
+      expect(booked_cc[:start_date_utc].to_s).to eq('2019-01-01 23:15:00 UTC')
     end
 
     it 'has a local start date' do
-      expect(booked_cc[:start_date_local].to_s).to eq('2020-12-20 14:15:00 -0900')
+      expect(booked_cc[:start_date_local].to_s).to eq('2019-01-01 14:15:00 -0900')
     end
 
     it 'has a time_zone' do

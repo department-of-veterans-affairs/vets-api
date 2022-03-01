@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/24811694708759028/booked-cc-appointments?endDate=2022-11-01T10:30:00Z&pageSize=0&startDate=2019-11-01T00:00:00Z&useCache=false
+      uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/24811694708759028/booked-cc-appointments?endDate=2022-11-01T10:30:00Z&pageSize=0&startDate=2019-01-01T00:00:00Z&useCache=false
       body:
         encoding: US-ASCII
         string: ''

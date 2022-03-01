@@ -11,7 +11,7 @@ module Mobile
 
       def index
         use_cache = params[:useCache] || true
-        start_date = params[:startDate] || one_year_ago.iso8601
+        start_date = params[:startDate] || beginning_of_last_year.iso8601
         end_date = params[:endDate] || one_year_from_now.iso8601
         reverse_sort = !(params[:sort] =~ /-startDateUtc/).nil?
 
@@ -49,7 +49,7 @@ module Mobile
 
       def use_cache?(validated_params)
         # use cache if date range is within +/- 1 year and use_cache is true
-        validated_params[:start_date] >= one_year_ago.iso8601 &&
+        validated_params[:start_date] >= beginning_of_last_year.iso8601 &&
           validated_params[:end_date] <= one_year_from_now.iso8601 && validated_params[:use_cache]
       end
 
@@ -57,8 +57,8 @@ module Mobile
         Mobile::V0::Appointment.clear_cache(@current_user)
       end
 
-      def one_year_ago
-        (DateTime.now.utc.beginning_of_day - 1.year)
+      def beginning_of_last_year
+        (DateTime.now.utc.beginning_of_year - 1.year)
       end
 
       def one_year_from_now
@@ -75,7 +75,7 @@ module Mobile
           Rails.logger.info('mobile appointments cache fetch', user_uuid: @current_user.uuid)
         else
           appointments = appointments_proxy.get_appointments(
-            start_date: [validated_params[:start_date], one_year_ago].min,
+            start_date: [validated_params[:start_date], beginning_of_last_year].min,
             end_date: [validated_params[:end_date], one_year_from_now].max
           )
           Mobile::V0::Appointment.set_cached(@current_user, appointments)

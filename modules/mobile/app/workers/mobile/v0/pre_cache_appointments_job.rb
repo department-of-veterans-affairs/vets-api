@@ -11,7 +11,7 @@ module Mobile
         Rails.logger.info('mobile appointments pre-cache attempt', user_uuid: uuid)
 
         user = IAMUser.find(uuid)
-        start_date = (DateTime.now.utc.beginning_of_day - 1.year)
+        start_date = (DateTime.now.utc.beginning_of_year - 1.year)
         end_date = (DateTime.now.utc.beginning_of_day + 1.year)
 
         appointments = appointments_proxy(user).get_appointments(
