@@ -6,6 +6,10 @@ require 'hca/configuration'
 
 module HCA
   class Service < Common::Client::Base
+    include Common::Client::Concerns::Monitoring
+
+    STATSD_KEY_PREFIX = 'api.1010ez'
+
     configuration HCA::Configuration
 
     # @param [Hash] user_identifier
@@ -18,7 +22,11 @@ module HCA
       formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(form, @user_identifier)
       content = Gyoku.xml(formatted)
       submission = soap.build_request(:save_submit_form, message: content)
-      response = perform(:post, '', submission.body)
+
+      response = with_monitoring do
+        perform(:post, '', submission.body)
+      end
+
       root = response.body.locate('S:Envelope/S:Body/submitFormResponse').first
       {
         success: true,
@@ -30,7 +38,9 @@ module HCA
     def health_check
       submission = soap.build_request(:get_form_submission_status, message:
         { formSubmissionId: HCA::Configuration::HEALTH_CHECK_ID })
-      response = perform(:post, '', submission.body)
+      response = with_monitoring do
+        perform(:post, '', submission.body)
+      end
       root = response.body.locate('S:Envelope/S:Body/retrieveFormSubmissionStatusResponse').first
       {
         formSubmissionId: root.locate('formSubmissionId').first.text.to_i,

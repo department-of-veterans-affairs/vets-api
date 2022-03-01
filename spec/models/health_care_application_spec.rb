@@ -196,6 +196,14 @@ RSpec.describe HealthCareApplication, type: :model do
           described_class.new(form: {}.to_json).process!
         end.to raise_error(Common::Exceptions::ValidationErrors)
       end
+
+      it 'triggers statsd' do
+        expect do
+          expect do
+            described_class.new(form: {}.to_json).process!
+          end.to raise_error(Common::Exceptions::ValidationErrors)
+        end.to trigger_statsd_increment('api.1010ez.validation_error')
+      end
     end
 
     def self.expect_job_submission(job)

@@ -59,7 +59,10 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def process!
-    raise(Common::Exceptions::ValidationErrors, self) unless valid?
+    unless valid?
+      StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.validation_error")
+      raise(Common::Exceptions::ValidationErrors, self)
+    end
 
     has_email = parsed_form['email'].present?
 
