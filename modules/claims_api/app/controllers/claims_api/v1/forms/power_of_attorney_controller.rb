@@ -47,10 +47,6 @@ module ClaimsApi
             power_of_attorney.save!
           end
 
-          if enable_vbms_access?
-            ClaimsApi::VBMSUpdater.perform_async(power_of_attorney.id, target_veteran.participant_id)
-          end
-
           data = power_of_attorney.form_data
 
           if data.dig('signatures', 'veteran').present? && data.dig('signatures', 'representative').present?
@@ -138,10 +134,6 @@ module ClaimsApi
         end
 
         private
-
-        def enable_vbms_access?
-          form_attributes['recordConsent'] && form_attributes['consentLimits'].blank?
-        end
 
         def current_poa_begin_date
           return nil if current_poa.try(:begin_date).blank?
