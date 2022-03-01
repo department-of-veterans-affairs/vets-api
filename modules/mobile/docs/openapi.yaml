@@ -131,6 +131,68 @@ paths:
       security:
         - Bearer: []
       summary: /v0/appeal/{id}
+  /v0/appointment_requests/{appointment_request_id}/messages:
+    get:
+      description: Accepts an appointment request id and returns a list of that appointment request's messages.
+      operationId: getAppointmentRequestMessages
+      parameters:
+        - description: The appointment request ID
+          in: path
+          name: appointmentRequestId
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/AppointmentRequestMessages.yml
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Authentication is possible but has failed or not yet been provided.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The requested resource could not be found.
+        '408':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The response from this API timed out.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Failure in processing entity
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An internal API error occured.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An upstream service is unavailable, or its circuit breaker
+            may have been tripped.
+        '504':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: A response from an upstream service timed out.
+      security:
+        - Bearer: []
+      summary: v0/appointment_requests/{appointment_request_id}/messages
   /v0/appointments:
     get:
       description: Given a date range returns a list of upcoming VA, Community Care,
