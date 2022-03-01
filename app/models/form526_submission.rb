@@ -126,9 +126,11 @@ class Form526Submission < ApplicationRecord
     log_exception_to_sentry e, extra_content_for_sentry
   end
 
+  # Note that the User record is cached in Redis -- `User.redis_namespace_ttl`
   def get_first_name
     user = User.find(user_uuid)
-    user&.first_name&.upcase
+    user&.first_name&.upcase.presence ||
+      auth_headers&.dig('va_eauth_firstName')&.upcase
   end
 
   # Checks against the User record first, and then resorts to checking the auth_headers
@@ -373,6 +375,8 @@ class Form526Submission < ApplicationRecord
 
   def submit_flashes
     user = User.find(user_uuid)
+    # Note that the User record is cached in Redis -- `User.redis_namespace_ttl`
+    # If this method runs after the TTL, then the flashes will not be applied -- a possible bug.
     BGS::FlashUpdater.perform_async(id) if user && Flipper.enabled?(:disability_compensation_flashes, user)
   end
 

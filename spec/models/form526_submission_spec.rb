@@ -604,6 +604,35 @@ RSpec.describe Form526Submission do
         expect(subject.get_first_name).to eql(test_param[:expected])
       end
     end
+
+    context 'when the first name is NOT populated on the User' do
+      before do
+        # Ensure `subject` is called before stubbing `first_name` so that the auth headers are populated correctly
+        allow(User.find(subject.user_uuid)).to receive(:first_name).and_return nil
+      end
+
+      context 'when name attributes exist in the auth headers' do
+        it 'returns the first name of the user from the auth headers' do
+          expect(subject.get_first_name).to eql('BEYONCE')
+        end
+      end
+
+      context 'when name attributes do NOT exist in the auth headers' do
+        subject { build(:form526_submission, :with_empty_auth_headers) }
+
+        it 'returns nil' do
+          expect(subject.get_first_name).to be nil
+        end
+      end
+    end
+
+    context 'when the User is NOT found' do
+      before { allow(User).to receive(:find).and_return nil }
+
+      it 'returns the first name of the user from the auth headers' do
+        expect(subject.get_first_name).to eql('BEYONCE')
+      end
+    end
   end
 
   describe '#full_name' do
