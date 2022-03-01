@@ -8,6 +8,8 @@ module V0
 
     skip_before_action(:authenticate)
 
+    before_action :record_submission_attempt, only: :create
+
     def create
       load_user
 
@@ -50,6 +52,10 @@ module V0
     end
 
     private
+
+    def record_submission_attempt
+      StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.submission_attempt")
+    end
 
     def skip_sentry_exception_types
       super + [Common::Exceptions::BackendServiceException]

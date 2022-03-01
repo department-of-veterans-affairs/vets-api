@@ -234,6 +234,10 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
             expect_async_submit
           end
 
+          it 'increments statsd' do
+            expect { subject }.to trigger_statsd_increment('api.1010ez.submission_attempt')
+          end
+
           it 'renders success', run_at: '2017-01-31' do
             VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
               subject
