@@ -16,12 +16,69 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
     headers
   end
 
-  it "updates the form's status" do
-    poa = create_poa
-    create_mock_lighthouse_service
-    subject.new.perform(poa.id)
-    poa.reload
-    expect(poa.status).to eq('updated')
+  context "when call to BGS 'update_birls_record' is successful" do
+    context 'and record consent is granted' do
+      it "updates the form's status and creates 'ClaimsApi::VBMSUpdater' job" do
+        create_mock_lighthouse_service
+        expect(ClaimsApi::VBMSUpdater).to receive(:perform_async)
+
+        poa = create_poa
+        poa.form_data.merge!({ recordConsent: true, consentLimits: [] })
+        poa.save!
+
+        subject.new.perform(poa.id)
+        poa.reload
+        expect(poa.status).to eq('updated')
+      end
+    end
+
+    context 'and record consent is not granted' do
+      context "because 'recordConsent' is false" do
+        it "updates the form's status but does not create a 'ClaimsApi::VBMSUpdater' job" do
+          create_mock_lighthouse_service
+          expect(ClaimsApi::VBMSUpdater).not_to receive(:perform_async)
+
+          poa = create_poa
+          poa.form_data.merge!({ recordConsent: false, consentLimits: [] })
+          poa.save!
+
+          subject.new.perform(poa.id)
+          poa.reload
+          expect(poa.status).to eq('updated')
+        end
+      end
+
+      context "because a limitation exists in 'consentLimits'" do
+        it "updates the form's status but does not create a 'ClaimsApi::VBMSUpdater' job" do
+          create_mock_lighthouse_service
+          expect(ClaimsApi::VBMSUpdater).not_to receive(:perform_async)
+
+          poa = create_poa
+          poa.form_data.merge!({ recordConsent: true, consentLimits: %w[ALCOHOLISM] })
+          poa.save!
+
+          subject.new.perform(poa.id)
+          poa.reload
+          expect(poa.status).to eq('updated')
+        end
+      end
+    end
+  end
+
+  context "when call to BGS 'update_birls_record' fails" do
+    it "updates the form's status and does not create a 'ClaimsApi::VBMSUpdater' job" do
+      create_mock_lighthouse_service
+      allow_any_instance_of(BGS::VetRecordWebService).to receive(:update_birls_record).and_return(
+        return_code: 'some error code'
+      )
+      expect(ClaimsApi::VBMSUpdater).not_to receive(:perform_async)
+
+      poa = create_poa
+
+      subject.new.perform(poa.id)
+      poa.reload
+      expect(poa.status).to eq('errored')
+    end
   end
 
   private
