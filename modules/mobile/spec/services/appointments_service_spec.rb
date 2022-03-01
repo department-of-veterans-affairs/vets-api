@@ -6,7 +6,7 @@ require_relative '../support/iam_session_helper'
 describe Mobile::V0::Appointments::Service do
   let(:user) { FactoryBot.build(:iam_user) }
   let(:service) { Mobile::V0::Appointments::Service.new(user) }
-  let(:start_date) { (DateTime.now.utc.beginning_of_day - 1.year) }
+  let(:start_date) { (DateTime.now.utc.beginning_of_year - 1.year) }
   let(:end_date) { (DateTime.now.utc.beginning_of_day + 1.year) }
 
   before(:all) do
