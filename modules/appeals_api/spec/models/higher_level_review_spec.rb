@@ -271,6 +271,16 @@ describe AppealsApi::HigherLevelReview, type: :model do
       expect(handler).to have_received(:handle!)
     end
 
+    it 'does not emit event when to and from statuses are the same' do
+      handler = instance_double(AppealsApi::Events::Handler)
+      allow(AppealsApi::Events::Handler).to receive(:new).and_return(handler)
+      allow(handler).to receive(:handle!)
+
+      higher_level_review.update_status!(status: higher_level_review.status)
+
+      expect(handler).not_to have_received(:handle!)
+    end
+
     it 'successfully gets the ICN when email isn\'t present' do
       higher_level_review = described_class.create!(
         auth_headers: auth_headers,

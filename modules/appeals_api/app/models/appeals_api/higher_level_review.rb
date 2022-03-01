@@ -228,8 +228,9 @@ module AppealsApi
     end
 
     def update_status!(status:, code: nil, detail: nil)
+      current_status = self.status
       update_handler = Events::Handler.new(event_type: :hlr_status_updated, opts: {
-                                             from: self.status,
+                                             from: current_status,
                                              to: status,
                                              status_update_time: Time.zone.now.iso8601,
                                              statusable_id: id
@@ -244,7 +245,7 @@ module AppealsApi
 
       update!(status: status, code: code, detail: detail)
 
-      update_handler.handle!
+      update_handler.handle! unless status == current_status
       email_handler.handle! if status == 'submitted' && email_identifier.present?
     end
 
