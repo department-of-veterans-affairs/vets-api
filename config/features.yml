@@ -403,10 +403,6 @@ features:
     actor_type: user
     description: Enables typeahead 2.0 functionality
     enable_in_development: true
-  search_typeahead_enabled:
-    actor_type: user
-    description: Enables type ahead search functionality
-    enable_in_development: true
   sharable_link:
     actor_type: user
     description: Toggles the availability of sharable links to deep link to content
