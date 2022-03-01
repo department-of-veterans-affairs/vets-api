@@ -110,7 +110,6 @@ module SAML
         case authn_context
         when LOA::IDME_LOA1_VETS, 'multifactor'
           build_authn_context(@loa3_context)
-        # broken on localhost, ISAM sends back SAML::UserAttributes::SSOe::INBOUND_AUTHN_CONTEXT
         when IAL::LOGIN_GOV_IAL1
           build_authn_context([IAL::LOGIN_GOV_IAL2, AAL::LOGIN_GOV_AAL2], AuthnContext::LOGIN_GOV)
         when 'myhealthevet', 'myhealthevet_multifactor'
