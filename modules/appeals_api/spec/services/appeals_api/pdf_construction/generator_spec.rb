@@ -53,6 +53,10 @@ describe AppealsApi::PdfConstruction::Generator do
           let(:extra_nod_v2) { create(:extra_notice_of_disagreement_v2, created_at: '2021-02-03T14:15:16Z') }
 
           it 'generates the expected pdf' do
+            data = extra_nod_v2.form_data
+            data['data']['attributes']['extensionReason'] = 'W' * 2300
+            extra_nod_v2.form_data = data
+
             generated_pdf = described_class.new(extra_nod_v2, version: 'V2').generate
             expected_pdf = fixture_filepath('expected_10182_extra.pdf', version: 'v2')
             expect(generated_pdf).to match_pdf expected_pdf

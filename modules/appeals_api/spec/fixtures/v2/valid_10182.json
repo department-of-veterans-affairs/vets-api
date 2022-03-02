@@ -21,7 +21,7 @@
         "name": "Tony Danza"
       },
       "boardReviewOption": "evidence_submission",
-      "extensionRequest": true,
+      "extensionRequest": false,
       "appealingVhaDenial": false
     }
   },

@@ -32,7 +32,7 @@ module AppealsApi
           attr_accessor :pdf, :form_data
 
           def no_content
-            !extra_issues? && !form_data.extension_request? && !form_data.long_preferred_email?
+            !extra_issues? && !form_data.long_preferred_email?
           end
 
           def extra_issues?

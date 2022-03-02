@@ -41,7 +41,7 @@ module AppealsApi
           end
 
           describe '#additional_pages' do
-            it { expect(form_data.additional_pages).to eq 1 }
+            it { expect(form_data.additional_pages).to eq 'Off' }
           end
 
           describe '#rep_name' do

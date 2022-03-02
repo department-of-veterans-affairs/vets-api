@@ -68,7 +68,7 @@ module AppealsApi
     end
 
     def extension_request?
-      data_attributes['extensionRequest']
+      data_attributes['extensionRequest'] && extension_reason.present?
     end
 
     def extension_reason
