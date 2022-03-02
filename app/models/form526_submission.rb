@@ -23,7 +23,7 @@ class Form526Submission < ApplicationRecord
   #     workflow complete.
   # @!attribute created_at
   #   @return [Timestamp] created at date.
-  # @!attribute workflow_complete
+  # @!attribute updated_at
   #   @return [Timestamp] updated at date.
   #
   has_kms_key
@@ -52,7 +52,7 @@ class Form526Submission < ApplicationRecord
       workflow_batch = Sidekiq::Batch.new
       workflow_batch.on(
         :success,
-        'Form526Submission#start_evss_submission',
+        'Form526Submission#rrd_complete_handler',
         'submission_id' => id
       )
       job_ids = workflow_batch.jobs do
@@ -60,16 +60,23 @@ class Form526Submission < ApplicationRecord
       end
       job_ids.first
     else
-      start_evss_submission(nil, { 'submission_id' => id })
+      start_evss_submission_job
     end
   rescue => e
     Rails.logger.error 'The fast track was skipped due to the following error ' \
-                       " and start_evss_submission wass called: #{e}"
-    start_evss_submission(nil, { 'submission_id' => id })
+                       " and start_evss_submission_job is being called: #{e}"
+    start_evss_submission_job
   end
 
   def rrd_process_selector
     @rrd_process_selector ||= RapidReadyForDecision::ProcessorSelector.new(self)
+  end
+
+  # Afer RapidReadyForDecision is complete, this method is
+  # called by Sidekiq::Batch as part of the Form 526 submission workflow
+  def rrd_complete_handler(_status, options)
+    submission = Form526Submission.find(options['submission_id'])
+    submission.start_evss_submission_job
   end
 
   # Kicks off a 526 submit workflow batch. The first step in a submission workflow is to submit
@@ -78,15 +85,13 @@ class Form526Submission < ApplicationRecord
   #
   # @return [String] the job id of the first job in the batch, i.e the 526 submit job
   #
-
-  def start_evss_submission(_status, options)
-    submission = Form526Submission.find(options['submission_id'])
-    id = submission.id
+  def start_evss_submission_job
     workflow_batch = Sidekiq::Batch.new
     workflow_batch.on(
       :success,
       'Form526Submission#perform_ancillary_jobs_handler',
       'submission_id' => id,
+      # Call get_first_name while the temporary User record still exists
       'first_name' => get_first_name
     )
     job_ids = workflow_batch.jobs do
@@ -96,7 +101,7 @@ class Form526Submission < ApplicationRecord
     job_ids.first
   end
 
-  # Runs start_evss_submission but first looks to see if the veteran has BIRLS IDs that previous start
+  # Runs start_evss_submission_job but first looks to see if the veteran has BIRLS IDs that previous start
   # attempts haven't used before (if so, swaps one of those into auth_headers).
   # If all BIRLS IDs for a veteran have been tried, does nothing and returns nil.
   # Note: this assumes that the current BIRLS ID has been used (that `start` has been attempted once).
@@ -113,7 +118,7 @@ class Form526Submission < ApplicationRecord
 
     self.birls_id = untried_birls_id
     save!
-    start_evss_submission(nil, { 'submission_id' => id })
+    start_evss_submission_job
   rescue => e
     # 1) why have the 'silence_errors_and_log_to_sentry' option? (why not rethrow the error?)
     # This method is primarily intended to be triggered by a running Sidekiq job that has hit a dead end
@@ -245,6 +250,7 @@ class Form526Submission < ApplicationRecord
     @auth_headers_hash = nil # reset cache
   end
 
+  # Called by Sidekiq::Batch as part of the Form 526 submission workflow
   # The workflow batch success handler
   #
   # @param _status [Sidekiq::Batch::Status] the status of the batch
@@ -259,8 +265,6 @@ class Form526Submission < ApplicationRecord
   def jobs_succeeded?
     a_submit_form_526_job_succeeded? && all_other_jobs_succeeded_if_any?
   end
-
-  class SubmitForm526JobStatusesError < StandardError; end
 
   def a_submit_form_526_job_succeeded?
     submit_form_526_job_statuses = form526_job_statuses.where(job_class: SUBMIT_FORM_526_JOB_CLASSES).order(:updated_at)
@@ -302,6 +306,7 @@ class Form526Submission < ApplicationRecord
     end
   end
 
+  # Called by Sidekiq::Batch as part of the Form 526 submission workflow
   # Checks if all workflow steps were successful and if so marks it as complete.
   #
   # @param _status [Sidekiq::Batch::Status] the status of the batch
@@ -310,34 +315,12 @@ class Form526Submission < ApplicationRecord
   def workflow_complete_handler(_status, options)
     submission = Form526Submission.find(options['submission_id'])
     if submission.jobs_succeeded?
-      submission.send_form526_confirmation_email(options['first_name'])
+      Form526ConfirmationEmailJob.perform_async(personalization_parameters(options['first_name']))
       submission.workflow_complete = true
       submission.save
     else
-      submission.send_form526_submission_failed_email(options['first_name'])
+      Form526SubmissionFailedEmailJob.perform_async(personalization_parameters(options['first_name']))
     end
-  end
-
-  def send_form526_confirmation_email(first_name)
-    email_address = form['form526']['form526']['veteran']['emailAddress']
-    personalization_parameters = {
-      'email' => email_address,
-      'submitted_claim_id' => submitted_claim_id,
-      'date_submitted' => created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.'),
-      'first_name' => first_name
-    }
-    Form526ConfirmationEmailJob.perform_async(personalization_parameters)
-  end
-
-  def send_form526_submission_failed_email(first_name)
-    email_address = form['form526']['form526']['veteran']['emailAddress']
-    personalization_parameters = {
-      'email' => email_address,
-      'submitted_claim_id' => submitted_claim_id,
-      'date_submitted' => created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.'),
-      'first_name' => first_name
-    }
-    Form526SubmissionFailedEmailJob.perform_async(personalization_parameters)
   end
 
   def bdd?
@@ -345,6 +328,15 @@ class Form526Submission < ApplicationRecord
   end
 
   private
+
+  def personalization_parameters(first_name)
+    {
+      'email' => form['form526']['form526']['veteran']['emailAddress'],
+      'submitted_claim_id' => submitted_claim_id,
+      'date_submitted' => created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.'),
+      'first_name' => first_name
+    }
+  end
 
   def submit_uploads
     # Put uploads on a one minute delay because of shared workload with EVSS

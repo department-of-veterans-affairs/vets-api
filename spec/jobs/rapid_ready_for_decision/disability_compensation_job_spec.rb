@@ -23,7 +23,6 @@ RSpec.describe RapidReadyForDecision::DisabilityCompensationJob, type: :worker d
            submitted_claim_id: '600130094')
   end
 
-  let(:user_full_name) { user.full_name_normalized }
   let(:mocked_observation_data) do
     [{ effectiveDateTime: "#{Time.zone.today.year}-06-21T02:42:52Z",
        practitioner: 'DR. THOMAS359 REYNOLDS206 PHD',
