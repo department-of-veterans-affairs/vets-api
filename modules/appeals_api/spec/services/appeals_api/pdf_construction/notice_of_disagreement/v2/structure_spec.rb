@@ -33,9 +33,9 @@ module AppealsApi
               expect(result.class).to eq(Prawn::Document)
             end
 
-            it 'has 1 page' do
+            it 'has 2 pages' do
               result = described_class.new(notice_of_disagreement).add_additional_pages
-              expect(result.page_count).to eq(1)
+              expect(result.page_count).to eq(2)
             end
           end
 

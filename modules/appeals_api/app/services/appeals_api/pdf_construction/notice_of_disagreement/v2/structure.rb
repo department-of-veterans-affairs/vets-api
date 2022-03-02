@@ -109,6 +109,10 @@ module AppealsApi
             @additional_pages_pdf, form_data
           ).build!
 
+          NoticeOfDisagreement::V2::Pages::TimeExtensionReason.new(
+            @additional_pages_pdf, form_data
+          ).build!
+
           @additional_pages_pdf
         end
 
@@ -175,7 +179,6 @@ module AppealsApi
         end
 
         def additional_pages?
-          # a blank page will be generated if extension_request? is true until work on the extension text is complete
           form_data.contestable_issues.count > 5 || form_data.long_preferred_email? || form_data.extension_request?
         end
 

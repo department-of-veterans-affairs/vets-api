@@ -101,7 +101,8 @@
                  },
                 "extensionReason": {
                   "type": "string",
-                  "maxLength": 1500,
+                  "minLength": 1,
+                  "maxLength": 2300,
                   "description": "Explanation why you believe there is good cause for the extension."
                 },
                 "appealingVhaDenial": {
