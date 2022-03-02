@@ -165,7 +165,7 @@ RSpec.describe 'immunizations', type: :request do
       end
       let(:immunizations_request_non_covid_with_manufacturer_paginated) do
         VCR.use_cassette('lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
-          get '/mobile/v1/health/immunizations', headers: iam_headers, params: { page: { size: 1, number: 5 } }
+          get '/mobile/v1/health/immunizations', headers: iam_headers, params: { page: { size: 1, number: 6 } }
         end
       end
 
@@ -271,10 +271,10 @@ RSpec.describe 'immunizations', type: :request do
           I2-N7A6Q5AU6W5C6O4O7QEDZ3SJXM000000
           I2-NGT2EAUYD7N7LUFJCFJY3C5KYY000000
           I2-2ZWOY2V6JJQLVARKAO25HI2V2M000000
-          I2-7PQYOMZCN4FG2Z545JOOLAVCBA000000
           I2-JYYSRLCG3BN646ZPICW25IEOFQ000000
-          I2-F3CW7J5IRY6PVIEVDMRL4R4W6M000000
+          I2-7PQYOMZCN4FG2Z545JOOLAVCBA000000
           I2-GY27FURWILSYXZTY2GQRNJH57U000000
+          I2-F3CW7J5IRY6PVIEVDMRL4R4W6M000000
           I2-VLMNAJAIAEAA3TR34PW5VHUFPM000000
           I2-DOUHUYLFJLLPSJLACUDAJF5GF4000000
         ]
@@ -290,7 +290,7 @@ RSpec.describe 'immunizations', type: :request do
         ids = response.parsed_body['data'].map { |i| i['id'] }
 
         # these are the fifth and sixth from last records in the vcr cassette
-        expect(ids).to eq(%w[I2-7PQYOMZCN4FG2Z545JOOLAVCBA000000 I2-JYYSRLCG3BN646ZPICW25IEOFQ000000])
+        expect(ids).to eq(%w[I2-JYYSRLCG3BN646ZPICW25IEOFQ000000 I2-7PQYOMZCN4FG2Z545JOOLAVCBA000000])
       end
 
       it 'creates navigation links for the client' do
@@ -382,6 +382,93 @@ RSpec.describe 'immunizations', type: :request do
           VCR.use_cassette('lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
             get '/mobile/v1/health/immunizations', headers: iam_headers, params: { useCache: false }
           end
+        end
+      end
+    end
+
+    describe 'when multiple items have same date' do
+      context 'date is available' do
+        it 'returns items in alphabetical order by group name' do
+          VCR.use_cassette('lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+            get '/mobile/v1/health/immunizations', headers: iam_headers, params: { page: { size: 10 } }
+          end
+          expect(response.parsed_body['data'][4]['attributes']).to eq(
+            {
+              'cvxCode' => 140,
+              'date' => '2016-04-28T12:24:55Z',
+              'doseNumber' => nil,
+              'doseSeries' => nil,
+              'groupName' => 'FLU',
+              'manufacturer' => nil,
+              'note' =>
+                'Dose #52 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
+              'reaction' => 'Anaphylaxis or collapse',
+              'shortDescription' => 'Influenza, seasonal, injectable, preservative free'
+            }
+          )
+          expect(response.parsed_body['data'][5]['attributes']).to eq(
+            {
+              'cvxCode' => 33,
+              'date' => '2016-04-28T12:24:55Z',
+              'doseNumber' => 'Series 1',
+              'doseSeries' => 1,
+              'groupName' => 'PneumoPPV',
+              'manufacturer' => nil,
+              'note' =>
+                'Dose #1 of 1 of pneumococcal polysaccharide vaccine  23 valent vaccine administered.',
+              'reaction' => 'Other',
+              'shortDescription' => 'pneumococcal polysaccharide PPV23'
+            }
+          )
+        end
+      end
+
+      context 'date is missing' do
+        it 'returns items in alphabetical order by group name with missing date items at end of list' do
+          VCR.use_cassette('lighthouse_health/get_immunizations_date_missing', match_requests_on: %i[method uri]) do
+            get '/mobile/v1/health/immunizations', headers: iam_headers, params: { page: { size: 4 } }
+          end
+          expect(response.parsed_body['data'][0]['attributes']).to eq(
+            {
+              'cvxCode' => 140,
+              'date' => '2016-04-28T12:24:55Z',
+              'doseNumber' => nil,
+              'doseSeries' => nil,
+              'groupName' => 'FLU',
+              'manufacturer' => nil,
+              'note' =>
+                'Dose #52 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
+              'reaction' => 'Anaphylaxis or collapse',
+              'shortDescription' => 'Influenza, seasonal, injectable, preservative free'
+            }
+          )
+          expect(response.parsed_body['data'][1]['attributes']).to eq(
+            {
+              'cvxCode' => 33,
+              'date' => '2016-04-28T12:24:55Z',
+              'doseNumber' => 'Series 1',
+              'doseSeries' => 1,
+              'groupName' => 'PneumoPPV',
+              'manufacturer' => nil,
+              'note' =>
+                'Dose #1 of 1 of pneumococcal polysaccharide vaccine  23 valent vaccine administered.',
+              'reaction' => 'Other',
+              'shortDescription' => 'pneumococcal polysaccharide PPV23'
+            }
+          )
+          expect(response.parsed_body['data'].last['attributes']).to eq(
+            {
+              'cvxCode' => 140,
+              'date' => nil,
+              'doseNumber' => 'Booster',
+              'doseSeries' => 1,
+              'groupName' => 'FLU',
+              'manufacturer' => nil,
+              'note' => 'Dose #45 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
+              'reaction' => 'Vomiting',
+              'shortDescription' => 'Influenza, seasonal, injectable, preservative free'
+            }
+          )
         end
       end
     end

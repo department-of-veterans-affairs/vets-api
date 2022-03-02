@@ -43,7 +43,7 @@ module Mobile
           Rails.logger.info('mobile immunizations service fetch', user_uuid: @current_user.uuid)
         end
 
-        immunizations.reverse
+        immunizations
       end
     end
   end

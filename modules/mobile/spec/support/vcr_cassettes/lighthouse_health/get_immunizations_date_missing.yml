@@ -107,7 +107,7 @@ http_interactions:
         string: '{
    "resourceType":"Bundle",
    "type":"searchset",
-   "total":2,
+   "total":4,
    "link":[
       {
          "relation":"first",
@@ -180,6 +180,69 @@ http_interactions:
          }
       },
       {
+      "fullUrl": "https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-7PQYOMZCN4FG2Z545JOOLAVCBA000000",
+      "resource": {
+        "resourceType": "Immunization",
+        "id": "I2-7PQYOMZCN4FG2Z545JOOLAVCBA000000",
+        "status": "completed",
+        "vaccineCode": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/cvx",
+              "code": "33",
+              "display": "PNEUMOCOCCAL POLYSACCHARIDE PPV23"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/cvx",
+              "code": "33",
+              "display": "VACCINE GROUP: PneumoPPV"
+            }
+          ],
+          "text": "pneumococcal polysaccharide PPV23"
+        },
+        "patient": {
+          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845672V157064",
+          "display": "Mr. Florentino8 Raynor401"
+        },
+        "occurrenceDateTime": "2016-04-28T12:24:55Z",
+        "primarySource": true,
+        "location": {
+          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000",
+          "display": "TEM MH PSO TRS IND93EH 2"
+        },
+        "manufacturer": {
+          "display": "Merck and Co., Inc."
+        },
+        "doseQuantity": {
+          "value": 0.5,
+          "unit": "mL",
+          "system": "http://unitsofmeasure.org",
+          "code": "mL"
+        },
+        "note": [
+          {
+            "text": "Dose #1 of 1 of pneumococcal polysaccharide vaccine  23 valent vaccine administered."
+          }
+        ],
+        "reaction": [
+          {
+            "detail": {
+              "display": "Other"
+            }
+          }
+        ],
+        "protocolApplied": [
+          {
+            "doseNumberString": "Series 1",
+            "seriesDosesPositiveInt": 1
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+      {
          "fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-6SIQZNJCIOAQOGES6YOTSQAWJY000000",
          "resource":{
             "resourceType":"Immunization",
@@ -228,7 +291,55 @@ http_interactions:
          "search":{
             "mode":"match"
          }
+      },
+      {
+      "fullUrl": "https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-JYYSRLCG3BN646ZPICW25IEOFQ000000",
+      "resource": {
+        "resourceType": "Immunization",
+        "id": "I2-JYYSRLCG3BN646ZPICW25IEOFQ000000",
+        "status": "completed",
+        "vaccineCode": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/cvx",
+              "code": "140",
+              "display": "INFLUENZA, SEASONAL, INJECTABLE, PRESERVATIVE FREE"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/cvx",
+              "code": "88",
+              "display": "VACCINE GROUP: FLU"
+            }
+          ],
+          "text": "Influenza, seasonal, injectable, preservative free"
+        },
+        "patient": {
+          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845672V157064",
+          "display": "Mr. Florentino8 Raynor401"
+        },
+        "occurrenceDateTime": "2016-04-28T12:24:55Z",
+        "primarySource": true,
+        "location": {
+          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-2FPCKUIXVR7RJLLG34XVWGZERM000000",
+          "display": "MENTAL HEALTH SERVICES"
+        },
+        "note": [
+          {
+            "text": "Dose #52 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered."
+          }
+        ],
+        "reaction": [
+          {
+            "detail": {
+              "display": "Anaphylaxis or collapse"
+            }
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
       }
+    }
    ]
 }'
     recorded_at: Wed, 20 Oct 2021 15:59:19 GMT
