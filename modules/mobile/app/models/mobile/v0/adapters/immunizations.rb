@@ -23,10 +23,21 @@ module Mobile
               short_description: immunization[:vaccine_code][:text]
             )
           end
-          vaccine_map.uniq { |immunization| [immunization[:date], immunization[:short_description]] }
+          vaccine_map = vaccine_map.uniq { |immunization| [immunization[:date], immunization[:short_description]] }
+          sort_map(vaccine_map)
         end
 
         private
+
+        def sort_map(vaccine_map)
+          vaccine_map.sort_by do |immunization|
+            date_sort_key1 = immunization[:date] ? 0 : 1 # used to keep nil dates at end of list
+            date_sort_key2 = immunization[:date] ? -immunization[:date].to_i : nil
+
+            # sort by date, then alphabetically within each date by group name
+            [[date_sort_key1, date_sort_key2], immunization[:group_name]]
+          end
+        end
 
         def manufacturer(immunization, group_name)
           if group_name == 'COVID-19'
