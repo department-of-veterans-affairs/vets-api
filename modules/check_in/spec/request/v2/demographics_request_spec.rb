@@ -68,6 +68,50 @@ RSpec.describe 'V2::Demographics', type: :request do
       end
     end
 
+    context 'when CHIP confirm_demographics throws exception' do
+      let(:params) do
+        {
+          demographics: {
+            demographic_confirmations: {
+              'demographics_up_to_date' => true,
+              'next_of_kin_up_to_date' => true,
+              'emergency_contact_up_to_date' => false
+            }
+          }
+        }
+      end
+
+      let(:operation_failed) do
+        {
+          'title' => 'Operation failed',
+          'detail' => 'Operation failed',
+          'code' => 'VA900',
+          'status' => '400'
+        }
+      end
+      let(:error_resp) { { 'errors' => [operation_failed] } }
+
+      it 'returns error response' do
+        VCR.use_cassette 'check_in/lorota/token/token_200' do
+          post '/check_in/v2/sessions', session_params
+          expect(response.status).to eq(200)
+        end
+
+        VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
+          get "/check_in/v2/patient_check_ins/#{id}"
+          expect(response.status).to eq(200)
+        end
+
+        VCR.use_cassette('check_in/chip/confirm_demographics/confirm_demographics_500', match_requests_on: [:host]) do
+          VCR.use_cassette('check_in/chip/token/token_200') do
+            patch "/check_in/v2/demographics/#{id}", params: params
+          end
+        end
+        expect(response.status).to eq(400)
+        expect(JSON.parse(response.body)).to eq(error_resp)
+      end
+    end
+
     context 'when called with demographic_confirmations in authorized session' do
       let(:params) do
         {
