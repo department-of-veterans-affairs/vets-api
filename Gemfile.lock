@@ -540,7 +540,7 @@ GEM
       kramdown (~> 2.0)
     levenshtein-ffi (1.1.0)
       ffi (~> 1.9)
-    liquid (5.1.0)
+    liquid (5.2.0)
     listen (3.7.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
