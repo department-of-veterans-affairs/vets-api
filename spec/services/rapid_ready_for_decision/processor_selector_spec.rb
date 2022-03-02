@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe RapidReadyForDecision::ProcessorSelector do
   subject { described_class.new(submission) }
 
-  let(:submission) { create(:form526_submission) }
+  let(:submission) { build(:form526_submission) }
 
   describe '#processor_class' do
     context 'when given non-RRD-applicable claim submission' do
@@ -16,7 +16,7 @@ RSpec.describe RapidReadyForDecision::ProcessorSelector do
     end
 
     context 'when given single-issue hypertension claim for increase submission' do
-      let(:submission) { create(:form526_submission, :hypertension_claim_for_increase) }
+      let(:submission) { build(:form526_submission, :hypertension_claim_for_increase) }
 
       it 'returns DisabilityCompensationJob' do
         expect(subject.rrd_applicable?).to eq true

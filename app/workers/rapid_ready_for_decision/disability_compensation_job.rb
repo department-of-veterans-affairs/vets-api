@@ -16,8 +16,8 @@ module RapidReadyForDecision
 
     sidekiq_retries_exhausted do |msg, _ex|
       submission_id = msg['args'].first
-      submission = Form526Submission.new
-      submission.start_evss_submission(nil, { 'submission_id' => submission_id })
+      submission = Form526Submission.find(submission_id)
+      submission.start_evss_submission_job
     end
 
     STATSD_KEY_PREFIX = 'worker.fast_track.disability_compensation_job'

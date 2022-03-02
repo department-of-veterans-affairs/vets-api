@@ -4,23 +4,7 @@ require 'rails_helper'
 require 'rapid_ready_for_decision/disability_compensation_job'
 
 RSpec.describe RapidReadyForDecision::HypertensionSpecialIssueManager do
-  let(:form526_submission) do
-    Form526Submission.create(
-      user_uuid: user.uuid,
-      saved_claim_id: saved_claim.id,
-      auth_headers_json: auth_headers.to_json,
-      form_json: form_json
-    )
-  end
-
-  let(:user) { create(:disabilities_compensation_user) }
-  let(:auth_headers) do
-    EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
-  end
-  let(:saved_claim) { FactoryBot.create(:va526ez) }
-  let(:form_json) do
-    File.read('spec/support/disability_compensation_form/submissions/only_526_hypertension.json')
-  end
+  let(:form526_submission) { create(:form526_submission, :hypertension_claim_for_increase) }
 
   def form526_hash(form)
     JSON.parse(form, symbolize_names: true)[:form526][:form526]
