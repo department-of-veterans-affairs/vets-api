@@ -8,7 +8,7 @@ module Mobile
       after_action :pre_cache_resources, only: :show
 
       def show
-        render json: Mobile::V0::UserSerializer.new(@current_user, options)
+        render json: Mobile::V1::UserSerializer.new(@current_user, options)
       end
 
       private
