@@ -108,12 +108,8 @@
                 }
               },
               "required": [ "boardReviewOption" ],
-              "allOf": [
-                {
-                  "if": { "properties": { "extensionRequest": { "const": true } } },
-                  "then": { "required": [ "extensionReason" ] }
-                }
-              ]
+              "if": { "properties": { "extensionRequest": { "const": true } } },
+              "then": { "required": [ "extensionReason" ] }
             }
           },
           "required": [ "type", "attributes" ]
