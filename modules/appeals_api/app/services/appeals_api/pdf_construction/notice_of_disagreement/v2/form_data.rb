@@ -29,8 +29,7 @@ module AppealsApi
             signing_appellant.city,
             signing_appellant.state_code,
             signing_appellant.zip_code,
-            signing_appellant.country_code,
-            signing_appellant.international_postal_code
+            signing_appellant.country_code
           ].compact.join(', ')
         end
 

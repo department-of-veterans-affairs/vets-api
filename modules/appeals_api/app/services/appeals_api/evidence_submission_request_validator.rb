@@ -7,9 +7,9 @@ module AppealsApi
       SupplementalClaim
     ].freeze
 
-    def initialize(appeal_uuid, request_ssn, appeal_type)
+    def initialize(appeal_uuid, veteran_identifier, appeal_type)
       @appeal_uuid = appeal_uuid
-      @request_ssn = request_ssn
+      @veteran_identifier = veteran_identifier
       @appeal_type = appeal_type
 
       raise_unacceptable_appeal_type?
@@ -19,7 +19,7 @@ module AppealsApi
       return [:error, record_not_found_error] if appeal.blank?
       return [:error, invalid_review_option_error] unless evidence_accepted?
       return [:error, submission_window_error] unless within_submission_window?
-      return [:error, invalid_veteran_id_error] unless ssn_match?
+      return [:error, invalid_veteran_ssn_error || invalid_file_number_error] unless veteran_identifier_match?
 
       [:ok, {}]
     end
@@ -49,11 +49,12 @@ module AppealsApi
         appeal.evidence_submission_days_window.days.ago.end_of_day
     end
 
-    def ssn_match?
-      # if PII expunged not validating for matching SSNs
+    def veteran_identifier_match?
+      # if PII expunged not validating for matching SSNs or File-Numbers
       return true unless appeal.auth_headers
 
-      @request_ssn == appeal.auth_headers['X-VA-SSN']
+      identifier = appeal.auth_headers['X-VA-SSN'] || appeal.auth_headers['X-VA-File-Number']
+      @veteran_identifier == identifier
     end
 
     def record_not_found_error
@@ -69,11 +70,24 @@ module AppealsApi
       }
     end
 
-    def invalid_veteran_id_error
+    def invalid_veteran_ssn_error
+      return unless appeal.auth_headers['X-VA-SSN']
+
       {
         title: 'unprocessable_entity',
         detail: I18n.t('appeals_api.errors.mismatched_ssns'),
         code: 'DecisionReviewMismatchedSSN',
+        status: '422'
+      }
+    end
+
+    def invalid_file_number_error
+      return unless appeal.auth_headers['X-VA-File-Number']
+
+      {
+        title: 'unprocessable_entity',
+        detail: I18n.t('appeals_api.errors.mismatched_file_numbers'),
+        code: 'DecisionReviewMismatchedFileNumber',
         status: '422'
       }
     end
