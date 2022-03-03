@@ -41,20 +41,25 @@ module Mobile
             },
             lat: nil,
             long: nil,
-            phone: {
-              area_code: phone_captures[1].presence,
-              number: phone_captures[2].presence,
-              extension: phone_captures[3].presence
-            },
+            phone: phone_captures,
             url: nil,
             code: nil
           }
         end
 
         def phone_captures
+          phone_components = { area_code: nil, number: nil, extension: nil }
+          return phone_components unless @request[:phone_number]
+
           # captures area code \((\d{3})\) number (after space) \s(\d{3}-\d{4})
           # and extension (until the end of the string) (\S*)\z
-          @phone_captures ||= @request[:phone_number].match(/\((\d{3})\)\s(\d{3}-\d{4})(\S*)\z/)
+          matches = @request[:phone_number].match(/\((\d{3})\)\s(\d{3}-\d{4})(\S*)\z/)
+          return phone_components unless matches
+
+          phone_components[:area_code] = matches[1].presence
+          phone_components[:number] = matches[2].presence
+          phone_components[:extension] = matches[3].presence
+          phone_components
         end
       end
     end
