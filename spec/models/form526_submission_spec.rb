@@ -608,7 +608,10 @@ RSpec.describe Form526Submission do
     context 'when the first name is NOT populated on the User' do
       before do
         # Ensure `subject` is called before stubbing `first_name` so that the auth headers are populated correctly
-        allow(User.find(subject.user_uuid)).to receive(:first_name).and_return nil
+        subject
+        user_with_nil_first_name = User.create(user)
+        allow(user_with_nil_first_name).to receive(:first_name).and_return nil
+        allow(User).to receive(:find).with(subject.user_uuid).and_return user_with_nil_first_name
       end
 
       context 'when name attributes exist in the auth headers' do

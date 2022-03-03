@@ -22,7 +22,7 @@ module RapidReadyForDecision
 
     def self.disability_increase?(disability, diagnostic_code)
       disability['diagnosticCode'] == diagnostic_code &&
-        disability['disabilityActionType'] == 'INCREASE'
+        disability['disabilityActionType']&.upcase == 'INCREASE'
     end
 
     private
