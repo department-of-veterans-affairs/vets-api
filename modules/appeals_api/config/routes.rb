@@ -51,18 +51,10 @@ AppealsApi::Engine.routes.draw do
       end
 
       namespace :notice_of_disagreements do
-        resources :evidence_submissions,
-                  only: %i[create show],
-                  controller: '/appeals_api/v1/decision_reviews/notice_of_disagreements/evidence_submissions'
+        resources :evidence_submissions, only: %i[create show]
       end
 
-      resources :notice_of_disagreements, only: %i[create show],
-                                          controller: '/appeals_api/v1/decision_reviews/notice_of_disagreements' do
-        collection do
-          get 'schema'
-          post 'validate'
-        end
-      end
+      resources :notice_of_disagreements, only: %i[create]
 
       get 'legacy_appeals', to: 'legacy_appeals#index' if Settings.modules_appeals_api.legacy_appeals_enabled
 

@@ -49,8 +49,8 @@ class AppealsApi::RswagConfig
             hlr_v2_create_schemas,
             hlr_v2_response_schemas('#/components/schemas'),
             contestable_issues_schema('#/components/schemas'),
-            nod_create_schemas,
-            nod_response_schemas('#/components/schemas'),
+            nod_v2_create_schemas,
+            nod_v2_response_schemas('#/components/schemas'),
             sc_create_schemas,
             sc_response_schemas('#/components/schemas'),
             legacy_appeals_schema('#/components/schemas')
@@ -365,11 +365,11 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def nod_create_schemas
-    parse_create_schema('v1', '10182.json')
+  def nod_v2_create_schemas
+    parse_create_schema('v2', '10182.json')
   end
 
-  def nod_response_schemas(ref_root)
+  def nod_v2_response_schemas(ref_root)
     {
       'nodCreateResponse': {
         'description': 'Successful response of a 10182 form submission',
@@ -409,7 +409,7 @@ class AppealsApi::RswagConfig
                 }
               },
               'formData': {
-                '$ref': "#{ref_root}/nodCreateRoot"
+                '$ref': "#{ref_root}/nodCreate"
               }
             }
           },
@@ -421,7 +421,7 @@ class AppealsApi::RswagConfig
           }
         }
       },
-      'evidenceSubmissionResponse': {
+      'nodEvidenceSubmissionResponse': {
         'type': 'object',
         'properties': {
           'data': {
