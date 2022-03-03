@@ -34,7 +34,7 @@ RSpec.describe 'user', type: :request do
       end
 
       it 'returns a user profile response with the expected schema' do
-        expect(response.body).to match_json_schema('user')
+        expect(response.body).to match_json_schema('v1/user')
       end
 
       it 'includes the users names' do
@@ -404,7 +404,7 @@ RSpec.describe 'user', type: :request do
       end
 
       it 'returns a user profile response with the expected schema' do
-        expect(response.body).to match_json_schema('user')
+        expect(response.body).to match_json_schema('v1/user')
       end
 
       it 'includes sign-in service' do
