@@ -164,7 +164,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
           submit_request(example.metadata)
         end
 
-        xit 'returns a 200 response' do |example|
+        it 'returns a 200 response' do |example|
           assert_response_matches_metadata(example.metadata)
         end
 
@@ -186,7 +186,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
           submit_request(example.metadata)
         end
 
-        xit 'returns a 404 response' do |example|
+        it 'returns a 404 response' do |example|
           assert_response_matches_metadata(example.metadata)
         end
 
@@ -216,7 +216,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
           submit_request(example.metadata)
         end
 
-        xit 'returns a 200 response' do |example|
+        it 'returns a 200 response' do |example|
           assert_response_matches_metadata(example.metadata)
         end
 
@@ -281,7 +281,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
           submit_request(example.metadata)
         end
 
-        xit 'minimum fields used' do |example|
+        it 'minimum fields used' do |example|
           assert_response_matches_metadata(example.metadata)
         end
 
@@ -310,7 +310,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
           submit_request(example.metadata)
         end
 
-        xit 'all fields used' do |example|
+        it 'all fields used' do |example|
           assert_response_matches_metadata(example.metadata)
         end
 
@@ -341,7 +341,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
           submit_request(example.metadata)
         end
 
-        xit 'Violates JSON schema' do |example|
+        it 'Violates JSON schema' do |example|
           assert_response_matches_metadata(example.metadata)
         end
 
@@ -370,7 +370,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
           submit_request(example.metadata)
         end
 
-        xit 'Not JSON object' do |example|
+        it 'Not JSON object' do |example|
           assert_response_matches_metadata(example.metadata)
         end
 
