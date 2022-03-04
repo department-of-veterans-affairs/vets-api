@@ -54,7 +54,12 @@ AppealsApi::Engine.routes.draw do
         resources :evidence_submissions, only: %i[create show]
       end
 
-      resources :notice_of_disagreements, only: %i[create]
+      resources :notice_of_disagreements, only: %i[create show] do
+        collection do
+          get 'schema'
+          post 'validate'
+        end
+      end
 
       get 'legacy_appeals', to: 'legacy_appeals#index' if Settings.modules_appeals_api.legacy_appeals_enabled
 

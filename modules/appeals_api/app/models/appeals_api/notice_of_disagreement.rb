@@ -32,6 +32,7 @@ module AppealsApi
     encrypts :auth_headers, :form_data, key: :kms_key, **lockbox_options
 
     validate :validate_hearing_type_selection, if: :pii_present?
+    validate :validate_extension_request, if: :version_2?
 
     has_many :evidence_submissions, as: :supportable, dependent: :destroy
     has_many :status_updates, as: :statusable, dependent: :destroy
@@ -255,6 +256,20 @@ module AppealsApi
       end
     end
 
+    # v2 specific validation
+    def validate_extension_request
+      # json schema will have already validated that if extensionRequest true then extensionReason required
+      return if data_attributes&.dig('extensionRequest') == true
+
+      source = '/data/attributes/extensionRequest'
+      data = I18n.t('common.exceptions.validation_errors')
+
+      if data_attributes&.dig('extensionReason').present?
+        errors.add source,
+                   data.merge(detail: I18n.t('appeals_api.errors.nod_extension_request_must_be_true'))
+      end
+    end
+
     def board_review_hearing_selected?
       board_review_value == 'hearing'
     end
@@ -277,6 +292,10 @@ module AppealsApi
 
     def header_field_as_string(key)
       auth_headers&.dig(key).to_s.strip
+    end
+
+    def version_2?
+      pii_present? && api_version == 'V2'
     end
 
     # After expunging pii, form_data is nil, update will fail unless validation skipped

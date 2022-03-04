@@ -287,5 +287,29 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     describe '#appealing_vha_denial?' do
       it { expect(notice_of_disagreement_v2.appealing_vha_denial?).to eq true }
     end
+
+    describe '#validate_extension_request' do
+      let(:auth_headers) { fixture_as_json 'valid_10182_headers.json', version: 'v2' }
+      let(:form_data) { fixture_as_json 'valid_10182_minimum.json', version: 'v2' }
+      let(:invalid_notice_of_disagreement) do
+        build(:minimal_notice_of_disagreement_v2, form_data: form_data, auth_headers: auth_headers, api_version: 'V2')
+      end
+
+      context 'when extension reason provided, but extension request is false' do
+        before do
+          form_data['data']['attributes']['extensionReason'] = 'I need an extension please'
+
+          invalid_notice_of_disagreement.valid?
+        end
+
+        it 'throws an error' do
+          expect(invalid_notice_of_disagreement.errors.count).to be 1
+          expect(invalid_notice_of_disagreement.errors.first.attribute).to eq(:'/data/attributes/extensionRequest')
+          expect(invalid_notice_of_disagreement.errors.first.options[:detail]).to eq(
+            "If '/data/attributes/extensionReason' present, then '/data/attributes/extensionRequest' must equal true"
+          )
+        end
+      end
+    end
   end
 end

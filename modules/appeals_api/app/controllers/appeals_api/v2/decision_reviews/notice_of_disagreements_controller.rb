@@ -10,14 +10,14 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
   include AppealsApi::CharacterValidation
 
   skip_before_action :authenticate
-  before_action :validate_characters, only: %i[create] # TODO: add back validate in next PR
+  before_action :validate_characters, only: %i[create validate]
   before_action :validate_json_format, if: -> { request.post? }
-  before_action :validate_json_schema, only: %i[create] # TODO: add back validate in next PR
-  before_action :new_notice_of_disagreement, only: %i[create] # TODO: add back validate in next PR
-  # before_action :find_notice_of_disagreement, only: %i[show] # TODO: uncomment in next PR
-  # TODO: in next PR - validate extension request == true if extension reason provided
+  before_action :validate_json_schema, only: %i[create validate]
+  before_action :new_notice_of_disagreement, only: %i[create validate]
+  before_action :find_notice_of_disagreement, only: %i[show]
 
   FORM_NUMBER = '10182'
+  API_VERSION = 'v2'
   MODEL_ERROR_STATUS = 422
   HEADERS = JSON.parse(
     File.read(
@@ -28,7 +28,27 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
 
   def create
     @notice_of_disagreement.save
+    AppealsApi::PdfSubmitJob.perform_async(
+      @notice_of_disagreement.id,
+      'AppealsApi::NoticeOfDisagreement',
+      'v2'
+    )
     render_notice_of_disagreement
+  end
+
+  def show
+    @notice_of_disagreement = with_status_simulation(@notice_of_disagreement) if status_requested_and_allowed?
+    render_notice_of_disagreement
+  end
+
+  def validate
+    render json: validation_success
+  end
+
+  def schema
+    render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
+      AppealsApi::FormSchemas.new.schema(FORM_NUMBER)
+    )
   end
 
   private
@@ -43,12 +63,12 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
   def validate_json_schema_for_headers
     AppealsApi::FormSchemas.new(
       SCHEMA_ERROR_TYPE,
-      schema_version: 'v2'
+      schema_version: API_VERSION
     ).validate!("#{FORM_NUMBER}_HEADERS", request_headers)
   end
 
   def validate_json_schema_for_body
-    AppealsApi::FormSchemas.new(SCHEMA_ERROR_TYPE, schema_version: 'v2').validate!(FORM_NUMBER, @json_body)
+    AppealsApi::FormSchemas.new(SCHEMA_ERROR_TYPE, schema_version: API_VERSION).validate!(FORM_NUMBER, @json_body)
   end
 
   def validation_success
@@ -72,8 +92,9 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
       form_data: @json_body,
       source: request_headers['X-Consumer-Username'],
       board_review_option: @json_body['data']['attributes']['boardReviewOption'],
-      api_version: 'v2'
+      api_version: API_VERSION
     )
+    render_model_errors unless @notice_of_disagreement.validate
   end
 
   # Follows JSON API v1.0 error object standard (https://jsonapi.org/format/1.0/#error-objects)
