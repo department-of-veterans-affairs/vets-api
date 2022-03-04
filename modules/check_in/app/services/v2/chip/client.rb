@@ -115,7 +115,7 @@ module V2
                                   original_status: e.original_status,
                                   uuid: check_in_session.uuid
                                 },
-                                { external_service: :service_name, team: 'check-in' })
+                                { external_service: service_name, team: 'check-in' })
         Faraday::Response.new(body: e.original_body, status: e.original_status)
       end
 
@@ -131,6 +131,19 @@ module V2
         connection.post("/#{base_path}/actions/confirm-demographics") do |req|
           req.headers = default_headers.merge('Authorization' => "Bearer #{token}")
           req.body = demographic_confirmations.to_json
+        end
+      end
+
+      ##
+      # HTTP POST call to the CHIP API to refresh pre check-in data
+      #
+      # @param token [String] CHIP token to call the endpoint
+      #
+      # @return [Faraday::Response]
+      #
+      def refresh_precheckin(token:)
+        connection.post("/#{base_path}/actions/refresh-precheckin/#{check_in_session.uuid}") do |req|
+          req.headers = default_headers.merge('Authorization' => "Bearer #{token}")
         end
       end
 
