@@ -7,6 +7,58 @@ RSpec.describe HealthCareApplication, type: :model do
   let(:inelig_character_of_discharge) { Notification::INELIG_CHARACTER_OF_DISCHARGE }
   let(:login_required) { Notification::LOGIN_REQUIRED }
 
+  describe '#prefill_fields' do
+    let(:health_care_application) { build(:health_care_application) }
+
+    context 'with missing fields' do
+      before do
+        health_care_application.parsed_form.delete('veteranFullName')
+        health_care_application.parsed_form.delete('veteranDateOfBirth')
+        health_care_application.parsed_form.delete('veteranSocialSecurityNumber')
+      end
+
+      context 'without a user' do
+        it 'does nothing' do
+          expect(health_care_application.send(:prefill_fields)).to eq(nil)
+
+          expect(health_care_application.valid?).to eq(false)
+        end
+      end
+
+      context 'with a user' do
+        before do
+          health_care_application.user = user
+        end
+
+        context 'with a loa1 user' do
+          let(:user) { create(:user) }
+
+          it 'does nothing' do
+            expect(health_care_application.send(:prefill_fields)).to eq(nil)
+
+            expect(health_care_application.valid?).to eq(false)
+          end
+        end
+
+        context 'with a loa3 user' do
+          let(:user) { create(:user, :loa3) }
+
+          it 'sets uneditable fields using user data' do
+            expect(health_care_application.valid?).to eq(false)
+            health_care_application.send(:prefill_fields)
+            expect(health_care_application.valid?).to eq(true)
+
+            parsed_form = health_care_application.parsed_form
+
+            expect(parsed_form['veteranFullName']).to eq(user.full_name_normalized.compact.stringify_keys)
+            expect(parsed_form['veteranDateOfBirth']).to eq(user.birth_date)
+            expect(parsed_form['veteranSocialSecurityNumber']).to eq(user.ssn_normalized)
+          end
+        end
+      end
+    end
+  end
+
   describe '.enrollment_status' do
     it 'returns parsed enrollment status' do
       expect_any_instance_of(HCA::EnrollmentEligibility::Service).to receive(:lookup_user).with(
@@ -189,6 +241,12 @@ RSpec.describe HealthCareApplication, type: :model do
 
   describe '#process!' do
     let(:health_care_application) { build(:health_care_application) }
+
+    it 'calls prefill fields' do
+      expect(health_care_application).to receive(:prefill_fields)
+
+      health_care_application.process!
+    end
 
     context 'with an invalid record' do
       it 'raises a validation error' do

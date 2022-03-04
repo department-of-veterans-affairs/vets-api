@@ -59,6 +59,8 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def process!
+    prefill_fields
+
     unless valid?
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.validation_error")
       raise(Common::Exceptions::ValidationErrors, self)
@@ -155,6 +157,14 @@ class HealthCareApplication < ApplicationRecord
   end
 
   private
+
+  def prefill_fields
+    return if user.blank? || !user.loa3?
+
+    parsed_form['veteranFullName'] = user.full_name_normalized.compact.stringify_keys
+    parsed_form['veteranDateOfBirth'] = user.birth_date
+    parsed_form['veteranSocialSecurityNumber'] = user.ssn_normalized
+  end
 
   def submit_async(has_email)
     submission_job = 'SubmissionJob'
