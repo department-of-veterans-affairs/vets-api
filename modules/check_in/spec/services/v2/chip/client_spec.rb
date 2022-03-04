@@ -221,4 +221,31 @@ describe V2::Chip::Client do
         .to eq(resp)
     end
   end
+
+  describe '#refresh_precheckin' do
+    let(:resp) do
+      {
+        uuid: uuid
+      }
+    end
+    let(:faraday_response) { Faraday::Response.new(body: resp, status: 200) }
+    let(:token) { 'abc123' }
+
+    before do
+      allow_any_instance_of(Faraday::Connection).to receive(:post).with("/dev/actions/refresh-precheckin/#{uuid}")
+                                                                  .and_return(resp)
+    end
+
+    it 'yields to block' do
+      expect_any_instance_of(Faraday::Connection).to receive(:post).with("/dev/actions/refresh-precheckin/#{uuid}")
+                                                                   .and_yield(Faraday::Request.new)
+
+      subject.refresh_precheckin(token: token)
+    end
+
+    it 'returns success response' do
+      expect(subject.refresh_precheckin(token: token))
+        .to eq(resp)
+    end
+  end
 end
