@@ -80,16 +80,16 @@
                         { "description": "Veteran's timezone. Used for adding the current date to the signature according to the veteran's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date)." },
                         { "$ref": "#/definitions/timezone" }
                       ]
-                    },
-                    "required": ["homeless", "phone", "email"],
-                    "if": { "properties": { "homeless": { "const": false } } },
-                    "then": { "required": ["address"] }
-                  },
-                  "representative": {
-                    "type": "object",
-                    "properties": {
-                      "name": { "type": "string", "minLength": 1, "maxLength": 120 }
                     }
+                  },
+                  "required": ["homeless", "phone", "email"],
+                  "if": { "properties": { "homeless": { "const": false } } },
+                  "then": { "required": ["address"] }
+                },
+                "representative": {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string", "minLength": 1, "maxLength": 120 }
                   }
                 },
                 "boardReviewOption": { "type": "string", "enum": [ "direct_review", "evidence_submission", "hearing" ] },
