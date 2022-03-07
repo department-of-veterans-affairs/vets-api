@@ -68,5 +68,25 @@ describe 'LGY API' do
         end
       end
     end
+
+    describe 'POST v0/coe/document_upload' do
+      context 'when uploading attachments' do
+        it 'uploads the file successfully' do
+          VCR.use_cassette 'lgy/document_upload' do
+            attachments = {
+              'files' => [{
+                'file' => Base64.encode64(File.read('spec/fixtures/files/lgy_file.pdf')),
+                'document_type' => 'VA home loan documents',
+                'file_type' => 'pdf',
+                'file_name' => 'lgy_file.pdf'
+              }]
+            }
+
+            post('/v0/coe/document_upload', params: attachments)
+            expect(response.status).to eq 200
+          end
+        end
+      end
+    end
   end
 end

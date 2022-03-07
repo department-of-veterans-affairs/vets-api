@@ -36,6 +36,30 @@ module V0
       render json: { data: { attributes: documents.body } }, status: :ok
     end
 
+    def document_upload
+      load_user
+
+      attachments.each do |attachment|
+        file_extension = attachment['file_type']
+
+        if %w[jpg jpeg png pdf].include? file_extension.downcase
+          file_data = attachment['file']
+          index = file_data.index(';base64,') || 0
+          file_data = file_data[index + 8..] if index.positive?
+
+          document_data = {
+            'documentType' => file_extension,
+            'description' => attachment['document_type'],
+            'contentsBase64' => file_data,
+            'fileName' => attachment['file_name']
+          }
+
+          response = lgy_service.post_document(payload: document_data)
+          render(json: response.status)
+        end
+      end
+    end
+
     private
 
     def lgy_service
@@ -44,6 +68,10 @@ module V0
 
     def filtered_params
       params.require(:lgy_coe_claim).permit(:form)
+    end
+
+    def attachments
+      params[:files]
     end
 
     def stats_key
