@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'debt_management_center/financial_status_report_service'
+require 'debt_management_center/workers/va_notify_email_job'
 require 'support/financial_status_report_helpers'
 
 RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :service do
@@ -31,9 +32,14 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
         VCR.use_cassette('dmc/submit_fsr') do
           VCR.use_cassette('bgs/people_service/person_data') do
             service = described_class.new(user)
-            expect(VANotifyEmailJob).to receive(:perform_async).with(
+            expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(
               user.email.downcase,
-              described_class::CONFIRMATION_TEMPLATE
+              described_class::CONFIRMATION_TEMPLATE,
+              {
+                'name' => user.first_name,
+                'time' => '48 hours',
+                'date' => Time.zone.now.strftime('%m/%d/%Y')
+              }
             )
             service.submit_financial_status_report(valid_form_data)
           end
