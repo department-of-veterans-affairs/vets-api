@@ -8,6 +8,7 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   include AppealsApi::StatusSimulation
   include AppealsApi::CharacterUtilities
   include AppealsApi::CharacterValidation
+  include AppealsApi::HeaderModification
 
   skip_before_action :authenticate
   before_action :validate_characters, only: %i[create validate]
@@ -26,21 +27,29 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
 
   def create
+    deprecate_headers
+
     @notice_of_disagreement.save
     AppealsApi::PdfSubmitJob.perform_async(@notice_of_disagreement.id, 'AppealsApi::NoticeOfDisagreement', api_version)
     render_notice_of_disagreement
   end
 
   def show
+    deprecate_headers
+
     @notice_of_disagreement = with_status_simulation(@notice_of_disagreement) if status_requested_and_allowed?
     render_notice_of_disagreement
   end
 
   def validate
+    deprecate_headers
+
     render json: validation_success
   end
 
   def schema
+    deprecate_headers
+
     render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
       AppealsApi::FormSchemas.new.schema(self.class::FORM_NUMBER)
     )
@@ -131,5 +140,13 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
 
   def render_notice_of_disagreement
     render json: AppealsApi::NoticeOfDisagreementSerializer.new(@notice_of_disagreement).serializable_hash
+  end
+
+  def sunset_date
+    Date.new(2024, 6, 30)
+  end
+
+  def deprecate_headers
+    deprecate(response: response, sunset: sunset_date)
   end
 end
