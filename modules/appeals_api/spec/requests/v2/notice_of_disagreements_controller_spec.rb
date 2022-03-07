@@ -145,7 +145,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
         expect(parsed['errors']).not_to be_empty
       end
 
-      xit 'returns error objects in JSON API 1.0 ErrorObject format' do
+      it 'returns error objects in JSON API 1.0 ErrorObject format' do
         expected_keys = %w[code detail meta source status title]
         expect(parsed['errors'].first.keys).to include(*expected_keys)
         expect(parsed['errors'][2]['meta']['missing_fields']).to eq %w[phone email]
