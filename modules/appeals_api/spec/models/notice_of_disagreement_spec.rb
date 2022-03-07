@@ -292,7 +292,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       let(:auth_headers) { fixture_as_json 'valid_10182_headers.json', version: 'v2' }
       let(:form_data) { fixture_as_json 'valid_10182_minimum.json', version: 'v2' }
       let(:invalid_notice_of_disagreement) do
-        build(:minimal_notice_of_disagreement_v2, form_data: form_data, auth_headers: auth_headers, api_version: 'V2')
+        build(:minimal_notice_of_disagreement_v2, form_data: form_data, auth_headers: auth_headers, api_version: 'v2')
       end
 
       context 'when extension reason provided, but extension request is false' do

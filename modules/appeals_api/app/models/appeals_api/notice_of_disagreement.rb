@@ -295,7 +295,7 @@ module AppealsApi
     end
 
     def version_2?
-      pii_present? && api_version == 'V2'
+      pii_present? && api_version == 'v2'
     end
 
     # After expunging pii, form_data is nil, update will fail unless validation skipped
