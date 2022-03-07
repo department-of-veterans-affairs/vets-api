@@ -5,6 +5,7 @@ require 'debt_management_center/financial_status_report_configuration'
 require 'debt_management_center/responses/financial_status_report_response'
 require 'debt_management_center/models/financial_status_report'
 require 'debt_management_center/financial_status_report_downloader'
+require 'debt_management_center/workers/va_notify_email_job'
 
 module DebtManagementCenter
   ##
@@ -20,7 +21,7 @@ module DebtManagementCenter
 
     STATSD_KEY_PREFIX = 'api.dmc'
     DATE_TIMEZONE = 'Central Time (US & Canada)'
-    CONFIRMATION_TEMPLATE = Settings.vanotify.services.va_gov.template_id.fsr_confirmation_email
+    CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.fsr_confirmation_email
 
     ##
     # Submit a financial status report to the Debt Management Center
@@ -95,7 +96,11 @@ module DebtManagementCenter
       email = @user.email&.downcase
       return if email.blank?
 
-      VANotifyEmailJob.perform_async(email, CONFIRMATION_TEMPLATE)
+      DebtManagementCenter::VANotifyEmailJob.perform_async(email, CONFIRMATION_TEMPLATE, email_personalization_info)
+    end
+
+    def email_personalization_info
+      { 'name' => @user.first_name, 'time' => '48 hours', 'date' => Time.zone.now.strftime('%m/%d/%Y') }
     end
   end
 end
