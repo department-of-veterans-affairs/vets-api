@@ -48,7 +48,7 @@ module AppealsApi
             pdf.text_box(
               form_data.veteran.full_name,
               text_opts.merge(
-                at: [1, 660],
+                at: [1, 670],
                 width: 210, # So the width of the name & signature field match, for truncation consistency
                 height: 16
               )
@@ -66,7 +66,7 @@ module AppealsApi
             pdf.text_box(
               form_data.preferred_email,
               text_opts.merge(
-                at: [145, 514],
+                at: [145, 550],
                 width: 195,
                 height: 24
               )
@@ -75,7 +75,7 @@ module AppealsApi
             pdf.text_box(
               form_data.rep_name,
               text_opts.merge(
-                at: [350, 514],
+                at: [350, 563],
                 width: 195,
                 height: 24
               )
@@ -141,7 +141,7 @@ module AppealsApi
           name_stamp_path = "#{Common::FileHelpers.random_file_path}.pdf"
           Prawn::Document.generate(name_stamp_path, margin: [0, 0]) do |pdf|
             pdf.text_box form_data.stamp_text,
-                         at: [205, 785],
+                         at: [205, 778],
                          align: :center,
                          valign: :center,
                          overflow: :shrink_to_fit,
@@ -188,7 +188,7 @@ module AppealsApi
             .contestable_issues
             .take(5)
             .each_with_index do |issue, index|
-              ypos = 288 - (45 * index)
+              ypos = 273 - (35 * index)
               pdf.text_box issue['attributes']['issue'],
                            text_opts.merge(
                              at: [0, ypos],
@@ -201,7 +201,7 @@ module AppealsApi
 
               pdf.text_box "Area of Disagreement: #{issue['attributes']['disagreementArea']}",
                            text_opts.merge(
-                             at: [0, ypos - 19],
+                             at: [0, ypos - 11],
                              width: 444,
                              height: 19,
                              valign: :bottom
