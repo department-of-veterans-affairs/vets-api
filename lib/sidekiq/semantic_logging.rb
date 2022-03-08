@@ -14,7 +14,6 @@ class Sidekiq::SemanticLogging < Sidekiq::JobLogger
       user_uuid: item['user_uuid'] || 'N/A',
       source: item['source']
     }
-    Thread.current[:sidekiq_context] = {}
 
     @logger.tagged(**logger_tags) do
       super(item, queue)
