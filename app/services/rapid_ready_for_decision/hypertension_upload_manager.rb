@@ -18,7 +18,8 @@ module RapidReadyForDecision
       }
       uploads.append(new_upload)
       data['form526_uploads'] = uploads
-      submission.update(form_json: JSON.dump(data))
+      submission.update!(form_json: JSON.dump(data))
+      submission.invalidate_form_hash
       submission
     end
 

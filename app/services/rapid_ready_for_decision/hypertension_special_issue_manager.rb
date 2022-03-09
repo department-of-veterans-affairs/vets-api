@@ -15,6 +15,8 @@ module RapidReadyForDecision
         add_rrd_code(disability) if hypertension_increase?(disability)
       end
       submission.update!(form_json: JSON.dump(submission_data))
+      submission.invalidate_form_hash
+      submission
     end
 
     private
