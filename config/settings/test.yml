@@ -257,3 +257,12 @@ lgy:
   base_url: https://fake_url.com
   app_id: fake_app_id
   api_key: fake_api_key
+
+form_10_10cg:
+  carma:
+    mulesoft:
+      mock: true
+      host: "https://fake-mulesoft.vapi.va.gov"
+      client_id: BEEFCAFE1234
+      client_secret: C0FFEEFACE4321
+      timeout: 10

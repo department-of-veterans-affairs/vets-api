@@ -22,6 +22,11 @@ RSpec.describe Form1010cg::DeliverAttachmentsJob do
           record: :none,
           allow_unused_http_interactions: false,
           match_requests_on: %i[method host uri]
+        },
+        mulesoft: {
+          record: :none,
+          allow_unused_http_interactions: false,
+          match_requests_on: %i[method path]
         }
       }
     end
@@ -366,6 +371,88 @@ RSpec.describe Form1010cg::DeliverAttachmentsJob do
                 VCR.use_cassette("s3/object/delete/#{poa_attachment_guid}/doctors-note.jpg", vcr_options[:aws]) do
                   subject.perform(claim_guid)
                 end
+              end
+            end
+          end
+
+          expect(File.exist?("tmp/#{poa_attachment_guid}_doctors-note.jpg")).to eq(false)
+          expect(File.exist?("tmp/pdfs/10-10CG_#{claim_guid}.pdf")).to eq(false)
+
+          expect(Form1010cg::Submission.find_by(claim_guid: claim_guid)).to eq(nil)
+          expect(SavedClaim::CaregiversAssistanceClaim.find_by(guid: claim_guid)).to eq(nil)
+          expect(Form1010cg::Attachment.find_by(guid: poa_attachment_guid)).to eq(nil)
+        end
+      end
+    end
+
+    describe 'integration with Mulesoft' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:caregiver_mulesoft).and_return(true)
+      end
+
+      context 'with one document' do
+        let(:carma_case_id) { 'aB935000000F3VnCAK' }
+        let(:claim_guid)    { SecureRandom.uuid }
+        let(:claim)         { build(:caregivers_assistance_claim, guid: claim_guid) }
+        let(:submission)    { build(:form1010cg_submission, claim_guid: claim_guid, carma_case_id: carma_case_id) }
+
+        before do
+          claim.save!
+          submission.save!
+        end
+
+        after do
+          SavedClaim::CaregiversAssistanceClaim.delete_all
+          Form1010cg::Submission.delete_all
+        end
+
+        it 'sends the claim PDF to CARMA' do
+          VCR.use_cassette('mulesoft/application/1010CG/addDocument/201', vcr_options[:mulesoft]) do
+            subject.perform(claim_guid)
+          end
+
+          expect(File.exist?("tmp/pdfs/10-10CG_#{claim.guid}.pdf")).to eq(false)
+
+          expect(Form1010cg::Submission.find_by(claim_guid: claim_guid)).to eq(nil)
+          expect(SavedClaim::CaregiversAssistanceClaim.find_by(guid: claim_guid)).to eq(nil)
+        end
+      end
+
+      context 'with two documents' do
+        let(:carma_case_id)       { 'aB93500000017lDCAQ' }
+        let(:poa_attachment_guid) { 'cdbaedd7-e268-49ed-b714-ec543fbb1fb8' }
+        let(:attachment)          { build(:form1010cg_attachment, guid: poa_attachment_guid) }
+        let(:form_data)           { build_claim_data { |d| d['poaAttachmentId'] = poa_attachment_guid }.to_json }
+        let(:claim_guid)          { SecureRandom.uuid }
+        let(:claim)               { build(:caregivers_assistance_claim, guid: claim_guid, form: form_data) }
+        let(:submission)          { build :form1010cg_submission, claim_guid: claim_guid, carma_case_id: carma_case_id }
+
+        before do
+          VCR.use_cassette("s3/object/put/#{poa_attachment_guid}/doctors-note.jpg", vcr_options[:aws]) do
+            attachment.set_file_data!(
+              Rack::Test::UploadedFile.new(
+                Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.jpg'),
+                'image/jpg'
+              )
+            )
+          end
+
+          attachment.save!
+          claim.save!
+          submission.save!
+        end
+
+        after do
+          Form1010cg::Attachment.delete_all
+          SavedClaim::CaregiversAssistanceClaim.delete_all
+          Form1010cg::Submission.delete_all
+        end
+
+        it 'sends the claim PDF and POA attachment to CARMA' do
+          VCR.use_cassette('mulesoft/application/1010CG/addDocument/201', vcr_options[:mulesoft]) do
+            VCR.use_cassette("s3/object/get/#{poa_attachment_guid}/doctors-note.jpg", vcr_options[:aws]) do
+              VCR.use_cassette("s3/object/delete/#{poa_attachment_guid}/doctors-note.jpg", vcr_options[:aws]) do
+                subject.perform(claim_guid)
               end
             end
           end

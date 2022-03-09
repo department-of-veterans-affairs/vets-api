@@ -52,7 +52,7 @@ module CARMA
 
         describe 'attachments' do
           before do
-            expect(response).to receive(:status).and_return(200)
+            expect(response).to receive(:status).and_return(201)
             expect(response).to receive(:body).and_return(body)
           end
 
