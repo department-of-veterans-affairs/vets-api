@@ -314,20 +314,19 @@ class Form526Submission < ApplicationRecord
   #
   def workflow_complete_handler(_status, options)
     submission = Form526Submission.find(options['submission_id'])
+    params = submission.personalization_parameters(options['first_name'])
     if submission.jobs_succeeded?
-      Form526ConfirmationEmailJob.perform_async(personalization_parameters(options['first_name']))
+      Form526ConfirmationEmailJob.perform_async(params)
       submission.workflow_complete = true
       submission.save
     else
-      Form526SubmissionFailedEmailJob.perform_async(personalization_parameters(options['first_name']))
+      Form526SubmissionFailedEmailJob.perform_async(params)
     end
   end
 
   def bdd?
     form.dig('form526', 'form526', 'bddQualified') || false
   end
-
-  private
 
   def personalization_parameters(first_name)
     {
@@ -337,6 +336,8 @@ class Form526Submission < ApplicationRecord
       'first_name' => first_name
     }
   end
+
+  private
 
   def submit_uploads
     # Put uploads on a one minute delay because of shared workload with EVSS
