@@ -23,6 +23,10 @@ class HealthCareApplication < ApplicationRecord
     hca.saved_change_to_attribute?(:state) && hca.failed? && hca.form.present? && hca.parsed_form['email']
   end)
 
+  after_save(:log_submission_failure, if: proc do |hca|
+    hca.saved_change_to_attribute?(:state) && hca.failed?
+  end)
+
   # @param [Account] user
   # @return [Hash]
   def self.get_user_identifier(user)
@@ -56,6 +60,10 @@ class HealthCareApplication < ApplicationRecord
     Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
 
     result
+  rescue
+    log_submission_failure
+
+    raise
   end
 
   def process!
@@ -178,6 +186,10 @@ class HealthCareApplication < ApplicationRecord
     )
 
     self
+  end
+
+  def log_submission_failure
+    StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
   end
 
   def send_failure_mail
