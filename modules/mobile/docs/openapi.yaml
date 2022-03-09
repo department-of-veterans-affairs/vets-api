@@ -2462,7 +2462,7 @@ paths:
     get:
       description: |
         Returns the user profile, including the user's addresses and the services the user has the requisite ids to access. Meta data for this endpoint returns all the services available in the API. v1 includes LOGINGOV as login type.
-      operationId: user.getProfile
+      operationId: v1/user.getProfile
       parameters:
         - in: header
           name: X-Key-Inflection
