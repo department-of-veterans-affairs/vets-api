@@ -1164,11 +1164,7 @@ RSpec.describe 'appointments', type: :request do
                   },
                   'lat' => nil,
                   'long' => nil,
-                  'phone' => {
-                    'areaCode' => '703',
-                    'number' => '652-0000',
-                    'extension' => nil
-                  },
+                  'phone' => nil,
                   'url' => nil,
                   'code' => nil
                 },

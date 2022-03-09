@@ -321,45 +321,18 @@ describe Mobile::V0::Adapters::AppointmentRequests do
     end
 
     describe 'location' do
-      it 'sets name, address, and phone' do
+      it 'sets name and address' do
         expected_location = {
           id: nil,
           name: 'Test clinic 2',
           address: { street: '123 Sesame St.', city: 'Cheyenne', state: 'VA', zip_code: '20171' },
           lat: nil,
           long: nil,
-          phone: { area_code: '703', number: '652-0000', extension: 'x1000' },
+          phone: nil,
           url: nil,
           code: nil
         }
         expect(adapted_cc_appt_request.location.to_h).to eq(expected_location)
-      end
-
-      it 'handles nil phone numbers' do
-        cc_request_data.phone_number = nil
-        _, cc_results = subject.parse([cc_request_data])
-        appt_request = cc_results.first
-        expected_phone = { area_code: nil, number: nil, extension: nil }
-
-        expect(appt_request.location.phone.to_h).to eq(expected_phone)
-      end
-
-      it 'handles blank phone numbers' do
-        cc_request_data.phone_number = ''
-        _, cc_results = subject.parse([cc_request_data])
-        appt_request = cc_results.first
-        expected_phone = { area_code: nil, number: nil, extension: nil }
-
-        expect(appt_request.location.phone.to_h).to eq(expected_phone)
-      end
-
-      it 'handles bad phone numbers' do
-        cc_request_data.phone_number = 'NaN'
-        _, cc_results = subject.parse([cc_request_data])
-        appt_request = cc_results.first
-        expected_phone = { area_code: nil, number: nil, extension: nil }
-
-        expect(appt_request.location.phone.to_h).to eq(expected_phone)
       end
     end
 
