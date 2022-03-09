@@ -99,6 +99,7 @@ Rails.application.reloader.to_prepare do
 
   StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.submission_attempt", 0)
   StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.validation_error", 0)
+  StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry", 0)
 
   # init  mvi
   StatsD.increment("#{MPI::Service::STATSD_KEY_PREFIX}.find_profile.total", 0)

@@ -291,6 +291,16 @@ RSpec.describe HealthCareApplication, type: :model do
           )
           expect(health_care_application.process!).to eq(result)
         end
+
+        context 'with a submission failure' do
+          it 'increments statsd' do
+            expect do
+              expect do
+                health_care_application.process!
+              end.to raise_error(VCR::Errors::UnhandledHTTPRequestError)
+            end.to trigger_statsd_increment('api.1010ez.failed_wont_retry')
+          end
+        end
       end
 
       context 'with async_compatible set' do
@@ -310,6 +320,12 @@ RSpec.describe HealthCareApplication, type: :model do
       expect(health_care_application).to receive(:send_failure_mail).and_call_original
       expect(HCASubmissionFailureMailer).to receive(:build).and_call_original
       health_care_application.update!(state: 'failed')
+    end
+
+    it 'triggers statsd' do
+      expect do
+        health_care_application.update!(state: 'failed')
+      end.to trigger_statsd_increment('api.1010ez.failed_wont_retry')
     end
   end
 
