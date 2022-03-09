@@ -48,7 +48,7 @@ module CARMA
 
       def raise_error_unless_success(resource, status)
         Rails.logger.info "[Form 10-10CG] Submission to '#{resource}' resource resulted in response code #{status}"
-        return if status == 200
+        return if [200, 201].include? status
 
         raise Common::Exceptions::SchemaValidationErrors, ["Expecting 200 status but received #{status}"]
       end

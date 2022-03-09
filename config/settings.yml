@@ -93,11 +93,11 @@ salesforce:
 form_10_10cg:
   carma:
     mulesoft:
-      mock: true
-      host: "https://fake-mulesoft.vapi.va.gov"
-      client_id: BEEFCAFE1234
-      client_secret: C0FFEEFACE4321
-      timeout: 10
+      mock: false
+      host: ~
+      client_id: ~
+      client_secret: ~
+      timeout: 30
   poa:
     s3:
       aws_access_key_id: my-aws-key-id
