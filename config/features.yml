@@ -333,6 +333,10 @@ features:
     actor_type: user
     description: This will filter to only show medical copays within the last 6 months
     enable_in_development: true
+  medical_copays_html_medical_statements_view_enabled:
+    actor_type: user
+    description: This will show new 508 compliant medical statement views
+    enable_in_development: true
   mega_menu_mobile_v2:
     actor_type: user
     description: Separates mobile mega menu from desktop mega menu
