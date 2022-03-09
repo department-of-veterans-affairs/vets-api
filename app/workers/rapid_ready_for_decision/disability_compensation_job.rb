@@ -81,13 +81,11 @@ module RapidReadyForDecision
     end
 
     def account(form526_submission)
-      user_uuid = form526_submission.user_uuid.presence
+      account = Account.lookup_by_user_uuid(form526_submission.user_uuid)
+      return account if account
+
       edipi = form526_submission.auth_headers['va_eauth_dodedipnid'].presence
-      # rubocop:disable Lint/UselessAssignment
-      account = Account.find_by(idme_uuid: user_uuid) if user_uuid
-      account ||= Account.find_by(logingov_uuid: user_uuid) if user_uuid
-      account ||= Account.find_by(edipi: edipi) if edipi
-      # rubocop:enable Lint/UselessAssignment
+      Account.find_by(edipi: edipi) if edipi
     end
 
     def upload_pdf_and_attach_special_issue(form526_submission, pdf)

@@ -47,6 +47,14 @@ class Account < ApplicationRecord
                                 end
                               }
 
+  # @param user_uuid [String] The uuid of current_user in ApplicationController;
+  #                           may refer to the idme_uuid (preferred) or logingov_uuid
+  def self.lookup_by_user_uuid(user_uuid)
+    return if user_uuid.blank?
+
+    Account.find_by(idme_uuid: user_uuid) || Account.find_by(logingov_uuid: user_uuid)
+  end
+
   private
 
   def initialize_uuid

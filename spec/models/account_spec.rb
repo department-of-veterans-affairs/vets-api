@@ -84,4 +84,42 @@ RSpec.describe Account, type: :model do
       expect(Account.logingov_uuid_match(nil)).to be_empty
     end
   end
+
+  describe '.lookup_by_user_uuid' do
+    let!(:find_me) { create :account }
+    let!(:dont_find_me) { create :account }
+
+    it 'returns Account matching given idme_uuid' do
+      expect(Account.lookup_by_user_uuid(find_me.idme_uuid)).to eq find_me
+    end
+
+    it 'returns Account matching given logingov_uuid' do
+      expect(Account.lookup_by_user_uuid(find_me.logingov_uuid)).to eq find_me
+    end
+
+    it 'returns nil when given bogus user_uuid' do
+      expect(Account.lookup_by_user_uuid('bogus-1234')).to eq nil
+    end
+
+    it 'returns nil when given blank user_uuid' do
+      expect(Account.lookup_by_user_uuid('')).to eq nil
+    end
+
+    it 'returns nil when given nil user_uuid' do
+      expect(Account.lookup_by_user_uuid(nil)).to eq nil
+    end
+
+    context 'when another account has a logingov_uuid matching user_uuid' do
+      let(:user_uuid) { 'uuid-i-am-looking-for' }
+
+      before do
+        find_me.update!(idme_uuid: user_uuid)
+        dont_find_me.update!(logingov_uuid: user_uuid)
+      end
+
+      it 'returns the account found by idme_uuid' do
+        expect(Account.lookup_by_user_uuid(user_uuid)).to eq find_me
+      end
+    end
+  end
 end
