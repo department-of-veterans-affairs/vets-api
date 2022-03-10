@@ -184,7 +184,7 @@ RSpec/DescribeClass:
 # Offense count: 1416
 # Configuration parameters: AllowSubject.
 RSpec/MultipleMemoizedHelpers:
-  Max: 37
+  Max: 40
 
 # Offense count: 573
 RSpec/StubbedMock:

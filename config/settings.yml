@@ -291,6 +291,9 @@ vre_counseling:
 vre_readiness:
   prefill: true
 
+coe:
+  prefill: true
+
 # Settings for EVSS
 evss:
   prefill: true
