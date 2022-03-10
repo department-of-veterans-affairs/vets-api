@@ -69,10 +69,6 @@ features:
     actor_type: user
     description: Enables the health care check-in experiences to show the pre-check-in experience.
     enable_in_development: true
-  check_in_experience_chip_service_nok_confirmation_update_enabled:
-    actor_type: user
-    description: This updates a key name in the demographics confirmation hash in the CHIP service.
-    enable_in_development: true
   check_in_experience_demographics_confirmation_enabled:
     actor_type: user
     description: Enables the health care pre-check-in experiences to send demographics confirmation.
