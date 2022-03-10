@@ -753,6 +753,28 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v26_1880_expected) do
+    {
+      'fullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.suffix
+      },
+      'ssn' => '796111863',
+      'dob' => '1809-02-12',
+      'applicantAddress' => {
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
+        'city' => user.address[:city],
+        'state' => user.address[:state],
+        'country' => user.address[:country],
+        'postal_code' => user.address[:zip][0..4]
+      },
+      'mainPhone' => us_phone,
+      'email' => user.pciu_email
+    }
+  end
+
   let(:v28_8832_expected) do
     {
       'claimantAddress' => {
@@ -1121,6 +1143,7 @@ RSpec.describe FormProfile, type: :model do
           686C-674
           28-8832
           28-1900
+          26-1880
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             expect_prefilled(form_id)
