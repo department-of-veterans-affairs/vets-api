@@ -46,6 +46,7 @@ module Mobile
         disabilityRating: :evss,
         lettersAndDocuments: :evss,
         militaryServiceHistory: :emis,
+        paymentHistory: :bgs,
         userProfileUpdate: :vet360,
         secureMessaging: :mhv_messaging
       }.freeze
