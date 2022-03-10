@@ -47,6 +47,20 @@ module Mobile
           handle_cancel_error(e, params)
         end
 
+        def get_appointment_request(id)
+          vaos_appointment_requests_service.get_request(id)[:data]
+        end
+
+        def put_cancel_appointment_request(id, request)
+          parsed_request = request.as_json['table']
+          parsed_request['status'] = 'Cancelled'
+          parsed_request['appointment_request_detail_code'] = ['DETCODE8']
+
+          vaos_appointment_requests_service.put_request(id, parsed_request)
+        rescue Common::Exceptions::BackendServiceException => e
+          handle_cancel_error(e, parsed_request)
+        end
+
         private
 
         def normalize_appointments(responses, start_date, end_date)
@@ -149,11 +163,10 @@ module Mobile
             Rails.logger.info(
               'mobile cancel appointment facility not supported',
               clinic_id: params[:clinicId],
-              facility_id: params[:facilityId]
+              facility_id: params[:facilityId] || params.dig(:facility, :facility_code)
             )
             raise Common::Exceptions::BackendServiceException, 'MOBL_409_facility_not_supported'
           end
-
           raise e
         end
 
@@ -187,6 +200,10 @@ module Mobile
 
         def vaos_appointments_service
           VAOS::AppointmentService.new(@user)
+        end
+
+        def vaos_appointment_requests_service
+          VAOS::AppointmentRequestsService.new(@user)
         end
 
         def vaos_systems_service

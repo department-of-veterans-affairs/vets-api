@@ -37,18 +37,31 @@ module Mobile
       end
 
       def cancel
-        decoded_cancel_params = Mobile::V0::Appointment.decode_cancel_id(params[:id])
-        contract = Mobile::V0::Contracts::CancelAppointment.new.call(decoded_cancel_params)
-        raise Mobile::V0::Exceptions::ValidationErrors, contract if contract.failure?
+        id = params[:id]
+        # appointment request cancel ids is appointment id while other appointments will be encoded string
+        if uuid?(id)
+          appointment_request = appointments_proxy.get_appointment_request(id)
+          appointments_proxy.put_cancel_appointment_request(id, appointment_request)
+        else
+          decoded_cancel_params = Mobile::V0::Appointment.decode_cancel_id(id)
+          contract = Mobile::V0::Contracts::CancelAppointment.new.call(decoded_cancel_params)
+          raise Mobile::V0::Exceptions::ValidationErrors, contract if contract.failure?
 
-        appointments_proxy.put_cancel_appointment(decoded_cancel_params)
+          appointments_proxy.put_cancel_appointment(decoded_cancel_params)
+        end
+
         head :no_content
       end
 
       private
 
+      def uuid?(id)
+        uuid_regex = /^[0-9a-f]{32}$/
+        uuid_regex.match?(id)
+      end
+
       def use_cache?(validated_params)
-        # use cache if date range is within +/- 1 year and use_cache is true
+        # use cache if date range is within beginning of last year to one year from now and use_cache is true
         validated_params[:start_date] >= beginning_of_last_year.iso8601 &&
           validated_params[:end_date] <= one_year_from_now.iso8601 && validated_params[:use_cache]
       end

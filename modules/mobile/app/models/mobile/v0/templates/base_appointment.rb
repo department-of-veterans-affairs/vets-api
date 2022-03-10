@@ -24,7 +24,7 @@ module Mobile
           Mobile::V0::Appointment.new(
             id: @request[:appointment_request_id],
             appointment_type: appointment_type,
-            cancel_id: nil,
+            cancel_id: @request[:appointment_request_id],
             comment: nil,
             facility_id: facility_id,
             sta6aid: nil,
