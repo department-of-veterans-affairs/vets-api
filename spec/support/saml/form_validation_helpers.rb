@@ -4,6 +4,12 @@ module SAML
   module ValidationHelpers
     extend ActiveSupport::Concern
 
+    def expect_oauth_post_form(body, value, expected_action)
+      doc = Nokogiri::HTML(body)
+      expect(doc.at_css('form').attributes['id'].value).to eq(value)
+      expect(doc.at_css('form').attributes['action'].value).to eq(expected_action)
+    end
+
     def expect_saml_post_form(body, expected_action, expected_relay_state = nil)
       doc = Nokogiri::HTML(body)
       expect(doc.at_css('form').attributes['id'].value).to eq('saml-form')

@@ -13,6 +13,13 @@ Rails.application.routes.draw do
       constraints: ->(request) { V1::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
   get '/v1/sessions/ssoe_logout', to: 'v1/sessions#ssoe_slo_callback'
 
+  get '/sign_in/:type/new',
+      to: 'sign_in#new',
+      constraints: ->(request) { SignInController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
+  get '/sign_in/:type/callback',
+      to: 'sign_in#callback',
+      constraints: ->(request) { SignInController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
+
   namespace :v0, defaults: { format: 'json' } do
     resources :onsite_notifications, only: %i[create index update]
 

@@ -8,6 +8,13 @@ virtual_hosts: ["127.0.0.1", "localhost"] # Safe host names
 web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,null
 web_origin_regex: \Ahttps?:\/\/www\.va\.gov\z
 
+logingov:
+  client_id: urn:gov:gsa:openidconnect.profiles:sp:sso:va:dev_signin
+  redirect_uri: http://localhost:3000/sign_in/logingov/callback
+  client_cert_path: spec/fixtures/sign_in/logingov.crt
+  client_key_path: spec/fixtures/sign_in/logingov.key
+  oauth_url: https://idp.int.identitysandbox.gov
+
 # Settings for new SAML authentication with SSOe
 saml_ssoe:
   idp_metadata_file: config/ssoe_idp_int_metadata_isam.xml
