@@ -84,6 +84,10 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
 
       post controller_action, params: params
 
+      log = PersonalInformationLog.last
+      expect(log.error_class).to eq('1010CGValidationError')
+      expect(log.data).to eq({ 'form' => {} })
+
       res_body = JSON.parse(response.body)
 
       expect(response.status).to eq(422)
