@@ -5,8 +5,8 @@ FactoryBot.define do
     skip_create
 
     user_uuid { create(:user).uuid }
-    session_handle { 'some-session-handle' }
-    parent_refresh_token_hash { nil }
+    session_handle { create(:oauth_session).handle }
+    parent_refresh_token_hash { SecureRandom.hex }
     anti_csrf_token { SecureRandom.hex }
     nonce { SecureRandom.hex }
     version { SignIn::Constants::RefreshToken::CURRENT_VERSION }
