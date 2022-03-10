@@ -727,7 +727,7 @@ GEM
       ffi (~> 1.0)
     rchardet (1.8.0)
     redis (4.6.0)
-    redis-namespace (1.8.1)
+    redis-namespace (1.8.2)
       redis (>= 3.0.4)
     regexp_parser (2.2.1)
     representable (3.1.1)
