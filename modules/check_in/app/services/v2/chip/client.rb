@@ -145,6 +145,15 @@ module V2
         connection.post("/#{base_path}/actions/refresh-precheckin/#{check_in_session.uuid}") do |req|
           req.headers = default_headers.merge('Authorization' => "Bearer #{token}")
         end
+      rescue => e
+        log_exception_to_sentry(e,
+                                {
+                                  original_body: e.original_body,
+                                  original_status: e.original_status,
+                                  uuid: check_in_session.uuid
+                                },
+                                { external_service: service_name, team: 'check-in' })
+        Faraday::Response.new(body: e.original_body, status: e.original_status)
       end
 
       private

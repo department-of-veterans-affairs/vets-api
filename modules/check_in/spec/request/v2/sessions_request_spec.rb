@@ -45,6 +45,10 @@ RSpec.describe 'V2::SessionsController', type: :request do
         }
       end
 
+      before do
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_refresh_pre_checkin').and_return(false)
+      end
+
       it 'returns read.none permissions' do
         get check_in.v2_session_path(uuid)
 
@@ -78,6 +82,7 @@ RSpec.describe 'V2::SessionsController', type: :request do
 
       before do
         allow(Flipper).to receive(:enabled?).with('check_in_experience_set_pre_checkin_status').and_return(false)
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_refresh_pre_checkin').and_return(false)
         VCR.use_cassette 'check_in/lorota/token/token_200' do
           post '/check_in/v2/sessions', session_params
         end
@@ -88,6 +93,62 @@ RSpec.describe 'V2::SessionsController', type: :request do
 
         expect(response.status).to eq(200)
         expect(JSON.parse(response.body)).to eq(resp)
+      end
+    end
+
+    context 'with CHIP refresh precheckin endpoint' do
+      let(:uuid) { Faker::Internet.uuid }
+      let(:session_params) do
+        {
+          params: {
+            session: {
+              uuid: uuid,
+              last4: '5555',
+              last_name: 'Johnson'
+            }
+          }
+        }
+      end
+      let(:resp) do
+        {
+          'permissions' => 'read.full',
+          'status' => 'success',
+          'uuid' => uuid
+        }
+      end
+
+      before do
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_set_pre_checkin_status').and_return(false)
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_refresh_pre_checkin').and_return(true)
+        VCR.use_cassette 'check_in/lorota/token/token_200' do
+          post '/check_in/v2/sessions', session_params
+        end
+      end
+
+      context 'succeeding with refresh' do
+        it 'returns a success response' do
+          VCR.use_cassette('check_in/chip/refresh_pre_check_in/refresh_pre_check_in_200', erb: { uuid: uuid }) do
+            VCR.use_cassette 'check_in/chip/token/token_200' do
+              get "/check_in/v2/sessions/#{uuid}"
+
+              expect(response.status).to eq(200)
+              expect(JSON.parse(response.body)).to eq(resp)
+            end
+          end
+        end
+      end
+
+      context 'throwing error' do
+        it 'returns a success response' do
+          VCR.use_cassette('check_in/chip/refresh_pre_check_in/refresh_pre_check_in_500', erb: { uuid: uuid }) do
+            VCR.use_cassette 'check_in/chip/token/token_200' do
+              get "/check_in/v2/sessions/#{uuid}"
+
+              expect(response.status).to eq(200)
+              expect(JSON.parse(response.body)).to eq(resp)
+            end
+          end
+        end
       end
     end
   end
