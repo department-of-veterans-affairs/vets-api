@@ -20,6 +20,7 @@ module V0
         record_submission_success submission
         render json: submission, serializer: ::Form1010cg::SubmissionSerializer
       else
+        PersonalInformationLog.create!(data: { form: @claim.parsed_form }, error_class: '1010CGValidationError')
         auditor.record(:submission_failure_client_data, claim_guid: @claim.guid, errors: @claim.errors.messages)
         raise(Common::Exceptions::ValidationErrors, @claim)
       end
