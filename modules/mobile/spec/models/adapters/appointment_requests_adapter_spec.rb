@@ -48,14 +48,21 @@ describe Mobile::V0::Adapters::AppointmentRequests do
 
   describe 'unused fields' do
     it 'returns them as nils' do
-      cancel_id = all_appointment_requests.map(&:cancel_id).uniq
       comment = all_appointment_requests.map(&:comment).uniq
       sta6aid = all_appointment_requests.map(&:sta6aid).uniq
       minutes_duration = all_appointment_requests.map(&:minutes_duration).uniq
       vetext_id = all_appointment_requests.map(&:vetext_id).uniq
       is_covid_vaccine = all_appointment_requests.map(&:is_covid_vaccine).uniq
 
-      expect([cancel_id, comment, sta6aid, minutes_duration, vetext_id, is_covid_vaccine]).to all(eq([nil]))
+      expect([comment, sta6aid, minutes_duration, vetext_id, is_covid_vaccine]).to all(eq([nil]))
+    end
+  end
+
+  describe 'cancel_id' do
+    it 'is appointment id' do
+      ids = all_appointment_requests.map(&:id)
+      cancel_ids = all_appointment_requests.map(&:cancel_id)
+      expect(ids).to eq(cancel_ids)
     end
   end
 
