@@ -12,6 +12,8 @@ module SignIn
       VERSION_LIST = [
         CURRENT_VERSION = 'V0'
       ].freeze
+
+      VALIDITY_LENGTH_MINUTES = 30
     end
   end
 end
