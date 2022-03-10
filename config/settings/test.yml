@@ -26,6 +26,9 @@ saml_ssoe:
   cert_path: spec/support/certificates/ruby-saml.crt
   key_path: spec/support/certificates/ruby-saml.key
 
+sign_in:
+  jwt_encode_key: 'spec/fixtures/sign_in/privatekey.pem'
+
 edu:
   prefill: true
   sftp:
