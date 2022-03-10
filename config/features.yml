@@ -313,6 +313,10 @@ features:
     actor_type: cookie_id
     description: Enables/disables the usage of the new service provider Login.gov (VSP Identity)
     enable_in_development: true
+  login_gov_disable:
+    actor_type: cookie_id
+    description: Disables the usage of the new service provider Login.gov (VSP Identity)
+    enable_in_development: true
   login_gov_create_account:
     actor_type: cookie_id
     description: Enables/disables the usage of the new service provider Login.gov to create an account (VSP Identity)
