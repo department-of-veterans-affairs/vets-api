@@ -306,7 +306,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
         context 'BGS response is invalid' do
           let(:error_detail) do
-            'Unable to locate Veteran file number.'
+            'Unable to locate Veteran file number for eFolder. '\
+              'Please contact the Digital Transformation Center (DTC) at 202-921-0911 for assistance.'
           end
 
           context "when the BGS response is 'nil'" do
