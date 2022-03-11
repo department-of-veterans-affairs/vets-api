@@ -34,7 +34,7 @@ RSpec.describe RapidReadyForDecision::HypertensionUploadManager do
         expect(parsed_json).to match original_form_json_uploads + [
           { 'name' => 'VAMC_Hypertension_Rapid_Decision_Evidence.pdf',
             'confirmationCode' => 'fake_confirmation_code',
-            'attachmentId' => 'L023' }
+            'attachmentId' => 'L048' }
         ]
       end
 
@@ -50,7 +50,7 @@ RSpec.describe RapidReadyForDecision::HypertensionUploadManager do
           expect(parsed_json).to match [
             { 'name' => 'VAMC_Hypertension_Rapid_Decision_Evidence.pdf',
               'confirmationCode' => 'fake_confirmation_code',
-              'attachmentId' => 'L023' }
+              'attachmentId' => 'L048' }
           ]
         end
       end
