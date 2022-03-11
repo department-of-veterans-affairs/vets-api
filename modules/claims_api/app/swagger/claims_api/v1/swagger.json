@@ -9514,7 +9514,7 @@
                   "errors": [
                     {
                       "title": "Unprocessable Entity",
-                      "detail": "Unable to locate Veteran file number.",
+                      "detail": "Unable to locate Veteran file number for eFolder. Please contact the Digital Transformation Center (DTC) at 202-921-0911 for assistance.",
                       "code": "422",
                       "status": "422"
                     }
