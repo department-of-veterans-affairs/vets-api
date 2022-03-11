@@ -165,13 +165,12 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   end
 
   describe '#send_to_central_mail!' do
-    it 'sends the claim to central mail' do
-      claim.send_to_central_mail!
-    end
-
-    it 'calls process_attachments! method' do
-      expect(claim).to receive(:process_attachments!)
-      claim.send_to_central_mail!
+    it 'does not raise error' do
+      Sidekiq::Testing.inline! do
+        VCR.use_cassette('central_mail/upload_one_attachment') do
+          expect { claim.send_to_central_mail! }.not_to raise_error
+        end
+      end
     end
   end
 end
