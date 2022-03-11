@@ -166,13 +166,13 @@ module V1
 
       case type
       when 'mhv'
-        url_service.login_url('mhv', 'myhealthevet')
+        url_service.login_url('mhv', 'myhealthevet', AuthnContext::MHV)
       when 'mhv_verified'
-        url_service.login_url('mhv', 'myhealthevet_loa3')
+        url_service.login_url('mhv', 'myhealthevet_loa3', AuthnContext::MHV)
       when 'dslogon'
-        url_service.login_url('dslogon', 'dslogon')
+        url_service.login_url('dslogon', 'dslogon', AuthnContext::DSLOGON)
       when 'dslogon_verified'
-        url_service.login_url('dslogon', 'dslogon_loa3')
+        url_service.login_url('dslogon', 'dslogon_loa3', AuthnContext::DSLOGON)
       when 'idme'
         url_service.login_url('idme', LOA::IDME_LOA1_VETS, AuthnContext::ID_ME, AuthnContext::MINIMUM)
       when 'idme_verified'
