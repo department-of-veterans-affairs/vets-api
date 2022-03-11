@@ -6,7 +6,7 @@ FactoryBot.define do
 
     user_uuid { create(:user).uuid }
     session_handle { create(:oauth_session).handle }
-    parent_refresh_token_hash { SecureRandom.hex }
+    parent_refresh_token_hash { nil }
     anti_csrf_token { SecureRandom.hex }
     nonce { SecureRandom.hex }
     version { SignIn::Constants::RefreshToken::CURRENT_VERSION }
