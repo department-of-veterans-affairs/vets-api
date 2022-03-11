@@ -32,7 +32,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/betamocks
-  revision: d73d334c2c22ddffbec19695ecfa55aa8934a535
+  revision: ea2973373cd398846a268cf2d61b3979bfb00b1a
   branch: master
   specs:
     betamocks (0.8.0)
