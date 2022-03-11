@@ -907,7 +907,7 @@ GEM
     thwait (0.2.0)
       e2mmap
     tilt (2.0.10)
-    timecop (0.9.4)
+    timecop (0.9.5)
     tins (1.31.0)
       sync
     trailblazer-option (0.1.2)
