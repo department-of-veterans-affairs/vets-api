@@ -14,7 +14,7 @@ module RapidReadyForDecision
       new_upload = {
         name: 'VAMC_Hypertension_Rapid_Decision_Evidence.pdf',
         confirmationCode: confirmation_code,
-        attachmentId: 'L023'
+        attachmentId: 'L048'
       }
       uploads.append(new_upload)
       data['form526_uploads'] = uploads
