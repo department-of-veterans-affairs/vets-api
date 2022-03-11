@@ -89,9 +89,6 @@ module V1
     end
 
     def saml_settings(options = {})
-      # add a forceAuthn value to the saml settings based on the initial options or
-      # default to false
-      options[:force_authn] ||= false
       SAML::SSOeSettingsService.saml_settings(options)
     end
 
@@ -208,7 +205,7 @@ module V1
         url_service.verify_url
       when 'custom'
         authn = validate_inbound_login_params
-        url_service(false).custom_url authn
+        url_service.custom_url authn
       end
     end
     # rubocop:enable Metrics/MethodLength
@@ -381,9 +378,8 @@ module V1
       'UNKNOWN'
     end
 
-    def url_service(force_authn = true)
-      force_authn = false unless Settings.vsp_environment == 'production'
-      @url_service ||= SAML::PostURLService.new(saml_settings(force_authn: force_authn),
+    def url_service
+      @url_service ||= SAML::PostURLService.new(saml_settings,
                                                 session: @session_object,
                                                 user: current_user,
                                                 params: params,
