@@ -18,11 +18,11 @@ module SignIn
     private
 
     def anti_csrf_token
-      @anti_csrf_token ||= random_number
+      @anti_csrf_token ||= SecureRandom.hex
     end
 
     def refresh_token
-      @refresh_token ||= create_new_refresh_token
+      @refresh_token ||= create_new_refresh_token(parent_refresh_token_hash: parent_refresh_token_hash)
     end
 
     def access_token
@@ -33,16 +33,16 @@ module SignIn
       @session ||= create_new_session
     end
 
-    def random_number
-      SecureRandom.hex
-    end
-
-    def double_refresh_token_hash
-      @double_refresh_token_hash ||= get_hash(refresh_token_hash)
+    def double_parent_refresh_token_hash
+      @double_parent_refresh_token_hash ||= get_hash(parent_refresh_token_hash)
     end
 
     def refresh_token_hash
       @refresh_token_hash ||= get_hash(refresh_token.to_json)
+    end
+
+    def parent_refresh_token_hash
+      @parent_refresh_token_hash ||= get_hash(create_new_refresh_token.to_json)
     end
 
     def create_new_access_token
@@ -50,15 +50,17 @@ module SignIn
         session_handle: handle,
         user_uuid: user_account.id,
         refresh_token_hash: refresh_token_hash,
+        parent_refresh_token_hash: parent_refresh_token_hash,
         anti_csrf_token: anti_csrf_token,
         last_regeneration_time: refresh_created_time
       )
     end
 
-    def create_new_refresh_token
+    def create_new_refresh_token(parent_refresh_token_hash: nil)
       SignIn::RefreshToken.new(
         session_handle: handle,
         user_uuid: user_account.id,
+        parent_refresh_token_hash: parent_refresh_token_hash,
         anti_csrf_token: anti_csrf_token
       )
     end
@@ -66,7 +68,7 @@ module SignIn
     def create_new_session
       SignIn::OAuthSession.create!(user_account: user_account,
                                    handle: handle,
-                                   hashed_refresh_token: double_refresh_token_hash,
+                                   hashed_refresh_token: double_parent_refresh_token_hash,
                                    refresh_expiration: refresh_expiration_time,
                                    refresh_creation: refresh_created_time)
     end

@@ -26,24 +26,42 @@ RSpec.describe SignIn::SessionCreator do
       context 'expected session' do
         let(:expected_handle) { SecureRandom.uuid }
         let(:expected_created_time) { Time.zone.now }
+        let(:expected_user_uuid) { user_account.id }
         let(:expected_expiration_time) do
           Time.zone.now + SignIn::Constants::RefreshToken::VALIDITY_LENGTH_MINUTES.minutes
         end
-        let(:expected_hashed_refresh_token) do
-          Digest::SHA256.hexdigest(Digest::SHA256.hexdigest(refresh_token.to_json))
+        let(:expected_double_hashed_parent_refresh_token) do
+          Digest::SHA256.hexdigest(parent_refresh_token_hash)
         end
-        let(:refresh_token) { create(:refresh_token, session_handle: expected_handle) }
+        let(:stubbed_random_number) { 'some-stubbed-random-number' }
+        let(:parent_refresh_token_hash) { Digest::SHA256.hexdigest(parent_refresh_token.to_json) }
+        let(:refresh_token) do
+          create(:refresh_token,
+                 user_uuid: expected_user_uuid,
+                 parent_refresh_token_hash: parent_refresh_token_hash,
+                 session_handle: expected_handle,
+                 nonce: stubbed_random_number,
+                 anti_csrf_token: stubbed_random_number)
+        end
+        let(:parent_refresh_token) do
+          create(:refresh_token,
+                 user_uuid: expected_user_uuid,
+                 parent_refresh_token_hash: nil,
+                 session_handle: expected_handle,
+                 nonce: stubbed_random_number,
+                 anti_csrf_token: stubbed_random_number)
+        end
 
         before do
+          allow(SecureRandom).to receive(:hex).and_return(stubbed_random_number)
           allow(SecureRandom).to receive(:uuid).and_return(expected_handle)
           allow(Time.zone).to receive(:now).and_return(expected_created_time)
-          allow(SignIn::RefreshToken).to receive(:new).and_return(refresh_token)
         end
 
         it 'returns a Session Container with expected OAuth Session and fields' do
           session = subject.session
           expect(session.handle).to eq(expected_handle)
-          expect(session.hashed_refresh_token).to eq(expected_hashed_refresh_token)
+          expect(session.hashed_refresh_token).to eq(expected_double_hashed_parent_refresh_token)
           expect(session.refresh_creation).to eq(expected_created_time)
           expect(session.refresh_expiration).to eq(expected_expiration_time)
         end
@@ -52,10 +70,28 @@ RSpec.describe SignIn::SessionCreator do
       context 'expected refresh_token' do
         let(:expected_handle) { SecureRandom.uuid }
         let(:expected_user_uuid) { user_account.id }
-        let(:expected_anti_csrf_token) { 'some-anti-csrf-token' }
+        let(:expected_anti_csrf_token) { stubbed_random_number }
+        let(:stubbed_random_number) { 'some-stubbed-random-number' }
+        let(:expected_parent_refresh_token_hash) { Digest::SHA256.hexdigest(parent_refresh_token.to_json) }
+        let(:refresh_token) do
+          create(:refresh_token,
+                 user_uuid: expected_user_uuid,
+                 parent_refresh_token_hash: parent_refresh_token_hash,
+                 session_handle: expected_handle,
+                 nonce: stubbed_random_number,
+                 anti_csrf_token: stubbed_random_number)
+        end
+        let(:parent_refresh_token) do
+          create(:refresh_token,
+                 user_uuid: expected_user_uuid,
+                 parent_refresh_token_hash: nil,
+                 session_handle: expected_handle,
+                 nonce: stubbed_random_number,
+                 anti_csrf_token: stubbed_random_number)
+        end
 
         before do
-          allow(SecureRandom).to receive(:hex).and_return(expected_anti_csrf_token)
+          allow(SecureRandom).to receive(:hex).and_return(stubbed_random_number)
           allow(SecureRandom).to receive(:uuid).and_return(expected_handle)
         end
 
@@ -64,21 +100,38 @@ RSpec.describe SignIn::SessionCreator do
           expect(refresh_token.session_handle).to eq(expected_handle)
           expect(refresh_token.anti_csrf_token).to eq(expected_anti_csrf_token)
           expect(refresh_token.user_uuid).to eq(expected_user_uuid)
+          expect(refresh_token.parent_refresh_token_hash).to eq(expected_parent_refresh_token_hash)
         end
       end
 
       context 'expected access_token' do
         let(:expected_handle) { SecureRandom.uuid }
         let(:expected_user_uuid) { user_account.id }
-        let(:expected_anti_csrf_token) { 'some-anti-csrf-token' }
+        let(:expected_anti_csrf_token) { stubbed_random_number }
+        let(:stubbed_random_number) { 'some-stubbed-random-number' }
         let(:expected_refresh_token_hash) { Digest::SHA256.hexdigest(refresh_token.to_json) }
-        let(:refresh_token) { create(:refresh_token, session_handle: expected_handle) }
+        let(:refresh_token) do
+          create(:refresh_token,
+                 user_uuid: expected_user_uuid,
+                 parent_refresh_token_hash: expected_parent_refresh_token_hash,
+                 session_handle: expected_handle,
+                 nonce: stubbed_random_number,
+                 anti_csrf_token: expected_anti_csrf_token)
+        end
+        let(:parent_refresh_token) do
+          create(:refresh_token,
+                 user_uuid: expected_user_uuid,
+                 parent_refresh_token_hash: nil,
+                 session_handle: expected_handle,
+                 nonce: stubbed_random_number,
+                 anti_csrf_token: expected_anti_csrf_token)
+        end
+        let(:expected_parent_refresh_token_hash) { Digest::SHA256.hexdigest(parent_refresh_token.to_json) }
         let(:expected_last_regeneration_time) { Time.zone.now }
 
         before do
-          allow(SecureRandom).to receive(:hex).and_return(expected_anti_csrf_token)
+          allow(SecureRandom).to receive(:hex).and_return(stubbed_random_number)
           allow(SecureRandom).to receive(:uuid).and_return(expected_handle)
-          allow(SignIn::RefreshToken).to receive(:new).and_return(refresh_token)
           allow(Time.zone).to receive(:now).and_return(expected_last_regeneration_time)
         end
 
@@ -88,6 +141,7 @@ RSpec.describe SignIn::SessionCreator do
           expect(access_token.anti_csrf_token).to eq(expected_anti_csrf_token)
           expect(access_token.user_uuid).to eq(expected_user_uuid)
           expect(access_token.refresh_token_hash).to eq(expected_refresh_token_hash)
+          expect(access_token.parent_refresh_token_hash).to eq(expected_parent_refresh_token_hash)
           expect(access_token.last_regeneration_time).to eq(expected_last_regeneration_time)
         end
       end

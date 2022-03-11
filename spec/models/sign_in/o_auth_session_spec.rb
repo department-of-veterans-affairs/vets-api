@@ -102,4 +102,34 @@ RSpec.describe SignIn::OAuthSession, type: :model do
       end
     end
   end
+
+  describe '#active?' do
+    subject { oauth_session.active? }
+
+    let(:current_time) { Time.zone.now }
+
+    context 'when current time is before refresh_expiration' do
+      let(:refresh_expiration) { current_time + 1000 }
+
+      it 'returns true' do
+        expect(subject).to be true
+      end
+    end
+
+    context 'when current time is after refresh_expiration' do
+      let(:refresh_expiration) { current_time - 1000 }
+
+      it 'returns false' do
+        expect(subject).to be false
+      end
+    end
+
+    context 'when current time is equal to refresh_expiration' do
+      let(:refresh_expiration) { current_time }
+
+      it 'returns false' do
+        expect(subject).to be false
+      end
+    end
+  end
 end

@@ -8,5 +8,9 @@ module SignIn
     validates :hashed_refresh_token, uniqueness: true, presence: true
     validates :refresh_expiration, presence: true
     validates :refresh_creation, presence: true
+
+    def active?
+      Time.zone.now < refresh_expiration
+    end
   end
 end
