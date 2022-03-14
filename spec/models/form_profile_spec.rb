@@ -757,11 +757,11 @@ RSpec.describe FormProfile, type: :model do
     {
       'fullName' => {
         'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.suffix
       },
-      'ssn' => '796111863',
-      'dob' => '1809-02-12',
+      'dateOfBirth' => '1809-02-12',
       'applicantAddress' => {
         'street' => street_check[:street],
         'street2' => street_check[:street2],
@@ -770,8 +770,21 @@ RSpec.describe FormProfile, type: :model do
         'country' => user.address[:country],
         'postal_code' => user.address[:zip][0..4]
       },
-      'mainPhone' => us_phone,
-      'email' => user.pciu_email
+      'contactPhone' => us_phone,
+      'contactEmail' => user.pciu_email,
+      'periodsOfService' => [
+        {
+          'serviceBranch' => 'Air Force',
+          'dateRange' => {
+            'from' => '2007-04-01',
+            'to' => '2016-06-01'
+          }
+        }
+      ],
+      'currentlyActiveDuty' => {
+        'yes' => true
+      },
+      'activeDuty' => true
     }
   end
 
