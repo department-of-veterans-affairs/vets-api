@@ -61,6 +61,8 @@ module ClaimsApi
       #
       # @return [String] Single string representation of provided address
       def stringify_address(address)
+        return if address.nil?
+
         "#{address['numberAndStreet']}, #{address['city']} #{address['state']} #{address['zipFirstFive']}"
       end
 

@@ -92,6 +92,8 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
               .to receive(:validate_poa_code_for_current_user!).and_return(true)
             stub_poa_verification
             stub_mpi
+            allow_any_instance_of(BGS::PersonWebService)
+              .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
 
             with_okta_user(scopes) do
               submit_request(example.metadata)

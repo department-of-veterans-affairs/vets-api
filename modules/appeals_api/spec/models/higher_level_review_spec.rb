@@ -381,6 +381,8 @@ describe AppealsApi::HigherLevelReview, type: :model do
       end
 
       describe '#appellant_local_time' do
+        before { Timecop.freeze(DateTime.new(2020, 1, 1).utc) }
+
         it { expect(higher_level_review_v2.appellant_local_time.strftime('%Z')).to eq 'EST' }
       end
     end
