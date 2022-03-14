@@ -31,10 +31,10 @@ class SavedClaim::CoeClaim < SavedClaim
     form_copy = {
       'status' => 'SUBMITTED',
       'veteran' => {
-        'firstName' => parsed_form['fullName']['firstName'],
-        'middleName' => parsed_form['fullName']['middleName'],
-        'lastName' => parsed_form['fullName']['lastName'],
-        'suffixName' => parsed_form['fullName']['suffixName'],
+        'firstName' => parsed_form['fullName']['first'],
+        'middleName' => parsed_form['fullName']['middle'],
+        'lastName' => parsed_form['fullName']['last'],
+        'suffixName' => parsed_form['fullName']['suffix'],
         'mailingAddress1' => parsed_form['applicantAddress']['street'],
         'mailingAddress2' => parsed_form['applicantAddress']['street2'],
         'mailingCity' => parsed_form['applicantAddress']['city'],
