@@ -166,6 +166,10 @@ features:
     actor_type: user
     description: Manage whether or not Pension check is enabled for the 686/674
     enable_in_development: true
+  dependents_removal_check:
+    actor_type: user
+    description: Manage whether or not dependent removal claim codes are enabled for the 686
+    enable_in_development: true
   dependents_management:
     actor_type: user
     description: Manage dependent removal from view dependent page

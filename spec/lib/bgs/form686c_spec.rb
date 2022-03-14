@@ -59,6 +59,8 @@ RSpec.describe BGS::Form686c do
       it 'submits a non-manual claim' do
         VCR.use_cassette('bgs/form686c/submit') do
           expect(form686c).to receive(:get_state_type).and_return 'Started'
+          expect(Flipper).to receive(:enabled?).with(:dependents_removal_check).and_return(false)
+          expect(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(false)
           expect_any_instance_of(BGS::Service).to receive(:update_proc).with('3831475', { proc_state: 'Ready' })
           subject
         end
@@ -67,7 +69,9 @@ RSpec.describe BGS::Form686c do
       it 'submits a manual claim with pension disabled' do
         VCR.use_cassette('bgs/form686c/submit') do
           VCR.use_cassette('bgs/service/create_note') do
-            expect(form686c).to receive(:set_claim_type).with('MANUAL_VAGOV').and_call_original
+            expect(form686c).to receive(:set_claim_type).with('MANUAL_VAGOV',
+                                                              payload['view:selectable686_options']).and_call_original
+            expect(Flipper).to receive(:enabled?).with(:dependents_removal_check).and_return(false)
             expect(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(false)
             subject
           end
@@ -78,6 +82,7 @@ RSpec.describe BGS::Form686c do
         VCR.use_cassette('bgs/form686c/submit') do
           VCR.use_cassette('bid/awards/get_awards_pension') do
             VCR.use_cassette('bgs/service/create_note') do
+              expect(Flipper).to receive(:enabled?).with(:dependents_removal_check).and_return(true)
               expect(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(true)
               expect_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_call_original
 

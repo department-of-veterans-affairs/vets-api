@@ -40,7 +40,7 @@ module BGS
       vnp_benefit_claim = VnpBenefitClaim.new(proc_id: proc_id, veteran: veteran, user: @user)
       vnp_benefit_claim_record = vnp_benefit_claim.create
 
-      set_claim_type(vnp_proc_state_type_cd)
+      set_claim_type(vnp_proc_state_type_cd, payload['view:selectable686_options'])
 
       # temporary logging to troubleshoot
       log_message_to_sentry("#{proc_id} - #{@end_product_code}", :warn, '', { team: 'vfs-ebenefits' })
@@ -124,29 +124,50 @@ module BGS
       'Started'
     end
 
+    # rubocop:disable Metrics/MethodLength
     # the default claim type is 130DPNEBNADJ (eBenefits Dependency Adjustment)
-    # if we are setting the claim to be manually reviewed
-    # and the Veteran is currently receiving pension benefits
-    # set the claim type to 130DAEBNPMCR (PMC eBenefits Dependency Adjustment Reject)
-    # else use 130DPEBNAJRE (eBenefits Dependency Adjustment Reject)
-    def set_claim_type(proc_state)
+    def set_claim_type(proc_state, selectable_options)
+      # selectable_options is a hash of boolean values (ex. 'report_divorce' => false)
+      # if any of the dependent_removal_options in selectable_options is set to true, we are removing a dependent
+      removing_dependent = false
+      if Flipper.enabled?(:dependents_removal_check)
+        dependent_removal_options = REMOVE_CHILD_OPTIONS.dup << ('report_death') << ('report_divorce')
+        removing_dependent = dependent_removal_options.any? { |option| selectable_options[option] }
+      end
+
+      # we only need to do a pension check if we are removing a dependent or we have set the status to manual
+      receiving_pension = false
+      if Flipper.enabled?(:dependents_pension_check) && (removing_dependent || proc_state == 'MANUAL_VAGOV')
+        pension_response = bid_service.get_awards_pension
+        receiving_pension = pension_response.body['awards_pension']['is_in_receipt_of_pension']
+      end
+
+      # if we are setting the claim to be manually reviewed, then exception/rejection labels should be used
       if proc_state == 'MANUAL_VAGOV'
-        receiving_pension = false
-
-        if Flipper.enabled?(:dependents_pension_check)
-          pension_response = bid_service.get_awards_pension
-          receiving_pension = pension_response.body['awards_pension']['is_in_receipt_of_pension']
-        end
-
-        if receiving_pension
+        if removing_dependent && receiving_pension
+          @end_product_name = 'PMC - Self Service - Removal of Dependent Exceptn'
+          @end_product_code = '130SSRDPMCE'
+        elsif removing_dependent
+          @end_product_name = 'Self Service - Removal of Dependent Exception'
+          @end_product_code = '130SSRDE'
+        elsif receiving_pension
           @end_product_name = 'PMC eBenefits Dependency Adjustment Reject'
           @end_product_code = '130DAEBNPMCR'
         else
           @end_product_name = 'eBenefits Dependency Adjustment Reject'
           @end_product_code = '130DPEBNAJRE'
         end
+      elsif removing_dependent
+        if receiving_pension
+          @end_product_name = 'PMC - Self Service - Removal of Dependent'
+          @end_product_code = '130SSRDPMC'
+        else
+          @end_product_name = 'Self Service - Removal of Dependent'
+          @end_product_code = '130SSRD'
+        end
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def bgs_service
       BGS::Service.new(@user)
