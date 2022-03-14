@@ -42,7 +42,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: 0cbbd6eec049c3c2541d249c0d4fcd81c8e06ac9
+  revision: 4e216f8097fe93c4ca76d06f358c8d169afcd7ad
   specs:
     bgs_ext (0.21.2)
       httpclient
@@ -507,7 +507,7 @@ GEM
     http-cookie (1.0.4)
       domain_name (~> 0.5)
     httpclient (2.8.3)
-    httpi (2.4.5)
+    httpi (2.5.0)
       rack
       socksify
     i18n (1.10.0)
@@ -935,7 +935,7 @@ GEM
       activesupport (> 3.0)
       octokit (> 2.1.0)
       warden (> 1.0)
-    wasabi (3.6.1)
+    wasabi (3.7.0)
       addressable
       httpi (~> 2.0)
       nokogiri (>= 1.4.2)

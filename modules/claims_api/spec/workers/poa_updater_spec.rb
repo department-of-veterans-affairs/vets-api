@@ -91,10 +91,8 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
   end
 
   def create_mock_lighthouse_service
-    vet_record_stub = BGS::Services.new(external_uid: 'uid', external_key: 'key').vet_record
-    allow(vet_record_stub).to receive(:update_birls_record).and_return(return_code: 'BMOD0001')
-    service_double = instance_double('BGS::Services')
-    expect(service_double).to receive(:vet_record).and_return(vet_record_stub)
-    expect(BGS::Services).to receive(:new).and_return(service_double)
+    allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+    allow_any_instance_of(BGS::VetRecordWebService).to receive(:update_birls_record)
+      .and_return({ return_code: 'BMOD0001' })
   end
 end

@@ -273,7 +273,11 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     end
 
     describe '#appellant_local_time' do
-      it { expect(notice_of_disagreement_v2.appellant_local_time.strftime('%Z')).to eq 'CST' }
+      before { Timecop.freeze(DateTime.new(2020, 1, 1).utc) }
+
+      it {
+        expect(notice_of_disagreement_v2.appellant_local_time.strftime('%Z')).to eq 'CST'
+      }
     end
 
     describe '#extension_request?' do

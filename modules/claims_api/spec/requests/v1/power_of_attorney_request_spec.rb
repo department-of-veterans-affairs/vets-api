@@ -51,6 +51,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
             it 'assigns a source' do
               with_okta_user(scopes) do |auth_header|
+                allow_any_instance_of(BGS::PersonWebService)
+                  .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
                 post path, params: data, headers: headers.merge(auth_header)
                 token = JSON.parse(response.body)['data']['id']
                 poa = ClaimsApi::PowerOfAttorney.find(token)
@@ -62,6 +64,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
             it 'returns a successful response with all the data' do
               with_okta_user(scopes) do |auth_header|
+                allow_any_instance_of(BGS::PersonWebService)
+                  .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
                 post path, params: data, headers: headers.merge(auth_header)
                 parsed = JSON.parse(response.body)
                 expect(parsed['data']['type']).to eq('claims_api_power_of_attorneys')
@@ -109,6 +113,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
                 it 'returns a 200' do
                   with_okta_user(scopes) do |auth_header|
+                    allow_any_instance_of(BGS::PersonWebService)
+                      .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
                     post path, params: data, headers: headers.merge(auth_header)
                     expect(response.status).to eq(200)
                   end
@@ -120,6 +126,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
           context 'when a request includes signatures' do
             it 'Generates a 21-22 or 21-22a form to submit to VBMS' do
               with_okta_user(scopes) do |auth_header|
+                allow_any_instance_of(BGS::PersonWebService)
+                  .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
                 params = JSON.parse data
                 base64_signature = File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/signature_b64.txt")
                 signatures = { veteran: base64_signature, representative: base64_signature }
