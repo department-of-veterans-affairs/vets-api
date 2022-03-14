@@ -9,8 +9,9 @@ module AppealsApi
 
       def validate_characters
         characters = request.headers.to_s + params.to_s
-        characters.delete! '"'
-
+        characters.encode('WINDOWS-1252')
+      rescue Encoding::UndefinedConversionError => e
+        Rails.logger.error "#{self.class} [#{e.class}] error:#{e.message}"
         render_invalid_characters_error if characters =~ OUTSIDE_WINDOWS_1252_PATTERN
       end
 

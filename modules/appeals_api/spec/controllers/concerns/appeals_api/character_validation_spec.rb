@@ -12,17 +12,30 @@ end
 describe FakeController do
   controller do
     def create
+      params.permit!
       # dummy action
     end
   end
 
   let(:parsed) { JSON.parse(response.body) }
 
-  let(:invalid_data) { fixture_as_json 'invalid_200996_characters.json', version: 'v2' }
-  let(:invalid_headers) { fixture_as_json 'invalid_200996_headers_characters.json', version: 'v2' }
+  context 'characters able to be downgraded to Windows-1252' do
+    let!(:downgradable_data) { fixture_as_json 'invalid_200996_characters.json', version: 'v2' }
 
-  context 'when data includes unsupported characters (chars outside of windows-1252)' do
-    it 'returns an error' do
+    it 'succeeds' do
+      downgradable_data['data']['attributes']['benefitType'] = 'Smartquotes: “”‘’'
+      post :create, params: downgradable_data
+      expect(response.status).to eq 204
+    end
+  end
+
+  context 'characters unable to be downgraded to Windows-1252' do
+    let(:invalid_data) { fixture_as_json 'invalid_200996_characters.json', version: 'v2' }
+    let(:invalid_headers) { fixture_as_json 'invalid_200996_headers_characters.json', version: 'v2' }
+
+    it 'logs & returns an error' do
+      expect(Rails.logger).to receive(:error).once
+
       request.headers.merge!(invalid_headers)
       post :create, params: invalid_data
 
