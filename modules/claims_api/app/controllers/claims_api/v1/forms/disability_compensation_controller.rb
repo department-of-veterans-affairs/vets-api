@@ -187,6 +187,7 @@ module ClaimsApi
           change_of_address = form_attributes.dig('veteran', 'changeOfAddress')
           return if change_of_address.blank?
 
+          @current_user.last_signed_in = Time.now.iso8601 if @current_user.last_signed_in.blank?
           countries = EVSS::ReferenceData::Service.new(@current_user).get_countries.countries
           return if countries.include?(change_of_address['country'])
 
@@ -233,8 +234,12 @@ module ClaimsApi
         end
 
         def validate_form_526_location_codes!
-          locations_response = EVSS::ReferenceData::Service.new(@current_user).get_separation_locations
-          separation_locations = locations_response.separation_locations
+          # only retrieve separation locations if we'll need them
+          need_locations = form_attributes['serviceInformation']['servicePeriods'].detect do |service_period|
+            Date.parse(service_period['activeDutyEndDate']) > Time.zone.today
+          end
+          separation_locations = retrieve_separation_locations if need_locations
+
           form_attributes['serviceInformation']['servicePeriods'].each do |service_period|
             next if Date.parse(service_period['activeDutyEndDate']) <= Time.zone.today
             next if separation_locations.any? do |location|
@@ -628,6 +633,12 @@ module ClaimsApi
           {
             errors: [{ status: 422, detail: e&.message, source: e&.key }]
           }.to_json
+        end
+
+        def retrieve_separation_locations
+          @current_user.last_signed_in = Time.now.iso8601 if @current_user.last_signed_in.blank?
+          locations_response = EVSS::ReferenceData::Service.new(@current_user).get_separation_locations
+          locations_response.separation_locations
         end
       end
     end
