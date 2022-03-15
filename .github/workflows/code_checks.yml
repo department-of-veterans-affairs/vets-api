@@ -69,7 +69,7 @@ jobs:
 
       - name: Setup Database and Run Specs
         run: |
-             docker-compose -p ${{ env.DOCKER_IMAGE}} run --rm --service-ports web bash \
+             docker-compose -p ${{ env.DOCKER_IMAGE}} run --rm --service-ports --no-TTY web bash \
              -c "RAILS_ENV=test DISABLE_BOOTSNAP=true; \
              bundle exec parallel_test -n 14 -e 'bundle exec rails db:reset' \
              && bundle exec parallel_rspec spec/ modules/ -n 14 -o '--color --tty'"
