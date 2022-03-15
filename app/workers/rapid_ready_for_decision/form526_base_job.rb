@@ -20,6 +20,11 @@ module RapidReadyForDecision
       submission.start_evss_submission(nil, { 'submission_id' => submission_id })
     end
 
+    # @return if this claim submission was processed and fast-tracked by RRD
+    def self.rrd_claim_processed?(submission)
+      submission.form_json.include? RapidReadyForDecision::HypertensionUploadManager::DOCUMENT_TITLE
+    end
+
     def perform(form526_submission_id)
       form526_submission = Form526Submission.find(form526_submission_id)
 

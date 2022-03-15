@@ -5,7 +5,7 @@
   </head>
   <body>
     <p>
-      <% if @submission.form_json.include? "VAMC_Hypertension_Rapid_Decision_Evidence.pdf" %>
+      <% if @rrd_claim_processed %>
         A single-issue hypertension claim for increase was submitted on va.gov.<br/>
         A health summary PDF was generated and added to the claim's documentation.
       <% else %>

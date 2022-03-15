@@ -3,9 +3,10 @@
 class HypertensionFastTrackPilotMailer < ApplicationMailer
   def build(submission)
     @submission = submission
+    @rrd_claim_processed = RapidReadyForDecision::Form526BaseJob.rrd_claim_processed?(submission)
 
     subject =
-      if submission.form_json.include? 'VAMC_Hypertension_Rapid_Decision_Evidence.pdf'
+      if @rrd_claim_processed
         'HTN RRD Claim Processed'
       else
         'HTN RRD Claim - Insufficient Data'
