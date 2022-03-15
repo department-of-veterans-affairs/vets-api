@@ -51,26 +51,24 @@ RSpec.describe Lighthouse::VeteransHealth::Client do
         allow(@client).to receive(:authenticate).and_return bearer_token_object
       end
 
-      describe 'when requesting any valid resource' do
-        let(:random_resource_str) do
-          %w[observations medications OBSERVATIONS MeDICATions].sample
-        end
+      %w[observations medication_requests OBSERVATIONS MeDICATion_REQuests].each do |resource_str|
+        describe "when requesting #{resource_str}" do
+          it 'authenticates to Lighthouse and retrieves a bearer token' do
+            @client.list_resource(resource_str)
+            expect(@client.instance_variable_get(:@bearer_token)).to eq 'blah'
+          end
 
-        it 'authenticates to Lighthouse and retrieves a bearer token' do
-          @client.list_resource(random_resource_str)
-          expect(@client.instance_variable_get(:@bearer_token)).to eq 'blah'
-        end
+          it 'sets the headers to include the bearer token' do
+            headers = {
+              'Accept' => 'application/json',
+              'Content-Type' => 'application/json',
+              'User-Agent' => 'Vets.gov Agent',
+              'Authorization': 'Bearer blah'
+            }
 
-        it 'sets the headers to include the bearer token' do
-          headers = {
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json',
-            'User-Agent' => 'Vets.gov Agent',
-            'Authorization': 'Bearer blah'
-          }
-
-          @client.list_resource(random_resource_str)
-          expect(@client.instance_variable_get(:@headers_hash)).to eq headers
+            @client.list_resource(resource_str)
+            expect(@client.instance_variable_get(:@headers_hash)).to eq headers
+          end
         end
       end
 
