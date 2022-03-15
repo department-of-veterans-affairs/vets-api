@@ -3,13 +3,14 @@
 class HypertensionFastTrackPilotMailer < ApplicationMailer
   def build(submission)
     @submission = submission
+    @disability = 'hypertension'
     @rrd_claim_processed = RapidReadyForDecision::Form526BaseJob.rrd_claim_processed?(submission)
 
     subject =
       if @rrd_claim_processed
-        'HTN RRD Claim Processed'
+        'RRD claim - Processed'
       else
-        'HTN RRD Claim - Insufficient Data'
+        'RRD claim - Insufficient Data'
       end
 
     template = File.read('app/mailers/views/hypertension_fast_track_pilot_mailer.erb.html')
