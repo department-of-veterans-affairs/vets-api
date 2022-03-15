@@ -26,13 +26,24 @@ RSpec.describe RapidReadyForDecision::HypertensionUploadManager do
     )
   end
 
+  let(:time_freeze_time) { Time.zone.parse('2021-10-10') }
+
+  before do
+    Timecop.freeze(time_freeze_time)
+  end
+
+  after do
+    Timecop.return
+  end
+
   describe '#add_upload(confirmation_code)' do
     context 'success' do
       it 'appends the new upload and saves the expected JSON' do
         RapidReadyForDecision::HypertensionUploadManager.new(form526_submission).add_upload('fake_confirmation_code')
         parsed_json = JSON.parse(form526_submission.form_json)['form526_uploads']
+
         expect(parsed_json).to match original_form_json_uploads + [
-          { 'name' => 'VAMC_Hypertension_Rapid_Decision_Evidence.pdf',
+          { 'name' => 'VAMC_Hypertension_Rapid_Decision_Evidence-20211010.pdf',
             'confirmationCode' => 'fake_confirmation_code',
             'attachmentId' => 'L048' }
         ]
@@ -48,7 +59,7 @@ RSpec.describe RapidReadyForDecision::HypertensionUploadManager do
           parsed_json = JSON.parse(form526_submission.form_json)['form526_uploads']
 
           expect(parsed_json).to match [
-            { 'name' => 'VAMC_Hypertension_Rapid_Decision_Evidence.pdf',
+            { 'name' => 'VAMC_Hypertension_Rapid_Decision_Evidence-20211010.pdf',
               'confirmationCode' => 'fake_confirmation_code',
               'attachmentId' => 'L048' }
           ]
