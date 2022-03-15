@@ -2,10 +2,10 @@
 http_interactions:
 - request:
     method: post
-    uri: http://localhost:8070/vets-service/v1/claimType/Chapter33/claimants
+    uri: http://localhost:8070/vets-service/v1/claimType/Chapter33/claimants/claimantId
     body:
       encoding: UTF-8
-      string: '{"ssn":"796126859"}'
+      string: '{"ssn":"796292881"}'
     headers:
       Accept:
       - application/json
@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Authorization:
-      - Bearer eyJraWQiOiJ2YW5vdGlmeSIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJpYXQiOjE2NDE0MzAyMTcsImV4cCI6MTY0MTQzMDUxN30.FOC8Sla06yZW2Unc3g8m6yPY3OlIK9tX8-mo6EX2BRdGqGI0U7PQ36kX6egbOyNgf3T8vjFb8CYvuWqO2wM3OrPZyk65Uko9lx5vgjcXtEmW7-UpYuA1lKtfSUJ3VgtsWHwqlYYOMqW-kgZJc-5tBhdxEq_fcgRyRzq7v32QoGt_Lz0cPxSSsh1jWuFEe9EErqu4DSS1CjZ3yN2GNAJ1DdJSZQ8xeRvrYVso-x2JRAr_SE1Px-JZj1qhSH-6fWzJxJ4tpV7XupaEv402QuhtPi5Z2yP1Jp5dQ3vDQKit8T81JgWoDkzdJDANP82H7PrgM1WctzGSCUgxawKwQQbJEw
+      - Bearer eyJraWQiOiJ2YW5vdGlmeSIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJpYXQiOjE2NDcwMzUxMTAsImV4cCI6MTY0NzAzNTQxMH0.dhavPX0yUaWZnrK8CRkf5cphoXIcgLM4R9HCyH6tJJdGEYd52_q8rryofpt3ZaOTithy2-dZ3UD-5NJ3BwN8Ln6aOMk6h0fh4rhhW9Ho57TA8PhtiY5xVxqogBjprSmdcO2wFKkgCYKYBDjr-PvY2MjhanIQUNEohnZI_tSiKZRWSSSuCnZe86yBD0VL91w7dp00hrNMSe_1H4L4fw-5Y_1K-JimNAH9-m-ry2D_4eiALFG3ptazeD2rgisA0YW64Lnx9DF_q9EIuYWZh86YzK2fv4oAG0OAvhDgNO9wofamMhFV9TjxNg_Qreew9Dk8dK2JlMA7xd1DD1pxx_RaaQ
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -27,16 +27,14 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Thu, 06 Jan 2022 00:50:16 GMT
+      - Fri, 11 Mar 2022 21:45:09 GMT
     body:
       encoding: UTF-8
-      string: '{"claimant":{"claimantId":1,"suffix":"","dateOfBirth":"1993-08-11","firstName":"Hector","lastName":"Allen","middleName":"Jacob","notificationMethod":"NONE","contactInfo":{"addressLine1":"1291
-        Boston Post Rd","addressLine2":"","city":"Madison","zipcode":"06443","emailAddress":"test@test.com","addressType":"DOMESTIC","mobilePhoneNumber":"1231231234","homePhoneNumber":"1231231234","countryCode":"US","stateCode":"CT"},"preferredContact":null},"serviceData":[{"branchOfService":"Army","beginDate":"2010-01-01","endDate":"2019-02-15","characterOfService":"Honorable","reasonForSeparation":"Expiration
-        Term Of Service","exclusionPeriods":[],"trainingPeriods":[]}]}'
-  recorded_at: Thu, 06 Jan 2022 00:50:17 GMT
+      string: '{"claimantId":600000000}'
+  recorded_at: Fri, 11 Mar 2022 21:45:10 GMT
 - request:
     method: get
-    uri: http://localhost:8070/vets-service/v1/claimant/1/claimType/Chapter33/claimstatus
+    uri: http://localhost:8070/vets-service/v1/claimant/600000000/claimType/Chapter33/claimstatus
     body:
       encoding: US-ASCII
       string: ''
@@ -48,7 +46,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Authorization:
-      - Bearer eyJraWQiOiJ2YW5vdGlmeSIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJpYXQiOjE2NDQzNzYyNzEsImV4cCI6MTY0NDM3NjU3MX0.Jz4KxBSnnebSkTPf81Dr65RVrecQ0hY2CytfZjGJpXXJsmTwyBlHp7EOQZBx0D6-pR_ZX7VzEmsscKukprC0RT_qqBhqivXhdw9CGeLj0aeSsXu3O7-OgmN9u_3xTrtGU7grEdCw32cJ848-lY3I2uACm_Nnv8dLEhVwmhClWz3XyQ40AL-wf0URzwKJkXLP0UJt5OASNNFVV9xRfeGtHbnSpj5U04a5GMOA-8BAu-F_8YTpnSDlN6hKgjE02FH27ukYE1UVHJBvWxNy5cW5sCiMtDyZrV5SPWjdiBN3zJ6PiT_Ot8wpu92sic3DG3DA7S5X-t587QFAaI_F82tnmg
+      - Bearer eyJraWQiOiJ2YW5vdGlmeSIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJpYXQiOjE2NDcwMzUzMTEsImV4cCI6MTY0NzAzNTYxMX0.EXgBuOgAZyp7W3uzu9bclFsD6KV8tz-vLzUyTWs_St5Rma_krDwkXSvXiqtRF8Gq_Vm3_w5NLSwAicYxsiFy68xiEFuD2N6YBReNc0D0Zp27rzwREExfaJ6nAMh6XDs8TRYuLkLoSO_IlOr37m0prKcdSmz_fFnpwSmkDTQhkCNTsWBy3_I_RWQTVDmCstO8xXSlwTc4Fust0YyEVsKrtpyMsNnxjLUpJcAODASor1Q9VfjKpb9qQ6geTwtn7cTy2YqIhdOzK6gvuP2PNwdREGqWjoiuQQrMFHbXlzqY0lMIhy5i8sroTxY72rltpjkRxD2AuLl7x7PA-PU5fJ16tA
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:

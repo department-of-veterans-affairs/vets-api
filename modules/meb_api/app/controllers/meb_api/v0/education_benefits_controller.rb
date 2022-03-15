@@ -6,6 +6,7 @@ require 'dgi/status/service'
 require 'dgi/submission/service'
 require 'dgi/letters/service'
 require 'dgi/enrollment/service'
+require 'dgi/claimant/service'
 
 module MebApi
   module V0
@@ -17,35 +18,36 @@ module MebApi
       end
 
       def eligibility
-        automation_response = automation_service.get_claimant_info
-        claimant_id = automation_response['claimant']['claimant_id']
+        claimant_response = claimant_service.get_claimant_info
+        claimant_id = claimant_response['claimant_id']
+
         eligibility_response = eligibility_service.get_eligibility(claimant_id)
 
-        response = automation_response.status == 201 ? eligibility_response : automation_response
-        serializer = automation_response.status == 201 ? EligibilitySerializer : AutomationSerializer
+        response = claimant_response.status == 201 ? eligibility_response : claimant_response
+        serializer = claimant_response.status == 201 ? EligibilitySerializer : ClaimantSerializer
 
         render json: response, serializer: serializer
       end
 
       def claim_status
-        automation_response = automation_service.get_claimant_info
-        claimant_id = automation_response['claimant']['claimant_id']
+        claimant_response = claimant_service.get_claimant_info
+        claimant_id = claimant_response['claimant_id']
 
         claim_status_response = claim_status_service.get_claim_status(claimant_id)
 
-        response = automation_response.status == 201 ? claim_status_response : automation_response
-        serializer = automation_response.status == 201 ? ClaimStatusSerializer : AutomationSerializer
+        response = claimant_response.status == 201 ? claim_status_response : claimant_response
+        serializer = claimant_response.status == 201 ? ClaimStatusSerializer : ClaimantSerializer
 
         render json: response, serializer: serializer
       end
 
       def claim_letter
-        automation_response = automation_service.get_claimant_info
-        claimant_id = automation_response['claimant']['claimant_id']
+        claimant_response = claimant_service.get_claimant_info
+        claimant_id = claimant_response['claimant_id']
 
         claim_letter_response = claim_letters_service.get_claim_letter(claimant_id)
 
-        response = automation_response.status == 201 ? claim_letter_response : automation_response
+        response = claimant_response.status == 201 ? claim_letter_response : claimant_response
 
         send_data response.body, filename: 'testing.pdf', type: 'application/pdf', disposition: 'attachment'
         nil
@@ -99,6 +101,10 @@ module MebApi
 
       def enrollment_service
         MebApi::DGI::Enrollment::Service.new(@current_user)
+      end
+
+      def claimant_service
+        MebApi::DGI::Claimant::Service.new(@current_user)
       end
     end
   end

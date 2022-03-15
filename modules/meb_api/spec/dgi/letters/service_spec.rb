@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'dgi/letters/service'
 
 RSpec.describe MebApi::DGI::Letters::Service do
-  let(:claimant_id) { 1 }
+  let(:claimant_id) { 600_000_000 }
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:service) { MebApi::DGI::Letters::Service.new(user) }
 
@@ -17,6 +17,7 @@ RSpec.describe MebApi::DGI::Letters::Service do
 
     context 'when successful' do
       it 'returns a status of 200' do
+        # binding.pry
         VCR.use_cassette('dgi/get_claim_letter') do
           response = service.get_claim_letter(claimant_id)
           expect(response.status).to eq(200)
