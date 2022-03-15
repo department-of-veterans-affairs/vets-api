@@ -12,7 +12,7 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
       last_name: 'Hoover',
       middle_name: '',
       birth_date: '1970-01-01',
-      ssn: '796126859'
+      ssn: '796292881'
     }
   end
 
