@@ -52,7 +52,7 @@ module RapidReadyForDecision
     end
 
     def medications(client)
-      @medications ||= client.list_resource('medications')
+      @medications ||= client.list_resource('medication_requests')
       @medications.present? ? RapidReadyForDecision::HypertensionMedicationRequestData.new(@medications).transform : []
     end
 

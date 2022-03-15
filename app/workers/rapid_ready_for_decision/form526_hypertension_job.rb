@@ -22,7 +22,7 @@ module RapidReadyForDecision
       client = lighthouse_client(form526_submission)
       bp_readings = assess_bp_readings(client.list_resource('observations'))
       # stop querying if bp_readings.blank?
-      medications = assess_medications(client.list_resource('medications')) if bp_readings.present?
+      medications = assess_medications(client.list_resource('medication_requests')) if bp_readings.present?
 
       {
         bp_readings: bp_readings,

@@ -10,7 +10,7 @@ RSpec.describe Lighthouse::VeteransHealth::Client, :vcr do
       subject(:client) { described_class.new(32_000_225) }
 
       it 'returns all entries in the response' do
-        response = client.list_resource('medications')
+        response = client.list_resource('medication_requests')
         expect(response.body['entry'].count).to match response.body['total']
       end
     end
