@@ -73,8 +73,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     '000' => 'VRE.VBAPIT@va.gov'
   }.freeze
 
-  validate :veteran_information, on: :prepare_form_data
-
   def initialize(args)
     @sent_to_cmp = false
     super
@@ -88,7 +86,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     add_veteran_info(updated_form, user) if user&.loa3?
     add_office_location(updated_form) if updated_form['veteranInformation'].present?
 
-    update(form: updated_form.to_json)
+    update!(form: updated_form.to_json)
   end
 
   def add_veteran_info(updated_form, user)
@@ -113,7 +111,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def send_to_vre(user)
-    prepare_form_data
     if user&.participant_id.blank?
       send_to_central_mail!
     else
@@ -153,13 +150,13 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def send_to_central_mail!
-    form_copy = parsed_form
+    form_copy = parsed_form.clone
 
     form_copy['veteranSocialSecurityNumber'] = parsed_form.dig('veteranInformation', 'ssn')
     form_copy['veteranFullName'] = parsed_form.dig('veteranInformation', 'fullName')
     form_copy['vaFileNumber'] = parsed_form.dig('veteranInformation', 'VAFileNumber')
 
-    update(form: form_copy.to_json)
+    update!(form: form_copy.to_json)
 
     log_message_to_sentry(guid, :warn, { attachment_id: guid }, { team: 'vfs-ebenefits' })
     @sent_to_cmp = true
@@ -201,18 +198,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   def external_key
     parsed_form.dig('veteranInformation', 'fullName', 'first') || parsed_form['email']
-  end
-
-  def prepare_form_data
-    form_copy = parsed_form
-    appointment_time_preferences = form_copy['appointmentTimePreferences'].map do |key_value|
-      key_value[0].downcase if key_value[1] == true
-    end.compact
-
-    # VRE now needs an array of times
-    form_copy['appointmentTimePreferences'] = appointment_time_preferences
-
-    update(form: form_copy.to_json)
   end
 
   def veteran_information

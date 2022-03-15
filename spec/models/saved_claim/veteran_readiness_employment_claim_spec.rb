@@ -106,15 +106,6 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
           end
         end
 
-        it 'ensures appointment time preferences are downcased' do
-          VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
-            claim.add_claimant_info(user_object)
-            claim.send_to_vre(user_object)
-
-            expect(claim.parsed_form['appointmentTimePreferences'].first).to eq('morning')
-          end
-        end
-
         it 'does not successfully send to VRE' do
           VCR.use_cassette 'veteran_readiness_employment/failed_send_to_vre' do
             claim.add_claimant_info(user_object)
@@ -165,10 +156,14 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   end
 
   describe '#send_to_central_mail!' do
-    it 'does not raise error' do
+    subject { claim.send_to_central_mail! }
+
+    it 'adds `veteranFullName` key to db so that SavedClaimJob can use it' do
       Sidekiq::Testing.inline! do
         VCR.use_cassette('central_mail/upload_one_attachment') do
-          expect { claim.send_to_central_mail! }.not_to raise_error
+          expect(claim.parsed_form['veteranFullName']).to be_nil
+          subject
+          expect(JSON.parse(claim.form)['veteranFullName']).not_to be_nil
         end
       end
     end
