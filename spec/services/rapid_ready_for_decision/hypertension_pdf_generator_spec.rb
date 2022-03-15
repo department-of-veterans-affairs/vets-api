@@ -26,7 +26,7 @@ RSpec.describe RapidReadyForDecision::HypertensionPdfGenerator, :vcr do
   end
 
   let(:parsed_medications_data) do
-    RapidReadyForDecision::HypertensionMedicationRequestData.new(client.list_resource('medications')).transform
+    RapidReadyForDecision::HypertensionMedicationRequestData.new(client.list_resource('medication_requests')).transform
   end
 
   let(:patient_name) { { first: 'Cat', middle: 'Marie', last: 'Power', suffix: 'Jr.' } }

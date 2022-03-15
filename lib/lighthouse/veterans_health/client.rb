@@ -42,7 +42,7 @@ module Lighthouse
       # @return Faraday::Env response
       def list_resource(resource)
         resource = resource.downcase
-        raise ArgumentError, 'unsupported resource type' unless %w[medications observations].include?(resource)
+        raise ArgumentError, 'unsupported resource type' unless %w[medication_requests observations].include?(resource)
 
         send("list_#{resource}")
       end
@@ -61,7 +61,7 @@ module Lighthouse
         get_list(first_response)
       end
 
-      def list_medications
+      def list_medication_requests
         params = {
           patient: @icn,
           _count: 100
