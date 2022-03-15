@@ -369,7 +369,12 @@ describe AppealsApi::HigherLevelReview, type: :model do
       end
 
       describe '#appellant_local_time' do
-        it { expect(hlr_veteran_only.appellant_local_time.strftime('%Z')).to eq 'UTC' }
+        it do
+          appellant_local_time = hlr_veteran_only.appellant_local_time
+          created_at = hlr_veteran_only.created_at
+
+          expect(appellant_local_time).to eq created_at.in_time_zone('America/Chicago')
+        end
       end
     end
 
@@ -381,9 +386,12 @@ describe AppealsApi::HigherLevelReview, type: :model do
       end
 
       describe '#appellant_local_time' do
-        before { Timecop.freeze(DateTime.new(2020, 1, 1).utc) }
+        it do
+          appellant_local_time = higher_level_review_v2.appellant_local_time
+          created_at = higher_level_review_v2.created_at
 
-        it { expect(higher_level_review_v2.appellant_local_time.strftime('%Z')).to eq 'EST' }
+          expect(appellant_local_time).to eq created_at.in_time_zone('America/Chicago')
+        end
       end
     end
   end
