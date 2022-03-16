@@ -3,65 +3,134 @@
 require 'sign_in/logingov/service'
 
 class SignInController < ApplicationController
-  skip_before_action :verify_authenticity_token
+  skip_before_action :verify_authenticity_token, :authenticate
+  before_action :authenticate_access_token, only: [:introspect]
 
-  NO_AUTH_ACTIONS = %w[new].freeze
   REDIRECT_URLS = %w[idme logingov].freeze
+  BEARER_PATTERN = /^Bearer /.freeze
 
-  def new
-    render_login
+  def authorize
+    type = authorize_params[:type]
+    code_challenge = authorize_params[:code_challenge]
+    code_challenge_method = authorize_params[:code_challenge_method]
+
+    raise SignIn::Errors::AuthorizeInvalidType unless SignInController::REDIRECT_URLS.include?(type)
+    raise SignIn::Errors::MalformedParamsError unless code_challenge && code_challenge_method
+
+    state = SignIn::CodeChallengeStateMapper.new(code_challenge: code_challenge,
+                                                 code_challenge_method: code_challenge_method).perform
+    render body: auth_service(type).render_auth(state: state), content_type: 'text/html'
+  rescue => e
+    render json: { errors: e }, status: :bad_request
   end
 
   def callback
-    response = auth_service.token(params[:code])
-    user_info = auth_service.user_info(response[:access_token])
-    user_login(user_info)
+    type = callback_params[:type]
+    code = callback_params[:code]
+    state = callback_params[:state]
+
+    raise SignIn::Errors::CallbackInvalidType unless SignInController::REDIRECT_URLS.include?(type)
+    raise SignIn::Errors::MalformedParamsError unless code && state
+
+    login_code = login(type, state, code)
+    redirect_to login_redirect_url(login_code)
   rescue => e
-    handle_callback_error(e, :failure, :error)
+    render json: { errors: e }, status: :bad_request
+  end
+
+  def token
+    code = token_params[:code]
+    code_verifier = token_params[:code_verifier]
+    grant_type = token_params[:grant_type]
+
+    raise SignIn::Errors::MalformedParamsError unless code && code_verifier && grant_type
+
+    user_account = SignIn::CodeValidator.new(code: code, code_verifier: code_verifier, grant_type: grant_type).perform
+    session_container = SignIn::SessionCreator.new(user_account: user_account).perform
+
+    render json: session_token_response(session_container), status: :ok
+  rescue => e
+    render json: { errors: e }, status: :unauthorized
+  end
+
+  def refresh
+    refresh_token = refresh_params[:refresh_token]
+    anti_csrf_token = refresh_params[:anti_csrf_token]
+
+    raise SignIn::Errors::MalformedParamsError unless refresh_token && anti_csrf_token
+
+    session_container = refresh_session(refresh_token, anti_csrf_token)
+
+    render json: session_token_response(session_container), status: :ok
+  rescue => e
+    render json: { errors: e }, status: :unauthorized
+  end
+
+  def introspect
+    render json: { user_uuid: @current_user.uuid, icn: @current_user.icn }, status: :ok
+  rescue => e
+    render json: { errors: e }, status: :unauthorized
   end
 
   private
 
-  def handle_callback_error(err, _status, level = :error, code = SignIn::Errors::ERROR_CODES[:unknown])
-    message = err&.message || ''
-    log_message_to_sentry(message, level)
-    redirect_to auth_service.login_redirect_url(auth: 'fail', code: code) unless performed?
-    # add login_stats/callback_stats/PersonalInformationLog
+  def session_token_response(session_container)
+    encrypted_refresh_token = SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
+    encoded_access_token = SignIn::AccessTokenJwtEncoder.new(access_token: session_container.access_token).perform
+
+    token_json_response(encoded_access_token, encrypted_refresh_token, session_container.anti_csrf_token)
   end
 
-  def render_login
-    render body: auth_service.render_auth, content_type: 'text/html'
+  def bearer_token(with_validation: true)
+    header = request.authorization
+    access_token_jwt = header.gsub(BEARER_PATTERN, '') if header&.match(BEARER_PATTERN)
+    SignIn::AccessTokenJwtDecoder.new(access_token_jwt: access_token_jwt).perform(with_validation: with_validation)
   end
 
-  def user_login(user_info)
-    normalized_attributes = auth_service.normalized_attributes(user_info)
+  def authenticate_access_token
+    access_token = bearer_token
 
-    @user_identity = UserIdentity.new(normalized_attributes)
-    @current_user = User.new(uuid: @user_identity.attributes[:uuid])
-    @current_user.instance_variable_set(:@identity, @user_identity)
-    @current_user.last_signed_in = Time.current.utc
-    @session_object = Session.new(
-      uuid: @current_user.uuid
-    )
-
-    @current_user.save && @session_object.save && @user_identity.save
-    set_cookies
-    redirect_to auth_service.login_redirect_url(auth: 'success')
+    @current_user = User.find(access_token.user_uuid)
+  rescue => e
+    render json: { errors: e }, status: :unauthorized
   end
 
-  def authenticate
-    return unless NO_AUTH_ACTIONS.include?(action_name)
-
-    reset_session
+  def token_json_response(access_token, refresh_token, anti_csrf_token)
+    {
+      data:
+        {
+          access_token: access_token,
+          refresh_token: refresh_token,
+          anti_csrf_token: anti_csrf_token
+        }
+    }
   end
 
-  def set_cookies
-    Rails.logger.info('[SignInService]: LOGIN', sso_logging_info)
-    set_api_cookie!
+  def refresh_session(refresh_token, anti_csrf_token)
+    decrypted_refresh_token = SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token: refresh_token).perform
+
+    SignIn::SessionRefresher.new(refresh_token: decrypted_refresh_token, anti_csrf_token: anti_csrf_token).perform
   end
 
-  def auth_service
-    type = params[:type]
+  def login(type, state, code)
+    response = auth_service(type).token(code)
+
+    raise SignIn::Errors::CodeInvalidError unless response
+
+    user_info = auth_service(type).user_info(response[:access_token])
+
+    normalized_attributes = auth_service(type).normalized_attributes(user_info)
+
+    SignIn::UserCreator.new(user_attributes: normalized_attributes, state: state).perform
+  end
+
+  def login_redirect_url(login_code)
+    redirect_uri = URI.parse(Settings.sign_in.redirect_uri)
+    redirect_uri.query = { code: login_code }.to_query
+    redirect_uri.to_s
+  end
+
+  def auth_service(type)
     case type
     when 'idme'
       idme_auth_service
@@ -76,5 +145,21 @@ class SignInController < ApplicationController
 
   def logingov_auth_service
     @logingov_auth_service ||= SignIn::Logingov::Service.new
+  end
+
+  def authorize_params
+    params.permit(:type, :code_challenge, :code_challenge_method)
+  end
+
+  def callback_params
+    params.permit(:code, :type, :state)
+  end
+
+  def token_params
+    params.permit(:code, :code_verifier, :grant_type)
+  end
+
+  def refresh_params
+    params.permit(:refresh_token, :anti_csrf_token)
   end
 end
