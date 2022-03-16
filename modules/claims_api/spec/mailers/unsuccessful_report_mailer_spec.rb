@@ -73,13 +73,6 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
           kayla.watanabe@adhocteam.us
           dan.hinze@adhocteam.us
           jeff.wallace@oddball.io
-          zachary.goldfine@va.gov
-          david.mazik@va.gov
-          premal.shah@va.gov
-          emily.goodrich@oddball.io
-          christopher.stone@libertyits.com
-          austin.covrig@oddball.io
-          kelly.lein@adhocteam.us
         ]
       )
     end
