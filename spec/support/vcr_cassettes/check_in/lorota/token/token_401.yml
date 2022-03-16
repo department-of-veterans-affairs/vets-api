@@ -16,6 +16,9 @@ http_interactions:
       - application/json
     body:
       encoding: UTF-8
-      string: Incorrect authentication provided
+      string: |-
+        {
+          "error": "lastName does not match with current record"
+        }
   recorded_at: Thu, 19 Nov 2020 16:45:03 GMT
 recorded_with: VCR 6.0.0
