@@ -1,0 +1,28 @@
+en:
+  common:
+    exceptions:
+      defaults: &defaults
+        # title: required always
+        # detail: optional, if not provided it will default to title
+        # code: required always, must be unique to a specific title - no two code and titles can overlap
+        # status: require always, corresponds to the HTTP Status code
+        # links: optional, could contain an 'about' link to further details
+        # source: optional, an object containing references to the source of the error (pointer to json in validation)
+        # meta: optional, contains information suitable for debugging, VISIBLE IN PRODUCTION
+        # sentry_type: optional, defaults to 'error', supported values = debug, info, warn, error, fatal, and 'none'
+        detail: ~
+        links: ~
+        source: ~
+        meta: ~
+        sentry_type: 'error'
+      backend_service_exception: &external_defaults
+        <<: *defaults
+        title: 'Operation failed' # To be used when no external minor code is mappable
+        code: 'VA900'
+        status: 400
+      LOROTA-MAPPED-API_401:
+        <<: *external_defaults
+        title: Authentication Error
+        code: 'LOROTA-API_401'
+        detail: 'Authentication Error'
+        status: 401

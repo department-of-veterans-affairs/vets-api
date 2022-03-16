@@ -12,6 +12,8 @@ RSpec.describe 'V2::SessionsController', type: :request do
       .with('check_in_experience_enabled').and_return(true)
     allow(Flipper).to receive(:enabled?)
       .with('check_in_experience_logging_enabled').and_return(true)
+    allow(Flipper).to receive(:enabled?).with('check_in_experience_set_pre_checkin_status').and_return(false)
+    allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_401_mapping_enabled').and_return(true)
 
     Rails.cache.clear
   end
@@ -81,7 +83,6 @@ RSpec.describe 'V2::SessionsController', type: :request do
       end
 
       before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_set_pre_checkin_status').and_return(false)
         allow(Flipper).to receive(:enabled?).with('check_in_experience_refresh_pre_checkin').and_return(false)
         VCR.use_cassette 'check_in/lorota/token/token_200' do
           post '/check_in/v2/sessions', session_params
@@ -118,7 +119,6 @@ RSpec.describe 'V2::SessionsController', type: :request do
       end
 
       before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_set_pre_checkin_status').and_return(false)
         allow(Flipper).to receive(:enabled?).with('check_in_experience_refresh_pre_checkin').and_return(true)
         VCR.use_cassette 'check_in/lorota/token/token_200' do
           post '/check_in/v2/sessions', session_params
@@ -219,7 +219,6 @@ RSpec.describe 'V2::SessionsController', type: :request do
 
     context 'when JWT token and Redis entries are absent' do
       before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_set_pre_checkin_status').and_return(false)
         expect_any_instance_of(::V2::Chip::Client).not_to receive(:set_precheckin_started).with(anything)
       end
 
@@ -229,6 +228,60 @@ RSpec.describe 'V2::SessionsController', type: :request do
 
           expect(response.status).to eq(200)
           expect(JSON.parse(response.body)).to eq(resp)
+        end
+      end
+    end
+
+    context 'when LoROTA returns a 401 for token' do
+      context 'when 401 mapping feature flag is enabled' do
+        let(:resp) do
+          {
+            'errors' => [
+              {
+                'title' => 'Authentication Error',
+                'detail' => 'Authentication Error',
+                'code' => 'LOROTA-MAPPED-API_401',
+                'status' => '401'
+              }
+            ]
+          }
+        end
+
+        it 'returns a 401 error' do
+          VCR.use_cassette 'check_in/lorota/token/token_401' do
+            post '/check_in/v2/sessions', session_params
+
+            expect(response.status).to eq(401)
+            expect(JSON.parse(response.body)).to eq(resp)
+          end
+        end
+      end
+
+      context 'when 401 mapping feature flag is disabled' do
+        let(:resp) do
+          {
+            'errors' => [
+              {
+                'title' => 'Operation failed',
+                'detail' => 'Operation failed',
+                'code' => 'VA900',
+                'status' => '400'
+              }
+            ]
+          }
+        end
+
+        before do
+          allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_401_mapping_enabled').and_return(false)
+        end
+
+        it 'returns a 400 error' do
+          VCR.use_cassette 'check_in/lorota/token/token_401' do
+            post '/check_in/v2/sessions', session_params
+
+            expect(response.status).to eq(400)
+            expect(JSON.parse(response.body)).to eq(resp)
+          end
         end
       end
     end
