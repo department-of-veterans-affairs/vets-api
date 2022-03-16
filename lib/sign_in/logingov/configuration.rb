@@ -4,16 +4,7 @@ require 'common/client/configuration/rest'
 require 'common/client/middleware/logging'
 
 module SignIn::Logingov
-  # Configuration for the Logingov::Service. A singleton class that returns
-  # a connection that can make signed requests
-  #
-  # @example set the configuration in the service
-  #   configuration Logingov::Configuration
-  #
   class Configuration < Common::Client::Configuration::REST
-    # Override the parent's base path
-    # @return String the service base path from the environment settings
-    #
     def base_path
       Settings.logingov.oauth_url
     end
@@ -74,15 +65,10 @@ module SignIn::Logingov
       OpenSSL::X509::Certificate.new(File.read(client_cert_path))
     end
 
-    # Service name for breakers integration
-    # @return String the service name
     def service_name
-      'Logingov'
+      'logingov'
     end
 
-    # Faraday connection object with breakers, snakecase and json response middleware
-    # @return Faraday::Connection connection to make http calls
-    #
     def connection
       @connection ||= Faraday.new(
         base_path,

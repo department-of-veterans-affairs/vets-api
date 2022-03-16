@@ -30,9 +30,10 @@ describe SignIn::Logingov::Service do
   end
   let(:success_callback_url) { 'http://localhost:3001/auth/login/callback?type=logingov' }
   let(:failure_callback_url) { 'http://localhost:3001/auth/login/callback?auth=fail&code=007' }
+  let(:state) { 'some-state' }
 
   describe '#render_auth' do
-    let(:response) { subject.render_auth.to_s }
+    let(:response) { subject.render_auth(state: state).to_s }
 
     it 'renders the logingov_get_form template' do
       expect(response).to include('form id="logingov-form"')
@@ -55,20 +56,6 @@ describe SignIn::Logingov::Service do
     it 'returns a user attributes' do
       VCR.use_cassette('identity/logingov_200_responses') do
         expect(subject.user_info(token)).to eq(user_info)
-      end
-    end
-  end
-
-  describe '#login_redirect_url' do
-    context 'successful authentication' do
-      it 'redirects to frontend login landing page' do
-        expect(subject.login_redirect_url(auth: 'success')).to eq(success_callback_url)
-      end
-    end
-
-    context 'unsuccessful authentication' do
-      it 'redirects to frontend login landing page' do
-        expect(subject.login_redirect_url(auth: 'fail', code: '007')).to eq(failure_callback_url)
       end
     end
   end
