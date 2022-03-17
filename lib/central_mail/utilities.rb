@@ -29,14 +29,21 @@ module CentralMail
       pdf_total = number_pages.count
 
       title = uploaded_object.class.to_s.split('::').first
-      Rails.logger.info("#{title}: Submission success",
-                        'uuid' => metadata['uuid'],
-                        'source' => metadata['source'],
-                        'docType' => metadata['docType'],
-                        'consumer_id' => uploaded_object.consumer_id,
-                        'consumer_username' => uploaded_object.consumer_name,
-                        'pageCount' => page_total,
-                        'pdfCount' => pdf_total)
+      log_details = {
+        'consumer_id' => uploaded_object.consumer_id,
+        'consumer_username' => uploaded_object.consumer_name,
+        'pageCount' => page_total,
+        'pdfCount' => pdf_total
+      }.merge(metadata.slice('uuid',
+                             'source',
+                             'hashV',
+                             'numberAttachments',
+                             'receiveDt',
+                             'numberPages',
+                             'lob',
+                             'docType'))
+
+      Rails.logger.info("#{title}: Submission success", log_details)
     end
 
     def retry_errors(e, uploaded_object)
