@@ -2,9 +2,9 @@
 
 module RapidReadyForDecision
   class HypertensionPdfGenerator
-    def initialize(patient, blood_pressure_data, medications)
+    def initialize(patient_info, blood_pressure_data, medications)
       @pdf = Prawn::Document.new
-      @patient = patient
+      @patient_info = patient_info
       @blood_pressure_data = blood_pressure_data
       @medications = medications
       @date = Time.zone.today
@@ -34,17 +34,20 @@ module RapidReadyForDecision
     end
 
     def add_intro
-      names = @patient.with_indifferent_access
-      full_name = [names[:first], names[:middle], names[:last]].reject(&:blank?).join ' '
-      patient_name = [full_name, names[:suffix]].reject(&:blank?).join ', '
+      patient_info = @patient_info.with_indifferent_access
+      full_name = [patient_info[:first], patient_info[:middle], patient_info[:last]].reject(&:blank?).join ' '
+      patient_name = [full_name, patient_info[:suffix]].reject(&:blank?).join ', '
+      birthdate = patient_info[:birthdate]
       generated_time = Time.now.getlocal
       generated_at = "#{generated_time.strftime('%m/%d/%Y')} at #{generated_time.strftime('%l:%M %p %Z')}"
 
       intro_lines = [
         "<font size='11'>Hypertension Rapid Ready for Decision | Claim for Increase</font>\n",
         "<font size='22'>VHA Hypertension Data Summary for</font>",
-        "<font size='22'>#{patient_name}</font>\n",
         "<font size='10'><i>Generated automatically on #{generated_at}</i></font>\n",
+        "<font size='11'>\n</font>",
+        "<font size='14'>#{patient_name}</font>\n",
+        birthdate ? "<font size='11'>DOB: #{birthdate}</font>\n" : '',
         "<font size='11'>\n</font>"
       ]
 
