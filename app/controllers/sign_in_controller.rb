@@ -56,10 +56,12 @@ class SignInController < ApplicationController
   def refresh
     refresh_token = refresh_params[:refresh_token]
     anti_csrf_token = refresh_params[:anti_csrf_token]
+    enable_anti_csrf = Settings.sign_in.enable_anti_csrf
 
-    raise SignIn::Errors::MalformedParamsError unless refresh_token && anti_csrf_token
+    raise SignIn::Errors::MalformedParamsError unless refresh_token
+    raise SignIn::Errors::MalformedParamsError if enable_anti_csrf && anti_csrf_token.nil?
 
-    session_container = refresh_session(refresh_token, anti_csrf_token)
+    session_container = refresh_session(refresh_token, anti_csrf_token, enable_anti_csrf)
 
     render json: session_token_response(session_container), status: :ok
   rescue => e
@@ -106,10 +108,12 @@ class SignInController < ApplicationController
     }
   end
 
-  def refresh_session(refresh_token, anti_csrf_token)
+  def refresh_session(refresh_token, anti_csrf_token, enable_anti_csrf)
     decrypted_refresh_token = SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token: refresh_token).perform
 
-    SignIn::SessionRefresher.new(refresh_token: decrypted_refresh_token, anti_csrf_token: anti_csrf_token).perform
+    SignIn::SessionRefresher.new(refresh_token: decrypted_refresh_token,
+                                 anti_csrf_token: anti_csrf_token,
+                                 enable_anti_csrf: enable_anti_csrf).perform
   end
 
   def login(type, state, code)

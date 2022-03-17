@@ -437,12 +437,79 @@ RSpec.describe SignInController, type: :controller do
     let(:anti_csrf_token_param) { { anti_csrf_token: anti_csrf_token } }
     let(:refresh_token) { 'some-refresh-token' }
     let(:anti_csrf_token) { 'some-anti-csrf-token' }
+    let(:enable_anti_csrf) { true }
 
-    context 'when refresh_token and anti_csrf_token param is given' do
-      context 'and refresh_token is an arbitrary string' do
-        let(:refresh_token) { 'some-refresh-token' }
+    before { allow(Settings.sign_in).to receive(:enable_anti_csrf).and_return(enable_anti_csrf) }
+
+    context 'when Settings sign_in enable_anti_csrf is enabled' do
+      let(:enable_anti_csrf) { true }
+
+      context 'and anti_csrf_token param is not given' do
+        let(:expected_error) { SignIn::Errors::MalformedParamsError.to_s }
+        let(:expected_error_json) { { 'errors' => expected_error } }
+        let(:anti_csrf_token_param) { {} }
+
+        it 'renders Malformed Params error' do
+          expect(JSON.parse(subject.body)).to eq(expected_error_json)
+        end
+
+        it 'returns unauthorized status' do
+          expect(subject).to have_http_status(:unauthorized)
+        end
+      end
+
+      context 'and anti_csrf_token has been modified' do
+        let(:user_account) { create(:user_account) }
+        let(:session_container) { SignIn::SessionCreator.new(user_account: user_account).perform }
+        let(:refresh_token) do
+          SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
+        end
+        let(:expected_error) { SignIn::Errors::AntiCSRFMismatchError.to_s }
+        let(:expected_error_json) { { 'errors' => expected_error } }
+        let(:anti_csrf_token) { 'some-modified-anti-csrf-token' }
+
+        it 'renders an anti csrf mismatch error' do
+          expect(JSON.parse(subject.body)).to eq(expected_error_json)
+        end
+
+        it 'returns unauthorized status' do
+          expect(subject).to have_http_status(:unauthorized)
+        end
+      end
+    end
+
+    context 'when refresh_token is an arbitrary string' do
+      let(:refresh_token) { 'some-refresh-token' }
+      let(:expected_error) { 'Decryption failed' }
+      let(:expected_error_json) { { 'errors' => expected_error } }
+
+      it 'renders Decryption failed error' do
+        expect(JSON.parse(subject.body)).to eq(expected_error_json)
+      end
+
+      it 'returns unauthorized status' do
+        expect(subject).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'when refresh_token is the proper encrypted refresh token format' do
+      let(:user_account) { create(:user_account) }
+      let(:session_container) { SignIn::SessionCreator.new(user_account: user_account).perform }
+      let(:refresh_token) do
+        SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
+      end
+      let(:anti_csrf_token) { session_container.anti_csrf_token }
+
+      context 'and encrypted component has been modified' do
         let(:expected_error) { 'Decryption failed' }
         let(:expected_error_json) { { 'errors' => expected_error } }
+
+        let(:refresh_token) do
+          token = SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
+          split_token = token.split('.')
+          split_token[0] = 'some-modified-encrypted-component'
+          split_token.join
+        end
 
         it 'renders Decryption failed error' do
           expect(JSON.parse(subject.body)).to eq(expected_error_json)
@@ -453,161 +520,117 @@ RSpec.describe SignInController, type: :controller do
         end
       end
 
-      context 'and refresh_token is the proper encrypted refresh token format' do
-        let(:user_account) { create(:user_account) }
-        let(:session_container) { SignIn::SessionCreator.new(user_account: user_account).perform }
+      context 'and nonce component has been modified' do
+        let(:expected_error) { SignIn::Errors::RefreshNonceMismatchError.to_s }
+        let(:expected_error_json) { { 'errors' => expected_error } }
+
         let(:refresh_token) do
-          SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
-        end
-        let(:anti_csrf_token) { session_container.anti_csrf_token }
-
-        context 'and encrypted component has been modified' do
-          let(:expected_error) { 'Decryption failed' }
-          let(:expected_error_json) { { 'errors' => expected_error } }
-
-          let(:refresh_token) do
-            token = SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
-            split_token = token.split('.')
-            split_token[0] = 'some-modified-encrypted-component'
-            split_token.join
-          end
-
-          it 'renders Decryption failed error' do
-            expect(JSON.parse(subject.body)).to eq(expected_error_json)
-          end
-
-          it 'returns unauthorized status' do
-            expect(subject).to have_http_status(:unauthorized)
-          end
+          token = SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
+          split_token = token.split('.')
+          split_token[1] = 'some-modified-nonce-component'
+          split_token.join('.')
         end
 
-        context 'and nonce component has been modified' do
-          let(:expected_error) { SignIn::Errors::RefreshNonceMismatchError.to_s }
-          let(:expected_error_json) { { 'errors' => expected_error } }
-
-          let(:refresh_token) do
-            token = SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
-            split_token = token.split('.')
-            split_token[1] = 'some-modified-nonce-component'
-            split_token.join('.')
-          end
-
-          it 'renders a nonce mismatch error' do
-            expect(JSON.parse(subject.body)).to eq(expected_error_json)
-          end
-
-          it 'returns unauthorized status' do
-            expect(subject).to have_http_status(:unauthorized)
-          end
+        it 'renders a nonce mismatch error' do
+          expect(JSON.parse(subject.body)).to eq(expected_error_json)
         end
 
-        context 'and version has been modified' do
-          let(:expected_error) { SignIn::Errors::RefreshVersionMismatchError.to_s }
-          let(:expected_error_json) { { 'errors' => expected_error } }
+        it 'returns unauthorized status' do
+          expect(subject).to have_http_status(:unauthorized)
+        end
+      end
 
-          let(:refresh_token) do
-            token = SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
-            split_token = token.split('.')
-            split_token[2] = 'some-modified-version-component'
-            split_token.join('.')
-          end
+      context 'and version has been modified' do
+        let(:expected_error) { SignIn::Errors::RefreshVersionMismatchError.to_s }
+        let(:expected_error_json) { { 'errors' => expected_error } }
 
-          it 'renders a version mismatch error' do
-            expect(JSON.parse(subject.body)).to eq(expected_error_json)
-          end
-
-          it 'returns unauthorized status' do
-            expect(subject).to have_http_status(:unauthorized)
-          end
+        let(:refresh_token) do
+          token = SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
+          split_token = token.split('.')
+          split_token[2] = 'some-modified-version-component'
+          split_token.join('.')
         end
 
-        context 'and anti_csrf_token has been modified' do
-          let(:expected_error) { SignIn::Errors::AntiCSRFMismatchError.to_s }
-          let(:expected_error_json) { { 'errors' => expected_error } }
-
-          let(:anti_csrf_token) { 'some-modified-anti-csrf-token' }
-
-          it 'renders an anti csrf mismatch error' do
-            expect(JSON.parse(subject.body)).to eq(expected_error_json)
-          end
-
-          it 'returns unauthorized status' do
-            expect(subject).to have_http_status(:unauthorized)
-          end
+        it 'renders a version mismatch error' do
+          expect(JSON.parse(subject.body)).to eq(expected_error_json)
         end
 
-        context 'and refresh token is expired' do
-          let(:expected_error) { SignIn::Errors::SessionNotAuthorizedError.to_s }
-          let(:expected_error_json) { { 'errors' => expected_error } }
+        it 'returns unauthorized status' do
+          expect(subject).to have_http_status(:unauthorized)
+        end
+      end
 
-          before do
-            session = session_container.session
-            session.refresh_expiration = 1.day.ago
-            session.save!
-          end
+      context 'and refresh token is expired' do
+        let(:expected_error) { SignIn::Errors::SessionNotAuthorizedError.to_s }
+        let(:expected_error_json) { { 'errors' => expected_error } }
 
-          it 'renders a session not authorized error' do
-            expect(JSON.parse(subject.body)).to eq(expected_error_json)
-          end
-
-          it 'returns unauthorized status' do
-            expect(subject).to have_http_status(:unauthorized)
-          end
+        before do
+          session = session_container.session
+          session.refresh_expiration = 1.day.ago
+          session.save!
         end
 
-        context 'and refresh token does not map to an existing session' do
-          let(:expected_error) { SignIn::Errors::SessionNotAuthorizedError.to_s }
-          let(:expected_error_json) { { 'errors' => expected_error } }
-
-          before do
-            session = session_container.session
-            session.destroy!
-          end
-
-          it 'renders a session not authorized error' do
-            expect(JSON.parse(subject.body)).to eq(expected_error_json)
-          end
-
-          it 'returns unauthorized status' do
-            expect(subject).to have_http_status(:unauthorized)
-          end
+        it 'renders a session not authorized error' do
+          expect(JSON.parse(subject.body)).to eq(expected_error_json)
         end
 
-        context 'and refresh token is not a parent or child according to the session' do
-          let(:expected_error) { SignIn::Errors::TokenTheftDetectedError.to_s }
-          let(:expected_error_json) { { 'errors' => expected_error } }
+        it 'returns unauthorized status' do
+          expect(subject).to have_http_status(:unauthorized)
+        end
+      end
 
-          before do
-            session = session_container.session
-            session.hashed_refresh_token = 'some-unrelated-refresh-token'
-            session.save!
-          end
+      context 'and refresh token does not map to an existing session' do
+        let(:expected_error) { SignIn::Errors::SessionNotAuthorizedError.to_s }
+        let(:expected_error_json) { { 'errors' => expected_error } }
 
-          it 'renders a session not authorized error' do
-            expect(JSON.parse(subject.body)).to eq(expected_error_json)
-          end
-
-          it 'returns unauthorized status' do
-            expect(subject).to have_http_status(:unauthorized)
-          end
+        before do
+          session = session_container.session
+          session.destroy!
         end
 
-        context 'and both refresh token and anti csrf token are unmodified and valid' do
-          it 'returns ok status' do
-            expect(subject).to have_http_status(:ok)
-          end
+        it 'renders a session not authorized error' do
+          expect(JSON.parse(subject.body)).to eq(expected_error_json)
+        end
 
-          it 'returns expected body with access token' do
-            expect(JSON.parse(subject.body)['data']).to have_key('access_token')
-          end
+        it 'returns unauthorized status' do
+          expect(subject).to have_http_status(:unauthorized)
+        end
+      end
 
-          it 'returns expected body with refresh token' do
-            expect(JSON.parse(subject.body)['data']).to have_key('refresh_token')
-          end
+      context 'and refresh token is not a parent or child according to the session' do
+        let(:expected_error) { SignIn::Errors::TokenTheftDetectedError.to_s }
+        let(:expected_error_json) { { 'errors' => expected_error } }
 
-          it 'returns expected body with anti csrf token token' do
-            expect(JSON.parse(subject.body)['data']).to have_key('anti_csrf_token')
-          end
+        before do
+          session = session_container.session
+          session.hashed_refresh_token = 'some-unrelated-refresh-token'
+          session.save!
+        end
+
+        it 'renders a session not authorized error' do
+          expect(JSON.parse(subject.body)).to eq(expected_error_json)
+        end
+
+        it 'returns unauthorized status' do
+          expect(subject).to have_http_status(:unauthorized)
+        end
+      end
+
+      context 'and refresh token is unmodified and valid' do
+        it 'returns ok status' do
+          expect(subject).to have_http_status(:ok)
+        end
+
+        it 'returns expected body with access token' do
+          expect(JSON.parse(subject.body)['data']).to have_key('access_token')
+        end
+
+        it 'returns expected body with refresh token' do
+          expect(JSON.parse(subject.body)['data']).to have_key('refresh_token')
+        end
+
+        it 'returns expected body with anti csrf token token' do
+          expect(JSON.parse(subject.body)['data']).to have_key('anti_csrf_token')
         end
       end
     end
@@ -616,20 +639,6 @@ RSpec.describe SignInController, type: :controller do
       let(:expected_error) { SignIn::Errors::MalformedParamsError.to_s }
       let(:expected_error_json) { { 'errors' => expected_error } }
       let(:refresh_token_param) { {} }
-
-      it 'renders Malformed Params error' do
-        expect(JSON.parse(subject.body)).to eq(expected_error_json)
-      end
-
-      it 'returns unauthorized status' do
-        expect(subject).to have_http_status(:unauthorized)
-      end
-    end
-
-    context 'when anti_csrf_token param is not given' do
-      let(:expected_error) { SignIn::Errors::MalformedParamsError.to_s }
-      let(:expected_error_json) { { 'errors' => expected_error } }
-      let(:anti_csrf_token_param) { {} }
 
       it 'renders Malformed Params error' do
         expect(JSON.parse(subject.body)).to eq(expected_error_json)

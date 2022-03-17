@@ -41,6 +41,7 @@ session_cookie:
 sign_in:
   jwt_encode_key: 'spec/fixtures/sign_in/privatekey.pem'
   redirect_uri: 'vamobile://login-success'
+  enable_anti_csrf: false
 
 lockbox:
   master_key: "0d78eaf0e90d4e7b8910c9112e16e66d8b00ec4054a89aa426e32712a13371e9"
