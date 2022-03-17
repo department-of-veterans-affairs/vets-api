@@ -11,7 +11,7 @@
     </p>
   </noscript>
 
-  <%= form_tag url, authenticity_token: false, method: :get, id: "logingov-form" do %>
+  <%= form_tag url, authenticity_token: false, method: :get, id: "oauth-form" do %>
     <% params.each do |key, value| %>
       <%= hidden_field_tag key, value %>
     <% end %>
@@ -24,7 +24,7 @@
 
   <script nonce="**CSP_NONCE**">
     (function() {
-      document.getElementById("logingov-form").submit();
+      document.getElementById("oauth-form").submit();
     })();
   </script>
 </body>

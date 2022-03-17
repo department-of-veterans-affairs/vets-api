@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 require 'sign_in/logingov/service'
+require 'sign_in/idme/service'
 
 class SignInController < ApplicationController
   skip_before_action :verify_authenticity_token, :authenticate
   before_action :authenticate_access_token, only: [:introspect]
 
-  REDIRECT_URLS = %w[idme logingov].freeze
+  REDIRECT_URLS = %w[idme logingov dslogon mhv].freeze
   BEARER_PATTERN = /^Bearer /.freeze
 
   def authorize
@@ -138,13 +139,19 @@ class SignInController < ApplicationController
     case type
     when 'idme'
       idme_auth_service
+    when 'dslogon'
+      idme_auth_service.scope = 'dslogon_loa3'
+      idme_auth_service
+    when 'mhv'
+      idme_auth_service.scope = 'myhealthevet_loa3'
+      idme_auth_service
     when 'logingov'
       logingov_auth_service
     end
   end
 
   def idme_auth_service
-    # @idme_auth_service ||= AuthIdme::Service.new
+    @idme_auth_service ||= SignIn::Idme::Service.new
   end
 
   def logingov_auth_service

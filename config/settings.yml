@@ -11,9 +11,17 @@ web_origin_regex: \Ahttps?:\/\/www\.va\.gov\z
 logingov:
   client_id: urn:gov:gsa:openidconnect.profiles:sp:sso:va:dev_signin
   redirect_uri: http://localhost:3000/sign_in/logingov/callback
-  client_cert_path: spec/fixtures/sign_in/logingov.crt
-  client_key_path: spec/fixtures/sign_in/logingov.key
+  client_cert_path: spec/fixtures/sign_in/oauth.crt
+  client_key_path: spec/fixtures/sign_in/oauth.key
   oauth_url: https://idp.int.identitysandbox.gov
+
+idme:
+  client_id: dde0b5b8bfc023a093830e64ef83f148
+  client_secret: e745319288bd005c9fca7d8164f302c7
+  redirect_uri: http://localhost:3000/sign_in/idme/callback
+  client_cert_path: spec/fixtures/sign_in/oauth.crt
+  client_key_path: spec/fixtures/sign_in/oauth.key
+  oauth_url: https://api.idmelabs.com
 
 # Settings for new SAML authentication with SSOe
 saml_ssoe:
