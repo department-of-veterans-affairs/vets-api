@@ -8,7 +8,8 @@ RSpec.describe SignInController, type: :controller do
 
     let(:code_challenge) { { code_challenge: 'some-code-challenge' } }
     let(:code_challenge_method) { { code_challenge_method: 'some-code-challenge-method' } }
-    let(:type) { { type: 'some-type' } }
+    let(:type) { { type: type_value } }
+    let(:type_value) { 'some-type' }
 
     context 'when type param is not given' do
       let(:type) { {} }
@@ -34,8 +35,7 @@ RSpec.describe SignInController, type: :controller do
     end
 
     context 'when type param is logingov' do
-      let(:type) { { type: logingov_type } }
-      let(:logingov_type) { 'logingov' }
+      let(:type_value) { 'logingov' }
 
       context 'and code_challenge_method is not given' do
         let(:code_challenge_method) { {} }
@@ -99,7 +99,90 @@ RSpec.describe SignInController, type: :controller do
           end
 
           it 'renders expected type in template' do
-            expect(subject.body).to match(logingov_type)
+            expect(subject.body).to match(type_value)
+          end
+        end
+      end
+
+      context 'and code_challenge_method is not S256' do
+        let(:code_challenge_method) { { code_challenge_method: 'some-code-challenge-method' } }
+        let(:expected_error) { SignIn::Errors::CodeChallengeMethodMismatchError.to_s }
+        let(:expected_error_json) { { 'errors' => expected_error } }
+
+        it 'renders code challenge method mismatch error' do
+          expect(JSON.parse(subject.body)).to eq(expected_error_json)
+        end
+
+        it 'returns bad_request status' do
+          expect(subject).to have_http_status(:bad_request)
+        end
+      end
+    end
+
+    shared_context 'an idme authentication service interface' do
+      context 'and code_challenge_method is not given' do
+        let(:code_challenge_method) { {} }
+        let(:expected_error) { SignIn::Errors::MalformedParamsError.to_s }
+        let(:expected_error_json) { { 'errors' => expected_error } }
+
+        it 'renders malformed params error' do
+          expect(JSON.parse(subject.body)).to eq(expected_error_json)
+        end
+
+        it 'returns bad_request status' do
+          expect(subject).to have_http_status(:bad_request)
+        end
+      end
+
+      context 'and code_challenge_method is S256' do
+        let(:code_challenge_method) { { code_challenge_method: 'S256' } }
+
+        context 'and code_challenge is not given' do
+          let(:code_challenge) { {} }
+          let(:expected_error) { SignIn::Errors::MalformedParamsError.to_s }
+          let(:expected_error_json) { { 'errors' => expected_error } }
+
+          it 'renders malformed params error' do
+            expect(JSON.parse(subject.body)).to eq(expected_error_json)
+          end
+
+          it 'returns bad_request status' do
+            expect(subject).to have_http_status(:bad_request)
+          end
+        end
+
+        context 'and code_challenge is not properly URL encoded' do
+          let(:code_challenge) { { code_challenge: '///some+unsafe code+challenge//' } }
+          let(:expected_error) { SignIn::Errors::CodeChallengeMalformedError.to_s }
+          let(:expected_error_json) { { 'errors' => expected_error } }
+
+          it 'renders code challenge malformed error' do
+            expect(JSON.parse(subject.body)).to eq(expected_error_json)
+          end
+
+          it 'returns bad_request status' do
+            expect(subject).to have_http_status(:bad_request)
+          end
+        end
+
+        context 'and code_challenge is properly URL encoded' do
+          let(:code_challenge) { { code_challenge: Base64.urlsafe_encode64('some-safe-code-challenge') } }
+          let(:state) { 'some-random-state' }
+
+          before do
+            allow(SecureRandom).to receive(:hex).and_return(state)
+          end
+
+          it 'returns ok status' do
+            expect(subject).to have_http_status(:ok)
+          end
+
+          it 'renders expected state in template' do
+            expect(subject.body).to match(state)
+          end
+
+          it 'renders expected type in template' do
+            expect(subject.body).to match(expected_type_value)
           end
         end
       end
@@ -120,11 +203,24 @@ RSpec.describe SignInController, type: :controller do
     end
 
     context 'when type param is idme' do
-      let(:type) { { type: 'idme' } }
+      let(:type_value) { 'idme' }
+      let(:expected_type_value) { 'idme' }
 
-      it 'returns bad_request status' do
-        expect(subject).to have_http_status(:bad_request)
-      end
+      it_behaves_like 'an idme authentication service interface'
+    end
+
+    context 'when type param is dslogon' do
+      let(:type_value) { 'dslogon' }
+      let(:expected_type_value) { 'dslogon' }
+
+      it_behaves_like 'an idme authentication service interface'
+    end
+
+    context 'when type param is mhv' do
+      let(:type_value) { 'mhv' }
+      let(:expected_type_value) { 'myhealthevet' }
+
+      it_behaves_like 'an idme authentication service interface'
     end
   end
 
@@ -295,7 +391,8 @@ RSpec.describe SignInController, type: :controller do
 
     let(:code) { { code: code_value } }
     let(:state) { { state: 'some-state' } }
-    let(:type) { { type: 'some-type' } }
+    let(:type) { { type: type_value } }
+    let(:type_value) { 'some-type-value' }
     let(:code_value) { 'some-code' }
 
     context 'when type param is not given' do
@@ -322,8 +419,7 @@ RSpec.describe SignInController, type: :controller do
     end
 
     context 'when type param is logingov' do
-      let(:type) { { type: logingov_type } }
-      let(:logingov_type) { 'logingov' }
+      let(:type_value) { 'logingov' }
       let(:response) { OpenStruct.new(access_token: token) }
       let(:token) { 'some-token' }
       let(:user_info) do
@@ -421,12 +517,120 @@ RSpec.describe SignInController, type: :controller do
       end
     end
 
-    context 'when type param is idme' do
-      let(:type) { { type: 'idme' } }
-
-      it 'returns bad_request status' do
-        expect(subject).to have_http_status(:bad_request)
+    shared_context 'an idme authentication service' do
+      let(:response) { OpenStruct.new(access_token: token) }
+      let(:token) { 'some-token' }
+      let(:user_info) do
+        OpenStruct.new(
+          sub: 'some-sub',
+          level_of_assurance: 3,
+          social: '123456789',
+          birth_date: '1-1-2022',
+          fname: 'some-name',
+          lname: 'some-family-name',
+          email: 'some-email'
+        )
       end
+
+      before do
+        allow_any_instance_of(SignIn::Idme::Service).to receive(:token).with(code_value).and_return(response)
+        allow_any_instance_of(SignIn::Idme::Service).to receive(:user_info).with(token).and_return(user_info)
+      end
+
+      context 'and code is not given' do
+        let(:code) { {} }
+        let(:expected_error) { SignIn::Errors::MalformedParamsError.to_s }
+        let(:expected_error_json) { { 'errors' => expected_error } }
+
+        it 'renders malformed params error' do
+          expect(JSON.parse(subject.body)).to eq(expected_error_json)
+        end
+
+        it 'returns bad_request status' do
+          expect(subject).to have_http_status(:bad_request)
+        end
+      end
+
+      context 'and code is given but does not match expected code for auth service' do
+        let(:response) { nil }
+        let(:expected_error) { SignIn::Errors::CodeInvalidError.to_s }
+        let(:expected_error_json) { { 'errors' => expected_error } }
+
+        it 'renders code invalid error' do
+          expect(JSON.parse(subject.body)).to eq(expected_error_json)
+        end
+
+        it 'returns bad_request status' do
+          expect(subject).to have_http_status(:bad_request)
+        end
+      end
+
+      context 'and code is given that matches expected code for auth service' do
+        context 'and state is not given' do
+          let(:state) { {} }
+          let(:expected_error) { SignIn::Errors::MalformedParamsError.to_s }
+          let(:expected_error_json) { { 'errors' => expected_error } }
+
+          it 'renders malformed params error' do
+            expect(JSON.parse(subject.body)).to eq(expected_error_json)
+          end
+
+          it 'returns bad_request status' do
+            expect(subject).to have_http_status(:bad_request)
+          end
+        end
+
+        context 'and state is given but does not match expected state' do
+          let(:state) { { state: 'some-state' } }
+          let(:expected_error) { SignIn::Errors::StateMismatchError.to_s }
+          let(:expected_error_json) { { 'errors' => expected_error } }
+
+          it 'renders state mismatch error' do
+            expect(JSON.parse(subject.body)).to eq(expected_error_json)
+          end
+
+          it 'returns bad_request status' do
+            expect(subject).to have_http_status(:bad_request)
+          end
+        end
+
+        context 'and state is given and matches expected state' do
+          let(:code_challenge_state_map) { create(:code_challenge_state_map) }
+          let(:state) { { state: code_challenge_state_map.state } }
+          let(:client_code) { 'some-client-code' }
+          let(:expected_url) { "#{Settings.sign_in.redirect_uri}?code=#{client_code}" }
+
+          before do
+            allow(SecureRandom).to receive(:uuid).and_return(client_code)
+          end
+
+          it 'returns found status' do
+            expect(subject).to have_http_status(:found)
+          end
+
+          it 'redirects to expected url' do
+            expect(subject).to redirect_to(expected_url)
+          end
+        end
+      end
+    end
+
+    context 'when type param is idme' do
+      let(:type_value) { 'idme' }
+
+      it_behaves_like 'an idme authentication service'
+    end
+
+    context 'when type param is dslogon' do
+      let(:type_value) { 'dslogon' }
+
+      it_behaves_like 'an idme authentication service'
+    end
+
+    context 'when type param is mhv' do
+      let(:type_value) { 'mhv' }
+
+      it_behaves_like 'an idme authentication service'
     end
   end
 

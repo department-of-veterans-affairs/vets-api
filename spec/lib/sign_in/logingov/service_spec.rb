@@ -35,8 +35,8 @@ describe SignIn::Logingov::Service do
   describe '#render_auth' do
     let(:response) { subject.render_auth(state: state).to_s }
 
-    it 'renders the logingov_get_form template' do
-      expect(response).to include('form id="logingov-form"')
+    it 'renders the oauth_get_form template' do
+      expect(response).to include('form id="oauth-form"')
     end
 
     it 'directs to the Login.gov OAuth authorization page' do

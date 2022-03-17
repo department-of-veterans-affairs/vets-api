@@ -10,8 +10,8 @@ module SignIn::Logingov
 
     def render_auth(state: SecureRandom.hex)
       renderer = ActionController::Base.renderer
-      renderer.controller.prepend_view_path(Rails.root.join('lib', 'sign_in', 'logingov', 'templates'))
-      renderer.render(template: 'logingov_get_form',
+      renderer.controller.prepend_view_path(Rails.root.join('lib', 'sign_in', 'templates'))
+      renderer.render(template: 'oauth_get_form',
                       locals: {
                         url: auth_url,
                         params:
