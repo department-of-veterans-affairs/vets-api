@@ -19,7 +19,7 @@ module TestUserDashboard
     end
 
     # BigQuery requires a row indentifier in DELETE FROM statements
-    def delete_from(table_name:, row_identifier: 'account_uuid')
+    def delete_from(table_name:, row_identifier: 'email')
       sql = "DELETE FROM `#{PROJECT}.#{DATASET}.#{table_name}` " \
             "WHERE #{row_identifier} IS NOT NULL"
 
