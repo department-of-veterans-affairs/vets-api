@@ -8,6 +8,7 @@ module AppealsApi
       def initialize(appeal, version: 'V1')
         @appeal = appeal
         appeal.update(pdf_version: version)
+        appeal.pdf_output_prep if appeal.respond_to? :pdf_output_prep
         @structure = appeal.pdf_structure(version)
       end
 

@@ -7,9 +7,6 @@ The Decision Reviews API passes data through to Caseflow, a case management syst
 
 Because this application is designed to allow third-parties to request information on behalf of a Veteran, we are not using VA Authentication Federation Infrastructure (VAAFI) headers or Single Sign On External (SSOe).
 
-### Character Support
-Our CREATE endpoints support the Windows-1252 character set.
-
 ### Authorization and Access
 To gain access to the decision reviews API you must [request an API Key](/apply). API requests are authorized through a symmetric API token which is provided in an HTTP header named `apikey`.
 

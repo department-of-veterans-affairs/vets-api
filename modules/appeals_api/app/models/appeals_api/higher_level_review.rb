@@ -6,6 +6,10 @@ require 'common/exceptions'
 module AppealsApi
   class HigherLevelReview < ApplicationRecord
     include HlrStatus
+    include PdfOutputPrep
+
+    attr_readonly :auth_headers
+    attr_readonly :form_data
 
     scope :pii_expunge_policy, lambda {
       where('updated_at < ? AND status IN (?)', 7.days.ago, COMPLETE_STATUSES)
@@ -366,6 +370,10 @@ module AppealsApi
         [veteran_data.dig('address', 'addressLine1'),
          veteran_data.dig('address', 'addressLine2'),
          veteran_data.dig('address', 'addressLine3')].compact.map(&:strip).join(' ')
+    end
+
+    def clear_memoized_values
+      @contestable_issues = @veteran = @claimant = @address_combined = nil
     end
   end
 end
