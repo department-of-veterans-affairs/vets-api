@@ -61,7 +61,7 @@ module AppealsApi
             form_fields.benefit_type(3) => form_data.benefit_type('lifeInsurance'),
             form_fields.benefit_type(4) => form_data.benefit_type('loanGuaranty'),
             form_fields.benefit_type(5) => form_data.benefit_type('fiduciary'),
-            form_fields.benefit_type(6) => form_data.benefit_type('readinessAndEmployment'),
+            form_fields.benefit_type(6) => form_data.benefit_type('veteranReadinessAndEmployment'),
             form_fields.benefit_type(7) => form_data.benefit_type('pensionSurvivorsBenefits'),
             form_fields.benefit_type(8) => form_data.benefit_type('compensation'),
 

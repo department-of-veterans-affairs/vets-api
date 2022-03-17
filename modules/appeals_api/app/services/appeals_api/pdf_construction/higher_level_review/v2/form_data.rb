@@ -216,7 +216,7 @@ module AppealsApi
           {
             'compensation' => 1,
             'pensionSurvivorsBenefits' => 2,
-            'readinessAndEmployment' => 3,
+            'veteranReadinessAndEmployment' => 3,
             'fiduciary' => 4,
             'education' => 5,
             'veteransHealthAdministration' => 6,
