@@ -2,15 +2,16 @@
 
 module SignIn
   class SessionRefresher
-    attr_reader :refresh_token, :anti_csrf_token, :session
+    attr_reader :refresh_token, :anti_csrf_token, :enable_anti_csrf, :session
 
-    def initialize(refresh_token:, anti_csrf_token:)
+    def initialize(refresh_token:, anti_csrf_token:, enable_anti_csrf:)
       @refresh_token = refresh_token
       @anti_csrf_token = anti_csrf_token
+      @enable_anti_csrf = enable_anti_csrf
     end
 
     def perform
-      anti_csrf_check
+      anti_csrf_check if enable_anti_csrf
       find_valid_oauth_session
       detect_token_theft
       update_session! if parent_refresh_token_in_session?

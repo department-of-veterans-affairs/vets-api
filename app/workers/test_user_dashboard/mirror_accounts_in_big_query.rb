@@ -19,8 +19,8 @@ module TestUserDashboard
     end
 
     def accounts
-      TestUserDashboard::TudAccount.all.each.with_object([]) do |account, rows|
-        rows << account.attributes.reject { |attr, _| %w[id password].include?(attr) }
+      TestUserDashboard::TudAccount.all.as_json(except: %i[id password]).each do |account|
+        account['services'] = [''] if account['services'].nil?
       end
     end
   end
