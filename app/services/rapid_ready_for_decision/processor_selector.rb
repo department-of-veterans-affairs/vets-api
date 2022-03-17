@@ -13,6 +13,10 @@ module RapidReadyForDecision
         return RapidReadyForDecision::DisabilityCompensationJob
       end
 
+      if rrd_enabled_disability?('asthma') && single_issue_claim_applicable?(DiagnosticCodes::ASTHMA)
+        return RapidReadyForDecision::Form526AsthmaJob
+      end
+
       nil
     end
 
@@ -34,8 +38,9 @@ module RapidReadyForDecision
 
     # @return [Boolean] Is the specified disability RRD-enabled according to Flipper settings
     def rrd_enabled_disability?(disability)
-      # Todo later: Rename RRD-related Flipper keys to "rrd_#{disability}_compensation"
-      Flipper.enabled?("disability_#{disability.downcase}_compensation_fast_track".to_sym)
+      # Todo later: Remove old RRD-related Flipper keys "disability_#{disability.downcase}_compensation_fast_track"
+      Flipper.enabled?("rrd_#{disability.downcase}_compensation".to_sym) ||
+        Flipper.enabled?("disability_#{disability.downcase}_compensation_fast_track".to_sym)
     end
 
     def form_disabilities

@@ -189,7 +189,11 @@ features:
     description: Send direct deposit emails using VaNotify service
   disability_hypertension_compensation_fast_track:
     actor_type: user
-    description: Fast tracks 526 disability compensation claims by submitting additional health data
+    description: Fast tracks 526 disability compensation hypertension claims by submitting additional health data
+    enable_in_development: true
+  rrd_asthma_compensation:
+    actor_type: user
+    description: Fast tracks 526 disability compensation asthma claims by submitting additional health data
     enable_in_development: true
   disability_hypertension_compensation_fast_track_add_rrd:
     actor_type: user
