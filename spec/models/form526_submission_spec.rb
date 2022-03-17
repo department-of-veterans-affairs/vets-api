@@ -53,6 +53,7 @@ RSpec.describe Form526Submission do
       context 'Flipper is enabled' do
         before do
           Flipper.enable :disability_hypertension_compensation_fast_track
+          Flipper.enable :rrd_asthma_compensation
           Sidekiq::Worker.clear_all
         end
 
@@ -78,6 +79,7 @@ RSpec.describe Form526Submission do
       context 'Flipper is disabled' do
         before do
           Flipper.disable :disability_hypertension_compensation_fast_track
+          Flipper.disable :rrd_asthma_compensation
           Sidekiq::Worker.clear_all
         end
 
