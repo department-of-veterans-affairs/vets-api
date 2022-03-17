@@ -190,21 +190,6 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       end
     end
 
-    context 'when request body includes chars outside the windows-1252 charset' do
-      it 'returns an error' do
-        invalid_data = JSON.parse(data)
-        invalid_data['data'].merge!(
-          { 'type' => '∑upplementalClaim' }
-        )
-
-        post(path, params: invalid_data.to_json, headers: headers)
-
-        expect(response.status).to eq(422)
-        expect(parsed['errors'][0]['detail']).to include 'Invalid characters'
-        expect(parsed['errors'][0]['meta']).to include 'pattern'
-      end
-    end
-
     it 'creates the job to build the PDF' do
       client_stub = instance_double('CentralMail::Service')
       faraday_response = instance_double('Faraday::Response')

@@ -7,11 +7,9 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   include AppealsApi::JsonFormatValidation
   include AppealsApi::StatusSimulation
   include AppealsApi::CharacterUtilities
-  include AppealsApi::CharacterValidation
   include AppealsApi::HeaderModification
 
   skip_before_action :authenticate
-  before_action :validate_characters, only: %i[create validate]
   before_action :validate_json_format, if: -> { request.post? }
   before_action :validate_json_schema, only: %i[create validate]
   before_action :new_notice_of_disagreement, only: %i[create validate]

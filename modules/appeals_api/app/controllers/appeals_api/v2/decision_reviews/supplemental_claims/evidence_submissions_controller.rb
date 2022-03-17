@@ -7,7 +7,6 @@ module AppealsApi::V2
         include AppealsApi::StatusSimulation
         include SentryLogging
         include AppealsApi::CharacterUtilities
-        include AppealsApi::CharacterValidation
 
         class EvidenceSubmissionRequestValidatorError < StandardError; end
 
@@ -18,7 +17,6 @@ module AppealsApi::V2
         )['definitions']['supplementalClaimParams']['properties'].keys
 
         skip_before_action :authenticate
-        before_action :validate_characters, only: :create
         before_action :supplemental_claim_uuid?, only: :create
 
         def create

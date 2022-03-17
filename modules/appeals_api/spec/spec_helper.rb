@@ -6,6 +6,8 @@ ENV['RAILS_ENV'] = 'test'
 
 require 'rspec/rails'
 
+Prawn::Fonts::AFM.hide_m17n_warning = true
+
 ENGINE_RAILS_ROOT = File.join(File.dirname(__FILE__), '../')
 
 # Requires supporting ruby files with custom matchers and macros, etc,

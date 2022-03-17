@@ -395,4 +395,33 @@ describe AppealsApi::HigherLevelReview, type: :model do
       end
     end
   end
+
+  context 'PdfOutputPrep concern' do
+    let(:auth_headers) { fixture_as_json 'invalid_200996_headers_characters.json', version: 'v2' }
+    let(:form_data) { fixture_as_json 'invalid_200996_characters.json', version: 'v2' }
+
+    describe '#pdf_output_prep' do
+      it 'clears memoized values' do
+        expected = 'Smartquotes: “”‘’'
+        higher_level_review.form_data['included'][0]['attributes']['issue'] = expected
+        expect(higher_level_review.contestable_issues[0].text).to eq 'tinnitus'
+        higher_level_review.pdf_output_prep
+        expect(higher_level_review.contestable_issues[0].text).to eq expected
+      end
+
+      it 'removes characters that are incompatible with Windows-1252' do
+        higher_level_review.form_data['included'][0]['attributes']['issue'] = '∑mer allergies'
+        higher_level_review.pdf_output_prep
+        expect(higher_level_review.contestable_issues[0].text).to eq 'mer allergies'
+      end
+
+      it 'maintains the original encoding of the value' do
+        higher_level_review.form_data['included'][0]['attributes']['issue'].encode! 'US-ASCII'
+        higher_level_review.form_data['included'][1]['attributes']['issue'].encode! 'ISO-8859-14'
+        higher_level_review.pdf_output_prep
+        expect(higher_level_review.contestable_issues[0].text.encoding.to_s).to eq 'US-ASCII'
+        expect(higher_level_review.contestable_issues[1].text.encoding.to_s).to eq 'ISO-8859-14'
+      end
+    end
+  end
 end

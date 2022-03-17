@@ -145,6 +145,28 @@ describe AppealsApi::PdfConstruction::Generator do
             File.delete(generated_pdf) if File.exist?(generated_pdf)
           end
         end
+
+        context 'special character verification' do
+          it 'allows certain typography characters into Windows-1252' do
+            hlr = build(:minimal_higher_level_review)
+            hlr.form_data['included'][0]['attributes']['issue'] = 'Smartquotes: “”‘’'
+            hlr.save!
+            generated_pdf = described_class.new(hlr, version: 'V2').generate
+            generated_reader = PDF::Reader.new(generated_pdf)
+            expect(generated_reader.pages[1].text).to include 'Smartquotes: “”‘’'
+            File.delete(generated_pdf) if File.exist?(generated_pdf)
+          end
+
+          it 'removes characters that fall outsize Windows-1252 charset that cannot be downgraded' do
+            hlr = build(:minimal_higher_level_review)
+            hlr.form_data['included'][0]['attributes']['issue'] = '∑mer allergies'
+            hlr.save!
+            generated_pdf = described_class.new(hlr, version: 'V2').generate
+            generated_reader = PDF::Reader.new(generated_pdf)
+            expect(generated_reader.pages[1].text).to include 'mer allergies'
+            File.delete(generated_pdf) if File.exist?(generated_pdf)
+          end
+        end
       end
     end
 
