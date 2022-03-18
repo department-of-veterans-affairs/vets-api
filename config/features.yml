@@ -105,6 +105,10 @@ features:
     actor_type: user
     description: Enables mapping of LoROTA 401 error to 401 response
     enable_in_development: true
+  check_in_experience_day_of_demographics_flags_enabled:
+    actor_type: user
+    description: Enables the capture of user responses to demographics up-to-date questions
+    enable_in_development: true
   check_in_experience_translation_day_of_enabled:
     actor_type: user
     description: Enables language translation for the day of check-in experience
