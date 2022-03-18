@@ -94,7 +94,8 @@ module RapidReadyForDecision
 
     def upload_pdf_and_attach_special_issue(form526_submission, pdf)
       RapidReadyForDecision::HypertensionUploadManager.new(form526_submission).handle_attachment(pdf.render)
-      if Flipper.enabled?(:disability_hypertension_compensation_fast_track_add_rrd)
+      if Flipper.enabled?(:disability_hypertension_compensation_fast_track_add_rrd) ||
+         Flipper.enabled?(:rrd_add_special_issue)
         RapidReadyForDecision::HypertensionSpecialIssueManager.new(form526_submission).add_special_issue
       end
     end
