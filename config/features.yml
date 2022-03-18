@@ -85,6 +85,10 @@ features:
     actor_type: user
     description: Enables the Update Information question in the health care check-in experience application
     enable_in_development: false
+  check_in_experience_no_demographics_confirmation_for_unverified_enabled:
+    actor_type: user
+    description: Enables the health care pre-check-in experiences to send demographics confirmation.
+    enable_in_development: true
   check_in_experience_logging_enabled:
     actor_type: user
     description: Enables additional logging before and after an action.
