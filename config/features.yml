@@ -191,10 +191,6 @@ features:
     actor_type: user
     description: Fast tracks 526 disability compensation hypertension claims by submitting additional health data
     enable_in_development: true
-  rrd_asthma_compensation:
-    actor_type: user
-    description: Fast tracks 526 disability compensation asthma claims by submitting additional health data
-    enable_in_development: true
   disability_hypertension_compensation_fast_track_add_rrd:
     actor_type: user
     description: Fast tracks 526 disability compensation claims by submitting additional health data and adding the RRD special issue to the claim.
@@ -414,6 +410,18 @@ features:
   request_locked_pdf_password:
     actor_type: user
     description: Ask for a password when an encrypted PDF is detected before uploading
+    enable_in_development: true
+  rrd_asthma_compensation:
+    actor_type: user
+    description: Fast tracks 526 disability compensation asthma claims by submitting additional health data
+    enable_in_development: true
+  rrd_hypertension_compensation:
+    actor_type: user
+    description: Fast tracks 526 disability compensation hypertension claims by submitting additional health data
+    enable_in_development: true
+  rrd_add_special_issue:
+    actor_type: user
+    description: Fast tracks 526 disability compensation claims by adding the RRD special issue to the claim.
     enable_in_development: true
   search_representative:
     actor_type: user
