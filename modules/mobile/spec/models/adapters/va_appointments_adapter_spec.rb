@@ -506,4 +506,24 @@ describe Mobile::V0::Adapters::VAAppointments do
       end
     end
   end
+
+  context 'when a VA video connect appointment has no provider' do
+    let(:cerner_appointments_with_nil_provider) do
+      File.read(
+        Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'cerner_appointments_nil_provider.json')
+      )
+    end
+
+    let(:appointments) do
+      subject.parse(JSON.parse(cerner_appointments_with_nil_provider, symbolize_names: true))
+    end
+
+    it 'locations with providers are not nil' do
+      expect(appointments.first.location).not_to be_nil
+    end
+
+    it 'locations without providers return nil (and do not throw an error)' do
+      expect(appointments.last.location).to be_nil
+    end
+  end
 end
