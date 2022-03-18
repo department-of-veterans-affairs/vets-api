@@ -1,7 +1,6 @@
 <table>
   <thead>
     <tr>
-      <th>Consumer Name</th>
       <th>Status</th>
       <th>GUID</th>
     </tr>
@@ -9,7 +8,6 @@
   <tbody>
     <% claims.each do |claim| %>
       <tr>
-        <td><%= claim[:source] %></td>
         <td><%= claim[:status] %></td>
         <td><%= claim[:id] %></td>
       </tr>

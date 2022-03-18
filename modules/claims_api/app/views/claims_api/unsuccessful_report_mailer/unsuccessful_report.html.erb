@@ -56,25 +56,21 @@
       <%= @grouped_claims_errors.count %>
       <span class="title">Error Counts</span>
     </h3>
-    <%= render partial: 'counts_table', locals: { statistics: @grouped_claims_errors } unless @grouped_claims_errors.count.zero? %>
 
     <h3>
       <%= @grouped_claims_warnings.count %>
       <span class="title">Warning Counts</span>
     </h3>
-    <%= render partial: 'counts_table', locals: { statistics: @grouped_claims_warnings } unless @grouped_claims_warnings.count.zero? %>
 
     <h3>
       <%= @flash_statistics.count %>
       <span class="title">Flash Counts</span>
     </h3>
-    <%= render partial: 'counts_table', locals: { statistics: @flash_statistics } unless @flash_statistics.count.zero? %>
 
     <h3>
       <%= @special_issues_statistics.count %>
       <span class="title">Special Issues Counts</span>
     </h3>
-    <%= render partial: 'counts_table', locals: { statistics: @special_issues_statistics } unless @special_issues_statistics.count.zero? %>
 
     <h3>
       <%= @pending_claims_submissions.count %>
