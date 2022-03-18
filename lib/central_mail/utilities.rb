@@ -40,7 +40,7 @@ module CentralMail
                              'numberAttachments',
                              'receiveDt',
                              'numberPages',
-                             'lob',
+                             'businessLine',
                              'docType'))
 
       Rails.logger.info("#{title}: Submission success", log_details)

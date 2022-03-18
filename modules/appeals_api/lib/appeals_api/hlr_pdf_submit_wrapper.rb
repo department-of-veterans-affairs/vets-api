@@ -17,7 +17,7 @@ module AppealsApi
         'numberAttachments' => 0,
         'receiveDt' => receive_date(higher_level_review),
         'numberPages' => PdfInfo::Metadata.read(pdf_path).pages,
-        'lob' => higher_level_review.lob,
+        'businessLine' => higher_level_review.lob,
         'docType' => '20-0996'
       }
     end

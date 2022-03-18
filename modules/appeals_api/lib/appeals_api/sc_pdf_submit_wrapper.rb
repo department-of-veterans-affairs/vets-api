@@ -17,7 +17,7 @@ module AppealsApi
         'numberAttachments' => 0,
         'receiveDt' => receive_date(supplemental_claim),
         'numberPages' => PdfInfo::Metadata.read(pdf_path).pages,
-        'lob' => supplemental_claim.lob,
+        'businessLine' => supplemental_claim.lob,
         'docType' => '20-0995'
       }
     end

@@ -18,7 +18,7 @@ module AppealsApi
         'receiveDt' => receive_date(notice_of_disagreement),
         'numberPages' => PdfInfo::Metadata.read(pdf_path).pages,
         'docType' => '10182',
-        'lob' => notice_of_disagreement.lob
+        'businessLine' => notice_of_disagreement.lob
       }
     end
 
