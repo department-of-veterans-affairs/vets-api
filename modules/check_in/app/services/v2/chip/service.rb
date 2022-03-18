@@ -189,20 +189,45 @@ module V2
         }
       end
 
+      # rubocop:disable Metrics/MethodLength
       def demographic_confirmations
         confirmed_at = Time.zone.now.iso8601
 
-        {
-          demographicConfirmations: {
-            demographicsNeedsUpdate: check_in_body[:demographics_up_to_date] ? false : true,
-            demographicsConfirmedAt: confirmed_at,
-            nextOfKinNeedsUpdate: check_in_body[:next_of_kin_up_to_date] ? false : true,
-            nextOfKinConfirmedAt: confirmed_at,
-            emergencyContactNeedsUpdate: check_in_body[:emergency_contact_up_to_date] ? false : true,
-            emergencyContactConfirmedAt: confirmed_at
+        if Flipper.enabled?(:check_in_experience_no_demographics_confirmation_for_unverified_enabled)
+          hsh = {}
+
+          unless check_in_body[:demographics_up_to_date].nil?
+            hsh[:demographicsNeedsUpdate] = check_in_body[:demographics_up_to_date] ? false : true
+            hsh[:demographicsConfirmedAt] = confirmed_at
+          end
+
+          unless check_in_body[:next_of_kin_up_to_date].nil?
+            hsh[:nextOfKinNeedsUpdate] = check_in_body[:next_of_kin_up_to_date] ? false : true
+            hsh[:nextOfKinConfirmedAt] = confirmed_at
+          end
+
+          unless check_in_body[:emergency_contact_up_to_date].nil?
+            hsh[:emergencyContactNeedsUpdate] = check_in_body[:emergency_contact_up_to_date] ? false : true
+            hsh[:emergencyContactConfirmedAt] = confirmed_at
+          end
+
+          {
+            demographicConfirmations: hsh
           }
-        }
+        else
+          {
+            demographicConfirmations: {
+              demographicsNeedsUpdate: check_in_body[:demographics_up_to_date] ? false : true,
+              demographicsConfirmedAt: confirmed_at,
+              nextOfKinNeedsUpdate: check_in_body[:next_of_kin_up_to_date] ? false : true,
+              nextOfKinConfirmedAt: confirmed_at,
+              emergencyContactNeedsUpdate: check_in_body[:emergency_contact_up_to_date] ? false : true,
+              emergencyContactConfirmedAt: confirmed_at
+            }
+          }
+        end
       end
+      # rubocop:enable Metrics/MethodLength
 
       def appointment_identifiers
         Rails.cache.read(
