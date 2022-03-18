@@ -43,7 +43,6 @@ module PdfFill
     def sort_generate_blocks
       @generate_blocks.sort_by do |generate_block|
         metadata = generate_block[:metadata]
-
         [
           metadata[:question_num] || -1,
           metadata[:i] || 99_999,
@@ -68,7 +67,6 @@ module PdfFill
       FileUtils.mkdir_p(folder)
       file_path = "#{folder}/extras_#{SecureRandom.uuid}.pdf"
       generate_blocks = sort_generate_blocks
-
       Prawn::Document.generate(file_path) do |pdf|
         set_font(pdf)
 

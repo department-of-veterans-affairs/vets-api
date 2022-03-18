@@ -17,7 +17,6 @@ RSpec.describe MebApi::DGI::Letters::Service do
 
     context 'when successful' do
       it 'returns a status of 200' do
-        # binding.pry
         VCR.use_cassette('dgi/get_claim_letter') do
           response = service.get_claim_letter(claimant_id)
           expect(response.status).to eq(200)
