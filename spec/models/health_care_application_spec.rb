@@ -7,7 +7,33 @@ RSpec.describe HealthCareApplication, type: :model do
   let(:inelig_character_of_discharge) { Notification::INELIG_CHARACTER_OF_DISCHARGE }
   let(:login_required) { Notification::LOGIN_REQUIRED }
 
+  describe '#prefill_compensation_type' do
+    before do
+      health_care_application.user = FactoryBot.build(:evss_user)
+    end
+
+    it 'prefills compensation type' do
+      VCR.use_cassette('evss/disability_compensation_form/rating_info_with_disability') do
+        health_care_application.send(:prefill_compensation_type)
+        expect(health_care_application.parsed_form['vaCompensationType']).to eq('highDisability')
+      end
+    end
+
+    context 'with an error' do
+      it 'logs to sentry and doesnt raise the error' do
+        expect(health_care_application).to receive(:log_exception_to_sentry)
+
+        health_care_application.send(:prefill_compensation_type)
+        expect(health_care_application.parsed_form['vaCompensationType']).to eq(nil)
+      end
+    end
+  end
+
   describe '#prefill_fields' do
+    before do
+      allow(health_care_application).to receive(:prefill_compensation_type)
+    end
+
     let(:health_care_application) { build(:health_care_application) }
 
     context 'with missing fields' do
@@ -44,6 +70,8 @@ RSpec.describe HealthCareApplication, type: :model do
           let(:user) { create(:user, :loa3) }
 
           it 'sets uneditable fields using user data' do
+            expect(health_care_application).to receive(:prefill_compensation_type)
+
             expect(health_care_application.valid?).to eq(false)
             health_care_application.send(:prefill_fields)
             expect(health_care_application.valid?).to eq(true)
