@@ -4,7 +4,8 @@ require 'swagger_helper'
 require 'rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 
-describe 'IntentToFile', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v2/swagger.json' do
+# doc generation for V2 ITFs temporarily disabled by API-13879
+describe 'IntentToFile', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v2/swagger.json', document: false do
   path '/veterans/{veteranId}/intent-to-files/{type}' do
     get "Returns last active Intent to File form submission for given 'type'." do
       tags 'Intent to File'
