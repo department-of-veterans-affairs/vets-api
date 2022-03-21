@@ -41,11 +41,7 @@ module ClaimsApi
           end
 
           ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
-          if enable_vbms_access?
-            ClaimsApi::VBMSUpdater.perform_async(
-              power_of_attorney.id, target_veteran.participant_id
-            )
-          end
+          ClaimsApi::VBMSUpdater.perform_async(power_of_attorney.id) if enable_vbms_access?
 
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
