@@ -738,6 +738,10 @@ RSpec.describe SAML::User do
                 va_eauth_gcIds: ["#{mhv_ien}^PI^200MHS^USVHA^A"],
                 va_eauth_icn: [mhv_icn])
         end
+        let(:expected_error) { SAML::UserAttributeError::ERRORS[:multiple_mhv_ids] }
+        let(:expected_error_data) { { mismatched_ids: [mhv_ien, mhv_uuid], icn: mhv_icn } }
+        let(:expected_error_message) { expected_error[:message] }
+        let(:expected_log) { "[SAML::UserAttributes::SSOe] #{expected_error_message}, #{expected_error_data}" }
 
         it 'resolves mhv id from credential provider' do
           expect(subject.to_hash).to include(
@@ -746,11 +750,6 @@ RSpec.describe SAML::User do
         end
 
         context 'normal validation flow' do
-          let(:expected_error) { SAML::UserAttributeError::ERRORS[:multiple_mhv_ids] }
-          let(:expected_error_data) { { mismatched_ids: [mhv_ien, mhv_uuid], icn: mhv_icn } }
-          let(:expected_error_message) { expected_error[:message] }
-          let(:expected_log) { "[SAML::UserAttributes::SSOe] #{expected_error_message}, #{expected_error_data}" }
-
           it 'does not validate and throws an error' do
             expect(Rails.logger).to receive(:warn).with(expected_log)
             expect { subject.validate! }.to raise_error { |error|
@@ -760,35 +759,49 @@ RSpec.describe SAML::User do
           end
         end
 
-        context 'MHV inbound-outbound flow' do
+        context 'MHV outbound-redirect flow' do
           it 'does not validate and logs a Sentry warning' do
             SAMLRequestTracker.create(
               uuid: '1234567890',
-              payload: { skip_dupe: 'mhv' }
+              payload: { skip_dupe_id_validation: 'true' }
             )
-            expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-              'User attributes contain multiple distinct MHV ID values.',
-              'warn',
-              { mhv_iens: [mhv_ien, mhv_uuid] }
-            )
-            subject.validate!
+            expect(Rails.logger).to receive(:warn).with(expected_log)
+            expect { subject.validate! }.not_to raise_error
           end
         end
       end
 
       context 'with mismatching ICNs' do
+        let(:va_eauth_icn) { '22222222V888888' }
+        let(:va_eauth_mhvicn) { '111111111V666666' }
         let(:saml_attributes) do
           build(:ssoe_idme_mhv_loa3,
-                va_eauth_mhvicn: ['111111111V666666'],
-                va_eauth_icn: ['22222222V888888'])
+                va_eauth_mhvicn: [va_eauth_mhvicn],
+                va_eauth_icn: [va_eauth_icn])
         end
-        let(:expected_error_message) { 'MHV credential ICN does not match MPI record' }
+        let(:expected_error_data) { { mismatched_ids: [va_eauth_icn, va_eauth_mhvicn], icn: va_eauth_icn } }
+        let(:expected_error_message) { SAML::UserAttributeError::ERRORS[:mhv_icn_mismatch][:message] }
+        let(:expected_log) { "[SAML::UserAttributes::SSOe] #{expected_error_message}, #{expected_error_data}" }
 
-        it 'does not validate' do
-          expect { subject.validate! }.to raise_error { |error|
-            expect(error).to be_a(SAML::UserAttributeError)
-            expect(error.message).to eq(expected_error_message)
-          }
+        context 'normal validation flow' do
+          it 'does not validate' do
+            expect(Rails.logger).to receive(:warn).with(expected_log)
+            expect { subject.validate! }.to raise_error { |error|
+              expect(error).to be_a(SAML::UserAttributeError)
+              expect(error.message).to eq(expected_error_message)
+            }
+          end
+        end
+
+        context 'MHV outbound-redirect flow' do
+          it 'does not validate and logs a Sentry warning' do
+            SAMLRequestTracker.create(
+              uuid: '1234567890',
+              payload: { skip_dupe_id_validation: 'true' }
+            )
+            expect(Rails.logger).to receive(:warn).with(expected_log)
+            expect { subject.validate! }.not_to raise_error
+          end
         end
       end
 
@@ -973,13 +986,26 @@ RSpec.describe SAML::User do
         let(:expected_error_message) { expected_error[:message] }
         let(:expected_log) { "[SAML::UserAttributes::SSOe] #{expected_error_message}, #{expected_error_data}" }
 
-        it 'does not validate' do
-          expect(Rails.logger).to receive(:warn).with(expected_log)
-          expect { subject.validate! }
-            .to raise_error { |error|
-                  expect(error).to be_a(SAML::UserAttributeError)
-                  expect(error.message).to eq(expected_error_message)
-                }
+        context 'regular auth flow' do
+          it 'does not validate and prevents login' do
+            expect(Rails.logger).to receive(:warn).with(expected_log)
+            expect { subject.validate! }
+              .to raise_error { |error|
+                    expect(error).to be_a(SAML::UserAttributeError)
+                    expect(error.message).to eq(expected_error_message)
+                  }
+          end
+        end
+
+        context 'MHV outbound-redirect flow' do
+          it 'logs a Sentry warning and allows login' do
+            SAMLRequestTracker.create(
+              uuid: '1234567890',
+              payload: { skip_dupe_id_validation: 'true' }
+            )
+            expect(Rails.logger).to receive(:warn).with(expected_log)
+            expect { subject.validate! }.not_to raise_error
+          end
         end
       end
     end
