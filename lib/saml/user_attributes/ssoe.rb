@@ -267,26 +267,22 @@ module SAML
       private
 
       def multiple_id_validations
-        # EDIPI, ICN, and CORP ID all trigger errors if multiple unique IDs are found
-        check_mhv_icn_mismatch
+        # ICN, CORP ID, EDIPI, and IEN all trigger errors if multiple unique IDs are found
+        check_id_mismatch([safe_attr('va_eauth_icn'), safe_attr('va_eauth_mhvicn')], :mhv_icn_mismatch)
         check_id_mismatch(mvi_ids[:vba_corp_ids], :multiple_corp_ids)
         check_id_mismatch(edipi_ids[:edipis], :multiple_edipis)
-        check_id_mismatch(mhv_iens, :multiple_mhv_ids, mhv_inbound_outbound: mhv_inbound_outbound)
+        check_id_mismatch(mhv_iens, :multiple_mhv_ids)
         # SEC & BIRLS multiple IDs are more common, only log a warning
         if sec_id_mismatch?
-          log_message_to_sentry(
-            'User attributes contains multiple sec_id values',
-            'warn',
-            { sec_id: @attributes['va_eauth_secid'] }
-          )
+          log_message_to_sentry('User attributes contains multiple sec_id values',
+                                'warn',
+                                { sec_id: @attributes['va_eauth_secid'] })
         end
 
         if birls_id_mismatch?
-          log_message_to_sentry(
-            'User attributes contain multiple distinct BIRLS ID values.',
-            'warn',
-            { birls_ids: @attributes['va_eauth_birlsfilenumber'] }
-          )
+          log_message_to_sentry('User attributes contain multiple distinct BIRLS ID values.',
+                                'warn',
+                                { birls_ids: @attributes['va_eauth_birlsfilenumber'] })
         end
       end
 
@@ -323,16 +319,13 @@ module SAML
         mhv_iens.append(safe_attr('va_eauth_mhvuuid')).reject(&:nil?).uniq
       end
 
-      def mhv_inbound_outbound
-        tracker = SAMLRequestTracker.find(@tracker_uuid)
-        tracker&.payload_attr(:skip_dupe) == 'mhv'
-      end
+      def mhv_outbound_redirect(mismatched_ids_error)
+        return false if mismatched_ids_error[:tag] == :multiple_edipis
 
-      def check_mhv_icn_mismatch
-        icn_val = safe_attr('va_eauth_icn')
-        mhvicn_val = safe_attr('va_eauth_mhvicn')
-        if icn_val.present? && mhvicn_val.present? && icn_val != mhvicn_val
-          raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:mhv_icn_mismatch]
+        @mhv_outbound_redirect ||= begin
+          tracker = SAMLRequestTracker.find(@tracker_uuid)
+          skip_dupe_id_validation = tracker&.payload_attr(:skip_dupe_id_validation)
+          %w[true mhv].include?(skip_dupe_id_validation)
         end
       end
 
@@ -340,24 +333,14 @@ module SAML
         attribute_has_multiple_values?('va_eauth_birlsfilenumber')
       end
 
-      def check_corp_id_mismatch
-        check_id_mismatch(mvi_ids[:vba_corp_ids], :multiple_corp_ids)
-      end
-
-      def check_id_mismatch(ids, multiple_ids_error_type, mhv_inbound_outbound: false)
+      def check_id_mismatch(ids, multiple_ids_error_type)
         return if ids.blank?
 
         if ids.reject(&:nil?).uniq.size > 1
-          if mhv_inbound_outbound
-            log_message_to_sentry(
-              'User attributes contain multiple distinct MHV ID values.', 'warn', { mhv_iens: ids }
-            )
-          else
-            mismatched_ids_error = SAML::UserAttributeError::ERRORS[multiple_ids_error_type]
-            error_data = { mismatched_ids: ids, icn: mhv_icn }
-            Rails.logger.warn("[SAML::UserAttributes::SSOe] #{mismatched_ids_error[:message]}, #{error_data}")
-            raise SAML::UserAttributeError, mismatched_ids_error
-          end
+          mismatched_ids_error = SAML::UserAttributeError::ERRORS[multiple_ids_error_type]
+          error_data = { mismatched_ids: ids, icn: mhv_icn }
+          Rails.logger.warn("[SAML::UserAttributes::SSOe] #{mismatched_ids_error[:message]}, #{error_data}")
+          raise SAML::UserAttributeError, mismatched_ids_error unless mhv_outbound_redirect(mismatched_ids_error)
         end
       end
 
