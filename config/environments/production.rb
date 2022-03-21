@@ -77,7 +77,11 @@ Rails.application.configure do
                                        end
 
   # Use a different cache store in production.
-  config.cache_store = :redis_cache_store, { url: Settings.redis.rails_cache.url, expires_in: 30.minutes }
+  config.cache_store = :redis_cache_store, {
+    connect_timeout: 2,
+    url: Settings.redis.rails_cache.url,
+    expires_in: 30.minutes
+  }
 
   config.action_mailer.perform_caching = false
 
