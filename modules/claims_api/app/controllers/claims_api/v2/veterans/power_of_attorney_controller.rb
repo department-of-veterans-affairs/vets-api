@@ -39,7 +39,7 @@ module ClaimsApi
           submit_power_of_attorney(poa_code)
         end
 
-        def submit_power_of_attorney(poa_code) # rubocop:disable Metrics/MethodLength
+        def submit_power_of_attorney(poa_code)
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
                                                                                           source_name: source_name)
           unless power_of_attorney&.status&.in?(%w[submitted pending])
@@ -58,10 +58,7 @@ module ClaimsApi
 
           ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
 
-          if enable_vbms_access?
-            ClaimsApi::VBMSUpdater.perform_async(power_of_attorney.id,
-                                                 target_veteran.participant_id)
-          end
+          ClaimsApi::VBMSUpdater.perform_async(power_of_attorney.id) if enable_vbms_access?
 
           # This builds the POA form *AND* uploads it to VBMS
           ClaimsApi::PoaFormBuilderJob.perform_async(power_of_attorney.id)

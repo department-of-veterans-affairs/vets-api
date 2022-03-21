@@ -23,7 +23,7 @@ RSpec.describe ClaimsApi::VBMSUpdater, type: :job do
     it 'updates a the BIRLS record for a qualifying POA submittal' do
       poa = create_poa
       create_mock_lighthouse_service
-      subject.new.perform(poa.id, user.participant_id)
+      subject.new.perform(poa.id)
     end
   end
 
@@ -34,7 +34,7 @@ RSpec.describe ClaimsApi::VBMSUpdater, type: :job do
     it 'updates a the BIRLS record for a qualifying POA submittal' do
       poa = create_poa
       create_mock_lighthouse_service
-      subject.new.perform(poa.id, user.participant_id)
+      subject.new.perform(poa.id)
     end
   end
 
@@ -45,7 +45,7 @@ RSpec.describe ClaimsApi::VBMSUpdater, type: :job do
     it 'updates a the BIRLS record for a qualifying POA submittal' do
       poa = create_poa
       create_mock_lighthouse_service
-      subject.new.perform(poa.id, user.participant_id)
+      subject.new.perform(poa.id)
     end
   end
 
@@ -68,7 +68,7 @@ RSpec.describe ClaimsApi::VBMSUpdater, type: :job do
       poa_code: '074',
       allow_poa_access: 'y',
       allow_poa_c_add: allow_poa_c_add
-    )
+    ).and_return({ return_code: 'GUIE50000' })
     service_double = instance_double('BGS::Services')
     expect(service_double).to receive(:corporate_update).and_return(corporate_update_stub)
     expect(BGS::Services).to receive(:new).and_return(service_double)

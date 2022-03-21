@@ -28,10 +28,7 @@ module ClaimsApi
         # Clear out the error message if there were previous failures
         poa_form.vbms_error_message = nil if poa_form.vbms_error_message.present?
 
-        if enable_vbms_access?(poa_form: poa_form)
-          veteran_participant_id = poa_form.auth_headers['va_eauth_pid']
-          ClaimsApi::VBMSUpdater.perform_async(poa_form.id, veteran_participant_id)
-        end
+        ClaimsApi::VBMSUpdater.perform_async(poa_form.id) if enable_vbms_access?(poa_form: poa_form)
       else
         poa_form.status = ClaimsApi::PowerOfAttorney::ERRORED
         poa_form.vbms_error_message = "BGS Error: update_birls_record failed with code #{response[:return_code]}"
