@@ -43,6 +43,7 @@ module ClaimsApi
             special_issues: special_issues_per_disability,
             source: source_name
           )
+
           unless auto_claim.id
             existing_auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5)
             auto_claim = existing_auto_claim if existing_auto_claim.present?
@@ -575,7 +576,7 @@ module ClaimsApi
         end
 
         def special_issues_per_disability
-          (form_attributes['disabilities'] || []).map { |disability| special_issues_for_disability(disability) }
+          (form_attributes['disabilities'] || []).map { |disability| special_issues_for_disability(disability) }.compact
         end
 
         def special_issues_for_disability(disability)
@@ -585,6 +586,9 @@ module ClaimsApi
             secondary_special_issues += (secondary_disability['specialIssues'] || [])
           end
           special_issues = primary_special_issues + secondary_special_issues
+
+          # don't build a hash for disabilities that have no 'special_issues'
+          return if special_issues.blank?
 
           mapper = ClaimsApi::SpecialIssueMappers::Bgs.new
           {
