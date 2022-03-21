@@ -2211,6 +2211,79 @@ RSpec.describe 'Disability Claims ', type: :request do
             end
           end
         end
+
+        context "when no 'specialIssues' are provided" do
+          let(:disabilities) do
+            [
+              {
+                disabilityActionType: 'NEW',
+                name: 'Hepatitis',
+                specialIssues: []
+              }
+            ]
+          end
+
+          before do
+            stub_mpi
+          end
+
+          it "passes 'special_issues' as an empty array to the constructor" do
+            expect(ClaimsApi::AutoEstablishedClaim).to receive(:create).with(
+              hash_including(special_issues: [])
+            )
+
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['disabilities'] = disabilities
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                end
+              end
+            end
+          end
+        end
+
+        context "when 'specialIssues' are provided for some 'disabilites'" do
+          let(:disabilities) do
+            [
+              {
+                disabilityActionType: 'NEW',
+                name: 'Hepatitis',
+                specialIssues: []
+              },
+              {
+                disabilityActionType: 'NEW',
+                name: 'Tinnitus',
+                specialIssues: ['Asbestos']
+              }
+            ]
+          end
+
+          before do
+            stub_mpi
+          end
+
+          it "passes 'special_issues' an appropriate array to the constructor" do
+            expect(ClaimsApi::AutoEstablishedClaim).to receive(:create).with(
+              hash_including(
+                special_issues: [{ code: nil, name: 'Tinnitus', special_issues: ['ASB'] }]
+              )
+            )
+
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['disabilities'] = disabilities
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                end
+              end
+            end
+          end
+        end
       end
     end
 
