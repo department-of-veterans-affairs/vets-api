@@ -13,6 +13,7 @@ class HealthCareApplication < ApplicationRecord
 
   FORM_ID = '10-10EZ'
   ACTIVEDUTY_ELIGIBILITY = 'TRICARE'
+  DISABILITY_THRESHOLD = 50
 
   attr_accessor :user, :async_compatible, :google_analytics_client_id
 
@@ -166,12 +167,24 @@ class HealthCareApplication < ApplicationRecord
 
   private
 
+  def prefill_compensation_type
+    auth_headers = EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+    rating_info_service = EVSS::CommonService.new(auth_headers)
+    response = rating_info_service.get_rating_info
+
+    parsed_form['vaCompensationType'] = 'highDisability' if response.user_percent_of_disability >= DISABILITY_THRESHOLD
+  rescue => e
+    log_exception_to_sentry(e)
+  end
+
   def prefill_fields
     return if user.blank? || !user.loa3?
 
     parsed_form['veteranFullName'] = user.full_name_normalized.compact.stringify_keys
     parsed_form['veteranDateOfBirth'] = user.birth_date
     parsed_form['veteranSocialSecurityNumber'] = user.ssn_normalized
+
+    prefill_compensation_type
   end
 
   def submit_async(has_email)

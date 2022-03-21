@@ -432,26 +432,29 @@ module HCA
     end
 
     def veteran_to_military_service_info(veteran)
-      unless Validations.valid_discharge_date?(veteran['lastDischargeDate'])
+      if veteran['lastDischargeDate'].present? && !Validations.valid_discharge_date?(veteran['lastDischargeDate'])
         raise Common::Exceptions::InvalidFieldValue.new('lastDischargeDate', veteran['lastDischargeDate'])
       end
 
-      {
+      return_val = {
         'dischargeDueToDisability' => veteran['disabledInLineOfDuty'].present?,
-        'militaryServiceSiteRecords' => {
-          'militaryServiceSiteRecord' => {
-            'militaryServiceEpisodes' => {
-              'militaryServiceEpisode' => {
-                'dischargeType' => discharge_type(veteran),
-                'startDate' => Validations.date_of_birth(veteran['lastEntryDate']),
-                'endDate' => Validations.discharge_date(veteran['lastDischargeDate']),
-                'serviceBranch' => service_branch_to_sds_code(veteran['lastServiceBranch'])
-              }
-            },
-            'site' => veteran['vaMedicalFacility']
+        'militaryServiceSiteRecords' => { 'militaryServiceSiteRecord' => {} }
+      }
+
+      if veteran['lastServiceBranch'].present?
+        return_val['militaryServiceSiteRecords']['militaryServiceSiteRecord']['militaryServiceEpisodes'] = {
+          'militaryServiceEpisode' => {
+            'dischargeType' => discharge_type(veteran),
+            'startDate' => Validations.date_of_birth(veteran['lastEntryDate']),
+            'endDate' => Validations.discharge_date(veteran['lastDischargeDate']),
+            'serviceBranch' => service_branch_to_sds_code(veteran['lastServiceBranch'])
           }
         }
-      }
+      end
+
+      return_val['militaryServiceSiteRecords']['militaryServiceSiteRecord']['site'] = veteran['vaMedicalFacility']
+
+      return_val
     end
 
     def veteran_to_insurance_collection(veteran)
@@ -552,7 +555,7 @@ module HCA
     def veteran_to_association_collection(veteran)
       associations = []
 
-      dependents_list = veteran['dependents']
+      dependents_list = veteran['dependents'] || []
 
       dependents = dependents_list.map do |dependent|
         dependent_to_association(dependent)
@@ -597,6 +600,7 @@ module HCA
         'races' => veteran_to_races(veteran),
         'acaIndicator' => veteran['isEssentialAcaCoverage'].present?
       }
+
       # Only add American Indian question to payload if feature is enabled
       if Flipper.enabled?(:hca_american_indian_enabled)
         result['indianIndicator'] = veteran['sigiIsAmericanIndian'].present?

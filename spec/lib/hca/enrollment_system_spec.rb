@@ -749,6 +749,20 @@ describe HCA::EnrollmentSystem do
       [
         {
           'disabledInLineOfDuty' => true,
+          'vaMedicalFacility' => '608'
+        },
+        {
+          dischargeDueToDisability: true,
+          militaryServiceSiteRecords: {
+            militaryServiceSiteRecord: {
+              site: '608'
+            }
+          }
+        }.deep_stringify_keys
+      ],
+      [
+        {
+          'disabledInLineOfDuty' => true,
           'dischargeType' => 'general',
           'lastEntryDate' => '1980-03-07',
           'lastDischargeDate' => '1984-07-08',

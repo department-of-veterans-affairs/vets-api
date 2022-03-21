@@ -69,6 +69,18 @@ describe HCA::Service do
       end
     end
 
+    context 'submitting short form' do
+      it 'works', run_at: 'Wed, 16 Mar 2022 20:01:14 GMT' do
+        VCR.use_cassette(
+          'hca/short_form',
+          VCR::MATCH_EVERYTHING.merge(erb: true)
+        ) do
+          result = HCA::Service.new.submit_form(get_fixture('hca/short_form'))
+          expect(result[:success]).to eq(true)
+        end
+      end
+    end
+
     context 'submitting with attachment' do
       xit 'works', run_at: 'Fri, 11 Jan 2019 04:56:26 GMT' do
         VCR.use_cassette(
