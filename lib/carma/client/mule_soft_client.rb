@@ -14,13 +14,17 @@ module CARMA
       # @param payload [String] JSON payload to submit
       # @return [Faraday::Env]
       def create_submission(payload)
-        do_post('submit', payload)
+        with_monitoring do
+          do_post('submit', payload)
+        end
       end
 
       # @param payload [String] JSON payload to submit
       # @return [Faraday::Env]
       def upload_attachments(payload)
-        do_post('addDocument', payload)
+        with_monitoring do
+          do_post('addDocument', payload)
+        end
       end
 
       private
