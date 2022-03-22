@@ -90,7 +90,7 @@ components:
     apikey:
       type: apiKey
       name: apikey
-      in: query
+      in: header
   schemas:
     Appeals:
       type: array
