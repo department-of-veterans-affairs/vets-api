@@ -20,6 +20,7 @@
           <td>Submission Date</td>
           <td>Submission Time</td>
           <td>Submission ID</td>
+          <td>Number of BP readings</td>
         </tr>
       </thead>
       <tbody>
@@ -28,6 +29,7 @@
           <td><%= @submission.created_at.to_date %></td>
           <td><%= @submission.created_at.strftime '%H:%M:%S' %></td>
           <td><%= @submission.id %></td>
+          <td><%= @bp_readings_count %></td>
         </tr>
       </tbody>
     </table>

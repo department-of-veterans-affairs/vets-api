@@ -25,6 +25,17 @@ module RapidReadyForDecision
       submission.form_json.include? RapidReadyForDecision::HypertensionUploadManager::DOCUMENT_TITLE
     end
 
+    # @param med_stats_hash [Hash] to be merged into form526_submission.form_json['rrd_med_stats']
+    def self.add_medical_stats_hash(form526_submission, med_stats_hash)
+      form_json = JSON.parse(form526_submission.form_json)
+      form_json['rrd_med_stats'] ||= {}
+      form_json['rrd_med_stats'].merge!(med_stats_hash)
+
+      form526_submission.update!(form_json: JSON.dump(form_json))
+      form526_submission.invalidate_form_hash
+      form526_submission
+    end
+
     def perform(form526_submission_id)
       form526_submission = Form526Submission.find(form526_submission_id)
 
@@ -32,6 +43,8 @@ module RapidReadyForDecision
         with_tracking(self.class.name, form526_submission.saved_claim_id, form526_submission_id) do
           assessed_data = assess_data(form526_submission)
           next if assessed_data.nil?
+
+          add_medical_stats(form526_submission, assessed_data)
 
           pdf = generate_pdf(form526_submission, assessed_data)
           upload_pdf(form526_submission, pdf)
@@ -58,6 +71,17 @@ module RapidReadyForDecision
     def generate_pdf(_form526_submission, _assessed_data)
       # This should call a general PDF generator so that subclasses don't need to override this
       raise "Method `generate_pdf` should be overriden by the subclass #{self.class}"
+    end
+
+    # Override this method to add to form526_submission.form_json['rrd_med_stats']
+    def med_stats_hash(_form526_submission, _assessed_data); end
+
+    # @param assessed_data [Hash] results from assess_data
+    def add_medical_stats(form526_submission, assessed_data)
+      med_stats_hash = med_stats_hash(form526_submission, assessed_data)
+      return if med_stats_hash.blank?
+
+      self.class.add_medical_stats_hash(form526_submission, med_stats_hash)
     end
 
     class AccountNotFoundError < StandardError; end
