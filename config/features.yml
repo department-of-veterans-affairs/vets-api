@@ -451,6 +451,9 @@ features:
     actor_type: user
     description: Toggles the availability of sharable links to deep link to content
     enable_in_development: true
+  shift_vets_banner:
+    actor_type: user
+    description: Shift veteran banner position on the home page
   show526_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the form 526 intro page
