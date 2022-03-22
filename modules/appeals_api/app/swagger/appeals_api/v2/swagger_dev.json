@@ -116,6 +116,7 @@
                       "type": "contestableIssue",
                       "attributes": {
                         "ratingIssueSubjectText": "right knee",
+                        "ratingIssuePercentNumber": "10",
                         "ratingIssueReferenceId": "826209920000",
                         "ratingIssueProfileDate": "2019-02-22",
                         "ratingIssueDiagnosticCode": null,
