@@ -32,14 +32,21 @@ class SavedClaim::CoeClaim < SavedClaim
       'status' => 'SUBMITTED',
       'veteran' => {
         'firstName' => parsed_form['fullName']['first'],
-        'middleName' => parsed_form['fullName']['middle'],
+        'middleName' => parsed_form['fullName']['middle'] || '',
         'lastName' => parsed_form['fullName']['last'],
-        'suffixName' => parsed_form['fullName']['suffix'],
+        'suffixName' => parsed_form['fullName']['suffix'] || '',
+        'vetAddress1' => parsed_form['applicantAddress']['street'],
+        'vetAddress2' => parsed_form['applicantAddress']['street2'] || '',
+        'vetCity' => parsed_form['applicantAddress']['city'],
+        'vetState' => parsed_form['applicantAddress']['state'],
+        'vetZip' => parsed_form['applicantAddress']['postalCode'],
+        'vetZipSuffix' => '',
         'mailingAddress1' => parsed_form['applicantAddress']['street'],
-        'mailingAddress2' => parsed_form['applicantAddress']['street2'],
+        'mailingAddress2' => parsed_form['applicantAddress']['street2'] || '',
         'mailingCity' => parsed_form['applicantAddress']['city'],
         'mailingState' => parsed_form['applicantAddress']['state'],
         'mailingZip' => parsed_form['applicantAddress']['postalCode'],
+        'mailingZipSuffix' => '',
         'contactPhone' => parsed_form['contactPhone'],
         'contactEmail' => parsed_form['contactEmail'],
         'vaLoanIndicator' => parsed_form['vaLoanIndicator'],
@@ -77,17 +84,18 @@ class SavedClaim::CoeClaim < SavedClaim
         'oneTimeRestorationRequested' => parsed_form['intent'] == 'ONETIMERESTORATION',
         'irrrlRequested' => parsed_form['intent'] == 'IRRRL',
         'cashoutRefinaceRequested' => parsed_form['intent'] == 'REFI',
-        # parsed_form['intent'] == 'INQUIRY'??,
-        'homeSellIndicator' => false,
-        'noRestorationEntitlementIndicator' => false,
+        'noRestorationEntitlementIndicator' => parsed_form['intent'] == 'INQUIRY' ||
+                                               parsed_form['intent'] == 'ONETIMERESTORATION',
+        # propertyOwned also maps to the the stillOwn indicator on the LGY side
+        'homeSellIndicator' => !loan_info['propertyOwned'] || false,
         'propertyAddress1' => loan_info['propertyAddress']['propertyAddress1'],
-        'propertyAddress2' => loan_info['propertyAddress']['propertyAddress2'],
+        'propertyAddress2' => loan_info['propertyAddress']['propertyAddress2'] || '',
         'propertyCity' => loan_info['propertyAddress']['propertyCity'],
         'propertyState' => loan_info['propertyAddress']['propertyState'],
         'propertyCounty' => loan_info['propertyAddress']['propertyCounty'],
         'propertyZip' => loan_info['propertyAddress']['propertyZip'],
-        'propertyZipSuffix' => loan_info['propertyAddress']['propertyZipSuffix']
-        # 'willRefinance' => loan_info['propertyAddress']['willRefinance']
+        'propertyZipSuffix' => loan_info['propertyAddress']['propertyZipSuffix'] || ''
+        # 'willRefinance' => loan_info['propertyAddress']['willRefinance'] || false
       }
     end
   end
