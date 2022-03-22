@@ -13,8 +13,7 @@ module EducationForm
   class Process10203Submissions
     include Sidekiq::Worker
     include SentryLogging
-    sidekiq_options queue: 'default',
-                    backtrace: true
+    sidekiq_options queue: 'default', backtrace: true, unique_for: 24.hours
 
     # Get all 10203 submissions that have a row in education_stem_automated_decisions
     def perform(

@@ -7,6 +7,7 @@ module AppsApi
   class FetchConnections
     include Sidekiq::Worker
     include SentryLogging
+    sidekiq_options unique_for: 24.hours
 
     def perform
       notif_service = AppsApi::NotificationService.new

@@ -3,6 +3,8 @@
 class SidekiqStatsJob
   include Sidekiq::Worker
 
+  sidekiq_options queue: 'critical'
+
   METRIC_NAMES = %w[
     processed
     failed
@@ -28,6 +30,4 @@ class SidekiqStatsJob
       StatsD.gauge "shared.sidekiq.#{name}.size", size
     end
   end
-
-  sidekiq_options queue: 'critical'
 end
