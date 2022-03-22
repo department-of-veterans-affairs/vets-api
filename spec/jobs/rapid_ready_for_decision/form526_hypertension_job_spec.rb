@@ -67,6 +67,9 @@ RSpec.describe RapidReadyForDecision::Form526HypertensionJob, type: :worker do
           Sidekiq::Testing.inline! do
             expect do
               RapidReadyForDecision::Form526HypertensionJob.perform_async(submission.id)
+
+              submission.reload
+              expect(submission.form.dig('rrd_med_stats', 'bp_readings_count')).to eq 1
             end.not_to raise_error
           end
         end

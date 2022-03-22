@@ -46,6 +46,10 @@ module RapidReadyForDecision
       RapidReadyForDecision::HypertensionMedicationRequestData.new(medications).transform
     end
 
+    def med_stats_hash(_form526_submission, assessed_data)
+      { bp_readings_count: assessed_data[:bp_readings]&.size }
+    end
+
     def generate_pdf(form526_submission, assessed_data)
       RapidReadyForDecision::HypertensionPdfGenerator.new(patient_info(form526_submission),
                                                           assessed_data[:bp_readings],

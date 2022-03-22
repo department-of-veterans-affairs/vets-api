@@ -5,6 +5,7 @@ class HypertensionFastTrackPilotMailer < ApplicationMailer
     @submission = submission
     @disability = 'hypertension'
     @rrd_claim_processed = RapidReadyForDecision::Form526BaseJob.rrd_claim_processed?(submission)
+    @bp_readings_count = submission.form.dig('rrd_med_stats', 'bp_readings_count') || 'N/A'
 
     subject =
       if @rrd_claim_processed

@@ -31,6 +31,8 @@ module RapidReadyForDecision
 
           return if bp_readings(client).blank?
 
+          add_bp_readings_stats(form526_submission, bp_readings(client))
+
           pdf = pdf(patient_info(form526_submission), bp_readings(client), medications(client))
           upload_pdf_and_attach_special_issue(form526_submission, pdf)
         end
@@ -58,6 +60,11 @@ module RapidReadyForDecision
     def medications(client)
       @medications ||= client.list_resource('medication_requests')
       @medications.present? ? RapidReadyForDecision::HypertensionMedicationRequestData.new(@medications).transform : []
+    end
+
+    def add_bp_readings_stats(form526_submission, bp_readings)
+      med_stats_hash = { bp_readings_count: bp_readings.size }
+      RapidReadyForDecision::Form526BaseJob.add_medical_stats_hash(form526_submission, med_stats_hash)
     end
 
     def send_fast_track_engineer_email_for_testing(form526_submission_id, error_message, backtrace)
