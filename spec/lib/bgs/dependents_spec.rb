@@ -22,7 +22,8 @@ RSpec.describe BGS::Dependents do
             a_hash_including(
               family_relationship_type_name: 'Spouse',
               participant_relationship_type_name: 'Spouse',
-              type: 'death'
+              type: 'death',
+              end_date: '2020-01-01T12:00:00+00:00'
             )
           )
         end

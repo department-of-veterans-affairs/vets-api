@@ -8,7 +8,7 @@ module BGSDependents
 
     def format_info
       {
-        death_date: @death_info['date'],
+        death_date: format_date(@death_info['date']),
         ssn: @death_info['ssn'],
         birth_date: @death_info['birth_date'],
         vet_ind: 'N',

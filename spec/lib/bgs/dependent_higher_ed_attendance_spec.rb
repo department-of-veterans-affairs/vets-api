@@ -9,8 +9,8 @@ RSpec.describe BGS::DependentHigherEdAttendance do
   let(:form_674_only) { FactoryBot.build(:form_674_only) }
 
   describe '#create' do
-    context 'reporting a death' do
-      it 'returns a hash with a spouse type death' do
+    context 'reporting a child 18 to 23 years old attending school' do
+      it 'returns a hash with a relationship type Child' do
         VCR.use_cassette('bgs/dependent_higher_ed_attendance/create') do
           dependents = BGS::DependentHigherEdAttendance.new(
             proc_id: proc_id,
