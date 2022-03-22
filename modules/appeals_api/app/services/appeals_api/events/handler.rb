@@ -11,8 +11,9 @@ module AppealsApi
       end
 
       def initialize(event_type:, opts:)
-        @event_type = event_type
-        @opts = opts
+        # Stringify to avoid sidekiq warning about non-JSON-native data types
+        @event_type = event_type.to_s
+        @opts = opts.deep_stringify_keys
       end
 
       def handle!

@@ -28,6 +28,14 @@ module AppealsApi
             expect(EventsWorker.jobs.first['args'].first).to eq('hlr_status_updated')
           end
         end
+
+        it 'sends arguments with JSON-native data types (per sidekiq best practices)' do
+          Sidekiq::Testing.inline! do
+            Sidekiq.strict_args!
+            handler = Handler.new(event_type: :hlr_status_updated, opts: {})
+            expect { handler.handle! }.not_to raise_error(ArgumentError)
+          end
+        end
       end
     end
   end
