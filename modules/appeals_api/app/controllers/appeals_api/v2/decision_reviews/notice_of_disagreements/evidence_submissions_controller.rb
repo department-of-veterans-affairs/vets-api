@@ -14,7 +14,7 @@ module AppealsApi::V2
           File.read(
             AppealsApi::Engine.root.join('config/schemas/v2/10182_headers.json')
           )
-        )['definitions']['nodCreateHeaders']['properties'].keys
+        )['definitions']['nodCreateParameters']['properties'].keys
 
         skip_before_action :authenticate
         before_action :nod_uuid_present?, only: :create

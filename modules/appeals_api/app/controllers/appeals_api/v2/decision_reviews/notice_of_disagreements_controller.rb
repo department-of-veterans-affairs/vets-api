@@ -21,7 +21,7 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
     File.read(
       AppealsApi::Engine.root.join('config/schemas/v2/10182_headers.json')
     )
-  )['definitions']['nodCreateHeaders']['properties'].keys
+  )['definitions']['nodCreateParameters']['properties'].keys
   SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
 
   def create

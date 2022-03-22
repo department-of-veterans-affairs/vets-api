@@ -14,7 +14,7 @@ module AppealsApi::V2
           File.read(
             AppealsApi::Engine.root.join('config/schemas/v2/200995_headers.json')
           )
-        )['definitions']['supplementalClaimParams']['properties'].keys
+        )['definitions']['scCreateParameters']['properties'].keys
 
         skip_before_action :authenticate
         before_action :supplemental_claim_uuid?, only: :create
