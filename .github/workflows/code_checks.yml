@@ -175,7 +175,7 @@ jobs:
           env_variable_name: 'BIGQUERY_SERVICE_CREDENTIALS'
 
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@master
+        uses: google-github-actions/setup-gcloud@v0
         if: always()
         with:
           project_id: vsp-analytics-and-insights
