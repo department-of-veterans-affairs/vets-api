@@ -46,6 +46,8 @@ module IAMSSOeOAuth
 
       iam_profile = iam_ssoe_service.post_introspect(@access_token)
       Rails.logger.info('IAMUser create_user_session: introspect succeeded')
+      Rails.logger.info('IAMUser Introspect Response:', response: iam_profile)
+      Rails.logger.info('IAMUser create_user_session: login type', login_type: iam_profile[:fediamauth_n_type])
 
       user_identity = build_identity(iam_profile)
       session = build_session(@access_token, user_identity)
