@@ -6,6 +6,7 @@ require 'debt_management_center/responses/financial_status_report_response'
 require 'debt_management_center/models/financial_status_report'
 require 'debt_management_center/financial_status_report_downloader'
 require 'debt_management_center/workers/va_notify_email_job'
+require 'json'
 
 module DebtManagementCenter
   ##
@@ -16,6 +17,7 @@ module DebtManagementCenter
     include SentryLogging
 
     class FSRNotFoundInRedis < StandardError; end
+    class FSRInvalidRequest < StandardError; end
 
     configuration DebtManagementCenter::FinancialStatusReportConfiguration
 
@@ -31,10 +33,8 @@ module DebtManagementCenter
     #
     def submit_financial_status_report(form)
       with_monitoring_and_error_handling do
-        form = camelize(form)
-        raise_client_error unless form.key?('personalIdentification')
-        form['personalIdentification']['fileNumber'] = @file_number
-        set_certification_date(form)
+        form = add_personal_identification(form)
+        validate_form_schema(form)
         response = perform(:post, 'financial-status-report/formtopdf', form)
         fsr_response = DebtManagementCenter::FinancialStatusReportResponse.new(response.body)
 
@@ -81,6 +81,21 @@ module DebtManagementCenter
 
     def camelize(hash)
       hash.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
+    end
+
+    def add_personal_identification(form)
+      form = camelize(form)
+      raise_client_error unless form.key?('personalIdentification')
+      form['personalIdentification']['fileNumber'] = @file_number
+      set_certification_date(form)
+      form
+    end
+
+    def validate_form_schema(form)
+      schema_path = Rails.root.join('lib', 'debt_management_center', 'schemas', 'fsr.json').to_s
+      errors = JSON::Validator.fully_validate(schema_path, form)
+
+      raise FSRInvalidRequest if errors.any?
     end
 
     def set_certification_date(form)
