@@ -45,7 +45,10 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
 
   def schema
     render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
-      AppealsApi::FormSchemas.new.schema(FORM_NUMBER)
+      AppealsApi::FormSchemas.new(
+        SCHEMA_ERROR_TYPE,
+        schema_version: 'v2'
+      ).schema(self.class::FORM_NUMBER)
     )
   end
 

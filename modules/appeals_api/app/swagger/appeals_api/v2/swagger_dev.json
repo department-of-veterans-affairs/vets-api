@@ -4551,6 +4551,26 @@
                           "email": "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789_123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789_12345678901234567890@bobbytablesemail.com",
                           "timezone": "America/Chicago"
                         },
+                        "claimant": {
+                          "homeless": false,
+                          "address": {
+                            "addressLine1": "456 First St",
+                            "addressLine2": "Apt 5",
+                            "addressLine3": "Box 1",
+                            "city": "Detroit",
+                            "countryCodeISO2": "US",
+                            "stateCode": "MI",
+                            "zipCode5": "48070"
+                          },
+                          "phone": {
+                            "countryCode": "1",
+                            "areaCode": "555",
+                            "phoneNumber": "8111100",
+                            "phoneNumberExt": "4"
+                          },
+                          "email": "09845812017584936834751947843y6083475-924709348156802374y698134y5984389347y8914hekjdnfjkdh844567890123456789012345678901234567890123451234567890123456789012345678901234567890123456789012345678901234567890123456789_claimant@email.com",
+                          "timezone": "America/Detroit"
+                        },
                         "representative": {
                           "name": "Tony Danza"
                         },
@@ -6129,6 +6149,26 @@
                           },
                           "email": "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789_123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789_12345678901234567890@bobbytablesemail.com",
                           "timezone": "America/Chicago"
+                        },
+                        "claimant": {
+                          "homeless": false,
+                          "address": {
+                            "addressLine1": "456 First St",
+                            "addressLine2": "Apt 5",
+                            "addressLine3": "Box 1",
+                            "city": "Detroit",
+                            "countryCodeISO2": "US",
+                            "stateCode": "MI",
+                            "zipCode5": "48070"
+                          },
+                          "phone": {
+                            "countryCode": "1",
+                            "areaCode": "555",
+                            "phoneNumber": "8111100",
+                            "phoneNumberExt": "4"
+                          },
+                          "email": "09845812017584936834751947843y6083475-924709348156802374y698134y5984389347y8914hekjdnfjkdh844567890123456789012345678901234567890123451234567890123456789012345678901234567890123456789012345678901234567890123456789_claimant@email.com",
+                          "timezone": "America/Detroit"
                         },
                         "representative": {
                           "name": "Tony Danza"
@@ -10348,6 +10388,61 @@
                         ]
                       }
                     },
+                    "required": [
+                      "homeless",
+                      "phone",
+                      "email"
+                    ],
+                    "if": {
+                      "properties": {
+                        "homeless": {
+                          "const": false
+                        }
+                      }
+                    },
+                    "then": {
+                      "required": [
+                        "address"
+                      ]
+                    }
+                  },
+                  "claimant": {
+                    "type": "object",
+                    "properties": {
+                      "homeless": {
+                        "type": "boolean"
+                      },
+                      "address": {
+                        "$ref": "#/components/schemas/address"
+                      },
+                      "phone": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/phone"
+                          },
+                          {
+                            "$comment": "the phone fields must not exceed 20 chars, when concatenated"
+                          }
+                        ]
+                      },
+                      "email": {
+                        "type": "string",
+                        "format": "email",
+                        "minLength": 6,
+                        "maxLength": 255
+                      },
+                      "timezone": {
+                        "allOf": [
+                          {
+                            "description": "Claimants's timezone. Used for adding the current date to the signature according to the claimants's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date)."
+                          },
+                          {
+                            "$ref": "#/components/schemas/timezone"
+                          }
+                        ]
+                      }
+                    },
+                    "additional_properties": false,
                     "required": [
                       "homeless",
                       "phone",
