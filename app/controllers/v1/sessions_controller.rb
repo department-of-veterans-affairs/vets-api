@@ -89,6 +89,7 @@ module V1
     end
 
     def saml_settings(options = {})
+      options[:force_authn] ||= false
       SAML::SSOeSettingsService.saml_settings(options)
     end
 
@@ -166,13 +167,13 @@ module V1
 
       case type
       when 'mhv'
-        url_service.login_url('mhv', 'myhealthevet', AuthnContext::MHV)
+        url_service(true).login_url('mhv', 'myhealthevet', AuthnContext::MHV)
       when 'mhv_verified'
-        url_service.login_url('mhv', 'myhealthevet_loa3', AuthnContext::MHV)
+        url_service(true).login_url('mhv', 'myhealthevet_loa3', AuthnContext::MHV)
       when 'dslogon'
-        url_service.login_url('dslogon', 'dslogon', AuthnContext::DSLOGON)
+        url_service(true).login_url('dslogon', 'dslogon', AuthnContext::DSLOGON)
       when 'dslogon_verified'
-        url_service.login_url('dslogon', 'dslogon_loa3', AuthnContext::DSLOGON)
+        url_service(true).login_url('dslogon', 'dslogon_loa3', AuthnContext::DSLOGON)
       when 'idme'
         url_service.login_url('idme', LOA::IDME_LOA1_VETS, AuthnContext::ID_ME, AuthnContext::MINIMUM)
       when 'idme_verified'
@@ -378,8 +379,8 @@ module V1
       'UNKNOWN'
     end
 
-    def url_service
-      @url_service ||= SAML::PostURLService.new(saml_settings,
+    def url_service(force_authn = false)
+      @url_service ||= SAML::PostURLService.new(saml_settings(force_authn: force_authn),
                                                 session: @session_object,
                                                 user: current_user,
                                                 params: params,
