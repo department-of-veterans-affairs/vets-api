@@ -223,7 +223,7 @@ describe V2::Chip::Service do
           emergencyContactNeedsUpdate: true,
           emergencyContactConfirmedAt: '2021-11-30T20:45:03.779Z'
         },
-        patientDFN: '888',
+        patientDfn: '888',
         stationNo: '500'
       }
     end
@@ -518,6 +518,40 @@ describe V2::Chip::Service do
                           .demographic_confirmations).to eq(demographics_confirmation_hash)
           end
         end
+      end
+    end
+  end
+
+  describe '#confirm_demographics_id_params' do
+    let(:uuid) { 'd602d9eb-9a31-484f-9637-13ab0b507e0d' }
+    let(:appointment_identifiers) do
+      {
+        data: {
+          id: uuid,
+          type: :appointment_identifier,
+          attributes: { patientDFN: '123', stationNo: '888' }
+        }
+      }
+    end
+    let(:hsh) do
+      {
+        patientDfn: '123',
+        stationNo: '888'
+      }
+    end
+
+    context 'when called with appointment identifiers in cache' do
+      before do
+        Rails.cache.write(
+          "check_in_lorota_v2_appointment_identifiers_#{uuid}",
+          appointment_identifiers.to_json,
+          namespace: 'check-in-lorota-v2-cache'
+        )
+      end
+
+      it 'returns patientDfn' do
+        expect(subject.build(check_in: valid_check_in, params: {})
+                      .confirm_demographics_id_params).to eq(hsh)
       end
     end
   end
