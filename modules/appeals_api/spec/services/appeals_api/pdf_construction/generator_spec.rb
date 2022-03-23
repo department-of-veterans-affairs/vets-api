@@ -184,6 +184,23 @@ describe AppealsApi::PdfConstruction::Generator do
             File.delete(generated_pdf) if File.exist?(generated_pdf)
           end
         end
+
+        context 'pdf max length content verification' do
+          let(:schema) { read_schema('200996.json', 'v2') }
+          let(:hlr) { build(:extra_higher_level_review_v2, created_at: '2021-02-03T14:15:16Z') }
+          let(:data) { override_max_lengths(hlr, schema) }
+
+          it 'generates the expected pdf' do
+            hlr.form_data = data
+            hlr.save!
+
+            generated_pdf = described_class.new(hlr, version: 'v2').generate
+            expected_pdf = fixture_filepath('expected_200996_maxlength.pdf', version: 'v2')
+
+            expect(generated_pdf).to match_pdf(expected_pdf)
+            File.delete(generated_pdf) if File.exist?(generated_pdf)
+          end
+        end
       end
     end
 
