@@ -217,6 +217,7 @@ module AppealsApi
             veteran_zip_code: { at: [297, 418], width: 82 },
             veteran_email: { at: [8, 335], width: 513 },
             veteran_phone_extension: { at: [225, 378], width: 50, height: 10 },
+            veteran_international_number: { at: [381, 367], width: 115, height: 13 },
 
             claimant_first_name: { at: [10, 290], width: 192 },
             claimant_last_name: { at: [237, 290], width: 295 },
@@ -225,6 +226,7 @@ module AppealsApi
             claimant_zip_code: { at: [297, 176], width: 82 },
             claimant_email: { at: [8, 115], width: 513 },
             claimant_phone_extension: { at: [225, 157], width: 50, height: 10 },
+            claimant_international_number: { at: [382, 144], width: 115, height: 13 },
 
             rep_first_name: { at: [11, 586], width: 195 },
             rep_last_name: { at: [225, 586], width: 293 },

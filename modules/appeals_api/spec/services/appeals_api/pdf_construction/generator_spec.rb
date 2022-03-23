@@ -185,12 +185,17 @@ describe AppealsApi::PdfConstruction::Generator do
           end
         end
 
+        # rubocop:disable Layout/LineLength
         context 'pdf max length content verification' do
           let(:schema) { read_schema('200996.json', 'v2') }
           let(:hlr) { build(:extra_higher_level_review_v2, created_at: '2021-02-03T14:15:16Z') }
           let(:data) { override_max_lengths(hlr, schema) }
 
           it 'generates the expected pdf' do
+            # phone strings are only allowed to be 20 char in length, so we are overriding it.
+            allow_any_instance_of(AppealsApi::PdfConstruction::HigherLevelReview::V2::FormData).to receive(:veteran_phone_string).and_return('+WWW-WWWWWWWWWWWWWWW')
+            allow_any_instance_of(AppealsApi::PdfConstruction::HigherLevelReview::V2::FormData).to receive(:claimant_phone_string).and_return('+WWW-WWWWWWWWWWWWWWW')
+
             hlr.form_data = data
             hlr.save!
 
@@ -201,6 +206,7 @@ describe AppealsApi::PdfConstruction::Generator do
             File.delete(generated_pdf) if File.exist?(generated_pdf)
           end
         end
+        # rubocop:enable Layout/LineLength
       end
     end
 
