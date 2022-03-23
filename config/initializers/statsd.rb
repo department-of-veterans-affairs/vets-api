@@ -20,6 +20,7 @@ require 'va_profile/exceptions/parser'
 require 'va_profile/service'
 require 'va_notify/service'
 require 'hca/service'
+require 'carma/client/mule_soft_client'
 
 Rails.application.reloader.to_prepare do
   # Initialize session controller metric counters at 0
@@ -100,6 +101,13 @@ Rails.application.reloader.to_prepare do
   StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.submission_attempt", 0)
   StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.validation_error", 0)
   StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry", 0)
+
+  # init mulesoft
+  %w[create_submission upload_attachments do_post].each do |method|
+    %w[total fail].each do |type|
+      StatsD.increment("#{CARMA::Client::MuleSoftClient::STATSD_KEY_PREFIX}.#{method}.#{type}", 0)
+    end
+  end
 
   # init  mvi
   StatsD.increment("#{MPI::Service::STATSD_KEY_PREFIX}.find_profile.total", 0)

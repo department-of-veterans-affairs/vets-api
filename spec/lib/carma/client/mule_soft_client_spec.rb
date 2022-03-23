@@ -17,23 +17,30 @@ module CARMA
         let(:response) { double('response') }
 
         before do
-          allow(client).to receive(:with_monitoring).and_yield
           allow(client).to receive(:config).and_return(config)
           allow(config).to receive(:base_request_headers).and_return(exp_headers)
           allow(config).to receive(:timeout).and_return(10)
         end
 
         describe 'form data' do
-          context 'succesfully' do
+          context 'successfully' do
             before do
               expect(response).to receive(:status).and_return(200)
+              expect(response).to receive(:body).and_return(body)
             end
 
             it 'POSTs to the correct resource' do
-              expect(response).to receive(:body).and_return(body)
               expect(client).to receive(:perform).with(:post, 'submit', payload, exp_headers, exp_opts)
                                                  .and_return(response)
               expect { client.create_submission(payload) }.not_to raise_error
+            end
+
+            it 'increments statsd' do
+              expect(client).to receive(:perform).and_return(response)
+
+              expect do
+                client.create_submission(payload)
+              end.to trigger_statsd_increment('api.carma.mulesoft.create_submission.total')
             end
           end
 
@@ -60,6 +67,14 @@ module CARMA
             expect(client).to receive(:perform).with(:post, 'addDocument', payload, exp_headers, exp_opts)
                                                .and_return(response)
             expect { client.upload_attachments(payload) }.not_to raise_error
+          end
+
+          it 'increments statsd' do
+            expect(client).to receive(:perform).and_return(response)
+
+            expect do
+              client.upload_attachments(payload)
+            end.to trigger_statsd_increment('api.carma.mulesoft.upload_attachments.total')
           end
         end
       end

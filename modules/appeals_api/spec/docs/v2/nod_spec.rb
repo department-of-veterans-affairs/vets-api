@@ -53,6 +53,20 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_birth_date_header]
       let(:'X-VA-Birth-Date') { '1900-01-01' }
 
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_first_name_header]
+      let(:'X-VA-Claimant-First-Name') { 'first' }
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_middle_initial_header]
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_last_name_header]
+      let(:'X-VA-Claimant-Last-Name') { 'last' }
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_ssn_header]
+      let(:'X-VA-Claimant-SSN') { '999999999' }
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_birth_date_header]
+      let(:'X-VA-Claimant-Birth-Date') { '1921-08-08' }
+
       parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_username_header]
       parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_id_header]
 

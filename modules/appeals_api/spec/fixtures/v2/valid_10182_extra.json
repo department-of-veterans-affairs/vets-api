@@ -19,8 +19,28 @@
           "phoneNumber": "8001111",
           "phoneNumberExt": "2"
         },
-        "email": "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789_123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789_12345678901234567890@bobbytablesemail.com",
+        "email": "bob@bobbytablesemail.com",
         "timezone": "America/Chicago"
+      },
+      "claimant": {
+        "homeless": false,
+        "address": {
+          "addressLine1": "456 First St",
+          "addressLine2": "Apt 5",
+          "addressLine3": "Box 1",
+          "city": "Detroit",
+          "countryCodeISO2": "US",
+          "stateCode": "MI",
+          "zipCode5": "48070"
+        },
+        "phone": {
+          "countryCode": "1",
+          "areaCode": "555",
+          "phoneNumber": "8111100",
+          "phoneNumberExt": "4"
+        },
+        "email": "bob@email.com",
+        "timezone": "America/Detroit"
       },
       "representative": {
         "name": "Tony Danza"
@@ -56,7 +76,7 @@
     {
       "type": "contestableIssue",
       "attributes": {
-        "issue": "123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789x",
+        "issue": "123456789",
         "decisionDate": "1900-01-03",
         "ratingIssueReferenceId": "6",
         "ratingDecisionReferenceId": "7",

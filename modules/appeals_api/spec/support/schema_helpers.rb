@@ -15,4 +15,12 @@ module SchemaHelpers
       )
     )
   end
+
+  def override_max_lengths(appeal, schema)
+    JSONSchemer.schema(schema,
+                       after_property_validation: proc do |data, property, property_schema, _parent|
+                         data[property] = 'W' * property_schema['maxLength'] if property_schema['maxLength']
+                       end).valid?(appeal.form_data)
+    appeal.form_data
+  end
 end

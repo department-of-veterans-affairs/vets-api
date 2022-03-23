@@ -10,20 +10,27 @@ RSpec.describe RapidReadyForDecision::Form526AsthmaJob, type: :worker do
     Sidekiq::Worker.clear_all
   end
 
-  let(:submission) { create(:form526_submission, :with_uploads) }
+  let(:user) { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
+  let(:auth_headers) do
+    EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+  end
+  let(:submission) do
+    create(:form526_submission, :with_uploads,
+           user_uuid: user.uuid,
+           auth_headers_json: auth_headers.to_json)
+  end
 
-  describe '#perform' do
+  describe '#perform', :vcr do
     subject { RapidReadyForDecision::Form526AsthmaJob.perform_async(submission.id) }
 
     context 'success' do
-      before do
-        allow_any_instance_of(Lighthouse::VeteransHealth::Client).to receive('list_resource').and_return([])
-      end
-
       it 'finishes successfully' do
         Sidekiq::Testing.inline! do
           expect { subject }.not_to raise_error
-          expect(ActionMailer::Base.deliveries.last.subject).to eq 'RRD claim - Offramped'
+          last_email = ActionMailer::Base.deliveries.last
+          expect(last_email.subject).to eq 'RRD claim - Offramped'
+          expect(last_email.body).to include submission.id
+          expect(last_email.body).to include 'API returned 24 medication requests'
         end
       end
 

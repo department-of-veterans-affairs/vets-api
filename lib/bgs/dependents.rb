@@ -41,7 +41,8 @@ module BGS
           relationship_types[:family],
           {
             type: 'death',
-            dep_has_income_ind: formatted_info['dependent_income']
+            dep_has_income_ind: formatted_info['dependent_income'],
+            end_date: formatted_info['death_date']
           }
         )
       end

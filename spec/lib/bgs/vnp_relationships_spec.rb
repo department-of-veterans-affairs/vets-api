@@ -95,8 +95,8 @@ RSpec.describe BGS::VnpRelationships do
             participant_relationship_type_name: 'Spouse',
             family_relationship_type_name: 'Spouse',
             begin_date: nil,
-            end_date: nil,
-            event_date: '2001-02-03',
+            end_date: '2001-02-03T12:00:00+00:00',
+            event_date: nil,
             marriage_state: nil,
             marriage_city: nil,
             divorce_state: nil,
@@ -113,10 +113,12 @@ RSpec.describe BGS::VnpRelationships do
             step_children: [],
             user: user_object
           ).create_all
+
           expect(dependents.first).to include(
             participant_relationship_type_name: 'Spouse',
             family_relationship_type_name: 'Spouse',
-            marriage_termination_type_code: 'Death'
+            marriage_termination_type_code: 'Death',
+            end_date: '2001-02-03T12:00:00+00:00'
           )
         end
       end

@@ -252,45 +252,45 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
   end
 
   describe 'V2 methods' do
-    let(:notice_of_disagreement_v2) { create(:extra_notice_of_disagreement_v2, :board_review_hearing) }
+    let(:extra_notice_of_disagreement_v2) { create(:extra_notice_of_disagreement_v2, :board_review_hearing) }
 
     describe '#veteran' do
-      subject { notice_of_disagreement_v2.veteran }
+      subject { extra_notice_of_disagreement_v2.veteran }
 
       it { expect(subject.class).to eq AppealsApi::Appellant }
     end
 
     describe '#claimant' do
-      subject { notice_of_disagreement_v2.claimant }
+      subject { extra_notice_of_disagreement_v2.claimant }
 
       it { expect(subject.class).to eq AppealsApi::Appellant }
     end
 
     describe '#signing_appellant' do
-      let(:appellant_type) { notice_of_disagreement_v2.signing_appellant.send(:type) }
+      let(:appellant_type) { extra_notice_of_disagreement_v2.signing_appellant.send(:type) }
 
-      it { expect(appellant_type).to eq :veteran }
+      it { expect(appellant_type).to eq :claimant }
     end
 
     describe '#appellant_local_time' do
       it do
-        appellant_local_time = notice_of_disagreement_v2.appellant_local_time
-        created_at = notice_of_disagreement_v2.created_at
+        appellant_local_time = extra_notice_of_disagreement_v2.appellant_local_time
+        created_at = extra_notice_of_disagreement_v2.created_at
 
         expect(appellant_local_time).to eq created_at.in_time_zone('America/Chicago')
       end
     end
 
     describe '#extension_request?' do
-      it { expect(notice_of_disagreement_v2.extension_request?).to eq true }
+      it { expect(extra_notice_of_disagreement_v2.extension_request?).to eq true }
     end
 
     describe '#extension_reason' do
-      it { expect(notice_of_disagreement_v2.extension_reason).to eq 'good cause substantive reason' }
+      it { expect(extra_notice_of_disagreement_v2.extension_reason).to eq 'good cause substantive reason' }
     end
 
     describe '#appealing_vha_denial?' do
-      it { expect(notice_of_disagreement_v2.appealing_vha_denial?).to eq true }
+      it { expect(extra_notice_of_disagreement_v2.appealing_vha_denial?).to eq true }
     end
 
     describe '#validate_extension_request' do

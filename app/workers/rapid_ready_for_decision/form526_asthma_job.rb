@@ -10,10 +10,12 @@ module RapidReadyForDecision
 
     def assess_data(form526_submission)
       client = lighthouse_client(form526_submission)
-      medication_requests = client.list_resource('medication_requests').presence || []
+      response = client.list_resource('medication_requests')
+      medication_requests = response.body['entry']
 
       body = <<~BODY
         A single-issue asthma claim for increase was detected and offramped.<br/>
+        Submission ID: #{form526_submission.id}<br/>
         Veterans Health API returned #{medication_requests.count} medication requests.
       BODY
       ActionMailer::Base.mail(

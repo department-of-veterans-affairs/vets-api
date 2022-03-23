@@ -165,6 +165,17 @@ describe LGY::Service do
         end
       end
     end
+
+    context 'when submitting a valid coe claim with prior loans' do
+      it 'returns a valid application response with prior loan data' do
+        VCR.use_cassette 'lgy/application_put' do
+          response = subject.put_application(payload: coe_claim)
+          expect(response.status).to eq 200
+          expect(response.body).to include('status')
+          expect(response.body['relevant_prior_loans']).not_to be_empty
+        end
+      end
+    end
   end
 
   describe '#post_document' do
