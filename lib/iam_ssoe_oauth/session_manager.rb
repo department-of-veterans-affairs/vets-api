@@ -48,6 +48,7 @@ module IAMSSOeOAuth
       Rails.logger.info('IAMUser create_user_session: introspect succeeded')
       Rails.logger.info('IAMUser Introspect Response:', response: iam_profile)
       Rails.logger.info('IAMUser create_user_session: login type', login_type: iam_profile[:fediamauth_n_type])
+      iam_profile = add_missing_fediamassur_level(iam_profile)
 
       user_identity = build_identity(iam_profile)
       session = build_session(@access_token, user_identity)
@@ -60,6 +61,17 @@ module IAMSSOeOAuth
       Rails.logger.error('IAMUser create user session: unauthorized', error: e.message)
       StatsD.increment('iam_ssoe_oauth.inactive_session')
       raise e
+    end
+
+    def add_missing_fediamassur_level(iam_profile)
+      if iam_profile[:fediamassur_level].blank?
+        iam_profile[:fediamassur_level] = if iam_profile[:fediam_aal] == '2' && iam_profile[:fediam_ial] == '2'
+                                            3
+                                          else
+                                            0
+                                          end
+      end
+      iam_profile
     end
 
     def build_identity(iam_profile)
