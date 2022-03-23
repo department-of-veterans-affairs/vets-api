@@ -94,10 +94,19 @@ module Mobile
 
       def authorized_services
         auth_services = SERVICE_DICTIONARY.filter { |_k, policies| authorized_for_service(policies) }.keys
-        if auth_services.include?(:directDepositBenefits) && user.authorize(:ppiu, :access_update?)
-          auth_services.push(:directDepositBenefitsUpdate)
-        end
+        auth_services.push(:directDepositBenefitsUpdate) if can_update_direct_deposit_benefits?(auth_services)
         auth_services
+      end
+
+      def can_update_direct_deposit_benefits?(auth_services)
+        auth_services.include?(:directDepositBenefits) && user.authorize(:ppiu, :access_update?)
+      rescue EVSS::ErrorMiddleware::EVSSError => e
+        # this is a temporary patch for upstream issues
+        Rails.logger.error(
+          'Mobile user serializer error when fetching from EVSS',
+          user_uuid: user.uuid, details: e.details
+        )
+        false
       end
 
       def health
