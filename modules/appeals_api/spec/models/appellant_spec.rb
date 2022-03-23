@@ -124,17 +124,11 @@ describe AppealsApi::Appellant, type: :model do
 
   describe '#email' do
     it do
-      expect(veteran_appellant.email).to eq '1234567890123456789012345678901234567890123456789012345678901234567890'\
-                                            '12345678901234567890123456789_1234567890123456789012345678901234567890'\
-                                            '12345678901234567890123456789012345678901234567890123456789_1234567890'\
-                                            '1234567890@bobbytablesemail.com'
+      expect(veteran_appellant.email).to eq 'bob@bobbytablesemail.com'
     end
 
     it do
-      expect(claimant_appellant.email).to eq '09845812017584936834751947843y6083475-924709348156802374y698134y598'\
-                                             '4389347y8914hekjdnfjkdh84456789012345678901234567890123456789012345'\
-                                             '1234567890123456789012345678901234567890123456789012345678901234567'\
-                                             '890123456789_claimant@email.com'
+      expect(claimant_appellant.email).to eq 'claimant@email.com'
     end
   end
 

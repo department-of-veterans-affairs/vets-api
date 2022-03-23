@@ -20,7 +20,7 @@
             "phoneNumber": "8001111",
             "phoneNumberExt": "2"
           },
-          "email": "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789_123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789_12345678901234567890@bobbytablesemail.com",
+          "email": "bob@bobbytablesemail.com",
           "timezone": "America/Chicago"
         },
         "claimant": {
@@ -39,7 +39,7 @@
             "phoneNumber": "8111100",
             "phoneNumberExt": "4"
           },
-          "email": "09845812017584936834751947843y6083475-924709348156802374y698134y5984389347y8914hekjdnfjkdh844567890123456789012345678901234567890123451234567890123456789012345678901234567890123456789012345678901234567890123456789_claimant@email.com",
+          "email": "claimant@email.com",
           "timezone": "America/Detroit"
         },
         "socOptIn": true,
@@ -49,7 +49,7 @@
         "informalConferenceRep": {
           "firstName": "Helen",
           "lastName": "Holly",
-          "email": "987654321098765432109876543210987654321098765432109876543210987654321098765432109876543210987654321_987654321098765432109876543210987654321098765432109876543210987654321098765432109876543210987654321_98765432109876543210@hellohellenholly.com",
+          "email": "holly@hellohellenholly.com",
           "phone": {
             "countryCode": "1",
             "areaCode": "555",
@@ -63,7 +63,7 @@
       {
         "type": "contestableIssue",
         "attributes": {
-          "issue": "123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 xxxxxxxxxxxx",
+          "issue": "123456789",
           "decisionDate": "1900-01-01",
           "decisionIssueId": 1,
           "ratingIssueReferenceId": "2",
@@ -75,9 +75,9 @@
       {
         "type": "contestableIssue",
         "attributes": {
-          "issue": "left eye left eye left eye left eye left eye left eye left eye left eye left eye left eye left eye",
+          "issue": "left eyee",
           "decisionDate": "1900-01-02",
-          "disagreementArea": "123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 xxxxxxxxx"
+          "disagreementArea": "123456789"
         }
       },
       {
@@ -90,7 +90,7 @@
       {
         "type": "contestableIssue",
         "attributes": {
-          "issue": "left earleft earleft earleft earleft earleft earleft earleft earleft earleft earleft earleft earleft",
+          "issue": "left ear",
           "decisionDate": "1900-01-04",
           "socDate": "2019-05-15",
           "disagreementArea": "Rating"
@@ -180,9 +180,9 @@
       {
         "type": "contestableIssue",
         "attributes": {
-          "issue": "cootiescootiescootiescootiescootiescootiescootiescootiescootiescootiescootiescootiescootiescootiescootiescooties",
+          "issue": "cooties",
           "decisionDate": "1900-01-15",
-          "disagreementArea": "Service connectionService connectionService connectionService connectionService connection"
+          "disagreementArea": "Service connection"
         }
       }
     ]

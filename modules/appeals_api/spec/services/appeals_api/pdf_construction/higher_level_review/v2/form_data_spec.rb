@@ -37,10 +37,7 @@ module AppealsApi
 
           describe '#veteran_email' do
             it do
-              expect(form_data.veteran_email).to eq '1234567890123456789012345678901234567890123456789012345678'\
-                                                    '90123456789012345678901234567890123456789_1234567890123456'\
-                                                    '78901234567890123456789012345678901234567890123456789012345'\
-                                                    '678901234567890123456789_12345678901234567890@bobbytablesemail.com'
+              expect(form_data.veteran_email).to eq 'bob@bobbytablesemail.com'
             end
           end
 
