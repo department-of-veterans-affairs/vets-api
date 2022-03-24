@@ -36,7 +36,7 @@ module RapidReadyForDecision
       begin
         with_tracking(self.class.name, form526_submission.saved_claim_id, form526_submission_id) do
           assessed_data = assess_data(form526_submission)
-          next if assessed_data.nil?
+          return if assessed_data.nil?
 
           add_medical_stats(form526_submission, assessed_data)
 

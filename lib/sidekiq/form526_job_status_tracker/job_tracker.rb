@@ -73,8 +73,14 @@ module Sidekiq
         @is_bdd = is_bdd
 
         job_try
-        yield
-        job_success
+        begin
+          yield
+        rescue
+          exception_raised = true
+          raise
+        ensure
+          job_success unless exception_raised
+        end
       end
 
       # Metrics and logging for each Sidekiq try
