@@ -913,11 +913,12 @@ RSpec.describe SignInController, type: :controller do
         let(:access_token_object) { create(:access_token) }
         let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
         let(:expected_error) { SignIn::Errors::AccessTokenMalformedJWTError.to_s }
-        let!(:user) { create(:user, uuid: access_token_object.user_uuid) }
-        let(:expected_introspect_response) { { 'user_uuid' => user.uuid, 'icn' => user.icn } }
+        let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid) }
+        let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
+        let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
 
         it 'renders expected user data' do
-          expect(JSON.parse(subject.body)).to eq(expected_introspect_response)
+          expect(JSON.parse(subject.body)['data']['attributes']).to eq(expected_introspect_response)
         end
 
         it 'returns ok status' do
