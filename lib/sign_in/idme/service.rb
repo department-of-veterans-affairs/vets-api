@@ -6,7 +6,7 @@ module SignIn::Idme
   class Service < Common::Client::Base
     configuration SignIn::Idme::Configuration
 
-    attr_accessor :scope
+    attr_accessor :type
 
     def render_auth(state: SecureRandom.hex)
       renderer = ActionController::Base.renderer
@@ -16,7 +16,7 @@ module SignIn::Idme
                         url: auth_url,
                         params:
                         {
-                          scope: scope || LOA::IDME_LOA3,
+                          scope: scope,
                           state: state,
                           client_id: config.client_id,
                           redirect_uri: config.redirect_uri,
@@ -36,7 +36,8 @@ module SignIn::Idme
         first_name: user_info.fname,
         last_name: user_info.lname,
         email: user_info.email,
-        sign_in: { service_name: config.service_name }
+        sign_in: { service_name: config.service_name },
+        authn_context: type
       }
     end
 
@@ -57,6 +58,17 @@ module SignIn::Idme
     end
 
     private
+
+    def scope
+      case type
+      when 'idme'
+        config.idme_scope
+      when 'dslogon'
+        config.dslogon_scope
+      when 'mhv'
+        config.mhv_scope
+      end
+    end
 
     def jwt_decode(encoded_jwt)
       decoded_jwt = JWT.decode(encoded_jwt, false, nil)&.first

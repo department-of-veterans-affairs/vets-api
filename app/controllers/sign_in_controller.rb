@@ -70,7 +70,7 @@ class SignInController < ApplicationController
   end
 
   def introspect
-    render json: { user_uuid: @current_user.uuid, icn: @current_user.icn }, status: :ok
+    render json: @current_user, serializer: SignIn::IntrospectSerializer, status: :ok
   rescue => e
     render json: { errors: e }, status: :unauthorized
   end
@@ -137,21 +137,19 @@ class SignInController < ApplicationController
 
   def auth_service(type)
     case type
-    when 'idme'
-      idme_auth_service
-    when 'dslogon'
-      idme_auth_service.scope = 'dslogon_loa3'
-      idme_auth_service
-    when 'mhv'
-      idme_auth_service.scope = 'myhealthevet_loa3'
-      idme_auth_service
     when 'logingov'
       logingov_auth_service
+    else
+      idme_auth_service(type)
     end
   end
 
-  def idme_auth_service
+  def idme_auth_service(type)
+    return @idme_auth_service if @idme_auth_service
+
     @idme_auth_service ||= SignIn::Idme::Service.new
+    @idme_auth_service.type = type
+    @idme_auth_service
   end
 
   def logingov_auth_service

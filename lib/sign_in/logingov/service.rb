@@ -56,7 +56,8 @@ module SignIn::Logingov
         first_name: user_info[:given_name],
         last_name: user_info[:family_name],
         email: user_info[:email],
-        sign_in: { service_name: config.service_name }
+        sign_in: { service_name: config.service_name },
+        authn_context: config.service_name
       }
     end
 
