@@ -12,6 +12,7 @@ path 'modules' do
   gem 'claims_api'
   gem 'covid_research'
   gem 'covid_vaccine'
+  gem 'dhp_connected_devices'
   gem 'facilities_api'
   gem 'health_quest'
   gem 'identity'

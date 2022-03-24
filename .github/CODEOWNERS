@@ -68,6 +68,9 @@ modules/facilities_api @department-of-veterans-affairs/vsa-facilities-backend @d
 spec/support/*/facilities @department-of-veterans-affairs/vsa-facilities-backend @department-of-veterans-affairs/backend-review-group
 spec/support/*/lighthouse @department-of-veterans-affairs/vsa-facilities-backend @department-of-veterans-affairs/backend-review-group
 
+# DHP connected devices
+modules/dhp_connected_devices/ @department-of-veterans-affairs/digital-health-platform @department-of-veterans-affairs/backend-review-group
+
 # test user dashboard product
 modules/test_user_dashboard @department-of-veterans-affairs/vsp-identity @department-of-veterans-affairs/qa-standards
 
