@@ -195,7 +195,7 @@ module V2
 
         {
           patientDfn: hashed_identifiers[:patientDFN],
-          stationNo: hashed_identifiers[:stationNo]
+          stationNo: hashed_identifiers[:stationNo].to_s
         }
       end
 
