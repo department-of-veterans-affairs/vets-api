@@ -215,11 +215,11 @@ module AppealsApi
         'pensionSurvivorsBenefits' => 'PMC',
         'fiduciary' => 'FID',
         'lifeInsurance' => 'INS',
-        'veteransHealthAdministration' => 'OTH',
+        'veteransHealthAdministration' => 'CMP',
         'veteranReadinessAndEmployment' => 'VRE',
-        'loanGuaranty' => 'OTH',
+        'loanGuaranty' => 'CMP',
         'education' => 'EDU',
-        'nationalCemeteryAdministration' => 'OTH'
+        'nationalCemeteryAdministration' => 'NCA'
       }[benefit_type]
     end
 
