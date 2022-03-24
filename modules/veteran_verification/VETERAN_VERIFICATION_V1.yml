@@ -87,7 +87,7 @@ paths:
       summary: Retrieve disability rating of authorized Veteran
       operationId: getDisabilityRating
       security:
-        - bearerAuth: []
+        - bearer_token: []
       responses:
         '200':
           description: Disability Rating retrieved successfully
