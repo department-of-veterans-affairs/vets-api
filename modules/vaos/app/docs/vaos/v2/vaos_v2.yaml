@@ -1240,6 +1240,8 @@ components:
             "$ref": "#/components/schemas/Identifier"
         name:
           "$ref": "#/components/schemas/HumanName"
+        address:
+          "$ref": "#/components/schemas/Address"
       description: Details about the practitioner.
     PractitionerIds:
       description: Practitioner IDs from an external system.
