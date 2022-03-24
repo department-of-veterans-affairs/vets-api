@@ -49,16 +49,7 @@ class Form526Submission < ApplicationRecord
   def start
     rrd_processor_class = rrd_process_selector.processor_class
     if rrd_processor_class
-      workflow_batch = Sidekiq::Batch.new
-      workflow_batch.on(
-        :success,
-        'Form526Submission#rrd_complete_handler',
-        'submission_id' => id
-      )
-      job_ids = workflow_batch.jobs do
-        rrd_processor_class.perform_async(id)
-      end
-      job_ids.first
+      start_rrd_job(rrd_processor_class, use_backup_processor: true)
     else
       start_evss_submission_job
     end
@@ -66,6 +57,41 @@ class Form526Submission < ApplicationRecord
     Rails.logger.error 'The fast track was skipped due to the following error ' \
                        " and start_evss_submission_job is being called: #{e}"
     start_evss_submission_job
+  end
+
+  def start_rrd_job(rrd_processor_class, use_backup_processor: false)
+    workflow_batch = Sidekiq::Batch.new
+    workflow_batch.on(
+      :success,
+      'Form526Submission#rrd_complete_handler',
+      'submission_id' => id
+    )
+    workflow_batch.on(
+      :death,
+      'Form526Submission#rrd_processor_failed_handler',
+      'submission_id' => id,
+      'use_backup_processor' => use_backup_processor
+    )
+    job_ids = workflow_batch.jobs do
+      rrd_processor_class.perform_async(id)
+    end
+    job_ids.first
+  end
+
+  # Called by Sidekiq::Batch as part of the Form 526 submission workflow
+  # When the refactored job fails, this _handler is called to run a backup_processor_class as a job.
+  def rrd_processor_failed_handler(_status, options)
+    submission = Form526Submission.find(options['submission_id'])
+    if options['use_backup_processor']
+      backup_processor_class = submission.rrd_process_selector.processor_class(backup: true)
+    end
+    if backup_processor_class
+      message = "Restarting with backup #{backup_processor_class} for submission #{submission.id}."
+      submission.rrd_process_selector.send_rrd_alert(message)
+      return submission.start_rrd_job(backup_processor_class)
+    end
+
+    submission.start_evss_submission_job
   end
 
   def rrd_process_selector

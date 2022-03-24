@@ -21,10 +21,6 @@ RSpec.describe Form526Submission do
     File.read('spec/support/disability_compensation_form/submissions/only_526.json')
   end
 
-  let(:hypertension_form_json) do
-    File.read('spec/support/disability_compensation_form/submissions/only_526_hypertension.json')
-  end
-
   shared_examples '#start_evss_submission' do
     before do
       Sidekiq::Worker.clear_all
@@ -41,6 +37,9 @@ RSpec.describe Form526Submission do
 
   describe '#start' do
     context 'the submission is for hypertension' do
+      let(:hypertension_form_json) do
+        File.read('spec/support/disability_compensation_form/submissions/only_526_hypertension.json')
+      end
       let(:form_for_hypertension) do
         Form526Submission.create(
           user_uuid: user.uuid,
@@ -58,10 +57,44 @@ RSpec.describe Form526Submission do
           Sidekiq::Worker.clear_all
         end
 
-        it 'queues a new RapidReadyForDecision::DisabilityCompensationJob worker' do
+        it 'calls start_rrd_job with the job and backup job classes' do
+          expect(form_for_hypertension).to receive(:start_rrd_job)
+            .with(RapidReadyForDecision::Form526HypertensionJob,
+                  { use_backup_processor: true })
+          form_for_hypertension.start
+        end
+
+        context 'when RRD job class has failed all retries and Sidekiq::Batch calls rrd_processor_failed_handler' do
+          # Sidekiq::Batch creates a new Form526Submission in order to call *_handler methods
+          let(:sidekiq_submission) { Form526Submission.new }
+          let(:backup_processor_class) { RapidReadyForDecision::DisabilityCompensationJob }
+
+          before do
+            # return this exact instance to avoid flakey tests due to returning another instance of the same record
+            allow(Form526Submission).to receive(:find).with(form_for_hypertension.id).and_return(form_for_hypertension)
+          end
+
+          it 'calls start_rrd_job with the backup job class if use_backup_processor=true' do
+            expect(form_for_hypertension).to receive(:start_rrd_job).with(backup_processor_class)
+            expect_any_instance_of(RapidReadyForDecision::ProcessorSelector).to receive(:send_rrd_alert)
+              .with("Restarting with backup #{backup_processor_class} for submission #{form_for_hypertension.id}.")
+            sidekiq_submission.rrd_processor_failed_handler('ignored Sidekiq::Batch::Status',
+                                                            'submission_id' => form_for_hypertension.id,
+                                                            'use_backup_processor' => true)
+          end
+
+          it 'calls start_evss_submission_job if use_backup_processor=false' do
+            expect(form_for_hypertension).to receive(:start_evss_submission_job)
+            sidekiq_submission.rrd_processor_failed_handler('ignored Sidekiq::Batch::Status',
+                                                            'submission_id' => form_for_hypertension.id,
+                                                            'use_backup_processor' => false)
+          end
+        end
+
+        it 'queues a new RapidReadyForDecision::Form526HypertensionJob worker' do
           expect do
             form_for_hypertension.start
-          end.to change(RapidReadyForDecision::DisabilityCompensationJob.jobs, :size).by(1)
+          end.to change(RapidReadyForDecision::Form526HypertensionJob.jobs, :size).by(1)
         end
 
         it_behaves_like '#start_evss_submission'
@@ -85,8 +118,8 @@ RSpec.describe Form526Submission do
           Sidekiq::Worker.clear_all
         end
 
-        it 'does NOT queue a new RapidReadyForDecision::DisabilityCompensationJob worker' do
-          expect { subject.start }.to change(RapidReadyForDecision::DisabilityCompensationJob.jobs, :size).by(0)
+        it 'does NOT queue a new RapidReadyForDecision::Form526HypertensionJob worker' do
+          expect { subject.start }.to change(RapidReadyForDecision::Form526HypertensionJob.jobs, :size).by(0)
         end
 
         it_behaves_like '#start_evss_submission'
@@ -96,8 +129,8 @@ RSpec.describe Form526Submission do
     context 'the submission is NOT for hypertension' do
       before { Sidekiq::Worker.clear_all }
 
-      it 'Does NOT queue a new RapidReadyForDecision::DisabilityCompensationJob' do
-        expect { subject.start }.to change(RapidReadyForDecision::DisabilityCompensationJob.jobs, :size).by(0)
+      it 'Does NOT queue a new RapidReadyForDecision::Form526HypertensionJob' do
+        expect { subject.start }.to change(RapidReadyForDecision::Form526HypertensionJob.jobs, :size).by(0)
       end
 
       it_behaves_like '#start_evss_submission'

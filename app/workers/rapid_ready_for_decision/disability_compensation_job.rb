@@ -14,12 +14,6 @@ module RapidReadyForDecision
     # https://github.com/mperham/sidekiq/issues/2168#issuecomment-72079636
     sidekiq_options retry: 8
 
-    sidekiq_retries_exhausted do |msg, _ex|
-      submission_id = msg['args'].first
-      submission = Form526Submission.find(submission_id)
-      submission.start_evss_submission_job
-    end
-
     STATSD_KEY_PREFIX = 'worker.fast_track.disability_compensation_job'
 
     def perform(form526_submission_id)
