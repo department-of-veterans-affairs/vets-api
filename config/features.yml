@@ -333,6 +333,10 @@ features:
     actor_type: user
     description: Enable/disable custom expiration dates for forms
     enable_in_development: true
+  in_progress_form_reminder:
+    actor_type: user
+    description: Enable/disable in progress form reminders (sent via VaNotify)
+    enable_in_development: true
   login_gov:
     actor_type: cookie_id
     description: Enables/disables the usage of the new service provider Login.gov (VSP Identity)

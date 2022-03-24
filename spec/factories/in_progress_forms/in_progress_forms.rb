@@ -250,5 +250,28 @@ FactoryBot.define do
         }.to_json
       end
     end
+
+    factory :in_progress_686c_form do
+      user_uuid { SecureRandom.uuid }
+      form_id { '686C-674' }
+      metadata do
+        {
+          version: 1,
+          returnUrl: 'foo.com'
+        }
+      end
+      form_data do
+        {
+          'view:selectable686_options' => { 'add_spouse' => false },
+          'view:686_information' => {},
+          'veteran_information' =>
+           {
+             'full_name' => { 'first' => 'first_name', 'middle' => 'J', 'last' => 'last_name' },
+             'ssn' => '111223333',
+             'birth_date' => '1985-03-07'
+           }
+        }.to_json
+      end
+    end
   end
 end
