@@ -6,11 +6,13 @@ module RapidReadyForDecision
       @form526_submission = form526_submission
     end
 
-    def processor_class
+    def processor_class(backup: false)
       return nil unless rrd_enabled?
 
       if rrd_enabled_disability?('hypertension') && single_issue_claim_applicable?(DiagnosticCodes::HYPERTENSION)
-        return RapidReadyForDecision::DisabilityCompensationJob
+        return RapidReadyForDecision::DisabilityCompensationJob if backup
+
+        return RapidReadyForDecision::Form526HypertensionJob
       end
 
       if rrd_enabled_disability?('asthma') && single_issue_claim_applicable?(DiagnosticCodes::ASTHMA)
@@ -27,6 +29,21 @@ module RapidReadyForDecision
     def self.disability_increase?(disability, diagnostic_code)
       disability['diagnosticCode'] == diagnostic_code &&
         disability['disabilityActionType']&.upcase == 'INCREASE'
+    end
+
+    def send_rrd_alert(message)
+      body = <<~BODY
+        Environment: #{Settings.vsp_environment}<br/>
+        Form526Submission.id: #{@form526_submission.id}<br/>
+        <br/>
+        #{message}
+      BODY
+      ActionMailer::Base.mail(
+        from: ApplicationMailer.default[:from],
+        to: Settings.rrd.alerts.recipients,
+        subject: 'RRD Processor Selector alert',
+        body: body
+      ).deliver_now
     end
 
     private
