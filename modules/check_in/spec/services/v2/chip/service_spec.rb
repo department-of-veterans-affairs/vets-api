@@ -529,7 +529,7 @@ describe V2::Chip::Service do
         data: {
           id: uuid,
           type: :appointment_identifier,
-          attributes: { patientDFN: '123', stationNo: '888' }
+          attributes: { patientDFN: '123', stationNo: 888 }
         }
       }
     end
@@ -549,7 +549,7 @@ describe V2::Chip::Service do
         )
       end
 
-      it 'returns patientDfn' do
+      it 'returns patientDfn and stationNo as string' do
         expect(subject.build(check_in: valid_check_in, params: {})
                       .confirm_demographics_id_params).to eq(hsh)
       end
