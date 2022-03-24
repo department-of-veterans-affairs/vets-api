@@ -6,10 +6,10 @@
   <body>
     <p>
       <% if @rrd_claim_processed %>
-        A single-issue <%= @disability %> claim for increase was submitted on va.gov.<br/>
+        A single-issue <%= @disability_code %> claim for increase was submitted on va.gov.<br/>
         A health summary PDF was generated and added to the claim's documentation.
       <% else %>
-        A single-issue <%= @disability %> claim for increase was submitted on va.gov.<br/>
+        A single-issue <%= @disability_code %> claim for increase was submitted on va.gov.<br/>
         There was not sufficient data to generate a health summary PDF associated with this claim. 
       <% end %>
     </p>

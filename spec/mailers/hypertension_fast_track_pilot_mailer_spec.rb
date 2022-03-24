@@ -36,11 +36,11 @@ RSpec.describe HypertensionFastTrackPilotMailer, type: [:mailer] do
     end
 
     it 'has the expected subject' do
-      expect(email.subject).to eq 'RRD claim - Processed'
+      expect(email.subject).to start_with 'RRD claim - Processed'
     end
 
     it 'has the expected content' do
-      expect(email.body).to include 'A single-issue hypertension claim for increase was submitted on va.gov.'
+      expect(email.body).to include 'A single-issue 5235 claim for increase was submitted on va.gov.'
       expect(email.body).to include 'A health summary PDF was generated and added to the claim\'s documentation.'
       expect(email.body).to include "<td>#{bp_readings_count}</td>"
     end
@@ -61,11 +61,11 @@ RSpec.describe HypertensionFastTrackPilotMailer, type: [:mailer] do
     end
 
     it 'has the expected subject' do
-      expect(email.subject).to eq 'RRD claim - Insufficient Data'
+      expect(email.subject).to start_with 'RRD claim - Insufficient Data'
     end
 
     it 'has the expected content' do
-      expect(email.body).to include 'A single-issue hypertension claim for increase was submitted on va.gov.'
+      expect(email.body).to include 'A single-issue 5235 claim for increase was submitted on va.gov.'
       expect(email.body)
         .to include 'There was not sufficient data to generate a health summary PDF associated with this claim.'
     end
