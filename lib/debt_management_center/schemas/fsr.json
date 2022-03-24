@@ -355,7 +355,30 @@
               ]
           },
           "spouseFullName": {
-            "$ref": "#/definitions/fullName"
+            "type": "object",
+            "properties": {
+              "first": {
+                "type": "string",
+                "maxLength": 30
+              },
+              "middle": {
+                "type": "string"
+              },
+              "last": {
+                "type": "string",
+                "maxLength": 30
+              },
+              "suffix": {
+                "type": "string",
+                "enum": [
+                  "Jr.",
+                  "Sr.",
+                  "II",
+                  "III",
+                  "IV"
+                ]
+              }
+            }
           },
           "agesOfOtherDependents": {
             "type": "array",
