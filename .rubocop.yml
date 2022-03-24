@@ -83,6 +83,7 @@ Metrics/MethodLength:
   Max: 20
   Exclude:
     - 'spec/support/form1010cg_helpers/build_claim_data_for.rb'
+    - 'spec/simplecov_helper.rb'
     - 'app/workers/education_form/create_daily_spool_files.rb'
 
 Metrics/ClassLength:

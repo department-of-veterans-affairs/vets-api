@@ -87,6 +87,7 @@ PATH
       sidekiq
     covid_vaccine (0.1.0)
       sidekiq
+    dhp_connected_devices (0.1.0)
     facilities_api (0.1.0)
     health_quest (0.1.0)
     identity (0.1.0)
@@ -1007,6 +1008,7 @@ DEPENDENCIES
   date_validator
   ddtrace
   debase
+  dhp_connected_devices!
   dry-struct
   dry-types
   ethon (>= 0.13.0)

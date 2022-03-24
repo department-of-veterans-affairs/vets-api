@@ -64,6 +64,7 @@ class SimpleCovHelper
     add_group 'CheckIn', 'modules/check_in/'
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'CovidVaccine', 'modules/covid_vaccine/'
+    add_group 'DhpConnectedDevices', 'modules/dhp_connected_devices/'
     add_group 'FacilitiesApi', 'modules/facilities_api/'
     add_group 'HealthQuest', 'modules/health_quest'
     add_group 'Identity', 'modules/identity/'
