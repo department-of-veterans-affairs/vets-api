@@ -23,6 +23,10 @@ RSpec.describe RapidReadyForDecision::Form526AsthmaJob, type: :worker do
   describe '#perform', :vcr do
     subject { RapidReadyForDecision::Form526AsthmaJob.perform_async(submission.id) }
 
+    around do |example|
+      VCR.use_cassette('evss/claims/claims_without_open_compensation_claims', &example)
+    end
+
     context 'success' do
       it 'finishes successfully' do
         Sidekiq::Testing.inline! do
