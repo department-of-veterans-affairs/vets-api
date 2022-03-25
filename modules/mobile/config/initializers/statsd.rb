@@ -132,5 +132,9 @@ Rails.application.reloader.to_prepare do
                                                             'mobile.payment_history.index'
   StatsD.increment('mobile.payment_history.index.success', 0)
   StatsD.increment('mobile.payment_history.index.failure', 0)
+
+  # Schedule Appointments #-------------------------------------------------------
+  StatsD.increment('mobile.schedule_appointment.policy.success', 0)
+  StatsD.increment('mobile.schedule_appointment.policy.failure', 0)
   # rubocop: enable Metrics/BlockLength
 end

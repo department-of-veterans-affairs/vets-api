@@ -48,7 +48,8 @@ module Mobile
         militaryServiceHistory: :emis,
         paymentHistory: :bgs,
         userProfileUpdate: :vet360,
-        secureMessaging: :mhv_messaging
+        secureMessaging: :mhv_messaging,
+        scheduleAppointments: :schedule_appointment
       }.freeze
 
       set_type :user
