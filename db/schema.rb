@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_02_23_000748) do
+ActiveRecord::Schema.define(version: 2022_03_24_182532) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -589,6 +589,13 @@ ActiveRecord::Schema.define(version: 2022_02_23_000748) do
     t.index ["user_uuid"], name: "index_in_progress_forms_on_user_uuid"
   end
 
+  create_table "inherited_proof_verified_user_accounts", force: :cascade do |t|
+    t.uuid "user_account_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_account_id"], name: "index_inherited_proof_verified_user_accounts_on_user_account_id", unique: true
+  end
+
   create_table "invalid_letter_address_edipis", id: :serial, force: :cascade do |t|
     t.string "edipi", null: false
     t.datetime "created_at", null: false
@@ -1017,6 +1024,7 @@ ActiveRecord::Schema.define(version: 2022_02_23_000748) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "deprecated_user_accounts", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_verifications"
+  add_foreign_key "inherited_proof_verified_user_accounts", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "user_verifications", "user_accounts"
 end
