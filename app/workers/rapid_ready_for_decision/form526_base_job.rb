@@ -19,6 +19,13 @@ module RapidReadyForDecision
       submission.form_json.include? RapidReadyForDecision::HypertensionUploadManager::DOCUMENT_TITLE
     end
 
+    # Fetch all claims from EVSS and return whether there are any open EP 020's.
+    # This method could be moved into a Concern when ProcessorSelector adds new job classes.
+    def self.pending_eps?(auth_headers)
+      all_claims = EVSS::ClaimsService.new(auth_headers).all_claims.body
+      all_claims['open_claims'].any? { |claim| claim['base_end_product_code'] == '020' }
+    end
+
     # @param med_stats_hash [Hash] to be merged into form526_submission.form_json['rrd_med_stats']
     def self.add_medical_stats_hash(form526_submission, med_stats_hash)
       form_json = JSON.parse(form526_submission.form_json)
@@ -35,6 +42,9 @@ module RapidReadyForDecision
 
       begin
         with_tracking(self.class.name, form526_submission.saved_claim_id, form526_submission_id) do
+          # Prefer "next" keyword here so that after-yield code continues execution
+          next if RapidReadyForDecision::Form526BaseJob.pending_eps?(form526_submission.auth_headers)
+
           assessed_data = assess_data(form526_submission)
           return if assessed_data.nil?
 

@@ -21,9 +21,12 @@ module RapidReadyForDecision
 
       begin
         with_tracking(self.class.name, form526_submission.saved_claim_id, form526_submission_id) do
+          # Prefer "next" keyword here so that after-yield code continues execution
+          next if RapidReadyForDecision::Form526BaseJob.pending_eps?(form526_submission.auth_headers)
+
           client = Lighthouse::VeteransHealth::Client.new(get_icn(form526_submission))
 
-          return if bp_readings(client).blank?
+          next if bp_readings(client).blank?
 
           add_bp_readings_stats(form526_submission, bp_readings(client))
 
