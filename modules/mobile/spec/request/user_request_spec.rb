@@ -557,6 +557,7 @@ RSpec.describe 'user', type: :request do
             militaryServiceHistory
             paymentHistory
             userProfileUpdate
+            scheduleAppointments
           ]
         )
       end
