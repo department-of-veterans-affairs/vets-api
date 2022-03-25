@@ -175,6 +175,7 @@ RSpec.describe 'payment_information', type: :request do
 
     context 'with a valid evss response' do
       it 'matches the ppiu schema' do
+        allow(DirectDepositEmailJob).to receive(:send_to_emails)
         VCR.use_cassette('evss/ppiu/update_payment_information') do
           put '/mobile/v0/payment-information/benefits', params: payment_info_request,
                                                          headers: iam_headers.merge(content_type)
