@@ -13,8 +13,12 @@ module V0
           appeals_response = get_appeal_from_lighthouse(@user_ssan, @user_name)
           appeals_data_array = appeals_response['data']
         else
-          appeals_response = appeals_service.get_appeals(current_user)
-          appeals_data_array = appeals_response.body['data']
+          begin
+            appeals_response = appeals_service.get_appeals(current_user)
+            appeals_data_array = appeals_response.body['data']
+          rescue => e
+            return service_exception_handler(e)
+          end
         end
         data = data_for_first_comp_appeal(appeals_data_array)
         render json: {
@@ -170,6 +174,14 @@ module V0
         else
           ['796378881', 'vets.gov.user+54@gmail.com']
         end
+      end
+
+      private
+
+      def service_exception_handler(exception)
+        context = 'An error occurred while attempting to retrieve the appeal(s)'
+        log_exception_to_sentry(exception, 'context' => context)
+        render nothing: true, status: :service_unavailable
       end
     end
   end
