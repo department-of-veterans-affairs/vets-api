@@ -157,6 +157,20 @@
       :cache_multiple_responses:
         :uid_location: body
         :uid_locator: 'userId":(\d+)'
+    # MHV correlation id
+    - :method: :get
+      :path: '/validmhvid/*'
+      :file_path: 'mhv/correlation_id'
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/validmhvid\/(.+)'
+    # MHV  id
+    - :method: :get
+      :path: '/mhvacctinfo/*'
+      :file_path: 'mhv/account_info'
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/mhvacctinfo\/(.+)'
 
 # EVSS
 - :name: 'EVSS'
