@@ -45,8 +45,8 @@ module AppealsApi
     end
 
     def retry_limits_for_notification
-      # Alert @ 1m, 10m, 30m, 4h, 1d, 3d, and 7d
-      [2, 5, 6, 10, 14, 17, 20]
+      # Alert @ 30m, 4h, 1d, 3d, and 7d
+      [6, 10, 14, 17, 20]
     end
 
     def notify(retry_params)
