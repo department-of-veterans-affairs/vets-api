@@ -8,21 +8,30 @@ module V0
     class VirtualAgentClaimController < ApplicationController
       include IgnoreNotFound
 
+      rescue_from 'EVSS::ErrorMiddleware::EVSSError', with: :service_exception_handler
+
       before_action { authorize :evss, :access? }
 
       def index
         claims, synchronized = service.all
 
-        data = if synchronized == 'REQUESTED'
-                 nil
-               else
-                 data_for_three_most_recent_open_comp_claims(claims)
-               end
+        case synchronized
+        when 'REQUESTED'
+          render json: {
+            data: nil,
+            meta: { sync_status: synchronized }
+          }
+        when 'FAILED'
+          error = EVSS::ErrorMiddleware::EVSSError.new('Could not retrieve claims')
+          service_exception_handler(error)
+        else
+          data_for_three_most_recent_open_comp_claims(claims)
 
-        render json: {
-          data: data,
-          meta: { sync_status: synchronized }
-        }
+          render json: {
+            data: data_for_three_most_recent_open_comp_claims(claims),
+            meta: { sync_status: synchronized }
+          }
+        end
       end
 
       def show
@@ -92,6 +101,14 @@ module V0
         va_rep = claim.data['poa']
         va_rep.gsub(/&[^ ;]+;/, '')
       end
+
+      def service_exception_handler(exception)
+        context = 'An error occurred while attempting to retrieve the claim(s).'
+        log_exception_to_sentry(exception, 'context' => context)
+        render nothing: true, status: :service_unavailable
+      end
+
+      class ServiceException < RuntimeError; end
     end
   end
 end

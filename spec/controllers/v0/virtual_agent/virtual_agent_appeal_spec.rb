@@ -400,5 +400,17 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
         end
       end
     end
+
+    describe 'when CaseFlow throws an error' do
+      it 'logs to sentry when CaseFlow has server error 500' do
+        sign_in_as(user)
+
+        VCR.use_cassette('caseflow/server_error') do
+          get '/v0/virtual_agent/appeal'
+
+          expect(response).to have_http_status(:service_unavailable)
+        end
+      end
+    end
   end
 end

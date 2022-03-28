@@ -226,4 +226,19 @@ RSpec.describe 'VirtualAgentClaims', type: :request do
       expect(JSON.parse(response.body)['data']).to eq({ 'va_representative' => 'VENKATA KOMMOJU' })
     end
   end
+
+  describe 'controller logs exceptions to Sentry' do
+    it 'returns service unavailable when controller reports a blah exception' do
+      sign_in_as(user)
+
+      VCR.use_cassette('evss/claims/claims_with_errors') do
+        EVSS::RetrieveClaimsFromRemoteJob.new.perform(user.uuid)
+      rescue
+        get '/v0/virtual_agent/claim'
+
+        # if :service_unavailable is the status, Sentry logging was called
+        expect(response).to have_http_status(:service_unavailable)
+      end
+    end
+  end
 end
