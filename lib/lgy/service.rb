@@ -124,14 +124,10 @@ module LGY
         )
       end
     rescue Common::Client::Errors::ClientError => e
-      # catch any unsuccessful put
-      return e if e.status != 200
-
       raise e
     end
 
     def get_coe_documents
-      # which will look a lot like get_determination
       with_monitoring do
         perform(
           :get,
