@@ -47,14 +47,16 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     end.to change(subject.jobs, :size).by(1)
   end
 
-  it 'on successful call and deletes the file' do
+  # relates to API-14302 and API-14303
+  # do not remove uploads from S3 until we feel that uploads to EVSS are stable
+  it 'on successful call it does not delete the file from S3' do
     evss_service_stub = instance_double('EVSS::DocumentsService')
     allow(EVSS::DocumentsService).to receive(:new) { evss_service_stub }
     allow(evss_service_stub).to receive(:upload) { OpenStruct.new(response: 200) }
 
     subject.new.perform(supporting_document.id)
     supporting_document.reload
-    expect(supporting_document.uploader.blank?).to eq(true)
+    expect(supporting_document.uploader.blank?).to eq(false)
   end
 
   it 'if an evss_id is nil, it reschedules the sidekiq job to the future' do

@@ -734,4 +734,51 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
       end
     end
   end
+
+  describe "'remove_encrypted_fields' callback" do
+    context "when 'status' is 'established'" do
+      let(:auto_form) { create(:auto_established_claim, :status_established, auth_headers: { some: 'data' }) }
+
+      context 'and the record is updated' do
+        it "erases the 'form_data' attribute" do
+          expect(auto_form.form_data).not_to be_empty
+
+          auto_form.auth_headers = { message: 'just need to update something to trigger the callback' }
+          auto_form.save!
+          auto_form.reload
+
+          expect(auto_form.form_data).to be_empty
+        end
+
+        it "does not erase the 'auth_headers' attribute" do
+          expect(auto_form.auth_headers).not_to be_empty
+
+          auto_form.auth_headers = { message: 'just need to update something to trigger the callback' }
+          auto_form.save!
+          auto_form.reload
+
+          expect(auto_form.auth_headers).not_to be_empty
+        end
+
+        it "does not erase the 'file_data' attribute" do
+          auto_form = build(:auto_established_claim, :status_established, auth_headers: { some: 'data' })
+          file = Rack::Test::UploadedFile.new(
+            "#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"
+          )
+
+          auto_form.set_file_data!(file, 'docType')
+          auto_form.save!
+          auto_form.reload
+
+          expect(auto_form.file_data).not_to be_nil
+
+          auto_form.auth_headers = { message: 'just need to update something to trigger the callback' }
+          auto_form.save!
+          auto_form.reload
+
+          expect(auto_form.file_data).not_to be_nil
+        end
+      end
+    end
+  end
 end
