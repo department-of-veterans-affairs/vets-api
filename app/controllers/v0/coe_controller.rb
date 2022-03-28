@@ -33,7 +33,11 @@ module V0
 
     def documents
       documents = lgy_service.get_coe_documents
-      render json: { data: { attributes: documents.body } }, status: :ok
+
+      # Documents should be sorted from most to least recent
+      sorted = documents.body.sort_by { |doc| doc['create_date'] }.reverse
+
+      render json: { data: { attributes: sorted } }, status: :ok
     end
 
     def document_upload
