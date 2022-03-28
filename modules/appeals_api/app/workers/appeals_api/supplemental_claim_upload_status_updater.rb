@@ -19,11 +19,7 @@ module AppealsApi
     end
 
     def retry_limits_for_notification
-      if Settings.vsp_environment == 'production'
-        [2, 4]
-      else
-        [5]
-      end
+      [5]
     end
 
     def notify(retry_params)
