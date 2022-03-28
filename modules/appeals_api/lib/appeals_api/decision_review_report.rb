@@ -86,6 +86,10 @@ module AppealsApi
       faulty_hlr.empty? && faulty_nod.empty? && faulty_sc.empty?
     end
 
+    def no_stuck_records?
+      stuck_hlr.empty? && stuck_nod.empty? && stuck_sc.empty?
+    end
+
     private
 
     def group_appeal_records(record_type)
