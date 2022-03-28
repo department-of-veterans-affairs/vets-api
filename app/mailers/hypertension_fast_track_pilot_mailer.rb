@@ -12,7 +12,7 @@ class HypertensionFastTrackPilotMailer < ApplicationMailer
       if @rrd_claim_processed
         'RRD claim - Processed'
       else
-        'RRD claim - Insufficient Data'
+        'RRD claim - Not processed'
       end
     subject += " - #{@disability_code}"
 

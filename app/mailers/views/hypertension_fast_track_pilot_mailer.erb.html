@@ -5,12 +5,12 @@
   </head>
   <body>
     <p>
+      A single-issue <%= @disability_code %> claim for increase was submitted on va.gov.<br/>
       <% if @rrd_claim_processed %>
-        A single-issue <%= @disability_code %> claim for increase was submitted on va.gov.<br/>
         A health summary PDF was generated and added to the claim's documentation.
       <% else %>
-        A single-issue <%= @disability_code %> claim for increase was submitted on va.gov.<br/>
-        There was not sufficient data to generate a health summary PDF associated with this claim. 
+        There was some issue (such as insufficient health data or pending EP) that prevents
+        a health summary PDF to be generated for this claim.
       <% end %>
     </p>
     <table border="1" cellspacing="1" cellpadding="5">
