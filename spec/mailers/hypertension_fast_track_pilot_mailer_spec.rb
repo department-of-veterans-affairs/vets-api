@@ -46,7 +46,7 @@ RSpec.describe HypertensionFastTrackPilotMailer, type: [:mailer] do
     end
   end
 
-  context 'the data IS NOT sufficient to fast track the claim' do
+  context 'the claim is not fast-tracked by RRD' do
     let(:form_json) do
       File.read('spec/support/disability_compensation_form/submissions/with_uploads.json')
     end
@@ -61,13 +61,13 @@ RSpec.describe HypertensionFastTrackPilotMailer, type: [:mailer] do
     end
 
     it 'has the expected subject' do
-      expect(email.subject).to start_with 'RRD claim - Insufficient Data'
+      expect(email.subject).to start_with 'RRD claim - Not processed'
     end
 
     it 'has the expected content' do
       expect(email.body).to include 'A single-issue 5235 claim for increase was submitted on va.gov.'
       expect(email.body)
-        .to include 'There was not sufficient data to generate a health summary PDF associated with this claim.'
+        .to include 'There was some issue (such as insufficient health data or pending EP) that prevents'
     end
   end
 end
