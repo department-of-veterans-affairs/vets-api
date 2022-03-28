@@ -20,7 +20,6 @@ module ClaimsApi
         uploader.retrieve_from_store!(object.file_data['filename'])
         file_body = uploader.read
         service(auth_headers).upload(file_body, object)
-        uploader.remove!
       end
     end
 

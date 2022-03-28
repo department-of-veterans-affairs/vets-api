@@ -235,12 +235,12 @@ module ClaimsApi
       end
     end
 
+    # do not clear out 'auth_headers' or 'file_data' attributes
+    # 'auth_headers' is required to make calls to EVSS for uploading docs
+    # 'file_data' is required to know what doc to upload to EVSS
+    # See API-14303
     def remove_encrypted_fields
-      if status == ESTABLISHED
-        self.form_data = {}
-        self.auth_headers = {}
-        self.file_data = nil
-      end
+      self.form_data = {} if status == ESTABLISHED
     end
 
     def treatments?
