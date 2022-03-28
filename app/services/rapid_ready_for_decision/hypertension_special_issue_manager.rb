@@ -21,11 +21,11 @@ module RapidReadyForDecision
 
     private
 
-    HYPERTENSION_CODE = RapidReadyForDecision::DiagnosticCodes::HYPERTENSION
+    HYPERTENSION_DISABILITY = RapidReadyForDecision::Constants::DISABILITIES[:hypertension]
     RRD_CODE = 'RRD'
 
     def hypertension_increase?(disability)
-      RapidReadyForDecision::ProcessorSelector.disability_increase?(disability, HYPERTENSION_CODE)
+      RapidReadyForDecision::ProcessorSelector.disability_increase?(disability, HYPERTENSION_DISABILITY)
     end
 
     # Must return an array containing special string codes for EVSS
