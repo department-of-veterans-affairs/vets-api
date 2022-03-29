@@ -6,7 +6,9 @@ require 'rails_helper'
 require 'lighthouse/veterans_health/client'
 
 RSpec.describe RapidReadyForDecision::HypertensionPdfGenerator, :vcr do
-  subject { PDF::Inspector::Text.analyze(pdf_generator.generate.render).strings }
+  subject { PDF::Inspector::Text.analyze(compiled_pdf.render).strings }
+
+  let(:compiled_pdf) { pdf_generator.generate }
 
   let(:client) do
     # Using specific test ICN below:
