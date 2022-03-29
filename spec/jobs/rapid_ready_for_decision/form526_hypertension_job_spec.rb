@@ -73,7 +73,7 @@ RSpec.describe RapidReadyForDecision::Form526HypertensionJob, type: :worker do
               RapidReadyForDecision::Form526HypertensionJob.perform_async(submission.id)
 
               submission.reload
-              expect(submission.form.dig('rrd_med_stats', 'bp_readings_count')).to eq 1
+              expect(submission.form.dig('rrd_metadata', 'med_stats', 'bp_readings_count')).to eq 1
             end.not_to raise_error
           end
         end
@@ -199,6 +199,8 @@ RSpec.describe RapidReadyForDecision::Form526HypertensionJob, type: :worker do
           Sidekiq::Testing.inline! do
             expect(Lighthouse::VeteransHealth::Client).not_to receive(:new)
             subject.perform_async(submission.id)
+            submission.reload
+            expect(submission.form.dig('rrd_metadata', 'offramp_reason')).to eq 'pending_ep'
           end
         end
       end

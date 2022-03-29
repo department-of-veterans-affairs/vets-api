@@ -73,7 +73,7 @@ RSpec.describe RapidReadyForDecision::DisabilityCompensationJob, type: :worker d
               RapidReadyForDecision::DisabilityCompensationJob.perform_async(submission.id)
 
               submission.reload
-              expect(submission.form.dig('rrd_med_stats', 'bp_readings_count')).to eq 1
+              expect(submission.form.dig('rrd_metadata', 'med_stats', 'bp_readings_count')).to eq 1
             end.not_to raise_error
           end
         end

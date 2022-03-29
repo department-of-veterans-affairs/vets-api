@@ -21,20 +21,30 @@ module RapidReadyForDecision
 
     # Fetch all claims from EVSS and return whether there are any open EP 020's.
     # This method could be moved into a Concern when ProcessorSelector adds new job classes.
-    def self.pending_eps?(auth_headers)
-      all_claims = EVSS::ClaimsService.new(auth_headers).all_claims.body
-      all_claims['open_claims'].any? { |claim| claim['base_end_product_code'] == '020' }
+    def self.pending_eps?(form526_submission)
+      all_claims = EVSS::ClaimsService.new(form526_submission.auth_headers).all_claims.body
+      pending = all_claims['open_claims'].any? { |claim| claim['base_end_product_code'] == '020' }
+      add_metadata(form526_submission, offramp_reason: 'pending_ep') if pending
+      pending
     end
 
-    # @param med_stats_hash [Hash] to be merged into form526_submission.form_json['rrd_med_stats']
-    def self.add_medical_stats_hash(form526_submission, med_stats_hash)
+    # @param metadata_hash [Hash] to be merged into form526_submission.form_json['rrd_metadata']
+    def self.add_metadata(form526_submission, metadata_hash)
       form_json = JSON.parse(form526_submission.form_json)
-      form_json['rrd_med_stats'] ||= {}
-      form_json['rrd_med_stats'].merge!(med_stats_hash)
+      form_json['rrd_metadata'] ||= {}
+      form_json['rrd_metadata'].deep_merge!(metadata_hash)
 
       form526_submission.update!(form_json: JSON.dump(form_json))
       form526_submission.invalidate_form_hash
       form526_submission
+    end
+
+    def self.rrd_status(form526_submission)
+      return :processed if RapidReadyForDecision::Form526BaseJob.rrd_claim_processed?(form526_submission)
+
+      return :pending_ep if form526_submission.form.dig('rrd_metadata', 'offramp_reason') == 'pending_ep'
+
+      :insufficient_data
     end
 
     def perform(form526_submission_id)
@@ -42,8 +52,7 @@ module RapidReadyForDecision
 
       begin
         with_tracking(self.class.name, form526_submission.saved_claim_id, form526_submission_id) do
-          # Prefer "next" keyword here so that after-yield code continues execution
-          next if RapidReadyForDecision::Form526BaseJob.pending_eps?(form526_submission.auth_headers)
+          return if RapidReadyForDecision::Form526BaseJob.pending_eps?(form526_submission)
 
           assessed_data = assess_data(form526_submission)
           return if assessed_data.nil?
@@ -77,7 +86,7 @@ module RapidReadyForDecision
       raise "Method `generate_pdf` should be overriden by the subclass #{self.class}"
     end
 
-    # Override this method to add to form526_submission.form_json['rrd_med_stats']
+    # Override this method to add to form526_submission.form_json['rrd_metadata']['med_stats']
     def med_stats_hash(_form526_submission, _assessed_data); end
 
     # @param assessed_data [Hash] results from assess_data
@@ -85,7 +94,7 @@ module RapidReadyForDecision
       med_stats_hash = med_stats_hash(form526_submission, assessed_data)
       return if med_stats_hash.blank?
 
-      self.class.add_medical_stats_hash(form526_submission, med_stats_hash)
+      self.class.add_metadata(form526_submission, med_stats: med_stats_hash)
     end
 
     class AccountNotFoundError < StandardError; end

@@ -21,12 +21,11 @@ module RapidReadyForDecision
 
       begin
         with_tracking(self.class.name, form526_submission.saved_claim_id, form526_submission_id) do
-          # Prefer "next" keyword here so that after-yield code continues execution
-          next if RapidReadyForDecision::Form526BaseJob.pending_eps?(form526_submission.auth_headers)
+          return if RapidReadyForDecision::Form526BaseJob.pending_eps?(form526_submission)
 
           client = Lighthouse::VeteransHealth::Client.new(get_icn(form526_submission))
 
-          next if bp_readings(client).blank?
+          return if bp_readings(client).blank?
 
           add_bp_readings_stats(form526_submission, bp_readings(client))
 
@@ -61,7 +60,7 @@ module RapidReadyForDecision
 
     def add_bp_readings_stats(form526_submission, bp_readings)
       med_stats_hash = { bp_readings_count: bp_readings.size }
-      RapidReadyForDecision::Form526BaseJob.add_medical_stats_hash(form526_submission, med_stats_hash)
+      RapidReadyForDecision::Form526BaseJob.add_metadata(form526_submission, med_stats: med_stats_hash)
     end
 
     def send_fast_track_engineer_email_for_testing(form526_submission_id, error_message, backtrace)

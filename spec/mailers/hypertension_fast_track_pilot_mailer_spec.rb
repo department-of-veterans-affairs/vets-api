@@ -28,7 +28,7 @@ RSpec.describe HypertensionFastTrackPilotMailer, type: [:mailer] do
                                                               form_json: form_json)
       # Set the bp_readings_count like `add_medical_stats` is expected to do
       form_json = JSON.parse(submission.form_json)
-      form_json['rrd_med_stats'] = { bp_readings_count: bp_readings_count }
+      form_json['rrd_metadata'] = { med_stats: { bp_readings_count: bp_readings_count } }
       form_json['form526_uploads'].append(rrd_pdf_json)
       submission.update!(form_json: JSON.dump(form_json))
       submission.invalidate_form_hash
@@ -46,7 +46,26 @@ RSpec.describe HypertensionFastTrackPilotMailer, type: [:mailer] do
     end
   end
 
-  context 'the claim is not fast-tracked by RRD' do
+  context 'when the claim was offramped due to an existing EP 020' do
+    let!(:submission) do
+      submission = create(:form526_submission, :with_uploads, user_uuid: 'fake uuid',
+                                                              auth_headers_json: 'fake auth headers')
+      RapidReadyForDecision::Form526BaseJob.add_metadata(submission, offramp_reason: 'pending_ep')
+      submission
+    end
+
+    it 'has the expected subject' do
+      expect(email.subject).to start_with 'RRD claim - Pending ep'
+    end
+
+    it 'has the expected content' do
+      expect(email.body).to include 'A single-issue 5235 claim for increase was submitted on va.gov.'
+      expect(email.body)
+        .to include 'There was already a pending EP 020 for the veteran associated with this claim.'
+    end
+  end
+
+  context 'the data IS NOT sufficient to fast track the claim' do
     let(:form_json) do
       File.read('spec/support/disability_compensation_form/submissions/with_uploads.json')
     end
@@ -61,13 +80,13 @@ RSpec.describe HypertensionFastTrackPilotMailer, type: [:mailer] do
     end
 
     it 'has the expected subject' do
-      expect(email.subject).to start_with 'RRD claim - Not processed'
+      expect(email.subject).to start_with 'RRD claim - Insufficient data'
     end
 
     it 'has the expected content' do
       expect(email.body).to include 'A single-issue 5235 claim for increase was submitted on va.gov.'
       expect(email.body)
-        .to include 'There was some issue (such as insufficient health data or pending EP) that prevents'
+        .to include 'There was not sufficient data to generate a health summary PDF associated with this claim.'
     end
   end
 end
