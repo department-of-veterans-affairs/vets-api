@@ -41,7 +41,7 @@ module CovidResearch
         form_service = FormService.new(UPDATE_SCHEMA)
         with_monitoring do
           if form_service.valid?(payload)
-            ConfirmationMailerJob.perform_async(payload['email'], UPDATE_EMAIL_TEMPLATE_NAME)
+            # ConfirmationMailerJob.perform_async(payload['email'], UPDATE_EMAIL_TEMPLATE_NAME)
 
             deliver(payload)
 

@@ -166,15 +166,15 @@ RSpec.describe 'covid research volunteer submissions', type: :request do
       end
     end
 
-    context 'email confirmation' do
-      let(:confirmation_job) { CovidResearch::Volunteer::ConfirmationMailerJob }
+    # context 'email confirmation' do
+    #   let(:confirmation_job) { CovidResearch::Volunteer::ConfirmationMailerJob }
 
-      it 'schedules delivery via Sidekiq' do
-        expect(confirmation_job).to receive(:perform_async).with(JSON.parse(valid)['email'], email_template)
+    #   it 'schedules delivery via Sidekiq' do
+    #     expect(confirmation_job).to receive(:perform_async).with(JSON.parse(valid)['email'], email_template)
 
-        post '/covid-research/volunteer/update', params: valid
-      end
-    end
+    #     post '/covid-research/volunteer/update', params: valid
+    #   end
+    # end
 
     context 'with feature toggle off' do
       it 'returns a 404 status' do
