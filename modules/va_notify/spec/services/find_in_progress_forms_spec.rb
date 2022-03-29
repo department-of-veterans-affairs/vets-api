@@ -16,9 +16,9 @@ describe VANotify::FindInProgressForms do
     let(:user) { create(:user, uuid: SecureRandom.uuid) }
 
     it 'fetches only relevant forms by id' do
-      in_progress_form_1 = create_in_progress_form_days_ago(14, user_uuid: user.uuid, form_id: '686C-674')
-      create_in_progress_form_days_ago(14, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid, form_id: 'something')
-      create_in_progress_form_days_ago(14, form_id: '1010')
+      in_progress_form_1 = create_in_progress_form_days_ago(7, user_uuid: user.uuid, form_id: '686C-674')
+      create_in_progress_form_days_ago(7, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid, form_id: 'something')
+      create_in_progress_form_days_ago(7, form_id: '1010')
 
       subject = described_class.new
 
@@ -27,11 +27,24 @@ describe VANotify::FindInProgressForms do
     end
 
     context 'only fetches saved forms based on the correct cadence' do
-      it '14 days' do
-        create_in_progress_form_days_ago(13, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
+      it '7 days' do
+        create_in_progress_form_days_ago(6, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
+                                            form_id: '686C-674')
+        in_progress_form_1 = create_in_progress_form_days_ago(7, user_uuid: user.uuid, form_id: '686C-674')
+        create_in_progress_form_days_ago(8, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
+                                            form_id: '686C-674')
+
+        subject = described_class.new
+
+        user_uuid = user.uuid.delete('-')
+        expect(subject.to_notify).to eq({ user_uuid => [in_progress_form_1] })
+      end
+
+      it '21 days' do
+        create_in_progress_form_days_ago(20, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
                                              form_id: '686C-674')
-        in_progress_form_1 = create_in_progress_form_days_ago(14, user_uuid: user.uuid, form_id: '686C-674')
-        create_in_progress_form_days_ago(15, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
+        in_progress_form_1 = create_in_progress_form_days_ago(21, user_uuid: user.uuid, form_id: '686C-674')
+        create_in_progress_form_days_ago(22, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
                                              form_id: '686C-674')
 
         subject = described_class.new
@@ -40,24 +53,11 @@ describe VANotify::FindInProgressForms do
         expect(subject.to_notify).to eq({ user_uuid => [in_progress_form_1] })
       end
 
-      it '28 days' do
-        create_in_progress_form_days_ago(27, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
+      it '35 days' do
+        create_in_progress_form_days_ago(34, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
                                              form_id: '686C-674')
-        in_progress_form_1 = create_in_progress_form_days_ago(28, user_uuid: user.uuid, form_id: '686C-674')
-        create_in_progress_form_days_ago(29, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
-                                             form_id: '686C-674')
-
-        subject = described_class.new
-
-        user_uuid = user.uuid.delete('-')
-        expect(subject.to_notify).to eq({ user_uuid => [in_progress_form_1] })
-      end
-
-      it '42 days' do
-        create_in_progress_form_days_ago(41, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
-                                             form_id: '686C-674')
-        in_progress_form_1 = create_in_progress_form_days_ago(42, user_uuid: user.uuid, form_id: '686C-674')
-        create_in_progress_form_days_ago(43, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
+        in_progress_form_1 = create_in_progress_form_days_ago(35, user_uuid: user.uuid, form_id: '686C-674')
+        create_in_progress_form_days_ago(36, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
                                              form_id: '686C-674')
 
         subject = described_class.new
@@ -66,11 +66,11 @@ describe VANotify::FindInProgressForms do
         expect(subject.to_notify).to eq({ user_uuid => [in_progress_form_1] })
       end
 
-      it '56 days' do
-        create_in_progress_form_days_ago(55, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
+      it '49 days' do
+        create_in_progress_form_days_ago(48, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
                                              form_id: '686C-674')
-        in_progress_form_1 = create_in_progress_form_days_ago(56, user_uuid: user.uuid, form_id: '686C-674')
-        create_in_progress_form_days_ago(57, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
+        in_progress_form_1 = create_in_progress_form_days_ago(49, user_uuid: user.uuid, form_id: '686C-674')
+        create_in_progress_form_days_ago(50, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
                                              form_id: '686C-674')
 
         subject = described_class.new
