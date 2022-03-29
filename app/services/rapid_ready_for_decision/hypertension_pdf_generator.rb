@@ -1,6 +1,23 @@
 # frozen_string_literal: true
 
 module RapidReadyForDecision
+  PDF_MARKUP_SETTINGS = {
+    text: {
+      size: 11
+    },
+    heading4: {
+      margin_top: 12
+    },
+    table: {
+      width: 150,
+      cell: {
+        size: 10,
+        border_width: 0,
+        background_color: 'f3f3f3'
+      }
+    }
+  }.freeze
+
   class HypertensionPdfGenerator
     def initialize(patient_info, blood_pressure_data, medications)
       @pdf = Prawn::Document.new
@@ -8,6 +25,7 @@ module RapidReadyForDecision
       @blood_pressure_data = blood_pressure_data
       @medications = medications
       @date = Time.zone.today
+      @pdf.markup_options = PDF_MARKUP_SETTINGS
     end
 
     # progressively builds a pdf and is sensitive to sequence
@@ -98,16 +116,8 @@ module RapidReadyForDecision
     end
 
     def add_blood_pressure_outro
-      @pdf.text 'Hypertension Rating Schedule', size: 14
-      @pdf.table(
-        RATING_SCHEDULE, width: 350, column_widths: [30, 320], cell_style: {
-          size: 10, border_width: 0, background_color: 'f3f3f3'
-        }
-      )
-
-      @pdf.text "\n"
-      @pdf.text RATING_SCHEDULE_LINK,
-                inline_format: true, color: '0000ff', size: 12
+      template = File.read('app/services/rapid_ready_for_decision/views/hypertension/rating_schedule.erb')
+      @pdf.markup ERB.new(template).result(binding)
     end
 
     def add_medications_intro
@@ -148,62 +158,9 @@ module RapidReadyForDecision
 
     def add_about
       @pdf.start_new_page
-      @pdf.text 'About this Document', size: 14
-      ABOUT_LINES.each do |line|
-        @pdf.text line, size: 11, inline_format: true
-      end
+
+      template = File.read('app/services/rapid_ready_for_decision/views/hypertension/about.erb')
+      @pdf.markup ERB.new(template).result(binding)
     end
-
-    ABOUT_LINES = [
-      'The Hypertension Rapid Ready for Decision system retrieves and summarizes ' \
-      'VHA medical records related to hypertension claims for increase submitted on va.gov. ' \
-      'VSRs and RVSRs can develop and rate this claim without ordering an exam if there is '\
-      'sufficient existing evidence to show predominance according to ' \
-      '<link href="https://www.ecfr.gov/current/title-38/part-4">' \
-      '<color rgb="0000ff">DC 7101 (Hypertension) Rating Criteria</color></link>. ' \
-      'This is not new guidance, but rather a way to ' \
-      '<link href="https://www.ecfr.gov/current/title-38/chapter-I/part-3/' \
-      'subpart-A/subject-group-ECFR7629a1b1e9bf6f8/section-3.159"><color rgb="0000ff">' \
-      'operationalize existing statutory rules</color><link> in 38 U.S.C § 5103a(d).',
-      ' ',
-      '<font size="13">Some medical data are not included in this PDF. Please check for' \
-      'additional readings and sources.</font>',
-      'This summary does not check all sources of medical information for Veterans that' \
-      'are necessary for you to rate this claim' \
-      'accurately. You will need to check these sources manually to gather all available evidence.',
-      ' ',
-      '<b>Clinical notes.</b> This data may not match all the medical evidence in CAPRI. ' \
-      'For example, it may not find blood pressure readings entered into clinical notes.',
-      ' ',
-      '<b>Data outside of VAMC CAPRI or VistA.</b> This report does not check the following sources:',
-      ' •  Private medical records',
-      ' •  VAMC data for clinics using CERNER EHR',
-      ' •  Department of Defense/JVL medical data',
-      ' •  Documents in the Veteran\'s VBMS eFolder'
-    ].freeze
-
-    RATING_SCHEDULE = [
-      [
-        '10%',
-        'Systolic pressure predominantly 160 or more; or diastolic pressure predominantly 100 or more; ' \
-        'or minimum evaluation for an individual with a history of diastolic pressure predominantly' \
-        '100 or more who requires continuous medication for control'
-      ],
-      [
-        '20%',
-        'Systolic pressure predominantly 200 or more; ' \
-        'or diastolic pressure predominantly 110 or more'
-      ],
-      [
-        '40%', 'Diastolic pressure 120 or more'
-      ],
-      [
-        '60%', 'Diastolic pressure 130 or more'
-      ]
-    ].freeze
-
-    RATING_SCHEDULE_LINK =  "<link href='" \
-                            'https://www.ecfr.gov/current/title-38/' \
-                            "chapter-I/part-4'>View rating schedule</link>"
   end
 end
