@@ -173,17 +173,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
                          'Validation failed: Status is not included in the list')
     end
 
-    it 'emits an event' do
-      handler = instance_double(AppealsApi::Events::Handler)
-      allow(AppealsApi::Events::Handler).to receive(:new).and_return(handler)
-      allow(handler).to receive(:handle!)
-
-      notice_of_disagreement.update_status!(status: 'pending')
-
-      expect(handler).to have_received(:handle!).exactly(1).times
-    end
-
-    it 'sends an email when emailAddressText is present' do
+    it 'emits events with expected values' do
       Timecop.freeze(Time.zone.now) do
         notice_of_disagreement.update_status!(status: 'submitted')
 
@@ -211,7 +201,9 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
                                               'first_name' => 'Jäñe',
                                               'date_submitted' =>
                                               notice_of_disagreement.created_at.in_time_zone('America/Chicago').iso8601,
-                                              'guid' => notice_of_disagreement.id
+                                              'guid' => notice_of_disagreement.id,
+                                              'claimant_email' => '',
+                                              'claimant_first_name' => 'John'
                                             }
                                           ])
       end

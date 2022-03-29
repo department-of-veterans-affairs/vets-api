@@ -198,7 +198,7 @@ module AppealsApi
     def update_status!(status:, code: nil, detail: nil)
       handler = Events::Handler.new(event_type: :nod_status_updated, opts: {
                                       from: self.status,
-                                      to: status,
+                                      to: status.to_s,
                                       status_update_time: Time.zone.now.iso8601,
                                       statusable_id: id
                                     })
@@ -207,13 +207,15 @@ module AppealsApi
                                             email_identifier: email_identifier,
                                             first_name: veteran_first_name,
                                             date_submitted: veterans_local_time.iso8601,
-                                            guid: id
+                                            guid: id,
+                                            claimant_email: claimant.email,
+                                            claimant_first_name: claimant.first_name
                                           })
 
       update!(status: status, code: code, detail: detail)
 
       handler.handle!
-      email_handler.handle! if status == 'submitted' && email_identifier.present?
+      email_handler.handle! if status == 'submitted' && (claimant.email.present? || email_identifier.present?)
     end
 
     private

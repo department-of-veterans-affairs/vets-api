@@ -5,7 +5,7 @@ module AppealsApi
     class AppealReceived
       def initialize(opts)
         @opts = opts
-        raise InvalidKeys unless required_keys?
+        raise InvalidKeys, 'AppealReceived: Missing required keys' unless required_keys?
       end
 
       def hlr_received
@@ -13,7 +13,7 @@ module AppealsApi
 
         unless valid_email_identifier?
           log_error(guid, 'HLR')
-          raise InvalidKeys
+          raise InvalidKeys, 'Invalid email identifier'
         end
 
         template_type = 'higher_level_review_received'
@@ -27,10 +27,10 @@ module AppealsApi
 
         unless valid_email_identifier?
           log_error(guid, 'NOD')
-          raise InvalidKeys
+          raise InvalidKeys, 'Invalid email identifier'
         end
 
-        template_type = 'notice_of_disagreement_received'
+        template_type = +'notice_of_disagreement_received'
         template = { template_id: template_id(template_type) }
 
         vanotify_service.send_email(params(template))
@@ -41,7 +41,7 @@ module AppealsApi
 
         unless valid_email_identifier?
           log_error(guid, 'SC')
-          raise InvalidKeys
+          raise InvalidKeys, 'Invalid email identifier'
         end
 
         template_type = 'supplemental_claim_received'
@@ -67,6 +67,8 @@ module AppealsApi
       end
 
       def lookup
+        return { email_address: opts['claimant_email'] } if opts['claimant_email']
+
         if opts['email_identifier']['id_type'] == 'email'
           { email_address: opts['email_identifier']['id_value'] }
         else
@@ -76,12 +78,19 @@ module AppealsApi
       end
 
       def template_id(template)
-        Settings.vanotify.services.lighthouse.template_id.public_send(template)
+        t = claimant? ? "#{template}_claimant" : template
+        Settings.vanotify.services.lighthouse.template_id.public_send(t)
       end
 
       def personalisation
-        { personalisation: { 'first_name' => opts['first_name'],
-                             'date_submitted' => date_submitted } }
+        p = { 'date_submitted' => date_submitted }
+        if claimant?
+          p['first_name'] = opts['claimant_first_name']
+          p['veterans_name'] = opts['first_name']
+        else
+          p['first_name'] = opts['first_name']
+        end
+        { personalisation: p }
       end
 
       def log_error(guid, type)
@@ -97,7 +106,15 @@ module AppealsApi
       end
 
       def valid_email_identifier?
-        required_email_identifier_keys.all? { |k| opts['email_identifier'].key?(k) }
+        if claimant?
+          opts['claimant_email'].present?
+        else
+          required_email_identifier_keys.all? { |k| opts.dig('email_identifier', k).present? }
+        end
+      end
+
+      def claimant?
+        opts['claimant_first_name'].present? || opts['claimant_email'].present?
       end
 
       def required_email_identifier_keys
