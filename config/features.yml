@@ -423,6 +423,9 @@ features:
     actor_type: user
     description: Show/hide the gender field UI on the profile page
     enable_in_development: true
+  profile_show_pronouns_and_sexual_orientation:
+    actor_type: user
+    description: Show/hide Pronouns and Sexual Orientation fields on profile page
   profile_show_receive_text_notifications:
     actor_type: user
     description: https://www.va.gov/profile/ show Receive Text Notifications
