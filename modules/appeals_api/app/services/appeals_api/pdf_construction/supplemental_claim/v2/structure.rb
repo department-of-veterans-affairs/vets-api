@@ -156,7 +156,7 @@ module AppealsApi
           end
 
           def additional_pages?
-            additional_issues? || additional_evidence_locations?
+            additional_issues? || additional_evidence_locations? || form_data.long_signature?
           end
 
           def additional_issues?

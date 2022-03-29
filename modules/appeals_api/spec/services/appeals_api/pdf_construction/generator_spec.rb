@@ -77,11 +77,22 @@ describe AppealsApi::PdfConstruction::Generator do
 
         context 'pdf max length content verification' do
           let(:schema) { read_schema('10182.json', 'v2') }
-          let(:nod) { build(:notice_of_disagreement_v2, created_at: '2021-02-03T14:15:16Z') }
+          let(:nod) { build(:extra_notice_of_disagreement_v2, created_at: '2021-02-03T14:15:16Z') }
           let(:data) { override_max_lengths(nod, schema) }
 
           it 'generates the expected pdf' do
             nod.form_data = data
+            # we tried to use JSON_SCHEMER, but it did not work with our headers, and chose not to invest more time atm.
+            nod.auth_headers['X-VA-SSN'] = 'W' * 9
+            nod.auth_headers['X-VA-First-Name'] = 'W' * 30
+            nod.auth_headers['X-VA-Middle-Initial'] = 'W' * 1
+            nod.auth_headers['X-VA-Last-Name'] = 'W' * 40
+            nod.auth_headers['X-VA-Claimant-First-Name'] = 'W' * 255
+            nod.auth_headers['X-VA-Claimant-Middle-Initial'] = 'W' * 1
+            nod.auth_headers['X-VA-Claimant-Last-Name'] = 'W' * 255
+            nod.auth_headers['X-VA-File-Number'] = 'W' * 9
+            nod.auth_headers['X-Consumer-Username'] = 'W' * 255
+            nod.auth_headers['X-Consumer-ID'] = 'W' * 255
             nod.save!
 
             generated_pdf = described_class.new(nod, version: 'v2').generate
@@ -197,6 +208,19 @@ describe AppealsApi::PdfConstruction::Generator do
             allow_any_instance_of(AppealsApi::PdfConstruction::HigherLevelReview::V2::FormData).to receive(:claimant_phone_string).and_return('+WWW-WWWWWWWWWWWWWWW')
 
             hlr.form_data = data
+            # we tried to use JSON_SCHEMER for headers, but it did not work with our headers, and chose not to invest more time atm.
+            hlr.auth_headers['X-VA-First-Name'] = 'W' * 30
+            hlr.auth_headers['X-VA-Middle-Initial'] = 'W' * 1
+            hlr.auth_headers['X-VA-Last-Name'] = 'W' * 40
+            hlr.auth_headers['X-VA-File-Number'] = 'W' * 9
+            hlr.auth_headers['X-VA-SSN'] = 'W' * 9
+            hlr.auth_headers['X-VA-Insurance-Policy-Number'] = 'W' * 18
+            hlr.auth_headers['X-VA-Claimant-SSN'] = 'W' * 9
+            hlr.auth_headers['X-VA-Claimant-First-Name'] = 'W' * 255
+            hlr.auth_headers['X-VA-Claimant-Middle-Initial'] = 'W' * 1
+            hlr.auth_headers['X-VA-Claimant-Last-Name'] = 'W' * 255
+            hlr.auth_headers['X-Consumer-Username'] = 'W' * 255
+            hlr.auth_headers['X-Consumer-ID'] = 'W' * 255
             hlr.save!
 
             generated_pdf = described_class.new(hlr, version: 'v2').generate
@@ -240,6 +264,16 @@ describe AppealsApi::PdfConstruction::Generator do
 
         it 'generates the expected pdf' do
           sc.form_data = data
+          # we tried to use JSON_SCHEMER, but it did not work with our headers, and chose not to invest more time atm.
+          sc.auth_headers['X-VA-SSN'] = 'W' * 9
+          sc.auth_headers['X-VA-First-Name'] = 'W' * 30
+          sc.auth_headers['X-VA-Middle-Initial'] = 'W' * 1
+          sc.auth_headers['X-VA-Last-Name'] = 'W' * 40
+          sc.auth_headers['X-VA-File-Number'] = 'W' * 9
+          sc.auth_headers['X-VA-Service-Number'] = 'W' * 9
+          sc.auth_headers['X-VA-Insurance-Policy-Number'] = 'W' * 18
+          sc.auth_headers['X-Consumer-Username'] = 'W' * 255
+          sc.auth_headers['X-Consumer-ID'] = 'W' * 255
           sc.save!
 
           generated_pdf = described_class.new(sc, version: 'v2').generate

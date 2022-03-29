@@ -76,9 +76,9 @@ module AppealsApi
             pdf.text_box(
               form_data.rep_name,
               text_opts.merge(
-                at: [350, 563],
-                width: 195,
-                height: 24
+                at: [348, 570],
+                width: 200,
+                height: 44
               )
             )
 
@@ -178,10 +178,12 @@ module AppealsApi
 
           options
         end
+        # rubocop:disable Layout/LineLength
 
         def additional_pages?
-          form_data.contestable_issues.count > 5 || form_data.long_preferred_email? || form_data.extension_request?
+          form_data.contestable_issues.count > 5 || form_data.long_preferred_email? || form_data.extension_request? || form_data.long_rep_name?
         end
+        # rubocop:enable Layout/LineLength
 
         # rubocop:disable Metrics/MethodLength
         def insert_issues_into_text_boxes(pdf, text_opts)

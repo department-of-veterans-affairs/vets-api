@@ -80,11 +80,18 @@ module AppealsApi
         end
 
         def additional_pages
-          contestable_issues.size > 5 || extension_request? || long_preferred_email? ? 1 : 'Off'
+          contestable_issues.size > 5 || extension_request? || long_preferred_email? || long_rep_name? ? 1 : 'Off'
         end
 
         def rep_name
+          return 'See attached page for representative name' if long_rep_name?
+
           representative&.dig('name') || ''
+        end
+
+        def long_rep_name?
+          rep = representative&.dig('name') || ''
+          rep.length > 60
         end
 
         def signature
