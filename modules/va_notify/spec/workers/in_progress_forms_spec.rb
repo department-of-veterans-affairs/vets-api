@@ -7,9 +7,9 @@ require 'sidekiq/testing'
 describe VANotify::InProgressForms, type: :worker do
   describe '#perform' do
     it 'creates additional async workers to send messages to va notify' do
-      in_progress_form_1 = create_in_progress_form_days_ago(14, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
-                                                                form_id: '686C-674')
-      in_progress_form_2 = create_in_progress_form_days_ago(14, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
+      in_progress_form_1 = create_in_progress_form_days_ago(7, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
+                                                               form_id: '686C-674')
+      in_progress_form_2 = create_in_progress_form_days_ago(21, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
                                                                 form_id: '686C-674')
 
       allow(VaNotify::Service).to receive(:new).and_return(double('VaNotify::Service'))

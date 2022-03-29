@@ -8,10 +8,10 @@ module VANotify
 
     def to_notify
       date_range = [
-        14.days.ago.beginning_of_day..14.days.ago.end_of_day,
-        28.days.ago.beginning_of_day..28.days.ago.end_of_day,
-        42.days.ago.beginning_of_day..42.days.ago.end_of_day,
-        56.days.ago.beginning_of_day..56.days.ago.end_of_day
+        7.days.ago.beginning_of_day..7.days.ago.end_of_day,
+        21.days.ago.beginning_of_day..21.days.ago.end_of_day,
+        35.days.ago.beginning_of_day..35.days.ago.end_of_day,
+        49.days.ago.beginning_of_day..49.days.ago.end_of_day
       ]
 
       InProgressForm.where(form_id: RELEVANT_FORMS).where(updated_at: date_range)
