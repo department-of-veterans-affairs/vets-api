@@ -10,6 +10,7 @@ module AppealsApi
               @pdf = pdf # Prawn::Document
               @form_data = form_data
             end
+            # rubocop:disable Layout/LineLength
 
             def build!
               pdf.start_new_page
@@ -21,7 +22,12 @@ module AppealsApi
 
               pdf.text("\n<b>Additional Evidence Names and Locations</b>\n", inline_format: true)
               pdf.table(extra_locations_table_data, width: 540, header: true)
+
+              pdf.text(
+                "\n\n\n\n\n<b>Signature of veteran claimant or representative:</b>\n #{form_data.full_name[0...180]}\n - Signed by digital authentication to api.va.gov", inline_format: true
+              )
             end
+            # rubocop:enable Layout/LineLength
 
             private
 

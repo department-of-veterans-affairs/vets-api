@@ -19,6 +19,8 @@ module AppealsApi
 
             pdf.text(preferred_email_text, inline_format: true)
 
+            pdf.text(rep_name_text, inline_format: true)
+
             return pdf unless extra_issues?
 
             pdf.text("\n<b>Additional Issues</b>\n", inline_format: true)
@@ -32,7 +34,7 @@ module AppealsApi
           attr_accessor :pdf, :form_data
 
           def no_content
-            !extra_issues? && !form_data.long_preferred_email?
+            !extra_issues? && !form_data.long_preferred_email? && form_data.long_rep_name?
           end
 
           def extra_issues?
@@ -54,6 +56,12 @@ module AppealsApi
             end
 
             data.unshift(header)
+          end
+
+          def rep_name_text
+            return unless form_data.long_rep_name?
+
+            "\n<b>My Representative's Name:</b>\n#{form_data.representative&.dig('name')}\n"
           end
         end
       end
