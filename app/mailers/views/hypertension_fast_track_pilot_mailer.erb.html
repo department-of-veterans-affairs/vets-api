@@ -6,11 +6,13 @@
   <body>
     <p>
       A single-issue <%= @disability_code %> claim for increase was submitted on va.gov.<br/>
-      <% if @rrd_claim_processed %>
+      <% case @rrd_status
+         when :processed %>
         A health summary PDF was generated and added to the claim's documentation.
-      <% else %>
-        There was some issue (such as insufficient health data or pending EP) that prevents
-        a health summary PDF to be generated for this claim.
+      <% when :pending_ep %>
+        There was already a pending EP 020 for the veteran associated with this claim.
+      <% when :insufficient_data %>
+        There was not sufficient data to generate a health summary PDF associated with this claim. 
       <% end %>
     </p>
     <table border="1" cellspacing="1" cellpadding="5">
