@@ -84,15 +84,16 @@ module Mobile
 
         def legacy_fetch_appointments(start_date, end_date)
           va_response, cc_response = Parallel.map(
-            [
-              fetch_va_appointments(start_date, end_date),
-              fetch_cc_appointments(start_date, end_date)
-            ], in_threads: 2, &:call
+            [fetch_va_appointments(start_date, end_date), fetch_cc_appointments(start_date, end_date)],
+            in_threads: 2, &:call
           )
 
           errors = [va_response[:error], cc_response[:error]].compact
 
-          raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error' if errors.size.positive?
+          if errors.size.positive?
+            Rails.logger.error('Mobile Legacy Appointments Error: ', errors: errors)
+            raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
+          end
 
           va_appointments = va_appointments_adapter.parse(va_response[:response].body)
           cc_appointments = cc_appointments_adapter.parse(cc_response[:response].body)
@@ -122,7 +123,10 @@ module Mobile
 
           # appointment requests are fetched by a service that raises on error
           errors = [va_response[:error], cc_response[:error]].compact
-          raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error' if errors.size.positive?
+          if errors.size.positive?
+            Rails.logger.error('Mobile Appointments w/ Requests Error: ', errors: errors)
+            raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
+          end
 
           { va: va_response, cc: cc_response, requests: requests_response }
         end
