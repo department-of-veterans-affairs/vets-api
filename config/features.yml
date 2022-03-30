@@ -369,6 +369,10 @@ features:
     actor_type: user
     description: This will show new 508 compliant medical statement views
     enable_in_development: true
+  medical_copays_api_key_change:
+    actor_type: user
+    description: This will use new API key name when available
+    enable_in_development: true
   mega_menu_mobile_v2:
     actor_type: user
     description: Separates mobile mega menu from desktop mega menu
