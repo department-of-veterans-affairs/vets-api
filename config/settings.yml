@@ -1201,10 +1201,6 @@ veteran_readiness_and_employment:
       - VRE.VBAANC@va.gov
       - VRE.VBAPIT@va.gov
       - VRE-CMS.VBAVACO@va.gov
-      - Jason.Wolf@va.gov
-      - Kathleen.Crawford@va.gov
-      - Kevin.Musiorski@va.gov
-      - Amanda.Leaders@va.gov
 
 # Settings for connecting to the va.gov Google Analytics for the Cypress Viewport Updater
 google_analytics_cvu:
