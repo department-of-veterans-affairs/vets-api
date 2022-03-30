@@ -1,24 +1,24 @@
 # frozen_string_literal: true
 
 module RapidReadyForDecision
-  PDF_MARKUP_SETTINGS = {
-    text: {
-      size: 11
-    },
-    heading4: {
-      margin_top: 12
-    },
-    table: {
-      width: 150,
-      cell: {
-        size: 10,
-        border_width: 0,
-        background_color: 'f3f3f3'
+  class FastTrackPdfGenerator
+    PDF_MARKUP_SETTINGS = {
+      text: {
+        size: 11
+      },
+      heading4: {
+        margin_top: 12
+      },
+      table: {
+        width: 150,
+        cell: {
+          size: 10,
+          border_width: 0,
+          background_color: 'f3f3f3'
+        }
       }
-    }
-  }.freeze
+    }.freeze
 
-  class HypertensionPdfGenerator
     def initialize(patient_info, blood_pressure_data, medications)
       @pdf = Prawn::Document.new
       @patient_info = patient_info

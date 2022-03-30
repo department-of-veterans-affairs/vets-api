@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module RapidReadyForDecision
-  class HypertensionSpecialIssueManager
+  class RrdSpecialIssueManager
     attr_accessor :submission
 
     def initialize(submission)

@@ -131,7 +131,7 @@ medication_response = {
   }]
 }
 
-RSpec.describe RapidReadyForDecision::HypertensionMedicationRequestData, :vcr do
+RSpec.describe RapidReadyForDecision::LighthouseMedicationRequestData, :vcr do
   subject { described_class }
 
   let(:response) do

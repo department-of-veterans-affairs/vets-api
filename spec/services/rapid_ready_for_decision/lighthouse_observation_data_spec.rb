@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'ostruct'
 require 'rapid_ready_for_decision/disability_compensation_job'
 
-RSpec.describe RapidReadyForDecision::HypertensionObservationData, :vcr do
+RSpec.describe RapidReadyForDecision::LighthouseObservationData, :vcr do
   subject { described_class }
 
   let(:response) do

@@ -50,12 +50,12 @@ module RapidReadyForDecision
 
     def bp_readings(client)
       @bp_readings ||= client.list_resource('observations')
-      @bp_readings.present? ? RapidReadyForDecision::HypertensionObservationData.new(@bp_readings).transform : []
+      @bp_readings.present? ? RapidReadyForDecision::LighthouseObservationData.new(@bp_readings).transform : []
     end
 
     def medications(client)
       @medications ||= client.list_resource('medication_requests')
-      @medications.present? ? RapidReadyForDecision::HypertensionMedicationRequestData.new(@medications).transform : []
+      @medications.present? ? RapidReadyForDecision::LighthouseMedicationRequestData.new(@medications).transform : []
     end
 
     def add_bp_readings_stats(form526_submission, bp_readings)
@@ -96,15 +96,15 @@ module RapidReadyForDecision
     end
 
     def upload_pdf_and_attach_special_issue(form526_submission, pdf)
-      RapidReadyForDecision::HypertensionUploadManager.new(form526_submission).handle_attachment(pdf.render)
+      RapidReadyForDecision::FastTrackPdfUploadManager.new(form526_submission).handle_attachment(pdf.render)
       if Flipper.enabled?(:disability_hypertension_compensation_fast_track_add_rrd) ||
          Flipper.enabled?(:rrd_add_special_issue)
-        RapidReadyForDecision::HypertensionSpecialIssueManager.new(form526_submission).add_special_issue
+        RapidReadyForDecision::RrdSpecialIssueManager.new(form526_submission).add_special_issue
       end
     end
 
     def pdf(patient_info, bpreadings, medications)
-      RapidReadyForDecision::HypertensionPdfGenerator.new(patient_info, bpreadings, medications).generate
+      RapidReadyForDecision::FastTrackPdfGenerator.new(patient_info, bpreadings, medications).generate
     end
   end
 end

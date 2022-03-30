@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class HypertensionFastTrackPilotMailer < ApplicationMailer
+class RrdCompletedMailer < ApplicationMailer
   def build(submission)
     @submission = submission
     @disability = submission.form.dig('form526', 'form526', 'disabilities')&.first
@@ -8,7 +8,7 @@ class HypertensionFastTrackPilotMailer < ApplicationMailer
     @rrd_status = RapidReadyForDecision::Form526BaseJob.rrd_status(submission)
     @bp_readings_count = submission.form.dig('rrd_metadata', 'med_stats', 'bp_readings_count') || 'N/A'
 
-    template = File.read('app/mailers/views/hypertension_fast_track_pilot_mailer.erb.html')
+    template = File.read('app/mailers/views/rrd_completed_mailer.erb.html')
 
     mail(
       to: Settings.rrd.event_tracking.recipients,

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe HypertensionFastTrackPilotMailer, type: [:mailer] do
+RSpec.describe RrdCompletedMailer, type: [:mailer] do
   let(:email) do
     described_class.build(submission).deliver_now
   end

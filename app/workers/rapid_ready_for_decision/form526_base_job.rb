@@ -16,7 +16,7 @@ module RapidReadyForDecision
 
     # @return if this claim submission was processed and fast-tracked by RRD
     def self.rrd_claim_processed?(submission)
-      submission.form_json.include? RapidReadyForDecision::HypertensionUploadManager::DOCUMENT_TITLE
+      submission.form_json.include? RapidReadyForDecision::FastTrackPdfUploadManager::DOCUMENT_TITLE
     end
 
     # Fetch all claims from EVSS and return whether there are any open EP 020's.
@@ -138,11 +138,11 @@ module RapidReadyForDecision
     end
 
     def upload_pdf(form526_submission, pdf)
-      RapidReadyForDecision::HypertensionUploadManager.new(form526_submission).handle_attachment(pdf.render)
+      RapidReadyForDecision::FastTrackPdfUploadManager.new(form526_submission).handle_attachment(pdf.render)
     end
 
     def set_special_issue(form526_submission)
-      RapidReadyForDecision::HypertensionSpecialIssueManager.new(form526_submission).add_special_issue
+      RapidReadyForDecision::RrdSpecialIssueManager.new(form526_submission).add_special_issue
     end
   end
 end
