@@ -35,6 +35,8 @@ RSpec.describe RapidReadyForDecision::Form526AsthmaJob, type: :worker do
           expect(last_email.subject).to eq 'RRD claim - Offramped'
           expect(last_email.body).to include submission.id
           expect(last_email.body).to include 'API returned 24 medication requests'
+          expect(last_email.body).to include '2013: {"active"=>3}'
+          expect(last_email.body).to include '1998: {"active"=>4, "completed"=>2}'
         end
       end
 
