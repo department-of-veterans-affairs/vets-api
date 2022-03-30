@@ -90,7 +90,14 @@ class Form526Submission < ApplicationRecord
       submission.rrd_process_selector.send_rrd_alert(message)
       return submission.start_rrd_job(backup_processor_class)
     end
-
+    submission.start_evss_submission_job
+  rescue => e
+    message = <<~MESSAGE
+      RRD was skipped for submission #{submission.id} due to an error.<br/>
+      Sidekiq Job options: #{options}<br/>
+      Exception: #{e}<br/>
+    MESSAGE
+    submission.rrd_process_selector.send_rrd_alert(message)
     submission.start_evss_submission_job
   end
 
