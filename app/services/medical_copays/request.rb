@@ -91,7 +91,7 @@ module MedicalCopays
       {
         'Host' => host,
         'Content-Type' => 'application/json',
-        'apiKey' => settings.api_key
+        api_key => settings.api_key
       }
     end
 
@@ -102,6 +102,12 @@ module MedicalCopays
     #
     def mock_enabled?
       settings.mock || false
+    end
+
+    private
+
+    def api_key
+      Flipper.enabled?(:medical_copays_api_key_change) ? 'apiKey' : 'x-api-key'
     end
   end
 end
