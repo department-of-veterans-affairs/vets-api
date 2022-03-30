@@ -82,7 +82,7 @@ describe HCA::Service do
     end
 
     context 'submitting with attachment' do
-      xit 'works', run_at: 'Fri, 11 Jan 2019 04:56:26 GMT' do
+      it 'works', run_at: 'Mon, 28 Mar 2022 20:27:06 GMT' do
         VCR.use_cassette(
           'hca/submit_with_attachment',
           VCR::MATCH_EVERYTHING.merge(erb: true)
@@ -93,7 +93,7 @@ describe HCA::Service do
       end
 
       context 'with a non-pdf attachment' do
-        xit 'works', run_at: 'Fri, 11 Jan 2019 04:56:26 GMT' do
+        it 'works', run_at: 'Mon, 28 Mar 2022 20:43:21 GMT' do
           hca_attachment = build(:hca_attachment)
           hca_attachment.set_file_data!(
             Rack::Test::UploadedFile.new(
