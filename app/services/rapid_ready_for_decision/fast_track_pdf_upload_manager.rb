@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module RapidReadyForDecision
-  class HypertensionUploadManager
+  class FastTrackPdfUploadManager
     attr_accessor :submission
 
     DOCUMENT_TITLE = 'VAMC_Hypertension_Rapid_Decision_Evidence'

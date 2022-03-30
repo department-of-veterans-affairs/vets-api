@@ -54,7 +54,7 @@ RSpec.describe RapidReadyForDecision::Form526HypertensionJob, type: :worker do
 
         it 'returns from the class if the claim observations does NOT include bp readings from the past year' do
           Sidekiq::Testing.inline! do
-            expect(RapidReadyForDecision::HypertensionMedicationRequestData).not_to receive(:new)
+            expect(RapidReadyForDecision::LighthouseMedicationRequestData).not_to receive(:new)
             subject.perform_async(submission_for_user_wo_bp.id)
           end
         end
@@ -63,7 +63,7 @@ RSpec.describe RapidReadyForDecision::Form526HypertensionJob, type: :worker do
       context 'the claim IS for hypertension', :vcr do
         before do
           # The bp reading needs to be 1 year or less old so actual API data will not test if this code is working.
-          allow_any_instance_of(RapidReadyForDecision::HypertensionObservationData)
+          allow_any_instance_of(RapidReadyForDecision::LighthouseObservationData)
             .to receive(:transform).and_return(mocked_observation_data)
         end
 
@@ -95,9 +95,7 @@ RSpec.describe RapidReadyForDecision::Form526HypertensionJob, type: :worker do
 
         context 'failure' do
           before do
-            allow_any_instance_of(
-              RapidReadyForDecision::HypertensionPdfGenerator
-            ).to receive(:generate).and_return(nil)
+            allow_any_instance_of(RapidReadyForDecision::FastTrackPdfGenerator).to receive(:generate).and_return(nil)
           end
 
           it 'raises a helpful error if the failure is after the api call and emails the engineers' do

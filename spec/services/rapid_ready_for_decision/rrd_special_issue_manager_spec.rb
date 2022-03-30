@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'rapid_ready_for_decision/disability_compensation_job'
 
-RSpec.describe RapidReadyForDecision::HypertensionSpecialIssueManager do
+RSpec.describe RapidReadyForDecision::RrdSpecialIssueManager do
   let(:form526_submission) { create(:form526_submission, :hypertension_claim_for_increase) }
 
   def form526_hash(form)
@@ -17,7 +17,7 @@ RSpec.describe RapidReadyForDecision::HypertensionSpecialIssueManager do
   end
 
   describe '#add_special_issue' do
-    subject(:special_issue_manager) { RapidReadyForDecision::HypertensionSpecialIssueManager.new(form526_submission) }
+    subject(:special_issue_manager) { described_class.new(form526_submission) }
 
     let(:special_issues_list) { ['RRD'] }
 

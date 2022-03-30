@@ -37,13 +37,13 @@ module RapidReadyForDecision
     def assess_bp_readings(bp_readings)
       return [] if bp_readings.blank?
 
-      RapidReadyForDecision::HypertensionObservationData.new(bp_readings).transform
+      RapidReadyForDecision::LighthouseObservationData.new(bp_readings).transform
     end
 
     def assess_medications(medications)
       return [] if medications.blank?
 
-      RapidReadyForDecision::HypertensionMedicationRequestData.new(medications).transform
+      RapidReadyForDecision::LighthouseMedicationRequestData.new(medications).transform
     end
 
     def med_stats_hash(_form526_submission, assessed_data)
@@ -51,9 +51,9 @@ module RapidReadyForDecision
     end
 
     def generate_pdf(form526_submission, assessed_data)
-      RapidReadyForDecision::HypertensionPdfGenerator.new(patient_info(form526_submission),
-                                                          assessed_data[:bp_readings],
-                                                          assessed_data[:medications]).generate
+      RapidReadyForDecision::FastTrackPdfGenerator.new(patient_info(form526_submission),
+                                                       assessed_data[:bp_readings],
+                                                       assessed_data[:medications]).generate
     end
   end
 end

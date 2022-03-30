@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module RapidReadyForDecision
-  class HypertensionMedicationRequestData
+  class LighthouseMedicationRequestData
     attr_accessor :response
 
     def initialize(response)
