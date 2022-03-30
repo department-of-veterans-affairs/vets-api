@@ -5,8 +5,6 @@
   "X-VA-Last-Name": "Doé",
   "X-VA-Birth-Date": "1969-12-31",
   "X-VA-File-Number": "987654321",
-  "X-VA-Claimant-First-Name": "Betty",
-  "X-VA-Claimant-Last-Name": "Boop",
   "X-VA-Insurance-Policy-Number": "987654321123456789",
   "X-Consumer-Username": "va.gov",
   "X-Consumer-ID": "some-guid"

@@ -178,7 +178,10 @@ describe AppealsApi::HigherLevelReview, type: :model do
   end
 
   context 'validations' do
-    let(:higher_level_review) { described_class.new(form_data: form_data, auth_headers: auth_headers) }
+    let(:higher_level_review) do
+      described_class.new(form_data: form_data, auth_headers: auth_headers, api_version: api_version)
+    end
+    let(:api_version) { 'V1' }
 
     context 'birth date isn\'t a date' do
       let(:auth_headers) { default_auth_headers.merge 'X-VA-Birth-Date' => 'apricot' }
@@ -196,6 +199,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
       it 'using a birth date /not/ in the past creates an invalid record' do
         expect(higher_level_review.valid?).to be false
         expect(higher_level_review.errors.to_a.length).to eq 1
+        expect(higher_level_review.errors.to_a.first.downcase).to include 'veteran'
         expect(higher_level_review.errors.to_a.first.downcase).to include 'past'
       end
     end
@@ -235,6 +239,58 @@ describe AppealsApi::HigherLevelReview, type: :model do
         expect(higher_level_review.errors.to_a.length).to eq 2
         expect(higher_level_review.errors.to_a.first).to include 'decisionDate'
         expect(higher_level_review.errors.to_a.second).to include 'decisionDate'
+      end
+    end
+
+    describe 'V2' do
+      let(:api_version) { 'V2' }
+      let(:default_auth_headers) { fixture_as_json 'valid_200996_headers_extra.json', version: 'v2' }
+      let(:default_form_data) { fixture_as_json 'valid_200996_extra.json', version: 'v2' }
+
+      context 'claimant birth date is in the future' do
+        let(:auth_headers) { default_auth_headers.merge 'X-VA-Claimant-Birth-Date' => (Time.zone.today + 2).to_s }
+
+        it 'creates an invalid record' do
+          expect(higher_level_review.valid?).to be false
+          expect(higher_level_review.errors.to_a.length).to eq 1
+          expect(higher_level_review.errors.to_a.first.downcase).to include 'claimant'
+          expect(higher_level_review.errors.to_a.first.downcase).to include 'past'
+        end
+      end
+
+      context 'claimant header & form_data requirements' do
+        describe 'when headers are provided but form_data is missing' do
+          let(:auth_headers) do
+            default_auth_headers.except(*%w[X-VA-Claimant-First-Name X-VA-Claimant-Last-Name X-VA-Claimant-Birth-Date])
+          end
+
+          it 'creates and invalid record' do
+            expect(higher_level_review.valid?).to be false
+            expect(higher_level_review.errors.to_a.length).to eq 1
+            expect(higher_level_review.errors.to_a.first.downcase).to include 'missing claimant headers'
+          end
+        end
+
+        describe 'when claimant data is provided but missing headers' do
+          let(:form_data) { default_form_data.tap { |fd| fd['data']['attributes'].delete('claimant') } }
+
+          it 'creates and invalid record' do
+            expect(higher_level_review.valid?).to be false
+            expect(higher_level_review.errors.to_a.length).to eq 1
+            expect(higher_level_review.errors.to_a.first.downcase).to include 'missing claimant data'
+          end
+        end
+
+        describe 'when both claimant and form data are missing' do
+          let(:auth_headers) do
+            default_auth_headers.except(*%w[X-VA-Claimant-First-Name X-VA-Claimant-Last-Name X-VA-Claimant-Birth-Date])
+          end
+          let(:form_data) { default_form_data.tap { |fd| fd['data']['attributes'].delete('claimant') } }
+
+          it 'creates a valid record' do
+            expect(higher_level_review.valid?).to be true
+          end
+        end
       end
     end
   end
@@ -283,6 +339,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
 
     it 'successfully gets the ICN when email isn\'t present' do
       higher_level_review = described_class.create!(
+        api_version: 'v1',
         auth_headers: auth_headers,
         form_data: default_form_data.deep_merge({
                                                   'data' => {

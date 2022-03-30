@@ -46,7 +46,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
 
     context 'with optional claimant headers' do
       it 'creates an HLR and persists the data' do
-        post(path, params: @data, headers: @headers_extra)
+        post(path, params: @data_extra, headers: @headers_extra)
         expect(parsed['data']['type']).to eq('higherLevelReview')
         expect(parsed['data']['attributes']['status']).to eq('pending')
       end

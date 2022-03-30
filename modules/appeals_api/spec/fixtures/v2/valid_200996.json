@@ -20,15 +20,6 @@
         "timezone": "America/Chicago",
         "homeless": false
       },
-       "claimant": {
-          "address": {
-            "addressLine1": "456 First St",
-            "city": "Detroit",
-            "countryCodeISO2": "US",
-            "zipCode5": "66002"
-          },
-         "email": "claimant@email.com"
-        },
       "socOptIn": true,
       "informalConferenceContact": "veteran",
       "informalConferenceTime": "800-1200 ET",
