@@ -426,6 +426,10 @@ mhv:
     collection_caching_enabled: true
   account:
     mock: false
+  inherited_proofing:
+    base_path: https://mhv-api.example.com
+    app_token: fake-app-token
+    mock: true
 
 # Settings for alternate MHV integration for mobile app
 mhv_mobile:
