@@ -89,6 +89,22 @@ RSpec.describe Form526Submission do
                                                             'submission_id' => form_for_hypertension.id,
                                                             'use_backup_processor' => false)
           end
+
+          context 'when an error is raised within rrd_processor_failed_handler' do
+            before do
+              allow_any_instance_of(RapidReadyForDecision::ProcessorSelector)
+                .to receive(:processor_class).and_raise('Any error')
+            end
+
+            it 'calls start_evss_submission_job and sends a alert' do
+              expect(form_for_hypertension).to receive(:start_evss_submission_job)
+              expect_any_instance_of(RapidReadyForDecision::ProcessorSelector).to receive(:send_rrd_alert)
+                .with(/RRD was skipped for submission #{form_for_hypertension.id} due to an error./)
+              sidekiq_submission.rrd_processor_failed_handler('ignored Sidekiq::Batch::Status',
+                                                              'submission_id' => form_for_hypertension.id,
+                                                              'use_backup_processor' => true)
+            end
+          end
         end
 
         it 'queues a new RapidReadyForDecision::Form526HypertensionJob worker' do
