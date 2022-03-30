@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: <%= Settings.hca.endpoint %>/
+    uri: <%= Settings.hca.endpoint %>
     body:
       encoding: UTF-8
       string: <?xml version="1.0" encoding="UTF-8"?><soap:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -21,7 +21,7 @@ http_interactions:
         xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:dischargeDueToDisability>true</eeSummary:dischargeDueToDisability><eeSummary:militaryServiceSiteRecords><eeSummary:militaryServiceSiteRecord><eeSummary:militaryServiceEpisodes><eeSummary:militaryServiceEpisode><eeSummary:dischargeType>3</eeSummary:dischargeType><eeSummary:startDate>03/07/1980</eeSummary:startDate><eeSummary:endDate>07/08/1984</eeSummary:endDate><eeSummary:serviceBranch>7</eeSummary:serviceBranch></eeSummary:militaryServiceEpisode></eeSummary:militaryServiceEpisodes><eeSummary:site>608</eeSummary:site></eeSummary:militaryServiceSiteRecord></eeSummary:militaryServiceSiteRecords></eeSummary:militaryServiceInfo><eeSummary:prisonerOfWarInfo
         xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:powIndicator>true</eeSummary:powIndicator></eeSummary:prisonerOfWarInfo><eeSummary:purpleHeart
         xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:indicator>false</eeSummary:indicator></eeSummary:purpleHeart><eeSummary:personInfo
-        xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:firstName>FIRSTNAME</eeSummary:firstName><eeSummary:middleName>MIDDLENAME</eeSummary:middleName><eeSummary:lastName>ZZTEST</eeSummary:lastName><eeSummary:suffix>JR.</eeSummary:suffix><eeSummary:gender>F</eeSummary:gender><eeSummary:dob>01/02/1923</eeSummary:dob><eeSummary:mothersMaidenName>Maiden</eeSummary:mothersMaidenName><eeSummary:placeOfBirthCity>Springfield</eeSummary:placeOfBirthCity><eeSummary:placeOfBirthState>AK</eeSummary:placeOfBirthState><eeSummary:ssnText>111111234</eeSummary:ssnText></eeSummary:personInfo></va:summary><va:applications><va:applicationInfo><va:appDate>2019-01-10</va:appDate><va:appMethod>1</va:appMethod></va:applicationInfo></va:applications></va:form><va:identity
+        xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:firstName>FIRSTNAME</eeSummary:firstName><eeSummary:middleName>MIDDLENAME</eeSummary:middleName><eeSummary:lastName>ZZTEST</eeSummary:lastName><eeSummary:suffix>JR.</eeSummary:suffix><eeSummary:gender>F</eeSummary:gender><eeSummary:dob>01/02/1923</eeSummary:dob><eeSummary:mothersMaidenName>Maiden</eeSummary:mothersMaidenName><eeSummary:placeOfBirthCity>Springfield</eeSummary:placeOfBirthCity><eeSummary:placeOfBirthState>AK</eeSummary:placeOfBirthState><eeSummary:ssnText>111111234</eeSummary:ssnText></eeSummary:personInfo></va:summary><va:applications><va:applicationInfo><va:appDate>2022-03-28</va:appDate><va:appMethod>1</va:appMethod></va:applicationInfo></va:applications></va:form><va:identity
         xmlns:va="http://va.gov/schema/esr/voa/v1"><va:authenticationLevel><va:type>100</va:type><va:value>anonymous</va:value></va:authenticationLevel></va:identity></ns1:submitFormRequest></soap:Body></soap:Envelope>
     headers:
       Accept:
@@ -31,9 +31,9 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Date:
-      - Fri, 11 Jan 2019 04:56:26 GMT
+      - Mon, 28 Mar 2022 20:43:21 GMT
       Content-Length:
-      - '13483'
+      - '13542'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -42,19 +42,27 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 25 Jun 2019 06:54:45 GMT
+      - Mon, 28 Mar 2022 20:43:21 GMT
       Server:
       - Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
       X-Frame-Options:
       - SAMEORIGIN
-      Strict-Transport-Security:
-      - max-age=63072000; includeSubdomains;
       Content-Security-Policy:
       - 'default-src https: data: ''unsafe-inline'' ''unsafe-eval'''
+      X-Oracle-Dms-Ecid:
+      - '0803350a-f0bf-4ac3-8dec-2e75d2d7097c-00000fec'
+      X-Oracle-Dms-Rid:
+      - '0'
+      Ssl-Env:
+      - 'On'
       X-Xss-Protection:
       - 1; mode=block
       X-Content-Type-Options:
       - nosniff
+      Cache-Control:
+      - max-age=0, no-store
       Transfer-Encoding:
       - chunked
       Content-Type:
@@ -62,8 +70,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Body><submitFormResponse
-        xmlns="http://va.gov/schema/esr/voa/v1" xmlns:ns0="http://jaxws.webservices.esr.med.va.gov/schemas"><status>100</status><formSubmissionId>3785236919</formSubmissionId><message><type>Form
-        successfully received for EE processing</type></message><timeStamp>2019-06-25T01:54:51.674-05:00</timeStamp></submitFormResponse></S:Body></S:Envelope>
-    http_version: 
-  recorded_at: Fri, 11 Jan 2019 04:56:26 GMT
-recorded_with: VCR 3.0.3
+        xmlns="http://va.gov/schema/esr/voa/v1" xmlns:ns0="http://jaxws.webservices.esr.med.va.gov/schemas"><status>100</status><formSubmissionId>424279016</formSubmissionId><message><type>Form
+        successfully received for EE processing</type></message><timeStamp>2022-03-28T15:43:21.501-05:00</timeStamp></submitFormResponse></S:Body></S:Envelope>
+  recorded_at: Mon, 28 Mar 2022 20:43:21 GMT
+recorded_with: VCR 6.1.0
