@@ -91,8 +91,11 @@
         "X-VA-Birth-Date"
       ],
       "dependencies": {
-        "X-VA-Claimant-First-Name": ["X-VA-Claimant-Last-Name"],
-        "X-VA-Claimant-Last-Name": ["X-VA-Claimant-First-Name"]
+        "X-VA-Claimant-SSN": ["X-VA-Claimant-First-Name", "X-VA-Claimant-Last-Name", "X-VA-Claimant-Birth-Date"],
+        "X-VA-Claimant-First-Name": ["X-VA-Claimant-Last-Name", "X-VA-Claimant-Birth-Date"],
+        "X-VA-Claimant-Middle-Initial": ["X-VA-Claimant-First-Name", "X-VA-Claimant-Last-Name", "X-VA-Claimant-Birth-Date"],
+        "X-VA-Claimant-Last-Name": ["X-VA-Claimant-First-Name", "X-VA-Claimant-Birth-Date"],
+        "X-VA-Claimant-Birth-Date": ["X-VA-Claimant-First-Name", "X-VA-Claimant-Last-Name"]
       }
     }
   }

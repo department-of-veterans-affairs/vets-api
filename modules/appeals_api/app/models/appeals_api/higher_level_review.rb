@@ -40,6 +40,8 @@ module AppealsApi
       :birth_date_is_a_date,
       :birth_date_is_in_the_past,
       :contestable_issue_dates_are_valid_dates,
+      :claimant_birth_date_is_in_the_past,
+      :required_claimant_data_is_present,
       if: proc { |a| a.form_data.present? }
     )
 
@@ -336,6 +338,34 @@ module AppealsApi
       add_error("Veteran birth date isn't in the past: #{birth_date}") unless self.class.past? birth_date
     end
 
+    # validation (header)
+    def claimant_birth_date_is_in_the_past
+      return if api_version.upcase == 'V1'
+      return if claimant.birth_date.blank?
+
+      unless self.class.past?(claimant.birth_date)
+        add_error("Claimant birth date isn't in the past: #{claimant.birth_date_string}")
+      end
+    end
+
+    # validation (header & body)
+    # Schemas take care of most of the requirements, but we need to check that both header & body data is provided
+    def required_claimant_data_is_present
+      return if api_version.upcase == 'V1'
+
+      # Claimant DOB is always required if they've supplied any claimant headers
+      has_claimant_headers = claimant.birth_date.present?
+      # form data that includes a claimant is also sufficient to know it's passed the schema
+      has_claimant_data = data_attributes&.fetch('claimant', nil).present?
+
+      return if !has_claimant_headers && !has_claimant_data # No claimant headers or data? not a problem!
+      return if has_claimant_headers && has_claimant_data # Has both claimant headers and data? A-ok!
+
+      add_error('Claimant data was provided but missing claimant headers') unless has_claimant_headers
+      add_error('Claimant headers were provided but missing claimant data') unless has_claimant_data
+    end
+
+    # validation (body)
     def contestable_issue_dates_are_valid_dates
       return if contestable_issues.blank?
 
