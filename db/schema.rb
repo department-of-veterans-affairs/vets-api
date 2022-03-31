@@ -490,6 +490,16 @@ ActiveRecord::Schema.define(version: 2022_03_24_182532) do
     t.index ["claim_guid"], name: "index_form1010cg_submissions_on_claim_guid", unique: true
   end
 
+  create_table "form1095_bs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "veteran_icn", null: false
+    t.integer "tax_year", null: false
+    t.jsonb "form_data_ciphertext", null: false
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["veteran_icn", "tax_year"], name: "index_form1095_bs_on_veteran_icn_and_tax_year", unique: true
+  end
+
   create_table "form526_job_statuses", id: :serial, force: :cascade do |t|
     t.integer "form526_submission_id", null: false
     t.string "job_id", null: false
