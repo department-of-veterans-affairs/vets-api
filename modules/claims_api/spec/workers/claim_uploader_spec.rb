@@ -41,6 +41,19 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     supporting_document
   end
 
+  let(:auto_claim) do
+    claim = create(:auto_established_claim, evss_id: '12345')
+    claim.set_file_data!(
+      Rack::Test::UploadedFile.new(
+        "#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"
+      ),
+      'docType',
+      'description'
+    )
+    claim.save!
+    claim
+  end
+
   it 'submits successfully' do
     expect do
       subject.perform_async(supporting_document.id)
@@ -65,7 +78,42 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     allow(evss_service_stub).to receive(:upload) { OpenStruct.new(response: 200) }
 
     subject.new.perform(supporting_document_failed_submission.id)
+    supporting_document_failed_submission.reload
+    expect(supporting_document.uploader.blank?).to eq(false)
+  end
+
+  it 'transforms a claim document to the right properties for EVSS' do
+    evss_service_stub = instance_double('EVSS::DocumentsService')
+    allow(EVSS::DocumentsService).to receive(:new) { evss_service_stub }
+    expect(evss_service_stub).to receive(:upload).with(any_args, OpenStruct.new(
+                                                                   file_name: supporting_document.file_name,
+                                                                   document_type: supporting_document.document_type,
+                                                                   description: supporting_document.description,
+                                                                   evss_claim_id: supporting_document.evss_claim_id,
+                                                                   tracked_item_id: supporting_document.tracked_item_id
+                                                                 ))
+
+    subject.new.perform(supporting_document.id)
+
     supporting_document.reload
     expect(supporting_document.uploader.blank?).to eq(false)
+  end
+
+  it 'transforms a 526 claim form to the right properties for EVSS' do
+    evss_service_stub = instance_double('EVSS::DocumentsService')
+    allow(EVSS::DocumentsService).to receive(:new) { evss_service_stub }
+
+    expect(evss_service_stub).to receive(:upload).with(any_args, OpenStruct.new(
+                                                                   file_name: auto_claim.file_name,
+                                                                   document_type: auto_claim.document_type,
+                                                                   description: auto_claim.description,
+                                                                   evss_claim_id: auto_claim.evss_id,
+                                                                   tracked_item_id: auto_claim.id
+                                                                 ))
+
+    subject.new.perform(auto_claim.id)
+
+    auto_claim.reload
+    expect(auto_claim.uploader.blank?).to eq(false)
   end
 end
