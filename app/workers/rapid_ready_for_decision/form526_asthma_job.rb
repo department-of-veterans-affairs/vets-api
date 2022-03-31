@@ -11,15 +11,15 @@ module RapidReadyForDecision
     def assess_data(form526_submission)
       client = lighthouse_client(form526_submission)
       response = client.list_resource('medication_requests')
-      medication_requests = response.blank? ? [] : response.body['entry']
+      med_request_data = RapidReadyForDecision::LighthouseMedicationRequestData.new(response)
 
       body = <<~BODY
         A single-issue asthma claim for increase was detected and offramped.<br/>
         Submission ID: #{form526_submission.id}<br/>
-        Veterans Health API returned #{medication_requests.count} medication requests.<br/>
+        Veterans Health API returned #{med_request_data.count} medication requests.<br/>
         <br/>
         Medications by year and status:<br/>
-        #{meds_by_year_and_status_as_string(medication_requests)}<br/>
+        #{meds_by_year_and_status_as_string(med_request_data)}<br/>
       BODY
       ActionMailer::Base.mail(
         from: ApplicationMailer.default[:from],
@@ -38,20 +38,18 @@ module RapidReadyForDecision
       raise 'method not implemented yet' # RuntimeError
     end
 
-    def meds_by_year_and_status_as_string(medication_requests)
-      medication_request_stats_by_year(medication_requests).map do |year, tallies|
+    def meds_by_year_and_status_as_string(med_request_data)
+      medication_request_stats_by_year(med_request_data).map do |year, tallies|
         "- #{year}: #{tallies}"
       end.join("<br/>\n")
     rescue
       'Error formatting medications list!'
     end
 
-    def medication_request_stats_by_year(medication_requests)
-      # Todo later: update HypertensionMedicationRequestData so that it can be used here
-      resources = medication_requests.map { |mr| mr['resource'] }
-      resources.group_by { |mr| Date.parse(mr['authoredOn'])&.year }.transform_values do |med_requests|
-        med_requests.map { |mr| mr['status'] }.tally
-      end.sort.reverse
+    def medication_request_stats_by_year(med_request_data)
+      med_request_data.resources.group_by { |mr| Date.parse(mr['authoredOn'])&.year }
+                      .transform_values { |mrs| mrs.map { |mr| mr['status'] }.tally }
+                      .sort.reverse
     end
   end
 end

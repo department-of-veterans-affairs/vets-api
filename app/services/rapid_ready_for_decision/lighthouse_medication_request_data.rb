@@ -2,39 +2,36 @@
 
 module RapidReadyForDecision
   class LighthouseMedicationRequestData
-    attr_accessor :response
-
     def initialize(response)
       @response = response
     end
 
+    def count
+      # Should be the same as @response.body["total"]
+      resources.size
+    end
+
+    def resources
+      @resources ||= @response.blank? ? [] : @response.body['entry'].map { |mr| mr['resource'] }
+    end
+
     def transform
-      transformed_entries = filtered_entries.map { |entry| transform_entry(entry) }
-      sorted_entries(transformed_entries)
+      active_med_requests.map { |resource| MedicationEntry.new(resource).result }
+                         .sort_by { |med| [med[:authoredOn].to_datetime, med[:description]] }
+                         .reverse!
     end
 
     private
 
-    def sorted_entries(transformed_entries)
-      transformed_entries.sort_by { |med| [med[:authoredOn].to_datetime, med[:description]] }.reverse!
-    end
-
-    def filtered_entries
-      response.body['entry'].filter { |entry| entry['resource']['status'] == 'active' }
-    end
-
-    def transform_entry(raw_entry)
-      entry = raw_entry['resource'].slice(
-        'status', 'medicationReference', 'subject', 'authoredOn', 'note', 'dosageInstruction'
-      )
-
-      MedicationEntry.new(entry).result
+    def active_med_requests
+      resources.filter { |resource| resource['status'] == 'active' }
     end
 
     MedicationEntry = Struct.new(:entry) do
       def result
-        entry.slice('status', 'authoredOn', entry)
-             .merge(description_hash, notes_hash, dosage_hash).with_indifferent_access
+        entry.slice('status', 'authoredOn')
+             .merge(description_hash, notes_hash, dosage_hash)
+             .with_indifferent_access
       end
 
       def description_hash
