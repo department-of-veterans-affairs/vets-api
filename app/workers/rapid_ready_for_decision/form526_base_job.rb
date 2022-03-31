@@ -62,10 +62,7 @@ module RapidReadyForDecision
           pdf = generate_pdf(form526_submission, assessed_data)
           upload_pdf(form526_submission, pdf)
 
-          if Flipper.enabled?(:disability_hypertension_compensation_fast_track_add_rrd) ||
-             Flipper.enabled?(:rrd_add_special_issue)
-            set_special_issue(form526_submission)
-          end
+          set_special_issue(form526_submission) if Flipper.enabled?(:rrd_add_special_issue)
         end
       rescue => e
         # only retry if the error was raised within the "with_tracking" block
