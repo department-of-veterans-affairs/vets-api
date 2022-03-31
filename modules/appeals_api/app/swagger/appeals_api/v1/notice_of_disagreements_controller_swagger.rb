@@ -29,6 +29,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
   swagger_path '/notice_of_disagreements' do
     operation :post, tags: NOD_TAG do
+      key :deprecated, true
       key :summary, 'Creates a new Notice of Disagreement.'
 
       description = 'Submits an appeal of type Notice of Disagreement.' \
@@ -49,6 +50,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
   swagger_path '/notice_of_disagreements/{uuid}' do
     operation :get, tags: NOD_TAG do
+      key :deprecated, true
       key :operationId, 'getNoticeOfDisagreement'
       key :summary, 'Shows a specific Notice of Disagreement. (a.k.a. the Show endpoint)'
       key :description, 'Returns all of the data associated with a specific Notice of Disagreement.'
@@ -127,6 +129,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
   swagger_path '/notice_of_disagreements/contestable_issues' do
     operation :get, tags: NOD_TAG do
+      key :deprecated, true
       key :operationId, 'getNODContestableIssues'
 
       key :summary, 'Returns all contestable issues for a specific veteran.'
@@ -164,6 +167,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
   swagger_path '/notice_of_disagreements/schema' do
     operation :get do
+      key :deprecated, true
       key :summary, 'Gets the Notice of Disagreement JSON Schema.'
       key :operationId, 'getNodJsonSchema'
       desc = 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /notice_of_disagreement` endpoint.'
@@ -218,6 +222,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
   swagger_path '/notice_of_disagreements/validate' do
     operation :post, tags: NOD_TAG do
+      key :deprecated, true
       key :summary, 'Validates a POST request body against the JSON schema.'
       desc = 'Like the `POST /notice_of_disagreement`, but *only* does the validations **—does not submit anything.**'
       key :description, desc
@@ -350,6 +355,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
   swagger_path '/notice_of_disagreements/evidence_submissions' do
     operation :post, tags: NOD_TAG do
+      key :deprecated, true
       key :operationId, 'postNoticeOfDisagreementEvidenceSubmission'
       key :summary, 'Get a location for subsequent evidence submission document upload PUT request'
       key :description, <<~DESC
@@ -531,6 +537,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
   swagger_path '/path' do
     operation :put, tags: NOD_TAG do
+      key :deprecated, true
       key :operationId, 'putNoticeOfDisagreementEvidenceSubmission'
       key :description, File.read(AppealsApi::Engine.root.join('app', 'swagger', 'appeals_api', 'v1', 'put_description.md'))
       key :summary, 'Accepts Notice of Disagreement Evidence Submission document upload.'
@@ -592,6 +599,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
   swagger_path '/notice_of_disagreements/evidence_submissions/{uuid}' do
     operation :get, tags: NOD_TAG do
+      key :deprecated, true
       key :operationId, 'getNoticeOfDisagreementEvidenceSubmission'
       key :summary, 'Shows a specific Notice of Disagreement Evidence Submission.'
       key :description, 'Returns all of the data associated with a specific Notice of Disagreement Evidence Submission.'
