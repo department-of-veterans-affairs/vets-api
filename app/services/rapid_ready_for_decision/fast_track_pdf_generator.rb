@@ -31,10 +31,8 @@ module RapidReadyForDecision
     # progressively builds a pdf and is sensitive to sequence
     def generate
       add_intro
-      add_blood_pressure_intro
       add_blood_pressure_list
       add_blood_pressure_outro
-      add_medications_intro
       add_medications_list
       add_about
 
@@ -49,6 +47,14 @@ module RapidReadyForDecision
 
     def medications?
       @medications.any?
+    end
+
+    def blood_pressure_start_date
+      (@date - 1.year).strftime('%m/%d/%Y')
+    end
+
+    def blood_pressure_end_date
+      @date.strftime('%m/%d/%Y')
     end
 
     def add_intro
@@ -74,45 +80,9 @@ module RapidReadyForDecision
       end
     end
 
-    def add_blood_pressure_intro
-      header = blood_pressure_data? ? 'One Year of Blood Pressure History' : 'No blood pressure records found'
-      bp_note =
-        blood_pressure_data? ? "<font size='11'>Blood pressure is shown as systolic/diastolic.\n</font>" : ''
-      end_date = @date.strftime('%m/%d/%Y')
-      start_date = (@date - 1.year).strftime('%m/%d/%Y')
-      search_window = "VHA records searched from #{start_date} to #{end_date}"
-      bp_intro_lines = [
-        "<font size='16'>#{header}</font>",
-        "<font size='11'><i>#{search_window}</i></font>",
-        "<font size='11'><i>All VAMC locations using VistA/CAPRI were checked</i></font>",
-        "\n",
-        bp_note
-      ]
-
-      bp_intro_lines.each do |line|
-        @pdf.text line, inline_format: true
-      end
-
-      return @pdf unless blood_pressure_data?
-
-      @pdf.text "\n", size: 10
-    end
-
     def add_blood_pressure_list
-      @blood_pressure_data.each do |bp|
-        systolic = bp[:systolic]['value'].round
-        diastolic = bp[:diastolic]['value'].round
-
-        @pdf.text "<b>Blood pressure: #{systolic}/#{diastolic}</b>",
-                  inline_format: true, size: 11
-        @pdf.text "Taken on: #{bp[:effectiveDateTime].to_date.strftime('%m/%d/%Y')} " \
-                  "at #{Time.iso8601(bp[:effectiveDateTime]).strftime('%H:%M %Z')}",
-                  size: 11
-        @pdf.text "Location: #{bp[:organization] || 'Unknown'}", size: 11
-        @pdf.text "\n", size: 8
-      end
-
-      @pdf.text "\n", size: 12
+      template = File.read('app/services/rapid_ready_for_decision/views/hypertension/blood_pressure_readings.erb')
+      @pdf.markup ERB.new(template).result(binding)
     end
 
     def add_blood_pressure_outro
@@ -120,40 +90,11 @@ module RapidReadyForDecision
       @pdf.markup ERB.new(template).result(binding)
     end
 
-    def add_medications_intro
-      @pdf.text "\n", size: 11
-      @pdf.text 'Active Prescriptions', size: 16
-
-      return @pdf unless medications?
-
-      med_search_window = 'VHA records searched for medication prescriptions active as of ' \
-                          "#{Time.zone.today.strftime('%m/%d/%Y')}"
-      prescription_lines = [
-        med_search_window,
-        'All VAMC locations using VistA/CAPRI were checked',
-        "\n"
-      ]
-
-      prescription_lines.each do |line|
-        @pdf.text line, size: 11, style: :italic
-      end
-    end
-
     def add_medications_list
-      unless medications?
-        @pdf.text 'No active medications were found in the last year', size: 8
+      @pdf.text "\n", size: 12
 
-        return
-      end
-
-      @medications.each do |medication|
-        @pdf.text medication['description'], size: 11, style: :bold
-        @pdf.text "Prescribed on: #{medication['authoredOn'][0, 10].to_date.strftime('%m/%d/%Y')}"
-        if medication['dosageInstructions'].present?
-          @pdf.text "Dosage instructions: #{medication['dosageInstructions'].join('; ')}"
-        end
-        @pdf.text "\n", size: 8
-      end
+      template = File.read('app/services/rapid_ready_for_decision/views/shared/medications.erb')
+      @pdf.markup ERB.new(template).result(binding)
     end
 
     def add_about

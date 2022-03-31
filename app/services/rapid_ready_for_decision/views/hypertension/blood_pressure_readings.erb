@@ -1,0 +1,33 @@
+<%#
+  Note: This templating language is HTML-inspired. It does not always behave like true HTML.
+  To see limitations, check out the documentation: https://github.com/puzzle/prawn-markup.
+%>
+
+<p>
+  <% if blood_pressure_data? %>
+    <h4>One Year of Blood Pressure History</h4>
+  <% else %>
+    <h4>No blood pressure records found</h4>
+  <% end %>
+</p>
+
+<i>VHA records searched from <%= blood_pressure_start_date %> to <%= blood_pressure_end_date %></i> <br/>
+<i>All VAMC locations using VistA/CAPRI were checked</i>
+
+<% if blood_pressure_data? %>
+  <p>Blood pressure is shown as systolic/diastolic.</p>
+<% end %>
+
+<p> <br /> </p>
+
+<% @blood_pressure_data.each do |bp| %>
+  <% systolic = bp[:systolic]['value'].round %>
+  <% diastolic = bp[:diastolic]['value'].round %>
+
+  <p>
+    <b>Blood pressure: <%= systolic %>/<%= diastolic %></b> <br />
+    Taken on: <%= bp[:effectiveDateTime].to_date.strftime('%m/%d/%Y') %>
+      at <%= Time.iso8601(bp[:effectiveDateTime]).strftime('%H:%M %Z') %> <br />
+    Location: <%= bp[:organization] || 'Unknown' %>
+  </p>
+<% end %>
