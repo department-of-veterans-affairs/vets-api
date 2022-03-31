@@ -366,7 +366,11 @@ class AppealsApi::RswagConfig
   end
 
   def nod_v2_create_schemas
-    parse_create_schema('v2', '10182.json')
+    # TODO: Return full schema after we've validated all Non-Veteran Claimant functionality
+    nod_v2_schema = parse_create_schema('v2', '10182.json')
+    nod_v2_schema.tap do |s|
+      s.dig(*%w[nodCreate properties data properties attributes properties]).delete('claimant')
+    end
   end
 
   def nod_v2_response_schemas(ref_root)
