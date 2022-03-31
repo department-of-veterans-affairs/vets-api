@@ -1,0 +1,26 @@
+<%#
+  Note: This templating language is HTML-inspired. It does not always behave like true HTML.
+  To see limitations, check out the documentation: https://github.com/puzzle/prawn-markup.
+%>
+
+<p>
+  <h3>Active Prescriptions</h3>
+  <i>VHA records searched for medication prescriptions active as of <%= Time.zone.today.strftime('%m/%d/%Y') %></i> <br />
+  <i>All VAMC locations using VistA/CAPRI were checked</i> <br />
+</p>
+
+<% unless medications? %>
+  <h6>No active medications were found in the last year</h6>
+<% end %>
+
+<p> <br /> </p>
+
+<% @medications.each do |medication| %>
+  <p>
+    <b><%= medication['description'] %></b> <br />
+    Prescribed on: <%= medication['authoredOn'][0, 10].to_date.strftime('%m/%d/%Y') %> <br />
+    <% if medication['dosageInstructions'].present? %>
+      Dosage instructions: <%= medication['dosageInstructions'].join('; ') %><br />
+    <% end %>
+  </p>
+<% end %>

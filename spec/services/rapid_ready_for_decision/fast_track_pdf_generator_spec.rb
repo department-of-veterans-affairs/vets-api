@@ -8,6 +8,14 @@ require 'lighthouse/veterans_health/client'
 RSpec.describe RapidReadyForDecision::FastTrackPdfGenerator, :vcr do
   subject { PDF::Inspector::Text.analyze(compiled_pdf.render).strings }
 
+  if ENV['_SAVE_RRD_PDF_FILE']
+    after do |example|
+      file_name = "tmp/rrd-pdf-preview-#{example.metadata[:description].parameterize}-#{Time.now.to_i}.pdf"
+      compiled_pdf.render_file(file_name)
+      puts "\n #{file_name}"
+    end
+  end
+
   let(:compiled_pdf) { pdf_generator.generate }
 
   let(:client) do
