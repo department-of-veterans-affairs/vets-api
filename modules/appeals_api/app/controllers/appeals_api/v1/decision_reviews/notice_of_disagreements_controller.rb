@@ -140,11 +140,7 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
     render json: AppealsApi::NoticeOfDisagreementSerializer.new(@notice_of_disagreement).serializable_hash
   end
 
-  def sunset_date
-    Date.new(2024, 6, 30)
-  end
-
   def deprecate_headers
-    deprecate(response: response, sunset: sunset_date)
+    deprecate(response: response)
   end
 end
