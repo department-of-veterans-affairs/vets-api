@@ -57,7 +57,7 @@ class UserIdentity < Common::RedisStore
   # It could also be DSLogon or MHV NON PREMIUM users who have done ID.me FICAM LOA3.
   # Additionally, LOA3 does not automatically mean user has opted to have MFA.
   def loa3?
-    loa[:current].try(:to_i) == LOA::THREE
+    loa && loa[:current].try(:to_i) == LOA::THREE
   end
 
   with_options if: :loa3? do

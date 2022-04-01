@@ -91,7 +91,8 @@
                 "multifactor",
                 "verified",
                 "signIn",
-                "authnContext"
+                "authnContext",
+                "inheritedProofVerified"
               ],
               "properties": {
                 "email": {
@@ -170,6 +171,9 @@
                 },
                 "authnContext": {
                   "type": "string"
+                },
+                "inheritedProofVerified": {
+                  "type": "boolean"
                 }
               }
             },

@@ -4,25 +4,23 @@ require 'login/errors'
 
 module Login
   class UserVerifier
-    include Accountable
-
-    attr_reader :current_user
+    attr_reader :user_uuid, :login_type, :mhv_uuid, :idme_uuid, :dslogon_uuid, :logingov_uuid, :icn
 
     def initialize(user)
-      @current_user = user
+      @user_uuid = user.uuid
+      @login_type = user.identity.sign_in&.dig(:service_name)
+      @mhv_uuid = user.mhv_correlation_id
+      @idme_uuid = user.idme_uuid
+      @dslogon_uuid = user.identity.edipi
+      @logingov_uuid = user.logingov_uuid
+      @icn = user.icn.presence
     end
 
     def perform
-      return unless current_user
-
       user_verification_create_or_update
     end
 
     private
-
-    def login_type
-      @login_type ||= current_user.identity.sign_in[:service_name]
-    end
 
     # Queries for a UserVerification on the user, based off the credential identifier
     # If a UserVerification doesn't exist, create one and a UserAccount record associated
@@ -30,24 +28,20 @@ module Login
     def user_verification_create_or_update
       case login_type
       when SAML::User::MHV_MAPPED_CSID
-        find_or_create_user_verification(:mhv_uuid, current_user.mhv_correlation_id)
+        find_or_create_user_verification(:mhv_uuid, mhv_uuid)
       when SAML::User::IDME_CSID
-        find_or_create_user_verification(:idme_uuid, current_user.idme_uuid)
+        find_or_create_user_verification(:idme_uuid, idme_uuid)
       when SAML::User::DSLOGON_CSID
-        find_or_create_user_verification(:dslogon_uuid, current_user.identity.edipi)
+        find_or_create_user_verification(:dslogon_uuid, dslogon_uuid)
       when SAML::User::LOGINGOV_CSID
-        find_or_create_user_verification(:logingov_uuid, current_user.logingov_uuid)
+        find_or_create_user_verification(:logingov_uuid, logingov_uuid)
       else
         Rails.logger.info(
-          "[Login::UserVerifier] Unknown or missing login_type for user=#{current_user.uuid}, login_type=#{login_type}"
+          "[Login::UserVerifier] Unknown or missing login_type for user=#{user_uuid}, login_type=#{login_type}"
         )
 
         raise Login::Errors::UnknownLoginTypeError
       end
-    # TODO: Remove rescue when we are confident this won't negatively affect auth
-    rescue => e
-      Rails.logger.info("[Login::UserVerifier] UserVerification cannot be created or updated, error=#{e.message}")
-      nil
     end
 
     def find_or_create_user_verification(type, identifier)
@@ -57,30 +51,30 @@ module Login
         # ID.me uuid has historically been a primary identifier, even for non-ID.me credentials.
         # For now it is still worth attempting to use it as a backup identifier
         type = :idme_uuid
-        identifier = current_user.idme_uuid
+        identifier = idme_uuid
         raise Login::Errors::UserVerificationNotCreatedError if identifier.nil?
 
         Rails.logger.info("[Login::UserVerifier] Attempting alternate type=#{type}  identifier=#{identifier}")
       end
 
       user_verification = UserVerification.find_by(type => identifier)
-      current_user_icn = current_user.icn.presence
-      user_account = current_user_icn ? UserAccount.find_by(icn: current_user_icn) : nil
+
+      user_account = icn ? UserAccount.find_by(icn: icn) : nil
 
       if user_verification
-        update_existing_user_verification(user_verification, current_user_icn, user_account)
+        update_existing_user_verification(user_verification, user_account)
       else
-        verified_at = current_user.icn.present? ? Time.zone.now : nil
+        verified_at = icn ? Time.zone.now : nil
         user_verification = UserVerification.create!(type => identifier,
                                                      user_account: user_account ||
-                                                                   UserAccount.new(icn: current_user_icn),
+                                                                   UserAccount.new(icn: icn),
                                                      verified_at: verified_at)
       end
       user_verification.reload
     end
 
-    def update_existing_user_verification(user_verification, user_icn, user_account)
-      return user_verification if user_icn.nil? || user_verification.user_account == user_account
+    def update_existing_user_verification(user_verification, user_account)
+      return user_verification if icn.nil? || user_verification.user_account == user_account
 
       if user_account
         deprecated_user_account = user_verification.user_account
@@ -91,7 +85,7 @@ module Login
                           "Updating UserVerification id=#{user_verification.id} with UserAccount id=#{user_account.id}")
       else
         user_verification_account = user_verification.user_account
-        user_verification_account.update(icn: user_icn)
+        user_verification_account.update(icn: icn)
         user_verification.update(verified_at: Time.zone.now)
       end
     end

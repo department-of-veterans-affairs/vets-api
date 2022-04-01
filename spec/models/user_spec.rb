@@ -1048,4 +1048,111 @@ RSpec.describe User, type: :model do
       end
     end
   end
+
+  describe '#user_verification' do
+    let(:user) do
+      described_class.new(build(:user,
+                                authn_context: authn_context,
+                                logingov_uuid: logingov_uuid,
+                                idme_uuid: idme_uuid,
+                                edipi: edipi,
+                                mhv_correlation_id: mhv_correlation_id))
+    end
+    let!(:user_verification) { Login::UserVerifier.new(user).perform }
+    let(:authn_context) { LOA::IDME_LOA1_VETS }
+    let(:logingov_uuid) { 'some-logingov-uuid' }
+    let(:idme_uuid) { 'some-idme-uuid' }
+    let(:edipi) { 'some-edipi' }
+    let(:mhv_correlation_id) { 'some-mhv-correlation-id' }
+
+    it 'returns expected user_verification' do
+      expect(user.user_verification).to eq(user_verification)
+    end
+
+    context 'when user is logged in with mhv' do
+      let(:authn_context) { 'myhealthevet' }
+
+      context 'and there is an mhv_correlation_id' do
+        let(:mhv_correlation_id) { 'some-mhv-correlation-id' }
+
+        it 'returns user verification with a matching mhv_correlation_id' do
+          expect(user.user_verification.mhv_uuid).to eq(mhv_correlation_id)
+        end
+      end
+
+      context 'and there is not an mhv_correlation_id' do
+        let(:mhv_correlation_id) { nil }
+
+        it 'returns user verification with a matching idme_uuid' do
+          expect(user.user_verification.idme_uuid).to eq(idme_uuid)
+        end
+      end
+    end
+
+    context 'when user is logged in with dslogon' do
+      let(:authn_context) { 'dslogon' }
+
+      context 'and there is an edipi' do
+        let(:edipi) { 'some-edipi' }
+
+        it 'returns user verification with a matching edipi' do
+          expect(user.user_verification.dslogon_uuid).to eq(edipi)
+        end
+      end
+
+      context 'and there is not an edipi' do
+        let(:edipi) { nil }
+
+        it 'returns user verification with a matching idme_uuid' do
+          expect(user.user_verification.idme_uuid).to eq(idme_uuid)
+        end
+      end
+    end
+
+    context 'when user is logged in with logingov' do
+      let(:authn_context) { IAL::LOGIN_GOV_IAL1 }
+      let(:logingov_uuid) { 'some-logingov-uuid' }
+
+      it 'returns user verification with a matching logingov uuid' do
+        expect(user.user_verification.logingov_uuid).to eq(logingov_uuid)
+      end
+    end
+
+    context 'when user is logged in with idme' do
+      let(:authn_context) { LOA::IDME_LOA1_VETS }
+      let(:idme_uuid) { 'some-idme-uuid' }
+
+      it 'returns user verification with a matching idme_uuid' do
+        expect(user.user_verification.idme_uuid).to eq(idme_uuid)
+      end
+    end
+  end
+
+  describe '#user_account' do
+    let(:user) { described_class.new(build(:user)) }
+    let!(:user_account) { Login::UserVerifier.new(user).perform.user_account }
+
+    it 'returns expected user_account' do
+      expect(user.user_account).to eq(user_account)
+    end
+  end
+
+  describe '#inherited_proof_verified' do
+    let(:user) { described_class.new(build(:user)) }
+    let(:user_account) { Login::UserVerifier.new(user).perform.user_account }
+
+    context 'when Inherited Proof Verified User Account exists and matches current user_account' do
+      let!(:inherited_proof_verified) { create(:inherited_proof_verified_user_account, user_account: user_account) }
+
+      it 'returns true' do
+        expect(user.inherited_proof_verified).to be true
+      end
+    end
+
+    context 'when no Inherited Proof Verified User Account is found' do
+      it 'returns false' do
+        expect(user.inherited_proof_verified).to be false
+      end
+    end
+  end
 end

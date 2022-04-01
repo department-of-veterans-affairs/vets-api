@@ -163,6 +163,10 @@ RSpec.describe Users::Profile do
         expect(profile[:last_signed_in].httpdate).to eq(user.last_signed_in.httpdate)
       end
 
+      it 'includes inherited_proof_verified' do
+        expect(profile[:inherited_proof_verified]).to eq(user.inherited_proof_verified)
+      end
+
       # --- negative tests ---
       it 'does not include uuid in the profile' do
         expect(profile[:uuid]).to be_nil

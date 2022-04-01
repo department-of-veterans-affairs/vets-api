@@ -131,8 +131,18 @@ RSpec.describe SignIn::UserCreator do
       context 'and user_attributes is arbitrary' do
         let(:user_attributes) { { some_arbitrar_user_attribute: 'some-arbitrary-user-attribute' } }
         let(:expected_error) { SignIn::Errors::UserAttributesMalformedError }
+        let(:expected_log_message) do
+          "[SignIn::UserCreator] UserVerification not created, error=#{expected_error_message}"
+        end
+        let(:mocked_error) { StandardError }
+        let(:expected_error_message) { mocked_error.new.message }
 
-        it 'raises a user attributes malformed error' do
+        before do
+          allow_any_instance_of(Login::UserVerifier).to receive(:perform).and_raise(StandardError)
+        end
+
+        it 'logs a user verification not created message and raises user attributes malformed error' do
+          expect(Rails.logger).to receive(:info).with(expected_log_message)
           expect { subject }.to raise_error(expected_error)
         end
       end
