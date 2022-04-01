@@ -19,22 +19,22 @@ module AppealsApi
       end
 
       describe '#handle' do
-        it 'delegates to the correct event type' do
-          Sidekiq::Testing.fake! do
-            handler = Handler.new(event_type: :hlr_status_updated, opts: {})
-            handler.handle!
+        let(:event_type) { :hlr_status_updated }
+        let(:opts) { {} }
+        let(:event_type_json_safe) { JSON.parse(JSON.dump(event_type)) }
+        let(:opts_json_safe) { JSON.parse(JSON.dump(opts)) }
 
-            expect(EventsWorker.jobs.size).to eq(1)
-            expect(EventsWorker.jobs.first['args'].first).to eq('hlr_status_updated')
-          end
+        it 'delegates to the correct event type' do
+          handler = Handler.new(event_type: event_type, opts: opts)
+          handler.handle!
+
+          expect(EventsWorker.jobs.size).to eq(1)
+          expect(EventsWorker.jobs.first['args'].first).to eq('hlr_status_updated')
         end
 
         it 'sends arguments with JSON-native data types (per sidekiq best practices)' do
-          Sidekiq::Testing.inline! do
-            Sidekiq.strict_args!
-            handler = Handler.new(event_type: :hlr_status_updated, opts: {})
-            expect { handler.handle! }.not_to raise_error(ArgumentError)
-          end
+          expect(AppealsApi::EventsWorker).to receive(:perform_async).with(event_type_json_safe, opts_json_safe)
+          Handler.new(event_type: event_type, opts: opts).handle!
         end
       end
     end
