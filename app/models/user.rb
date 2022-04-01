@@ -38,6 +38,8 @@ class User < Common::RedisStore
   attribute :mhv_last_signed_in, Common::UTCTime # MHV audit logging
   attribute :account_uuid, String
   attribute :account_id, Integer
+  attribute :user_account_uuid, String
+  attribute :user_verification_id, Integer
 
   delegate :email, to: :identity, allow_nil: true
   delegate :loa3?, to: :identity, allow_nil: true
@@ -56,6 +58,26 @@ class User < Common::RedisStore
 
   def account_id
     @account_id ||= account&.id
+  end
+
+  def user_verification
+    @user_verification ||= get_user_verification
+  end
+
+  def user_account
+    @user_account ||= user_verification&.user_account
+  end
+
+  def user_verification_id
+    @user_verification_id ||= user_verification&.id
+  end
+
+  def user_account_uuid
+    @user_account_uuid ||= user_account&.id
+  end
+
+  def inherited_proof_verified
+    @inherited_proof_verified ||= InheritedProofVerifiedUserAccount.where(user_account_id: user_account_uuid).present?
   end
 
   def pciu_email
@@ -274,6 +296,7 @@ class User < Common::RedisStore
   delegate :verified_at, to: :identity, allow_nil: true
   delegate :common_name, to: :identity, allow_nil: true
   delegate :person_types, to: :identity, allow_nil: true, prefix: true
+  delegate :sign_in, to: :identity, allow_nil: true, prefix: true
 
   # mpi attributes
   delegate :birls_id, to: :mpi, prefix: true
@@ -456,6 +479,21 @@ class User < Common::RedisStore
     return nil unless identity && mpi
 
     mpi.profile
+  end
+
+  # Get user_verification based on login method
+  # Default is idme, if login method and login uuid are not available,
+  # fall back to idme
+  def get_user_verification
+    case identity_sign_in&.dig(:service_name)
+    when SAML::User::MHV_MAPPED_CSID
+      return UserVerification.find_by(mhv_uuid: mhv_correlation_id) if mhv_correlation_id
+    when SAML::User::DSLOGON_CSID
+      return UserVerification.find_by(dslogon_uuid: identity.edipi) if identity.edipi
+    when SAML::User::LOGINGOV_CSID
+      return UserVerification.find_by(logingov_uuid: logingov_uuid)
+    end
+    UserVerification.find_by(idme_uuid: idme_uuid)
   end
 
   def get_relationships_array

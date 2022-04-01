@@ -54,7 +54,8 @@
                 "multifactor",
                 "verified",
                 "sign_in",
-                "authn_context"
+                "authn_context",
+                "inherited_proof_verified"
               ],
               "properties": {
                 "email": { "type": "string"},
@@ -81,7 +82,8 @@
                     "service_name": { "type": "string" }
                   }
                 },
-                "authn_context": { "type": "string" }
+                "authn_context": { "type": "string" },
+                "inherited_proof_verified": { "type": "boolean" }
               }
             },
             "va_profile": {

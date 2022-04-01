@@ -350,8 +350,8 @@ module V1
     end
 
     def after_login_actions
-      Login::AfterLoginActions.new(@current_user).perform
       Login::UserVerifier.new(@current_user).perform
+      Login::AfterLoginActions.new(@current_user).perform
       log_persisted_session_and_warnings
     end
 

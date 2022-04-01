@@ -55,6 +55,8 @@ module SignIn
 
     def user_verification
       @user_verification ||= Login::UserVerifier.new(current_user).perform
+    rescue => e
+      Rails.logger.info("[SignIn::UserCreator] UserVerification not created, error=#{e.message}")
     end
 
     def login_code
