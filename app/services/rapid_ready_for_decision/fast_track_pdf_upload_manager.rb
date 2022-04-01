@@ -38,7 +38,7 @@ module RapidReadyForDecision
       uploads.any? { |upload| upload['name'].start_with? DOCUMENT_TITLE }
     end
 
-    def handle_attachment(pdf_body)
+    def handle_attachment(pdf_body, add_to_submission: true)
       if already_has_summary_file
         submission
       else
@@ -48,7 +48,7 @@ module RapidReadyForDecision
         supporting_evidence_attachment.save!
         confirmation_code = supporting_evidence_attachment.guid
 
-        add_upload(confirmation_code) unless confirmation_code.nil?
+        add_upload(confirmation_code) if add_to_submission && confirmation_code.present?
       end
     end
 
