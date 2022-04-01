@@ -19,7 +19,7 @@ RSpec.describe Preneeds::DeleteOldUploads, type: :model do
         form_data: build(:burial_form).as_json.to_json
       )
 
-      expect(job.uuids_to_keep).to eq(FormAttachment.pluck(:guid))
+      expect(job.uuids_to_keep).to match_array(FormAttachment.pluck(:guid))
     end
   end
 
