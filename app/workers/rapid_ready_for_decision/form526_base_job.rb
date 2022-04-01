@@ -72,6 +72,11 @@ module RapidReadyForDecision
       end
     end
 
+    # Override this method to prevent the submission from getting the PDF and special issue
+    def release_pdf?(_form526_submission)
+      true
+    end
+
     # Return nil to discontinue processing (i.e., doesn't generate pdf or set special issue)
     def assess_data(_form526_submission)
       raise "Method `assess_data` should be overriden by the subclass #{self.class}"
@@ -135,10 +140,14 @@ module RapidReadyForDecision
     end
 
     def upload_pdf(form526_submission, pdf)
-      RapidReadyForDecision::FastTrackPdfUploadManager.new(form526_submission).handle_attachment(pdf.render)
+      RapidReadyForDecision::FastTrackPdfUploadManager
+        .new(form526_submission)
+        .handle_attachment(pdf.render, add_to_submission: release_pdf?(form526_submission))
     end
 
     def set_special_issue(form526_submission)
+      return if release_pdf?(form526_submission)
+
       RapidReadyForDecision::RrdSpecialIssueManager.new(form526_submission).add_special_issue
     end
   end

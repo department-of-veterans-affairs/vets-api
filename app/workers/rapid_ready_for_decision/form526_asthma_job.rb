@@ -32,6 +32,10 @@ module RapidReadyForDecision
       nil
     end
 
+    def release_pdf?(_form526_submission)
+      false
+    end
+
     private
 
     def generate_pdf(_form526_submission, _assessed_data)

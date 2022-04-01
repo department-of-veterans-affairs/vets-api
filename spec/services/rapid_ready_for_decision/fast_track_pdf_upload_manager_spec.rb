@@ -25,6 +25,7 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfUploadManager do
       form_json: original_form_json
     )
   end
+  let(:manager) { RapidReadyForDecision::FastTrackPdfUploadManager.new(form526_submission) }
 
   let(:time_freeze_time) { Time.zone.parse('2021-10-10') }
 
@@ -39,7 +40,7 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfUploadManager do
   describe '#add_upload(confirmation_code)' do
     context 'success' do
       it 'appends the new upload and saves the expected JSON' do
-        RapidReadyForDecision::FastTrackPdfUploadManager.new(form526_submission).add_upload('fake_confirmation_code')
+        manager.add_upload('fake_confirmation_code')
         parsed_json = JSON.parse(form526_submission.form_json)['form526_uploads']
 
         expect(parsed_json).to match original_form_json_uploads + [
@@ -55,7 +56,7 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfUploadManager do
         end
 
         it 'adds the new upload' do
-          RapidReadyForDecision::FastTrackPdfUploadManager.new(form526_submission).add_upload('fake_confirmation_code')
+          manager.add_upload('fake_confirmation_code')
           parsed_json = JSON.parse(form526_submission.form_json)['form526_uploads']
 
           expect(parsed_json).to match [
@@ -72,12 +73,12 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfUploadManager do
     context 'success' do
       it 'returns false if no summary file is present' do
         expect(
-          RapidReadyForDecision::FastTrackPdfUploadManager.new(form526_submission).already_has_summary_file
+          manager.already_has_summary_file
         ).to eq false
       end
 
       it 'returns true after a summary file is added' do
-        RapidReadyForDecision::FastTrackPdfUploadManager.new(form526_submission).add_upload('fake_confirmation_code')
+        manager.add_upload('fake_confirmation_code')
         expect(
           RapidReadyForDecision::FastTrackPdfUploadManager.new(form526_submission).already_has_summary_file
         ).to eq true
@@ -88,7 +89,7 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfUploadManager do
   describe '#handle_attachment' do
     it 'does NOT create a new SupportingEvidenceAttachment' do
       # add file once to test trying to add it again
-      RapidReadyForDecision::FastTrackPdfUploadManager.new(form526_submission).add_upload('fake_confirmation_code')
+      manager.add_upload('fake_confirmation_code')
 
       expect do
         RapidReadyForDecision::FastTrackPdfUploadManager.new(form526_submission).handle_attachment('fake file')
@@ -99,10 +100,16 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfUploadManager do
 
     it 'creates a new SupportingEvidenceAttachment' do
       expect do
-        RapidReadyForDecision::FastTrackPdfUploadManager.new(form526_submission).handle_attachment('fake file')
+        manager.handle_attachment('fake file')
       end.to change(
         SupportingEvidenceAttachment, :count
       ).by 1
+    end
+
+    it 'skips updating the submission when add_to_submission is false' do
+      expect do
+        manager.handle_attachment('fake file', add_to_submission: false)
+      end.not_to change(form526_submission, :form_json)
     end
   end
 end
