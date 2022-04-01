@@ -5,8 +5,7 @@ class DependentsApplicationFailureMailer < ApplicationMailer
     opt = {}
 
     opt[:to] = [
-      user.email,
-      'VACOOfficeofAutomatedBenefitsDelivery@va.gov'
+      user.email
     ]
 
     template = File.read('app/mailers/views/dependents_application_failure.erb')
