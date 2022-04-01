@@ -6,7 +6,7 @@ RSpec.describe DependentsApplicationFailureMailer, type: [:mailer] do
   include ActionView::Helpers::TranslationHelper
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
   let(:recipients) do
-    [user.email, 'VACOOfficeofAutomatedBenefitsDelivery@va.gov']
+    [user.email]
   end
 
   describe '#build' do
