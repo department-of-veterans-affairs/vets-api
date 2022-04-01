@@ -522,8 +522,20 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(appointments.first.location).not_to be_nil
     end
 
-    it 'locations without providers return nil (and do not throw an error)' do
-      expect(appointments.last.location).to be_nil
+    it 'locations without providers return blank location (and do not throw an error)' do
+      expect(appointments.last.location.to_h).to eq({ id: '913',
+                                                      name: nil,
+                                                      address: { street: nil, city: nil, state: nil,
+                                                                 zip_code: nil },
+                                                      lat: nil,
+                                                      long: nil,
+                                                      phone: {
+                                                        area_code: nil,
+                                                        number: nil,
+                                                        extension: nil
+                                                      },
+                                                      url: nil,
+                                                      code: nil })
     end
   end
 end

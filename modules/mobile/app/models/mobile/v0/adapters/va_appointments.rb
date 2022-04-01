@@ -218,7 +218,7 @@ module Mobile
 
         def location_home(details, location)
           provider = details.dig(:providers, :provider)
-          return nil unless provider
+          return location unless provider
 
           location[:url] = provider.first.dig(:virtual_meeting_room, :url)
           location[:code] = provider.first.dig(:virtual_meeting_room, :pin)
