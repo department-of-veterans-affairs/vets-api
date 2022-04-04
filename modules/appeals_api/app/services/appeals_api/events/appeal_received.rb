@@ -67,7 +67,7 @@ module AppealsApi
       end
 
       def lookup
-        return { email_address: opts['claimant_email'] } if opts['claimant_email']
+        return { email_address: opts['claimant_email'] } if opts['claimant_email'].present?
 
         if opts['email_identifier']['id_type'] == 'email'
           { email_address: opts['email_identifier']['id_value'] }
