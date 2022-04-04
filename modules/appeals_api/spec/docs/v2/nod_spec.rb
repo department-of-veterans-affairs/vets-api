@@ -4,11 +4,13 @@ require 'swagger_helper'
 require Rails.root.join('spec', 'rswag_override.rb').to_s
 
 require 'rails_helper'
-require_relative '../../support/swagger_shared_components'
+require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 # rubocop:disable RSpec/VariableName, RSpec/ScatteredSetup, RSpec/RepeatedExample, Layout/LineLength, RSpec/RepeatedDescription
 
 describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagger/appeals_api/v2/swagger.json', type: :request do
+  include DocHelpers
+
   let(:apikey) { 'apikey' }
 
   path '/notice_of_disagreements' do
@@ -92,7 +94,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
             'application/json' => {
               examples: {
                 "#{response_title}": {
-                  value: JSON.parse(response.body, symbolize_names: true)
+                  value: normalize_appeal_response(response)
                 }
               }
             }
@@ -121,7 +123,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
             'application/json' => {
               examples: {
                 "#{response_title}": {
-                  value: JSON.parse(response.body, symbolize_names: true)
+                  value: normalize_appeal_response(response)
                 }
               }
             }
@@ -186,7 +188,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
         after do |example|
           example.metadata[:response][:content] = {
             'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
+              example: normalize_appeal_response(response)
             }
           }
         end
@@ -441,7 +443,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
         after do |example|
           example.metadata[:response][:content] = {
             'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
+              example: normalize_evidence_submission_response(response)
             }
           }
         end
@@ -666,7 +668,7 @@ describe 'Notice of Disagreements', swagger_doc: 'modules/appeals_api/app/swagge
         after do |example|
           example.metadata[:response][:content] = {
             'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
+              example: normalize_evidence_submission_response(response)
             }
           }
         end

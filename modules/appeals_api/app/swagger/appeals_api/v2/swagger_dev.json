@@ -446,12 +446,12 @@
                   "minimum fields used": {
                     "value": {
                       "data": {
-                        "id": "20c8d189-db94-4e9e-8448-db18af364742",
+                        "id": "00000000-1111-2222-3333-444444444444",
                         "type": "higherLevelReview",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2022-01-26T19:09:49.091Z",
-                          "createdAt": "2022-01-26T19:09:49.087Z",
+                          "updatedAt": "2020-01-02T03:04:05.067Z",
+                          "createdAt": "2020-01-02T03:04:05.067Z",
                           "formData": {
                             "data": {
                               "type": "higherLevelReview",
@@ -487,12 +487,12 @@
                   "all fields used": {
                     "value": {
                       "data": {
-                        "id": "4c9c7921-315d-433f-8538-ad3ac99087b3",
+                        "id": "00000000-1111-2222-3333-444444444444",
                         "type": "higherLevelReview",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2022-01-26T19:09:49.166Z",
-                          "createdAt": "2022-01-26T19:09:49.163Z",
+                          "updatedAt": "2020-01-02T03:04:05.067Z",
+                          "createdAt": "2020-01-02T03:04:05.067Z",
                           "formData": {
                             "data": {
                               "type": "higherLevelReview",
@@ -989,12 +989,12 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b6365609-fce7-4531-8290-d1381022609f",
+                    "id": "00000000-1111-2222-3333-444444444444",
                     "type": "higherLevelReview",
                     "attributes": {
                       "status": "pending",
-                      "updatedAt": "2022-01-26T19:09:49.257Z",
-                      "createdAt": "2022-01-26T19:09:49.256Z",
+                      "updatedAt": "2020-01-02T03:04:05.067Z",
+                      "createdAt": "2020-01-02T03:04:05.067Z",
                       "formData": {
                         "data": {
                           "type": "higherLevelReview",
@@ -4311,12 +4311,12 @@
                   "minimum fields used": {
                     "value": {
                       "data": {
-                        "id": "356b6604-b067-418d-ad81-edad561846b5",
+                        "id": "00000000-1111-2222-3333-444444444444",
                         "type": "noticeOfDisagreement",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2022-03-04T17:40:08.697Z",
-                          "createdAt": "2022-03-04T17:40:08.694Z",
+                          "updatedAt": "2020-01-02T03:04:05.067Z",
+                          "createdAt": "2020-01-02T03:04:05.067Z",
                           "formData": {
                             "data": {
                               "type": "noticeOfDisagreement",
@@ -4354,12 +4354,12 @@
                   "all fields used": {
                     "value": {
                       "data": {
-                        "id": "dc8c3d05-a2a9-452a-b291-f0ea51759257",
+                        "id": "00000000-1111-2222-3333-444444444444",
                         "type": "noticeOfDisagreement",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2022-01-26T19:09:50.298Z",
-                          "createdAt": "2022-01-26T19:09:50.296Z",
+                          "updatedAt": "2020-01-02T03:04:05.067Z",
+                          "createdAt": "2020-01-02T03:04:05.067Z",
                           "formData": {
                             "data": {
                               "type": "noticeOfDisagreement",
@@ -4642,12 +4642,12 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1293c4b3-082f-4464-ac64-dd8fb0bef6dd",
+                    "id": "00000000-1111-2222-3333-444444444444",
                     "type": "noticeOfDisagreement",
                     "attributes": {
                       "status": "pending",
-                      "updatedAt": "2022-01-26T19:09:50.371Z",
-                      "createdAt": "2022-01-26T19:09:50.369Z",
+                      "updatedAt": "2020-01-02T03:04:05.067Z",
+                      "createdAt": "2020-01-02T03:04:05.067Z",
                       "formData": {
                         "data": {
                           "type": "noticeOfDisagreement",
@@ -6299,17 +6299,17 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f248901d-4b34-42e1-ab9e-13354e7c48ee",
+                    "id": "55555555-6666-7777-8888-999999999999",
                     "type": "evidenceSubmission",
                     "attributes": {
                       "status": "pending",
                       "code": null,
                       "detail": null,
                       "appealType": "NoticeOfDisagreement",
-                      "appealId": "80ba8072-d834-4186-b23a-291175a5ad9f",
+                      "appealId": "00000000-1111-2222-3333-444444444444",
                       "location": "http://some.fakesite.com/path/uuid",
-                      "createdAt": "2022-01-26T19:09:50.820Z",
-                      "updatedAt": "2022-01-26T19:09:50.820Z"
+                      "createdAt": "2020-01-02T03:04:05.067Z",
+                      "updatedAt": "2020-01-02T03:04:05.067Z"
                     }
                   }
                 },
@@ -6544,17 +6544,17 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a8244663-9d06-4944-8856-f0d1d03349a9",
+                    "id": "55555555-6666-7777-8888-999999999999",
                     "type": "evidenceSubmission",
                     "attributes": {
                       "status": "pending",
                       "code": null,
                       "detail": null,
                       "appealType": "NoticeOfDisagreement",
-                      "appealId": "fc6f2b6c-ca7b-4db9-92ba-3bd54c2f9755",
+                      "appealId": "00000000-1111-2222-3333-444444444444",
                       "location": null,
-                      "createdAt": "2022-01-26T19:09:51.067Z",
-                      "updatedAt": "2022-01-26T19:09:51.067Z"
+                      "createdAt": "2020-01-02T03:04:05.067Z",
+                      "updatedAt": "2020-01-02T03:04:05.067Z"
                     }
                   }
                 },
@@ -6706,12 +6706,12 @@
                   "minimum fields used": {
                     "value": {
                       "data": {
-                        "id": "33351ab1-967a-4629-8d25-5b6cc3a82098",
+                        "id": "00000000-1111-2222-3333-444444444444",
                         "type": "supplementalClaim",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2022-01-26T19:09:51.221Z",
-                          "createdAt": "2022-01-26T19:09:51.219Z",
+                          "updatedAt": "2020-01-02T03:04:05.067Z",
+                          "createdAt": "2020-01-02T03:04:05.067Z",
                           "formData": {
                             "data": {
                               "type": "supplementalClaim",
@@ -6756,12 +6756,12 @@
                   "all fields used": {
                     "value": {
                       "data": {
-                        "id": "bd99c72d-1af8-49bf-b0ad-dee392cace6c",
+                        "id": "00000000-1111-2222-3333-444444444444",
                         "type": "supplementalClaim",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2022-01-26T19:09:51.285Z",
-                          "createdAt": "2022-01-26T19:09:51.282Z",
+                          "updatedAt": "2020-01-02T03:04:05.067Z",
+                          "createdAt": "2020-01-02T03:04:05.067Z",
                           "formData": {
                             "data": {
                               "type": "supplementalClaim",
@@ -7277,12 +7277,12 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "55b7692c-1f70-4291-b386-f3232510133f",
+                    "id": "00000000-1111-2222-3333-444444444444",
                     "type": "supplementalClaim",
                     "attributes": {
                       "status": "pending",
-                      "updatedAt": "2022-01-26T19:09:51.361Z",
-                      "createdAt": "2022-01-26T19:09:51.359Z",
+                      "updatedAt": "2020-01-02T03:04:05.067Z",
+                      "createdAt": "2020-01-02T03:04:05.067Z",
                       "formData": {
                         "data": {
                           "type": "supplementalClaim",
@@ -7413,17 +7413,17 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "95905009-a0ce-4269-b70c-a81452b7c110",
+                    "id": "55555555-6666-7777-8888-999999999999",
                     "type": "evidenceSubmission",
                     "attributes": {
                       "status": "pending",
                       "code": null,
                       "detail": null,
                       "appealType": "SupplementalClaim",
-                      "appealId": "df9ad156-1482-434f-830c-86a05d9eaf54",
+                      "appealId": "00000000-1111-2222-3333-444444444444",
                       "location": "http://some.fakesite.com/path/uuid",
-                      "createdAt": "2022-01-26T19:09:51.516Z",
-                      "updatedAt": "2022-01-26T19:09:51.516Z"
+                      "createdAt": "2020-01-02T03:04:05.067Z",
+                      "updatedAt": "2020-01-02T03:04:05.067Z"
                     }
                   }
                 },
@@ -7662,17 +7662,17 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "cce01f61-9256-4c9c-8bb1-65ce6f45338c",
+                    "id": "55555555-6666-7777-8888-999999999999",
                     "type": "evidenceSubmission",
                     "attributes": {
                       "status": "pending",
                       "code": null,
                       "detail": null,
                       "appealType": "SupplementalClaim",
-                      "appealId": "4516f02e-1214-4799-9780-790614ef66f6",
+                      "appealId": "00000000-1111-2222-3333-444444444444",
                       "location": null,
-                      "createdAt": "2022-01-26T19:09:51.757Z",
-                      "updatedAt": "2022-01-26T19:09:51.757Z"
+                      "createdAt": "2020-01-02T03:04:05.067Z",
+                      "updatedAt": "2020-01-02T03:04:05.067Z"
                     }
                   }
                 },

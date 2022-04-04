@@ -442,12 +442,12 @@
                   "minimum fields used": {
                     "value": {
                       "data": {
-                        "id": "67ca1405-792f-442f-b162-83f91350e67d",
+                        "id": "00000000-1111-2222-3333-444444444444",
                         "type": "higherLevelReview",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2022-03-31T20:34:09.903Z",
-                          "createdAt": "2022-03-31T20:34:09.887Z",
+                          "updatedAt": "2020-01-02T03:04:05.067Z",
+                          "createdAt": "2020-01-02T03:04:05.067Z",
                           "formData": {
                             "data": {
                               "type": "higherLevelReview",
@@ -483,12 +483,12 @@
                   "all fields used": {
                     "value": {
                       "data": {
-                        "id": "447f943d-33b0-43c0-ab6d-b03b7636589e",
+                        "id": "00000000-1111-2222-3333-444444444444",
                         "type": "higherLevelReview",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2022-03-31T20:34:10.069Z",
-                          "createdAt": "2022-03-31T20:34:10.063Z",
+                          "updatedAt": "2020-01-02T03:04:05.067Z",
+                          "createdAt": "2020-01-02T03:04:05.067Z",
                           "formData": {
                             "data": {
                               "type": "higherLevelReview",
@@ -985,12 +985,12 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "16ff4b32-e378-4468-9fbb-163360e89969",
+                    "id": "00000000-1111-2222-3333-444444444444",
                     "type": "higherLevelReview",
                     "attributes": {
                       "status": "pending",
-                      "updatedAt": "2022-03-31T20:34:10.247Z",
-                      "createdAt": "2022-03-31T20:34:10.244Z",
+                      "updatedAt": "2020-01-02T03:04:05.067Z",
+                      "createdAt": "2020-01-02T03:04:05.067Z",
                       "formData": {
                         "data": {
                           "type": "higherLevelReview",
@@ -4307,12 +4307,12 @@
                   "minimum fields used": {
                     "value": {
                       "data": {
-                        "id": "4af91b3f-fdee-4dd0-bacb-b0c4ddff8874",
+                        "id": "00000000-1111-2222-3333-444444444444",
                         "type": "noticeOfDisagreement",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2022-03-31T20:34:12.495Z",
-                          "createdAt": "2022-03-31T20:34:12.480Z",
+                          "updatedAt": "2020-01-02T03:04:05.067Z",
+                          "createdAt": "2020-01-02T03:04:05.067Z",
                           "formData": {
                             "data": {
                               "type": "noticeOfDisagreement",
@@ -4350,12 +4350,12 @@
                   "all fields used": {
                     "value": {
                       "data": {
-                        "id": "409df6b6-eb60-446a-9547-89bbb64d98f6",
+                        "id": "00000000-1111-2222-3333-444444444444",
                         "type": "noticeOfDisagreement",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2022-03-31T20:34:12.594Z",
-                          "createdAt": "2022-03-31T20:34:12.584Z",
+                          "updatedAt": "2020-01-02T03:04:05.067Z",
+                          "createdAt": "2020-01-02T03:04:05.067Z",
                           "formData": {
                             "data": {
                               "type": "noticeOfDisagreement",
@@ -4618,12 +4618,12 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b1e4cc5f-234b-4cdc-a951-81511c50b878",
+                    "id": "00000000-1111-2222-3333-444444444444",
                     "type": "noticeOfDisagreement",
                     "attributes": {
                       "status": "pending",
-                      "updatedAt": "2022-03-31T20:34:12.712Z",
-                      "createdAt": "2022-03-31T20:34:12.710Z",
+                      "updatedAt": "2020-01-02T03:04:05.067Z",
+                      "createdAt": "2020-01-02T03:04:05.067Z",
                       "formData": {
                         "data": {
                           "type": "noticeOfDisagreement",
@@ -6255,17 +6255,17 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f87860a7-46c3-4201-a201-a571cddd6139",
+                    "id": "55555555-6666-7777-8888-999999999999",
                     "type": "evidenceSubmission",
                     "attributes": {
                       "status": "pending",
                       "code": null,
                       "detail": null,
                       "appealType": "NoticeOfDisagreement",
-                      "appealId": "ade03bca-cf86-4c1f-88e2-5dcb9d145408",
+                      "appealId": "00000000-1111-2222-3333-444444444444",
                       "location": "http://some.fakesite.com/path/uuid",
-                      "createdAt": "2022-03-31T20:34:13.543Z",
-                      "updatedAt": "2022-03-31T20:34:13.543Z"
+                      "createdAt": "2020-01-02T03:04:05.067Z",
+                      "updatedAt": "2020-01-02T03:04:05.067Z"
                     }
                   }
                 },
@@ -6500,17 +6500,17 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "66e18fe6-d908-417d-a5a5-e1071b2b5400",
+                    "id": "55555555-6666-7777-8888-999999999999",
                     "type": "evidenceSubmission",
                     "attributes": {
                       "status": "pending",
                       "code": null,
                       "detail": null,
                       "appealType": "NoticeOfDisagreement",
-                      "appealId": "71edd116-08fa-44af-8a6a-c5e9767ecdd3",
+                      "appealId": "00000000-1111-2222-3333-444444444444",
                       "location": null,
-                      "createdAt": "2022-03-31T20:34:13.960Z",
-                      "updatedAt": "2022-03-31T20:34:13.960Z"
+                      "createdAt": "2020-01-02T03:04:05.067Z",
+                      "updatedAt": "2020-01-02T03:04:05.067Z"
                     }
                   }
                 },
