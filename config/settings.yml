@@ -224,6 +224,13 @@ decision_review:
   v1:
     url: https://sandbox-api.va.gov/services/appeals/v2/decision_reviews
 
+# Settings for modules/dhp_connected_devices
+dhp:
+  fitbit:
+    client_id: ''
+    client_secret: ''
+    redirect_uri: 'http://localhost:3000/dhp_connected_devices/fitbit-callback'
+    scope: 'heartrate activity nutrition sleep'
 
 # Settings for modules/appeals_api
 modules_appeals_api:
