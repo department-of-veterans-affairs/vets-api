@@ -2,6 +2,7 @@
 
 require 'sidekiq'
 require 'evss/documents_service'
+require 'claims_api/claim_logger'
 
 module ClaimsApi
   class ClaimUploader
@@ -22,6 +23,7 @@ module ClaimsApi
         uploader = claim_object.uploader
         uploader.retrieve_from_store!(claim_object.file_data['filename'])
         file_body = uploader.read
+        ClaimsApi::Logger.log('526', claim_id: auto_claim.id, attachment_id: uuid)
         service(auth_headers).upload(file_body, claim_upload_document(claim_object))
       end
     end

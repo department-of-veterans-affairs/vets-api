@@ -44,6 +44,9 @@ module ClaimsApi
             source: source_name
           )
 
+          ClaimsApi::Logger.log('526', claim_id: params[:id], detail: 'Submitted to Lighthouse',
+                                       pdf_gen_dis: form_attributes['autoCestPDFGenerationDisabled'])
+
           # .create returns the resulting object whether the object was saved successfully to the database or not.
           # If it's lacking the ID, that means the create was unsuccessful and an identical claim already exists.
           # Find and return that claim instead.
@@ -77,6 +80,7 @@ module ClaimsApi
             pending_claim.set_file_data!(documents.first, params[:doc_type])
             pending_claim.save!
 
+            ClaimsApi::Logger.log('526', claim_id: params[:id], detail: 'Uploaded PDF to S3')
             ClaimsApi::ClaimEstablisher.perform_async(pending_claim.id)
             ClaimsApi::ClaimUploader.perform_async(pending_claim.id)
 
