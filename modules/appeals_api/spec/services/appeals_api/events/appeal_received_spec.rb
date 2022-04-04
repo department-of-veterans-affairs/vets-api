@@ -41,8 +41,8 @@ module AppealsApi
               'first_name' => 'first name',
               'date_submitted' => DateTime.new(2021, 1, 2, 3, 4, 5).iso8601,
               'guid' => '1234556',
-              'claimant_email' => nil,
-              'claimant_first_name' => nil
+              'claimant_email' => '',
+              'claimant_first_name' => ''
             }
 
             AppealsApi::Events::AppealReceived.new(opts).hlr_received
