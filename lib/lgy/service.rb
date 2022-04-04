@@ -70,12 +70,13 @@ module LGY
 
     def put_application(payload:)
       with_monitoring do
-        perform(
+        response = perform(
           :put,
           "#{end_point}/application?edipi=#{@edipi}&icn=#{@icn}",
           payload.to_json,
           request_headers
         )
+        response.body
       end
     rescue Common::Client::Errors::ClientError => e
       raise e

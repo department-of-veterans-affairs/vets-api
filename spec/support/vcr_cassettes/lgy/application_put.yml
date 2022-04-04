@@ -61,7 +61,7 @@ http_interactions:
       - dtSInfo;desc="0", dtRpid;desc="-60170519"
     body:
       encoding: UTF-8
-      string: '{"id":4873284,"createDate":1644383949000,"status":"SUBMITTED","veteran":{"firstName":"ZOE","middleName":"J","lastName":"MILLER","suffixName":null,"vetAddress1":"VETERAN
+      string: '{"id":4873284,"createDate":1644383949000,"status":"SUBMITTED","referenceNumber":"17534700","veteran":{"firstName":"ZOE","middleName":"J","lastName":"MILLER","suffixName":null,"vetAddress1":"VETERAN
         CONTACT ADDRESS LINE1","vetAddress2":"VETERAN CONTACT ADDRESS LINE 2","vetCity":"VETERAN
         CONTACT CITY","vetState":"VA","vetZip":"12345","vetZipSuffix":"1234","mailingAddress1":"MAIL
         CERTIFICATE ADDRESS LINE 1","mailingAddress2":"MAIL CERTIFICATE ADDRESS LINE

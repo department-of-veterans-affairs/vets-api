@@ -159,9 +159,9 @@ describe LGY::Service do
       it 'returns a valid application response' do
         VCR.use_cassette 'lgy/application_put' do
           response = subject.put_application(payload: coe_claim)
-          expect(response.status).to eq 200
-          expect(response.body).to include('id')
-          expect(response.body).to include('create_date')
+          expect(response).to include('reference_number')
+          expect(response).to include('id')
+          expect(response).to include('create_date')
         end
       end
     end
@@ -170,9 +170,9 @@ describe LGY::Service do
       it 'returns a valid application response with prior loan data' do
         VCR.use_cassette 'lgy/application_put' do
           response = subject.put_application(payload: coe_claim)
-          expect(response.status).to eq 200
-          expect(response.body).to include('status')
-          expect(response.body['relevant_prior_loans']).not_to be_empty
+          expect(response).to include('reference_number')
+          expect(response).to include('status')
+          expect(response['relevant_prior_loans']).not_to be_empty
         end
       end
     end
