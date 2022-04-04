@@ -149,7 +149,7 @@ RSpec.describe 'Claims', type: :request do
                     {
                       benefit_claim_id: '111111111',
                       claim_status_type: 'Compensation',
-                      claim_dt: '2017-05-02',
+                      claim_dt: Date.parse('2017-05-02'),
                       phase_type: 'Pending',
                       attention_needed: 'Yes',
                       filed5103_waiver_ind: 'Y',

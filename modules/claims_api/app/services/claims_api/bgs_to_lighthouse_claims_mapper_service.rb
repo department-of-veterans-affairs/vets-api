@@ -43,7 +43,7 @@ module ClaimsApi
     def shared_claim_traits
       {
         type: bgs_claim[:claim_status_type],
-        date_filed: bgs_claim[:claim_dt].present? ? (Date.parse(bgs_claim[:claim_dt])).strftime('%D') : nil,
+        date_filed: bgs_claim[:claim_dt].present? ? bgs_claim[:claim_dt].strftime('%D') : nil,
         status: bgs_claim[:phase_type],
         contention_list: bgs_claim[:contentions],
         va_representative: bgs_claim[:va_representative],
