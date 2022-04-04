@@ -23,6 +23,8 @@ Rails.application.routes.draw do
   post '/sign_in/token', to: 'sign_in#token'
   get '/sign_in/introspect', to: 'sign_in#introspect'
 
+  get '/inherited_proofing/auth', to: 'inherited_proofing#auth'
+
   namespace :v0, defaults: { format: 'json' } do
     resources :onsite_notifications, only: %i[create index update]
 
