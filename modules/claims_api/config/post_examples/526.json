@@ -21,10 +21,7 @@
         "diagnosticCode": 9999,
         "disabilityActionType": "NEW",
         "name": "PTSD (post traumatic stress disorder)",
-        "specialIssues": [
-          "POW",
-          "Asbestos"
-        ],
+        "specialIssues": ["Asbestos"],
         "secondaryDisabilities": [
           {
             "name": "PTSD personal trauma",
