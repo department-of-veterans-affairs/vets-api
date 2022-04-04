@@ -46,6 +46,10 @@ class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < Appeals
 
     @caseflow_response = filtered_caseflow_response(decision_review_type, caseflow_response, filter)
   rescue Common::Exceptions::BackendServiceException => @backend_service_exception # rubocop:disable Naming/RescuedExceptionsVariableName
+    log_caseflow_error 'BackendServiceException',
+                       backend_service_exception.original_status,
+                       backend_service_exception.original_body
+
     raise unless caseflow_returned_a_4xx?
 
     @caseflow_response = caseflow_response_from_backend_service_exception
@@ -99,6 +103,7 @@ class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < Appeals
   end
 
   def render_unusable_response_error
+    log_caseflow_error 'UnusableResponse', caseflow_response.status, caseflow_response.body
     render json: UNUSABLE_RESPONSE_ERROR, status: UNUSABLE_RESPONSE_ERROR[:errors].first[:status]
   end
 
@@ -123,5 +128,10 @@ class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < Appeals
     return if validation_errors.empty?
 
     render json: { errors: validation_errors }, status: :unprocessable_entity unless validation_errors.empty?
+  end
+
+  def log_caseflow_error(error_reason, status, body)
+    Rails.logger.error("#{self.class.name} Caseflow::Service error: #{error_reason}", caseflow_status: status,
+                                                                                      caseflow_body: body)
   end
 end
