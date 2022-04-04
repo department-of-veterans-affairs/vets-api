@@ -509,6 +509,9 @@ features:
     actor_type: user
     description: Allows for frontend to have progressivley enhanced backend endpoints to consume in staging.
     enable_in_development: true
+  show_updated_toe_app:
+    actor_type: user
+    description: This determines when the form should be displayed.
   show_medical_copays:
     actor_type: user
     description: Enables the medical copays application on route /manage-va-debt/medical-copays/
