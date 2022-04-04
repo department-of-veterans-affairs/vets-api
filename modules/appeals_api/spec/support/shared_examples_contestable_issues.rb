@@ -63,6 +63,12 @@ RSpec.shared_examples 'contestable issues index requests' do |options|
         )
       end
 
+      it 'logs the error response' do
+        expect_any_instance_of(described_class).to receive(:log_caseflow_error)
+          .with('UnusableResponse', 200, '<html>Some html!</html>')
+        get_issues(options: options)
+      end
+
       it 'returns a 502 when Caseflow returns an unusable response' do
         get_issues(options: options)
         expect(response).to have_http_status(:bad_gateway)
@@ -86,6 +92,22 @@ RSpec.shared_examples 'contestable issues index requests' do |options|
         get_issues(options: options)
         expect(response.status).to be status
         expect(JSON.parse(response.body)).to eq body
+      end
+    end
+
+    context 'Caseflow raises BackendServiceException' do
+      before do
+        allow_any_instance_of(Caseflow::Service).to(
+          receive(:get_contestable_issues).and_raise(
+            Common::Exceptions::BackendServiceException.new(nil, {}, 503, 'Timeout')
+          )
+        )
+      end
+
+      it 'logs the error' do
+        expect_any_instance_of(described_class).to receive(:log_caseflow_error)
+          .with('BackendServiceException', 503, 'Timeout')
+        get_issues(options: options)
       end
     end
   end
