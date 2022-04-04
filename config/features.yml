@@ -662,3 +662,7 @@ features:
   check_va_inbox_enabled:
     actor_type: user
     description: Enables check inbox link
+  dhp_connected_devices_fitbit:
+    actor_type: user
+    description: Enables linking between VA.gov account and fitbit account
+    enable_in_development: true
