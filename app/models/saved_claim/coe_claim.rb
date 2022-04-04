@@ -35,6 +35,7 @@ class SavedClaim::CoeClaim < SavedClaim
         'middleName' => parsed_form['fullName']['middle'] || '',
         'lastName' => parsed_form['fullName']['last'],
         'suffixName' => parsed_form['fullName']['suffix'] || '',
+        'dateOfBirth' => parsed_form['dateOfBirth'],
         'vetAddress1' => parsed_form['applicantAddress']['street'],
         'vetAddress2' => parsed_form['applicantAddress']['street2'] || '',
         'vetCity' => parsed_form['applicantAddress']['city'],
@@ -75,7 +76,7 @@ class SavedClaim::CoeClaim < SavedClaim
   def relevant_prior_loans(form_copy)
     parsed_form['relevantPriorLoans'].each do |loan_info|
       form_copy['relevantPriorLoans'] << {
-        'vaLoanNumber' => loan_info['vaLoanNumber'],
+        'vaLoanNumber' => loan_info['vaLoanNumber'].to_s,
         'startDate' => loan_info['dateRange']['startDate'],
         'paidOffDate' => loan_info['dateRange']['paidOffDate'],
         'loanAmount' => loan_info['loanAmount'],

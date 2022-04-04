@@ -12,6 +12,7 @@ FactoryBot.define do
           "middleName": 'J',
           "lastName": 'MILLER',
           "suffixName": nil,
+          "dateOfBirth": 638_928_000,
           "vetAddress1": 'VETERAN CONTACT ADDRESS LINE1',
           "vetAddress2": 'VETERAN CONTACT ADDRESS LINE 2',
           "vetCity": 'VETERAN CONTACT CITY',
