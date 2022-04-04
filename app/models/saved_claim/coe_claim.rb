@@ -10,7 +10,7 @@ class SavedClaim::CoeClaim < SavedClaim
   def send_to_lgy(edipi:, icn:)
     @edipi = edipi
     @icn = icn
-    lgy_service.put_application(payload: prepare_form_data)
+    response = lgy_service.put_application(payload: prepare_form_data)
     log_message_to_sentry(
       "COE claim submitted to LGY: #{guid}",
       :warn,
@@ -18,6 +18,7 @@ class SavedClaim::CoeClaim < SavedClaim
       { team: 'vfs-ebenefits' }
     )
     process_attachments!
+    response['reference_number']
   end
 
   def regional_office

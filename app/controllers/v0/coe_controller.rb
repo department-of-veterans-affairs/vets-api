@@ -24,11 +24,11 @@ module V0
         raise Common::Exceptions::ValidationErrors, claim
       end
 
-      claim.send_to_lgy(edipi: current_user.edipi, icn: current_user.icn)
+      response = claim.send_to_lgy(edipi: current_user.edipi, icn: current_user.icn)
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
       clear_saved_form(claim.form_id)
-      render(json: claim)
+      render json: { data: { attributes: { reference_number: response, claim: claim } } }
     end
 
     def documents

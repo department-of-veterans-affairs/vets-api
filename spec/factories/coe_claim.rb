@@ -6,12 +6,12 @@ FactoryBot.define do
 
     form {
       {
-        "status": 'SUBMITTED',
+        "status": 'RECEIVED',
         "veteran": {
           "firstName": 'ZOE',
           "middleName": 'J',
           "lastName": 'MILLER',
-          "suffixName": nil,
+          "suffixName": 'IV',
           "dateOfBirth": 638_928_000,
           "vetAddress1": 'VETERAN CONTACT ADDRESS LINE1',
           "vetAddress2": 'VETERAN CONTACT ADDRESS LINE 2',
