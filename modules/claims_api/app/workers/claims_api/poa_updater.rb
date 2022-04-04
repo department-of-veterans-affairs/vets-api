@@ -2,6 +2,7 @@
 
 require 'sidekiq'
 require 'bgs'
+require 'claims_api/claim_logger'
 
 module ClaimsApi
   class PoaUpdater
@@ -28,10 +29,13 @@ module ClaimsApi
         # Clear out the error message if there were previous failures
         poa_form.vbms_error_message = nil if poa_form.vbms_error_message.present?
 
+        ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BIRLS Success')
+
         ClaimsApi::VBMSUpdater.perform_async(poa_form.id) if enable_vbms_access?(poa_form: poa_form)
       else
         poa_form.status = ClaimsApi::PowerOfAttorney::ERRORED
         poa_form.vbms_error_message = "BGS Error: update_birls_record failed with code #{response[:return_code]}"
+        ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BIRLS Failed', error: response[:return_code])
       end
 
       poa_form.save

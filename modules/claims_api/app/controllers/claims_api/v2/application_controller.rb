@@ -3,6 +3,7 @@
 require 'evss/disability_compensation_auth_headers'
 require 'evss/auth_headers'
 require 'token_validation/v2/client'
+require 'claims_api/claim_logger'
 
 module ClaimsApi
   module V2
