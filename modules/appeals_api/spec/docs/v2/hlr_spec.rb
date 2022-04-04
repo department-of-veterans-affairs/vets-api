@@ -4,10 +4,12 @@ require 'swagger_helper'
 require Rails.root.join('spec', 'rswag_override.rb').to_s
 
 require 'rails_helper'
-require_relative '../../support/swagger_shared_components'
+require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 # rubocop:disable RSpec/VariableName, RSpec/ScatteredSetup, RSpec/RepeatedExample, RSpec/RepeatedDescription, Layout/LineLength
 describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/appeals_api/v2/swagger.json', type: :request do
+  include DocHelpers
+
   let(:apikey) { 'apikey' }
 
   path '/higher_level_reviews' do
@@ -78,7 +80,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
             'application/json' => {
               examples: {
                 "#{response_title}": {
-                  value: JSON.parse(response.body, symbolize_names: true)
+                  value: normalize_appeal_response(response)
                 }
               }
             }
@@ -111,7 +113,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
             'application/json' => {
               examples: {
                 "#{response_title}": {
-                  value: JSON.parse(response.body, symbolize_names: true)
+                  value: normalize_appeal_response(response)
                 }
               }
             }
@@ -175,7 +177,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
         after do |example|
           example.metadata[:response][:content] = {
             'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
+              example: normalize_appeal_response(response)
             }
           }
         end
