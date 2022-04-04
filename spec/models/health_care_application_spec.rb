@@ -237,6 +237,51 @@ RSpec.describe HealthCareApplication, type: :model do
   end
 
   describe 'validations' do
+    context 'long form validations' do
+      let(:health_care_application) { build(:health_care_application) }
+
+      before do
+        %w[
+          maritalStatus
+          isEnrolledMedicarePartA
+          lastServiceBranch
+          lastEntryDate
+          lastDischargeDate
+        ].each do |attr|
+          health_care_application.parsed_form.delete(attr)
+        end
+      end
+
+      context 'with a va compensation type of highDisability' do
+        before do
+          health_care_application.parsed_form['vaCompensationType'] = 'highDisability'
+        end
+
+        it 'doesnt require the long form fields' do
+          expect(health_care_application.valid?).to eq(true)
+        end
+      end
+
+      context 'with a va compensation type of none' do
+        before do
+          health_care_application.parsed_form['vaCompensationType'] = 'none'
+        end
+
+        it 'requires the long form fields' do
+          health_care_application.valid?
+          expect(health_care_application.errors[:form]).to eq(
+            [
+              "maritalStatus can't be blank",
+              "isEnrolledMedicarePartA can't be blank",
+              "lastServiceBranch can't be blank",
+              "lastEntryDate can't be blank",
+              "lastDischargeDate can't be blank"
+            ]
+          )
+        end
+      end
+    end
+
     it 'validates presence of state' do
       health_care_application = described_class.new(state: nil)
       expect_attr_invalid(health_care_application, :state, "can't be blank")

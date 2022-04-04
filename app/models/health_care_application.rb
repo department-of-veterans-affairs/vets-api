@@ -20,6 +20,8 @@ class HealthCareApplication < ApplicationRecord
   validates(:state, presence: true, inclusion: %w[success error failed pending])
   validates(:form_submission_id_string, :timestamp, presence: true, if: :success?)
 
+  validate(:long_form_required_fields, on: :create)
+
   after_save(:send_failure_mail, if: proc do |hca|
     hca.saved_change_to_attribute?(:state) && hca.failed? && hca.form.present? && hca.parsed_form['email']
   end)
@@ -166,6 +168,20 @@ class HealthCareApplication < ApplicationRecord
   end
 
   private
+
+  def long_form_required_fields
+    return if form.blank? || parsed_form['vaCompensationType'] == 'highDisability'
+
+    %w[
+      maritalStatus
+      isEnrolledMedicarePartA
+      lastServiceBranch
+      lastEntryDate
+      lastDischargeDate
+    ].each do |attr|
+      errors.add(:form, "#{attr} can't be blank") if parsed_form[attr].blank?
+    end
+  end
 
   def prefill_compensation_type
     auth_headers = EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
