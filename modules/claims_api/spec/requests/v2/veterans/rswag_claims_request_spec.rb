@@ -33,13 +33,17 @@ describe 'Claims', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v2/sw
           )
 
           let(:bgs_response) do
-            JSON.parse(
+            bgs_data = JSON.parse(
               File.read(
                 Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'claims',
                                 'claims_by_participant_id_response.json')
               ),
               symbolize_names: true
             )
+            bgs_data[:benefit_claims_dto][:benefit_claim][0][:claim_dt] = Date.parse(
+              bgs_data[:benefit_claims_dto][:benefit_claim][0][:claim_dt]
+            )
+            bgs_data
           end
           let(:scopes) { %w[claim.read] }
 
@@ -159,13 +163,17 @@ describe 'Claims', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v2/sw
           )
 
           let(:bgs_response) do
-            JSON.parse(
+            bgs_data = JSON.parse(
               File.read(
                 Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'claims',
                                 'claim_by_id_response.json')
               ),
               symbolize_names: true
             )
+            bgs_data[:benefit_claim_details_dto][:claim_dt] = Date.parse(
+              bgs_data[:benefit_claim_details_dto][:claim_dt]
+            )
+            bgs_data
           end
           let(:scopes) { %w[claim.read] }
 
