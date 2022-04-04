@@ -606,7 +606,7 @@ GEM
     operating_hours (0.1.0)
     optimist (3.0.1)
     os (1.1.4)
-    ox (2.14.10)
+    ox (2.14.11)
     pact (1.62.0)
       pact-mock_service (~> 3.0, >= 3.3.1)
       pact-support (~> 1.16, >= 1.16.9)
