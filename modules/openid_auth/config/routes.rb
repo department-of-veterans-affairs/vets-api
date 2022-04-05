@@ -9,10 +9,6 @@ OpenidAuth::Engine.routes.draw do
     post 'okta', to: 'okta#okta_callback'
   end
 
-  namespace :v1, defaults: { format: 'json' } do
-    post 'validation', to: 'validation#index'
-  end
-
   namespace :v2, defaults: { format: 'json' } do
     post 'validation', to: 'validation#index'
   end
@@ -21,9 +17,6 @@ OpenidAuth::Engine.routes.draw do
     namespace :v0, defaults: { format: 'json' } do
       get 'mvi-user', to: 'mpi_users#index'
       get 'okta', to: 'okta#index'
-    end
-    namespace :v1, defaults: { format: 'json' } do
-      get 'validation', to: 'validation#index'
     end
     namespace :v2, defaults: { format: 'json' } do
       get 'validation', to: 'validation#index'
