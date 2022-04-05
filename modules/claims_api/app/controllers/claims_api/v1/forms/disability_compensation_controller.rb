@@ -172,6 +172,7 @@ module ClaimsApi
           validate_form_526_veteran_homelessness!
           validate_form_526_service_pay!
           validate_form_526_title10_activation_date!
+          validate_form_526_title10_anticipated_separation_date!
           validate_form_526_change_of_address!
           validate_form_526_disabilities!
           validate_form_526_treatments!
@@ -217,6 +218,22 @@ module ClaimsApi
                     Date.parse(title10_activation_date) <= Time.zone.now
 
           raise ::Common::Exceptions::InvalidFieldValue.new('title10ActivationDate', title10_activation_date)
+        end
+
+        def validate_form_526_title10_anticipated_separation_date!
+          title10_anticipated_separation_date = form_attributes.dig('serviceInformation',
+                                                                    'reservesNationalGuardService',
+                                                                    'title10Activation',
+                                                                    'anticipatedSeparationDate')
+
+          return if title10_anticipated_separation_date.blank?
+
+          return if Date.parse(title10_anticipated_separation_date) > Time.zone.now
+
+          raise ::Common::Exceptions::InvalidFieldValue.new(
+            'anticipatedSeparationDate',
+            title10_anticipated_separation_date
+          )
         end
 
         def validate_form_526_submission_claim_date!
