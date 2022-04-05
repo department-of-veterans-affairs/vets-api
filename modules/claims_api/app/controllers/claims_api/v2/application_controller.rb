@@ -3,11 +3,13 @@
 require 'evss/disability_compensation_auth_headers'
 require 'evss/auth_headers'
 require 'token_validation/v2/client'
+require 'claims_api/error/error_handler'
 require 'claims_api/claim_logger'
 
 module ClaimsApi
   module V2
     class ApplicationController < ::OpenidApplicationController
+      include ClaimsApi::Error::ErrorHandler
       # fetch_audience: defines the audience used for oauth
       # Overrides the default value defined in OpenidApplicationController
       # NOTE: required for Client Credential Grant (CCG) flow
