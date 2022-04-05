@@ -530,14 +530,16 @@ RSpec.describe 'user', type: :request do
       end
 
       it 'does not include directDepositBenefitsUpdate in the authorized services' do
-        response_details = { 'messages' => 'something went wrong' }
-        allow_any_instance_of(PPIUPolicy).to receive(:access_update?).and_raise(
+        details = [{ 'key' => 'paymenthistory.partner.service.failed', 'severity' => 'ERROR',
+                     'text' => 'Call to partner getPaymentHistory failed' }]
+        response_details = { 'messages' => details }
+        allow_any_instance_of(EVSS::ErrorMiddleware).to receive(:on_complete).and_raise(
           EVSS::ErrorMiddleware::EVSSError.new(
             response_details['messages'], response_details['messages'], response_details
           )
         )
         expect(Rails.logger).to receive(:error).with(
-          'Mobile user serializer error when fetching from EVSS', user_uuid: user.uuid, details: 'something went wrong'
+          'Error fetching user data from EVSS', user_uuid: user.uuid, details: details
         )
 
         VCR.use_cassette('payment_information/payment_information') do
