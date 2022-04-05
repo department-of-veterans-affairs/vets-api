@@ -82,12 +82,7 @@
                   "errors": [
                     {
                       "title": "invalid value for ssn",
-                      "detail": "blank is not valid for ssn",
-                      "code": "100",
-                      "source": {
-                        "pointer": "ssn"
-                      },
-                      "status": "400"
+                      "detail": "blank is not valid for ssn"
                     }
                   ]
                 },
@@ -102,9 +97,7 @@
                         "additionalProperties": false,
                         "required": [
                           "title",
-                          "detail",
-                          "code",
-                          "status"
+                          "detail"
                         ],
                         "properties": {
                           "title": {
@@ -114,14 +107,6 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
-                          },
-                          "code": {
-                            "type": "string",
-                            "description": "HTTP error code"
-                          },
-                          "status": {
-                            "type": "string",
-                            "description": "HTTP error code"
                           },
                           "source": {
                             "type": "object",
@@ -150,9 +135,7 @@
                   "errors": [
                     {
                       "title": "Not authorized",
-                      "detail": "Not authorized",
-                      "code": "401",
-                      "status": "401"
+                      "detail": "Not authorized"
                     }
                   ]
                 },
@@ -167,9 +150,7 @@
                         "additionalProperties": false,
                         "required": [
                           "title",
-                          "detail",
-                          "code",
-                          "status"
+                          "detail"
                         ],
                         "properties": {
                           "title": {
@@ -179,14 +160,6 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
-                          },
-                          "code": {
-                            "type": "string",
-                            "description": "HTTP error code"
-                          },
-                          "status": {
-                            "type": "string",
-                            "description": "HTTP error code"
                           },
                           "source": {
                             "type": "object",
@@ -215,9 +188,7 @@
                   "errors": [
                     {
                       "title": "Forbidden",
-                      "detail": "Forbidden",
-                      "code": "403",
-                      "status": "403"
+                      "detail": "Forbidden"
                     }
                   ]
                 },
@@ -232,9 +203,7 @@
                         "additionalProperties": false,
                         "required": [
                           "title",
-                          "detail",
-                          "code",
-                          "status"
+                          "detail"
                         ],
                         "properties": {
                           "title": {
@@ -244,14 +213,6 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
-                          },
-                          "code": {
-                            "type": "string",
-                            "description": "HTTP error code"
-                          },
-                          "status": {
-                            "type": "string",
-                            "description": "HTTP error code"
                           },
                           "source": {
                             "type": "object",
@@ -280,9 +241,7 @@
                   "errors": [
                     {
                       "title": "Resource not found",
-                      "detail": "Resource not found",
-                      "code": "404",
-                      "status": "404"
+                      "detail": "Resource not found"
                     }
                   ]
                 },
@@ -297,9 +256,7 @@
                         "additionalProperties": false,
                         "required": [
                           "title",
-                          "detail",
-                          "code",
-                          "status"
+                          "detail"
                         ],
                         "properties": {
                           "title": {
@@ -309,14 +266,6 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
-                          },
-                          "code": {
-                            "type": "string",
-                            "description": "HTTP error code"
-                          },
-                          "status": {
-                            "type": "string",
-                            "description": "HTTP error code"
                           },
                           "source": {
                             "type": "object",
@@ -510,9 +459,7 @@
                   "errors": [
                     {
                       "title": "Not authorized",
-                      "detail": "Not authorized",
-                      "code": "401",
-                      "status": "401"
+                      "detail": "Not authorized"
                     }
                   ]
                 },
@@ -527,9 +474,7 @@
                         "additionalProperties": false,
                         "required": [
                           "title",
-                          "detail",
-                          "code",
-                          "status"
+                          "detail"
                         ],
                         "properties": {
                           "title": {
@@ -539,14 +484,6 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
-                          },
-                          "code": {
-                            "type": "string",
-                            "description": "HTTP error code"
-                          },
-                          "status": {
-                            "type": "string",
-                            "description": "HTTP error code"
                           },
                           "source": {
                             "type": "object",
@@ -575,9 +512,7 @@
                   "errors": [
                     {
                       "title": "Forbidden",
-                      "detail": "Forbidden",
-                      "code": "403",
-                      "status": "403"
+                      "detail": "Forbidden"
                     }
                   ]
                 },
@@ -592,9 +527,7 @@
                         "additionalProperties": false,
                         "required": [
                           "title",
-                          "detail",
-                          "code",
-                          "status"
+                          "detail"
                         ],
                         "properties": {
                           "title": {
@@ -604,14 +537,6 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
-                          },
-                          "code": {
-                            "type": "string",
-                            "description": "HTTP error code"
-                          },
-                          "status": {
-                            "type": "string",
-                            "description": "HTTP error code"
                           },
                           "source": {
                             "type": "object",
@@ -822,9 +747,7 @@
                   "errors": [
                     {
                       "title": "Not authorized",
-                      "detail": "Not authorized",
-                      "code": "401",
-                      "status": "401"
+                      "detail": "Not authorized"
                     }
                   ]
                 },
@@ -839,9 +762,7 @@
                         "additionalProperties": false,
                         "required": [
                           "title",
-                          "detail",
-                          "code",
-                          "status"
+                          "detail"
                         ],
                         "properties": {
                           "title": {
@@ -851,14 +772,6 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
-                          },
-                          "code": {
-                            "type": "string",
-                            "description": "HTTP error code"
-                          },
-                          "status": {
-                            "type": "string",
-                            "description": "HTTP error code"
                           },
                           "source": {
                             "type": "object",
@@ -887,9 +800,7 @@
                   "errors": [
                     {
                       "title": "Forbidden",
-                      "detail": "Forbidden",
-                      "code": "403",
-                      "status": "403"
+                      "detail": "Forbidden"
                     }
                   ]
                 },
@@ -904,9 +815,7 @@
                         "additionalProperties": false,
                         "required": [
                           "title",
-                          "detail",
-                          "code",
-                          "status"
+                          "detail"
                         ],
                         "properties": {
                           "title": {
@@ -916,14 +825,6 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
-                          },
-                          "code": {
-                            "type": "string",
-                            "description": "HTTP error code"
-                          },
-                          "status": {
-                            "type": "string",
-                            "description": "HTTP error code"
                           },
                           "source": {
                             "type": "object",
@@ -952,9 +853,7 @@
                   "errors": [
                     {
                       "title": "Resource not found",
-                      "detail": "Claim not found",
-                      "code": "404",
-                      "status": "404"
+                      "detail": "Claim not found"
                     }
                   ]
                 },
@@ -969,9 +868,7 @@
                         "additionalProperties": false,
                         "required": [
                           "title",
-                          "detail",
-                          "code",
-                          "status"
+                          "detail"
                         ],
                         "properties": {
                           "title": {
@@ -981,14 +878,6 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
-                          },
-                          "code": {
-                            "type": "string",
-                            "description": "HTTP error code"
-                          },
-                          "status": {
-                            "type": "string",
-                            "description": "HTTP error code"
                           },
                           "source": {
                             "type": "object",

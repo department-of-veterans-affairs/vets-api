@@ -89,7 +89,7 @@ describe 'Veteran Identifier', swagger_doc: 'modules/claims_api/app/swagger/clai
           response '400', 'Bad Request' do
             schema JSON.parse(
               File.read(
-                Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')
+                Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 'default.json')
               )
             )
 
@@ -118,7 +118,7 @@ describe 'Veteran Identifier', swagger_doc: 'modules/claims_api/app/swagger/clai
         response '401', 'Unauthorized' do
           schema JSON.parse(
             File.read(
-              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')
+              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 'default.json')
             )
           )
 
@@ -151,7 +151,7 @@ describe 'Veteran Identifier', swagger_doc: 'modules/claims_api/app/swagger/clai
         response '403', 'Forbidden' do
           schema JSON.parse(
             File.read(
-              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')
+              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 'default.json')
             )
           )
 
@@ -183,7 +183,7 @@ describe 'Veteran Identifier', swagger_doc: 'modules/claims_api/app/swagger/clai
         response '404', 'Resource not found' do
           schema JSON.parse(
             File.read(
-              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')
+              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 'default.json')
             )
           )
 

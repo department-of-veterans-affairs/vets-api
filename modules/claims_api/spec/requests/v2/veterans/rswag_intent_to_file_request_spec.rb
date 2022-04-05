@@ -81,16 +81,13 @@ describe 'IntentToFile', swagger_doc: 'modules/claims_api/app/swagger/claims_api
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                                       'default.json')))
 
-          let(:Authorization) { nil }
           let(:scopes) { %w[claim.read] }
 
           before do |example|
-            with_okta_user(scopes) do
-              submit_request(example.metadata)
-            end
+            submit_request(example.metadata)
           end
 
           after do |example|
@@ -109,7 +106,7 @@ describe 'IntentToFile', swagger_doc: 'modules/claims_api/app/swagger/claims_api
 
       describe 'Getting a 403 response' do
         response '403', 'Forbidden' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                                       'default.json')))
 
           let(:veteran) { OpenStruct.new(mpi: nil, participant_id: nil) }
@@ -141,7 +138,7 @@ describe 'IntentToFile', swagger_doc: 'modules/claims_api/app/swagger/claims_api
         response '404', 'Resource not found' do
           schema JSON.parse(
             File.read(
-              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')
+              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 'default.json')
             )
           )
           let(:scopes) { %w[claim.read] }
@@ -246,7 +243,7 @@ describe 'IntentToFile', swagger_doc: 'modules/claims_api/app/swagger/claims_api
 
       describe 'Getting a 400 response' do
         response '400', 'Bad Request' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                                       'default.json')))
 
           let(:scopes) { %w[claim.write] }
@@ -278,7 +275,7 @@ describe 'IntentToFile', swagger_doc: 'modules/claims_api/app/swagger/claims_api
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                                       'default.json')))
 
           let(:scopes) { %w[claim.write] }
@@ -310,7 +307,7 @@ describe 'IntentToFile', swagger_doc: 'modules/claims_api/app/swagger/claims_api
         let(:veteranId) { 'not-the-same-id-as-tamara' } # rubocop:disable RSpec/VariableName
 
         response '403', 'Forbidden' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                                       'default.json')))
 
           let(:scopes) { %w[claim.write] }
