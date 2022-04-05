@@ -525,6 +525,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       context 'when reservesNationalGuardService information is submitted' do
         let(:json_data) { JSON.parse data }
         let(:title10_activation_date) { (Time.zone.now - 1.day).to_date.to_s }
+        let(:anticipated_separation_date) { (Time.zone.now + 1.year).to_date.to_s }
         let(:reserves_national_guard_service) do
           {
             obligationTermOfServiceFromDate: (Time.zone.now - 1.year).to_date.to_s,
@@ -536,57 +537,118 @@ RSpec.describe 'Disability Claims ', type: :request do
             },
             receivingInactiveDutyTrainingPay: true,
             title10Activation: {
-              anticipatedSeparationDate: (Time.zone.now + 1.year).to_date.to_s,
+              anticipatedSeparationDate: anticipated_separation_date,
               title10ActivationDate: title10_activation_date
             }
           }
         end
 
-        context 'when title10ActivationDate is in the future' do
-          let(:title10_activation_date) { (Time.zone.now + 1.year).to_date.to_s }
+        context "'title10ActivationDate' validations" do
+          context 'when title10ActivationDate is in the future' do
+            let(:title10_activation_date) { (Time.zone.now + 1.year).to_date.to_s }
 
-          it 'raises an exception that title10ActivationDate is invalid' do
-            with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                  par = json_data
-                  par['data']['attributes']['serviceInformation']['reservesNationalGuardService'] =
-                    reserves_national_guard_service
+            it 'raises an exception that title10ActivationDate is invalid' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    par = json_data
+                    par['data']['attributes']['serviceInformation']['reservesNationalGuardService'] =
+                      reserves_national_guard_service
 
-                  post path, params: par.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(400)
+                    post path, params: par.to_json, headers: headers.merge(auth_header)
+                    expect(response.status).to eq(400)
+                  end
+                end
+              end
+            end
+          end
+
+          context 'when title10ActivationDate is older than all service period end dates' do
+            let(:title10_activation_date) { '1980-01-01' }
+
+            it 'raises an exception that title10ActivationDate is invalid' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    par = json_data
+                    par['data']['attributes']['serviceInformation']['reservesNationalGuardService'] =
+                      reserves_national_guard_service
+
+                    post path, params: par.to_json, headers: headers.merge(auth_header)
+                    expect(response.status).to eq(400)
+                  end
+                end
+              end
+            end
+          end
+
+          context 'when title10ActivationDate is valid' do
+            it 'returns a successful response' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    post path, params: data, headers: headers.merge(auth_header)
+                    expect(response.status).to eq(200)
+                  end
                 end
               end
             end
           end
         end
 
-        context 'when title10ActivationDate is older than all service period end dates' do
-          let(:title10_activation_date) { '1980-01-01' }
+        context "'anticipatedSeparationDate' validations" do
+          context "when 'anticipatedSeparationDate' is in the past" do
+            let(:anticipated_separation_date) { (Time.zone.now - 1.day).to_date.to_s }
 
-          it 'raises an exception that title10ActivationDate is invalid' do
-            with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                  par = json_data
-                  par['data']['attributes']['serviceInformation']['reservesNationalGuardService'] =
-                    reserves_national_guard_service
+            it "raises an exception that 'anticipatedSeparationDate' is invalid" do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    par = json_data
+                    par['data']['attributes']['serviceInformation']['reservesNationalGuardService'] =
+                      reserves_national_guard_service
 
-                  post path, params: par.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(400)
+                    post path, params: par.to_json, headers: headers.merge(auth_header)
+                    expect(response.status).to eq(400)
+                  end
                 end
               end
             end
           end
-        end
 
-        context 'when title10ActivationDate is valid' do
-          it 'returns a successful response' do
-            with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                  post path, params: data, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(200)
+          context "when 'anticipatedSeparationDate' is today" do
+            let(:anticipated_separation_date) { (Time.zone.now - 1.hour).to_date.to_s }
+
+            it "raises an exception that 'anticipatedSeparationDate' is invalid" do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    par = json_data
+                    par['data']['attributes']['serviceInformation']['reservesNationalGuardService'] =
+                      reserves_national_guard_service
+
+                    post path, params: par.to_json, headers: headers.merge(auth_header)
+                    expect(response.status).to eq(400)
+                  end
+                end
+              end
+            end
+          end
+
+          context "when 'anticipatedSeparationDate' is in the future" do
+            let(:anticipated_separation_date) { (Time.zone.now + 1.day).to_date.to_s }
+
+            it 'returns a successful response' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    par = json_data
+                    par['data']['attributes']['serviceInformation']['reservesNationalGuardService'] =
+                      reserves_national_guard_service
+
+                    post path, params: par.to_json, headers: headers.merge(auth_header)
+                    expect(response.status).to eq(200)
+                  end
                 end
               end
             end
