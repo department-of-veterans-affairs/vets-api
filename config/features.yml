@@ -389,6 +389,18 @@ features:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer experience
     enable_in_development: false
+  mhv_to_logingov_account_transition_modal:
+    actor_type: cookie_id
+    description: Enables/disables MHV to Login.gov account transfer modal experience
+    enable_in_development: false
+  mhv_to_logingov_account_transition_banner:
+    actor_type: cookie_id
+    description: Enables/disables MHV to Login.gov account transfer banner experience
+    enable_in_development: false
+  mhv_to_logingov_account_transition_urgent:
+    actor_type: cookie_id
+    description: Enables/disables MHV to Login.gov account transfer urgent experience
+    enable_in_development: false
   mobile_api:
     actor_type: user
     description: API endpoints consumed by the VA Mobile App (iOS/Android)
