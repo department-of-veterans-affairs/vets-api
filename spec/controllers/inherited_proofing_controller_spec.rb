@@ -213,4 +213,70 @@ RSpec.describe InheritedProofingController, type: :controller do
       end
     end
   end
+
+  describe 'GET callback' do
+    subject { get(:callback) }
+
+    context 'when user is not authenticated' do
+      let(:expected_error_title) { 'Not authorized' }
+
+      it 'returns an unauthorized status' do
+        expect(subject).to have_http_status(:unauthorized)
+      end
+
+      it 'renders not authorized error' do
+        expect(JSON.parse(subject.body)['errors'].first['title']).to eq(expected_error_title)
+      end
+    end
+
+    context 'when user is authenticated' do
+      let(:icn) { '1013459302V141714' }
+      let(:correlation_id) { '19031408' }
+      let(:identity_info_url) { "#{Settings.mhv.inherited_proofing.base_path}/mhvacctinfo/#{correlation_id}" }
+      let(:current_user) { create(:user, :mhv) }
+      let!(:user_verification) { create(:mhv_user_verification, mhv_uuid: current_user.mhv_correlation_id) }
+      let(:user_account) { current_user.user_account }
+
+      before do
+        sign_in_as(current_user)
+      end
+
+      context 'and user has not already verified in the past' do
+        let(:expected_redirect_url) { url_for(controller: 'v1/sessions', action: :new, type: 'logingov') }
+
+        it 'saves an inherited proofing verification attached to the expected user account' do
+          expect { subject }.to change(InheritedProofVerifiedUserAccount, :count).from(0).to(1)
+          expect(InheritedProofVerifiedUserAccount.find_by(user_account: user_account)).not_to be(nil)
+        end
+
+        it 'resets the current session' do
+          expect { subject }.to change { User.find(current_user.uuid) }.to(nil)
+        end
+
+        it 'redirects to v1/sessions controller for a new logingov authentication' do
+          expect(subject).to redirect_to(expected_redirect_url)
+        end
+
+        it 'returns redirect status' do
+          expect(subject).to have_http_status(:redirect)
+        end
+      end
+
+      context 'and user had already verified in the past' do
+        let!(:verified_inherifed_proof) do
+          create(:inherited_proof_verified_user_account, user_account: current_user.user_account)
+        end
+        let(:expected_error) { InheritedProofing::Errors::PreviouslyVerifiedError.to_s }
+        let(:expected_error_json) { { 'errors' => expected_error } }
+
+        it 'renders previously verified error error' do
+          expect(JSON.parse(subject.body)).to eq(expected_error_json)
+        end
+
+        it 'returns a bad request status' do
+          expect(subject).to have_http_status(:bad_request)
+        end
+      end
+    end
+  end
 end
