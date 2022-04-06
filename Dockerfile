@@ -13,8 +13,10 @@ RUN groupadd --gid $USER_ID nonroot \
 
 WORKDIR /app
 
-RUN apt-get update \
-  && apt-get install -y build-essential libpq-dev git imagemagick curl wget pdftk poppler-utils file \
+RUN echo "deb http://ftp.debian.org/debian testing main contrib non-free" >> /etc/apt/sources.list
+RUN apt-get update
+RUN apt-get install -y -t testing poppler-utils
+RUN apt-get install -y build-essential libpq-dev git imagemagick curl wget pdftk file \
   && apt-get clean \
   && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
