@@ -11,8 +11,12 @@ ARG userid=993
 SHELL ["/bin/bash", "-c"]
 RUN groupadd -g $userid -r vets-api && \
     useradd -u $userid -r -m -d /srv/vets-api -g vets-api vets-api
+RUN echo "deb http://ftp.debian.org/debian testing main contrib non-free" >> /etc/apt/sources.list
+RUN apt-get update
+RUN apt-get install -y -t testing poppler-utils
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    dumb-init clamav clamdscan clamav-daemon imagemagick pdftk curl poppler-utils libpq5 vim
+    dumb-init clamav clamdscan clamav-daemon imagemagick pdftk curl libpq5 vim libboost-all-dev
+
 # The pki work below is for parity with the non-docker BRD deploys to mount certs into
 # the container, we need to get rid of it and refactor the configuration bits into
 # something more continer friendly in a later bunch of work
