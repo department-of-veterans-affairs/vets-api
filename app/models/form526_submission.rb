@@ -4,6 +4,7 @@ require 'sentry_logging'
 
 class Form526Submission < ApplicationRecord
   include SentryLogging
+  include Form526RapidReadyForDecisionConcern
 
   # A 526 disability compensation form record. This class is used to persist the post transformation form
   # and track submission workflow steps.
