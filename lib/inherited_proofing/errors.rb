@@ -10,5 +10,6 @@ module InheritedProofing
     class MHVIdentityDataNotFoundError < StandardError; end
     class UserMissingAttributesError < StandardError; end
     class IdentityDocumentMissingError < StandardError; end
+    class PreviouslyVerifiedError < StandardError; end
   end
 end
