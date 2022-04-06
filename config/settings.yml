@@ -14,12 +14,7 @@ logingov:
   client_cert_path: spec/fixtures/sign_in/oauth.crt
   client_key_path: spec/fixtures/sign_in/oauth.key
   oauth_url: https://idp.int.identitysandbox.gov
-  inherited_proofing:
-    client_id: urn:gov:gsa:openidconnect.profiles:sp:sso:va:dev_signin
-    redirect_uri: http://localhost:3000/sign_in/logingov/callback
-    client_cert_path: spec/fixtures/sign_in/oauth.crt
-    client_key_path: spec/fixtures/sign_in/oauth.key
-    oauth_url: https://idp.int.identitysandbox.gov
+  oauth_public_key: spec/fixtures/logingov/oauth_pub.key
 
 idme:
   client_id: dde0b5b8bfc023a093830e64ef83f148
