@@ -44,26 +44,30 @@ describe InheritedProofing::MHV::InheritedProofingVerifier do
     end
 
     context 'when unable to find a user by ICN' do
+      let(:expected_error) { InheritedProofing::Errors::IdentityDocumentMissingError }
+
       before do
         allow_any_instance_of(User).to receive(:mhv_correlation_id).and_return(nil)
         allow(api_obj).to receive(:get_correlation_data).and_return(correlation_id_error_response)
       end
 
-      it 'will fail if user is not found' do
+      it 'will return identity document missing error if user is not found' do
         expect(service_obj.send(:correlation_id)).to eq(nil)
-        expect(service_obj.perform).to eq(nil)
+        expect { service_obj.perform }.to raise_error(expected_error)
       end
     end
 
     context 'with application error' do
+      let(:expected_error) { InheritedProofing::Errors::IdentityDocumentMissingError }
+
       before do
         allow_any_instance_of(User).to receive(:mhv_correlation_id).and_return(nil)
         allow_any_instance_of(config_obj).to receive(:perform).and_raise(Common::Client::Errors::ClientError)
       end
 
-      it 'will return false if mhv service is down' do
+      it 'will return identity document missing error if mhv service is down' do
         expect(service_obj.send(:correlation_id)).to eq(nil)
-        expect(service_obj.perform).to eq(nil)
+        expect { service_obj.perform }.to raise_error(expected_error)
       end
     end
   end
@@ -112,6 +116,7 @@ describe InheritedProofing::MHV::InheritedProofingVerifier do
           'identityDocumentExist' => false
         }
       end
+      let(:expected_error) { InheritedProofing::Errors::IdentityDocumentMissingError }
 
       before do
         allow(api_obj).to receive(:get_verification_data).and_return(identity_data_failed_response)
@@ -121,17 +126,15 @@ describe InheritedProofing::MHV::InheritedProofingVerifier do
         expect(service_obj.send(:identity_info)).to eq(identity_data_failed_response)
       end
 
-      it 'will not cache any data' do
-        service_obj.perform
+      it 'will raise identity document missing error, and will not cache any data' do
+        expect { service_obj.perform }.to raise_error(expected_error)
         expect(InheritedProofing::MHVIdentityData.keys).to be_blank
-      end
-
-      it 'will not return code' do
-        expect(service_obj.perform).to eq(nil)
       end
     end
 
     context 'with application error' do
+      let(:expected_error) { InheritedProofing::Errors::IdentityDocumentMissingError }
+
       before do
         allow_any_instance_of(config_obj).to receive(:perform).and_raise(Common::Client::Errors::ClientError)
       end
@@ -140,13 +143,9 @@ describe InheritedProofing::MHV::InheritedProofingVerifier do
         expect(service_obj.send(:identity_info)).to eq({})
       end
 
-      it 'will not cache any data' do
-        service_obj.perform
+      it 'will raise identity document missing error, and will not cache any data' do
+        expect { service_obj.perform }.to raise_error(expected_error)
         expect(InheritedProofing::MHVIdentityData.keys).to be_blank
-      end
-
-      it 'will not return code' do
-        expect(service_obj.perform).to eq(nil)
       end
     end
   end

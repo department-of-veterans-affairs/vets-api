@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'inherited_proofing/mhv/service'
+require 'inherited_proofing/errors'
 
 module InheritedProofing
   module MHV
@@ -12,7 +13,7 @@ module InheritedProofing
       end
 
       def perform
-        return if missing_identity_doc?
+        raise InheritedProofing::Errors::IdentityDocumentMissingError if missing_identity_doc?
 
         cache_identity_data
         code

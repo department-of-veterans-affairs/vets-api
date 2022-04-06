@@ -535,6 +535,7 @@ GEM
       jsonapi-renderer (= 0.1.1.beta1)
     jsonapi-parser (0.1.1.beta3)
     jsonapi-renderer (0.1.1.beta1)
+    jwe (0.4.0)
     jwt (2.3.0)
     kms_encrypted (1.4.0)
       activesupport (>= 5.2)
@@ -1057,6 +1058,7 @@ DEPENDENCIES
   json-schema
   json_schemer
   jsonapi-parser
+  jwe
   jwt
   kms_encrypted
   levenshtein-ffi

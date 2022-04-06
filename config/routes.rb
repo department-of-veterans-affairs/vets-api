@@ -24,6 +24,9 @@ Rails.application.routes.draw do
   get '/sign_in/introspect', to: 'sign_in#introspect'
 
   get '/inherited_proofing/auth', to: 'inherited_proofing#auth'
+  get '/inherited_proofing/user_attributes', to: 'inherited_proofing#user_attributes'
+
+  get '/inherited_proofing/auth', to: 'inherited_proofing#auth'
 
   namespace :v0, defaults: { format: 'json' } do
     resources :onsite_notifications, only: %i[create index update]
