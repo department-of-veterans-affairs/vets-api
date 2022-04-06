@@ -103,7 +103,11 @@ module RapidReadyForDecision
     end
 
     def pdf(patient_info, bpreadings, medications)
-      RapidReadyForDecision::FastTrackPdfGenerator.new(patient_info, bpreadings, medications).generate
+      assessed_data = {
+        bp_readings: bpreadings,
+        medications: medications
+      }
+      RapidReadyForDecision::FastTrackPdfGenerator.new(patient_info, assessed_data, :hypertension).generate
     end
   end
 end

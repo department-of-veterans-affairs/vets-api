@@ -52,8 +52,8 @@ module RapidReadyForDecision
 
     def generate_pdf(form526_submission, assessed_data)
       RapidReadyForDecision::FastTrackPdfGenerator.new(patient_info(form526_submission),
-                                                       assessed_data[:bp_readings],
-                                                       assessed_data[:medications]).generate
+                                                       assessed_data,
+                                                       :hypertension).generate
     end
   end
 end

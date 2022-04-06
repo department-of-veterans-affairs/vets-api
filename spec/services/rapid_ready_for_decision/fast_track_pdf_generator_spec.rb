@@ -43,8 +43,14 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfGenerator, :vcr do
     { first: 'Cat', middle: 'Marie', last: 'Power', suffix: 'Jr.', birthdate: '10-10-1968' }
   end
 
+  let(:disability_type) { :hypertension }
+
   let(:pdf_generator) do
-    RapidReadyForDecision::FastTrackPdfGenerator.new(patient_name, parsed_bp_data, parsed_medications_data)
+    assessed_data = {
+      bp_readings: parsed_bp_data,
+      medications: parsed_medications_data
+    }
+    RapidReadyForDecision::FastTrackPdfGenerator.new(patient_name, assessed_data, disability_type)
   end
 
   describe '#generate', :vcr do
@@ -79,6 +85,14 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfGenerator, :vcr do
 
       it 'shows the active prescriptions header even if no meds present' do
         expect(subject).to include('Active Prescriptions')
+      end
+    end
+
+    context 'when medication data are nil' do
+      let(:parsed_medications_data) { nil }
+
+      it 'continues rendering with message' do
+        expect(subject).to include('No active medications were found in the last year')
       end
     end
   end
