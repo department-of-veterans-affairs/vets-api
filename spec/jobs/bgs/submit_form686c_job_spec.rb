@@ -46,6 +46,23 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
     subject
   end
 
+  it 'sends confirmation email' do
+    client_stub = instance_double('BGS::Form686c')
+    allow(BGS::Form686c).to receive(:new).with(an_instance_of(User)) { client_stub }
+    expect(client_stub).to receive(:submit).once
+
+    expect(VANotify::EmailJob).to receive(:perform_async).with(
+      user.va_profile_email,
+      'fake_template_id',
+      {
+        'date' => Time.zone.today.strftime('%B %d, %Y'),
+        'first_name' => 'WESLEY'
+      }
+    )
+
+    subject
+  end
+
   context 'when submission raises error' do
     it 'calls DependentsApplicationFailureMailer' do
       client_stub = instance_double('BGS::Form686c')
