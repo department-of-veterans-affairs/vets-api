@@ -19,89 +19,32 @@ module RapidReadyForDecision
       }
     }.freeze
 
-    def initialize(patient_info, blood_pressure_data, medications)
+    def self.extract_patient_name(patient_info)
+      full_name = patient_info.values_at(:first, :middle, :last).reject(&:blank?).join ' '
+      [full_name, patient_info[:suffix]].reject(&:blank?).join ', '
+    end
+
+    def initialize(patient_info, assessed_data, disability_type)
       @pdf = Prawn::Document.new
       @patient_info = patient_info
-      @blood_pressure_data = blood_pressure_data
-      @medications = medications
-      @date = Time.zone.today
+      @assessed_data = assessed_data
+      @date = Time.now.getlocal
+      @disability_type = disability_type
       @pdf.markup_options = PDF_MARKUP_SETTINGS
     end
 
-    # progressively builds a pdf and is sensitive to sequence
     def generate
-      add_intro
-      add_blood_pressure_list
-      add_blood_pressure_outro
-      add_medications_list
-      add_about
+      template = File.join('app/services/rapid_ready_for_decision/views', "#{@disability_type}.erb")
+      @pdf.markup ERB.new(File.new(template).read).result(binding)
 
       @pdf
     end
 
     private
 
-    def blood_pressure_data?
-      @blood_pressure_data.length.positive?
-    end
-
-    def medications?
-      @medications.any?
-    end
-
-    def blood_pressure_start_date
-      (@date - 1.year).strftime('%m/%d/%Y')
-    end
-
-    def blood_pressure_end_date
-      @date.strftime('%m/%d/%Y')
-    end
-
-    def add_intro
-      patient_info = @patient_info.with_indifferent_access
-      full_name = [patient_info[:first], patient_info[:middle], patient_info[:last]].reject(&:blank?).join ' '
-      patient_name = [full_name, patient_info[:suffix]].reject(&:blank?).join ', '
-      birthdate = patient_info[:birthdate]
-      generated_time = Time.now.getlocal
-      generated_at = "#{generated_time.strftime('%m/%d/%Y')} at #{generated_time.strftime('%l:%M %p %Z')}"
-
-      intro_lines = [
-        "<font size='11'>Hypertension Rapid Ready for Decision | Claim for Increase</font>\n",
-        "<font size='22'>VHA Hypertension Data Summary for</font>",
-        "<font size='10'><i>Generated automatically on #{generated_at}</i></font>\n",
-        "<font size='11'>\n</font>",
-        "<font size='14'>#{patient_name}</font>\n",
-        birthdate ? "<font size='11'>DOB: #{birthdate}</font>\n" : '',
-        "<font size='11'>\n</font>"
-      ]
-
-      intro_lines.each do |line|
-        @pdf.text line, inline_format: true
-      end
-    end
-
-    def add_blood_pressure_list
-      template = File.read('app/services/rapid_ready_for_decision/views/hypertension/blood_pressure_readings.erb')
-      @pdf.markup ERB.new(template).result(binding)
-    end
-
-    def add_blood_pressure_outro
-      template = File.read('app/services/rapid_ready_for_decision/views/hypertension/rating_schedule.erb')
-      @pdf.markup ERB.new(template).result(binding)
-    end
-
-    def add_medications_list
-      @pdf.text "\n", size: 12
-
-      template = File.read('app/services/rapid_ready_for_decision/views/shared/medications.erb')
-      @pdf.markup ERB.new(template).result(binding)
-    end
-
-    def add_about
-      @pdf.start_new_page
-
-      template = File.read('app/services/rapid_ready_for_decision/views/hypertension/about.erb')
-      @pdf.markup ERB.new(template).result(binding)
+    def render_partial(erb_file_relative_path)
+      erb_file_full_path = File.join('app/services/rapid_ready_for_decision/views', "#{erb_file_relative_path}.erb")
+      ERB.new(File.new(erb_file_full_path).read).result(binding)
     end
   end
 end
