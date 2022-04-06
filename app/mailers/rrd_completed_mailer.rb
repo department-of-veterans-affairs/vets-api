@@ -5,7 +5,7 @@ class RrdCompletedMailer < ApplicationMailer
     @submission = submission
     @disability = submission.form.dig('form526', 'form526', 'disabilities')&.first
     @disability_code = @disability['diagnosticCode'] if @disability
-    @rrd_status = RapidReadyForDecision::Form526BaseJob.rrd_status(submission)
+    @rrd_status = submission.rrd_status
     @bp_readings_count = submission.form.dig('rrd_metadata', 'med_stats', 'bp_readings_count') || 'N/A'
 
     template = File.read('app/mailers/views/rrd_completed_mailer.erb.html')

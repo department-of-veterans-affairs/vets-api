@@ -50,7 +50,7 @@ RSpec.describe RrdCompletedMailer, type: [:mailer] do
     let!(:submission) do
       submission = create(:form526_submission, :with_uploads, user_uuid: 'fake uuid',
                                                               auth_headers_json: 'fake auth headers')
-      RapidReadyForDecision::Form526BaseJob.add_metadata(submission, offramp_reason: 'pending_ep')
+      submission.add_metadata(offramp_reason: 'pending_ep')
       submission
     end
 
