@@ -93,7 +93,7 @@ module AppealsApi
         notify(
           {
             'class' => self.class.name,
-            'args' => [appeal.id],
+            'args' => [appeal.id, appeal.created_at.iso8601],
             'error_class' => e.code,
             'error_message' => e.detail,
             'failed_at' => Time.zone.now
