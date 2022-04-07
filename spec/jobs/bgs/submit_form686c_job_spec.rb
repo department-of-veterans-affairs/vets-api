@@ -55,7 +55,7 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
       user.va_profile_email,
       'fake_template_id',
       {
-        'date' => Time.zone.today.strftime('%B %d, %Y'),
+        'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
         'first_name' => 'WESLEY'
       }
     )

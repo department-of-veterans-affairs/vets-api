@@ -47,8 +47,8 @@ module BGS
         user.va_profile_email,
         Settings.vanotify.services.va_gov.template_id.form686c_confirmation_email,
         {
-          'first_name' => user&.first_name&.upcase.presence,
-          'date' => Time.zone.today.strftime('%B %d, %Y')
+          'first_name' => user&.first_name&.upcase,
+          'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y')
         }
       )
     end
