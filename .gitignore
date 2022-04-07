@@ -71,6 +71,7 @@ modules/**/Gemfile.lock
 
 # Ignore JetBrains ide files
 .idea
+*.iml
 
 # ctags (vim/neovim/emacs)
 tags
