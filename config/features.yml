@@ -109,6 +109,10 @@ features:
     actor_type: user
     description: Enables the capture of user responses to demographics up-to-date questions
     enable_in_development: true
+  check_in_experience_custom_cookie_for_low_auth:
+    actor_type: user
+    description: Enables custom cookie for storing low auth token
+    enable_in_development: true
   check_in_experience_translation_day_of_enabled:
     actor_type: user
     description: Enables language translation for the day of check-in experience

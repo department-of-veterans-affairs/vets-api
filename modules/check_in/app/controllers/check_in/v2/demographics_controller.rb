@@ -7,7 +7,7 @@ module CheckIn
       after_action :after_logger, only: %i[update], if: :additional_logging?
 
       def update
-        check_in_session = CheckIn::V2::Session.build(data: { uuid: params[:id] }, jwt: session[:jwt])
+        check_in_session = CheckIn::V2::Session.build(data: { uuid: params[:id] }, jwt: low_auth_token)
 
         unless check_in_session.authorized?
           render json: check_in_session.unauthorized_message, status: :unauthorized and return

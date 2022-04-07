@@ -12,6 +12,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
     allow(Flipper).to receive(:enabled?).with('check_in_experience_logging_enabled').and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_set_pre_checkin_status').and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_401_mapping_enabled').and_return(true)
+    allow(Flipper).to receive(:enabled?).with('check_in_experience_custom_cookie_for_low_auth').and_return(true)
 
     Rails.cache.clear
   end
