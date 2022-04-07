@@ -4,7 +4,7 @@ require 'login/errors'
 
 module Login
   class UserVerifier
-    attr_reader :user_uuid, :login_type, :mhv_uuid, :idme_uuid, :dslogon_uuid, :logingov_uuid, :icn
+    attr_reader :user_uuid, :login_type, :mhv_uuid, :idme_uuid, :dslogon_uuid, :logingov_uuid, :icn, :deprecated_log
 
     def initialize(user)
       @user_uuid = user.uuid
@@ -14,6 +14,7 @@ module Login
       @dslogon_uuid = user.identity.edipi
       @logingov_uuid = user.logingov_uuid
       @icn = user.icn.presence
+      @deprecated_log = nil
     end
 
     def perform
@@ -57,6 +58,15 @@ module Login
         Rails.logger.info("[Login::UserVerifier] Attempting alternate type=#{type}  identifier=#{identifier}")
       end
 
+      user_verification = ActiveRecord::Base.transaction do
+        retrieve_and_update_user_verification(type, identifier)
+      end
+
+      Rails.logger.info(deprecated_log) if deprecated_log
+      user_verification
+    end
+
+    def retrieve_and_update_user_verification(type, identifier)
       user_verification = UserVerification.find_by(type => identifier)
 
       user_account = icn ? UserAccount.find_by(icn: icn) : nil
@@ -65,12 +75,11 @@ module Login
         update_existing_user_verification(user_verification, user_account)
       else
         verified_at = icn ? Time.zone.now : nil
-        user_verification = UserVerification.create!(type => identifier,
-                                                     user_account: user_account ||
-                                                                   UserAccount.new(icn: icn),
-                                                     verified_at: verified_at)
+        UserVerification.create!(type => identifier,
+                                 user_account: user_account ||
+                                 UserAccount.new(icn: icn),
+                                 verified_at: verified_at)
       end
-      user_verification.reload
     end
 
     def update_existing_user_verification(user_verification, user_account)
@@ -81,13 +90,19 @@ module Login
         DeprecatedUserAccount.create!(user_account: deprecated_user_account,
                                       user_verification: user_verification)
         user_verification.update(user_account: user_account, verified_at: Time.zone.now)
-        Rails.logger.info("[Login::UserVerifier] Deprecating UserAccount id=#{deprecated_user_account.id}, " \
-                          "Updating UserVerification id=#{user_verification.id} with UserAccount id=#{user_account.id}")
+        set_deprecated_log(deprecated_user_account.id, user_verification.id, user_account.id)
       else
         user_verification_account = user_verification.user_account
         user_verification_account.update(icn: icn)
         user_verification.update(verified_at: Time.zone.now)
       end
+
+      user_verification
+    end
+
+    def set_deprecated_log(deprecated_user_account_id, user_verification_id, user_account_id)
+      @deprecated_log = "[Login::UserVerifier] Deprecating UserAccount id=#{deprecated_user_account_id}, " \
+                        "Updating UserVerification id=#{user_verification_id} with UserAccount id=#{user_account_id}"
     end
   end
 end
