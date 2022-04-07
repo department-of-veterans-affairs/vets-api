@@ -7,7 +7,7 @@ module CheckIn
       after_action :after_logger, only: %i[show create], if: :additional_logging?
 
       def show
-        check_in_session = CheckIn::V2::Session.build(data: { uuid: params[:id] }, jwt: session[:jwt])
+        check_in_session = CheckIn::V2::Session.build(data: { uuid: params[:id] }, jwt: low_auth_token)
 
         render json: check_in_session.client_error, status: :ok and return unless check_in_session.valid_uuid?
 
@@ -21,7 +21,7 @@ module CheckIn
       end
 
       def create
-        check_in_session = CheckIn::V2::Session.build(data: permitted_params, jwt: session[:jwt])
+        check_in_session = CheckIn::V2::Session.build(data: permitted_params, jwt: low_auth_token)
 
         render json: check_in_session.client_error, status: :bad_request and return unless check_in_session.valid?
         render json: check_in_session.success_message and return if check_in_session.authorized?
@@ -32,8 +32,7 @@ module CheckIn
           ::V2::Chip::Service.build(check_in: check_in_session).set_precheckin_started
         end
 
-        session[:jwt] = token_data[:jwt]
-
+        self.low_auth_token = token_data[:jwt]
         render json: token_data[:permission_data]
       end
 

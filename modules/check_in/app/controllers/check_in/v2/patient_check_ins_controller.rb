@@ -7,7 +7,7 @@ module CheckIn
       after_action :after_logger, only: %i[show create], if: :additional_logging?
 
       def show
-        check_in_session = CheckIn::V2::Session.build(data: { uuid: params[:id] }, jwt: session[:jwt])
+        check_in_session = CheckIn::V2::Session.build(data: { uuid: params[:id] }, jwt: low_auth_token)
 
         unless check_in_session.authorized?
           render json: check_in_session.unauthorized_message, status: :unauthorized and return
@@ -20,7 +20,7 @@ module CheckIn
 
       def create
         check_in_session =
-          CheckIn::V2::Session.build(data: { uuid: permitted_params[:uuid] }, jwt: session[:jwt])
+          CheckIn::V2::Session.build(data: { uuid: permitted_params[:uuid] }, jwt: low_auth_token)
 
         resp =
           if check_in_session.authorized?
