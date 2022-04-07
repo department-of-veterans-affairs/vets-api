@@ -111,6 +111,10 @@ RSpec.describe Login::UserVerifier do
                   user_verification.reload
                 end.not_to change(user_verification, :user_account)
               end
+
+              it 'returns the existing user_verification' do
+                expect(subject).to eq(user_verification)
+              end
             end
 
             context 'and this user account is not already associated with the user_verification' do
@@ -156,6 +160,10 @@ RSpec.describe Login::UserVerifier do
                 deprecated_account = DeprecatedUserAccount.find_by(user_verification: user_verification).user_account
                 expect(deprecated_account).to eq(user_account)
               end
+
+              it 'returns the existing user_verification' do
+                expect(subject).to eq(user_verification)
+              end
             end
           end
 
@@ -176,10 +184,10 @@ RSpec.describe Login::UserVerifier do
                 user_verification.reload
               end.to change(user_verification, :verified_at).from(nil).to(expected_verified_at_time)
             end
-          end
 
-          it 'returns user_verification' do
-            expect(subject).to eq(user_verification)
+            it 'returns the existing user_verification' do
+              expect(subject).to eq(user_verification)
+            end
           end
         end
 
@@ -208,6 +216,10 @@ RSpec.describe Login::UserVerifier do
               user_account = UserVerification.where(authn_identifier_type => authn_identifier).first.user_account
               expect(user_account).not_to be_nil
             end
+
+            it 'returns created user_verification' do
+              expect(subject).to eq(UserVerification.last)
+            end
           end
 
           context 'and user_account matching icn already exists' do
@@ -222,10 +234,10 @@ RSpec.describe Login::UserVerifier do
               account_icn = UserVerification.where(authn_identifier_type => authn_identifier).first.user_account
               expect(account_icn).to eq existing_user_account
             end
-          end
 
-          it 'returns created user_verification' do
-            expect(subject).to eq(UserVerification.last)
+            it 'returns created user_verification' do
+              expect(subject).to eq(UserVerification.last)
+            end
           end
         end
       end
