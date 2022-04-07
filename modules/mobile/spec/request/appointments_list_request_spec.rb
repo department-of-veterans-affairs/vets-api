@@ -1081,7 +1081,7 @@ RSpec.describe 'appointments', type: :request do
       context 'with feature flag off' do
         let(:params) do
           {
-            included: ['pending'],
+            include: ['pending'],
             page: { number: 1, size: 100 },
             startDate: start_date,
             endDate: end_date
@@ -1125,7 +1125,7 @@ RSpec.describe 'appointments', type: :request do
         context 'when pending appointments are included in the query params' do
           let(:params) do
             {
-              included: ['pending'],
+              include: ['pending'],
               page: { number: 1, size: 100 },
               startDate: start_date,
               endDate: end_date
@@ -1296,20 +1296,41 @@ RSpec.describe 'appointments', type: :request do
             get_appointments
             expect(response.parsed_body['links']).to eq(
               {
-                'self' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-08-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=100&page[number]=1&included[]=pending',
-                'first' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-08-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=100&page[number]=1&included[]=pending',
+                'self' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-08-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=100&page[number]=1&include[]=pending',
+                'first' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-08-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=100&page[number]=1&include[]=pending',
                 'prev' => nil,
                 'next' => nil,
-                'last' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-08-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=100&page[number]=1&included[]=pending'
+                'last' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-08-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=100&page[number]=1&include[]=pending'
               }
             )
+          end
+
+          context 'if the param is named included' do
+            let(:params) do
+              {
+                included: ['pending'],
+                page: { number: 1, size: 100 },
+                startDate: start_date,
+                endDate: end_date
+              }
+            end
+
+            before { get_appointments }
+
+            it 'returns a 200' do
+              expect(response).to have_http_status(:ok)
+            end
+
+            it 'still returns pending appointments' do
+              expect(response.parsed_body['data'].first['attributes']).to include({ 'isPending' => true })
+            end
           end
         end
 
         context 'when the appointments request service fails' do
           let(:params) do
             {
-              included: ['pending'],
+              include: ['pending'],
               page: { number: 1, size: 100 },
               startDate: start_date,
               endDate: end_date
