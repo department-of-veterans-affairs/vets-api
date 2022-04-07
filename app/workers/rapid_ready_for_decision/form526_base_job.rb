@@ -113,7 +113,7 @@ module RapidReadyForDecision
     end
 
     def set_special_issue(form526_submission)
-      return if release_pdf?(form526_submission)
+      return unless release_pdf?(form526_submission)
 
       RapidReadyForDecision::RrdSpecialIssueManager.new(form526_submission).add_special_issue
     end

@@ -93,6 +93,14 @@ RSpec.describe RapidReadyForDecision::Form526HypertensionJob, type: :worker do
           end
         end
 
+        it 'adds a special issue to the submission' do
+          expect_any_instance_of(RapidReadyForDecision::RrdSpecialIssueManager).to receive(:add_special_issue)
+
+          Sidekiq::Testing.inline! do
+            RapidReadyForDecision::Form526HypertensionJob.perform_async(submission.id)
+          end
+        end
+
         context 'failure' do
           before do
             allow_any_instance_of(RapidReadyForDecision::FastTrackPdfGenerator).to receive(:generate).and_return(nil)
