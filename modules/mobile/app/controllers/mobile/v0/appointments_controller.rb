@@ -22,16 +22,16 @@ module Mobile
           page_size: params.dig(:page, :size),
           use_cache: use_cache,
           reverse_sort: reverse_sort,
-          included: params[:included]
+          included: params[:included],
+          include: params[:include]
         )
 
         raise Mobile::V0::Exceptions::ValidationErrors, validated_params if validated_params.failure?
 
         appointments = fetch_cached_or_service(validated_params)
         page_appointments, page_meta_data = paginate(appointments, validated_params)
-        if validated_params[:included]&.include?('pending')
-          page_meta_data[:links] = include_pending_in_links(page_meta_data[:links])
-        end
+
+        page_meta_data[:links] = include_pending_in_links(page_meta_data[:links]) if include_pending?(validated_params)
 
         render json: Mobile::V0::AppointmentSerializer.new(page_appointments, page_meta_data)
       end
@@ -95,7 +95,7 @@ module Mobile
           Rails.logger.info('mobile appointments service fetch', user_uuid: @current_user.uuid)
         end
 
-        appointments.filter! { |appt| appt.is_pending == false } unless validated_params[:included]&.include?('pending')
+        appointments.filter! { |appt| appt.is_pending == false } unless include_pending?(validated_params)
         appointments.reverse! if validated_params[:reverse_sort]
 
         appointments
@@ -113,8 +113,12 @@ module Mobile
 
       def include_pending_in_links(links)
         links.transform_values do |v|
-          v.nil? ? nil : "#{v}&included[]=pending"
+          v.nil? ? nil : "#{v}&include[]=pending"
         end
+      end
+
+      def include_pending?(params)
+        params[:include]&.include?('pending') || params[:included]&.include?('pending')
       end
 
       def appointments_proxy
