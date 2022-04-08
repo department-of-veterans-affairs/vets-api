@@ -106,7 +106,7 @@ namespace :connectivity do
   desc 'Check Redis'
   task redis: :environment do
     check 'Redis', "#{Settings.redis.host}:#{Settings.redis.port}" do
-      Redis.current.get('asdf')
+      $redis.get('asdf')
     end
   end
 

@@ -7,7 +7,7 @@ module RedisCaching
     def redis_config(config)
       @redis_namespace = config[:namespace]
       @redis_ttl = config[:each_ttl]
-      @redis = Redis::Namespace.new(@redis_namespace, redis: Redis.current)
+      @redis = Redis::Namespace.new(@redis_namespace, redis: $redis)
     end
 
     def get_cached(key)

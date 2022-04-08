@@ -57,7 +57,7 @@ RSpec.describe MHVAccountTypeService do
   end
 
   context 'fetches cached value' do
-    let(:namespace) { Redis::Namespace.new('common_collection', redis: Redis.current) }
+    let(:namespace) { Redis::Namespace.new('common_collection', redis: $redis) }
     let(:cache_key) { '12210827:geteligibledataclass' }
 
     it '#mhv_account_type returns Premium' do

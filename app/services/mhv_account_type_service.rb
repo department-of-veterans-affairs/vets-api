@@ -78,7 +78,7 @@ class MHVAccountTypeService
   end
 
   def cached_eligible_data_class
-    namespace = Redis::Namespace.new('common_collection', redis: Redis.current)
+    namespace = Redis::Namespace.new('common_collection', redis: $redis)
     cache_key = "#{user.mhv_correlation_id}:geteligibledataclass"
     namespace.get(cache_key)
   end
