@@ -15,6 +15,7 @@ logingov:
   client_key_path: spec/fixtures/sign_in/oauth.key
   oauth_url: https://idp.int.identitysandbox.gov
   oauth_public_key: spec/fixtures/logingov/oauth_pub.key
+  inherited_proofing_redirect_uri: http://localhost:3000/inherited_proofing/callback
 
 idme:
   client_id: dde0b5b8bfc023a093830e64ef83f148

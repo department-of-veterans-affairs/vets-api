@@ -14,7 +14,7 @@ module InheritedProofing
       end
 
       def redirect_uri
-        Settings.logingov.redirect_uri
+        Settings.logingov.inherited_proofing_redirect_uri
       end
 
       def client_key_path
