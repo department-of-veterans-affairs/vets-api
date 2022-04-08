@@ -6,11 +6,11 @@ module MebApi
   module DGI
     module Enrollment
       class Response < MebApi::DGI::Response
-        attribute :enrollment, Array
+        attribute :enrollment_verifications, Array
 
         def initialize(response = nil)
           attributes = {
-            enrollment: response.body
+            enrollment_verifications: response.body['enrollment_verifications']
           }
 
           super(response.status, attributes)

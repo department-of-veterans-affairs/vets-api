@@ -30,6 +30,24 @@ http_interactions:
       - Wed, 09 Feb 2022 13:36:02 GMT
     body:
       encoding: UTF-8
-      string: '[{"enrollmentId":11},{"enrollmentId":22},{"enrollmentId":33}]'
+      string: '{ "enrollmentVerifications": [
+        {
+            "verificationMonth": "January 2021",
+            "certifiedBeginDate": "2021-01-01",
+            "certifiedEndDate": "2021-01-31",
+            "certifiedThroughDate": null,
+            "certificationMethod": null,
+            "enrollments": [
+                {
+                    "facilityName": "UNIVERSITY OF HAWAII AT HILO",
+                    "beginDate": "2020-01-01",
+                    "endDate": "2021-01-01",
+                    "totalCreditHours": 17.0
+                }
+            ],
+            "verificationResponse": "NR",
+            "createdDate": null
+        }
+      ]}'
   recorded_at: Wed, 09 Feb 2022 13:36:02 GMT
 recorded_with: VCR 6.0.0
