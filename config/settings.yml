@@ -821,8 +821,7 @@ search_click_tracking:
 
 flipper:
   admin_user_emails:
-    - adewitt@thoughtworks.com
-    - aditya.sharma@thoughtworks.com
+    - aditya.sharma@thoughtworks.com # Virtual Agent
     - adrian.rollett@agile6.com # Adrian Rollett (Agile6), Engineer/Product Manager Health Care Experience/Check-In
     - agarcia@clarityinnovates.com
     - alastair@adhocteam.us
@@ -846,13 +845,12 @@ flipper:
     - dror@matal.com
     - eric.boehs@oddball.io
     - erik@adhocteam.us
-    - filip.fafara@gmail.com
+    - filip.fafara@gmail.com # Thoughtworks, ex VANotify, supports DHP, CDSP, Virtual Agent
     - fahmed@governmentcio.com
     - ggupta@kindsys.us # Gaurav Gupta (Kindsys), BE Engineer Health Care Experience/Check-In
     - gescobar@governmentcio.com
     - grodriguez@governmentcio.com
-    - hshin@thoughtworks.com
-    - jacob.gacek@thoughtworks.com
+    - jacob.gacek@thoughtworks.com # Virtual Agent
     - james.childers@gcio.com
     - james.adams2@va.gov # Jim Adams designer on GCIO
     - jayson.perkins@adhocteam.us
@@ -860,13 +858,13 @@ flipper:
     - jennie.mcgibney@va.gov
     - jesse.cohn@adhocteam.us
     - jlinn@governmentcio.com
-    - joe.hall@thoughtworks.com
+    - joe.hall@thoughtworks.com # Virtual Agent
     - joeyn414@gmail.com # Joe Niquette Oddball VSP Identity Team Sr Security Engineer
     - john.bramley@adhocteam.us
     - Josh.Scanish@oddball.io # vsp identity engineer
     - julie.adair@agile6.com # Julie Adair (Agile6), Product Manager Health Care Experience/Check-In
     - jwolf@governmentcio.com # Jason Wolf Product Manager for GCIO
-    - justin.trieu@thoughtworks.com
+    - justin.trieu@thoughtworks.com # Virtual Agent
     - kabrown@thoughtworks.com
     - kadams@governmentcio.com
     - kathleen.crawford@gcio.com
@@ -883,8 +881,6 @@ flipper:
     - lindsey.hattamer@oddball.io
     - lisa.zapson@adhocteam.us
     - lance.sanchez@gcio.com
-    - ltran@thoughtworks.com
-    - marisa.hoenig@thoughtworks.com
     - mattgardner@navapbc.com
     - mdewey@governmentcio.com
     - micah@adhocteam.us
@@ -893,25 +889,20 @@ flipper:
     - michael.fleet@oddball.io
     - michael.pelz-sherman@gcio.com
     - michelle.middaugh@adhocteam.us
-    - mnunemak@thoughtworks.com
     - n.ratana@gmail.com
     - narin@adhocteam.us
     - patrick.bateman@va.gov
     - patrick@adhocteam.us
     - patrickryll@yahoo.com
-    - paul.phillips@thoughtworks.com
     - paul.touchton@b3groupinc.com
-    - pherbert@thoughtworks.com
     - regarr@gmail.com # Robin Garrison - AdHoc
     - riley.anderson@oddball.io
     - ryan.leahy@adhocteam.us # Ryan Leahy - Adhoc
     - ryan.thurlwell@va.gov
-    - saman.moshafi@thoughtworks.com
     - samara.strauss@va.gov
     - sarah.knopp@agile6.com # Sarah Knopp (Agile 6), Scrum Master
     - scott.james@gcio.com
     - scy0846@gmail.com # Taylor Mitchell - GCIO
-    - shefai.nayak@thoughtworks.com
     - ssuddath@governmentcio.com
     - stephen.barrs@gmail.com
     - tim.wright@adhocteam.us
@@ -922,7 +913,7 @@ flipper:
     - yangyang@navapbc.com
     - yoom@navapbc.com
     - zmorel@governmentcio.com
-    - kha.huynh@thoughtworks.com
+    - kha.huynh@thoughtworks.com # Virtual Agent
     - zach.morel@gcio.com
     - abelardo.blanco@va.gov
     - eugenia.gina.ronat@accenturefederal.com
