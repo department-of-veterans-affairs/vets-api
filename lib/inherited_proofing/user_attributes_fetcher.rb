@@ -11,6 +11,8 @@ module InheritedProofing
     end
 
     def perform
+      return mocked_user_attributes if auth_code == mocked_auth_code
+
       validations
       user_attributes
     ensure
@@ -49,6 +51,32 @@ module InheritedProofing
         phone: user.home_phone,
         birth_date: user.birth_date,
         ssn: user.ssn
+      }
+    end
+
+    def mocked_auth_code
+      'mocked-auth-code-for-testing'
+    end
+
+    def mocked_user_attributes
+      {
+        first_name: 'Fakey',
+        last_name: 'Fakerson',
+        address: mocked_address,
+        phone: '2063119187',
+        birth_date: '2022-1-31',
+        ssn: '123456789'
+      }
+    end
+
+    def mocked_address
+      {
+        street: '123 Fake St',
+        street2: 'Apt 235',
+        city: 'Faketown',
+        state: 'WA',
+        country: nil,
+        zip: '98037'
       }
     end
   end
