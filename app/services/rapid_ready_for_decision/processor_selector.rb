@@ -8,7 +8,7 @@ module RapidReadyForDecision
 
     RrdConstants = RapidReadyForDecision::Constants
 
-    def processor_class(backup: false)
+    def sidekiq_job(backup: false)
       return unless rrd_enabled?
 
       # single-issue claims only
@@ -26,13 +26,13 @@ module RapidReadyForDecision
       # the submitted disability must be for a claim for increase
       return unless self.class.disability_increase?(form_disability, disability_struct)
 
-      return disability_struct[:backup_processor_class]&.constantize if backup
+      return disability_struct[:backup_sidekiq_job]&.constantize if backup
 
-      disability_struct[:processor_class]&.constantize
+      disability_struct[:sidekiq_job]&.constantize
     end
 
     def rrd_applicable?
-      !processor_class.nil?
+      !sidekiq_job.nil?
     end
 
     def self.disability_increase?(form_disability, disability_struct)
