@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class EnrollmentSerializer < ActiveModel::Serializer
-  attribute :enrollment
+  attribute :enrollment_verifications
 
   def id
     nil
