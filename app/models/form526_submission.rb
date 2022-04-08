@@ -48,9 +48,9 @@ class Form526Submission < ApplicationRecord
   SUBMIT_FORM_526_JOB_CLASSES = %w[SubmitForm526AllClaim SubmitForm526].freeze
 
   def start
-    rrd_processor_class = rrd_process_selector.processor_class
-    if rrd_processor_class
-      start_rrd_job(rrd_processor_class, use_backup_processor: true)
+    rrd_sidekiq_job = rrd_process_selector.sidekiq_job
+    if rrd_sidekiq_job
+      start_rrd_job(rrd_sidekiq_job, use_backup_job: true)
     else
       start_evss_submission_job
     end
@@ -60,7 +60,7 @@ class Form526Submission < ApplicationRecord
     start_evss_submission_job
   end
 
-  def start_rrd_job(rrd_processor_class, use_backup_processor: false)
+  def start_rrd_job(rrd_sidekiq_job, use_backup_job: false)
     workflow_batch = Sidekiq::Batch.new
     workflow_batch.on(
       :success,
@@ -71,25 +71,23 @@ class Form526Submission < ApplicationRecord
       :death,
       'Form526Submission#rrd_processor_failed_handler',
       'submission_id' => id,
-      'use_backup_processor' => use_backup_processor
+      'use_backup_job' => use_backup_job
     )
     job_ids = workflow_batch.jobs do
-      rrd_processor_class.perform_async(id)
+      rrd_sidekiq_job.perform_async(id)
     end
     job_ids.first
   end
 
   # Called by Sidekiq::Batch as part of the Form 526 submission workflow
-  # When the refactored job fails, this _handler is called to run a backup_processor_class as a job.
+  # When the refactored job fails, this _handler is called to run a backup_sidekiq_job.
   def rrd_processor_failed_handler(_status, options)
     submission = Form526Submission.find(options['submission_id'])
-    if options['use_backup_processor']
-      backup_processor_class = submission.rrd_process_selector.processor_class(backup: true)
-    end
-    if backup_processor_class
-      message = "Restarting with backup #{backup_processor_class} for submission #{submission.id}."
+    backup_sidekiq_job = submission.rrd_process_selector.sidekiq_job(backup: true) if options['use_backup_job']
+    if backup_sidekiq_job
+      message = "Restarting with backup #{backup_sidekiq_job} for submission #{submission.id}."
       submission.rrd_process_selector.send_rrd_alert(message)
-      return submission.start_rrd_job(backup_processor_class)
+      return submission.start_rrd_job(backup_sidekiq_job)
     end
     submission.start_evss_submission_job
   rescue => e

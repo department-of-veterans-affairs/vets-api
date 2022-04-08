@@ -7,14 +7,14 @@ module RapidReadyForDecision
         code: 7101,
         label: 'hypertension',
         flipper_name: 'hypertension',
-        processor_class: 'RapidReadyForDecision::Form526HypertensionJob',
-        backup_processor_class: 'RapidReadyForDecision::DisabilityCompensationJob'
+        sidekiq_job: 'RapidReadyForDecision::Form526HypertensionJob',
+        backup_sidekiq_job: 'RapidReadyForDecision::DisabilityCompensationJob'
       },
       asthma: {
         code: 6602,
         label: 'asthma',
         flipper_name: 'asthma',
-        processor_class: 'RapidReadyForDecision::Form526AsthmaJob'
+        sidekiq_job: 'RapidReadyForDecision::Form526AsthmaJob'
       }
     }.freeze
 

@@ -5,14 +5,14 @@ require 'rails_helper'
 RSpec.describe RapidReadyForDecision::Constants do
   let(:form526_submission) { create(:form526_submission, :hypertension_claim_for_increase) }
 
-  describe 'processor_class and backup_processor_class' do
-    it 'resolves all processor_class values to classes' do
-      classes = RapidReadyForDecision::Constants::DISABILITIES.values.pluck(:processor_class).map(&:constantize)
+  describe 'sidekiq_job and backup_sidekiq_job' do
+    it 'resolves all sidekiq_job values to classes' do
+      classes = RapidReadyForDecision::Constants::DISABILITIES.values.pluck(:sidekiq_job).map(&:constantize)
       expect(classes.any?(&:nil?)).to eq false
     end
 
-    it 'resolves all backup_processor_class values to classes' do
-      classes = RapidReadyForDecision::Constants::DISABILITIES.values.pluck(:backup_processor_class)
+    it 'resolves all backup_sidekiq_job values to classes' do
+      classes = RapidReadyForDecision::Constants::DISABILITIES.values.pluck(:backup_sidekiq_job)
                                                               .compact.map(&:constantize)
       expect(classes.any?(&:nil?)).to eq false
     end
