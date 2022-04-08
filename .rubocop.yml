@@ -30,6 +30,10 @@ Style/Documentation:
 Style/ClassAndModuleChildren:
   Enabled: false
 
+Style/GlobalVars:
+  AllowedVariables:
+    - $redis
+
 # Bug in 1.11.0
 RSpec/VariableName:
   Exclude:

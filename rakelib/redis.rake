@@ -30,7 +30,7 @@ namespace :redis do
       addressees = 0
 
       namespace = 'mpi-profile-response'
-      redis = Redis.current
+      redis = $redis
       redis.scan_each(match: "#{namespace}:*") do |key|
         resp = Oj.load(redis.get(key))[:response]
         count += 1
@@ -60,7 +60,7 @@ namespace :redis do
       loa3 = 0
 
       namespace = 'users'
-      redis = Redis.current
+      redis = $redis
       redis.scan_each(match: "#{namespace}:*") do |key|
         u = Oj.load(redis.get(key))
         count += 1
@@ -86,7 +86,7 @@ namespace :redis do
       veteran = 0
 
       namespace = 'veteran-status-response'
-      redis = Redis.current
+      redis = $redis
       redis.scan_each(match: "#{namespace}:*") do |key|
         count += 1
         resp = Oj.load(redis.get(key))[:response]
@@ -120,7 +120,7 @@ def addressee?(addr)
 end
 
 def flush_keys(namespace)
-  redis = Redis.current
+  redis = $redis
   redis.scan_each(match: "#{namespace}:*") do |key|
     redis.del(key)
   end

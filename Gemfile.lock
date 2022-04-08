@@ -72,6 +72,22 @@ GIT
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
+GIT
+  remote: https://github.com/rack/rack-attack.git
+  revision: b0be38334a3776c536bb5e54b2ce33fd38f8bf5c
+  ref: b0be38334a3776c536bb5e54b2ce33fd38f8bf5c
+  specs:
+    rack-attack (6.6.0)
+      rack (>= 1.0, < 3)
+
+GIT
+  remote: https://github.com/resque/redis-namespace.git
+  revision: de6c3b9b01658b37e3ea776c52cf2eec3a89dcb3
+  ref: de6c3b9b01658b37e3ea776c52cf2eec3a89dcb3
+  specs:
+    redis-namespace (1.8.2)
+      redis (>= 3.0.4)
+
 PATH
   remote: modules
   specs:
@@ -224,7 +240,7 @@ GEM
     bootsnap (1.11.1)
       msgpack (~> 1.2)
     brakeman (5.2.2)
-    breakers (0.5.0)
+    breakers (0.6.0)
       faraday (>= 0.7.4, < 2.0)
       multi_json (~> 1.0)
     builder (3.2.4)
@@ -688,8 +704,6 @@ GEM
     raabro (1.4.0)
     racc (1.6.0)
     rack (2.2.3)
-    rack-attack (6.6.0)
-      rack (>= 1.0, < 3)
     rack-cors (1.1.1)
       rack (>= 2.0.0)
     rack-protection (2.1.0)
@@ -737,8 +751,6 @@ GEM
       ffi (~> 1.0)
     rchardet (1.8.0)
     redis (4.6.0)
-    redis-namespace (1.8.2)
-      redis (>= 3.0.4)
     regexp_parser (2.2.1)
     representable (3.1.1)
       declarative (< 0.1.0)
@@ -859,12 +871,12 @@ GEM
       connection_pool (>= 2.2.2)
       rack (~> 2.0)
       redis (>= 4.2.0)
-    sidekiq-ent (2.2.3)
+    sidekiq-ent (2.3.1)
       einhorn (>= 0.7.4)
-      sidekiq (>= 6.2.0)
-      sidekiq-pro (>= 5.2.0)
-    sidekiq-pro (5.2.4)
-      sidekiq (>= 6.2.0)
+      sidekiq (>= 6.3.0)
+      sidekiq-pro (>= 5.3.0)
+    sidekiq-pro (5.3.1)
+      sidekiq (>= 6.3.0)
     sidekiq-scheduler (3.1.1)
       e2mmap
       redis (>= 3, < 5)
@@ -1100,7 +1112,7 @@ DEPENDENCIES
   puma-plugin-statsd
   pundit
   rack
-  rack-attack
+  rack-attack!
   rack-cors
   rack-test
   rack-vcr
@@ -1109,7 +1121,7 @@ DEPENDENCIES
   rails_semantic_logger
   rainbow
   redis
-  redis-namespace
+  redis-namespace!
   request_store
   restforce
   rgeo-geojson

@@ -72,14 +72,14 @@ module AppsApi
 
     def event_already_handled?(parsed_hash)
       # get all members of the notification_events set
-      members = Redis.current.smembers('apps_notification_events')
+      members = $redis.smembers('apps_notification_events')
       return false if members.nil?
 
       # check if there is a member with the same email
       # and time as our parsed_hash to detect duplicates
       current_event = { 'email' => parsed_hash[:user_email], 'time' => parsed_hash[:options][:time] }
       members.each do |member|
-        member_hash = Redis.current.hgetall(member)
+        member_hash = $redis.hgetall(member)
         return true if current_event.eql? member_hash
       end
       false
@@ -91,12 +91,12 @@ module AppsApi
 
     def mark_event_as_handled(hash)
       # create event hash and store it in redis
-      Redis.current.hmset(hash[:uuid], 'email', hash[:user_email], 'time', hash[:options][:time])
+      $redis.hmset(hash[:uuid], 'email', hash[:user_email], 'time', hash[:options][:time])
       # add redis event to apps_notification_events set so that it is returned as a member
       # when calling #event_already_handled
-      Redis.current.sadd('apps_notification_events', hash[:uuid])
+      $redis.sadd('apps_notification_events', hash[:uuid])
       # set key to expire in 3 hours. 60 seconds * 180 minutes = 10800 seconds
-      Redis.current.expire(hash[:uuid], 10_800)
+      $redis.expire(hash[:uuid], 10_800)
     end
 
     def send_email(hash:, template:)

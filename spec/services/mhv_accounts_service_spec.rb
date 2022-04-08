@@ -81,7 +81,7 @@ RSpec.describe MHVAccountsService do
 
     context 'account upgrade' do
       let(:common_collection_namespace) do
-        Redis::Namespace.new('common_collection', redis: Redis.current)
+        Redis::Namespace.new('common_collection', redis: $redis)
       end
       let(:mhv_ids) { ['14221465'] }
       let(:edc_cache_key) { '14221465:geteligibledataclass' }

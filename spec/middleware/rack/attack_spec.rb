@@ -16,7 +16,7 @@ RSpec.describe Rack::Attack do
   end
 
   before(:all) do
-    Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.current)
+    Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new($redis)
   end
 
   describe '#throttled_response' do
