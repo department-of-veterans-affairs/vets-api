@@ -5,6 +5,7 @@ require 'sidekiq'
 module VANotify
   class InProgressFormNotifier
     class MissingICN < StandardError; end
+    class UnsupportedForm < StandardError; end
     include Sidekiq::Worker
     include SentryLogging
 
@@ -17,17 +18,15 @@ module VANotify
       return unless enabled?
 
       in_progress_forms = InProgressForm.where(id: in_progress_form_ids)
-      first_form = in_progress_forms.first
-
       notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
       template_id = 'template_id'
-      veteran = User.find(string_to_uuid(first_form.user_uuid))
+      veteran = veteran_data(in_progress_forms.first)
 
-      raise MissingICN, "ICN not found for InProgressForm: #{first_form.id}" if veteran&.icn.blank?
+      raise MissingICN, "ICN not found for InProgressForm: #{in_progress_forms.first.id}" if veteran.mpi_icn.blank?
 
       notify_client.send_email(
         recipient_identifier: {
-          id_value: veteran.icn,
+          id_value: veteran.mpi_icn,
           id_type: 'ICN'
         },
         template_id: template_id,
@@ -63,8 +62,21 @@ module VANotify
       personalisation
     end
 
-    def string_to_uuid(string)
-      string.insert(8, '-').insert(13, '-').insert(18, '-').insert(23, '-')
+    def veteran_data(in_progress_form)
+      data = case in_progress_form.form_id
+             when '686C-674'
+               InProgressForm686c.new(in_progress_form.form_data)
+             else
+               raise UnsupportedForm,
+                     "Unsupported form: #{in_progress_form.form_id} - InProgressForm: #{in_progress_form.id}"
+             end
+
+      VANotify::Veteran.new(
+        ssn: data.ssn,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        birth_date: data.birth_date
+      )
     end
   end
 end

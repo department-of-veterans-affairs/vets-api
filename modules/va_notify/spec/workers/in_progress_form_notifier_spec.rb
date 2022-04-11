@@ -23,9 +23,9 @@ describe VANotify::InProgressFormNotifier, type: :worker do
     it 'fails if ICN is not present' do
       client = double
       allow(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.va_gov.api_key).and_return(client)
-      user_without_icn = double('User')
-      allow(User).to receive(:find).and_return(user_without_icn)
-      allow(user_without_icn).to receive(:icn).and_return(nil)
+      user_without_icn = double('VANotify::Veteran')
+      allow(VANotify::Veteran).to receive(:new).and_return(user_without_icn)
+      allow(user_without_icn).to receive(:mpi_icn).and_return(nil)
 
       expect do
         described_class.new.perform(in_progress_form.id)
@@ -33,15 +33,26 @@ describe VANotify::InProgressFormNotifier, type: :worker do
                          "ICN not found for InProgressForm: #{in_progress_form.id}")
     end
 
+    it 'fails if it can not parse InProgressForm data (unrecognized form_id)' do
+      allow(VaNotify::Service).to receive(:new).and_return(notification_client)
+
+      invalid_form = create(:in_progress_form, form_id: 'invalid_id')
+
+      expect do
+        subject.perform(invalid_form.id)
+      end.to raise_error(VANotify::InProgressFormNotifier::UnsupportedForm,
+                         "Unsupported form: #{invalid_form.form_id} - InProgressForm: #{invalid_form.id}")
+    end
+
     it 'sends an email (with ICN data) using the template id' do
       client = double
       allow(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.va_gov.api_key).and_return(client)
 
       expect(client).to receive(:send_email).with(
-        recipient_identifier: { id_type: 'ICN', id_value: '123498767V234859' },
+        recipient_identifier: { id_type: 'ICN', id_value: '1013062086V794840' },
         template_id: 'template_id',
         personalisation: {
-          'first_name' => 'Abraham',
+          'first_name' => 'First_name',
           'form_0_name' => '686C-674',
           'form_0_expiration' => in_progress_form.expires_at.strftime('%B %d, %Y')
         }
