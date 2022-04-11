@@ -172,7 +172,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
                  evss_id: 600_118_851,
                  id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9',
                  status: 'errored',
-                 evss_response: { 'messages' => [{ 'key' => 'Error', 'severity' => 'FATAL', 'text' => 'Failed' }] })
+                 evss_response: [{ 'key' => 'Error', 'severity' => 'FATAL', 'text' => 'Failed' }])
           VCR.use_cassette('evss/claims/claim') do
             headers = request_headers.merge(auth_header)
             get('/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers: headers)

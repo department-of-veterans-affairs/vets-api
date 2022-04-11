@@ -23,6 +23,7 @@ module ClaimsApi
                             vbms_id: response.claim_id)
       auto_claim.evss_id = response.claim_id
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ESTABLISHED
+      auto_claim.evss_response = nil
       auto_claim.save!
 
       queue_flash_updater(auth_headers, auto_claim.flashes, auto_claim_id)
