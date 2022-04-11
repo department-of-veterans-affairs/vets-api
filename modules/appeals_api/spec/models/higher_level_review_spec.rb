@@ -73,6 +73,10 @@ describe AppealsApi::HigherLevelReview, type: :model do
     end
   end
 
+  describe '#stamp_text' do
+    it { expect(higher_level_review.stamp_text).to eq('Doe - 6789') }
+  end
+
   describe '#ssn' do
     subject { higher_level_review.ssn }
 
@@ -291,6 +295,16 @@ describe AppealsApi::HigherLevelReview, type: :model do
             expect(higher_level_review.valid?).to be true
           end
         end
+      end
+    end
+
+    describe '#stamp_text' do
+      it { expect(higher_level_review.stamp_text).to eq('Doe - 6789') }
+
+      it 'truncates the last name if too long' do
+        full_last_name = 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdddddddddd'
+        auth_headers['X-VA-Last-Name'] = full_last_name
+        expect(higher_level_review.stamp_text).to eq 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdd... - 6789'
       end
     end
   end

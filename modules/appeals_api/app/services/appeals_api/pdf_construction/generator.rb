@@ -19,10 +19,13 @@ module AppealsApi
         @all_pages_path = insert_additional_pages
         #=> '#{appeal.id}-completed-unstamped-tmp.pdf OR @form_fill_path'
 
-        @unstamped_path = finalize_pages
+        unstamped_path = finalize_pages
         #=> '#{appeal.id}-rebuilt-pages-tmp.pdf OR @all_pages_path'
 
-        stamp
+        # TODO: remove this call once hlr v1 is sunset
+        return structure.stamp(unstamped_path) if hlr_v1?
+
+        AppealsApi::PdfConstruction::Stamper.new(appeal, unstamped_path).call
       end
 
       private
@@ -64,24 +67,6 @@ module AppealsApi
         adjusted_pages_path
       end
 
-      def stamp
-        # TODO: temporary fix below - ticket in backlog to refactor this
-        y_coord = appeal.instance_of?(AppealsApi::NoticeOfDisagreement) && appeal.pdf_version == 'V2' ? 778 : 775
-
-        stamped_pdf_path = CentralMail::DatestampPdf.new(@unstamped_path).run(
-          text: "Submitted by #{appeal.consumer_name} via api.va.gov",
-          x: 429,
-          y: y_coord,
-          text_only: true
-        )
-
-        # This line is due to HLR being live when the updated stamp was added.
-        # Once HLR bumps a version, we should refactor NoD's stamp method to be
-        # generic to HLR/NOD/SC. For now, the HLR#Structure.stamp method will
-        # just return the stamped path.
-        structure.stamp(stamped_pdf_path)
-      end
-
       def combine_form_fill_and_additional_pages(additional_pages_added_path)
         path = "/tmp/#{appeal.id}-completed-unstamped-tmp.pdf"
 
@@ -96,6 +81,11 @@ module AppealsApi
 
       def pdf_template_path
         Rails.root.join('modules', 'appeals_api', 'config', 'pdfs')
+      end
+
+      # TODO: remove once hlr v1 sunset
+      def hlr_v1?
+        appeal.class.name.demodulize == 'HigherLevelReview' && appeal.pdf_version == 'V1'
       end
     end
 

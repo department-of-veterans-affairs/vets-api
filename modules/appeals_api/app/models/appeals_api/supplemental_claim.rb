@@ -188,6 +188,11 @@ module AppealsApi
       veterans_local_time.strftime('%m/%d/%Y')
     end
 
+    def stamp_text
+      # TODO: Refactor to use a Veteran Appellant object once non-veteran claimant work is done
+      "#{veteran_last_name.truncate(35)} - #{ssn.last(4)}"
+    end
+
     def update_status!(status:, code: nil, detail: nil)
       handler = Events::Handler.new(event_type: :sc_status_updated, opts: {
                                       from: self.status,

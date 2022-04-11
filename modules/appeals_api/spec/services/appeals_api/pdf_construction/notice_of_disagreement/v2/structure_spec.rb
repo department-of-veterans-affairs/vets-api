@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'central_mail/datestamp_pdf'
 
 module AppealsApi
   module PdfConstruction
@@ -49,14 +48,6 @@ module AppealsApi
             it 'returns an array of rearranged pages' do
               result = described_class.new(notice_of_disagreement).final_page_adjustments
               expect(result).to eq [1, '4-end', '2-3']
-            end
-          end
-
-          describe '#stamp' do
-            it 'returns a pdf path' do
-              allow(File).to receive(:delete)
-              result = described_class.new(notice_of_disagreement).stamp('dummy_path.pdf')
-              expect(result[-4..]).to eq('.pdf')
             end
           end
 

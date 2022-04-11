@@ -149,6 +149,10 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     it { expect(notice_of_disagreement.board_review_option).to eq 'hearing' }
   end
 
+  describe '#stamp_text' do
+    it { expect(notice_of_disagreement.stamp_text).to eq 'Doe - 6789' }
+  end
+
   describe '#update_status!' do
     let(:notice_of_disagreement) { create(:notice_of_disagreement) }
 
@@ -262,6 +266,10 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       let(:appellant_type) { extra_notice_of_disagreement_v2.signing_appellant.send(:type) }
 
       it { expect(appellant_type).to eq :claimant }
+    end
+
+    describe '#stamp_text' do
+      it { expect(extra_notice_of_disagreement_v2.stamp_text).to eq 'Doe - 987654321' }
     end
 
     describe '#appellant_local_time' do

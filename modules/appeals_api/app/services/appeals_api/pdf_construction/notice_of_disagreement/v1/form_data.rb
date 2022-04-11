@@ -82,10 +82,6 @@ module AppealsApi
           notice_of_disagreement.form_data&.dig('included')
         end
 
-        def stamp_text
-          "#{last_name.truncate(35)} - #{veteran_ssn.last(4)}"
-        end
-
         def representative_name
           notice_of_disagreement.representative_name.to_s
         end

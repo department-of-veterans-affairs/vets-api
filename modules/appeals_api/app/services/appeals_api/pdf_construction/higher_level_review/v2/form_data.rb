@@ -204,10 +204,6 @@ module AppealsApi
           appellant_local_time.strftime '%Y'
         end
 
-        def stamp_text
-          "#{veteran.last_name.truncate(35)} - #{veteran.ssn.last(4)}"
-        end
-
         private
 
         attr_reader :higher_level_review

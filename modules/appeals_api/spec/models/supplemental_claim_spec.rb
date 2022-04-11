@@ -97,6 +97,18 @@ describe AppealsApi::SupplementalClaim, type: :model do
     end
   end
 
+  describe '#stamp_text' do
+    let(:supplemental_claim) { build(:supplemental_claim) }
+
+    it { expect(supplemental_claim.stamp_text).to eq('Doé - 6789') }
+
+    it 'truncates the last name if too long' do
+      full_last_name = 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdddddddddd'
+      supplemental_claim.auth_headers['X-VA-Last-Name'] = full_last_name
+      expect(supplemental_claim.stamp_text).to eq 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdd... - 6789'
+    end
+  end
+
   describe '#update_status!' do
     let(:supplemental_claim) { create(:supplemental_claim) }
 

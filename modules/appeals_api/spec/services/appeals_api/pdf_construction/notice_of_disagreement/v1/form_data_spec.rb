@@ -118,16 +118,6 @@ module AppealsApi
             it { expect(form_data.contestable_issues).to eq(notice_of_disagreement.form_data['included']) }
           end
 
-          describe '#stamp_text' do
-            it { expect(form_data.stamp_text).to eq('Doe - 6789') }
-
-            it 'truncates the last name if too long' do
-              full_last_name = 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdddddddddd'
-              notice_of_disagreement.auth_headers['X-VA-Last-Name'] = full_last_name
-              expect(form_data.stamp_text).to eq 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdd... - 6789'
-            end
-          end
-
           describe '#representative_name' do
             it { expect(form_data.representative_name).to eq(notice_of_disagreement.representative_name) }
           end
