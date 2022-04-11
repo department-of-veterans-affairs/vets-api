@@ -10,7 +10,7 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfGenerator, :vcr do
 
   if ENV['_SAVE_RRD_PDF_FILE']
     after do |example|
-      file_name = "tmp/rrd-pdf-preview-#{example.metadata[:description].parameterize}-#{Time.now.to_i}.pdf"
+      file_name = "tmp/rrd-pdf-preview-#{example.full_description.parameterize}-#{Time.now.to_i}.pdf"
       compiled_pdf.render_file(file_name)
       puts "\n #{file_name}"
     end
@@ -54,46 +54,60 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfGenerator, :vcr do
   end
 
   describe '#generate', :vcr do
-    it 'includes the veterans name' do
-      expect(subject).to include 'Cat Marie Power, Jr.'
-    end
-
-    it 'includes the veterans birthdate' do
-      expect(subject).to include 'DOB: 10-10-1968'
-    end
-
-    it 'includes the veterans blood pressure readings' do
-      expect(subject).to include 'Blood pressure: 115/87'
-    end
-
-    it 'includes the veterans medications' do
-      dosages = parsed_medications_data.map do |per|
-        next if per['dosageInstructions'].blank?
-
-        "Dosage instructions: #{per['dosageInstructions'].join('; ')}"
-      end.compact
-
-      expect(subject).to include(*dosages)
-    end
-
-    context 'when no medications are present' do
-      let(:parsed_medications_data) { [] }
-
-      it 'shows message when no medications are present' do
-        expect(subject).to include('No active medications were found in the last year')
+    shared_examples 'includes introduction' do
+      it 'includes the veterans name' do
+        expect(subject).to include 'Cat Marie Power, Jr.'
       end
 
-      it 'shows the active prescriptions header even if no meds present' do
-        expect(subject).to include('Active Prescriptions')
+      it 'includes the veterans birthdate' do
+        expect(subject).to include 'DOB: 10-10-1968'
       end
     end
 
-    context 'when medication data are nil' do
-      let(:parsed_medications_data) { nil }
+    context 'when pdf is for hypertension' do
+      let(:disability_type) { :hypertension }
 
-      it 'continues rendering with message' do
-        expect(subject).to include('No active medications were found in the last year')
+      it_behaves_like 'includes introduction'
+
+      it 'includes the veterans blood pressure readings' do
+        expect(subject).to include 'Blood pressure: 115/87'
       end
+
+      it 'includes the veterans medications' do
+        dosages = parsed_medications_data.map do |med|
+          next if med['dosageInstructions'].blank?
+
+          "Dosage instructions: #{med['dosageInstructions'].join('; ')}"
+        end.compact
+
+        expect(subject).to include(*dosages)
+      end
+
+      context 'when no medications are present' do
+        let(:parsed_medications_data) { [] }
+
+        it 'shows message when no medications are present' do
+          expect(subject).to include('No active medications were found in the last year')
+        end
+
+        it 'shows the active prescriptions header even if no meds present' do
+          expect(subject).to include('Active Prescriptions')
+        end
+      end
+
+      context 'when medication data are nil' do
+        let(:parsed_medications_data) { nil }
+
+        it 'continues rendering with message' do
+          expect(subject).to include('No active medications were found in the last year')
+        end
+      end
+    end
+
+    context 'when pdf is for asthma' do
+      let(:disability_type) { :asthma }
+
+      it_behaves_like 'includes introduction'
     end
   end
 end
