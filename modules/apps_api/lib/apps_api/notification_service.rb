@@ -80,6 +80,8 @@ module AppsApi
       current_event = { 'email' => parsed_hash[:user_email], 'time' => parsed_hash[:options][:time] }
       members.each do |member|
         member_hash = $redis.hgetall(member)
+        $redis.srem('apps_notification_events', member) if member_hash.blank?
+
         return true if current_event.eql? member_hash
       end
       false
