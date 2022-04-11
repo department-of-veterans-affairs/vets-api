@@ -195,6 +195,12 @@ module AppealsApi
       }
     end
 
+    def stamp_text
+      # TODO: Once we get the green light to completely shut off NOD v1, remove the conditional and use file number
+      id = veteran.ssn.presence&.last(4) || veteran.file_number
+      "#{veteran.last_name.truncate(35)} - #{id}"
+    end
+
     def update_status!(status:, code: nil, detail: nil)
       handler = Events::Handler.new(event_type: :nod_status_updated, opts: {
                                       from: self.status,

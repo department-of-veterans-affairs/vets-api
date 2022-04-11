@@ -90,7 +90,14 @@ module AppealsApi
           '200996'
         end
 
-        def stamp(stamped_pdf_path)
+        def stamp(unstamped_path)
+          stamped_pdf_path = CentralMail::DatestampPdf.new(unstamped_path).run(
+            text: "Submitted by #{higher_level_review.consumer_name} via api.va.gov",
+            x: 429,
+            y: 782,
+            text_only: true
+          )
+
           CentralMail::DatestampPdf.new(stamped_pdf_path).run(
             text: "API.VA.GOV #{higher_level_review.created_at.utc.strftime('%Y-%m-%d %H:%M%Z')}",
             x: 5,

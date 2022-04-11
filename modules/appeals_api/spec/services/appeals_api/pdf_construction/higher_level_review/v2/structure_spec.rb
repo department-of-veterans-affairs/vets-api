@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'central_mail/datestamp_pdf'
 
 module AppealsApi
   module PdfConstruction
@@ -36,14 +35,6 @@ module AppealsApi
             it 'has 1 page' do
               result = described_class.new(higher_level_review).add_additional_pages
               expect(result.page_count).to eq(1)
-            end
-          end
-
-          describe 'stamp' do
-            it 'returns the supplied pdf path' do
-              allow(File).to receive(:delete)
-              result = described_class.new(higher_level_review).stamp('dummy_path.pdf')
-              expect(result[-4..]).to eq('.pdf')
             end
           end
 

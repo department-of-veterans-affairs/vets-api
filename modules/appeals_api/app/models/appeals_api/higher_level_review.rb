@@ -233,6 +233,10 @@ module AppealsApi
       auth_headers&.dig('X-Consumer-ID')
     end
 
+    def stamp_text
+      "#{veteran.last_name.truncate(35)} - #{veteran.ssn.last(4)}"
+    end
+
     def update_status!(status:, code: nil, detail: nil)
       current_status = self.status
       update_handler = Events::Handler.new(event_type: :hlr_status_updated, opts: {

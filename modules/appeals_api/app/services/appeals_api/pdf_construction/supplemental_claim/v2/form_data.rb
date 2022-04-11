@@ -69,10 +69,6 @@ module AppealsApi
             full_name[0...180]
           end
 
-          def stamp_text
-            "#{veteran_last_name.truncate(35)} - #{ssn_last_four}"
-          end
-
           def new_evidence_locations
             evidence_records.map(&:location)
           end

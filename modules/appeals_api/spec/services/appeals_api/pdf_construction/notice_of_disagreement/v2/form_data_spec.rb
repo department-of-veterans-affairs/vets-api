@@ -58,10 +58,6 @@ module AppealsApi
             it { expect(form_data.date_signed).to eq date }
           end
 
-          describe '#stamp_text' do
-            it { expect(form_data.stamp_text).to eq 'Doe - 987654321' }
-          end
-
           context 'when delegating to notice of disagreement' do
             describe '#appellant_local_time' do
               it do

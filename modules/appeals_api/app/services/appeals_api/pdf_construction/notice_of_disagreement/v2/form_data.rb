@@ -103,10 +103,6 @@ module AppealsApi
           appellant_local_time.strftime('%m/%d/%Y')
         end
 
-        def stamp_text
-          "#{veteran.last_name.truncate(35)} - #{veteran.file_number}"
-        end
-
         private
 
         attr_accessor :notice_of_disagreement
