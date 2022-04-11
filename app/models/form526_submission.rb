@@ -86,7 +86,7 @@ class Form526Submission < ApplicationRecord
     backup_sidekiq_job = submission.rrd_process_selector.sidekiq_job(backup: true) if options['use_backup_job']
     if backup_sidekiq_job
       message = "Restarting with backup #{backup_sidekiq_job} for submission #{submission.id}."
-      submission.rrd_process_selector.send_rrd_alert(message)
+      submission.send_rrd_alert_email('RRD Processor Selector alert - backup processor', message)
       return submission.start_rrd_job(backup_sidekiq_job)
     end
     submission.start_evss_submission_job
@@ -96,7 +96,7 @@ class Form526Submission < ApplicationRecord
       Sidekiq Job options: #{options}<br/>
       Exception: #{e}<br/>
     MESSAGE
-    submission.rrd_process_selector.send_rrd_alert(message)
+    submission.send_rrd_alert_email('RRD Processor Selector alert', message)
     submission.start_evss_submission_job
   end
 

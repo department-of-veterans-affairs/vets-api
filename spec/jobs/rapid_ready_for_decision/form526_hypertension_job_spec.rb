@@ -113,7 +113,7 @@ RSpec.describe RapidReadyForDecision::Form526HypertensionJob, type: :worker do
               end.to raise_error(NoMethodError)
               expect(ActionMailer::Base.deliveries.last.subject).to eq 'Rapid Ready for Decision (RRD) Job Errored'
               expect(ActionMailer::Base.deliveries.last.body.raw_source)
-                .to match 'A claim errored'
+                .to match 'The error was:'
               expect(ActionMailer::Base.deliveries.last.body.raw_source.scan(/\n /).count).to be > 10
             end
           end
