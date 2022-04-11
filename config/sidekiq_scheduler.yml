@@ -276,3 +276,9 @@ TestUserDashboard::MirrorAccountAvailabilityLogsInBigQuery:
   cron: "0 */2 * * * America/New_York"
   class: TestUserDashboard::MirrorAccountAvailabilityLogsInBigQuery
   description: "Mirrors the test_user_dashboard_tud_account_availability_logs table in BigQuery."
+
+New1095BsJob:
+  cron: "0 3 * * * America/New_York"
+  class: Form1095::New1095BsJob
+  description: "Getting new 1095Bs"
+  

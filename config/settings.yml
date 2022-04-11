@@ -1317,3 +1317,11 @@ lgy:
   app_id: ~
   api_key: ~
   mock_coe: false
+
+form1095_b:
+  s3:
+    aws_access_key_id: ~
+    aws_secret_access_key: ~
+    bucket: 'bucket'
+    enabled: true
+    region: 'region'
