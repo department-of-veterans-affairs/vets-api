@@ -34,7 +34,9 @@ module RapidReadyForDecision
       rescue => e
         # only retry if the error was raised within the "with_tracking" block
         retryable_error_handler(e) if @status_job_title
-        send_fast_track_engineer_email_for_testing(form526_submission_id, e.message, e.backtrace)
+        message = "Sidekiq job id: #{jid}. The error was: #{e.message}.<br/>" \
+                  "The backtrace was:\n #{e.backtrace.join(",<br/>\n ")}"
+        form526_submission.send_rrd_alert_email('Rapid Ready for Decision (RRD) Job Errored', message)
         raise
       end
     end
@@ -72,23 +74,6 @@ module RapidReadyForDecision
 
     def lighthouse_client(form526_submission)
       Lighthouse::VeteransHealth::Client.new(get_icn(form526_submission))
-    end
-
-    def send_fast_track_engineer_email_for_testing(form526_submission_id, error_message, backtrace)
-      # TODO: This should be removed once we have basic metrics
-      # on this feature and the visibility is imporved.
-      body = <<~BODY
-        A claim errored in the #{Settings.vsp_environment} environment \
-        with Form 526 submission id: #{form526_submission_id} and Sidekiq job id: #{jid}.<br/>
-        <br/>
-        The error was: #{error_message}. The backtrace was:\n #{backtrace.join(",<br/>\n ")}
-      BODY
-      ActionMailer::Base.mail(
-        from: ApplicationMailer.default[:from],
-        to: Settings.rrd.alerts.recipients,
-        subject: 'Rapid Ready for Decision (RRD) Job Errored',
-        body: body
-      ).deliver_now
     end
 
     def get_icn(form526_submission)

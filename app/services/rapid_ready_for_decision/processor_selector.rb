@@ -40,21 +40,6 @@ module RapidReadyForDecision
         form_disability['disabilityActionType']&.upcase == 'INCREASE'
     end
 
-    def send_rrd_alert(message)
-      body = <<~BODY
-        Environment: #{Settings.vsp_environment}<br/>
-        Form526Submission.id: #{@form526_submission.id}<br/>
-        <br/>
-        #{message}
-      BODY
-      ActionMailer::Base.mail(
-        from: ApplicationMailer.default[:from],
-        to: Settings.rrd.alerts.recipients,
-        subject: 'RRD Processor Selector alert',
-        body: body
-      ).deliver_now
-    end
-
     private
 
     def rrd_enabled?

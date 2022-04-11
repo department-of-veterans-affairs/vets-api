@@ -3,6 +3,21 @@
 module Form526RapidReadyForDecisionConcern
   extend ActiveSupport::Concern
 
+  def send_rrd_alert_email(subject, message)
+    body = <<~BODY
+      Environment: #{Settings.vsp_environment}<br/>
+      Form526Submission.id: #{id}<br/>
+      <br/>
+      #{message}
+    BODY
+    ActionMailer::Base.mail(
+      from: ApplicationMailer.default[:from],
+      to: Settings.rrd.alerts.recipients,
+      subject: subject,
+      body: body
+    ).deliver_now
+  end
+
   # @param metadata_hash [Hash] to be merged into form_json['rrd_metadata']
   def add_metadata(metadata_hash)
     new_form_json = JSON.parse(form_json)

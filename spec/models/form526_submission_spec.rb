@@ -75,8 +75,9 @@ RSpec.describe Form526Submission do
 
           it 'calls start_rrd_job with the backup job class if use_backup_job=true' do
             expect(form_for_hypertension).to receive(:start_rrd_job).with(backup_sidekiq_job)
-            expect_any_instance_of(RapidReadyForDecision::ProcessorSelector).to receive(:send_rrd_alert)
-              .with("Restarting with backup #{backup_sidekiq_job} for submission #{form_for_hypertension.id}.")
+            expect(form_for_hypertension).to receive(:send_rrd_alert_email)
+              .with('RRD Processor Selector alert - backup processor',
+                    "Restarting with backup #{backup_sidekiq_job} for submission #{form_for_hypertension.id}.")
             sidekiq_submission.rrd_processor_failed_handler('ignored Sidekiq::Batch::Status',
                                                             'submission_id' => form_for_hypertension.id,
                                                             'use_backup_job' => true)
@@ -97,8 +98,9 @@ RSpec.describe Form526Submission do
 
             it 'calls start_evss_submission_job and sends a alert' do
               expect(form_for_hypertension).to receive(:start_evss_submission_job)
-              expect_any_instance_of(RapidReadyForDecision::ProcessorSelector).to receive(:send_rrd_alert)
-                .with(/RRD was skipped for submission #{form_for_hypertension.id} due to an error./)
+              expect(form_for_hypertension).to receive(:send_rrd_alert_email)
+                .with('RRD Processor Selector alert',
+                      /RRD was skipped for submission #{form_for_hypertension.id} due to an error./)
               sidekiq_submission.rrd_processor_failed_handler('ignored Sidekiq::Batch::Status',
                                                               'submission_id' => form_for_hypertension.id,
                                                               'use_backup_job' => true)
