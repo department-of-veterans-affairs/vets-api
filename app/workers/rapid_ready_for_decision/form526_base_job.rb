@@ -91,6 +91,10 @@ module RapidReadyForDecision
       Account.find_by(edipi: edipi) if edipi
     end
 
+    def patient_info(form526_submission)
+      form526_submission.full_name.merge(birthdate: form526_submission.auth_headers['va_eauth_birthdate'])
+    end
+
     def upload_pdf(form526_submission, pdf)
       RapidReadyForDecision::FastTrackPdfUploadManager
         .new(form526_submission)

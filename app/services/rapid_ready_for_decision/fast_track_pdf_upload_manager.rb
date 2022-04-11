@@ -47,6 +47,7 @@ module RapidReadyForDecision
         supporting_evidence_attachment.set_file_data!(file)
         supporting_evidence_attachment.save!
         confirmation_code = supporting_evidence_attachment.guid
+        submission.add_metadata(pdf_guid: confirmation_code)
 
         add_upload(confirmation_code) if add_to_submission && confirmation_code.present?
       end
