@@ -11,14 +11,7 @@ RSpec.describe RapidReadyForDecision::Form526AsthmaJob, type: :worker do
   end
 
   let(:user) { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
-  let(:auth_headers) do
-    EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
-  end
-  let(:submission) do
-    create(:form526_submission, :with_uploads,
-           user_uuid: user.uuid,
-           auth_headers_json: auth_headers.to_json)
-  end
+  let(:submission) { create(:form526_submission, user: user) }
 
   describe '#perform', :vcr do
     subject { RapidReadyForDecision::Form526AsthmaJob.perform_async(submission.id) }
@@ -31,12 +24,8 @@ RSpec.describe RapidReadyForDecision::Form526AsthmaJob, type: :worker do
       it 'finishes successfully' do
         Sidekiq::Testing.inline! do
           expect { subject }.not_to raise_error
-          last_email = ActionMailer::Base.deliveries.last
-          expect(last_email.subject).to eq 'RRD claim - Offramped'
-          expect(last_email.body).to include submission.id
-          expect(last_email.body).to include 'API returned 24 medication requests'
-          expect(last_email.body).to include '2013: {"active"=>3}'
-          expect(last_email.body).to include '1998: {"active"=>4, "completed"=>2}'
+          submission.reload
+          expect(submission.form.dig('rrd_metadata', 'med_stats', 'medications_count')).to eq(19)
         end
       end
 
@@ -51,6 +40,16 @@ RSpec.describe RapidReadyForDecision::Form526AsthmaJob, type: :worker do
           subject
           expect(Form526JobStatus.last.status).to eq 'success'
         end
+      end
+    end
+  end
+
+  describe '#assess_data', :vcr do
+    subject { described_class.new.assess_data(submission) }
+
+    context 'when there are active medication requests' do
+      it 'returns the active medication requests' do
+        expect(subject[:medications].count).to eq(19)
       end
     end
   end

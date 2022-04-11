@@ -104,12 +104,13 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfUploadManager do
       end.to change(
         SupportingEvidenceAttachment, :count
       ).by 1
+      expect(form526_submission.form['rrd_metadata']).to include('pdf_guid')
     end
 
     it 'skips updating the submission when add_to_submission is false' do
       expect do
         manager.handle_attachment('fake file', add_to_submission: false)
-      end.not_to change(form526_submission, :form_json)
+      end.not_to change { form526_submission.form_json['form526_uploads'] }
     end
   end
 end
