@@ -50,11 +50,10 @@ describe VANotify::InProgressFormNotifier, type: :worker do
 
       expect(client).to receive(:send_email).with(
         recipient_identifier: { id_type: 'ICN', id_value: '1013062086V794840' },
-        template_id: 'template_id',
+        template_id: 'fake_template_id',
         personalisation: {
           'first_name' => 'First_name',
-          'form_0_name' => '686C-674',
-          'form_0_expiration' => in_progress_form.expires_at.strftime('%B %d, %Y')
+          'date' => in_progress_form.expires_at.strftime('%B %d, %Y')
         }
       )
 
