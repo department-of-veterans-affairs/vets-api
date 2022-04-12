@@ -183,6 +183,51 @@ describe MPI::Service do
     end
   end
 
+  describe '.find_profile with orch_search' do
+    let(:user) { build(:user, :loa3, user_hash) }
+
+    describe '.find_profile with attributes' do
+      context 'valid request' do
+        let(:user_hash) do
+          {
+            first_name: 'MARK',
+            last_name: 'WEBB',
+            middle_name: '',
+            birth_date: '1950-10-04',
+            ssn: '796104437',
+            edipi: '1013590059'
+          }
+        end
+
+        it 'calls the find profile with an orchestrated search', run_at: 'Thu, 06 Feb 2020 23:59:36 GMT' do
+          allow(SecureRandom).to receive(:uuid).and_return('b4d9a901-8f2f-46c0-802f-3eeb99c51dfb')
+          allow(Socket).to receive(:ip_address_list).and_return([Addrinfo.ip('1.1.1.1')])
+          allow(Settings.mvi).to receive(:vba_orchestration).and_return(true)
+
+          VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes', VCR::MATCH_EVERYTHING) do
+            response = described_class.new.find_profile(user, orch_search: true)
+            expect(response.status).to eq('OK')
+            expect(response.profile.icn).to eq('1008709396V637156')
+          end
+        end
+      end
+
+      context 'with an invalid user' do
+        let(:user) { build(:user, :loa1) }
+
+        it 'raises an unprocessable entity error' do
+          allow(user).to receive(:edipi).and_return(nil)
+
+          expect { described_class.new.find_profile(user, orch_search: true) }.to raise_error do |error|
+            expect(error).to be_a(Common::Exceptions::UnprocessableEntity)
+            expect(error.errors.first.source).to eq('MPI Service')
+            expect(error.errors.first.detail).to eq('User is missing EDIPI')
+          end
+        end
+      end
+    end
+  end
+
   describe '.find_profile with icn', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
     before do
       expect(MPI::Messages::FindProfileMessageIcn).to receive(:new).once.and_call_original
@@ -242,7 +287,7 @@ describe MPI::Service do
 
         match = { match_requests_on: %i[method uri headers body] }
         VCR.use_cassette('mpi/find_candidate/historical_icns_with_icn', match) do
-          response = subject.find_profile(user, MPI::Constants::CORRELATION_WITH_ICN_HISTORY)
+          response = subject.find_profile(user, search_type: MPI::Constants::CORRELATION_WITH_ICN_HISTORY)
           expect(response.status).to eq('OK')
           expect(response.profile['historical_icns']).to eq(
             %w[1008692852V724999 1008787550V443247 1008787485V229771 1008795715V162680
@@ -256,7 +301,7 @@ describe MPI::Service do
         allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
 
         VCR.use_cassette('mpi/find_candidate/historical_icns_empty', VCR::MATCH_EVERYTHING) do
-          response = subject.find_profile(user, MPI::Constants::CORRELATION_WITH_ICN_HISTORY)
+          response = subject.find_profile(user, search_type: MPI::Constants::CORRELATION_WITH_ICN_HISTORY)
           expect(response.status).to eq('OK')
           expect(response.profile['historical_icns']).to eq([])
         end
@@ -309,12 +354,6 @@ describe MPI::Service do
   end
 
   describe '.find_profile with edipi', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
-    around do |example|
-      Settings.mvi.edipi_search = true
-      example.run
-      Settings.mvi.edipi_search = false
-    end
-
     before do
       expect(MPI::Messages::FindProfileMessageEdipi).to receive(:new).once.and_call_original
     end
@@ -346,14 +385,14 @@ describe MPI::Service do
   describe '.find_profile without icn' do
     context 'valid request' do
       before do
-        expect(MPI::Messages::FindProfileMessage).to receive(:new).once.and_call_original
+        expect(MPI::Messages::FindProfileMessageEdipi).to receive(:new).once.and_call_original
       end
 
       it 'calls the find_profile endpoint with a find candidate message' do
         VCR.use_cassette('mpi/find_candidate/valid') do
           profile = mvi_profile
           profile['search_token'] = 'WSDOC1908281447208280163390431'
-          expect(Raven).to receive(:tags_context).once.with(mvi_find_profile: 'user_attributes')
+          expect(Raven).to receive(:tags_context).once.with(mvi_find_profile: 'edipi')
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
           expect(response.profile).to have_deep_attributes(profile)
@@ -374,8 +413,8 @@ describe MPI::Service do
         it 'fetches historical icns when available', run_at: 'Thu, 29 Aug 2019 13:56:24 GMT' do
           allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
 
-          VCR.use_cassette('mpi/find_candidate/historical_icns_with_traits', VCR::MATCH_EVERYTHING) do
-            response = subject.find_profile(user, MPI::Constants::CORRELATION_WITH_ICN_HISTORY)
+          VCR.use_cassette('mpi/find_candidate/historical_icns_with_edipi', VCR::MATCH_EVERYTHING) do
+            response = subject.find_profile(user, search_type: MPI::Constants::CORRELATION_WITH_ICN_HISTORY)
             expect(response.status).to eq('OK')
             expect(response.profile['historical_icns']).to eq(
               %w[1008692852V724999 1008787550V443247 1008787485V229771 1008795715V162680
@@ -464,7 +503,7 @@ describe MPI::Service do
 
     context 'when no subject is returned in the response body' do
       before do
-        expect(MPI::Messages::FindProfileMessage).to receive(:new).once.and_call_original
+        expect(MPI::Messages::FindProfileMessageEdipi).to receive(:new).once.and_call_original
       end
 
       let(:user_hash) do
@@ -502,7 +541,7 @@ describe MPI::Service do
 
           VCR.use_cassette('mpi/find_candidate/historical_icns_user_not_found', VCR::MATCH_EVERYTHING) do
             expect(subject).not_to receive(:log_exception_to_sentry)
-            response = subject.find_profile(user, MPI::Constants::CORRELATION_WITH_ICN_HISTORY)
+            response = subject.find_profile(user, search_type: MPI::Constants::CORRELATION_WITH_ICN_HISTORY)
 
             record_not_found_404_expectations_for(response)
           end
@@ -522,7 +561,7 @@ describe MPI::Service do
 
     context 'when MVI returns 500 but VAAFI sends 200' do
       before do
-        expect(MPI::Messages::FindProfileMessage).to receive(:new).once.and_call_original
+        expect(MPI::Messages::FindProfileMessageEdipi).to receive(:new).once.and_call_original
       end
 
       %w[internal_server_error internal_server_error_2].each do |cassette|
@@ -542,7 +581,7 @@ describe MPI::Service do
 
     context 'when MVI multiple match failure response' do
       before do
-        expect(MPI::Messages::FindProfileMessage).to receive(:new).once.and_call_original
+        expect(MPI::Messages::FindProfileMessageEdipi).to receive(:new).once.and_call_original
       end
 
       it 'raises MPI::Errors::RecordNotFound', :aggregate_failures do

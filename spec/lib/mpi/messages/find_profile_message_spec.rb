@@ -78,13 +78,8 @@ describe MPI::Messages::FindProfileMessage do
       end
 
       context 'orchestration' do
-        around do |example|
-          Settings.mvi.vba_orchestration = true
-          example.run
-          Settings.mvi.vba_orchestration = nil
-        end
-
         it 'has orchestration related params when enabled' do
+          allow(Settings.mvi).to receive(:vba_orchestration).and_return(true)
           expect(xml).to eq_text_at_path(
             "#{parameter_list_path}/otherIDsScopingOrganization/semanticsText",
             'MVI.ORCHESTRATION'

@@ -456,7 +456,6 @@ mvi:
   client_key_path: /fake/client/key/path
   pii_logging: false
   vba_orchestration: false
-  edipi_search: false
 
 # Settings for eMIS
 # The certs used here can be obtained from the DevOps team. A different set is required for
@@ -933,7 +932,8 @@ flipper:
     - brandon.clapp@accenturefederal.com
     - matt.long@adhocteam.us # Matt Long - Staff Software Engineer - Ad Hoc
     - trent.mcdole@gcio.com
-
+    - simi.adebowale@adhocteam.us
+    
 bgs:
   application: ~
   client_station_id: ~

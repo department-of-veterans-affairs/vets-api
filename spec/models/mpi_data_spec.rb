@@ -134,6 +134,9 @@ describe MPIData, skip_mvi: true do
       it 'copies relevant results from orchestration search to fields for add person call' do
         allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response)
         allow_any_instance_of(MPI::Service).to receive(:add_person).and_return(add_response)
+
+        expect_any_instance_of(MPI::Service).to receive(:find_profile)
+          .with(instance_of(UserIdentity), orch_search: true)
         mvi.add_person
         expect(mvi.user_identity.to_h).to include(expected_user_identity.to_h)
       end
