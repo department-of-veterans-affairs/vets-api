@@ -71,6 +71,29 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
         expect(parsed['errors'][0]['detail']).to include('Informal conference rep will not fit on form')
       end
 
+      context 'returns 422 when birth date is not a date' do
+        it 'when given a string for the birth date ' do
+          headers = @minimum_required_headers
+          headers['X-VA-Birth-Date'] = 'apricot'
+
+          post(path, params: @data.to_json, headers: headers)
+          expect(response.status).to eq(422)
+          expect(parsed['errors']).to be_an Array
+        end
+      end
+
+      context 'returns 422 when decison date is not a date' do
+        it 'when given a string for the contestable issues decision date ' do
+          data = JSON.parse(@data)
+          data['included'][0]['attributes'].merge!('decisionDate' => 'banana')
+
+          post(path, params: data.to_json, headers: @minimum_required_headers)
+          expect(response.status).to eq(422)
+          expect(parsed['errors']).to be_an Array
+          expect(parsed['errors'][0]['detail']).to include(' did not match')
+        end
+      end
+
       it 'does not sunset in the next 30 days' do
         # Safety test. Will fail if the sunset_date is within 30 days. We got burned by this before,
         # so being heavy handed with it here.
