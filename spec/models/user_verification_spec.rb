@@ -9,6 +9,7 @@ RSpec.describe UserVerification, type: :model do
            logingov_uuid: logingov_uuid,
            dslogon_uuid: dslogon_uuid,
            mhv_uuid: mhv_uuid,
+           verified_at: verified_at,
            user_account_id: user_account&.id)
   end
 
@@ -17,6 +18,7 @@ RSpec.describe UserVerification, type: :model do
   let(:dslogon_uuid) { nil }
   let(:mhv_uuid) { nil }
   let(:user_account) { nil }
+  let(:verified_at) { nil }
 
   describe 'validations' do
     describe '#user_account' do
@@ -215,6 +217,40 @@ RSpec.describe UserVerification, type: :model do
             expect(subject).to eq(mhv_uuid)
           end
         end
+      end
+    end
+  end
+
+  describe '#verified?' do
+    subject { user_verification.verified? }
+
+    let(:idme_uuid) { 'some-idme-uuid' }
+
+    context 'when user_account is verified' do
+      let(:user_account) { create(:user_account) }
+
+      context 'and verified_at is defined' do
+        let(:verified_at) { Time.zone.now }
+
+        it 'returns true' do
+          expect(subject).to be true
+        end
+      end
+
+      context 'and verified_at is not defined' do
+        let(:verified_at) { nil }
+
+        it 'returns false' do
+          expect(subject).to be false
+        end
+      end
+    end
+
+    context 'when user_account is not verified' do
+      let(:user_account) { create(:user_account, icn: nil) }
+
+      it 'returns false' do
+        expect(subject).to be false
       end
     end
   end

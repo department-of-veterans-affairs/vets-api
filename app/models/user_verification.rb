@@ -6,6 +6,10 @@ class UserVerification < ApplicationRecord
 
   validate :single_credential_identifier
 
+  def verified?
+    verified_at.present? && user_account.verified?
+  end
+
   private
 
   # XOR operators between the four credential identifiers mean one, and only one, of these can be
