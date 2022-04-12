@@ -2,7 +2,6 @@
 
 require 'mpi/responses/find_profile_response'
 require 'mpi/service'
-require 'mpi/orch_search_service'
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
 require 'mpi/constants'
@@ -152,7 +151,7 @@ class MPIData < Common::RedisStore
   #
   # @return [MPI::Responses::AddPersonResponse] the response returned from MPI Add Person call
   def add_person
-    search_response = MPI::OrchSearchService.new.find_profile(user_identity)
+    search_response = MPI::Service.new.find_profile(user_identity, orch_search: true)
     if search_response.ok?
       @mvi_response = search_response
       update_user_identity_with_orch_search(search_response.profile)

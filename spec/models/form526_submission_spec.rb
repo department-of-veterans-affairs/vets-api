@@ -158,11 +158,6 @@ RSpec.describe Form526Submission do
   end
 
   describe '#submit_with_birls_id_that_hasnt_been_tried_yet!' do
-    before do
-      Sidekiq::Worker.clear_all
-      Settings.mvi.edipi_search = true
-    end
-
     context 'when it is all claims' do
       it 'queues an all claims job' do
         expect(subject.birls_id).to be_truthy
