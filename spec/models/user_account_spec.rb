@@ -40,4 +40,24 @@ RSpec.describe UserAccount, type: :model do
       end
     end
   end
+
+  describe '#verified?' do
+    subject { user_account.verified? }
+
+    context 'when icn is not defined' do
+      let(:icn) { nil }
+
+      it 'returns false' do
+        expect(subject).to be false
+      end
+    end
+
+    context 'when icn is defined' do
+      let(:icn) { 'some-icn-value' }
+
+      it 'returns true' do
+        expect(subject).to be true
+      end
+    end
+  end
 end
