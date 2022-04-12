@@ -10,7 +10,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
     "/services/appeals/v2/decision_reviews/#{path}"
   end
 
-  before(:all) do
+  before do
     @data = fixture_to_s 'valid_200996_minimum.json', version: 'v2'
     @data_extra = fixture_to_s 'valid_200996_extra.json', version: 'v2'
     @invalid_data = fixture_to_s 'invalid_200996.json', version: 'v2'
@@ -40,6 +40,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
       it 'creates an HLR and persists the data' do
         post(path, params: @data, headers: @minimum_required_headers)
         expect(parsed['data']['type']).to eq('higherLevelReview')
+        expect(parsed['data']['attributes']['formData']['data']['attributes']['benefitType']).to eq('lifeInsurance')
         expect(parsed['data']['attributes']['status']).to eq('pending')
       end
     end
@@ -88,6 +89,30 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         expect(error['title']).to eq 'Missing required fields'
         expect(error['code']).to eq '145'
         expect(error['meta']['missing_fields']).to match_array(['address'])
+      end
+    end
+
+    context 'returns 422 when birth date is not a date' do
+      it 'when given a string for the birth date ' do
+        headers = @minimum_required_headers
+        headers['X-VA-Birth-Date'] = 'apricot'
+
+        post(path, params: @data.to_json, headers: headers)
+        expect(response.status).to eq(422)
+        expect(parsed['errors']).to be_an Array
+      end
+    end
+
+    context 'returns 422 when decison date is not a date' do
+      it 'when given a string for the contestable issues decision date ' do
+        data = JSON.parse(@data)
+        data['included'][0]['attributes'].merge!('decisionDate' => 'banana')
+
+        post(path, params: data.to_json, headers: @minimum_required_headers)
+        expect(response.status).to eq(422)
+        expect(parsed['errors']).to be_an Array
+        expect(parsed['errors'][0]['title']).to include('Invalid pattern')
+        expect(parsed['errors'][0]['detail']).to include(' did not match the defined pattern')
       end
     end
 

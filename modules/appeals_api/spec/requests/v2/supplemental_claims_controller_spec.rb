@@ -85,6 +85,37 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       end
     end
 
+    context 'returns 422 when birth date is not a date' do
+      let(:error_content) do
+        { 'status' => 422, 'detail' => "'apricot' did not match the defined pattern" }
+      end
+
+      it 'when given a string for the birth date ' do
+        headers.merge!({ 'X-VA-Birth-Date' => 'apricot' })
+
+        post(path, params: data.to_json, headers: headers)
+        expect(response.status).to eq(422)
+        expect(parsed['errors']).to be_an Array
+      end
+    end
+
+    context 'returns 422 when decison date is not a date' do
+      let(:error_content) do
+        { 'status' => 422, 'detail' => "'banana' did not match the defined pattern" }
+      end
+
+      it 'when given a string for the contestable issues decision date ' do
+        sc_data = JSON.parse(data)
+        sc_data['included'][0]['attributes'].merge!('decisionDate' => 'banana')
+
+        post(path, params: sc_data.to_json, headers: headers)
+        expect(response.status).to eq(422)
+        expect(parsed['errors']).to be_an Array
+        expect(parsed['errors'][0]['title']).to include('Invalid')
+        expect(parsed['errors'][0]['detail']).to include("'banana' did not fit within the defined length limits")
+      end
+    end
+
     context 'form5103Acknowledged' do
       context 'when benefitType = compensation' do
         it 'fails if form5103Acknowledged = false' do

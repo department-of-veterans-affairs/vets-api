@@ -187,16 +187,6 @@ describe AppealsApi::HigherLevelReview, type: :model do
     end
     let(:api_version) { 'V1' }
 
-    context 'birth date isn\'t a date' do
-      let(:auth_headers) { default_auth_headers.merge 'X-VA-Birth-Date' => 'apricot' }
-
-      it 'using a birth date that isn\'t a date creates an invalid record' do
-        expect(higher_level_review.valid?).to be false
-        expect(higher_level_review.errors.to_a.length).to eq 1
-        expect(higher_level_review.errors.to_a.first.downcase).to include 'isn\'t a date'
-      end
-    end
-
     context 'birth date isn\'t in the past' do
       let(:auth_headers) { default_auth_headers.merge 'X-VA-Birth-Date' => (Time.zone.today + 2).to_s }
 
@@ -236,13 +226,6 @@ describe AppealsApi::HigherLevelReview, type: :model do
             }
           ]
         }
-      end
-
-      it 'bad decision dates will create an invalid record' do
-        expect(higher_level_review.valid?).to be false
-        expect(higher_level_review.errors.to_a.length).to eq 2
-        expect(higher_level_review.errors.to_a.first).to include 'decisionDate'
-        expect(higher_level_review.errors.to_a.second).to include 'decisionDate'
       end
     end
 
@@ -474,8 +457,8 @@ describe AppealsApi::HigherLevelReview, type: :model do
     describe '#pdf_output_prep' do
       it 'clears memoized values' do
         expected = 'Smartquotes: “”‘’'
-        higher_level_review.form_data['included'][0]['attributes']['issue'] = expected
         expect(higher_level_review.contestable_issues[0].text).to eq 'tinnitus'
+        higher_level_review.form_data['included'][0]['attributes']['issue'] = expected
         higher_level_review.pdf_output_prep
         expect(higher_level_review.contestable_issues[0].text).to eq expected
       end

@@ -35,9 +35,7 @@ module AppealsApi
     # the controller applies the JSON Schemas in modules/appeals_api/config/schemas/
     # further validations:
     validate(
-      :birth_date_is_a_date,
       :birth_date_is_in_the_past,
-      :contestable_issue_dates_are_valid_dates,
       if: proc { |a| a.form_data.present? }
     )
 
@@ -284,11 +282,6 @@ module AppealsApi
 
     def veterans_timezone
       veteran&.dig('timezone').presence&.strip
-    end
-
-    # validation (header)
-    def birth_date_is_a_date
-      add_error("Veteran birth date isn't a date: #{birth_date_string.inspect}") unless birth_date
     end
 
     # validation (header)

@@ -49,6 +49,36 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
       end
     end
 
+    context 'returns 422 when birth date is not a date' do
+      let(:error_content) do
+        { 'status' => 422, 'detail' => "'apricot' did not match the defined pattern" }
+      end
+
+      it 'when given a string for the birth date ' do
+        @headers.merge!('X-VA-Birth-Date' => 'apricot')
+        post(path, params: @data.to_json, headers: @headers)
+        expect(response.status).to eq(422)
+        expect(parsed['errors']).to be_an Array
+      end
+    end
+
+    context 'returns 422 when decison date is not a date' do
+      let(:error_content) do
+        { 'status' => 422, 'detail' => "'banana' did not fit within the defined length limits" }
+      end
+
+      it 'when given a string for the contestable issues decision date ' do
+        data = JSON.parse(@max_data)
+        data['included'][0]['attributes'].merge!('decisionDate' => 'banana')
+
+        post(path, params: data.to_json, headers: @headers)
+        expect(response.status).to eq(422)
+        expect(parsed['errors']).to be_an Array
+        expect(parsed['errors'][0]['title']).to include('Invalid')
+        expect(parsed['errors'][0]['detail']).to include("'banana' did not fit")
+      end
+    end
+
     it 'errors when included issue text is too long' do
       mod_data = fixture_as_json 'valid_10182.json', version: 'v2'
       mod_data['included'][0]['attributes']['issue'] = Faker::Lorem.characters(number: 500)
