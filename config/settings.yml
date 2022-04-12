@@ -932,7 +932,8 @@ flipper:
     - brandon.clapp@accenturefederal.com
     - matt.long@adhocteam.us # Matt Long - Staff Software Engineer - Ad Hoc
     - trent.mcdole@gcio.com
-
+    - simi.adebowale@adhocteam.us
+    
 bgs:
   application: ~
   client_station_id: ~
