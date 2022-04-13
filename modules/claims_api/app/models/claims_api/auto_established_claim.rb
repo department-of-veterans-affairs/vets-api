@@ -370,6 +370,9 @@ module ClaimsApi
 
       transformed_service_periods = received_service_periods.map do |period|
         name = period['serviceBranch']
+
+        ClaimsApi::Logger.log('526',
+                              detail: "'serviceBranch' value received is :: #{name}")
         period['serviceBranch'] = ClaimsApi::ServiceBranchMapper.new(name).value
 
         period
