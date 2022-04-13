@@ -23,13 +23,42 @@ paths:
     get:
       tags:
         - connect fitbit
-      summary: Redirects the Veteran to Fitbit in order to select which data to share with the VA.
+      summary: Configures and returns a URL that is used to redirect veteran to Fitbit.
       operationId: connect_fitbit
       security:
         - bearerAuth: []
       responses:
         "302":
           description: Redirects to Fitbit for consent selection
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
+  "/callback":
+    get:
+      tags:
+        - connect fitbit
+      summary: Redirects the Veteran to Fitbit in order to select which data to share with the VA.
+      operationId: callback_fitbit
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "302":
+          description: Redirects to connected devices page on vets website after consent selection
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
