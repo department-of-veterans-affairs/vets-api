@@ -164,12 +164,14 @@ class OpenidApplicationController < ApplicationController
   # If mismatched, revoke in Okta, set @session to nil, and return false
   # POA support (profile['icn'].nil?)
   def confirm_icn_match(profile)
-    # Temporarily log only to get an accurate count of this issue
-    # Okta::Service.new.clear_user_session(token.identifiers.okta_uid)
-    # @session = nil
-    log_message_to_sentry('Profile ICN mismatch detected.', :warn) unless
-      profile['icn'].nil? || @current_user&.icn == profile['icn']
-    true
+    if profile['icn'].nil? || @current_user&.icn == profile['icn']
+      true
+    else
+      log_message_to_sentry('Profile ICN mismatch detected.', :warn)
+      @session = nil
+      Okta::Service.new.clear_user_session(token.identifiers.okta_uid)
+      false
+    end
   end
 
   def establish_ssoi_session(profile)
