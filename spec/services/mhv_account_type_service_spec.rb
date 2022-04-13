@@ -20,15 +20,10 @@ RSpec.describe MHVAccountTypeService do
     )
   end
 
-  before { Settings.sentry.dsn = 'asdf' }
-
-  after { Settings.sentry.dsn = nil }
-
   context 'no mhv_correlation_id' do
     let(:user) { instance_double('User', mhv_correlation_id: nil) }
 
     it '#mhv_account_type returns nil' do
-      expect(Raven).not_to receive(:capture_message)
       expect(subject.mhv_account_type).to be_nil
     end
   end
@@ -106,37 +101,29 @@ RSpec.describe MHVAccountTypeService do
         mhv_acct_type: user.identity.mhv_account_type
       }
     end
-    let(:tags_context) { { sign_in_method: { service_name: 'myhealthevet' } } }
 
     context 'error fetching eligible data classes' do
       let(:error_message) { described_class::MHV_DOWN_MESSAGE }
+      let(:error_message_context) { { error_message: unknown_error }.merge(extra_context) }
+      let(:full_error_message) { "#{error_message}, #{error_message_context}" }
       let(:eligible_data_classes) { nil }
 
       it '#mhv_account_type returns Unknown' do
         VCR.use_cassette('mhv_account_type_service/error') do
-          expect(Raven).to receive(:extra_context).with({ error_message: unknown_error }.merge(extra_context))
-          expect(Raven).to receive(:tags_context).once.with(tags_context)
-          expect(Raven).to receive(:tags_context).once.with(
-            error: 'mhv_session'
-          )
-          expect(Raven).to receive(:capture_message).with(error_message, level: level)
+          expect(Rails.logger).to receive(:warn).with(full_error_message)
           expect(subject.mhv_account_type).to eq('Error')
         end
       end
     end
 
-    context 'inconsitent data returned by MHV' do
+    context 'inconsistent data returned by MHV' do
       let(:error_message) { described_class::UNEXPECTED_DATA_CLASS_COUNT_MESSAGE }
+      let(:full_error_message) { "#{error_message}, #{extra_context}" }
       let(:eligible_data_classes) { %w[seiactivityjournal seiallergies] }
 
       it '#mhv_account_type returns Unknown' do
         VCR.use_cassette('mhv_account_type_service/unknown') do
-          expect(Raven).to receive(:extra_context).with(extra_context)
-          expect(Raven).to receive(:tags_context).once.with(tags_context)
-          expect(Raven).to receive(:tags_context).once.with(
-            error: 'mhv_session'
-          )
-          expect(Raven).to receive(:capture_message).with(error_message, level: level)
+          expect(Rails.logger).to receive(:warn).with(full_error_message)
           expect(subject.mhv_account_type).to eq('Unknown')
         end
       end
@@ -144,17 +131,14 @@ RSpec.describe MHVAccountTypeService do
 
     context 'error establishing session due to unknown user' do
       let(:error_message) { described_class::MHV_DOWN_MESSAGE }
+      let(:error_message_context) { { error_message: unknown_error }.merge(extra_context) }
+      let(:full_error_message) { "#{error_message}, #{error_message_context}" }
       let(:eligible_data_classes) { nil }
       let(:mhv_correlation_id) { '5052774' }
 
       it '#mhv_account_type returns Unknown' do
         VCR.use_cassette('mhv_account_type_service/error_empty_body') do
-          expect(Raven).to receive(:extra_context).with({ error_message: unknown_error }.merge(extra_context))
-          expect(Raven).to receive(:tags_context).once.with(tags_context)
-          expect(Raven).to receive(:tags_context).once.with(
-            error: 'mhv_session'
-          )
-          expect(Raven).to receive(:capture_message).with(error_message, level: level)
+          expect(Rails.logger).to receive(:warn).with(full_error_message)
           expect(subject.mhv_account_type).to eq('Error')
         end
       end
