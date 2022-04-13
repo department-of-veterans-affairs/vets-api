@@ -17,7 +17,8 @@ module RapidReadyForDecision
     end
 
     def release_pdf?(_form526_submission)
-      false
+      disability_struct = RapidReadyForDecision::Constants::DISABILITIES[:asthma]
+      Flipper.enabled?("rrd_#{disability_struct[:flipper_name].downcase}_release_pdf".to_sym)
     end
 
     private
