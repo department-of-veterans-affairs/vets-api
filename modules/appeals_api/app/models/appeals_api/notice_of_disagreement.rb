@@ -36,7 +36,7 @@ module AppealsApi
     encrypts :auth_headers, :form_data, key: :kms_key, **lockbox_options
 
     validate :validate_hearing_type_selection, if: :pii_present?
-    validate :validate_extension_request, if: :version_2?
+    validate :validate_requesting_extension, if: :version_2?
 
     has_many :evidence_submissions, as: :supportable, dependent: :destroy
     has_many :status_updates, as: :statusable, dependent: :destroy
@@ -72,8 +72,8 @@ module AppealsApi
       signing_appellant.timezone ? created_at.in_time_zone(signing_appellant.timezone) : created_at.utc
     end
 
-    def extension_request?
-      data_attributes['extensionRequest'] && extension_reason.present?
+    def requesting_extension?
+      data_attributes['requestingExtension'] && extension_reason.present?
     end
 
     def extension_reason
@@ -269,16 +269,16 @@ module AppealsApi
     end
 
     # v2 specific validation
-    def validate_extension_request
-      # json schema will have already validated that if extensionRequest true then extensionReason required
-      return if data_attributes&.dig('extensionRequest') == true
+    def validate_requesting_extension
+      # json schema will have already validated that if requestingExtension true then extensionReason required
+      return if data_attributes&.dig('requestingExtension') == true
 
-      source = '/data/attributes/extensionRequest'
+      source = '/data/attributes/requestingExtension'
       data = I18n.t('common.exceptions.validation_errors')
 
       if data_attributes&.dig('extensionReason').present?
         errors.add source,
-                   data.merge(detail: I18n.t('appeals_api.errors.nod_extension_request_must_be_true'))
+                   data.merge(detail: I18n.t('appeals_api.errors.nod_requesting_extension_must_be_true'))
       end
     end
 

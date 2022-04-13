@@ -56,7 +56,7 @@ module AppealsApi
           'F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[6]'
         end
 
-        def extension_request
+        def requesting_extension
           'F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[7]'
         end
 

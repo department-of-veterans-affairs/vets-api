@@ -12,7 +12,7 @@
         "timezone": "America/Chicago"
       },
       "boardReviewOption": "evidence_submission",
-      "extensionRequest": false,
+      "requestingExtension": false,
       "appealingVhaDenial": false
     }
   },

@@ -80,10 +80,10 @@ module AppealsApi
               end
             end
 
-            describe '#extension_request?' do
+            describe '#requesting_extension?' do
               it do
-                expect(notice_of_disagreement).to receive(:extension_request?)
-                form_data.extension_request?
+                expect(notice_of_disagreement).to receive(:requesting_extension?)
+                form_data.requesting_extension?
               end
             end
 

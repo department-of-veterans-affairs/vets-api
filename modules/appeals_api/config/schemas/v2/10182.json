@@ -118,23 +118,23 @@
                 },
                 "boardReviewOption": { "type": "string", "enum": [ "direct_review", "evidence_submission", "hearing" ] },
                 "hearingTypePreference": { "type": "string", "enum": [ "virtual_hearing", "video_conference", "central_office" ] },
-                "extensionRequest": {
+                "requestingExtension": {
                   "type": "boolean",
-                  "description": "Request for an extension of time to file. An extensionReason must be provided if extensionRequest is true."
+                  "description": "Set to true to request a filing extension. An extensionReason must be provided if true."
                  },
                 "extensionReason": {
                   "type": "string",
                   "minLength": 1,
                   "maxLength": 2300,
-                  "description": "Explanation why you believe there is good cause for the extension. If an extensionReason is provided, extensionRequest must be true."
+                  "description": "Explanation why you believe there is good cause for the extension. If an extensionReason is provided, requestingExtension must be true."
                 },
                 "appealingVhaDenial": {
                   "type": "boolean",
-                  "description": "If you are appealing a denial of benefits by the Veterans Health Administration (VHA)"
+                  "description": "Set to true if you are appealing a denial of benefits by the Veterans Health Administration (VHA)."
                 }
               },
               "required": [ "boardReviewOption" ],
-              "if": { "properties": { "extensionRequest": { "const": true } } },
+              "if": { "properties": { "requestingExtension": { "const": true } } },
               "then": { "required": [ "extensionReason" ] }
             }
           },

@@ -8,7 +8,7 @@ module AppealsApi::PdfConstruction::NoticeOfDisagreement::V2::Pages
     end
 
     def build!
-      return pdf unless form_data.extension_request?
+      return pdf unless form_data.requesting_extension?
 
       pdf.start_new_page
       pdf.text(extension_text, inline_format: true)

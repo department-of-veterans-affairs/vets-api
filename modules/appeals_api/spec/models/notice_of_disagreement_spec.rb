@@ -281,8 +281,8 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       end
     end
 
-    describe '#extension_request?' do
-      it { expect(extra_notice_of_disagreement_v2.extension_request?).to eq true }
+    describe '#requesting_extension?' do
+      it { expect(extra_notice_of_disagreement_v2.requesting_extension?).to eq true }
     end
 
     describe '#extension_reason' do
@@ -293,7 +293,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       it { expect(extra_notice_of_disagreement_v2.appealing_vha_denial?).to eq true }
     end
 
-    describe '#validate_extension_request' do
+    describe '#validate_requesting_extension' do
       let(:auth_headers) { fixture_as_json 'valid_10182_headers.json', version: 'v2' }
       let(:form_data) { fixture_as_json 'valid_10182_minimum.json', version: 'v2' }
       let(:invalid_notice_of_disagreement) do
@@ -309,9 +309,9 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
         it 'throws an error' do
           expect(invalid_notice_of_disagreement.errors.count).to be 1
-          expect(invalid_notice_of_disagreement.errors.first.attribute).to eq(:'/data/attributes/extensionRequest')
+          expect(invalid_notice_of_disagreement.errors.first.attribute).to eq(:'/data/attributes/requestingExtension')
           expect(invalid_notice_of_disagreement.errors.first.options[:detail]).to eq(
-            "If '/data/attributes/extensionReason' present, then '/data/attributes/extensionRequest' must equal true"
+            "If '/data/attributes/extensionReason' present, then '/data/attributes/requestingExtension' must equal true"
           )
         end
       end

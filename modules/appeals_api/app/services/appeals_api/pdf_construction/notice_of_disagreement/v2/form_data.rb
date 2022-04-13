@@ -8,8 +8,8 @@ module AppealsApi
           @notice_of_disagreement = notice_of_disagreement
         end
 
-        delegate :appellant_local_time, :board_review_value, :contestable_issues, :extension_request?,
-                 :representative, :hearing_type_preference, :extension_request?, :extension_reason,
+        delegate :appellant_local_time, :board_review_value, :contestable_issues,
+                 :representative, :hearing_type_preference, :requesting_extension?, :extension_reason,
                  :appealing_vha_denial?, :signing_appellant, :veteran, :claimant,
                  to: :notice_of_disagreement
 
@@ -71,8 +71,8 @@ module AppealsApi
           hearing_type_preference == 'virtual_hearing' ? 1 : 'Off'
         end
 
-        def extension_request
-          extension_request? ? 1 : 'Off'
+        def requesting_extension
+          requesting_extension? ? 1 : 'Off'
         end
 
         def appealing_vha_denial
@@ -80,7 +80,7 @@ module AppealsApi
         end
 
         def additional_pages
-          contestable_issues.size > 5 || extension_request? || long_preferred_email? || long_rep_name? ? 1 : 'Off'
+          contestable_issues.size > 5 || requesting_extension? || long_preferred_email? || long_rep_name? ? 1 : 'Off'
         end
 
         def rep_name

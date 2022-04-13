@@ -24,7 +24,7 @@ module AppealsApi
             form_fields.central_office_hearing => form_data.central_office_hearing,
             form_fields.video_conference_hearing => form_data.video_conference_hearing,
             form_fields.virtual_tele_hearing => form_data.virtual_tele_hearing,
-            form_fields.extension_request => form_data.extension_request,
+            form_fields.requesting_extension => form_data.requesting_extension,
             form_fields.appealing_vha_denial => form_data.appealing_vha_denial,
             form_fields.additional_issues => form_data.additional_pages,
             form_fields.date_signed => form_data.date_signed
@@ -156,7 +156,7 @@ module AppealsApi
         # rubocop:disable Layout/LineLength
 
         def additional_pages?
-          form_data.contestable_issues.count > 5 || form_data.long_preferred_email? || form_data.extension_request? || form_data.long_rep_name?
+          form_data.contestable_issues.count > 5 || form_data.long_preferred_email? || form_data.requesting_extension? || form_data.long_rep_name?
         end
         # rubocop:enable Layout/LineLength
 

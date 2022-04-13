@@ -47,7 +47,7 @@
       },
       "boardReviewOption": "hearing",
       "hearingTypePreference": "central_office",
-      "extensionRequest": true,
+      "requestingExtension": true,
       "extensionReason": "good cause substantive reason",
       "appealingVhaDenial": true
     }
