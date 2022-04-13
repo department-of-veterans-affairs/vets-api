@@ -50,17 +50,18 @@ RSpec.describe Identity::AccountCreator, type: :model do
                  icn: account_icn,
                  sec_id: account_sec_id)
         end
-        let(:expected_sentry_message) { 'multiple Account records with matching ids' }
+        let(:expected_log_message) do
+          "[Identity::AccountCreator] Multiple Account Records with matching ids: #{account_ids}"
+        end
+        let(:account_ids) { [account_idme, account_logingov].map(&:id) }
         let(:expected_sentry_message_data) { "Account IDs: #{[account_idme, account_logingov].map(&:id)}" }
 
         it 'does not create an account' do
           expect { subject }.not_to change(Account, :count)
         end
 
-        it 'logs a message to sentry' do
-          expect(account_creator_instance).to receive(:log_message_to_sentry).with(expected_sentry_message,
-                                                                                   'warning',
-                                                                                   expected_sentry_message_data)
+        it 'logs a multiple account message to rails logger' do
+          expect(Rails.logger).to receive(:warn).with(expected_log_message)
           account_creator_instance.call
         end
 

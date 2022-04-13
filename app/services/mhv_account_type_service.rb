@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'bb/client'
-require 'sentry_logging'
 
 ##
 # Models logic pertaining to the verification and logging of MHV accounts
@@ -9,7 +8,6 @@ require 'sentry_logging'
 # @param user [User] the user object
 #
 class MHVAccountTypeService
-  include SentryLogging
   ELIGIBLE_DATA_CLASS_COUNT_TO_ACCOUNT_LEVEL = {
     32 => 'Premium',
     18 => 'Advanced',
@@ -43,7 +41,7 @@ class MHVAccountTypeService
       ELIGIBLE_DATA_CLASS_COUNT_TO_ACCOUNT_LEVEL.fetch(eligible_data_classes.size)
     end
   rescue KeyError
-    log_account_type_heuristic_once(UNEXPECTED_DATA_CLASS_COUNT_MESSAGE)
+    log_account_type_heuristic(UNEXPECTED_DATA_CLASS_COUNT_MESSAGE)
     DEFAULT_ACCOUNT_LEVEL
   end
 
@@ -73,7 +71,7 @@ class MHVAccountTypeService
       bb_client.get_eligible_data_classes.members.map(&:name)
     end
   rescue => e
-    log_account_type_heuristic_once(MHV_DOWN_MESSAGE, error_message: e.message)
+    log_account_type_heuristic(MHV_DOWN_MESSAGE, error_message: e.message)
     nil
   end
 
@@ -83,9 +81,7 @@ class MHVAccountTypeService
     namespace.get(cache_key)
   end
 
-  def log_account_type_heuristic_once(message, extra_context = {})
-    return if @logged
-
+  def log_account_type_heuristic(message, extra_context = {})
     extra_context.merge!(
       uuid: user.uuid,
       mhv_correlation_id: user.mhv_correlation_id,
@@ -94,8 +90,6 @@ class MHVAccountTypeService
       va_patient: user.va_patient?,
       mhv_acct_type: user.identity.mhv_account_type
     )
-    tags = { sign_in_method: user.identity.sign_in }
-    log_message_to_sentry(message, :info, extra_context, tags)
-    @logged = true
+    Rails.logger.warn("#{message}, #{extra_context}")
   end
 end

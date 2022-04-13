@@ -35,9 +35,7 @@ module Identity
     end
 
     def find_matching_account(accounts)
-      log_message_to_sentry('multiple Account records with matching ids',
-                            'warning',
-                            "Account IDs: #{accounts.map(&:id)}")
+      Rails.logger.warn("[Identity::AccountCreator] Multiple Account Records with matching ids: #{accounts.map(&:id)}")
       match_account_for_identifier(accounts, :idme_uuid) ||
         match_account_for_identifier(accounts, :logingov_uuid) ||
         match_account_for_identifier(accounts, :sec_id) ||
