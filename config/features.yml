@@ -447,6 +447,9 @@ features:
     actor_type: user
     description: Show/hide the fax number UI on the profile page
     enable_in_development: true
+  profile_show_demographics:
+    actor_type: user
+    description: Used to show demographic data (preferred name and gender identity) for the profile    
   profile_show_gender:
     actor_type: user
     description: Show/hide the gender field UI on the profile page
