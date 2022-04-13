@@ -898,6 +898,7 @@ flipper:
     - riley.anderson@oddball.io
     - ryan.leahy@adhocteam.us # Ryan Leahy - Adhoc
     - ryan.thurlwell@va.gov
+    - sallymaki@navapbc.com
     - samara.strauss@va.gov
     - sarah.knopp@agile6.com # Sarah Knopp (Agile 6), Scrum Master
     - scott.james@gcio.com
@@ -934,7 +935,7 @@ flipper:
     - trent.mcdole@gcio.com
     - simi.adebowale@adhocteam.us
     - tom.harrison@adhocteam.us
-    
+
 bgs:
   application: ~
   client_station_id: ~
