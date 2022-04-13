@@ -14,6 +14,9 @@ module BGS
     def initialize_service
       external_key = @user.common_name || @user.email
 
+      # temp logging to figure out why mobile is seeing failures from external_key being nil
+      Rails.logger.info('BGS External Key Nil', @user.common_name, @user.email) if external_key.blank?
+
       if external_key.length > 39
         external_key = external_key[0, 39]
 
