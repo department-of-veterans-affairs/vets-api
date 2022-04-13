@@ -4,7 +4,8 @@ module RapidReadyForDecision
   class FastTrackPdfGenerator
     PDF_MARKUP_SETTINGS = {
       text: {
-        size: 11
+        size: 11,
+        font: 'SourceSansPro'
       },
       heading4: {
         margin_top: 12
@@ -24,13 +25,27 @@ module RapidReadyForDecision
       [full_name, patient_info[:suffix]].reject(&:blank?).join ', '
     end
 
+    # TODO: move this into the data class
+    def self.flag_with_keyword(keywords, medication_struct)
+      keywords.any? { |keyword| medication_struct.to_s.downcase.include?(keyword) }
+    end
+
     def initialize(patient_info, assessed_data, disability_type)
       @pdf = Prawn::Document.new
       @patient_info = patient_info
       @assessed_data = assessed_data
       @date = Time.now.getlocal
-      @disability_type = disability_type
+      @disability_metadata = RapidReadyForDecision::Constants::DISABILITIES[disability_type]
+      @disability_type = @disability_metadata[:label]
       @pdf.markup_options = PDF_MARKUP_SETTINGS
+      @pdf.font_families.update('SourceSansPro' => {
+                                  normal: Rails.root.join('public', 'fonts', 'sourcesanspro-regular-webfont.ttf'),
+                                  italic: Rails.root.join('public', 'fonts', 'sourcesanspro-italic-webfont.ttf'),
+                                  bold: Rails.root.join('public', 'fonts', 'sourcesanspro-bold-webfont.ttf')
+                                })
+      @pdf.font_families.update('DejaVuSans' => {
+                                  normal: Rails.root.join('public', 'fonts', 'deja-vu-sans.ttf')
+                                })
     end
 
     def generate

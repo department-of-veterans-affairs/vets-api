@@ -11,8 +11,16 @@
 
 <% if @assessed_data[:medications].present? %>
   <% @assessed_data[:medications].each do |medication| %>
+    <% has_keyword = @disability_metadata[:keywords] ? RapidReadyForDecision::FastTrackPdfGenerator.flag_with_keyword(@disability_metadata[:keywords], medication) : false %>
     <p>
-      <b><%= medication['description'] %></b> <br />
+      <% if has_keyword %>
+        <font name="DejaVuSans">&#9654; </font>
+        <b><%= medication['description'] %></b>
+        <font name="DejaVuSans"> &#9664;</font>
+      <% else %>
+        <b><%= medication['description'] %></b>
+      <% end %>
+      <br />
       Prescribed on: <%= medication['authoredOn'][0, 10].to_date.strftime('%m/%d/%Y') %> <br />
       <% if medication['dosageInstructions'].present? %>
         Dosage instructions: <%= medication['dosageInstructions'].join('; ') %><br />

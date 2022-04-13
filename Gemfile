@@ -109,7 +109,7 @@ gem 'pg_query'
 gem 'pg_search'
 gem 'pkce_challenge'
 gem 'prawn'
-gem 'prawn-markup'
+gem 'prawn-markup', github: 'puzzle/prawn-markup', ref: 'f7956009df696c9d126843d2d35ff270b9c031cd' # TODO: Remove ref once a new release has been made.
 gem 'prawn-table'
 gem 'puma'
 gem 'puma-plugin-statsd'

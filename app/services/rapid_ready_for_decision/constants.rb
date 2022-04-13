@@ -14,7 +14,33 @@ module RapidReadyForDecision
         code: 6602,
         label: 'asthma',
         flipper_name: 'asthma',
-        sidekiq_job: 'RapidReadyForDecision::Form526AsthmaJob'
+        sidekiq_job: 'RapidReadyForDecision::Form526AsthmaJob',
+        keywords: %w[
+          Aerochamber
+          Albuterol
+          Beclomethasone
+          Benralizumab
+          Budesonide
+          Ciclesonide
+          Fluticasone
+          Levalbuterol
+          Mepolizumab
+          Methylprednisolone
+          Mometasone
+          Montelukast
+          Omalizumab
+          Prednisone
+          Reslizumab
+          Salmeterol
+          Theophylline
+          Zafirlukast
+          Zileuton
+          Asthma
+          Breath
+          Inhal
+          Puff
+          SOB
+        ].map(&:downcase).freeze
       }
     }.freeze
 
