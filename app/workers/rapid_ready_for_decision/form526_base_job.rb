@@ -6,6 +6,8 @@ require 'sidekiq/form526_job_status_tracker/metrics'
 
 module RapidReadyForDecision
   class Form526BaseJob
+    STATSD_KEY_PREFIX = 'worker.fast_track.form526_base_job'
+
     include Sidekiq::Worker
     include Sidekiq::Form526JobStatusTracker::JobTracker
 
@@ -14,10 +16,15 @@ module RapidReadyForDecision
     # https://github.com/mperham/sidekiq/issues/2168#issuecomment-72079636
     sidekiq_options retry: 8
 
+    class NoRrdProcessorForClaim < StandardError; end
+
     def perform(form526_submission_id)
       form526_submission = Form526Submission.find(form526_submission_id)
 
       begin
+        RapidReadyForDecision::Constants.processor_class(form526_submission)
+        # raise NoRrdProcessorForClaim unless processor_class
+
         with_tracking(self.class.name, form526_submission.saved_claim_id, form526_submission_id) do
           return if form526_submission.pending_eps?
 

@@ -25,7 +25,7 @@ module RapidReadyForDecision
     RRD_CODE = 'RRD'
 
     def hypertension_increase?(disability)
-      RapidReadyForDecision::ProcessorSelector.disability_increase?(disability, HYPERTENSION_DISABILITY)
+      RapidReadyForDecision::SidekiqJobSelector.disability_increase?(disability, HYPERTENSION_DISABILITY)
     end
 
     # Must return an array containing special string codes for EVSS

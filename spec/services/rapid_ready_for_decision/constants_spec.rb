@@ -6,15 +6,27 @@ RSpec.describe RapidReadyForDecision::Constants do
   let(:form526_submission) { create(:form526_submission, :hypertension_claim_for_increase) }
 
   describe 'sidekiq_job and backup_sidekiq_job' do
+    subject { RapidReadyForDecision::Constants::DISABILITIES }
+
+    it 'all structs should have values for required keys' do
+      expect(subject.values.pluck(:code).any?(nil)).to eq false
+      expect(subject.values.pluck(:label).any?(nil)).to eq false
+      expect(subject.values.pluck(:sidekiq_job).any?(nil)).to eq false
+      expect(subject.values.pluck(:processor_class).any?(nil)).to eq false
+    end
+
     it 'resolves all sidekiq_job values to classes' do
-      classes = RapidReadyForDecision::Constants::DISABILITIES.values.pluck(:sidekiq_job).map(&:constantize)
-      expect(classes.any?(&:nil?)).to eq false
+      expect { subject.values.pluck(:sidekiq_job).map(&:constantize) }.not_to raise_error
     end
 
     it 'resolves all backup_sidekiq_job values to classes' do
-      classes = RapidReadyForDecision::Constants::DISABILITIES.values.pluck(:backup_sidekiq_job)
-                                                              .compact.map(&:constantize)
-      expect(classes.any?(&:nil?)).to eq false
+      expect { subject.values.pluck(:backup_sidekiq_job).compact.map(&:constantize) }.not_to raise_error
+    end
+
+    it 'resolves all processor_class values to classes' do
+      expect do
+        subject.values.pluck(:processor_class).map(&:constantize)
+      end.not_to raise_error
     end
   end
 

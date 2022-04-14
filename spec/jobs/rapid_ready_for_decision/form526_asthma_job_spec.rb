@@ -11,7 +11,7 @@ RSpec.describe RapidReadyForDecision::Form526AsthmaJob, type: :worker do
   end
 
   let(:user) { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
-  let(:submission) { create(:form526_submission, user: user) }
+  let(:submission) { create(:form526_submission, :asthma_claim_for_increase, user: user) }
 
   describe '#perform', :vcr do
     subject { RapidReadyForDecision::Form526AsthmaJob.perform_async(submission.id) }

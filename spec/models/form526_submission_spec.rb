@@ -76,7 +76,7 @@ RSpec.describe Form526Submission do
           it 'calls start_rrd_job with the backup job class if use_backup_job=true' do
             expect(form_for_hypertension).to receive(:start_rrd_job).with(backup_sidekiq_job)
             expect(form_for_hypertension).to receive(:send_rrd_alert_email)
-              .with('RRD Processor Selector alert - backup processor',
+              .with('RRD Processor Selector alert - backup job',
                     "Restarting with backup #{backup_sidekiq_job} for submission #{form_for_hypertension.id}.")
             sidekiq_submission.rrd_processor_failed_handler('ignored Sidekiq::Batch::Status',
                                                             'submission_id' => form_for_hypertension.id,
@@ -92,7 +92,7 @@ RSpec.describe Form526Submission do
 
           context 'when an error is raised within rrd_processor_failed_handler' do
             before do
-              allow_any_instance_of(RapidReadyForDecision::ProcessorSelector)
+              allow_any_instance_of(RapidReadyForDecision::SidekiqJobSelector)
                 .to receive(:sidekiq_job).and_raise('Any error')
             end
 

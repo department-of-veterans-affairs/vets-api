@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module RapidReadyForDecision
-  class ProcessorSelector
+  class SidekiqJobSelector
     def initialize(form526_submission)
       @form526_submission = form526_submission
     end
@@ -49,7 +49,7 @@ module RapidReadyForDecision
 
     # @return [Boolean] Is the specified disability RRD-enabled according to Flipper settings
     def rrd_enabled_disability?(disability_struct)
-      Flipper.enabled?("rrd_#{disability_struct[:flipper_name].downcase}_compensation".to_sym)
+      Flipper.enabled?("rrd_#{disability_struct[:flipper_name]&.downcase}_compensation".to_sym)
     end
 
     def form_disabilities

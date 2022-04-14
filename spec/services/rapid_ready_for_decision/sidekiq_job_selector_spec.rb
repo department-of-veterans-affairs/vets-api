@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe RapidReadyForDecision::ProcessorSelector do
+RSpec.describe RapidReadyForDecision::SidekiqJobSelector do
   subject { described_class.new(submission) }
 
   let(:submission) { build(:form526_submission) }

@@ -16,7 +16,7 @@ RSpec.describe RapidReadyForDecision::Form526HypertensionJob, type: :worker do
   end
   let(:saved_claim) { FactoryBot.create(:va526ez) }
   let(:submission) do
-    create(:form526_submission, :with_uploads,
+    create(:form526_submission, :with_uploads, :hypertension_claim_for_increase,
            user_uuid: user.uuid,
            auth_headers_json: auth_headers.to_json,
            saved_claim_id: saved_claim.id,
@@ -134,7 +134,7 @@ RSpec.describe RapidReadyForDecision::Form526HypertensionJob, type: :worker do
       let(:submission_without_account_or_edpid) do
         auth_headers.delete('va_eauth_dodedipnid')
 
-        create(:form526_submission,
+        create(:form526_submission, :hypertension_claim_for_increase,
                user_uuid: 'nonsense',
                auth_headers_json: auth_headers.to_json,
                saved_claim_id: saved_claim.id,
@@ -154,7 +154,7 @@ RSpec.describe RapidReadyForDecision::Form526HypertensionJob, type: :worker do
 
     context 'when the user uuid is not associated with an Account AND the edipi auth header is present' do
       let(:submission_without_account) do
-        create(:form526_submission, :with_uploads,
+        create(:form526_submission, :with_uploads, :hypertension_claim_for_increase,
                user_uuid: 'inconceivable',
                auth_headers_json: auth_headers.to_json,
                saved_claim_id: saved_claim.id,
