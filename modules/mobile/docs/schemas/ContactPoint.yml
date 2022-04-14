@@ -1,0 +1,11 @@
+type: object
+properties:
+  type:
+    type: string
+    enum:
+      - email
+      - phone
+    nullable: false
+  value:
+    type: string
+    nullable: false

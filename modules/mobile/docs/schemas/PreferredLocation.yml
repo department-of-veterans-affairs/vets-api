@@ -1,0 +1,9 @@
+type: object
+properties:
+  city:
+    maxLength: 64
+    type: string
+  state:
+    maxLength: 32
+    type: string
+description: The location that the veteran requested the appointment to be scheduled in. This value is only relevant for community care appointment requests.
