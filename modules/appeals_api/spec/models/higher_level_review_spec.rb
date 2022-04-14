@@ -187,10 +187,10 @@ describe AppealsApi::HigherLevelReview, type: :model do
     end
     let(:api_version) { 'V1' }
 
-    context 'birth date isn\'t in the past' do
+    context 'when a vteran birth date is in the future' do
       let(:auth_headers) { default_auth_headers.merge 'X-VA-Birth-Date' => (Time.zone.today + 2).to_s }
 
-      it 'using a birth date /not/ in the past creates an invalid record' do
+      it 'creates an invalid record' do
         expect(higher_level_review.valid?).to be false
         expect(higher_level_review.errors.to_a.length).to eq 1
         expect(higher_level_review.errors.to_a.first.downcase).to include 'veteran'
@@ -234,7 +234,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
       let(:default_auth_headers) { fixture_as_json 'valid_200996_headers_extra.json', version: 'v2' }
       let(:default_form_data) { fixture_as_json 'valid_200996_extra.json', version: 'v2' }
 
-      context 'claimant birth date is in the future' do
+      context 'when a claimant birth date is in the future' do
         let(:auth_headers) { default_auth_headers.merge 'X-VA-Claimant-Birth-Date' => (Time.zone.today + 2).to_s }
 
         it 'creates an invalid record' do

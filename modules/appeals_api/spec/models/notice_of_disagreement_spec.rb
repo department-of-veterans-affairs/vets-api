@@ -86,6 +86,17 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     end
   end
 
+  context 'when a veteran birth date is in the future' do
+    it 'creates an invalid record' do
+      auth_headers['X-VA-Birth-Date'] = (Time.zone.today + 2).to_s
+
+      expect(notice_of_disagreement.valid?).to be false
+      expect(notice_of_disagreement.errors.to_a.length).to eq 1
+      expect(notice_of_disagreement.errors.to_a.first.downcase).to include 'veteran'
+      expect(notice_of_disagreement.errors.to_a.first.downcase).to include 'past'
+    end
+  end
+
   describe '#veteran_first_name' do
     it { expect(notice_of_disagreement.veteran_first_name).to eq 'Jäñe' }
   end
@@ -260,6 +271,19 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       subject { extra_notice_of_disagreement_v2.claimant }
 
       it { expect(subject.class).to eq AppealsApi::Appellant }
+    end
+
+    context 'when a claimant birth date is in the future' do
+      let(:notice_of_disagreement_v2_nvc) { build(:extra_notice_of_disagreement_v2, :board_review_hearing) }
+
+      it 'creates an invalid record' do
+        notice_of_disagreement_v2_nvc.auth_headers['X-VA-Claimant-Birth-Date'] = (Time.zone.today + 2).to_s
+
+        expect(notice_of_disagreement_v2_nvc.valid?).to be false
+        expect(notice_of_disagreement_v2_nvc.errors.to_a.length).to eq 1
+        expect(notice_of_disagreement_v2_nvc.errors.to_a.first.downcase).to include 'claimant'
+        expect(notice_of_disagreement_v2_nvc.errors.to_a.first.downcase).to include 'past'
+      end
     end
 
     describe '#signing_appellant' do

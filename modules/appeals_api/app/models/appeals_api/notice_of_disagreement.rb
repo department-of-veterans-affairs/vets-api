@@ -20,6 +20,10 @@ module AppealsApi
       )
     }
 
+    def self.past?(date)
+      date < Time.zone.today
+    end
+
     def self.load_json_schema(filename)
       MultiJson.load File.read Rails.root.join('modules', 'appeals_api', 'config', 'schemas', "#{filename}.json")
     end
@@ -34,6 +38,13 @@ module AppealsApi
     serialize :form_data, JsonMarshal::Marshaller
     has_kms_key
     encrypts :auth_headers, :form_data, key: :kms_key, **lockbox_options
+
+    # the controller applies the JSON Schemas in modules/appeals_api/config/schemas/
+    # further validations:
+    validate(
+      :birth_date_is_in_the_past,
+      :claimant_birth_date_is_in_the_past
+    )
 
     validate :validate_hearing_type_selection, if: :pii_present?
     validate :validate_requesting_extension, if: :version_2?
@@ -300,6 +311,27 @@ module AppealsApi
 
     def birth_date
       self.class.date_from_string header_field_as_string 'X-VA-Birth-Date'
+    end
+
+    # validation (header)
+    def birth_date_is_in_the_past
+      return unless birth_date
+
+      add_error("Veteran birth date isn't in the past: #{birth_date}") unless self.class.past? birth_date
+    end
+
+    # validation (header)
+    def claimant_birth_date_is_in_the_past
+      return if api_version && api_version.upcase == 'V1'
+      return if claimant.birth_date.blank?
+
+      unless self.class.past?(claimant.birth_date)
+        add_error("Claimant birth date isn't in the past: #{claimant.birth_date_string}")
+      end
+    end
+
+    def add_error(message)
+      errors.add(:base, message)
     end
 
     def header_field_as_string(key)
