@@ -115,7 +115,7 @@ gem 'puma'
 gem 'puma-plugin-statsd'
 gem 'pundit'
 gem 'rack'
-gem 'rack-attack', github: 'rack/rack-attack', ref: 'b0be38334a3776c536bb5e54b2ce33fd38f8bf5c' # TODO: Remove ref once a new release has been made.
+gem 'rack-attack'
 gem 'rack-cors', require: 'rack/cors'
 gem 'rails_semantic_logger'
 gem 'rails-session_cookie'

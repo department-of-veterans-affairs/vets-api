@@ -83,14 +83,6 @@ GIT
       prawn-table
 
 GIT
-  remote: https://github.com/rack/rack-attack.git
-  revision: b0be38334a3776c536bb5e54b2ce33fd38f8bf5c
-  ref: b0be38334a3776c536bb5e54b2ce33fd38f8bf5c
-  specs:
-    rack-attack (6.6.0)
-      rack (>= 1.0, < 3)
-
-GIT
   remote: https://github.com/resque/redis-namespace.git
   revision: de6c3b9b01658b37e3ea776c52cf2eec3a89dcb3
   ref: de6c3b9b01658b37e3ea776c52cf2eec3a89dcb3
@@ -710,6 +702,8 @@ GEM
     raabro (1.4.0)
     racc (1.6.0)
     rack (2.2.3)
+    rack-attack (6.6.1)
+      rack (>= 1.0, < 3)
     rack-cors (1.1.1)
       rack (>= 2.0.0)
     rack-protection (2.1.0)
@@ -1118,7 +1112,7 @@ DEPENDENCIES
   puma-plugin-statsd
   pundit
   rack
-  rack-attack!
+  rack-attack
   rack-cors
   rack-test
   rack-vcr
