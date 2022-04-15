@@ -187,7 +187,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
     end
     let(:api_version) { 'V1' }
 
-    context 'when a vteran birth date is in the future' do
+    context 'when a veteran birth date is in the future' do
       let(:auth_headers) { default_auth_headers.merge 'X-VA-Birth-Date' => (Time.zone.today + 2).to_s }
 
       it 'creates an invalid record' do
@@ -206,13 +206,6 @@ describe AppealsApi::HigherLevelReview, type: :model do
             {
               'type' => 'contestableIssue',
               'attributes' => {
-                'issue' => 'tinnitus',
-                'decisionDate' => 'banana'
-              }
-            },
-            {
-              'type' => 'contestableIssue',
-              'attributes' => {
                 'issue' => 'PTSD',
                 'decisionDate' => (Time.zone.today + 2).to_s
               }
@@ -226,6 +219,13 @@ describe AppealsApi::HigherLevelReview, type: :model do
             }
           ]
         }
+      end
+
+      it 'creates an invalid record' do
+        expect(higher_level_review.valid?).to be false
+        expect(higher_level_review.errors.to_a.length).to eq 1
+        expect(higher_level_review.errors.to_a.first.downcase).to include 'decisiondate'
+        expect(higher_level_review.errors.to_a.first.downcase).to include 'past'
       end
     end
 
