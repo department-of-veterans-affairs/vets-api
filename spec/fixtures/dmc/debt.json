@@ -1,0 +1,61 @@
+{
+    "fileNumber": "796043735",
+    "payeeNumber": "00",
+    "personEntitled": null,
+    "deductionCode": "30",
+    "benefitType": "Comp & Pen",
+    "diaryCode": "914",
+    "diaryCodeDescription": "Paid In Full",
+    "amountOverpaid": 123.34,
+    "amountWithheld": 50.0,
+    "originalAR": 1177.0,
+    "currentAR": 123.34,
+    "debtHistory": [
+        {
+            "date": "09/12/1998",
+            "letterCode": "123",
+            "description": "Third Demand Letter - Potential Treasury Referral"
+        },
+        {
+            "date": "09/13/1997",
+            "letterCode": "123",
+            "description": "Third Demand Letter - Potential Treasury Referral"
+        },
+        {
+            "date": "04/01/1997",
+            "letterCode": "122",
+            "description": "Referall To Credit Reporting Agencies (CRA)"
+        },
+        {
+            "date": "09/14/1996",
+            "letterCode": "123",
+            "description": "Third Demand Letter - Potential Treasury Referral"
+        },
+        {
+            "date": "09/16/1995",
+            "letterCode": "123",
+            "description": "Third Demand Letter - Potential Treasury Referral"
+        },
+        {
+            "date": "04/04/1995",
+            "letterCode": "145",
+            "description": "Referall To Credit Alert Interactive Verification Reporting System (CAIVRS) In 30 Days"
+        },
+        {
+            "date": "02/14/1995",
+            "letterCode": "117",
+            "description": "Second Demand Letter - Potential Negative Referral"
+        },
+        {
+            "date": "11/15/1994",
+            "letterCode": "603",
+            "description": "Late Or Missed Payment Notification"
+        },
+        {
+            "date": "09/10/1994",
+            "letterCode": "123",
+            "description": "Third Demand Letter - Potential Treasury Referral"
+        }
+    ],
+    "id": "944147b0-7ec0-4a81-ab40-a437b5ce5353"
+}

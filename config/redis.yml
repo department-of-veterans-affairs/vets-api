@@ -81,6 +81,9 @@ development: &defaults
   financial_status_report:
     namespace: financial_status_report
     each_ttl: 1800 # 30 minutes
+  debt_store:
+    namespace: debt
+    each_ttl: 3600 # 1 hour
   pciu_address_dependencies:
     namespace: pciu-address-dependencies
     each_ttl: 604800
