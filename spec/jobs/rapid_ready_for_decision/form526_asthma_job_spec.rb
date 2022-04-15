@@ -43,28 +43,4 @@ RSpec.describe RapidReadyForDecision::Form526AsthmaJob, type: :worker do
       end
     end
   end
-
-  describe '#assess_data', :vcr do
-    subject { described_class.new.assess_data(submission) }
-
-    context 'when there are active medication requests' do
-      it 'returns the active medication requests' do
-        expect(subject[:medications].count).to eq(19)
-      end
-    end
-  end
-
-  describe '#release_pdf?' do
-    subject { described_class.new.release_pdf?(submission) }
-
-    it 'returns false when Flipper symbol is disabled' do
-      Flipper.disable(:rrd_asthma_release_pdf)
-      expect(subject).to eq false
-    end
-
-    it 'returns true when Flipper symbol is enabled' do
-      Flipper.enable(:rrd_asthma_release_pdf)
-      expect(subject).to eq true
-    end
-  end
 end

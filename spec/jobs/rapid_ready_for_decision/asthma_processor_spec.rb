@@ -37,6 +37,16 @@ RSpec.describe RapidReadyForDecision::AsthmaProcessor, type: :worker do
     end
   end
 
+  describe '#assess_data', :vcr do
+    subject { described_class.new(submission).assess_data }
+
+    context 'when there are active medication requests' do
+      it 'returns the active medication requests' do
+        expect(subject[:medications].count).to eq(11)
+      end
+    end
+  end
+
   describe '#release_pdf?' do
     subject { described_class.new(submission).release_pdf? }
 

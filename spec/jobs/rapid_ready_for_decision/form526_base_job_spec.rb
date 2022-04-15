@@ -38,5 +38,70 @@ RSpec.describe RapidReadyForDecision::Form526BaseJob, type: :worker do
         end
       end
     end
+
+    context 'the claim IS for hypertension', :vcr do
+      let(:submission) { create(:form526_submission, :hypertension_claim_for_increase) }
+
+      before do
+        # The bp reading needs to be 1 year or less old so actual API data will not test if this code is working.
+        allow_any_instance_of(RapidReadyForDecision::LighthouseObservationData)
+          .to receive(:transform).and_return(mocked_observation_data)
+      end
+
+      it 'creates a job status record' do
+        Sidekiq::Testing.inline! do
+          expect do
+            described_class.perform_async(submission.id)
+          end.to change(Form526JobStatus, :count).by(1)
+        end
+      end
+
+      it 'marks the new Form526JobStatus record as successful' do
+        Sidekiq::Testing.inline! do
+          described_class.perform_async(submission.id)
+          expect(Form526JobStatus.last.status).to eq 'success'
+        end
+      end
+
+      context 'failure' do
+        before do
+          allow_any_instance_of(RapidReadyForDecision::FastTrackPdfGenerator).to receive(:generate).and_return(nil)
+        end
+
+        it 'raises a helpful error if the failure is after the api call and emails the engineers' do
+          Sidekiq::Testing.inline! do
+            expect do
+              described_class.perform_async(submission.id)
+            end.to raise_error(NoMethodError)
+            expect(ActionMailer::Base.deliveries.last.subject).to eq 'Rapid Ready for Decision (RRD) Job Errored'
+            expect(ActionMailer::Base.deliveries.last.body.raw_source)
+              .to match 'The error was:'
+            expect(ActionMailer::Base.deliveries.last.body.raw_source.scan(/\n /).count).to be > 10
+          end
+        end
+
+        it 'creates a job status record' do
+          Sidekiq::Testing.inline! do
+            expect do
+              described_class.perform_async(submission.id)
+            end.to raise_error(NoMethodError)
+            expect(Form526JobStatus.last.status).to eq 'retryable_error'
+          end
+        end
+      end
+
+      context 'when there are pending claims, which cause EP 400 errors' do
+        it 'off-ramps to the non-RRD process' do
+          VCR.use_cassette('evss/claims/claims') do
+            Sidekiq::Testing.inline! do
+              expect(Lighthouse::VeteransHealth::Client).not_to receive(:new)
+              described_class.perform_async(submission.id)
+              submission.reload
+              expect(submission.form.dig('rrd_metadata', 'offramp_reason')).to eq 'pending_ep'
+            end
+          end
+        end
+      end
+    end
   end
 end
