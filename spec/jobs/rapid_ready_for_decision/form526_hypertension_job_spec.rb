@@ -55,7 +55,8 @@ RSpec.describe RapidReadyForDecision::Form526HypertensionJob, type: :worker do
         it 'returns from the class if the claim observations does NOT include bp readings from the past year' do
           Sidekiq::Testing.inline! do
             expect(RapidReadyForDecision::LighthouseMedicationRequestData).not_to receive(:new)
-            subject.perform_async(submission_for_user_wo_bp.id)
+            expect { described_class.perform_async(submission_for_user_wo_bp.id) }
+              .to raise_error described_class::NoRrdProcessorForClaim
           end
         end
       end
@@ -147,7 +148,7 @@ RSpec.describe RapidReadyForDecision::Form526HypertensionJob, type: :worker do
 
           expect do
             RapidReadyForDecision::Form526HypertensionJob.perform_async(submission_without_account_or_edpid.id)
-          end.to raise_error RapidReadyForDecision::Form526BaseJob::AccountNotFoundError
+          end.to raise_error RapidReadyForDecision::RrdProcessor::AccountNotFoundError
         end
       end
     end
@@ -180,7 +181,7 @@ RSpec.describe RapidReadyForDecision::Form526HypertensionJob, type: :worker do
         Sidekiq::Testing.inline! do
           expect do
             RapidReadyForDecision::Form526HypertensionJob.perform_async(submission.id)
-          end.to raise_error RapidReadyForDecision::Form526BaseJob::AccountNotFoundError
+          end.to raise_error RapidReadyForDecision::RrdProcessor::AccountNotFoundError
         end
       end
     end

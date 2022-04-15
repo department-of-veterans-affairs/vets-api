@@ -8,6 +8,7 @@ module RapidReadyForDecision
 
     sidekiq_options retry: 2
 
+    ## Todo later: the following will be removed in a separate PR to keep this PR small
     def assess_data(form526_submission)
       assessed_data = query_and_assess_lighthouse(form526_submission)
 

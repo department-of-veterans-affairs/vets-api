@@ -22,21 +22,14 @@ module RapidReadyForDecision
       form526_submission = Form526Submission.find(form526_submission_id)
 
       begin
-        RapidReadyForDecision::Constants.processor_class(form526_submission)
-        # raise NoRrdProcessorForClaim unless processor_class
+        processor_class = RapidReadyForDecision::Constants.processor_class(form526_submission)
+        raise NoRrdProcessorForClaim unless processor_class
 
         with_tracking(self.class.name, form526_submission.saved_claim_id, form526_submission_id) do
           return if form526_submission.pending_eps?
 
-          assessed_data = assess_data(form526_submission)
-          return if assessed_data.nil?
-
-          add_medical_stats(form526_submission, assessed_data)
-
-          pdf = generate_pdf(form526_submission, assessed_data)
-          upload_pdf(form526_submission, pdf)
-
-          set_special_issue(form526_submission) if Flipper.enabled?(:rrd_add_special_issue)
+          processor = processor_class.new(form526_submission)
+          processor.run
         end
       rescue => e
         # only retry if the error was raised within the "with_tracking" block
@@ -47,6 +40,8 @@ module RapidReadyForDecision
         raise
       end
     end
+
+    ## Todo later: the following will be removed in a separate PR to keep this PR small
 
     # Override this method to prevent the submission from getting the PDF and special issue
     def release_pdf?(_form526_submission)

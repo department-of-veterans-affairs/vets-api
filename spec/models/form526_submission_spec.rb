@@ -58,7 +58,7 @@ RSpec.describe Form526Submission do
 
         it 'calls start_rrd_job with the job and backup job classes' do
           expect(form_for_hypertension).to receive(:start_rrd_job)
-            .with(RapidReadyForDecision::Form526HypertensionJob,
+            .with(RapidReadyForDecision::Form526BaseJob,
                   { use_backup_job: true })
           form_for_hypertension.start
         end
@@ -108,10 +108,10 @@ RSpec.describe Form526Submission do
           end
         end
 
-        it 'queues a new RapidReadyForDecision::Form526HypertensionJob worker' do
+        it 'queues a new RapidReadyForDecision::Form526BaseJob worker' do
           expect do
             form_for_hypertension.start
-          end.to change(RapidReadyForDecision::Form526HypertensionJob.jobs, :size).by(1)
+          end.to change(RapidReadyForDecision::Form526BaseJob.jobs, :size).by(1)
         end
 
         it_behaves_like '#start_evss_submission'
@@ -134,8 +134,8 @@ RSpec.describe Form526Submission do
           Sidekiq::Worker.clear_all
         end
 
-        it 'does NOT queue a new RapidReadyForDecision::Form526HypertensionJob worker' do
-          expect { subject.start }.to change(RapidReadyForDecision::Form526HypertensionJob.jobs, :size).by(0)
+        it 'does NOT queue a new RapidReadyForDecision::Form526BaseJob worker' do
+          expect { subject.start }.to change(RapidReadyForDecision::Form526BaseJob.jobs, :size).by(0)
         end
 
         it_behaves_like '#start_evss_submission'
@@ -145,8 +145,8 @@ RSpec.describe Form526Submission do
     context 'the submission is NOT for hypertension' do
       before { Sidekiq::Worker.clear_all }
 
-      it 'Does NOT queue a new RapidReadyForDecision::Form526HypertensionJob' do
-        expect { subject.start }.to change(RapidReadyForDecision::Form526HypertensionJob.jobs, :size).by(0)
+      it 'Does NOT queue a new RapidReadyForDecision::Form526BaseJob' do
+        expect { subject.start }.to change(RapidReadyForDecision::Form526BaseJob.jobs, :size).by(0)
       end
 
       it_behaves_like '#start_evss_submission'

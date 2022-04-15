@@ -20,7 +20,7 @@ RSpec.describe RapidReadyForDecision::SidekiqJobSelector do
 
       it 'returns RRD processor' do
         expect(subject.rrd_applicable?).to eq true
-        expect(subject.sidekiq_job).to eq RapidReadyForDecision::Form526HypertensionJob
+        expect(subject.sidekiq_job).to eq RapidReadyForDecision::Form526BaseJob
         expect(subject.sidekiq_job(backup: true)).to eq RapidReadyForDecision::DisabilityCompensationJob
       end
     end

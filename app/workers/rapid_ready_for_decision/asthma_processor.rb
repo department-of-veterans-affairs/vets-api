@@ -5,51 +5,40 @@ require 'lighthouse/veterans_health/client'
 module RapidReadyForDecision
   class AsthmaProcessor < RrdProcessor
     def assess_data
-      client = lighthouse_client
-      response = client.list_resource('medication_requests')
-      med_request_data = RapidReadyForDecision::LighthouseMedicationRequestData.new(response)
+      assessed_data = query_and_assess_lighthouse
 
-      body = <<~BODY
-        A single-issue asthma claim for increase was detected and offramped.<br/>
-        Submission ID: #{form526_submission.id}<br/>
-        Veterans Health API returned #{med_request_data.count} medication requests.<br/>
-        <br/>
-        Medications by year and status:<br/>
-        #{meds_by_year_and_status_as_string(med_request_data)}<br/>
-      BODY
-      ActionMailer::Base.mail(
-        from: ApplicationMailer.default[:from],
-        to: Settings.rrd.event_tracking.recipients,
-        subject: 'RRD claim - Offramped',
-        body: body
-      ).deliver_now
+      return if assessed_data[:medications].blank?
 
-      # returning nil will short-circuit the PDF generation step
-      nil
+      assessed_data
     end
 
     def release_pdf?
-      false
+      disability_struct = RapidReadyForDecision::Constants::DISABILITIES[:asthma]
+      Flipper.enabled?("rrd_#{disability_struct[:flipper_name].downcase}_release_pdf".to_sym)
     end
 
     private
 
-    def generate_pdf(_assessed_data)
-      raise 'method not implemented yet' # RuntimeError
+    def query_and_assess_lighthouse
+      client = lighthouse_client
+      medications = assess_medications(client.list_resource('medication_requests'))
+      { medications: medications }
     end
 
-    def meds_by_year_and_status_as_string(med_request_data)
-      medication_request_stats_by_year(med_request_data).map do |year, tallies|
-        "- #{year}: #{tallies}"
-      end.join("<br/>\n")
-    rescue
-      'Error formatting medications list!'
+    def assess_medications(medications)
+      return [] if medications.blank?
+
+      RapidReadyForDecision::LighthouseMedicationRequestData.new(medications).transform
     end
 
-    def medication_request_stats_by_year(med_request_data)
-      med_request_data.resources.group_by { |mr| Date.parse(mr['authoredOn'])&.year }
-                      .transform_values { |mrs| mrs.map { |mr| mr['status'] }.tally }
-                      .sort.reverse
+    def med_stats_hash(assessed_data)
+      { medications_count: assessed_data[:medications]&.size }
+    end
+
+    def generate_pdf(assessed_data)
+      RapidReadyForDecision::FastTrackPdfGenerator.new(patient_info,
+                                                       assessed_data,
+                                                       :asthma).generate
     end
   end
 end

@@ -7,7 +7,7 @@ module RapidReadyForDecision
         code: 7101,
         label: 'hypertension',
         flipper_name: 'hypertension',
-        sidekiq_job: 'RapidReadyForDecision::Form526HypertensionJob',
+        sidekiq_job: 'RapidReadyForDecision::Form526BaseJob',
         processor_class: 'RapidReadyForDecision::HypertensionProcessor',
         backup_sidekiq_job: 'RapidReadyForDecision::DisabilityCompensationJob'
       },

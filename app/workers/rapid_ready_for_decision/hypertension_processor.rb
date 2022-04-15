@@ -14,10 +14,6 @@ module RapidReadyForDecision
 
     private
 
-    def patient_info
-      form526_submission.full_name.merge(birthdate: form526_submission.auth_headers['va_eauth_birthdate'])
-    end
-
     def query_and_assess_lighthouse
       client = lighthouse_client
       bp_readings = assess_bp_readings(client.list_resource('observations'))

@@ -84,6 +84,10 @@ module RapidReadyForDecision
       Lighthouse::VeteransHealth::Client.new(icn)
     end
 
+    def patient_info
+      form526_submission.full_name.merge(birthdate: form526_submission.auth_headers['va_eauth_birthdate'])
+    end
+
     def icn
       account_record = account
       raise AccountNotFoundError, "for user_uuid: #{form526_submission.user_uuid} or their edipi" unless account_record
