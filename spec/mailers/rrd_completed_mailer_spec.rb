@@ -28,7 +28,10 @@ RSpec.describe RrdCompletedMailer, type: [:mailer] do
                                                               form_json: form_json)
       # Set the bp_readings_count like `add_medical_stats` is expected to do
       form_json = JSON.parse(submission.form_json)
-      form_json['rrd_metadata'] = { med_stats: { bp_readings_count: bp_readings_count } }
+      form_json['rrd_metadata'] = {
+        med_stats: { bp_readings_count: bp_readings_count },
+        pdf_guid: 'a950ef07-9eaa-4784-b5af-bda8c50a83f9'
+      }
       form_json['form526_uploads'].append(rrd_pdf_json)
       submission.update!(form_json: JSON.dump(form_json))
       submission.invalidate_form_hash
@@ -43,6 +46,7 @@ RSpec.describe RrdCompletedMailer, type: [:mailer] do
       expect(email.body).to include 'A single-issue 5235 claim for increase was submitted on va.gov.'
       expect(email.body).to include 'A health summary PDF was generated and added to the claim\'s documentation.'
       expect(email.body).to include "<td>#{bp_readings_count}</td>"
+      expect(email.body).to include 'S3 guid for the RRD PDF: a950ef07-9eaa-4784-b5af-bda8c50a83f9'
     end
   end
 
@@ -87,6 +91,7 @@ RSpec.describe RrdCompletedMailer, type: [:mailer] do
       expect(email.body).to include 'A single-issue 5235 claim for increase was submitted on va.gov.'
       expect(email.body)
         .to include 'There was not sufficient data to generate a health summary PDF associated with this claim.'
+      expect(email.body).to include 'S3 guid for the RRD PDF: N/A'
     end
   end
 end
