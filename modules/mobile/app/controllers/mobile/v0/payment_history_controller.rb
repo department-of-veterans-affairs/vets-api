@@ -55,6 +55,12 @@ module Mobile
 
         unless start_date && end_date
           most_recent_year = available_years.first
+
+          unless most_recent_year.is_a? Numeric
+            Rails.logger.error('Mobile Payment Error Non Numeric Year', { year_in_error: most_recent_year,
+                                                                          available_years: available_years })
+          end
+
           start_date = DateTime.new(most_recent_year).beginning_of_year.utc
           end_date = DateTime.new(most_recent_year).end_of_year.utc
         end
