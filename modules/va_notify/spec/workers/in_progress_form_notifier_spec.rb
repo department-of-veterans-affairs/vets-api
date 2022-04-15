@@ -52,7 +52,7 @@ describe VANotify::InProgressFormNotifier, type: :worker do
         recipient_identifier: { id_type: 'ICN', id_value: '1013062086V794840' },
         template_id: 'fake_template_id',
         personalisation: {
-          'first_name' => 'First_name',
+          'first_name' => 'FIRST_NAME',
           'date' => in_progress_form.expires_at.strftime('%B %d, %Y')
         }
       )

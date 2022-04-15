@@ -31,7 +31,7 @@ module VANotify
           id_type: 'ICN'
         },
         template_id: template_id,
-        personalisation: personalisation_details(in_progress_form, veteran.first_name.capitalize)
+        personalisation: personalisation_details(in_progress_form, veteran.first_name.upcase)
       )
       StatsD.increment(STATSD_SUCCESS_NAME)
     rescue => e
