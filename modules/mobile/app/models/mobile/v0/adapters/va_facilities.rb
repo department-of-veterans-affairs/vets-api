@@ -5,7 +5,7 @@ module Mobile
     module Adapters
       class VAFacilities
         def map_appointments_to_facilities(appointments, facilities)
-          facilities_by_id = facilities&.index_by(&:id)
+          facilities_by_id = map_facilities_id(facilities)
 
           appointments.map do |appointment|
             facility = facilities_by_id&.dig("vha_#{appointment.id_for_address}")
@@ -30,6 +30,15 @@ module Mobile
         end
 
         private
+
+        def map_facilities_id(facilities)
+          facilities&.map do |facility|
+            next if facility.id.nil?
+
+            facility.id = "vha_#{facility.id.delete('vha_')}"
+          end
+          facilities&.index_by(&:id)
+        end
 
         def log_missing_facility(appointment)
           Rails.logger.warn(

@@ -412,6 +412,10 @@ features:
     actor_type: user
     description: enables a user to include pending appointment requests in the mobile/v0/appointments endpoint
     enable_in_development: true
+  mobile_appointment_use_VAOS_MFS:
+    actor_type: user
+    description: Finds facilities using VAOS's Mobile Facility Service.
+    enable_in_development: false
   multiple_address_10_10ez:
     actor_type: cookie_id
     description: >

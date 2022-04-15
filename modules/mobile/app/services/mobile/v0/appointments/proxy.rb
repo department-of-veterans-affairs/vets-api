@@ -15,6 +15,14 @@ module Mobile
           @user = user
         end
 
+        def fetch_facilities(appointments)
+          if Flipper.enabled?(:mobile_appointment_use_VAOS_MFS)
+            new_fetch_facilities(appointments)
+          else
+            legacy_fetch_facilities(appointments)
+          end
+        end
+
         def get_appointments(start_date:, end_date:)
           if Flipper.enabled?(:mobile_appointment_requests)
             responses = fetch_appointments(start_date, end_date)
@@ -131,7 +139,21 @@ module Mobile
           { va: va_response, cc: cc_response, requests: requests_response }
         end
 
-        def fetch_facilities(appointments)
+        def new_fetch_facilities(appointments)
+          facility_ids = appointments.map(&:id_for_address).uniq
+
+          return nil unless facility_ids.any?
+
+          ids = facility_ids.join(', ')
+
+          facility_ids.each do |facility_id|
+            Rails.logger.info('metric.mobile.appointment.facility', facility_id: facility_id)
+          end
+          vaos_facilities = vaos_mobile_facility_service.get_facilities(ids: ids, children: nil, type: nil)
+          vaos_facilities[:data]
+        end
+
+        def legacy_fetch_facilities(appointments)
           facility_ids = appointments.map(&:id_for_address).uniq
 
           return nil unless facility_ids.any?
@@ -208,6 +230,10 @@ module Mobile
 
         def vaos_appointment_requests_service
           VAOS::AppointmentRequestsService.new(@user)
+        end
+
+        def vaos_mobile_facility_service
+          VAOS::V2::MobileFacilityService.new(@user)
         end
 
         def vaos_systems_service
