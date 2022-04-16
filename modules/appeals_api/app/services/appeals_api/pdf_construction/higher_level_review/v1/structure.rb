@@ -74,7 +74,7 @@ module AppealsApi
 
           @additional_pages_pdf ||= Prawn::Document.new(skip_page_creation: true)
 
-          HigherLevelReview::Pages::V1::AdditionalIssues.new(
+          Pages::AdditionalIssues.new(
             @additional_pages_pdf,
             form_data
           ).build!

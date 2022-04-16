@@ -2,7 +2,7 @@
 
 module AppealsApi
   module PdfConstruction
-    module NoticeOfDisagreement
+    module NoticeOfDisagreement::V1
       module Pages
         class HearingTypeAndAdditionalIssues
           MAX_ISSUES_ON_FIRST_PAGE = 5

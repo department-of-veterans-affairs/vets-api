@@ -70,7 +70,7 @@ module AppealsApi
 
             @additional_pages_pdf ||= Prawn::Document.new(skip_page_creation: true)
 
-            SupplementalClaim::Pages::V2::AdditionalPages.new(
+            Pages::AdditionalPages.new(
               @additional_pages_pdf,
               form_data
             ).build!
@@ -98,11 +98,11 @@ module AppealsApi
           end
 
           def form_fields
-            @form_fields ||= SupplementalClaim::V2::FormFields.new
+            @form_fields ||= FormFields.new
           end
 
           def form_data
-            @form_data ||= SupplementalClaim::V2::FormData.new(supplemental_claim)
+            @form_data ||= FormData.new(supplemental_claim)
           end
 
           def fill_autosize_fields

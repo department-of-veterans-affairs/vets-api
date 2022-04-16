@@ -2,15 +2,15 @@
 
 require 'rails_helper'
 
-module AppealsApi::PdfConstruction::HigherLevelReview
-  describe Pages::V2::AdditionalIssues do
+module AppealsApi::PdfConstruction::HigherLevelReview::V2
+  describe Pages::AdditionalIssues do
     describe '#build!' do
       let(:higher_level_review) { create(:higher_level_review) }
 
       it 'returns the same object that it received' do
         pdf = Prawn::Document.new
 
-        resulted_pdf = described_class.new(pdf, V2::FormData.new(higher_level_review)).build!
+        resulted_pdf = described_class.new(pdf, FormData.new(higher_level_review)).build!
 
         expect(resulted_pdf).to eq(pdf)
       end
@@ -23,7 +23,7 @@ module AppealsApi::PdfConstruction::HigherLevelReview
 
         pdf = Prawn::Document.new
 
-        expect { described_class.new(pdf, V2::FormData.new(higher_level_review)).build! }
+        expect { described_class.new(pdf, FormData.new(higher_level_review)).build! }
           .to change { pdf.page_count }.by(1)
       end
     end

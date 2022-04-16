@@ -106,11 +106,11 @@ module AppealsApi
 
           @additional_pages_pdf ||= Prawn::Document.new(skip_page_creation: true)
 
-          NoticeOfDisagreement::V2::Pages::AdditionalContent.new(
+          Pages::AdditionalContent.new(
             @additional_pages_pdf, form_data
           ).build!
 
-          NoticeOfDisagreement::V2::Pages::TimeExtensionReason.new(
+          Pages::TimeExtensionReason.new(
             @additional_pages_pdf, form_data
           ).build!
 
@@ -134,11 +134,11 @@ module AppealsApi
         attr_accessor :notice_of_disagreement
 
         def form_fields
-          @form_fields ||= NoticeOfDisagreement::V2::FormFields.new
+          @form_fields ||= FormFields.new
         end
 
         def form_data
-          @form_data ||= NoticeOfDisagreement::V2::FormData.new(notice_of_disagreement)
+          @form_data ||= FormData.new(notice_of_disagreement)
         end
 
         def fill_first_five_issue_dates!(options)
