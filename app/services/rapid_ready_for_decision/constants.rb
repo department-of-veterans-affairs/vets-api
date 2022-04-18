@@ -70,5 +70,14 @@ module RapidReadyForDecision
 
       disability_struct[:processor_class]&.constantize
     end
+
+    class NoRrdProcessorForClaim < StandardError; end
+
+    def self.processor(form526_submission)
+      processor_class = processor_class(form526_submission)
+      raise NoRrdProcessorForClaim unless processor_class
+
+      processor_class.new(form526_submission)
+    end
   end
 end

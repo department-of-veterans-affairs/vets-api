@@ -53,4 +53,21 @@ RSpec.describe RapidReadyForDecision::Constants do
       end
     end
   end
+
+  describe '#processor' do
+    subject { described_class.processor(form526_submission) }
+
+    it 'returns instance of the processor class' do
+      expect(subject.class).to eq RapidReadyForDecision::HypertensionProcessor
+    end
+
+    context 'for claim with unsupported disability' do
+      let(:form526_submission) { create(:form526_submission) }
+
+      it 'raises NoRrdProcessorForClaim for unsupported claims' do
+        expect { subject }
+          .to raise_error RapidReadyForDecision::Constants::NoRrdProcessorForClaim
+      end
+    end
+  end
 end

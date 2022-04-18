@@ -6,6 +6,7 @@ module RapidReadyForDecision
 
     def initialize(form526_submission)
       @form526_submission = form526_submission
+      @disability_struct = RapidReadyForDecision::Constants.first_disability(form526_submission)
     end
 
     def run
@@ -33,7 +34,10 @@ module RapidReadyForDecision
 
     # Override this method to prevent the submission from getting the PDF and special issue
     def release_pdf?
-      true
+      flipper_symbol = "rrd_#{@disability_struct[:flipper_name].downcase}_release_pdf".to_sym
+      return true unless Flipper.exist?(flipper_symbol)
+
+      Flipper.enabled?(flipper_symbol)
     end
 
     def upload_pdf(pdf)

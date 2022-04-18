@@ -34,12 +34,16 @@ RSpec.describe RapidReadyForDecision::Form526BaseJob, type: :worker do
       it 'raises NoRrdProcessorForClaim' do
         Sidekiq::Testing.inline! do
           expect { described_class.perform_async(submission_for_user_wo_bp.id) }
-            .to raise_error described_class::NoRrdProcessorForClaim
+            .to raise_error RapidReadyForDecision::Constants::NoRrdProcessorForClaim
         end
       end
     end
 
     context 'the claim IS for hypertension', :vcr do
+      around do |example|
+        VCR.use_cassette('rrd/hypertension', &example)
+      end
+
       let(:submission) { create(:form526_submission, :hypertension_claim_for_increase) }
 
       before do
@@ -60,6 +64,20 @@ RSpec.describe RapidReadyForDecision::Form526BaseJob, type: :worker do
         Sidekiq::Testing.inline! do
           described_class.perform_async(submission.id)
           expect(Form526JobStatus.last.status).to eq 'success'
+        end
+      end
+
+      context 'when rrd_{disability}_release_pdf Flipper flag does not exist' do
+        before { expect(Flipper.exist?(:rrd_hypertension_release_pdf)).to eq false }
+
+        it 'does release_pdf' do
+          Sidekiq::Testing.inline! do
+            described_class.perform_async(submission.id)
+
+            submission.reload
+            expect(submission.form['form526_uploads'].first['name']).to match(/Rapid_Decision_Evidence/)
+            expect(submission.form.dig('form526', 'form526', 'disabilities').first['specialIssues']).to eq ['RRD']
+          end
         end
       end
 

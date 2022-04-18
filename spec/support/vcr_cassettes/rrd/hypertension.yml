@@ -1,0 +1,182 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/oauth2/health/system/v1/token
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIwb2FldG55djN2UmtQT01oTTJwNyIsInN1YiI6IjBvYWV0bnl2M3ZSa1BPTWhNMnA3IiwiYXVkIjoiaHR0cHM6Ly9kZXB0dmEtZXZhbC5va3RhLmNvbS9vYXV0aDIvYXVzOG5tMXEwZjdWUTBhNDgycDcvdjEvdG9rZW4iLCJleHAiOjE2NDk4MDMxNDh9.ku4VJW3zPxg8yu9DrQqN3-WjMT9CYAxhsTwjnpLe9AbGFTfLuUxuAHf3-TEAeKqtFnvNOhD4su1TSMoTIDCXsWXe2FtkNsEh4MtCUt6NIH8ePZOCTIXv5zjwLnC5l8sPFVGariM0OzkMz7irQhMW64S-JySsHr8R8ISF3A-dDmHSEd9ZwF_vVX7t3m1qTNpEinok6gpmwMGQjxaLaBPUdOkwUXiWuzKKeHaK-YsMPyGF7L92viyGcDD-V7gHCgqMgc3DOFysQPYvETEMfQvhw5hgfedR4l8UFADeoAXfmF5NL_-IQ2sr2gJpIbDvs4izQSWDeAFDltl3nv5iKHcuhpC-6u8Gj8oqkYSB1_YQoqjXcjWQ2D-Xy0po79CIo-m_-DL2SrEoCtyQH34StupKcJkHQooXUrGTbeH2N-C0y5-4h2xxXXaBMquWQgqP-ZT3p9w2hPrEUC_D-Qq1ObYjDjjfST4MkUlVfHARIMXkfKTvjeHUouTfIY9JOhKcYLhi&scope=launch+patient%2FPatient.read+system%2FPatient.read+patient%2FObservation.read+patient%2FPractitioner.read+patient%2FMedicationRequest.read&launch=eyJwYXRpZW50IjogIjEyMzQ5ODc2N1YyMzQ4NTkifQ%3D%3D
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 12 Apr 2022 22:24:09 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Vary:
+      - Origin
+      Etag:
+      - W/"4d2-n35Pys55bn7Fl1bsduNNH8aeg0Q"
+      Cache-Control:
+      - ''
+      Set-Cookie:
+      - TS01dd66bd=01874af5a4278c940fefc09824a3e19222a851a7458df0ab2998a83132fff849c4b6cbbf7dd2466822c2f2220da15543a113a5a189;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"access_token":"eyJraWQiOiJhSzI5cG5ueXRaRWRaeGN0U1padjBMWE0ybTh6aEFVdU54TW12bDV0Y19jIiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULkNSYXU5VEhkMm02d2tBYzRyRjk2Vmdlbl80NUpkRU9NeHFwMEFhWEFmVm8iLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXM4bm0xcTBmN1ZRMGE0ODJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2ZoaXIiLCJpYXQiOjE2NDk4MDIyNDksImV4cCI6MTY0OTgwMjU0OSwiY2lkIjoiMG9hZXRueXYzdlJrUE9NaE0ycDciLCJzY3AiOlsibGF1bmNoIiwicGF0aWVudC9QYXRpZW50LnJlYWQiLCJwYXRpZW50L1ByYWN0aXRpb25lci5yZWFkIiwicGF0aWVudC9PYnNlcnZhdGlvbi5yZWFkIiwicGF0aWVudC9NZWRpY2F0aW9uUmVxdWVzdC5yZWFkIiwic3lzdGVtL1BhdGllbnQucmVhZCJdLCJzdWIiOiIwb2FldG55djN2UmtQT01oTTJwNyJ9.V8HoWn_Kuvv9Zo7aO4j_bXskotk2YkyBpAb4c4A-Qnv0QinWZVtnleOWfHn_BkDe0kbpvIoDYLaBXV1J-xIrNredmYLW7I5CKhWykdw1AzoUW9A2hM5XkhAwARyrmI9gNf87ehiT0p52D6WuAH6ejy1kcTer-hTiyYcNTl870yelASB-dofsYOp34r07WsslrQJxpBCfB5QpKd1Em9k32lrtizo0bzq_lkpIoQxDfbLPRe9eGyZSH84SjcKVhZ6GgF3uH48rJdjzCO0hA4G4V5sfUgnfJP6Q4sWXNA6VNRcWTvW_a-OLBCNxVZ3Tqh4W9Xf9wEwTPXZyuwMfxoBn1g","token_type":"Bearer","scope":"launch
+        patient/Patient.read patient/Practitioner.read patient/Observation.read patient/MedicationRequest.read
+        system/Patient.read","expires_in":300,"state":null,"patient":"123498767V234859"}'
+  recorded_at: Tue, 12 Apr 2022 22:24:09 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/fhir/v0/r4/Observation?_count=100&category=vital-signs&code=85354-9&patient=123498767V234859
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer eyJraWQiOiJhSzI5cG5ueXRaRWRaeGN0U1padjBMWE0ybTh6aEFVdU54TW12bDV0Y19jIiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULkNSYXU5VEhkMm02d2tBYzRyRjk2Vmdlbl80NUpkRU9NeHFwMEFhWEFmVm8iLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXM4bm0xcTBmN1ZRMGE0ODJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2ZoaXIiLCJpYXQiOjE2NDk4MDIyNDksImV4cCI6MTY0OTgwMjU0OSwiY2lkIjoiMG9hZXRueXYzdlJrUE9NaE0ycDciLCJzY3AiOlsibGF1bmNoIiwicGF0aWVudC9QYXRpZW50LnJlYWQiLCJwYXRpZW50L1ByYWN0aXRpb25lci5yZWFkIiwicGF0aWVudC9PYnNlcnZhdGlvbi5yZWFkIiwicGF0aWVudC9NZWRpY2F0aW9uUmVxdWVzdC5yZWFkIiwic3lzdGVtL1BhdGllbnQucmVhZCJdLCJzdWIiOiIwb2FldG55djN2UmtQT01oTTJwNyJ9.V8HoWn_Kuvv9Zo7aO4j_bXskotk2YkyBpAb4c4A-Qnv0QinWZVtnleOWfHn_BkDe0kbpvIoDYLaBXV1J-xIrNredmYLW7I5CKhWykdw1AzoUW9A2hM5XkhAwARyrmI9gNf87ehiT0p52D6WuAH6ejy1kcTer-hTiyYcNTl870yelASB-dofsYOp34r07WsslrQJxpBCfB5QpKd1Em9k32lrtizo0bzq_lkpIoQxDfbLPRe9eGyZSH84SjcKVhZ6GgF3uH48rJdjzCO0hA4G4V5sfUgnfJP6Q4sWXNA6VNRcWTvW_a-OLBCNxVZ3Tqh4W9Xf9wEwTPXZyuwMfxoBn1g
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 12 Apr 2022 22:24:11 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '299'
+      X-Ratelimit-Limit-Minute:
+      - '300'
+      Ratelimit-Remaining:
+      - '299'
+      Ratelimit-Limit:
+      - '300'
+      Ratelimit-Reset:
+      - '50'
+      Vary:
+      - Accept-Encoding
+      - Origin
+      X-Va-Includes-Icn:
+      - NONE
+      Pragma:
+      - no-cache
+      - no-cache
+      X-Kong-Upstream-Latency:
+      - '1564'
+      X-Kong-Proxy-Latency:
+      - '1'
+      Via:
+      - kong/2.3.2
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - no-cache, no-store
+      Set-Cookie:
+      - TS01dd66bd=01874af5a47c2e858e84a3cb922973380c30eff1eaba54ba5ba076e2ccb551c410105eec06cbc0557ef4ea2d95e91719db8ed21e55;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"resourceType":"Bundle","type":"searchset","total":0,"link":[{"relation":"self","url":"https://sandbox-api.va.gov/services/fhir/v0/r4/Observation?category=vital-signs&code=85354-9&patient=123498767V234859&_count=100&page=1"}],"entry":[]}'
+  recorded_at: Tue, 12 Apr 2022 22:24:11 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest?_count=100&patient=123498767V234859
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer eyJraWQiOiJhSzI5cG5ueXRaRWRaeGN0U1padjBMWE0ybTh6aEFVdU54TW12bDV0Y19jIiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULkNSYXU5VEhkMm02d2tBYzRyRjk2Vmdlbl80NUpkRU9NeHFwMEFhWEFmVm8iLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXM4bm0xcTBmN1ZRMGE0ODJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2ZoaXIiLCJpYXQiOjE2NDk4MDIyNDksImV4cCI6MTY0OTgwMjU0OSwiY2lkIjoiMG9hZXRueXYzdlJrUE9NaE0ycDciLCJzY3AiOlsibGF1bmNoIiwicGF0aWVudC9QYXRpZW50LnJlYWQiLCJwYXRpZW50L1ByYWN0aXRpb25lci5yZWFkIiwicGF0aWVudC9PYnNlcnZhdGlvbi5yZWFkIiwicGF0aWVudC9NZWRpY2F0aW9uUmVxdWVzdC5yZWFkIiwic3lzdGVtL1BhdGllbnQucmVhZCJdLCJzdWIiOiIwb2FldG55djN2UmtQT01oTTJwNyJ9.V8HoWn_Kuvv9Zo7aO4j_bXskotk2YkyBpAb4c4A-Qnv0QinWZVtnleOWfHn_BkDe0kbpvIoDYLaBXV1J-xIrNredmYLW7I5CKhWykdw1AzoUW9A2hM5XkhAwARyrmI9gNf87ehiT0p52D6WuAH6ejy1kcTer-hTiyYcNTl870yelASB-dofsYOp34r07WsslrQJxpBCfB5QpKd1Em9k32lrtizo0bzq_lkpIoQxDfbLPRe9eGyZSH84SjcKVhZ6GgF3uH48rJdjzCO0hA4G4V5sfUgnfJP6Q4sWXNA6VNRcWTvW_a-OLBCNxVZ3Tqh4W9Xf9wEwTPXZyuwMfxoBn1g
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 12 Apr 2022 22:24:13 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '298'
+      X-Ratelimit-Limit-Minute:
+      - '300'
+      Ratelimit-Remaining:
+      - '298'
+      Ratelimit-Limit:
+      - '300'
+      Ratelimit-Reset:
+      - '48'
+      Vary:
+      - Accept-Encoding
+      - Origin
+      X-Va-Includes-Icn:
+      - NONE
+      Pragma:
+      - no-cache
+      - no-cache
+      X-Kong-Upstream-Latency:
+      - '1525'
+      X-Kong-Proxy-Latency:
+      - '1'
+      Via:
+      - kong/2.3.2
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - no-cache, no-store
+      Set-Cookie:
+      - TS01dd66bd=01874af5a4a51bda141004422d19e68bddc8a3621b01af3932993bd699427971fc554416628b75db0dcb99336a64b97b9cb7919799;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"resourceType":"Bundle","type":"searchset","total":0,"link":[{"relation":"first","url":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest?patient=123498767V234859&page=1&_count=100"},{"relation":"self","url":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest?patient=123498767V234859&page=1&_count=100"},{"relation":"last","url":"https://sandbox-api.va.gov/services/fhir/v0/r4/MedicationRequest?patient=123498767V234859&page=1&_count=100"}],"entry":[]}'
+  recorded_at: Tue, 12 Apr 2022 22:24:13 GMT
+recorded_with: VCR 6.1.0

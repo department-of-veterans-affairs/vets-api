@@ -12,11 +12,6 @@ module RapidReadyForDecision
       assessed_data
     end
 
-    def release_pdf?
-      disability_struct = RapidReadyForDecision::Constants::DISABILITIES[:asthma]
-      Flipper.enabled?("rrd_#{disability_struct[:flipper_name].downcase}_release_pdf".to_sym)
-    end
-
     private
 
     def query_and_assess_lighthouse
