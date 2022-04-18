@@ -324,8 +324,7 @@ module SAML
 
         @mhv_outbound_redirect ||= begin
           tracker = SAMLRequestTracker.find(@tracker_uuid)
-          skip_dupe_id_validation = tracker&.payload_attr(:skip_dupe_id_validation)
-          %w[true mhv].include?(skip_dupe_id_validation)
+          %w[mhv myvahealth].include?(tracker&.payload_attr(:application))
         end
       end
 
