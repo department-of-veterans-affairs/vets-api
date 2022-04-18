@@ -62,5 +62,10 @@ module RapidReadyForDecision
       erb_file_full_path = File.join('app/services/rapid_ready_for_decision/views', "#{erb_file_relative_path}.erb")
       ERB.new(File.new(erb_file_full_path).read).result(binding)
     end
+
+    def link_to(url)
+      erb_path = File.new('app/services/rapid_ready_for_decision/views/shared/_link_to.erb').read
+      ERB.new(erb_path).result(binding)
+    end
   end
 end
