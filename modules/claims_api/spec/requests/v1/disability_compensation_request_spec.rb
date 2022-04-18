@@ -986,6 +986,26 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
 
       context 'when consumer is Veteran' do
+        let(:mvi_codes) do
+          {
+            birls_id: '111985523',
+            participant_id: '32397028'
+          }
+        end
+        let(:mvi_profile) { build(:mvi_profile) }
+        let(:mvi_profile_response) do
+          MPI::Responses::FindProfileResponse.new(
+            status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+            profile: mvi_profile
+          )
+        end
+        let(:add_response) do
+          MPI::Responses::AddPersonResponse.new(
+            status: MPI::Responses::AddPersonResponse::RESPONSE_STATUS[:ok],
+            mvi_codes: mvi_codes
+          )
+        end
+
         it 'adds person to MPI' do
           with_okta_user(scopes) do |auth_header|
             VCR.use_cassette('evss/claims/claims') do
@@ -993,6 +1013,9 @@ RSpec.describe 'Disability Claims ', type: :request do
                 VCR.use_cassette('mpi/add_person/add_person_success') do
                   VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes') do
                     expect_any_instance_of(MPIData).to receive(:add_person).once.and_call_original
+                    expect_any_instance_of(MPI::Service).to receive(:add_person).and_return(add_response)
+                    allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(mvi_profile_response)
+
                     post path, params: data, headers: auth_header
                   end
                 end
