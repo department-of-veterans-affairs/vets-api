@@ -179,7 +179,7 @@ class HealthCareApplication < ApplicationRecord
       lastEntryDate
       lastDischargeDate
     ].each do |attr|
-      errors.add(:form, "#{attr} can't be blank") if parsed_form[attr].blank?
+      errors.add(:form, "#{attr} can't be null") if parsed_form[attr].nil?
     end
   end
 
