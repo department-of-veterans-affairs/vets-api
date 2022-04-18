@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 module AppealsApi::PdfConstruction::NoticeOfDisagreement::V2
-  describe Pages::AdditionalContent do
+  describe Pages::LongDataAndExtraIssues do
     describe '#build!' do
       let(:notice_of_disagreement) { create(:extra_notice_of_disagreement_v2) }
 

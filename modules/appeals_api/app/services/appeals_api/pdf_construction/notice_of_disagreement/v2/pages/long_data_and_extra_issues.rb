@@ -4,7 +4,7 @@ module AppealsApi
   module PdfConstruction
     module NoticeOfDisagreement::V2
       module Pages
-        class AdditionalContent
+        class LongDataAndExtraIssues
           MAX_ISSUES_ON_FIRST_PAGE = 5
 
           def initialize(pdf, form_data)
