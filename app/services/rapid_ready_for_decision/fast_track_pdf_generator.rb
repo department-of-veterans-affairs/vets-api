@@ -7,6 +7,12 @@ module RapidReadyForDecision
         size: 11,
         font: 'SourceSansPro'
       },
+      heading2: {
+        size: 22
+      },
+      heading3: {
+        size: 16
+      },
       heading4: {
         margin_top: 12
       },
@@ -23,11 +29,6 @@ module RapidReadyForDecision
     def self.extract_patient_name(patient_info)
       full_name = patient_info.values_at(:first, :middle, :last).reject(&:blank?).join ' '
       [full_name, patient_info[:suffix]].reject(&:blank?).join ', '
-    end
-
-    # TODO: move this into the data class
-    def self.flag_with_keyword(keywords, medication_struct)
-      keywords.any? { |keyword| medication_struct.to_s.downcase.include?(keyword) }
     end
 
     def initialize(patient_info, assessed_data, disability_type)

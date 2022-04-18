@@ -45,6 +45,14 @@ RSpec.describe RapidReadyForDecision::AsthmaProcessor, type: :worker do
         expect(subject[:medications].count).to eq(11)
       end
     end
+
+    it 'flags potential asthma-related medication' do
+      expect(subject[:medications].select { |med| med[:flagged] }.count).to eq(3)
+    end
+
+    it 'correctly orders potential asthma-related medication to appear first' do
+      expect(subject[:medications].take(3).all? { |med| med[:flagged] }).to eq true
+    end
   end
 
   describe '#release_pdf?' do

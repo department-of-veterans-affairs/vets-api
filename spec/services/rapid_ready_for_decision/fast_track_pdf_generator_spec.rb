@@ -108,6 +108,28 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfGenerator, :vcr do
       let(:disability_type) { :asthma }
 
       it_behaves_like 'includes introduction'
+
+      context 'when potential asthma-related medication is available' do
+        let(:parsed_medications_data) do
+          [{ 'status' => 'active',
+             'authoredOn' => '1998-02-12T02:15:52Z',
+             'description' => 'Dose Inhaler',
+             'notes' => ['Dose Inhaler'],
+             'dosageInstructions' => ['Once per day.', 'As directed by physician.'],
+             :flagged => true },
+           { 'status' => 'active',
+             'authoredOn' => '2009-03-25T01:15:52Z',
+             'description' => 'Hydrocortisone 10 MG/ML Topical Cream',
+             'notes' => ['Hydrocortisone 10 MG/ML Topical Cream'],
+             'dosageInstructions' => ['Once per day.', 'As directed by physician.'],
+             :flagged => false }]
+        end
+
+        it 'flags potential asthma-related medication' do
+          expect(subject.join).to include('▶ Dose Inhaler ◀')
+          expect(subject.join).not_to include('▶ Hydrocortisone 10 MG/ML Topical Cream ◀')
+        end
+      end
     end
   end
 end

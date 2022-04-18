@@ -25,10 +25,19 @@ module RapidReadyForDecision
       { medications: medications }
     end
 
+    ASTHMA_KEYWORDS = RapidReadyForDecision::Constants::DISABILITIES[:asthma][:keywords]
+
     def assess_medications(medications)
       return [] if medications.blank?
 
-      RapidReadyForDecision::LighthouseMedicationRequestData.new(medications).transform
+      transformed_medications = RapidReadyForDecision::LighthouseMedicationRequestData.new(medications).transform
+      flagged_medications = transformed_medications.map do |medication|
+        {
+          **medication,
+          flagged: ASTHMA_KEYWORDS.any? { |keyword| medication.to_s.downcase.include?(keyword) }
+        }
+      end
+      flagged_medications.sort_by { |medication| medication[:flagged] ? 0 : 1 }
     end
 
     def med_stats_hash(assessed_data)
