@@ -10,20 +10,24 @@ module V0
     rescue_from Net::HTTPError, with: :service_exception_handler
 
     def create
-      return render status: :not_found unless Flipper.enabled?(:virtual_agent_token)
-
-      render json: { token: fetch_connector_token,
-                     apiSession: ERB::Util.url_encode(cookies[:api_session]) }
+      if !Flipper.enabled?(:virtual_agent_token)
+        render status: :not_found
+      else
+        directline_response = fetch_connector_values
+        render json: { token: directline_response[:token],
+                       conversationId: directline_response[:conversationId],
+                       apiSession: ERB::Util.url_encode(cookies[:api_session]) }
+      end
     end
 
     private
 
-    def fetch_connector_token
-      connector_response = request_connector_token
-      parse_connector_token(connector_response)
+    def fetch_connector_values
+      connector_response = request_connector_values
+      parse_connector_values(connector_response)
     end
 
-    def request_connector_token
+    def request_connector_values
       req = Net::HTTP::Post.new(token_endpoint_uri)
       req['Authorization'] = bearer_token
       Net::HTTP.start(token_endpoint_uri.hostname, token_endpoint_uri.port, use_ssl: true) do |http|
@@ -31,10 +35,13 @@ module V0
       end
     end
 
-    def parse_connector_token(response)
+    def parse_connector_values(response)
       raise ServiceException.new(response.body), response.body unless response.code == '200'
 
-      JSON.parse(response.body)['token']
+      {
+        token: JSON.parse(response.body)['token'],
+        conversationId: JSON.parse(response.body)['conversationId']
+      }
     end
 
     def token_endpoint_uri
