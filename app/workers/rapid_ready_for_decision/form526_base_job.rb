@@ -12,9 +12,8 @@ module RapidReadyForDecision
     include Sidekiq::Form526JobStatusTracker::JobTracker
 
     extend SentryLogging
-    # NOTE: This is apparently at most about 4.5 hours.
     # https://github.com/mperham/sidekiq/issues/2168#issuecomment-72079636
-    sidekiq_options retry: 8
+    sidekiq_options retry: 11
 
     def perform(form526_submission_id)
       form526_submission = Form526Submission.find(form526_submission_id)

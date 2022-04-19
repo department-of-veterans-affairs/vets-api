@@ -41,15 +41,15 @@ module RapidReadyForDecision
       def notes_hash
         verbose_notes = (entry['note'] || [])
 
-        { 'notes': verbose_notes.map { |note| note['text'] } }
+        { notes: verbose_notes.map { |note| note['text'] } }
       end
 
       def dosage_hash
-        dosage_instructions = (entry['dosageInstruction'] || [])
+        dosage_instructions = entry['dosageInstruction'] || []
         toplevel_texts = dosage_instructions.map { |instr| instr['text'] || [] }
         code_texts = dosage_instructions.map { |instr| instr.dig('timing', 'code', 'text') || [] }
 
-        { 'dosageInstructions': toplevel_texts + code_texts }
+        { dosageInstructions: toplevel_texts + code_texts }
       end
     end
   end
