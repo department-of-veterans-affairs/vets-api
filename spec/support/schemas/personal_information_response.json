@@ -11,6 +11,23 @@
             },
             "birth_date": {
               "type": "string"
+            },
+            "preferred_name": {
+              "type": "string"
+            },  
+            "gender_identity": {
+              "type": "object",
+              "description": "Gender Identity",
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "description": "Gender Identity Code"
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Gender Identity Name"
+                }                
+              }
             }
           },
           "type": "object"

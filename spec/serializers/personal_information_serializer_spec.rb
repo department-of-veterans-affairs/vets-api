@@ -1,20 +1,35 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'va_profile/demographics/demographic_response'
 
 RSpec.describe PersonalInformationSerializer do
-  subject { serialize(mvi_profile, serializer_class: described_class) }
+  let(:demographics) { get_demographics }
+  let(:response) { serialize(demographics, serializer_class: described_class) }
+  let(:attributes) { JSON.parse(response)['data']['attributes'] }
 
-  let(:mvi_profile) { MPIData.for_user(create(:user, :loa3)).profile }
-  let(:attributes) { JSON.parse(subject)['data']['attributes'] }
+  context 'when gender is nil' do
+    it 'returns nil for gender' do
+      expect(attributes['gender']).to eq(nil)
+    end
+  end
 
   context 'when birth_date is nil' do
-    before do
-      allow(mvi_profile).to receive(:birth_date).and_return(nil)
-    end
-
     it 'returns nil for birth_date' do
       expect(attributes['birth_date']).to eq(nil)
     end
+  end
+
+  private
+
+  def get_demographics(attributes = {})
+    VAProfile::Demographics::DemographicResponse.from(
+      status: 200,
+      body: nil,
+      id: '12345',
+      type: 'mvi_models_mvi_profiles',
+      gender: attributes[:gender],
+      birth_date: attributes[:birth_date]
+    )
   end
 end

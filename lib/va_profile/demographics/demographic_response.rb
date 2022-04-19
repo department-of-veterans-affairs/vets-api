@@ -8,13 +8,28 @@ module VAProfile
     class DemographicResponse < VAProfile::Response
       attribute :demographics, VAProfile::Models::Demographic
 
-      def self.from(raw_response = nil)
-        response_body = raw_response&.body
+      def self.from(opts = {})
+        status = opts[:status]
+        body = opts[:body]
+        demographic = VAProfile::Models::Demographic.build_from(body&.dig('bio'))
+
+        demographic.id = opts[:id]
+        demographic.type = opts[:type]
+        demographic.gender = opts[:gender]
+        demographic.birth_date = opts[:birth_date]
 
         new(
-          raw_response&.status,
-          demographics: VAProfile::Models::Demographic.build_from(response_body&.dig('bio'))
+          status,
+          demographics: demographic
         )
+      end
+
+      def gender
+        demographics&.gender
+      end
+
+      def birth_date
+        demographics&.birth_date
       end
     end
   end
