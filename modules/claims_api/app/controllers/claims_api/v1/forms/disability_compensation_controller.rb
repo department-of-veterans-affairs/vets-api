@@ -17,6 +17,7 @@ module ClaimsApi
         FORM_NUMBER = '526'
         STATSD_VALIDATION_FAIL_KEY = 'api.claims_api.526.validation_fail'
         STATSD_VALIDATION_FAIL_TYPE_KEY = 'api.claims_api.526.validation_fail_type'
+        EVSS_DOCUMENT_TYPE = 'L023'
 
         before_action except: %i[schema] do
           permit_scopes %w[claim.write]
@@ -108,7 +109,7 @@ module ClaimsApi
 
           documents.each do |document|
             claim_document = claim.supporting_documents.build
-            claim_document.set_file_data!(document, params[:doc_type], params[:description])
+            claim_document.set_file_data!(document, EVSS_DOCUMENT_TYPE, params[:description])
             claim_document.save!
             ClaimsApi::ClaimUploader.perform_async(claim_document.id)
           end
