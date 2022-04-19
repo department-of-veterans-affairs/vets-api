@@ -65,11 +65,7 @@ module Mobile
           end_date = DateTime.new(most_recent_year).end_of_year.utc
         end
 
-        payments.filter do |payment|
-          next if payment[:date].nil? # filter out future scheduled payments
-
-          payment[:date].between?(start_date, end_date)
-        end
+        payments.filter { |payment| payment[:date].between?(start_date, end_date) }
       end
 
       def paginate(payments, validated_params)
