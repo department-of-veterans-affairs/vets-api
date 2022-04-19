@@ -14,7 +14,7 @@ RSpec.describe 'payment_history', type: :request do
 
   after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
 
-  before { iam_sign_in }
+  before { iam_sign_in(FactoryBot.build(:iam_user, :no_email)) }
 
   describe 'GET /mobile/v0/payment-history' do
     context 'with successful response with the default (no) parameters' do
