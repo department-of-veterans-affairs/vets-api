@@ -49,9 +49,13 @@ module ClaimsApi
 
         def documents
           document_keys = params.keys.select { |key| key.include? 'attachment' }
-          params.slice(*document_keys).values.map do |document|
-            if document.is_a?(String)
+          @documents ||= params.slice(*document_keys).values.map do |document|
+            case document
+            when String
               decode_document(document)
+            when ActionDispatch::Http::UploadedFile
+              document.original_filename = create_unique_filename(doc: document)
+              document
             else
               document
             end
@@ -61,13 +65,23 @@ module ClaimsApi
         def decode_document(document)
           base64 = document.split(',').last
           decoded_data = Base64.decode64(base64)
-          filename = "temp_upload_#{Time.zone.now.to_i}.pdf"
+          filename = "temp_upload_#{SecureRandom.urlsafe_base64(8)}.pdf"
           temp_file = Tempfile.new(filename, encoding: 'ASCII-8BIT')
           temp_file.write(decoded_data)
           temp_file.close
           ActionDispatch::Http::UploadedFile.new(filename: filename,
                                                  type: 'application/pdf',
                                                  tempfile: temp_file)
+        end
+
+        # We have no control over the names of the binary attachments that the consumer gives us.
+        # Ensure each attachment we're given has a unique filename so we don't overwrite anything already stored in S3.
+        # See API-15088 for context
+        def create_unique_filename(doc:)
+          original_filename = doc.original_filename
+          file_extension = File.extname(original_filename)
+          base_filename = File.basename(original_filename, file_extension)
+          "#{base_filename}_#{SecureRandom.urlsafe_base64(8)}#{file_extension}"
         end
 
         def bgs_service

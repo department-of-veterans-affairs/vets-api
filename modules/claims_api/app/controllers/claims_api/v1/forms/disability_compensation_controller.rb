@@ -78,7 +78,7 @@ module ClaimsApi
           pending_claim = ClaimsApi::AutoEstablishedClaim.pending?(params[:id])
 
           if pending_claim && (pending_claim.form_data['autoCestPDFGenerationDisabled'] == true)
-            pending_claim.set_file_data!(documents.first, params[:doc_type])
+            pending_claim.set_file_data!(documents.first, EVSS_DOCUMENT_TYPE)
             pending_claim.save!
 
             ClaimsApi::Logger.log('526', claim_id: params[:id], detail: 'Uploaded PDF to S3')
