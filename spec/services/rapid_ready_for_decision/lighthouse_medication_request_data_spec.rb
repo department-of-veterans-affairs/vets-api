@@ -134,6 +134,10 @@ medication_response = {
 RSpec.describe RapidReadyForDecision::LighthouseMedicationRequestData, :vcr do
   subject { described_class }
 
+  around do |example|
+    VCR.use_cassette('rrd/lighthouse_medication_requests', &example)
+  end
+
   let(:response) do
     # Using specific test ICN that returns multiple pages below:
     client = Lighthouse::VeteransHealth::Client.new(32_000_225)

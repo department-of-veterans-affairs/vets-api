@@ -24,12 +24,14 @@ FactoryBot.define do
   end
 
   trait :hypertension_claim_for_increase do
+    user { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
     form_json do
       File.read("#{submissions_path}/only_526_hypertension.json")
     end
   end
 
   trait :asthma_claim_for_increase do
+    user { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
     form_json do
       File.read("#{::Rails.root}/spec/support/disability_compensation_form/submissions/only_526_asthma.json")
     end

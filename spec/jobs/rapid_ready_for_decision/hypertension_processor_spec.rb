@@ -8,17 +8,14 @@ RSpec.describe RapidReadyForDecision::HypertensionProcessor, type: :worker do
     Sidekiq::Worker.clear_all
   end
 
-  let!(:user) { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
-  let(:auth_headers) do
-    EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+  around do |example|
+    VCR.use_cassette('evss/claims/claims_without_open_compensation_claims') do
+      VCR.use_cassette('rrd/hypertension', &example)
+    end
   end
-  let(:saved_claim) { FactoryBot.create(:va526ez) }
+
   let(:submission) do
-    create(:form526_submission, :with_uploads, :hypertension_claim_for_increase,
-           user_uuid: user.uuid,
-           auth_headers_json: auth_headers.to_json,
-           saved_claim_id: saved_claim.id,
-           submitted_claim_id: '600130094')
+    create(:form526_submission, :hypertension_claim_for_increase)
   end
 
   let(:mocked_observation_data) do
@@ -32,10 +29,6 @@ RSpec.describe RapidReadyForDecision::HypertensionProcessor, type: :worker do
   end
 
   describe '#perform', :vcr do
-    around do |example|
-      VCR.use_cassette('evss/claims/claims_without_open_compensation_claims', &example)
-    end
-
     before do
       # The bp reading needs to be 1 year or less old so actual API data will not test if this code is working.
       allow_any_instance_of(RapidReadyForDecision::LighthouseObservationData)
@@ -61,14 +54,17 @@ RSpec.describe RapidReadyForDecision::HypertensionProcessor, type: :worker do
     end
 
     context 'when the user uuid is not associated with an Account AND the edipi auth header is blank' do
+      let!(:user) { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
+      let(:auth_headers) do
+        EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+      end
       let(:submission_without_account_or_edpid) do
         auth_headers.delete('va_eauth_dodedipnid')
 
         create(:form526_submission, :hypertension_claim_for_increase,
+               user: user,
                user_uuid: 'nonsense',
-               auth_headers_json: auth_headers.to_json,
-               saved_claim_id: saved_claim.id,
-               submitted_claim_id: '600130094')
+               auth_headers_json: auth_headers.to_json)
       end
 
       it 'raises an error' do
@@ -85,10 +81,7 @@ RSpec.describe RapidReadyForDecision::HypertensionProcessor, type: :worker do
     context 'when the user uuid is not associated with an Account AND the edipi auth header is present' do
       let(:submission_without_account) do
         create(:form526_submission, :hypertension_claim_for_increase,
-               user_uuid: 'inconceivable',
-               auth_headers_json: auth_headers.to_json,
-               saved_claim_id: saved_claim.id,
-               submitted_claim_id: '600130094')
+               user_uuid: 'inconceivable')
       end
 
       it 'finishes successfully' do

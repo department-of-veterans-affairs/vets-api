@@ -6,8 +6,7 @@ require 'sidekiq/testing'
 RSpec.describe RapidReadyForDecision::Form526BaseJob, type: :worker do
   before { Sidekiq::Worker.clear_all }
 
-  let!(:user) { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
-  let(:submission) { create(:form526_submission, :with_uploads, user: user, submitted_claim_id: '600130094') }
+  let(:submission) { create(:form526_submission, :with_uploads, submitted_claim_id: '600130094') }
 
   let(:mocked_observation_data) do
     [{ effectiveDateTime: "#{Time.zone.today.year}-06-21T02:42:52Z",
