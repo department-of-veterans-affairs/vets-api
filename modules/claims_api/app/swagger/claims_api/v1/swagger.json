@@ -496,7 +496,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6299b17f-35ce-4093-b755-93d92f1cbd50",
+                    "id": "639662ac-76ae-4f2e-a76b-8b5a5dbd1a6b",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -545,11 +545,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "fc51ba08-f931-4f5f-bac6-8573d01ff29c",
+                          "id": "06264477-311a-4592-bcd2-e58bbaa49e1e",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2022-04-05T15:09:35.608Z"
+                          "uploaded_at": "2022-04-19T21:22:44.785Z"
                         }
                       ]
                     }
@@ -2111,6 +2111,8 @@
                                   },
                                   "country": {
                                     "description": "Country Veteran was treated in.",
+                                    "minLength": 1,
+                                    "maxLength": 50,
                                     "type": "string",
                                     "example": "USA"
                                   }
@@ -2437,7 +2439,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "be116749-3bdb-4ab0-b933-0daa7290609e",
+                    "id": "a288504f-9fab-4df5-aa9d-133a8b4b0526",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2455,13 +2457,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-04-05T15:09:36.649Z",
+                      "updated_at": "2022-04-19T21:22:45.275Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "be116749-3bdb-4ab0-b933-0daa7290609e",
+                      "token": "a288504f-9fab-4df5-aa9d-133a8b4b0526",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3972,6 +3974,8 @@
                                     },
                                     "country": {
                                       "description": "Country Veteran was treated in.",
+                                      "minLength": 1,
+                                      "maxLength": 50,
                                       "type": "string",
                                       "example": "USA"
                                     }
@@ -4311,7 +4315,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "076d4af9-24e2-42aa-8cff-999c9fedb7a1",
+                    "id": "9ec44476-2f43-4506-b957-02c36caab11a",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4329,13 +4333,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-04-05T15:09:37.537Z",
+                      "updated_at": "2022-04-19T21:22:45.557Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "076d4af9-24e2-42aa-8cff-999c9fedb7a1",
+                      "token": "9ec44476-2f43-4506-b957-02c36caab11a",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -6242,6 +6246,8 @@
                                     },
                                     "country": {
                                       "description": "Country Veteran was treated in.",
+                                      "minLength": 1,
+                                      "maxLength": 50,
                                       "type": "string",
                                       "example": "USA"
                                     }
@@ -6581,7 +6587,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "cbe2b986-bd2a-4b13-ab4b-d651534cc6ae",
+                    "id": "24cb8c52-8d35-4deb-9c08-802990c3262c",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6595,7 +6601,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-04-05T15:09:39.125Z",
+                      "updated_at": "2022-04-19T21:22:46.096Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6604,7 +6610,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "40b7cae7-cd9a-4050-9cc9-800bf8b5ce6a",
+                          "id": "7ebffbd9-7fd4-4c0b-8c2b-135477e88bb2",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8562,11 +8568,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e5e36361-795a-410e-97b4-cbfb2a50af8f",
+                    "id": "f5ae5ec5-3584-4f84-8e19-60f6e7f9d06a",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2022-04-05",
+                      "date_request_accepted": "2022-04-19",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9275,11 +9281,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d33a6d65-0a93-4f39-b48e-10a943c41879",
+                    "id": "e2dd51f2-05fa-4592-8a72-ffa438685c59",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-04-05",
+                      "date_request_accepted": "2022-04-19",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9730,11 +9736,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6b36d33a-f419-4b18-9fb7-206965273c17",
+                    "id": "04025458-f99a-433b-84da-1ffc8402801f",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-04-05",
+                      "date_request_accepted": "2022-04-19",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"

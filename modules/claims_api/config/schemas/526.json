@@ -1095,6 +1095,8 @@
               },
               "country": {
                 "description": "Country Veteran was treated in.",
+                "minLength": 1,
+                "maxLength": 50,
                 "type": "string",
                 "example": "USA"
               }

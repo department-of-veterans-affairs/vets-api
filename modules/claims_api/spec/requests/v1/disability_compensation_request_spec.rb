@@ -225,7 +225,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
       end
 
-      describe "'treatment.treatedDisabilityNames' validations" do
+      describe "'treatments' validations" do
         let(:treatments) do
           [
             {
@@ -237,6 +237,47 @@ RSpec.describe 'Disability Claims ', type: :request do
               startDate: '1985-01-01'
             }
           ]
+        end
+
+        context "when 'treatments[].center.country' is an empty string'" do
+          let(:treated_disability_names) { ['PTSD (post traumatic stress disorder)'] }
+
+          it 'returns a bad request' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['treatments'] = treatments
+                  params['data']['attributes']['treatments'][0][:center][:country] = ''
+
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(422)
+                end
+              end
+            end
+          end
+        end
+
+        context "when 'treatments[].center.country' is too long'" do
+          let(:treated_disability_names) { ['PTSD (post traumatic stress disorder)'] }
+
+          it 'returns a bad request' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['treatments'] = treatments
+                  params['data']['attributes']['treatments'][0][:center][:country] =
+                    'Here\'s a country that has a very very very long name'
+
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(422)
+                end
+              end
+            end
+          end
         end
 
         context "when 'treatment.treatedDisabilityNames' includes value that does not match 'disability'" do
@@ -1017,6 +1058,7 @@ RSpec.describe 'Disability Claims ', type: :request do
                     allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(mvi_profile_response)
 
                     post path, params: data, headers: auth_header
+                    expect(response.status).to eq(200)
                   end
                 end
               end
