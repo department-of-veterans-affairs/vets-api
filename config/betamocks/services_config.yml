@@ -13,7 +13,7 @@
   - :method: :post
     :path: "/services/data/v47.0/composite/tree/ContentVersion"
     :file_path: "carma/attachment"
-      
+
 - :name: 'DMC'
   :base_uri: <%= "#{URI(Settings.dmc.url).host}:#{URI(Settings.dmc.url).port}" %>
   :endpoints:
@@ -297,6 +297,9 @@
   - :method: :get
     :path: "/wss-referencedata-services-web/rest/referencedata/v1/intakesites"
     :file_path: "evss/reference_data/intakesites"
+  - :method: :get
+    :path: "/wss-referencedata-services-web/rest/referencedata/v1/countries"
+    :file_path: "evss/reference_data/countries"
 
   # Letters
   - :method: :get
