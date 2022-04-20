@@ -16,6 +16,8 @@ module VAProfile
       # @param body [Hash] the decoded response body from VAProfile
       # @return [VAProfile::Models::PreferredName] the model built from the response body
       def self.build_from(body)
+        return nil unless body
+
         VAProfile::Models::PreferredName.new(
           text: body['preferred_name']
         )

@@ -24,10 +24,10 @@ module VAProfile
       #
       def get_demographics
         with_monitoring do
-          return DemographicResponse.new(404, demographic: nil) unless identifier_present?
+          return build_response(401, nil) unless identifier_present?
 
           response = perform(:get, identity_path)
-          DemographicResponse.from(response)
+          build_response(response&.status, response&.body)
         end
       rescue Common::Client::Errors::ClientError => e
         if e.status == 404
@@ -38,9 +38,9 @@ module VAProfile
             :warning
           )
 
-          return DemographicResponse.new(404, demographic: nil)
+          return build_response(404, nil)
         elsif e.status >= 400 && e.status < 500
-          return DemographicResponse.new(e.status, demographic: nil)
+          return build_response(e.status, nil)
         end
 
         handle_error(e)
@@ -52,6 +52,17 @@ module VAProfile
       # and the Assigning Authority ID to identify which person will be updated/retrieved.
       def identity_path
         "#{OID}/#{ERB::Util.url_encode(csp_id_with_aaid.to_s)}"
+      end
+
+      def build_response(status, body)
+        DemographicResponse.from(
+          status: status,
+          body: body,
+          id: @user.account_id,
+          type: 'mvi_models_mvi_profiles',
+          gender: @user.gender_mpi,
+          birth_date: @user.birth_date_mpi
+        )
       end
 
       private
