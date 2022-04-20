@@ -39,10 +39,11 @@ RSpec.describe RrdCompletedMailer, type: [:mailer] do
     end
 
     it 'has the expected subject' do
-      expect(email.subject).to start_with 'RRD claim - Processed'
+      expect(email.subject).to include 'RRD claim - Processed'
     end
 
     it 'has the expected content' do
+      expect(email.body).to include 'Environment: '
       expect(email.body).to include 'A single-issue 5235 claim for increase was submitted on va.gov.'
       expect(email.body).to include 'A health summary PDF was generated and added to the claim\'s documentation.'
       expect(email.body).to include "<td>#{bp_readings_count}</td>"
@@ -59,7 +60,7 @@ RSpec.describe RrdCompletedMailer, type: [:mailer] do
     end
 
     it 'has the expected subject' do
-      expect(email.subject).to start_with 'RRD claim - Pending ep'
+      expect(email.subject).to include 'RRD claim - Pending ep'
     end
 
     it 'has the expected content' do
@@ -84,7 +85,7 @@ RSpec.describe RrdCompletedMailer, type: [:mailer] do
     end
 
     it 'has the expected subject' do
-      expect(email.subject).to start_with 'RRD claim - Insufficient data'
+      expect(email.subject).to include 'RRD claim - Insufficient data'
     end
 
     it 'has the expected content' do

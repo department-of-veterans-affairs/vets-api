@@ -13,7 +13,7 @@ class RrdCompletedMailer < ApplicationMailer
 
     mail(
       to: Settings.rrd.event_tracking.recipients,
-      subject: "RRD claim - #{@rrd_status.to_s.humanize} - #{@disability_code}",
+      subject: "[#{Settings.vsp_environment}] RRD claim - #{@rrd_status.to_s.humanize} - #{@disability_code}",
       body: ERB.new(template).result(binding)
     )
   end
