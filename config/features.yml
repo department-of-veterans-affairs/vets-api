@@ -468,6 +468,10 @@ features:
     actor_type: user
     description: https://www.va.gov/profile/ show Receive Text Notifications
     enable_in_development: true
+  profile_use_vaos_v2_api:
+    description: "Use the new VAOS v2 API endpoints"
+    enable_in_development: true
+    actor_type: user
   request_locked_pdf_password:
     actor_type: user
     description: Ask for a password when an encrypted PDF is detected before uploading
