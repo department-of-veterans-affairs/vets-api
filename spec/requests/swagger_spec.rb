@@ -2275,9 +2275,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'supports getting personal information data' do
         expect(subject).to validate(:get, '/v0/profile/personal_information', 401)
         VCR.use_cassette('mpi/find_candidate/valid') do
-          VCR.use_cassette('va_profile/demographics/demographics') do
-            expect(subject).to validate(:get, '/v0/profile/personal_information', 200, headers)
-          end
+          expect(subject).to validate(:get, '/v0/profile/personal_information', 200, headers)
         end
       end
 
@@ -2910,9 +2908,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         allow_any_instance_of(MPI::Models::MviProfile).to receive(:birth_date).and_return(nil)
 
         VCR.use_cassette('mpi/find_candidate/missing_birthday_and_gender') do
-          VCR.use_cassette('va_profile/demographics/demographics') do
-            expect(subject).to validate(:get, '/v0/profile/personal_information', 502, headers)
-          end
+          expect(subject).to validate(:get, '/v0/profile/personal_information', 502, headers)
         end
       end
     end

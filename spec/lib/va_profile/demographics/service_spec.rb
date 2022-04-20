@@ -54,14 +54,15 @@ describe VAProfile::Demographics::Service, skip_vet360: true do
     end
 
     context 'when not successful' do
+      let(:idme_uuid) { '12345' }
+
       context 'with a 400 error' do
         it 'returns nil demographic' do
           VCR.use_cassette('va_profile/demographics/demographics_error_400', VCR::MATCH_EVERYTHING) do
             response = subject.get_demographics
 
             expect(response).not_to be_ok
-            expect(response.demographics.preferred_name).to be_nil
-            expect(response.demographics.gender_identity).to be_nil
+            expect(response.demographics).to be_nil
           end
         end
       end
@@ -70,20 +71,21 @@ describe VAProfile::Demographics::Service, skip_vet360: true do
         VCR.use_cassette('va_profile/demographics/demographics_error_404', VCR::MATCH_EVERYTHING) do
           expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
             instance_of(Common::Client::Errors::ClientError),
-            { csp_id_with_aaid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef^PN^200IDME^USDVA' },
+            { csp_id_with_aaid: '12345^PN^200IDME^USDVA' },
             { va_profile: :demographics_not_found },
             :warning
           )
 
           response = subject.get_demographics
           expect(response).not_to be_ok
-          expect(response.demographics.preferred_name).to be_nil
-          expect(response.demographics.gender_identity).to be_nil
+          expect(response.demographics).to be_nil
         end
       end
     end
 
     context 'when service returns a 503 error code' do
+      let(:idme_uuid) { '12345' }
+
       it 'raises a BackendServiceException error' do
         VCR.use_cassette('va_profile/demographics/demographics_error_503', VCR::MATCH_EVERYTHING) do
           expect { subject.get_demographics }.to raise_error do |e|

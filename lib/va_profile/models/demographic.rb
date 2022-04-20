@@ -8,10 +8,6 @@ require 'common/models/attribute_types/iso8601_time'
 module VAProfile
   module Models
     class Demographic < Base
-      attribute :id, String
-      attribute :type, String
-      attribute :gender, String
-      attribute :birth_date, String
       attribute :preferred_name, PreferredName
       attribute :gender_identity, GenderIdentity
 
