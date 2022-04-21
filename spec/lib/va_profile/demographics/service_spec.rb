@@ -17,7 +17,7 @@ describe VAProfile::Demographics::Service, skip_vet360: true do
     context 'when a uuid exists' do
       it 'returns a valid identity path' do
         path = subject.identity_path
-        expect(path).to eq('2.16.840.1.113883.4.349/b2fab2b5-6af0-45e1-a9e2-394347af91ef%5EPN%5E200IDME%5EUSDVA')
+        expect(path).to eq('2.16.840.1.113883.4.349/b2fab2b5-6af0-45e1-a9e2-394347af91ef%5EPN%5E200VIDM%5EUSDVA')
       end
     end
   end
@@ -70,7 +70,7 @@ describe VAProfile::Demographics::Service, skip_vet360: true do
         VCR.use_cassette('va_profile/demographics/demographics_error_404', VCR::MATCH_EVERYTHING) do
           expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
             instance_of(Common::Client::Errors::ClientError),
-            { csp_id_with_aaid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef^PN^200IDME^USDVA' },
+            { csp_id_with_aaid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef^PN^200VIDM^USDVA' },
             { va_profile: :demographics_not_found },
             :warning
           )
