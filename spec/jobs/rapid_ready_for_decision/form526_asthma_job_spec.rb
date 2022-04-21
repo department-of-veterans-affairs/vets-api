@@ -4,10 +4,6 @@ require 'rails_helper'
 require 'sidekiq/testing'
 
 RSpec.describe RapidReadyForDecision::Form526AsthmaJob, type: :worker do
-  before do
-    Sidekiq::Worker.clear_all
-  end
-
   around do |example|
     VCR.use_cassette('evss/claims/claims_without_open_compensation_claims', &example)
   end

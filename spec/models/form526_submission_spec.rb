@@ -22,10 +22,6 @@ RSpec.describe Form526Submission do
   end
 
   shared_examples '#start_evss_submission' do
-    before do
-      Sidekiq::Worker.clear_all
-    end
-
     context 'when it is all claims' do
       it 'queues an all claims job' do
         expect do
@@ -53,7 +49,6 @@ RSpec.describe Form526Submission do
         before do
           Flipper.enable :rrd_hypertension_compensation
           Flipper.enable :rrd_asthma_compensation
-          Sidekiq::Worker.clear_all
         end
 
         it 'calls start_rrd_job with the job and backup job classes' do
@@ -131,7 +126,6 @@ RSpec.describe Form526Submission do
         before do
           Flipper.disable :rrd_hypertension_compensation
           Flipper.disable :rrd_asthma_compensation
-          Sidekiq::Worker.clear_all
         end
 
         it 'does NOT queue a new RapidReadyForDecision::Form526BaseJob worker' do
@@ -143,8 +137,6 @@ RSpec.describe Form526Submission do
     end
 
     context 'the submission is NOT for hypertension' do
-      before { Sidekiq::Worker.clear_all }
-
       it 'Does NOT queue a new RapidReadyForDecision::Form526BaseJob' do
         expect { subject.start }.to change(RapidReadyForDecision::Form526BaseJob.jobs, :size).by(0)
       end
