@@ -60,6 +60,11 @@ InProgressFormCleaner:
   class: InProgressFormCleaner
   description: "Clear out saved forms that have not been updated in a while"
 
+VANotify::InProgressForms:
+  cron: "0 16 * * * America/New_York"
+  class: VANotify::InProgressForms
+  description: "In progress form reminder emails (sent via VaNotify)"
+
 FailedClaimsReport:
   cron: "30 3 * * MON America/New_York"
   class: EVSS::FailedClaimsReport
