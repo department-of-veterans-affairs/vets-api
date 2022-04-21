@@ -39,7 +39,7 @@ module EVSS
           response = service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
           response_handler(response)
         end
-        send_rrd_completed_notification(submission) if submission.rrd_process_selector.rrd_applicable?
+        send_rrd_completed_notification(submission) if submission.rrd_job_selector.rrd_applicable?
       rescue Common::Exceptions::BackendServiceException,
              Common::Exceptions::GatewayTimeout,
              Breakers::OutageException,

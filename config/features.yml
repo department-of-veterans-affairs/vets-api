@@ -412,6 +412,10 @@ features:
     actor_type: user
     description: enables a user to include pending appointment requests in the mobile/v0/appointments endpoint
     enable_in_development: true
+  mobile_appointment_use_VAOS_MFS:
+    actor_type: user
+    description: Finds facilities using VAOS's Mobile Facility Service.
+    enable_in_development: false
   multiple_address_10_10ez:
     actor_type: cookie_id
     description: >
@@ -427,6 +431,9 @@ features:
       Toggle for the entire pre-entry covid 19 self-screener available at /covid19screener and to be used by visitors
       to VHA facilities in lieu of manual screening with a VHA employee.
       This toggle is owned by Patrick B. and the rest of the CTO Health Products team.
+  profile_do_not_require_international_zip_code:
+    actor_type: user
+    description:  When enabled, the profile page will not require the user to enter an international zip code. 
   profile_notification_settings:
     actor_type: user
     description: Turns on the Notification Settings section of the VA.gov Profile
@@ -461,6 +468,10 @@ features:
     actor_type: user
     description: https://www.va.gov/profile/ show Receive Text Notifications
     enable_in_development: true
+  profile_use_vaos_v2_api:
+    description: "Use the new VAOS v2 API endpoints"
+    enable_in_development: true
+    actor_type: user
   request_locked_pdf_password:
     actor_type: user
     description: Ask for a password when an encrypted PDF is detected before uploading

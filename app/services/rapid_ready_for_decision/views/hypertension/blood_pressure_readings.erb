@@ -5,9 +5,9 @@
 
 <p>
   <% if @assessed_data[:bp_readings].any? %>
-    <h4>One Year of Blood Pressure History</h4>
+    <h3>One Year of Blood Pressure History</h3>
   <% else %>
-    <h4>No blood pressure records found</h4>
+    <h3>No blood pressure records found</h3>
   <% end %>
 </p>
 
@@ -31,3 +31,5 @@
     Location: <%= bp[:organization] || 'Unknown' %>
   </p>
 <% end %>
+
+<p> <br /> </p>

@@ -6,6 +6,58 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe AppealsApi::SupplementalClaim, type: :model do
   include FixtureHelpers
 
+  context 'validations' do
+    let(:default_auth_headers) { fixture_as_json 'valid_200995_headers_extra.json', version: 'v2' }
+    let(:default_form_data) { fixture_as_json 'valid_200995_extra.json', version: 'v2' }
+    let(:form_data) { default_form_data }
+    let(:auth_headers) { default_auth_headers }
+    let(:supplemental_claim) do
+      described_class.new(form_data: form_data, auth_headers: auth_headers, api_version: 'V2')
+    end
+
+    context 'when a veteran birth date is in the future' do
+      let(:auth_headers) { default_auth_headers.merge 'X-VA-Birth-Date' => (Time.zone.today + 2).to_s }
+
+      it 'creates an invalid record' do
+        expect(supplemental_claim.valid?).to be false
+        expect(supplemental_claim.errors.to_a.length).to eq 1
+        expect(supplemental_claim.errors.to_a.first.downcase).to include 'veteran'
+        expect(supplemental_claim.errors.to_a.first.downcase).to include 'past'
+      end
+    end
+
+    context 'bad contestable issue dates' do
+      let(:form_data) do
+        {
+          'data' => default_form_data['data'],
+          'included' => [
+            {
+              'type' => 'contestableIssue',
+              'attributes' => {
+                'issue' => 'PTSD',
+                'decisionDate' => (Time.zone.today + 2).to_s
+              }
+            },
+            {
+              'type' => 'contestableIssue',
+              'attributes' => {
+                'issue' => 'right knee',
+                'decisionDate' => '1901-01-31'
+              }
+            }
+          ]
+        }
+      end
+
+      it 'creates an invalid record' do
+        expect(supplemental_claim.valid?).to be false
+        expect(supplemental_claim.errors.to_a.length).to eq 1
+        expect(supplemental_claim.errors.to_a.first.downcase).to include 'decisiondate'
+        expect(supplemental_claim.errors.to_a.first.downcase).to include 'past'
+      end
+    end
+  end
+
   context 'headers' do
     let(:auth_headers) { fixture_as_json 'valid_200995_headers.json', version: 'v2' }
     let(:supplemental_claim) { create(:supplemental_claim) }

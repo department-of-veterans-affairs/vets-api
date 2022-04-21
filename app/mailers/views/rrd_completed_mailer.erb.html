@@ -4,6 +4,7 @@
     <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
   </head>
   <body>
+    Environment: <%= Settings.vsp_environment %><br/>
     <p>
       A single-issue <%= @disability_code %> claim for increase was submitted on va.gov.<br/>
       <% case @rrd_status
@@ -38,6 +39,9 @@
 
     <p>
       (Note the time zone for Submission Date and Time: <%= @submission.created_at %>)
+    </p>
+    <p>
+      S3 guid for the RRD PDF: <%= @pdf_guid %>
     </p>
   </body>
 </html>

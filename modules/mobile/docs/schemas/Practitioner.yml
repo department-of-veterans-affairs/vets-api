@@ -1,0 +1,21 @@
+type: object
+properties:
+  identifier:
+    type: array
+    items:
+      "$ref": ./AppointmentIdentifier.yml
+  name:
+    type: object
+    properties:
+      family:
+        type: string
+        description: Family name (surname).
+      given:
+        type: array
+        description: Given names (not always first). Given Names appear in the correct order for presenting the name.
+        items:
+          type: string
+    description: A human name.
+  address:
+    "$ref": ./AppointmentRequestAddress.yml
+description: Details about the practitioner.

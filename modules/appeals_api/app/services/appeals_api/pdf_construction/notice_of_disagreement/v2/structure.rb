@@ -24,7 +24,7 @@ module AppealsApi
             form_fields.central_office_hearing => form_data.central_office_hearing,
             form_fields.video_conference_hearing => form_data.video_conference_hearing,
             form_fields.virtual_tele_hearing => form_data.virtual_tele_hearing,
-            form_fields.extension_request => form_data.extension_request,
+            form_fields.requesting_extension => form_data.requesting_extension,
             form_fields.appealing_vha_denial => form_data.appealing_vha_denial,
             form_fields.additional_issues => form_data.additional_pages,
             form_fields.date_signed => form_data.date_signed
@@ -106,11 +106,11 @@ module AppealsApi
 
           @additional_pages_pdf ||= Prawn::Document.new(skip_page_creation: true)
 
-          NoticeOfDisagreement::V2::Pages::AdditionalContent.new(
+          Pages::LongDataAndExtraIssues.new(
             @additional_pages_pdf, form_data
           ).build!
 
-          NoticeOfDisagreement::V2::Pages::TimeExtensionReason.new(
+          Pages::TimeExtensionReason.new(
             @additional_pages_pdf, form_data
           ).build!
 
@@ -134,11 +134,11 @@ module AppealsApi
         attr_accessor :notice_of_disagreement
 
         def form_fields
-          @form_fields ||= NoticeOfDisagreement::V2::FormFields.new
+          @form_fields ||= FormFields.new
         end
 
         def form_data
-          @form_data ||= NoticeOfDisagreement::V2::FormData.new(notice_of_disagreement)
+          @form_data ||= FormData.new(notice_of_disagreement)
         end
 
         def fill_first_five_issue_dates!(options)
@@ -156,7 +156,7 @@ module AppealsApi
         # rubocop:disable Layout/LineLength
 
         def additional_pages?
-          form_data.contestable_issues.count > 5 || form_data.long_preferred_email? || form_data.extension_request? || form_data.long_rep_name?
+          form_data.contestable_issues.count > 5 || form_data.long_preferred_email? || form_data.requesting_extension? || form_data.long_rep_name?
         end
         # rubocop:enable Layout/LineLength
 

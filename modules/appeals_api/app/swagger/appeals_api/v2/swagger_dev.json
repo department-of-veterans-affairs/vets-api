@@ -4331,7 +4331,7 @@
                                   "timezone": "America/Chicago"
                                 },
                                 "boardReviewOption": "evidence_submission",
-                                "extensionRequest": false,
+                                "requestingExtension": false,
                                 "appealingVhaDenial": false
                               }
                             },
@@ -4383,7 +4383,7 @@
                                   "name": "Tony Danza"
                                 },
                                 "boardReviewOption": "evidence_submission",
-                                "extensionRequest": false,
+                                "requestingExtension": false,
                                 "appealingVhaDenial": false
                               }
                             },
@@ -4472,7 +4472,7 @@
                           "timezone": "America/Chicago"
                         },
                         "boardReviewOption": "evidence_submission",
-                        "extensionRequest": false,
+                        "requestingExtension": false,
                         "appealingVhaDenial": false
                       }
                     },
@@ -4539,7 +4539,7 @@
                         },
                         "boardReviewOption": "hearing",
                         "hearingTypePreference": "central_office",
-                        "extensionRequest": true,
+                        "requestingExtension": true,
                         "extensionReason": "good cause substantive reason",
                         "appealingVhaDenial": true
                       }
@@ -4671,7 +4671,7 @@
                               "name": "Tony Danza"
                             },
                             "boardReviewOption": "evidence_submission",
-                            "extensionRequest": false,
+                            "requestingExtension": false,
                             "appealingVhaDenial": false
                           }
                         },
@@ -5771,19 +5771,19 @@
                                     "central_office"
                                   ]
                                 },
-                                "extensionRequest": {
+                                "requestingExtension": {
                                   "type": "boolean",
-                                  "description": "Request for an extension of time to file. An extensionReason must be provided if extensionRequest is true."
+                                  "description": "Set to true to request a filing extension. An extensionReason must be provided if true."
                                 },
                                 "extensionReason": {
                                   "type": "string",
                                   "minLength": 1,
                                   "maxLength": 2300,
-                                  "description": "Explanation why you believe there is good cause for the extension. If an extensionReason is provided, extensionRequest must be true."
+                                  "description": "Explanation why you believe there is good cause for the extension. If an extensionReason is provided, requestingExtension must be true."
                                 },
                                 "appealingVhaDenial": {
                                   "type": "boolean",
-                                  "description": "If you are appealing a denial of benefits by the Veterans Health Administration (VHA)"
+                                  "description": "Set to true if you are appealing a denial of benefits by the Veterans Health Administration (VHA)."
                                 }
                               },
                               "required": [
@@ -5791,7 +5791,7 @@
                               ],
                               "if": {
                                 "properties": {
-                                  "extensionRequest": {
+                                  "requestingExtension": {
                                     "const": true
                                   }
                                 }
@@ -6120,7 +6120,7 @@
                           "timezone": "America/Chicago"
                         },
                         "boardReviewOption": "evidence_submission",
-                        "extensionRequest": false,
+                        "requestingExtension": false,
                         "appealingVhaDenial": false
                       }
                     },
@@ -6187,7 +6187,7 @@
                         },
                         "boardReviewOption": "hearing",
                         "hearingTypePreference": "central_office",
-                        "extensionRequest": true,
+                        "requestingExtension": true,
                         "extensionReason": "good cause substantive reason",
                         "appealingVhaDenial": true
                       }
@@ -10452,19 +10452,19 @@
                       "central_office"
                     ]
                   },
-                  "extensionRequest": {
+                  "requestingExtension": {
                     "type": "boolean",
-                    "description": "Request for an extension of time to file. An extensionReason must be provided if extensionRequest is true."
+                    "description": "Set to true to request a filing extension. An extensionReason must be provided if true."
                   },
                   "extensionReason": {
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 2300,
-                    "description": "Explanation why you believe there is good cause for the extension. If an extensionReason is provided, extensionRequest must be true."
+                    "description": "Explanation why you believe there is good cause for the extension. If an extensionReason is provided, requestingExtension must be true."
                   },
                   "appealingVhaDenial": {
                     "type": "boolean",
-                    "description": "If you are appealing a denial of benefits by the Veterans Health Administration (VHA)"
+                    "description": "Set to true if you are appealing a denial of benefits by the Veterans Health Administration (VHA)."
                   }
                 },
                 "required": [
@@ -10472,7 +10472,7 @@
                 ],
                 "if": {
                   "properties": {
-                    "extensionRequest": {
+                    "requestingExtension": {
                       "const": true
                     }
                   }

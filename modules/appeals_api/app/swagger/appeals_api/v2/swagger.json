@@ -16,6 +16,10 @@
       "description": ""
     },
     {
+      "name": "Supplemental Claims",
+      "description": ""
+    },
+    {
       "name": "Contestable Issues",
       "description": ""
     },
@@ -4327,7 +4331,7 @@
                                   "timezone": "America/Chicago"
                                 },
                                 "boardReviewOption": "evidence_submission",
-                                "extensionRequest": false,
+                                "requestingExtension": false,
                                 "appealingVhaDenial": false
                               }
                             },
@@ -4379,7 +4383,7 @@
                                   "name": "Tony Danza"
                                 },
                                 "boardReviewOption": "evidence_submission",
-                                "extensionRequest": false,
+                                "requestingExtension": false,
                                 "appealingVhaDenial": false
                               }
                             },
@@ -4468,7 +4472,7 @@
                           "timezone": "America/Chicago"
                         },
                         "boardReviewOption": "evidence_submission",
-                        "extensionRequest": false,
+                        "requestingExtension": false,
                         "appealingVhaDenial": false
                       }
                     },
@@ -4515,7 +4519,7 @@
                         },
                         "boardReviewOption": "hearing",
                         "hearingTypePreference": "central_office",
-                        "extensionRequest": true,
+                        "requestingExtension": true,
                         "extensionReason": "good cause substantive reason",
                         "appealingVhaDenial": true
                       }
@@ -4647,7 +4651,7 @@
                               "name": "Tony Danza"
                             },
                             "boardReviewOption": "evidence_submission",
-                            "extensionRequest": false,
+                            "requestingExtension": false,
                             "appealingVhaDenial": false
                           }
                         },
@@ -5747,19 +5751,19 @@
                                     "central_office"
                                   ]
                                 },
-                                "extensionRequest": {
+                                "requestingExtension": {
                                   "type": "boolean",
-                                  "description": "Request for an extension of time to file. An extensionReason must be provided if extensionRequest is true."
+                                  "description": "Set to true to request a filing extension. An extensionReason must be provided if true."
                                 },
                                 "extensionReason": {
                                   "type": "string",
                                   "minLength": 1,
                                   "maxLength": 2300,
-                                  "description": "Explanation why you believe there is good cause for the extension. If an extensionReason is provided, extensionRequest must be true."
+                                  "description": "Explanation why you believe there is good cause for the extension. If an extensionReason is provided, requestingExtension must be true."
                                 },
                                 "appealingVhaDenial": {
                                   "type": "boolean",
-                                  "description": "If you are appealing a denial of benefits by the Veterans Health Administration (VHA)"
+                                  "description": "Set to true if you are appealing a denial of benefits by the Veterans Health Administration (VHA)."
                                 }
                               },
                               "required": [
@@ -5767,7 +5771,7 @@
                               ],
                               "if": {
                                 "properties": {
-                                  "extensionRequest": {
+                                  "requestingExtension": {
                                     "const": true
                                   }
                                 }
@@ -6096,7 +6100,7 @@
                           "timezone": "America/Chicago"
                         },
                         "boardReviewOption": "evidence_submission",
-                        "extensionRequest": false,
+                        "requestingExtension": false,
                         "appealingVhaDenial": false
                       }
                     },
@@ -6143,7 +6147,7 @@
                         },
                         "boardReviewOption": "hearing",
                         "hearingTypePreference": "central_office",
-                        "extensionRequest": true,
+                        "requestingExtension": true,
                         "extensionReason": "good cause substantive reason",
                         "appealingVhaDenial": true
                       }
@@ -6522,6 +6526,1124 @@
           },
           "404": {
             "description": "Notice of Disagreement Evidence Submission not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Record not found",
+                      "detail": "The record identified by invalid could not be found",
+                      "code": "404",
+                      "status": "404"
+                    }
+                  ]
+                },
+                "schema": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "integer",
+                              "enum": [
+                                404
+                              ]
+                            },
+                            "detail": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/supplemental_claims": {
+      "post": {
+        "summary": "Creates a new Supplemental Claim",
+        "tags": [
+          "Supplemental Claims"
+        ],
+        "operationId": "createSc",
+        "description": "Submits an appeal of type Supplemental Claim. This endpoint is the same as submitting [VA form 200995](https://www.vba.va.gov/pubs/forms/VBA-20-0995-ARE.pdf) via mail or fax directly to the Board of Veterans’ Appeals.\n<br /><br />\n<b>Note about the 5103 Notice of Acknowledgement</b>\n<br /><br />\nThe 5103 Notice regarding new & relevant evidence must be acknowledged when the issue(s) being contested is a Disability Compensation issue. The notice can be found here: [http://www.va.gov/disability/how-to-file-claim/evidence-needed](http://www.va.gov/disability/how-to-file-claim/evidence-needed). If the issue(s) being submitted are Disability Compensation and 'No' is selected, the API will return an error.  Please ensure the Veteran reviews the content about the 5103 Notice at the link above.\n<br /><br />\nSupplemental Claims submitted via other avenues that do NOT select 'Yes' for the 5103 Notice are subject to a 30 day suspense so the 5103 Notice can be mailed to the Veteran.\n",
+        "security": [
+          {
+            "apikey": [
+
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-VA-SSN",
+            "required": true,
+            "description": "Veteran's SSN",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-First-Name",
+            "required": true,
+            "description": "Veteran's first name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-Middle-Initial",
+            "required": false,
+            "description": "Veteran's middle initial",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-Last-Name",
+            "required": true,
+            "description": "Veteran's last name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-Birth-Date",
+            "required": true,
+            "description": "Veteran's birth date",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-File-Number",
+            "required": false,
+            "description": "Veteran's file number",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Consumer-Username",
+            "required": false,
+            "description": "Consumer User Name (passed from Kong)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Consumer-ID",
+            "required": false,
+            "description": "Consumer GUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Info about a single Supplemental Claim",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "minimum fields used": {
+                    "value": {
+                      "data": {
+                        "id": "00000000-1111-2222-3333-444444444444",
+                        "type": "supplementalClaim",
+                        "attributes": {
+                          "status": "pending",
+                          "updatedAt": "2020-01-02T03:04:05.067Z",
+                          "createdAt": "2020-01-02T03:04:05.067Z",
+                          "formData": {
+                            "data": {
+                              "type": "supplementalClaim",
+                              "attributes": {
+                                "benefitType": "fiduciary",
+                                "veteran": {
+                                  "address": {
+                                    "addressLine1": "123 Main St",
+                                    "city": "New York",
+                                    "countryCodeISO2": "US",
+                                    "zipCode5": "30012"
+                                  },
+                                  "phone": {
+                                    "areaCode": "555",
+                                    "phoneNumber": "8001111"
+                                  },
+                                  "email": "josie@example.com",
+                                  "timezone": "America/Chicago"
+                                },
+                                "socOptIn": false,
+                                "evidenceSubmission": {
+                                  "evidenceType": [
+                                    "upload"
+                                  ]
+                                }
+                              }
+                            },
+                            "included": [
+                              {
+                                "type": "contestableIssue",
+                                "attributes": {
+                                  "issue": "right shoulder",
+                                  "decisionDate": "1900-01-06"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "all fields used": {
+                    "value": {
+                      "data": {
+                        "id": "00000000-1111-2222-3333-444444444444",
+                        "type": "supplementalClaim",
+                        "attributes": {
+                          "status": "pending",
+                          "updatedAt": "2020-01-02T03:04:05.067Z",
+                          "createdAt": "2020-01-02T03:04:05.067Z",
+                          "formData": {
+                            "data": {
+                              "type": "supplementalClaim",
+                              "attributes": {
+                                "benefitType": "compensation",
+                                "veteran": {
+                                  "address": {
+                                    "addressLine1": "123 Main St",
+                                    "addressLine2": "Suite #1200",
+                                    "addressLine3": "Box 4",
+                                    "city": "New York",
+                                    "countryCodeISO2": "US",
+                                    "stateCode": "NY",
+                                    "zipCode5": "30012"
+                                  },
+                                  "phone": {
+                                    "countryCode": "03",
+                                    "areaCode": "555",
+                                    "phoneNumber": "8001111"
+                                  },
+                                  "email": "bobsemail@bobbytablesemail.com",
+                                  "timezone": "America/Chicago"
+                                },
+                                "socOptIn": true,
+                                "form5103Acknowledged": true,
+                                "evidenceSubmission": {
+                                  "evidenceType": [
+                                    "upload",
+                                    "retrieval"
+                                  ],
+                                  "retrieveFrom": [
+                                    {
+                                      "type": "retrievalEvidence",
+                                      "attributes": {
+                                        "locationAndName": "X-Ray VAMC",
+                                        "evidenceDates": [
+                                          {
+                                            "startDate": "2020-04-10",
+                                            "endDate": "2020-04-10"
+                                          },
+                                          {
+                                            "startDate": "2020-01-02",
+                                            "endDate": "2020-02-01"
+                                          },
+                                          {
+                                            "startDate": "2020-02-20",
+                                            "endDate": "2020-02-22"
+                                          },
+                                          {
+                                            "startDate": "2019-02-02",
+                                            "endDate": "2020-02-03"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "retrievalEvidence",
+                                      "attributes": {
+                                        "locationAndName": "Blood Lab VA Facility",
+                                        "evidenceDates": [
+                                          {
+                                            "startDate": "2020-02-20",
+                                            "endDate": "2020-02-22"
+                                          },
+                                          {
+                                            "startDate": "2020-02-02",
+                                            "endDate": "2020-02-07"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "retrievalEvidence",
+                                      "attributes": {
+                                        "locationAndName": "Doctor's Notes VAMC",
+                                        "evidenceDates": [
+                                          {
+                                            "startDate": "2020-04-10",
+                                            "endDate": "2020-04-10"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "retrievalEvidence",
+                                      "attributes": {
+                                        "locationAndName": "CT scan VA Medical Facility",
+                                        "evidenceDates": [
+                                          {
+                                            "startDate": "2020-07-19",
+                                            "endDate": "2020-07-19"
+                                          },
+                                          {
+                                            "startDate": "2018-03-06",
+                                            "endDate": "2019-02-12"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "retrievalEvidence",
+                                      "attributes": {
+                                        "locationAndName": "Lab work VAMC",
+                                        "evidenceDates": [
+                                          {
+                                            "startDate": "2018-03-06",
+                                            "endDate": "2018-03-06"
+                                          },
+                                          {
+                                            "startDate": "2018-01-15",
+                                            "endDate": "2018-01-15"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            "included": [
+                              {
+                                "type": "contestableIssue",
+                                "attributes": {
+                                  "issue": "right shoulder",
+                                  "decisionDate": "2000-01-08",
+                                  "socDate": "2020-04-30"
+                                }
+                              },
+                              {
+                                "type": "contestableIssue",
+                                "attributes": {
+                                  "issue": "lower back",
+                                  "decisionDate": "1900-01-06",
+                                  "socDate": "2021-02-24"
+                                }
+                              },
+                              {
+                                "type": "contestableIssue",
+                                "attributes": {
+                                  "issue": "torn rotator cuff",
+                                  "decisionDate": "1989-03-07",
+                                  "socDate": "2020-04-30"
+                                }
+                              },
+                              {
+                                "type": "contestableIssue",
+                                "attributes": {
+                                  "issue": "hearing loss",
+                                  "decisionDate": "1930-10-20",
+                                  "socDate": "2016-05-30"
+                                }
+                              },
+                              {
+                                "type": "contestableIssue",
+                                "attributes": {
+                                  "issue": "sciatica",
+                                  "decisionDate": "2007-01-19",
+                                  "socDate": "2012-01-02"
+                                }
+                              },
+                              {
+                                "type": "contestableIssue",
+                                "attributes": {
+                                  "issue": "bowel obstruction",
+                                  "decisionDate": "1999-12-29",
+                                  "socDate": "2019-08-13"
+                                }
+                              },
+                              {
+                                "type": "contestableIssue",
+                                "attributes": {
+                                  "issue": "right eye",
+                                  "decisionDate": "1920-04-02",
+                                  "socDate": "2019-11-19"
+                                }
+                              },
+                              {
+                                "type": "contestableIssue",
+                                "attributes": {
+                                  "issue": "left index finger",
+                                  "decisionDate": "2018-08-17",
+                                  "socDate": "2021-03-20"
+                                }
+                              },
+                              {
+                                "type": "contestableIssue",
+                                "attributes": {
+                                  "issue": "spinal compression",
+                                  "decisionDate": "2013-09-11",
+                                  "socDate": "2020-08-24"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/scCreateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Violates JSON schema",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Missing required fields",
+                      "detail": "One or more expected fields were not found",
+                      "code": "145",
+                      "source": {
+                        "pointer": "/data/attributes"
+                      },
+                      "status": "422",
+                      "meta": {
+                        "missing_fields": [
+                          "form5103Acknowledged"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/scCreate"
+              },
+              "examples": {
+                "minimum fields used": {
+                  "value": {
+                    "data": {
+                      "type": "supplementalClaim",
+                      "attributes": {
+                        "benefitType": "lifeInsurance",
+                        "veteran": {
+                          "address": {
+                            "addressLine1": "123 Main St",
+                            "city": "New York",
+                            "countryCodeISO2": "US",
+                            "zipCode5": "30012"
+                          },
+                          "phone": {
+                            "areaCode": "555",
+                            "phoneNumber": "8001111"
+                          },
+                          "email": "josie@example.com",
+                          "timezone": "America/Chicago"
+                        },
+                        "socOptIn": false,
+                        "evidenceSubmission": {
+                          "evidenceType": [
+                            "upload"
+                          ]
+                        }
+                      }
+                    },
+                    "included": [
+                      {
+                        "type": "contestableIssue",
+                        "attributes": {
+                          "issue": "right shoulder",
+                          "decisionDate": "1900-01-06"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "all fields used": {
+                  "value": {
+                    "data": {
+                      "type": "supplementalClaim",
+                      "attributes": {
+                        "benefitType": "compensation",
+                        "veteran": {
+                          "address": {
+                            "addressLine1": "123 Main St",
+                            "addressLine2": "Suite #1200",
+                            "addressLine3": "Box 4",
+                            "city": "New York",
+                            "countryCodeISO2": "US",
+                            "stateCode": "NY",
+                            "zipCode5": "30012"
+                          },
+                          "phone": {
+                            "countryCode": "03",
+                            "areaCode": "555",
+                            "phoneNumber": "8001111"
+                          },
+                          "email": "bobsemail@bobbytablesemail.com",
+                          "timezone": "America/Chicago"
+                        },
+                        "socOptIn": true,
+                        "form5103Acknowledged": true,
+                        "evidenceSubmission": {
+                          "evidenceType": [
+                            "upload",
+                            "retrieval"
+                          ],
+                          "retrieveFrom": [
+                            {
+                              "type": "retrievalEvidence",
+                              "attributes": {
+                                "locationAndName": "X-Ray VAMC",
+                                "evidenceDates": [
+                                  {
+                                    "startDate": "2020-04-10",
+                                    "endDate": "2020-04-10"
+                                  },
+                                  {
+                                    "startDate": "2020-01-02",
+                                    "endDate": "2020-02-01"
+                                  },
+                                  {
+                                    "startDate": "2020-02-20",
+                                    "endDate": "2020-02-22"
+                                  },
+                                  {
+                                    "startDate": "2019-02-02",
+                                    "endDate": "2020-02-03"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "retrievalEvidence",
+                              "attributes": {
+                                "locationAndName": "Blood Lab VA Facility",
+                                "evidenceDates": [
+                                  {
+                                    "startDate": "2020-02-20",
+                                    "endDate": "2020-02-22"
+                                  },
+                                  {
+                                    "startDate": "2020-02-02",
+                                    "endDate": "2020-02-07"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "retrievalEvidence",
+                              "attributes": {
+                                "locationAndName": "Doctor's Notes VAMC",
+                                "evidenceDates": [
+                                  {
+                                    "startDate": "2020-04-10",
+                                    "endDate": "2020-04-10"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "retrievalEvidence",
+                              "attributes": {
+                                "locationAndName": "CT scan VA Medical Facility",
+                                "evidenceDates": [
+                                  {
+                                    "startDate": "2020-07-19",
+                                    "endDate": "2020-07-19"
+                                  },
+                                  {
+                                    "startDate": "2018-03-06",
+                                    "endDate": "2019-02-12"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "retrievalEvidence",
+                              "attributes": {
+                                "locationAndName": "Lab work VAMC",
+                                "evidenceDates": [
+                                  {
+                                    "startDate": "2018-03-06",
+                                    "endDate": "2018-03-06"
+                                  },
+                                  {
+                                    "startDate": "2018-01-15",
+                                    "endDate": "2018-01-15"
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "included": [
+                      {
+                        "type": "contestableIssue",
+                        "attributes": {
+                          "issue": "right shoulder",
+                          "decisionDate": "2000-01-08",
+                          "socDate": "2020-04-30"
+                        }
+                      },
+                      {
+                        "type": "contestableIssue",
+                        "attributes": {
+                          "issue": "lower back",
+                          "decisionDate": "1900-01-06",
+                          "socDate": "2021-02-24"
+                        }
+                      },
+                      {
+                        "type": "contestableIssue",
+                        "attributes": {
+                          "issue": "torn rotator cuff",
+                          "decisionDate": "1989-03-07",
+                          "socDate": "2020-04-30"
+                        }
+                      },
+                      {
+                        "type": "contestableIssue",
+                        "attributes": {
+                          "issue": "hearing loss",
+                          "decisionDate": "1930-10-20",
+                          "socDate": "2016-05-30"
+                        }
+                      },
+                      {
+                        "type": "contestableIssue",
+                        "attributes": {
+                          "issue": "sciatica",
+                          "decisionDate": "2007-01-19",
+                          "socDate": "2012-01-02"
+                        }
+                      },
+                      {
+                        "type": "contestableIssue",
+                        "attributes": {
+                          "issue": "bowel obstruction",
+                          "decisionDate": "1999-12-29",
+                          "socDate": "2019-08-13"
+                        }
+                      },
+                      {
+                        "type": "contestableIssue",
+                        "attributes": {
+                          "issue": "right eye",
+                          "decisionDate": "1920-04-02",
+                          "socDate": "2019-11-19"
+                        }
+                      },
+                      {
+                        "type": "contestableIssue",
+                        "attributes": {
+                          "issue": "left index finger",
+                          "decisionDate": "2018-08-17",
+                          "socDate": "2021-03-20"
+                        }
+                      },
+                      {
+                        "type": "contestableIssue",
+                        "attributes": {
+                          "issue": "spinal compression",
+                          "decisionDate": "2013-09-11",
+                          "socDate": "2020-08-24"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/supplemental_claims/{uuid}": {
+      "get": {
+        "summary": "Shows a specific Supplemental Claim. (a.k.a. the Show endpoint)",
+        "tags": [
+          "Supplemental Claims"
+        ],
+        "operationId": "showSc",
+        "description": "Returns all of the data associated with a specific Supplemental Claim.",
+        "security": [
+          {
+            "apikey": [
+
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "description": "Supplemental Claim UUID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Info about a single Supplemental Claim",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": {
+                    "id": "00000000-1111-2222-3333-444444444444",
+                    "type": "supplementalClaim",
+                    "attributes": {
+                      "status": "pending",
+                      "updatedAt": "2020-01-02T03:04:05.067Z",
+                      "createdAt": "2020-01-02T03:04:05.067Z",
+                      "formData": {
+                        "data": {
+                          "type": "supplementalClaim",
+                          "attributes": {
+                            "benefitType": "fiduciary",
+                            "veteran": {
+                              "address": {
+                                "addressLine1": "123 Main St",
+                                "city": "New York",
+                                "countryCodeISO2": "US",
+                                "zipCode5": "30012"
+                              },
+                              "phone": {
+                                "areaCode": "555",
+                                "phoneNumber": "8001111"
+                              },
+                              "email": "josie@example.com",
+                              "timezone": "America/Chicago"
+                            },
+                            "socOptIn": false,
+                            "evidenceSubmission": {
+                              "evidenceType": [
+                                "upload"
+                              ]
+                            }
+                          }
+                        },
+                        "included": [
+                          {
+                            "type": "contestableIssue",
+                            "attributes": {
+                              "issue": "right shoulder",
+                              "decisionDate": "1900-01-06"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/scCreateResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Supplemental Claim not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "status": 404,
+                      "detail": "SupplementalClaim with uuid \"invalid\" not found."
+                    }
+                  ]
+                },
+                "schema": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "integer",
+                              "enum": [
+                                404
+                              ]
+                            },
+                            "detail": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/supplemental_claims/evidence_submissions/": {
+      "post": {
+        "summary": "Get a location for subsequent evidence submission document upload PUT request",
+        "tags": [
+          "Supplemental Claims"
+        ],
+        "operationId": "postSupplementalClaimEvidenceSubmission",
+        "description": "This is the first step to submitting supporting evidence for a Supplemental Claim.  (See the Evidence Uploads section above for additional information.)\nThe Supplemental Claim GUID that is returned when the SC is submitted, is supplied to this endpoint to ensure the SC is in a valid state for sending supporting evidence documents.\n\nEvidence may be uploaded up to 7 days from the 'created_at' date of the associated Supplemental Claim via 'supplemental_claims/evidence_submissions'.\n",
+        "parameters": [
+          {
+            "name": "sc_uuid",
+            "in": "query",
+            "required": true,
+            "description": "Associated Supplemental Claim UUID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-SSN",
+            "required": true,
+            "description": "Veteran's SSN",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "apikey": [
+
+            ]
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted. Location generated",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": {
+                    "id": "55555555-6666-7777-8888-999999999999",
+                    "type": "evidenceSubmission",
+                    "attributes": {
+                      "status": "pending",
+                      "code": null,
+                      "detail": null,
+                      "appealType": "SupplementalClaim",
+                      "appealId": "00000000-1111-2222-3333-444444444444",
+                      "location": "http://some.fakesite.com/path/uuid",
+                      "createdAt": "2020-01-02T03:04:05.067Z",
+                      "updatedAt": "2020-01-02T03:04:05.067Z"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/scEvidenceSubmissionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "not_found",
+                      "detail": "SupplementalClaim with uuid  not found."
+                    }
+                  ]
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "status": {
+                            "type": "integer",
+                            "example": 400
+                          },
+                          "detail": {
+                            "type": "string",
+                            "example": "Must supply a corresponding SC id in order to submit evidence"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Associated Supplemental Claim not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "not_found",
+                      "detail": "SupplementalClaim with uuid  not found."
+                    }
+                  ]
+                },
+                "schema": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "integer",
+                              "enum": [
+                                404
+                              ]
+                            },
+                            "detail": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation errors",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "unprocessable_entity",
+                      "detail": "Request header 'X-VA-SSN' does not match the associated appeal's SSN",
+                      "code": "DecisionReviewMismatchedSSN",
+                      "status": "422"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "status": {
+                            "type": "integer",
+                            "example": 500
+                          },
+                          "detail": {
+                            "type": "string",
+                            "example": "An unknown error has occurred."
+                          },
+                          "code": {
+                            "type": "string",
+                            "example": "151"
+                          },
+                          "title": {
+                            "type": "string",
+                            "example": "Internal Server Error"
+                          }
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sc_upload_path": {
+      "put": {
+        "summary": "Accepts Supplemental Claim Evidence Submission document upload.",
+        "tags": [
+          "Supplemental Claims"
+        ],
+        "operationId": "putSupplementalClaimEvidenceSubmission",
+        "description": "Accepts document metadata, document binary, and attachment binaries. Full URL, including\nquery parameters, provided from POST `/notice_of_disagreements/evidence_submissions`.\nPlease see the `documentUploadMetadata` schema for the required payload schema.\n\n## Example Payload\n\nThe following demonstrates a (redacted) multipart payload suitable for submitting to the PUT\nendpoint. Most programming languages should have provisions for assembling a multipart\npayload like this without having to do so manually.\n\n```\n--17de1ed8f01442b2a2d7a93506314b76\nContent-Disposition: form-data; name=\"metadata\"\nContent-Type: application/json\n\n{\"veteranFirstName\": \"Jane\",\n\"veteranLastName\": \"Doe\",\n\"fileNumber\": \"012345678\",\n\"zipCode\": \"94402\",\n\"source\": \"Vets.gov\",\n\"docType\": \"316\"\n\"businessLine\": \"BVA\"}\n--17de1ed8f01442b2a2d7a93506314b76\nContent-Disposition: form-data; name=\"content\"\nContent-Type: application/pdf\n\n<Binary PDF contents>\n--17de1ed8f01442b2a2d7a93506314b76\nContent-Disposition: form-data; name=\"attachment1\"\nContent-Type: application/pdf\n\n<Binary PDF attachment contents>\n--17de1ed8f01442b2a2d7a93506314b76--\n```\n\nThis PUT request would have an overall HTTP Content-Type header:\n\n```\nContent-Type: multipart/form-data; boundary=17de1ed8f01442b2a2d7a93506314b76\n```\n\nNote that the Content-Disposition parameter \"name\" in each part must be the expected values\n\"metadata\", \"content\", \"attachment1\"...\"attachmentN\"\n",
+        "parameters": [
+          {
+            "name": "Content-MD5",
+            "in": "header",
+            "description": "Base64-encoded 128-bit MD5 digest of the message. Use for integrity control.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Document upload staged"
+          },
+          "400": {
+            "description": "Document upload failed",
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "object",
+                  "description": "Document upload failed",
+                  "xml": {
+                    "name": "Error"
+                  },
+                  "properties": {
+                    "Code": {
+                      "type": "string",
+                      "description": "Error code",
+                      "example": "Bad Digest"
+                    },
+                    "Message": {
+                      "type": "string",
+                      "description": "Error detail",
+                      "example": "A client error (InvalidDigest) occurred when calling the PutObject operation - The Content-MD5 you specified was invalid."
+                    },
+                    "Resource": {
+                      "type": "string",
+                      "description": "Resource description",
+                      "example": "/example_path_here/6d8433c1-cd55-4c24-affd-f592287a7572.upload"
+                    },
+                    "RequestId": {
+                      "type": "string",
+                      "description": "Identifier for debug purposes"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/supplemental_claims/evidence_submissions/{uuid}": {
+      "get": {
+        "summary": "Returns all of the data associated with a specific Supplemental Claim Evidence Submission.",
+        "tags": [
+          "Supplemental Claims"
+        ],
+        "operationId": "getSupplementalClaimEvidenceSubmission",
+        "description": "Returns all of the data associated with a specific Supplemental Claim Evidence Submission.",
+        "security": [
+          {
+            "apikey": [
+
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "description": "Supplemental Claim UUID Evidence Submission",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Info about a single Supplemental Claim Evidence Submission.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": {
+                    "id": "55555555-6666-7777-8888-999999999999",
+                    "type": "evidenceSubmission",
+                    "attributes": {
+                      "status": "pending",
+                      "code": null,
+                      "detail": null,
+                      "appealType": "SupplementalClaim",
+                      "appealId": "00000000-1111-2222-3333-444444444444",
+                      "location": null,
+                      "createdAt": "2020-01-02T03:04:05.067Z",
+                      "updatedAt": "2020-01-02T03:04:05.067Z"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/scEvidenceSubmissionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Supplemental Claim Evidence Submission not found",
             "content": {
               "application/json": {
                 "example": {
@@ -9290,19 +10412,19 @@
                       "central_office"
                     ]
                   },
-                  "extensionRequest": {
+                  "requestingExtension": {
                     "type": "boolean",
-                    "description": "Request for an extension of time to file. An extensionReason must be provided if extensionRequest is true."
+                    "description": "Set to true to request a filing extension. An extensionReason must be provided if true."
                   },
                   "extensionReason": {
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 2300,
-                    "description": "Explanation why you believe there is good cause for the extension. If an extensionReason is provided, extensionRequest must be true."
+                    "description": "Explanation why you believe there is good cause for the extension. If an extensionReason is provided, requestingExtension must be true."
                   },
                   "appealingVhaDenial": {
                     "type": "boolean",
-                    "description": "If you are appealing a denial of benefits by the Veterans Health Administration (VHA)"
+                    "description": "Set to true if you are appealing a denial of benefits by the Veterans Health Administration (VHA)."
                   }
                 },
                 "required": [
@@ -9310,7 +10432,7 @@
                 ],
                 "if": {
                   "properties": {
-                    "extensionRequest": {
+                    "requestingExtension": {
                       "const": true
                     }
                   }

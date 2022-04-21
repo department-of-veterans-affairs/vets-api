@@ -3,7 +3,7 @@
   To see limitations, check out the documentation: https://github.com/puzzle/prawn-markup.
 %>
 
-<h4>Some medical data are not included in this PDF. Please check for additional readings and sources.</h4>
+<h3>Some medical data are not included in this PDF. Please check for additional readings and sources.</h3>
 
 <p>
   This summary does not check all sources of medical information for Veterans that are necessary for you to
@@ -27,9 +27,9 @@
 
 <p><br/></p>
 
-<h4>
+<h3>
   How we identify asthma medications
-</h4>
+</h3>
 
 <p>
   The automated routine for identifying medications that <b></i>may</i></b> have been prescribed for asthma relies on keyword filtering.
@@ -42,13 +42,11 @@
 
 <p><br/></p>
 
-<h4>About this Document</h4>
+<h3>About this Document</h3>
 <p>
   The Health Evidence Rapid Ready for Decision system retrieves and summarizes VHA medical records related to
   claims for increase submitted on va.gov. VSRs and RVSRs can develop and rate this claim without ordering an
   exam if there is sufficient existing evidence to rate a claim to
-  <a href="https://www.ecfr.gov/current/title-38/part-4">
-    <color rgb="0000ff">Title 38 C.F.R. § 4</color>
-  </a>. This is not new guidance,
+  <%= link_to('https://www.ecfr.gov/current/title-38/part-4') { 'Title 38 C.F.R. § 4' } %>. This is not new guidance,
   but rather a way to operationalize existing statutory rules in 38 U.S.C. § 5103A(d).
 </p>

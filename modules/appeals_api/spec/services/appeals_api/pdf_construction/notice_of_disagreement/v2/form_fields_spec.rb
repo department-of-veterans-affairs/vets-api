@@ -74,9 +74,9 @@ module AppealsApi
             }
           end
 
-          describe '#extension_request' do
+          describe '#requesting_extension' do
             it {
-              expect(form_fields.extension_request).to eq('F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[7]')
+              expect(form_fields.requesting_extension).to eq('F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[7]')
             }
           end
 

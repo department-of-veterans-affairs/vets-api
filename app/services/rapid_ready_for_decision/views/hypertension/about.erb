@@ -3,18 +3,16 @@
   To see limitations, check out the documentation: https://github.com/puzzle/prawn-markup.
 %>
 
-<h4>About this Document</h4>
+<h3>About this Document</h3>
 
 <p>
   The Hypertension Rapid Ready for Decision system retrieves and summarizes
   VHA medical records related to hypertension claims for increase submitted on va.gov.
   VSRs and RVSRs can develop and rate this claim without ordering an exam if there is
   sufficient existing evidence to show predominance according to
-  <a href="https://www.ecfr.gov/current/title-38/part-4">DC 7101 (Hypertension) Rating Criteria</a>.
+  <%= link_to('https://www.ecfr.gov/current/title-38/part-4') { 'DC 7101 (Hypertension) Rating Criteria' } %>.
   This is not new guidance, but rather a way to
-  <a href="https://www.ecfr.gov/current/title-38/chapter-I/part-3/subpart-A/subject-group-ECFR7629a1b1e9bf6f8/section-3.159">
-    operationalize existing statutory rules
-  <a>
+  <%= link_to('https://www.ecfr.gov/current/title-38/chapter-I/part-3/subpart-A/subject-group-ECFR7629a1b1e9bf6f8/section-3.159') { 'operationalize existing statutory rules' } %>
   in 38 U.S.C § 5103a(d).
 </p>
 
@@ -24,9 +22,9 @@
 %>
 <p><br/></p>
 
-<h5>
+<h3>
   Some medical data are not included in this PDF. Please check for additional readings and sources.
-</h5>
+</h3>
 
 <p>
   This summary does not check all sources of medical information for Veterans that

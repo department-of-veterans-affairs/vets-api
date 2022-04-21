@@ -74,7 +74,7 @@ module AppealsApi
 
           @additional_pages_pdf ||= Prawn::Document.new(skip_page_creation: true)
 
-          HigherLevelReview::Pages::V1::AdditionalIssues.new(
+          Pages::AdditionalIssues.new(
             @additional_pages_pdf,
             form_data
           ).build!
@@ -95,14 +95,16 @@ module AppealsApi
             text: "Submitted by #{higher_level_review.consumer_name} via api.va.gov",
             x: 429,
             y: 782,
-            text_only: true
+            text_only: true,
+            size: 8
           )
 
           CentralMail::DatestampPdf.new(stamped_pdf_path).run(
             text: "API.VA.GOV #{higher_level_review.created_at.utc.strftime('%Y-%m-%d %H:%M%Z')}",
             x: 5,
-            y: 5,
-            text_only: true
+            y: 782,
+            text_only: true,
+            size: 8
           )
         end
 

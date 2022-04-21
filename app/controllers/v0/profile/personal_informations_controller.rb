@@ -1,25 +1,36 @@
 # frozen_string_literal: true
 
+require 'va_profile/demographics/service'
+
 module V0
   module Profile
     class PersonalInformationsController < ApplicationController
       before_action { authorize :mpi, :queryable? }
 
       # Fetches the personal information for the current user.
-      # Namely their gender and birth date.
+      # Namely their gender, birth date, preferred name, and gender identity.
       def show
-        response = OpenStruct.new({
-                                    'id': @current_user.account_uuid,
-                                    'type': 'mvi_models_mvi_profiles',
-                                    'gender': @current_user.gender_mpi,
-                                    'birth_date': @current_user.birth_date_mpi
-                                  })
+        response =
+          if Flipper.enabled?(:profile_show_demographics, @user)
+            service.get_demographics
+          else
+            service.build_response(200, nil)
+          end
+
         handle_errors!(response)
 
-        render json: response, serializer: PersonalInformationSerializer
+        render(
+          json: response,
+          status: response.status,
+          serializer: PersonalInformationSerializer
+        )
       end
 
       private
+
+      def service
+        VAProfile::Demographics::Service.new @current_user
+      end
 
       def handle_errors!(response)
         raise_error! if response.gender.blank? && response.birth_date.blank?

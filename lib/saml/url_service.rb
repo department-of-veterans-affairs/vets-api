@@ -233,15 +233,15 @@ module SAML
       type = previous&.payload_attr(:type) || params[:type]
       transaction_id = previous&.payload_attr(:transaction_id) || SecureRandom.uuid
       redirect = previous&.payload_attr(:redirect) || params[:redirect]
-      skip_dupe_id_validation = previous&.payload_attr(:skip_dupe_id_validation) || params[:skip_dupe]
+      application = previous&.payload_attr(:application) || params[:application]
       post_login = previous&.payload_attr(:post_login) || params[:postLogin]
       # if created_at is set to nil (meaning no previous tracker to use), it
       # will be initialized to the current time when it is saved
       SAMLRequestTracker.new(
         payload: { type: type,
-                   redirect: redirect,
                    transaction_id: transaction_id,
-                   skip_dupe_id_validation: skip_dupe_id_validation,
+                   redirect: redirect,
+                   application: application,
                    post_login: post_login }.compact,
 
         created_at: previous&.created_at

@@ -10,13 +10,13 @@
 </p>
 
 <% if @assessed_data[:medications].present? %>
+  <p> <br /> </p>
   <% @assessed_data[:medications].each do |medication| %>
-    <% has_keyword = @disability_metadata[:keywords] ? RapidReadyForDecision::FastTrackPdfGenerator.flag_with_keyword(@disability_metadata[:keywords], medication) : false %>
     <p>
-      <% if has_keyword %>
-        <font name="DejaVuSans">&#9654; </font>
+      <% if medication[:flagged] %>
+        <font name="DejaVuSans">&#9654;</font>
         <b><%= medication['description'] %></b>
-        <font name="DejaVuSans"> &#9664;</font>
+        <font name="DejaVuSans">&#9664;</font>
       <% else %>
         <b><%= medication['description'] %></b>
       <% end %>

@@ -7,7 +7,8 @@ module RapidReadyForDecision
         code: 7101,
         label: 'hypertension',
         flipper_name: 'hypertension',
-        sidekiq_job: 'RapidReadyForDecision::Form526HypertensionJob',
+        sidekiq_job: 'RapidReadyForDecision::Form526BaseJob',
+        processor_class: 'RapidReadyForDecision::HypertensionProcessor',
         backup_sidekiq_job: 'RapidReadyForDecision::DisabilityCompensationJob'
       },
       asthma: {
@@ -15,6 +16,7 @@ module RapidReadyForDecision
         label: 'asthma',
         flipper_name: 'asthma',
         sidekiq_job: 'RapidReadyForDecision::Form526AsthmaJob',
+        processor_class: 'RapidReadyForDecision::AsthmaProcessor',
         keywords: %w[
           Aerochamber
           Albuterol
@@ -51,6 +53,31 @@ module RapidReadyForDecision
     def self.extract_disability_symbol_list(form526_submission)
       form_disabilities = form526_submission.form.dig('form526', 'form526', 'disabilities')
       form_disabilities.map { |form_disability| DISABILITIES_BY_CODE[form_disability['diagnosticCode']] }
+    end
+
+    # @return [Hash] for the first RRD-supported disability in the form526_submission
+    def self.first_disability(form526_submission)
+      extracted_disability_symbols = extract_disability_symbol_list(form526_submission)
+      return if extracted_disability_symbols.empty?
+
+      disability_symbol = extracted_disability_symbols.first
+      DISABILITIES[disability_symbol]
+    end
+
+    def self.processor_class(form526_submission)
+      disability_struct = first_disability(form526_submission)
+      return unless disability_struct
+
+      disability_struct[:processor_class]&.constantize
+    end
+
+    class NoRrdProcessorForClaim < StandardError; end
+
+    def self.processor(form526_submission)
+      processor_class = processor_class(form526_submission)
+      raise NoRrdProcessorForClaim unless processor_class
+
+      processor_class.new(form526_submission)
     end
   end
 end

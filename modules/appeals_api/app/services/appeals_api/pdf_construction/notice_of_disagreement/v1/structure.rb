@@ -105,7 +105,7 @@ module AppealsApi
 
           @additional_pages_pdf ||= Prawn::Document.new(skip_page_creation: true)
 
-          NoticeOfDisagreement::Pages::HearingTypeAndAdditionalIssues.new(
+          Pages::HearingTypeAndAdditionalIssues.new(
             @additional_pages_pdf, form_data
           ).build!
 

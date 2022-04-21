@@ -8,6 +8,7 @@ module DebtManagementCenter
   class DebtsService < DebtManagementCenter::BaseService
     attr_reader :file_number
 
+    class DebtNotFound < StandardError; end
     configuration DebtManagementCenter::DebtsConfiguration
 
     STATSD_KEY_PREFIX = 'api.dmc'
@@ -22,6 +23,14 @@ module DebtManagementCenter
         has_dependent_debts: veteran_has_dependent_debts?,
         debts: debts_with_sorted_histories
       }
+    end
+
+    def get_debt_by_id(id)
+      debt_store = DebtManagementCenter::DebtStore.find(@user.uuid)
+
+      raise DebtNotFound if debt_store.blank?
+
+      debt_store.get_debt(id)
     end
 
     def veteran_has_dependent_debts?
@@ -43,6 +52,13 @@ module DebtManagementCenter
           perform(:post, Settings.dmc.debts_endpoint, fileNumber: @file_number).body
         ).debts
       end
+    end
+
+    def add_debts_to_redis
+      debts = @debts.map { |d| d['id'] = SecureRandom.uuid }
+      debt_params = { REDIS_CONFIG[:debt][:namespace] => user.uuid }
+      debt_store = DebtManagementCenter::DebtStore.new(debt_params)
+      debt_store.update(uuid: user.uuid, debts: debts)
     end
 
     def sort_by_date(debt_history)

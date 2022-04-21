@@ -763,7 +763,9 @@ RSpec.describe SAML::User do
           it 'does not validate and logs a Sentry warning' do
             SAMLRequestTracker.create(
               uuid: '1234567890',
-              payload: { skip_dupe_id_validation: 'true' }
+              payload: {
+                application: 'mhv'
+              }
             )
             expect(Rails.logger).to receive(:warn).with(expected_log)
             expect { subject.validate! }.not_to raise_error
@@ -797,7 +799,9 @@ RSpec.describe SAML::User do
           it 'does not validate and logs a Sentry warning' do
             SAMLRequestTracker.create(
               uuid: '1234567890',
-              payload: { skip_dupe_id_validation: 'true' }
+              payload: {
+                application: 'myvahealth'
+              }
             )
             expect(Rails.logger).to receive(:warn).with(expected_log)
             expect { subject.validate! }.not_to raise_error
@@ -1001,10 +1005,29 @@ RSpec.describe SAML::User do
           it 'logs a Sentry warning and allows login' do
             SAMLRequestTracker.create(
               uuid: '1234567890',
-              payload: { skip_dupe_id_validation: 'true' }
+              payload: {
+                application: 'mhv'
+              }
             )
             expect(Rails.logger).to receive(:warn).with(expected_log)
             expect { subject.validate! }.not_to raise_error
+          end
+        end
+
+        context 'incorrect outbound-redirect flow' do
+          it 'does not validate and prevents login' do
+            SAMLRequestTracker.create(
+              uuid: '1234567890',
+              payload: {
+                application: 'test application'
+              }
+            )
+            expect(Rails.logger).to receive(:warn).with(expected_log)
+            expect { subject.validate! }
+              .to raise_error { |error|
+                    expect(error).to be_a(SAML::UserAttributeError)
+                    expect(error.message).to eq(expected_error_message)
+                  }
           end
         end
       end

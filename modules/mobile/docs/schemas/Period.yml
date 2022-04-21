@@ -1,0 +1,10 @@
+type: object
+properties:
+  start:
+    type: string
+    description: start time of period
+    format: date-time
+  end:
+    type: string
+    description: end time of period
+    format: date-time

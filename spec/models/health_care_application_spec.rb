@@ -267,15 +267,30 @@ RSpec.describe HealthCareApplication, type: :model do
           health_care_application.parsed_form['vaCompensationType'] = 'none'
         end
 
+        it 'allows false for boolean fields' do
+          health_care_application.parsed_form['isEnrolledMedicarePartA'] = false
+
+          health_care_application.valid?
+
+          expect(health_care_application.errors[:form]).to eq(
+            [
+              "maritalStatus can't be null",
+              "lastServiceBranch can't be null",
+              "lastEntryDate can't be null",
+              "lastDischargeDate can't be null"
+            ]
+          )
+        end
+
         it 'requires the long form fields' do
           health_care_application.valid?
           expect(health_care_application.errors[:form]).to eq(
             [
-              "maritalStatus can't be blank",
-              "isEnrolledMedicarePartA can't be blank",
-              "lastServiceBranch can't be blank",
-              "lastEntryDate can't be blank",
-              "lastDischargeDate can't be blank"
+              "maritalStatus can't be null",
+              "isEnrolledMedicarePartA can't be null",
+              "lastServiceBranch can't be null",
+              "lastEntryDate can't be null",
+              "lastDischargeDate can't be null"
             ]
           )
         end

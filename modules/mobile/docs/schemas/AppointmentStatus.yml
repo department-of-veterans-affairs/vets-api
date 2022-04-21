@@ -1,0 +1,9 @@
+type: string
+enum:
+  - proposed
+  - cancelled
+  - pending
+  - booked
+  - arrived
+  - noshow
+  - fulfilled

@@ -56,6 +56,10 @@ RSpec.describe V0::VirtualAgentTokenController, type: :controller do
         'fake%20api%20session'
       end
 
+      let(:conversation_id) do
+        'fake.conversation.id'
+      end
+
       before do
         allow(Flipper).to receive(:enabled?).with(:virtual_agent_token).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:virtual_agent_bot_a).and_return(true)
@@ -79,6 +83,16 @@ RSpec.describe V0::VirtualAgentTokenController, type: :controller do
         res = JSON.parse(response.body)
 
         expect(res['apiSession']).to eq(url_encoded_api_session)
+      end
+
+      it('returns conversation id') do
+        VCR.use_cassette('virtual_agent/webchat_token_success') do
+          post :create
+        end
+
+        res = JSON.parse(response.body)
+
+        expect(res['conversationId']).to eq(conversation_id)
       end
 
       it('does not crash when api session cookie does not exist') do

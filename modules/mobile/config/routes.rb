@@ -8,6 +8,7 @@ Mobile::Engine.routes.draw do
     get '/appointment_requests/:appointment_request_id/messages', to: 'appointment_request_messages#index'
     get '/appointments', to: 'appointments#index'
     put '/appointments/cancel/:id', to: 'appointments#cancel'
+    post '/appointment', to: 'appointments#create'
     get '/claims-and-appeals-overview', to: 'claims_and_appeals#index'
     get '/claim/:id', to: 'claims_and_appeals#get_claim'
     post '/claim/:id/documents', to: 'claims_and_appeals#upload_document'

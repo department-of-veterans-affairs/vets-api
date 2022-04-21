@@ -20,6 +20,10 @@ module AppealsApi
       )
     }
 
+    def self.past?(date)
+      date < Time.zone.today
+    end
+
     def self.load_json_schema(filename)
       MultiJson.load File.read Rails.root.join('modules', 'appeals_api', 'config', 'schemas', "#{filename}.json")
     end
@@ -35,8 +39,15 @@ module AppealsApi
     has_kms_key
     encrypts :auth_headers, :form_data, key: :kms_key, **lockbox_options
 
+    # the controller applies the JSON Schemas in modules/appeals_api/config/schemas/
+    # further validations:
+    validate(
+      :birth_date_is_in_the_past,
+      :claimant_birth_date_is_in_the_past
+    )
+
     validate :validate_hearing_type_selection, if: :pii_present?
-    validate :validate_extension_request, if: :version_2?
+    validate :validate_requesting_extension, if: :version_2?
 
     has_many :evidence_submissions, as: :supportable, dependent: :destroy
     has_many :status_updates, as: :statusable, dependent: :destroy
@@ -72,8 +83,8 @@ module AppealsApi
       signing_appellant.timezone ? created_at.in_time_zone(signing_appellant.timezone) : created_at.utc
     end
 
-    def extension_request?
-      data_attributes['extensionRequest'] && extension_reason.present?
+    def requesting_extension?
+      data_attributes['requestingExtension'] && extension_reason.present?
     end
 
     def extension_reason
@@ -269,16 +280,16 @@ module AppealsApi
     end
 
     # v2 specific validation
-    def validate_extension_request
-      # json schema will have already validated that if extensionRequest true then extensionReason required
-      return if data_attributes&.dig('extensionRequest') == true
+    def validate_requesting_extension
+      # json schema will have already validated that if requestingExtension true then extensionReason required
+      return if data_attributes&.dig('requestingExtension') == true
 
-      source = '/data/attributes/extensionRequest'
+      source = '/data/attributes/requestingExtension'
       data = I18n.t('common.exceptions.validation_errors')
 
       if data_attributes&.dig('extensionReason').present?
         errors.add source,
-                   data.merge(detail: I18n.t('appeals_api.errors.nod_extension_request_must_be_true'))
+                   data.merge(detail: I18n.t('appeals_api.errors.nod_requesting_extension_must_be_true'))
       end
     end
 
@@ -300,6 +311,27 @@ module AppealsApi
 
     def birth_date
       self.class.date_from_string header_field_as_string 'X-VA-Birth-Date'
+    end
+
+    # validation (header)
+    def birth_date_is_in_the_past
+      return unless birth_date
+
+      add_error("Veteran birth date isn't in the past: #{birth_date}") unless self.class.past? birth_date
+    end
+
+    # validation (header)
+    def claimant_birth_date_is_in_the_past
+      return if api_version && api_version.upcase == 'V1'
+      return if claimant.birth_date.blank?
+
+      unless self.class.past?(claimant.birth_date)
+        add_error("Claimant birth date isn't in the past: #{claimant.birth_date_string}")
+      end
+    end
+
+    def add_error(message)
+      errors.add(:base, message)
     end
 
     def header_field_as_string(key)

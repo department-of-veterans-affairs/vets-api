@@ -17,6 +17,7 @@ module ClaimsApi
         FORM_NUMBER = '526'
         STATSD_VALIDATION_FAIL_KEY = 'api.claims_api.526.validation_fail'
         STATSD_VALIDATION_FAIL_TYPE_KEY = 'api.claims_api.526.validation_fail_type'
+        EVSS_DOCUMENT_TYPE = 'L023'
 
         before_action except: %i[schema] do
           permit_scopes %w[claim.write]
@@ -77,7 +78,7 @@ module ClaimsApi
           pending_claim = ClaimsApi::AutoEstablishedClaim.pending?(params[:id])
 
           if pending_claim && (pending_claim.form_data['autoCestPDFGenerationDisabled'] == true)
-            pending_claim.set_file_data!(documents.first, params[:doc_type])
+            pending_claim.set_file_data!(documents.first, EVSS_DOCUMENT_TYPE)
             pending_claim.save!
 
             ClaimsApi::Logger.log('526', claim_id: params[:id], detail: 'Uploaded PDF to S3')
@@ -108,7 +109,7 @@ module ClaimsApi
 
           documents.each do |document|
             claim_document = claim.supporting_documents.build
-            claim_document.set_file_data!(document, params[:doc_type], params[:description])
+            claim_document.set_file_data!(document, EVSS_DOCUMENT_TYPE, params[:description])
             claim_document.save!
             ClaimsApi::ClaimUploader.perform_async(claim_document.id)
           end

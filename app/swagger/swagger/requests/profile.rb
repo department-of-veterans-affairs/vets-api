@@ -807,7 +807,7 @@ module Swagger
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
-          key :description, 'Gets a users gender and birth date'
+          key :description, 'Gets a users gender, birth date, preferred name, and gender identity'
           key :operationId, 'getPersonalInformation'
           key :tags, %w[
             profile
@@ -825,6 +825,11 @@ module Swagger
                 property :attributes, type: :object do
                   property :gender, type: :string, example: 'M'
                   property :birth_date, type: :string, format: :date, example: '1949-03-04'
+                  property :preferred_name, type: :string, example: 'Pat'
+                  property :gender_identity, type: :object do
+                    property :code, type: :string, example: 'F'
+                    property :name, type: :string, example: 'Female'
+                  end
                 end
               end
             end

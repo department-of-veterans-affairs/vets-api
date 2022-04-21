@@ -7,6 +7,10 @@ require 'rapid_ready_for_decision/disability_compensation_job'
 RSpec.describe RapidReadyForDecision::LighthouseObservationData, :vcr do
   subject { described_class }
 
+  around do |example|
+    VCR.use_cassette('rrd/lighthouse_observations', &example)
+  end
+
   let(:response) do
     # Using specific test ICN below:
     client = Lighthouse::VeteransHealth::Client.new(32_000_225)

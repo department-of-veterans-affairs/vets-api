@@ -86,6 +86,17 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     end
   end
 
+  context 'when a veteran birth date is in the future' do
+    it 'creates an invalid record' do
+      auth_headers['X-VA-Birth-Date'] = (Time.zone.today + 2).to_s
+
+      expect(notice_of_disagreement.valid?).to be false
+      expect(notice_of_disagreement.errors.to_a.length).to eq 1
+      expect(notice_of_disagreement.errors.to_a.first.downcase).to include 'veteran'
+      expect(notice_of_disagreement.errors.to_a.first.downcase).to include 'past'
+    end
+  end
+
   describe '#veteran_first_name' do
     it { expect(notice_of_disagreement.veteran_first_name).to eq 'Jäñe' }
   end
@@ -262,6 +273,19 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       it { expect(subject.class).to eq AppealsApi::Appellant }
     end
 
+    context 'when a claimant birth date is in the future' do
+      let(:notice_of_disagreement_v2_nvc) { build(:extra_notice_of_disagreement_v2, :board_review_hearing) }
+
+      it 'creates an invalid record' do
+        notice_of_disagreement_v2_nvc.auth_headers['X-VA-Claimant-Birth-Date'] = (Time.zone.today + 2).to_s
+
+        expect(notice_of_disagreement_v2_nvc.valid?).to be false
+        expect(notice_of_disagreement_v2_nvc.errors.to_a.length).to eq 1
+        expect(notice_of_disagreement_v2_nvc.errors.to_a.first.downcase).to include 'claimant'
+        expect(notice_of_disagreement_v2_nvc.errors.to_a.first.downcase).to include 'past'
+      end
+    end
+
     describe '#signing_appellant' do
       let(:appellant_type) { extra_notice_of_disagreement_v2.signing_appellant.send(:type) }
 
@@ -281,8 +305,8 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       end
     end
 
-    describe '#extension_request?' do
-      it { expect(extra_notice_of_disagreement_v2.extension_request?).to eq true }
+    describe '#requesting_extension?' do
+      it { expect(extra_notice_of_disagreement_v2.requesting_extension?).to eq true }
     end
 
     describe '#extension_reason' do
@@ -293,7 +317,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       it { expect(extra_notice_of_disagreement_v2.appealing_vha_denial?).to eq true }
     end
 
-    describe '#validate_extension_request' do
+    describe '#validate_requesting_extension' do
       let(:auth_headers) { fixture_as_json 'valid_10182_headers.json', version: 'v2' }
       let(:form_data) { fixture_as_json 'valid_10182_minimum.json', version: 'v2' }
       let(:invalid_notice_of_disagreement) do
@@ -309,9 +333,9 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
         it 'throws an error' do
           expect(invalid_notice_of_disagreement.errors.count).to be 1
-          expect(invalid_notice_of_disagreement.errors.first.attribute).to eq(:'/data/attributes/extensionRequest')
+          expect(invalid_notice_of_disagreement.errors.first.attribute).to eq(:'/data/attributes/requestingExtension')
           expect(invalid_notice_of_disagreement.errors.first.options[:detail]).to eq(
-            "If '/data/attributes/extensionReason' present, then '/data/attributes/extensionRequest' must equal true"
+            "If '/data/attributes/extensionReason' present, then '/data/attributes/requestingExtension' must equal true"
           )
         end
       end

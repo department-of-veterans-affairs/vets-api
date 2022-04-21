@@ -40,6 +40,7 @@ module AppealsApi
       :birth_date_is_in_the_past,
       :claimant_birth_date_is_in_the_past,
       :required_claimant_data_is_present,
+      :contestable_issue_dates_are_valid_dates,
       if: proc { |a| a.form_data.present? }
     )
 
@@ -367,15 +368,8 @@ module AppealsApi
       return if contestable_issues.blank?
 
       contestable_issues.each_with_index do |issue, index|
-        decision_date_invalid(issue, index)
         decision_date_not_in_past(issue, index)
       end
-    end
-
-    def decision_date_invalid(issue, issue_index)
-      return if issue.decision_date
-
-      add_decision_date_error "isn't a valid date: #{issue.decision_date_string.inspect}", issue_index
     end
 
     def decision_date_not_in_past(issue, issue_index)

@@ -7,7 +7,10 @@ module Mobile
         private
 
         def process_payments(payments)
-          payments.map do |payment|
+          # filter out future scheduled payments
+          past_payments = payments.reject { |payment| payment[:payment_date].nil? }
+
+          past_payments.map do |payment|
             Mobile::V0::PaymentHistory.new(
               id: payment.dig(:payment_record_identifier, :payment_id),
               account: mask_account_number(payment[:address_eft]),

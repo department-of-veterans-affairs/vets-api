@@ -18,13 +18,20 @@ module Mobile
     end
 
     def address_from_facility(facility)
-      address = facility.address['physical']
-
+      if facility.type == 'va_health_facility' # for MFS Facilities
+        address = facility.physical_address
+        street = address[:line].compact.join(', ')
+        zip_code = address[:postal_code]
+      else
+        address = facility.address['physical']
+        street = address.slice('address_1', 'address_2', 'address_3').values.compact.join(', ')
+        zip_code = address['zip']
+      end
       Mobile::V0::Address.new(
-        street: address.slice('address_1', 'address_2', 'address_3').values.compact.join(', '),
-        city: address['city'],
-        state: address['state'],
-        zip_code: address['zip']
+        street: street,
+        city: address.symbolize_keys[:city],
+        state: address.symbolize_keys[:state],
+        zip_code: zip_code
       )
     end
 
@@ -39,12 +46,12 @@ module Mobile
     end
 
     def phone_from_facility(facility)
-      phone = facility.phone['main']
+      phone = facility.phone.symbolize_keys[:main]
       return nil unless phone
 
       # captures area code (\d{3}) number (\d{3}-\d{4})
       # and optional extension (until the end of the string) (?:\sx(\d*))?$
-      phone_captures = facility.phone['main'].match(/^(\d{3})-(\d{3}-\d{4})(?:\sx(\d*))?$/)
+      phone_captures = phone.match(/^(\d{3})-(\d{3}-\d{4})(?:\sx(\d*))?$/)
 
       if phone_captures.nil?
         Rails.logger.warn(

@@ -47,6 +47,10 @@ class IAMUser < ::User
     uuid
   end
 
+  def common_name
+    "#{identity.first_name} #{identity.last_name}"
+  end
+
   def identity
     @identity ||= IAMUserIdentity.find(uuid)
   end

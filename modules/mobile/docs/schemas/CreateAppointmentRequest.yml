@@ -1,0 +1,51 @@
+description: A request to create a new appointment.
+type: object
+properties:
+  kind:
+    "$ref": ./AppointmentKind.yml
+  status:
+    "$ref": ./AppointmentStatus.yml
+  serviceType:
+    type: string
+    description: the care type for the appointment
+  reasonCode:
+    "$ref": ./CodeableConcept.yml
+  patientIcn:
+    description: The patient ICN
+    type: string
+    nullable: false
+  locationId:
+    description: The sta6aid for the VAfacility where the appointment is registered.
+    type: string
+  clinic:
+    description: The clinic ID for the Appointment
+    type: string
+  practitioners:
+    type: array
+    description: The practioners participating in this appointment.
+    items:
+      "$ref": ./PractitionerIds.yml
+  requestedPeriods:
+    type: array
+    description: a list of requested periods for appointment
+    items:
+      "$ref": ./Period.yml
+  contact:
+    "$ref": ./PatientContact.yml
+  preferredTimesForPhoneCall:
+    type: array
+    description: A list of times the patient prefers to be contacted by phone.
+    items:
+      type: string
+      enum:
+        - Morning
+        - Afternoon
+        - Evening
+  preferredLocation:
+    $ref: ./PreferredLocation.yml
+  comment:
+    description:
+      A free-form comment section to provide additional information about an appointment request.
+    type: string
+  preferredLanguage:
+    type: string

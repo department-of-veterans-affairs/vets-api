@@ -186,6 +186,11 @@ vet360:
     enabled: true
     timeout: 30
     mock: false
+  demographics:
+    cache_enabled: false
+    enabled: true
+    timeout: 30
+    mock: false        
   address_validation:
     hostname: "sandbox-api.va.gov"
     api_key: "<AV_KEY>"
@@ -935,6 +940,7 @@ flipper:
     - trent.mcdole@gcio.com
     - simi.adebowale@adhocteam.us
     - tom.harrison@adhocteam.us
+    - angela.agosto@adhocteam.us # Angela Agosto - Ad Hoc
 
 bgs:
   application: ~

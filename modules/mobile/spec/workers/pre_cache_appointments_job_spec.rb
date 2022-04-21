@@ -24,6 +24,7 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
     before do
       Timecop.freeze(Time.zone.parse('2020-11-01T10:30:00Z'))
       Flipper.disable(:mobile_appointment_requests)
+      Flipper.disable(:mobile_appointment_use_VAOS_MFS)
     end
 
     after { Timecop.return }
@@ -73,6 +74,61 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
                         patient_email: nil,
                         best_time_to_call: nil,
                         friendly_location_name: nil })
+            end
+          end
+        end
+      end
+
+      context 'with mfs facilities' do
+        before { Flipper.enable(:mobile_appointment_use_VAOS_MFS) }
+
+        after { Flipper.disable(:mobile_appointment_use_VAOS_MFS) }
+
+        it 'caches the expected appointments' do
+          VCR.use_cassette('appointments/get_mfs_facilities', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_cc_appointments_default', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('appointments/get_appointments_default', match_requests_on: %i[method uri]) do
+                expect(Mobile::V0::Appointment.get_cached(user)).to be_nil
+                subject.perform(user.uuid)
+
+                first_appointment = Mobile::V0::Appointment.get_cached(user).first.to_h
+                expect(
+                  first_appointment
+                ).to eq({ id: '8a488f546b8c0332016b9061d9110006',
+                          appointment_type: 'COMMUNITY_CARE',
+                          cancel_id: nil,
+                          comment: '',
+                          facility_id: nil,
+                          sta6aid: nil,
+                          healthcare_provider: 'Tes',
+                          healthcare_service: 'RR',
+                          location: { id: nil,
+                                      name: 'RR',
+                                      address: { street: 'clarksburg', city: 'md', state: 'MD',
+                                                 zip_code: '22222' },
+                                      lat: nil,
+                                      long: nil,
+                                      phone: { area_code: '301', number: '916-1234', extension: nil },
+                                      url: nil,
+                                      code: nil },
+                          minutes_duration: 60,
+                          phone_only: false,
+                          start_date_local: '2020-06-26T22:19:00.000-04:00',
+                          start_date_utc: '2020-06-27T02:19:00.000Z',
+                          status: 'BOOKED',
+                          status_detail: nil,
+                          time_zone: 'America/New_York',
+                          vetext_id: nil,
+                          reason: nil,
+                          is_covid_vaccine: false,
+                          is_pending: false,
+                          proposed_times: nil,
+                          type_of_care: nil,
+                          patient_phone_number: nil,
+                          patient_email: nil,
+                          best_time_to_call: nil,
+                          friendly_location_name: nil })
+              end
             end
           end
         end

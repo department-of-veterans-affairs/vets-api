@@ -1,0 +1,15 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: vets-api
+  description: This project provides common APIs for applications that live on VA.gov (formerly vets.gov APIs).
+  annotations:
+    github.com/project-slug: department-of-veterans-affairs/vets-api
+    backstage.io/techdocs-ref: dir:.
+  tags:
+    - ruby
+    - rails
+spec:
+  type: service
+  owner: vsp-tools-backend
+  lifecycle: production

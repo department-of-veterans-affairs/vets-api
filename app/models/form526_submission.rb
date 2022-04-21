@@ -48,7 +48,7 @@ class Form526Submission < ApplicationRecord
   SUBMIT_FORM_526_JOB_CLASSES = %w[SubmitForm526AllClaim SubmitForm526].freeze
 
   def start
-    rrd_sidekiq_job = rrd_process_selector.sidekiq_job
+    rrd_sidekiq_job = rrd_job_selector.sidekiq_job
     if rrd_sidekiq_job
       start_rrd_job(rrd_sidekiq_job, use_backup_job: true)
     else
@@ -83,10 +83,10 @@ class Form526Submission < ApplicationRecord
   # When the refactored job fails, this _handler is called to run a backup_sidekiq_job.
   def rrd_processor_failed_handler(_status, options)
     submission = Form526Submission.find(options['submission_id'])
-    backup_sidekiq_job = submission.rrd_process_selector.sidekiq_job(backup: true) if options['use_backup_job']
+    backup_sidekiq_job = submission.rrd_job_selector.sidekiq_job(backup: true) if options['use_backup_job']
     if backup_sidekiq_job
       message = "Restarting with backup #{backup_sidekiq_job} for submission #{submission.id}."
-      submission.send_rrd_alert_email('RRD Processor Selector alert - backup processor', message)
+      submission.send_rrd_alert_email('RRD Processor Selector alert - backup job', message)
       return submission.start_rrd_job(backup_sidekiq_job)
     end
     submission.start_evss_submission_job
@@ -100,8 +100,8 @@ class Form526Submission < ApplicationRecord
     submission.start_evss_submission_job
   end
 
-  def rrd_process_selector
-    @rrd_process_selector ||= RapidReadyForDecision::ProcessorSelector.new(self)
+  def rrd_job_selector
+    @rrd_job_selector ||= RapidReadyForDecision::SidekiqJobSelector.new(self)
   end
 
   # Afer RapidReadyForDecision is complete, this method is

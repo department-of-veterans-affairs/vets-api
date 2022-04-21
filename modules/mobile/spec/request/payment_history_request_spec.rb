@@ -14,7 +14,7 @@ RSpec.describe 'payment_history', type: :request do
 
   after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
 
-  before { iam_sign_in }
+  before { iam_sign_in(FactoryBot.build(:iam_user, :no_email)) }
 
   describe 'GET /mobile/v0/payment-history' do
     context 'with successful response with the default (no) parameters' do
@@ -279,6 +279,24 @@ RSpec.describe 'payment_history', type: :request do
 
       it 'returns a 200' do
         expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'with an only scheduled payments ' do
+      before do
+        allow(Rails.logger).to receive(:warn)
+        VCR.use_cassette('payment_history/retrieve_payment_summary_with_bdn_only_blank_dates',
+                         match_requests_on: %i[method uri]) do
+          get '/mobile/v0/payment-history', headers: iam_headers
+        end
+      end
+
+      it 'returns a 200' do
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'returns no payments' do
+        expect(response.parsed_body['data'].size).to eq(0)
       end
     end
   end
