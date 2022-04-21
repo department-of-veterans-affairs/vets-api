@@ -137,6 +137,43 @@ class AppealsApi::RswagConfig
           { '$ref': "#{ref_root}/date" }
         ]
       },
+      'X-VA-Claimant-First-Name': {
+        'allOf': [
+          { 'description': 'first name' },
+          { 'type': 'string' }
+        ]
+      },
+      'X-VA-Claimant-Middle-Initial': {
+        'allOf': [
+          { 'description': 'middle initial' },
+          { '$ref': "#{ref_root}/nonBlankString" }
+        ]
+      },
+      'X-VA-Claimant-Last-Name': {
+        'allOf': [
+          { 'description': 'last name' },
+          { '$ref': "#{ref_root}/nonBlankString" }
+        ]
+      },
+      'X-VA-Claimant-Birth-Date': {
+        'allOf': [
+          { 'description': 'birth date' },
+          { 'minLength': 10 },
+          { 'maxLength': 10 },
+          { '$ref': "#{ref_root}/date" }
+        ]
+      },
+      'X-VA-Claimant-SSN': {
+        'allOf': [
+          { 'description': 'social security number' },
+          {
+            'type': 'string',
+            'minLength': 0,
+            'maxLength': 9,
+            'pattern': '^[0-9]{9}$'
+          }
+        ]
+      },
       'X-VA-File-Number': {
         'allOf': [
           { 'description': 'VA file number (c-file / css)' },

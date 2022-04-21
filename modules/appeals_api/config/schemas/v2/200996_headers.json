@@ -49,27 +49,27 @@
         ] },
         "X-VA-Claimant-SSN": {
           "type": "string",
-          "description": "Non-Veteran Claimants's SSN",
+          "description": "Non-Veteran claimants's SSN",
           "pattern": "^[0-9]{9}$"
         },
         "X-VA-Claimant-First-Name": {
           "type": "string",
-          "description": "Non-Veteran Claimant's first name",
+          "description": "Non-Veteran claimant's first name",
           "maxLength": 30,
           "$comment": "can be whitespace, to accommodate those with 1 legal name"
         },
         "X-VA-Claimant-Middle-Initial": {
           "allOf": [
-            { "description": "Non-Veteran Claimant's middle initial", "maxLength": 1 },
+            { "description": "Non-Veteran claimant's middle initial", "maxLength": 1 },
             { "$ref": "#/definitions/nonBlankString" }
           ]
         },
         "X-VA-Claimant-Last-Name": { "allOf": [
-          { "description": "Non-Veteran Claimant's last name", "maxLength": 40 },
+          { "description": "Non-Veteran claimant's last name", "maxLength": 40 },
           { "$ref": "#/definitions/nonBlankString" }
         ] },
         "X-VA-Claimant-Birth-Date": { "allOf": [
-          { "description": "Non-Veteran Claimant's birth date" },
+          { "description": "Non-Veteran claimant's birth date" },
           { "$ref": "#/definitions/date" }
         ] },
         "X-Consumer-Username": {
