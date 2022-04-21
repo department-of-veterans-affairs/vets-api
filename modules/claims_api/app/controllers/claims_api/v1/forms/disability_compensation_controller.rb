@@ -72,6 +72,7 @@ module ClaimsApi
         #
         # @return [JSON] Claim record
         def upload_form_526
+          validate_document_provided
           validate_documents_content_type
           validate_documents_page_size
 

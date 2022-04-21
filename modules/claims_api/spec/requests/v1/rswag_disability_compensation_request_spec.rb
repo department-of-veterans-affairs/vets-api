@@ -326,6 +326,36 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
         end
       end
 
+      describe 'Getting a 400 response' do
+        response '400', 'Bad Request' do
+          let(:scopes) { %w[claim.write] }
+          let(:auto_claim) { create(:auto_established_claim) }
+          let(:attachment) { nil }
+          let(:id) { auto_claim.id }
+
+          before do |example|
+            stub_poa_verification
+            stub_mpi
+
+            with_okta_user(scopes) do
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 400 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
       describe 'Getting a 404 response' do
         response '404', 'Resource not found' do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',

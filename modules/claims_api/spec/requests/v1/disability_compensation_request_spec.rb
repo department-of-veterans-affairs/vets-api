@@ -2492,6 +2492,17 @@ RSpec.describe 'Disability Claims ', type: :request do
         attachment2: File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf") }
     end
 
+    context 'when no attachment is provided to the PUT endpoint' do
+      it 'rejects the request for missing param' do
+        with_okta_user(scopes) do |auth_header|
+          put("/services/claims/v1/forms/526/#{auto_claim.id}", headers: headers.merge(auth_header))
+          expect(response.status).to eq(400)
+          expect(response.parsed_body['errors'][0]['title']).to eq('Missing parameter')
+          expect(response.parsed_body['errors'][0]['detail']).to eq('Must include attachment')
+        end
+      end
+    end
+
     it 'upload 526 binary form through PUT' do
       with_okta_user(scopes) do |auth_header|
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
