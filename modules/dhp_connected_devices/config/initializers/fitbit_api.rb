@@ -7,6 +7,6 @@ FitbitAPI.configure do |config|
   config.symbolize_keys  = true
 end
 
-PKCE_CHALLENGE = PkceChallenge.challenge(char_length: 128)
-CODE_CHALLENGE = PKCE_CHALLENGE.code_challenge.freeze
-CODE_VERIFIER = PKCE_CHALLENGE.code_verifier.freeze
+PKCE_CHALLENGE ||= PkceChallenge.challenge(char_length: 128)
+CODE_CHALLENGE ||= PKCE_CHALLENGE.code_challenge.freeze
+CODE_VERIFIER ||= PKCE_CHALLENGE.code_verifier.freeze
