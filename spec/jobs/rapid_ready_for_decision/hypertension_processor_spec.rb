@@ -24,7 +24,7 @@ RSpec.describe RapidReadyForDecision::HypertensionProcessor do
                     'unit' => 'mm[Hg]' } }]
   end
 
-  describe '#perform', :vcr do
+  describe '#perform' do
     before do
       # The bp reading needs to be 1 year or less old so actual API data will not test if this code is working.
       allow_any_instance_of(RapidReadyForDecision::LighthouseObservationData)

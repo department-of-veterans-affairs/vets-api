@@ -7,7 +7,7 @@ RSpec.describe RapidReadyForDecision::RrdProcessor do
   let(:rrd_processor) { described_class.new(submission) }
   let(:submission) { create(:form526_submission, :hypertension_claim_for_increase) }
 
-  describe '#add_medical_stats', :vcr do
+  describe '#add_medical_stats' do
     subject { rrd_processor.add_medical_stats(assessed_data) }
 
     let(:assessed_data) { { somekey: 'someValue' } }
@@ -20,7 +20,7 @@ RSpec.describe RapidReadyForDecision::RrdProcessor do
     end
   end
 
-  describe '#set_special_issue', :vcr do
+  describe '#set_special_issue' do
     subject { rrd_processor.set_special_issue }
 
     it 'calls add_special_issue' do

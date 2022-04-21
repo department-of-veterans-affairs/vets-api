@@ -14,7 +14,7 @@ RSpec.describe RapidReadyForDecision::Form526BaseJob, type: :worker do
        diastolic: { 'code' => '8462-4', 'display' => 'Diastolic BP', 'value' => 87.0, 'unit' => 'mm[Hg]' } }]
   end
 
-  describe '#perform', :vcr do
+  describe '#perform' do
     around do |example|
       VCR.use_cassette('evss/claims/claims_without_open_compensation_claims', &example)
     end
@@ -36,7 +36,7 @@ RSpec.describe RapidReadyForDecision::Form526BaseJob, type: :worker do
       end
     end
 
-    context 'the claim IS for hypertension', :vcr do
+    context 'the claim IS for hypertension' do
       around do |example|
         VCR.use_cassette('rrd/hypertension', &example)
       end
