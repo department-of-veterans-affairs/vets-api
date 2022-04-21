@@ -2455,6 +2455,21 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
+      it 'supports putting va_profile preferred-name data' do
+        expect(subject).to validate(:put, '/v0/profile/preferred_names', 401)
+
+        VCR.use_cassette('va_profile/demographics/post_preferred_name_success') do
+          preferred_name = VAProfile::Models::PreferredName.new(text: 'Pat')
+
+          expect(subject).to validate(
+            :put,
+            '/v0/profile/preferred_names',
+            200,
+            headers.merge('_data' => preferred_name.as_json)
+          )
+        end
+      end
+
       context 'communication preferences' do
         before do
           allow_any_instance_of(User).to receive(:vet360_id).and_return('18277')

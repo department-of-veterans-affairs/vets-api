@@ -1359,6 +1359,36 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/v0/profile/preferred_names' do
+        operation :put do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Adds or updates a users preferred name'
+          key :operationId, 'putPreferredName'
+          key :tags, ['profile']
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes to update a users preferred name'
+            key :required, false
+
+            schema do
+              key :$ref, :PutPreferredName
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :$ref, :PreferredName
+            end
+          end
+        end
+      end
     end
   end
 end
