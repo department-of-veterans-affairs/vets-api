@@ -133,7 +133,7 @@ module V2
                  Faraday::Response.new(body: check_in.invalid_request.to_json, status: 400)
                elsif token.present?
                  chip_client.confirm_demographics(token: token, demographic_confirmations:
-                   demographic_confirmations.merge(confirm_demographics_id_params))
+                   demographic_confirmations.merge(identifier_params))
                else
                  Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
                end
@@ -180,16 +180,6 @@ module V2
       end
 
       def identifier_params
-        hashed_identifiers =
-          Oj.load(appointment_identifiers).with_indifferent_access.dig(:data, :attributes)
-
-        {
-          patientDFN: hashed_identifiers[:patientDFN],
-          stationNo: hashed_identifiers[:stationNo]
-        }
-      end
-
-      def confirm_demographics_id_params
         hashed_identifiers =
           Oj.load(appointment_identifiers).with_indifferent_access.dig(:data, :attributes)
 
