@@ -21,6 +21,26 @@
         "email": "bobsemail@bobbytablesemail.com",
         "timezone": "America/Chicago"
       },
+      "claimant": {
+        "homeless": false,
+        "address": {
+          "addressLine1": "456 First St",
+          "addressLine2": "Apt 5",
+          "addressLine3": "Box 1",
+          "city": "Detroit",
+          "countryCodeISO2": "US",
+          "stateCode": "MI",
+          "zipCode5": "48070"
+        },
+        "phone": {
+          "countryCode": "1",
+          "areaCode": "555",
+          "phoneNumber": "8111100",
+          "phoneNumberExt": "4"
+        },
+        "email": "joe@email.com",
+        "timezone": "America/Detroit"
+      },
       "socOptIn": true,
       "form5103Acknowledged": true,
       "evidenceSubmission": {
