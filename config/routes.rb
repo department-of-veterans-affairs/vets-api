@@ -297,6 +297,7 @@ Rails.application.routes.draw do
 
       resources :ch33_bank_accounts, only: %i[index]
       put 'ch33_bank_accounts', to: 'ch33_bank_accounts#update'
+      resource :preferred_names, only: :update
     end
 
     resources :search, only: :index
