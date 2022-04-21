@@ -82,7 +82,7 @@ module VAProfile
       end
 
       def aaid
-        return '^PN^200IDME^USDVA' if @user&.idme_uuid.present?
+        return '^PN^200VIDM^USDVA' if @user&.idme_uuid.present?
         return '^PN^200VLGN^USDVA' if @user&.logingov_uuid.present?
       end
     end
