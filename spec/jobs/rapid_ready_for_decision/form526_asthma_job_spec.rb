@@ -10,7 +10,7 @@ RSpec.describe RapidReadyForDecision::Form526AsthmaJob, type: :worker do
 
   let(:submission) { create(:form526_submission, :asthma_claim_for_increase) }
 
-  describe '#perform', :vcr do
+  describe '#perform' do
     subject { RapidReadyForDecision::Form526AsthmaJob.perform_async(submission.id) }
 
     around do |example|

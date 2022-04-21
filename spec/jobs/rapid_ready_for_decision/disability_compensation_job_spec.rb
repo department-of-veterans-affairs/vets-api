@@ -56,7 +56,7 @@ RSpec.describe RapidReadyForDecision::DisabilityCompensationJob, type: :worker d
         end
       end
 
-      context 'the claim IS for hypertension', :vcr do
+      context 'the claim IS for hypertension' do
         before do
           # The bp reading needs to be 1 year or less old so actual API data will not test if this code is working.
           allow_any_instance_of(RapidReadyForDecision::LighthouseObservationData)

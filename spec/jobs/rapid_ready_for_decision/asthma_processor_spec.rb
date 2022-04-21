@@ -12,7 +12,7 @@ RSpec.describe RapidReadyForDecision::AsthmaProcessor do
 
   let(:submission) { create(:form526_submission, :asthma_claim_for_increase) }
 
-  describe '#perform', :vcr do
+  describe '#perform' do
     it 'finishes successfully' do
       Sidekiq::Testing.inline! do
         rrd_sidekiq_job = RapidReadyForDecision::Constants::DISABILITIES[:asthma][:sidekiq_job]
@@ -24,7 +24,7 @@ RSpec.describe RapidReadyForDecision::AsthmaProcessor do
     end
   end
 
-  describe '#assess_data', :vcr do
+  describe '#assess_data' do
     subject { described_class.new(submission).assess_data }
 
     context 'when there are active medication requests' do

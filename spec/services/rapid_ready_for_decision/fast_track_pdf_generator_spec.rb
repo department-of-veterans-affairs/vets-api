@@ -5,7 +5,7 @@ require 'rails_helper'
 # require 'prawn/table'
 require 'lighthouse/veterans_health/client'
 
-RSpec.describe RapidReadyForDecision::FastTrackPdfGenerator, :vcr do
+RSpec.describe RapidReadyForDecision::FastTrackPdfGenerator do
   subject { PDF::Inspector::Text.analyze(compiled_pdf.render).strings }
 
   if ENV['_SAVE_RRD_PDF_FILE']
@@ -53,7 +53,7 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfGenerator, :vcr do
     RapidReadyForDecision::FastTrackPdfGenerator.new(patient_name, assessed_data, disability_type)
   end
 
-  describe '#generate', :vcr do
+  describe '#generate' do
     shared_examples 'includes introduction' do
       it 'includes the veterans name' do
         expect(subject).to include 'Cat Marie Power, Jr.'
