@@ -98,6 +98,26 @@
                 },
                   "required": ["address", "phone", "email"]
                 },
+                "claimant": {
+                  "type": "object",
+                  "properties": {
+                    "address":{ "$ref": "#/definitions/address" },
+                    "phone": {
+                      "allOf": [
+                        { "$ref": "#/definitions/phone" },
+                        { "$comment": "the phone fields must not exceed 20 chars, when concatenated" }
+                      ]
+                    },
+                    "email": { "type": "string", "format": "email", "minLength": 6, "maxLength": 255 },
+                    "timezone": {
+                    "allOf": [
+                      { "description": "Claimant's timezone. Used for adding the current date to the signature according to the Claimant's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date)." },
+                      { "$ref": "#/definitions/timezone"}
+                    ]
+                  }
+                },
+                  "required": ["address", "phone", "email"]
+                },
                 "evidenceSubmission": {
                   "description": "Evidence may be uploaded up to 7 days from the 'created_at' date of the associated Supplemental Claim via 'supplemental_claims/evidence_submissions'.",
                   "type": "object",

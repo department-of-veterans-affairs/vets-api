@@ -8,5 +8,8 @@
   "X-VA-Service-Number": "876543210",
   "X-VA-Insurance-Policy-Number": "987654321123456789",
   "X-Consumer-Username": "va.gov",
-  "X-Consumer-ID": "some-guid"
+  "X-Consumer-ID": "some-guid",
+  "X-VA-Claimant-First-Name": "joe",
+  "X-VA-Claimant-Middle-Initial": "b",
+  "X-VA-Claimant-Last-Name": "smart"
 }
