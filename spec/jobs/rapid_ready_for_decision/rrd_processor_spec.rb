@@ -5,7 +5,7 @@ require 'sidekiq/testing'
 
 RSpec.describe RapidReadyForDecision::RrdProcessor do
   let(:rrd_processor) { described_class.new(submission) }
-  let(:submission) { create(:form526_submission, :hypertension_claim_for_increase) }
+  let(:submission) { create(:form526_submission, :asthma_claim_for_increase) }
 
   describe '#add_medical_stats' do
     subject { rrd_processor.add_medical_stats(assessed_data) }
@@ -74,16 +74,30 @@ RSpec.describe RapidReadyForDecision::RrdProcessor do
     end
   end
 
-  context 'when run in a Sidekiq job' do
+  context 'when run in a Sidekiq job', :vcr do
     around do |example|
       VCR.use_cassette('evss/claims/claims_without_open_compensation_claims') do
-        VCR.use_cassette('rrd/hypertension', &example)
+        VCR.use_cassette('rrd/asthma', &example)
+      end
+    end
+
+    it 'finishes successfully' do
+      Sidekiq::Testing.inline! do
+        RapidReadyForDecision::Form526BaseJob.perform_async(submission.id)
+        submission.reload
+        expect(submission.rrd_pdf_created?).to be true
+        expect(submission.rrd_pdf_uploaded_to_s3?).to be true
+
+        # when release_pdf? is true, add pdf for uploading and set special issue
+        expect(Flipper.enabled?(:rrd_asthma_release_pdf)).to be true
+        expect(submission.rrd_pdf_added_for_uploading?).to be true
+        expect(submission.rrd_special_issue_set?).to be true
       end
     end
 
     context 'when the user uuid is not associated with an Account' do
       let(:submission_without_account) do
-        create(:form526_submission, :hypertension_claim_for_increase, user_uuid: 'inconceivable')
+        create(:form526_submission, :asthma_claim_for_increase, user_uuid: 'inconceivable')
       end
 
       it 'finishes successfully' do
@@ -102,7 +116,7 @@ RSpec.describe RapidReadyForDecision::RrdProcessor do
         let(:submission_without_account_or_edpid) do
           auth_headers.delete('va_eauth_dodedipnid')
 
-          create(:form526_submission, :hypertension_claim_for_increase,
+          create(:form526_submission, :asthma_claim_for_increase,
                  user: user,
                  user_uuid: 'nonsense',
                  auth_headers_json: auth_headers.to_json)
