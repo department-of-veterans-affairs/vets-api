@@ -522,7 +522,7 @@ describe V2::Chip::Service do
     end
   end
 
-  describe '#confirm_demographics_id_params' do
+  describe '#identifier_params' do
     let(:uuid) { 'd602d9eb-9a31-484f-9637-13ab0b507e0d' }
     let(:appointment_identifiers) do
       {
@@ -551,7 +551,7 @@ describe V2::Chip::Service do
 
       it 'returns patientDfn and stationNo as string' do
         expect(subject.build(check_in: valid_check_in, params: {})
-                      .confirm_demographics_id_params).to eq(hsh)
+                      .identifier_params).to eq(hsh)
       end
     end
   end
