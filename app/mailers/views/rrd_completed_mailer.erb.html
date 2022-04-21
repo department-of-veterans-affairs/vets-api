@@ -6,7 +6,7 @@
   <body>
     Environment: <%= Settings.vsp_environment %><br/>
     <p>
-      A single-issue <%= @disability_code %> claim for increase was submitted on va.gov.<br/>
+      A single-issue <%= @disability_struct[:label] %> (<%= @disability_code %>) claim for increase was submitted on va.gov.<br/>
       <% case @rrd_status
          when :processed %>
         A health summary PDF was generated and added to the claim's documentation.
@@ -23,7 +23,6 @@
           <td>Submission Date</td>
           <td>Submission Time</td>
           <td>Submission ID</td>
-          <td>Number of BP readings</td>
         </tr>
       </thead>
       <tbody>
@@ -32,7 +31,6 @@
           <td><%= @submission.created_at.to_date %></td>
           <td><%= @submission.created_at.strftime '%H:%M:%S' %></td>
           <td><%= @submission.id %></td>
-          <td><%= @bp_readings_count %></td>
         </tr>
       </tbody>
     </table>
@@ -41,7 +39,15 @@
       (Note the time zone for Submission Date and Time: <%= @submission.created_at %>)
     </p>
     <p>
-      S3 guid for the RRD PDF: <%= @pdf_guid %>
+      <li>Number of BP readings: <%= @bp_readings_count %></li>
+      <li>RRD PDF created? <%= @submission.rrd_pdf_created? %></li>
+      <li>RRD PDF uploaded to S3? <%= @submission.rrd_pdf_uploaded_to_s3? %>
+          <% if @submission.rrd_pdf_uploaded_to_s3? %>
+            -- S3 id: <%= @pdf_guid %>
+          <% end %>
+      </li>
+      <li>RRD PDF to be uploaded? <%= @submission.rrd_pdf_added_for_uploading? %></li>
+      <li>RRD special issue set? <%= @submission.rrd_special_issue_set? %></li>
     </p>
   </body>
 </html>

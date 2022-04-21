@@ -69,19 +69,15 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfUploadManager do
     end
   end
 
-  describe '#already_has_summary_files' do
+  describe 'rrd_pdf_added_for_uploading?' do
     context 'success' do
       it 'returns false if no summary file is present' do
-        expect(
-          manager.already_has_summary_file
-        ).to eq false
+        expect(form526_submission.rrd_pdf_added_for_uploading?).to eq false
       end
 
       it 'returns true after a summary file is added' do
         manager.add_upload('fake_confirmation_code')
-        expect(
-          RapidReadyForDecision::FastTrackPdfUploadManager.new(form526_submission).already_has_summary_file
-        ).to eq true
+        expect(form526_submission.rrd_pdf_added_for_uploading?).to eq true
       end
     end
   end

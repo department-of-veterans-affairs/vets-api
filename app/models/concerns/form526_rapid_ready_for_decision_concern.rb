@@ -20,11 +20,10 @@ module Form526RapidReadyForDecisionConcern
 
   # @param metadata_hash [Hash] to be merged into form_json['rrd_metadata']
   def add_metadata(metadata_hash)
-    new_form_json = JSON.parse(form_json)
-    new_form_json['rrd_metadata'] ||= {}
-    new_form_json['rrd_metadata'].deep_merge!(metadata_hash)
+    form['rrd_metadata'] ||= {}
+    form['rrd_metadata'].deep_merge!(metadata_hash)
 
-    update!(form_json: JSON.dump(new_form_json))
+    update!(form_json: JSON.dump(form))
     invalidate_form_hash
     self
   end
@@ -45,6 +44,28 @@ module Form526RapidReadyForDecisionConcern
     pending
   end
 
+  def rrd_pdf_created?
+    form.dig('rrd_metadata', 'pdf_created')
+  end
+
+  def rrd_pdf_uploaded_to_s3?
+    form.dig('rrd_metadata', 'pdf_guid').present?
+  end
+
+  # @return if an RRD pdf has been included as a file to upload
+  def rrd_pdf_added_for_uploading?
+    form['form526_uploads']&.any? do |upload|
+      upload['name']&.start_with? RapidReadyForDecision::FastTrackPdfUploadManager::DOCUMENT_TITLE
+    end
+  end
+
+  def rrd_special_issue_set?
+    disabilities = form.dig('form526', 'form526', 'disabilities')
+    disabilities.any? do |disability|
+      disability['specialIssues']&.include?(RapidReadyForDecision::RrdSpecialIssueManager::RRD_CODE)
+    end
+  end
+
   private
 
   def open_claims
@@ -54,6 +75,6 @@ module Form526RapidReadyForDecisionConcern
 
   # @return if this claim submission was processed and fast-tracked by RRD
   def rrd_claim_processed?
-    form_json.include? RapidReadyForDecision::FastTrackPdfUploadManager::DOCUMENT_TITLE
+    rrd_pdf_added_for_uploading? && rrd_special_issue_set?
   end
 end

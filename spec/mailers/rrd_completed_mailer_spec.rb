@@ -22,19 +22,23 @@ RSpec.describe RrdCompletedMailer, type: [:mailer] do
     let(:bp_readings_count) { 1234 }
 
     let!(:submission) do
-      submission = create(:form526_submission, :with_uploads, user_uuid: 'fake uuid',
-                                                              auth_headers_json: 'fake auth headers',
-                                                              saved_claim_id: saved_claim.id,
-                                                              form_json: form_json)
-      # Set the bp_readings_count like `add_medical_stats` is expected to do
-      form_json = JSON.parse(submission.form_json)
-      form_json['rrd_metadata'] = {
-        med_stats: { bp_readings_count: bp_readings_count },
-        pdf_guid: 'a950ef07-9eaa-4784-b5af-bda8c50a83f9'
-      }
+      submission = create(:form526_submission, :with_uploads,
+                          user_uuid: 'fake uuid',
+                          auth_headers_json: 'fake auth headers',
+                          saved_claim_id: saved_claim.id,
+                          form_json: form_json)
+      # Set the metadata like RRD processors would
+      form_json = submission.form
       form_json['form526_uploads'].append(rrd_pdf_json)
-      submission.update!(form_json: JSON.dump(form_json))
-      submission.invalidate_form_hash
+      disabilities = form_json.dig('form526', 'form526', 'disabilities')
+      disabilities.first['specialIssues'] = ['RRD']
+
+      submission.add_metadata({
+                                pdf_created: true,
+                                # Set the bp_readings_count like `add_medical_stats` is expected to do
+                                med_stats: { bp_readings_count: bp_readings_count },
+                                pdf_guid: 'a950ef07-9eaa-4784-b5af-bda8c50a83f9'
+                              })
       submission
     end
 
@@ -44,10 +48,10 @@ RSpec.describe RrdCompletedMailer, type: [:mailer] do
 
     it 'has the expected content' do
       expect(email.body).to include 'Environment: '
-      expect(email.body).to include 'A single-issue 5235 claim for increase was submitted on va.gov.'
+      expect(email.body).to match(/A single-issue .* claim for increase was submitted on va.gov./)
       expect(email.body).to include 'A health summary PDF was generated and added to the claim\'s documentation.'
-      expect(email.body).to include "<td>#{bp_readings_count}</td>"
-      expect(email.body).to include 'S3 guid for the RRD PDF: a950ef07-9eaa-4784-b5af-bda8c50a83f9'
+      expect(email.body).to include "Number of BP readings: #{bp_readings_count}"
+      expect(email.body).to include 'S3 id: a950ef07-9eaa-4784-b5af-bda8c50a83f9'
     end
   end
 
@@ -64,7 +68,7 @@ RSpec.describe RrdCompletedMailer, type: [:mailer] do
     end
 
     it 'has the expected content' do
-      expect(email.body).to include 'A single-issue 5235 claim for increase was submitted on va.gov.'
+      expect(email.body).to match(/A single-issue .* claim for increase was submitted on va.gov./)
       expect(email.body)
         .to include 'There was already a pending EP 020 for the veteran associated with this claim.'
     end
@@ -89,10 +93,9 @@ RSpec.describe RrdCompletedMailer, type: [:mailer] do
     end
 
     it 'has the expected content' do
-      expect(email.body).to include 'A single-issue 5235 claim for increase was submitted on va.gov.'
+      expect(email.body).to match(/A single-issue .* claim for increase was submitted on va.gov./)
       expect(email.body)
         .to include 'There was not sufficient data to generate a health summary PDF associated with this claim.'
-      expect(email.body).to include 'S3 guid for the RRD PDF: N/A'
     end
   end
 end

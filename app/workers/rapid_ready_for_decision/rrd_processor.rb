@@ -16,6 +16,7 @@ module RapidReadyForDecision
       add_medical_stats(assessed_data)
 
       pdf = generate_pdf(assessed_data)
+      form526_submission.add_metadata(pdf_created: true)
       upload_pdf(pdf)
 
       set_special_issue if Flipper.enabled?(:rrd_add_special_issue)

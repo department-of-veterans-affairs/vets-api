@@ -32,14 +32,8 @@ module RapidReadyForDecision
       submission
     end
 
-    def already_has_summary_file
-      data = JSON.parse(submission.form_json)
-      uploads = data['form526_uploads'] || []
-      uploads.any? { |upload| upload['name'].start_with? DOCUMENT_TITLE }
-    end
-
     def handle_attachment(pdf_body, add_to_submission: true)
-      if already_has_summary_file
+      if submission.rrd_pdf_added_for_uploading?
         submission
       else
         supporting_evidence_attachment = SupportingEvidenceAttachment.new
