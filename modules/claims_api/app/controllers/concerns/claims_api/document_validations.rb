@@ -18,6 +18,12 @@ module ClaimsApi
         raise ::Common::Exceptions::UnprocessableEntity.new(errors: document_page_size_errors)
       end
 
+      def validate_document_provided
+        return if documents.present?
+
+        raise ::Common::Exceptions::ParameterMissing.new('attachment', detail: 'Must include attachment')
+      end
+
       def valid_page_size?(file)
         size_in_inches = PdfInfo::Metadata.read(file.path).page_size_inches
         size_in_inches[:height] <= 11 && size_in_inches[:width] <= 11
