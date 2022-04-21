@@ -4,8 +4,6 @@ require 'rails_helper'
 require 'sidekiq/testing'
 
 RSpec.describe RapidReadyForDecision::Form526BaseJob, type: :worker do
-  before { Sidekiq::Worker.clear_all }
-
   let(:submission) { create(:form526_submission, :with_uploads, submitted_claim_id: '600130094') }
 
   let(:mocked_observation_data) do

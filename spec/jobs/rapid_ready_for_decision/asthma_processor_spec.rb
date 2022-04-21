@@ -3,11 +3,7 @@
 require 'rails_helper'
 require 'sidekiq/testing'
 
-RSpec.describe RapidReadyForDecision::AsthmaProcessor, type: :worker do
-  before do
-    Sidekiq::Worker.clear_all
-  end
-
+RSpec.describe RapidReadyForDecision::AsthmaProcessor do
   around do |example|
     VCR.use_cassette('evss/claims/claims_without_open_compensation_claims') do
       VCR.use_cassette('rrd/asthma', &example)

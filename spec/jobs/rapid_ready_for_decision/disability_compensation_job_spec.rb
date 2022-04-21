@@ -6,10 +6,6 @@ require 'sidekiq/testing'
 RSpec.describe RapidReadyForDecision::DisabilityCompensationJob, type: :worker do
   subject { described_class }
 
-  before do
-    Sidekiq::Worker.clear_all
-  end
-
   let!(:user) { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
