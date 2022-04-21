@@ -108,6 +108,7 @@
                 },
                 "claimant": {
                   "type": "object",
+                  "description": "If the claimant is a non-Veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
                   "properties": {
                     "address":  {
                       "type": "object",
