@@ -45,13 +45,10 @@ RSpec.describe EducationForm::DeleteOldApplications do
 
   describe '#perform' do
     it 'deletes old records' do
-      # rubocop:disable Layout/MultilineMethodCallIndentation
       expect { subject.perform }
         .to change(EducationBenefitsClaim, :count).from(6).to(4)
         .and change { SavedClaim::EducationBenefits.count }.from(6).to(4)
         .and change(EducationStemAutomatedDecision, :count).from(2).to(1)
-      # rubocop:enable Layout/MultilineMethodCallIndentation
-
       expect { @edu_claim_old.reload }.to raise_exception(ActiveRecord::RecordNotFound)
       expect { @saved_claim_old.reload }.to raise_exception(ActiveRecord::RecordNotFound)
 
