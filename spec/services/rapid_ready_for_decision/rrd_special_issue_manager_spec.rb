@@ -12,7 +12,7 @@ RSpec.describe RapidReadyForDecision::RrdSpecialIssueManager do
 
   def filter_disabilities(form)
     form[:disabilities].filter do |item|
-      item[:diagnosticCode] == RapidReadyForDecision::Constants::DISABILITIES[:hypertension][:code]
+      RapidReadyForDecision::Constants::DISABILITIES_BY_CODE.include?(item[:diagnosticCode])
     end
   end
 
@@ -41,6 +41,16 @@ RSpec.describe RapidReadyForDecision::RrdSpecialIssueManager do
       filtered_disabilities = filter_disabilities(form526_hash(form526_submission.reload.form_json))
       expect(filtered_disabilities).to all(include :specialIssues)
       expect(filtered_disabilities.any? { |el| el[:specialIssues].include? special_issues_list.first }).to be true
+    end
+
+    context 'for single-issue asthma increase' do
+      let(:form526_submission) { create(:form526_submission, :asthma_claim_for_increase) }
+
+      it 'adds rrd to the special issues list' do
+        subject.add_special_issue
+        filtered_disabilities = filter_disabilities(form526_hash(form526_submission.reload.form_json))
+        expect(filtered_disabilities[0][:specialIssues]).to match special_issues_list
+      end
     end
 
     context 'when the fast track worker has been triggered twice for the same submission' do

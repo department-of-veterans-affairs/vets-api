@@ -12,7 +12,7 @@ module RapidReadyForDecision
       submission_data = JSON.parse(submission.form_json)
       disabilities = submission_data.dig('form526', 'form526', 'disabilities')
       disabilities.each do |disability|
-        add_rrd_code(disability) if hypertension_increase?(disability)
+        add_rrd_code(disability) if included_disability_increase?(disability)
       end
       submission.update!(form_json: JSON.dump(submission_data))
       submission.invalidate_form_hash
@@ -21,11 +21,13 @@ module RapidReadyForDecision
 
     private
 
-    HYPERTENSION_DISABILITY = RapidReadyForDecision::Constants::DISABILITIES[:hypertension]
+    RRD_DIAGNOSTIC_CODES = RapidReadyForDecision::Constants::DISABILITIES_BY_CODE.keys
     RRD_CODE = 'RRD'
 
-    def hypertension_increase?(disability)
-      RapidReadyForDecision::SidekiqJobSelector.disability_increase?(disability, HYPERTENSION_DISABILITY)
+    # Checks if the disability is supported by RRD and that it is a request for increase
+    def included_disability_increase?(disability)
+      RRD_DIAGNOSTIC_CODES.include?(disability['diagnosticCode']) &&
+        disability['disabilityActionType']&.upcase == 'INCREASE'
     end
 
     # Must return an array containing special string codes for EVSS
