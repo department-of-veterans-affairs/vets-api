@@ -28,7 +28,7 @@ RSpec.describe FitbitService, type: :service do
 
     context 'auth code is included in Fitbit response and token exchange is successful' do
       before do
-        faraday_response = double('response', status: 200)
+        faraday_response = double('response', status: 200, body: '{ "access_token": "some token" }')
         allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(faraday_response)
       end
 
@@ -40,7 +40,7 @@ RSpec.describe FitbitService, type: :service do
 
     context 'auth code is included in Fitbit response and token exchange fails' do
       before do
-        faraday_response = double('response', status: 400)
+        faraday_response = double('response', status: 400, body: '{ "error": "some error" }')
         allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(faraday_response)
       end
 

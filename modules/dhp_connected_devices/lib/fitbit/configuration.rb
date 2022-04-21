@@ -23,7 +23,7 @@ module DhpConnectedDevices
           # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
           # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
-          conn.response :raise_error, error_prefix: service_name
+          # conn.response :raise_error, error_prefix: service_name
 
           conn.adapter Faraday.default_adapter
         end

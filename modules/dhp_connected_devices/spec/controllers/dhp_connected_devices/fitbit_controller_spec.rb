@@ -85,7 +85,7 @@ RSpec.describe DhpConnectedDevices::FitbitController, type: :request do
       end
 
       it "redirects with 'fitbit=success' when auth code is returned and token exchange is successful'" do
-        faraday_response = double('response', status: 200)
+        faraday_response = double('response', status: 200, body: '{ "access_token": "some token" }')
         allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(faraday_response)
         expect(fitbit_callback('?code=889709')).to redirect_to 'http://localhost:3001/health-care/connected-devices/?fitbit=success#_=_'
       end
