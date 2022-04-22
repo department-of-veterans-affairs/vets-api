@@ -396,6 +396,70 @@ paths:
       security:
         - Bearer: []
       summary: /v0/appointments/cancel/{cancelId}
+  /v0/appointments/community_care/eligibility/{service_type}:
+    get:
+      description: Checks if user is eligibile to make an appointment with Community Care for a type of service. Checks if user is registered at a site that is marked as accepting community care requests and community care eligibility api says that they're eligible for the type of care they chose
+      operationId: communityCareEligibility
+      parameters:
+        - description: Type of service to check eligibility for. Can only be one of following options primaryCare, nutrition, podiatry, optometry, audiology.
+          in: path
+          name: serviceType
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/CommunityCaresEligibility.yml
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Authentication is possible but has failed or not yet been provided.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The requested resource could not be found.
+        '408':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The response from this API timed out.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Failure in processing entity
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An internal API error occured.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An upstream service is unavailable, or its circuit breaker
+            may have been tripped.
+        '504':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: A response from an upstream service timed out.
+      security:
+        - Bearer: []
+      summary: /v0/appointments/community_care/eligibility/{service_type}
   /v0/appointment:
     post:
       description: Creates a new appointment
