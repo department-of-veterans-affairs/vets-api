@@ -232,6 +232,8 @@ dhp:
     client_secret: ''
     redirect_uri: 'http://localhost:3000/dhp_connected_devices/fitbit-callback'
     scope: 'heartrate activity nutrition sleep'
+    code_challenge: ''
+    code_verifier: ''
 
 # Settings for modules/appeals_api
 modules_appeals_api:
