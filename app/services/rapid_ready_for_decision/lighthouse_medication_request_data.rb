@@ -30,7 +30,7 @@ module RapidReadyForDecision
     MedicationEntry = Struct.new(:entry) do
       def result
         entry.slice('status', 'authoredOn')
-             .merge(description_hash, notes_hash, dosage_hash)
+             .merge(description_hash, notes_hash, dosage_hash, dispense_request_hash)
              .with_indifferent_access
       end
 
@@ -45,11 +45,24 @@ module RapidReadyForDecision
       end
 
       def dosage_hash
-        dosage_instructions = entry['dosageInstruction'] || []
+        dosage_instructions = (entry['dosageInstruction'] || [])
         toplevel_texts = dosage_instructions.map { |instr| instr['text'] || [] }
         code_texts = dosage_instructions.map { |instr| instr.dig('timing', 'code', 'text') || [] }
+        routes = dosage_instructions.map { |instr| instr.dig('route', 'text') }.join(' ')
 
-        { dosageInstructions: toplevel_texts + code_texts }
+        {
+          dosageInstructions: toplevel_texts + code_texts,
+          route: routes
+        }
+      end
+
+      def dispense_request_hash
+        duration = entry.dig('dispenseRequest', 'expectedSupplyDuration') || {}
+
+        {
+          refills: entry.dig('dispenseRequest', 'numberOfRepeatsAllowed'),
+          duration: [duration['value'], duration['unit']].compact.join(' ')
+        }
       end
     end
   end

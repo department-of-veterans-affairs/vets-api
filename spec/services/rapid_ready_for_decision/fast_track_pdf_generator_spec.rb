@@ -81,7 +81,7 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfGenerator do
         dosages = parsed_medications_data.map do |med|
           next if med['dosageInstructions'].blank?
 
-          "Dosage instructions: #{med['dosageInstructions'].join('; ')}"
+          med['dosageInstructions'].join('; ')
         end.compact
 
         expect(subject).to include(*dosages)
