@@ -11,9 +11,10 @@ class RrdCompletedMailer < ApplicationMailer
 
     template = File.read('app/mailers/views/rrd_completed_mailer.erb.html')
 
+    environment = "[#{Settings.vsp_environment}] " unless Settings.vsp_environment == 'production'
     mail(
       to: Settings.rrd.event_tracking.recipients,
-      subject: "[#{Settings.vsp_environment}] RRD claim - #{@rrd_status.to_s.humanize} - #{@disability_code}",
+      subject: "#{environment}RRD claim - #{@disability_code} - #{@rrd_status.to_s.humanize}",
       body: ERB.new(template).result(binding)
     )
   end
