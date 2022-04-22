@@ -25,7 +25,8 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfUploadManager do
       form_json: original_form_json
     )
   end
-  let(:manager) { RapidReadyForDecision::FastTrackPdfUploadManager.new(form526_submission) }
+  let(:metadata_hash) { {} }
+  let(:manager) { RapidReadyForDecision::FastTrackPdfUploadManager.new(form526_submission, metadata_hash) }
 
   let(:time_freeze_time) { Time.zone.parse('2021-10-10') }
 
@@ -100,7 +101,7 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfUploadManager do
       end.to change(
         SupportingEvidenceAttachment, :count
       ).by 1
-      expect(form526_submission.form['rrd_metadata']).to include('pdf_guid')
+      expect(metadata_hash[:pdf_guid]).not_to be nil
     end
 
     it 'skips updating the submission when add_to_submission is false' do
