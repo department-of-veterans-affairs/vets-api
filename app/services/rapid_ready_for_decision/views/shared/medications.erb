@@ -21,11 +21,32 @@
         <b><%= medication['description'] %></b>
       <% end %>
       <br />
-      Prescribed on: <%= medication['authoredOn'][0, 10].to_date.strftime('%m/%d/%Y') %> <br />
+
       <% if medication['dosageInstructions'].present? %>
-        Dosage instructions: <%= medication['dosageInstructions'].join('; ') %><br />
+        <%= medication['dosageInstructions'].join('; ') %><br />
+      <% end %>
+
+      <% if medication['authoredOn'].present? %>
+        Prescribed on: <%= medication['authoredOn'][0, 10].to_date.strftime('%m/%d/%Y') %>
+      <% end %>
+
+      <% if medication['duration'].present? %>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        Duration: <%= medication['duration'] %>
+      <% end %>
+
+      <% if medication['refills'].present? %>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        Refills: <%= medication['refills'] %>
+      <% end %>
+
+      <% if medication['route'].present? %>
+        <p>
+          Route: <%= medication['route'] %>
+        </p>
       <% end %>
     </p>
+    <p><br/></p>
   <% end %>
 <% else %>
   <p><br/></p>
