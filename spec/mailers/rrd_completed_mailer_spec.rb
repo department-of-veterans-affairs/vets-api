@@ -42,8 +42,16 @@ RSpec.describe RrdCompletedMailer, type: [:mailer] do
       submission
     end
 
-    it 'has the expected subject' do
-      expect(email.subject).to include 'RRD claim - Processed'
+    it 'has the expected subject in production' do
+      prior_env = Settings.vsp_environment
+      Settings.vsp_environment = 'production'
+      expect(email.subject).to eq 'RRD claim -  - Processed'
+      Settings.vsp_environment = prior_env
+    end
+
+    it 'has the expected subject in staging' do
+      Settings.vsp_environment = 'staging'
+      expect(email.subject).to eq '[staging] RRD claim -  - Processed'
     end
 
     it 'has the expected content' do
@@ -64,7 +72,7 @@ RSpec.describe RrdCompletedMailer, type: [:mailer] do
     end
 
     it 'has the expected subject' do
-      expect(email.subject).to include 'RRD claim - Pending ep'
+      expect(email.subject).to match(/RRD claim - .* - Pending ep/)
     end
 
     it 'has the expected content' do
@@ -89,7 +97,7 @@ RSpec.describe RrdCompletedMailer, type: [:mailer] do
     end
 
     it 'has the expected subject' do
-      expect(email.subject).to include 'RRD claim - Insufficient data'
+      expect(email.subject).to match(/RRD claim - .* - Insufficient data/)
     end
 
     it 'has the expected content' do
