@@ -52,10 +52,13 @@ module Form526RapidReadyForDecisionConcern
     form.dig('rrd_metadata', 'pdf_guid').present?
   end
 
+  Uploader = RapidReadyForDecision::FastTrackPdfUploadManager
+  PDF_FILENAME_REGEX = /#{Uploader::DOCUMENT_NAME_PREFIX}.*#{Uploader::DOCUMENT_NAME_SUFFIX}/.freeze
+
   # @return if an RRD pdf has been included as a file to upload
   def rrd_pdf_added_for_uploading?
     form['form526_uploads']&.any? do |upload|
-      upload['name']&.start_with? RapidReadyForDecision::FastTrackPdfUploadManager::DOCUMENT_TITLE
+      upload['name']&.match? PDF_FILENAME_REGEX
     end
   end
 

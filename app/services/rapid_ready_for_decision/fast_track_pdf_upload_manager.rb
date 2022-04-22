@@ -4,17 +4,21 @@ module RapidReadyForDecision
   class FastTrackPdfUploadManager
     attr_accessor :submission
 
-    DOCUMENT_TITLE = 'VAMC_Hypertension_Rapid_Decision_Evidence'
+    DOCUMENT_NAME_PREFIX = 'VAMC'
+    DOCUMENT_NAME_SUFFIX = 'Rapid_Decision_Evidence'
 
-    def initialize(submission, metadata_hash = {})
+    def initialize(submission, metadata_hash = {}, disability_struct = nil)
       @submission = submission
       @metadata_hash = metadata_hash
+      @disability_struct = disability_struct || RapidReadyForDecision::Constants.first_disability(submission)
     end
 
     def file_upload_name
       @file_upload_name ||= begin
         search_date = Time.zone.today.strftime('%Y%m%d')
-        "#{DOCUMENT_TITLE}-#{search_date}.pdf"
+        contention = @disability_struct[:label].capitalize
+        document_title = "#{DOCUMENT_NAME_PREFIX}_#{contention}_#{DOCUMENT_NAME_SUFFIX}"
+        "#{document_title}-#{search_date}.pdf"
       end
     end
 
