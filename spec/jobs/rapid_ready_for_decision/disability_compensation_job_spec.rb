@@ -63,6 +63,14 @@ RSpec.describe RapidReadyForDecision::DisabilityCompensationJob, type: :worker d
             .to receive(:transform).and_return(mocked_observation_data)
         end
 
+        let(:submission) do
+          create(:form526_submission, :with_uploads, :hypertension_claim_for_increase,
+                 user_uuid: user.uuid,
+                 auth_headers_json: auth_headers.to_json,
+                 saved_claim_id: saved_claim.id,
+                 submitted_claim_id: '600130094')
+        end
+
         it 'finishes successfully' do
           Sidekiq::Testing.inline! do
             expect do

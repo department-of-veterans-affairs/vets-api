@@ -47,7 +47,7 @@ module RapidReadyForDecision
 
     def upload_pdf(pdf)
       RapidReadyForDecision::FastTrackPdfUploadManager
-        .new(form526_submission, @metadata_hash)
+        .new(form526_submission, @metadata_hash, @disability_struct)
         .handle_attachment(pdf.render, add_to_submission: release_pdf?)
     end
 
