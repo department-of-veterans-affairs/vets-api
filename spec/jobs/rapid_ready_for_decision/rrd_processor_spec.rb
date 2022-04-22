@@ -16,7 +16,7 @@ RSpec.describe RapidReadyForDecision::RrdProcessor do
 
     it 'adds to rrd_metadata.med_stats' do
       subject
-      expect(submission.form.dig('rrd_metadata', 'med_stats', 'newkey')).to eq 'someValue'
+      expect(rrd_processor.metadata_hash.dig(:med_stats, :newkey)).to eq 'someValue'
     end
   end
 

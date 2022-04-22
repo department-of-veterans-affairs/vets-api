@@ -2,11 +2,13 @@
 
 module RapidReadyForDecision
   class RrdProcessor
-    attr_reader :form526_submission
+    attr_reader :form526_submission, :metadata_hash
 
     def initialize(form526_submission)
       @form526_submission = form526_submission
-      @disability_struct = RapidReadyForDecision::Constants.first_disability(form526_submission)
+      @disability_struct = RapidReadyForDecision::Constants.first_disability(form526_submission) || {}
+      # Pass around metadata_hash so that we write to DB only once
+      @metadata_hash = {}
     end
 
     def run
@@ -16,10 +18,12 @@ module RapidReadyForDecision
       add_medical_stats(assessed_data)
 
       pdf = generate_pdf(assessed_data)
-      form526_submission.add_metadata(pdf_created: true)
+      @metadata_hash[:pdf_created] = true
       upload_pdf(pdf)
 
       set_special_issue if Flipper.enabled?(:rrd_add_special_issue)
+
+      form526_submission.add_metadata(@metadata_hash)
     end
 
     # Return nil to discontinue processing (i.e., doesn't generate pdf or set special issue)
@@ -43,7 +47,7 @@ module RapidReadyForDecision
 
     def upload_pdf(pdf)
       RapidReadyForDecision::FastTrackPdfUploadManager
-        .new(form526_submission)
+        .new(form526_submission, @metadata_hash)
         .handle_attachment(pdf.render, add_to_submission: release_pdf?)
     end
 
@@ -61,7 +65,7 @@ module RapidReadyForDecision
       med_stats_hash = med_stats_hash(assessed_data)
       return if med_stats_hash.blank?
 
-      form526_submission.add_metadata(med_stats: med_stats_hash)
+      @metadata_hash[:med_stats] = med_stats_hash
     end
 
     class AccountNotFoundError < StandardError; end
