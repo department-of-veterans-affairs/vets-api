@@ -8,8 +8,6 @@ module VAProfile
     class PreferredNameResponse < VAProfile::Response
       attribute :preferred_name, VAProfile::Models::PreferredName
 
-      attr_reader :response_body
-
       def text
         preferred_name&.text
       end

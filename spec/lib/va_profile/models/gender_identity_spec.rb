@@ -7,9 +7,15 @@ describe VAProfile::Models::GenderIdentity do
   let(:model) { VAProfile::Models::GenderIdentity.new(code: 'F', name: 'Female') }
 
   context 'is valid' do
-    it 'when code and name are valid' do
+    it 'when code is valid' do
       model.valid?
       expect(model).to be_valid
+    end
+
+    it 'name is set from code' do
+      model.code = 'M'
+      model.valid?
+      expect(model.name).to eq('Male')
     end
   end
 
@@ -19,6 +25,7 @@ describe VAProfile::Models::GenderIdentity do
       model.valid?
       expect(model.errors.count).to eq(1)
       expect(model.errors[:code]).to include("can't be blank")
+      expect(model.name).to be_nil
     end
 
     it 'when code is an invalid option' do
@@ -26,27 +33,7 @@ describe VAProfile::Models::GenderIdentity do
       model.valid?
       expect(model.errors.count).to eq(1)
       expect(model.errors[:code]).to include('invalid code')
-    end
-
-    it 'when name is missing' do
-      model.name = nil
-      model.valid?
-      expect(model.errors.count).to eq(1)
-      expect(model.errors[:name]).to include("can't be blank")
-    end
-
-    it 'when name is an invalid option' do
-      model.name = 'X'
-      model.valid?
-      expect(model.errors.count).to eq(1)
-      expect(model.errors[:name]).to include('invalid name')
-    end
-
-    it 'when code-name combination is invalid' do
-      model.code = 'M'
-      model.valid?
-      expect(model.errors.count).to eq(1)
-      expect(model.errors[:base]).to include('invalid code/name combination')
+      expect(model.name).to be_nil
     end
   end
 end

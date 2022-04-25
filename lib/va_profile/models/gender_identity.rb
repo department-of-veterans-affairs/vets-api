@@ -9,6 +9,7 @@ module VAProfile
     class GenderIdentity < Base
       include VAProfile::Concerns::Defaultable
 
+      CODES = %w[M F TM TF B N O].freeze
       OPTIONS = {
         'M' => 'Male',
         'F' => 'Female',
@@ -21,14 +22,17 @@ module VAProfile
 
       attribute :code, String
       attribute :name, String
+      attribute :source_system_user, String
       attribute :source_date, Common::ISO8601Time
 
       skip_callback :validate, :past_date?
       validates :code, presence: true
-      validates :name, presence: true
       validates_inclusion_of :code, in: OPTIONS, message: 'invalid code', if: -> { @code.present? }
-      validates_inclusion_of :name, in: OPTIONS.invert, message: 'invalid name', if: -> { @name.present? }
-      validate :gender_identity_options
+
+      def code=(val)
+        @code = val
+        @name = OPTIONS[@code]
+      end
 
       # Converts an instance of the GenderIdentity model to a JSON encoded string suitable for
       # use in the body of a request to VAProfile
@@ -38,10 +42,7 @@ module VAProfile
         {
           bio: {
             genderIdentity: [
-              {
-                genderIdentityCode: @code,
-                genderIdentityName: @name
-              }
+              genderIdentityCode: @code
             ],
             sourceDate: @source_date,
             originatingSourceSystem: SOURCE_SYSTEM,
@@ -60,14 +61,6 @@ module VAProfile
           code: body['gender_identity_code'],
           name: body['gender_identity_name']
         )
-      end
-
-      private
-
-      def gender_identity_options
-        return if errors.any? # don't bother if code or name in already invalid
-
-        errors.add(:base, 'invalid code/name combination') if @name != OPTIONS[@code]
       end
     end
   end

@@ -2470,6 +2470,21 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
+      it 'supports putting va_profile gender-identity data' do
+        expect(subject).to validate(:put, '/v0/profile/gender_identities', 401)
+
+        VCR.use_cassette('va_profile/demographics/post_gender_identity_success') do
+          gender_identity = VAProfile::Models::GenderIdentity.new(code: 'F')
+
+          expect(subject).to validate(
+            :put,
+            '/v0/profile/gender_identities',
+            200,
+            headers.merge('_data' => gender_identity.as_json)
+          )
+        end
+      end
+
       context 'communication preferences' do
         before do
           allow_any_instance_of(User).to receive(:vet360_id).and_return('18277')
