@@ -45,7 +45,7 @@ module ClaimsApi
             source: source_name
           )
 
-          ClaimsApi::Logger.log('526', claim_id: params[:id], detail: 'Submitted to Lighthouse',
+          ClaimsApi::Logger.log('526', claim_id: auto_claim.id, detail: 'Submitted to Lighthouse',
                                        pdf_gen_dis: form_attributes['autoCestPDFGenerationDisabled'])
 
           # .create returns the resulting object whether the object was saved successfully to the database or not.
@@ -82,7 +82,7 @@ module ClaimsApi
             pending_claim.set_file_data!(documents.first, EVSS_DOCUMENT_TYPE)
             pending_claim.save!
 
-            ClaimsApi::Logger.log('526', claim_id: params[:id], detail: 'Uploaded PDF to S3')
+            ClaimsApi::Logger.log('526', claim_id: pending_claim.id, detail: 'Uploaded PDF to S3')
             ClaimsApi::ClaimEstablisher.perform_async(pending_claim.id)
             ClaimsApi::ClaimUploader.perform_async(pending_claim.id)
 
@@ -107,6 +107,12 @@ module ClaimsApi
 
           claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless claim
+
+          ClaimsApi::Logger.log(
+            '526',
+            claim_id: claim.id,
+            detail: "/attachments called with #{documents.length} #{'attachment'.pluralize(documents.length)}"
+          )
 
           documents.each do |document|
             claim_document = claim.supporting_documents.build
