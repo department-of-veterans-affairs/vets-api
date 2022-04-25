@@ -90,7 +90,20 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
     context 'Creates a veterans enrollments' do
       it 'returns a 200 status when it' do
         VCR.use_cassette('dgi/submit_enrollment_verification') do
-          post '/meb_api/v0/submit_enrollment_verification'
+          post '/meb_api/v0/submit_enrollment_verification',
+               params: { "enrollment_verifications": { "claimantId": 600_000_000,
+                                                       "enrollmentCertifyRequests": [
+                                                         { "claimantId": 600_000_000,
+                                                           "certifiedPeriodBeginDate": '2021-08-01',
+                                                           "certifiedPeriodEndDate": '2021-08-31',
+                                                           "certifiedThroughDate": '2021-08-31',
+                                                           "certificationMethod": 'MEB' },
+                                                         { "claimantId": 600_000_000,
+                                                           "certifiedPeriodBeginDate": '2021-09-01',
+                                                           "certifiedPeriodEndDate": '2021-09-30',
+                                                           "certifiedThroughDate": '2021-09-30',
+                                                           "certificationMethod": 'MEB' }
+                                                       ] } }
           expect(response).to have_http_status(:ok)
         end
       end
