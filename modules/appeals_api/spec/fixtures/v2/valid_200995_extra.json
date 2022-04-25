@@ -22,7 +22,8 @@
         "timezone": "America/Chicago"
       },
       "claimant": {
-        "homeless": false,
+        "claimantType": "other",
+        "claimantTypeOtherValue": "banana of veteran",
         "address": {
           "addressLine1": "456 First St",
           "addressLine2": "Apt 5",

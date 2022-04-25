@@ -6787,7 +6787,8 @@
                                   "timezone": "America/Chicago"
                                 },
                                 "claimant": {
-                                  "homeless": false,
+                                  "claimantType": "other",
+                                  "claimantTypeOtherValue": "banana of veteran",
                                   "address": {
                                     "addressLine1": "456 First St",
                                     "addressLine2": "Apt 5",
@@ -7088,7 +7089,8 @@
                           "timezone": "America/Chicago"
                         },
                         "claimant": {
-                          "homeless": false,
+                          "claimantType": "other",
+                          "claimantTypeOtherValue": "banana of veteran",
                           "address": {
                             "addressLine1": "456 First St",
                             "addressLine2": "Apt 5",
@@ -10850,6 +10852,21 @@
                   "claimant": {
                     "type": "object",
                     "properties": {
+                      "claimantType": {
+                        "type": "string",
+                        "enum": [
+                          "veteran",
+                          "spouse_of_veteran",
+                          "child_of_veteran",
+                          "parent_of_veteran",
+                          "other"
+                        ]
+                      },
+                      "claimantTypeOtherValue": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 25
+                      },
                       "address": {
                         "$ref": "#/components/schemas/address"
                       },
@@ -10881,10 +10898,23 @@
                       }
                     },
                     "required": [
+                      "claimantType",
                       "address",
                       "phone",
                       "email"
-                    ]
+                    ],
+                    "if": {
+                      "properties": {
+                        "claimantType": {
+                          "const": "other"
+                        }
+                      }
+                    },
+                    "then": {
+                      "required": [
+                        "claimantTypeOtherValue"
+                      ]
+                    }
                   },
                   "evidenceSubmission": {
                     "description": "Evidence may be uploaded up to 7 days from the 'created_at' date of the associated Supplemental Claim via 'supplemental_claims/evidence_submissions'.",
