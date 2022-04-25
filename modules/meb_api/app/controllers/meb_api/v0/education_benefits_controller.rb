@@ -71,15 +71,17 @@ module MebApi
       end
 
       def enrollment
-        response = enrollment_service.get_enrollment(params[:claimant_id])
+        claimant_response = claimant_service.get_claimant_info
+        claimant_id = claimant_response['claimant_id']
+        response = enrollment_service.get_enrollment(claimant_id)
 
         render json: response, serializer: EnrollmentSerializer
       end
 
       def submit_enrollment_verification
-        response = enrollment_service.submit_enrollment(params)
+        response = enrollment_service.submit_enrollment(params[:enrollment_verifications])
 
-        render json: response, serializer: EnrollmentSerializer
+        render json: response, serializer: SubmitEnrollmentSerializer
       end
 
       private

@@ -30,7 +30,7 @@ RSpec.describe MebApi::DGI::Enrollment::Service do
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('dgi/enrollment') do
-          response = service.get_enrollment(1)
+          response = service.get_enrollment(600_000_000)
           expect(response.enrollment_verifications).to eq([{ 'verification_month' => 'January 2021',
                                                              'certified_begin_date' => '2021-01-01',
                                                              'certified_end_date' => '2021-01-31',
