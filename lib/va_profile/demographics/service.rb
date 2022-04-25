@@ -7,6 +7,7 @@ require 'va_profile/stats'
 require_relative 'configuration'
 require_relative 'demographic_response'
 require_relative 'preferred_name_response'
+require_relative 'gender_identity_response'
 
 module VAProfile
   module Demographics
@@ -16,13 +17,6 @@ module VAProfile
       configuration VAProfile::Demographics::Configuration
 
       # Returns a response object containing the user's preferred name, and gender-identity
-      #
-      # @return [VAProfile::Demographics::DemographicResponse] Sample response:
-      #   {
-      #     "preferred_name" => "SAM",
-      #     "gender_identity: => VAProfile::Models::GenderIdentity<code: "F", name: "Female">
-      #   }
-      #
       def get_demographics
         with_monitoring do
           return build_response(401, nil) unless identifier_present?
@@ -51,9 +45,14 @@ module VAProfile
 
       # PUTs an updated preferred_name to the VAProfile API
       # @param preferred_name [VAProfile::Models::PreferredName] the preferred_name to update
-      # @return [VAProfile::Demographics::PreferredNameResponse] response wrapper around a transaction object
       def save_preferred_name(preferred_name)
         post_or_put_data(:post, preferred_name, 'preferred-name', PreferredNameResponse)
+      end
+
+      # PUTs an updated gender_identity to the VAProfile API
+      # @param gender_identity [VAProfile::Models::GenderIdentity] the gender_identity to update
+      def save_gender_identity(gender_identity)
+        post_or_put_data(:post, gender_identity, 'gender-identity', GenderIdentityResponse)
       end
 
       def post_or_put_data(method, model, path, response_class)
@@ -63,7 +62,7 @@ module VAProfile
           model.set_defaults(@user)
           response = perform(method, identity_path(path), model.in_json)
 
-          return response_class.new(200, preferred_name: model) if response_successful?(response)
+          return response_class.new(200, "#{model.model_name.element}": model) if response_successful?(response)
 
           response_class.from(response)
         end

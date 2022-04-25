@@ -14,7 +14,8 @@ module Swagger
                    type: :string,
                    example: 'Pat',
                    minLength: 1,
-                   maxLength: 25
+                   maxLength: 25,
+                   description: 'Describes preferred name text.'
         end
 
         swagger_schema :PreferredName do
