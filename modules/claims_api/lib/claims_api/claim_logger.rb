@@ -40,7 +40,7 @@ module ClaimsApi
       else
         msg.append(params.to_json)
       end
-      called_from = caller_locations(1, 1).first
+      called_from = caller_locations(2, 1).first
       msg.append("Location: #{called_from.path}:#{called_from.lineno}")
       msg.join(' :: ')
     end
