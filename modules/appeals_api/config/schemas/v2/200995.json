@@ -101,6 +101,8 @@
                 "claimant": {
                   "type": "object",
                   "properties": {
+                    "claimantType": {"type": "string", "enum": [ "veteran", "spouse_of_veteran", "child_of_veteran", "parent_of_veteran", "other"] },
+                    "claimantTypeOtherValue": { "type":  "string", "minLength": 1, "maxLength": 25 },
                     "address":{ "$ref": "#/definitions/address" },
                     "phone": {
                       "allOf": [
@@ -110,13 +112,15 @@
                     },
                     "email": { "type": "string", "format": "email", "minLength": 6, "maxLength": 255 },
                     "timezone": {
-                    "allOf": [
-                      { "description": "Claimant's timezone. Used for adding the current date to the signature according to the Claimant's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date)." },
-                      { "$ref": "#/definitions/timezone"}
-                    ]
-                  }
-                },
-                  "required": ["address", "phone", "email"]
+                      "allOf": [
+                        { "description": "Claimant's timezone. Used for adding the current date to the signature according to the Claimant's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date)." },
+                        { "$ref": "#/definitions/timezone"}
+                      ]
+                    }
+                  },
+                  "required": ["claimantType","address", "phone", "email"],
+                  "if": { "properties": { "claimantType": { "const": "other" } } },
+                  "then": { "required": ["claimantTypeOtherValue"] }
                 },
                 "evidenceSubmission": {
                   "description": "Evidence may be uploaded up to 7 days from the 'created_at' date of the associated Supplemental Claim via 'supplemental_claims/evidence_submissions'.",
