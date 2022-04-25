@@ -45,7 +45,7 @@ module Form526RapidReadyForDecisionConcern
   end
 
   def rrd_pdf_created?
-    form.dig('rrd_metadata', 'pdf_created')
+    form.dig('rrd_metadata', 'pdf_created') || false
   end
 
   def rrd_pdf_uploaded_to_s3?
