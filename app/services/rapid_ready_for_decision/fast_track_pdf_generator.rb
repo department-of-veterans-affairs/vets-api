@@ -42,7 +42,9 @@ module RapidReadyForDecision
       @pdf.font_families.update('SourceSansPro' => {
                                   normal: Rails.root.join('public', 'fonts', 'sourcesanspro-regular-webfont.ttf'),
                                   italic: Rails.root.join('public', 'fonts', 'sourcesanspro-italic-webfont.ttf'),
-                                  bold: Rails.root.join('public', 'fonts', 'sourcesanspro-bold-webfont.ttf')
+                                  bold: Rails.root.join('public', 'fonts', 'sourcesanspro-bold-webfont.ttf'),
+                                  bold_italic: Rails.root.join('public', 'fonts',
+                                                               'sourcesanspro-bolditalic-webfont.ttf')
                                 })
       @pdf.font_families.update('DejaVuSans' => {
                                   normal: Rails.root.join('public', 'fonts', 'deja-vu-sans.ttf')

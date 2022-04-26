@@ -9,6 +9,15 @@
   <i>All VAMC locations using VistA/CAPRI were checked</i> <br />
 </p>
 
+<% if @disability_type == 'asthma' %>
+  <br/>
+  <b>Important!</b> Medications that <b><i>may</i></b> have been prescribed for asthma are marked
+  with <font name="DejaVuSans">&#9654;</font>arrows<font name="DejaVuSans">&#9664;</font>.
+  Claims adjudicators should check the patient's medical records to see what the medication was
+  prescribed for.<br/>
+  See "How we identify asthma prescriptions" at the end of this document for more details.
+<% end %>
+
 <% if @assessed_data[:medications].present? %>
   <p> <br /> </p>
   <% @assessed_data[:medications].each do |medication| %>
