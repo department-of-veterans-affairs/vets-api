@@ -21,7 +21,7 @@ module RapidReadyForDecision
       @metadata_hash[:pdf_created] = true
       upload_pdf(pdf)
 
-      set_special_issue if Flipper.enabled?(:rrd_add_special_issue)
+      set_special_issue if Flipper.enabled?(:rrd_add_special_issue) && release_pdf?
 
       form526_submission.add_metadata(@metadata_hash)
     end
@@ -52,8 +52,6 @@ module RapidReadyForDecision
     end
 
     def set_special_issue
-      return unless release_pdf?
-
       RapidReadyForDecision::RrdSpecialIssueManager.new(form526_submission).add_special_issue
     end
 
