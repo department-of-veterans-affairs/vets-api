@@ -13,7 +13,7 @@ module SignIn
       check_state_match
       update_and_persist_user
       create_code_container
-      login_code
+      [login_code, client_state]
     end
 
     private
@@ -57,6 +57,10 @@ module SignIn
       @user_verification ||= Login::UserVerifier.new(current_user).perform
     rescue => e
       Rails.logger.info("[SignIn::UserCreator] UserVerification not created, error=#{e.message}")
+    end
+
+    def client_state
+      code_challenge_state_map.client_state
     end
 
     def login_code

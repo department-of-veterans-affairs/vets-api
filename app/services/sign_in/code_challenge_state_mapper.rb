@@ -2,11 +2,12 @@
 
 module SignIn
   class CodeChallengeStateMapper
-    attr_reader :code_challenge, :code_challenge_method
+    attr_reader :code_challenge, :code_challenge_method, :client_state
 
-    def initialize(code_challenge:, code_challenge_method:)
+    def initialize(code_challenge:, code_challenge_method:, client_state: nil)
       @code_challenge = code_challenge
       @code_challenge_method = code_challenge_method
+      @client_state = client_state
     end
 
     def perform
@@ -22,7 +23,9 @@ module SignIn
     end
 
     def map_code_challenge_to_state
-      CodeChallengeStateMap.new(code_challenge: remove_base64_padding(code_challenge), state: state).save!
+      CodeChallengeStateMap.new(code_challenge: remove_base64_padding(code_challenge),
+                                state: state,
+                                client_state: client_state).save!
     end
 
     def state
