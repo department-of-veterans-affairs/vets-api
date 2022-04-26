@@ -944,6 +944,117 @@ paths:
       security:
         - Bearer: []
       summary: /v0/claims-and-appeals-overview
+  /v0/community-care-providers:
+    get:
+      description: Returns a list of community care providers who provide the requested medical specialty within
+        a certain radius of the user (default) or facility (if facility id is provided in query params).
+      operationId: get_community_care_providers
+      parameters:
+        - description: The medical specialty the user is searching for formatted in camel case.
+            Must be one of primaryCare, foodAndNutrition, podiatry, optometry, audiologyRoutineExam, audiologyHearingAidSupport.
+          example: primaryCare
+          in: query
+          name: serviceType
+          required: true
+          schema:
+            type: string
+        - description: Optional facility id. When provided, we search for CC providers near the facility.
+            When omitted, we search for CC providers near the user's home address.
+          example: '978'
+          in: query
+          name: facilityId
+          schema:
+            type: string
+        - description: The page number requested
+          example: 1
+          in: query
+          name: page[number]
+          schema:
+            type: integer
+        - description: The number of records to return per page
+          example: 10
+          in: query
+          name: page[size]
+          schema:
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/CommunityCareProviders.yml
+          description: OK
+        '400':
+          content:
+            application/json:
+              example:
+                errors:
+                  - code: '103'
+                    detail: '"whatever you entered" is not a valid value for "serviceType"'
+                    status: '400'
+                    title: Invalid field value
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Bad Request
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Authentication is possible but has failed or not yet been provided.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The requested resource could not be found.
+        '408':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The response from this API timed out.
+        '422':
+          content:
+            application/json:
+              example:
+                errors:
+                  - code: '422'
+                    detail: User has no home latitude and longitude
+                    source: Mobile::V0::CommunityCareProvidersController
+                    status: '422'
+                    title: Unprocessable Entity
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Failure in processing entity
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An internal API error occured.
+        '502':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An upstream service the API depends on returned an error.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An upstream service is unavailable, or its circuit breaker
+            may have been tripped.
+        '504':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: A response from an upstream service timed out.
+      security:
+        - Bearer: []
+      summary: /v0/community-care-providers
   /v0/disability-rating:
     get:
       description: Returns the list of disability ratings for given user
