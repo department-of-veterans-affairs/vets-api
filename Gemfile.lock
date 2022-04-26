@@ -210,7 +210,7 @@ GEM
       gyoku (>= 0.4.0)
       nokogiri
     ast (2.4.2)
-    attr_extras (6.2.4)
+    attr_extras (6.2.5)
     awesome_print (1.9.2)
     aws-eventstream (1.2.0)
     aws-partitions (1.578.0)
@@ -914,7 +914,7 @@ GEM
     statsd-instrument (3.1.2)
     strong_migrations (1.0.0)
       activerecord (>= 5.2)
-    super_diff (0.8.0)
+    super_diff (0.9.0)
       attr_extras (>= 6.2.4)
       diff-lcs
       patience_diff
