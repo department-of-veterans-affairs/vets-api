@@ -1,39 +1,22 @@
 # frozen_string_literal: true
 
+require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
+
 # rubocop:disable Metrics/MethodLength, Layout/LineLength, Metrics/ClassLength
 class AppealsApi::RswagConfig
+  include DocHelpers
+
   def config
     {
-      'modules/appeals_api/app/swagger/appeals_api/v2/swagger.json' => {
+      "modules/appeals_api/app/swagger/appeals_api/v2/swagger#{DocHelpers.doc_suffix}.json" => {
         openapi: '3.0.0',
         info: {
           title: 'Decision Reviews',
           version: 'v2',
           termsOfService: 'https://developer.va.gov/terms-of-service',
-          description: File.read(AppealsApi::Engine.root.join('app', 'swagger', 'appeals_api', 'v2', 'api_description.md'))
+          description: File.read(AppealsApi::Engine.root.join('app', 'swagger', 'appeals_api', 'v2', "api_description#{DocHelpers.doc_suffix}.md"))
         },
-        tags: [
-          {
-            name: 'Higher-Level Reviews',
-            description: ''
-          },
-          {
-            name: 'Notice of Disagreements',
-            description: ''
-          },
-          {
-            name: 'Supplemental Claims',
-            description: ''
-          },
-          {
-            name: 'Contestable Issues',
-            description: ''
-          },
-          {
-            name: 'Legacy Appeals',
-            description: ''
-          }
-        ],
+        tags: tags,
         paths: {},
         basePath: '/services/appeals/v2/decision_reviews',
         components: {
@@ -44,17 +27,7 @@ class AppealsApi::RswagConfig
               in: :header
             }
           },
-          schemas: [
-            generic_schemas('#/components/schemas'),
-            hlr_v2_create_schemas,
-            hlr_v2_response_schemas('#/components/schemas'),
-            contestable_issues_schema('#/components/schemas'),
-            nod_v2_create_schemas,
-            nod_v2_response_schemas('#/components/schemas'),
-            sc_create_schemas,
-            sc_response_schemas('#/components/schemas'),
-            legacy_appeals_schema('#/components/schemas')
-          ].reduce(&:merge).sort_by { |k, _| k.to_s.downcase }.to_h
+          schemas: schemas
         },
         servers: [
           {
@@ -81,6 +54,31 @@ class AppealsApi::RswagConfig
   end
 
   private
+
+  def tags
+    [].tap do |a|
+      a << { name: 'Higher-Level Reviews', description: '' }
+      a << { name: 'Notice of Disagreements', description: '' }
+      a << { name: 'Supplemental Claims', description: '' }
+      a << { name: 'Contestable Issues', description: '' }
+      a << { name: 'Legacy Appeals', description: '' }
+    end
+  end
+
+  def schemas
+    a = []
+    a << generic_schemas('#/components/schemas')
+    a << hlr_v2_create_schemas
+    a << hlr_v2_response_schemas('#/components/schemas')
+    a << contestable_issues_schema('#/components/schemas')
+    a << nod_v2_create_schemas
+    a << nod_v2_response_schemas('#/components/schemas')
+    a << sc_create_schemas
+    a << sc_response_schemas('#/components/schemas')
+    a << legacy_appeals_schema('#/components/schemas')
+
+    a.reduce(&:merge).sort_by { |k, _| k.to_s.downcase }.to_h
+  end
 
   def generic_schemas(ref_root)
     {
@@ -405,6 +403,8 @@ class AppealsApi::RswagConfig
   def nod_v2_create_schemas
     # TODO: Return full schema after we've validated all Non-Veteran Claimant functionality
     nod_v2_schema = parse_create_schema('v2', '10182.json')
+    return nod_v2_schema if wip_doc_enabled?(:nod_v2_claimant)
+
     nod_v2_schema.tap do |s|
       s.dig(*%w[nodCreate properties data properties attributes properties]).delete('claimant')
     end
@@ -532,7 +532,13 @@ class AppealsApi::RswagConfig
   end
 
   def sc_create_schemas
-    parse_create_schema('v2', '200995.json')
+    # TODO: Return full schema after we've validated all Non-Veteran Claimant functionality
+    sc_v2_schema = parse_create_schema('v2', '200995.json')
+    return sc_v2_schema if wip_doc_enabled?(:sc_v2_claimant)
+
+    sc_v2_schema.tap do |s|
+      s.dig(*%w[scCreate properties data properties attributes properties]).delete('claimant')
+    end
   end
 
   def sc_response_schemas(ref_root)
