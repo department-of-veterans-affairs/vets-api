@@ -14,7 +14,7 @@
 <%= RapidReadyForDecision::FastTrackPdfGenerator.extract_patient_name(@patient_info) %><br />
 
 <% if @patient_info[:birthdate] %>
-  DOB: <%= @patient_info[:birthdate] %>
+  DOB: <%= @patient_info[:birthdate].to_date.strftime('%m-%d-%Y') %>
 <% end %>
 
 <p> <br /> </p>

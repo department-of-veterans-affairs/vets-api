@@ -62,6 +62,16 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfGenerator do
       it 'includes the veterans birthdate' do
         expect(subject).to include 'DOB: 10-10-1968'
       end
+
+      context 'when veteran birthdate includes timestamp artifact' do
+        let(:patient_name) do
+          { first: 'Cat', middle: 'Marie', last: 'Power', suffix: 'Jr.', birthdate: '1968-10-20T00:00:00+00:00' }
+        end
+
+        it 'simplifies the format of the veterans birthdate' do
+          expect(subject).to include 'DOB: 10-20-1968'
+        end
+      end
     end
 
     context 'when pdf is for hypertension' do
