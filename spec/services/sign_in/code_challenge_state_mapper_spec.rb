@@ -6,11 +6,14 @@ RSpec.describe SignIn::CodeChallengeStateMapper do
   describe '#perform' do
     subject do
       SignIn::CodeChallengeStateMapper.new(code_challenge: code_challenge,
-                                           code_challenge_method: code_challenge_method).perform
+                                           code_challenge_method: code_challenge_method,
+                                           client_state: client_state).perform
     end
 
     let(:code_challenge) { 'some-code-challenge' }
     let(:code_challenge_method) { 'some-code-challenge-method' }
+    let(:client_state) { 'some-client-state' }
+    let(:client_state_minimum_length) { SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH }
 
     context 'when code_challenge_method does not equal accepted method' do
       let(:code_challenge_method) { 'some-arbitrary-code-challenge-method' }
@@ -44,14 +47,38 @@ RSpec.describe SignIn::CodeChallengeStateMapper do
           allow(SecureRandom).to receive(:hex).and_return(state)
         end
 
-        it 'returns a state value' do
-          expect(subject).to eq(state)
+        shared_context 'properly mapped code challenge state' do
+          it 'returns a state value' do
+            expect(subject).to eq(state)
+          end
+
+          it 'creates a CodeChallengeStateMap object that maps code_challenge and state' do
+            state = subject
+            code_challenge_state_map = SignIn::CodeChallengeStateMap.find(state)
+            expect(code_challenge_state_map.code_challenge).to eq(code_challenge_remove_base64_padding)
+            expect(code_challenge_state_map.client_state).to eq(client_state)
+          end
         end
 
-        it 'creates a CodeChallengeStateMap object that maps code_challenge and state' do
-          state = subject
-          code_challenge_state_map = SignIn::CodeChallengeStateMap.find(state)
-          expect(code_challenge_state_map.code_challenge).to eq(code_challenge_remove_base64_padding)
+        context 'and given client_state is nil' do
+          let(:client_state) { nil }
+
+          it_behaves_like 'properly mapped code challenge state'
+        end
+
+        context 'and given client_state is less than minimum client state length' do
+          let(:client_state) { SecureRandom.alphanumeric(client_state_minimum_length - 1) }
+          let(:expected_error) { Common::Exceptions::ValidationErrors }
+
+          it 'raises a validation error' do
+            expect { subject }.to raise_exception(expected_error)
+          end
+        end
+
+        context 'and given client_state is greater than minimum client state length' do
+          let(:client_state) { SecureRandom.alphanumeric(client_state_minimum_length + 1) }
+
+          it_behaves_like 'properly mapped code challenge state'
         end
       end
     end

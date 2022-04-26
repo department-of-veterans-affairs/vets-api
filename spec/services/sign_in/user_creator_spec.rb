@@ -19,7 +19,8 @@ RSpec.describe SignIn::UserCreator do
     end
 
     context 'when state matches a code challenge state map object' do
-      let!(:code_challenge_state_map) { create(:code_challenge_state_map, state: state) }
+      let!(:code_challenge_state_map) { create(:code_challenge_state_map, state: state, client_state: client_state) }
+      let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
       let(:state) { 'some-state' }
 
       context 'and user_attributes matches normalized attributes from a logingov service' do
@@ -47,6 +48,7 @@ RSpec.describe SignIn::UserCreator do
         let(:service_name) { SAML::User::LOGINGOV_CSID }
         let!(:user_verification) { create(:logingov_user_verification, logingov_uuid: csp_id) }
         let(:login_code) { 'some-login-code' }
+        let(:expected_return_object) { [login_code, client_state] }
 
         before do
           allow(SecureRandom).to receive(:uuid).and_return(login_code)
@@ -63,12 +65,12 @@ RSpec.describe SignIn::UserCreator do
           expect(user.email).to eq(email)
         end
 
-        it 'returns a login code' do
-          expect(subject).to eq(login_code)
+        it 'returns a login code and client state' do
+          expect(subject).to eq(expected_return_object)
         end
 
         it 'creates a code container mapped to expected login code' do
-          code = subject
+          code, _client_state = subject
           code_container = SignIn::CodeContainer.find(code)
           expect(code_container.user_account_uuid).to eq(user_verification.user_account.id)
           expect(code_container.code_challenge).to eq(code_challenge_state_map.code_challenge)
@@ -100,6 +102,7 @@ RSpec.describe SignIn::UserCreator do
         let(:service_name) { SAML::User::IDME_CSID }
         let!(:user_verification) { create(:idme_user_verification, idme_uuid: csp_id) }
         let(:login_code) { 'some-login-code' }
+        let(:expected_return_object) { [login_code, client_state] }
 
         before do
           allow(SecureRandom).to receive(:uuid).and_return(login_code)
@@ -116,12 +119,12 @@ RSpec.describe SignIn::UserCreator do
           expect(user.email).to eq(email)
         end
 
-        it 'returns a login code' do
-          expect(subject).to eq(login_code)
+        it 'returns a login code and client state' do
+          expect(subject).to eq(expected_return_object)
         end
 
         it 'creates a code container mapped to expected login code' do
-          code = subject
+          code, _client_state = subject
           code_container = SignIn::CodeContainer.find(code)
           expect(code_container.user_account_uuid).to eq(user_verification.user_account.id)
           expect(code_container.code_challenge).to eq(code_challenge_state_map.code_challenge)

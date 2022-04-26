@@ -4,10 +4,14 @@ require 'rails_helper'
 
 RSpec.describe SignInController, type: :controller do
   describe 'GET authorize' do
-    subject { get(:authorize, params: {}.merge(type).merge(code_challenge).merge(code_challenge_method)) }
+    subject do
+      get(:authorize, params: {}.merge(type).merge(code_challenge).merge(code_challenge_method).merge(client_state))
+    end
 
     let(:code_challenge) { { code_challenge: 'some-code-challenge' } }
     let(:code_challenge_method) { { code_challenge_method: 'some-code-challenge-method' } }
+    let(:client_state) { {} }
+    let(:client_state_minimum_length) { SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH }
     let(:type) { { type: type_value } }
     let(:type_value) { 'some-type' }
 
@@ -90,16 +94,48 @@ RSpec.describe SignInController, type: :controller do
             allow(SecureRandom).to receive(:hex).and_return(state)
           end
 
-          it 'returns ok status' do
-            expect(subject).to have_http_status(:ok)
+          shared_context 'successful response' do
+            it 'returns ok status' do
+              expect(subject).to have_http_status(:ok)
+            end
+
+            it 'renders expected state in template' do
+              expect(subject.body).to match(state)
+            end
+
+            it 'renders expected type in template' do
+              expect(subject.body).to match(type_value)
+            end
           end
 
-          it 'renders expected state in template' do
-            expect(subject.body).to match(state)
+          context 'and client_state is not given' do
+            let(:client_state) { {} }
+
+            it_behaves_like 'successful response'
           end
 
-          it 'renders expected type in template' do
-            expect(subject.body).to match(type_value)
+          context 'and client_state is greater than minimum client state length' do
+            let(:client_state) do
+              { state: SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH + 1) }
+            end
+
+            it_behaves_like 'successful response'
+          end
+
+          context 'and client_state is less than minimum client state length' do
+            let(:client_state) do
+              { state: SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH - 1) }
+            end
+            let(:expected_error) { Common::Exceptions::ValidationErrors.to_s }
+            let(:expected_error_json) { { 'errors' => expected_error } }
+
+            it 'renders code challenge malformed error' do
+              expect(JSON.parse(subject.body)).to eq(expected_error_json)
+            end
+
+            it 'returns bad_request status' do
+              expect(subject).to have_http_status(:bad_request)
+            end
           end
         end
       end
@@ -173,16 +209,48 @@ RSpec.describe SignInController, type: :controller do
             allow(SecureRandom).to receive(:hex).and_return(state)
           end
 
-          it 'returns ok status' do
-            expect(subject).to have_http_status(:ok)
+          shared_context 'successful response' do
+            it 'returns ok status' do
+              expect(subject).to have_http_status(:ok)
+            end
+
+            it 'renders expected state in template' do
+              expect(subject.body).to match(state)
+            end
+
+            it 'renders expected type in template' do
+              expect(subject.body).to match(expected_type_value)
+            end
           end
 
-          it 'renders expected state in template' do
-            expect(subject.body).to match(state)
+          context 'and client_state is not given' do
+            let(:client_state) { {} }
+
+            it_behaves_like 'successful response'
           end
 
-          it 'renders expected type in template' do
-            expect(subject.body).to match(expected_type_value)
+          context 'and client_state is greater than minimum client state length' do
+            let(:client_state) do
+              { state: SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH + 1) }
+            end
+
+            it_behaves_like 'successful response'
+          end
+
+          context 'and client_state is less than minimum client state length' do
+            let(:client_state) do
+              { state: SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH - 1) }
+            end
+            let(:expected_error) { Common::Exceptions::ValidationErrors.to_s }
+            let(:expected_error_json) { { 'errors' => expected_error } }
+
+            it 'renders code challenge malformed error' do
+              expect(JSON.parse(subject.body)).to eq(expected_error_json)
+            end
+
+            it 'returns bad_request status' do
+              expect(subject).to have_http_status(:bad_request)
+            end
           end
         end
       end
@@ -497,10 +565,11 @@ RSpec.describe SignInController, type: :controller do
         end
 
         context 'and state is given and matches expected state' do
-          let(:code_challenge_state_map) { create(:code_challenge_state_map) }
+          let(:code_challenge_state_map) { create(:code_challenge_state_map, client_state: client_state) }
           let(:state) { { state: code_challenge_state_map.state } }
           let(:client_code) { 'some-client-code' }
-          let(:expected_url) { "#{Settings.sign_in.redirect_uri}?code=#{client_code}" }
+          let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
+          let(:expected_url) { "#{Settings.sign_in.redirect_uri}?code=#{client_code}&state=#{client_state}" }
 
           before do
             allow(SecureRandom).to receive(:uuid).and_return(client_code)
@@ -595,10 +664,11 @@ RSpec.describe SignInController, type: :controller do
         end
 
         context 'and state is given and matches expected state' do
-          let(:code_challenge_state_map) { create(:code_challenge_state_map) }
+          let(:code_challenge_state_map) { create(:code_challenge_state_map, client_state: client_state) }
           let(:state) { { state: code_challenge_state_map.state } }
           let(:client_code) { 'some-client-code' }
-          let(:expected_url) { "#{Settings.sign_in.redirect_uri}?code=#{client_code}" }
+          let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
+          let(:expected_url) { "#{Settings.sign_in.redirect_uri}?code=#{client_code}&state=#{client_state}" }
 
           before do
             allow(SecureRandom).to receive(:uuid).and_return(client_code)

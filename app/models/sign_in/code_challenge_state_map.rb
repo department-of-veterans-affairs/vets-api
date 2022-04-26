@@ -8,7 +8,9 @@ module SignIn
 
     attribute :code_challenge, String
     attribute :state, String
+    attribute :client_state, String
 
     validates(:code_challenge, :state, presence: true)
+    validates(:client_state, length: { minimum: Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH }, allow_blank: true)
   end
 end
