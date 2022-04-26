@@ -7,9 +7,8 @@ require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 # rubocop:disable RSpec/VariableName, RSpec/ScatteredSetup, RSpec/RepeatedExample, Layout/LineLength, RSpec/RepeatedDescription
-describe 'Supplemental Claims', swagger_doc: 'modules/appeals_api/app/swagger/appeals_api/v2/swagger.json', type: :request do
+describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/appeals_api/v2/swagger#{DocHelpers.doc_suffix}.json", type: :request do
   include DocHelpers
-
   let(:apikey) { 'apikey' }
 
   path '/supplemental_claims' do
@@ -39,7 +38,9 @@ describe 'Supplemental Claims', swagger_doc: 'modules/appeals_api/app/swagger/ap
           value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_minimum.json')))
         },
         'all fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json')))
+          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json'))).tap do |data|
+            data.dig('data', 'attributes')&.delete('claimant') unless DocHelpers.wip_doc_enabled?(:sc_v2_claimant)
+          end
         }
       }
 
@@ -58,6 +59,18 @@ describe 'Supplemental Claims', swagger_doc: 'modules/appeals_api/app/swagger/ap
       let(:'X-VA-Birth-Date') { '1900-01-01' }
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header]
+
+      if DocHelpers.wip_doc_enabled?(:sc_v2_claimant)
+        parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_first_name_header]
+        let(:'X-VA-Claimant-First-Name') { 'first' }
+
+        parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_middle_initial_header]
+        let(:'X-VA-Claimant-Middle-Initial') { 'm' }
+
+        parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_last_name_header]
+        let(:'X-VA-Claimant-Last-Name') { 'last' }
+      end
+
       parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_username_header]
       parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_id_header]
 
@@ -92,7 +105,9 @@ describe 'Supplemental Claims', swagger_doc: 'modules/appeals_api/app/swagger/ap
 
       response '200', 'Info about a single Supplemental Claim' do
         let(:sc_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json')))
+          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json'))).tap do |data|
+            data.dig('data', 'attributes')&.delete('claimant') unless DocHelpers.wip_doc_enabled?(:sc_v2_claimant)
+          end
         end
 
         schema '$ref' => '#/components/schemas/scCreateResponse'
@@ -379,7 +394,7 @@ describe 'Supplemental Claims', swagger_doc: 'modules/appeals_api/app/swagger/ap
       tags 'Supplemental Claims'
       operationId 'putSupplementalClaimEvidenceSubmission'
 
-      description File.read(AppealsApi::Engine.root.join('app', 'swagger', 'appeals_api', 'v2', 'put_description.md'))
+      description File.read(AppealsApi::Engine.root.join('app', 'swagger', 'appeals_api', 'v2', 'put_description.md')).gsub('/notice_of_disagreements/evidence_submissions', '/supplemental_claims/evidence_submissions')
 
       parameter name: :'Content-MD5', in: :header, type: :string, description: 'Base64-encoded 128-bit MD5 digest of the message. Use for integrity control.'
 

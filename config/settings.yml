@@ -242,6 +242,12 @@ modules_appeals_api:
     appeals_channel_id: ''
   documentation:
     path_enabled_flag: false
+    wip_docs:
+      # List of flags to indicate parts of documentation that are still WIP and not ready for production.
+      # See the rswag:appeals_api:dev rake task, spec_helper, and DocHelpers#wip_doc_enabled? for usage info to opt-in.
+      # NOTE: Do not remove this key even if it's empty.
+      - sc_v2_claimant
+      - nod_v2_claimant
   higher_level_review_pii_expunge_enabled: true
   higher_level_review_updater_enabled: true
   legacy_appeals_enabled: false

@@ -39,12 +39,17 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
   end
 
   def schema
-    render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
+    # TODO: Return full schema after we've validated all Non-Veteran Claimant functionality
+    response = AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
       AppealsApi::FormSchemas.new(
         SCHEMA_ERROR_TYPE,
         schema_version: 'v2'
-      ).schema(FORM_NUMBER)
+      ).schema(self.class::FORM_NUMBER)
     )
+    response.tap do |s|
+      s.dig(*%w[definitions scCreate properties data properties attributes properties]).delete('claimant')
+    end
+    render json: response
   end
 
   def show
