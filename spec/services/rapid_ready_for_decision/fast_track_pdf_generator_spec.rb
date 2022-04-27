@@ -87,6 +87,23 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfGenerator do
         expect(subject).to include 'Blood pressure: 115/87'
       end
 
+      context 'when BP readings do not have values' do
+        let(:parsed_bp_data) do
+          # At least one of the bp readings must be from the last year
+          original_first_bp_reading = bp_data.body['entry'].first
+          original_first_bp_reading['resource']['effectiveDateTime'] = (DateTime.now - 2.weeks).iso8601
+
+          data = RapidReadyForDecision::LighthouseObservationData.new(bp_data).transform
+          data.first.delete(:systolic)
+          data.first.delete(:diastolic)
+          data
+        end
+
+        it 'includes the veterans blood pressure readings' do
+          expect(subject).to include 'Blood pressure: (not-provided)/(not-provided)'
+        end
+      end
+
       it 'includes the veterans medications' do
         dosages = parsed_medications_data.map do |med|
           next if med['dosageInstructions'].blank?
