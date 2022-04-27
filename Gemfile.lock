@@ -112,6 +112,8 @@ PATH
     meb_api (0.1.0)
     mobile (0.1.0)
       dry-validation
+    my_health (0.1.0)
+      rails (~> 6.1.4, >= 6.1.4.7)
     openid_auth (0.0.1)
     test_user_dashboard (0.1.0)
       google-cloud-bigquery
@@ -1082,6 +1084,7 @@ DEPENDENCIES
   mimemagic
   mini_magick
   mobile!
+  my_health!
   net-sftp
   nokogiri
   notifications-ruby-client
