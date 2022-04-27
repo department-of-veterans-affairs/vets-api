@@ -704,6 +704,124 @@ RSpec.describe SignInController, type: :controller do
     end
   end
 
+  describe 'POST revoke' do
+    subject { post(:revoke, params: {}.merge(refresh_token_param).merge(anti_csrf_token_param)) }
+
+    let(:refresh_token_param) { { refresh_token: refresh_token } }
+    let(:refresh_token) { 'example-refresh-token' }
+    let(:anti_csrf_token_param) { { anti_csrf_token: anti_csrf_token } }
+    let(:anti_csrf_token) { 'example-anti-csrf-token' }
+    let(:enable_anti_csrf) { false }
+
+    before { allow(Settings.sign_in).to receive(:enable_anti_csrf).and_return(enable_anti_csrf) }
+
+    context 'when Settings sign_in enable_anti_csrf is enabled' do
+      let(:enable_anti_csrf) { true }
+
+      context 'and anti_csrf_token param is not given' do
+        let(:expected_error) { SignIn::Errors::MalformedParamsError.to_s }
+        let(:expected_error_json) { { 'errors' => expected_error } }
+        let(:anti_csrf_token_param) { {} }
+
+        it 'renders Malformed Params error' do
+          expect(JSON.parse(subject.body)).to eq(expected_error_json)
+        end
+
+        it 'returns unauthorized status' do
+          expect(subject).to have_http_status(:unauthorized)
+        end
+      end
+
+      context 'and anti_csrf_token has been modified' do
+        let(:user_account) { create(:user_account) }
+        let(:session_container) { SignIn::SessionCreator.new(user_account: user_account).perform }
+        let(:refresh_token) do
+          SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
+        end
+        let(:expected_error) { SignIn::Errors::AntiCSRFMismatchError.to_s }
+        let(:expected_error_json) { { 'errors' => expected_error } }
+        let(:anti_csrf_token) { 'some-modified-anti-csrf-token' }
+
+        it 'renders an anti csrf mismatch error' do
+          expect(JSON.parse(subject.body)).to eq(expected_error_json)
+        end
+
+        it 'returns unauthorized status' do
+          expect(subject).to have_http_status(:unauthorized)
+        end
+      end
+    end
+
+    context 'when refresh_token is a random string' do
+      let(:expected_error) { 'Decryption failed' }
+      let(:expected_error_json) { { 'errors' => expected_error } }
+
+      it 'renders Decryption failed error' do
+        expect(JSON.parse(subject.body)).to eq(expected_error_json)
+      end
+
+      it 'returns unauthorized status' do
+        expect(subject).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'when refresh_token is encrypted correctly' do
+      let(:user_account) { create(:user_account) }
+      let(:session_container) { SignIn::SessionCreator.new(user_account: user_account).perform }
+      let(:refresh_token) do
+        SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
+      end
+
+      context 'when refresh token is expired' do
+        let(:expected_error) { SignIn::Errors::SessionNotAuthorizedError.to_s }
+        let(:expected_error_json) { { 'errors' => expected_error } }
+
+        before do
+          session = session_container.session
+          session.refresh_expiration = 1.day.ago
+          session.save!
+        end
+
+        it 'renders a session not authorized error' do
+          expect(JSON.parse(subject.body)).to eq(expected_error_json)
+        end
+
+        it 'returns unauthorized status' do
+          expect(subject).to have_http_status(:unauthorized)
+        end
+      end
+
+      context 'when refresh token does not map to an existing session' do
+        let(:expected_error) { SignIn::Errors::SessionNotAuthorizedError.to_s }
+        let(:expected_error_json) { { 'errors' => expected_error } }
+
+        before do
+          session = session_container.session
+          session.destroy!
+        end
+
+        it 'renders a session not authorized error' do
+          expect(JSON.parse(subject.body)).to eq(expected_error_json)
+        end
+
+        it 'returns unauthorized status' do
+          expect(subject).to have_http_status(:unauthorized)
+        end
+      end
+
+      context 'when refresh token is unmodified and valid' do
+        it 'returns ok status' do
+          expect(subject).to have_http_status(:ok)
+        end
+
+        it 'destroys user session' do
+          subject
+          expect { session_container.session.reload }.to raise_error(ActiveRecord::RecordNotFound)
+        end
+      end
+    end
+  end
+
   describe 'POST refresh' do
     subject { post(:refresh, params: {}.merge(refresh_token_param).merge(anti_csrf_token_param)) }
 
