@@ -71,6 +71,21 @@ class SignInController < ApplicationController
     render json: { errors: e }, status: :unauthorized
   end
 
+  def revoke
+    refresh_token = refresh_params[:refresh_token]
+    anti_csrf_token = refresh_params[:anti_csrf_token]
+    enable_anti_csrf = Settings.sign_in.enable_anti_csrf
+
+    raise SignIn::Errors::MalformedParamsError unless refresh_token
+    raise SignIn::Errors::MalformedParamsError if enable_anti_csrf && anti_csrf_token.nil?
+
+    revoke_session(refresh_token, anti_csrf_token, enable_anti_csrf)
+
+    render status: :ok
+  rescue => e
+    render json: { errors: e }, status: :unauthorized
+  end
+
   def introspect
     render json: @current_user, serializer: SignIn::IntrospectSerializer, status: :ok
   rescue => e
@@ -112,11 +127,19 @@ class SignInController < ApplicationController
   end
 
   def refresh_session(refresh_token, anti_csrf_token, enable_anti_csrf)
-    decrypted_refresh_token = SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token: refresh_token).perform
-
-    SignIn::SessionRefresher.new(refresh_token: decrypted_refresh_token,
+    SignIn::SessionRefresher.new(refresh_token: decrypted_refresh_token(refresh_token),
                                  anti_csrf_token: anti_csrf_token,
                                  enable_anti_csrf: enable_anti_csrf).perform
+  end
+
+  def revoke_session(refresh_token, anti_csrf_token, enable_anti_csrf)
+    SignIn::SessionRevoker.new(refresh_token: decrypted_refresh_token(refresh_token),
+                               anti_csrf_token: anti_csrf_token,
+                               enable_anti_csrf: enable_anti_csrf).perform
+  end
+
+  def decrypted_refresh_token(refresh_token)
+    SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token: refresh_token).perform
   end
 
   def login(type, state, code)
