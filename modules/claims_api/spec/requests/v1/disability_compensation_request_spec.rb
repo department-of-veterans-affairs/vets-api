@@ -480,29 +480,16 @@ RSpec.describe 'Disability Claims ', type: :request do
       context 'when changeOfAddress information is submitted' do
         let(:json_data) { JSON.parse data }
 
-        context 'when addressChangeType is TEMPORARY' do
-          let(:change_of_address) do
-            {
-              beginningDate: (Time.zone.now + 1.month).to_date.to_s,
-              addressChangeType: 'TEMPORARY',
-              addressLine1: '1234 Couch Street',
-              city: 'New York City',
-              state: 'NY',
-              type: 'DOMESTIC',
-              zipFirstFive: '12345',
-              country: 'USA'
-            }
-          end
-
-          context 'when beginningDate is in the past' do
-            let(:json_data) { JSON.parse data }
-
-            context 'when addressChangeType is TEMPORARY' do
+        values = %w[TEMPORARY Temporary temporary]
+        values.each do |value|
+          context "when addressChangeType is #{value}" do
+            context 'when beginningDate is in the past' do
+              let(:json_data) { JSON.parse data }
               let(:change_of_address) do
                 {
                   beginningDate: (Time.zone.now - 1.month).to_date.to_s,
                   endingDate: (Time.zone.now + 1.month).to_date.to_s,
-                  addressChangeType: 'TEMPORARY',
+                  addressChangeType: value,
                   addressLine1: '1234 Couch Street',
                   city: 'New York City',
                   state: 'NY',

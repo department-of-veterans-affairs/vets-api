@@ -4,6 +4,7 @@ require 'json_marshal/marshaller'
 require 'claims_api/special_issue_mappers/evss'
 require 'claims_api/homelessness_situation_type_mapper'
 require 'claims_api/service_branch_mapper'
+require 'claims_api/claim_logger'
 
 module ClaimsApi
   class AutoEstablishedClaim < ApplicationRecord
@@ -58,6 +59,7 @@ module ClaimsApi
       form_data['claimSubmissionSource'] = 'Lighthouse'
       form_data['bddQualified'] = bdd_qualified?
       form_data['servicePay']['separationPay']['receivedDate'] = transform_separation_pay_received_date if separation_pay_received_date? # rubocop:disable Layout/LineLength
+      form_data['veteran']['changeOfAddress'] = transform_change_of_address_type_case if change_of_address_provided?
       form_data['veteran']['changeOfAddress'] = transform_change_of_address_ending_date if invalid_change_of_address_ending_date? # rubocop:disable Layout/LineLength
       form_data['disabilites'] = transform_disability_approximate_begin_dates
       form_data['disabilites'] = massage_invalid_disability_names
@@ -398,6 +400,19 @@ module ClaimsApi
           secondary
         end
       end
+    end
+
+    def change_of_address_provided?
+      form_data['veteran']['changeOfAddress'].present?
+    end
+
+    # EVSS requires that the value of 'form526.veteran.changeOfAddress.addressChangeType' be uppercase
+    def transform_change_of_address_type_case
+      change_of_address = form_data['veteran']['changeOfAddress']
+      change_of_address_type = change_of_address['addressChangeType']
+      change_of_address['addressChangeType'] = change_of_address_type.upcase
+
+      change_of_address
     end
   end
 end
