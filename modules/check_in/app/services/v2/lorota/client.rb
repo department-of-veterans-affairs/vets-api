@@ -98,10 +98,13 @@ module V2
       end
 
       def auth_params
-        {
-          SSN4: check_in.last4,
-          lastName: check_in.last_name
-        }
+        auth_hsh = { lastName: check_in.last_name }
+        if Flipper.enabled?('check_in_experience_lorota_security_updates_enabled')
+          auth_hsh[:DOB] = check_in.dob
+        else
+          auth_hsh[:SSN4] = check_in.last4
+        end
+        auth_hsh
       end
     end
   end

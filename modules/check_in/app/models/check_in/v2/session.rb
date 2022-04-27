@@ -25,9 +25,10 @@ module CheckIn
 
       UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.freeze
       LAST_FOUR_REGEX = /^[0-9]{4}$/.freeze
+      DOB_REGEX = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.freeze
       LAST_NAME_REGEX = /^.{1,600}$/.freeze
 
-      attr_reader :uuid, :last4, :last_name, :settings, :jwt, :check_in_type
+      attr_reader :uuid, :last4, :dob, :last_name, :settings, :jwt, :check_in_type
 
       def_delegators :settings, :redis_session_prefix
 
@@ -44,6 +45,7 @@ module CheckIn
         @settings = Settings.check_in.lorota_v2
         @jwt = opts[:jwt]
         @uuid = opts.dig(:data, :uuid)
+        @dob = opts.dig(:data, :dob)
         @last4 = opts.dig(:data, :last4)
         @last_name = opts.dig(:data, :last_name)
         @check_in_type = opts.dig(:data, :check_in_type)
@@ -76,7 +78,11 @@ module CheckIn
       # @return [Boolean]
       #
       def valid?
-        UUID_REGEX.match?(uuid) && LAST_FOUR_REGEX.match?(last4) && LAST_NAME_REGEX.match?(last_name)
+        if Flipper.enabled?('check_in_experience_lorota_security_updates_enabled')
+          UUID_REGEX.match?(uuid) && DOB_REGEX.match?(dob) && LAST_NAME_REGEX.match?(last_name)
+        else
+          UUID_REGEX.match?(uuid) && LAST_FOUR_REGEX.match?(last4) && LAST_NAME_REGEX.match?(last_name)
+        end
       end
 
       #
@@ -112,7 +118,11 @@ module CheckIn
       # @return [Faraday::Response]
       #
       def client_error
-        { error: true, message: 'Invalid last4 or last name!' }
+        if Flipper.enabled?('check_in_experience_lorota_security_updates_enabled')
+          { error: true, message: 'Invalid dob or last name!' }
+        else
+          { error: true, message: 'Invalid last4 or last name!' }
+        end
       end
 
       #

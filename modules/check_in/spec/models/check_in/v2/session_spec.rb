@@ -9,7 +9,7 @@ RSpec.describe CheckIn::V2::Session do
 
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
-
+    allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled').and_return(false)
     Rails.cache.clear
   end
 
@@ -60,8 +60,8 @@ RSpec.describe CheckIn::V2::Session do
   end
 
   describe '#valid?' do
-    context 'when valid params' do
-      it 'returns true' do
+    context 'when called with lorota security update feature flag off' do
+      it 'returns true for valid params' do
         params_hsh = {
           data: {
             uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
@@ -73,13 +73,71 @@ RSpec.describe CheckIn::V2::Session do
 
         expect(subject.build(params_hsh).valid?).to be(true)
       end
-    end
 
-    context 'when invalid uuid' do
-      it 'returns false' do
+      it 'returns false for invalid uuid' do
         params_hsh = {
           uuid: 'd602d9eb',
           last4: '5555',
+          last_name: 'Johnson'
+        }
+
+        expect(subject.build(params_hsh).valid?).to be(false)
+      end
+    end
+
+    context 'when called with lorota security update feature flag on' do
+      before do
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
+                                            .and_return(true)
+      end
+
+      it 'returns true for valid params' do
+        params_hsh = {
+          data: {
+            uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+            dob: '1970-02-20',
+            last_name: 'Johnson',
+            check_in_type: 'preCheckIn'
+          }
+        }
+
+        expect(subject.build(params_hsh).valid?).to be(true)
+      end
+
+      it 'returns false for invalid year in dob' do
+        params_hsh = {
+          uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+          dob: '02-20-70',
+          last_name: 'Johnson'
+        }
+
+        expect(subject.build(params_hsh).valid?).to be(false)
+      end
+
+      it 'returns false for invalid month in dob' do
+        params_hsh = {
+          uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+          dob: '1970-42-02',
+          last_name: 'Johnson'
+        }
+
+        expect(subject.build(params_hsh).valid?).to be(false)
+      end
+
+      it 'returns false for invalid day in dob' do
+        params_hsh = {
+          uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+          dob: '1970-10-36',
+          last_name: 'Johnson'
+        }
+
+        expect(subject.build(params_hsh).valid?).to be(false)
+      end
+
+      it 'returns false for ssn instead of dob' do
+        params_hsh = {
+          uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+          ssn: '5555',
           last_name: 'Johnson'
         }
 
@@ -180,16 +238,37 @@ RSpec.describe CheckIn::V2::Session do
   end
 
   describe '#client_error' do
-    it 'has a response' do
-      hsh = { error: true, message: 'Invalid last4 or last name!' }
-      params_hsh = {
-        id: 'd602d9eb',
-        last4: '5555',
-        last_name: 'Johnson'
-      }
-      error = subject.build(params_hsh).client_error
+    context 'when called with lorota security update feature flag off' do
+      it 'has a response' do
+        hsh = { error: true, message: 'Invalid last4 or last name!' }
+        params_hsh = {
+          id: 'd602d9eb',
+          last4: '5555',
+          last_name: 'Johnson'
+        }
+        error = subject.build(params_hsh).client_error
 
-      expect(error).to eq(hsh)
+        expect(error).to eq(hsh)
+      end
+    end
+
+    context 'when called with lorota security update feature flag on' do
+      before do
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
+                                            .and_return(true)
+      end
+
+      it 'has a response' do
+        hsh = { error: true, message: 'Invalid dob or last name!' }
+        params_hsh = {
+          id: 'd602d9eb',
+          dob: '02-20-1970',
+          last_name: 'Johnson'
+        }
+        error = subject.build(params_hsh).client_error
+
+        expect(error).to eq(hsh)
+      end
     end
   end
 
