@@ -137,10 +137,22 @@ describe VAProfile::Models::Address do
         expect(address.valid?).to eq(false)
       end
 
-      it 'international_postal_code is required' do
-        expect(address.valid?).to eq(true)
-        address.international_postal_code = ''
-        expect(address.valid?).to eq(false)
+      context 'with bypass international postal code validation feature toggle on' do
+        it 'international_postal_code is not required' do
+          Flipper.enable(:profile_do_not_require_international_zip_code)
+          expect(address.valid?).to eq(true)
+          address.international_postal_code = ''
+          expect(address.valid?).to eq(true)
+        end
+      end
+
+      context 'when bypass international postal code validation feature toggle off' do
+        it 'international_postal_code is required' do
+          Flipper.disable(:profile_do_not_require_international_zip_code)
+          expect(address.valid?).to eq(true)
+          address.international_postal_code = ''
+          expect(address.valid?).to eq(false)
+        end
       end
 
       it 'ensures international_postal_code is < 35 characters' do
