@@ -23,6 +23,39 @@ module DocHelpers
     data
   end
 
+  # @param [Hash] opts
+  # @option opts [String] :desc The description of the test. Required.
+  # @option opts [Symbol] :response_wrapper Method name to wrap the response, to modify the output of the example
+  # @option opts [Boolean] :extract_desc Whether to use the example name
+  # @option opts [Boolean] :skip_match Whether to skip the match metadata assertion
+  shared_examples 'rswag example' do |opts|
+    before do |example|
+      submit_request(example.metadata)
+    end
+
+    it opts[:desc] do |example|
+      assert_response_matches_metadata(example.metadata) unless opts[:skip_match]
+    end
+
+    after do |example|
+      r = if opts[:response_wrapper]
+            send(opts[:response_wrapper], response)
+          else
+            JSON.parse(response.body, symbolize_names: true)
+          end
+
+      example.metadata[:response][:content] = if opts[:extract_desc]
+                                                {
+                                                  'application/json' => {
+                                                    examples: { "#{opts[:desc]}": { value: r } }
+                                                  }
+                                                }
+                                              else
+                                                { 'application/json' => { example: r } }
+                                              end
+    end
+  end
+
   def self.wip_doc_enabled?(sym)
     # Only block doc generation if we still flag it as a WIP
     return true unless Settings.modules_appeals_api.documentation.wip_docs&.include?(sym.to_s)
