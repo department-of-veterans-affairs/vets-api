@@ -13,6 +13,10 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
     allow(Flipper).to receive(:enabled?).with('check_in_experience_set_pre_checkin_status').and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_401_mapping_enabled').and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_custom_cookie_for_low_auth').and_return(true)
+    allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled').and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:check_in_experience_emergency_contact_enabled).and_return(true)
+    allow(Flipper).to receive(:enabled?)
+      .with(:check_in_experience_demographics_confirmation_enabled).and_return(true)
 
     Rails.cache.clear
   end
@@ -40,7 +44,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
       end
     end
 
-    context 'when the session is authorized' do
+    context 'when the session is authorized with last4' do
       let(:next_of_kin1) do
         {
           'name' => 'Joe',
@@ -168,10 +172,151 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
         }
       end
 
+      it 'returns valid response' do
+        VCR.use_cassette 'check_in/lorota/token/token_200' do
+          post '/check_in/v2/sessions', session_params
+          expect(response.status).to eq(200)
+        end
+
+        VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
+          get "/check_in/v2/patient_check_ins/#{id}"
+        end
+        expect(response.status).to eq(200)
+        expect(JSON.parse(response.body)).to eq(resp)
+      end
+    end
+
+    context 'when the session is authorized with DOB' do
+      let(:next_of_kin1) do
+        {
+          'name' => 'Joe',
+          'workPhone' => '564-438-5739',
+          'relationship' => 'Brother',
+          'phone' => '738-573-2849',
+          'address' => {
+            'street1' => '432 Horner Street',
+            'street2' => 'Apt 53',
+            'street3' => '',
+            'city' => 'Akron',
+            'county' => 'OH',
+            'state' => 'OH',
+            'zip' => '44308',
+            'zip4' => '4252',
+            'country' => 'USA'
+          }
+        }
+      end
+      let(:emergency_contact) do
+        {
+          'name' => 'Michael',
+          'relationship' => 'Spouse',
+          'phone' => '415-322-9968',
+          'workPhone' => '630-835-1623',
+          'address' => {
+            'street1' => '3008 Millbrook Road',
+            'street2' => '',
+            'street3' => '',
+            'city' => 'Wheeling',
+            'county' => 'IL',
+            'state' => 'IL',
+            'zip' => '60090',
+            'zip4' => '7241',
+            'country' => 'USA'
+          }
+        }
+      end
+      let(:mailing_address) do
+        {
+          'street1' => '1025 Meadowbrook Mall Road',
+          'street2' => '',
+          'street3' => '',
+          'city' => 'Beverly Hills',
+          'county' => 'Los Angeles',
+          'state' => 'CA',
+          'zip' => '60090',
+          'zip4' => nil,
+          'country' => 'USA'
+        }
+      end
+      let(:home_address) do
+        {
+          'street1' => '3899 Southside Lane',
+          'street2' => '',
+          'street3' => '',
+          'city' => 'Los Angeles',
+          'county' => 'Los Angeles',
+          'state' => 'CA',
+          'zip' => '90017',
+          'zip4' => nil,
+          'country' => 'USA'
+        }
+      end
+      let(:home_phone) { '323-743-2569' }
+      let(:mobile_phone) { '323-896-8512' }
+      let(:work_phone) { '909-992-3911' }
+      let(:email_address) { 'utilside@goggleappsmail.com' }
+      let(:demographics) do
+        {
+          'nextOfKin1' => next_of_kin1,
+          'emergencyContact' => emergency_contact,
+          'mailingAddress' => mailing_address,
+          'homeAddress' => home_address,
+          'homePhone' => home_phone,
+          'mobilePhone' => mobile_phone,
+          'workPhone' => work_phone,
+          'emailAddress' => email_address
+        }
+      end
+      let(:appointment1) do
+        {
+          'appointmentIEN' => '460',
+          'clinicName' => 'Family Wellness',
+          'checkedInTime' => '',
+          'startTime' => '2021-12-23T08:30:00',
+          'clinicPhoneNumber' => '555-555-5555',
+          'clinicFriendlyName' => 'Health Wellness',
+          'facility' => 'VEHU DIVISION',
+          'checkInWindowStart' => '2021-12-23T08:00:00.000-05:00',
+          'checkInWindowEnd' => '2021-12-23T08:40:00.000-05:00',
+          'eligibility' => 'ELIGIBLE',
+          'status' => ''
+        }
+      end
+      let(:patient_demographic_status) do
+        {
+          'demographicsNeedsUpdate' => true,
+          'demographicsConfirmedAt' => nil,
+          'nextOfKinNeedsUpdate' => false,
+          'nextOfKinConfirmedAt' => '2021-12-10T05:15:00.000-05:00',
+          'emergencyContactNeedsUpdate' => true,
+          'emergencyContactConfirmedAt' => '2021-12-10T05:30:00.000-05:00'
+        }
+      end
+      let(:resp) do
+        {
+          'id' => id,
+          'payload' => {
+            'demographics' => demographics,
+            'appointments' => [appointment1],
+            'patientDemographicsStatus' => patient_demographic_status
+          }
+        }
+      end
+      let(:session_params) do
+        {
+          params: {
+            session: {
+              uuid: id,
+              dob: '1960-03-12',
+              last_name: 'Johnson'
+            }
+          }
+        }
+      end
+
       before do
-        allow(Flipper).to receive(:enabled?).with(:check_in_experience_emergency_contact_enabled).and_return(true)
-        allow(Flipper).to receive(:enabled?)
-          .with(:check_in_experience_demographics_confirmation_enabled).and_return(true)
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
+                                            .and_return(true)
       end
 
       it 'returns valid response' do
@@ -192,7 +337,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
   describe 'POST `create`' do
     let(:post_params) { { patient_check_ins: { uuid: id, appointment_ien: '123-abc' } } }
 
-    context 'when session is authorized' do
+    context 'when session is authorized with last4' do
       let(:session_params) do
         {
           params: {
@@ -207,10 +352,45 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
       let(:body) { { 'data' => 'Checkin successful', 'status' => 200 } }
       let(:success_resp) { Faraday::Response.new(body: body, status: 200) }
 
+      it 'returns a successful response' do
+        VCR.use_cassette 'check_in/lorota/token/token_200' do
+          post '/check_in/v2/sessions', session_params
+          expect(response.status).to eq(200)
+        end
+
+        VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
+          get "/check_in/v2/patient_check_ins/#{id}"
+          expect(response.status).to eq(200)
+        end
+
+        VCR.use_cassette('check_in/chip/check_in/check_in_200', match_requests_on: [:host]) do
+          VCR.use_cassette 'check_in/chip/token/token_200' do
+            post '/check_in/v2/patient_check_ins', params: post_params
+          end
+        end
+        expect(response.status).to eq(success_resp.status)
+        expect(response.body).to eq(success_resp.body.to_json)
+      end
+    end
+
+    context 'when session is authorized with DOB' do
+      let(:session_params) do
+        {
+          params: {
+            session: {
+              uuid: id,
+              dob: '1950-01-27',
+              last_name: 'Johnson'
+            }
+          }
+        }
+      end
+      let(:body) { { 'data' => 'Checkin successful', 'status' => 200 } }
+      let(:success_resp) { Faraday::Response.new(body: body, status: 200) }
+
       before do
-        allow(Flipper).to receive(:enabled?).with(:check_in_experience_emergency_contact_enabled).and_return(true)
-        allow(Flipper).to receive(:enabled?)
-          .with(:check_in_experience_demographics_confirmation_enabled).and_return(true)
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
+                                            .and_return(true)
       end
 
       it 'returns a successful response' do

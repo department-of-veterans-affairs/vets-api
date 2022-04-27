@@ -5,7 +5,10 @@ require 'rails_helper'
 describe V2::Lorota::Client do
   subject { described_class.build(check_in: check_in) }
 
-  let(:check_in) { CheckIn::V2::Session.build(uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d') }
+  let(:check_in) do
+    CheckIn::V2::Session.build(data: { uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d', dob: '1970-02-20',
+                                       last4: '1234', last_name: 'last' })
+  end
 
   describe 'attributes' do
     it 'responds to claims_token' do
@@ -45,6 +48,48 @@ describe V2::Lorota::Client do
       expect_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_yield(Faraday::Request.new)
 
       subject.token
+    end
+
+    context 'when called with lorota security update feature flag off' do
+      let(:auth_param_with_ssn) do
+        { lastName: 'last', SSN4: '1234' }
+      end
+
+      before do
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_401_mapping_enabled').and_return(true)
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
+                                            .and_return(false)
+      end
+
+      it 'uses ssn4 in auth_params to call lorota endpoint' do
+        expect_any_instance_of(Faraday::Connection).to receive(:post).with(anything) do |&block|
+          result = block.call(Faraday::Request.new)
+          expect(result).to eq(auth_param_with_ssn.to_json)
+        end
+
+        subject.token
+      end
+    end
+
+    context 'when called with lorota security update feature flag on' do
+      let(:auth_param_with_dob) do
+        { lastName: 'last', DOB: '1970-02-20' }
+      end
+
+      before do
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_401_mapping_enabled').and_return(true)
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
+                                            .and_return(true)
+      end
+
+      it 'uses ssn4 in auth_params to call lorota endpoint' do
+        expect_any_instance_of(Faraday::Connection).to receive(:post).with(anything) do |&block|
+          result = block.call(Faraday::Request.new)
+          expect(result).to eq(auth_param_with_dob.to_json)
+        end
+
+        subject.token
+      end
     end
   end
 
