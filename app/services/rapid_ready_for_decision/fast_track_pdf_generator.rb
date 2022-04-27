@@ -5,7 +5,8 @@ module RapidReadyForDecision
     PDF_MARKUP_SETTINGS = {
       text: {
         size: 11,
-        font: 'SourceSansPro'
+        font: 'SourceSansPro',
+        leading: 3
       },
       heading2: {
         size: 22
@@ -21,7 +22,7 @@ module RapidReadyForDecision
         cell: {
           size: 10,
           border_width: 0,
-          background_color: 'f3f3f3'
+          background_color: 'fff1d2'
         }
       }
     }.freeze

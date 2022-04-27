@@ -10,12 +10,17 @@
 </p>
 
 <% if @disability_type == 'asthma' %>
-  <br/>
-  <b>Important!</b> Medications that <b><i>may</i></b> have been prescribed for asthma are marked
-  with <font name="DejaVuSans">&#9654;</font>arrows<font name="DejaVuSans">&#9664;</font>.
-  Claims adjudicators should check the patient's medical records to see what the medication was
-  prescribed for.<br/>
-  See "How we identify asthma prescriptions" at the end of this document for more details.
+  <p> <br /> </p>
+  <table>
+    <tr><td>
+      <br/>
+      <b>Important!</b> Medications that <b><i>may</i></b> have been prescribed for asthma are marked
+      with <font name="DejaVuSans">&#9654;</font>arrows<font name="DejaVuSans">&#9664;</font>.
+      Claims adjudicators should check the patient's medical records to see what the medication was
+      prescribed for.<br/>
+      See "How we identify asthma prescriptions" at the end of this document for more details.
+    </td></tr>
+  </table>
 <% end %>
 
 <% if @assessed_data[:medications].present? %>
@@ -35,25 +40,31 @@
         <%= medication['dosageInstructions'].join('; ') %><br />
       <% end %>
 
+      <%# TODO: Add test for additional fields and make sure to include additional medications %>
+
+      Prescribed on:
       <% if medication['authoredOn'].present? %>
-        Prescribed on: <%= medication['authoredOn'][0, 10].to_date.strftime('%m/%d/%Y') %>
+        <%= medication['authoredOn'][0, 10].to_date.strftime('%m/%d/%Y') %>
       <% end %>
 
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      Duration: 
       <% if medication['duration'].present? %>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        Duration: <%= medication['duration'] %>
+        <%= medication['duration'] %>
       <% end %>
 
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      Refills:
       <% if medication['refills'].present? %>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        Refills: <%= medication['refills'] %>
+        <%= medication['refills'] %>
       <% end %>
 
-      <% if medication['route'].present? %>
-        <p>
-          Route: <%= medication['route'] %>
-        </p>
-      <% end %>
+      <p>
+        Route:
+        <% if medication['route'].present? %>
+          <%= medication['route'] %>
+        <% end %>
+      </p>
     </p>
     <p><br/></p>
   <% end %>
