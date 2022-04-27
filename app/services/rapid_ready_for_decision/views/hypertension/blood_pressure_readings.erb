@@ -21,8 +21,8 @@
 <p> <br /> </p>
 
 <% @assessed_data[:bp_readings].each do |bp| %>
-  <% systolic = bp[:systolic]['value'].round %>
-  <% diastolic = bp[:diastolic]['value'].round %>
+  <% systolic = bp[:systolic]['value'].round rescue "(not-provided)" %>
+  <% diastolic = bp[:diastolic]['value'].round rescue "(not-provided)" %>
 
   <p>
     <b>Blood pressure: <%= systolic %>/<%= diastolic %></b> <br />
