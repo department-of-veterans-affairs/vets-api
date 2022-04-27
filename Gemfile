@@ -18,6 +18,7 @@ path 'modules' do
   gem 'identity'
   gem 'meb_api'
   gem 'mobile'
+  gem 'my_health'
   gem 'openid_auth'
   gem 'test_user_dashboard'
   gem 'va_forms'

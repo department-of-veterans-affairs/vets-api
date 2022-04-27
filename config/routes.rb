@@ -428,6 +428,7 @@ Rails.application.routes.draw do
   mount HealthQuest::Engine, at: '/health_quest'
   mount MebApi::Engine, at: '/meb_api'
   mount Mobile::Engine, at: '/mobile'
+  mount MyHealth::Engine, at: '/my_health', as: 'my_health'
   mount VAOS::Engine, at: '/vaos'
   # End Modules
 
