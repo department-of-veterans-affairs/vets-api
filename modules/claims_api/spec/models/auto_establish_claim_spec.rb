@@ -274,6 +274,21 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
               expect(untouched_ending_date).to eq(ending_date)
             end
           end
+
+          context "when 'changeOfAddress.addressChangeType' is not uppercased" do
+            let(:address_change_type) { 'temporary' }
+
+            it "transforms 'changeOfAddress.addressChangeType' to uppercase" do
+              pending_record.form_data['veteran']['changeOfAddress'] = change_of_address
+              original_value = pending_record.form_data['veteran']['changeOfAddress']['addressChangeType']
+              expect(original_value).to eq('temporary')
+
+              payload = JSON.parse(pending_record.to_internal)
+              transformed_value = payload['form526']['veteran']['changeOfAddress']['addressChangeType']
+
+              expect(transformed_value).to eq('TEMPORARY')
+            end
+          end
         end
 
         context "when 'changeOfAddress.addressChangeType' is 'PERMANENT'" do
@@ -301,6 +316,21 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
               untouched_ending_date = payload['form526']['veteran']['changeOfAddress']['endingDate']
 
               expect(untouched_ending_date).to eq(nil)
+            end
+          end
+
+          context "when 'changeOfAddress.addressChangeType' is not uppercased" do
+            let(:address_change_type) { 'permanent' }
+
+            it "transforms 'changeOfAddress.addressChangeType' to uppercase" do
+              pending_record.form_data['veteran']['changeOfAddress'] = change_of_address
+              original_value = pending_record.form_data['veteran']['changeOfAddress']['addressChangeType']
+              expect(original_value).to eq('permanent')
+
+              payload = JSON.parse(pending_record.to_internal)
+              transformed_value = payload['form526']['veteran']['changeOfAddress']['addressChangeType']
+
+              expect(transformed_value).to eq('PERMANENT')
             end
           end
         end

@@ -194,7 +194,7 @@ module ClaimsApi
         def validate_form_526_change_of_address_beginning_date!
           change_of_address = form_attributes.dig('veteran', 'changeOfAddress')
           return if change_of_address.blank?
-          return unless change_of_address['addressChangeType'] == 'TEMPORARY'
+          return unless 'TEMPORARY'.casecmp?(change_of_address['addressChangeType'])
           return if Date.parse(change_of_address['beginningDate']) > Time.zone.now
 
           raise ::Common::Exceptions::InvalidFieldValue.new('beginningDate', change_of_address['beginningDate'])
