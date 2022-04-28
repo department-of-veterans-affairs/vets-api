@@ -27,10 +27,11 @@ module RapidReadyForDecision
 
           return if bp_readings(client).blank?
 
+          claim_context = RapidReadyForDecision::ClaimContext.new(form526_submission)
           add_bp_readings_stats(form526_submission, bp_readings(client))
 
           pdf = pdf(patient_info(form526_submission), bp_readings(client), medications(client))
-          upload_pdf_and_attach_special_issue(form526_submission, pdf)
+          upload_pdf_and_attach_special_issue(claim_context, pdf)
         end
       rescue => e
         # only retry if the error was raised within the "with_tracking" block
@@ -60,7 +61,7 @@ module RapidReadyForDecision
 
     def add_bp_readings_stats(form526_submission, bp_readings)
       med_stats_hash = { bp_readings_count: bp_readings.size }
-      form526_submission.add_metadata(med_stats: med_stats_hash)
+      form526_submission.save_metadata(med_stats: med_stats_hash)
     end
 
     def send_fast_track_engineer_email_for_testing(form526_submission_id, error_message, backtrace)
@@ -95,10 +96,10 @@ module RapidReadyForDecision
       Account.find_by(edipi: edipi) if edipi
     end
 
-    def upload_pdf_and_attach_special_issue(form526_submission, pdf)
-      RapidReadyForDecision::FastTrackPdfUploadManager.new(form526_submission).handle_attachment(pdf.render)
+    def upload_pdf_and_attach_special_issue(claim_context, pdf)
+      RapidReadyForDecision::FastTrackPdfUploadManager.new(claim_context).handle_attachment(pdf.render)
       if Flipper.enabled?(:rrd_add_special_issue)
-        RapidReadyForDecision::RrdSpecialIssueManager.new(form526_submission).add_special_issue
+        RapidReadyForDecision::RrdSpecialIssueManager.new(claim_context).add_special_issue
       end
     end
 

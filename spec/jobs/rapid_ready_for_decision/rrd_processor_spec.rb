@@ -16,7 +16,7 @@ RSpec.describe RapidReadyForDecision::RrdProcessor do
 
     it 'adds to rrd_metadata.med_stats' do
       subject
-      expect(rrd_processor.metadata_hash.dig(:med_stats, :newkey)).to eq 'someValue'
+      expect(rrd_processor.claim_context.metadata_hash.dig(:med_stats, :newkey)).to eq 'someValue'
     end
   end
 
@@ -35,42 +35,6 @@ RSpec.describe RapidReadyForDecision::RrdProcessor do
     it 'returns true when Flipper symbol does not exist' do
       Flipper.remove(:rrd_hypertension_release_pdf)
       expect(subject).to eq true
-    end
-  end
-
-  context 'if there are multiple Account records with the same edipi' do
-    subject { rrd_processor.send(:icn) }
-
-    let!(:user) { User.find(submission.user_uuid) }
-    let(:account2_icn) { "#{user.account.icn}_different" }
-
-    before do
-      create(:account, edipi: user.account.edipi, icn: account2_icn)
-      # Force edipi to be used for account lookup
-      submission.update(user_uuid: 'that_which_cannot_be_found')
-    end
-
-    it 'sends an alert' do
-      expect_any_instance_of(Form526Submission).to receive(:send_rrd_alert_email)
-      subject
-    end
-
-    context 'with the same icn' do
-      let(:account2_icn) { user.account.icn }
-
-      it 'finishes successfully' do
-        expect(subject).to eq user.account.icn
-      end
-    end
-
-    describe '#accounts_matching_edipi when va_eauth_dodedipnid is nil' do
-      subject { rrd_processor.send(:accounts_matching_edipi, edipi) }
-
-      let(:edipi) { nil }
-
-      it 'returns empty array' do
-        expect(subject).to eq []
-      end
     end
   end
 
@@ -128,7 +92,7 @@ RSpec.describe RapidReadyForDecision::RrdProcessor do
 
             expect do
               RapidReadyForDecision::Form526BaseJob.perform_async(submission_without_account_or_edpid.id)
-            end.to raise_error RapidReadyForDecision::RrdProcessor::AccountNotFoundError
+            end.to raise_error RapidReadyForDecision::ClaimContext::AccountNotFoundError
           end
         end
       end
@@ -144,7 +108,7 @@ RSpec.describe RapidReadyForDecision::RrdProcessor do
         Sidekiq::Testing.inline! do
           expect do
             RapidReadyForDecision::Form526BaseJob.perform_async(submission.id)
-          end.to raise_error RapidReadyForDecision::RrdProcessor::AccountNotFoundError
+          end.to raise_error RapidReadyForDecision::ClaimContext::AccountNotFoundError
         end
       end
     end

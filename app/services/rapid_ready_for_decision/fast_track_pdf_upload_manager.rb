@@ -7,16 +7,15 @@ module RapidReadyForDecision
     DOCUMENT_NAME_PREFIX = 'VAMC'
     DOCUMENT_NAME_SUFFIX = 'Rapid_Decision_Evidence'
 
-    def initialize(submission, metadata_hash = {}, disability_struct = nil)
-      @submission = submission
-      @metadata_hash = metadata_hash
-      @disability_struct = disability_struct || RapidReadyForDecision::Constants.first_disability(submission)
+    def initialize(claim_context)
+      @claim_context = claim_context
+      @submission = claim_context.submission
     end
 
     def file_upload_name
       @file_upload_name ||= begin
         search_date = Time.zone.today.strftime('%Y%m%d')
-        contention = @disability_struct[:label].capitalize
+        contention = @claim_context.disability_struct[:label].capitalize
         document_title = "#{DOCUMENT_NAME_PREFIX}_#{contention}_#{DOCUMENT_NAME_SUFFIX}"
         "#{document_title}-#{search_date}.pdf"
       end
@@ -46,7 +45,7 @@ module RapidReadyForDecision
         supporting_evidence_attachment.set_file_data!(file)
         supporting_evidence_attachment.save!
         confirmation_code = supporting_evidence_attachment.guid
-        @metadata_hash[:pdf_guid] = confirmation_code
+        @claim_context.add_metadata(pdf_guid: confirmation_code)
 
         add_upload(confirmation_code) if add_to_submission && confirmation_code.present?
       end

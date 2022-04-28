@@ -2,13 +2,11 @@
 
 module RapidReadyForDecision
   class RrdProcessor
-    attr_reader :form526_submission, :metadata_hash
+    attr_reader :form526_submission, :claim_context
 
     def initialize(form526_submission)
-      @form526_submission = form526_submission
-      @disability_struct = RapidReadyForDecision::Constants.first_disability(form526_submission) || {}
-      # Pass around metadata_hash so that we write to DB only once
-      @metadata_hash = {}
+      @claim_context = RapidReadyForDecision::ClaimContext.new(form526_submission)
+      @form526_submission = @claim_context.submission
     end
 
     def run
@@ -18,12 +16,12 @@ module RapidReadyForDecision
       add_medical_stats(assessed_data)
 
       pdf = generate_pdf(assessed_data)
-      @metadata_hash[:pdf_created] = true
+      @claim_context.add_metadata(pdf_created: true)
       upload_pdf(pdf)
 
       set_special_issue if Flipper.enabled?(:rrd_add_special_issue) && release_pdf?
 
-      form526_submission.add_metadata(@metadata_hash)
+      @claim_context.save_metadata
     end
 
     # Return nil to discontinue processing (i.e., doesn't generate pdf or set special issue)
@@ -39,20 +37,19 @@ module RapidReadyForDecision
 
     # Override this method to prevent the submission from getting the PDF and special issue
     def release_pdf?
-      flipper_symbol = "rrd_#{@disability_struct[:flipper_name].downcase}_release_pdf".to_sym
+      flipper_symbol = "rrd_#{@claim_context.disability_struct[:flipper_name].downcase}_release_pdf".to_sym
       return true unless Flipper.exist?(flipper_symbol)
 
       Flipper.enabled?(flipper_symbol)
     end
 
     def upload_pdf(pdf)
-      RapidReadyForDecision::FastTrackPdfUploadManager
-        .new(form526_submission, @metadata_hash, @disability_struct)
-        .handle_attachment(pdf.render, add_to_submission: release_pdf?)
+      RapidReadyForDecision::FastTrackPdfUploadManager.new(@claim_context)
+                                                      .handle_attachment(pdf.render, add_to_submission: release_pdf?)
     end
 
     def set_special_issue
-      RapidReadyForDecision::RrdSpecialIssueManager.new(form526_submission).add_special_issue
+      RapidReadyForDecision::RrdSpecialIssueManager.new(@claim_context).add_special_issue
     end
 
     # Override this method to add to form526_submission.form_json['rrd_metadata']['med_stats']
@@ -63,52 +60,17 @@ module RapidReadyForDecision
       med_stats_hash = med_stats_hash(assessed_data)
       return if med_stats_hash.blank?
 
-      @metadata_hash[:med_stats] = med_stats_hash
+      @claim_context.add_metadata(med_stats: med_stats_hash)
     end
-
-    class AccountNotFoundError < StandardError; end
 
     private
 
     def lighthouse_client
-      Lighthouse::VeteransHealth::Client.new(icn)
+      Lighthouse::VeteransHealth::Client.new(@claim_context.user_icn)
     end
 
     def patient_info
       form526_submission.full_name.merge(birthdate: form526_submission.auth_headers['va_eauth_birthdate'])
-    end
-
-    def icn
-      account_records = accounts
-      if account_records.blank?
-        raise AccountNotFoundError, "for user_uuid: #{form526_submission.user_uuid} or their edipi"
-      end
-
-      return account_records.first.icn.presence if account_records.size == 1
-
-      icns = account_records.pluck(:icn).uniq.compact
-      # Multiple Account records should have the same ICN
-      if icns.size > 1
-        message = "Multiple ICNs found for the user '#{form526_submission.user_uuid}': #{icns}"
-        form526_submission.send_rrd_alert_email('RRD Multiple ICNs found warning', message)
-      end
-
-      icns.first
-    end
-
-    def accounts
-      account = Account.lookup_by_user_uuid(form526_submission.user_uuid)
-      return [account] if account
-
-      edipi = form526_submission.auth_headers['va_eauth_dodedipnid'].presence
-      accounts_matching_edipi(edipi)
-    end
-
-    # There's no DB constraint that guarantees uniqueness of edipi, so return an array if there are multiple Accounts
-    def accounts_matching_edipi(edipi)
-      return [] unless edipi
-
-      Account.where(edipi: edipi).order(:id).to_a
     end
   end
 end

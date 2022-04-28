@@ -26,12 +26,12 @@ RSpec.describe RrdCompletedMailer, type: [:mailer] do
       disabilities = form_json.dig('form526', 'form526', 'disabilities')
       disabilities.first['specialIssues'] = ['RRD']
 
-      submission.add_metadata({
-                                pdf_created: true,
-                                # Set the bp_readings_count like `add_medical_stats` is expected to do
-                                med_stats: { bp_readings_count: bp_readings_count },
-                                pdf_guid: 'a950ef07-9eaa-4784-b5af-bda8c50a83f9'
-                              })
+      submission.save_metadata({
+                                 pdf_created: true,
+                                 # Set the bp_readings_count like `add_medical_stats` is expected to do
+                                 med_stats: { bp_readings_count: bp_readings_count },
+                                 pdf_guid: 'a950ef07-9eaa-4784-b5af-bda8c50a83f9'
+                               })
       submission
     end
 
@@ -59,7 +59,7 @@ RSpec.describe RrdCompletedMailer, type: [:mailer] do
   context 'when the claim was offramped due to an existing EP 020' do
     let!(:submission) do
       create(:form526_submission).tap do |submission|
-        submission.add_metadata(offramp_reason: 'pending_ep')
+        submission.save_metadata(offramp_reason: 'pending_ep')
       end
     end
 

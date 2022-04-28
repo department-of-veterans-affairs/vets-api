@@ -19,7 +19,7 @@ module Form526RapidReadyForDecisionConcern
   end
 
   # @param metadata_hash [Hash] to be merged into form_json['rrd_metadata']
-  def add_metadata(metadata_hash)
+  def save_metadata(metadata_hash)
     form['rrd_metadata'] ||= {}
     form['rrd_metadata'].deep_merge!(metadata_hash)
 
@@ -40,7 +40,7 @@ module Form526RapidReadyForDecisionConcern
   # @return [Boolean] whether there are any open EP 020's
   def pending_eps?
     pending = open_claims.any? { |claim| claim['base_end_product_code'] == '020' }
-    add_metadata(offramp_reason: 'pending_ep') if pending
+    save_metadata(offramp_reason: 'pending_ep') if pending
     pending
   end
 
