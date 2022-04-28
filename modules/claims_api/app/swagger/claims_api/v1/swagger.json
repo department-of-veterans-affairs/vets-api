@@ -496,7 +496,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3317b611-21cf-46e0-9d20-faac17afd3bf",
+                    "id": "6db72900-6268-4363-9cdb-24f67e2a375b",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -545,11 +545,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "91f750d9-28cd-4cfa-8f93-8d489cb1b461",
+                          "id": "9daa9356-d3a5-428b-a170-e10555532946",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2022-04-21T15:06:23.182Z"
+                          "uploaded_at": "2022-04-27T21:06:22.244Z"
                         }
                       ]
                     }
@@ -1484,12 +1484,9 @@
                               "type": "object",
                               "additionalProperties": false,
                               "required": [
-                                "title10Activation",
                                 "obligationTermOfServiceFromDate",
                                 "obligationTermOfServiceToDate",
-                                "unitName",
-                                "unitPhone",
-                                "receivingInactiveDutyTrainingPay"
+                                "unitName"
                               ],
                               "properties": {
                                 "title10Activation": {
@@ -1519,7 +1516,8 @@
                                   "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
                                 },
                                 "unitName": {
-                                  "type": "string"
+                                  "type": "string",
+                                  "pattern": "([a-zA-Z0-9\\-'.,# ][a-zA-Z0-9\\-'.,# ]?)*$"
                                 },
                                 "unitPhone": {
                                   "type": "object",
@@ -2107,6 +2105,7 @@
                                   "name": {
                                     "description": "Name of facility Veteran was treated in.",
                                     "type": "string",
+                                    "pattern": "([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
                                     "example": "Private Facility 2"
                                   },
                                   "country": {
@@ -2439,7 +2438,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6bbce682-35b6-4461-9039-b372b7536014",
+                    "id": "7b30f5ed-52b3-49c4-ba31-8d150e699573",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2457,13 +2456,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-04-21T15:06:23.645Z",
+                      "updated_at": "2022-04-27T21:06:22.555Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "6bbce682-35b6-4461-9039-b372b7536014",
+                      "token": "7b30f5ed-52b3-49c4-ba31-8d150e699573",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3347,12 +3346,9 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "title10Activation",
                                   "obligationTermOfServiceFromDate",
                                   "obligationTermOfServiceToDate",
-                                  "unitName",
-                                  "unitPhone",
-                                  "receivingInactiveDutyTrainingPay"
+                                  "unitName"
                                 ],
                                 "properties": {
                                   "title10Activation": {
@@ -3382,7 +3378,8 @@
                                     "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
                                   },
                                   "unitName": {
-                                    "type": "string"
+                                    "type": "string",
+                                    "pattern": "([a-zA-Z0-9\\-'.,# ][a-zA-Z0-9\\-'.,# ]?)*$"
                                   },
                                   "unitPhone": {
                                     "type": "object",
@@ -3970,6 +3967,7 @@
                                     "name": {
                                       "description": "Name of facility Veteran was treated in.",
                                       "type": "string",
+                                      "pattern": "([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
                                       "example": "Private Facility 2"
                                     },
                                     "country": {
@@ -4315,7 +4313,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7aae0b3b-2f15-4214-bac8-b24c087b7e32",
+                    "id": "5e40e33f-5d29-4770-af95-78d2816ab7bb",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4333,13 +4331,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-04-21T15:06:24.031Z",
+                      "updated_at": "2022-04-27T21:06:22.809Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "7aae0b3b-2f15-4214-bac8-b24c087b7e32",
+                      "token": "5e40e33f-5d29-4770-af95-78d2816ab7bb",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5636,12 +5634,9 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "title10Activation",
                                   "obligationTermOfServiceFromDate",
                                   "obligationTermOfServiceToDate",
-                                  "unitName",
-                                  "unitPhone",
-                                  "receivingInactiveDutyTrainingPay"
+                                  "unitName"
                                 ],
                                 "properties": {
                                   "title10Activation": {
@@ -5671,7 +5666,8 @@
                                     "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
                                   },
                                   "unitName": {
-                                    "type": "string"
+                                    "type": "string",
+                                    "pattern": "([a-zA-Z0-9\\-'.,# ][a-zA-Z0-9\\-'.,# ]?)*$"
                                   },
                                   "unitPhone": {
                                     "type": "object",
@@ -6259,6 +6255,7 @@
                                     "name": {
                                       "description": "Name of facility Veteran was treated in.",
                                       "type": "string",
+                                      "pattern": "([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
                                       "example": "Private Facility 2"
                                     },
                                     "country": {
@@ -6604,7 +6601,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "79e70e89-75ba-46e2-bcfe-9b5a867e114f",
+                    "id": "5873db83-9f8e-471b-a5a5-9f651cd58b54",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6618,7 +6615,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-04-21T15:06:24.813Z",
+                      "updated_at": "2022-04-27T21:06:23.347Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6627,7 +6624,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "55c2cfb6-d33e-4038-8bd6-13026c4488e3",
+                          "id": "c8b86118-d7a2-4ed6-ae1c-6831030586ea",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8585,11 +8582,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "68d4dd64-7d43-4bdd-90e1-f892869a21f7",
+                    "id": "9d8143ae-b1c4-4d0b-a94f-4fddc084f1a4",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2022-04-21",
+                      "date_request_accepted": "2022-04-27",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9298,11 +9295,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "53c90e0f-ebaf-4907-bbb5-487edc58cf6e",
+                    "id": "da1aba02-6957-4512-9d09-89453d20dd48",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-04-21",
+                      "date_request_accepted": "2022-04-27",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9753,11 +9750,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "2f55a40a-f7f5-40fa-b476-fc84aed350e8",
+                    "id": "bb4f97cc-f347-47ce-97b3-8a53275da7c9",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-04-21",
+                      "date_request_accepted": "2022-04-27",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"

@@ -62,7 +62,12 @@
             "serviceBranch": "Air Force",
             "activeDutyBeginDate": "1990-04-05"
           }
-        ]
+        ],
+        "reservesNationalGuardService": {
+          "obligationTermOfServiceFromDate": "2000-01-01",
+          "obligationTermOfServiceToDate": "2000-01-02",
+          "unitName": "A name, with commas, and  double  spaces"
+        }
       }
     }
   }

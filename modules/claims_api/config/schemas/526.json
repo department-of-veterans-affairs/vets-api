@@ -504,12 +504,9 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "title10Activation",
             "obligationTermOfServiceFromDate",
             "obligationTermOfServiceToDate",
-            "unitName",
-            "unitPhone",
-            "receivingInactiveDutyTrainingPay"
+            "unitName"
           ],
           "properties": {
             "title10Activation": {
@@ -539,7 +536,8 @@
               "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
             },
             "unitName": {
-              "type": "string"
+              "type": "string",
+              "pattern": "([a-zA-Z0-9\\-'.,# ][a-zA-Z0-9\\-'.,# ]?)*$"
             },
             "unitPhone": {
               "type": "object",
@@ -1091,6 +1089,7 @@
               "name": {
                 "description": "Name of facility Veteran was treated in.",
                 "type": "string",
+                "pattern": "([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
                 "example": "Private Facility 2"
               },
               "country": {
