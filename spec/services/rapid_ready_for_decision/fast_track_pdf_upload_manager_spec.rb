@@ -5,8 +5,9 @@ require 'rapid_ready_for_decision/disability_compensation_job'
 
 RSpec.describe RapidReadyForDecision::FastTrackPdfUploadManager do
   let(:form526_submission) { create(:form526_submission, :hypertension_claim_for_increase_with_uploads) }
-  let(:metadata_hash) { {} }
-  let(:manager) { RapidReadyForDecision::FastTrackPdfUploadManager.new(form526_submission, metadata_hash) }
+  let(:claim_context) { RapidReadyForDecision::ClaimContext.new(form526_submission) }
+  let(:metadata_hash) { claim_context.metadata_hash }
+  let(:manager) { RapidReadyForDecision::FastTrackPdfUploadManager.new(claim_context) }
 
   let(:time_freeze_time) { Time.zone.parse('2021-10-10') }
 
@@ -72,7 +73,7 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfUploadManager do
       manager.add_upload('fake_confirmation_code')
 
       expect do
-        RapidReadyForDecision::FastTrackPdfUploadManager.new(form526_submission).handle_attachment('fake file')
+        RapidReadyForDecision::FastTrackPdfUploadManager.new(claim_context).handle_attachment('fake file')
       end.not_to change(
         SupportingEvidenceAttachment, :count
       )

@@ -4,8 +4,9 @@ module RapidReadyForDecision
   class RrdSpecialIssueManager
     attr_accessor :submission
 
-    def initialize(submission)
-      @submission = submission
+    def initialize(claim_context)
+      @claim_context = claim_context
+      @submission = claim_context.submission
     end
 
     def add_special_issue

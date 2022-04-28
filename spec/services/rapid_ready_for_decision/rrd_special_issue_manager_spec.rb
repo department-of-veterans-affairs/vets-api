@@ -17,7 +17,7 @@ RSpec.describe RapidReadyForDecision::RrdSpecialIssueManager do
   end
 
   describe '#add_special_issue' do
-    subject(:special_issue_manager) { described_class.new(form526_submission) }
+    subject(:special_issue_manager) { described_class.new(RapidReadyForDecision::ClaimContext.new(form526_submission)) }
 
     let(:special_issues_list) { ['RRD'] }
 
