@@ -230,7 +230,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           [
             {
               center: {
-                name: 'Some Treatment Center',
+                name: 'Some Treatment Center, with commas and  double spaces',
                 country: 'United States of America'
               },
               treatedDisabilityNames: treated_disability_names,
