@@ -102,6 +102,12 @@ describe VAProfile::Models::Address do
         address.province = 'Quebec'
         expect(address.valid?).to eq(false)
       end
+
+      it 'international_postal_code is not required' do
+        Flipper.disable(:profile_do_not_require_international_zip_code)
+        address.international_postal_code = nil
+        expect(address.valid?).to eq(true)
+      end
     end
 
     context 'when address_type is international' do

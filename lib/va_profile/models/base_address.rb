@@ -129,7 +129,7 @@ module VAProfile
       end
 
       def international_postal_code_required?
-        !Flipper.enabled?(:profile_do_not_require_international_zip_code)
+        !Flipper.enabled?(:profile_do_not_require_international_zip_code) && @address_type == INTERNATIONAL
       end
     end
   end
