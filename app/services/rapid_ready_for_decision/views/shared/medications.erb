@@ -37,8 +37,8 @@
       <br />
 
       <% if medication['dosageInstructions'].present? %>
-        <%= medication['dosageInstructions'].join('; ') %><br />
-      <% end %>
+        <%= medication['dosageInstructions'].join('; ') %>
+      <% end %><br />
 
       <%# TODO: Add test for additional fields and make sure to include additional medications %>
 
@@ -57,14 +57,12 @@
       Refills:
       <% if medication['refills'].present? %>
         <%= medication['refills'] %>
-      <% end %>
+      <% end %><br />
 
-      <p>
-        Route:
-        <% if medication['route'].present? %>
-          <%= medication['route'] %>
-        <% end %>
-      </p>
+      Route:
+      <% if medication['route'].present? %>
+        <%= medication['route'] %>
+      <% end %>
     </p>
     <p><br/></p>
   <% end %>

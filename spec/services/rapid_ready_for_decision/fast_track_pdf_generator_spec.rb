@@ -108,7 +108,8 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfGenerator do
         dosages = parsed_medications_data.map do |med|
           next if med['dosageInstructions'].blank?
 
-          med['dosageInstructions'].join('; ')
+          # renderer includes an extra space
+          "#{med['dosageInstructions'].join('; ')} "
         end.compact
 
         expect(subject).to include(*dosages)
@@ -144,6 +145,9 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfGenerator do
            'description' => 'Dose Inhaler',
            'notes' => ['Dose Inhaler'],
            'dosageInstructions' => ['Once per day.', 'As directed by physician.'],
+           'refills' => 12,
+           'route' => 'As directed by physician.',
+           'duration' => '30 days',
            :flagged => true },
          { 'status' => 'active',
            'authoredOn' => '2009-03-25T01:15:52Z',
