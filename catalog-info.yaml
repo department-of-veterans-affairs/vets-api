@@ -11,5 +11,5 @@ metadata:
     - rails
 spec:
   type: service
-  owner: vsp-tools-backend
+  owner: platform-console-services
   lifecycle: production
