@@ -23,6 +23,7 @@ module SignIn
     class AuthorizeInvalidType < StandardError; end
     class CallbackInvalidType < StandardError; end
     class CodeVerifierMalformedError < StandardError; end
-    class UserAccountNotFound < StandardError; end
+    class UserAccountNotFoundError < StandardError; end
+    class SessionNotFoundError < StandardError; end
   end
 end
