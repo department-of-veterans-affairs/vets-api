@@ -879,7 +879,7 @@ GEM
       sidekiq-pro (>= 5.3.0)
     sidekiq-pro (5.3.1)
       sidekiq (>= 6.3.0)
-    sidekiq-scheduler (3.2.0)
+    sidekiq-scheduler (3.2.1)
       e2mmap
       redis (>= 3, < 5)
       rufus-scheduler (~> 3.2)
