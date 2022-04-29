@@ -109,8 +109,7 @@ class SignInController < ApplicationController
 
   def authenticate_access_token
     access_token = bearer_token
-
-    @current_user = User.find(access_token.user_uuid)
+    @current_user = SignIn::UserLoader.new(access_token: access_token).perform
   rescue => e
     render json: { errors: e }, status: :unauthorized
   end
