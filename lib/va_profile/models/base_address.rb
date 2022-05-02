@@ -114,7 +114,6 @@ module VAProfile
       end
 
       with_options if: proc { |a| a.address_type == INTERNATIONAL } do
-        validates :international_postal_code, presence: true, if: :international_postal_code_required?
         validates :state_code, absence: true
         validates :zip_code, absence: true
         validates :zip_code_suffix, absence: true
@@ -126,10 +125,6 @@ module VAProfile
         return if zip_code.blank?
 
         [zip_code, zip_code_suffix].compact.join('-')
-      end
-
-      def international_postal_code_required?
-        !Flipper.enabled?(:profile_do_not_require_international_zip_code) && @address_type == INTERNATIONAL
       end
     end
   end
