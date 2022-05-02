@@ -243,7 +243,7 @@ GEM
     blueprinter (0.25.3)
     bootsnap (1.11.1)
       msgpack (~> 1.2)
-    brakeman (5.2.2)
+    brakeman (5.2.3)
     breakers (0.6.0)
       faraday (>= 0.7.4, < 2.0)
       multi_json (~> 1.0)
