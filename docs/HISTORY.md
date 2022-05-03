@@ -14,6 +14,11 @@ Template:
 * Rationale: 
 
 ---
+## /v0/vic/{profile_photo_attachments,supporting_documentation_attachments}
+* Removal Date: 5/2/2022
+* Rationale: The vic/* endpoints were implemented as part of a proposed "VICv2" feature that was 
+never launched to production. The associated frontend code is already moved, and Veteran ID Card (VIC)
+functionality is implemented on a non-VA.gov site. 
 
 ## /v0/vso_appointments
 * Removal Date: 4/28/2022
