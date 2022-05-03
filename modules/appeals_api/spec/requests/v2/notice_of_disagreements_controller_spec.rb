@@ -97,7 +97,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
       allow(faraday_response).to receive(:success?).and_return(true)
 
       Sidekiq::Testing.inline! do
-        post(path, params: @max_data, headers: @headers)
+        post(path, params: @max_data, headers: @max_headers)
       end
 
       nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
