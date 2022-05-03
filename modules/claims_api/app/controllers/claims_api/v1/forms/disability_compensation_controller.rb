@@ -172,17 +172,38 @@ module ClaimsApi
         # Any custom 526 submission validations above and beyond json schema validation
         #
         def validate_form_526_submission_values!
+          # ensure 'claimDate', if provided, is a valid date not in the future
           validate_form_526_submission_claim_date!
+          # ensure 'applicationExpirationDate', if provided, is a valid date less than or equal to the current day
           validate_form_526_application_expiration_date!
+          # ensure 'claimantCertification' is true
           validate_form_526_claimant_certification!
+          # ensure any provided 'separationLocationCode' values are valid EVSS ReferenceData values
           validate_form_526_location_codes!
+          # ensure any provided 'confinements' are within a provided 'servicePeriod' and do not overlap other 'confinements' # rubocop:disable Layout/LineLength
           validate_form_526_service_information_confinements!
+          # ensure conflicting homelessness values are not provided
           validate_form_526_veteran_homelessness!
+          # ensure 'militaryRetiredPay.receiving' and 'militaryRetiredPay.willReceiveInFuture' are not same non-null values # rubocop:disable Layout/LineLength
           validate_form_526_service_pay!
+          # ensure 'title10ActivationDate' if provided, is greater than the earliest servicePeriod.beginningDate and less than the current date # rubocop:disable Layout/LineLength
           validate_form_526_title10_activation_date!
+          # ensure 'title10Activation.anticipatedSeparationDate' is in the future
           validate_form_526_title10_anticipated_separation_date!
+          # ensure 'changeOfAddress.beginningDate' is in the future if 'addressChangeType' is 'TEMPORARY'
           validate_form_526_change_of_address!
+          # ensure any provided 'disability.classificationCode' is a known value in BGS
+          # ensure any provided 'disability.approximateBeginDate' is in the past
+          # ensure a 'disability.specialIssue' of 'HEPC' has a `disability.name` of 'hepatitis'
+          # ensure a 'disability.specialIssue' of 'POW' has a valid 'serviceInformation.confinement'
+          # ensure any provided 'disability.secondaryDisabilities.classificationCode' is a known value in BGS
+          # ensure any provided 'disability.secondaryDisabilities.classificationCode' equals 'disability.secondaryDisabilities.name' # rubocop:disable Layout/LineLength
+          # ensure any provided 'disability.secondaryDisabilities.name' is <= 255 characters in length
+          # ensure any provided 'disability.secondaryDisabilities.approximateBeginDate' is in the past
           validate_form_526_disabilities!
+          # ensure any provided 'treatment.startDate' is after the earliest 'servicePeriods.activeDutyBeginDate'
+          # ensure the 'treatment.endDate' is after the 'treatment.startDate'
+          # ensure any provided 'treatment.treatedDisabilityNames' match a provided 'disabilities.name'
           validate_form_526_treatments!
         end
 
