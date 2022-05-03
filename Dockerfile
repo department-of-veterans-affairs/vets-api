@@ -5,7 +5,7 @@
 ###
 # shared build/settings for all child images, reuse these layers yo
 ###
-FROM ruby:2.7.6-slim-buster AS base
+FROM ruby:2.7.6-slim-bullseye AS base
 
 ARG userid=993
 SHELL ["/bin/bash", "-c"]
