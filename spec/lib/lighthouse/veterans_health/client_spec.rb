@@ -156,6 +156,25 @@ RSpec.describe Lighthouse::VeteransHealth::Client do
           end
         end
       end
+
+      describe '#list_conditions' do
+        let(:conditions_api_path) { 'services/fhir/v0/r4/Condition' }
+        let(:params_hash) do
+          { patient: @client.instance_variable_get(:@icn),
+            _count: 100 }
+        end
+
+        it 'invokes the Lighthouse Veterans Health API Condition endpoint' do
+          expect_any_instance_of(
+            Lighthouse::VeteransHealth::Client
+          ).to receive(:perform_get).with(conditions_api_path, params_hash).and_call_original
+          @client.list_conditions
+        end
+
+        it 'returns the api response' do
+          expect(@client.list_conditions).to eq generic_response
+        end
+      end
     end
 
     context 'unsuccessful requests' do
