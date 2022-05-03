@@ -460,6 +460,82 @@ paths:
       security:
         - Bearer: []
       summary: /v0/appointments/community_care/eligibility/{service_type}
+  /v0/appointments/facility/eligibility:
+    get:
+      description: Checks if a list of facilities if they are eligibile to create a appointment request to provide the given type of service at the facility.
+      operationId: facilityEligibility
+      parameters:
+        - description: Type of service to check eligibility for. Can only be one of following options primaryCare, nutrition, podiatry, optometry, audiology.
+          in: path
+          name: serviceType
+          required: true
+          schema:
+            type: string
+        - description: List of facility ids
+          in: path
+          name: FacilityIds[]
+          required: true
+          schema:
+            type: array of strings
+        - description: type of appointment. Can either be 'request' or 'direct' but only request will be used until direct scheduling functionality is built out
+          in: path
+          name: type
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/FacilityEligibilities.yml
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Authentication is possible but has failed or not yet been provided.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The requested resource could not be found.
+        '408':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The response from this API timed out.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Failure in processing entity
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An internal API error occured.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An upstream service is unavailable, or its circuit breaker
+            may have been tripped.
+        '504':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: A response from an upstream service timed out.
+      security:
+        - Bearer: []
+      summary: /v0/appointments/facility/eligibility
   /v0/appointment:
     post:
       description: Creates a new appointment
