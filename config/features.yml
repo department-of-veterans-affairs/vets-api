@@ -416,6 +416,10 @@ features:
     actor_type: user
     description: Finds facilities using VAOS's Mobile Facility Service.
     enable_in_development: false
+  mobile_precache_appointments:
+    actor_type: user
+    description: enables us to easily turn off pre-caching appointments if our requests are overwhelming the upstream service
+    enable_in_development: true
   multiple_address_10_10ez:
     actor_type: cookie_id
     description: >
