@@ -1,4 +1,4 @@
-FROM ruby:2.7.6-slim
+FROM ruby:2.7.6-slim-bullseye
 
 # Allow for setting ENV vars via --build-arg
 ARG BUNDLE_ENTERPRISE__CONTRIBSYS__COM \
