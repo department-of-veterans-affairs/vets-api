@@ -101,7 +101,7 @@
               "type": "string"
             },
             "type": {
-              "description": "Type of residence Veteran resides in.",
+              "description": "Type of residence Veteran resides in.  \n If value is \"INTERNATIONAL\", then \"addressLine1\", \"city\", \"country\", and \"internationalPostalCode\" are required.  \n If value is \"DOMESTIC\", then \"addressLine1\", \"city\", \"state\", \"country\", and \"zipFirstFive\" are required.  \n If value is \"MILITARY\", then \"addressLine1\", \"country\", \"militaryStateCode\", \"militaryPostOfficeTypeCode\", and \"zipFirstFive\" are required.",
               "type": "string",
               "default": "DOMESTIC",
               "enum": ["INTERNATIONAL", "MILITARY", "DOMESTIC"],
@@ -237,7 +237,7 @@
               "type": "string"
             },
             "type": {
-              "description": "New type of residence Veteran resides in.",
+              "description": "New type of residence Veteran resides in.  \n If value is \"INTERNATIONAL\", then \"city\" and \"internationalPostalCode\" are required.  \n If value is \"DOMESTIC\", then \"city\", \"state\", and \"zipFirstFive\" are required.  \n If value is \"MILITARY\", then \"militaryStateCode\", \"militaryPostOfficeTypeCode\", and \"zipFirstFive\" are required.",
               "type": "string",
               "default": "DOMESTIC",
               "enum": ["INTERNATIONAL", "MILITARY", "DOMESTIC"],
@@ -781,7 +781,7 @@
             "example": 9999
           },
           "disabilityActionType": {
-            "description": "The status of the current disability.",
+            "description": "The status of the current disability.  \n If value is \"INCREASE\", then \"ratedDisabilityId\" and \"diagnosticCode\" are required.",
             "type": "string",
             "enum": ["NONE", "NEW", "INCREASE"],
             "example": "NEW"
@@ -1131,7 +1131,7 @@
               "example": true
             },
             "willReceiveInFuture": {
-              "description": "Will Veteran get Retiree pay in future?",
+              "description": "Will Veteran get Retiree pay in future?  \n If true, then \"futurePayExplanation\" attribute is required.",
               "type": "boolean",
               "default": false,
               "example": false
