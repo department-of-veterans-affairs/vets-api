@@ -47,13 +47,24 @@ module Lighthouse
         send("list_#{resource}")
       end
 
+      def list_conditions
+        params = {
+          patient: @icn,
+          _count: 100
+        }
+
+        first_response = perform_get('services/fhir/v0/r4/Condition', params)
+        get_list(first_response)
+      end
+
       private
 
+      # TODO: rename this to reflect only blood pressure observations
       def list_observations
         params = {
           patient: @icn,
           category: 'vital-signs',
-          code: '85354-9',
+          code: '85354-9', # only blood pressure data https://loinc.org/85354-9/
           _count: 100
         }
 
