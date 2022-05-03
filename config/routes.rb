@@ -242,11 +242,6 @@ Rails.application.routes.draw do
       resources :preneed_attachments, only: :create
     end
 
-    namespace :vic do
-      resources :profile_photo_attachments, only: %i[create show]
-      resources :supporting_documentation_attachments, only: :create
-    end
-
     resources :gi_bill_feedbacks, only: %i[create show]
 
     resource :address, only: %i[show update] do

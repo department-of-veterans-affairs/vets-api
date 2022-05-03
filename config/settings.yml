@@ -528,12 +528,6 @@ caseflow:
 vic:
   url: https://some.fakesite.com
   signing_key_path: /fake/signing/key/path
-  prefill: true
-  s3:
-    aws_access_key_id: "aws_access_key_id"
-    aws_secret_access_key: "aws_secret_access_key"
-    region: "region"
-    bucket: "bucket"
 
 # Settings for (preneeds) burials.
 preneeds:
