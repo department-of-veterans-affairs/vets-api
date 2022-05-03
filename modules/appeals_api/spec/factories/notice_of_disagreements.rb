@@ -3,6 +3,7 @@
 FactoryBot.define do
   factory :notice_of_disagreement, class: 'AppealsApi::NoticeOfDisagreement' do
     id { SecureRandom.uuid }
+    api_version { 'V1' }
     auth_headers do
       JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/v1/valid_10182_headers.json"
     end
@@ -34,6 +35,7 @@ FactoryBot.define do
 
   factory :minimal_notice_of_disagreement, class: 'AppealsApi::NoticeOfDisagreement' do
     id { SecureRandom.uuid }
+    api_version { 'V1' }
     auth_headers do
       JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/v1/valid_10182_headers_minimum.json"
     end

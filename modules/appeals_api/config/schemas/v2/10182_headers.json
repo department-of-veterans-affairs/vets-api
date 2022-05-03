@@ -26,6 +26,12 @@
         "X-Consumer-Username":  { "$ref": "#/definitions/X-Consumer-Username"},
         "X-Consumer-ID":        { "$ref": "#/definitions/X-Consumer-ID"}
       },
+      "dependencies": {
+        "X-VA-Claimant-First-Name": ["X-VA-Claimant-Last-Name", "X-VA-Claimant-Birth-Date"],
+        "X-VA-Claimant-Middle-Initial": ["X-VA-Claimant-First-Name", "X-VA-Claimant-Last-Name"],
+        "X-VA-Claimant-Last-Name": ["X-VA-Claimant-First-Name"],
+        "X-VA-Claimant-Birth-Date": ["X-VA-Claimant-Last-Name"]
+      },
       "required": [
         "X-VA-First-Name",
         "X-VA-Last-Name",
@@ -65,7 +71,7 @@
 
     "X-VA-Claimant-First-Name": {
       "type": "string",
-      "description": "Non-Veteran Claimants's first name",
+      "description": "Non-Veteran claimant's first name",
       "minLength": 1,
       "maxLength": 255,
       "$comment": "can be whitespace, to accommodate those with 1 legal name"
@@ -73,21 +79,21 @@
 
     "X-VA-Claimant-Middle-Initial": {
       "allOf": [
-        { "description": "Non-Veteran Claimants's middle initial", "minLength": 1, "maxLength": 1 },
+        { "description": "Non-Veteran claimant's middle initial", "minLength": 1, "maxLength": 1 },
         { "$ref": "#/definitions/nonBlankString" }
       ]
     },
 
     "X-VA-Claimant-Last-Name": {
       "allOf": [
-        { "description": "Non-Veteran Claimants's last name", "minLength": 1, "maxLength": 255 },
+        { "description": "Non-Veteran claimant's last name", "minLength": 1, "maxLength": 255 },
         { "$ref": "#/definitions/nonBlankString" }
       ]
     },
 
     "X-VA-Claimant-Birth-Date": {
       "allOf": [
-        { "description": "Non-Veteran Claimants's birth date" },
+        { "description": "Non-Veteran claimant's birth date" },
         { "$ref": "#/definitions/date" }
       ]
     },

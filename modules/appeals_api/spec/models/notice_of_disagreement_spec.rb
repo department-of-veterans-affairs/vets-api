@@ -227,6 +227,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     it 'successfully gets the ICN when email isn\'t present' do
       notice_of_disagreement = described_class.create!(
         auth_headers: auth_headers,
+        api_version: 'V1',
         form_data: form_data.deep_merge({
                                           'data' => {
                                             'attributes' => {
@@ -259,84 +260,140 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
   end
 
   describe 'V2 methods' do
-    let(:extra_notice_of_disagreement_v2) { create(:extra_notice_of_disagreement_v2, :board_review_hearing) }
+    context 'when validating veteran and non-veteran claimant' do
+      let(:nod_with_non_veteran_claimant) { build(:extra_notice_of_disagreement_v2, :board_review_hearing) }
 
-    describe '#veteran' do
-      subject { extra_notice_of_disagreement_v2.veteran }
+      describe '#veteran' do
+        subject { nod_with_non_veteran_claimant.veteran }
 
-      it { expect(subject.class).to eq AppealsApi::Appellant }
-    end
-
-    describe '#claimant' do
-      subject { extra_notice_of_disagreement_v2.claimant }
-
-      it { expect(subject.class).to eq AppealsApi::Appellant }
-    end
-
-    context 'when a claimant birth date is in the future' do
-      let(:notice_of_disagreement_v2_nvc) { build(:extra_notice_of_disagreement_v2, :board_review_hearing) }
-
-      it 'creates an invalid record' do
-        notice_of_disagreement_v2_nvc.auth_headers['X-VA-Claimant-Birth-Date'] = (Time.zone.today + 2).to_s
-
-        expect(notice_of_disagreement_v2_nvc.valid?).to be false
-        expect(notice_of_disagreement_v2_nvc.errors.to_a.length).to eq 1
-        expect(notice_of_disagreement_v2_nvc.errors.to_a.first.downcase).to include 'claimant'
-        expect(notice_of_disagreement_v2_nvc.errors.to_a.first.downcase).to include 'past'
-      end
-    end
-
-    describe '#signing_appellant' do
-      let(:appellant_type) { extra_notice_of_disagreement_v2.signing_appellant.send(:type) }
-
-      it { expect(appellant_type).to eq :claimant }
-    end
-
-    describe '#stamp_text' do
-      it { expect(extra_notice_of_disagreement_v2.stamp_text).to eq 'Doe - 987654321' }
-    end
-
-    describe '#appellant_local_time' do
-      it do
-        appellant_local_time = extra_notice_of_disagreement_v2.appellant_local_time
-        created_at = extra_notice_of_disagreement_v2.created_at
-
-        expect(appellant_local_time).to eq created_at.in_time_zone('America/Chicago')
-      end
-    end
-
-    describe '#requesting_extension?' do
-      it { expect(extra_notice_of_disagreement_v2.requesting_extension?).to eq true }
-    end
-
-    describe '#extension_reason' do
-      it { expect(extra_notice_of_disagreement_v2.extension_reason).to eq 'good cause substantive reason' }
-    end
-
-    describe '#appealing_vha_denial?' do
-      it { expect(extra_notice_of_disagreement_v2.appealing_vha_denial?).to eq true }
-    end
-
-    describe '#validate_requesting_extension' do
-      let(:auth_headers) { fixture_as_json 'valid_10182_headers.json', version: 'v2' }
-      let(:form_data) { fixture_as_json 'valid_10182_minimum.json', version: 'v2' }
-      let(:invalid_notice_of_disagreement) do
-        build(:minimal_notice_of_disagreement_v2, form_data: form_data, auth_headers: auth_headers, api_version: 'v2')
+        it { expect(subject.class).to eq AppealsApi::Appellant }
       end
 
-      context 'when extension reason provided, but extension request is false' do
-        before do
-          form_data['data']['attributes']['extensionReason'] = 'I need an extension please'
+      describe '#claimant' do
+        subject { nod_with_non_veteran_claimant.claimant }
 
-          invalid_notice_of_disagreement.valid?
+        it { expect(subject.class).to eq AppealsApi::Appellant }
+      end
+
+      context 'when a claimant birth date is in the future' do
+        it 'creates an invalid record' do
+          nod_with_non_veteran_claimant.auth_headers['X-VA-Claimant-Birth-Date'] = (Time.zone.today + 2).to_s
+
+          expect(nod_with_non_veteran_claimant.valid?).to be false
+          expect(nod_with_non_veteran_claimant.errors.to_a.length).to eq 1
+          expect(nod_with_non_veteran_claimant.errors.to_a.first.downcase).to include 'claimant'
+          expect(nod_with_non_veteran_claimant.errors.to_a.first.downcase).to include 'past'
+        end
+      end
+
+      context 'claimant header & form_data requirements' do
+        context 'when data provided but headers missing' do
+          it 'creates an invalid record' do
+            nod_with_non_veteran_claimant.auth_headers.except!(*%w[X-VA-Claimant-First-Name X-VA-Claimant-Last-Name
+                                                                   X-VA-Claimant-Birth-Date])
+
+            expect(nod_with_non_veteran_claimant.valid?).to be false
+            expect(nod_with_non_veteran_claimant.errors.to_a.length).to eq 1
+            expect(nod_with_non_veteran_claimant.errors.to_a.first).to include 'missing claimant headers'
+          end
         end
 
-        it 'throws an error' do
-          expect(invalid_notice_of_disagreement.errors.count).to be 1
-          expect(invalid_notice_of_disagreement.errors.first.attribute).to eq(:'/data/attributes/requestingExtension')
-          expect(invalid_notice_of_disagreement.errors.first.options[:detail]).to eq(
-            "If '/data/attributes/extensionReason' present, then '/data/attributes/requestingExtension' must equal true"
-          )
+        context 'when headers provided but missing data' do
+          it 'creates an invalid record' do
+            nod_with_non_veteran_claimant.form_data['data']['attributes'].delete('claimant')
+
+            expect(nod_with_non_veteran_claimant.valid?).to be false
+            expect(nod_with_non_veteran_claimant.errors.to_a.length).to eq 1
+            expect(nod_with_non_veteran_claimant.errors.to_a.first).to include 'missing claimant data'
+          end
+        end
+      end
+
+      describe '#signing_appellant' do
+        let(:appellant_type) { nod_with_non_veteran_claimant.signing_appellant.send(:type) }
+
+        it { expect(appellant_type).to eq :claimant }
+      end
+
+      describe '#stamp_text' do
+        it { expect(nod_with_non_veteran_claimant.stamp_text).to eq 'Doe - 987654321' }
+      end
+
+      describe '#appellant_local_time' do
+        it do
+          nod_with_non_veteran_claimant.save
+
+          appellant_local_time = nod_with_non_veteran_claimant.appellant_local_time
+          created_at = nod_with_non_veteran_claimant.created_at
+
+          expect(appellant_local_time).to eq created_at.in_time_zone('America/Chicago')
+        end
+      end
+    end
+
+    context 'when validating form data' do
+      let(:extra_notice_of_disagreement_v2) { build(:extra_notice_of_disagreement_v2, :board_review_hearing) }
+
+      context 'when contestable issue dates are in the future' do
+        it 'creates an invalid record' do
+          extra_notice_of_disagreement_v2.form_data['included'] = [{
+            'type' => 'contestableIssue',
+            'attributes' => {
+              'issue' => 'PTSD',
+              'decisionDate' => (Time.zone.today + 2).to_s
+            }
+          }]
+
+          expect(extra_notice_of_disagreement_v2.valid?).to be false
+          expect(extra_notice_of_disagreement_v2.errors.to_a.length).to eq 1
+          expect(extra_notice_of_disagreement_v2.errors.to_a.first.downcase).to include "decisiondate isn't in the past"
+        end
+      end
+
+      describe '#validate_api_version_presence' do
+        it 'throws an error when api_version is blank' do
+          nod_blank_api_version = FactoryBot.build(:extra_notice_of_disagreement_v2, api_version: '')
+
+          expect(nod_blank_api_version.valid?).to be false
+          expect(nod_blank_api_version.errors.to_a.length).to eq 1
+          expect(nod_blank_api_version.errors.to_a.first.downcase).to include 'api_version attribute'
+        end
+      end
+
+      describe '#requesting_extension?' do
+        it { expect(extra_notice_of_disagreement_v2.requesting_extension?).to eq true }
+      end
+
+      describe '#extension_reason' do
+        it { expect(extra_notice_of_disagreement_v2.extension_reason).to eq 'good cause substantive reason' }
+      end
+
+      describe '#appealing_vha_denial?' do
+        it { expect(extra_notice_of_disagreement_v2.appealing_vha_denial?).to eq true }
+      end
+
+      describe '#validate_requesting_extension' do
+        let(:auth_headers) { fixture_as_json 'valid_10182_headers.json', version: 'v2' }
+        let(:form_data) { fixture_as_json 'valid_10182_minimum.json', version: 'v2' }
+        let(:invalid_notice_of_disagreement) do
+          build(:minimal_notice_of_disagreement_v2, form_data: form_data, auth_headers: auth_headers, api_version: 'v2')
+        end
+
+        context 'when extension reason provided, but extension request is false' do
+          before do
+            form_data['data']['attributes']['extensionReason'] = 'I need an extension please'
+
+            invalid_notice_of_disagreement.valid?
+          end
+
+          it 'throws an error' do
+            expect(invalid_notice_of_disagreement.errors.count).to be 1
+            expect(invalid_notice_of_disagreement.errors.first.attribute).to eq(:'/data/attributes/requestingExtension')
+            expect(invalid_notice_of_disagreement.errors.first.options[:detail]).to eq(
+              "If '/data/attributes/extensionReason' present, then " \
+              "'/data/attributes/requestingExtension' must equal true"
+            )
+          end
         end
       end
     end

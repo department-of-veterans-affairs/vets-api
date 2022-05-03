@@ -43,11 +43,15 @@ module AppealsApi
     # further validations:
     validate(
       :birth_date_is_in_the_past,
-      :claimant_birth_date_is_in_the_past
+      :claimant_birth_date_is_in_the_past,
+      :required_claimant_data_is_present,
+      :contestable_issue_dates_are_in_the_past,
+      if: proc { |a| a.form_data.present? }
     )
 
     validate :validate_hearing_type_selection, if: :pii_present?
     validate :validate_requesting_extension, if: :version_2?
+    validate :validate_api_version_presence
 
     has_many :evidence_submissions, as: :supportable, dependent: :destroy
     has_many :status_updates, as: :statusable, dependent: :destroy
@@ -96,7 +100,11 @@ module AppealsApi
     end
 
     def contestable_issues
-      form_data&.dig('included')
+      issues = form_data['included'] || []
+
+      @contestable_issues ||= issues.map do |issue|
+        AppealsApi::ContestableIssue.new(issue)
+      end
     end
 
     def representative
@@ -322,12 +330,48 @@ module AppealsApi
 
     # validation (header)
     def claimant_birth_date_is_in_the_past
-      return if api_version && api_version.upcase == 'V1'
+      return if api_version.upcase == 'V1'
       return if claimant.birth_date.blank?
 
       unless self.class.past?(claimant.birth_date)
         add_error("Claimant birth date isn't in the past: #{claimant.birth_date_string}")
       end
+    end
+
+    # validation (header & body)
+    # Schemas take care of most of the requirements, but we need to check that both header & body data is provided
+    def required_claimant_data_is_present
+      return if api_version.upcase == 'V1'
+
+      # Claimant DOB is always required if they've supplied any claimant headers
+      has_claimant_headers = claimant.birth_date.present?
+      # form data that includes a claimant is also sufficient to know it's passed the schema
+      has_claimant_data = data_attributes&.fetch('claimant', nil).present?
+
+      return if !has_claimant_headers && !has_claimant_data # No claimant headers or data? not a problem!
+      return if has_claimant_headers && has_claimant_data # Has both claimant headers and data? A-ok!
+
+      add_error('Claimant data was provided but missing claimant headers') unless has_claimant_headers
+      add_error('Claimant headers were provided but missing claimant data') unless has_claimant_data
+    end
+
+    # validation (body)
+    def contestable_issue_dates_are_in_the_past
+      return if contestable_issues.blank?
+
+      contestable_issues.each_with_index do |issue, index|
+        decision_date_not_in_past(issue, index)
+      end
+    end
+
+    def decision_date_not_in_past(issue, issue_index)
+      return if issue.decision_date.nil? || issue.decision_date_past?
+
+      add_decision_date_error "isn't in the past: #{issue.decision_date_string.inspect}", issue_index
+    end
+
+    def add_decision_date_error(string, issue_index)
+      add_error "included[#{issue_index}].attributes.decisionDate #{string}"
     end
 
     def add_error(message)
@@ -336,6 +380,10 @@ module AppealsApi
 
     def header_field_as_string(key)
       auth_headers&.dig(key).to_s.strip
+    end
+
+    def validate_api_version_presence
+      add_error('Appeal must include the api_version attribute') if api_version.blank?
     end
 
     def version_2?
@@ -348,7 +396,7 @@ module AppealsApi
     end
 
     def clear_memoized_values
-      @veteran = @claimant = nil
+      @contestable_issues = @veteran = @claimant = nil
     end
   end
 end

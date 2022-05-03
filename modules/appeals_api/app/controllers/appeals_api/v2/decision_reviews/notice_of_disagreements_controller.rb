@@ -54,6 +54,7 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
     response.tap do |s|
       s.dig(*%w[definitions nodCreate properties data properties attributes properties]).delete('claimant')
     end
+
     render json: response
   end
 
