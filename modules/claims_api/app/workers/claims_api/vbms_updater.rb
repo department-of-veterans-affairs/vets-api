@@ -15,6 +15,13 @@ module ClaimsApi
         external_key: poa_form.external_key
       )
 
+      ClaimsApi::Logger.log(
+        'poa',
+        poa_id: power_of_attorney_id,
+        status: 'Updating Access',
+        poa_code: poa_form.form_data.dig('serviceOrganization', 'poaCode')
+      )
+
       response = service.corporate_update.update_poa_access(
         participant_id: poa_form.auth_headers['va_eauth_pid'],
         poa_code: poa_form.form_data.dig('serviceOrganization', 'poaCode'),

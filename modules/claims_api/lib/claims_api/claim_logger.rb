@@ -22,6 +22,7 @@ module ClaimsApi
       params.key?(:level) && params[:level].to_sym.in?(LEVELS) ? params[:level].to_sym : :info
     end
 
+    # rubocop:disable Metrics/MethodLength
     def self.format_msg(tag, **params)
       msg = ['ClaimsApi', tag]
       case tag
@@ -33,6 +34,7 @@ module ClaimsApi
         msg.append("Attachment ID: #{params[:attachment_id]}") if params[:attachment_id].present?
       when 'poa'
         msg.append("POA ID: #{params[:poa_id]}") if params[:poa_id].present?
+        msg.append("POA Code: #{params[:poa_code]}") if params[:poa_code].present?
         msg.append("Detail: #{params[:detail]}") if params[:detail].present?
         msg.append("Error Code: #{params[:error]}") if params[:error].present?
       when 'itf'
@@ -44,6 +46,7 @@ module ClaimsApi
       msg.append("Location: #{called_from.path}:#{called_from.lineno}")
       msg.join(' :: ')
     end
+    # rubocop:enable Metrics/MethodLength
   end
 end
 
