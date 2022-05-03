@@ -29,11 +29,13 @@ module Form526RapidReadyForDecisionConcern
   end
 
   def rrd_status
-    return :processed if rrd_claim_processed?
+    return 'processed' if rrd_claim_processed?
 
-    return :pending_ep if form.dig('rrd_metadata', 'offramp_reason') == 'pending_ep'
+    return form.dig('rrd_metadata', 'offramp_reason') if form.dig('rrd_metadata', 'offramp_reason').present?
 
-    :insufficient_data
+    return 'error' if form.dig('rrd_metadata', 'error').present?
+
+    'unknown'
   end
 
   # Fetch all claims from EVSS

@@ -5,6 +5,7 @@ class RrdCompletedMailer < ApplicationMailer
     @submission = submission
     @disability_struct = RapidReadyForDecision::Constants.first_disability(submission) || {}
     @rrd_status = submission.rrd_status
+    @error_message = submission.form.dig('rrd_metadata', 'error') if @rrd_status == 'error'
     @bp_readings_count = submission.form.dig('rrd_metadata', 'med_stats', 'bp_readings_count') || 'N/A'
     @pdf_guid = submission.form.dig('rrd_metadata', 'pdf_guid') || 'N/A'
 
