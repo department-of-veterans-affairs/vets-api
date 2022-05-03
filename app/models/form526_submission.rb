@@ -89,6 +89,7 @@ class Form526Submission < ApplicationRecord
       submission.send_rrd_alert_email('RRD Processor Selector alert - backup job', message)
       return submission.start_rrd_job(backup_sidekiq_job)
     end
+    submission.save_metadata(error: 'RRD Processor failed')
     submission.start_evss_submission_job
   rescue => e
     message = <<~MESSAGE
@@ -97,6 +98,7 @@ class Form526Submission < ApplicationRecord
       Exception: #{e}<br/>
     MESSAGE
     submission.send_rrd_alert_email('RRD Processor Selector alert', message)
+    submission.save_metadata(error: 'RRD Processor Selector failed')
     submission.start_evss_submission_job
   end
 

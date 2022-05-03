@@ -11,7 +11,7 @@ module RapidReadyForDecision
 
     def run
       assessed_data = assess_data
-      return if assessed_data.nil?
+      return @form526_submission.save_metadata(offramp_reason: 'insufficient_data') if assessed_data.nil?
 
       add_medical_stats(assessed_data)
 
