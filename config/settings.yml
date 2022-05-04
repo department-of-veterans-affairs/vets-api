@@ -1105,6 +1105,7 @@ vanotify:
         form526_submission_failed_email: fake_template_id
         form686c_confirmation_email: fake_template_id
         form686c_reminder_email: fake_template_id
+        in_progress_reminder_email_generic: fake_template_id
         covid_vaccine_registration: fake_template_id
         covid_vaccine_expanded_registration: fake_template_id
         direct_deposit_edu: edu_template_id
