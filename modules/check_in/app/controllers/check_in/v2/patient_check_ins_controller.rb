@@ -3,8 +3,8 @@
 module CheckIn
   module V2
     class PatientCheckInsController < CheckIn::ApplicationController
-      before_action :before_logger, only: %i[show create], if: :additional_logging?
-      after_action :after_logger, only: %i[show create], if: :additional_logging?
+      before_action :before_logger, only: %i[show create]
+      after_action :after_logger, only: %i[show create]
 
       def show
         check_in_session = CheckIn::V2::Session.build(data: { uuid: params[:id] }, jwt: low_auth_token)

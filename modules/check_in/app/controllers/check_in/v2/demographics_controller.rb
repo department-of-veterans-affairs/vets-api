@@ -3,8 +3,8 @@
 module CheckIn
   module V2
     class DemographicsController < CheckIn::ApplicationController
-      before_action :before_logger, only: %i[update], if: :additional_logging?
-      after_action :after_logger, only: %i[update], if: :additional_logging?
+      before_action :before_logger, only: %i[update]
+      after_action :after_logger, only: %i[update]
 
       def update
         check_in_session = CheckIn::V2::Session.build(data: { uuid: params[:id] }, jwt: low_auth_token)
