@@ -3,6 +3,7 @@
 module RapidReadyForDecision
   class ClaimContext
     attr_reader :submission, :metadata_hash, :disability_struct
+    attr_accessor :assessed_data, :sufficient_evidence
 
     def initialize(form526_submission)
       @submission = form526_submission
@@ -17,6 +18,10 @@ module RapidReadyForDecision
 
     def save_metadata
       @submission.save_metadata(@metadata_hash)
+    end
+
+    def patient_info
+      @submission.full_name.merge(birthdate: @submission.auth_headers['va_eauth_birthdate'])
     end
 
     class AccountNotFoundError < StandardError; end
