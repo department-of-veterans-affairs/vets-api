@@ -14,7 +14,7 @@ RSpec.describe RapidReadyForDecision::LighthouseObservationData do
   let(:response) do
     # Using specific test ICN below:
     client = Lighthouse::VeteransHealth::Client.new(32_000_225)
-    client.list_resource('observations')
+    client.list_bp_observations
   end
 
   let(:response_with_recent_bp) do

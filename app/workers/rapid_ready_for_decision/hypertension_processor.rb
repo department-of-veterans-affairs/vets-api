@@ -13,9 +13,9 @@ module RapidReadyForDecision
 
     def query_and_assess_lighthouse
       client = lighthouse_client
-      bp_readings = assess_bp_readings(client.list_resource('observations'))
+      bp_readings = assess_bp_readings(client.list_bp_observations)
       # stop querying if bp_readings.blank?
-      medications = assess_medications(client.list_resource('medication_requests')) if bp_readings.present?
+      medications = assess_medications(client.list_medication_requests) if bp_readings.present?
 
       {
         bp_readings: bp_readings,
