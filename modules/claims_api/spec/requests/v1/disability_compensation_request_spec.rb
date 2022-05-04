@@ -1074,14 +1074,116 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
     end
 
-    context 'when submitted claim_date is in the future' do
-      let(:claim_date) { (Time.zone.today + 1.day).to_s }
+    # real world example happened in API-15575
+    describe "'claim_date' difference between Lighthouse (UTC) and EVSS (Central Time)" do
+      context 'when UTC is currently a day ahead of the US Central Time Zone' do
+        before do
+          Timecop.freeze(Time.parse('2022-05-01 04:46:31 UTC'))
+        end
 
-      it 'responds with bad request' do
-        with_okta_user(scopes) do |auth_header|
-          VCR.use_cassette('evss/claims/claims') do
-            post path, params: data, headers: headers.merge(auth_header)
-            expect(response.status).to eq(400)
+        after do
+          Timecop.return
+        end
+
+        context "and 'claim_date' is same as the UTC day" do
+          let(:claim_date) { Time.zone.today.to_s }
+
+          # 'claim_date' has to be <= the current day relative to EVSS' time zone (Central Time)
+          it 'responds with bad request' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response.status).to eq(400)
+              end
+            end
+          end
+        end
+
+        context "and 'claim_date' is same as the Central Time Zone day" do
+          let(:claim_date) { (Time.zone.today - 1.day).to_s }
+
+          it 'responds with a 200' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response.status).to eq(200)
+              end
+            end
+          end
+        end
+
+        context "and 'claim_date' is earlier than the Central Time Zone day" do
+          let(:claim_date) { (Time.zone.today - 7.days).to_s }
+
+          it 'responds with a 200' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response.status).to eq(200)
+              end
+            end
+          end
+        end
+
+        context "and 'claim_date' is later than both the Central Time Zone day and UTC day" do
+          let(:claim_date) { (Time.zone.today + 7.days).to_s }
+
+          it 'responds with a bad request' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response.status).to eq(400)
+              end
+            end
+          end
+        end
+      end
+
+      context 'when UTC is same day as the US Central Time Zone day' do
+        before do
+          Timecop.freeze(Time.parse('2022-05-01 12:00:00 UTC'))
+        end
+
+        after do
+          Timecop.return
+        end
+
+        context "and 'claim_date' is the current day" do
+          let(:claim_date) { Time.zone.today.to_s }
+
+          it 'responds with a 200' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response.status).to eq(200)
+              end
+            end
+          end
+        end
+
+        context "and 'claim_date' is in the past" do
+          let(:claim_date) { (Time.zone.today - 1.day).to_s }
+
+          it 'responds with a 200' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response.status).to eq(200)
+              end
+            end
+          end
+        end
+
+        context "and 'claim_date' is in the future" do
+          let(:claim_date) { (Time.zone.today + 1.day).to_s }
+
+          it 'responds with bad request' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response.status).to eq(400)
+              end
+            end
           end
         end
       end
