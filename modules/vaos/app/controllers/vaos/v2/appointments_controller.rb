@@ -200,7 +200,15 @@ module VAOS
                           identifier: %i[system value]
                         },
                         {
-                          address: %i[type line city state postal_code country text]
+                          address: [
+                            :type,
+                            { line: [] },
+                            :city,
+                            :state,
+                            :postal_code,
+                            :country,
+                            :text
+                          ]
                         }
                       ],
                       preferred_location: %i[city state],
