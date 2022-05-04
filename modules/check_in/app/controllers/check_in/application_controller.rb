@@ -21,10 +21,6 @@ module CheckIn
       logger.info('HCE-Check-In') { Utils::Logger.build(self).after }
     end
 
-    def additional_logging?
-      Flipper.enabled?('check_in_experience_logging_enabled')
-    end
-
     def low_auth_token
       if Flipper.enabled?('check_in_experience_custom_cookie_for_low_auth')
         cookies.encrypted[:cie_session]
