@@ -30,21 +30,12 @@ module Lighthouse
         raise ArgumentError, 'no ICN passed in for LH API request.' if icn.blank?
       end
 
-      # Handles the Lighthouse request for the passed-in resource.
-      # Returns the entire collection of paged data in a single response.
-      #
-      # @example
-      #
-      # list_resource('observations')
-      #
-      # @param [String] resource The Lighthouse resource being requested
-      #
-      # @return Faraday::Env response
-      def list_resource(resource)
-        resource = resource.downcase
-        raise ArgumentError, 'unsupported resource type' unless %w[medication_requests observations].include?(resource)
-
-        send("list_#{resource}")
+      def list_bp_observations
+        params = {
+          category: 'vital-signs',
+          code: '85354-9'
+        }
+        list_observations(params)
       end
 
       def list_conditions
@@ -57,16 +48,11 @@ module Lighthouse
         get_list(first_response)
       end
 
-      private
-
-      # TODO: rename this to reflect only blood pressure observations
-      def list_observations
+      def list_observations(params_override = {})
         params = {
           patient: @icn,
-          category: 'vital-signs',
-          code: '85354-9', # only blood pressure data https://loinc.org/85354-9/
           _count: 100
-        }
+        }.merge(params_override)
 
         first_response = perform_get('services/fhir/v0/r4/Observation', params)
         get_list(first_response)
@@ -81,6 +67,9 @@ module Lighthouse
         get_list(first_response)
       end
 
+      private
+
+      # @return Faraday::Env response with all the pages of data
       def get_list(first_response)
         next_page = first_response.body['link'].find { |link| link['relation'] == 'next' }&.[]('url')
         return first_response unless next_page

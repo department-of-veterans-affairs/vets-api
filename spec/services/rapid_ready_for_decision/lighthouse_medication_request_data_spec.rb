@@ -141,7 +141,7 @@ RSpec.describe RapidReadyForDecision::LighthouseMedicationRequestData do
   let(:response) do
     # Using specific test ICN that returns multiple pages below:
     client = Lighthouse::VeteransHealth::Client.new(32_000_225)
-    client.list_resource('medication_requests')
+    client.list_medication_requests
   end
   let(:transformed_response) { described_class.new(response).transform }
 

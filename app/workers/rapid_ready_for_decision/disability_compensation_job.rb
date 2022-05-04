@@ -50,12 +50,12 @@ module RapidReadyForDecision
     end
 
     def bp_readings(client)
-      @bp_readings ||= client.list_resource('observations')
+      @bp_readings ||= client.list_bp_observations
       @bp_readings.present? ? RapidReadyForDecision::LighthouseObservationData.new(@bp_readings).transform : []
     end
 
     def medications(client)
-      @medications ||= client.list_resource('medication_requests')
+      @medications ||= client.list_medication_requests
       @medications.present? ? RapidReadyForDecision::LighthouseMedicationRequestData.new(@medications).transform : []
     end
 

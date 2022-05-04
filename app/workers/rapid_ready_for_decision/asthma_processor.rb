@@ -13,7 +13,7 @@ module RapidReadyForDecision
 
     def query_and_assess_lighthouse
       client = lighthouse_client
-      medications = assess_medications(client.list_resource('medication_requests'))
+      medications = assess_medications(client.list_medication_requests)
       { medications: medications }
     end
 
