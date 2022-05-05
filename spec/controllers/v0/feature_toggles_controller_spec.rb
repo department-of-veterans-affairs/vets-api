@@ -24,7 +24,7 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
     end
 
     it 'allows strings as actors' do
-      @feature_name =  'ssoe'
+      @feature_name =  'mhv_to_logingov_account_transition'
       @feature_name_camel = @feature_name.camelize(:lower)
       @cookie_id = 'abc_123'
       actor = Flipper::Actor.new(@cookie_id)
@@ -85,7 +85,7 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
     end
 
     it 'allows strings as actors' do
-      @feature_name =  'ssoe'
+      @feature_name =  'mhv_to_logingov_account_transition'
       @cookie_id = 'abc_123'
       actor = Flipper::Actor.new(@cookie_id)
       Flipper.disable(@feature_name)
