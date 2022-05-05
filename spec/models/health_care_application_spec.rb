@@ -337,6 +337,24 @@ RSpec.describe HealthCareApplication, type: :model do
     end
 
     context 'with an invalid record' do
+      it 'adds user loa to extra context' do
+        expect(Raven).to receive(:extra_context).with(user_loa: { current: 1, highest: 3 })
+
+        expect do
+          described_class.new(form: {}.to_json, user: build(:user)).process!
+        end.to raise_error(Common::Exceptions::ValidationErrors)
+      end
+
+      it 'creates a PersonalInformationLog' do
+        expect do
+          described_class.new(form: { test: 'test' }.to_json).process!
+        end.to raise_error(Common::Exceptions::ValidationErrors)
+
+        personal_information_log = PersonalInformationLog.last
+        expect(personal_information_log.data).to eq('test' => 'test')
+        expect(personal_information_log.error_class).to eq('HealthCareApplication ValidationError')
+      end
+
       it 'raises a validation error' do
         expect do
           described_class.new(form: {}.to_json).process!

@@ -74,6 +74,16 @@ class HealthCareApplication < ApplicationRecord
 
     unless valid?
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.validation_error")
+
+      Raven.extra_context(
+        user_loa: user&.loa
+      )
+
+      PersonalInformationLog.create(
+        data: parsed_form,
+        error_class: 'HealthCareApplication ValidationError'
+      )
+
       raise(Common::Exceptions::ValidationErrors, self)
     end
 
