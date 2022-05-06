@@ -88,6 +88,9 @@ class TestStatsToBigquery
     # rubocop:disable Rails/SkipsModelValidations
     response = data_table.insert data
     # rubocop:enable Rails/SkipsModelValidations
+
+
+    puts "!!!!!!!!!!!!#{response.inspect}"
     if response.success?
       "Uploaded RSpec #{message} data to BigQuery."
     else
