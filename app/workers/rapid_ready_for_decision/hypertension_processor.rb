@@ -36,7 +36,7 @@ module RapidReadyForDecision
     end
 
     def med_stats_hash(assessed_data)
-      { bp_readings_count: assessed_data[:bp_readings]&.size }
+      { bp_readings_count: assessed_data[:bp_readings]&.size, medications_count: assessed_data[:medications]&.size }
     end
 
     def generate_pdf
