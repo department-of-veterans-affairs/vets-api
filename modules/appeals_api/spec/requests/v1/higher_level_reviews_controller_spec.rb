@@ -93,14 +93,6 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
           expect(parsed['errors'][0]['detail']).to include(' did not match')
         end
       end
-
-      it 'does not sunset in the next 30 days' do
-        # Safety test. Will fail if the sunset_date is within 30 days. We got burned by this before,
-        # so being heavy handed with it here.
-        Timecop.travel(30.days.from_now.beginning_of_day) do
-          expect(post(path, params: @data, headers: @headers)).not_to be 404
-        end
-      end
     end
 
     it 'create the job to build the PDF' do

@@ -141,11 +141,7 @@ class AppealsApi::V1::DecisionReviews::HigherLevelReviewsController < AppealsApi
     render json: AppealsApi::HigherLevelReviewSerializer.new(@higher_level_review).serializable_hash
   end
 
-  def sunset_date
-    Date.new(2022, 6, 30)
-  end
-
   def deprecate_headers
-    deprecate(response: response, link: AppealsApi::HeaderModification::RELEASE_NOTES_LINK, sunset: sunset_date)
+    deprecate(response: response, link: AppealsApi::HeaderModification::RELEASE_NOTES_LINK)
   end
 end
