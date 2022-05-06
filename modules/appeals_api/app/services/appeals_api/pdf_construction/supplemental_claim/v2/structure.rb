@@ -18,23 +18,30 @@ module AppealsApi
             # Section I: Identifying Information
             # Name, address and email filled out through autosize text box, not pdf fields
             {
+              # Vet's ID
+              # Veteran name is filled out through autosize text box, not pdf fields
               form_fields.veteran_middle_initial => form_data.veteran_middle_initial,
-              form_fields.ssn_first_three => form_data.ssn_first_three,
-              form_fields.ssn_middle_two => form_data.ssn_middle_two,
-              form_fields.ssn_last_four => form_data.ssn_last_four,
-              form_fields.file_number => form_data.file_number,
-              form_fields.veteran_dob_month => form_data.veteran_dob_month,
-              form_fields.veteran_dob_day => form_data.veteran_dob_day,
-              form_fields.veteran_dob_year => form_data.veteran_dob_year,
-              form_fields.veteran_service_number => form_data.veteran_service_number,
-              form_fields.insurance_policy_number => form_data.insurance_policy_number,
+              form_fields.ssn_first_three => form_data.preferred_ssn_first_three,
+              form_fields.ssn_second_two => form_data.preferred_ssn_second_two,
+              form_fields.ssn_last_four => form_data.preferred_ssn_last_four,
+              form_fields.file_number => form_data.veteran.file_number,
+              form_fields.veteran_service_number => form_data.veteran.service_number,
+              form_fields.birth_month => form_data.veteran.birth_month,
+              form_fields.birth_day => form_data.veteran.birth_day,
+              form_fields.birth_year => form_data.veteran.birth_year,
+              form_fields.insurance_policy_number => form_data.veteran.insurance_policy_number,
+              form_fields.zip_code_5 => form_data.preferred_zip_code_5,
+              form_fields.mailing_address_state => form_data.preferred_state,
+              form_fields.mailing_address_country => form_data.preferred_country,
+              form_fields.veteran_homeless => form_data.veteran.homeless?,
+              form_fields.veteran_phone_area_code => form_data.preferred_phone,
 
-              form_fields.claimant_type => 1, # default to check 'veteran' for now
+              # Claimant
+              # Claimant name is filled out through autosize text box, not pdf fields
+              form_fields.claimant_middle_initial => form_data.claimant_middle_initial,
+              form_fields.claimant_dob => form_data.claimant.birth_date,
 
-              form_fields.mailing_address_state => form_data.mailing_address_state,
-              form_fields.mailing_address_country => form_data.mailing_address_country,
-              form_fields.zip_code_5 => form_data.zip_code_5,
-              form_fields.phone => form_data.phone,
+              form_fields.claimant_type => form_data.claimant_type,
 
               form_fields.benefit_type => form_data.benefit_type,
 
@@ -105,6 +112,7 @@ module AppealsApi
             @form_data ||= FormData.new(supplemental_claim)
           end
 
+          # rubocop:disable Metrics/MethodLength
           def fill_autosize_fields
             tmp_path = "/#{::Common::FileHelpers.random_file_path}.pdf"
             Prawn::Document.generate(tmp_path) do |pdf|
@@ -114,8 +122,15 @@ module AppealsApi
 
               fill_text pdf, :veteran_first_name
               fill_text pdf, :veteran_last_name
-              fill_text pdf, :mailing_address_number_and_street
-              fill_text pdf, :email, long_text_override: 'See attached page for veteran email'
+              fill_text pdf, :preferred_number_and_street
+              fill_text pdf, :preferred_city
+              fill_text pdf, :preferred_phone
+              fill_text pdf, :preferred_email,
+                        long_text_override: 'See attached page for veteran email'
+
+              fill_text pdf, :claimant_first_name
+              fill_text pdf, :claimant_last_name
+
               fill_contestable_issues_text pdf
               pdf.start_new_page
 
@@ -129,6 +144,7 @@ module AppealsApi
             end
             tmp_path
           end
+          # rubocop:enable Metrics/MethodLength
 
           def additional_pages?
             additional_issues? || additional_evidence_locations? || form_data.long_signature?

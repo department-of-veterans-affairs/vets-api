@@ -13,28 +13,27 @@ module AppealsApi
             @supplemental_claim = supplemental_claim
           end
 
-          delegate :veteran_first_name, :veteran_middle_initial, :veteran_last_name, :ssn, :file_number,
-                   :full_name, :veteran_dob_month, :veteran_dob_year, :veteran_dob_day, :veteran_service_number,
-                   :insurance_policy_number, :mailing_address_number_and_street,
-                   :mailing_address_apartment_or_unit_number, :mailing_address_city_and_box, :mailing_address_state,
-                   :mailing_address_country, :zip_code_5, :phone, :email, :contestable_issues, :soc_opt_in,
-                   :new_evidence_locations, :new_evidence_dates, :date_signed,
+          delegate :insurance_policy_number, :date_signed, :signing_appellant, :appellant_local_time,
+                   :contestable_issues, :soc_opt_in, :new_evidence_locations, :new_evidence_dates,
+                   :veteran_homeless?, :preferred_email, :preferred_phone,
+                   :preferred_ssn_first_three, :preferred_ssn_last_four, :preferred_ssn_second_two,
+                   :preferred_number_and_street, :preferred_city, :preferred_state,
+                   :preferred_zip_code, :preferred_country,
+                   :claimant, :veteran,
                    to: :supplemental_claim
 
-          def ssn_first_three
-            ssn.first(3)
-          end
+          delegate :first_name, :last_name, :middle_initial, :full_name, :file_number, :service_number,
+                   to: :veteran, prefix: true
 
-          def ssn_middle_two
-            ssn[3..4]
-          end
-
-          def ssn_last_four
-            ssn.last(4)
-          end
+          delegate :first_name, :last_name, :middle_initial, :full_name, :claimant_type,
+                   to: :claimant, prefix: true
 
           def benefit_type
             benefit_type_form_codes[supplemental_claim.benefit_type]
+          end
+
+          def claimant_type
+            claimant_type_form_codes[supplemental_claim.claimant_type]
           end
 
           def soc_ssoc_opt_in
@@ -58,15 +57,27 @@ module AppealsApi
           def signature_of_veteran_claimant_or_rep
             return 'See attached page for signature of veteran claimant or rep' if long_signature?
 
-            "#{full_name[0...180]} - Signed by digital authentication to api.va.gov"
+            "#{signing_appellant.full_name[0...180]} - Signed by digital authentication to api.va.gov"
           end
 
           def long_signature?
-            full_name.length > 70
+            signing_appellant.full_name.length > 70
           end
 
           def print_name_veteran_claimaint_or_rep
-            full_name[0...180]
+            signing_appellant.full_name[0...180]
+          end
+
+          def date_signed_mm
+            appellant_local_time.strftime '%m'
+          end
+
+          def date_signed_dd
+            appellant_local_time.strftime '%d'
+          end
+
+          def date_signed_yyyy
+            appellant_local_time.strftime '%Y'
           end
 
           def new_evidence_locations
@@ -75,6 +86,62 @@ module AppealsApi
 
           def new_evidence_dates
             evidence_records.map(&:dates)
+          end
+
+          def preferred_ssn_first_three
+            signing_appellant.ssn[0..2]
+          end
+
+          def preferred_ssn_second_two
+            signing_appellant.ssn[3..4]
+          end
+
+          def preferred_ssn_last_four
+            signing_appellant.ssn[5..8]
+          end
+
+          def preferred_phone
+            signing_appellant.phone_formatted.to_s
+          end
+
+          def preferred_mailing_address
+            [
+              signing_appellant.number_and_street,
+              signing_appellant.city,
+              signing_appellant.state_code,
+              signing_appellant.zip_code,
+              signing_appellant.country_code
+            ].compact.join(', ')
+          end
+
+          def preferred_number_and_street
+            signing_appellant.number_and_street
+          end
+
+          def preferred_city
+            signing_appellant.city
+          end
+
+          def preferred_state
+            signing_appellant.state_code
+          end
+
+          def preferred_zip_code_5
+            signing_appellant.zip_code
+          end
+
+          def preferred_country
+            signing_appellant.country_code
+          end
+
+          def preferred_email
+            return 'See attached page for preferred email' if long_preferred_email?
+
+            signing_appellant.email
+          end
+
+          def long_preferred_email?
+            signing_appellant.email.length > 120
           end
 
           private
@@ -109,6 +176,16 @@ module AppealsApi
               'loanGuaranty' => 7,
               'veteransHealthAdministration' => 8,
               'nationalCemeteryAdministration' => 9
+            }
+          end
+
+          def claimant_type_form_codes
+            {
+              'veteran' => 1,
+              'spouse_of_veteran' => 2,
+              'child_of_veteran' => 3,
+              'parent_of_veteran' => 4,
+              'other' => 5
             }
           end
         end
