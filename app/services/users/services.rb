@@ -29,7 +29,6 @@ module Users
       @list << BackendServices::ID_CARD if user.can_access_id_card?
       @list << BackendServices::IDENTITY_PROOFED if user.identity_proofed?
       @list << BackendServices::VET360 if user.can_access_vet360?
-      @list += BetaRegistration.where(user_uuid: user.uuid).pluck(:feature)
       @list
     end
 

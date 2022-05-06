@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'beta_switch'
 require 'common/models/base'
 require 'common/models/redis_store'
 require 'evss/auth_headers'
@@ -13,7 +12,6 @@ require 'formatters/date_formatter'
 require 'va_profile/configuration'
 
 class User < Common::RedisStore
-  include BetaSwitch
   include Authorization
   extend Gem::Deprecate
 

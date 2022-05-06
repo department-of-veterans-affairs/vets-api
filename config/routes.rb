@@ -326,21 +326,6 @@ Rails.application.routes.draw do
 
     get 'feature_toggles', to: 'feature_toggles#index'
 
-    [
-      'profile',
-      'dashboard',
-      'veteran_id_card',
-      'all_claims',
-      FormProfile::EMIS_PREFILL_KEY
-    ].each do |feature|
-      resource(
-        :beta_registrations,
-        path: "/beta_registration/#{feature}",
-        only: %i[show create destroy],
-        defaults: { feature: feature }
-      )
-    end
-
     namespace :coronavirus_chatbot do
       resource :tokens, only: :create
     end
