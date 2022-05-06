@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'sidekiq/testing'
+require 'lighthouse/veterans_health/client'
 
 RSpec.describe RapidReadyForDecision::RrdProcessor do
   let(:rrd_processor) { described_class.new(submission) }
@@ -57,6 +58,20 @@ RSpec.describe RapidReadyForDecision::RrdProcessor do
         expect(Flipper.enabled?(:rrd_asthma_release_pdf)).to be true
         expect(submission.rrd_pdf_added_for_uploading?).to be true
         expect(submission.rrd_special_issue_set?).to be true
+      end
+    end
+
+    context 'when no data from Lighthouse' do
+      before do
+        allow_any_instance_of(Lighthouse::VeteransHealth::Client).to receive(:list_medication_requests).and_return([])
+      end
+
+      it 'finishes with offramp_reason: insufficient_data' do
+        Sidekiq::Testing.inline! do
+          RapidReadyForDecision::Form526BaseJob.perform_async(submission.id)
+          submission.reload
+          expect(submission.form.dig('rrd_metadata', 'offramp_reason')).to eq 'insufficient_data'
+        end
       end
     end
 

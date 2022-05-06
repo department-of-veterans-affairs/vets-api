@@ -60,15 +60,13 @@ module RapidReadyForDecision
 
     def add_medical_stats
       med_stats_hash = med_stats_hash(@claim_context.assessed_data)
-      return if med_stats_hash.blank?
-
-      @claim_context.add_metadata(med_stats: med_stats_hash)
+      @claim_context.add_metadata(med_stats: med_stats_hash) if med_stats_hash.present?
     end
 
     private
 
     def lighthouse_client
-      Lighthouse::VeteransHealth::Client.new(@claim_context.user_icn)
+      @lighthouse_client ||= Lighthouse::VeteransHealth::Client.new(@claim_context.user_icn)
     end
   end
 end
