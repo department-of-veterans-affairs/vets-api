@@ -100,6 +100,7 @@
                 },
                 "claimant": {
                   "type": "object",
+                  "description": "If the claimant is a non-Veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
                   "properties": {
                     "claimantType": {"type": "string", "enum": [ "veteran", "spouse_of_veteran", "child_of_veteran", "parent_of_veteran", "other"] },
                     "claimantTypeOtherValue": { "type":  "string", "minLength": 1, "maxLength": 25 },
@@ -112,8 +113,9 @@
                     },
                     "email": { "type": "string", "format": "email", "minLength": 6, "maxLength": 255 },
                     "timezone": {
+
                       "allOf": [
-                        { "description": "Claimant's timezone. Used for adding the current date to the signature according to the Claimant's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date)." },
+                        { "description": "Claimant's timezone. Used for adding the current date to the signature according to the claimant's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date)." },
                         { "$ref": "#/definitions/timezone"}
                       ]
                     }

@@ -77,7 +77,7 @@
       "type": "string",
       "description": "Non-Veteran Claimants's first name",
       "minLength": 1,
-      "maxLength": 255,
+      "maxLength": 30,
       "$comment": "can be whitespace, to accommodate those with 1 legal name"
     },
 
@@ -90,7 +90,7 @@
 
     "X-VA-Claimant-Last-Name": {
       "allOf": [
-        { "description": "Non-Veteran Claimants's last name", "minLength": 1, "maxLength": 255 },
+        { "description": "Non-Veteran Claimants's last name", "minLength": 1, "maxLength": 40 },
         { "$ref": "#/definitions/nonBlankString" }
       ]
     },

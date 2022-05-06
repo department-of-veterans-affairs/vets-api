@@ -120,23 +120,23 @@ describe AppealsApi::SupplementalClaim, type: :model do
       let(:address) { veteran['address'] }
 
       describe 'mailing_address_number_and_street' do
-        it { expect(supplemental_claim.mailing_address_number_and_street).to eq('123 Main St Suite #1200 Box 4') }
+        it { expect(supplemental_claim.veteran.number_and_street).to eq('123 Main St Suite #1200 Box 4') }
       end
 
       describe 'mailing_address_city' do
-        it { expect(supplemental_claim.mailing_address_city).to eq(address['city']) }
+        it { expect(supplemental_claim.veteran.city).to eq(address['city']) }
       end
 
       describe 'mailing_address_state' do
-        it { expect(supplemental_claim.mailing_address_state).to eq(address['stateCode']) }
+        it { expect(supplemental_claim.veteran.state_code).to eq(address['stateCode']) }
       end
 
       describe 'mailing_address_country' do
-        it { expect(supplemental_claim.mailing_address_country).to eq(address['countryCodeISO2']) }
+        it { expect(supplemental_claim.veteran.country_code).to eq(address['countryCodeISO2']) }
       end
 
       describe 'zip_code_5' do
-        it { expect(supplemental_claim.zip_code_5).to eq(address['zipCode5']) }
+        it { expect(supplemental_claim.veteran.zip_code_5).to eq(address['zipCode5']) }
       end
 
       describe 'veteran_phone_data' do
@@ -145,6 +145,87 @@ describe AppealsApi::SupplementalClaim, type: :model do
 
       describe 'phone' do
         it { expect(supplemental_claim.phone).to eq '+03-555-800-1111' }
+      end
+    end
+  end
+
+  describe 'V2' do
+    let(:supplemental_claim_v2) { create :extra_supplemental_claim }
+    let(:sc_veteran_only) { create(:minimal_supplemental_claim_v2) }
+
+    describe '#number_and_street' do
+      subject { supplemental_claim_v2.veteran.number_and_street }
+
+      it { expect(subject).to eq('123 Main St Suite #1200 Box 4') }
+    end
+
+    describe '#city' do
+      subject { supplemental_claim_v2.veteran.city }
+
+      it { expect(subject).to eq('New York') }
+    end
+
+    describe '#state_code' do
+      subject { supplemental_claim_v2.veteran.state_code }
+
+      it { expect(subject).to eq('NY') }
+    end
+
+    describe '#country_code' do
+      subject { supplemental_claim_v2.veteran.country_code }
+
+      it { expect(subject).to eq('US') }
+    end
+
+    describe '#zip_code_5' do
+      subject { supplemental_claim_v2.veteran.zip_code_5 }
+
+      it { expect(subject).to eq('30012') }
+    end
+
+    describe '#claimant' do
+      subject { supplemental_claim_v2.claimant }
+
+      it { expect(subject.class).to eq AppealsApi::Appellant }
+    end
+
+    describe '#veteran' do
+      subject { supplemental_claim_v2.veteran }
+
+      it { expect(subject.class).to eq AppealsApi::Appellant }
+    end
+
+    context 'when veteran only data' do
+      describe '#signing_appellant' do
+        let(:appellant_type) { sc_veteran_only.signing_appellant.send(:type) }
+
+        it { expect(appellant_type).to eq :veteran }
+      end
+
+      describe '#appellant_local_time' do
+        it do
+          appellant_local_time = sc_veteran_only.appellant_local_time
+          created_at = sc_veteran_only.created_at
+
+          expect(appellant_local_time).to eq created_at.in_time_zone('America/Chicago')
+        end
+      end
+    end
+
+    context 'when veteran and claimant data' do
+      describe '#signing_appellant' do
+        let(:appellant_type) { supplemental_claim_v2.signing_appellant.send(:type) }
+
+        it { expect(appellant_type).to eq :claimant }
+      end
+
+      describe '#appellant_local_time' do
+        it do
+          appellant_local_time = supplemental_claim_v2.appellant_local_time
+          created_at = supplemental_claim_v2.created_at
+
+          expect(appellant_local_time).to eq created_at.in_time_zone('America/Chicago')
+        end
       end
     end
   end

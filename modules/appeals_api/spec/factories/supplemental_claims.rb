@@ -46,4 +46,15 @@ FactoryBot.define do
       JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/v2/valid_200995_extra.json"
     end
   end
+
+  factory :minimal_supplemental_claim_v2, class: 'AppealsApi::SupplementalClaim' do
+    id { SecureRandom.uuid }
+    api_version { 'V2' }
+    auth_headers do
+      JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/v2/valid_200995_headers_minimum.json"
+    end
+    form_data do
+      JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/v2/valid_200995_minimum.json"
+    end
+  end
 end

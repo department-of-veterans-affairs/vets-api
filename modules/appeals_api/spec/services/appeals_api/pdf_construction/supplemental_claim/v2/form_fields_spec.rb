@@ -21,7 +21,7 @@ module AppealsApi
 
           describe '#ssn_middle_two' do
             it {
-              expect(form_fields.ssn_middle_two).to eq 'form1[0].#subform[2].SocialSecurityNumber_SecondTwoNumbers[0]'
+              expect(form_fields.ssn_second_two).to eq 'form1[0].#subform[2].SocialSecurityNumber_SecondTwoNumbers[0]'
             }
           end
 
@@ -36,15 +36,15 @@ module AppealsApi
           end
 
           describe '#veteran_dob_month' do
-            it { expect(form_fields.veteran_dob_month).to eq 'form1[0].#subform[2].DOBmonth[0]' }
+            it { expect(form_fields.birth_month).to eq 'form1[0].#subform[2].DOBmonth[0]' }
           end
 
           describe '#veteran_dob_day' do
-            it { expect(form_fields.veteran_dob_day).to eq 'form1[0].#subform[2].DOBday[0]' }
+            it { expect(form_fields.birth_day).to eq 'form1[0].#subform[2].DOBday[0]' }
           end
 
           describe '#veteran_dob_year' do
-            it { expect(form_fields.veteran_dob_year).to eq 'form1[0].#subform[2].DOByear[0]' }
+            it { expect(form_fields.birth_year).to eq 'form1[0].#subform[2].DOByear[0]' }
           end
 
           describe '#veteran_service_number' do
