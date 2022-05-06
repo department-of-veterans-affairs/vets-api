@@ -57,18 +57,9 @@ describe 'Notice of Disagreements', swagger_doc: "modules/appeals_api/app/swagge
 
       if DocHelpers.wip_doc_enabled?(:nod_v2_claimant)
         parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_first_name_header]
-        let(:'X-VA-Claimant-First-Name') { 'first' }
-
         parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_middle_initial_header]
-
         parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_last_name_header]
-        let(:'X-VA-Claimant-Last-Name') { 'last' }
-
-        parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_ssn_header]
-        let(:'X-VA-Claimant-SSN') { '999999999' }
-
         parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_birth_date_header]
-        let(:'X-VA-Claimant-Birth-Date') { '1921-08-08' }
       end
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_username_header]
@@ -105,7 +96,15 @@ describe 'Notice of Disagreements', swagger_doc: "modules/appeals_api/app/swagge
 
       response '200', 'Info about a single Notice of Disagreement' do
         let(:nod_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_10182.json')))
+          request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_10182_extra.json')))
+          request_body.dig('data', 'attributes').delete('claimant') unless DocHelpers.wip_doc_enabled?(:nod_v2_claimant)
+          request_body
+        end
+
+        if DocHelpers.wip_doc_enabled?(:nod_v2_claimant)
+          let(:'X-VA-Claimant-First-Name') { 'first' }
+          let(:'X-VA-Claimant-Last-Name') { 'last' }
+          let(:'X-VA-Claimant-Birth-Date') { '1921-08-08' }
         end
 
         schema '$ref' => '#/components/schemas/nodCreateResponse'
