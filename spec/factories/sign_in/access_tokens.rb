@@ -11,7 +11,7 @@ FactoryBot.define do
     anti_csrf_token { SecureRandom.hex }
     last_regeneration_time { Time.zone.now }
     version { SignIn::Constants::AccessToken::CURRENT_VERSION }
-    expiration_time { Time.zone.now + SignIn::Constants::AccessToken::VALIDITY_LENGTH_MINUTES }
+    expiration_time { Time.zone.now + SignIn::Constants::AccessToken::VALIDITY_LENGTH_MINUTES.minutes }
     created_time { Time.zone.now }
 
     initialize_with do

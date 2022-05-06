@@ -19,7 +19,9 @@ module SignIn
     private
 
     def validate_input
-      raise SignIn::Errors::RefreshTokenMalformedError unless refresh_token.version && refresh_token.nonce
+      unless refresh_token.version && refresh_token.nonce
+        raise SignIn::Errors::RefreshTokenMalformedError, 'Refresh token is malformed'
+      end
     end
 
     def build_refresh_token_string(encrypted_refresh_token)

@@ -33,9 +33,10 @@ RSpec.describe SignIn::UserLoader do
         let(:user_uuid) { 'some-user-uuid' }
         let(:user_icn) { 'some-user-icn' }
         let(:expected_error) { SignIn::Errors::UserAccountNotFoundError }
+        let(:expected_error_message) { 'Invalid User UUID' }
 
         it 'raises a user account not found error' do
-          expect { subject }.to raise_error(expected_error)
+          expect { subject }.to raise_error(expected_error, expected_error_message)
         end
       end
 
@@ -46,9 +47,10 @@ RSpec.describe SignIn::UserLoader do
           let(:session) { nil }
           let(:session_handle) { 'some-not-found-session-handle' }
           let(:expected_error) { SignIn::Errors::SessionNotFoundError }
+          let(:expected_error_message) { 'Invalid Session Handle' }
 
           it 'raises a session not found error' do
-            expect { subject }.to raise_error(expected_error)
+            expect { subject }.to raise_error(expected_error, expected_error_message)
           end
         end
 

@@ -11,13 +11,16 @@ class SignInController < ApplicationController
   BEARER_PATTERN = /^Bearer /.freeze
 
   def authorize
-    type = authorize_params[:type]
-    client_state = authorize_params[:state]
-    code_challenge = authorize_params[:code_challenge]
-    code_challenge_method = authorize_params[:code_challenge_method]
+    type = params[:type]
+    client_state = params[:state]
+    code_challenge = params[:code_challenge]
+    code_challenge_method = params[:code_challenge_method]
 
-    raise SignIn::Errors::AuthorizeInvalidType unless SignInController::REDIRECT_URLS.include?(type)
-    raise SignIn::Errors::MalformedParamsError unless code_challenge && code_challenge_method
+    unless SignInController::REDIRECT_URLS.include?(type)
+      raise SignIn::Errors::AuthorizeInvalidType, 'Authorization type is not valid'
+    end
+    raise SignIn::Errors::MalformedParamsError, 'Code Challenge is not defined' unless code_challenge
+    raise SignIn::Errors::MalformedParamsError, 'Code Challenge Method is not defined' unless code_challenge_method
 
     state = SignIn::CodeChallengeStateMapper.new(code_challenge: code_challenge,
                                                  code_challenge_method: code_challenge_method,
@@ -28,12 +31,15 @@ class SignInController < ApplicationController
   end
 
   def callback
-    type = callback_params[:type]
-    code = callback_params[:code]
-    state = callback_params[:state]
+    type = params[:type]
+    code = params[:code]
+    state = params[:state]
 
-    raise SignIn::Errors::CallbackInvalidType unless SignInController::REDIRECT_URLS.include?(type)
-    raise SignIn::Errors::MalformedParamsError unless code && state
+    unless SignInController::REDIRECT_URLS.include?(type)
+      raise SignIn::Errors::CallbackInvalidType, 'Callback type is not valid'
+    end
+    raise SignIn::Errors::MalformedParamsError, 'Code is not defined' unless code
+    raise SignIn::Errors::MalformedParamsError, 'State is not defined' unless state
 
     login_code, client_state = login(type, state, code)
     redirect_to login_redirect_url(login_code, client_state)
@@ -42,52 +48,64 @@ class SignInController < ApplicationController
   end
 
   def token
-    code = token_params[:code]
-    code_verifier = token_params[:code_verifier]
-    grant_type = token_params[:grant_type]
+    code = params[:code]
+    code_verifier = params[:code_verifier]
+    grant_type = params[:grant_type]
 
-    raise SignIn::Errors::MalformedParamsError unless code && code_verifier && grant_type
+    raise SignIn::Errors::MalformedParamsError, 'Code is not defined' unless code
+    raise SignIn::Errors::MalformedParamsError, 'Code Verifier is not defined' unless code_verifier
+    raise SignIn::Errors::MalformedParamsError, 'Grant Type is not defined' unless grant_type
 
     user_account = SignIn::CodeValidator.new(code: code, code_verifier: code_verifier, grant_type: grant_type).perform
     session_container = SignIn::SessionCreator.new(user_account: user_account).perform
 
     render json: session_token_response(session_container), status: :ok
   rescue => e
-    render json: { errors: e }, status: :unauthorized
+    render json: { errors: e }, status: :bad_request
   end
 
   def refresh
-    refresh_token = refresh_params[:refresh_token]
-    anti_csrf_token = refresh_params[:anti_csrf_token]
+    refresh_token = params[:refresh_token]
+    anti_csrf_token = params[:anti_csrf_token]
     enable_anti_csrf = Settings.sign_in.enable_anti_csrf
 
-    raise SignIn::Errors::MalformedParamsError unless refresh_token
-    raise SignIn::Errors::MalformedParamsError if enable_anti_csrf && anti_csrf_token.nil?
+    raise SignIn::Errors::MalformedParamsError, 'Refresh token is not defined' unless refresh_token
+    if enable_anti_csrf && anti_csrf_token.nil?
+      raise SignIn::Errors::MalformedParamsError, 'Anti CSRF token is not defined'
+    end
 
     session_container = refresh_session(refresh_token, anti_csrf_token, enable_anti_csrf)
 
     render json: session_token_response(session_container), status: :ok
+  rescue SignIn::Errors::MalformedParamsError => e
+    render json: { errors: e }, status: :bad_request
   rescue => e
     render json: { errors: e }, status: :unauthorized
   end
 
   def revoke
-    refresh_token = refresh_params[:refresh_token]
-    anti_csrf_token = refresh_params[:anti_csrf_token]
+    refresh_token = params[:refresh_token]
+    anti_csrf_token = params[:anti_csrf_token]
     enable_anti_csrf = Settings.sign_in.enable_anti_csrf
 
-    raise SignIn::Errors::MalformedParamsError unless refresh_token
-    raise SignIn::Errors::MalformedParamsError if enable_anti_csrf && anti_csrf_token.nil?
+    raise SignIn::Errors::MalformedParamsError, 'Refresh token is not defined' unless refresh_token
+    if enable_anti_csrf && anti_csrf_token.nil?
+      raise SignIn::Errors::MalformedParamsError, 'Anti CSRF token is not defined'
+    end
 
     revoke_session(refresh_token, anti_csrf_token, enable_anti_csrf)
 
     render status: :ok
+  rescue SignIn::Errors::MalformedParamsError => e
+    render json: { errors: e }, status: :bad_request
   rescue => e
     render json: { errors: e }, status: :unauthorized
   end
 
   def introspect
     render json: @current_user, serializer: SignIn::IntrospectSerializer, status: :ok
+  rescue SignIn::Errors::AccessTokenExpiredError => e
+    render json: { errors: e }, status: :forbidden
   rescue => e
     render json: { errors: e }, status: :unauthorized
   end
@@ -144,7 +162,7 @@ class SignInController < ApplicationController
   def login(type, state, code)
     response = auth_service(type).token(code)
 
-    raise SignIn::Errors::CodeInvalidError unless response
+    raise SignIn::Errors::CodeInvalidError, 'Authentication Code is not valid' unless response
 
     user_info = auth_service(type).user_info(response[:access_token])
 
@@ -172,30 +190,14 @@ class SignInController < ApplicationController
   end
 
   def idme_auth_service(type)
-    return @idme_auth_service if @idme_auth_service
-
-    @idme_auth_service ||= SignIn::Idme::Service.new
-    @idme_auth_service.type = type
-    @idme_auth_service
+    @idme_auth_service ||= begin
+      @idme_auth_service = SignIn::Idme::Service.new
+      @idme_auth_service.type = type
+      @idme_auth_service
+    end
   end
 
   def logingov_auth_service
     @logingov_auth_service ||= SignIn::Logingov::Service.new
-  end
-
-  def authorize_params
-    params.permit(:type, :state, :code_challenge, :code_challenge_method)
-  end
-
-  def callback_params
-    params.permit(:code, :type, :state)
-  end
-
-  def token_params
-    params.permit(:code, :code_verifier, :grant_type)
-  end
-
-  def refresh_params
-    params.permit(:refresh_token, :anti_csrf_token)
   end
 end

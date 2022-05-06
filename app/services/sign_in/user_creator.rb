@@ -19,7 +19,7 @@ module SignIn
     private
 
     def update_and_persist_user
-      raise SignIn::Errors::UserAttributesMalformedError unless user_verification
+      raise SignIn::Errors::UserAttributesMalformedError, 'User Attributes are Malformed' unless user_verification
 
       current_user.uuid = user_verification.user_account.id
       user_identity.uuid = user_verification.user_account.id
@@ -28,7 +28,7 @@ module SignIn
     end
 
     def check_state_match
-      raise SignIn::Errors::StateMismatchError unless code_challenge_state_map
+      raise SignIn::Errors::StateMismatchError, 'Authentication Attempt Cannot be found' unless code_challenge_state_map
     end
 
     def create_code_container
@@ -55,8 +55,6 @@ module SignIn
 
     def user_verification
       @user_verification ||= Login::UserVerifier.new(current_user).perform
-    rescue => e
-      Rails.logger.info("[SignIn::UserCreator] UserVerification not created, error=#{e.message}")
     end
 
     def client_state

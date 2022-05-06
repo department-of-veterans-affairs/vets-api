@@ -23,7 +23,7 @@ RSpec.describe SignIn::AccessToken, type: :model do
   let(:anti_csrf_token) { SecureRandom.hex }
   let(:last_regeneration_time) { Time.zone.now }
   let(:version) { SignIn::Constants::AccessToken::CURRENT_VERSION }
-  let(:expiration_time) { Time.zone.now + SignIn::Constants::AccessToken::VALIDITY_LENGTH_MINUTES }
+  let(:expiration_time) { Time.zone.now + SignIn::Constants::AccessToken::VALIDITY_LENGTH_MINUTES.minutes }
   let(:created_time) { Time.zone.now }
 
   describe 'validations' do
@@ -166,8 +166,8 @@ RSpec.describe SignIn::AccessToken, type: :model do
             last_regeneration_time: last_regeneration_time
           )
         end
-        let(:validity_length) { SignIn::Constants::AccessToken::VALIDITY_LENGTH_MINUTES }
-        let(:expected_expiration_time) { Time.zone.now + validity_length.minutes }
+        let(:validity_length) { SignIn::Constants::AccessToken::VALIDITY_LENGTH_MINUTES.minutes }
+        let(:expected_expiration_time) { Time.zone.now + validity_length }
 
         it 'sets expired time to VALIDITY_LENGTH_MINUTES from now' do
           expect(subject).to eq(expected_expiration_time)

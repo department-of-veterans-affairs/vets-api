@@ -28,8 +28,8 @@ module SignIn
     end
 
     def validate_account_and_session
-      raise Errors::UserAccountNotFoundError unless user_account
-      raise Errors::SessionNotFoundError unless session
+      raise Errors::UserAccountNotFoundError, 'Invalid User UUID' unless user_account
+      raise Errors::SessionNotFoundError, 'Invalid Session Handle' unless session
     end
 
     def user_attributes

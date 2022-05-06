@@ -19,7 +19,9 @@ module SignIn
     private
 
     def check_code_challenge_method
-      raise Errors::CodeChallengeMethodMismatchError if code_challenge_method != Constants::Auth::CODE_CHALLENGE_METHOD
+      if code_challenge_method != Constants::Auth::CODE_CHALLENGE_METHOD
+        raise Errors::CodeChallengeMethodMismatchError, 'Code Challenge Method is not valid'
+      end
     end
 
     def map_code_challenge_to_state
@@ -35,7 +37,7 @@ module SignIn
     def remove_base64_padding(data)
       Base64.urlsafe_encode64(Base64.urlsafe_decode64(data.to_s), padding: false)
     rescue ArgumentError
-      raise Errors::CodeChallengeMalformedError
+      raise Errors::CodeChallengeMalformedError, 'Code Challenge is not valid'
     end
   end
 end

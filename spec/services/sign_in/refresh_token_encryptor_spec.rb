@@ -23,6 +23,7 @@ RSpec.describe SignIn::RefreshTokenEncryptor do
     context 'when input object does not have a nonce attribute' do
       let(:refresh_token) { OpenStruct.new({ data: 'some-data', version: version }) }
       let(:expected_error) { SignIn::Errors::RefreshTokenMalformedError }
+      let(:expected_error_message) { 'Refresh token is malformed' }
 
       it 'raises a RefreshTokenMalformedError' do
         expect { subject }.to raise_exception(expected_error)

@@ -26,7 +26,7 @@ RSpec.describe SignInController, type: :controller do
 
     context 'when type param is given but not in REDIRECT_URLS' do
       let(:type) { { type: 'some-undefined-type' } }
-      let(:expected_error) { SignIn::Errors::AuthorizeInvalidType.to_s }
+      let(:expected_error) { 'Authorization type is not valid' }
       let(:expected_error_json) { { 'errors' => expected_error } }
 
       it 'renders invalid type error' do
@@ -43,7 +43,7 @@ RSpec.describe SignInController, type: :controller do
 
       context 'and code_challenge_method is not given' do
         let(:code_challenge_method) { {} }
-        let(:expected_error) { SignIn::Errors::MalformedParamsError.to_s }
+        let(:expected_error) { 'Code Challenge Method is not defined' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
         it 'renders malformed params error' do
@@ -60,7 +60,7 @@ RSpec.describe SignInController, type: :controller do
 
         context 'and code_challenge is not given' do
           let(:code_challenge) { {} }
-          let(:expected_error) { SignIn::Errors::MalformedParamsError.to_s }
+          let(:expected_error) { 'Code Challenge is not defined' }
           let(:expected_error_json) { { 'errors' => expected_error } }
 
           it 'renders malformed params error' do
@@ -74,7 +74,7 @@ RSpec.describe SignInController, type: :controller do
 
         context 'and code_challenge is not properly URL encoded' do
           let(:code_challenge) { { code_challenge: '///some+unsafe code+challenge//' } }
-          let(:expected_error) { SignIn::Errors::CodeChallengeMalformedError.to_s }
+          let(:expected_error) { 'Code Challenge is not valid' }
           let(:expected_error_json) { { 'errors' => expected_error } }
 
           it 'renders code challenge malformed error' do
@@ -142,7 +142,7 @@ RSpec.describe SignInController, type: :controller do
 
       context 'and code_challenge_method is not S256' do
         let(:code_challenge_method) { { code_challenge_method: 'some-code-challenge-method' } }
-        let(:expected_error) { SignIn::Errors::CodeChallengeMethodMismatchError.to_s }
+        let(:expected_error) { 'Code Challenge Method is not valid' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
         it 'renders code challenge method mismatch error' do
@@ -158,7 +158,7 @@ RSpec.describe SignInController, type: :controller do
     shared_context 'an idme authentication service interface' do
       context 'and code_challenge_method is not given' do
         let(:code_challenge_method) { {} }
-        let(:expected_error) { SignIn::Errors::MalformedParamsError.to_s }
+        let(:expected_error) { 'Code Challenge Method is not defined' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
         it 'renders malformed params error' do
@@ -175,7 +175,7 @@ RSpec.describe SignInController, type: :controller do
 
         context 'and code_challenge is not given' do
           let(:code_challenge) { {} }
-          let(:expected_error) { SignIn::Errors::MalformedParamsError.to_s }
+          let(:expected_error) { 'Code Challenge is not defined' }
           let(:expected_error_json) { { 'errors' => expected_error } }
 
           it 'renders malformed params error' do
@@ -189,7 +189,7 @@ RSpec.describe SignInController, type: :controller do
 
         context 'and code_challenge is not properly URL encoded' do
           let(:code_challenge) { { code_challenge: '///some+unsafe code+challenge//' } }
-          let(:expected_error) { SignIn::Errors::CodeChallengeMalformedError.to_s }
+          let(:expected_error) { 'Code Challenge is not valid' }
           let(:expected_error_json) { { 'errors' => expected_error } }
 
           it 'renders code challenge malformed error' do
@@ -257,7 +257,7 @@ RSpec.describe SignInController, type: :controller do
 
       context 'and code_challenge_method is not S256' do
         let(:code_challenge_method) { { code_challenge_method: 'some-code-challenge-method' } }
-        let(:expected_error) { SignIn::Errors::CodeChallengeMethodMismatchError.to_s }
+        let(:expected_error) { 'Code Challenge Method is not valid' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
         it 'renders code challenge method mismatch error' do
@@ -304,58 +304,58 @@ RSpec.describe SignInController, type: :controller do
 
     context 'when code param is not given' do
       let(:code) { {} }
-      let(:expected_error) { SignIn::Errors::MalformedParamsError.to_s }
+      let(:expected_error) { 'Code is not defined' }
       let(:expected_error_json) { { 'errors' => expected_error } }
 
       it 'renders malformed params error' do
         expect(JSON.parse(subject.body)).to eq(expected_error_json)
       end
 
-      it 'returns unauthorized status' do
-        expect(subject).to have_http_status(:unauthorized)
+      it 'returns bad request status' do
+        expect(subject).to have_http_status(:bad_request)
       end
     end
 
     context 'when code_verifier param is not given' do
       let(:code_verifier) { {} }
-      let(:expected_error) { SignIn::Errors::MalformedParamsError.to_s }
+      let(:expected_error) { 'Code Verifier is not defined' }
       let(:expected_error_json) { { 'errors' => expected_error } }
 
       it 'renders malformed params error' do
         expect(JSON.parse(subject.body)).to eq(expected_error_json)
       end
 
-      it 'returns unauthorized status' do
-        expect(subject).to have_http_status(:unauthorized)
+      it 'returns bad request status' do
+        expect(subject).to have_http_status(:bad_request)
       end
     end
 
     context 'when grant_type param is not given' do
       let(:grant_type) { {} }
-      let(:expected_error) { SignIn::Errors::MalformedParamsError.to_s }
+      let(:expected_error) { 'Grant Type is not defined' }
       let(:expected_error_json) { { 'errors' => expected_error } }
 
       it 'renders malformed params error' do
         expect(JSON.parse(subject.body)).to eq(expected_error_json)
       end
 
-      it 'returns unauthorized status' do
-        expect(subject).to have_http_status(:unauthorized)
+      it 'returns bad request status' do
+        expect(subject).to have_http_status(:bad_request)
       end
     end
 
     context 'when code, code_verifier, and grant_type params are defined' do
       context 'and code does not match an existing code container' do
         let(:code) { { code: 'some-arbitrary-code' } }
-        let(:expected_error) { SignIn::Errors::CodeInvalidError.to_s }
+        let(:expected_error) { 'Code is not valid' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
         it 'renders code invalid error error' do
           expect(JSON.parse(subject.body)).to eq(expected_error_json)
         end
 
-        it 'returns unauthorized status' do
-          expect(subject).to have_http_status(:unauthorized)
+        it 'returns bad request status' do
+          expect(subject).to have_http_status(:bad_request)
         end
       end
 
@@ -374,15 +374,15 @@ RSpec.describe SignInController, type: :controller do
 
         context 'and code_verifier does not match expected code_challenge value' do
           let(:code_verifier_value) { 'some-arbitrary-code-verifier-value' }
-          let(:expected_error) { SignIn::Errors::CodeChallengeMismatchError.to_s }
+          let(:expected_error) { 'Code Verifier is not valid' }
           let(:expected_error_json) { { 'errors' => expected_error } }
 
           it 'renders code challenge mismatch error' do
             expect(JSON.parse(subject.body)).to eq(expected_error_json)
           end
 
-          it 'returns unauthorized status' do
-            expect(subject).to have_http_status(:unauthorized)
+          it 'returns bad request status' do
+            expect(subject).to have_http_status(:bad_request)
           end
         end
 
@@ -395,15 +395,15 @@ RSpec.describe SignInController, type: :controller do
 
           context 'and grant_type does not match supported grant type value' do
             let(:grant_type_value) { 'some-arbitrary-grant-type-value' }
-            let(:expected_error) { SignIn::Errors::GrantTypeValueError.to_s }
+            let(:expected_error) { 'Grant Type is not valid' }
             let(:expected_error_json) { { 'errors' => expected_error } }
 
             it 'renders grant type value error' do
               expect(JSON.parse(subject.body)).to eq(expected_error_json)
             end
 
-            it 'returns unauthorized status' do
-              expect(subject).to have_http_status(:unauthorized)
+            it 'returns bad request status' do
+              expect(subject).to have_http_status(:bad_request)
             end
           end
 
@@ -419,8 +419,8 @@ RSpec.describe SignInController, type: :controller do
                 expect(JSON.parse(subject.body)).to eq(expected_error_json)
               end
 
-              it 'returns unauthorized status' do
-                expect(subject).to have_http_status(:unauthorized)
+              it 'returns bad request status' do
+                expect(subject).to have_http_status(:bad_request)
               end
             end
 
@@ -474,7 +474,7 @@ RSpec.describe SignInController, type: :controller do
 
     context 'when type param is given but not in REDIRECT_URLS' do
       let(:type) { { type: 'some-undefined-type' } }
-      let(:expected_error) { SignIn::Errors::CallbackInvalidType.to_s }
+      let(:expected_error) { 'Callback type is not valid' }
       let(:expected_error_json) { { 'errors' => expected_error } }
 
       it 'renders invalid type error' do
@@ -509,7 +509,7 @@ RSpec.describe SignInController, type: :controller do
 
       context 'and code is not given' do
         let(:code) { {} }
-        let(:expected_error) { SignIn::Errors::MalformedParamsError.to_s }
+        let(:expected_error) { 'Code is not defined' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
         it 'renders malformed params error' do
@@ -523,7 +523,7 @@ RSpec.describe SignInController, type: :controller do
 
       context 'and code is given but does not match expected code for auth service' do
         let(:response) { nil }
-        let(:expected_error) { SignIn::Errors::CodeInvalidError.to_s }
+        let(:expected_error) { 'Authentication Code is not valid' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
         it 'renders code invalid error' do
@@ -538,7 +538,7 @@ RSpec.describe SignInController, type: :controller do
       context 'and code is given that matches expected code for auth service' do
         context 'and state is not given' do
           let(:state) { {} }
-          let(:expected_error) { SignIn::Errors::MalformedParamsError.to_s }
+          let(:expected_error) { 'State is not defined' }
           let(:expected_error_json) { { 'errors' => expected_error } }
 
           it 'renders malformed params error' do
@@ -552,7 +552,7 @@ RSpec.describe SignInController, type: :controller do
 
         context 'and state is given but does not match expected state' do
           let(:state) { { state: 'some-state' } }
-          let(:expected_error) { SignIn::Errors::StateMismatchError.to_s }
+          let(:expected_error) { 'Authentication Attempt Cannot be found' }
           let(:expected_error_json) { { 'errors' => expected_error } }
 
           it 'renders state mismatch error' do
@@ -608,7 +608,7 @@ RSpec.describe SignInController, type: :controller do
 
       context 'and code is not given' do
         let(:code) { {} }
-        let(:expected_error) { SignIn::Errors::MalformedParamsError.to_s }
+        let(:expected_error) { 'Code is not defined' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
         it 'renders malformed params error' do
@@ -622,7 +622,7 @@ RSpec.describe SignInController, type: :controller do
 
       context 'and code is given but does not match expected code for auth service' do
         let(:response) { nil }
-        let(:expected_error) { SignIn::Errors::CodeInvalidError.to_s }
+        let(:expected_error) { 'Authentication Code is not valid' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
         it 'renders code invalid error' do
@@ -637,7 +637,7 @@ RSpec.describe SignInController, type: :controller do
       context 'and code is given that matches expected code for auth service' do
         context 'and state is not given' do
           let(:state) { {} }
-          let(:expected_error) { SignIn::Errors::MalformedParamsError.to_s }
+          let(:expected_error) { 'State is not defined' }
           let(:expected_error_json) { { 'errors' => expected_error } }
 
           it 'renders malformed params error' do
@@ -651,7 +651,7 @@ RSpec.describe SignInController, type: :controller do
 
         context 'and state is given but does not match expected state' do
           let(:state) { { state: 'some-state' } }
-          let(:expected_error) { SignIn::Errors::StateMismatchError.to_s }
+          let(:expected_error) { 'Authentication Attempt Cannot be found' }
           let(:expected_error_json) { { 'errors' => expected_error } }
 
           it 'renders state mismatch error' do
@@ -719,7 +719,7 @@ RSpec.describe SignInController, type: :controller do
       let(:enable_anti_csrf) { true }
 
       context 'and anti_csrf_token param is not given' do
-        let(:expected_error) { SignIn::Errors::MalformedParamsError.to_s }
+        let(:expected_error) { 'Anti CSRF token is not defined' }
         let(:expected_error_json) { { 'errors' => expected_error } }
         let(:anti_csrf_token_param) { {} }
 
@@ -727,8 +727,8 @@ RSpec.describe SignInController, type: :controller do
           expect(JSON.parse(subject.body)).to eq(expected_error_json)
         end
 
-        it 'returns unauthorized status' do
-          expect(subject).to have_http_status(:unauthorized)
+        it 'returns bad request status' do
+          expect(subject).to have_http_status(:bad_request)
         end
       end
 
@@ -738,7 +738,7 @@ RSpec.describe SignInController, type: :controller do
         let(:refresh_token) do
           SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
         end
-        let(:expected_error) { SignIn::Errors::AntiCSRFMismatchError.to_s }
+        let(:expected_error) { 'Anti CSRF token is not valid' }
         let(:expected_error_json) { { 'errors' => expected_error } }
         let(:anti_csrf_token) { 'some-modified-anti-csrf-token' }
 
@@ -753,7 +753,7 @@ RSpec.describe SignInController, type: :controller do
     end
 
     context 'when refresh_token is a random string' do
-      let(:expected_error) { 'Decryption failed' }
+      let(:expected_error) { 'Refresh token cannot be decrypted' }
       let(:expected_error_json) { { 'errors' => expected_error } }
 
       it 'renders Decryption failed error' do
@@ -773,7 +773,7 @@ RSpec.describe SignInController, type: :controller do
       end
 
       context 'when refresh token is expired' do
-        let(:expected_error) { SignIn::Errors::SessionNotAuthorizedError.to_s }
+        let(:expected_error) { 'No valid Session found' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
         before do
@@ -782,7 +782,7 @@ RSpec.describe SignInController, type: :controller do
           session.save!
         end
 
-        it 'renders a session not authorized error' do
+        it 'renders a no valid session error' do
           expect(JSON.parse(subject.body)).to eq(expected_error_json)
         end
 
@@ -792,7 +792,7 @@ RSpec.describe SignInController, type: :controller do
       end
 
       context 'when refresh token does not map to an existing session' do
-        let(:expected_error) { SignIn::Errors::SessionNotAuthorizedError.to_s }
+        let(:expected_error) { 'No valid Session found' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
         before do
@@ -800,7 +800,7 @@ RSpec.describe SignInController, type: :controller do
           session.destroy!
         end
 
-        it 'renders a session not authorized error' do
+        it 'renders a no valid session error' do
           expect(JSON.parse(subject.body)).to eq(expected_error_json)
         end
 
@@ -837,7 +837,7 @@ RSpec.describe SignInController, type: :controller do
       let(:enable_anti_csrf) { true }
 
       context 'and anti_csrf_token param is not given' do
-        let(:expected_error) { SignIn::Errors::MalformedParamsError.to_s }
+        let(:expected_error) { 'Anti CSRF token is not defined' }
         let(:expected_error_json) { { 'errors' => expected_error } }
         let(:anti_csrf_token_param) { {} }
 
@@ -845,8 +845,8 @@ RSpec.describe SignInController, type: :controller do
           expect(JSON.parse(subject.body)).to eq(expected_error_json)
         end
 
-        it 'returns unauthorized status' do
-          expect(subject).to have_http_status(:unauthorized)
+        it 'returns bad request status' do
+          expect(subject).to have_http_status(:bad_request)
         end
       end
 
@@ -856,7 +856,7 @@ RSpec.describe SignInController, type: :controller do
         let(:refresh_token) do
           SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
         end
-        let(:expected_error) { SignIn::Errors::AntiCSRFMismatchError.to_s }
+        let(:expected_error) { 'Anti CSRF token is not valid' }
         let(:expected_error_json) { { 'errors' => expected_error } }
         let(:anti_csrf_token) { 'some-modified-anti-csrf-token' }
 
@@ -872,7 +872,7 @@ RSpec.describe SignInController, type: :controller do
 
     context 'when refresh_token is an arbitrary string' do
       let(:refresh_token) { 'some-refresh-token' }
-      let(:expected_error) { 'Decryption failed' }
+      let(:expected_error) { 'Refresh token cannot be decrypted' }
       let(:expected_error_json) { { 'errors' => expected_error } }
 
       it 'renders Decryption failed error' do
@@ -893,7 +893,7 @@ RSpec.describe SignInController, type: :controller do
       let(:anti_csrf_token) { session_container.anti_csrf_token }
 
       context 'and encrypted component has been modified' do
-        let(:expected_error) { 'Decryption failed' }
+        let(:expected_error) { 'Refresh token cannot be decrypted' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
         let(:refresh_token) do
@@ -913,7 +913,7 @@ RSpec.describe SignInController, type: :controller do
       end
 
       context 'and nonce component has been modified' do
-        let(:expected_error) { SignIn::Errors::RefreshNonceMismatchError.to_s }
+        let(:expected_error) { 'Refresh nonce is invalid' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
         let(:refresh_token) do
@@ -933,7 +933,7 @@ RSpec.describe SignInController, type: :controller do
       end
 
       context 'and version has been modified' do
-        let(:expected_error) { SignIn::Errors::RefreshVersionMismatchError.to_s }
+        let(:expected_error) { 'Refresh token version is invalid' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
         let(:refresh_token) do
@@ -953,7 +953,7 @@ RSpec.describe SignInController, type: :controller do
       end
 
       context 'and refresh token is expired' do
-        let(:expected_error) { SignIn::Errors::SessionNotAuthorizedError.to_s }
+        let(:expected_error) { 'No valid Session found' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
         before do
@@ -972,7 +972,7 @@ RSpec.describe SignInController, type: :controller do
       end
 
       context 'and refresh token does not map to an existing session' do
-        let(:expected_error) { SignIn::Errors::SessionNotAuthorizedError.to_s }
+        let(:expected_error) { 'No valid Session found' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
         before do
@@ -990,13 +990,17 @@ RSpec.describe SignInController, type: :controller do
       end
 
       context 'and refresh token is not a parent or child according to the session' do
-        let(:expected_error) { SignIn::Errors::TokenTheftDetectedError.to_s }
+        let(:expected_error) { 'Token theft detected' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
         before do
           session = session_container.session
           session.hashed_refresh_token = 'some-unrelated-refresh-token'
           session.save!
+        end
+
+        it 'destroys the existing session' do
+          expect { subject }.to change(SignIn::OAuthSession, :count).from(1).to(0)
         end
 
         it 'renders a session not authorized error' do
@@ -1028,7 +1032,7 @@ RSpec.describe SignInController, type: :controller do
     end
 
     context 'when refresh_token param is not given' do
-      let(:expected_error) { SignIn::Errors::MalformedParamsError.to_s }
+      let(:expected_error) { 'Refresh token is not defined' }
       let(:expected_error_json) { { 'errors' => expected_error } }
       let(:refresh_token_param) { {} }
 
@@ -1036,8 +1040,8 @@ RSpec.describe SignInController, type: :controller do
         expect(JSON.parse(subject.body)).to eq(expected_error_json)
       end
 
-      it 'returns unauthorized status' do
-        expect(subject).to have_http_status(:unauthorized)
+      it 'returns bad request status' do
+        expect(subject).to have_http_status(:bad_request)
       end
     end
   end
@@ -1047,7 +1051,7 @@ RSpec.describe SignInController, type: :controller do
 
     context 'when authorization header does not exist' do
       let(:authorization_header) { nil }
-      let(:expected_error) { SignIn::Errors::AccessTokenMalformedJWTError.to_s }
+      let(:expected_error) { 'Access token JWT is malformed' }
       let(:expected_error_json) { { 'errors' => expected_error } }
 
       it 'renders Malformed Params error' do
@@ -1069,7 +1073,7 @@ RSpec.describe SignInController, type: :controller do
 
       context 'and access_token is some arbitrary value' do
         let(:access_token) { 'some-arbitrary-access-token' }
-        let(:expected_error) { SignIn::Errors::AccessTokenMalformedJWTError.to_s }
+        let(:expected_error) { 'Access token JWT is malformed' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
         it 'renders Malformed Params error' do
@@ -1085,14 +1089,14 @@ RSpec.describe SignInController, type: :controller do
         let(:access_token_object) { create(:access_token, expiration_time: expiration_time) }
         let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
         let(:expiration_time) { Time.zone.now - 1.day }
-        let(:expected_error) { SignIn::Errors::AccessTokenExpiredError.to_s }
+        let(:expected_error) { 'Access token has expired' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
-        it 'renders Malformed Params error' do
+        it 'renders Access Token Expired error' do
           expect(JSON.parse(subject.body)).to eq(expected_error_json)
         end
 
-        it 'returns unauthorized status' do
+        it 'returns forbidden status' do
           expect(subject).to have_http_status(:unauthorized)
         end
       end

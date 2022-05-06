@@ -18,9 +18,10 @@ RSpec.describe SignIn::CodeChallengeStateMapper do
     context 'when code_challenge_method does not equal accepted method' do
       let(:code_challenge_method) { 'some-arbitrary-code-challenge-method' }
       let(:expected_error) { SignIn::Errors::CodeChallengeMethodMismatchError }
+      let(:expected_error_message) { 'Code Challenge Method is not valid' }
 
       it 'raises a code challenge method mismatch error' do
-        expect { subject }.to raise_exception(expected_error)
+        expect { subject }.to raise_exception(expected_error, expected_error_message)
       end
     end
 
@@ -30,9 +31,10 @@ RSpec.describe SignIn::CodeChallengeStateMapper do
       context 'and code_challenge is not properly URL encoded' do
         let(:code_challenge) { '///some-not-url-safe code-challenge///' }
         let(:expected_error) { SignIn::Errors::CodeChallengeMalformedError }
+        let(:expected_error_message) { 'Code Challenge is not valid' }
 
         it 'raises a code challenge method mismatch error' do
-          expect { subject }.to raise_exception(expected_error)
+          expect { subject }.to raise_exception(expected_error, expected_error_message)
         end
       end
 

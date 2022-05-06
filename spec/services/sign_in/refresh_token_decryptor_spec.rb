@@ -20,9 +20,10 @@ RSpec.describe SignIn::RefreshTokenDecryptor do
         encrypted_token_array.join('.')
       end
       let(:expected_error) { SignIn::Errors::RefreshVersionMismatchError }
+      let(:expected_error_message) { 'Refresh token version is invalid' }
 
       it 'returns a version mismatch error' do
-        expect { subject }.to raise_error(expected_error)
+        expect { subject }.to raise_error(expected_error, expected_error_message)
       end
     end
 
@@ -34,9 +35,10 @@ RSpec.describe SignIn::RefreshTokenDecryptor do
         encrypted_token_array.join('.')
       end
       let(:expected_error) { SignIn::Errors::RefreshNonceMismatchError }
+      let(:expected_error_message) { 'Refresh nonce is invalid' }
 
       it 'returns a nonce mismatch error' do
-        expect { subject }.to raise_error(expected_error)
+        expect { subject }.to raise_error(expected_error, expected_error_message)
       end
     end
 
@@ -47,8 +49,8 @@ RSpec.describe SignIn::RefreshTokenDecryptor do
         encrypted_token_array[SignIn::Constants::RefreshToken::ENCRYPTED_POSITION] = edited_encrypted_part
         encrypted_token_array.join('.')
       end
-      let(:expected_error) { KmsEncrypted::DecryptionError }
-      let(:expected_error_message) { 'Decryption failed' }
+      let(:expected_error) { SignIn::Errors::RefreshTokenDecryptionError }
+      let(:expected_error_message) { 'Refresh token cannot be decrypted' }
 
       it 'returns an invalid message error' do
         expect { subject }.to raise_error(expected_error, expected_error_message)

@@ -12,9 +12,10 @@ RSpec.describe SignIn::UserCreator do
     context 'when state does not match a code challenge state map object' do
       let(:state) { 'some-arbitrary-state' }
       let(:expected_error) { SignIn::Errors::StateMismatchError }
+      let(:expected_error_message) { 'Authentication Attempt Cannot be found' }
 
       it 'raises a state mismatch error' do
-        expect { subject }.to raise_error(expected_error)
+        expect { subject }.to raise_error(expected_error, expected_error_message)
       end
     end
 
@@ -131,22 +132,16 @@ RSpec.describe SignIn::UserCreator do
         end
       end
 
-      context 'and user_attributes is arbitrary' do
-        let(:user_attributes) { { some_arbitrar_user_attribute: 'some-arbitrary-user-attribute' } }
+      context 'and user verification cannot be created' do
         let(:expected_error) { SignIn::Errors::UserAttributesMalformedError }
-        let(:expected_log_message) do
-          "[SignIn::UserCreator] UserVerification not created, error=#{expected_error_message}"
-        end
-        let(:mocked_error) { StandardError }
-        let(:expected_error_message) { mocked_error.new.message }
+        let(:expected_error_message) { 'User Attributes are Malformed' }
 
         before do
-          allow_any_instance_of(Login::UserVerifier).to receive(:perform).and_raise(StandardError)
+          allow_any_instance_of(Login::UserVerifier).to receive(:perform).and_return(nil)
         end
 
         it 'logs a user verification not created message and raises user attributes malformed error' do
-          expect(Rails.logger).to receive(:info).with(expected_log_message)
-          expect { subject }.to raise_error(expected_error)
+          expect { subject }.to raise_error(expected_error, expected_error_message)
         end
       end
     end

@@ -48,9 +48,10 @@ RSpec.describe SignIn::SessionRevoker do
         context 'and anti csrf token does not match value in refresh token' do
           let(:input_anti_csrf_token) { 'some-arbitrary-csrf-token-value' }
           let(:expected_error) { SignIn::Errors::AntiCSRFMismatchError }
+          let(:expected_error_message) { 'Anti CSRF token is not valid' }
 
           it 'raises an AntiCSRFMismatch Error' do
-            expect { subject }.to raise_error(expected_error)
+            expect { subject }.to raise_error(expected_error, expected_error_message)
           end
         end
       end
@@ -71,9 +72,15 @@ RSpec.describe SignIn::SessionRevoker do
           context 'when token hash in session does not match input refresh token or its stored parent' do
             let(:session_hashed_refresh_token) { 'some-arbitrary-refresh-token-hash' }
             let(:expected_error) { SignIn::Errors::TokenTheftDetectedError }
+            let(:expected_error_message) { 'Token theft detected' }
 
             it 'raises a token theft detected error' do
-              expect { subject }.to raise_error(expected_error)
+              expect { subject }.to raise_error(expected_error, expected_error_message)
+            end
+
+            it 'destroys the existing session' do
+              expect { try(subject) }.to raise_error(StandardError)
+                .and change(SignIn::OAuthSession, :count).from(1).to(0)
             end
           end
         end
@@ -81,9 +88,10 @@ RSpec.describe SignIn::SessionRevoker do
         context 'when session is expired' do
           let(:session_expiration) { Time.zone.now - 30.minutes }
           let(:expected_error) { SignIn::Errors::SessionNotAuthorizedError }
+          let(:expected_error_message) { 'No valid Session found' }
 
           it 'raises a session not authorized error' do
-            expect { subject }.to raise_error(expected_error)
+            expect { subject }.to raise_error(expected_error, expected_error_message)
           end
         end
       end
@@ -91,12 +99,13 @@ RSpec.describe SignIn::SessionRevoker do
       context 'when session handle in refresh token does not match an existing oauth session' do
         let(:refresh_token_session_handle) { SecureRandom.uuid }
         let(:expected_error) { SignIn::Errors::SessionNotAuthorizedError }
+        let(:expected_error_message) { 'No valid Session found' }
         let(:refresh_token) do
           create(:refresh_token, session_handle: refresh_token_session_handle, anti_csrf_token: anti_csrf_token)
         end
 
         it 'raises a session not authorized error' do
-          expect { subject }.to raise_error(expected_error)
+          expect { subject }.to raise_error(expected_error, expected_error_message)
         end
       end
     end

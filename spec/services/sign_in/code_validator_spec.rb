@@ -17,9 +17,10 @@ RSpec.describe SignIn::CodeValidator do
     context 'when code container that matches code does not exist' do
       let(:code) { 'some-arbitrary-code' }
       let(:expected_error) { SignIn::Errors::CodeInvalidError }
+      let(:expected_error_message) { 'Code is not valid' }
 
       it 'raises a code invalid error' do
-        expect { subject }.to raise_exception(expected_error)
+        expect { subject }.to raise_exception(expected_error, expected_error_message)
       end
     end
 
@@ -37,9 +38,10 @@ RSpec.describe SignIn::CodeValidator do
       context 'and code verifier does not match code challenge in code container' do
         let(:code_verifier) { 'some-arbitrary-code-verifier' }
         let(:expected_error) { SignIn::Errors::CodeChallengeMismatchError }
+        let(:expected_error_message) { 'Code Verifier is not valid' }
 
         it 'raises a code challenge mismatch error' do
-          expect { subject }.to raise_exception(expected_error)
+          expect { subject }.to raise_exception(expected_error, expected_error_message)
         end
       end
 
@@ -53,9 +55,10 @@ RSpec.describe SignIn::CodeValidator do
         context 'and grant type does not match the supported grant type' do
           let(:grant_type) { 'some-arbitrary-grant-type' }
           let(:expected_error) { SignIn::Errors::GrantTypeValueError }
+          let(:expected_error_message) { 'Grant Type is not valid' }
 
           it 'raises a grant type value error' do
-            expect { subject }.to raise_exception(expected_error)
+            expect { subject }.to raise_exception(expected_error, expected_error_message)
           end
         end
 
@@ -84,7 +87,8 @@ RSpec.describe SignIn::CodeValidator do
       end
 
       it 'destroys the found code container regardless of errors raised' do
-        expect { try(subject) }.to raise_error.and change { SignIn::CodeContainer.find(code_container_code) }.to(nil)
+        expect { try(subject) }.to raise_error(StandardError)
+          .and change { SignIn::CodeContainer.find(code_container_code) }.to(nil)
       end
     end
   end
