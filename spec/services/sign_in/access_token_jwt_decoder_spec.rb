@@ -18,9 +18,10 @@ RSpec.describe SignIn::AccessTokenJwtDecoder do
 
       context 'and jwt validation is enabled' do
         let(:expected_error) { SignIn::Errors::AccessTokenExpiredError }
+        let(:expected_error_message) { 'Access token has expired' }
 
         it 'returns an access token expired error' do
-          expect { subject }.to raise_error(expected_error)
+          expect { subject }.to raise_error(expected_error, expected_error_message)
         end
       end
 
@@ -66,9 +67,10 @@ RSpec.describe SignIn::AccessTokenJwtDecoder do
 
       context 'and jwt validation is enabled' do
         let(:expected_error) { SignIn::Errors::AccessTokenSignatureMismatchError }
+        let(:expected_error_message) { 'Access token body does not match signature' }
 
         it 'returns an access token signature mismatch error' do
-          expect { subject }.to raise_error(expected_error)
+          expect { subject }.to raise_error(expected_error, expected_error_message)
         end
       end
 
@@ -88,9 +90,10 @@ RSpec.describe SignIn::AccessTokenJwtDecoder do
     context 'when access token jwt is malformed' do
       let(:access_token_jwt) { 'some-messed-up-jwt' }
       let(:expected_error) { SignIn::Errors::AccessTokenMalformedJWTError }
+      let(:expected_error_message) { 'Access token JWT is malformed' }
 
       it 'raises an access token malformed jwt error' do
-        expect { subject }.to raise_error(expected_error)
+        expect { subject }.to raise_error(expected_error, expected_error_message)
       end
     end
 

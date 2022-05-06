@@ -26,8 +26,12 @@ module SignIn
     private
 
     def validate_token!(decrypted_component)
-      raise SignIn::Errors::RefreshVersionMismatchError unless decrypted_component.version == version_from_split_token
-      raise SignIn::Errors::RefreshNonceMismatchError unless decrypted_component.nonce == nonce_from_split_token
+      if decrypted_component.version != version_from_split_token
+        raise SignIn::Errors::RefreshVersionMismatchError, 'Refresh token version is invalid'
+      end
+      if decrypted_component.nonce != nonce_from_split_token
+        raise SignIn::Errors::RefreshNonceMismatchError, 'Refresh nonce is invalid'
+      end
     end
 
     def get_decrypted_component
@@ -49,6 +53,8 @@ module SignIn
 
     def decrypt_refresh_token(encrypted_part)
       message_encryptor.decrypt(encrypted_part)
+    rescue KmsEncrypted::DecryptionError
+      raise SignIn::Errors::RefreshTokenDecryptionError, 'Refresh token cannot be decrypted'
     end
 
     def deserialize_token(decrypted_string)

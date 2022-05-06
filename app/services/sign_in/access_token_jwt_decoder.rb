@@ -37,11 +37,11 @@ module SignIn
       )&.first
       OpenStruct.new(decoded_jwt)
     rescue JWT::VerificationError
-      raise SignIn::Errors::AccessTokenSignatureMismatchError
+      raise SignIn::Errors::AccessTokenSignatureMismatchError, 'Access token body does not match signature'
     rescue JWT::ExpiredSignature
-      raise SignIn::Errors::AccessTokenExpiredError
+      raise SignIn::Errors::AccessTokenExpiredError, 'Access token has expired'
     rescue JWT::DecodeError
-      raise SignIn::Errors::AccessTokenMalformedJWTError
+      raise SignIn::Errors::AccessTokenMalformedJWTError, 'Access token JWT is malformed'
     end
 
     def private_key

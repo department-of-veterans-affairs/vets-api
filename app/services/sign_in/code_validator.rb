@@ -20,9 +20,11 @@ module SignIn
     private
 
     def validations
-      raise SignIn::Errors::CodeInvalidError unless code_container
-      raise SignIn::Errors::CodeChallengeMismatchError unless code_challenge == code_container.code_challenge
-      raise SignIn::Errors::GrantTypeValueError unless grant_type == Constants::Auth::GRANT_TYPE
+      raise SignIn::Errors::CodeInvalidError, 'Code is not valid' unless code_container
+      if code_challenge != code_container.code_challenge
+        raise SignIn::Errors::CodeChallengeMismatchError, 'Code Verifier is not valid'
+      end
+      raise SignIn::Errors::GrantTypeValueError, 'Grant Type is not valid' if grant_type != Constants::Auth::GRANT_TYPE
     end
 
     def user_account
@@ -40,7 +42,7 @@ module SignIn
     def remove_base64_padding(data)
       Base64.urlsafe_encode64(Base64.urlsafe_decode64(data.to_s), padding: false)
     rescue ArgumentError
-      raise Errors::CodeVerifierMalformedError
+      raise Errors::CodeVerifierMalformedError, 'Code Verifier is malformed'
     end
   end
 end
