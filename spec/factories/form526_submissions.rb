@@ -47,6 +47,16 @@ FactoryBot.define do
     end
   end
 
+  trait :asthma_claim_for_increase_with_uploads do
+    user { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
+    form_json do
+      json = JSON.parse(File.read("#{submissions_path}/only_526_asthma.json"))
+      uploads = JSON.parse(File.read("#{submissions_path}/with_uploads.json"))
+      json['form526_uploads'] = uploads['form526_uploads']
+      json.to_json
+    end
+  end
+
   trait :hypertension_and_asthma_claim_for_increase do
     form_json do
       json_string = File.read("#{submissions_path}/only_526_hypertension.json")
