@@ -14,6 +14,11 @@ Template:
 * Rationale: 
 
 ---
+## /v0/beta_registrations
+* Removal Date: 5/4/2022
+* Rationale: The beta_registrations endpoint allowed users to selectively register for beta features. It 
+has not been used since 2019, and is largely obsoleted by the use of feature flipper. 
+
 ## /v0/vic/{profile_photo_attachments,supporting_documentation_attachments}
 * Removal Date: 5/2/2022
 * Rationale: The vic/* endpoints were implemented as part of a proposed "VICv2" feature that was 
