@@ -133,7 +133,7 @@ jobs:
           comment_mode: off
           files: Test Results/*.xml
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          check_run_annotations_branch: "k8s"
+          check_run_annotations_branch: "*"
 
       - name: Fix up coverage report to work with coverage-check-action
         run: sed -i 's/"line"/"covered_percent"/g' 'Coverage Report/.last_run.json'
