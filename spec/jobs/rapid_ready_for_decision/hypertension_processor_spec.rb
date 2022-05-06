@@ -31,9 +31,10 @@ RSpec.describe RapidReadyForDecision::HypertensionProcessor do
         .to receive(:transform).and_return(mocked_observation_data)
     end
 
+    let(:rrd_sidekiq_job) { RapidReadyForDecision::Constants::DISABILITIES[:hypertension][:sidekiq_job] }
+
     it 'finishes successfully' do
       Sidekiq::Testing.inline! do
-        rrd_sidekiq_job = RapidReadyForDecision::Constants::DISABILITIES[:hypertension][:sidekiq_job]
         rrd_sidekiq_job.constantize.perform_async(submission.id)
 
         submission.reload
@@ -46,6 +47,21 @@ RSpec.describe RapidReadyForDecision::HypertensionProcessor do
 
       Sidekiq::Testing.inline! do
         RapidReadyForDecision::Form526BaseJob.perform_async(submission.id)
+      end
+    end
+
+    context 'when no data from Lighthouse' do
+      before do
+        allow_any_instance_of(Lighthouse::VeteransHealth::Client).to receive(:list_bp_observations).and_return([])
+      end
+
+      it 'finishes with offramp_reason: insufficient_data' do
+        Sidekiq::Testing.inline! do
+          rrd_sidekiq_job.constantize.perform_async(submission.id)
+
+          submission.reload
+          expect(submission.form.dig('rrd_metadata', 'offramp_reason')).to eq 'insufficient_data'
+        end
       end
     end
   end

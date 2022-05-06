@@ -14,13 +14,29 @@ RSpec.describe RapidReadyForDecision::AsthmaProcessor do
   let(:processor) { described_class.new(submission) }
 
   describe '#perform' do
+    let(:rrd_sidekiq_job) { RapidReadyForDecision::Constants::DISABILITIES[:asthma][:sidekiq_job] }
+
     it 'finishes successfully' do
       Sidekiq::Testing.inline! do
-        rrd_sidekiq_job = RapidReadyForDecision::Constants::DISABILITIES[:asthma][:sidekiq_job]
         rrd_sidekiq_job.constantize.perform_async(submission.id)
 
         submission.reload
         expect(submission.form.dig('rrd_metadata', 'pdf_guid').length).to be > 20
+      end
+    end
+
+    context 'when no data from Lighthouse' do
+      before do
+        allow_any_instance_of(Lighthouse::VeteransHealth::Client).to receive(:list_medication_requests).and_return([])
+      end
+
+      it 'finishes with offramp_reason: insufficient_data' do
+        Sidekiq::Testing.inline! do
+          rrd_sidekiq_job.constantize.perform_async(submission.id)
+
+          submission.reload
+          expect(submission.form.dig('rrd_metadata', 'offramp_reason')).to eq 'insufficient_data'
+        end
       end
     end
   end

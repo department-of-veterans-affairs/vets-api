@@ -5,31 +5,28 @@ require 'lighthouse/veterans_health/client'
 module RapidReadyForDecision
   class HypertensionProcessor < RrdProcessor
     def assess_data
-      claim_context.assessed_data = query_and_assess_lighthouse
+      bp_observations = lighthouse_client.list_bp_observations
+      claim_context.assessed_data = assess_hypertension(bp_observations)
       claim_context.sufficient_evidence = claim_context.assessed_data[:bp_readings].present?
+
+      return unless claim_context.sufficient_evidence
+
+      # Add active medications to show in PDF
+      med_requests = lighthouse_client.list_medication_requests
+      claim_context.assessed_data[:medications] = filter_medications(med_requests)
     end
 
     private
 
-    def query_and_assess_lighthouse
-      client = lighthouse_client
-      bp_readings = assess_bp_readings(client.list_bp_observations)
-      # stop querying if bp_readings.blank?
-      medications = assess_medications(client.list_medication_requests) if bp_readings.present?
+    # This will become a service in the new architecture
+    def assess_hypertension(bp_observations)
+      return {} if bp_observations.blank?
 
-      {
-        bp_readings: bp_readings,
-        medications: medications
-      }
+      relevant_readings = RapidReadyForDecision::LighthouseObservationData.new(bp_observations).transform
+      { bp_readings: relevant_readings }
     end
 
-    def assess_bp_readings(bp_readings)
-      return [] if bp_readings.blank?
-
-      RapidReadyForDecision::LighthouseObservationData.new(bp_readings).transform
-    end
-
-    def assess_medications(medications)
+    def filter_medications(medications)
       return [] if medications.blank?
 
       RapidReadyForDecision::LighthouseMedicationRequestData.new(medications).transform
@@ -40,6 +37,7 @@ module RapidReadyForDecision
     end
 
     def generate_pdf
+      # This will become a service in the new architecture
       RapidReadyForDecision::FastTrackPdfGenerator.new(claim_context.patient_info,
                                                        claim_context.assessed_data,
                                                        :hypertension).generate
