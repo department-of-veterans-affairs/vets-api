@@ -46,7 +46,7 @@ module Mobile
       def coordinates
         return facility_coordinates if params[:facilityId]
 
-        user_address_coordinates
+        Mobile::FacilitiesHelper.user_address_coordinates(@current_user)
       end
 
       def facility_coordinates
@@ -54,17 +54,6 @@ module Mobile
         raise Common::Exceptions::RecordNotFound, params[:facilityId] unless facility
 
         [facility.lat, facility.long]
-      end
-
-      def user_address_coordinates
-        address = current_user.vet360_contact_info.residential_address
-        unless address&.latitude && address&.longitude
-          raise Common::Exceptions::UnprocessableEntity.new(
-            detail: 'User has no home latitude and longitude', source: self.class.to_s
-          )
-        end
-
-        [address.latitude, address.longitude]
       end
 
       def pagination_params

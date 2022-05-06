@@ -1,0 +1,53 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?ids=vha_757,vha_358
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Date:
+      - Thu, 28 Apr 2022 23:11:58 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '52'
+      Connection:
+      - keep-alive
+      Vary:
+      - Origin
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Kong-Response-Latency:
+      - '1'
+      Cache-Control:
+      - ''
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Set-Cookie:
+      - TS01dd66bd=0119a2687fd9ddcf3896a6555d70d504e1a279851c89d2195701dcfa31eb51f0c92ed6c7d7ff712da3bf73141c1acf5135b3db78d8;
+        Max-Age=900; Path=/
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "message":"Invalid authentication credentials"
+        }
+  recorded_at: Thu, 28 Apr 2022 23:11:58 GMT
+recorded_with: VCR 6.1.0

@@ -19,6 +19,7 @@ Mobile::Engine.routes.draw do
     post '/claim/:id/request-decision', to: 'claims_and_appeals#request_decision'
     get '/community-care-providers', to: 'community_care_providers#index'
     get '/disability-rating', to: 'disability_rating#index'
+    get '/facilities-info/:sort', to: 'facilities_info#index'
     get '/health/immunizations', to: 'immunizations#index'
     get '/health/locations/:id', to: 'locations#show'
     get '/letters', to: 'letters#index'

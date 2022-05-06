@@ -15,11 +15,19 @@ module Mobile
           @user = user
         end
 
-        def fetch_facilities(appointments)
+        def fetch_facilities_from_appointments(appointments)
+          facility_ids = appointments.map(&:id_for_address).uniq
+
+          return nil unless facility_ids.any?
+
+          fetch_facilities_from_ids(facility_ids, nil)
+        end
+
+        def fetch_facilities_from_ids(facility_ids, include_children)
           if Flipper.enabled?(:mobile_appointment_use_VAOS_MFS)
-            new_fetch_facilities(appointments)
+            new_fetch_facilities(facility_ids, include_children)
           else
-            legacy_fetch_facilities(appointments)
+            legacy_fetch_facilities(facility_ids)
           end
         end
 
@@ -82,7 +90,7 @@ module Mobile
             appointment.start_date_utc.between?(start_date, end_date)
           end
 
-          facilities = fetch_facilities(va_appointments + va_appointment_requests)
+          facilities = fetch_facilities_from_appointments(va_appointments + va_appointment_requests)
           va_appointments = backfill_appointments_with_facilities(va_appointments, facilities)
           va_appointment_requests = backfill_appointments_with_facilities(va_appointment_requests, facilities)
 
@@ -107,7 +115,7 @@ module Mobile
           cc_appointments = cc_appointments_adapter.parse(cc_response[:response].body)
 
           if va_appointments.any?
-            facilities = fetch_facilities(va_appointments)
+            facilities = fetch_facilities_from_appointments(va_appointments)
             va_appointments = backfill_appointments_with_facilities(va_appointments, facilities)
           end
 
@@ -139,29 +147,21 @@ module Mobile
           { va: va_response, cc: cc_response, requests: requests_response }
         end
 
-        def new_fetch_facilities(appointments)
-          facility_ids = appointments.map(&:id_for_address).uniq
-
-          return nil unless facility_ids.any?
-
-          ids = facility_ids.join(', ')
+        def new_fetch_facilities(facility_ids, include_children)
+          ids = facility_ids.join(',')
 
           facility_ids.each do |facility_id|
             Rails.logger.info('metric.mobile.appointment.facility', facility_id: facility_id)
           end
-          vaos_facilities = vaos_mobile_facility_service.get_facilities(ids: ids, children: nil, type: nil)
+          vaos_facilities = vaos_mobile_facility_service.get_facilities(ids: ids, children: include_children, type: nil)
           vaos_facilities[:data]
         end
 
-        def legacy_fetch_facilities(appointments)
-          facility_ids = appointments.map(&:id_for_address).uniq
-
-          return nil unless facility_ids.any?
-
-          facility_ids.each do |facility_id|
+        def legacy_fetch_facilities(ids)
+          ids.each do |facility_id|
             Rails.logger.info('metric.mobile.appointment.facility', facility_id: facility_id)
           end
-          Mobile::FacilitiesHelper.get_facilities(facility_ids)
+          Mobile::FacilitiesHelper.get_facilities(ids)
         end
 
         def backfill_appointments_with_facilities(appointments, facilities)
