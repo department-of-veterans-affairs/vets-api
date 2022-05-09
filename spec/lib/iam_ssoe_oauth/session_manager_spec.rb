@@ -92,6 +92,41 @@ describe 'IAMSSOeOAuth::SessionManager' do
         end
       end
     end
+
+    describe 'EVSS account creation' do
+      let(:create_user_session) do
+        VCR.use_cassette('iam_ssoe_oauth/introspect_active') do
+          session_manager.find_or_create_user
+        end
+      end
+
+      context 'with a user who is logging in and has EVSS access' do
+        it 'attempts to create an EVSS account for the user' do
+          expect(EVSS::CreateUserAccountJob).to receive(:perform_async)
+
+          create_user_session
+        end
+      end
+
+      context 'with a user who is already logged in and has EVSS access' do
+        before { create_user_session }
+
+        it 'attempts to create an EVSS account for the user' do
+          expect(EVSS::CreateUserAccountJob).not_to receive(:perform_async)
+
+          create_user_session
+        end
+      end
+
+      context 'with a user who is logging in and does not have EVSS access' do
+        it 'does not attempt to create an EVSS account for the user' do
+          allow_any_instance_of(EVSSPolicy).to receive(:access?).and_return(false)
+          expect(EVSS::CreateUserAccountJob).not_to receive(:perform_async)
+
+          create_user_session
+        end
+      end
+    end
   end
 
   describe '#logout' do
