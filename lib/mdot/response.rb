@@ -4,6 +4,7 @@ require 'common/models/base'
 require_relative 'eligibility'
 require_relative 'supply'
 require_relative 'token'
+require_relative 'address'
 
 module MDOT
   class Response < Common::Base
