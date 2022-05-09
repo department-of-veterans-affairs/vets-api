@@ -428,7 +428,7 @@ GEM
       nokogiri (>= 1.11.4)
     filelock (1.1.1)
     find_a_port (1.0.1)
-    fitbit_api (0.10.2)
+    fitbit_api (0.11.0)
       oauth2 (~> 1.0)
     flipper (0.22.2)
     flipper-active_record (0.22.1)
