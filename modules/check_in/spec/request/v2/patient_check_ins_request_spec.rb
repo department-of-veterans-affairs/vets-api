@@ -16,6 +16,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
     allow(Flipper).to receive(:enabled?).with(:check_in_experience_emergency_contact_enabled).and_return(true)
     allow(Flipper).to receive(:enabled?)
       .with(:check_in_experience_demographics_confirmation_enabled).and_return(true)
+    allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
 
     Rails.cache.clear
   end

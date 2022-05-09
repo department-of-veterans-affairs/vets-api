@@ -125,6 +125,10 @@ features:
     actor_type: user
     description: Enables showing of edit messaging.
     enable_in_development: false
+  check_in_experience_mock_enabled:
+    actor_type: user
+    description: Enables downstream responses to be returned via betamocks
+    enable_in_development: false
   coe_access:
     actor_type: user
     description: Feature gates the certificate of eligibility application
