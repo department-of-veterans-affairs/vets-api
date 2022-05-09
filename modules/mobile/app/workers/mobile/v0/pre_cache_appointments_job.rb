@@ -8,6 +8,8 @@ module Mobile
       sidekiq_options(retry: false)
 
       def perform(uuid)
+        return unless Flipper.enabled?(:mobile_precache_appointments)
+
         Rails.logger.info('mobile appointments pre-cache attempt', user_uuid: uuid)
 
         user = IAMUser.find(uuid)
