@@ -35,8 +35,6 @@ class TestStatsToBigquery
       total_skipped += doc.xpath('//testsuite/@skipped').to_s.to_i
     end
 
-    puts "!!!!! Date=#{date}"
-
     data = [{
       date: date,
       total_tests: total_tests,
@@ -87,14 +85,10 @@ class TestStatsToBigquery
   def upload_data(table, data, message)
     data_table = @dataset.table table, skip_lookup: true
 
-    puts "!!!!!!!#{data}"
-
     # rubocop:disable Rails/SkipsModelValidations
     response = data_table.insert data
     # rubocop:enable Rails/SkipsModelValidations
 
-
-    puts "!!!!!!!!!!!!#{response.inspect}"
     if response.success?
       "Uploaded RSpec #{message} data to BigQuery."
     else
