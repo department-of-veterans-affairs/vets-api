@@ -101,6 +101,7 @@ jobs:
     name: Publish Results
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+      CI: true
     if: always()
     needs: [linting_and_security, tests]
     runs-on: ubuntu-20.04 # Doesn't run on self-hosted runners as there are SSL issues within the TIC
