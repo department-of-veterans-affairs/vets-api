@@ -81,6 +81,9 @@ jobs:
           name: Coverage Report
           path: coverage
 
+      - name: "Test ENV CI var"
+        run: echo "$CI"
+
       - name: Upload Test Results
         uses: actions/upload-artifact@v2
         if: always()
