@@ -83,7 +83,7 @@ module V2
           else
             conn.response :raise_error, error_prefix: service_name
           end
-          conn.response :betamocks if Settings.check_in.lorota_v2.mock
+          conn.response :betamocks if mock_enabled?
 
           conn.adapter Faraday.default_adapter
         end
@@ -105,6 +105,10 @@ module V2
           auth_hsh[:SSN4] = check_in.last4
         end
         auth_hsh
+      end
+
+      def mock_enabled?
+        settings.mock || Flipper.enabled?('check_in_experience_mock_enabled') || false
       end
     end
   end

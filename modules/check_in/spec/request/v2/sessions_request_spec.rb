@@ -14,6 +14,7 @@ RSpec.describe 'V2::SessionsController', type: :request do
     allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_401_mapping_enabled').and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_custom_cookie_for_low_auth').and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled').and_return(false)
+    allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
 
     Rails.cache.clear
   end
