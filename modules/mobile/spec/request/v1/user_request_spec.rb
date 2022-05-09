@@ -440,12 +440,31 @@ RSpec.describe 'user', type: :request do
       end
     end
 
-    context 'after a profile request' do
-      it 'kicks off a pre cache appointments job' do
-        expect(Mobile::V0::PreCacheAppointmentsJob).to receive(:perform_async).once
-        VCR.use_cassette('payment_information/payment_information') do
-          VCR.use_cassette('user/get_facilities', match_requests_on: %i[method uri]) do
-            get '/mobile/v1/user', headers: iam_headers
+    describe 'appointments precaching' do
+      context 'with mobile_precache_appointments flag on' do
+        before { Flipper.enable(:mobile_precache_appointments) }
+
+        it 'kicks off a pre cache appointments job' do
+          expect(Mobile::V0::PreCacheAppointmentsJob).to receive(:perform_async).once
+          VCR.use_cassette('payment_information/payment_information') do
+            VCR.use_cassette('user/get_facilities', match_requests_on: %i[method uri]) do
+              get '/mobile/v1/user', headers: iam_headers
+            end
+          end
+        end
+      end
+
+      context 'with mobile_precache_appointments flag off' do
+        before { Flipper.disable(:mobile_precache_appointments) }
+
+        after { Flipper.enable(:mobile_precache_appointments) }
+
+        it 'does not kick off a pre cache appointments job' do
+          expect(Mobile::V0::PreCacheAppointmentsJob).not_to receive(:perform_async)
+          VCR.use_cassette('payment_information/payment_information') do
+            VCR.use_cassette('user/get_facilities', match_requests_on: %i[method uri]) do
+              get '/mobile/v1/user', headers: iam_headers
+            end
           end
         end
       end
