@@ -25,7 +25,7 @@ module AppealsApi
             form_fields.ssn_first_three => form_data.veteran_ssn_first_three,
             form_fields.ssn_second_two => form_data.veteran_ssn_second_two,
             form_fields.ssn_last_four => form_data.veteran_ssn_last_four,
-            form_fields.file_number => form_data.veteran.file_number,
+            # Veteran file number is filled out through autosize text box, not pdf fields
             form_fields.birth_month => form_data.veteran.birth_month,
             form_fields.birth_day => form_data.veteran.birth_day,
             form_fields.birth_year => form_data.veteran.birth_year,
@@ -136,6 +136,7 @@ module AppealsApi
 
             fill_text pdf, :veteran_first_name
             fill_text pdf, :veteran_last_name
+            fill_text pdf, :veteran_file_number
             fill_text pdf, :veteran_number_and_street
             fill_text pdf, :veteran_city
             fill_text pdf, :veteran_zip_code

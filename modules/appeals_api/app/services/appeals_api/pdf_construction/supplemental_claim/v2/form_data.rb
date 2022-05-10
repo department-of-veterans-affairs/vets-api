@@ -127,7 +127,11 @@ module AppealsApi
           end
 
           def preferred_zip_code_5
-            signing_appellant.zip_code
+            # Limiting to 5 characters to fix some flaky tests.
+            # TODO: Figure out a better handling for international postal codes (IPC) for this PDF.
+            #      Currently, Appellant#zip_code returns the IPC in some circumstances, which is probably innacurate
+            #      if we truncate it to 5 characters.
+            signing_appellant.zip_code&.first(5)
           end
 
           def preferred_country
