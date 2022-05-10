@@ -343,7 +343,7 @@
       ],
       "properties": {
         "veteran": {
-          "description": "Base64 encoded png image of the veterans signature.",
+          "description": "Base64 encoded png image of the veteran or claimant signature.",
           "title": "Signature of the Veteran",
           "type":  "string"
         },

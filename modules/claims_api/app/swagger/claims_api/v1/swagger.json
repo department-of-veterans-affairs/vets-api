@@ -496,7 +496,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4d8ed2ae-49cc-4688-a5b6-98098947fca3",
+                    "id": "9b953c28-dd8b-42a5-8626-c694f05e561e",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -545,11 +545,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "dbfa0f71-6efc-4f34-9e82-3690ad7f392a",
+                          "id": "d7c90d5b-5e27-4956-94f5-4882d9780cf1",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2022-05-06T15:03:24.537Z"
+                          "uploaded_at": "2022-05-10T19:55:30.597Z"
                         }
                       ]
                     }
@@ -2438,7 +2438,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e37153af-5518-47dd-a51c-6cb3a0ca2ac1",
+                    "id": "42e6592a-40d0-42bc-b597-61dfe124f550",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2456,13 +2456,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-05-06T15:03:25.125Z",
+                      "updated_at": "2022-05-10T19:55:32.030Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "e37153af-5518-47dd-a51c-6cb3a0ca2ac1",
+                      "token": "42e6592a-40d0-42bc-b597-61dfe124f550",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -4313,7 +4313,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c935f717-702f-4495-8d89-d6e75ae12aea",
+                    "id": "bddb5299-bfa2-42df-994b-a0159fce71e0",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4331,13 +4331,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-05-06T15:03:25.537Z",
+                      "updated_at": "2022-05-10T19:55:33.124Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "c935f717-702f-4495-8d89-d6e75ae12aea",
+                      "token": "bddb5299-bfa2-42df-994b-a0159fce71e0",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -6601,7 +6601,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "158b9c8d-8afe-4c80-bd65-3f0741fe943d",
+                    "id": "a5e581b0-6325-4e39-acec-3d2ada47025d",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6615,7 +6615,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-05-06T15:03:26.438Z",
+                      "updated_at": "2022-05-10T19:55:36.000Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6624,7 +6624,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "f4e66051-ea47-4806-9314-6abaa16704af",
+                          "id": "47af16ab-7995-4ce5-b1fd-23e8e634642b",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8509,7 +8509,7 @@
                           ],
                           "properties": {
                             "veteran": {
-                              "description": "Base64 encoded png image of the veterans signature.",
+                              "description": "Base64 encoded png image of the veteran or claimant signature.",
                               "title": "Signature of the Veteran",
                               "type": "string"
                             },
@@ -8600,11 +8600,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d43e4a5a-5d36-4b7c-a150-9db3f821ab7b",
+                    "id": "563ec57a-08a2-4986-9412-5062a6040703",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2022-05-06",
+                      "date_request_accepted": "2022-05-10",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9209,7 +9209,7 @@
                             ],
                             "properties": {
                               "veteran": {
-                                "description": "Base64 encoded png image of the veterans signature.",
+                                "description": "Base64 encoded png image of the veteran or claimant signature.",
                                 "title": "Signature of the Veteran",
                                 "type": "string"
                               },
@@ -9313,11 +9313,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "731a760b-fe85-4112-aed3-8a71d1703bdd",
+                    "id": "135d8967-dbd0-409e-917f-30d4afa80ab2",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-05-06",
+                      "date_request_accepted": "2022-05-10",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9768,11 +9768,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "cf28f6cb-b078-448f-89c4-b241aed8cd9b",
+                    "id": "6b19ea3f-3e0b-4966-85bd-250c540206d9",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-05-06",
+                      "date_request_accepted": "2022-05-10",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -10967,7 +10967,7 @@
                             ],
                             "properties": {
                               "veteran": {
-                                "description": "Base64 encoded png image of the veterans signature.",
+                                "description": "Base64 encoded png image of the veteran or claimant signature.",
                                 "title": "Signature of the Veteran",
                                 "type": "string"
                               },
