@@ -52,9 +52,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Test ENV CI var
-        run: echo "$CI"
-
       - name: Setup Environment
         run: |
           echo "USER_ID=$(id -u)" >> $GITHUB_ENV
@@ -71,11 +68,9 @@ jobs:
           tags: vets-api:${{ env.DOCKER_IMAGE }}
 
       - name: Setup Database and Run Specs
-        env:
-          CI: true
         run: |
              docker-compose -p ${{ env.DOCKER_IMAGE}} run --rm --service-ports --no-TTY web bash \
-             -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true; \
+             -c "RAILS_ENV=test DISABLE_BOOTSNAP=true; \
              bundle exec parallel_test -n 14 -e 'bundle exec rails db:reset' \
              && bundle exec parallel_rspec spec/ modules/ -n 14 -o '--color --tty'"
 
@@ -139,7 +134,7 @@ jobs:
           comment_mode: off
           files: Test Results/*.xml
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          check_run_annotations_branch: "*"
+          check_run_annotations_branch: master, k8s
 
       - name: Fix up coverage report to work with coverage-check-action
         run: sed -i 's/"line"/"covered_percent"/g' 'Coverage Report/.last_run.json'
