@@ -14,16 +14,22 @@
     "participant_claimant_id": {
       "type": "string",
       "example": "123456789",
-      "description": "Participant ID or SSN of the claimant."
+      "description": "Participant ID of the Claimant."
     },
     "participant_vet_id": {
       "type": "string",
-      "example": "987654321"
+      "example": "987654321",
+      "description": "Participant ID of the Veteran."
     },
     "received_date": {
       "type": "string",
       "example": "2015-01-05T17:42:12.058Z",
       "format": "datetime"
+    },
+    "claimant_ssn": {
+      "type": "string",
+      "example": "123456789",
+      "description": "SSN of non-Veteran Claimant."
     }
   }
 }

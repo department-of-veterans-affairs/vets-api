@@ -496,7 +496,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4acd79e7-a542-4551-b59e-1f1e6dbac5b5",
+                    "id": "4d8ed2ae-49cc-4688-a5b6-98098947fca3",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -545,11 +545,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "d0cbab84-8cf5-46ce-b687-cf47c7ef4c31",
+                          "id": "dbfa0f71-6efc-4f34-9e82-3690ad7f392a",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2022-05-02T17:23:56.624Z"
+                          "uploaded_at": "2022-05-06T15:03:24.537Z"
                         }
                       ]
                     }
@@ -2438,7 +2438,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "93db236d-9c7d-47c3-b8b2-2ded17552216",
+                    "id": "e37153af-5518-47dd-a51c-6cb3a0ca2ac1",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2456,13 +2456,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-05-02T17:23:57.078Z",
+                      "updated_at": "2022-05-06T15:03:25.125Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "93db236d-9c7d-47c3-b8b2-2ded17552216",
+                      "token": "e37153af-5518-47dd-a51c-6cb3a0ca2ac1",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -4313,7 +4313,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c2f24852-fea2-4949-ba5b-3c65cf0da9ed",
+                    "id": "c935f717-702f-4495-8d89-d6e75ae12aea",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4331,13 +4331,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-05-02T17:23:57.464Z",
+                      "updated_at": "2022-05-06T15:03:25.537Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "c2f24852-fea2-4949-ba5b-3c65cf0da9ed",
+                      "token": "c935f717-702f-4495-8d89-d6e75ae12aea",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -6601,7 +6601,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "06bcc5df-7769-4b9a-9c3b-c708ec10f7d1",
+                    "id": "158b9c8d-8afe-4c80-bd65-3f0741fe943d",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6615,7 +6615,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-05-02T17:23:58.267Z",
+                      "updated_at": "2022-05-06T15:03:26.438Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6624,7 +6624,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "3e53f04e-98a0-41a4-81c2-5f982feb5a91",
+                          "id": "f4e66051-ea47-4806-9314-6abaa16704af",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -7033,16 +7033,22 @@
                         "participant_claimant_id": {
                           "type": "string",
                           "example": "123456789",
-                          "description": "Participant ID or SSN of the claimant."
+                          "description": "Participant ID of the Claimant."
                         },
                         "participant_vet_id": {
                           "type": "string",
-                          "example": "987654321"
+                          "example": "987654321",
+                          "description": "Participant ID of the Veteran."
                         },
                         "received_date": {
                           "type": "string",
                           "example": "2015-01-05T17:42:12.058Z",
                           "format": "datetime"
+                        },
+                        "claimant_ssn": {
+                          "type": "string",
+                          "example": "123456789",
+                          "description": "SSN of non-Veteran Claimant."
                         }
                       }
                     }
@@ -7425,16 +7431,22 @@
                           "participant_claimant_id": {
                             "type": "string",
                             "example": "123456789",
-                            "description": "Participant ID or SSN of the claimant."
+                            "description": "Participant ID of the Claimant."
                           },
                           "participant_vet_id": {
                             "type": "string",
-                            "example": "987654321"
+                            "example": "987654321",
+                            "description": "Participant ID of the Veteran."
                           },
                           "received_date": {
                             "type": "string",
                             "example": "2015-01-05T17:42:12.058Z",
                             "format": "datetime"
+                          },
+                          "claimant_ssn": {
+                            "type": "string",
+                            "example": "123456789",
+                            "description": "SSN of non-Veteran Claimant."
                           }
                         }
                       }
@@ -8081,16 +8093,22 @@
                           "participant_claimant_id": {
                             "type": "string",
                             "example": "123456789",
-                            "description": "Participant ID or SSN of the claimant."
+                            "description": "Participant ID of the Claimant."
                           },
                           "participant_vet_id": {
                             "type": "string",
-                            "example": "987654321"
+                            "example": "987654321",
+                            "description": "Participant ID of the Veteran."
                           },
                           "received_date": {
                             "type": "string",
                             "example": "2015-01-05T17:42:12.058Z",
                             "format": "datetime"
+                          },
+                          "claimant_ssn": {
+                            "type": "string",
+                            "example": "123456789",
+                            "description": "SSN of non-Veteran Claimant."
                           }
                         }
                       }
@@ -8582,11 +8600,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "984126c5-d500-4377-9e67-2718c40f81a0",
+                    "id": "d43e4a5a-5d36-4b7c-a150-9db3f821ab7b",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2022-05-02",
+                      "date_request_accepted": "2022-05-06",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9295,11 +9313,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "873cf32e-2c65-4832-b1af-48410bff0b07",
+                    "id": "731a760b-fe85-4112-aed3-8a71d1703bdd",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-05-02",
+                      "date_request_accepted": "2022-05-06",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9750,11 +9768,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4981e2e7-f56b-4624-89c2-5faef97eeae0",
+                    "id": "cf28f6cb-b078-448f-89c4-b241aed8cd9b",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-05-02",
+                      "date_request_accepted": "2022-05-06",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"

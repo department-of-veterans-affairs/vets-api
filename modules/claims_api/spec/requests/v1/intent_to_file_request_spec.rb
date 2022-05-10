@@ -16,7 +16,7 @@ RSpec.describe 'Intent to file', type: :request do
   let(:data) { { data: { attributes: { type: 'compensation' } } } }
   let(:extra) do
     { type: 'compensation',
-      participant_claimant_id: 123_456_789,
+      participant_claimant_id: '123_456_789',
       received_date: '2015-01-05T17:42:12.058Z' }
   end
   let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', '0966.json')) }
@@ -52,7 +52,7 @@ RSpec.describe 'Intent to file', type: :request do
       it 'posts a maximum payload and returns a payload with an expiration date' do
         with_okta_user(scopes) do |auth_header|
           VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
-            data['attributes'] = extra
+            data[:data][:attributes] = extra
             post path, params: data.to_json, headers: headers.merge(auth_header)
             expect(response.status).to eq(200)
             expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('duplicate')
@@ -136,6 +136,64 @@ RSpec.describe 'Intent to file', type: :request do
           expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
             'The property /someBadField is not defined on the schema. Additional properties are not allowed'
           )
+        end
+      end
+
+      describe 'handling the claimant fields' do
+        context "when 'participant_claimant_id' is provided" do
+          it 'that field and value are sent to BGS' do
+            expect_any_instance_of(BGS::IntentToFileWebService)
+              .to receive(:insert_intent_to_file).with(hash_including(participant_claimant_id: '123')).and_return({})
+
+            with_okta_user(scopes) do |auth_header|
+              data[:data][:attributes][:participant_claimant_id] = '123'
+              post path, params: data.to_json, headers: headers.merge(auth_header)
+            end
+          end
+        end
+
+        context "when 'claimant_ssn' is provided" do
+          it 'that field and value are sent to BGS' do
+            expect_any_instance_of(BGS::IntentToFileWebService)
+              .to receive(:insert_intent_to_file).with(hash_including(claimant_ssn: '123')).and_return({})
+
+            with_okta_user(scopes) do |auth_header|
+              data[:data][:attributes][:claimant_ssn] = '123'
+              post path, params: data.to_json, headers: headers.merge(auth_header)
+            end
+          end
+        end
+
+        context "when neither 'participant_claimant_id' or 'claimant_ssn' is provided" do
+          before do
+            stub_mpi(build(:mvi_profile, participant_id: '999'))
+          end
+
+          it "'participant_claimant_id' is set to the target_veteran.participant_id and sent to BGS " do
+            expect_any_instance_of(BGS::IntentToFileWebService)
+              .to receive(:insert_intent_to_file).with(hash_including(participant_claimant_id: '999')).and_return({})
+
+            with_okta_user(scopes) do |auth_header|
+              post path, params: data.to_json, headers: headers.merge(auth_header)
+            end
+          end
+        end
+
+        context "when both 'participant_claimant_id' and 'claimant_ssn' are provided" do
+          it "both 'participant_claimant_id' and 'claimant_ssn' are sent to BGS " do
+            expect_any_instance_of(BGS::IntentToFileWebService)
+              .to receive(:insert_intent_to_file).with(
+                hash_including(
+                  participant_claimant_id: '123', claimant_ssn: '456'
+                )
+              ).and_return({})
+
+            with_okta_user(scopes) do |auth_header|
+              data[:data][:attributes][:participant_claimant_id] = '123'
+              data[:data][:attributes][:claimant_ssn] = '456'
+              post path, params: data.to_json, headers: headers.merge(auth_header)
+            end
+          end
         end
       end
     end
