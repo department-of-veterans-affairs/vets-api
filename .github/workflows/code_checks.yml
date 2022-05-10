@@ -71,6 +71,8 @@ jobs:
           tags: vets-api:${{ env.DOCKER_IMAGE }}
 
       - name: Setup Database and Run Specs
+        env:
+          CI: true
         run: |
              docker-compose -p ${{ env.DOCKER_IMAGE}} run --rm --service-ports --no-TTY web bash \
              -c "RAILS_ENV=test DISABLE_BOOTSNAP=true; \

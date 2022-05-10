@@ -1,7 +1,7 @@
 --color
 --require spec_helper
 --format progress 
-<% if !ENV['CI'] %>
+<% if ENV['CI'] %>
 --format RspecJunitFormatter
 --out log/rspec<%= ENV['TEST_ENV_NUMBER'] %>.xml
 <% end %>
