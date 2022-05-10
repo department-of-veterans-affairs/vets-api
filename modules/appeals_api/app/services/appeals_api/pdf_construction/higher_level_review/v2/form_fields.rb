@@ -212,6 +212,7 @@ module AppealsApi
 
           { veteran_first_name: { at: [3, 560], width: 195 },
             veteran_last_name: { at: [230, 560], width: 293 },
+            veteran_file_number: { at: [215, 527], width: 143 },
             veteran_number_and_street: { at: [29, 462], width: 512 },
             veteran_city: { at: [200, 441], width: 307 },
             veteran_zip_code: { at: [297, 418], width: 82 },

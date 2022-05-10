@@ -12,7 +12,7 @@ module AppealsApi
                  :veteran, :claimant,
                  to: :higher_level_review
 
-        delegate :first_name, :last_name, :phone_data, :number_and_street, :city, :zip_code,
+        delegate :first_name, :last_name, :file_number, :phone_data, :number_and_street, :city, :zip_code,
                  to: :veteran, prefix: true
 
         delegate :first_name, :last_name, :phone_data, :number_and_street, :city, :zip_code, :email,
