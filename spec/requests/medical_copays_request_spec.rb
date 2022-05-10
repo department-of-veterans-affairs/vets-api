@@ -7,7 +7,6 @@ RSpec.describe 'medical_copays' do
 
   before do
     sign_in_as(current_user)
-    allow(Flipper).to receive(:enabled?).with('show_medical_copays', anything).and_return(true)
   end
 
   describe 'GET medical_copays#index' do

@@ -238,6 +238,12 @@ mcp:
     base_path: /base/path
     service_name: VBS
     mock: true
+  vbs_v2:
+    url: https://fake_url.com:9000
+    host: fake_url.com:9000
+    base_path: /base/path
+    service_name: VBS
+    mock: true
 dgi:
   jwt:
     public_key_path: modules/meb_api/spec/fixtures/dgi_public_test.pem

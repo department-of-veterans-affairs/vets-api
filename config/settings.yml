@@ -91,6 +91,14 @@ mcp:
     mock: false
     mock_vista: false
     api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
+  vbs_v2:
+    url: https://fake_url.com:9000
+    host: fake_url.com:9000
+    base_path: /base/path
+    service_name: VBS
+    mock: false
+    mock_vista: false
+    api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
 
 fsr:
   prefill: true
