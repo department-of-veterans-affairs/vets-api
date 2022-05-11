@@ -33,5 +33,11 @@ MyHealth::Engine.routes.draw do
         resource :preferences, only: %i[show update], controller: 'prescription_preferences'
       end
     end
+
+    resource :health_records, only: [:create], defaults: { format: :json } do
+      get :refresh, to: 'health_records#refresh', on: :collection
+      get :eligible_data_classes, to: 'health_records#eligible_data_classes', on: :collection
+      get :show, controller: 'health_record_contents', on: :collection
+    end
   end
 end

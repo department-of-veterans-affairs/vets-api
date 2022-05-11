@@ -5,7 +5,7 @@ require 'sm/client'
 module MyHealth
   class SMController < ApplicationController
     include ActionController::Serialization
-    include MHVControllerConcerns
+    include MyHealth::MHVControllerConcerns
 
     protected
 
