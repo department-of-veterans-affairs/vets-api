@@ -73,6 +73,14 @@ module SignIn::Idme
       'code'
     end
 
+    def jwt_decode_algorithm
+      'RS256'
+    end
+
+    def jwt_decode_public_key
+      OpenSSL::PKey::RSA.new(File.read(Settings.idme.oauth_public_key))
+    end
+
     def ssl_key
       OpenSSL::PKey::RSA.new(File.read(client_key_path))
     end

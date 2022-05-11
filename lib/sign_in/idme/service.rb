@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sign_in/idme/configuration'
+require 'sign_in/idme/errors'
 
 module SignIn
   module Idme
@@ -48,14 +49,15 @@ module SignIn
         )
         response.body
       rescue Common::Client::Errors::ClientError => e
-        raise e
+        raise e, 'Cannot perform Token request'
       end
 
       def user_info(token)
         response = perform(:get, config.userinfo_path, nil, { 'Authorization' => "Bearer #{token}" })
-        jwt_decode(response.body)
+        decrypted_jwe = jwe_decrypt(JSON.parse(response.body))
+        jwt_decode(decrypted_jwe)
       rescue Common::Client::Errors::ClientError => e
-        raise e
+        raise e, 'Cannot perform UserInfo request'
       end
 
       private
@@ -71,9 +73,30 @@ module SignIn
         end
       end
 
+      def jwe_decrypt(encrypted_jwe)
+        JWE.decrypt(encrypted_jwe, config.ssl_key)
+      rescue JWE::DecodeError
+        raise Errors::JWEDecodeError, 'JWE is malformed'
+      end
+
       def jwt_decode(encoded_jwt)
-        decoded_jwt = JWT.decode(encoded_jwt, false, nil)&.first
+        with_validation = true
+        decoded_jwt = JWT.decode(
+          encoded_jwt,
+          config.jwt_decode_public_key,
+          with_validation,
+          {
+            verify_expiration: with_validation,
+            algorithm: config.jwt_decode_algorithm
+          }
+        )&.first
         OpenStruct.new(decoded_jwt)
+      rescue JWT::VerificationError
+        raise Errors::JWTVerificationError, 'JWT body does not match signature'
+      rescue JWT::ExpiredSignature
+        raise Errors::JWTExpiredError, 'JWT has expired'
+      rescue JWT::DecodeError
+        raise Errors::JWTDecodeError, 'JWT is malformed'
       end
 
       def auth_url
