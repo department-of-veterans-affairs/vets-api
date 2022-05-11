@@ -3,6 +3,16 @@
 require 'rails_helper'
 
 RSpec.describe SignInController, type: :controller do
+  let(:user_account) { create(:user_account) }
+  let(:user_account_uuid) { user_account.id }
+
+  before do
+    Timecop.freeze(Time.zone.now.floor)
+    allow(Rails.logger).to receive(:info)
+  end
+
+  after { Timecop.return }
+
   describe 'GET authorize' do
     subject do
       get(:authorize, params: {}.merge(type).merge(code_challenge).merge(code_challenge_method).merge(client_state))
@@ -137,6 +147,16 @@ RSpec.describe SignInController, type: :controller do
               expect(subject).to have_http_status(:bad_request)
             end
           end
+
+          it 'logs the authentication attempt' do
+            expect(Rails.logger).to receive(:info).once.with(
+              'Sign in Service Authorization Attempt',
+              { state: state, type: type[:type], client_state: nil,
+                code_challenge: code_challenge[:code_challenge], timestamp: Time.zone.now.to_s,
+                code_challenge_method: code_challenge_method[:code_challenge_method] }
+            )
+            subject
+          end
         end
       end
 
@@ -220,6 +240,16 @@ RSpec.describe SignInController, type: :controller do
 
             it 'renders expected type in template' do
               expect(subject.body).to match(expected_type_value)
+            end
+
+            it 'logs the authentication attempt' do
+              expect(Rails.logger).to receive(:info).once.with(
+                'Sign in Service Authorization Attempt',
+                { state: state, type: type[:type], client_state: client_state[:state],
+                  code_challenge: code_challenge[:code_challenge], timestamp: Time.zone.now.to_s,
+                  code_challenge_method: code_challenge_method[:code_challenge_method] }
+              )
+              subject
             end
           end
 
@@ -369,8 +399,6 @@ RSpec.describe SignInController, type: :controller do
                  user_account_uuid: user_account_uuid)
         end
         let(:code_challenge) { 'some-code-challenge' }
-        let(:user_account_uuid) { user_account.id }
-        let(:user_account) { create(:user_account) }
 
         context 'and code_verifier does not match expected code_challenge value' do
           let(:code_verifier_value) { 'some-arbitrary-code-verifier-value' }
@@ -581,6 +609,15 @@ RSpec.describe SignInController, type: :controller do
 
           it 'redirects to expected url' do
             expect(subject).to redirect_to(expected_url)
+          end
+
+          it 'logs the authentication attempt' do
+            expect(Rails.logger).to receive(:info).with(
+              'Sign in Service Authorization Callback',
+              { state: state[:state], type: type[:type], code: code[:code],
+                login_code: client_code, client_state: client_state, timestamp: Time.zone.now.to_s }
+            )
+            subject
           end
         end
       end
@@ -810,6 +847,8 @@ RSpec.describe SignInController, type: :controller do
       end
 
       context 'when refresh token is unmodified and valid' do
+        let(:expected_session_handle) { session_container.session.handle }
+
         it 'returns ok status' do
           expect(subject).to have_http_status(:ok)
         end
@@ -817,6 +856,15 @@ RSpec.describe SignInController, type: :controller do
         it 'destroys user session' do
           subject
           expect { session_container.session.reload }.to raise_error(ActiveRecord::RecordNotFound)
+        end
+
+        it 'logs the session revocation' do
+          expect(Rails.logger).to receive(:info).once.with(
+            'Sign in Service Session Revoke',
+            { session_id: expected_session_handle, timestamp: Time.zone.now.to_s,
+              token_type: 'Refresh', user_id: user_account.id }
+          )
+          subject
         end
       end
     end
@@ -1028,6 +1076,15 @@ RSpec.describe SignInController, type: :controller do
         it 'returns expected body with anti csrf token token' do
           expect(JSON.parse(subject.body)['data']).to have_key('anti_csrf_token')
         end
+
+        it 'logs the token refresh' do
+          access_token = JWT.decode(JSON.parse(subject.body)['data']['access_token'], nil, false).first
+          expect(Rails.logger).to have_received(:info).once.with(
+            'Sign in Service Tokens Refresh',
+            { token_type: 'Refresh', user_id: user_account.id,
+              session_id: access_token['session_handle'], timestamp: Time.zone.now.to_s }
+          )
+        end
       end
     end
 
@@ -1115,6 +1172,15 @@ RSpec.describe SignInController, type: :controller do
 
         it 'returns ok status' do
           expect(subject).to have_http_status(:ok)
+        end
+
+        it 'logs the instrospection' do
+          subject
+          expect(Rails.logger).to have_received(:info).once.with(
+            'Sign in Service Introspect',
+            { token_type: 'Access', user_id: user.uuid, session_id: access_token_object.session_handle,
+              access_token_id: access_token_object.uuid, timestamp: Time.zone.now.to_s }
+          )
         end
       end
     end

@@ -11,6 +11,7 @@ module SignIn
     def perform(with_validation: true)
       decoded_token = jwt_decode_access_token(with_validation)
       SignIn::AccessToken.new(
+        uuid: decoded_token.jti,
         session_handle: decoded_token.session_handle,
         user_uuid: decoded_token.sub,
         refresh_token_hash: decoded_token.refresh_token_hash,

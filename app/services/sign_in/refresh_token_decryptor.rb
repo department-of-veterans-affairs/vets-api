@@ -10,7 +10,6 @@ module SignIn
 
     def perform
       decrypted_component = get_decrypted_component
-
       validate_token!(decrypted_component)
 
       SignIn::RefreshToken.new(
