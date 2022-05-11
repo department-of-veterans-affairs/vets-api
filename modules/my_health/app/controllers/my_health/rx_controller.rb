@@ -5,7 +5,7 @@ require 'rx/client'
 module MyHealth
   class RxController < ApplicationController
     include ActionController::Serialization
-    include MHVControllerConcerns
+    include MyHealth::MHVControllerConcerns
 
     protected
 
