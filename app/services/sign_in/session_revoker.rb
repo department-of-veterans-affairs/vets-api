@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'sign_in/logger'
+
 module SignIn
   class SessionRevoker
     attr_reader :refresh_token, :anti_csrf_token, :enable_anti_csrf, :session
@@ -62,6 +64,7 @@ module SignIn
     def delete_session!
       detect_token_theft
     ensure
+      SignIn::Logger.new.refresh_token_log('Sign in Service Tokens Revoke', refresh_token)
       session.destroy!
     end
   end

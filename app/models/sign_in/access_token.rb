@@ -5,6 +5,7 @@ module SignIn
     include ActiveModel::Validations
 
     attr_reader(
+      :uuid,
       :session_handle,
       :user_uuid,
       :refresh_token_hash,
@@ -17,6 +18,7 @@ module SignIn
     )
 
     validates(
+      :uuid,
       :session_handle,
       :user_uuid,
       :refresh_token_hash,
@@ -31,15 +33,13 @@ module SignIn
     validates :version, inclusion: Constants::AccessToken::VERSION_LIST
 
     # rubocop:disable Metrics/ParameterLists
-    def initialize(session_handle:,
-                   user_uuid:,
-                   refresh_token_hash:,
-                   anti_csrf_token:,
-                   last_regeneration_time:,
+    def initialize(session_handle:, user_uuid:, refresh_token_hash:, anti_csrf_token:, last_regeneration_time:,
+                   uuid: create_uuid,
                    parent_refresh_token_hash: nil,
                    version: Constants::AccessToken::CURRENT_VERSION,
                    expiration_time: set_expiration_time,
                    created_time: set_created_time)
+      @uuid = uuid
       @session_handle = session_handle
       @user_uuid = user_uuid
       @refresh_token_hash = refresh_token_hash
@@ -59,6 +59,10 @@ module SignIn
     end
 
     private
+
+    def create_uuid
+      SecureRandom.uuid
+    end
 
     def set_expiration_time
       Time.zone.now + Constants::AccessToken::VALIDITY_LENGTH_MINUTES.minutes
