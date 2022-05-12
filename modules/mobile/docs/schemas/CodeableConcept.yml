@@ -2,7 +2,7 @@ properties:
   coding:
     type: array
     items:
-      $ref: ./schemas/Coding.yml
+      $ref: ./Coding.yml
   text:
     type: string
     description: Plain text representation of the concept
