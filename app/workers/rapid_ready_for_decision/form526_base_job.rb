@@ -29,9 +29,8 @@ module RapidReadyForDecision
       rescue => e
         # only retry if the error was raised within the "with_tracking" block
         retryable_error_handler(e) if @status_job_title
-        message = "Sidekiq job id: #{jid}. The error was: #{e.message}.<br/>" \
-                  "The backtrace was:\n #{e.backtrace.join(",<br/>\n ")}"
-        form526_submission.send_rrd_alert_email('Rapid Ready for Decision (RRD) Job Errored', message)
+        message = "Sidekiq job id: #{jid}. The error was: #{e.message}.<br/>"
+        form526_submission.send_rrd_alert_email('Rapid Ready for Decision (RRD) Job Errored', message, e)
         form526_submission.save_metadata(error: e.message)
         raise
       end

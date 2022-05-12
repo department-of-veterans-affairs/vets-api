@@ -95,7 +95,7 @@ RSpec.describe Form526Submission do
               expect(form_for_hypertension).to receive(:start_evss_submission_job)
               expect(form_for_hypertension).to receive(:send_rrd_alert_email)
                 .with('RRD Processor Selector alert',
-                      /RRD was skipped for submission #{form_for_hypertension.id} due to an error./)
+                      /RRD was skipped for submission #{form_for_hypertension.id} due to an error./, anything)
               sidekiq_submission.rrd_processor_failed_handler('ignored Sidekiq::Batch::Status',
                                                               'submission_id' => form_for_hypertension.id,
                                                               'use_backup_job' => true)

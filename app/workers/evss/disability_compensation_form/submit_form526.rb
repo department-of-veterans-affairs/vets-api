@@ -44,12 +44,12 @@ module EVSS
              Common::Exceptions::GatewayTimeout,
              Breakers::OutageException,
              EVSS::DisabilityCompensationForm::ServiceUnavailableException => e
-        retryable_error_handler(e)
+        retryable_error_handler(submission, e)
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
         # retry submitting the form for specific upstream errors
-        retry_form526_error_handler!(e)
+        retry_form526_error_handler!(submission, e)
       rescue => e
-        non_retryable_error_handler(e)
+        non_retryable_error_handler(submission, e)
       end
 
       private
@@ -63,19 +63,25 @@ module EVSS
         submission.save
       end
 
-      def retryable_error_handler(error)
+      def retryable_error_handler(_submission, error)
         # update JobStatus, log and metrics in JobStatus#retryable_error_handler
         super(error)
         raise error
       end
 
-      def non_retryable_error_handler(error)
+      def non_retryable_error_handler(submission, error)
         # update JobStatus, log and metrics in JobStatus#non_retryable_error_handler
         super(error)
+        send_rrd_alert(submission, error, 'non-retryable') if submission.rrd_job_selector.rrd_applicable?
         submission.submit_with_birls_id_that_hasnt_been_tried_yet!(
           silence_errors_and_log_to_sentry: true,
           extra_content_for_sentry: { job_class: self.class.to_s.demodulize, job_id: jid }
         )
+      end
+
+      def send_rrd_alert(submission, error, subtitle)
+        message = "RRD could not submit the claim to EVSS: #{subtitle}<br/>"
+        submission.send_rrd_alert_email("RRD submission to EVSS error: #{subtitle}", message, error)
       end
 
       def service(_auth_headers)
@@ -89,11 +95,11 @@ module EVSS
       #
       # @param error [EVSS::DisabilityCompensationForm::ServiceException]
       #
-      def retry_form526_error_handler!(error)
+      def retry_form526_error_handler!(submission, error)
         if error.retryable?
-          retryable_error_handler(error)
+          retryable_error_handler(submission, error)
         else
-          non_retryable_error_handler(error)
+          non_retryable_error_handler(submission, error)
         end
       end
     end

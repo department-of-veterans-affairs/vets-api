@@ -3,13 +3,14 @@
 module Form526RapidReadyForDecisionConcern
   extend ActiveSupport::Concern
 
-  def send_rrd_alert_email(subject, message)
+  def send_rrd_alert_email(subject, message, error = nil)
     body = <<~BODY
       Environment: #{Settings.vsp_environment}<br/>
       Form526Submission.id: #{id}<br/>
       <br/>
-      #{message}
+      #{message}<br/>
     BODY
+    body += "<br/>Error backtrace:\n #{error.backtrace.join(",<br/>\n ")}" if error
     ActionMailer::Base.mail(
       from: ApplicationMailer.default[:from],
       to: Settings.rrd.alerts.recipients,
