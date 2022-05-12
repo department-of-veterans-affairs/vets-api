@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_03_24_182532) do
+ActiveRecord::Schema.define(version: 2022_05_10_182554) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -667,11 +667,14 @@ ActiveRecord::Schema.define(version: 2022_03_24_182532) do
     t.datetime "refresh_creation", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "user_verification_id"
+    t.string "credential_email"
     t.index ["handle"], name: "index_oauth_sessions_on_handle", unique: true
     t.index ["hashed_refresh_token"], name: "index_oauth_sessions_on_hashed_refresh_token", unique: true
     t.index ["refresh_creation"], name: "index_oauth_sessions_on_refresh_creation"
     t.index ["refresh_expiration"], name: "index_oauth_sessions_on_refresh_expiration"
     t.index ["user_account_id"], name: "index_oauth_sessions_on_user_account_id"
+    t.index ["user_verification_id"], name: "index_oauth_sessions_on_user_verification_id"
   end
 
   create_table "onsite_notifications", force: :cascade do |t|
@@ -826,16 +829,6 @@ ActiveRecord::Schema.define(version: 2022_03_24_182532) do
     t.index ["account_uuid"], name: "tud_account_availability_logs"
   end
 
-  create_table "test_user_dashboard_tud_account_checkouts", force: :cascade do |t|
-    t.string "account_uuid"
-    t.datetime "checkout_time"
-    t.datetime "checkin_time"
-    t.boolean "has_checkin_error"
-    t.boolean "is_manual_checkin"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-  end
-
   create_table "test_user_dashboard_tud_accounts", force: :cascade do |t|
     t.string "account_uuid"
     t.string "first_name"
@@ -850,8 +843,8 @@ ActiveRecord::Schema.define(version: 2022_03_24_182532) do
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.text "services"
     t.string "loa"
+    t.text "services"
     t.uuid "idme_uuid"
     t.text "notes"
     t.string "mfa_code"
@@ -1036,5 +1029,6 @@ ActiveRecord::Schema.define(version: 2022_03_24_182532) do
   add_foreign_key "deprecated_user_accounts", "user_verifications"
   add_foreign_key "inherited_proof_verified_user_accounts", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
+  add_foreign_key "oauth_sessions", "user_verifications"
   add_foreign_key "user_verifications", "user_accounts"
 end
