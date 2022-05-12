@@ -195,6 +195,9 @@ sidekiq:
   github_oauth_secret: 000xxx
 
 check_in:
+  authentication:
+    max_auth_retry_limit: 3
+    retry_attempt_expiry: 604800 # 7 Days
   chip_api:
     url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
     base_path: dev
