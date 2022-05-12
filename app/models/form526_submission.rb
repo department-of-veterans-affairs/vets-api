@@ -95,9 +95,8 @@ class Form526Submission < ApplicationRecord
     message = <<~MESSAGE
       RRD was skipped for submission #{submission.id} due to an error.<br/>
       Sidekiq Job options: #{options}<br/>
-      Exception: #{e}<br/>
     MESSAGE
-    submission.send_rrd_alert_email('RRD Processor Selector alert', message)
+    submission.send_rrd_alert_email('RRD Processor Selector alert', message, e)
     submission.save_metadata(error: 'RRD Processor Selector failed')
     submission.start_evss_submission_job
   end
