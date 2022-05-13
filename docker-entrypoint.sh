@@ -4,8 +4,8 @@
 # if you make major alteration here, please check that usage as well
 
 BUNDLED_WITH=$(awk '/BUNDLED WITH/{getline; print}' Gemfile.lock | xargs) gem install bundler -v "$BUNDLED_WITH"
-bundle binstubs bundler --force
-bundle check || bundle install --binstubs="${BUNDLE_APP_CONFIG}/bin" --jobs=4
+bundle check || bundle install --jobs=4
+bundle binstubs --all
 
 exec "$@"
 
