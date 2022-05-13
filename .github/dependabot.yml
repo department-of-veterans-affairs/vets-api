@@ -10,7 +10,9 @@ updates:
   directory: "/"
   insecure-external-code-execution: allow
   schedule:
-    interval: daily
+    interval: "daily"
+    time: "09:00"
+    timezone: "UTC"
   ignore:
     - dependency-name: "vets_json_schema"
     - dependency-name: "active_model_serializers"
