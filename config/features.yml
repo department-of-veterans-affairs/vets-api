@@ -688,3 +688,6 @@ features:
     actor_type: user
     description: Enables linking between VA.gov account and fitbit account
     enable_in_development: true
+  show_expandable_vamc_alert:
+    actor_type: user
+    description: Allows expandable alerts to be visible in vamc
