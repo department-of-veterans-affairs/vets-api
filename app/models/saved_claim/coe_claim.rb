@@ -78,8 +78,8 @@ class SavedClaim::CoeClaim < SavedClaim
     parsed_form['relevantPriorLoans'].each do |loan_info|
       form_copy['relevantPriorLoans'] << {
         'vaLoanNumber' => loan_info['vaLoanNumber'].to_s,
-        'startDate' => loan_info['dateRange']['startDate'],
-        'paidOffDate' => loan_info['dateRange']['paidOffDate'],
+        'startDate' => loan_info['dateRange']['from'],
+        'paidOffDate' => loan_info['dateRange']['to'],
         'loanAmount' => loan_info['loanAmount'],
         'loanEntitlementCharged' => loan_info['loanEntitlementCharged'],
         'propertyOwned' => loan_info['propertyOwned'] || false,

@@ -351,8 +351,8 @@ module PdfFill
 
         if prior_loan_array.present?
           prior_loan_array.each do |i|
-            split_start = i['dateRange']['startDate'].split('-')
-            split_paid = i['dateRange']['paidOffDate'].split('-')
+            split_start = i['dateRange']['from'].split('-')
+            split_paid = i['dateRange']['to'].split('-')
             date_range = "#{split_start[1]}-#{split_start[0]} to #{+ split_paid[1]}-#{split_paid[0]}"
 
             start_finish_range = date_range
