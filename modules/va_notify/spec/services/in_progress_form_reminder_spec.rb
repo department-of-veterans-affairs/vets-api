@@ -86,9 +86,9 @@ describe VANotify::InProgressFormReminder, type: :worker do
                      'form_3_id' => 'form_3 something'
                    })
 
-        form_1_date = "_Application expires on: #{in_progress_form_1.expires_at.strftime('%B %d, %Y')}_"
-        form_2_date = "_Application expires on: #{in_progress_form_2.expires_at.strftime('%B %d, %Y')}_"
-        form_3_date = "_Application expires on: #{in_progress_form_3.expires_at.strftime('%B %d, %Y')}_"
+        form_1_date = in_progress_form_1.expires_at.strftime('%B %d, %Y')
+        form_2_date = in_progress_form_2.expires_at.strftime('%B %d, %Y')
+        form_3_date = in_progress_form_3.expires_at.strftime('%B %d, %Y')
 
         Sidekiq::Testing.inline! do
           described_class.new.perform(in_progress_form_1.id)
@@ -98,20 +98,17 @@ describe VANotify::InProgressFormReminder, type: :worker do
                                                                        {
                                                                          'first_name' => 'FIRST_NAME',
 
-                                                                         'form_1_number' => 'FORM 686C-674',
-                                                                         'form_1_name' => '__ 686c something __',
+                                                                         'form_1_number' => '686C-674',
+                                                                         'form_1_name' => '686c something',
                                                                          'form_1_date' => form_1_date,
-                                                                         'form_1_divider' => '---',
 
-                                                                         'form_2_number' => 'FORM form_3_id',
-                                                                         'form_2_name' => '__ form_3 something __',
+                                                                         'form_2_number' => 'form_3_id',
+                                                                         'form_2_name' => 'form_3 something',
                                                                          'form_2_date' => form_3_date,
-                                                                         'form_2_divider' => '---',
 
-                                                                         'form_3_number' => 'FORM form_2_id',
-                                                                         'form_3_name' => '__ form_2 something __',
-                                                                         'form_3_date' => form_2_date,
-                                                                         'form_3_divider' => '---'
+                                                                         'form_3_number' => 'form_2_id',
+                                                                         'form_3_name' => 'form_2 something',
+                                                                         'form_3_date' => form_2_date
                                                                        })
       end
     end

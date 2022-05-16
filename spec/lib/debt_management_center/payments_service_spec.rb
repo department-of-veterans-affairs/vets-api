@@ -2,6 +2,7 @@
 
 require 'debt_management_center/payments_service'
 require 'rails_helper'
+require 'debt_management_center/payments_service'
 
 describe DebtManagementCenter::PaymentsService do
   let(:user) { build(:user, :loa3) }

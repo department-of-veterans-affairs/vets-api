@@ -69,6 +69,23 @@ RSpec.describe HealthCareApplication, type: :model do
         context 'with a loa3 user' do
           let(:user) { create(:user, :loa3) }
 
+          context 'with a nil birth_date' do
+            before do
+              health_care_application.parsed_form['veteranDateOfBirth'] = '1923-01-02'
+              expect(user).to receive(:birth_date).and_return(nil)
+            end
+
+            it 'doesnt set a field if the user data is null' do
+              expect(health_care_application).to receive(:prefill_compensation_type)
+
+              health_care_application.send(:prefill_fields)
+
+              parsed_form = health_care_application.parsed_form
+              expect(parsed_form['veteranDateOfBirth']).to eq('1923-01-02')
+              expect(parsed_form['veteranSocialSecurityNumber']).to eq(user.ssn_normalized)
+            end
+          end
+
           it 'sets uneditable fields using user data' do
             expect(health_care_application).to receive(:prefill_compensation_type)
 

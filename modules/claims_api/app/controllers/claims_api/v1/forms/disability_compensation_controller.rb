@@ -186,7 +186,7 @@ module ClaimsApi
           validate_form_526_veteran_homelessness!
           # ensure 'militaryRetiredPay.receiving' and 'militaryRetiredPay.willReceiveInFuture' are not same non-null values # rubocop:disable Layout/LineLength
           validate_form_526_service_pay!
-          # ensure 'title10ActivationDate' if provided, is greater than the earliest servicePeriod.beginningDate and less than the current date # rubocop:disable Layout/LineLength
+          # ensure 'title10ActivationDate' if provided, is after the earliest servicePeriod.activeDutyBeginDate and on or before the current date # rubocop:disable Layout/LineLength
           validate_form_526_title10_activation_date!
           # ensure 'title10Activation.anticipatedSeparationDate' is in the future
           validate_form_526_title10_anticipated_separation_date!
@@ -239,11 +239,11 @@ module ClaimsApi
                                                         'title10ActivationDate')
           return if title10_activation_date.blank?
 
-          end_dates = form_attributes['serviceInformation']['servicePeriods'].map do |service_period|
-            Date.parse(service_period['activeDutyEndDate'])
+          begin_dates = form_attributes['serviceInformation']['servicePeriods'].map do |service_period|
+            Date.parse(service_period['activeDutyBeginDate'])
           end
 
-          return if Date.parse(title10_activation_date) > end_dates.min &&
+          return if Date.parse(title10_activation_date) > begin_dates.min &&
                     Date.parse(title10_activation_date) <= Time.zone.now
 
           raise ::Common::Exceptions::InvalidFieldValue.new('title10ActivationDate', title10_activation_date)

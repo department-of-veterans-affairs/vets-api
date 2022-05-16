@@ -59,10 +59,9 @@ module VANotify
       personalisation = in_progress_forms.flat_map.with_index(1) do |form, i|
         friendly_form_name = VANotify::InProgressFormHelper::FRIENDLY_FORM_SUMMARY.fetch(form.form_id)
         [
-          ["form_#{i}_number", "FORM #{form.form_id}"],
-          ["form_#{i}_name", "__ #{friendly_form_name} __"],
-          ["form_#{i}_date", "_Application expires on: #{form.expires_at.strftime('%B %d, %Y')}_"],
-          ["form_#{i}_divider", '---']
+          ["form_#{i}_number", form.form_id],
+          ["form_#{i}_name", friendly_form_name],
+          ["form_#{i}_date", form.expires_at.strftime('%B %d, %Y')]
         ]
       end.to_h
       personalisation['first_name'] = veteran.first_name.upcase
