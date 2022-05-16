@@ -206,9 +206,11 @@ class HealthCareApplication < ApplicationRecord
   def prefill_fields
     return if user.blank? || !user.loa3?
 
-    parsed_form['veteranFullName'] = user.full_name_normalized.compact.stringify_keys
-    parsed_form['veteranDateOfBirth'] = user.birth_date
-    parsed_form['veteranSocialSecurityNumber'] = user.ssn_normalized
+    parsed_form.merge!({
+      'veteranFullName' => user.full_name_normalized.compact.stringify_keys,
+      'veteranDateOfBirth' => user.birth_date,
+      'veteranSocialSecurityNumber' => user.ssn_normalized
+    }.compact)
 
     prefill_compensation_type
   end
