@@ -63,6 +63,34 @@ Rails.application.reloader.to_prepare do
     end
   end
 
+  # Sign in Service
+  SignInController::REDIRECT_URLS.each do |csp|
+    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_SUCCESS, 0,
+                     tags: ['version:v0', "context:#{csp}"])
+    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_FAILURE, 0,
+                     tags: ['version:v0', "context:#{csp}", 'error:'])
+    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS, 0,
+                     tags: ['version:v0', "context:#{csp}"])
+    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE, 0,
+                     tags: ['version:v0', "context:#{csp}", 'error:'])
+    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS, 0,
+                     tags: ['version:v0'])
+    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_FAILURE, 0,
+                     tags: ['version:v0', 'error:'])
+    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_SUCCESS, 0,
+                     tags: ['version:v0'])
+    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_FAILURE, 0,
+                     tags: ['version:v0', 'error:'])
+    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_SUCCESS, 0,
+                     tags: ['version:v0'])
+    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_FAILURE, 0,
+                     tags: ['version:v0', 'error:'])
+    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_INTROSPECT_SUCCESS, 0,
+                     tags: ['version:v0'])
+    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_INTROSPECT_FAILURE, 0,
+                     tags: ['version:v0', 'error:'])
+  end
+
   # init GiBillStatus stats to 0
   StatsD.increment(V0::Post911GIBillStatusesController::STATSD_GI_BILL_TOTAL_KEY, 0)
   StatsD.increment(V0::Post911GIBillStatusesController::STATSD_GI_BILL_FAIL_KEY, 0, tags: ['error:unknown'])
