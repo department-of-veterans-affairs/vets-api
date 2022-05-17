@@ -21,7 +21,7 @@ module AppealsApi
     end
 
     def ssn
-      auth_headers["X-VA#{header_prefix}-SSN"] || auth_headers['X-VA-SSN']
+      auth_headers["X-VA#{header_prefix}-SSN"]
     end
 
     def birth_date_string
