@@ -34,7 +34,7 @@ RSpec.describe SignIn::UserCreator do
             birth_date: birth_date,
             first_name: first_name,
             last_name: last_name,
-            email: email,
+            csp_email: csp_email,
             sign_in: { service_name: service_name }
           }
         end
@@ -45,7 +45,7 @@ RSpec.describe SignIn::UserCreator do
         let(:birth_date) { '2022-01-01' }
         let(:first_name) { 'some-first-name' }
         let(:last_name) { 'some-last-name' }
-        let(:email) { 'some-email' }
+        let(:csp_email) { 'some-csp-email' }
         let(:service_name) { SAML::User::LOGINGOV_CSID }
         let!(:user_verification) { create(:logingov_user_verification, logingov_uuid: csp_id) }
         let(:login_code) { 'some-login-code' }
@@ -106,7 +106,6 @@ RSpec.describe SignIn::UserCreator do
           expect(user.birth_date).to eq(birth_date)
           expect(user.first_name).to eq(first_name)
           expect(user.last_name).to eq(last_name)
-          expect(user.email).to eq(email)
         end
 
         it 'returns a login code and client state' do
@@ -116,8 +115,9 @@ RSpec.describe SignIn::UserCreator do
         it 'creates a code container mapped to expected login code' do
           code, _client_state = subject
           code_container = SignIn::CodeContainer.find(code)
-          expect(code_container.user_account_uuid).to eq(user_verification.user_account.id)
+          expect(code_container.user_verification_id).to eq(user_verification.id)
           expect(code_container.code_challenge).to eq(code_challenge_state_map.code_challenge)
+          expect(code_container.credential_email).to eq(csp_email)
         end
       end
 
@@ -131,7 +131,7 @@ RSpec.describe SignIn::UserCreator do
             birth_date: birth_date,
             first_name: first_name,
             last_name: last_name,
-            email: email,
+            csp_email: csp_email,
             sign_in: { service_name: service_name }
           }
         end
@@ -142,7 +142,7 @@ RSpec.describe SignIn::UserCreator do
         let(:birth_date) { '2022-01-01' }
         let(:first_name) { 'some-first-name' }
         let(:last_name) { 'some-last-name' }
-        let(:email) { 'some-email' }
+        let(:csp_email) { 'some-csp-email' }
         let(:service_name) { SAML::User::IDME_CSID }
         let!(:user_verification) { create(:idme_user_verification, idme_uuid: csp_id) }
         let(:login_code) { 'some-login-code' }
@@ -160,7 +160,6 @@ RSpec.describe SignIn::UserCreator do
           expect(user.birth_date).to eq(birth_date)
           expect(user.first_name).to eq(first_name)
           expect(user.last_name).to eq(last_name)
-          expect(user.email).to eq(email)
         end
 
         it 'returns a login code and client state' do
@@ -170,8 +169,9 @@ RSpec.describe SignIn::UserCreator do
         it 'creates a code container mapped to expected login code' do
           code, _client_state = subject
           code_container = SignIn::CodeContainer.find(code)
-          expect(code_container.user_account_uuid).to eq(user_verification.user_account.id)
+          expect(code_container.user_verification_id).to eq(user_verification.id)
           expect(code_container.code_challenge).to eq(code_challenge_state_map.code_challenge)
+          expect(code_container.credential_email).to eq(csp_email)
         end
       end
 

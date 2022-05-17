@@ -37,7 +37,7 @@ module SignIn
           birth_date: user_info.birth_date,
           first_name: user_info.fname,
           last_name: user_info.lname,
-          email: user_info.email,
+          csp_email: user_info.email,
           sign_in: { service_name: config.service_name },
           authn_context: type
         }

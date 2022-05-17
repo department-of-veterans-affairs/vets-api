@@ -64,7 +64,6 @@ module SignIn
     def delete_session!
       detect_token_theft
     ensure
-      SignIn::Logger.new.refresh_token_log('Sign in Service Tokens Revoke', refresh_token)
       session.destroy!
     end
   end

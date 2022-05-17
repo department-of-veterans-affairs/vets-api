@@ -8,8 +8,9 @@ module SignIn
 
     attribute :code_challenge, String
     attribute :code, String
-    attribute :user_account_uuid, String
+    attribute :user_verification_id, Integer
+    attribute :credential_email, String
 
-    validates(:code_challenge, :code, :user_account_uuid, presence: true)
+    validates(:code_challenge, :code, :user_verification_id, presence: true)
   end
 end

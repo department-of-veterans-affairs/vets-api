@@ -64,8 +64,10 @@ class SignInController < ApplicationController
     raise SignIn::Errors::MalformedParamsError, 'Code Verifier is not defined' unless code_verifier
     raise SignIn::Errors::MalformedParamsError, 'Grant Type is not defined' unless grant_type
 
-    user_account = SignIn::CodeValidator.new(code: code, code_verifier: code_verifier, grant_type: grant_type).perform
-    session_container = SignIn::SessionCreator.new(user_account: user_account).perform
+    validated_credential = SignIn::CodeValidator.new(code: code,
+                                                     code_verifier: code_verifier,
+                                                     grant_type: grant_type).perform
+    session_container = SignIn::SessionCreator.new(validated_credential: validated_credential).perform
     sign_in_logger.refresh_token_log('Sign in Service Token Response', session_container.refresh_token, { code: code })
 
     render json: session_token_response(session_container), status: :ok

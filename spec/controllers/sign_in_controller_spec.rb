@@ -3,9 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe SignInController, type: :controller do
-  let(:user_account) { create(:user_account) }
-  let(:user_account_uuid) { user_account.id }
-
   before do
     Timecop.freeze(Time.zone.now.floor)
     allow(Rails.logger).to receive(:info)
@@ -325,6 +322,8 @@ RSpec.describe SignInController, type: :controller do
   describe 'POST token' do
     subject { get(:token, params: {}.merge(code).merge(code_verifier).merge(grant_type)) }
 
+    let(:user_verification) { create(:user_verification) }
+    let(:user_verification_id) { user_verification.id }
     let(:code) { { code: code_value } }
     let(:code_verifier) { { code_verifier: code_verifier_value } }
     let(:grant_type) { { grant_type: grant_type_value } }
@@ -396,7 +395,7 @@ RSpec.describe SignInController, type: :controller do
           create(:code_container,
                  code: code_value,
                  code_challenge: code_challenge,
-                 user_account_uuid: user_account_uuid)
+                 user_verification_id: user_verification_id)
         end
         let(:code_challenge) { 'some-code-challenge' }
 
@@ -438,9 +437,9 @@ RSpec.describe SignInController, type: :controller do
           context 'and grant_type does match supported grant type value' do
             let(:grant_type_value) { SignIn::Constants::Auth::GRANT_TYPE }
 
-            context 'and code_container matched with code does not match to a user account' do
-              let(:user_account_uuid) { 'some-arbitrary-user-account-uuid' }
-              let(:expected_error) { "Couldn't find UserAccount with 'id'=#{user_account_uuid}" }
+            context 'and code_container matched with code does not match to a user verification' do
+              let(:user_verification_id) { 'some-arbitrary-user-verification-id' }
+              let(:expected_error) { "Couldn't find UserVerification with 'id'=#{user_verification_id}" }
               let(:expected_error_json) { { 'errors' => expected_error } }
 
               it 'renders expected error' do
@@ -453,8 +452,8 @@ RSpec.describe SignInController, type: :controller do
             end
 
             context 'and code_container matched with code does match a user account' do
-              let(:user_account_uuid) { user_account.id }
-              let(:user_account) { create(:user_account) }
+              let(:user_verification_id) { user_verification.id }
+              let(:user_verification) { create(:user_verification) }
 
               it 'creates an OAuthSession' do
                 expect { subject }.to change(SignIn::OAuthSession, :count).by(1)
@@ -749,8 +748,14 @@ RSpec.describe SignInController, type: :controller do
     let(:anti_csrf_token_param) { { anti_csrf_token: anti_csrf_token } }
     let(:anti_csrf_token) { 'example-anti-csrf-token' }
     let(:enable_anti_csrf) { false }
+    let(:user_verification) { create(:user_verification) }
+    let(:user_account) { user_verification.user_account }
+    let(:validated_credential) { create(:validated_credential, user_verification: user_verification) }
 
-    before { allow(Settings.sign_in).to receive(:enable_anti_csrf).and_return(enable_anti_csrf) }
+    before do
+      allow(Settings.sign_in).to receive(:enable_anti_csrf).and_return(enable_anti_csrf)
+      allow(Rails.logger).to receive(:info)
+    end
 
     context 'when Settings sign_in enable_anti_csrf is enabled' do
       let(:enable_anti_csrf) { true }
@@ -770,8 +775,7 @@ RSpec.describe SignInController, type: :controller do
       end
 
       context 'and anti_csrf_token has been modified' do
-        let(:user_account) { create(:user_account) }
-        let(:session_container) { SignIn::SessionCreator.new(user_account: user_account).perform }
+        let(:session_container) { SignIn::SessionCreator.new(validated_credential: validated_credential).perform }
         let(:refresh_token) do
           SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
         end
@@ -803,10 +807,19 @@ RSpec.describe SignInController, type: :controller do
     end
 
     context 'when refresh_token is encrypted correctly' do
-      let(:user_account) { create(:user_account) }
-      let(:session_container) { SignIn::SessionCreator.new(user_account: user_account).perform }
+      let(:session_container) { SignIn::SessionCreator.new(validated_credential: validated_credential).perform }
       let(:refresh_token) do
         SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
+      end
+      let(:timestamp) { Time.zone.now.to_s }
+      let(:expected_log_message) { 'Sign in Service Session Revoke' }
+      let(:expected_log_attributes) do
+        {
+          session_id: expected_session_handle,
+          timestamp: timestamp,
+          token_type: 'Refresh',
+          user_id: user_account.id
+        }
       end
 
       context 'when refresh token is expired' do
@@ -859,11 +872,7 @@ RSpec.describe SignInController, type: :controller do
         end
 
         it 'logs the session revocation' do
-          expect(Rails.logger).to receive(:info).once.with(
-            'Sign in Service Session Revoke',
-            { session_id: expected_session_handle, timestamp: Time.zone.now.to_s,
-              token_type: 'Refresh', user_id: user_account.id }
-          )
+          expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_attributes)
           subject
         end
       end
@@ -878,8 +887,14 @@ RSpec.describe SignInController, type: :controller do
     let(:refresh_token) { 'some-refresh-token' }
     let(:anti_csrf_token) { 'some-anti-csrf-token' }
     let(:enable_anti_csrf) { true }
+    let(:user_verification) { create(:user_verification) }
+    let(:user_account) { user_verification.user_account }
+    let(:validated_credential) { create(:validated_credential, user_verification: user_verification) }
 
-    before { allow(Settings.sign_in).to receive(:enable_anti_csrf).and_return(enable_anti_csrf) }
+    before do
+      allow(Settings.sign_in).to receive(:enable_anti_csrf).and_return(enable_anti_csrf)
+      allow(Rails.logger).to receive(:info)
+    end
 
     context 'when Settings sign_in enable_anti_csrf is enabled' do
       let(:enable_anti_csrf) { true }
@@ -899,8 +914,7 @@ RSpec.describe SignInController, type: :controller do
       end
 
       context 'and anti_csrf_token has been modified' do
-        let(:user_account) { create(:user_account) }
-        let(:session_container) { SignIn::SessionCreator.new(user_account: user_account).perform }
+        let(:session_container) { SignIn::SessionCreator.new(validated_credential: validated_credential).perform }
         let(:refresh_token) do
           SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
         end
@@ -933,12 +947,22 @@ RSpec.describe SignInController, type: :controller do
     end
 
     context 'when refresh_token is the proper encrypted refresh token format' do
-      let(:user_account) { create(:user_account) }
-      let(:session_container) { SignIn::SessionCreator.new(user_account: user_account).perform }
+      let(:session_container) { SignIn::SessionCreator.new(validated_credential: validated_credential).perform }
       let(:refresh_token) do
         SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
       end
       let(:anti_csrf_token) { session_container.anti_csrf_token }
+      let(:timestamp) { Time.zone.now.to_s }
+      let(:expected_session_handle) { session_container.session.handle }
+      let(:expected_log_message) { 'Sign in Service Tokens Refresh' }
+      let(:expected_log_attributes) do
+        {
+          session_id: expected_session_handle,
+          timestamp: timestamp,
+          token_type: 'Refresh',
+          user_id: user_account.id
+        }
+      end
 
       context 'and encrypted component has been modified' do
         let(:expected_error) { 'Refresh token cannot be decrypted' }
@@ -1078,12 +1102,8 @@ RSpec.describe SignInController, type: :controller do
         end
 
         it 'logs the token refresh' do
-          access_token = JWT.decode(JSON.parse(subject.body)['data']['access_token'], nil, false).first
-          expect(Rails.logger).to have_received(:info).once.with(
-            'Sign in Service Tokens Refresh',
-            { token_type: 'Refresh', user_id: user_account.id,
-              session_id: access_token['session_handle'], timestamp: Time.zone.now.to_s }
-          )
+          expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_attributes)
+          subject
         end
       end
     end

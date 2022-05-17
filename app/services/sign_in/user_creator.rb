@@ -45,7 +45,8 @@ module SignIn
     def create_code_container
       SignIn::CodeContainer.new(code: login_code,
                                 code_challenge: code_challenge_state_map.code_challenge,
-                                user_account_uuid: current_user.uuid).save!
+                                user_verification_id: user_verification.id,
+                                credential_email: credential_email).save!
     end
 
     def code_challenge_state_map
@@ -70,6 +71,10 @@ module SignIn
 
     def client_state
       code_challenge_state_map.client_state
+    end
+
+    def credential_email
+      user_attributes[:csp_email]
     end
 
     def login_code
