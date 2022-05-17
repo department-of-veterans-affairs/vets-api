@@ -78,6 +78,8 @@
                     "nationalCemeteryAdministration"
                   ]
                 },
+                "claimantType": {"type": "string", "enum": [ "veteran", "spouse_of_veteran", "child_of_veteran", "parent_of_veteran", "other"] },
+                "claimantTypeOtherValue": { "type":  "string", "minLength": 1, "maxLength": 25 },
                 "veteran": {
                   "type": "object",
                   "properties": {
@@ -102,8 +104,6 @@
                   "type": "object",
                   "description": "If the claimant is a non-Veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
                   "properties": {
-                    "claimantType": {"type": "string", "enum": [ "veteran", "spouse_of_veteran", "child_of_veteran", "parent_of_veteran", "other"] },
-                    "claimantTypeOtherValue": { "type":  "string", "minLength": 1, "maxLength": 25 },
                     "address":{ "$ref": "#/definitions/address" },
                     "phone": {
                       "allOf": [
@@ -119,11 +119,9 @@
                         { "$ref": "#/definitions/timezone"}
                       ]
                     }
-                  },
-                  "required": ["claimantType","address", "phone", "email"],
-                  "if": { "properties": { "claimantType": { "const": "other" } } },
-                  "then": { "required": ["claimantTypeOtherValue"] }
+                  }
                 },
+                "required": ["address", "phone", "email"],
                 "evidenceSubmission": {
                   "description": "Evidence may be uploaded up to 7 days from the 'created_at' date of the associated Supplemental Claim via 'supplemental_claims/evidence_submissions'.",
                   "type": "object",
@@ -177,9 +175,17 @@
                 },
                 "socOptIn": { "type": "boolean" }
               },
-              "required": ["veteran", "benefitType", "evidenceSubmission", "socOptIn"],
-              "if": { "properties": { "benefitType": { "const": "compensation" } } },
-              "then": { "required": ["form5103Acknowledged"], "properties": { "form5103Acknowledged": { "enum": [true] } } }
+              "allOf": [
+                { "required": ["veteran", "benefitType", "claimantType", "evidenceSubmission", "socOptIn"] },
+                {
+                  "if": { "properties": { "benefitType": { "const": "compensation" } } },
+                  "then": { "required": ["form5103Acknowledged"], "properties": { "form5103Acknowledged": { "enum": [true] } } }
+                },
+                {
+                  "if": { "properties": { "claimantType": { "const": "other" } } },
+                  "then": { "required": ["claimantTypeOtherValue"] }
+                }
+              ]
             }
           },
           "required": ["type", "attributes"]

@@ -3,6 +3,7 @@
     "type": "supplementalClaim",
     "attributes": {
       "benefitType": "fiduciary",
+      "claimantType": "veteran",
       "veteran": {
         "address": {
           "addressLine1": "123 Main St",
