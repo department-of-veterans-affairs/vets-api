@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://api.github.com/repos/department-of-veterans-affairs/vets-website/git/refs/heads/master
+    uri: https://api.github.com/repos/department-of-veterans-affairs/vets-website/git/refs/heads/main
     body:
       encoding: US-ASCII
       string: ''
@@ -75,7 +75,7 @@ http_interactions:
       - C2B3:7202:131F316:2BEC201:601AA8D3
     body:
       encoding: ASCII-8BIT
-      string: '{"ref":"refs/heads/master","node_id":"MDM6UmVmMzMyMDI2Njc6cmVmcy9oZWFkcy9tYXN0ZXI=","url":"https://api.github.com/repos/department-of-veterans-affairs/vets-website/git/refs/heads/master","object":{"sha":"a88961fc46104ca8e9f758793eaa3eebc7a0a7a0","type":"commit","url":"https://api.github.com/repos/department-of-veterans-affairs/vets-website/git/commits/a88961fc46104ca8e9f758793eaa3eebc7a0a7a0"}}'
+      string: '{"ref":"refs/heads/main","node_id":"MDM6UmVmMzMyMDI2Njc6cmVmcy9oZWFkcy9tYXN0ZXI=","url":"https://api.github.com/repos/department-of-veterans-affairs/vets-website/git/refs/heads/main","object":{"sha":"a88961fc46104ca8e9f758793eaa3eebc7a0a7a0","type":"commit","url":"https://api.github.com/repos/department-of-veterans-affairs/vets-website/git/commits/a88961fc46104ca8e9f758793eaa3eebc7a0a7a0"}}'
   recorded_at: Wed, 03 Feb 2021 13:44:51 GMT
 - request:
     method: post
