@@ -583,6 +583,45 @@ RSpec.describe 'user', type: :request do
         )
       end
     end
+
+    describe 'fax number' do
+      let(:user_request) do
+        VCR.use_cassette('payment_information/payment_information') do
+          VCR.use_cassette('user/get_facilities', match_requests_on: %i[method uri]) do
+            get '/mobile/v0/user', headers: iam_headers
+          end
+        end
+      end
+
+      context 'when the user have a fax number' do
+        it 'returns expected fax number' do
+          user_request
+          expect(attributes['profile']['faxNumber']).to eq(
+            {
+              'id' => 792,
+              'areaCode' => '303',
+              'countryCode' => '1',
+              'extension' => nil,
+              'phoneNumber' => '5551234',
+              'phoneType' => 'FAX'
+            }
+          )
+        end
+      end
+
+      # Another team will remove this method from the user model
+      context 'when user model does not have a fax number method' do
+        before do
+          allow_any_instance_of(VAProfileRedis::ContactInformation).to receive(:try).with(:fax_number).and_return(nil)
+        end
+
+        it 'sets fax number to nil' do
+          user_request
+          expect(response).to have_http_status(:ok)
+          expect(attributes['profile']['faxNumber']).to eq(nil)
+        end
+      end
+    end
   end
 
   describe 'GET /mobile/v0/user/logout' do

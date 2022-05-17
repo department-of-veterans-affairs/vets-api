@@ -88,7 +88,7 @@ module Mobile
           home_phone_number: filter_keys(contact_info&.home_phone, PHONE_KEYS),
           mobile_phone_number: filter_keys(contact_info&.mobile_phone, PHONE_KEYS),
           work_phone_number: filter_keys(contact_info&.work_phone, PHONE_KEYS),
-          fax_number: filter_keys(contact_info&.fax_number, PHONE_KEYS),
+          fax_number: filter_keys(contact_info.try(:fax_number), PHONE_KEYS),
           signin_service: user.identity.sign_in[:service_name].remove('oauth_')
         }
       end
