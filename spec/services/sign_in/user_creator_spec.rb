@@ -55,6 +55,49 @@ RSpec.describe SignIn::UserCreator do
           allow(SecureRandom).to receive(:uuid).and_return(login_code)
         end
 
+        context 'and current user does not have a retrievable icn' do
+          let(:add_person_response) do
+            MPI::Responses::AddPersonResponse.new(status: status,
+                                                  mvi_codes: mvi_codes,
+                                                  error: error)
+          end
+
+          let(:status) { 'OK' }
+          let(:mvi_codes) { { icn: icn } }
+          let(:icn) { 'some-icn' }
+          let(:error) { nil }
+
+          before do
+            stub_mpi_not_found
+            allow_any_instance_of(MPI::Service).to receive(:add_person_implicit_search).and_return(add_person_response)
+          end
+
+          it 'makes an mpi call to create a new record' do
+            expect_any_instance_of(MPI::Service).to receive(:add_person_implicit_search)
+            subject
+          end
+
+          context 'and the mpi add_person call is successful' do
+            let(:status) { 'OK' }
+
+            it 'saves the returned icn on the user model' do
+              subject
+              user = User.find(user_verification.user_account.id)
+              expect(user.icn).to eq(icn)
+            end
+          end
+
+          context 'and the mpi add_person call is not successful' do
+            let(:status) { 'some-not-successful-status' }
+            let(:expected_error) { SignIn::Errors::MPIUserCreationFailedError }
+            let(:expected_error_message) { 'User MPI record cannot be created' }
+
+            it 'raises an MPI user creation error' do
+              expect { subject }.to raise_error(expected_error, expected_error_message)
+            end
+          end
+        end
+
         it 'creates a user with expected attributes' do
           subject
           user = User.find(user_verification.user_account.id)

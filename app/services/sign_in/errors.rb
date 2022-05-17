@@ -26,5 +26,6 @@ module SignIn
     class CodeVerifierMalformedError < StandardError; end
     class UserAccountNotFoundError < StandardError; end
     class SessionNotFoundError < StandardError; end
+    class MPIUserCreationFailedError < StandardError; end
   end
 end

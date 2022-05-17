@@ -261,14 +261,22 @@ class User < Common::RedisStore
 
   # MPI setter methods
 
-  def mpi_add_person
+  def mpi_add_person_proxy
     add_person_identity = identity
     add_person_identity.edipi = edipi
     add_person_identity.ssn = ssn
     add_person_identity.icn_with_aaid = icn_with_aaid
     add_person_identity.search_token = search_token
     mpi.user_identity = add_person_identity
-    mpi.add_person
+    mpi.add_person_proxy
+  end
+
+  def mpi_add_person_implicit_search
+    return unless loa3? && !mpi_profile?
+
+    invalidate_mpi_cache
+    @mpi = nil
+    mpi.add_person_implicit_search
   end
 
   def set_mhv_ids(mhv_id)

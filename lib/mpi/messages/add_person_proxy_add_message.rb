@@ -5,15 +5,15 @@ require 'formatters/date_formatter'
 
 module MPI
   module Messages
-    # Builds an MPI SOAP XML message for adding a user.
+    # Builds an MPI SOAP XML message for adding an external system for an existing user.
     #
     # Call with a user object and use `.to_xml` method to create the XML message
     #
     # Example:
-    #  message = MPI::Messages::AddPersonMessage.new(user).to_xml
+    #  message = MPI::Messages::AddPersonProxyAddMessage.new(user).to_xml
     #
-    class AddPersonMessage
-      SCHEMA_FILE_NAME = 'mpi_add_person_template.xml'
+    class AddPersonProxyAddMessage
+      SCHEMA_FILE_NAME = 'mpi_add_person_proxy_add_template.xml'
 
       def initialize(user)
         raise ArgumentError, 'User missing attributes' unless can_mvi_proxy_add?(user)

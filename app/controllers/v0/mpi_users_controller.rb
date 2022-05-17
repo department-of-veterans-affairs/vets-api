@@ -3,7 +3,7 @@
 module V0
   # Formerly MviUsersController
   class MPIUsersController < ApplicationController
-    before_action { authorize :mpi, :access_add_person? }
+    before_action { authorize :mpi, :access_add_person_proxy? }
 
     def submit
       # Caller must be using proxy add in order to complete Intent to File or Disability Compensation forms
@@ -24,7 +24,7 @@ module V0
       end
 
       # Make request to MVI to gather and update user ids
-      add_response = @current_user.mpi_add_person
+      add_response = @current_user.mpi_add_person_proxy
       raise add_response.error unless add_response.ok?
 
       render json: { message: 'Success' }

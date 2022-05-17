@@ -1155,4 +1155,41 @@ RSpec.describe User, type: :model do
       end
     end
   end
+
+  describe '#mpi_add_person_implicit_search' do
+    subject { user.mpi_add_person_implicit_search }
+
+    let(:user) { create(:user, :loa3) }
+
+    before do
+      allow_any_instance_of(MPI::Service).to receive(:add_person_implicit_search)
+    end
+
+    context 'when mpi profile already exists' do
+      it 'does not make a call to MPI to create a new user' do
+        expect_any_instance_of(MPI::Service).not_to receive(:add_person_implicit_search)
+        subject
+      end
+    end
+
+    context 'when mpi profile does not already exist' do
+      context 'and loa3? is true' do
+        before { stub_mpi_not_found }
+
+        it 'makes a call to MPI to create a new user' do
+          expect_any_instance_of(MPI::Service).to receive(:add_person_implicit_search)
+          subject
+        end
+      end
+
+      context 'and loa3? is false' do
+        let(:user) { create(:user) }
+
+        it 'does not make a call to MPI to create a new user' do
+          expect_any_instance_of(MPI::Service).not_to receive(:add_person_implicit_search)
+          subject
+        end
+      end
+    end
+  end
 end

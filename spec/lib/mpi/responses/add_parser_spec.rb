@@ -34,6 +34,7 @@ describe MPI::Responses::AddParser do
           [
             { codeSystemName: 'MVI', code: '111985523^PI^200BRLS^USVBA', displayName: 'IEN' },
             { codeSystemName: 'MVI', code: '32397028^PI^200CORP^USVBA', displayName: 'IEN' },
+            { codeSystemName: 'MVI', code: '1013677486V514195', displayName: 'ICN' },
             { codeSystemName: 'MVI', code: 'WRN206', displayName: 'test error' }
           ]
         end
@@ -44,7 +45,8 @@ describe MPI::Responses::AddParser do
               { codeSystemName: 'MVI', code: 'WRN206', displayName: 'test error' }
             ],
             birls_id: '111985523',
-            participant_id: '32397028'
+            participant_id: '32397028',
+            icn: '1013677486V514195'
           }
         end
 
