@@ -3,6 +3,7 @@
     "type": "supplementalClaim",
     "attributes": {
       "benefitType": "lifeInsurance",
+      "claimantType": "spouse_of_veteran",
       "veteran": {
         "address": {
           "addressLine1": "123 Main St",

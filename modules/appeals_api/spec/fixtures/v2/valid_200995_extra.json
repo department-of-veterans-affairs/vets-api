@@ -3,6 +3,8 @@
     "type": "supplementalClaim",
     "attributes": {
       "benefitType": "compensation",
+      "claimantType": "other",
+      "claimantTypeOtherValue": "Veteran Attorney",
       "veteran": {
         "address": {
           "addressLine1": "123 Main St",
@@ -22,16 +24,14 @@
         "timezone": "America/Chicago"
       },
       "claimant": {
-        "claimantType": "other",
-        "claimantTypeOtherValue": "banana of veteran",
         "address": {
           "addressLine1": "456 First St",
           "addressLine2": "Apt 5",
           "addressLine3": "Box 1",
-          "city": "Detroit",
-          "countryCodeISO2": "US",
-          "stateCode": "MI",
-          "zipCode5": "48070"
+          "city": "Montreal",
+          "countryCodeISO2": "CA",
+          "zipCode5": "00000",
+          "internationalPostalCode": "A9999AAA"
         },
         "phone": {
           "countryCode": "1",
