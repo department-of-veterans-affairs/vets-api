@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 MPIPolicy = Struct.new(:user, :mvi) do
-  def access_add_person?
+  def access_add_person_proxy?
     user.edipi.present? && user.ssn.present? && (user.birls_id.blank? || user.participant_id.blank?)
   end
 

@@ -1084,8 +1084,8 @@ RSpec.describe 'Disability Claims ', type: :request do
               VCR.use_cassette('evss/reference_data/get_intake_sites') do
                 VCR.use_cassette('mpi/add_person/add_person_success') do
                   VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes') do
-                    expect_any_instance_of(MPIData).to receive(:add_person).once.and_call_original
-                    expect_any_instance_of(MPI::Service).to receive(:add_person).and_return(add_response)
+                    expect_any_instance_of(MPIData).to receive(:add_person_proxy).once.and_call_original
+                    expect_any_instance_of(MPI::Service).to receive(:add_person_proxy).and_return(add_response)
                     allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(mvi_profile_response)
 
                     post path, params: data, headers: auth_header

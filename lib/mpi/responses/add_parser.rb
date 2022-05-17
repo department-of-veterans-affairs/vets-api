@@ -55,7 +55,11 @@ module MPI
           when /CORP/
             codes[:participant_id] = sanitize_id(attribute[:code])
           else
-            codes[:other].append(attribute)
+            if attribute[:displayName] == 'ICN'
+              codes[:icn] = attribute[:code]
+            else
+              codes[:other].append(attribute)
+            end
           end
         end
         codes.delete(:other) if codes[:other].empty?

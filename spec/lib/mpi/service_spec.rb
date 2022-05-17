@@ -45,9 +45,9 @@ describe MPI::Service do
     )
   end
 
-  describe '.add_person' do
+  describe '.add_person_proxy' do
     before do
-      expect(MPI::Messages::AddPersonMessage).to receive(:new).once.and_call_original
+      expect(MPI::Messages::AddPersonProxyAddMessage).to receive(:new).once.and_call_original
     end
 
     context 'valid_request when user has no ids' do
@@ -62,7 +62,7 @@ describe MPI::Service do
 
       it 'runs a proxy add for birls and corp ids' do
         VCR.use_cassette('mpi/add_person/add_person_success') do
-          response = subject.add_person(user)
+          response = subject.add_person_proxy(user)
           expect(response.status).to eq('OK')
           expect(response.mvi_codes).to have_deep_attributes(mvi_codes)
         end
@@ -70,7 +70,7 @@ describe MPI::Service do
 
       it 'returns no errors' do
         VCR.use_cassette('mpi/add_person/add_person_success') do
-          response = subject.add_person(user)
+          response = subject.add_person_proxy(user)
 
           expect(response.error).to be_nil
         end
@@ -90,7 +90,7 @@ describe MPI::Service do
 
       it 'runs a proxy add for birls and corp ids' do
         VCR.use_cassette('mpi/add_person/add_person_already_exists') do
-          response = subject.add_person(user)
+          response = subject.add_person_proxy(user)
           expect(response.status).to eq('OK')
           expect(response.mvi_codes).to have_deep_attributes(mvi_codes)
         end
@@ -98,7 +98,7 @@ describe MPI::Service do
 
       it 'returns no errors' do
         VCR.use_cassette('mpi/add_person/add_person_success') do
-          response = subject.add_person(user)
+          response = subject.add_person_proxy(user)
 
           expect(response.error).to be_nil
         end
@@ -110,7 +110,7 @@ describe MPI::Service do
         expect(subject).to receive(:log_exception_to_sentry)
 
         VCR.use_cassette('mpi/add_person/add_person_invalid_request') do
-          response = subject.add_person(user)
+          response = subject.add_person_proxy(user)
           exception = response.error.errors.first
 
           expect(response.class).to eq MPI::Responses::AddPersonResponse
@@ -127,7 +127,7 @@ describe MPI::Service do
         expect(subject).to receive(:log_exception_to_sentry)
 
         VCR.use_cassette('mpi/add_person/add_person_duplicate') do
-          response = subject.add_person(user)
+          response = subject.add_person_proxy(user)
           exception = response.error.errors.first
 
           expect(response.class).to eq MPI::Responses::AddPersonResponse
@@ -147,10 +147,10 @@ describe MPI::Service do
       it 'raises a service error', :aggregate_failures do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI add_person error: Gateway timeout',
+          'MVI add_person_proxy error: Gateway timeout',
           :warn
         )
-        response = subject.add_person(user)
+        response = subject.add_person_proxy(user)
 
         exception = response.error.errors.first
 
@@ -168,7 +168,108 @@ describe MPI::Service do
       it 'returns the correct thing', :aggregate_failures do
         MPI::Configuration.instance.breakers_service.begin_forced_outage!
         expect(Raven).to receive(:extra_context).once
-        response = subject.add_person(user)
+        response = subject.add_person_proxy(user)
+
+        exception = response.error.errors.first
+
+        expect(response.class).to eq MPI::Responses::AddPersonResponse
+        expect(response.status).to eq server_error
+        expect(response.mvi_codes).to be_nil
+        expect(exception.title).to eq 'Service unavailable'
+        expect(exception.code).to eq 'MVI_503'
+        expect(exception.status).to eq '503'
+        expect(exception.source).to eq MPI::Service
+      end
+    end
+  end
+
+  describe '.add_person_implicit_search' do
+    before do
+      expect(MPI::Messages::AddPersonImplicitSearchMessage).to receive(:new).once.and_call_original
+    end
+
+    context 'valid request' do
+      let(:user) do
+        build(:user,
+              :loa3,
+              ssn: ssn,
+              first_name: first_name,
+              last_name: last_name,
+              birth_date: birth_date,
+              idme_uuid: idme_uuid)
+      end
+      let(:ssn) { 796_111_863 }
+      let(:first_name) { 'abraham' }
+      let(:last_name) { 'lincoln' }
+      let(:birth_date) { '18090212' }
+      let(:idme_uuid) { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
+      let(:expected_icn) { '1013677101V363970' }
+      let(:expected_response_codes) { { icn: expected_icn } }
+
+      it 'creates a new person in MPI' do
+        VCR.use_cassette('mpi/add_person/add_person_implicit_search_success') do
+          response = subject.add_person_implicit_search(user)
+          expect(response.status).to eq('OK')
+          expect(response.mvi_codes).to have_deep_attributes(expected_response_codes)
+        end
+      end
+
+      it 'returns no errors' do
+        VCR.use_cassette('mpi/add_person/add_person_implicit_search_success') do
+          response = subject.add_person_implicit_search(user)
+
+          expect(response.error).to be_nil
+        end
+      end
+    end
+
+    context 'invalid requests' do
+      it 'properly responds if a server error occurs', :aggregate_failures do
+        expect(subject).to receive(:log_exception_to_sentry)
+
+        VCR.use_cassette('mpi/add_person/add_person_implicit_search_server_error') do
+          response = subject.add_person_implicit_search(user)
+          exception = response.error.errors.first
+
+          expect(response.class).to eq MPI::Responses::AddPersonResponse
+          expect(response.status).to eq server_error
+          expect(response.mvi_codes).to be_nil
+          expect(exception.title).to eq 'Bad Gateway'
+          expect(exception.code).to eq 'MVI_502'
+          expect(exception.status).to eq '502'
+          expect(exception.source).to eq MPI::Service
+        end
+      end
+    end
+
+    context 'with an MVI timeout' do
+      let(:base_path) { MPI::Configuration.instance.base_path }
+
+      it 'raises a service error', :aggregate_failures do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
+        expect(subject).to receive(:log_message_to_sentry).with(
+          'MVI add_person_implicit error: Gateway timeout',
+          :warn
+        )
+        response = subject.add_person_implicit_search(user)
+
+        exception = response.error.errors.first
+
+        expect(response.class).to eq MPI::Responses::AddPersonResponse
+        expect(response.status).to eq server_error
+        expect(response.mvi_codes).to be_nil
+        expect(exception.title).to eq 'Gateway timeout'
+        expect(exception.code).to eq 'MVI_504'
+        expect(exception.status).to eq '504'
+        expect(exception.source).to eq MPI::Service
+      end
+    end
+
+    context 'with an ongoing breakers outage' do
+      it 'returns the correct thing', :aggregate_failures do
+        MPI::Configuration.instance.breakers_service.begin_forced_outage!
+        expect(Raven).to receive(:extra_context).once
+        response = subject.add_person_implicit_search(user)
 
         exception = response.error.errors.first
 
@@ -633,27 +734,62 @@ describe MPI::Service do
     end
   end
 
-  describe '.add_person monitoring' do
+  describe '.add_person_proxy monitoring' do
     context 'with a successful request' do
       let(:user) { build(:user_with_no_ids) }
 
-      it 'increments add_person total' do
+      it 'increments add_person_proxy total' do
         allow(StatsD).to receive(:increment)
         VCR.use_cassette('mpi/add_person/add_person_success') do
-          subject.add_person(user)
+          subject.add_person_proxy(user)
         end
-        expect(StatsD).to have_received(:increment).with('api.mvi.add_person.total')
+        expect(StatsD).to have_received(:increment).with('api.mvi.add_person_proxy.total')
       end
     end
 
     context 'with an unsuccessful request' do
-      it 'increments add_person fail and total', :aggregate_failures do
+      it 'increments add_person_proxy fail and total', :aggregate_failures do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
         expect(StatsD).to receive(:increment).once.with(
-          'api.mvi.add_person.fail', tags: ['error:CommonExceptionsGatewayTimeout']
+          'api.mvi.add_person_proxy.fail', tags: ['error:CommonExceptionsGatewayTimeout']
         )
-        expect(StatsD).to receive(:increment).once.with('api.mvi.add_person.total')
-        response = subject.add_person(user)
+        expect(StatsD).to receive(:increment).once.with('api.mvi.add_person_proxy.total')
+        response = subject.add_person_proxy(user)
+
+        exception = response.error.errors.first
+
+        expect(response.class).to eq MPI::Responses::AddPersonResponse
+        expect(response.status).to eq server_error
+        expect(response.mvi_codes).to be_nil
+        expect(exception.title).to eq 'Gateway timeout'
+        expect(exception.code).to eq 'MVI_504'
+        expect(exception.status).to eq '504'
+        expect(exception.source).to eq MPI::Service
+      end
+    end
+  end
+
+  describe '.add_person_implicit_search monitoring' do
+    context 'with a successful request' do
+      let(:user) { build(:user_with_no_ids) }
+
+      it 'increments add_person_implicit_search total' do
+        allow(StatsD).to receive(:increment)
+        VCR.use_cassette('mpi/add_person/add_person_implicit_search_success') do
+          subject.add_person_implicit_search(user)
+        end
+        expect(StatsD).to have_received(:increment).with('api.mvi.add_person_implicit_search.total')
+      end
+    end
+
+    context 'with an unsuccessful request' do
+      it 'increments add_person_implicit_search fail and total', :aggregate_failures do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
+        expect(StatsD).to receive(:increment).once.with(
+          'api.mvi.add_person_implicit_search.fail', tags: ['error:CommonExceptionsGatewayTimeout']
+        )
+        expect(StatsD).to receive(:increment).once.with('api.mvi.add_person_implicit_search.total')
+        response = subject.add_person_implicit_search(user)
 
         exception = response.error.errors.first
 

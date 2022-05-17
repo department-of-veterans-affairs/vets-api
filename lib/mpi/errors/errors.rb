@@ -4,6 +4,7 @@ module MPI
   module Errors
     class Base < StandardError; end
     class RecordNotFound < MPI::Errors::Base; end
+    class ArgumentError < MPI::Errors::Base; end
 
     class ServiceError < MPI::Errors::Base
       attr_reader :body

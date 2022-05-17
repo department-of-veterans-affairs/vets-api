@@ -11,12 +11,23 @@ module SignIn
 
     def perform
       check_state_match
+      check_and_add_mpi_user
       update_and_persist_user
       create_code_container
       [login_code, client_state]
     end
 
     private
+
+    def check_and_add_mpi_user
+      return unless current_user.loa3? && current_user.icn.nil?
+
+      mpi_response = current_user.mpi_add_person_implicit_search
+
+      raise SignIn::Errors::MPIUserCreationFailedError, 'User MPI record cannot be created' unless mpi_response.ok?
+
+      user_identity.icn = mpi_response.mvi_codes[:icn].presence
+    end
 
     def update_and_persist_user
       raise SignIn::Errors::UserAttributesMalformedError, 'User Attributes are Malformed' unless user_verification

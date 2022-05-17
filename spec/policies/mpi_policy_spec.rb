@@ -72,7 +72,7 @@ describe MPIPolicy do
     end
   end
 
-  permissions :access_add_person? do
+  permissions :access_add_person_proxy? do
     context 'with a user who is missing birls and participant id' do
       let(:user) { build(:user_with_no_ids) }
 

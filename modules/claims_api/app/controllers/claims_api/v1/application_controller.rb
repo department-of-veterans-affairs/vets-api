@@ -38,7 +38,7 @@ module ClaimsApi
           )
         end
 
-        mpi_add_response = target_veteran.mpi.add_person
+        mpi_add_response = target_veteran.mpi.add_person_proxy
         raise mpi_add_response.error unless mpi_add_response.ok?
       rescue ArgumentError
         raise ::Common::Exceptions::UnprocessableEntity.new(

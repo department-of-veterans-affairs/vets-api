@@ -146,16 +146,17 @@ class MPIData < Common::RedisStore
     mpi_profile&.profile&.historical_icns
   end
 
-  # The status of the MPI Add Person call. An Orchestrated MVI Search needs to be made before an MPI add person
-  # call is made. The response is recached afterwards so the new ids can be accessed on the next call.
+  # The status of the MPI Add Person Proxy Add call. An Orchestrated MVI Search needs to be made before an
+  # MPI add person proxy addcall is made. The response is recached afterwards so the new ids can be accessed
+  # on the next call.
   #
-  # @return [MPI::Responses::AddPersonResponse] the response returned from MPI Add Person call
-  def add_person
+  # @return [MPI::Responses::AddPersonResponse] the response returned from MPI Add Person Proxy call
+  def add_person_proxy
     search_response = MPI::Service.new.find_profile(user_identity, orch_search: true)
     if search_response.ok?
       @mvi_response = search_response
       update_user_identity_with_orch_search(search_response.profile)
-      add_response = mpi_service.add_person(user_identity)
+      add_response = mpi_service.add_person_proxy(user_identity)
       add_ids(add_response) if add_response.ok?
     else
       add_response = MPI::Responses::AddPersonResponse.with_failed_orch_search(
@@ -163,6 +164,14 @@ class MPIData < Common::RedisStore
       )
     end
     add_response
+  end
+
+  # Make a call for MPI Add Person that implicitly searches for a user with the existing attributes and
+  # either returns an ICN for an existing user, or creates a new MPI record and correlates it to a new ICN
+  #
+  # @return [MPI::Responses::AddPersonResponse] the response returned from MPI Add Person Implicit Search call
+  def add_person_implicit_search
+    mpi_service.add_person_implicit_search(user_identity)
   end
 
   private
