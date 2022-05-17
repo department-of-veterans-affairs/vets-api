@@ -36,7 +36,7 @@ module CypressViewportUpdater
       ref = "heads/#{feature_branch_name}"
 
       begin
-        sha = @client.ref(REPO, 'heads/master').object.sha
+        sha = @client.ref(REPO, 'heads/main').object.sha
         @client.create_ref(REPO, ref, sha)
       rescue Octokit::ClientError, Octokit::UnprocessableEntity => e
         # :nocov:
@@ -60,7 +60,7 @@ module CypressViewportUpdater
 
     def submit_pr
       @client.create_pull_request(REPO,
-                                  'master',
+                                  'main',
                                   feature_branch_name,
                                   pr_title,
                                   pr_body)
