@@ -2,10 +2,10 @@
 
 module SignIn
   class SessionCreator
-    attr_reader :user_account
+    attr_reader :validated_credential
 
-    def initialize(user_account:)
-      @user_account = user_account
+    def initialize(validated_credential:)
+      @validated_credential = validated_credential
     end
 
     def perform
@@ -67,6 +67,8 @@ module SignIn
 
     def create_new_session
       SignIn::OAuthSession.create!(user_account: user_account,
+                                   user_verification: user_verification,
+                                   credential_email: credential_email,
                                    handle: handle,
                                    hashed_refresh_token: double_parent_refresh_token_hash,
                                    refresh_expiration: refresh_expiration_time,
@@ -83,6 +85,18 @@ module SignIn
 
     def get_hash(object)
       Digest::SHA256.hexdigest(object)
+    end
+
+    def user_verification
+      @user_verification ||= validated_credential.user_verification
+    end
+
+    def credential_email
+      @credential_email ||= validated_credential.credential_email
+    end
+
+    def user_account
+      @user_account ||= user_verification.user_account
     end
 
     def handle

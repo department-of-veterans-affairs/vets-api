@@ -12,7 +12,7 @@ module SignIn
 
     def perform
       validations
-      user_account
+      validated_credential
     ensure
       code_container&.destroy
     end
@@ -27,8 +27,8 @@ module SignIn
       raise SignIn::Errors::GrantTypeValueError, 'Grant Type is not valid' if grant_type != Constants::Auth::GRANT_TYPE
     end
 
-    def user_account
-      @user_account ||= UserAccount.find(code_container.user_account_uuid)
+    def user_verification
+      @user_verification ||= UserVerification.find(code_container.user_verification_id)
     end
 
     def code_challenge
@@ -39,10 +39,19 @@ module SignIn
       @code_container ||= SignIn::CodeContainer.find(code)
     end
 
+    def credential_email
+      @credential_email ||= code_container.credential_email
+    end
+
     def remove_base64_padding(data)
       Base64.urlsafe_encode64(Base64.urlsafe_decode64(data.to_s), padding: false)
     rescue ArgumentError
       raise Errors::CodeVerifierMalformedError, 'Code Verifier is malformed'
+    end
+
+    def validated_credential
+      @validated_credential ||= SignIn::ValidatedCredential.new(user_verification: user_verification,
+                                                                credential_email: credential_email)
     end
   end
 end

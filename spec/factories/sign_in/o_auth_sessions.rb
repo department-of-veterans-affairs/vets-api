@@ -7,5 +7,7 @@ FactoryBot.define do
     hashed_refresh_token { SecureRandom.hex }
     refresh_expiration { Time.zone.now }
     refresh_creation { Time.zone.now + 1000 }
+    user_verification { create(:user_verification, user_account: user_account) }
+    credential_email { Faker::Internet.email }
   end
 end

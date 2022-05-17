@@ -5,26 +5,26 @@ require 'rails_helper'
 RSpec.describe SignIn::OAuthSession, type: :model do
   let(:oauth_session) do
     create(:oauth_session,
-           user_account: user_account,
+           user_verification: user_verification,
            handle: handle,
            hashed_refresh_token: hashed_refresh_token,
            refresh_expiration: refresh_expiration,
            refresh_creation: refresh_creation)
   end
 
-  let(:user_account) { create(:user_account) }
+  let(:user_verification) { create(:user_verification) }
   let(:handle) { SecureRandom.hex }
   let(:hashed_refresh_token) { SecureRandom.hex }
   let(:refresh_expiration) { Time.zone.now + 1000 }
   let(:refresh_creation) { Time.zone.now }
 
   describe 'validations' do
-    describe '#user_account' do
-      subject { oauth_session.user_account }
+    describe '#user_verification' do
+      subject { oauth_session.user_verification }
 
-      context 'when user_account is nil' do
-        let(:user_account) { nil }
-        let(:expected_error_message) { 'Validation failed: User account must exist' }
+      context 'when user_verification is nil' do
+        let(:user_verification) { nil }
+        let(:expected_error_message) { 'Validation failed: User verification must exist' }
 
         it 'raises validation error' do
           expect { subject }.to raise_error(ActiveRecord::RecordInvalid, expected_error_message)

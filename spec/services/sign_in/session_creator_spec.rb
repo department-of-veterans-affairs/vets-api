@@ -3,13 +3,14 @@
 require 'rails_helper'
 
 RSpec.describe SignIn::SessionCreator do
-  let(:session_creator) { SignIn::SessionCreator.new(user_account: user_account) }
+  let(:session_creator) { SignIn::SessionCreator.new(validated_credential: validated_credential) }
 
   describe '#perform' do
     subject { session_creator.perform }
 
-    context 'when input object is a UserAccount' do
-      let(:user_account) { create(:user_account) }
+    context 'when input object is a ValidatedCredentual' do
+      let(:validated_credential) { create(:validated_credential) }
+      let(:user_account) { validated_credential.user_verification.user_account }
 
       context 'expected anti_csrf_token' do
         let(:expected_anti_csrf_token) { 'some-anti-csrf-token' }

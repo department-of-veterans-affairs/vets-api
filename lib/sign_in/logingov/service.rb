@@ -56,7 +56,7 @@ module SignIn
           birth_date: user_info[:birthdate],
           first_name: user_info[:given_name],
           last_name: user_info[:family_name],
-          email: user_info[:email],
+          csp_email: user_info[:email],
           sign_in: { service_name: config.service_name },
           authn_context: config.service_name
         }

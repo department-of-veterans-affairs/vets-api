@@ -40,7 +40,6 @@ RSpec.describe SignIn::SessionRevoker do
 
       before do
         Timecop.freeze(Time.zone.now.floor)
-        allow(Rails.logger).to receive(:info)
       end
 
       after { Timecop.return }
@@ -69,14 +68,6 @@ RSpec.describe SignIn::SessionRevoker do
             it 'destroys the session' do
               session_revoker.perform
               expect { session.reload }.to raise_error(ActiveRecord::RecordNotFound)
-            end
-
-            it 'logs the session revocation' do
-              expect(Rails.logger).to receive(:info).once.with(
-                'Sign in Service Tokens Revoke',
-                { token_type: 'Refresh', user_id: user_uuid, session_id: session_handle, timestamp: Time.zone.now.to_s }
-              )
-              subject
             end
           end
 

@@ -29,11 +29,11 @@ RSpec.describe SignIn::CodeValidator do
         create(:code_container,
                code: code_container_code,
                code_challenge: code_challenge,
-               user_account_uuid: user_account_uuid)
+               user_verification_id: user_verification_id)
       end
       let(:code_container_code) { code }
       let(:code_challenge) { 'some-code-challenge' }
-      let(:user_account_uuid) { 'some-user-account-uuid' }
+      let(:user_verification_id) { 'some-user-verification-uuid' }
 
       context 'and code verifier does not match code challenge in code container' do
         let(:code_verifier) { 'some-arbitrary-code-verifier' }
@@ -65,22 +65,27 @@ RSpec.describe SignIn::CodeValidator do
         context 'and grant type does match the supported grant type' do
           let(:grant_type) { SignIn::Constants::Auth::GRANT_TYPE }
 
-          context 'and user account uuid in code container does not match with a user account' do
-            let(:user_account_uuid) { 'some-arbitrary-user-account-uuid' }
+          context 'and user verification uuid in code container does not match with a user verification' do
+            let(:user_verification_id) { 'some-arbitrary-user-verification-uuid' }
             let(:expected_error) { ActiveRecord::RecordNotFound }
-            let(:expected_error_message) { "Couldn't find UserAccount with 'id'=#{user_account_uuid}" }
+            let(:expected_error_message) { "Couldn't find UserVerification with 'id'=#{user_verification_id}" }
 
-            it 'raises a user account not found error' do
+            it 'raises a user verification not found error' do
               expect { subject }.to raise_exception(expected_error, expected_error_message)
             end
           end
 
-          context 'and user account uuid in code condainter does match an existing user account' do
-            let(:user_account) { create(:user_account) }
-            let(:user_account_uuid) { user_account.id }
+          context 'and user verification uuid in code condainter does match an existing user verification' do
+            let(:user_verification) { create(:user_verification) }
+            let(:user_verification_id) { user_verification.id }
+            let(:expected_email) { code_container.credential_email }
 
-            it 'returns the expected user account' do
-              expect(subject).to eq(user_account)
+            it 'returns a validated credential object with expected user verification' do
+              expect(subject.user_verification).to eq(user_verification)
+            end
+
+            it 'returns a validated credential object with expected credential email' do
+              expect(subject.credential_email).to eq(expected_email)
             end
           end
         end
