@@ -16,7 +16,6 @@ module AppealsApi
           delegate :insurance_policy_number, :date_signed, :signing_appellant, :appellant_local_time,
                    :contestable_issues, :soc_opt_in, :new_evidence_locations, :new_evidence_dates,
                    :veteran_homeless?, :preferred_email, :preferred_phone,
-                   :preferred_ssn_first_three, :preferred_ssn_last_four, :preferred_ssn_second_two,
                    :preferred_number_and_street, :preferred_city, :preferred_state,
                    :preferred_zip_code, :preferred_country,
                    :claimant, :veteran,
@@ -88,16 +87,19 @@ module AppealsApi
             evidence_records.map(&:dates)
           end
 
-          def preferred_ssn_first_three
-            signing_appellant.ssn[0..2]
+          def veteran_ssn_first_three
+            # form only calls for veteran ssn data
+            veteran.ssn[0..2]
           end
 
-          def preferred_ssn_second_two
-            signing_appellant.ssn[3..4]
+          def veteran_ssn_middle_two
+            # form only calls for veteran ssn data
+            veteran.ssn[3..4]
           end
 
-          def preferred_ssn_last_four
-            signing_appellant.ssn[5..8]
+          def veteran_ssn_last_four
+            # form only calls for veteran ssn data
+            veteran.ssn[5..8]
           end
 
           def preferred_phone

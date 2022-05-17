@@ -21,9 +21,9 @@ module AppealsApi
               # Vet's ID
               # Veteran name is filled out through autosize text box, not pdf fields
               form_fields.veteran_middle_initial => form_data.veteran_middle_initial,
-              form_fields.ssn_first_three => form_data.preferred_ssn_first_three,
-              form_fields.ssn_second_two => form_data.preferred_ssn_second_two,
-              form_fields.ssn_last_four => form_data.preferred_ssn_last_four,
+              form_fields.ssn_first_three => form_data.veteran_ssn_first_three,
+              form_fields.ssn_second_two => form_data.veteran_ssn_middle_two,
+              form_fields.ssn_last_four => form_data.veteran_ssn_last_four,
               form_fields.file_number => form_data.veteran.file_number,
               form_fields.veteran_service_number => form_data.veteran.service_number,
               form_fields.birth_month => form_data.veteran.birth_month,
