@@ -160,11 +160,12 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       end
 
       it 'without upload' do
+        headers_with_nvc = JSON.parse(fixture_to_s('valid_200995_headers_extra.json', version: 'v2'))
         mod_data = JSON.parse(fixture_to_s('valid_200995_extra.json', version: 'v2'))
         # manually setting this to simulate a submission without upload indicated
         mod_data['data']['attributes']['evidenceSubmission']['evidenceType'] = ['retrieval']
 
-        post(path, params: mod_data.to_json, headers: headers)
+        post(path, params: mod_data.to_json, headers: headers_with_nvc)
 
         sc_guid = JSON.parse(response.body)['data']['id']
         sc = AppealsApi::SupplementalClaim.find(sc_guid)

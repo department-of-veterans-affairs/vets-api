@@ -47,7 +47,7 @@ FactoryBot.define do
     end
   end
 
-  factory :minimal_supplemental_claim_v2, class: 'AppealsApi::SupplementalClaim' do
+  factory :minimal_supplemental_claim, class: 'AppealsApi::SupplementalClaim' do
     id { SecureRandom.uuid }
     api_version { 'V2' }
     auth_headers do
