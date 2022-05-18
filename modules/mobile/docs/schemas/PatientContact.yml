@@ -1,5 +1,7 @@
-description: Patient contact information
+description: Required for VA and CC Requests. Patient contact information
 type: object
+required:
+  - telecom
 properties:
   telecom:
     type: array

@@ -26,7 +26,7 @@ module Mobile
             end
 
             Mobile::V0::MedicalService.new(
-              name: service,
+              name: service == '411' ? 'Podiatry' : service,
               request_eligible_facilities: request_facilities,
               direct_eligible_facilities: direct_facilities
             )

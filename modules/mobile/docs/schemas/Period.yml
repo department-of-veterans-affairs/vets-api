@@ -1,4 +1,7 @@
 type: object
+required:
+  - start
+  - end
 properties:
   start:
     type: string

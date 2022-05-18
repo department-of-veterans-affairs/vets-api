@@ -1,51 +1,66 @@
 description: A request to create a new appointment.
 type: object
+required:
+  - kind
+  - status
+  - serviceType
+  - locationId
+  - requestedPeriods
+  - contact
+  - preferredTimesForPhoneCall
+  - comment
 properties:
   kind:
     "$ref": ./AppointmentKind.yml
+    example: 'clinic'
   status:
     "$ref": ./AppointmentStatus.yml
+    example: 'proposed'
   serviceType:
     type: string
-    description: the care type for the appointment
+    description: Required for VA and CC Requests . the care type for the appointment
+    example: 'optometry'
   reasonCode:
-    "$ref": ./CodeableConcept.yml
-  patientIcn:
-    description: The patient ICN
-    type: string
-    nullable: false
+    type: object
+    "$ref": ./ReasonCode.yml
   locationId:
-    description: The sta6aid for the VAfacility where the appointment is registered.
+    description: Required for VA and CC Requests . The sta6aid for the VAfacility where the appointment is registered.
     type: string
-  clinic:
-    description: The clinic ID for the Appointment
-    type: string
-  practitioners:
-    type: array
-    description: The practioners participating in this appointment.
-    items:
-      "$ref": ./PractitionerIds.yml
+    example: '983GC'
   requestedPeriods:
     type: array
-    description: a list of requested periods for appointment
+    description: Required for VA and CC Requests. a list of requested periods for appointment.
     items:
       "$ref": ./Period.yml
+    example: [
+      {
+        "start":"2022-03-17T00:00:00Z",
+        "end":"2022-03-17T11:59:00Z"
+      }
+    ]
   contact:
     "$ref": ./PatientContact.yml
   preferredTimesForPhoneCall:
     type: array
-    description: A list of times the patient prefers to be contacted by phone.
+    description: Required for CC Requests. A list of times the patient prefers to be contacted by phone.
     items:
       type: string
       enum:
         - Morning
         - Afternoon
         - Evening
+    example: [
+      "Morning"
+    ]
   preferredLocation:
+    description: Required for CC Requests. A list of times the patient prefers to be contacted by phone.
     $ref: ./PreferredLocation.yml
   comment:
     description:
-      A free-form comment section to provide additional information about an appointment request.
+      Required for VA and CC Requests. Free-form comment section to provide additional information about an appointment request.
     type: string
+    example: 'free form comment here'
   preferredLanguage:
+    description: Required for CC Requests
     type: string
+    example: 'English'

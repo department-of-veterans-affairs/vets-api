@@ -536,6 +536,70 @@ paths:
       security:
         - Bearer: []
       summary: /v0/appointments/facility/eligibility
+  /v0/appointments/va/eligibility:
+    get:
+      description: Lists types of service. For each type of service, lists users registered facilities that support request and direct appointments.
+      operationId: serviceEligibility
+      parameters:
+        - description: Array of facilities to be checked for service eligibility
+          in: query
+          name: FacilityIds[]
+          required: true
+          schema:
+            type: array
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/ServiceEligibilities.yml
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Authentication is possible but has failed or not yet been provided.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The requested resource could not be found.
+        '408':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The response from this API timed out.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Failure in processing entity
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An internal API error occured.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An upstream service is unavailable, or its circuit breaker
+            may have been tripped.
+        '504':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: A response from an upstream service timed out.
+      security:
+        - Bearer: []
+      summary: /v0/appointments/va/eligibility
   /v0/appointment:
     post:
       description: Creates a new appointment
@@ -2831,6 +2895,7 @@ paths:
                           - lettersAndDocuments
                           - militaryServiceHistory
                           - userProfileUpdate
+                          - scheduleAppointments
                         type: array
           description: OK
         '401':
@@ -2910,6 +2975,7 @@ paths:
                           - lettersAndDocuments
                           - militaryServiceHistory
                           - userProfileUpdate
+                          - scheduleAppointments
                         type: array
           description: OK
         '401':
