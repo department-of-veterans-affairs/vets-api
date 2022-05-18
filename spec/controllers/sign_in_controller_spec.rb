@@ -96,6 +96,7 @@ RSpec.describe SignInController, type: :controller do
         context 'and code_challenge is properly URL encoded' do
           let(:code_challenge) { { code_challenge: Base64.urlsafe_encode64('some-safe-code-challenge') } }
           let(:state) { 'some-random-state' }
+          let(:expected_redirect_uri) { Settings.logingov.redirect_uri }
 
           before do
             allow(SecureRandom).to receive(:hex).and_return(state)
@@ -112,6 +113,10 @@ RSpec.describe SignInController, type: :controller do
 
             it 'renders expected type in template' do
               expect(subject.body).to match(type_value)
+            end
+
+            it 'renders expected redirect_uri in template' do
+              expect(subject.body).to match(expected_redirect_uri)
             end
           end
 
@@ -239,6 +244,10 @@ RSpec.describe SignInController, type: :controller do
               expect(subject.body).to match(expected_type_value)
             end
 
+            it 'renders expected redirect_uri in template' do
+              expect(subject.body).to match(expected_redirect_uri)
+            end
+
             it 'logs the authentication attempt' do
               expect(Rails.logger).to receive(:info).once.with(
                 'Sign in Service Authorization Attempt',
@@ -300,6 +309,7 @@ RSpec.describe SignInController, type: :controller do
     context 'when type param is idme' do
       let(:type_value) { 'idme' }
       let(:expected_type_value) { 'idme' }
+      let(:expected_redirect_uri) { Settings.idme.redirect_uri }
 
       it_behaves_like 'an idme authentication service interface'
     end
@@ -307,6 +317,7 @@ RSpec.describe SignInController, type: :controller do
     context 'when type param is dslogon' do
       let(:type_value) { 'dslogon' }
       let(:expected_type_value) { 'dslogon' }
+      let(:expected_redirect_uri) { Settings.idme.dslogon_redirect_uri }
 
       it_behaves_like 'an idme authentication service interface'
     end
@@ -314,6 +325,7 @@ RSpec.describe SignInController, type: :controller do
     context 'when type param is mhv' do
       let(:type_value) { 'mhv' }
       let(:expected_type_value) { 'myhealthevet' }
+      let(:expected_redirect_uri) { Settings.idme.mhv_redirect_uri }
 
       it_behaves_like 'an idme authentication service interface'
     end
@@ -518,15 +530,17 @@ RSpec.describe SignInController, type: :controller do
       let(:response) { OpenStruct.new(access_token: token) }
       let(:token) { 'some-token' }
       let(:user_info) do
-        {
-          verified_at: '1-1-2022',
-          sub: 'some-sub',
-          social_security_number: '123456789',
-          birthdate: '1-1-2022',
-          given_name: 'some-name',
-          family_name: 'some-family-name',
-          email: 'some-email'
-        }
+        OpenStruct.new(
+          {
+            verified_at: '1-1-2022',
+            sub: 'some-sub',
+            social_security_number: '123456789',
+            birthdate: '1-1-2022',
+            given_name: 'some-name',
+            family_name: 'some-family-name',
+            email: 'some-email'
+          }
+        )
       end
 
       before do
@@ -597,6 +611,26 @@ RSpec.describe SignInController, type: :controller do
           let(:client_code) { 'some-client-code' }
           let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
           let(:expected_url) { "#{Settings.sign_in.redirect_uri}?code=#{client_code}&state=#{client_state}" }
+          let(:expected_log) { 'Sign in Service Authorization Callback' }
+          let(:current_time) { Time.zone.now.to_s }
+          let(:expected_log_attributes) do
+            {
+              state: state[:state],
+              type: type[:type],
+              code: code[:code],
+              login_code: client_code,
+              client_state: client_state,
+              timestamp: current_time
+            }
+          end
+          let(:expected_user_attributes) do
+            {
+              ssn: user_info.social_security_number,
+              birth_date: Formatters::DateFormatter.format_date(user_info.birthdate),
+              first_name: user_info.given_name,
+              last_name: user_info.family_name
+            }
+          end
 
           before do
             allow(SecureRandom).to receive(:uuid).and_return(client_code)
@@ -611,12 +645,16 @@ RSpec.describe SignInController, type: :controller do
           end
 
           it 'logs the authentication attempt' do
-            expect(Rails.logger).to receive(:info).with(
-              'Sign in Service Authorization Callback',
-              { state: state[:state], type: type[:type], code: code[:code],
-                login_code: client_code, client_state: client_state, timestamp: Time.zone.now.to_s }
-            )
+            expect(Rails.logger).to receive(:info).with(expected_log, expected_log_attributes)
             subject
+          end
+
+          it 'creates a user with expected attributes' do
+            subject
+
+            user_account = UserAccount.last.id
+            user = User.find(user_account)
+            expect(user).to have_attributes(expected_user_attributes)
           end
         end
       end
@@ -625,17 +663,6 @@ RSpec.describe SignInController, type: :controller do
     shared_context 'an idme authentication service' do
       let(:response) { OpenStruct.new(access_token: token) }
       let(:token) { 'some-token' }
-      let(:user_info) do
-        OpenStruct.new(
-          sub: 'some-sub',
-          level_of_assurance: 3,
-          social: '123456789',
-          birth_date: '1-1-2022',
-          fname: 'some-name',
-          lname: 'some-family-name',
-          email: 'some-email'
-        )
-      end
 
       before do
         allow_any_instance_of(SignIn::Idme::Service).to receive(:token).with(code_value).and_return(response)
@@ -705,6 +732,18 @@ RSpec.describe SignInController, type: :controller do
           let(:client_code) { 'some-client-code' }
           let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
           let(:expected_url) { "#{Settings.sign_in.redirect_uri}?code=#{client_code}&state=#{client_state}" }
+          let(:expected_log) { 'Sign in Service Authorization Callback' }
+          let(:current_time) { Time.zone.now.to_s }
+          let(:expected_log_attributes) do
+            {
+              state: state[:state],
+              type: type[:type],
+              code: code[:code],
+              login_code: client_code,
+              client_state: client_state,
+              timestamp: current_time
+            }
+          end
 
           before do
             allow(SecureRandom).to receive(:uuid).and_return(client_code)
@@ -717,24 +756,93 @@ RSpec.describe SignInController, type: :controller do
           it 'redirects to expected url' do
             expect(subject).to redirect_to(expected_url)
           end
+
+          it 'logs the authentication attempt' do
+            expect(Rails.logger).to receive(:info).with(expected_log, expected_log_attributes)
+            subject
+          end
+
+          it 'creates a user with expected attributes' do
+            subject
+
+            user_account = UserAccount.last.id
+            user = User.find(user_account)
+            expect(user).to have_attributes(expected_user_attributes)
+          end
         end
       end
     end
 
     context 'when type param is idme' do
       let(:type_value) { 'idme' }
+      let(:user_info) do
+        OpenStruct.new(
+          sub: 'some-sub',
+          level_of_assurance: 3,
+          social: '123456789',
+          birth_date: '1-1-2022',
+          fname: 'some-name',
+          lname: 'some-family-name',
+          email: 'some-email'
+        )
+      end
+      let(:expected_user_attributes) do
+        {
+          ssn: user_info.social,
+          birth_date: Formatters::DateFormatter.format_date(user_info.birth_date),
+          first_name: user_info.fname,
+          last_name: user_info.lname
+        }
+      end
 
       it_behaves_like 'an idme authentication service'
     end
 
     context 'when type param is dslogon' do
       let(:type_value) { 'dslogon' }
+      let(:user_info) do
+        OpenStruct.new(
+          sub: 'some-sub',
+          level_of_assurance: 3,
+          dslogon_idvalue: '123456789',
+          dslogon_birth_date: '1-1-2022',
+          dslogon_fname: 'some-name',
+          dslogon_mname: 'some-middle-name',
+          dslogon_lname: 'some-family-name',
+          dslogon_uuid: '987654321',
+          email: 'some-email'
+        )
+      end
+      let(:expected_user_attributes) do
+        {
+          ssn: user_info.dslogon_idvalue,
+          birth_date: Formatters::DateFormatter.format_date(user_info.dslogon_birth_date),
+          first_name: user_info.dslogon_fname,
+          middle_name: user_info.dslogon_mname,
+          last_name: user_info.dslogon_lname,
+          edipi: user_info.dslogon_uuid
+        }
+      end
 
       it_behaves_like 'an idme authentication service'
     end
 
     context 'when type param is mhv' do
       let(:type_value) { 'mhv' }
+      let(:user_info) do
+        OpenStruct.new(
+          sub: 'some-sub',
+          level_of_assurance: 3,
+          mhv_uuid: '123456789',
+          mhv_icn: '987654321V123456'
+        )
+      end
+      let(:expected_user_attributes) do
+        {
+          mhv_correlation_id: user_info.mhv_uuid,
+          mhv_icn: user_info.mhv_icn
+        }
+      end
 
       it_behaves_like 'an idme authentication service'
     end

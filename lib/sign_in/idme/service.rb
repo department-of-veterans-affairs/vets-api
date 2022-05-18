@@ -21,7 +21,7 @@ module SignIn
                             scope: scope,
                             state: state,
                             client_id: config.client_id,
-                            redirect_uri: config.redirect_uri,
+                            redirect_uri: redirect_uri,
                             response_type: config.response_type
                           }
                         },
@@ -29,18 +29,14 @@ module SignIn
       end
 
       def normalized_attributes(user_info)
-        {
-          uuid: user_info.sub,
-          idme_uuid: user_info.sub,
-          loa: { current: user_info.level_of_assurance, highest: user_info.level_of_assurance },
-          ssn: user_info.social&.tr('-', ''),
-          birth_date: user_info.birth_date,
-          first_name: user_info.fname,
-          last_name: user_info.lname,
-          csp_email: user_info.email,
-          sign_in: { service_name: config.service_name },
-          authn_context: type
-        }
+        case type
+        when 'idme'
+          idme_normalized_attributes(user_info)
+        when 'dslogon'
+          dslogon_normalized_attributes(user_info)
+        when 'mhv'
+          mhv_normalized_attributes(user_info)
+        end
       end
 
       def token(code)
@@ -61,6 +57,61 @@ module SignIn
       end
 
       private
+
+      def redirect_uri
+        case type
+        when 'idme'
+          config.redirect_uri
+        when 'dslogon'
+          config.dslogon_redirect_uri
+        when 'mhv'
+          config.mhv_redirect_uri
+        end
+      end
+
+      def idme_normalized_attributes(user_info)
+        {
+          uuid: user_info.sub,
+          idme_uuid: user_info.sub,
+          loa: { current: user_info.level_of_assurance, highest: user_info.level_of_assurance },
+          ssn: user_info.social&.tr('-', ''),
+          birth_date: user_info.birth_date,
+          first_name: user_info.fname,
+          last_name: user_info.lname,
+          csp_email: user_info.email,
+          sign_in: { service_name: config.service_name },
+          authn_context: type
+        }
+      end
+
+      def dslogon_normalized_attributes(user_info)
+        {
+          uuid: user_info.sub,
+          idme_uuid: user_info.sub,
+          loa: { current: user_info.level_of_assurance, highest: user_info.level_of_assurance },
+          ssn: user_info.dslogon_idvalue&.tr('-', ''),
+          birth_date: user_info.dslogon_birth_date,
+          first_name: user_info.dslogon_fname,
+          middle_name: user_info.dslogon_mname,
+          last_name: user_info.dslogon_lname,
+          edipi: user_info.dslogon_uuid,
+          csp_email: user_info.email,
+          sign_in: { service_name: config.service_name },
+          authn_context: type
+        }
+      end
+
+      def mhv_normalized_attributes(user_info)
+        {
+          uuid: user_info.sub,
+          idme_uuid: user_info.sub,
+          loa: { current: user_info.level_of_assurance, highest: user_info.level_of_assurance },
+          mhv_correlation_id: user_info.mhv_uuid,
+          mhv_icn: user_info.mhv_icn,
+          sign_in: { service_name: config.service_name },
+          authn_context: type
+        }
+      end
 
       def scope
         case type
@@ -109,7 +160,7 @@ module SignIn
           code: code,
           client_id: config.client_id,
           client_secret: config.client_secret,
-          redirect_uri: config.redirect_uri
+          redirect_uri: redirect_uri
         }.to_json
       end
     end
