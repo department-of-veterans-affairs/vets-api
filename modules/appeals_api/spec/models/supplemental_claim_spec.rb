@@ -151,7 +151,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
 
   describe 'V2' do
     let(:supplemental_claim_v2) { create :extra_supplemental_claim }
-    let(:sc_veteran_only) { create(:minimal_supplemental_claim_v2) }
+    let(:sc_veteran_only) { create(:minimal_supplemental_claim) }
 
     describe '#number_and_street' do
       subject { supplemental_claim_v2.veteran.number_and_street }
@@ -228,63 +228,99 @@ describe AppealsApi::SupplementalClaim, type: :model do
         end
       end
     end
-  end
 
-  describe '#stamp_text' do
-    let(:supplemental_claim) { build(:supplemental_claim) }
+    describe '#stamp_text' do
+      let(:supplemental_claim) { build(:supplemental_claim) }
 
-    it { expect(supplemental_claim.stamp_text).to eq('Doé - 6789') }
+      it { expect(supplemental_claim.stamp_text).to eq('Doé - 6789') }
 
-    it 'truncates the last name if too long' do
-      full_last_name = 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdddddddddd'
-      supplemental_claim.auth_headers['X-VA-Last-Name'] = full_last_name
-      expect(supplemental_claim.stamp_text).to eq 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdd... - 6789'
-    end
-  end
-
-  describe '#update_status!' do
-    let(:supplemental_claim) { create(:supplemental_claim) }
-
-    it 'error status' do
-      supplemental_claim.update_status!(status: 'error', code: 'code', detail: 'detail')
-
-      expect(supplemental_claim.status).to eq('error')
-      expect(supplemental_claim.code).to eq('code')
-      expect(supplemental_claim.detail).to eq('detail')
+      it 'truncates the last name if too long' do
+        full_last_name = 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdddddddddd'
+        supplemental_claim.auth_headers['X-VA-Last-Name'] = full_last_name
+        expect(supplemental_claim.stamp_text).to eq 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdd... - 6789'
+      end
     end
 
-    it 'other valid status' do
-      supplemental_claim.update_status!(status: 'success')
+    describe '#update_status!' do
+      let(:supplemental_claim) { create(:supplemental_claim) }
 
-      expect(supplemental_claim.status).to eq('success')
+      it 'error status' do
+        supplemental_claim.update_status!(status: 'error', code: 'code', detail: 'detail')
+
+        expect(supplemental_claim.status).to eq('error')
+        expect(supplemental_claim.code).to eq('code')
+        expect(supplemental_claim.detail).to eq('detail')
+      end
+
+      it 'other valid status' do
+        supplemental_claim.update_status!(status: 'success')
+
+        expect(supplemental_claim.status).to eq('success')
+      end
+
+      # TODO: should be implemented with status checking
+      it 'invalid status' do
+        expect do
+          supplemental_claim.update_status!(status: 'invalid_status')
+        end.to raise_error(ActiveRecord::RecordInvalid,
+                           'Validation failed: Status is not included in the list')
+      end
+
+      it 'emits an event' do
+        handler = instance_double(AppealsApi::Events::Handler)
+        allow(AppealsApi::Events::Handler).to receive(:new).and_return(handler)
+        allow(handler).to receive(:handle!)
+
+        supplemental_claim.update_status!(status: 'pending')
+
+        expect(handler).to have_received(:handle!).exactly(1).times
+      end
+
+      it 'sends an email' do
+        handler = instance_double(AppealsApi::Events::Handler)
+        allow(AppealsApi::Events::Handler).to receive(:new).and_return(handler)
+        allow(handler).to receive(:handle!)
+
+        supplemental_claim.update_status!(status: 'submitted')
+
+        expect(handler).to have_received(:handle!).exactly(2).times
+      end
     end
 
-    # TODO: should be implemented with status checking
-    it 'invalid status' do
-      expect do
-        supplemental_claim.update_status!(status: 'invalid_status')
-      end.to raise_error(ActiveRecord::RecordInvalid,
-                         'Validation failed: Status is not included in the list')
-    end
+    context 'non-veteran claimant validations' do
+      let(:sc_with_nvc_built) { build(:extra_supplemental_claim) }
+      let(:auth_headers) { sc_with_nvc_built.auth_headers }
+      let(:form_data) { sc_with_nvc_built.form_data }
 
-    it 'emits an event' do
-      handler = instance_double(AppealsApi::Events::Handler)
-      allow(AppealsApi::Events::Handler).to receive(:new).and_return(handler)
-      allow(handler).to receive(:handle!)
+      context 'claimant header & form_data requirements' do
+        describe 'when headers are provided but form_data is missing' do
+          it 'creates and invalid record' do
+            auth_headers.except!(*%w[X-VA-Claimant-First-Name X-VA-Claimant-Last-Name X-VA-Claimant-Birth-Date])
 
-      supplemental_claim.update_status!(status: 'pending')
+            expect(sc_with_nvc_built.valid?).to be false
+            expect(sc_with_nvc_built.errors.to_a.length).to eq 1
+            expect(sc_with_nvc_built.errors.to_a.first.downcase).to include 'missing claimant headers'
+          end
+        end
 
-      expect(handler).to have_received(:handle!).exactly(1).times
-    end
+        describe 'when claimant data is provided but missing headers' do
+          it 'creates and invalid record' do
+            form_data.tap { |fd| fd['data']['attributes'].delete('claimant') }
 
-    it 'sends an email' do
-      handler = instance_double(AppealsApi::Events::Handler)
-      allow(AppealsApi::Events::Handler).to receive(:new).and_return(handler)
-      allow(handler).to receive(:handle!)
+            expect(sc_with_nvc_built.valid?).to be false
+            expect(sc_with_nvc_built.errors.to_a.length).to eq 1
+            expect(sc_with_nvc_built.errors.to_a.first.downcase).to include 'missing claimant data'
+          end
+        end
 
-      supplemental_claim.update_status!(status: 'submitted')
+        describe 'when both claimant and form data are missing' do
+          let(:minimal_sc) { create(:minimal_supplemental_claim) }
 
-      expect(handler).to have_received(:handle!).exactly(2).times
+          it 'creates a valid record' do
+            expect(minimal_sc.valid?).to be true
+          end
+        end
+      end
     end
   end
 end

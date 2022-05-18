@@ -36,6 +36,7 @@ module AppealsApi
     # further validations:
     validate(
       :birth_date_is_in_the_past,
+      :required_claimant_data_is_present,
       :contestable_issue_dates_are_valid_dates,
       if: proc { |a| a.form_data.present? }
     )
@@ -99,15 +100,15 @@ module AppealsApi
     end
 
     def veteran_dob_month
-      birth_date.strftime '%m'
+      veteran.birth_date.strftime '%m'
     end
 
     def veteran_dob_day
-      birth_date.strftime '%d'
+      veteran.birth_date.strftime '%d'
     end
 
     def veteran_dob_year
-      birth_date.strftime '%Y'
+      veteran.birth_date.strftime '%Y'
     end
 
     def veteran_service_number
@@ -160,19 +161,19 @@ module AppealsApi
     end
 
     def consumer_name
-      auth_headers&.dig('X-Consumer-Username')
+      auth_headers['X-Consumer-Username']
     end
 
     def consumer_id
-      auth_headers&.dig('X-Consumer-ID')
+      auth_headers['X-Consumer-ID']
     end
 
     def benefit_type
-      data_attributes&.dig('benefitType')&.strip
+      data_attributes['benefitType']&.strip
     end
 
     def claimant_type
-      data_attributes&.dig('claimant', 'claimantType')&.strip
+      data_attributes['claimantType']&.strip
     end
 
     def contestable_issues
@@ -201,7 +202,7 @@ module AppealsApi
     end
 
     def soc_opt_in
-      data_attributes&.dig('socOptIn')
+      data_attributes['socOptIn']
     end
 
     def new_evidence
@@ -221,8 +222,7 @@ module AppealsApi
     end
 
     def stamp_text
-      # TODO: Refactor to use a Veteran Appellant object once non-veteran claimant work is done
-      "#{veteran_last_name.truncate(35)} - #{ssn.last(4)}"
+      "#{veteran.last_name.truncate(35)} - #{veteran.ssn.last(4)}"
     end
 
     def update_status!(status:, code: nil, detail: nil)
@@ -235,8 +235,8 @@ module AppealsApi
 
       email_handler = Events::Handler.new(event_type: :sc_received, opts: {
                                             email_identifier: email_identifier,
-                                            first_name: veteran_first_name,
-                                            date_submitted: veterans_local_time.iso8601,
+                                            first_name: veteran.first_name,
+                                            date_submitted: appellant_local_time.iso8601,
                                             guid: id,
                                             claimant_email: claimant&.email,
                                             claimant_first_name: claimant&.first_name
@@ -267,8 +267,8 @@ module AppealsApi
     def mpi_veteran
       AppealsApi::Veteran.new(
         ssn: ssn,
-        first_name: veteran_first_name,
-        last_name: veteran_last_name,
+        first_name: veteran.first_name,
+        last_name: veteran.last_name,
         birth_date: birth_date.iso8601
       )
     end
@@ -290,7 +290,7 @@ module AppealsApi
     end
 
     def evidence_submission
-      form_data&.dig('data', 'attributes', 'evidenceSubmission')
+      data_attributes['evidenceSubmission']
     end
 
     def birth_date_string
@@ -340,6 +340,20 @@ module AppealsApi
 
     def add_error(message)
       errors.add(:base, message)
+    end
+
+    # validation (header & body)
+    # Schemas take care of most of the requirements, but we need to check that both header & body data is provided
+    def required_claimant_data_is_present
+      has_claimant_headers = claimant.first_name.present?
+      # form data that includes a claimant is also sufficient to know it's passed the schema
+      has_claimant_data = data_attributes&.fetch('claimant', nil).present?
+
+      return if !has_claimant_headers && !has_claimant_data # No claimant headers or data? not a problem!
+      return if has_claimant_headers && has_claimant_data # Has both claimant headers and data? A-ok!
+
+      add_error('Claimant data was provided but missing claimant headers') unless has_claimant_headers
+      add_error('Claimant headers were provided but missing claimant data') unless has_claimant_data
     end
 
     def address_combined
