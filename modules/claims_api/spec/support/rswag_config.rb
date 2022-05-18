@@ -6,8 +6,9 @@ class ClaimsApi::RswagConfig
       'modules/claims_api/app/swagger/claims_api/v1/swagger.json' => {
         openapi: '3.0.1',
         info: {
-          title: 'API V1',
+          title: 'Benefits Claims',
           version: 'v1',
+          termsOfService: 'https://developer.va.gov/terms-of-service',
           description: File.read(ClaimsApi::Engine.root.join('app', 'swagger', 'claims_api', 'description', 'v1.md'))
         },
         tags: [
@@ -67,7 +68,7 @@ class ClaimsApi::RswagConfig
           }
         },
         paths: {},
-        basePath: '/services/claims/v1',
+        basePath: '/services/benefits/v1',
         servers: [
           {
             url: 'https://sandbox-api.va.gov/services/claims/{version}',
@@ -92,7 +93,7 @@ class ClaimsApi::RswagConfig
       'modules/claims_api/app/swagger/claims_api/v2/swagger.json' => {
         openapi: '3.0.1',
         info: {
-          title: 'API V2',
+          title: 'Benefits Claims',
           version: 'v2',
           description: File.read(ClaimsApi::Engine.root.join('app', 'swagger', 'claims_api', 'description', 'v2.md'))
         },
@@ -115,6 +116,34 @@ class ClaimsApi::RswagConfig
               name: :token,
               scheme: :bearer,
               bearer_format: :JWT
+            },
+            productionOauth: {
+              type: :oauth2,
+              description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)',
+              flows: {
+                authorizationCode: {
+                  authorizationUrl: 'https://api.va.gov/oauth2/authorization',
+                  tokenUrl: 'https://api.va.gov/oauth2/token',
+                  scopes: {
+                    'claim.read': 'Retrieve claim data',
+                    'claim.write': 'Submit claim data'
+                  }
+                }
+              }
+            },
+            sandboxOauth: {
+              type: :oauth2,
+              description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)',
+              flows: {
+                authorizationCode: {
+                  authorizationUrl: 'https://sandbox-api.va.gov/oauth2/authorization',
+                  tokenUrl: 'https://sandbox-api.va.gov/oauth2/token',
+                  scopes: {
+                    'claim.read': 'Retrieve claim data',
+                    'claim.write': 'Submit claim data'
+                  }
+                }
+              }
             }
           }
         },
@@ -122,8 +151,17 @@ class ClaimsApi::RswagConfig
         basePath: '/services/benefits/v2',
         servers: [
           {
-            url: 'https://dev-api.va.gov/services/benefits/{version}',
-            description: 'VA.gov API development environment',
+            url: 'https://sandbox-api.va.gov/services/benefits/{version}',
+            description: 'VA.gov API sandbox environment',
+            variables: {
+              version: {
+                default: 'v2'
+              }
+            }
+          },
+          {
+            url: 'https://api.va.gov/services/benefits/{version}',
+            description: 'VA.gov API production environment',
             variables: {
               version: {
                 default: 'v2'

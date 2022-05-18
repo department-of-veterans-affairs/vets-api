@@ -18,6 +18,21 @@ module SwaggerSharedComponents
         )
       )
 
+      veteran_identifier_json_body_example = JSON.parse(
+        File.read(
+          Rails.root.join(
+            'modules',
+            'claims_api',
+            'config',
+            'schemas',
+            'v2',
+            'request_bodies',
+            'veteran_identifier',
+            'example.json'
+          )
+        )
+      )
+
       intent_to_file_json_schema = JSON.parse(
         File.read(
           Rails.root.join(
@@ -57,7 +72,8 @@ module SwaggerSharedComponents
           schema: {
             type: :object,
             required: veteran_identifier_json_schema['required'],
-            properties: veteran_identifier_json_schema['properties']
+            properties: veteran_identifier_json_schema['properties'],
+            example: veteran_identifier_json_body_example
           }
         },
         intent_to_file: {
