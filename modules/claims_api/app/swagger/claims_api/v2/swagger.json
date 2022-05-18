@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "API V2",
+    "title": "Benefits Claims",
     "version": "v2",
     "description": "## Background\nVersion 2 of the Benefits Claims API supports the ability to retrieve existing claim information by claim ID for internal consumers.\nPlease see [version 1](https://developer.va.gov/explore/benefits/docs/claims?version=current) for external facing services which include the following capabilities:\n\n - Automatic claim and POA establishment\n - Direct establishment of disability compensation claims in Veterans Benefits Management System (VBMS) to avoid unnecessary manual processing and entry by Veteran Service Representatives (VSRs)\n - Faster claims processing by several days\n - End-to-end claims status and result tracking by claim ID\n\nForms not supported by the Benefits Claims API are submitted using the [Benefits Intake API](https://developer.va.gov/explore/benefits/docs/benefits?version=current), which places uploaded PDFs into the Centralized Mail Portal to be manually processed.\n\n## Technical Overview\nThis API accepts a payload of requests and responses on a per-form basis, with the payload identifying the form and Veteran. Trackable responses provide a unique ID which is used with the appropriate GET endpoint to track a submission’s processing status.\n\n### Authentication and authorization\nTo make an API request, follow our [authentication process](https://developer.va.gov/explore/authorization?api=claims) to receive an [OAuth token](https://oauth.net/2/).\n\n#### Representative authorization\nAccredited representatives may make requests to the Claims API on behalf of Veterans that they represent. To make API requests on behalf of a Veteran, representatives must:\n - be [accredited with the VA Office of the General Counsel](https://www.va.gov/ogc/apps/accreditation/index.asp)\n - be [authenticated](https://developer.va.gov/explore/authorization?api=claims) using an identity-proofed account\n - be the current Power of Attorney (POA) on record for the Veteran (accredited representatives can use the ‘/veterans/{veteranId}/power-of-attorney’ endpoint to check a Veteran’s current POA)\n\n#### Finding a Veteran's unique VA ID\nThe Claims API uses a unique Veteran identifier to identify the subject of each API request. This Veteran identifier can be retrieved by an authenticated Veteran or an accredited representative by passing name, DOB, and SSN to the ‘/veteran-id’ endpoint. This identifier should then be used as the Veteran ID parameter in request URLs.\n\n*Note: though Veteran identifiers are typically static, they may change over time. If a specific Veteran ID suddenly responds with a ‘404 not found’ error, the identifier may have changed. It’s a good idea to retrieve the current identifier for each Veteran periodically.*\n\n### Test data for sandbox environment use\n[Test data](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts.md) is used for all forms in the sandbox environment and for 21-526 submissions in the staging environment.\n"
   },
@@ -22,6 +22,34 @@
         "name": "token",
         "scheme": "bearer",
         "bearer_format": "JWT"
+      },
+      "productionOauth": {
+        "type": "oauth2",
+        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://api.va.gov/oauth2/authorization",
+            "tokenUrl": "https://api.va.gov/oauth2/token",
+            "scopes": {
+              "claim.read": "Retrieve claim data",
+              "claim.write": "Submit claim data"
+            }
+          }
+        }
+      },
+      "sandboxOauth": {
+        "type": "oauth2",
+        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
+            "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
+            "scopes": {
+              "claim.read": "Retrieve claim data",
+              "claim.write": "Submit claim data"
+            }
+          }
+        }
       }
     }
   },
@@ -319,6 +347,12 @@
                     "example": "1967-06-19",
                     "description": "Date of Birth of Veteran being represented, in iso8601 format"
                   }
+                },
+                "example": {
+                  "ssn": "796130115",
+                  "firstName": "Tamara",
+                  "lastName": "Ellis",
+                  "birthdate": "1967-06-19"
                 }
               }
             }
@@ -902,11 +936,19 @@
       }
     }
   },
-  "basePath": "/services/benefits/v2",
   "servers": [
     {
-      "url": "https://dev-api.va.gov/services/benefits/{version}",
-      "description": "VA.gov API development environment",
+      "url": "https://sandbox-api.va.gov/services/benefits/{version}",
+      "description": "VA.gov API sandbox environment",
+      "variables": {
+        "version": {
+          "default": "v2"
+        }
+      }
+    },
+    {
+      "url": "https://api.va.gov/services/benefits/{version}",
+      "description": "VA.gov API production environment",
       "variables": {
         "version": {
           "default": "v2"
