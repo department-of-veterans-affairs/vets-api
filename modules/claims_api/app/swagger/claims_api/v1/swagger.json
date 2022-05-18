@@ -496,7 +496,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9b953c28-dd8b-42a5-8626-c694f05e561e",
+                    "id": "f33c365c-ebaa-43e3-91df-aec208b43fde",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -545,11 +545,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "d7c90d5b-5e27-4956-94f5-4882d9780cf1",
+                          "id": "a5735611-e544-4af5-8908-549373246b8c",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2022-05-10T19:55:30.597Z"
+                          "uploaded_at": "2022-05-16T19:11:29.129Z"
                         }
                       ]
                     }
@@ -1135,7 +1135,7 @@
                               ],
                               "properties": {
                                 "beginningDate": {
-                                  "description": "Date in YYYY-MM-DD the Veteran changed address.",
+                                  "description": "Date in YYYY-MM-DD the Veteran changed address. Date must be in the future if change is temporary.",
                                   "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                   "type": "string",
                                   "example": "2018-06-04"
@@ -1490,6 +1490,7 @@
                               ],
                               "properties": {
                                 "title10Activation": {
+                                  "description": "Include if the Veteran is currently activated on federal orders within the National Guard or Reserves",
                                   "type": "object",
                                   "additionalProperties": false,
                                   "required": [
@@ -1498,10 +1499,12 @@
                                   ],
                                   "properties": {
                                     "anticipatedSeparationDate": {
+                                      "description": "Anticipated date of separation. Date must be in the future.",
                                       "type": "string",
                                       "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
                                     },
                                     "title10ActivationDate": {
+                                      "description": "Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.",
                                       "type": "string",
                                       "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
                                     }
@@ -1789,7 +1792,7 @@
                                 "example": "249470"
                               },
                               "approximateBeginDate": {
-                                "description": "Approximate date disability began.",
+                                "description": "Approximate date disability began. Date must be in the past.",
                                 "type": "string",
                                 "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                 "example": "2018-03-02"
@@ -2067,7 +2070,7 @@
                             ],
                             "properties": {
                               "startDate": {
-                                "description": "Date Veteran started treatment.",
+                                "description": "Date Veteran started treatment. Date must be after the earliest servicePeriods.activeDutyBeginDate.",
                                 "type": [
                                   "null",
                                   "string"
@@ -2076,7 +2079,7 @@
                                 "example": "2018-03-02"
                               },
                               "endDate": {
-                                "description": "Date Veteran ended treatment.",
+                                "description": "Date Veteran ended treatment. End date must be after the start date.",
                                 "type": "string",
                                 "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                 "example": "2018-03-02"
@@ -2353,7 +2356,7 @@
                           "example": false
                         },
                         "claimDate": {
-                          "description": "Date when claim is being submitted to the VA.",
+                          "description": "Date when claim is being submitted to the VA. Date cannot be in the future.",
                           "type": "string",
                           "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                           "example": "2018-08-28"
@@ -2438,7 +2441,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "42e6592a-40d0-42bc-b597-61dfe124f550",
+                    "id": "8a324dd8-a603-48a6-ab63-6fd35ecccdf5",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2456,13 +2459,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-05-10T19:55:32.030Z",
+                      "updated_at": "2022-05-16T19:11:29.623Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "42e6592a-40d0-42bc-b597-61dfe124f550",
+                      "token": "8a324dd8-a603-48a6-ab63-6fd35ecccdf5",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -2997,7 +3000,7 @@
                                 ],
                                 "properties": {
                                   "beginningDate": {
-                                    "description": "Date in YYYY-MM-DD the Veteran changed address.",
+                                    "description": "Date in YYYY-MM-DD the Veteran changed address. Date must be in the future if change is temporary.",
                                     "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                     "type": "string",
                                     "example": "2018-06-04"
@@ -3352,6 +3355,7 @@
                                 ],
                                 "properties": {
                                   "title10Activation": {
+                                    "description": "Include if the Veteran is currently activated on federal orders within the National Guard or Reserves",
                                     "type": "object",
                                     "additionalProperties": false,
                                     "required": [
@@ -3360,10 +3364,12 @@
                                     ],
                                     "properties": {
                                       "anticipatedSeparationDate": {
+                                        "description": "Anticipated date of separation. Date must be in the future.",
                                         "type": "string",
                                         "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
                                       },
                                       "title10ActivationDate": {
+                                        "description": "Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.",
                                         "type": "string",
                                         "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
                                       }
@@ -3651,7 +3657,7 @@
                                   "example": "249470"
                                 },
                                 "approximateBeginDate": {
-                                  "description": "Approximate date disability began.",
+                                  "description": "Approximate date disability began. Date must be in the past.",
                                   "type": "string",
                                   "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                   "example": "2018-03-02"
@@ -3929,7 +3935,7 @@
                               ],
                               "properties": {
                                 "startDate": {
-                                  "description": "Date Veteran started treatment.",
+                                  "description": "Date Veteran started treatment. Date must be after the earliest servicePeriods.activeDutyBeginDate.",
                                   "type": [
                                     "null",
                                     "string"
@@ -3938,7 +3944,7 @@
                                   "example": "2018-03-02"
                                 },
                                 "endDate": {
-                                  "description": "Date Veteran ended treatment.",
+                                  "description": "Date Veteran ended treatment. End date must be after the start date.",
                                   "type": "string",
                                   "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                   "example": "2018-03-02"
@@ -4215,7 +4221,7 @@
                             "example": false
                           },
                           "claimDate": {
-                            "description": "Date when claim is being submitted to the VA.",
+                            "description": "Date when claim is being submitted to the VA. Date cannot be in the future.",
                             "type": "string",
                             "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                             "example": "2018-08-28"
@@ -4313,7 +4319,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bddb5299-bfa2-42df-994b-a0159fce71e0",
+                    "id": "76717f0b-b682-4c26-96a6-61d4919a8b1c",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4331,13 +4337,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-05-10T19:55:33.124Z",
+                      "updated_at": "2022-05-16T19:11:29.989Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "bddb5299-bfa2-42df-994b-a0159fce71e0",
+                      "token": "76717f0b-b682-4c26-96a6-61d4919a8b1c",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5285,7 +5291,7 @@
                                 ],
                                 "properties": {
                                   "beginningDate": {
-                                    "description": "Date in YYYY-MM-DD the Veteran changed address.",
+                                    "description": "Date in YYYY-MM-DD the Veteran changed address. Date must be in the future if change is temporary.",
                                     "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                     "type": "string",
                                     "example": "2018-06-04"
@@ -5640,6 +5646,7 @@
                                 ],
                                 "properties": {
                                   "title10Activation": {
+                                    "description": "Include if the Veteran is currently activated on federal orders within the National Guard or Reserves",
                                     "type": "object",
                                     "additionalProperties": false,
                                     "required": [
@@ -5648,10 +5655,12 @@
                                     ],
                                     "properties": {
                                       "anticipatedSeparationDate": {
+                                        "description": "Anticipated date of separation. Date must be in the future.",
                                         "type": "string",
                                         "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
                                       },
                                       "title10ActivationDate": {
+                                        "description": "Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.",
                                         "type": "string",
                                         "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
                                       }
@@ -5939,7 +5948,7 @@
                                   "example": "249470"
                                 },
                                 "approximateBeginDate": {
-                                  "description": "Approximate date disability began.",
+                                  "description": "Approximate date disability began. Date must be in the past.",
                                   "type": "string",
                                   "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                   "example": "2018-03-02"
@@ -6217,7 +6226,7 @@
                               ],
                               "properties": {
                                 "startDate": {
-                                  "description": "Date Veteran started treatment.",
+                                  "description": "Date Veteran started treatment. Date must be after the earliest servicePeriods.activeDutyBeginDate.",
                                   "type": [
                                     "null",
                                     "string"
@@ -6226,7 +6235,7 @@
                                   "example": "2018-03-02"
                                 },
                                 "endDate": {
-                                  "description": "Date Veteran ended treatment.",
+                                  "description": "Date Veteran ended treatment. End date must be after the start date.",
                                   "type": "string",
                                   "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                   "example": "2018-03-02"
@@ -6503,7 +6512,7 @@
                             "example": false
                           },
                           "claimDate": {
-                            "description": "Date when claim is being submitted to the VA.",
+                            "description": "Date when claim is being submitted to the VA. Date cannot be in the future.",
                             "type": "string",
                             "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                             "example": "2018-08-28"
@@ -6601,7 +6610,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a5e581b0-6325-4e39-acec-3d2ada47025d",
+                    "id": "02a12a23-c889-4533-9cc7-ebce42384e2b",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6615,7 +6624,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-05-10T19:55:36.000Z",
+                      "updated_at": "2022-05-16T19:11:30.826Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6624,7 +6633,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "47af16ab-7995-4ce5-b1fd-23e8e634642b",
+                          "id": "90514445-5263-46f2-9cb8-a4b8dec59a59",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8600,11 +8609,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "563ec57a-08a2-4986-9412-5062a6040703",
+                    "id": "05333a82-9c4e-44e4-8c92-c3ebfa45ade2",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2022-05-10",
+                      "date_request_accepted": "2022-05-16",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9313,11 +9322,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "135d8967-dbd0-409e-917f-30d4afa80ab2",
+                    "id": "ccbda35b-48f7-48cd-8920-7ebfc94656b8",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-05-10",
+                      "date_request_accepted": "2022-05-16",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9768,11 +9777,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6b19ea3f-3e0b-4966-85bd-250c540206d9",
+                    "id": "feb23d04-4bef-4117-a04b-836a315b4949",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-05-10",
+                      "date_request_accepted": "2022-05-16",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
