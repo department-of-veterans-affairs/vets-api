@@ -1,0 +1,36 @@
+type: object
+required:
+  - data
+properties:
+  data:
+    type: object
+    required:
+      - type
+      - id
+      - attributes
+    properties:
+      type:
+        type: string
+        example: "va_eligibility"
+      id:
+        type: string
+        example: "3097e489-ad75-5746-ab1a-e0aabc1b426a"
+      attributes:
+        type: object
+        required:
+          - services
+        properties:
+          services:
+            type: string
+            example: [{name: 'amputation',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
+                      {name: 'audiology',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
+                      {name: 'covid',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
+                      {name: 'optometry',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
+                      {name: 'outpatientMentalHealth',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
+                      {name: 'moveProgram',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
+                      {name: 'foodAndNutrition',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
+                      {name: 'clinicalPharmacyPrimaryCare',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
+                      {name: '411',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
+                      {name: 'primaryCare',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
+                      {name: 'homeSleepTesting',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
+                       {name: 'socialWork',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']}]

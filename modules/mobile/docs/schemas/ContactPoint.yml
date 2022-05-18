@@ -1,4 +1,7 @@
 type: object
+required:
+  - type
+  - value
 properties:
   type:
     type: string
@@ -6,6 +9,8 @@ properties:
       - email
       - phone
     nullable: false
+    example: 'phone'
   value:
     type: string
     nullable: false
+    example: '7036753607'

@@ -1,0 +1,21 @@
+type: object
+description: Required for VA Requests. Reason for appointment. If no reason was provided ('Other' option) then the 'coding' field array should be empty and text field should be populated with commment field text
+required:
+  - coding
+  - text
+properties:
+  coding:
+    type: array
+    items:
+      type: object
+      properties:
+        code:
+          type: string
+          enum:
+            - 'Routine Follow-up'
+            - 'Medication Concern'
+            - 'New Problem'
+          example: 'Routine Follow-up'
+  text:
+    type: string
+    example: 'Routine Follow-up'

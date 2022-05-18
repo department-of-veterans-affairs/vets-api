@@ -68,6 +68,7 @@ properties:
           - directDepositBenefits
           - militaryServiceHistory
           - directDepositBenefitsUpdate
+          - scheduleAppointments
       health:
         type: object
         required:
