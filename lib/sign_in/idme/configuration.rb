@@ -21,6 +21,14 @@ module SignIn::Idme
       Settings.idme.redirect_uri
     end
 
+    def mhv_redirect_uri
+      Settings.idme.mhv_redirect_uri
+    end
+
+    def dslogon_redirect_uri
+      Settings.idme.dslogon_redirect_uri
+    end
+
     def client_key_path
       Settings.idme.client_key_path
     end
