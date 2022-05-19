@@ -68,7 +68,7 @@ module Swagger
                 'Associate\'s degree',
                 'Bachelor’s degree',
                 'Master’s degree',
-                'Doctoral degre',
+                'Doctoral degree',
                 'Other'
               ]
             property :receivedOtherEducationTrainingPreUnemployability, type: :boolean
