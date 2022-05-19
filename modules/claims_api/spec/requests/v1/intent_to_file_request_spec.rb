@@ -81,7 +81,7 @@ RSpec.describe 'Intent to file', type: :request do
           end
         end
 
-        it "returns a 403 when 'participant claimant id' is not provided" do
+        it "returns a 403 when neither 'participant_claimant_id' nor 'claimant_ssn' are provided" do
           with_okta_user(scopes) do |auth_header|
             VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
               data[:data][:attributes] = { type: 'burial' }
@@ -91,11 +91,22 @@ RSpec.describe 'Intent to file', type: :request do
           end
         end
 
-        it "returns a 200 if the veteran is not the submitter and 'participant claimant id' is provided" do
+        it "returns a 200 if the veteran is not the submitter and 'participant_claimant_id' is provided" do
           with_okta_user(scopes) do |auth_header|
             VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
               data[:attributes] = extra
               data[:attributes][:type] = 'burial'
+              post path, params: data.to_json, headers: headers.merge(auth_header)
+              expect(response.status).to eq(200)
+            end
+          end
+        end
+
+        it "returns a 200 if the veteran is not the submitter and 'claimant_ssn' is provided" do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+              data[:data][:attributes][:type] = 'burial'
+              data[:data][:attributes][:claimant_ssn] = '123_456_789'
               post path, params: data.to_json, headers: headers.merge(auth_header)
               expect(response.status).to eq(200)
             end

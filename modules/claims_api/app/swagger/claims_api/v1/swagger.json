@@ -497,7 +497,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f33c365c-ebaa-43e3-91df-aec208b43fde",
+                    "id": "bafb6daf-3669-444a-a952-313cbd262373",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -546,11 +546,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "a5735611-e544-4af5-8908-549373246b8c",
+                          "id": "42cef2a6-16b2-486c-8138-76aaad909d99",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2022-05-16T19:11:29.129Z"
+                          "uploaded_at": "2022-05-18T20:39:00.407Z"
                         }
                       ]
                     }
@@ -2442,7 +2442,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8a324dd8-a603-48a6-ab63-6fd35ecccdf5",
+                    "id": "e013590b-ece7-4ac9-9788-47343450f97a",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2460,13 +2460,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-05-16T19:11:29.623Z",
+                      "updated_at": "2022-05-18T20:39:00.931Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "8a324dd8-a603-48a6-ab63-6fd35ecccdf5",
+                      "token": "e013590b-ece7-4ac9-9788-47343450f97a",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -4320,7 +4320,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "76717f0b-b682-4c26-96a6-61d4919a8b1c",
+                    "id": "e3dd33bd-546c-45e8-a6cd-1b83eda8cb0a",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4338,13 +4338,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-05-16T19:11:29.989Z",
+                      "updated_at": "2022-05-18T20:39:01.306Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "76717f0b-b682-4c26-96a6-61d4919a8b1c",
+                      "token": "e3dd33bd-546c-45e8-a6cd-1b83eda8cb0a",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -6611,7 +6611,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "02a12a23-c889-4533-9cc7-ebce42384e2b",
+                    "id": "75ef5838-79e9-4bab-a632-2c78d089ed42",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6625,7 +6625,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-05-16T19:11:30.826Z",
+                      "updated_at": "2022-05-18T20:39:02.179Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6634,7 +6634,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "90514445-5263-46f2-9cb8-a4b8dec59a59",
+                          "id": "ba0b9af0-bf90-44fa-b6b3-45070e0809b8",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -7033,7 +7033,7 @@
                         "type": {
                           "type": "string",
                           "example": "compensation",
-                          "description": "For type \"burial\", the request must be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.",
+                          "description": "For type \"burial\", the request must include claimant_ssn or participant_claimant_id and be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.",
                           "enum": [
                             "compensation",
                             "pension",
@@ -7058,7 +7058,7 @@
                         "claimant_ssn": {
                           "type": "string",
                           "example": "123456789",
-                          "description": "SSN of non-Veteran Claimant."
+                          "description": "SSN of the Claimant."
                         }
                       }
                     }
@@ -7355,7 +7355,7 @@
                   "errors": [
                     {
                       "status": 422,
-                      "detail": "The property /type did not match the following requirements: {\"type\"=>\"string\", \"example\"=>\"compensation\", \"description\"=>\"For type \\\"burial\\\", the request must be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.\", \"enum\"=>[\"compensation\", \"pension\", \"burial\"]}",
+                      "detail": "The property /type did not match the following requirements: {\"type\"=>\"string\", \"example\"=>\"compensation\", \"description\"=>\"For type \\\"burial\\\", the request must include claimant_ssn or participant_claimant_id and be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.\", \"enum\"=>[\"compensation\", \"pension\", \"burial\"]}",
                       "source": "/type"
                     }
                   ]
@@ -7431,7 +7431,7 @@
                           "type": {
                             "type": "string",
                             "example": "compensation",
-                            "description": "For type \"burial\", the request must be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.",
+                            "description": "For type \"burial\", the request must include claimant_ssn or participant_claimant_id and be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.",
                             "enum": [
                               "compensation",
                               "pension",
@@ -7456,7 +7456,7 @@
                           "claimant_ssn": {
                             "type": "string",
                             "example": "123456789",
-                            "description": "SSN of non-Veteran Claimant."
+                            "description": "SSN of the Claimant."
                           }
                         }
                       }
@@ -8093,7 +8093,7 @@
                           "type": {
                             "type": "string",
                             "example": "compensation",
-                            "description": "For type \"burial\", the request must be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.",
+                            "description": "For type \"burial\", the request must include claimant_ssn or participant_claimant_id and be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.",
                             "enum": [
                               "compensation",
                               "pension",
@@ -8118,7 +8118,7 @@
                           "claimant_ssn": {
                             "type": "string",
                             "example": "123456789",
-                            "description": "SSN of non-Veteran Claimant."
+                            "description": "SSN of the Claimant."
                           }
                         }
                       }
@@ -8610,11 +8610,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "05333a82-9c4e-44e4-8c92-c3ebfa45ade2",
+                    "id": "840ac442-3785-4483-aa7a-d9256c8c9103",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2022-05-16",
+                      "date_request_accepted": "2022-05-18",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9323,11 +9323,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ccbda35b-48f7-48cd-8920-7ebfc94656b8",
+                    "id": "684b5282-2120-47e6-9f91-05355b2f5a1b",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-05-16",
+                      "date_request_accepted": "2022-05-18",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9778,11 +9778,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "feb23d04-4bef-4117-a04b-836a315b4949",
+                    "id": "cf6053db-3441-4ad1-908a-97ae5b155536",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-05-16",
+                      "date_request_accepted": "2022-05-18",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
