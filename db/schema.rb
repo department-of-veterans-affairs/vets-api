@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_05_10_182554) do
+ActiveRecord::Schema.define(version: 2022_05_18_234857) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -667,7 +667,7 @@ ActiveRecord::Schema.define(version: 2022_05_10_182554) do
     t.datetime "refresh_creation", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.bigint "user_verification_id"
+    t.bigint "user_verification_id", null: false
     t.string "credential_email"
     t.index ["handle"], name: "index_oauth_sessions_on_handle", unique: true
     t.index ["hashed_refresh_token"], name: "index_oauth_sessions_on_hashed_refresh_token", unique: true
