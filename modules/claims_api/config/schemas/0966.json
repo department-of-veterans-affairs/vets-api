@@ -8,7 +8,7 @@
     "type": {
       "type": "string",
       "example": "compensation",
-      "description": "For type \"burial\", the request must be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.",
+      "description": "For type \"burial\", the request must include claimant_ssn or participant_claimant_id and be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.",
       "enum": ["compensation", "pension", "burial"]
     },
     "participant_claimant_id": {
@@ -29,7 +29,7 @@
     "claimant_ssn": {
       "type": "string",
       "example": "123456789",
-      "description": "SSN of non-Veteran Claimant."
+      "description": "SSN of the Claimant."
     }
   }
 }

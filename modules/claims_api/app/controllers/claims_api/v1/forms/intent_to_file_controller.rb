@@ -140,7 +140,7 @@ module ClaimsApi
         end
 
         def request_includes_claimant_id?
-          form_attributes['participant_claimant_id'].present?
+          form_attributes['participant_claimant_id'].present? || form_attributes['claimant_ssn'].present?
         end
       end
     end
