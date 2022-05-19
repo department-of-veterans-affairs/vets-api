@@ -542,7 +542,7 @@ GEM
       ruby-vips (>= 2.0.17, < 3)
     iso_country_codes (0.7.8)
     jmespath (1.6.1)
-    json (2.6.1)
+    json (2.6.2)
     json-schema (2.8.1)
       addressable (>= 2.4)
     json_schemer (0.2.21)
