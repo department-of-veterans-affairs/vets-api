@@ -199,5 +199,14 @@ FactoryBot.define do
         user.instance_variable_set(:@identity, user_identity)
       end
     end
+
+    trait :mhv do
+      callback(:after_build, :after_stub, :after_create) do |user, _t|
+        user_identity = create(:iam_user_identity, mhv_account_type: 'Premium',
+                                                   sign_in: { service_name: 'myhealthevet' })
+        user.instance_variable_set(:@identity, user_identity)
+        user.instance_variable_set(:@mhv_account_type, 'Premium')
+      end
+    end
   end
 end

@@ -1496,6 +1496,96 @@ paths:
       security:
         - Bearer: []
       summary: /v0/health/location/{id}
+  /v0/health/rx/prescriptions:
+    get:
+      description: Returns the users prescriptions.
+      operationId: getPrescription
+      parameters:
+        - description: |
+            what field to sort array of prescriptions by. fields that can be sorted: prescription_id, refill_status, refill_submit_date, refill_date, facility_name, ordered_date, prescription_name, dispensed_date. date fields sort by DESC by default while all others default to ASC. To get the opposite sort direction negate the field with a '-'. EX: -prescription_id
+          in: query
+          name: sort
+          required: false
+          schema:
+            type: string
+        - description: | 
+            filter by field values. Syntax: ?filter[[refill_status][eq]]=refillinprocess. fields that can be filtered: prescription_id, refill_status, refill_submit_date, facility_name. eq can be switched out with not_eq.
+          in: query
+          name: filter
+          required: false
+          schema:
+            type: string
+        - description: The page number requested
+          example: 1
+          in: query
+          name: page[number]
+          schema:
+            type: integer
+        - description: The number of records to return per page
+          example: 10
+          in: query
+          name: page[size]
+          schema:
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Prescriptions.yml
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Authentication is possible but has failed or not yet been provided.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The requested resource could not be found.
+        '408':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The response from this API timed out.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Failure in processing entity
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An internal API error occured.
+        '502':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An upstream service the API depends on returned an error.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An upstream service is unavailable, or its circuit breaker
+            may have been tripped.
+        '504':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: A response from an upstream service timed out.
+      security:
+        - Bearer: [ ]
+      summary: /v0/health/rx/prescriptions
   /v0/letters:
     get:
       description: Returns the list of letter names and types for the given user
