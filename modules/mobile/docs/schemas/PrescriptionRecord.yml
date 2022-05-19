@@ -1,0 +1,70 @@
+type: object
+required:
+  - type
+  - id
+  - attributes
+properties:
+  type:
+    type: string
+    example: "Prescription"
+  id:
+    type: string
+    example: "13650544"
+  attributes:
+    type: object
+    required:
+      - refillStatus
+      - refillSubmitDate
+      - refillDate
+      - refillRemaining
+      - facilityName
+      - isRefillable
+      - isTrackable
+      - orderedDate
+      - quantity
+      - expirationDate
+      - prescriptionNumber
+      - prescriptionName
+      - dispensedDate
+      - stationNumber
+    properties:
+      refillStatus:
+        type: string, null
+        example: "refillinprocess"
+      refillSubmitDate:
+        type: string, null
+        example: "Mon, 30 Jan 2017 18:27:53 EST"
+      refillDate:
+        type: string, null
+        example: "Mon, 30 Jan 2017 00:00:00 EST"
+      refillRemaining:
+        type: integer, null
+        example: 5
+      facilityName:
+        type: string, null
+        example: "DAYT29"
+      isRefillable:
+        type: bool, null
+        example: false
+      isTrackable:
+        type: bool, null
+        example: false
+      orderedDate:
+        type: string, null
+        example: "Tue, 24 May 2016 00:00:00 EDT"
+      quantity:
+        type: integer, null
+        example: 10
+      expirationDate:
+        type: string, null
+        example: "Thu, 25 May 2017 00:00:00 EDT"
+      prescriptionNumber:
+        type: string, null
+        example: "2719536"
+      dispensedDate:
+        type: string, null
+        example: "Wed, 07 Sep 2016 00:00:00 EDT"
+      stationNumber:
+        type: string, null
+        example: "989"
+
