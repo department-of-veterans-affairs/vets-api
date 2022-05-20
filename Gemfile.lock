@@ -32,10 +32,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/betamocks
-  revision: ea2973373cd398846a268cf2d61b3979bfb00b1a
+  revision: 34488d1909fb704851b3c2e26d2bcb1955985464
   branch: master
   specs:
-    betamocks (0.8.0)
+    betamocks (0.9.0)
       activesupport (>= 4.2)
       adler32
       faraday (>= 0.7.4, < 2.0)
