@@ -21,7 +21,8 @@ properties:
     description: Required for VA and CC Requests . the care type for the appointment
     enum:
       - amputation
-      - audiology
+      - audiology-hearing aid support
+      - audiology-routine exam
       - covid
       - optometry
       - outpatientMentalHealth
