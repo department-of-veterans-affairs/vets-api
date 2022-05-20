@@ -110,7 +110,7 @@ RSpec.describe 'Preneeds Burial Form Integration' do
         VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
           expect do
             post_burial_forms
-          end.to change { ::Preneeds::PreneedSubmission.count }.by(1)
+          end.to change(::Preneeds::PreneedSubmission, :count).by(1)
         end
 
         expect(response_json['tracking_number']).to eq(submission_record.tracking_number)
