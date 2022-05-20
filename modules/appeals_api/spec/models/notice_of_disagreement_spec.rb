@@ -257,6 +257,16 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
       expect(AppealsApi::Events::Handler).to have_received(:new).exactly(2).times
     end
+
+    it 'does not emit event when to and from statuses are the same' do
+      handler = instance_double(AppealsApi::Events::Handler)
+      allow(AppealsApi::Events::Handler).to receive(:new).and_return(handler)
+      allow(handler).to receive(:handle!)
+
+      notice_of_disagreement.update_status!(status: notice_of_disagreement.status)
+
+      expect(handler).not_to have_received(:handle!)
+    end
   end
 
   describe 'V2 methods' do
