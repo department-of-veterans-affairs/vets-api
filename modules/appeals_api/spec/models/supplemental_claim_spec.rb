@@ -6,23 +6,24 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe AppealsApi::SupplementalClaim, type: :model do
   include FixtureHelpers
 
-  context 'validations' do
-    let(:default_auth_headers) { fixture_as_json 'valid_200995_headers_extra.json', version: 'v2' }
-    let(:default_form_data) { fixture_as_json 'valid_200995_extra.json', version: 'v2' }
-    let(:form_data) { default_form_data }
-    let(:auth_headers) { default_auth_headers }
-    let(:supplemental_claim) do
-      described_class.new(form_data: form_data, auth_headers: auth_headers, api_version: 'V2')
-    end
+  let(:default_auth_headers) { fixture_as_json 'valid_200995_headers.json', version: 'v2' }
+  let(:default_form_data) { fixture_as_json 'valid_200995.json', version: 'v2' }
 
+  let(:sc_with_nvc) { create(:extra_supplemental_claim) }
+
+  describe 'validations' do
     context 'when a veteran birth date is in the future' do
       let(:auth_headers) { default_auth_headers.merge 'X-VA-Birth-Date' => (Time.zone.today + 2).to_s }
 
+      let(:sc_bad_birthdate) do
+        described_class.new(form_data: default_form_data, auth_headers: auth_headers, api_version: 'V2')
+      end
+
       it 'creates an invalid record' do
-        expect(supplemental_claim.valid?).to be false
-        expect(supplemental_claim.errors.to_a.length).to eq 1
-        expect(supplemental_claim.errors.to_a.first.downcase).to include 'veteran'
-        expect(supplemental_claim.errors.to_a.first.downcase).to include 'past'
+        expect(sc_bad_birthdate.valid?).to be false
+        expect(sc_bad_birthdate.errors.to_a.length).to eq 1
+        expect(sc_bad_birthdate.errors.to_a.first.downcase).to include 'veteran'
+        expect(sc_bad_birthdate.errors.to_a.first.downcase).to include 'past'
       end
     end
 
@@ -49,163 +50,248 @@ describe AppealsApi::SupplementalClaim, type: :model do
         }
       end
 
+      let(:sc_bad_issues_dates) do
+        described_class.new(form_data: form_data, auth_headers: default_auth_headers, api_version: 'V2')
+      end
+
       it 'creates an invalid record' do
-        expect(supplemental_claim.valid?).to be false
-        expect(supplemental_claim.errors.to_a.length).to eq 1
-        expect(supplemental_claim.errors.to_a.first.downcase).to include 'decisiondate'
-        expect(supplemental_claim.errors.to_a.first.downcase).to include 'past'
+        expect(sc_bad_issues_dates.valid?).to be false
+        expect(sc_bad_issues_dates.errors.to_a.length).to eq 1
+        expect(sc_bad_issues_dates.errors.to_a.first.downcase).to include 'decisiondate'
+        expect(sc_bad_issues_dates.errors.to_a.first.downcase).to include 'past'
       end
     end
   end
 
-  context 'headers' do
-    let(:auth_headers) { fixture_as_json 'valid_200995_headers.json', version: 'v2' }
+  describe '#full_name' do
+    it { expect(sc_with_nvc.full_name).to eq 'joe b smart' }
+  end
+
+  describe '#veteran_dob_month' do
+    it { expect(sc_with_nvc.veteran_dob_month).to eq '12' }
+  end
+
+  describe '#veteran_dob_day' do
+    it { expect(sc_with_nvc.veteran_dob_day).to eq '31' }
+  end
+
+  describe '#veteran_dob_year' do
+    it { expect(sc_with_nvc.veteran_dob_year).to eq '1969' }
+  end
+
+  describe '#signing_appellant_zip_code' do
+    it { expect(sc_with_nvc.signing_appellant_zip_code).to eq '00000' }
+  end
+
+  describe '#consumer_name' do
+    it { expect(sc_with_nvc.consumer_name).to eq 'va.gov' }
+  end
+
+  describe '#consumer_id' do
+    it { expect(sc_with_nvc.consumer_id).to eq 'some-guid' }
+  end
+
+  describe '#benefit_type' do
+    it { expect(sc_with_nvc.benefit_type).to eq 'compensation' }
+  end
+
+  describe '#claimant_type' do
+    it { expect(sc_with_nvc.claimant_type).to eq 'other' }
+  end
+
+  describe '#claimant_type_other_text' do
+    it { expect(sc_with_nvc.claimant_type_other_text).to eq 'Veteran Attorney' }
+  end
+
+  describe '#contestable_issues' do
+    subject { sc_with_nvc.contestable_issues.to_json }
+
+    it 'matches json' do
+      form_data = sc_with_nvc.form_data
+      issues = form_data['included'].map { |issue| AppealsApi::ContestableIssue.new(issue) }.to_json
+
+      expect(subject).to eq(issues)
+    end
+  end
+
+  describe '#evidence_submission_days_window' do
+    it { expect(sc_with_nvc.evidence_submission_days_window).to eq 7 }
+  end
+
+  describe '#accepts_evidence?' do
+    it { expect(sc_with_nvc.accepts_evidence?).to be true }
+  end
+
+  describe '#outside_submission_window_error' do
+    error = {
+      title: 'unprocessable_entity',
+      detail: 'This submission is outside of the 7-day window for evidence submission.',
+      code: 'OutsideSubmissionWindow',
+      status: '422'
+    }
+
+    it { expect(sc_with_nvc.outside_submission_window_error).to eq error }
+  end
+
+  describe '#soc_opt_in' do
+    it { expect(sc_with_nvc.soc_opt_in).to be true }
+  end
+
+  describe '#form_5103_notice_acknowledged' do
+    it { expect(sc_with_nvc.form_5103_notice_acknowledged).to be true }
+  end
+
+  describe '#date_signed' do
+    subject { sc_with_nvc.date_signed }
+
+    it('matches json') do
+      expect(subject).to eq(
+        Time.now.in_time_zone(sc_with_nvc.signing_appellant.timezone).strftime('%m/%d/%Y')
+      )
+    end
+  end
+
+  describe '#stamp_text' do
+    let(:default_auth_headers) { fixture_as_json 'valid_200995_headers.json', version: 'v2' }
+    let(:form_data) { fixture_as_json 'valid_200995.json', version: 'v2' }
+
+    it { expect(sc_with_nvc.stamp_text).to eq 'Doé - 6789' }
+
+    it 'truncates the last name if too long' do
+      full_last_name = 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdddddddddd'
+      default_auth_headers['X-VA-Last-Name'] = full_last_name
+
+      sc = AppealsApi::SupplementalClaim.new(auth_headers: default_auth_headers, form_data: form_data)
+
+      expect(sc.stamp_text).to eq 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdd... - 6789'
+    end
+  end
+
+  describe '#update_status!' do
     let(:supplemental_claim) { create(:supplemental_claim) }
 
-    describe 'veteran_first_name' do
-      it { expect(supplemental_claim.veteran_first_name).to eq(auth_headers['X-VA-First-Name']) }
+    it 'error status' do
+      supplemental_claim.update_status!(status: 'error', code: 'code', detail: 'detail')
+
+      expect(supplemental_claim.status).to eq('error')
+      expect(supplemental_claim.code).to eq('code')
+      expect(supplemental_claim.detail).to eq('detail')
     end
 
-    describe 'veteran_middle_initial' do
-      it { expect(supplemental_claim.veteran_middle_initial).to eq(auth_headers['X-VA-Middle-Initial']) }
+    it 'other valid status' do
+      supplemental_claim.update_status!(status: 'success')
+
+      expect(supplemental_claim.status).to eq('success')
     end
 
-    describe 'veteran_last_name' do
-      it { expect(supplemental_claim.veteran_last_name).to eq(auth_headers['X-VA-Last-Name']) }
+    it 'invalid status' do
+      expect do
+        sc_with_nvc.update_status!(status: 'invalid_status')
+      end.to raise_error(ActiveRecord::RecordInvalid,
+                         'Validation failed: Status is not included in the list')
     end
 
-    describe 'full_name' do
-      it { expect(supplemental_claim.full_name).to eq('Jäñe ø Doé') }
+    it 'emits events with expected values' do
+      Timecop.freeze(Time.zone.now) do
+        sc_with_nvc.update_status!(status: 'submitted')
+
+        expect(AppealsApi::EventsWorker.jobs.size).to eq(2)
+
+        status_event = AppealsApi::EventsWorker.jobs.first
+        expect(status_event['args']).to eq([
+                                             'sc_status_updated',
+                                             {
+                                               'from' => 'pending',
+                                               'to' => 'submitted',
+                                               'status_update_time' => Time.zone.now.iso8601,
+                                               'statusable_id' => sc_with_nvc.id
+                                             }
+                                           ])
+
+        email_event = AppealsApi::EventsWorker.jobs.last
+        expect(email_event['args']).to eq([
+                                            'sc_received',
+                                            {
+                                              'email_identifier' => {
+                                                'id_type' => 'email',
+                                                'id_value' => 'joe@email.com'
+                                              },
+                                              'first_name' => 'Jäñe',
+                                              'date_submitted' =>
+                                                sc_with_nvc.created_at.in_time_zone('America/Detroit').iso8601,
+                                              'guid' => sc_with_nvc.id,
+                                              'claimant_email' => 'joe@email.com',
+                                              'claimant_first_name' => 'joe'
+                                            }
+                                          ])
+      end
     end
 
-    describe 'ssn' do
-      it { expect(supplemental_claim.ssn).to eq(auth_headers['X-VA-SSN']) }
-    end
+    it 'successfully gets the ICN when email isn\'t present' do
+      sc_with_nvc = described_class.create!(
+        auth_headers: default_auth_headers,
+        api_version: 'V2',
+        form_data: default_form_data.deep_merge({
+                                                  'data' => {
+                                                    'attributes' => {
+                                                      'veteran' => {
+                                                        'email' => nil
+                                                      }
+                                                    }
+                                                  }
+                                                })
+      )
 
-    describe 'file_number' do
-      it { expect(supplemental_claim.file_number).to eq(auth_headers['X-VA-File-Number']) }
-    end
+      params = { event_type: :sc_received, opts: {
+        email_identifier: { id_value: '1013062086V794840', id_type: 'ICN' },
+        first_name: sc_with_nvc.veteran.first_name,
+        date_submitted: sc_with_nvc.created_at.in_time_zone('America/Chicago').iso8601,
+        guid: sc_with_nvc.id
+      } }
 
-    describe 'veteran_dob_month' do
-      it { expect(supplemental_claim.veteran_dob_month).to eq('12') }
-    end
+      stub_mpi
 
-    describe 'veteran_dob_day' do
-      it { expect(supplemental_claim.veteran_dob_day).to eq('31') }
-    end
+      handler = instance_double(AppealsApi::Events::Handler)
+      allow(AppealsApi::Events::Handler).to receive(:new).and_call_original
+      allow(AppealsApi::Events::Handler).to receive(:new).with(params).and_return(handler)
+      allow(handler).to receive(:handle!)
 
-    describe 'veteran_dob_year' do
-      it { expect(supplemental_claim.veteran_dob_year).to eq('1969') }
-    end
+      sc_with_nvc.update_status!(status: 'submitted')
 
-    describe 'veteran_service_number' do
-      it { expect(supplemental_claim.veteran_service_number).to eq(auth_headers['X-VA-Service-Number']) }
-    end
-
-    describe 'consumer_name' do
-      it { expect(supplemental_claim.consumer_name).to eq(auth_headers['X-Consumer-Username']) }
-    end
-
-    describe 'consumer_id' do
-      it { expect(supplemental_claim.consumer_id).to eq(auth_headers['X-Consumer-ID']) }
+      expect(AppealsApi::Events::Handler).to have_received(:new).exactly(2).times
     end
   end
 
-  context 'extra form data' do
-    let(:form_data) { fixture_as_json 'valid_200995_extra.json', version: 'v2' }
-    let(:supplemental_claim) { create(:extra_supplemental_claim) }
-    let(:veteran) { form_data['data']['attributes']['veteran'] }
-
-    context 'mailing address' do
-      let(:address) { veteran['address'] }
-
-      describe 'mailing_address_number_and_street' do
-        it { expect(supplemental_claim.veteran.number_and_street).to eq('123 Main St Suite #1200 Box 4') }
-      end
-
-      describe 'mailing_address_city' do
-        it { expect(supplemental_claim.veteran.city).to eq(address['city']) }
-      end
-
-      describe 'mailing_address_state' do
-        it { expect(supplemental_claim.veteran.state_code).to eq(address['stateCode']) }
-      end
-
-      describe 'mailing_address_country' do
-        it { expect(supplemental_claim.veteran.country_code).to eq(address['countryCodeISO2']) }
-      end
-
-      describe 'zip_code_5' do
-        it { expect(supplemental_claim.veteran.zip_code_5).to eq(address['zipCode5']) }
-      end
-
-      describe 'veteran_phone_data' do
-        it { expect(supplemental_claim.veteran_phone_data).to eq(veteran['phone']) }
-      end
-
-      describe 'phone' do
-        it { expect(supplemental_claim.phone).to eq '+03-555-800-1111' }
-      end
-    end
+  describe '#lob' do
+    it { expect(sc_with_nvc.lob).to eq 'CMP' }
   end
 
-  describe 'V2' do
-    let(:supplemental_claim_v2) { create :extra_supplemental_claim }
-    let(:sc_veteran_only) { create(:minimal_supplemental_claim) }
-
-    describe '#number_and_street' do
-      subject { supplemental_claim_v2.veteran.number_and_street }
-
-      it { expect(subject).to eq('123 Main St Suite #1200 Box 4') }
-    end
-
-    describe '#city' do
-      subject { supplemental_claim_v2.veteran.city }
-
-      it { expect(subject).to eq('New York') }
-    end
-
-    describe '#state_code' do
-      subject { supplemental_claim_v2.veteran.state_code }
-
-      it { expect(subject).to eq('NY') }
-    end
-
-    describe '#country_code' do
-      subject { supplemental_claim_v2.veteran.country_code }
-
-      it { expect(subject).to eq('US') }
-    end
-
-    describe '#zip_code_5' do
-      subject { supplemental_claim_v2.veteran.zip_code_5 }
-
-      it { expect(subject).to eq('30012') }
-    end
-
-    describe '#claimant' do
-      subject { supplemental_claim_v2.claimant }
+  context 'appellant handling' do
+    describe '#veteran' do
+      subject { sc_with_nvc.veteran }
 
       it { expect(subject.class).to eq AppealsApi::Appellant }
     end
 
-    describe '#veteran' do
-      subject { supplemental_claim_v2.veteran }
+    describe '#claimant' do
+      subject { sc_with_nvc.claimant }
 
       it { expect(subject.class).to eq AppealsApi::Appellant }
     end
 
     context 'when veteran only data' do
+      let(:supplemental_claim_veteran_only) { create(:supplemental_claim) }
+
       describe '#signing_appellant' do
-        let(:appellant_type) { sc_veteran_only.signing_appellant.send(:type) }
+        let(:appellant_type) { supplemental_claim_veteran_only.signing_appellant.send(:type) }
 
         it { expect(appellant_type).to eq :veteran }
       end
 
       describe '#appellant_local_time' do
         it do
-          appellant_local_time = sc_veteran_only.appellant_local_time
-          created_at = sc_veteran_only.created_at
+          appellant_local_time = supplemental_claim_veteran_only.appellant_local_time
+          created_at = supplemental_claim_veteran_only.created_at
 
           expect(appellant_local_time).to eq created_at.in_time_zone('America/Chicago')
         end
@@ -214,17 +300,17 @@ describe AppealsApi::SupplementalClaim, type: :model do
 
     context 'when veteran and claimant data' do
       describe '#signing_appellant' do
-        let(:appellant_type) { supplemental_claim_v2.signing_appellant.send(:type) }
+        let(:appellant_type) { sc_with_nvc.signing_appellant.send(:type) }
 
         it { expect(appellant_type).to eq :claimant }
       end
 
       describe '#appellant_local_time' do
         it do
-          appellant_local_time = supplemental_claim_v2.appellant_local_time
-          created_at = supplemental_claim_v2.created_at
+          appellant_local_time = sc_with_nvc.appellant_local_time
+          created_at = sc_with_nvc.created_at
 
-          expect(appellant_local_time).to eq created_at.in_time_zone('America/Chicago')
+          expect(appellant_local_time).to eq created_at.in_time_zone('America/Detroit')
         end
       end
     end

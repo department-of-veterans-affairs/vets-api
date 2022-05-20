@@ -7,10 +7,10 @@ module AppealsApi
     def metadata(pdf_path)
       supplemental_claim = __getobj__
       {
-        'veteranFirstName' => transliterate_for_centralmail(supplemental_claim.veteran_first_name),
-        'veteranLastName' => transliterate_for_centralmail(supplemental_claim.veteran_last_name),
-        'fileNumber' => supplemental_claim.file_number.presence || supplemental_claim.ssn,
-        'zipCode' => supplemental_claim.zip_code_5,
+        'veteranFirstName' => transliterate_for_centralmail(supplemental_claim.veteran.first_name),
+        'veteranLastName' => transliterate_for_centralmail(supplemental_claim.veteran.last_name),
+        'fileNumber' => supplemental_claim.veteran.file_number.presence || supplemental_claim.veteran.ssn,
+        'zipCode' => supplemental_claim.signing_appellant_zip_code,
         'source' => "Appeals-SC-#{supplemental_claim.consumer_name}",
         'uuid' => supplemental_claim.id,
         'hashV' => Digest::SHA256.file(pdf_path).hexdigest,

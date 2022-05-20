@@ -90,6 +90,19 @@ describe AppealsApi::Appellant, type: :model do
     it { expect(claimant_appellant.zip_code_5).to eq '48070' }
   end
 
+  describe '#international_postal_code' do
+    let(:auth_headers) { fixture_as_json 'valid_200995_headers_extra.json', version: 'v2' }
+    let(:form_data) { (fixture_as_json 'valid_200995_extra.json', version: 'v2') }
+    let(:claimant_form_data) { form_data.dig('data', 'attributes', 'claimant') }
+
+    let(:claimant_appellant) do
+      described_class.new(auth_headers: auth_headers, form_data: claimant_form_data, type: :claimant)
+    end
+
+    it { expect(claimant_appellant.zip_code_5).to eq '00000' }
+    it { expect(claimant_appellant.international_postal_code).to eq 'A9999AAA' }
+  end
+
   describe '#homeless?' do
     it { expect(veteran_appellant.homeless?).to eq true }
     #  TODO: determine how to handle for non-veteran claimant in future
