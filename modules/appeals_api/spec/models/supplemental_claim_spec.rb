@@ -9,6 +9,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
   let(:default_auth_headers) { fixture_as_json 'valid_200995_headers.json', version: 'v2' }
   let(:default_form_data) { fixture_as_json 'valid_200995.json', version: 'v2' }
 
+  let(:supplemental_claim_veteran_only) { create(:supplemental_claim) }
   let(:sc_with_nvc) { create(:extra_supplemental_claim) }
 
   describe 'validations' do
@@ -63,10 +64,6 @@ describe AppealsApi::SupplementalClaim, type: :model do
     end
   end
 
-  describe '#full_name' do
-    it { expect(sc_with_nvc.full_name).to eq 'joe b smart' }
-  end
-
   describe '#veteran_dob_month' do
     it { expect(sc_with_nvc.veteran_dob_month).to eq '12' }
   end
@@ -77,10 +74,6 @@ describe AppealsApi::SupplementalClaim, type: :model do
 
   describe '#veteran_dob_year' do
     it { expect(sc_with_nvc.veteran_dob_year).to eq '1969' }
-  end
-
-  describe '#signing_appellant_zip_code' do
-    it { expect(sc_with_nvc.signing_appellant_zip_code).to eq '00000' }
   end
 
   describe '#consumer_name' do
@@ -170,7 +163,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
   describe '#update_status!' do
     let(:supplemental_claim) { create(:supplemental_claim) }
 
-    it 'error status' do
+    it 'handles the error statues with code and detail' do
       supplemental_claim.update_status!(status: 'error', code: 'code', detail: 'detail')
 
       expect(supplemental_claim.status).to eq('error')
@@ -178,13 +171,13 @@ describe AppealsApi::SupplementalClaim, type: :model do
       expect(supplemental_claim.detail).to eq('detail')
     end
 
-    it 'other valid status' do
+    it 'updates the appeal with a valid status' do
       supplemental_claim.update_status!(status: 'success')
 
       expect(supplemental_claim.status).to eq('success')
     end
 
-    it 'invalid status' do
+    it 'raises and error if status is invalid' do
       expect do
         sc_with_nvc.update_status!(status: 'invalid_status')
       end.to raise_error(ActiveRecord::RecordInvalid,
@@ -280,8 +273,6 @@ describe AppealsApi::SupplementalClaim, type: :model do
     end
 
     context 'when veteran only data' do
-      let(:supplemental_claim_veteran_only) { create(:supplemental_claim) }
-
       describe '#signing_appellant' do
         let(:appellant_type) { supplemental_claim_veteran_only.signing_appellant.send(:type) }
 
@@ -295,6 +286,14 @@ describe AppealsApi::SupplementalClaim, type: :model do
 
           expect(appellant_local_time).to eq created_at.in_time_zone('America/Chicago')
         end
+      end
+
+      describe '#full_name' do
+        it { expect(supplemental_claim_veteran_only.full_name).to eq 'Jäñe ø Doé' }
+      end
+
+      describe '#signing_appellant_zip_code' do
+        it { expect(supplemental_claim_veteran_only.signing_appellant_zip_code).to eq '30012' }
       end
     end
 
@@ -313,6 +312,14 @@ describe AppealsApi::SupplementalClaim, type: :model do
           expect(appellant_local_time).to eq created_at.in_time_zone('America/Detroit')
         end
       end
+
+      describe '#full_name' do
+        it { expect(sc_with_nvc.full_name).to eq 'joe b smart' }
+      end
+
+      describe '#signing_appellant_zip_code' do
+        it { expect(sc_with_nvc.signing_appellant_zip_code).to eq '00000' }
+      end
     end
 
     describe '#stamp_text' do
@@ -324,62 +331,6 @@ describe AppealsApi::SupplementalClaim, type: :model do
         full_last_name = 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdddddddddd'
         supplemental_claim.auth_headers['X-VA-Last-Name'] = full_last_name
         expect(supplemental_claim.stamp_text).to eq 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdd... - 6789'
-      end
-    end
-
-    describe '#update_status!' do
-      let(:supplemental_claim) { create(:supplemental_claim) }
-
-      it 'error status' do
-        supplemental_claim.update_status!(status: 'error', code: 'code', detail: 'detail')
-
-        expect(supplemental_claim.status).to eq('error')
-        expect(supplemental_claim.code).to eq('code')
-        expect(supplemental_claim.detail).to eq('detail')
-      end
-
-      it 'other valid status' do
-        supplemental_claim.update_status!(status: 'success')
-
-        expect(supplemental_claim.status).to eq('success')
-      end
-
-      # TODO: should be implemented with status checking
-      it 'invalid status' do
-        expect do
-          supplemental_claim.update_status!(status: 'invalid_status')
-        end.to raise_error(ActiveRecord::RecordInvalid,
-                           'Validation failed: Status is not included in the list')
-      end
-
-      it 'emits an event' do
-        handler = instance_double(AppealsApi::Events::Handler)
-        allow(AppealsApi::Events::Handler).to receive(:new).and_return(handler)
-        allow(handler).to receive(:handle!)
-
-        supplemental_claim.update_status!(status: 'error')
-
-        expect(handler).to have_received(:handle!).exactly(1).times
-      end
-
-      it 'sends an email' do
-        handler = instance_double(AppealsApi::Events::Handler)
-        allow(AppealsApi::Events::Handler).to receive(:new).and_return(handler)
-        allow(handler).to receive(:handle!)
-
-        supplemental_claim.update_status!(status: 'submitted')
-
-        expect(handler).to have_received(:handle!).exactly(2).times
-      end
-
-      it 'does not emit event when to and from statuses are the same' do
-        handler = instance_double(AppealsApi::Events::Handler)
-        allow(AppealsApi::Events::Handler).to receive(:new).and_return(handler)
-        allow(handler).to receive(:handle!)
-
-        supplemental_claim.update_status!(status: supplemental_claim.status)
-
-        expect(handler).not_to have_received(:handle!)
       end
     end
 
