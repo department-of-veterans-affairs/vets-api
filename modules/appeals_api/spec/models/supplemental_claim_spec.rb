@@ -271,7 +271,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
         allow(AppealsApi::Events::Handler).to receive(:new).and_return(handler)
         allow(handler).to receive(:handle!)
 
-        supplemental_claim.update_status!(status: 'pending')
+        supplemental_claim.update_status!(status: 'error')
 
         expect(handler).to have_received(:handle!).exactly(1).times
       end
@@ -284,6 +284,16 @@ describe AppealsApi::SupplementalClaim, type: :model do
         supplemental_claim.update_status!(status: 'submitted')
 
         expect(handler).to have_received(:handle!).exactly(2).times
+      end
+
+      it 'does not emit event when to and from statuses are the same' do
+        handler = instance_double(AppealsApi::Events::Handler)
+        allow(AppealsApi::Events::Handler).to receive(:new).and_return(handler)
+        allow(handler).to receive(:handle!)
+
+        supplemental_claim.update_status!(status: supplemental_claim.status)
+
+        expect(handler).not_to have_received(:handle!)
       end
     end
 

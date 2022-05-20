@@ -226,12 +226,13 @@ module AppealsApi
     end
 
     def update_status!(status:, code: nil, detail: nil)
-      handler = Events::Handler.new(event_type: :sc_status_updated, opts: {
-                                      from: self.status,
-                                      to: status.to_s,
-                                      status_update_time: Time.zone.now.iso8601,
-                                      statusable_id: id
-                                    })
+      current_status = self.status
+      update_handler = Events::Handler.new(event_type: :sc_status_updated, opts: {
+                                             from: current_status,
+                                             to: status.to_s,
+                                             status_update_time: Time.zone.now.iso8601,
+                                             statusable_id: id
+                                           })
 
       email_handler = Events::Handler.new(event_type: :sc_received, opts: {
                                             email_identifier: email_identifier,
@@ -244,7 +245,7 @@ module AppealsApi
 
       update!(status: status, code: code, detail: detail)
 
-      handler.handle!
+      update_handler.handle! unless status == current_status
       email_handler.handle! if status == 'submitted' && (claimant&.email&.present? || email_identifier.present?)
     end
 
