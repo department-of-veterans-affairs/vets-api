@@ -19,6 +19,21 @@ properties:
   serviceType:
     type: string
     description: Required for VA and CC Requests . the care type for the appointment
+    enum:
+      - amputation
+      - audiology
+      - covid
+      - optometry
+      - outpatientMentalHealth
+      - moveProgram
+      - foodAndNutrition
+      - clinicalPharmacyPrimaryCare
+      - podiatry
+      - primaryCare
+      - homeSleepTesting
+      - socialWork
+      - cpap
+      - ophthalmology
     example: 'optometry'
   reasonCode:
     type: object
