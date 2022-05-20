@@ -159,7 +159,8 @@ module PdfFill
             }
           },
           'incidentDescription' => {
-            key: "incidentDescription[#{INCIDENT_ITERATOR}]"
+            key: "incidentDescription[#{INCIDENT_ITERATOR}]",
+            limit: 268
           },
           'medalsCitations' => {
             key: "medalsCitations[#{INCIDENT_ITERATOR}]"
