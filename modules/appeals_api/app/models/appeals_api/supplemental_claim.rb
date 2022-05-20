@@ -71,32 +71,12 @@ module AppealsApi
       signing_appellant.timezone ? created_at.in_time_zone(signing_appellant.timezone) : created_at.utc
     end
 
-    def veteran_first_name
-      auth_headers['X-VA-First-Name']
-    end
-
-    def veteran_middle_initial
-      auth_headers['X-VA-Middle-Initial']
-    end
-
-    def claimant_middle_initial
-      auth_headers['X-VA-Claimant-Middle-Initial']
-    end
-
-    def veteran_last_name
-      auth_headers['X-VA-Last-Name']
-    end
-
     def full_name
-      "#{veteran_first_name} #{veteran_middle_initial} #{veteran_last_name}".squeeze(' ').strip
-    end
+      first_name = signing_appellant.first_name
+      middle_initial = signing_appellant.middle_initial
+      last_name = signing_appellant.last_name
 
-    def ssn
-      auth_headers['X-VA-SSN']
-    end
-
-    def file_number
-      auth_headers['X-VA-File-Number']
+      "#{first_name} #{middle_initial} #{last_name}".squeeze(' ').strip
     end
 
     def veteran_dob_month
@@ -111,53 +91,8 @@ module AppealsApi
       veteran.birth_date.strftime '%Y'
     end
 
-    def veteran_service_number
-      auth_headers['X-VA-Service-Number']
-    end
-
-    def insurance_policy_number
-      auth_headers['X-VA-Insurance-Policy-Number']
-    end
-
-    def mailing_address_number_and_street
-      address_combined || 'USE ADDRESS ON FILE'
-    end
-
-    def mailing_address_city
-      veteran&.dig('address', 'city') || ''
-    end
-
-    def mailing_address_state
-      veteran&.dig('address', 'stateCode') || ''
-    end
-
-    def mailing_address_country
-      veteran&.dig('address', 'countryCodeISO2') || ''
-    end
-
-    def zip_code
-      if zip_code_5 == '00000'
-        veteran&.dig('address', 'internationalPostalCode') || '00000'
-      else
-        zip_code_5
-      end
-    end
-
-    def zip_code_5
-      form_data&.dig('data', 'attributes', 'veteran', 'address', 'zipCode5') ||
-        veteran.dig('address', 'zipCode5') || '00000'
-    end
-
-    def phone
-      veteran_phone.to_s
-    end
-
-    def veteran_phone_data
-      veteran_data&.dig('phone')
-    end
-
-    def email
-      veteran_data&.dig('email')&.strip
+    def signing_appellant_zip_code
+      signing_appellant.zip_code_5 || '00000'
     end
 
     def consumer_name
@@ -174,6 +109,10 @@ module AppealsApi
 
     def claimant_type
       data_attributes['claimantType']&.strip
+    end
+
+    def claimant_type_other_text
+      data_attributes['claimantTypeOtherValue']&.strip
     end
 
     def contestable_issues
@@ -218,7 +157,7 @@ module AppealsApi
     end
 
     def date_signed
-      veterans_local_time.strftime('%m/%d/%Y')
+      appellant_local_time.strftime('%m/%d/%Y')
     end
 
     def stamp_text
@@ -267,15 +206,15 @@ module AppealsApi
 
     def mpi_veteran
       AppealsApi::Veteran.new(
-        ssn: ssn,
+        ssn: veteran.ssn,
         first_name: veteran.first_name,
         last_name: veteran.last_name,
-        birth_date: birth_date.iso8601
+        birth_date: veteran.birth_date.iso8601
       )
     end
 
     def email_identifier
-      return { id_type: 'email', id_value: email } if email.present?
+      return { id_type: 'email', id_value: signing_appellant.email } if signing_appellant.email.present?
 
       icn = mpi_veteran.mpi_icn
 
@@ -286,39 +225,31 @@ module AppealsApi
       form_data&.dig('data', 'attributes')
     end
 
-    def veteran_data
-      data_attributes&.dig('veteran')
-    end
-
     def evidence_submission
       data_attributes['evidenceSubmission']
     end
 
-    def birth_date_string
-      auth_headers&.dig('X-VA-Birth-Date')
-    end
-
-    def birth_date
-      self.class.date_from_string birth_date_string
-    end
-
-    def veteran_phone
-      AppealsApi::HigherLevelReview::Phone.new veteran_data&.dig('phone')
-    end
-
-    def veterans_local_time
-      veterans_timezone ? created_at.in_time_zone(veterans_timezone) : created_at.utc
-    end
-
-    def veterans_timezone
-      veteran_data&.dig('timezone').presence&.strip
-    end
-
     # validation (header)
     def birth_date_is_in_the_past
-      return unless birth_date
+      return unless veteran.birth_date
 
-      add_error("Veteran birth date isn't in the past: #{birth_date}") unless self.class.past? birth_date
+      unless self.class.past? veteran.birth_date
+        add_error("Veteran birth date isn't in the past: #{veteran.birth_date}")
+      end
+    end
+
+    # validation (header & body)
+    # Schemas take care of most of the requirements, but we need to check that both header & body data is provided
+    def required_claimant_data_is_present
+      has_claimant_headers = claimant.first_name.present?
+      # form data that includes a claimant is also sufficient to know it's passed the schema
+      has_claimant_data = data_attributes&.fetch('claimant', nil).present?
+
+      return if !has_claimant_headers && !has_claimant_data # No claimant headers or data? not a problem!
+      return if has_claimant_headers && has_claimant_data # Has both claimant headers and data? A-ok!
+
+      add_error('Claimant data was provided but missing claimant headers') unless has_claimant_headers
+      add_error('Claimant headers were provided but missing claimant data') unless has_claimant_data
     end
 
     def contestable_issue_dates_are_valid_dates
@@ -343,31 +274,8 @@ module AppealsApi
       errors.add(:base, message)
     end
 
-    # validation (header & body)
-    # Schemas take care of most of the requirements, but we need to check that both header & body data is provided
-    def required_claimant_data_is_present
-      has_claimant_headers = claimant.first_name.present?
-      # form data that includes a claimant is also sufficient to know it's passed the schema
-      has_claimant_data = data_attributes&.fetch('claimant', nil).present?
-
-      return if !has_claimant_headers && !has_claimant_data # No claimant headers or data? not a problem!
-      return if has_claimant_headers && has_claimant_data # Has both claimant headers and data? A-ok!
-
-      add_error('Claimant data was provided but missing claimant headers') unless has_claimant_headers
-      add_error('Claimant headers were provided but missing claimant data') unless has_claimant_data
-    end
-
-    def address_combined
-      return unless veteran&.dig('address', 'addressLine1')
-
-      @address_combined ||=
-        [veteran.dig('address', 'addressLine1'),
-         veteran.dig('address', 'addressLine2'),
-         veteran.dig('address', 'addressLine3')].compact.map(&:strip).join(' ')
-    end
-
     def clear_memoized_values
-      @contestable_issuess = @veteran = @claimant = @address_combined = nil
+      @contestable_issues = @veteran = @claimant = nil
     end
   end
 end
