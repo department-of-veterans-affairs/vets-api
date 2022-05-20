@@ -52,7 +52,7 @@ RSpec.describe 'person' do
         VCR.use_cassette('va_profile/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
           expect do
             post('/v0/profile/initialize_vet360_id', params: empty_body, headers: headers)
-          end.to change { AsyncTransaction::VAProfile::InitializePersonTransaction.count }.from(0).to(1)
+          end.to change(AsyncTransaction::VAProfile::InitializePersonTransaction, :count).from(0).to(1)
 
           expect(AsyncTransaction::VAProfile::InitializePersonTransaction.first).to be_valid
         end

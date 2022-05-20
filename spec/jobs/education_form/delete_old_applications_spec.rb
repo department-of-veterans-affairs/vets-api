@@ -47,7 +47,7 @@ RSpec.describe EducationForm::DeleteOldApplications do
     it 'deletes old records' do
       expect { subject.perform }
         .to change(EducationBenefitsClaim, :count).from(6).to(4)
-        .and change { SavedClaim::EducationBenefits.count }
+        .and change(SavedClaim::EducationBenefits, :count)
         .from(6).to(4)
         .and change(EducationStemAutomatedDecision, :count)
         .from(2).to(1)
