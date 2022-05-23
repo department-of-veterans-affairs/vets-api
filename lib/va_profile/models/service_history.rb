@@ -13,6 +13,23 @@ module VAProfile
       attribute :end_date, String
       attribute :personnel_category_type_code, String
 
+      # Converts an instance of the ServicyHistory model to a JSON encoded string suitable for
+      # use in the body of a request to VAProfile
+      #
+      # @return [String] JSON-encoded string suitable for requests to VAProfile
+      def self.in_json
+        {
+          bios: [
+            {
+              bioPath: 'militaryPerson.militaryServiceHistory',
+              parameters: {
+                scope: 'all'
+              }
+            }
+          ]
+        }.to_json
+      end
+
       # Converts a decoded JSON response from VAProfile to an instance of the ServiceHistory model
       # @param body [Hash] the decoded response body from VAProfile
       # @return [VAProfile::Models::ServiceHistory] the model built from the response body
