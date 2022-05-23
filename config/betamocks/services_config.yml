@@ -633,12 +633,14 @@
     - :method: :post
       :path: <%= "/#{Settings.check_in.lorota_v2.base_path}/token" %>
       :file_path: "/lorota/token"
+      :response_delay: 0.2
       :cache_multiple_responses:
         :uid_location: body
         :uid_locator: 'SSN4":[\s]*"(\w+)"'
     - :method: :get
       :path: <%= "/#{Settings.check_in.lorota_v2.base_path}/data/*" %>
       :file_path: "/lorota/data"
+      :response_delay: 0.2
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/data\/(.+)'
@@ -650,21 +652,28 @@
     - :method: :post
       :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/token" %>
       :file_path: "/chip/token/default"
+      :response_delay: 0.2
     - :method: :post
       :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/actions/check-in/*" %>
       :file_path: "/chip/check-in/default"
+      :response_delay: 5
     - :method: :post
       :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/actions/refresh-appointments/*" %>
       :file_path: "/chip/refresh-appointments/default"
+      :response_delay: 2
     - :method: :post
       :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/actions/pre-checkin/*" %>
       :file_path: "/chip/pre-checkin/default"
+      :response_delay: 2
     - :method: :post
       :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/actions/confirm-demographics" %>
       :file_path: "/chip/confirm-demographics/default"
+      :response_delay: 1
     - :method: :post
       :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/actions/set-precheckin-started/*" %>
       :file_path: "/chip/set-precheckin-started/default"
+      :response_delay: 2
     - :method: :post
       :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/actions/refresh-precheckin/*" %>
       :file_path: "/chip/refresh-precheckin/default"
+      :response_delay: 4
