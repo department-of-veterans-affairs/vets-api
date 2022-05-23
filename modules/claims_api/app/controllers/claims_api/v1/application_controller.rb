@@ -40,6 +40,9 @@ module ClaimsApi
 
         mpi_add_response = target_veteran.mpi.add_person_proxy
         raise mpi_add_response.error unless mpi_add_response.ok?
+      rescue ::Common::Exceptions::UnprocessableEntity
+        raise ::Common::Exceptions::UnprocessableEntity.new(detail:
+          'Veteran is missing a participant ID. Please contact the Digital Transformation Center (DTC) at 202-921-0911 for assistance.') # rubocop:disable Layout/LineLength
       rescue ArgumentError
         raise ::Common::Exceptions::UnprocessableEntity.new(
           detail: 'Required values are missing. Please double check the accuracy of any request header values.'
