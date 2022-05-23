@@ -347,6 +347,14 @@ ActiveRecord::Schema.define(version: 2022_05_18_234857) do
     t.index ["user_verification_id"], name: "index_deprecated_user_accounts_on_user_verification_id", unique: true
   end
 
+  create_table "devices", force: :cascade do |t|
+    t.string "key"
+    t.string "name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["key"], name: "index_devices_on_key", unique: true
+  end
+
   create_table "directory_applications", force: :cascade do |t|
     t.string "name"
     t.string "logo_url"
@@ -944,6 +952,16 @@ ActiveRecord::Schema.define(version: 2022_05_18_234857) do
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
+  create_table "veteran_device_records", force: :cascade do |t|
+    t.bigint "device_id", null: false
+    t.boolean "active", default: true, null: false
+    t.string "icn", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["device_id"], name: "index_veteran_device_records_on_device_id"
+    t.index ["icn", "device_id"], name: "index_veteran_device_records_on_icn_and_device_id", unique: true
+  end
+
   create_table "veteran_organizations", id: false, force: :cascade do |t|
     t.string "poa", limit: 3
     t.string "name"
@@ -1031,4 +1049,5 @@ ActiveRecord::Schema.define(version: 2022_05_18_234857) do
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
   add_foreign_key "user_verifications", "user_accounts"
+  add_foreign_key "veteran_device_records", "devices"
 end
