@@ -57,4 +57,39 @@ RSpec.describe VeteranDeviceRecordsService, type: :service do
       end
     end
   end
+
+  describe 'veteran_device_records#deactivate' do
+    let!(:user) { create :user, :loa3 }
+    let!(:device) { create :device, :fitbit }
+
+    before do
+      @vdr = VeteranDeviceRecord.create(icn: user.icn, device_id: device.id, active: true)
+    end
+
+    context 'when device exists and veteran device record is active' do
+      it 'updates record' do
+        VeteranDeviceRecordsService.deactivate(user, device.key)
+        record = VeteranDeviceRecord.all.first
+        expect(record.active).to be(false)
+      end
+    end
+
+    context 'when device doesn\'t exist' do
+      it 'throws error' do
+        expected = expect do
+          VeteranDeviceRecordsService.deactivate(user, 'non-existing-device')
+        end
+        expected.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
+
+    context 'when device is already deactivated' do
+      it 'doesn\'t throw error' do
+        @vdr.active = false
+        VeteranDeviceRecordsService.deactivate(user, device.key)
+        record = VeteranDeviceRecord.all.first
+        expect(record.active).to be(false)
+      end
+    end
+  end
 end
