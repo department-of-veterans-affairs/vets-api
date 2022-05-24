@@ -13,6 +13,7 @@ module DhpConnectedDevices
 
     def callback
       status = fitbit_service.get_connection_status({ callback_params: callback_params, fitbit_api: fitbit_api })
+      VeteranDeviceRecordsService.create_or_activate(@current_user, 'fitbit') if status == 'success'
       redirect_to website_host_service.get_redirect_url({ status: status, vendor: 'fitbit' })
     end
 

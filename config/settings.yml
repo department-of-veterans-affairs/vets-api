@@ -243,6 +243,7 @@ decision_review:
 
 # Settings for modules/dhp_connected_devices
 dhp:
+  mock: false
   fitbit:
     client_id: ''
     client_secret: ''
@@ -818,7 +819,6 @@ maintenance:
 betamocks:
   enabled: true
   recording: false
-  cache_dir: /cache
   services_config: config/betamocks/services_config.yml
 
 # Settings for search
