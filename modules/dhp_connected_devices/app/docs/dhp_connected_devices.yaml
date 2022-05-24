@@ -19,7 +19,7 @@ servers:
     description: VA.gov API production environment
 
 paths:
-  "/connect":
+  "/fitbit":
     get:
       tags:
         - connect fitbit
@@ -48,7 +48,7 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
-  "/callback":
+  "/fitbit-callback":
     get:
       tags:
         - connect fitbit
@@ -77,6 +77,59 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
+  "/veteran-device-records":
+    get:
+      tags:
+        - get device records
+      summary: Returns a list of wearable devices that the Veteran can connect with and has connected with.
+      operationId: index_veteran_device_records
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "201":
+          description: Successfully retriev list of wearable devices.
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                        example: 'fitbit'
+                      name:
+                        type: string
+                        example: 'Fitbit'
+                      authUrl:
+                        type: string
+                        example: '/fitbit'
+                      disconnectUrl:
+                        type: string
+                        example: '/fitbit/disconnect'
+                      active:
+                        type: boolean
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
+
 
 components:
   securitySchemes:
