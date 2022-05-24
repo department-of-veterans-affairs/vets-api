@@ -5,12 +5,10 @@ require 'sign_in/idme/service'
 require 'sign_in/logger'
 
 module V0
-  class SignInController < ApplicationController
-    skip_before_action :verify_authenticity_token, :authenticate
-    before_action :authenticate_access_token, only: [:introspect]
+  class SignInController < SignIn::ApplicationController
+    skip_before_action :authenticate, only: %i[authorize callback token refresh revoke]
 
     REDIRECT_URLS = %w[idme logingov dslogon mhv].freeze
-    BEARER_PATTERN = /^Bearer /.freeze
 
     def authorize
       type = params[:type]
@@ -33,7 +31,7 @@ module V0
       sign_in_logger.info_log('Sign in Service Authorization Attempt', attributes)
 
       render body: auth_service(type).render_auth(state: state), content_type: 'text/html'
-    rescue => e
+    rescue SignIn::Errors::StandardError => e
       render json: { errors: e }, status: :bad_request
     end
 
@@ -51,7 +49,7 @@ module V0
       sign_in_logger.info_log('Sign in Service Authorization Callback', attributes)
 
       redirect_to login_redirect_url(login_code, client_state)
-    rescue => e
+    rescue SignIn::Errors::StandardError => e
       render json: { errors: e }, status: :bad_request
     end
 
@@ -73,7 +71,7 @@ module V0
                                        { code: code })
 
       render json: session_token_response(session_container), status: :ok
-    rescue => e
+    rescue SignIn::Errors::StandardError => e
       render json: { errors: e }, status: :bad_request
     end
 
@@ -93,7 +91,7 @@ module V0
       render json: session_token_response(session_container), status: :ok
     rescue SignIn::Errors::MalformedParamsError => e
       render json: { errors: e }, status: :bad_request
-    rescue => e
+    rescue SignIn::Errors::StandardError => e
       render json: { errors: e }, status: :unauthorized
     end
 
@@ -112,17 +110,15 @@ module V0
       render status: :ok
     rescue SignIn::Errors::MalformedParamsError => e
       render json: { errors: e }, status: :bad_request
-    rescue => e
+    rescue SignIn::Errors::StandardError => e
       render json: { errors: e }, status: :unauthorized
     end
 
     def introspect
-      sign_in_logger.access_token_log('Sign in Service Introspect', bearer_token)
+      sign_in_logger.access_token_log('Sign in Service Introspect', @access_token)
 
       render json: @current_user, serializer: SignIn::IntrospectSerializer, status: :ok
-    rescue SignIn::Errors::AccessTokenExpiredError => e
-      render json: { errors: e }, status: :forbidden
-    rescue => e
+    rescue SignIn::Errors::StandardError => e
       render json: { errors: e }, status: :unauthorized
     end
 
@@ -133,20 +129,6 @@ module V0
       encode_access_token = SignIn::AccessTokenJwtEncoder.new(access_token: session_container.access_token).perform
 
       token_json_response(encode_access_token, encrypt_refresh_token, session_container.anti_csrf_token)
-    end
-
-    def bearer_token(with_validation: true)
-      header = request.authorization
-      access_token_jwt = header.gsub(BEARER_PATTERN, '') if header&.match(BEARER_PATTERN)
-      SignIn::AccessTokenJwtDecoder.new(access_token_jwt: access_token_jwt).perform(with_validation: with_validation)
-    end
-
-    def authenticate_access_token
-      access_token = bearer_token
-
-      @current_user = SignIn::UserLoader.new(access_token: access_token).perform
-    rescue => e
-      render json: { errors: e }, status: :unauthorized
     end
 
     def token_json_response(access_token, refresh_token, anti_csrf_token)
