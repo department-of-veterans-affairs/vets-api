@@ -129,8 +129,35 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
-
-
+  "/fitbit/disconect":
+    get:
+      tags:
+        - disconnect fitbit
+      summary: Deactivates user's fitbit record and redirects back to va.gov/health-care/connected-devices
+      operationId: disconnect_fitbit
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "302":
+          description: Redirects to va.gov
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
 components:
   securitySchemes:
     bearerAuth:

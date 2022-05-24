@@ -17,6 +17,13 @@ module DhpConnectedDevices
       redirect_to website_host_service.get_redirect_url({ status: status, vendor: 'fitbit' })
     end
 
+    def disconnect
+      VeteranDeviceRecordsService.deactivate(@current_user, 'fitbit')
+      redirect_to website_host_service.get_redirect_url({ status: 'disconnect-success', vendor: 'fitbit' })
+    rescue
+      redirect_to website_host_service.get_redirect_url({ status: 'disconnect-error', vendor: 'fitbit' })
+    end
+
     private
 
     def fitbit_api

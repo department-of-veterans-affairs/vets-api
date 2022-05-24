@@ -92,4 +92,39 @@ RSpec.describe DhpConnectedDevices::FitbitController, type: :request do
       end
     end
   end
+
+  describe 'fitbit#disconnect' do
+    def fitbit_disconnect
+      get '/dhp_connected_devices/fitbit/disconnect'
+    end
+    context 'fitbit feature enabled and authenticated user' do
+      before do
+        sign_in_as(current_user)
+        @device = create(:device, :fitbit)
+        @vdr = VeteranDeviceRecord.create(device_id: @device.id, active: true, icn: current_user.icn)
+      end
+
+      it 'updates the user\'s fitbit record to false' do
+        expect(VeteranDeviceRecord.active_devices(current_user).empty?).to be(false)
+        fitbit_disconnect
+        expect(VeteranDeviceRecord.active_devices(current_user).empty?).to eq true
+      end
+
+      it 'redirects to frontend with disconnect-success code on success' do
+        expect(fitbit_disconnect).to redirect_to 'http://localhost:3001/health-care/connected-devices/?fitbit=disconnect-success#_=_'
+      end
+
+      it 'redirects to frontend with disconnect-error code on error' do
+        VeteranDeviceRecord.delete(@vdr)
+        expect(fitbit_disconnect).to redirect_to 'http://localhost:3001/health-care/connected-devices/?fitbit=disconnect-error#_=_'
+      end
+    end
+
+    context 'fitbit feature enabled and user unauthenticated' do
+      it 'navigating to /fitbit/disconnect returns error' do
+        Flipper.enable(:dhp_connected_devices_fitbit)
+        expect(fitbit_disconnect).to be 401
+      end
+    end
+  end
 end
