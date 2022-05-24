@@ -10,7 +10,7 @@ web_origin_regex: \Ahttps?:\/\/www\.va\.gov\z
 
 logingov:
   client_id: urn:gov:gsa:openidconnect.profiles:sp:sso:va:dev_signin
-  redirect_uri: http://localhost:3000/sign_in/logingov/callback
+  redirect_uri: http://localhost:3000/v0/sign_in/logingov/callback
   client_cert_path: spec/fixtures/sign_in/oauth.crt
   client_key_path: spec/fixtures/sign_in/oauth.key
   oauth_url: https://idp.int.identitysandbox.gov
@@ -20,9 +20,9 @@ logingov:
 idme:
   client_id: ef7f1237ed3c396e4b4a2b04b608a7b1
   client_secret: ae657fd2b253d17be7b48ecdb39d7b34
-  redirect_uri: http://localhost:3000/sign_in/idme/callback
-  dslogon_redirect_uri: http://localhost:3000/sign_in/dslogon/callback
-  mhv_redirect_uri: http://localhost:3000/sign_in/mhv/callback
+  redirect_uri: http://localhost:3000/v0/sign_in/idme/callback
+  dslogon_redirect_uri: http://localhost:3000/v0/sign_in/dslogon/callback
+  mhv_redirect_uri: http://localhost:3000/v0/sign_in/mhv/callback
   client_cert_path: spec/fixtures/sign_in/oauth.crt
   client_key_path: spec/fixtures/sign_in/oauth.key
   oauth_url: https://api.idmelabs.com

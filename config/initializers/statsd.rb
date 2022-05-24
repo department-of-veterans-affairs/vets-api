@@ -64,7 +64,7 @@ Rails.application.reloader.to_prepare do
   end
 
   # Sign in Service
-  SignInController::REDIRECT_URLS.each do |csp|
+  V0::SignInController::REDIRECT_URLS.each do |csp|
     StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_SUCCESS, 0,
                      tags: ['version:v0', "context:#{csp}"])
     StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_FAILURE, 0,

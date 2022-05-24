@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SignInController, type: :controller do
+RSpec.describe V0::SignInController, type: :controller do
   before do
     Timecop.freeze(Time.zone.now.floor)
     allow(Rails.logger).to receive(:info)

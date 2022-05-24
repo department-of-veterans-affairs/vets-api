@@ -13,16 +13,16 @@ Rails.application.routes.draw do
       constraints: ->(request) { V1::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
   get '/v1/sessions/ssoe_logout', to: 'v1/sessions#ssoe_slo_callback'
 
-  get '/sign_in/:type/authorize',
-      to: 'sign_in#authorize',
-      constraints: ->(request) { SignInController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
-  get '/sign_in/:type/callback',
-      to: 'sign_in#callback',
-      constraints: ->(request) { SignInController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
-  post '/sign_in/refresh', to: 'sign_in#refresh'
-  post '/sign_in/revoke', to: 'sign_in#revoke'
-  post '/sign_in/token', to: 'sign_in#token'
-  get '/sign_in/introspect', to: 'sign_in#introspect'
+  get '/v0/sign_in/:type/authorize',
+      to: 'v0/sign_in#authorize',
+      constraints: ->(request) { V0::SignInController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
+  get '/v0/sign_in/:type/callback',
+      to: 'v0/sign_in#callback',
+      constraints: ->(request) { V0::SignInController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
+  post '/v0/sign_in/refresh', to: 'v0/sign_in#refresh'
+  post '/v0/sign_in/revoke', to: 'v0/sign_in#revoke'
+  post '/v0/sign_in/token', to: 'v0/sign_in#token'
+  get '/v0/sign_in/introspect', to: 'v0/sign_in#introspect'
 
   get '/inherited_proofing/auth', to: 'inherited_proofing#auth'
   get '/inherited_proofing/user_attributes', to: 'inherited_proofing#user_attributes'
