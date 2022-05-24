@@ -5,7 +5,7 @@ http_interactions:
     uri: https://api.idmelabs.com/oauth/token
     body:
       encoding: UTF-8
-      string: '{"grant_type":"authorization_code","code":"04e3f01f11764b50becb0cdcb618b804","client_id":"dde0b5b8bfc023a093830e64ef83f148","client_<DMC_TOKEN>":"e745319288bd005c9fca7d8164f302c7","redirect_uri":"http://localhost:3000/sign_in/idme/callback"}'
+      string: '{"grant_type":"authorization_code","code":"04e3f01f11764b50becb0cdcb618b804","client_id":"dde0b5b8bfc023a093830e64ef83f148","client_<DMC_TOKEN>":"e745319288bd005c9fca7d8164f302c7","redirect_uri":"http://localhost:3000/v0/sign_in/idme/callback"}'
     headers:
       Accept:
       - application/json
