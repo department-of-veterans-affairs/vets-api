@@ -138,10 +138,10 @@ RSpec.describe V0::SignInController, type: :controller do
             let(:client_state) do
               { state: SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH - 1) }
             end
-            let(:expected_error) { Common::Exceptions::ValidationErrors.to_s }
+            let(:expected_error) { 'Code Challenge or State is not valid' }
             let(:expected_error_json) { { 'errors' => expected_error } }
 
-            it 'renders code challenge malformed error' do
+            it 'renders code challenge or state not valid error' do
               expect(JSON.parse(subject.body)).to eq(expected_error_json)
             end
 
@@ -167,7 +167,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:expected_error) { 'Code Challenge Method is not valid' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
-        it 'renders code challenge method mismatch error' do
+        it 'renders code challenge method not valid error' do
           expect(JSON.parse(subject.body)).to eq(expected_error_json)
         end
 
@@ -277,10 +277,10 @@ RSpec.describe V0::SignInController, type: :controller do
             let(:client_state) do
               { state: SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH - 1) }
             end
-            let(:expected_error) { Common::Exceptions::ValidationErrors.to_s }
+            let(:expected_error) { 'Code Challenge or State is not valid' }
             let(:expected_error_json) { { 'errors' => expected_error } }
 
-            it 'renders code challenge malformed error' do
+            it 'renders code challenge not valid error' do
               expect(JSON.parse(subject.body)).to eq(expected_error_json)
             end
 
@@ -448,20 +448,6 @@ RSpec.describe V0::SignInController, type: :controller do
 
           context 'and grant_type does match supported grant type value' do
             let(:grant_type_value) { SignIn::Constants::Auth::GRANT_TYPE }
-
-            context 'and code_container matched with code does not match to a user verification' do
-              let(:user_verification_id) { 'some-arbitrary-user-verification-id' }
-              let(:expected_error) { "Couldn't find UserVerification with 'id'=#{user_verification_id}" }
-              let(:expected_error_json) { { 'errors' => expected_error } }
-
-              it 'renders expected error' do
-                expect(JSON.parse(subject.body)).to eq(expected_error_json)
-              end
-
-              it 'returns bad request status' do
-                expect(subject).to have_http_status(:bad_request)
-              end
-            end
 
             context 'and code_container matched with code does match a user account' do
               let(:user_verification_id) { user_verification.id }
@@ -1282,7 +1268,7 @@ RSpec.describe V0::SignInController, type: :controller do
         end
 
         it 'returns forbidden status' do
-          expect(subject).to have_http_status(:unauthorized)
+          expect(subject).to have_http_status(:forbidden)
         end
       end
 

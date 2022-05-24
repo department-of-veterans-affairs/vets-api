@@ -2,6 +2,7 @@
 
 module SignIn
   module Errors
+    class StandardError < StandardError; end
     class RefreshVersionMismatchError < StandardError; end
     class RefreshNonceMismatchError < StandardError; end
     class RefreshTokenMalformedError < StandardError; end
@@ -15,6 +16,7 @@ module SignIn
     class CodeChallengeMethodMismatchError < StandardError; end
     class CodeChallengeMalformedError < StandardError; end
     class CodeChallengeMismatchError < StandardError; end
+    class CodeChallengeStateMapError < StandardError; end
     class GrantTypeValueError < StandardError; end
     class CodeInvalidError < StandardError; end
     class StateMismatchError < StandardError; end

@@ -70,10 +70,11 @@ RSpec.describe SignIn::CodeChallengeStateMapper do
 
         context 'and given client_state is less than minimum client state length' do
           let(:client_state) { SecureRandom.alphanumeric(client_state_minimum_length - 1) }
-          let(:expected_error) { Common::Exceptions::ValidationErrors }
+          let(:expected_error) { SignIn::Errors::CodeChallengeStateMapError }
+          let(:expected_error_message) { 'Code Challenge or State is not valid' }
 
-          it 'raises a validation error' do
-            expect { subject }.to raise_exception(expected_error)
+          it 'raises a code challenge state map error' do
+            expect { subject }.to raise_exception(expected_error, expected_error_message)
           end
         end
 

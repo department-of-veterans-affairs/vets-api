@@ -28,6 +28,8 @@ module SignIn
       CodeChallengeStateMap.new(code_challenge: remove_base64_padding(code_challenge),
                                 state: state,
                                 client_state: client_state).save!
+    rescue Common::Exceptions::ValidationErrors
+      raise Errors::CodeChallengeStateMapError, 'Code Challenge or State is not valid'
     end
 
     def state
