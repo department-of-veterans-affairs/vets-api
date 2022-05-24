@@ -442,6 +442,10 @@ features:
     actor_type: user
     description: Shows a modal that allows addresses to be duplicated from home to mailing and vice versa
     enable_in_development: true
+  profile_show_bad_address_indicator:
+    actor_type: user
+    description: Show/Hide the "Bad Address" indicator in the profile page.
+    enable_in_development: true
   profile_show_fax_number:
     actor_type: user
     description: Show/hide the fax number UI on the profile page
