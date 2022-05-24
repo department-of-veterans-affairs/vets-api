@@ -25,7 +25,7 @@ properties:
       - expirationDate
       - prescriptionNumber
       - prescriptionName
-      - dispensedDate
+      - instructions
       - stationNumber
     properties:
       refillStatus:
@@ -61,6 +61,12 @@ properties:
       prescriptionNumber:
         type: string, null
         example: "2719536"
+      prescriptionName:
+        type: string, null
+        example: "SOMATROPIN 5MG INJ (VI)"
+      instructions:
+        type: string, null
+        example: "INJECT 1MG INTO THE MUSCLE WEEKLY FOR 30 DAYS"
       dispensedDate:
         type: string, null
         example: "Wed, 07 Sep 2016 00:00:00 EDT"
