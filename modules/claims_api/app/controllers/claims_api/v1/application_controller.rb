@@ -23,12 +23,13 @@ module ClaimsApi
 
       protected
 
-      def validate_veteran_identifiers(require_birls: false)
+      def validate_veteran_identifiers(require_birls: false) # rubocop:disable Metrics/MethodLength
         return if !require_birls && target_veteran.participant_id.present?
         return if require_birls && target_veteran.participant_id.present? && target_veteran.birls_id.present?
 
         if require_birls && target_veteran.participant_id.present? && target_veteran.birls_id.blank?
-          raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'No birls_id while participant_id present')
+          raise ::Common::Exceptions::UnprocessableEntity.new(detail:
+            'Unable to locate Veteran BIRLS ID. Please contact the Digital Transformation Center (DTC) at 202-921-0911 for assistance.') # rubocop:disable Layout/LineLength
         end
 
         if header_request? && !target_veteran.mpi_record?
