@@ -38,9 +38,9 @@ module VAProfile
             :warning
           )
 
-          return ServiceHistoryResponse.new(404, service_history: nil)
+          return ServiceHistoryResponse.new(404, episodes: nil)
         elsif e.status >= 400 && e.status < 500
-          return ServiceHistoryResponse.new(e.status, service_history: nil)
+          return ServiceHistoryResponse.new(e.status, episodes: nil)
         end
 
         handle_error(e)

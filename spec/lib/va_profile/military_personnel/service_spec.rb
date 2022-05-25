@@ -60,7 +60,7 @@ describe VAProfile::MilitaryPersonnel::Service do
 
     context 'when not successful' do
       context 'with a 400 error' do
-        it 'returns nil demographic' do
+        it 'returns nil service history' do
           VCR.use_cassette('va_profile/military_personnel/post_read_service_history_400') do
             response = subject.get_service_history
 
