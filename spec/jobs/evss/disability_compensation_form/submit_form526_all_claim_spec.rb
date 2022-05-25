@@ -45,6 +45,42 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           expect(Form526JobStatus.last.status).to eq 'success'
         end
       end
+
+      context 'with an MAS-related diagnostic code' do
+        let(:submission) do
+          create(:form526_submission,
+                 :non_rrd_with_mas_diagnostic_code,
+                 user_uuid: user.uuid,
+                 auth_headers_json: auth_headers.to_json,
+                 saved_claim_id: saved_claim.id)
+        end
+
+        it 'sends an email for tracking purposes' do
+          VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
+            subject.perform_async(submission.id)
+            described_class.drain
+            expect(ActionMailer::Base.deliveries.last.subject).to eq 'MA claim - 6847'
+          end
+        end
+      end
+
+      context 'with multiple MAS-related diagnostic codes' do
+        let(:submission) do
+          create(:form526_submission,
+                 :with_multiple_mas_diagnostic_code,
+                 user_uuid: user.uuid,
+                 auth_headers_json: auth_headers.to_json,
+                 saved_claim_id: saved_claim.id)
+        end
+
+        it 'does not send an email' do
+          VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
+            subject.perform_async(submission.id)
+            described_class.drain
+            expect(ActionMailer::Base.deliveries.length).to eq 0
+          end
+        end
+      end
     end
 
     context 'when retrying a job' do
