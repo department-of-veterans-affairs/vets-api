@@ -78,8 +78,8 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         expect(response.parsed_body['meta']).to eq({ 'pagination' =>
                                                       { 'currentPage' => 2,
                                                         'perPage' => 3,
-                                                        'totalPages' => 5,
-                                                        'totalEntries' => 14 } })
+                                                        'totalPages' => 20,
+                                                        'totalEntries' => 59 } })
         expect(response.parsed_body['links']).to eq(
           { 'self' =>
             'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=2',
@@ -90,7 +90,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
             'next' =>
             'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=3',
             'last' =>
-            'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=5' }
+            'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=20' }
         )
       end
     end
@@ -112,11 +112,12 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       end
 
       context 'filter by not equal to refill status' do
+        params = { page: { number: 1, size: 59 } }
         let(:filter_param) { 'filter[[refill_status][not_eq]]=refillinprocess' }
 
         it 'returns all prescriptions that are not refillinprocess status' do
           VCR.use_cassette('rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
-            get "/mobile/v0/health/rx/prescriptions?#{filter_param}", headers: iam_headers
+            get "/mobile/v0/health/rx/prescriptions?#{filter_param}", params: params, headers: iam_headers
           end
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('prescription')
@@ -124,7 +125,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
           refill_statuses = response.parsed_body['data'].map { |d| d.dig('attributes', 'refillStatus') }.uniq
 
           # does not include refillinprocess
-          expect(refill_statuses).to eq(%w[expired discontinued hold active submitted])
+          expect(refill_statuses).to eq(%w[discontinued transferred expired activeParked active submitted hold unknown])
         end
       end
 
@@ -158,16 +159,8 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('prescription')
           expect(response.parsed_body['data'].map { |d| d.dig('attributes', 'refillStatus') }).to eq(
-            %w[active
-               discontinued
-               discontinued
-               expired
-               expired
-               hold
-               refillinprocess
-               refillinprocess
-               refillinprocess
-               refillinprocess]
+            %w[active active active active activeParked activeParked activeParked activeParked discontinued
+               discontinued]
           )
         end
       end
@@ -185,8 +178,8 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
           expect(response.parsed_body['data'].map do |d|
                    d.dig('attributes',
                          'refillStatus')
-                 end).to eq(%w[submitted refillinprocess refillinprocess refillinprocess refillinprocess refillinprocess
-                               refillinprocess refillinprocess hold expired])
+                 end).to eq(%w[unknown transferred submitted submitted submitted submitted refillinprocess
+                               refillinprocess refillinprocess refillinprocess])
         end
       end
 
@@ -224,8 +217,8 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         expect(response.parsed_body['meta']).to eq({ 'pagination' =>
                                                        { 'currentPage' => 2,
                                                          'perPage' => 3,
-                                                         'totalPages' => 3,
-                                                         'totalEntries' => 7 } })
+                                                         'totalPages' => 12,
+                                                         'totalEntries' => 36 } })
         expect(response.parsed_body['links']).to eq(
           {
             'self' =>
@@ -237,7 +230,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
             'next' =>
               'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=3&filter[[refill_status][eq]]=refillinprocess&sort=-refill_date',
             'last' =>
-              'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=3&filter[[refill_status][eq]]=refillinprocess&sort=-refill_date'
+              'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=12&filter[[refill_status][eq]]=refillinprocess&sort=-refill_date'
           }
         )
 
@@ -246,7 +239,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
 
         expect(response.parsed_body['data'].map { |p| p.dig('attributes', 'refillDate') }).to eq(
           %w[
-            2017-01-25T05:00:00.000Z 2016-11-30T05:00:00.000Z 2016-11-30T05:00:00.000Z
+            2021-12-07T05:00:00.000Z 2021-10-27T04:00:00.000Z 2021-10-22T04:00:00.000Z
           ]
         )
       end
