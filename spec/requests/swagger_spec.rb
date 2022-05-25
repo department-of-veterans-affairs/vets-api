@@ -2266,6 +2266,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       it 'supports getting service history data' do
+        Flipper.disable(:profile_get_military_info_from_vaprofile)
         expect(subject).to validate(:get, '/v0/profile/service_history', 401)
         VCR.use_cassette('emis/get_military_service_episodes/valid') do
           expect(subject).to validate(:get, '/v0/profile/service_history', 200, headers)
@@ -2949,6 +2950,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     describe 'when EMIS returns an unexpected response body' do
       it 'supports returning a custom 502 response' do
+        Flipper.disable(:profile_get_military_info_from_vaprofile)
         allow(EMISRedis::MilitaryInformation).to receive_message_chain(:for_user, :service_history) { nil }
 
         expect(subject).to validate(:get, '/v0/profile/service_history', 502, headers)

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'emis/service'
+require 'va_profile/military_personnel/service'
 
 module V0
   module Profile
@@ -9,6 +10,8 @@ module V0
 
       # Fetches the service history for the current user.
       # This is an array of select military service episode data.
+      # Data source is moving from eMIS to VA Profile.
+      # Feature toggle will be used until transition is complete.
       #
       # @return [Response] Sample response.body:
       #   {
@@ -29,6 +32,28 @@ module V0
       #   }
       #
       def show
+        if use_vaprofile?
+          get_military_info
+        else
+          get_military_info_from_legacy
+        end
+      end
+
+      private
+
+      def get_military_info
+        service = VAProfile::MilitaryPersonnel::Service.new(@current_user)
+        response = service.get_service_history
+
+        handle_errors!(response.episodes)
+        report_results(response.episodes)
+
+        json = JSON.parse(response.episodes.to_json, symbolize_names: true)
+
+        render status: response.status, json: json, serializer: ServiceHistorySerializer
+      end
+
+      def get_military_info_from_legacy
         response = EMISRedis::MilitaryInformation.for_user(@current_user).service_history
 
         handle_errors!(response)
@@ -37,20 +62,21 @@ module V0
         render json: response, serializer: ServiceHistorySerializer
       end
 
-      private
-
       def check_authorization
         report_edipi_presence
 
-        authorize :emis, :access?
+        if use_vaprofile?
+          authorize :mpi, :queryable?
+        else
+          authorize :emis, :access?
+        end
       end
 
       def report_edipi_presence
-        if @current_user.edipi.present?
-          StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.edipi", tags: ['present:true'])
-        else
-          StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.edipi", tags: ['present:false'])
-        end
+        key = use_vaprofile? ? VAProfile::Stats::STATSD_KEY_PREFIX : EMIS::Service::STATSD_KEY_PREFIX
+        tag = @current_user.edipi.present? ? 'present:true' : 'present:false'
+
+        StatsD.increment("#{key}.edipi", tags: [tag])
       end
 
       def handle_errors!(response)
@@ -59,17 +85,20 @@ module V0
 
       def raise_error!
         raise Common::Exceptions::BackendServiceException.new(
-          'EMIS_HIST502',
+          use_vaprofile? ? 'VET360_502' : 'EMIS_HIST502',
           source: self.class.to_s
         )
       end
 
       def report_results(response)
-        if response.present?
-          StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.service_history", tags: ['present:true'])
-        else
-          StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.service_history", tags: ['present:false'])
-        end
+        key = use_vaprofile? ? VAProfile::Stats::STATSD_KEY_PREFIX : EMIS::Service::STATSD_KEY_PREFIX
+        tag = response.present? ? 'present:true' : 'present:false'
+
+        StatsD.increment("#{key}.service_history", tags: [tag])
+      end
+
+      def use_vaprofile?
+        Flipper.enabled?(:profile_get_military_info_from_vaprofile, @current_user)
       end
     end
   end

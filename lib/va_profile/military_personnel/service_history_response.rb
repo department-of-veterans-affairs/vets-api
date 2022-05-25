@@ -8,22 +8,6 @@ module VAProfile
     class ServiceHistoryResponse < VAProfile::Response
       attribute :episodes, Array
 
-      def branch_of_service
-        episodes&.branch_of_service
-      end
-
-      def begin_date
-        episodes&.begin_date
-      end
-
-      def end_date
-        episodes&.end_date
-      end
-
-      def personnel_category_type_code
-        episodes&.personnel_category_type_code
-      end
-
       def self.from(raw_response = nil)
         response_body = raw_response&.body
         service_episodes = response_body&.dig(
