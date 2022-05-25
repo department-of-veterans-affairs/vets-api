@@ -36,6 +36,7 @@
               "expirationDate",
               "prescriptionNumber",
               "prescriptionName",
+              "instructions",
               "dispensedDate",
               "stationNumber"
             ],
@@ -107,6 +108,12 @@
                 ]
               },
               "prescriptionName": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "instructions": {
                 "type": [
                   "string",
                   "null"

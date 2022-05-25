@@ -33,10 +33,10 @@ properties:
         example: "refillinprocess"
       refillSubmitDate:
         type: string, null
-        example: "Mon, 30 Jan 2017 18:27:53 EST"
+        example: "2022-10-28T04:00:00.000Z"
       refillDate:
         type: string, null
-        example: "Mon, 30 Jan 2017 00:00:00 EST"
+        example: "2022-10-28T04:00:00.000Z"
       refillRemaining:
         type: integer, null
         example: 5
@@ -51,13 +51,13 @@ properties:
         example: false
       orderedDate:
         type: string, null
-        example: "Tue, 24 May 2016 00:00:00 EDT"
+        example: "2022-10-28T04:00:00.000Z"
       quantity:
         type: integer, null
         example: 10
       expirationDate:
         type: string, null
-        example: "Thu, 25 May 2017 00:00:00 EDT"
+        example: "2022-10-28T04:00:00.000Z"
       prescriptionNumber:
         type: string, null
         example: "2719536"
@@ -69,7 +69,7 @@ properties:
         example: "INJECT 1MG INTO THE MUSCLE WEEKLY FOR 30 DAYS"
       dispensedDate:
         type: string, null
-        example: "Wed, 07 Sep 2016 00:00:00 EDT"
+        example: "2022-10-28T04:00:00.000Z"
       stationNumber:
         type: string, null
         example: "989"

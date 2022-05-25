@@ -21,6 +21,8 @@ module Mobile
                  :station_number,
                  :is_refillable,
                  :is_trackable
+
+      attribute :instructions, &:sig
     end
   end
 end
