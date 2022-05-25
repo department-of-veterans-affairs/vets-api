@@ -237,13 +237,12 @@ describe AppealsApi::PdfConstruction::Generator do
             File.delete(generated_pdf) if File.exist?(generated_pdf)
           end
         end
-        # rubocop:enable Layout/LineLength
       end
     end
 
     context 'Supplemental Claim' do
       context 'pdf verification' do
-        let(:supplemental_claim) { create(:supplemental_claim, created_at: '2021-02-03T14:15:16Z') }
+        let(:supplemental_claim) { create(:supplemental_claim, evidence_submission_indicated: true, created_at: '2021-02-03T14:15:16Z') }
 
         it 'generates the expected pdf' do
           generated_pdf = described_class.new(supplemental_claim, version: 'V2').generate
@@ -269,27 +268,31 @@ describe AppealsApi::PdfConstruction::Generator do
         let(:sc) { build(:extra_supplemental_claim, created_at: '2021-02-03T14:15:16Z') }
         let(:data) { override_max_lengths(sc, schema) }
 
-        xit 'generates the expected pdf' do
+        it 'generates the expected pdf' do
+          allow_any_instance_of(AppealsApi::PdfConstruction::SupplementalClaim::V2::FormData).to receive(:signing_appellant_phone).and_return('+WWW-WWWWWWWWWWWWWWW')
+          allow_any_instance_of(AppealsApi::PdfConstruction::SupplementalClaim::V2::FormData).to receive(:signing_appellant_zip_code).and_return('W' * 16)
+          allow_any_instance_of(AppealsApi::PdfConstruction::SupplementalClaim::V2::FormData).to receive(:signing_appellant_number_and_street).and_return("#{'W' * 60} #{'W' * 30} #{'W' * 10}")
+          allow_any_instance_of(AppealsApi::PdfConstruction::SupplementalClaim::V2::FormData).to receive(:signing_appellant_city).and_return('W' * 60)
+          allow_any_instance_of(AppealsApi::PdfConstruction::SupplementalClaim::V2::FormData).to receive(:signing_appellant_email).and_return('W' * 255)
+
           sc.form_data = data
+
           # we tried to use JSON_SCHEMER, but it did not work with our headers, and chose not to invest more time atm.
-          sc.auth_headers['X-VA-SSN'] = 'W' * 9
           sc.auth_headers['X-VA-First-Name'] = 'W' * 30
-          sc.auth_headers['X-VA-Middle-Initial'] = 'W' * 1
           sc.auth_headers['X-VA-Last-Name'] = 'W' * 40
-          sc.auth_headers['X-VA-File-Number'] = 'W' * 9
-          sc.auth_headers['X-VA-Service-Number'] = 'W' * 9
-          sc.auth_headers['X-VA-Insurance-Policy-Number'] = 'W' * 18
+          sc.auth_headers['X-VA-Claimant-First-Name'] = 'W' * 30
+          sc.auth_headers['X-VA-Claimant-Last-Name'] = 'W' * 40
           sc.auth_headers['X-Consumer-Username'] = 'W' * 255
           sc.auth_headers['X-Consumer-ID'] = 'W' * 255
           sc.save!
 
           generated_pdf = described_class.new(sc, version: 'v2').generate
           expected_pdf = fixture_filepath('expected_200995_maxlength.pdf', version: 'v2')
-
           expect(generated_pdf).to match_pdf(expected_pdf)
           File.delete(generated_pdf) if File.exist?(generated_pdf)
         end
       end
     end
+    # rubocop:enable Layout/LineLength
   end
 end

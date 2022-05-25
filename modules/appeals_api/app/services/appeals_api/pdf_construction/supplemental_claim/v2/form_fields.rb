@@ -13,48 +13,32 @@ module AppealsApi
             'form1[0].#subform[2].ClaimantsMiddleInitial1[0]'
           end
 
-          def ssn_first_three
+          def veteran_ssn_first_three
             'form1[0].#subform[2].SocialSecurityNumber_FirstThreeNumbers[0]'
           end
 
-          def ssn_second_two
+          def veteran_ssn_middle_two
             'form1[0].#subform[2].SocialSecurityNumber_SecondTwoNumbers[0]'
           end
 
-          def ssn_last_four
+          def veteran_ssn_last_four
             'form1[0].#subform[2].SocialSecurityNumber_LastFourNumbers[0]'
-          end
-
-          def claimant_ssn_first_three
-            'form1[0].#subform[2].ClaimantsSocialSecurityNumber_FirstThreeNumbers[1]'
-          end
-
-          def claimant_ssn_second_two
-            'form1[0].#subform[2].ClaimantsSocialSecurityNumber_SecondTwoNumbers[1]'
-          end
-
-          def claimant_ssn_last_four
-            'form1[0].#subform[2].ClaimantsSocialSecurityNumber_LastFourNumbers[1]'
           end
 
           def file_number
             'form1[0].#subform[2].VAFileNumber[0]'
           end
 
-          def birth_month
+          def veteran_dob_month
             'form1[0].#subform[2].DOBmonth[0]'
           end
 
-          def birth_day
+          def veteran_dob_day
             'form1[0].#subform[2].DOBday[0]'
           end
 
-          def birth_year
+          def veteran_dob_year
             'form1[0].#subform[2].DOByear[0]'
-          end
-
-          def claimant_dob
-            'F[0].Page_1[0].DateSigned[1]'
           end
 
           def veteran_service_number
@@ -73,36 +57,23 @@ module AppealsApi
             'form1[0].#subform[2].CurrentMailingAddress_Country[0]'
           end
 
-          def zip_code_5
-            'form1[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]'
-          end
-
-          def veteran_homeless
-            'form1[0].#subform[2].ClaimantType[0]'
-          end
-
-          # TODO: unsused at the moment
-          def zip_code_4
-            'form1[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]'
-          end
-
           def phone
             'form1[0].#subform[2].TELEPHONE[0]'
           end
 
-          def veteran_phone_area_code
+          def signing_appellant_phone_area_code
             'form1[0].#subform[2].Daytime_Phone_Number_Area_Code[0]'
           end
 
-          def veteran_phone_prefix
+          def signing_appellant_phone_prefix
             'form1[0].#subform[2].Daytime_Phone_Middle_Three_Numbers[0]'
           end
 
-          def veteran_phone_line_number
+          def signing_appellant_phone_line_number
             'form1[0].#subform[2].Daytime_Phone_Last_Four_Numbers[0]'
           end
 
-          def veteran_phone_international_number
+          def signing_appellant_international_phone
             'form1[0].#subform[2].International_Telephone_Number_If_Applicable[0]'
           end
 
@@ -167,23 +138,23 @@ module AppealsApi
             end
           end
 
-          # rubocop:disable Metrics/MethodLength
           def boxes
             {
               # PAGE 3 '#subform[2]'
               veteran_first_name: { at: [3, 592], width: 195 },
               veteran_last_name: { at: [238, 591], width: 300 },
-              preferred_number_and_street: { at: [25, 425], width: 512 },
-              preferred_city: { at: [193, 403], width: 307 },
-              preferred_state: { at: [60, 378], width: 25 },
-              zip_code_5: { at: [290, 380], width: 82 },
-              zip_code_4: { at: [290, 380], width: 82 },
+              signing_appellant_number_and_street: { at: [25, 423], width: 512 },
+              signing_appellant_city: { at: [193, 402], width: 307 },
+              signing_appellant_state: { at: [60, 378], width: 25 },
+              signing_appellant_zip_code: { at: [292, 378], width: 82 },
               mailing_address_country: { at: [150, 378], width: 25 },
-              preferred_email: { at: [275, 348], width: 260 },
-              preferred_phone: { at: [3, 348], width: 260 },
+              signing_appellant_email: { at: [275, 348], width: 260 },
+              signing_appellant_phone: { at: [3, 348], width: 260 },
 
-              claimant_first_name: { at: [3, 485], width: 192 },
-              claimant_last_name: { at: [238, 485], width: 295 },
+              claimant_first_name: { at: [3, 483], width: 192 },
+              claimant_last_name: { at: [238, 483], width: 295 },
+
+              claimant_type_other_text: { at: [436, 457], width: 100 },
 
               contestable_issues: contestable_issues_coordinates,
               decision_dates: decision_dates_coordinates,
@@ -193,11 +164,9 @@ module AppealsApi
               new_evidence_locations: new_evidence_locations_coordinates,
               new_evidence_dates: new_evidence_dates_coordinates,
 
-              signature_of_veteran_claimant_or_rep: { at: [0, 251], width: 410, height: 10, valign: :top },
-              print_name_veteran_claimaint_or_rep: { at: [0, 227], width: 540, height: 20, valign: :top  }
+              signature_of_veteran_claimant_or_rep: { at: [0, 251], width: 410, height: 10, valign: :top }
             }
           end
-          # rubocop:enable Metrics/MethodLength
         end
       end
     end
