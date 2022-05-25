@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'mpi/messages/find_profile_message_icn'
+require 'mpi/messages/find_profile_message_identifier'
 
-describe MPI::Messages::FindProfileMessageIcn do
+describe MPI::Messages::FindProfileMessageIdentifier do
   describe '.to_xml' do
     context 'with icn' do
       let(:icn) { 'fake-icn-number' }

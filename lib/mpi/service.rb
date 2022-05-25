@@ -10,7 +10,7 @@ require 'mpi/errors/errors'
 require 'mpi/messages/add_person_proxy_add_message'
 require 'mpi/messages/add_person_implicit_search_message'
 require 'mpi/messages/find_profile_message'
-require 'mpi/messages/find_profile_message_icn'
+require 'mpi/messages/find_profile_message_identifier'
 require 'mpi/messages/find_profile_message_edipi'
 require 'mpi/responses/add_person_response'
 require 'mpi/responses/find_profile_response'
@@ -221,13 +221,30 @@ module MPI
       end
       return message_icn(user_identity, search_type) if user_identity.mhv_icn.present?
       return message_edipi(user_identity, search_type) if user_identity.edipi.present?
+      if user_identity.logingov_uuid.present?
+        return message_identifier(user_identity.logingov_uuid, 'logingov', search_type)
+      end
+      return message_identifier(user_identity.idme_uuid, 'idme', search_type) if user_identity.idme_uuid.present?
 
       message_user_attributes(user_identity, search_type)
     end
 
     def message_icn(user_identity, search_type)
       Raven.tags_context(mvi_find_profile: 'icn')
-      MPI::Messages::FindProfileMessageIcn.new(user_identity.mhv_icn, search_type: search_type).to_xml
+      MPI::Messages::FindProfileMessageIdentifier.new(user_identity.mhv_icn, search_type: search_type).to_xml
+    end
+
+    def message_identifier(identifier, identifier_type, search_type)
+      Raven.tags_context(mvi_find_profile: identifier_type)
+
+      identifier_constant = case identifier_type
+                            when 'idme'
+                              Constants::IDME_IDENTIFIER
+                            when 'logingov'
+                              Constants::LOGINGOV_IDENTIFIER
+                            end
+      correlation_identifier = "#{identifier}^PN^#{identifier_constant}^USDVA^A"
+      MPI::Messages::FindProfileMessageIdentifier.new(correlation_identifier, search_type: search_type).to_xml
     end
 
     def message_edipi(user_identity, search_type)
