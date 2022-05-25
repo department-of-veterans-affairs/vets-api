@@ -7,8 +7,6 @@ module MPI
   module Messages
     class AddPersonImplicitSearchMessage
       SCHEMA_FILE_NAME = 'mpi_add_person_implicit_search_template.xml'
-      IDME_IDENTIFIER = '200VIDM'
-      LOGINGOV_IDENTIFIER = '200VLGN'
 
       attr_reader :first_name, :last_name, :ssn, :birth_date, :idme_uuid, :logingov_uuid
 
@@ -68,9 +66,9 @@ module MPI
 
       def csp_identifier
         if idme_uuid
-          IDME_IDENTIFIER
+          Constants::IDME_IDENTIFIER
         else
-          LOGINGOV_IDENTIFIER
+          Constants::LOGINGOV_IDENTIFIER
         end
       end
 

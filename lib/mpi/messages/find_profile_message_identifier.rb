@@ -5,12 +5,12 @@ require 'mpi/constants'
 
 module MPI
   module Messages
-    class FindProfileMessageIcn
+    class FindProfileMessageIdentifier
       include FindProfileMessageHelpers
-      attr_reader :icn, :search_type
+      attr_reader :identifier, :search_type
 
-      def initialize(icn, search_type: MPI::Constants::CORRELATION_WITH_RELATIONSHIP_DATA)
-        @icn = icn
+      def initialize(identifier, search_type: MPI::Constants::CORRELATION_WITH_RELATIONSHIP_DATA)
+        @identifier = identifier
         @search_type = search_type
       end
 
@@ -23,7 +23,7 @@ module MPI
 
       def build_parameter_list
         el = element('parameterList')
-        el << element('id', root: '2.16.840.1.113883.4.349', extension: @icn)
+        el << element('id', root: '2.16.840.1.113883.4.349', extension: @identifier)
       end
     end
   end

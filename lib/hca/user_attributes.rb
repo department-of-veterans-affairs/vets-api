@@ -14,7 +14,7 @@ class HCA::UserAttributes
 
   # These attributes, along with uuid, are required by mpi/service.
   # They can be nil as they're not part of the HCA form
-  attr_reader :mhv_icn, :edipi, :gender, :authn_context
+  attr_reader :mhv_icn, :edipi, :gender, :authn_context, :idme_uuid, :logingov_uuid
 
   def ssn=(new_ssn)
     super(new_ssn&.gsub(/\D/, ''))

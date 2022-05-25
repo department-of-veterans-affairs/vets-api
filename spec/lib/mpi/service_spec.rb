@@ -331,7 +331,7 @@ describe MPI::Service do
 
   describe '.find_profile with icn', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
     before do
-      expect(MPI::Messages::FindProfileMessageIcn).to receive(:new).once.and_call_original
+      expect(MPI::Messages::FindProfileMessageIdentifier).to receive(:new).once.and_call_original
     end
 
     context 'valid requests' do
@@ -476,6 +476,76 @@ describe MPI::Service do
               '1025062341^NI^200DOD^USDOD^A',
               'UNK^PI^200BRLS^USVBA^FAULT',
               'UNK^PI^200CORP^USVBA^FAULT'
+            ]
+          )
+        end
+      end
+    end
+  end
+
+  describe '.find_profile with logingov uuid' do
+    before do
+      stub_mpi(build(:mvi_profile, edipi: nil))
+      allow(MPI::Messages::FindProfileMessageIdentifier).to receive(:new).and_call_original
+    end
+
+    context 'valid requests' do
+      let(:user_hash) { { logingov_uuid: logingov_uuid, edipi: '', idme_uuid: '' } }
+      let(:logingov_uuid) { 'some-logingov-uuid' }
+      let(:logingov_identifier) { MPI::Constants::LOGINGOV_IDENTIFIER }
+      let(:correlation_identifier) { "#{logingov_uuid}^PN^#{logingov_identifier}^USDVA^A" }
+      let(:search_type) { { search_type: MPI::Constants::CORRELATION_WITH_RELATIONSHIP_DATA } }
+
+      it 'fetches profile when no mhv_icn or edipi exists, but logingov_uuid is present' do
+        VCR.use_cassette('mpi/find_candidate/valid') do
+          expect(Raven).to receive(:tags_context).once.with(mvi_find_profile: 'logingov')
+          expect(MPI::Messages::FindProfileMessageIdentifier).to receive(:new).with(correlation_identifier, search_type)
+          response = subject.find_profile(user)
+          expect(response.status).to eq('OK')
+          expect(response.profile.given_names).to eq(%w[Mitchell G])
+          expect(response.profile.family_name).to eq('Jenkins')
+          expect(response.profile.full_mvi_ids).to eq(
+            [
+              '1008714701V416111^NI^200M^USVHA^P',
+              '796122306^PI^200BRLS^USVBA^A',
+              '9100792239^PI^200CORP^USVBA^A',
+              '1008714701^PN^200PROV^USDVA^A',
+              '32383600^PI^200CORP^USVBA^L'
+            ]
+          )
+        end
+      end
+    end
+  end
+
+  describe '.find_profile with idme uuid' do
+    before do
+      stub_mpi(build(:mvi_profile, edipi: nil))
+      allow(MPI::Messages::FindProfileMessageIdentifier).to receive(:new).and_call_original
+    end
+
+    context 'valid requests' do
+      let(:user_hash) { { idme_uuid: idme_uuid, edipi: '', logingov_uuid: '' } }
+      let(:idme_uuid) { 'some-idme-uuid' }
+      let(:idme_identifier) { MPI::Constants::IDME_IDENTIFIER }
+      let(:correlation_identifier) { "#{idme_uuid}^PN^#{idme_identifier}^USDVA^A" }
+      let(:search_type) { { search_type: MPI::Constants::CORRELATION_WITH_RELATIONSHIP_DATA } }
+
+      it 'fetches profile when no mhv_icn or edipi exists, but idme_uuid is present' do
+        VCR.use_cassette('mpi/find_candidate/valid') do
+          expect(Raven).to receive(:tags_context).once.with(mvi_find_profile: 'idme')
+          expect(MPI::Messages::FindProfileMessageIdentifier).to receive(:new).with(correlation_identifier, search_type)
+          response = subject.find_profile(user)
+          expect(response.status).to eq('OK')
+          expect(response.profile.given_names).to eq(%w[Mitchell G])
+          expect(response.profile.family_name).to eq('Jenkins')
+          expect(response.profile.full_mvi_ids).to eq(
+            [
+              '1008714701V416111^NI^200M^USVHA^P',
+              '796122306^PI^200BRLS^USVBA^A',
+              '9100792239^PI^200CORP^USVBA^A',
+              '1008714701^PN^200PROV^USDVA^A',
+              '32383600^PI^200CORP^USVBA^L'
             ]
           )
         end

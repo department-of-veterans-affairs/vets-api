@@ -20,7 +20,7 @@ describe MPI::Messages::AddPersonImplicitSearchMessage do
   let(:logingov_uuid) { 'some-logingov-uuid' }
   let(:first_name) { 'some-first-name' }
   let(:csp_uuid) { idme_uuid }
-  let(:csp_type) { MPI::Messages::AddPersonImplicitSearchMessage::IDME_IDENTIFIER }
+  let(:csp_type) { MPI::Constants::IDME_IDENTIFIER }
   let(:csp_id) { "#{csp_uuid}^PN^#{csp_type}^USDVA^A" }
 
   describe '.to_xml' do
@@ -113,7 +113,7 @@ describe MPI::Messages::AddPersonImplicitSearchMessage do
       context 'and logingov_uuid is defined' do
         let(:logingov_uuid) { 'some-logingov-uuid' }
         let(:csp_uuid) { logingov_uuid }
-        let(:csp_type) { MPI::Messages::AddPersonImplicitSearchMessage::LOGINGOV_IDENTIFIER }
+        let(:csp_type) { MPI::Constants::LOGINGOV_IDENTIFIER }
 
         it_behaves_like 'successfully built message'
       end
@@ -132,7 +132,7 @@ describe MPI::Messages::AddPersonImplicitSearchMessage do
     context 'when idme_uuid is defined' do
       let(:idme_uuid) { 'some-idme-uuid' }
       let(:csp_uuid) { idme_uuid }
-      let(:csp_type) { MPI::Messages::AddPersonImplicitSearchMessage::IDME_IDENTIFIER }
+      let(:csp_type) { MPI::Constants::IDME_IDENTIFIER }
 
       context 'and logingov_uuid is defined' do
         let(:logingov_uuid) { 'some-logingov-uuid' }
