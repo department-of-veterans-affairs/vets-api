@@ -491,6 +491,10 @@ features:
     actor_type: user
     description: Fast tracks 526 disability compensation claims by adding the RRD special issue to the claim.
     enable_in_development: true
+  rrd_mas_disability_tracking:
+    actor_type: user
+    description: Enables Slack notifications for MAS-specific disabilities
+    enable_in_development: true
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application

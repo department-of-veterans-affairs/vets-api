@@ -48,6 +48,13 @@ module RapidReadyForDecision
 
     DISABILITIES_BY_CODE = DISABILITIES.map { |k, v| [v[:code], k] }.to_h
 
+    MAS_DISABILITIES = [
+      7528, # prostate cancer
+      6847, # sleep apnea
+      6522, # rhinitis
+      6510, 6511, 6512, 6513, 6514 # sinusitus
+    ].freeze
+
     # @return [Array] mapping submitted disabilities to symbols used as keys for DISABILITIES;
     #                 an element is nil when the disability is not supported by RRD
     def self.extract_disability_symbol_list(form526_submission)

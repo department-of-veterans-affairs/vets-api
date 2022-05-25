@@ -3,7 +3,7 @@
 module Form526RapidReadyForDecisionConcern
   extend ActiveSupport::Concern
 
-  def send_rrd_alert_email(subject, message, error = nil)
+  def send_rrd_alert_email(subject, message, error = nil, to = Settings.rrd.alerts.recipients)
     body = <<~BODY
       Environment: #{Settings.vsp_environment}<br/>
       Form526Submission.id: #{id}<br/>
@@ -13,10 +13,35 @@ module Form526RapidReadyForDecisionConcern
     body += "<br/>Error backtrace:\n #{error.backtrace.join(",<br/>\n ")}" if error
     ActionMailer::Base.mail(
       from: ApplicationMailer.default[:from],
-      to: Settings.rrd.alerts.recipients,
+      to: to,
       subject: subject,
       body: body
     ).deliver_now
+  end
+
+  def send_to_mas_email
+    message = <<~BODY
+      #{disabilities.pluck('name', 'diagnosticCode').join(', ')}
+      <table border="1" cellspacing="1" cellpadding="5"><thead>
+          <tr>
+            <td>Benefit Claim Id</td>
+            <td>Submission Date</td>
+            <td>Submission Time</td>
+            <td>Submission ID</td>
+          </tr>
+        </thead><tbody>
+          <tr>
+            <td>#{submitted_claim_id}</td>
+            <td>#{created_at.to_date}</td>
+            <td>#{created_at.strftime '%H:%M:%S'}</td>
+            <td>#{id}</td>
+          </tr>
+        </tbody>
+      </table>
+    BODY
+
+    send_rrd_alert_email("MA claim - #{diagnostic_codes.join(', ')}", message, nil,
+                         Settings.rrd.mas_tracking.recipients)
   end
 
   # @param metadata_hash [Hash] to be merged into form_json['rrd_metadata']
@@ -70,6 +95,21 @@ module Form526RapidReadyForDecisionConcern
     disabilities.any? do |disability|
       disability['specialIssues']&.include?(RapidReadyForDecision::RrdSpecialIssueManager::RRD_CODE)
     end
+  end
+
+  def disabilities
+    form.dig('form526', 'form526', 'disabilities')
+  end
+
+  def diagnostic_codes
+    disabilities.map { |disability| disability['diagnosticCode'] }
+  end
+
+  def forward_to_mas?
+    # only use the first diagnostic code because we can only support single-issue claims
+    diagnostic_codes.size == 1 &&
+      RapidReadyForDecision::Constants::MAS_DISABILITIES.include?(diagnostic_codes.first) &&
+      Flipper.enabled?(:rrd_mas_disability_tracking)
   end
 
   private

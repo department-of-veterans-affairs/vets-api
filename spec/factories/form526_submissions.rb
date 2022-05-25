@@ -91,6 +91,47 @@ FactoryBot.define do
     end
   end
 
+  trait :non_rrd_with_mas_diagnostic_code do
+    form_json do
+      json_string = File.read("#{submissions_path}/only_526.json")
+      json = JSON.parse json_string
+      disabilities = json.dig('form526', 'form526', 'disabilities')
+      disabilities[0] = {
+        'name' => 'Sleep Apnea',
+        'classificationCode' => 'string',
+        'disabilityActionType' => 'INCREASE',
+        'ratedDisabilityId' => '0',
+        'diagnosticCode' => 6847,
+        'secondaryDisabilities' => []
+      }
+      json.to_json
+    end
+  end
+
+  trait :with_multiple_mas_diagnostic_code do
+    form_json do
+      json_string = File.read("#{submissions_path}/only_526.json")
+      json = JSON.parse json_string
+      disabilities = json.dig('form526', 'form526', 'disabilities')
+      disabilities.concat([{
+                            'name' => 'Sleep Apnea',
+                            'classificationCode' => 'string',
+                            'disabilityActionType' => 'INCREASE',
+                            'ratedDisabilityId' => '0',
+                            'diagnosticCode' => 6847,
+                            'secondaryDisabilities' => []
+                          }, {
+                            'name' => 'Rhinitis',
+                            'classificationCode' => 'string',
+                            'disabilityActionType' => 'INCREASE',
+                            'ratedDisabilityId' => '0',
+                            'diagnosticCode' => 6522,
+                            'secondaryDisabilities' => []
+                          }])
+      json.to_json
+    end
+  end
+
   trait :with_one_succesful_job do
     after(:create) do |submission|
       create(:form526_job_status, form526_submission: submission)
