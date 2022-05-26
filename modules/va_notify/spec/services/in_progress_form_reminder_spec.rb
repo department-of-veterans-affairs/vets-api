@@ -19,15 +19,6 @@ describe VANotify::InProgressFormReminder, type: :worker do
                          "ICN not found for InProgressForm: #{in_progress_form.id}")
     end
 
-    it 'fails if it can not parse InProgressForm data (unrecognized form_id)' do
-      invalid_form = create(:in_progress_form, form_id: 'invalid_id')
-
-      expect do
-        described_class.new.perform(invalid_form.id)
-      end.to raise_error(VANotify::InProgressFormHelper::UnsupportedForm,
-                         "Unsupported form: #{invalid_form.form_id} - InProgressForm: #{invalid_form.id}")
-    end
-
     describe 'single relevant in_progress_form' do
       it 'delegates to VANotify::IcnJob' do
         allow(VANotify::IcnJob).to receive(:perform_async)

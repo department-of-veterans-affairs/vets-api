@@ -261,15 +261,41 @@ FactoryBot.define do
         }
       end
       form_data do
+        # form data truncated for brevity
         {
           'view:selectable686_options' => { 'add_spouse' => false },
           'view:686_information' => {},
           'veteran_information' =>
-           {
-             'full_name' => { 'first' => 'first_name', 'middle' => 'J', 'last' => 'last_name' },
-             'ssn' => '111223333',
-             'birth_date' => '1985-03-07'
-           }
+            {
+              'full_name' => { 'first' => 'first_name', 'middle' => 'J', 'last' => 'last_name' },
+              'ssn' => '111223333',
+              'birth_date' => '1985-03-07'
+            }
+        }.to_json
+      end
+    end
+
+    factory :in_progress_1010ez_form do
+      user_uuid { SecureRandom.uuid }
+      form_id { '1010ez' }
+      metadata do
+        {
+          version: 1,
+          returnUrl: 'foo.com'
+        }
+      end
+      form_data do
+        # form data truncated for brevity
+        {
+          'veteran_full_name' =>
+            {
+              'first' => 'first_name',
+              'middle' => 'M',
+              'last' => 'last_name',
+              'suffix' => 'Sr.'
+            },
+          'veteran_social_security_number' => '111223333',
+          'veteran_date_of_birth' => '1985-03-07'
         }.to_json
       end
     end

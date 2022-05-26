@@ -353,6 +353,10 @@ features:
     actor_type: user
     description: Enable/disable in progress form reminders (sent via VaNotify)
     enable_in_development: true
+  in_progress_form_reminder_1010ez:
+    actor_type: user
+    description: Enable/disable 1010ez in progress form reminders (sent via VaNotify)
+    enable_in_development: true
   loop_pages:
     actor_type: user
     description: Enable new list loop pattern

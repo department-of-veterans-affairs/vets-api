@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-
 require 'sidekiq/testing'
 
 describe VANotify::InProgressForms, type: :worker do
@@ -12,11 +11,9 @@ describe VANotify::InProgressForms, type: :worker do
       in_progress_form_2 = create_in_progress_form_days_ago(21, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
                                                                 form_id: '686C-674')
 
-      allow(VaNotify::Service).to receive(:new).and_return(double('VaNotify::Service'))
-
       Sidekiq::Testing.inline! do
-        expect(VANotify::InProgressFormNotifier).to receive(:perform_async).with([in_progress_form_1.id])
-        expect(VANotify::InProgressFormNotifier).to receive(:perform_async).with([in_progress_form_2.id])
+        expect(VANotify::InProgressFormReminder).to receive(:perform_async).with(in_progress_form_1.id)
+        expect(VANotify::InProgressFormReminder).to receive(:perform_async).with(in_progress_form_2.id)
 
         described_class.perform_async
       end

@@ -4,6 +4,7 @@ module VANotify
   class FindInProgressForms
     RELEVANT_FORMS = %w[
       686C-674
+      1010ez
     ].freeze
 
     def to_notify
@@ -15,7 +16,7 @@ module VANotify
       ]
 
       InProgressForm.where(form_id: RELEVANT_FORMS).where(updated_at: date_range)
-                    .order(:created_at).group_by(&:user_uuid)
+                    .order(:created_at).pluck(:id)
     end
   end
 end

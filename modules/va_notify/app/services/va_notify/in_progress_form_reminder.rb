@@ -11,9 +11,9 @@ module VANotify
     class MissingICN < StandardError; end
 
     def perform(form_id)
+      @in_progress_form = InProgressForm.find(form_id)
       return unless enabled?
 
-      @in_progress_form = InProgressForm.find(form_id)
       @veteran = VANotify::InProgressFormHelper.veteran_data(in_progress_form)
 
       raise MissingICN, "ICN not found for InProgressForm: #{in_progress_form.id}" if veteran.mpi_icn.blank?
@@ -32,7 +32,14 @@ module VANotify
     attr_accessor :in_progress_form, :veteran
 
     def enabled?
-      Flipper.enabled?(:in_progress_form_reminder)
+      case @in_progress_form.form_id
+      when '686C-674'
+        true
+      when '1010ez'
+        Flipper.enabled?(:in_progress_form_reminder_1010ez)
+      else
+        false
+      end
     end
 
     def only_one_supported_in_progress_form?
