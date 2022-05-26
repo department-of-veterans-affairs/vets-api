@@ -30,7 +30,7 @@ module VAOS
             'end' => end_dt
           }
           response = perform(:get, url_path, url_params, headers)
-          response.body[:data].map { |slot| OpenStruct.new(slot) }
+          response.body[:data] ? response.body[:data].map { |slot| OpenStruct.new(slot) } : []
         end
       end
 
