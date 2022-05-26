@@ -1,0 +1,18 @@
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: decision-reviews-api
+  description: Decision Reviews APIs for VA Lighthouse program
+  tags:
+  - lighthouse
+  - external
+  links:
+  - url: https://developer.va.gov/explore/appeals/docs/decision_reviews
+    title: Public Docs
+    icon: web
+spec:
+  type: openapi
+  lifecycle: production
+  owner: lighthouse-banana-peels
+  definition:
+    $text: https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/appeals_api/app/swagger/appeals_api/v2/swagger.json

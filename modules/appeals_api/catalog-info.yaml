@@ -1,0 +1,11 @@
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: appeals-apis
+  description: A collection Appeal APIs
+  tags:
+  - department-of-veteran-affairs
+spec:
+  targets:
+    - ./config/backstage/appeals-status.yaml
+    - ./config/backstage/decision-reviews.yaml
