@@ -14,14 +14,18 @@ module DhpConnectedDevices
     def callback
       status = fitbit_service.get_connection_status({ callback_params: callback_params, fitbit_api: fitbit_api })
       VeteranDeviceRecordsService.create_or_activate(@current_user, 'fitbit') if status == 'success'
-      redirect_to website_host_service.get_redirect_url({ status: status, vendor: 'fitbit' })
+      redirect_with_status(status)
+    rescue => e
+      log_error e
+      redirect_with_status('error')
     end
 
     def disconnect
       VeteranDeviceRecordsService.deactivate(@current_user, 'fitbit')
-      redirect_to website_host_service.get_redirect_url({ status: 'disconnect-success', vendor: 'fitbit' })
-    rescue
-      redirect_to website_host_service.get_redirect_url({ status: 'disconnect-error', vendor: 'fitbit' })
+      redirect_with_status('disconnect-success')
+    rescue => e
+      log_error e
+      redirect_with_status('disconnect-error')
     end
 
     private
@@ -44,6 +48,19 @@ module DhpConnectedDevices
 
     def feature_enabled
       routing_error unless Flipper.enabled?(:dhp_connected_devices_fitbit)
+    end
+
+    def redirect_with_status(status)
+      redirect_to website_host_service.get_redirect_url({ status: status, vendor: 'fitbit' })
+    end
+
+    def log_error(error)
+      log_exception_to_sentry(
+        error,
+        {
+          icn: @current_user&.icn
+        }
+      )
     end
   end
 end
