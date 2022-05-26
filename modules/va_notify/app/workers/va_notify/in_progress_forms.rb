@@ -7,9 +7,8 @@ module VANotify
     include Sidekiq::Worker
 
     def perform
-      FindInProgressForms.new.to_notify.each do |_user_uuid, in_progress_forms|
-        in_progress_form_ids = in_progress_forms.map(&:id)
-        InProgressFormNotifier.perform_async(in_progress_form_ids)
+      FindInProgressForms.new.to_notify.each do |in_progress_form_id|
+        InProgressFormReminder.perform_async(in_progress_form_id)
       end
     end
   end

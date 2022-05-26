@@ -4,12 +4,12 @@ require 'rails_helper'
 
 describe VANotify::FindInProgressForms do
   it 'verify form_ids are valid' do
-    valid_form_ids = FormProfile::ALL_FORMS.values
-    expect(valid_form_ids).to include(described_class::RELEVANT_FORMS)
+    valid_form_ids = FormProfile::ALL_FORMS.values.flatten
+    expect(valid_form_ids).to include(*described_class::RELEVANT_FORMS)
   end
 
   it 'verify correct form ids' do
-    expect(described_class::RELEVANT_FORMS).to eq(%w[686C-674])
+    expect(described_class::RELEVANT_FORMS).to eq(%w[686C-674 1010ez])
   end
 
   describe '#to_notify' do
@@ -17,13 +17,13 @@ describe VANotify::FindInProgressForms do
 
     it 'fetches only relevant forms by id' do
       in_progress_form_1 = create_in_progress_form_days_ago(7, user_uuid: user.uuid, form_id: '686C-674')
+      in_progress_form_2 = create_in_progress_form_days_ago(21, user_uuid: user.uuid, form_id: '1010ez')
       create_in_progress_form_days_ago(7, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid, form_id: 'something')
       create_in_progress_form_days_ago(7, form_id: '1010')
 
       subject = described_class.new
 
-      user_uuid = user.uuid.delete('-')
-      expect(subject.to_notify).to eq({ user_uuid => [in_progress_form_1] })
+      expect(subject.to_notify).to eq([in_progress_form_2.id, in_progress_form_1.id])
     end
 
     context 'only fetches saved forms based on the correct cadence' do
@@ -36,8 +36,7 @@ describe VANotify::FindInProgressForms do
 
         subject = described_class.new
 
-        user_uuid = user.uuid.delete('-')
-        expect(subject.to_notify).to eq({ user_uuid => [in_progress_form_1] })
+        expect(subject.to_notify).to eq([in_progress_form_1.id])
       end
 
       it '21 days' do
@@ -49,8 +48,7 @@ describe VANotify::FindInProgressForms do
 
         subject = described_class.new
 
-        user_uuid = user.uuid.delete('-')
-        expect(subject.to_notify).to eq({ user_uuid => [in_progress_form_1] })
+        expect(subject.to_notify).to eq([in_progress_form_1.id])
       end
 
       it '35 days' do
@@ -62,8 +60,7 @@ describe VANotify::FindInProgressForms do
 
         subject = described_class.new
 
-        user_uuid = user.uuid.delete('-')
-        expect(subject.to_notify).to eq({ user_uuid => [in_progress_form_1] })
+        expect(subject.to_notify).to eq([in_progress_form_1.id])
       end
 
       it '49 days' do
@@ -75,8 +72,7 @@ describe VANotify::FindInProgressForms do
 
         subject = described_class.new
 
-        user_uuid = user.uuid.delete('-')
-        expect(subject.to_notify).to eq({ user_uuid => [in_progress_form_1] })
+        expect(subject.to_notify).to eq([in_progress_form_1.id])
       end
     end
   end
