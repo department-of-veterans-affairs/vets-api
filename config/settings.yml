@@ -341,6 +341,7 @@ modules_appeals_api:
   status_simulation_enabled: false
 
 onsite_notifications:
+  public_key: ~
   template_ids:
     - "f9947b27-df3b-4b09-875c-7f76594d766d"
 

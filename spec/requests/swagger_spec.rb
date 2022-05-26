@@ -2143,9 +2143,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       let(:private_key) { OpenSSL::PKey::EC.new(File.read('spec/support/certificates/notification-private.pem')) }
 
       before do
-        allow(Settings.notifications).to receive(:public_key).and_return(
-          File.read(
-            'spec/support/certificates/notification-public.pem'
+        allow_any_instance_of(V0::OnsiteNotificationsController).to receive(:public_key).and_return(
+          OpenSSL::PKey::EC.new(
+            File.read('spec/support/certificates/notification-public.pem')
           )
         )
       end
@@ -2211,12 +2211,13 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'supports creating onsite notifications' do
         expect(subject).to validate(:post, '/v0/onsite_notifications', 403)
 
+        payload = { user: 'va_notify', iat: Time.current.to_i, exp: 1.minute.from_now.to_i }
         expect(subject).to validate(
           :post,
           '/v0/onsite_notifications',
           200,
           '_headers' => {
-            'Authorization' => "Bearer #{JWT.encode({ user: 'va_notify' }, private_key, 'ES256')}"
+            'Authorization' => "Bearer #{JWT.encode(payload, private_key, 'ES256')}"
           },
           '_data' => {
             onsite_notification: {
@@ -2226,12 +2227,13 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           }
         )
 
+        payload = { user: 'va_notify', iat: Time.current.to_i, exp: 1.minute.from_now.to_i }
         expect(subject).to validate(
           :post,
           '/v0/onsite_notifications',
           422,
           '_headers' => {
-            'Authorization' => "Bearer #{JWT.encode({ user: 'va_notify' }, private_key, 'ES256')}"
+            'Authorization' => "Bearer #{JWT.encode(payload, private_key, 'ES256')}"
           },
           '_data' => {
             onsite_notification: {

@@ -46,18 +46,24 @@ module V0
     end
 
     def public_key
-      @public_key ||= OpenSSL::PKey::EC.new(Settings.notifications.public_key)
+      OpenSSL::PKey::EC.new(
+        Base64.decode64(Settings.onsite_notifications.public_key)
+      )
     end
 
     def authenticate_jwt
       bearer_token = get_bearer_token
       raise authenticity_error if bearer_token.blank?
 
-      decoded = JWT.decode(bearer_token, public_key, true, { algorithm: 'ES256' })
+      decoded_token = JWT.decode(bearer_token, public_key, true, { algorithm: 'ES256' })
 
-      raise authenticity_error unless decoded[0] == { 'user' => 'va_notify' }
+      raise authenticity_error unless token_valid? decoded_token
     rescue JWT::DecodeError
       raise authenticity_error
+    end
+
+    def token_valid?(token)
+      token.first['user'] == 'va_notify' && token.first['iat'].present? && token.first['exp'].present?
     end
   end
 end

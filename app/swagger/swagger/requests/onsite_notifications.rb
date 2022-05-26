@@ -104,7 +104,7 @@ module Swagger
             key :name, :Authorization
             key :in, :header
             description = [
-              "Use JWT ES256 algorithm to encode payload { user: 'va_notify' }",
+              "Use JWT ES256 algorithm to encode payload {user: 'va_notify', iat: send_time, 'exp': send_time + X}",
               "Put token in the header in the format 'Bearer ${token}'"
             ].join("\n")
             key :description, description
