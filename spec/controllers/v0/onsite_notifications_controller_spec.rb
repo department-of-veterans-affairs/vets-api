@@ -16,9 +16,9 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
   end
 
   before do
-    allow(Settings.notifications).to receive(:public_key).and_return(
-      File.read(
-        'spec/support/certificates/notification-public.pem'
+    allow_any_instance_of(V0::OnsiteNotificationsController).to receive(:public_key).and_return(
+      OpenSSL::PKey::EC.new(
+        File.read('spec/support/certificates/notification-public.pem')
       )
     )
   end
@@ -108,7 +108,8 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
 
   describe '#create' do
     before do
-      request.headers['Authorization'] = "Bearer #{JWT.encode({ user: 'va_notify' }, private_key, 'ES256')}"
+      jwt = JWT.encode({ user: 'va_notify', iat: Time.current.to_i, exp: 1.minute.from_now.to_i }, private_key, 'ES256')
+      request.headers['Authorization'] = "Bearer #{jwt}"
     end
 
     context 'with valid params' do
@@ -179,8 +180,35 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
 
     context 'with valid authentication' do
       test_authorization_header(
-        "Bearer #{JWT.encode({ user: 'va_notify' }, private_key, 'ES256')}",
+        "Bearer #{JWT.encode(
+          {
+            user: 'va_notify',
+            iat: Time.current.to_i,
+            exp: 1.minute.from_now.to_i
+          }, private_key, 'ES256'
+        )}",
         200
+      )
+    end
+
+    context 'with expired token' do
+      payload = { user: 'va_notify', iat: Time.current.to_i, exp: 1.minute.ago.to_i }
+      test_authorization_header(
+        "Bearer #{JWT.encode(payload, private_key, 'ES256')}", 403
+      )
+    end
+
+    context 'with missing issued at' do
+      test_authorization_header(
+        "Bearer #{JWT.encode({ user: 'va_notify', exp: 1.minute.ago.to_i }, private_key, 'ES256')}",
+        403
+      )
+    end
+
+    context 'with missing expiration' do
+      test_authorization_header(
+        "Bearer #{JWT.encode({ user: 'va_notify', iat: Time.current.to_i }, private_key, 'ES256')}",
+        403
       )
     end
   end
