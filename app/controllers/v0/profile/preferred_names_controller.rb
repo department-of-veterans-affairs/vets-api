@@ -8,7 +8,7 @@ module V0
       before_action { authorize :mpi, :queryable? }
 
       def update
-        raise Common::Exceptions::Forbidden unless Flipper.enabled?(:profile_show_demographics, @user)
+        raise Common::Exceptions::Forbidden unless Flipper.enabled?(:profile_show_demographics, @current_user)
 
         preferred_name = VAProfile::Models::PreferredName.new preferred_name_params
 

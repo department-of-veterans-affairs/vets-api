@@ -11,7 +11,7 @@ module V0
       # Namely their gender, birth date, preferred name, and gender identity.
       def show
         response =
-          if Flipper.enabled?(:profile_show_demographics, @user)
+          if Flipper.enabled?(:profile_show_demographics, @current_user)
             service.get_demographics
           else
             service.build_response(200, nil)
