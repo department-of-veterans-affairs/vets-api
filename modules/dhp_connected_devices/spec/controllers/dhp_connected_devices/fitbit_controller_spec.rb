@@ -78,6 +78,7 @@ RSpec.describe DhpConnectedDevices::FitbitController, type: :request do
       before do
         sign_in_as(current_user)
         Flipper.enable(:dhp_connected_devices_fitbit)
+        create(:device, :fitbit)
       end
 
       it "redirects with 'fitbit=error' when error occurs" do
@@ -85,10 +86,23 @@ RSpec.describe DhpConnectedDevices::FitbitController, type: :request do
       end
 
       it "redirects with 'fitbit=success' when auth code is returned and token exchange is successful'" do
-        create(:device, :fitbit)
         faraday_response = double('response', status: 200, body: '{ "access_token": "some token" }')
         allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(faraday_response)
         expect(fitbit_callback('?code=889709')).to redirect_to 'http://localhost:3001/health-care/connected-devices/?fitbit=success#_=_'
+      end
+
+      it "redirects with 'fitbit=error' when error is raised" do
+        faraday_response = double('response', status: 200, body: '{ "access_token": "some token" }')
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(faraday_response)
+        allow(VeteranDeviceRecordsService).to receive(:create_or_activate).with(anything, anything).and_raise(
+          ActiveRecord::ActiveRecordError
+        )
+
+        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
+          instance_of(ActiveRecord::ActiveRecordError),
+          { icn: current_user.icn }
+        )
+        expect(fitbit_callback('?code=889709')).to redirect_to 'http://localhost:3001/health-care/connected-devices/?fitbit=error#_=_'
       end
     end
   end
@@ -97,6 +111,7 @@ RSpec.describe DhpConnectedDevices::FitbitController, type: :request do
     def fitbit_disconnect
       get '/dhp_connected_devices/fitbit/disconnect'
     end
+
     context 'fitbit feature enabled and authenticated user' do
       before do
         sign_in_as(current_user)
@@ -114,8 +129,12 @@ RSpec.describe DhpConnectedDevices::FitbitController, type: :request do
         expect(fitbit_disconnect).to redirect_to 'http://localhost:3001/health-care/connected-devices/?fitbit=disconnect-success#_=_'
       end
 
-      it 'redirects to frontend with disconnect-error code on error' do
+      it 'redirects to frontend with disconnect-error code on device record not found error' do
         VeteranDeviceRecord.delete(@vdr)
+        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
+          instance_of(ActiveRecord::RecordNotFound),
+          { icn: current_user.icn }
+        )
         expect(fitbit_disconnect).to redirect_to 'http://localhost:3001/health-care/connected-devices/?fitbit=disconnect-error#_=_'
       end
     end
