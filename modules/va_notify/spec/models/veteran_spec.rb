@@ -5,15 +5,17 @@ require 'rails_helper'
 RSpec.describe VANotify::Veteran, type: :model do
   describe '#initialize' do
     it 'instantiates a claims veteran' do
-      allow(ClaimsApi::Veteran).to receive(:new)
-      VANotify::Veteran.new(
-        ssn: '012345678',
+      subject = VANotify::Veteran.new(
         first_name: 'Melvin',
-        last_name: 'AlsoMelvin',
-        birth_date: Time.zone.now.iso8601
+        user_uuid: 'user_uuid'
       )
 
-      expect(ClaimsApi::Veteran).to have_received(:new)
+      account = double('Account')
+      allow(Account).to receive(:lookup_by_user_uuid).and_return(account)
+      allow(account).to receive(:icn).and_return('icn')
+
+      expect(subject.first_name).to eq('Melvin')
+      expect(subject.icn).to eq('icn')
     end
   end
 end

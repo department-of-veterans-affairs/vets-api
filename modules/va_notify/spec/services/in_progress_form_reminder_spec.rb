@@ -11,7 +11,7 @@ describe VANotify::InProgressFormReminder, type: :worker do
     it 'fails if ICN is not present' do
       user_without_icn = double('VANotify::Veteran')
       allow(VANotify::Veteran).to receive(:new).and_return(user_without_icn)
-      allow(user_without_icn).to receive(:mpi_icn).and_return(nil)
+      allow(user_without_icn).to receive(:icn).and_return(nil)
 
       expect do
         described_class.new.perform(in_progress_form.id)
@@ -21,6 +21,9 @@ describe VANotify::InProgressFormReminder, type: :worker do
 
     describe 'single relevant in_progress_form' do
       it 'delegates to VANotify::IcnJob' do
+        user_with_icn = double('VANotify::Veteran', icn: 'icn', first_name: 'first_name')
+        allow(VANotify::Veteran).to receive(:new).and_return(user_with_icn)
+
         allow(VANotify::IcnJob).to receive(:perform_async)
         expiration_date = in_progress_form.expires_at.strftime('%B %d, %Y')
 
@@ -28,7 +31,7 @@ describe VANotify::InProgressFormReminder, type: :worker do
           described_class.new.perform(in_progress_form.id)
         end
 
-        expect(VANotify::IcnJob).to have_received(:perform_async).with('1013062086V794840', 'fake_template_id',
+        expect(VANotify::IcnJob).to have_received(:perform_async).with('icn', 'fake_template_id',
                                                                        {
                                                                          'first_name' => 'FIRST_NAME',
                                                                          'date' => expiration_date
@@ -54,7 +57,7 @@ describe VANotify::InProgressFormReminder, type: :worker do
 
       it 'skips email if its not the oldest in_progress_form' do
         veteran_double = double('VaNotify::Veteran')
-        allow(veteran_double).to receive(:mpi_icn).and_return('mpi_icn')
+        allow(veteran_double).to receive(:icn).and_return('icn')
         allow(veteran_double).to receive(:first_name).and_return('first_name')
         allow(VANotify::InProgressFormHelper).to receive(:veteran_data).and_return(veteran_double)
 
@@ -69,6 +72,9 @@ describe VANotify::InProgressFormReminder, type: :worker do
       end
 
       it 'delegates to VANotify::IcnJob if its the oldest in_progress_form' do
+        user_with_icn = double('VANotify::Veteran', icn: 'icn', first_name: 'first_name')
+        allow(VANotify::Veteran).to receive(:new).and_return(user_with_icn)
+
         allow(VANotify::IcnJob).to receive(:perform_async)
         stub_const('VANotify::FindInProgressForms::RELEVANT_FORMS', %w[686C-674 form_2_id form_3_id])
         stub_const('VANotify::InProgressFormHelper::FRIENDLY_FORM_SUMMARY', {
@@ -85,7 +91,7 @@ describe VANotify::InProgressFormReminder, type: :worker do
           described_class.new.perform(in_progress_form_1.id)
         end
 
-        expect(VANotify::IcnJob).to have_received(:perform_async).with('1013062086V794840', 'fake_template_id',
+        expect(VANotify::IcnJob).to have_received(:perform_async).with('icn', 'fake_template_id',
                                                                        {
                                                                          'first_name' => 'FIRST_NAME',
 

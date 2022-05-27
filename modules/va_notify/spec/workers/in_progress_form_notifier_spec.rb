@@ -23,9 +23,8 @@ describe VANotify::InProgressFormNotifier, type: :worker do
     it 'fails if ICN is not present' do
       client = double
       allow(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.va_gov.api_key).and_return(client)
-      user_without_icn = double('VANotify::Veteran')
+      user_without_icn = double('VANotify::Veteran', icn: nil)
       allow(VANotify::Veteran).to receive(:new).and_return(user_without_icn)
-      allow(user_without_icn).to receive(:mpi_icn).and_return(nil)
 
       expect do
         described_class.new.perform(in_progress_form.id)
@@ -45,11 +44,14 @@ describe VANotify::InProgressFormNotifier, type: :worker do
     end
 
     it 'sends an email (with ICN data) using the template id' do
+      user_with_icn = double('VANotify::Veteran', icn: 'icn', first_name: 'first_name')
+      allow(VANotify::Veteran).to receive(:new).and_return(user_with_icn)
+
       client = double
       allow(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.va_gov.api_key).and_return(client)
 
       expect(client).to receive(:send_email).with(
-        recipient_identifier: { id_type: 'ICN', id_value: '1013062086V794840' },
+        recipient_identifier: { id_type: 'ICN', id_value: 'icn' },
         template_id: 'fake_template_id',
         personalisation: {
           'first_name' => 'FIRST_NAME',
@@ -61,6 +63,9 @@ describe VANotify::InProgressFormNotifier, type: :worker do
     end
 
     it 'handles 4xx errors when sending an email' do
+      user_with_icn = double('VANotify::Veteran', icn: 'icn', first_name: 'first_name')
+      allow(VANotify::Veteran).to receive(:new).and_return(user_with_icn)
+
       allow(VaNotify::Service).to receive(:new).and_return(notification_client)
 
       error = Common::Exceptions::BackendServiceException.new(
@@ -78,6 +83,9 @@ describe VANotify::InProgressFormNotifier, type: :worker do
     end
 
     it 'handles 5xx errors when sending an email' do
+      user_with_icn = double('VANotify::Veteran', icn: 'icn', first_name: 'first_name')
+      allow(VANotify::Veteran).to receive(:new).and_return(user_with_icn)
+
       allow(VaNotify::Service).to receive(:new).and_return(notification_client)
 
       error = Common::Exceptions::BackendServiceException.new(

@@ -8,8 +8,5 @@ describe VANotify::InProgressForm686c do
     subject = described_class.new(in_progress_form.form_data)
 
     expect(subject.first_name).to eq('first_name')
-    expect(subject.last_name).to eq('last_name')
-    expect(subject.ssn).to eq('111223333')
-    expect(subject.birth_date).to eq('1985-03-07')
   end
 end
