@@ -21,6 +21,11 @@ module Mobile
         render json: Mobile::V0::PrescriptionsSerializer.new(page_resource, page_meta_data)
       end
 
+      def refill
+        client.post_refill_rx(params[:id])
+        head :no_content
+      end
+
       private
 
       def client

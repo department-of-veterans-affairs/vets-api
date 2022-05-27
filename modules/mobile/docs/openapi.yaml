@@ -1508,7 +1508,7 @@ paths:
           required: false
           schema:
             type: string
-        - description: | 
+        - description: |
             filter by field values. Syntax: ?filter[[refill_status][eq]]=refillinprocess. fields that can be filtered: prescription_id, refill_status, refill_submit_date, facility_name. eq can be switched out with not_eq.
           in: query
           name: filter
@@ -1586,6 +1586,28 @@ paths:
       security:
         - Bearer: [ ]
       summary: /v0/health/rx/prescriptions
+  /v0/health/rx/prescriptions/{id}/refill:
+    put:
+      description: Requests refill for prescription.
+      parameters:
+        - description: prescription id to request refill
+          example: 13650545
+          in: path
+          name: id
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No Content
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not Found
+      security:
+        - Bearer: [ ]
+      summary: /v0/health/rx/prescriptions/{id}/refill
   /v0/letters:
     get:
       description: Returns the list of letter names and types for the given user
