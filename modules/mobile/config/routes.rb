@@ -48,6 +48,7 @@ Mobile::Engine.routes.draw do
     put '/user/phones', to: 'phones#update'
     delete '/user/phones', to: 'phones#destroy'
     get '/health/rx/prescriptions', to: 'prescriptions#index'
+    put '/health/rx/prescriptions/:id/refill', to: 'prescriptions#refill'
 
     scope :messaging do
       scope :health do

@@ -12,6 +12,13 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
 
   let(:mhv_account_type) { 'Premium' }
   let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  let(:upstream_mhv_history_url) { 'https://mhv-api.example.com/mhv-api/patient/v1/prescription/gethistoryrx' }
+  let(:set_cache) do
+    path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'prescriptions.json')
+    json_data = JSON.parse(File.read(path), symbolize_names: true)
+
+    Common::Collection.fetch(::Prescription, cache_key: '123:gethistoryrx', ttl: 3600) { json_data }
+  end
 
   before(:all) do
     @original_cassette_dir = VCR.configure(&:cassette_library_dir)
@@ -21,11 +28,52 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
   after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
 
   before do
+    Settings.mhv.rx.collection_caching_enabled = true
     allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return(mhv_account_type)
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
     current_user = build(:iam_user, :mhv)
 
     iam_sign_in(current_user)
+  end
+
+  describe 'GET /mobile/v0/health/rx/prescriptions/:id/refill', :aggregate_failures do
+    it 'returns 204 no content' do
+      VCR.use_cassette('rx_refill/prescriptions/refills_a_prescription') do
+        put '/mobile/v0/health/rx/prescriptions/13650545/refill', headers: iam_headers
+      end
+
+      expect(response).to have_http_status(:no_content)
+      expect(response.body).to be_empty
+    end
+
+    context 'prescription does not exist' do
+      it 'returns 404 not found' do
+        VCR.use_cassette('rx_refill/prescriptions/prescription_refill_error') do
+          put '/mobile/v0/health/rx/prescriptions/1/refill', headers: iam_headers
+        end
+        expect(response).to have_http_status(:not_found)
+
+        expect(response.parsed_body).to eq({ 'errors' =>
+                                              [{ 'title' => 'Operation failed',
+                                                 'detail' => 'Prescription requested could not be found',
+                                                 'code' => 'RX138',
+                                                 'status' => '404' }] })
+      end
+    end
+
+    context 'prescription cache is present on refill' do
+      it 'flushes prescription cache on refill' do
+        set_cache
+
+        VCR.use_cassette('rx_refill/prescriptions/refills_a_prescription') do
+          put '/mobile/v0/health/rx/prescriptions/13650545/refill', headers: iam_headers
+        end
+
+        get '/mobile/v0/health/rx/prescriptions', headers: iam_headers
+
+        assert_requested :get, upstream_mhv_history_url, times: 1
+      end
+    end
   end
 
   describe 'GET /mobile/v0/health/rx/prescriptions', :aggregate_failures do
@@ -44,6 +92,18 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         VCR.use_cassette('rx_refill/prescriptions/handles_failed_stations') do
           get '/mobile/v0/health/rx/prescriptions', headers: iam_headers
         end
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to match_json_schema('prescription')
+      end
+    end
+
+    context 'when cache is populated' do
+      it 'uses cache instead of service' do
+        set_cache
+
+        get '/mobile/v0/health/rx/prescriptions', headers: iam_headers
+
+        assert_requested :get, upstream_mhv_history_url, times: 0
         expect(response).to have_http_status(:ok)
         expect(response.body).to match_json_schema('prescription')
       end
