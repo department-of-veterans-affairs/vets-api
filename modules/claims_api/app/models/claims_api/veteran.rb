@@ -16,6 +16,8 @@ module ClaimsApi
        participant_id
        gender
        birls_file_number
+       idme_uuid
+       logingov_uuid
        uuid
        icn_with_aaid
        search_token
@@ -91,6 +93,8 @@ module ClaimsApi
         last_signed_in: Time.now.utc,
         loa: identity.loa,
         gender: identity.gender,
+        idme_uuid: identity.idme_uuid,
+        logingov_uuid: identity.logingov_uuid,
         ssn: identity.ssn,
         va_profile: OpenStruct.new(birth_date: identity.birth_date),
         edipi: identity&.edipi,
