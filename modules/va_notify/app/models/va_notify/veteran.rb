@@ -2,21 +2,15 @@
 
 module VANotify
   class Veteran
-    delegate_missing_to :@veteran
+    attr_reader :first_name, :user_uuid
 
-    def initialize(ssn:, first_name:, last_name:, birth_date:)
-      @veteran = ClaimsApi::Veteran.new(
-        uuid: ssn,
-        ssn: ssn,
-        first_name: first_name,
-        last_name: last_name,
-        va_profile: ClaimsApi::Veteran.build_profile(birth_date),
-        loa: { current: 3, highest: 3 }
-      )
+    def initialize(first_name:, user_uuid:)
+      @first_name = first_name
+      @user_uuid = user_uuid
     end
 
-    private
-
-    attr_reader :veteran
+    def icn
+      @icn ||= Account.lookup_by_user_uuid(user_uuid).icn
+    end
   end
 end

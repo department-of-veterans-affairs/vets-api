@@ -23,11 +23,11 @@ module VANotify
       template_id = Settings.vanotify.services.va_gov.template_id.form686c_reminder_email
       veteran = veteran_data(in_progress_form)
 
-      raise MissingICN, "ICN not found for InProgressForm: #{in_progress_form.id}" if veteran.mpi_icn.blank?
+      raise MissingICN, "ICN not found for InProgressForm: #{in_progress_form.id}" if veteran.icn.blank?
 
       notify_client.send_email(
         recipient_identifier: {
-          id_value: veteran.mpi_icn,
+          id_value: veteran.icn,
           id_type: 'ICN'
         },
         template_id: template_id,
@@ -69,10 +69,8 @@ module VANotify
              end
 
       VANotify::Veteran.new(
-        ssn: data.ssn,
         first_name: data.first_name,
-        last_name: data.last_name,
-        birth_date: data.birth_date
+        user_uuid: in_progress_form.user_uuid
       )
     end
   end

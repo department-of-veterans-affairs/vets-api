@@ -16,14 +16,14 @@ module VANotify
 
       @veteran = VANotify::InProgressFormHelper.veteran_data(in_progress_form)
 
-      raise MissingICN, "ICN not found for InProgressForm: #{in_progress_form.id}" if veteran.mpi_icn.blank?
+      raise MissingICN, "ICN not found for InProgressForm: #{in_progress_form.id}" if veteran.icn.blank?
 
       if only_one_supported_in_progress_form?
         template_id = VANotify::InProgressFormHelper::TEMPLATE_ID.fetch(in_progress_form.form_id)
-        IcnJob.perform_async(veteran.mpi_icn, template_id, personalisation_details_single)
+        IcnJob.perform_async(veteran.icn, template_id, personalisation_details_single)
       elsif oldest_in_progress_form?
         template_id = Settings.vanotify.services.va_gov.template_id.in_progress_reminder_email_generic
-        IcnJob.perform_async(veteran.mpi_icn, template_id, personalisation_details_multiple)
+        IcnJob.perform_async(veteran.icn, template_id, personalisation_details_multiple)
       end
     end
 

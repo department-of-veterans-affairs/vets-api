@@ -26,10 +26,8 @@ module VANotify
              end
 
       VANotify::Veteran.new(
-        ssn: data.ssn,
         first_name: data.first_name,
-        last_name: data.last_name,
-        birth_date: data.birth_date
+        user_uuid: in_progress_form.user_uuid
       )
     end
   end
