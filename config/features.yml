@@ -592,6 +592,9 @@ features:
   show_new_view_test_lab_results_page:
     actor_type: user
     description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/view-test-and-lab-results/
+  show_updated_fry_dea_app:
+    actor_type: user
+    description: Show the new version of the Fry/DEA form.
   spool_testing_error_2:
     actor_type: user
     description: Enables Slack notifications for CreateDailySpoolFiles
