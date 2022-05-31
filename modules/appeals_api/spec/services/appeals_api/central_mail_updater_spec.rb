@@ -25,25 +25,25 @@ describe AppealsApi::CentralMailUpdater do
       central_mail_response[0][:status] = 'VBMS Complete'
     end
 
-    it 'nod accepts VBMS Complete' do
+    it 'nod accepts VBMS Complete and maps it to complete' do
       allow(faraday_response).to receive(:body).at_least(:once).and_return([central_mail_response].to_json)
 
       subject.call([appeal_1])
       appeal_1.reload
-      expect(appeal_1.status).to eq('caseflow')
+      expect(appeal_1.status).to eq('complete')
     end
 
-    it 'hlr accepts VBMS Complete but maps it to success' do
+    it 'hlr accepts VBMS Complete and maps it to complete' do
       hlr = create(:higher_level_review)
       central_mail_response[0][:uuid] = hlr.id
       allow(faraday_response).to receive(:body).at_least(:once).and_return([central_mail_response].to_json)
 
       subject.call([hlr])
       hlr.reload
-      expect(hlr.status).to eq('success')
+      expect(hlr.status).to eq('complete')
     end
 
-    it 'hlr V2 accepts VBMS Complete and maps it to caseflow' do
+    it 'hlr V2 accepts VBMS Complete and maps it to complete' do
       hlr = create(:higher_level_review)
       hlr.update!(api_version: 'V2')
       central_mail_response[0][:uuid] = hlr.id
@@ -52,15 +52,15 @@ describe AppealsApi::CentralMailUpdater do
       subject.call([hlr])
       hlr.reload
       expect(hlr.api_version).to eq('V2')
-      expect(hlr.status).to eq('caseflow')
+      expect(hlr.status).to eq('complete')
     end
   end
 
   context 'when verifying status structures' do
     let(:appeal_statuses) { AppealsApi::NodStatus::STATUSES }
 
-    it 'fails if one or more NOD_CENTRAL_STATUS_ATTRIBUTES keys or values is mismatched' do
-      status_hashes = described_class::NOD_CENTRAL_STATUS_ATTRIBUTES.values
+    it 'fails if one or more CENTRAL_MAIL_STATUS_ATTRIBUTES keys or values is mismatched' do
+      status_hashes = described_class::CENTRAL_MAIL_STATUS_ATTRIBUTES.values
       status_attr_keys = status_hashes.map(&:keys).flatten
       status_attr_values = status_hashes.pluck(:status).uniq
 
@@ -69,7 +69,7 @@ describe AppealsApi::CentralMailUpdater do
     end
 
     it 'fails if error statuses are mismatched' do
-      central_mail_statuses = described_class::NOD_CENTRAL_STATUS_ATTRIBUTES.keys
+      central_mail_statuses = described_class::CENTRAL_MAIL_STATUS_ATTRIBUTES.keys
       error_statuses = described_class::CENTRAL_MAIL_ERROR_STATUSES
 
       expect(central_mail_statuses).to include(*error_statuses)
@@ -162,7 +162,7 @@ describe AppealsApi::CentralMailUpdater do
 
           subject.call([appeal_1])
           appeal_1.reload
-          expect(appeal_1.status).to eq('success')
+          expect(appeal_1.status).to eq('complete')
         end
 
         it 'completedReason == UploadSucceeded' do
@@ -186,7 +186,7 @@ describe AppealsApi::CentralMailUpdater do
 
           subject.call([appeal_1])
           appeal_1.reload
-          expect(appeal_1.status).to eq('success')
+          expect(appeal_1.status).to eq('complete')
         end
       end
 

@@ -13,8 +13,8 @@ describe AppealsApi::NodStatus, type: :concern do
     end
 
     it 'includes the expected statuses' do
-      statuses = %w[pending submitting submitted success processing error caseflow]
-      expect(described_class::STATUSES).to eq(statuses)
+      statuses = %w[pending submitting submitted success processing error complete]
+      expect(described_class::STATUSES).to match_array(statuses)
     end
   end
 end

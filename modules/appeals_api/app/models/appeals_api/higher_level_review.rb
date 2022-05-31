@@ -12,7 +12,17 @@ module AppealsApi
     attr_readonly :form_data
 
     scope :pii_expunge_policy, lambda {
-      where('updated_at < ? AND status IN (?)', 7.days.ago, COMPLETE_STATUSES)
+      timeframe = 7.days.ago
+      v1.where('updated_at < ? AND status IN (?)', timeframe, COMPLETE_STATUSES + ['success'])
+        .or(v2.where('updated_at < ? AND status IN (?)', timeframe, COMPLETE_STATUSES))
+    }
+
+    scope :v1, lambda {
+      where(api_version: 'V1')
+    }
+
+    scope :v2, lambda {
+      where(api_version: 'V2')
     }
 
     def self.past?(date)
