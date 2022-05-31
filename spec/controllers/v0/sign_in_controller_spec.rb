@@ -21,6 +21,10 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:client_state_minimum_length) { SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH }
     let(:type) { { type: type_value } }
     let(:type_value) { 'some-type' }
+    let(:error_context) do
+      { type: type[:type], client_state: client_state[:state], code_challenge: code_challenge[:code_challenge],
+        code_challenge_method: code_challenge_method[:code_challenge_method] }.to_s
+    end
 
     context 'when type param is not given' do
       let(:type) { {} }
@@ -41,6 +45,12 @@ RSpec.describe V0::SignInController, type: :controller do
 
       it 'returns expected status' do
         expect(subject).to have_http_status(expected_error_status)
+      end
+
+      it 'logs the failed authorize attempt' do
+        expect(Rails.logger).to receive(:error).once.with("#{expected_error} : #{error_context}")
+        expect { subject }.to trigger_statsd_increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_FAILURE,
+                                                       tags: ["context:#{type[:type]}", 'version:v0', 'error:'])
       end
     end
 
@@ -128,16 +138,6 @@ RSpec.describe V0::SignInController, type: :controller do
 
             it_behaves_like 'error response'
           end
-
-          it 'logs the authentication attempt' do
-            expect(Rails.logger).to receive(:info).once.with(
-              'Sign in Service Authorization Attempt',
-              { state: state, type: type[:type], client_state: nil,
-                code_challenge: code_challenge[:code_challenge], timestamp: Time.zone.now.to_s,
-                code_challenge_method: code_challenge_method[:code_challenge_method] }
-            )
-            subject
-          end
         end
       end
 
@@ -206,7 +206,10 @@ RSpec.describe V0::SignInController, type: :controller do
                   code_challenge: code_challenge[:code_challenge], timestamp: Time.zone.now.to_s,
                   code_challenge_method: code_challenge_method[:code_challenge_method] }
               )
-              subject
+              expect do
+                subject
+              end.to trigger_statsd_increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_SUCCESS,
+                                              tags: ["context:#{type[:type]}", 'version:v0'])
             end
           end
 
@@ -279,6 +282,9 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:code_value) { 'some-code' }
     let(:code_verifier_value) { 'some-code-verifier' }
     let(:grant_type_value) { 'some-grand-type' }
+    let(:error_context) do
+      { code: code[:code], code_verifier: code_verifier[:code_verifier], grant_type: grant_type[:grant_type] }
+    end
 
     shared_examples 'error response' do
       let(:expected_error_json) { { 'errors' => expected_error } }
@@ -290,6 +296,12 @@ RSpec.describe V0::SignInController, type: :controller do
 
       it 'returns expected status' do
         expect(subject).to have_http_status(expected_error_status)
+      end
+
+      it 'logs the failed token request' do
+        expect(Rails.logger).to receive(:error).once.with("#{expected_error} : #{error_context}")
+        expect { subject }.to trigger_statsd_increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_FAILURE,
+                                                       tags: ['version:v0', 'error:'])
       end
     end
 
@@ -380,6 +392,19 @@ RSpec.describe V0::SignInController, type: :controller do
               it 'returns expected body with anti csrf token token' do
                 expect(JSON.parse(subject.body)['data']).to have_key('anti_csrf_token')
               end
+
+              it 'logs the successful token request' do
+                access_token = JWT.decode(JSON.parse(subject.body)['data']['access_token'], nil, false).first
+                expect(Rails.logger).to have_received(:info)
+                  .once.with('Sign in Service Token Response',
+                             { code: code[:code], token_type: 'Refresh', user_id: user_verification.user_account_id,
+                               session_id: access_token['session_handle'], timestamp: Time.zone.now.to_s })
+              end
+
+              it 'updates StatsD with a token request success' do
+                expect { subject }.to trigger_statsd_increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS,
+                                                               tags: ['version:v0'])
+              end
             end
           end
         end
@@ -395,6 +420,7 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:type) { { type: type_value } }
     let(:type_value) { 'some-type-value' }
     let(:code_value) { 'some-code' }
+    let(:error_context) { { type: type[:type], state: state[:state], code: code[:code] } }
 
     context 'when type param is not given' do
       let(:type) { {} }
@@ -415,6 +441,12 @@ RSpec.describe V0::SignInController, type: :controller do
 
       it 'returns expected status' do
         expect(subject).to have_http_status(expected_error_status)
+      end
+
+      it 'logs the failed callback' do
+        expect(Rails.logger).to receive(:error).once.with("#{expected_error} : #{error_context}")
+        expect { subject }.to trigger_statsd_increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE,
+                                                       tags: ["context:#{type[:type]}", 'version:v0', 'error:'])
       end
     end
 
@@ -516,9 +548,10 @@ RSpec.describe V0::SignInController, type: :controller do
             expect(subject).to redirect_to(expected_url)
           end
 
-          it 'logs the authentication attempt' do
+          it 'logs the successful callback' do
             expect(Rails.logger).to receive(:info).with(expected_log, expected_log_attributes)
-            subject
+            expect { subject }.to trigger_statsd_increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS,
+                                                           tags: ["context:#{type[:type]}", 'version:v0'])
           end
 
           it 'creates a user with expected attributes' do
@@ -601,9 +634,10 @@ RSpec.describe V0::SignInController, type: :controller do
             expect(subject).to redirect_to(expected_url)
           end
 
-          it 'logs the authentication attempt' do
+          it 'logs the successful callback' do
             expect(Rails.logger).to receive(:info).with(expected_log, expected_log_attributes)
-            subject
+            expect { subject }.to trigger_statsd_increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS,
+                                                           tags: ["context:#{type[:type]}", 'version:v0'])
           end
 
           it 'creates a user with expected attributes' do
@@ -703,6 +737,7 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:user_verification) { create(:user_verification) }
     let(:user_account) { user_verification.user_account }
     let(:validated_credential) { create(:validated_credential, user_verification: user_verification) }
+    let(:error_context) { { refresh_token: refresh_token, anti_csrf_token: anti_csrf_token } }
 
     before do
       allow(Settings.sign_in).to receive(:enable_anti_csrf).and_return(enable_anti_csrf)
@@ -719,6 +754,12 @@ RSpec.describe V0::SignInController, type: :controller do
       it 'returns expected status' do
         expect(subject).to have_http_status(expected_error_status)
       end
+
+      it 'logs the failed revocation attempt' do
+        expect(Rails.logger).to receive(:error).once.with("#{expected_error} : #{error_context}")
+        expect { subject }.to trigger_statsd_increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_FAILURE,
+                                                       tags: ['version:v0', 'error:'])
+      end
     end
 
     context 'when Settings sign_in enable_anti_csrf is enabled' do
@@ -728,6 +769,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:expected_error) { 'Anti CSRF token is not defined' }
         let(:expected_error_status) { :bad_request }
         let(:anti_csrf_token_param) { {} }
+        let(:anti_csrf_token) { nil }
 
         it_behaves_like 'error response'
       end
@@ -807,7 +849,8 @@ RSpec.describe V0::SignInController, type: :controller do
 
         it 'logs the session revocation' do
           expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_attributes)
-          subject
+          expect { subject }.to trigger_statsd_increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_SUCCESS,
+                                                         tags: ['version:v0'])
         end
       end
     end
@@ -824,6 +867,9 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:user_verification) { create(:user_verification) }
     let(:user_account) { user_verification.user_account }
     let(:validated_credential) { create(:validated_credential, user_verification: user_verification) }
+    let(:error_context) { { refresh_token: refresh_token, anti_csrf_token: anti_csrf_token } }
+    let(:statsd_error) { SignIn::Constants::Statsd::STATSD_SIS_REFRESH_FAILURE }
+    let(:error_tags) { ['version:v0', 'error:'] }
 
     before do
       allow(Settings.sign_in).to receive(:enable_anti_csrf).and_return(enable_anti_csrf)
@@ -840,6 +886,12 @@ RSpec.describe V0::SignInController, type: :controller do
       it 'returns expected status' do
         expect(subject).to have_http_status(expected_error_status)
       end
+
+      it 'logs the failed refresh attempt' do
+        expect(Rails.logger).to receive(:error).once.with("#{expected_error} : #{error_context}")
+        expect { subject }.to trigger_statsd_increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_FAILURE,
+                                                       tags: ['version:v0', 'error:'])
+      end
     end
 
     context 'when Settings sign_in enable_anti_csrf is enabled' do
@@ -848,6 +900,7 @@ RSpec.describe V0::SignInController, type: :controller do
       context 'and anti_csrf_token param is not given' do
         let(:expected_error) { 'Anti CSRF token is not defined' }
         let(:anti_csrf_token_param) { {} }
+        let(:anti_csrf_token) { nil }
         let(:expected_error_status) { :bad_request }
 
         it_behaves_like 'error response'
@@ -990,9 +1043,10 @@ RSpec.describe V0::SignInController, type: :controller do
           expect(JSON.parse(subject.body)['data']).to have_key('anti_csrf_token')
         end
 
-        it 'logs the token refresh' do
+        it 'logs the session refresh' do
           expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_attributes)
-          subject
+          expect { subject }.to trigger_statsd_increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_SUCCESS,
+                                                         tags: ['version:v0'])
         end
       end
     end
@@ -1001,6 +1055,7 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:expected_error) { 'Refresh token is not defined' }
       let(:expected_error_json) { { 'errors' => expected_error } }
       let(:refresh_token_param) { {} }
+      let(:refresh_token) { nil }
       let(:expected_error_status) { :bad_request }
 
       it_behaves_like 'error response'
@@ -1010,9 +1065,12 @@ RSpec.describe V0::SignInController, type: :controller do
   describe 'GET introspect' do
     subject { get(:introspect) }
 
-    shared_examples 'error response' do
-      let(:expected_error_json) { { 'errors' => expected_error } }
+    let(:access_token_object) { create(:access_token) }
+    let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
+    let(:authorization) { "Bearer #{access_token}" }
+    let(:expected_error_json) { { 'errors' => expected_error } }
 
+    shared_examples 'expired error response' do
       it 'renders expected error' do
         expect(JSON.parse(subject.body)).to eq(expected_error_json)
       end
@@ -1022,7 +1080,26 @@ RSpec.describe V0::SignInController, type: :controller do
       end
     end
 
+    shared_examples 'error response' do
+      let(:access_auth_failure) { SignIn::Constants::Statsd::STATSD_SIS_AUTHENTICATE_ACCESS_TOKEN_FAILURE }
+      let(:error_context) { { authorization: authorization } }
+
+      it 'renders expected error' do
+        expect(JSON.parse(subject.body)).to eq(expected_error_json)
+      end
+
+      it 'returns expected status' do
+        expect(subject).to have_http_status(expected_error_status)
+      end
+
+      it 'logs the failed introspect call' do
+        expect(Rails.logger).to receive(:error).once.with("#{expected_error} : #{error_context}")
+        subject
+      end
+    end
+
     context 'when authorization header does not exist' do
+      let(:authorization) { nil }
       let(:authorization_header) { nil }
       let(:expected_error) { 'Access token JWT is malformed' }
       let(:expected_error_status) { :unauthorized }
@@ -1031,9 +1108,6 @@ RSpec.describe V0::SignInController, type: :controller do
     end
 
     context 'when authorization header exists' do
-      let(:authorization) { "Bearer #{access_token}" }
-      let(:access_token) { 'some-access-token' }
-
       before do
         request.headers['Authorization'] = authorization
       end
@@ -1048,18 +1122,14 @@ RSpec.describe V0::SignInController, type: :controller do
 
       context 'and access_token is an expired JWT' do
         let(:access_token_object) { create(:access_token, expiration_time: expiration_time) }
-        let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
         let(:expiration_time) { Time.zone.now - 1.day }
         let(:expected_error) { 'Access token has expired' }
-        let(:expected_error_json) { { 'errors' => expected_error } }
         let(:expected_error_status) { :forbidden }
 
-        it_behaves_like 'error response'
+        it_behaves_like 'expired error response'
       end
 
       context 'and access_token is an active JWT' do
-        let(:access_token_object) { create(:access_token) }
-        let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
         let(:expected_error) { SignIn::Errors::AccessTokenMalformedJWTError.to_s }
         let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid) }
         let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
@@ -1074,12 +1144,13 @@ RSpec.describe V0::SignInController, type: :controller do
         end
 
         it 'logs the instrospection' do
-          subject
-          expect(Rails.logger).to have_received(:info).once.with(
+          expect(Rails.logger).to receive(:info).once.with(
             'Sign in Service Introspect',
             { token_type: 'Access', user_id: user.uuid, session_id: access_token_object.session_handle,
               access_token_id: access_token_object.uuid, timestamp: Time.zone.now.to_s }
           )
+          expect { subject }.to trigger_statsd_increment(SignIn::Constants::Statsd::STATSD_SIS_INTROSPECT_SUCCESS,
+                                                         tags: ['version:v0'])
         end
       end
     end
