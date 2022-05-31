@@ -25,7 +25,7 @@ features:
     description: Enables American Indian SIGI question page.
     enable_in_development: true
   hca_short_form_enabled:
-    actor_type: cookie_id
+    actor_type: user
     description: Enables Short Form for users with or self discloser of high disability.
     enable_in_development: true
   can_prefill_10_10cg_address:
