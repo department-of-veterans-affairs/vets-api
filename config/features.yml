@@ -202,6 +202,9 @@ features:
   decision_review_sc_email:
     actor_type: user
     description: Send email notification for successful SC submission
+  decision_review_hlr_status_update_throttling:
+    actor_type: user
+    description: Throttles requests to CMP when updating HLR statuses
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.

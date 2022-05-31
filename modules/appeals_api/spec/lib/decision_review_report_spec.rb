@@ -16,7 +16,7 @@ describe AppealsApi::DecisionReviewReport do
         stuck_appeal_with_updates = create(opts[:record_type])
         unstuck_appeal = create(opts[:record_type])
       end
-      unstuck_appeal.update! status: :success, updated_at: 3.months.ago
+      unstuck_appeal.update! status: :complete, updated_at: 3.months.ago
       stuck_appeal_with_updates.update! status: :submitting, updated_at: 3.months.ago
 
       result = subject.send(opts[:method]).pluck(:id)
@@ -33,15 +33,15 @@ describe AppealsApi::DecisionReviewReport do
     create :higher_level_review, status: 'processing'
 
     create :higher_level_review, created_at: 1.week.ago, status: 'success'
-    create :higher_level_review, status: 'success'
-    create :higher_level_review, status: 'success'
+    create :higher_level_review_v2, status: 'success'
+    create :higher_level_review_v2, status: 'complete'
 
     create :higher_level_review, :status_error
 
     subject = described_class.new(from: 5.days.ago, to: Time.now.utc)
 
     expect(subject.hlr_by_status_and_count).to eq({
-      'caseflow' => 0,
+      'complete' => 1,
       'error' => 1,
       'expired' => 0,
       'pending' => 0,
@@ -49,7 +49,7 @@ describe AppealsApi::DecisionReviewReport do
       'received' => 0,
       'submitted' => 0,
       'submitting' => 0,
-      'success' => 2,
+      'success' => 1,
       'uploaded' => 0
     })
   end
@@ -72,7 +72,28 @@ describe AppealsApi::DecisionReviewReport do
   end
 
   describe '#stuck_hlr' do
-    it_behaves_like 'stuck appeals', record_type: :higher_level_review, method: :stuck_hlr
+    it 'ignores HLRv1 records' do
+      stuck_appeal_no_updates = nil
+      stuck_appeal_with_updates = nil
+      unstuck_appeal = nil
+
+      Timecop.freeze(1.year.ago) do
+        stuck_appeal_no_updates = create(:higher_level_review)
+        stuck_appeal_with_updates = create(:higher_level_review)
+        unstuck_appeal = create(:higher_level_review)
+      end
+
+      unstuck_appeal.update! status: :complete, updated_at: 3.months.ago
+      stuck_appeal_with_updates.update! status: :submitting, updated_at: 3.months.ago
+
+      result = subject.stuck_hlr.pluck(:id)
+
+      expect(result).not_to include unstuck_appeal.id
+      expect(result).not_to include stuck_appeal_no_updates.id
+      expect(result).not_to include stuck_appeal_with_updates.id
+    end
+
+    it_behaves_like 'stuck appeals', record_type: :higher_level_review_v2, method: :stuck_hlr
   end
 
   describe '#total_hlr_successes' do
@@ -86,20 +107,20 @@ describe AppealsApi::DecisionReviewReport do
   it 'can correctly calculate nods' do
     create :notice_of_disagreement, created_at: 1.week.ago, status: 'success'
     create :notice_of_disagreement, status: 'success'
-    create :notice_of_disagreement, status: 'success'
+    create :notice_of_disagreement, status: 'complete'
 
     create :notice_of_disagreement, :status_error
 
     subject = described_class.new(from: 5.days.ago, to: Time.now.utc)
 
     expect(subject.nod_by_status_and_count).to eq({
+      'complete' => 1,
       'error' => 1,
       'pending' => 0,
       'processing' => 0,
       'submitted' => 0,
       'submitting' => 0,
-      'success' => 2,
-      'caseflow' => 0
+      'success' => 1
     })
   end
 
@@ -141,8 +162,8 @@ describe AppealsApi::DecisionReviewReport do
 
     subject = described_class.new(from: 5.days.ago, to: Time.now.utc)
 
-    expect(subject.sc_by_status_and_count).to eq({
-      'caseflow' => 0,
+    expect(subject.sc_by_status_and_count).to match_array({
+      'complete' => 0,
       'error' => 1,
       'pending' => 0,
       'processing' => 0,

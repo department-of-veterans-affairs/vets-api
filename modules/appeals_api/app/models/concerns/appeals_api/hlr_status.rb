@@ -6,7 +6,7 @@ module AppealsApi
   module HlrStatus
     extend ActiveSupport::Concern
 
-    V1_STATUSES = %w[pending submitting submitted processing error uploaded received success expired].freeze
+    V1_STATUSES = %w[pending submitting submitted processing error uploaded received success expired complete].freeze
 
     V2_INTERNAL_STATUSES = %w[pending submitting submitted].freeze
     V2_STATUSES = [*V2_INTERNAL_STATUSES, *CentralMailUpdater::CENTRAL_MAIL_STATUSES].uniq.freeze
@@ -14,8 +14,8 @@ module AppealsApi
     # used primarly for reporting
     STATUSES = [*V1_STATUSES, *V2_STATUSES].uniq.freeze
 
-    IN_PROCESS_STATUSES = %w[submitted received processing].freeze
-    COMPLETE_STATUSES = %w[success caseflow error].freeze
+    IN_PROCESS_STATUSES = %w[submitted received processing success].freeze
+    COMPLETE_STATUSES = %w[complete error].freeze
 
     included do
       scope :in_process_statuses, -> { where status: IN_PROCESS_STATUSES }

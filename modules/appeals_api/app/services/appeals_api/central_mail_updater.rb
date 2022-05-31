@@ -6,40 +6,25 @@ module AppealsApi
 
     MAX_UUIDS_PER_REQUEST = 100
 
+    # TODO: remove 'Processing Error' from this list once HLR v1 sunset
     CENTRAL_MAIL_ERROR_STATUSES = ['Error', 'Processing Error'].freeze
 
-    NOD_CENTRAL_STATUS_ATTRIBUTES = {
-      # we are consolidating submitted/received into one status for clarity
-      'Received' => { status: 'submitted' },
-      'Success' => { status: 'success' },
-
-      'In Process' => { status: 'processing' },
-      'Processing Success' => { status: 'processing' },
-
+    CENTRAL_MAIL_STATUS_ATTRIBUTES = {
+      'Received' => { status: 'submitted' }, # received upstream of our API
+      'In Process' => { status: 'processing' }, # indicates vba intake
+      'Success' => { status: 'success' }, # received by the centralized mail portal
+      'VBMS Complete' => { status: 'complete' }, # document package received by vbms
       'Error' => { status: 'error', code: 'DOC202' },
-      'Processing Error' => { status: 'error', code: 'DOC202' },
-
-      'VBMS Complete' => { status: 'caseflow' }
+      # TODO: Remove these HLRv1 statuses when HLRv1 is sunset
+      'Processing Success' => { status: 'processing' }, # HLRv1 only
+      'Processing Error' => { status: 'error', code: 'DOC202' } # HLRv1 only
     }.freeze
 
-    CENTRAL_MAIL_STATUSES = NOD_CENTRAL_STATUS_ATTRIBUTES.to_a.map { |_, x| x.fetch(:status) }.uniq.freeze
-
-    HLR_CENTRAL_STATUS_ATTRIBUTES = {
-      'Received' => { status: 'received' },
-
-      'Success' => { status: 'success' },
-      'VBMS Complete' => { status: 'success' },
-
-      'In Process' => { status: 'processing' },
-      'Processing Success' => { status: 'processing' },
-
-      'Error' => { status: 'error', code: 'DOC202' },
-      'Processing Error' => { status: 'error', code: 'DOC202' }
-    }.freeze
-
-    V2_HLR_CENTRAL_STATUS_ATTRIBUTES = NOD_CENTRAL_STATUS_ATTRIBUTES
+    CENTRAL_MAIL_STATUSES = CENTRAL_MAIL_STATUS_ATTRIBUTES.to_a.map { |_, x| x.fetch(:status) }.freeze
 
     CENTRAL_MAIL_STATUS = Struct.new(:id, :_status, :error_message, :packets) do
+      # ex. packets => [{"veteranId"=>"123456789", "status"=>"Complete", "completedReason"=>"DownloadConfirmed",
+      #                  "transactionDate"=>"2022-05-06"}]
       delegate :present?, to: :id
 
       def status
@@ -58,7 +43,7 @@ module AppealsApi
         if Array(packets).any? { |p| p['completedReason'] == 'UnidentifiableMail' }
           'Error'
         else
-          'Success'
+          'VBMS Complete'
         end
       end
     end
@@ -98,7 +83,7 @@ module AppealsApi
     end
 
     def update_appeal_status!(appeal, central_mail_status)
-      attributes = central_mail_status_lookup(appeal).fetch(central_mail_status.status) do
+      attributes = CENTRAL_MAIL_STATUS_ATTRIBUTES.fetch(central_mail_status.status) do
         log_message_to_sentry(
           'Unknown status value from Central Mail API',
           :warning,
@@ -115,18 +100,6 @@ module AppealsApi
         appeal.update_status! attributes
       rescue => e
         log_exception e, appeal, central_mail_status.status
-      end
-    end
-
-    def central_mail_status_lookup(appeal)
-      case appeal
-      when AppealsApi::NoticeOfDisagreement then NOD_CENTRAL_STATUS_ATTRIBUTES
-      when AppealsApi::SupplementalClaim then V2_HLR_CENTRAL_STATUS_ATTRIBUTES
-      when AppealsApi::HigherLevelReview
-        case appeal.api_version
-        when 'V2' then V2_HLR_CENTRAL_STATUS_ATTRIBUTES
-        else HLR_CENTRAL_STATUS_ATTRIBUTES
-        end
       end
     end
 

@@ -21,7 +21,9 @@ module AppealsApi
     end
 
     def stuck_hlr
-      @stuck_hlr ||= stuck_records(HigherLevelReview, HlrStatus)
+      HigherLevelReview.v2.where('updated_at < ? AND status IN (?)',
+                                 1.week.ago,
+                                 HlrStatus::STATUSES - HlrStatus::COMPLETE_STATUSES).order(created_at: :desc)
     end
 
     def total_hlr_successes
