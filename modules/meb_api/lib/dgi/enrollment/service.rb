@@ -56,7 +56,9 @@ module MebApi
         end
 
         def camelize_keys_for_java_service(params)
-          params.permit!.to_h.deep_transform_keys do |key|
+          local_params = params[0] || params
+
+          local_params.permit!.to_h.deep_transform_keys do |key|
             if key.include?('_')
               split_keys = key.split('_')
               split_keys.collect { |key_part| split_keys[0] == key_part ? key_part : key_part.capitalize }.join
