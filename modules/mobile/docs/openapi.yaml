@@ -465,12 +465,24 @@ paths:
       description: Checks if a list of facilities if they are eligibile to create a appointment request to provide the given type of service at the facility.
       operationId: facilityEligibility
       parameters:
-        - description: Type of service to check eligibility for. Can only be one of following options primaryCare, nutrition, podiatry, optometry, audiology.
+        - description: Type of service to check eligibility for.
           in: path
           name: serviceType
           required: true
           schema:
             type: string
+            enum:
+              - amputation
+              - audiology
+              - covid
+              - optometry
+              - outpatientMentalHealth
+              - moveProgram
+              - foodAndNutrition
+              - clinicalPharmacyPrimaryCare
+              - primaryCare
+              - homeSleepTesting
+              - socialWork
         - description: List of facility ids
           in: path
           name: FacilityIds[]

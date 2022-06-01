@@ -7,7 +7,7 @@ module Mobile
   module V0
     module Adapters
       class MedicalService
-        # 411 = Podiatry
+        # 411 = podiatry
         SERVICE_TYPE_IDS = %w[amputation audiology covid optometry outpatientMentalHealth moveProgram foodAndNutrition
                               clinicalPharmacyPrimaryCare 411 primaryCare homeSleepTesting socialWork].freeze
 
@@ -26,7 +26,7 @@ module Mobile
             end
 
             Mobile::V0::MedicalService.new(
-              name: service == '411' ? 'Podiatry' : service,
+              name: service == '411' ? 'podiatry' : service,
               request_eligible_facilities: request_facilities,
               direct_eligible_facilities: direct_facilities
             )

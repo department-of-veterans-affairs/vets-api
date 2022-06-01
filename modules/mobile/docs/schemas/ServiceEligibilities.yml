@@ -30,7 +30,7 @@ properties:
                       {name: 'moveProgram',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
                       {name: 'foodAndNutrition',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
                       {name: 'clinicalPharmacyPrimaryCare',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
-                      {name: '411',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
+                      {name: 'podiatry',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
                       {name: 'primaryCare',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
                       {name: 'homeSleepTesting',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
                        {name: 'socialWork',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']}]

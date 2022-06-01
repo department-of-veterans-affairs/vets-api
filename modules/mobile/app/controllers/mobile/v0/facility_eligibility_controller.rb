@@ -5,7 +5,8 @@ module Mobile
     class FacilityEligibilityController < ApplicationController
       DEFAULT_PAGE_NUMBER = 1
       DEFAULT_PAGE_SIZE = 3
-      SERVICE_TYPES = %w[primaryCare nutrition podiatry optometry audiology].freeze
+      SERVICE_TYPES = %w[amputation audiology covid optometry outpatientMentalHealth moveProgram foodAndNutrition
+                         clinicalPharmacyPrimaryCare primaryCare homeSleepTesting socialWork].freeze
 
       def index
         unless SERVICE_TYPES.include?(service_type)
