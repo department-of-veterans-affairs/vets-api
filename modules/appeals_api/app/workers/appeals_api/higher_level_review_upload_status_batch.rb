@@ -11,8 +11,8 @@ module AppealsApi
 
     # Throttling works by grabbing a majority of the oldest records, but also some of the newest.
     # This way more recent records won't appear to "stall out" while we play catch-up.
-    THROTTLED_OLDEST_LIMIT = 400
-    THROTTLED_NEWEST_LIMIT = 100
+    THROTTLED_OLDEST_LIMIT = 40
+    THROTTLED_NEWEST_LIMIT = 10
 
     BATCH_SIZE = 100
 
