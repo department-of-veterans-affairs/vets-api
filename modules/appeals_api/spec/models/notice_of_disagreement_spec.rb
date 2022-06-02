@@ -267,6 +267,31 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
       expect(handler).not_to have_received(:handle!)
     end
+
+    context 'when PII is removed' do
+      before do
+        notice_of_disagreement.update_columns form_data_ciphertext: nil, auth_headers_ciphertext: nil # rubocop:disable Rails/SkipsModelValidations
+        notice_of_disagreement.reload
+      end
+
+      it 'successfully emits status update event' do
+        Timecop.freeze(Time.current) do
+          notice_of_disagreement.update_status!(status: 'submitted')
+
+          expect(AppealsApi::EventsWorker.jobs.count).to eq 1
+          status_event = AppealsApi::EventsWorker.jobs.first
+          expect(status_event['args']).to eq([
+                                               'nod_status_updated',
+                                               {
+                                                 'from' => 'pending',
+                                                 'to' => 'submitted',
+                                                 'status_update_time' => Time.zone.now.iso8601,
+                                                 'statusable_id' => notice_of_disagreement.id
+                                               }
+                                             ])
+        end
+      end
+    end
   end
 
   describe 'V2 methods' do

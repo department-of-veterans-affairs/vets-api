@@ -367,6 +367,31 @@ describe AppealsApi::HigherLevelReview, type: :model do
 
       expect(AppealsApi::Events::Handler).to have_received(:new).exactly(2).times
     end
+
+    context 'when PII is removed' do
+      before do
+        higher_level_review.update_columns form_data_ciphertext: nil, auth_headers_ciphertext: nil # rubocop:disable Rails/SkipsModelValidations
+        higher_level_review.reload
+      end
+
+      it 'successfully emits status update event, skips email event' do
+        Timecop.freeze(Time.current) do
+          higher_level_review.update_status!(status: 'submitted')
+
+          expect(AppealsApi::EventsWorker.jobs.count).to eq 1
+          status_event = AppealsApi::EventsWorker.jobs.first
+          expect(status_event['args']).to eq([
+                                               'hlr_status_updated',
+                                               {
+                                                 'from' => 'received',
+                                                 'to' => 'submitted',
+                                                 'status_update_time' => Time.zone.now.iso8601,
+                                                 'statusable_id' => higher_level_review.id
+                                               }
+                                             ])
+        end
+      end
+    end
   end
 
   describe 'V2' do
