@@ -119,6 +119,17 @@ module V0
       handle_revoke_error(e)
     end
 
+    def revoke_all_sessions
+      sign_in_logger.access_token_log('Sign in Service Revoke All Sessions', @access_token)
+      sign_in_logger.revoke_all_sessions_stats(:success, [VERSION_TAG])
+
+      SignIn::RevokeSessionsForUser.new(user_uuid: @current_user.uuid).perform
+
+      render status: :ok
+    rescue SignIn::Errors::StandardError => e
+      handle_revoke_all_sessions_error(e)
+    end
+
     def introspect
       sign_in_logger.access_token_log('Sign in Service Introspect', @access_token)
       sign_in_logger.introspect_stats(:success, [VERSION_TAG])
@@ -192,42 +203,49 @@ module V0
       context = { type: params[:type], client_state: params[:state], code_challenge: params[:code_challenge],
                   code_challenge_method: params[:code_challenge_method] }
       log_message_to_sentry(error.message, :error, context)
-      sign_in_logger.authorize_stats(:failure, ["context:#{params[:type]}", VERSION_TAG, "error:#{error.try(:code)}"])
+      sign_in_logger.authorize_stats(:failure, ["context:#{params[:type]}", VERSION_TAG])
       render json: { errors: error }, status: :bad_request
     end
 
     def handle_callback_error(error)
       context = { type: params[:type], state: params[:state], code: params[:code] }
       log_message_to_sentry(error.message, :error, context)
-      sign_in_logger.callback_stats(:failure, ["context:#{params[:type]}", VERSION_TAG, "error:#{error.try(:code)}"])
+      sign_in_logger.callback_stats(:failure, ["context:#{params[:type]}", VERSION_TAG])
       render json: { errors: error }, status: :bad_request
     end
 
     def handle_token_error(error)
       context = { code: params[:code], code_verifier: params[:code_verifier], grant_type: params[:grant_type] }
       log_message_to_sentry(error.message, :error, context)
-      sign_in_logger.token_stats(:failure, [VERSION_TAG, "error:#{error.try(:code)}"])
+      sign_in_logger.token_stats(:failure, [VERSION_TAG])
       render json: { errors: error }, status: :bad_request
     end
 
     def handle_refresh_error(error, status: :unauthorized)
       context = { refresh_token: params[:refresh_token], anti_csrf_token: params[:anti_csrf_token] }
       log_message_to_sentry(error.message, :error, context)
-      sign_in_logger.refresh_stats(:failure, [VERSION_TAG, "error:#{error.try(:code)}"])
+      sign_in_logger.refresh_stats(:failure, [VERSION_TAG])
       render json: { errors: error }, status: status
     end
 
     def handle_revoke_error(error, status: :unauthorized)
       context = { refresh_token: params[:refresh_token], anti_csrf_token: params[:anti_csrf_token] }
       log_message_to_sentry(error.message, :error, context)
-      sign_in_logger.revoke_stats(:failure, [VERSION_TAG, "error:#{error.try(:code)}"])
+      sign_in_logger.revoke_stats(:failure, [VERSION_TAG])
       render json: { errors: error }, status: status
     end
 
     def handle_introspect_error(error)
-      context = { user_uud: @current_user.uuid }
+      context = { user_uuid: @current_user.uuid }
       log_message_to_sentry(error.message, :error, context)
-      sign_in_logger.introspect_stats(:failure, [VERSION_TAG, "error:#{error.try(:code)}"])
+      sign_in_logger.introspect_stats(:failure, [VERSION_TAG])
+      render json: { errors: error }, status: :unauthorized
+    end
+
+    def handle_revoke_all_sessions_error(error)
+      context = { user_uuid: @current_user.uuid }
+      log_message_to_sentry(error.message, :error, context)
+      sign_in_logger.revoke_all_sessions_stats(:failure, [VERSION_TAG])
       render json: { errors: error }, status: :unauthorized
     end
 

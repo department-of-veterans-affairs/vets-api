@@ -83,5 +83,14 @@ module SignIn
                     end
       StatsD.increment(statsd_code, tags: tags)
     end
+
+    def revoke_all_sessions_stats(status, tags)
+      statsd_code = if status == :success
+                      Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_SUCCESS
+                    else
+                      Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_FAILURE
+                    end
+      StatsD.increment(statsd_code, tags: tags)
+    end
   end
 end
