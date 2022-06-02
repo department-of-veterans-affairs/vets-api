@@ -73,7 +73,7 @@ RSpec.describe Mobile::PaginationHelper, type: :model, aggregate_failures: true 
       )
     end
 
-    describe 'links' do
+    describe 'link formation' do
       it 'forms links with page values' do
         params = Mobile::V0::Contracts::PaginationBase.new.call({ page_size: 2, page_number: 2 })
         _resources, meta = described_class.paginate(list: list, validated_params: params, url: url)
@@ -93,6 +93,19 @@ RSpec.describe Mobile::PaginationHelper, type: :model, aggregate_failures: true 
 
         expect(meta[:links][:prev]).to be_nil
         expect(meta[:links][:next]).to be_nil
+      end
+
+      it 'sets self, first, and last links to the first page when there are no results' do
+        params = Mobile::V0::Contracts::PaginationBase.new.call({})
+        _resources, meta = described_class.paginate(list: [], validated_params: params, url: url)
+
+        expect(meta[:links]).to eq({
+                                     self: 'http://example.com?page[size]=10&page[number]=1',
+                                     first: 'http://example.com?page[size]=10&page[number]=1',
+                                     prev: nil,
+                                     next: nil,
+                                     last: 'http://example.com?page[size]=10&page[number]=1'
+                                   })
       end
 
       it 'adds simple params' do
@@ -119,6 +132,32 @@ RSpec.describe Mobile::PaginationHelper, type: :model, aggregate_failures: true 
                                      prev: nil,
                                      next: 'http://example.com?page[size]=10&page[number]=2&included[]=1234&included[]=5678',
                                      last: 'http://example.com?page[size]=10&page[number]=2&included[]=1234&included[]=5678'
+                                   })
+      end
+
+      it 'adds hash params' do
+        params = Mobile::V0::Contracts::Prescriptions.new.call({ filter: { uno: { dos: 'tres' } } })
+        _resources, meta = described_class.paginate(list: list, validated_params: params, url: url)
+
+        expect(meta[:links]).to eq({
+                                     self: 'http://example.com?page[size]=10&page[number]=1&filter[[uno][dos]]=tres',
+                                     first: 'http://example.com?page[size]=10&page[number]=1&filter[[uno][dos]]=tres',
+                                     prev: nil,
+                                     next: 'http://example.com?page[size]=10&page[number]=2&filter[[uno][dos]]=tres',
+                                     last: 'http://example.com?page[size]=10&page[number]=2&filter[[uno][dos]]=tres'
+                                   })
+      end
+
+      it 'skips params with blank values' do
+        params = Mobile::V0::Contracts::CommunityCareProviders.new.call({ facility_id: nil, service_type: 'optometry' })
+        _resources, meta = described_class.paginate(list: list, validated_params: params, url: url)
+
+        expect(meta[:links]).to eq({
+                                     self: 'http://example.com?page[size]=10&page[number]=1&serviceType=optometry',
+                                     first: 'http://example.com?page[size]=10&page[number]=1&serviceType=optometry',
+                                     prev: nil,
+                                     next: 'http://example.com?page[size]=10&page[number]=2&serviceType=optometry',
+                                     last: 'http://example.com?page[size]=10&page[number]=2&serviceType=optometry'
                                    })
       end
     end
