@@ -48,13 +48,14 @@ module Mobile
     def links(number_of_pages)
       prev_link = page_number > 1 ? link_url([page_number - 1, number_of_pages].min) : nil
       next_link = page_number < number_of_pages ? link_url([page_number + 1, number_of_pages].min) : nil
+      last_link_page_number = number_of_pages.positive? ? number_of_pages : 1
 
       {
         self: link_url(page_number),
-        first: link_url('1'),
+        first: link_url(1),
         prev: prev_link,
         next: next_link,
-        last: link_url(number_of_pages)
+        last: link_url(last_link_page_number)
       }
     end
 
