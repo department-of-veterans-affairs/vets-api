@@ -5,7 +5,10 @@ module Mobile
     module Contracts
       class Base < Dry::Validation::Contract
         def call(input)
-          super(input.to_h.symbolize_keys)
+          result = super(input.to_h.symbolize_keys)
+          raise Mobile::V0::Exceptions::ValidationErrors, result if result.failure?
+
+          result
         end
       end
     end

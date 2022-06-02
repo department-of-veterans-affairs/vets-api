@@ -3,7 +3,6 @@
 module Mobile
   module V0
     class FacilityEligibilityController < ApplicationController
-      DEFAULT_PAGE_NUMBER = 1
       DEFAULT_PAGE_SIZE = 3
       SERVICE_TYPES = %w[amputation audiology covid optometry outpatientMentalHealth moveProgram foodAndNutrition
                          clinicalPharmacyPrimaryCare primaryCare homeSleepTesting socialWork].freeze
@@ -32,31 +31,20 @@ module Mobile
       end
 
       def pagination_params
-        @pagination_params ||= Mobile::V0::Contracts::GetPaginatedList.new.call(
-          page_number: params.dig(:page, :number) || DEFAULT_PAGE_NUMBER,
-          page_size: params.dig(:page, :size) || DEFAULT_PAGE_SIZE
+        @pagination_params ||= Mobile::V0::Contracts::FacilityEligibility.new.call(
+          page_number: params.dig(:page, :number),
+          page_size: params.dig(:page, :size) || DEFAULT_PAGE_SIZE,
+          service_type: params[:serviceType],
+          facility_ids: params[:facilityIds],
+          type: params[:type]
         )
       end
 
       def paginate(records)
         url = request.base_url + request.path
-        page_records, page_meta_data = Mobile::PaginationHelper.paginate(
+        Mobile::PaginationHelper.paginate(
           list: records, validated_params: pagination_params, url: url
         )
-        # this is temporary. this has come up multiple times and we should develop a better solution
-        page_meta_data[:links].transform_values! do |link|
-          next if link.nil?
-
-          link += "&serviceType=#{service_type}"
-          facility_ids.each do |facility_id|
-            link += "&facilityIds[]=#{facility_id}"
-          end
-          link += "&type=#{type}"
-
-          link
-        end
-
-        [page_records, page_meta_data]
       end
 
       def service_type

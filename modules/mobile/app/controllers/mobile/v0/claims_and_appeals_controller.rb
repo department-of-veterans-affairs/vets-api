@@ -82,13 +82,7 @@ module Mobile
       end
 
       def validate_params
-        validated_params = Mobile::V0::Contracts::GetPaginatedList.new.call(
-          pagination_params
-        )
-
-        raise Mobile::V0::Exceptions::ValidationErrors, validated_params if validated_params.failure?
-
-        validated_params
+        Mobile::V0::Contracts::ClaimsAndAppeals.new.call(pagination_params)
       end
 
       def paginate(list, validated_params)

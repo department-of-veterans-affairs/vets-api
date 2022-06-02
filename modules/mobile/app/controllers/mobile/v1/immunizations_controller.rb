@@ -25,7 +25,7 @@ module Mobile
       end
 
       def pagination_params
-        @pagination_params ||= Mobile::V0::Contracts::GetPaginatedList.new.call(
+        @pagination_params ||= Mobile::V0::Contracts::Immunizations.new.call(
           page_number: params.dig(:page, :number),
           page_size: params.dig(:page, :size),
           use_cache: params[:useCache] || true
