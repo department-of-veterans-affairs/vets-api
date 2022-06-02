@@ -5,6 +5,23 @@ require 'rails_helper'
 RSpec.describe InProgressForm, type: :model do
   let(:in_progress_form) { build(:in_progress_form) }
 
+  describe '#log_hca_email_diff' do
+    context 'with a 1010ez in progress form' do
+      it 'runs the hca email diff job' do
+        expect do
+          create(:in_progress_1010ez_form)
+        end.to change(HCA::LogEmailDiffJob.jobs, :size).by(1)
+      end
+    end
+
+    context 'with a non-1010ez in progress form' do
+      it 'doesnt run hca email diff job' do
+        create(:in_progress_form)
+        expect(HCA::LogEmailDiffJob.jobs.size).to eq(0)
+      end
+    end
+  end
+
   describe 'form encryption' do
     it 'encrypts the form data field' do
       expect(subject).to encrypt_attr(:form_data)
