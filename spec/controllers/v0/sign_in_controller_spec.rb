@@ -25,6 +25,7 @@ RSpec.describe V0::SignInController, type: :controller do
       { type: type[:type], client_state: client_state[:state], code_challenge: code_challenge[:code_challenge],
         code_challenge_method: code_challenge_method[:code_challenge_method] }.to_s
     end
+    let(:statsd_tags) { ["context:#{type[:type]}", 'version:v0'] }
 
     context 'when type param is not given' do
       let(:type) { {} }
@@ -50,7 +51,7 @@ RSpec.describe V0::SignInController, type: :controller do
       it 'logs the failed authorize attempt' do
         expect(Rails.logger).to receive(:error).once.with("#{expected_error} : #{error_context}")
         expect { subject }.to trigger_statsd_increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_FAILURE,
-                                                       tags: ["context:#{type[:type]}", 'version:v0', 'error:'])
+                                                       tags: statsd_tags)
       end
     end
 
@@ -285,6 +286,7 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:error_context) do
       { code: code[:code], code_verifier: code_verifier[:code_verifier], grant_type: grant_type[:grant_type] }
     end
+    let(:statsd_tags) { ['version:v0'] }
 
     shared_examples 'error response' do
       let(:expected_error_json) { { 'errors' => expected_error } }
@@ -301,7 +303,7 @@ RSpec.describe V0::SignInController, type: :controller do
       it 'logs the failed token request' do
         expect(Rails.logger).to receive(:error).once.with("#{expected_error} : #{error_context}")
         expect { subject }.to trigger_statsd_increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_FAILURE,
-                                                       tags: ['version:v0', 'error:'])
+                                                       tags: statsd_tags)
       end
     end
 
@@ -434,6 +436,7 @@ RSpec.describe V0::SignInController, type: :controller do
     shared_examples 'error response' do
       let(:expected_error_json) { { 'errors' => expected_error } }
       let(:expected_error_status) { :bad_request }
+      let(:statsd_tags) { ["context:#{type[:type]}", 'version:v0'] }
 
       it 'renders expected error' do
         expect(JSON.parse(subject.body)).to eq(expected_error_json)
@@ -446,7 +449,7 @@ RSpec.describe V0::SignInController, type: :controller do
       it 'logs the failed callback' do
         expect(Rails.logger).to receive(:error).once.with("#{expected_error} : #{error_context}")
         expect { subject }.to trigger_statsd_increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE,
-                                                       tags: ["context:#{type[:type]}", 'version:v0', 'error:'])
+                                                       tags: statsd_tags)
       end
     end
 
@@ -746,6 +749,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
     shared_examples 'error response' do
       let(:expected_error_json) { { 'errors' => expected_error } }
+      let(:statsd_tags) { ['version:v0'] }
 
       it 'renders expected error' do
         expect(JSON.parse(subject.body)).to eq(expected_error_json)
@@ -758,7 +762,7 @@ RSpec.describe V0::SignInController, type: :controller do
       it 'logs the failed revocation attempt' do
         expect(Rails.logger).to receive(:error).once.with("#{expected_error} : #{error_context}")
         expect { subject }.to trigger_statsd_increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_FAILURE,
-                                                       tags: ['version:v0', 'error:'])
+                                                       tags: statsd_tags)
       end
     end
 
@@ -869,7 +873,7 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:validated_credential) { create(:validated_credential, user_verification: user_verification) }
     let(:error_context) { { refresh_token: refresh_token, anti_csrf_token: anti_csrf_token } }
     let(:statsd_error) { SignIn::Constants::Statsd::STATSD_SIS_REFRESH_FAILURE }
-    let(:error_tags) { ['version:v0', 'error:'] }
+    let(:error_tags) { ['version:v0'] }
 
     before do
       allow(Settings.sign_in).to receive(:enable_anti_csrf).and_return(enable_anti_csrf)
@@ -890,7 +894,7 @@ RSpec.describe V0::SignInController, type: :controller do
       it 'logs the failed refresh attempt' do
         expect(Rails.logger).to receive(:error).once.with("#{expected_error} : #{error_context}")
         expect { subject }.to trigger_statsd_increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_FAILURE,
-                                                       tags: ['version:v0', 'error:'])
+                                                       tags: error_tags)
       end
     end
 
@@ -1062,27 +1066,17 @@ RSpec.describe V0::SignInController, type: :controller do
     end
   end
 
-  describe 'GET introspect' do
-    subject { get(:introspect) }
-
+  shared_examples 'authenticated endpoint errors' do
     let(:access_token_object) { create(:access_token) }
     let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
     let(:authorization) { "Bearer #{access_token}" }
-    let(:expected_error_json) { { 'errors' => expected_error } }
+    let(:statsd_tags) { ['version:v0'] }
 
-    shared_examples 'expired error response' do
-      it 'renders expected error' do
-        expect(JSON.parse(subject.body)).to eq(expected_error_json)
-      end
-
-      it 'returns expected status' do
-        expect(subject).to have_http_status(expected_error_status)
-      end
-    end
-
-    shared_examples 'error response' do
-      let(:access_auth_failure) { SignIn::Constants::Statsd::STATSD_SIS_AUTHENTICATE_ACCESS_TOKEN_FAILURE }
+    shared_examples 'authentication error response' do
+      let(:expected_error_json) { { 'errors' => expected_error } }
       let(:error_context) { { authorization: authorization } }
+      let(:expected_error_log) { "#{expected_error} : #{error_context}" }
+      let(:expected_error_status) { :unauthorized }
 
       it 'renders expected error' do
         expect(JSON.parse(subject.body)).to eq(expected_error_json)
@@ -1092,8 +1086,8 @@ RSpec.describe V0::SignInController, type: :controller do
         expect(subject).to have_http_status(expected_error_status)
       end
 
-      it 'logs the failed introspect call' do
-        expect(Rails.logger).to receive(:error).once.with("#{expected_error} : #{error_context}")
+      it 'logs the failed authentication' do
+        expect(Rails.logger).to receive(:error).with(expected_error_log)
         subject
       end
     end
@@ -1102,9 +1096,8 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:authorization) { nil }
       let(:authorization_header) { nil }
       let(:expected_error) { 'Access token JWT is malformed' }
-      let(:expected_error_status) { :unauthorized }
 
-      it_behaves_like 'error response'
+      it_behaves_like 'authentication error response'
     end
 
     context 'when authorization header exists' do
@@ -1115,9 +1108,8 @@ RSpec.describe V0::SignInController, type: :controller do
       context 'and access_token is some arbitrary value' do
         let(:access_token) { 'some-arbitrary-access-token' }
         let(:expected_error) { 'Access token JWT is malformed' }
-        let(:expected_error_status) { :unauthorized }
 
-        it_behaves_like 'error response'
+        it_behaves_like 'authentication error response'
       end
 
       context 'and access_token is an expired JWT' do
@@ -1125,32 +1117,166 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:expiration_time) { Time.zone.now - 1.day }
         let(:expected_error) { 'Access token has expired' }
         let(:expected_error_status) { :forbidden }
+        let(:expected_error_json) { { 'errors' => expected_error } }
 
-        it_behaves_like 'expired error response'
+        it 'renders expected error' do
+          expect(JSON.parse(subject.body)).to eq(expected_error_json)
+        end
+
+        it 'returns expected status' do
+          expect(subject).to have_http_status(expected_error_status)
+        end
+      end
+    end
+  end
+
+  describe 'GET introspect' do
+    subject { get(:introspect) }
+
+    it_behaves_like 'authenticated endpoint errors'
+
+    context 'when successfully authenticated' do
+      let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
+      let(:authorization) { "Bearer #{access_token}" }
+      let(:access_token_object) { create(:access_token) }
+      let(:statsd_success) { SignIn::Constants::Statsd::STATSD_SIS_INTROSPECT_SUCCESS }
+      let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid) }
+      let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
+      let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
+      let(:expected_log) { 'Sign in Service Introspect' }
+      let(:expected_log_params) do
+        {
+          token_type: 'Access',
+          user_id: user.uuid,
+          session_id: access_token_object.session_handle,
+          access_token_id: access_token_object.uuid,
+          timestamp: Time.zone.now.to_s
+        }
+      end
+      let(:expected_status) { :ok }
+      let(:statsd_tags) { ['version:v0'] }
+
+      before do
+        request.headers['Authorization'] = authorization
       end
 
-      context 'and access_token is an active JWT' do
-        let(:expected_error) { SignIn::Errors::AccessTokenMalformedJWTError.to_s }
-        let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid) }
-        let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
-        let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
+      it 'renders expected user data' do
+        expect(JSON.parse(subject.body)['data']['attributes']).to eq(expected_introspect_response)
+      end
 
-        it 'renders expected user data' do
-          expect(JSON.parse(subject.body)['data']['attributes']).to eq(expected_introspect_response)
+      it 'returns ok status' do
+        expect(subject).to have_http_status(:ok)
+      end
+
+      it 'logs the revoke all sessions call' do
+        expect(Rails.logger).to receive(:info).with(expected_log, expected_log_params)
+        subject
+      end
+
+      it 'triggers statsd increment for successful call' do
+        expect { subject }.to trigger_statsd_increment(statsd_success, tags: statsd_tags)
+      end
+
+      context 'and some arbitrary Sign In Error is raised' do
+        let(:expected_error) { SignIn::Errors::StandardError }
+        let(:statsd_failure) { SignIn::Constants::Statsd::STATSD_SIS_INTROSPECT_FAILURE }
+        let(:error_context) { { user_uuid: user.uuid } }
+        let(:expected_error_log) { "#{expected_error} : #{error_context}" }
+        let(:statsd_tags) { ['version:v0'] }
+
+        before do
+          allow(SignIn::IntrospectSerializer).to receive(:new).and_raise(expected_error)
         end
 
-        it 'returns ok status' do
-          expect(subject).to have_http_status(:ok)
+        it 'logs the failed introspect call' do
+          expect(Rails.logger).to receive(:error).with(expected_error_log)
+          subject
         end
 
-        it 'logs the instrospection' do
-          expect(Rails.logger).to receive(:info).once.with(
-            'Sign in Service Introspect',
-            { token_type: 'Access', user_id: user.uuid, session_id: access_token_object.session_handle,
-              access_token_id: access_token_object.uuid, timestamp: Time.zone.now.to_s }
-          )
-          expect { subject }.to trigger_statsd_increment(SignIn::Constants::Statsd::STATSD_SIS_INTROSPECT_SUCCESS,
-                                                         tags: ['version:v0'])
+        it 'triggers statsd increment for failed call' do
+          expect { subject }.to trigger_statsd_increment(statsd_failure, tags: statsd_tags)
+        end
+      end
+    end
+  end
+
+  describe 'GET revoke_all_sessions' do
+    subject { get(:revoke_all_sessions) }
+
+    it_behaves_like 'authenticated endpoint errors'
+
+    context 'when successfully authenticated' do
+      let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
+      let(:authorization) { "Bearer #{access_token}" }
+      let!(:user_account) { Login::UserVerifier.new(user).perform.user_account }
+      let(:user) { create(:user, :loa3) }
+      let(:oauth_session) { create(:oauth_session, user_account: user_account) }
+      let(:access_token_object) do
+        create(:access_token, session_handle: oauth_session.handle, user_uuid: user_account.id)
+      end
+      let(:oauth_session_count) { SignIn::OAuthSession.where(user_account: user_account).count }
+      let(:statsd_success) { SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_SUCCESS }
+      let(:expected_log) { 'Sign in Service Revoke All Sessions' }
+      let(:expected_log_params) do
+        {
+          token_type: 'Access',
+          user_id: user_account.id,
+          session_id: access_token_object.session_handle,
+          access_token_id: access_token_object.uuid,
+          timestamp: Time.zone.now.to_s
+        }
+      end
+      let(:expected_status) { :ok }
+      let(:statsd_tags) { ['version:v0'] }
+
+      before do
+        request.headers['Authorization'] = authorization
+      end
+
+      it 'deletes all OAuthSession objects associated with current user user_account' do
+        expect { subject }.to change(SignIn::OAuthSession, :count).from(oauth_session_count).to(0)
+      end
+
+      it 'returns ok status' do
+        expect(subject).to have_http_status(expected_status)
+      end
+
+      it 'logs the revoke all sessions call' do
+        expect(Rails.logger).to receive(:info).with(expected_log, expected_log_params)
+        subject
+      end
+
+      it 'triggers statsd increment for successful call' do
+        expect { subject }.to trigger_statsd_increment(statsd_success, tags: statsd_tags)
+      end
+
+      context 'and some arbitrary Sign In Error is raised' do
+        let(:expected_error) { SignIn::Errors::StandardError }
+        let(:statsd_failure) { SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_FAILURE }
+        let(:error_context) { { user_uuid: user_account.id } }
+        let(:expected_error_log) { "#{expected_error} : #{error_context}" }
+        let(:expected_error_json) { { 'errors' => expected_error.to_s } }
+        let(:expected_error_status) { :unauthorized }
+
+        before do
+          allow(SignIn::RevokeSessionsForUser).to receive(:new).and_raise(expected_error)
+        end
+
+        it 'renders expected error' do
+          expect(JSON.parse(subject.body)).to eq(expected_error_json)
+        end
+
+        it 'returns expected status' do
+          expect(subject).to have_http_status(expected_error_status)
+        end
+
+        it 'logs the failed revoke all sessions call' do
+          expect(Rails.logger).to receive(:error).with(expected_error_log)
+          subject
+        end
+
+        it 'triggers statsd increment for failed call' do
+          expect { subject }.to trigger_statsd_increment(statsd_failure, tags: statsd_tags)
         end
       end
     end
