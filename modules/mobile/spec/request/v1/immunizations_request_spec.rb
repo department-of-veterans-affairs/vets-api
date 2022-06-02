@@ -68,11 +68,11 @@ RSpec.describe 'immunizations', type: :request do
                         { 'currentPage' => 1, 'perPage' => 1, 'totalPages' => 15, 'totalEntries' => 15 } },
           'links' =>
             {
-              'self' => 'http://www.example.com/mobile/v1/health/immunizations?useCache=true&page[size]=1&page[number]=1',
-              'first' => 'http://www.example.com/mobile/v1/health/immunizations?useCache=true&page[size]=1&page[number]=1',
+              'self' => 'http://www.example.com/mobile/v1/health/immunizations?page[size]=1&page[number]=1&useCache=true',
+              'first' => 'http://www.example.com/mobile/v1/health/immunizations?page[size]=1&page[number]=1&useCache=true',
               'prev' => nil,
-              'next' => 'http://www.example.com/mobile/v1/health/immunizations?useCache=true&page[size]=1&page[number]=2',
-              'last' => 'http://www.example.com/mobile/v1/health/immunizations?useCache=true&page[size]=1&page[number]=15'
+              'next' => 'http://www.example.com/mobile/v1/health/immunizations?page[size]=1&page[number]=2&useCache=true',
+              'last' => 'http://www.example.com/mobile/v1/health/immunizations?page[size]=1&page[number]=15&useCache=true'
             }
         }
 
@@ -303,11 +303,11 @@ RSpec.describe 'immunizations', type: :request do
 
         base_url = 'http://www.example.com/mobile/v1/health/immunizations'
         expected_links = {
-          'self' => "#{base_url}?useCache=true&page[size]=#{size}&page[number]=#{number}",
-          'first' => "#{base_url}?useCache=true&page[size]=#{size}&page[number]=1",
-          'prev' => "#{base_url}?useCache=true&page[size]=#{size}&page[number]=#{number - 1}",
-          'next' => "#{base_url}?useCache=true&page[size]=#{size}&page[number]=#{number + 1}",
-          'last' => "#{base_url}?useCache=true&page[size]=#{size}&page[number]=8"
+          'self' => "#{base_url}?page[size]=#{size}&page[number]=#{number}&useCache=true",
+          'first' => "#{base_url}?page[size]=#{size}&page[number]=1&useCache=true",
+          'prev' => "#{base_url}?page[size]=#{size}&page[number]=#{number - 1}&useCache=true",
+          'next' => "#{base_url}?page[size]=#{size}&page[number]=#{number + 1}&useCache=true",
+          'last' => "#{base_url}?page[size]=#{size}&page[number]=8&useCache=true"
         }
 
         expect(response.parsed_body['links']).to eq(expected_links)

@@ -9,7 +9,6 @@ module Mobile
     class PaymentHistoryController < ApplicationController
       def index
         validated_params = validate_params(params)
-        raise Mobile::V0::Exceptions::ValidationErrors, validated_params if validated_params.failure?
 
         payments = adapter.payments
         available_years = available_years(payments)
@@ -23,7 +22,7 @@ module Mobile
       private
 
       def validate_params(params)
-        Mobile::V0::Contracts::GetPaginatedList.new.call(
+        Mobile::V0::Contracts::PaymentHistory.new.call(
           start_date: params[:startDate],
           end_date: params[:endDate],
           page_number: params.dig(:page, :number),
@@ -70,10 +69,7 @@ module Mobile
 
       def paginate(payments, validated_params)
         url = request.base_url + request.path
-        list, meta = Mobile::PaginationHelper.paginate(list: payments, validated_params: validated_params,
-                                                       url: url)
-
-        [list, meta]
+        Mobile::PaginationHelper.paginate(list: payments, validated_params: validated_params, url: url)
       end
     end
   end

@@ -50,11 +50,11 @@ RSpec.describe 'community care providers', type: :request do
           )
           expect(response.parsed_body['links']).to eq(
             {
-              'self' => 'http://www.example.com/mobile/v0/community-care-providers?page[size]=10&page[number]=1&serviceType=podiatry&facilityId=442',
-              'first' => 'http://www.example.com/mobile/v0/community-care-providers?page[size]=10&page[number]=1&serviceType=podiatry&facilityId=442',
+              'self' => 'http://www.example.com/mobile/v0/community-care-providers?page[size]=10&page[number]=1&facilityId=442&serviceType=podiatry',
+              'first' => 'http://www.example.com/mobile/v0/community-care-providers?page[size]=10&page[number]=1&facilityId=442&serviceType=podiatry',
               'prev' => nil,
               'next' => nil,
-              'last' => 'http://www.example.com/mobile/v0/community-care-providers?page[size]=10&page[number]=1&serviceType=podiatry&facilityId=442'
+              'last' => 'http://www.example.com/mobile/v0/community-care-providers?page[size]=10&page[number]=1&facilityId=442&serviceType=podiatry'
             }
           )
         end

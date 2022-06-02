@@ -2,18 +2,21 @@
 
 module Mobile
   class PaginationHelper
+    class InvalidParams < StandardError; end
+
     DEFAULT_PAGE_NUMBER = 1
     DEFAULT_PAGE_SIZE = 10
 
-    attr_reader :list, :validated_params, :url, :errors, :page_number, :page_size
+    attr_reader :list, :optional_params, :url, :errors, :page_number, :page_size
 
     def initialize(list:, validated_params:, url:, errors:)
+      enforce_params_requirements(validated_params)
       @list = list
-      @validated_params = validated_params
       @url = url
       @errors = errors
       @page_number = validated_params[:page_number] || DEFAULT_PAGE_NUMBER
       @page_size = validated_params[:page_size] || DEFAULT_PAGE_SIZE
+      @optional_params = validated_params.to_h.except(:page_number, :page_size)
     end
 
     def self.paginate(list:, validated_params:, url:, errors: nil)
@@ -35,16 +38,16 @@ module Mobile
         },
         links: links(pages.size)
       }
-      return [[], page_meta_data] if page_number > pages.size
+      content = page_number > pages.size ? [] : pages[page_number - 1]
 
-      [pages[page_number - 1], page_meta_data]
+      [content, page_meta_data]
     end
 
     private
 
     def links(number_of_pages)
-      prev_link = link_url([page_number - 1, number_of_pages].min) if page_number > 1
-      next_link = link_url([page_number + 1, number_of_pages].min) if page_number < number_of_pages
+      prev_link = page_number > 1 ? link_url([page_number - 1, number_of_pages].min) : nil
+      next_link = page_number < number_of_pages ? link_url([page_number + 1, number_of_pages].min) : nil
 
       {
         self: link_url(page_number),
@@ -56,22 +59,50 @@ module Mobile
     end
 
     def link_url(display_page_number)
-      "#{url_without_page_number}&page[number]=#{display_page_number}"
+      params = ["page[size]=#{page_size}", "page[number]=#{display_page_number}", *optional_query_strings].join('&')
+      "#{url}?#{params}"
     end
 
-    def url_without_page_number
-      @url_without_page_number ||= begin
+    # rubocop:disable Metrics/MethodLength
+    def optional_query_strings
+      @optional_query_strings ||= begin
         query_strings = []
-        %w[start_date end_date use_cache show_completed].each do |key|
-          next unless validated_params.key?(key)
 
-          camelized = key.camelize(:lower)
-          query_strings << "#{camelized}=#{validated_params[key]}"
+        optional_params.each_pair do |key, value|
+          next if value.blank?
+
+          camelized = key.to_s.camelize(:lower)
+          case value
+          when Array
+            value.each do |v|
+              query_strings << "#{camelized}[]=#{v}"
+            end
+          when Hash
+
+            # this is an incomplete implementation that serves our current needs
+            # this will need additional work if we ever need to use more complex hashes
+            first_key = value.keys.first
+            second_key = value.values.first&.keys&.first
+            final_value = value.values.first&.values&.first
+
+            if [first_key, second_key, final_value].any?(&:blank?)
+              raise InvalidParams, "Invalid hash -- #{key}: #{value}"
+            end
+
+            query_strings << "#{key}[[#{first_key}][#{second_key}]]=#{final_value}"
+          else
+            query_strings << "#{camelized}=#{value}"
+          end
         end
 
-        query_strings << "page[size]=#{page_size}"
+        query_strings
+      end
+    end
+    # rubocop:enable Metrics/MethodLength
 
-        "#{url}?#{query_strings.join('&')}"
+    def enforce_params_requirements(params)
+      unless params.is_a?(Dry::Validation::Result)
+        raise InvalidParams, 'Params must be a contract result. Use Mobile::V0::Contracts::PaginationBase or subclass.'
       end
     end
   end

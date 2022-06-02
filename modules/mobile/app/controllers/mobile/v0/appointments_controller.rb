@@ -11,7 +11,7 @@ module Mobile
         end_date = params[:endDate] || one_year_from_now.iso8601
         reverse_sort = !(params[:sort] =~ /-startDateUtc/).nil?
 
-        validated_params = Mobile::V0::Contracts::GetPaginatedList.new.call(
+        validated_params = Mobile::V0::Contracts::Appointments.new.call(
           start_date: start_date,
           end_date: end_date,
           page_number: params.dig(:page, :number),
@@ -22,12 +22,8 @@ module Mobile
           include: params[:include]
         )
 
-        raise Mobile::V0::Exceptions::ValidationErrors, validated_params if validated_params.failure?
-
         appointments = fetch_cached_or_service(validated_params)
         page_appointments, page_meta_data = paginate(appointments, validated_params)
-
-        page_meta_data[:links] = include_pending_in_links(page_meta_data[:links]) if include_pending?(validated_params)
 
         render json: Mobile::V0::AppointmentSerializer.new(page_appointments, page_meta_data)
       end
@@ -40,8 +36,8 @@ module Mobile
           appointments_proxy.put_cancel_appointment_request(id, appointment_request)
         else
           decoded_cancel_params = Mobile::V0::Appointment.decode_cancel_id(id)
-          contract = Mobile::V0::Contracts::CancelAppointment.new.call(decoded_cancel_params)
-          raise Mobile::V0::Exceptions::ValidationErrors, contract if contract.failure?
+          # validates inputs
+          Mobile::V0::Contracts::CancelAppointment.new.call(decoded_cancel_params)
 
           appointments_proxy.put_cancel_appointment(decoded_cancel_params)
         end
@@ -112,12 +108,6 @@ module Mobile
         end
         url = request.base_url + request.path
         Mobile::PaginationHelper.paginate(list: appointments, validated_params: validated_params, url: url)
-      end
-
-      def include_pending_in_links(links)
-        links.transform_values do |v|
-          v.nil? ? nil : "#{v}&include[]=pending"
-        end
       end
 
       def include_pending?(params)

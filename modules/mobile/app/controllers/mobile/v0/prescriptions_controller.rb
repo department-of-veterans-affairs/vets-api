@@ -9,9 +9,6 @@ module Mobile
 
       before_action { authorize :mhv_prescriptions, :access? }
 
-      DEFAULT_PAGE_NUMBER = 1
-      DEFAULT_PAGE_SIZE = 10
-
       def index
         resource = client.get_history_rxs
         resource = params[:filter].present? ? resource.find_by(filter_params) : resource
@@ -33,44 +30,26 @@ module Mobile
       end
 
       def pagination_params
-        @pagination_params ||= Mobile::V0::Contracts::GetPaginatedList.new.call(
-          page_number: params.dig(:page, :number) || DEFAULT_PAGE_NUMBER,
-          page_size: params.dig(:page, :size) || DEFAULT_PAGE_SIZE
+        @pagination_params ||= Mobile::V0::Contracts::Prescriptions.new.call(
+          page_number: params.dig(:page, :number),
+          page_size: params.dig(:page, :size),
+          filter: params[:filter].present? ? filter_params.to_h : nil,
+          sort: params[:sort]
         )
       end
 
       def paginate(records)
         url = request.base_url + request.path
-        page_records, page_meta_data = Mobile::PaginationHelper.paginate(
-          list: records, validated_params: pagination_params, url: url
-        )
-
-        # this is temporary. this has come up multiple times and we should develop a better solution
-        page_meta_data[:links].transform_values! do |link|
-          next if link.nil?
-
-          if params[:filter].present?
-            filter_hash = filter_params.to_h
-            filter_field = filter_hash.keys.first
-            filter_operator = filter_hash.values.first.keys.first
-            filter_value = filter_hash.values.first.values.first
-
-            link += "&filter[[#{filter_field}][#{filter_operator}]]=#{filter_value}"
-          end
-
-          link += "&sort=#{params['sort']}" if params[:sort].present?
-
-          link
-        end
-
-        [page_records, page_meta_data]
+        Mobile::PaginationHelper.paginate(list: records, validated_params: pagination_params, url: url)
       end
 
       def filter_params
-        valid_filter_params = params.require(:filter).permit(Prescription.filterable_attributes)
-        raise Common::Exceptions::FilterNotAllowed, params['filter'] if valid_filter_params.empty?
+        @filter_params ||= begin
+          valid_filter_params = params.require(:filter).permit(Prescription.filterable_attributes)
+          raise Common::Exceptions::FilterNotAllowed, params[:filter] if valid_filter_params.empty?
 
-        valid_filter_params
+          valid_filter_params
+        end
       end
     end
   end

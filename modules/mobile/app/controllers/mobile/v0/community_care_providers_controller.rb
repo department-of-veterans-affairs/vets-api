@@ -3,6 +3,8 @@
 module Mobile
   module V0
     class CommunityCareProvidersController < ApplicationController
+      # setting pagination values here instead of allowing the pagination helper to handle it
+      # because they're also used by the facility service locator
       DEFAULT_PAGE_NUMBER = 1
       DEFAULT_PAGE_SIZE = 10
       RADIUS_MILES = 60 # value used in web app
@@ -57,27 +59,19 @@ module Mobile
       end
 
       def pagination_params
-        @pagination_params ||= Mobile::V0::Contracts::GetPaginatedList.new.call(
+        @pagination_params ||= Mobile::V0::Contracts::CommunityCareProviders.new.call(
           page_number: params.dig(:page, :number) || DEFAULT_PAGE_NUMBER,
-          page_size: params.dig(:page, :size) || DEFAULT_PAGE_SIZE
+          page_size: params.dig(:page, :size) || DEFAULT_PAGE_SIZE,
+          service_type: params[:serviceType],
+          facility_id: params[:facilityId]
         )
       end
 
       def paginate(records)
         url = request.base_url + request.path
-        page_records, page_meta_data = Mobile::PaginationHelper.paginate(
+        Mobile::PaginationHelper.paginate(
           list: records, validated_params: pagination_params, url: url
         )
-        # this is temporary. this has come up multiple times and we should develop a better solution
-        page_meta_data[:links].transform_values! do |link|
-          next if link.nil?
-
-          link += "&serviceType=#{params[:serviceType]}"
-          link += "&facilityId=#{params[:facilityId]}" if params[:facilityId]
-          link
-        end
-
-        [page_records, page_meta_data]
       end
     end
   end
