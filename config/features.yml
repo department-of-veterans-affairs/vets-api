@@ -28,9 +28,9 @@ features:
     actor_type: user
     description: Enables Short Form for users with or self discloser of high disability.
     enable_in_development: true
-  can_prefill_10_10cg_address:
+  can_autofill_10_10cg_address:
     actor_type: user
-    description: Allows users to prefill a caregiver's address with the veteran's address when completing the 10-10CG.
+    description: Allows users to autofill a caregiver's address with the veteran's address when completing the 10-10CG.
     enable_in_development: true
   can_upload_10_10cg_poa:
     actor_type: cookie_id
