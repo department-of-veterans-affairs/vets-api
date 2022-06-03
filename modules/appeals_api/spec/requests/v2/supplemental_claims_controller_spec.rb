@@ -73,7 +73,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
     end
 
     context 'when invalid headers supplied' do
-      it 'returns an error' do
+      it 'errors when veteran birth date is in the future' do
         invalid_headers = headers.merge!(
           { 'X-VA-Birth-Date' => '3000-12-31' }
         )
@@ -81,15 +81,12 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         post(path, params: data, headers: invalid_headers)
 
         expect(response.status).to eq(422)
-        expect(parsed['errors'][0]['detail']).to eq('Veteran birth date isn\'t in the past: 3000-12-31')
+        expect(parsed['errors'][0]['source']).to eq({ 'header' => 'X-VA-Birth-Date' })
+        expect(parsed['errors'][0]['detail']).to eq 'Date must be in the past: 3000-12-31'
       end
     end
 
     context 'returns 422 when birth date is not a date' do
-      let(:error_content) do
-        { 'status' => 422, 'detail' => "'apricot' did not match the defined pattern" }
-      end
-
       it 'when given a string for the birth date ' do
         headers.merge!({ 'X-VA-Birth-Date' => 'apricot' })
 
@@ -99,12 +96,8 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       end
     end
 
-    context 'returns 422 when decison date is not a date' do
-      let(:error_content) do
-        { 'status' => 422, 'detail' => "'banana' did not match the defined pattern" }
-      end
-
-      it 'when given a string for the contestable issues decision date ' do
+    context 'returns 422 when decision date is not a date' do
+      it 'errors when given a string for the contestable issues decision date ' do
         sc_data = JSON.parse(data)
         sc_data['included'][0]['attributes'].merge!('decisionDate' => 'banana')
 
@@ -113,6 +106,18 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         expect(parsed['errors']).to be_an Array
         expect(parsed['errors'][0]['title']).to include('Invalid')
         expect(parsed['errors'][0]['detail']).to include("'banana' did not fit within the defined length limits")
+      end
+
+      it 'errors when given a decision date in the future' do
+        sc_data = JSON.parse(data)
+        sc_data['included'][0]['attributes'].merge!('decisionDate' => '3000-01-02')
+
+        post(path, params: sc_data.to_json, headers: headers)
+        expect(response.status).to eq(422)
+        expect(parsed['errors']).to be_an Array
+        expect(parsed['errors'][0]['source']['pointer']).to eq '/data/included[0]/attributes/decisionDate'
+        expect(parsed['errors'][0]['title']).to eq 'Value outside range'
+        expect(parsed['errors'][0]['detail']).to eq 'Date must be in the past: 3000-01-02'
       end
     end
 

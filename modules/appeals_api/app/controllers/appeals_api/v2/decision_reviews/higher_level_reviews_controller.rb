@@ -113,10 +113,13 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
   end
 
   def model_errors_to_json_api
-    errors = @higher_level_review.errors.to_a.map do |error|
-      { status: MODEL_ERROR_STATUS, detail: error }
+    errors = @higher_level_review.errors.map do |error|
+      tpath = error.options.delete(:error_tpath) || 'common.exceptions.validation_errors'
+      data = I18n.t(tpath).deep_merge error.options
+      data[:detail] = error.message if error.options[:detail].blank?
+      data[:source] = { pointer: error.attribute.to_s } if error.options[:source].blank?
+      data
     end
-
     { errors: errors }
   end
 

@@ -114,7 +114,7 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
     it 'invalid headers return an error' do
       post(path, params: @data, headers: @invalid_headers)
       expect(response.status).to eq(422)
-      expect(parsed['errors'][0]['detail']).to eq('Veteran birth date isn\'t in the past: 3000-12-31')
+      expect(parsed['errors'][0]['detail']).to eq('Date must be in the past: 3000-12-31')
     end
 
     it 'responds with a 422 when request.body is a Puma::NullIO' do

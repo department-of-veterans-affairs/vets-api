@@ -111,8 +111,10 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
 
   def model_errors_to_json_api
     errors = @notice_of_disagreement.errors.map do |error|
-      data = I18n.t('common.exceptions.validation_errors').deep_merge error.options
-      data[:source] = { pointer: error.attribute.to_s }
+      tpath = error.options.delete(:error_tpath) || 'common.exceptions.validation_errors'
+      data = I18n.t(tpath).deep_merge error.options
+      data[:detail] = error.message if error.options[:detail].blank?
+      data[:source] = { pointer: error.attribute.to_s } if error.options[:source].blank?
       data
     end
     { errors: errors }
