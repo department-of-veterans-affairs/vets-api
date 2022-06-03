@@ -7,6 +7,8 @@ module AppealsApi
   class NoticeOfDisagreement < ApplicationRecord
     include NodStatus
     include PdfOutputPrep
+    include ModelValidations
+    required_claimant_headers %w[X-VA-Claimant-First-Name X-VA-Claimant-Last-Name X-VA-Claimant-Birth-Date]
 
     attr_readonly :auth_headers
     attr_readonly :form_data
@@ -41,15 +43,16 @@ module AppealsApi
 
     # the controller applies the JSON Schemas in modules/appeals_api/config/schemas/
     # further validations:
-    validate(
-      :birth_date_is_in_the_past,
-      :claimant_birth_date_is_in_the_past,
-      :required_claimant_data_is_present,
-      :contestable_issue_dates_are_in_the_past,
-      if: proc { |a| a.form_data.present? }
-    )
+    validate :birth_date_is_in_the_past,
+             :contestable_issue_dates_are_in_the_past,
+             :validate_hearing_type_selection,
+             if: proc { |a| a.form_data.present? }
 
-    validate :validate_hearing_type_selection, if: :pii_present?
+    # V2 validations
+    validate  :required_claimant_data_is_present,
+              :claimant_birth_date_is_in_the_past,
+              if: proc { |a| a.api_version.upcase != 'V1' && a.form_data.present? }
+
     validate :validate_requesting_extension, if: :version_2?
     validate :validate_api_version_presence
 
@@ -281,12 +284,10 @@ module AppealsApi
       return if board_review_hearing_selected? && includes_hearing_type_preference?
 
       source = '/data/attributes/hearingTypePreference'
-      data = I18n.t('common.exceptions.validation_errors')
-
       if hearing_type_missing?
-        errors.add source, data.merge(detail: I18n.t('appeals_api.errors.hearing_type_preference_missing'))
+        errors.add source, I18n.t('appeals_api.errors.hearing_type_preference_missing')
       elsif unexpected_hearing_type_inclusion?
-        errors.add source, data.merge(detail: I18n.t('appeals_api.errors.hearing_type_preference_inclusion'))
+        errors.add source, I18n.t('appeals_api.errors.hearing_type_preference_inclusion')
       end
     end
 
@@ -295,12 +296,9 @@ module AppealsApi
       # json schema will have already validated that if requestingExtension true then extensionReason required
       return if data_attributes&.dig('requestingExtension') == true
 
-      source = '/data/attributes/requestingExtension'
-      data = I18n.t('common.exceptions.validation_errors')
-
       if data_attributes&.dig('extensionReason').present?
-        errors.add source,
-                   data.merge(detail: I18n.t('appeals_api.errors.nod_requesting_extension_must_be_true'))
+        errors.add '/data/attributes/requestingExtension',
+                   I18n.t('appeals_api.errors.nod_requesting_extension_must_be_true')
       end
     end
 
@@ -324,69 +322,13 @@ module AppealsApi
       self.class.date_from_string header_field_as_string 'X-VA-Birth-Date'
     end
 
-    # validation (header)
-    def birth_date_is_in_the_past
-      return unless birth_date
-
-      add_error("Veteran birth date isn't in the past: #{birth_date}") unless self.class.past? birth_date
-    end
-
-    # validation (header)
-    def claimant_birth_date_is_in_the_past
-      return if api_version.upcase == 'V1'
-      return if claimant.birth_date.blank?
-
-      unless self.class.past?(claimant.birth_date)
-        add_error("Claimant birth date isn't in the past: #{claimant.birth_date_string}")
-      end
-    end
-
-    # validation (header & body)
-    # Schemas take care of most of the requirements, but we need to check that both header & body data is provided
-    def required_claimant_data_is_present
-      return if api_version.upcase == 'V1'
-
-      # Claimant DOB is always required if they've supplied any claimant headers
-      has_claimant_headers = claimant.birth_date.present?
-      # form data that includes a claimant is also sufficient to know it's passed the schema
-      has_claimant_data = data_attributes&.fetch('claimant', nil).present?
-
-      return if !has_claimant_headers && !has_claimant_data # No claimant headers or data? not a problem!
-      return if has_claimant_headers && has_claimant_data # Has both claimant headers and data? A-ok!
-
-      add_error('Claimant data was provided but missing claimant headers') unless has_claimant_headers
-      add_error('Claimant headers were provided but missing claimant data') unless has_claimant_data
-    end
-
-    # validation (body)
-    def contestable_issue_dates_are_in_the_past
-      return if contestable_issues.blank?
-
-      contestable_issues.each_with_index do |issue, index|
-        decision_date_not_in_past(issue, index)
-      end
-    end
-
-    def decision_date_not_in_past(issue, issue_index)
-      return if issue.decision_date.nil? || issue.decision_date_past?
-
-      add_decision_date_error "isn't in the past: #{issue.decision_date_string.inspect}", issue_index
-    end
-
-    def add_decision_date_error(string, issue_index)
-      add_error "included[#{issue_index}].attributes.decisionDate #{string}"
-    end
-
-    def add_error(message)
-      errors.add(:base, message)
-    end
-
     def header_field_as_string(key)
       auth_headers&.dig(key).to_s.strip
     end
 
     def validate_api_version_presence
-      add_error('Appeal must include the api_version attribute') if api_version.blank?
+      # We'll likely never see this since the controller should supply this in all circumstances
+      errors.add :api_version, 'Appeal must include the api_version attribute' if api_version.blank?
     end
 
     def version_2?

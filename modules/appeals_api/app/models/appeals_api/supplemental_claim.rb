@@ -7,6 +7,8 @@ module AppealsApi
   class SupplementalClaim < ApplicationRecord
     include ScStatus
     include PdfOutputPrep
+    include ModelValidations
+    required_claimant_headers %w[X-VA-Claimant-First-Name X-VA-Claimant-Last-Name]
 
     attr_readonly :auth_headers
     attr_readonly :form_data
@@ -37,7 +39,7 @@ module AppealsApi
     validate(
       :birth_date_is_in_the_past,
       :required_claimant_data_is_present,
-      :contestable_issue_dates_are_valid_dates,
+      :contestable_issue_dates_are_in_the_past,
       if: proc { |a| a.form_data.present? }
     )
 
@@ -231,49 +233,9 @@ module AppealsApi
       data_attributes['evidenceSubmission']
     end
 
-    # validation (header)
-    def birth_date_is_in_the_past
-      return unless veteran.birth_date
-
-      unless self.class.past? veteran.birth_date
-        add_error("Veteran birth date isn't in the past: #{veteran.birth_date}")
-      end
-    end
-
-    # validation (header & body)
-    # Schemas take care of most of the requirements, but we need to check that both header & body data is provided
-    def required_claimant_data_is_present
-      has_claimant_headers = claimant.first_name.present?
-      # form data that includes a claimant is also sufficient to know it's passed the schema
-      has_claimant_data = data_attributes&.fetch('claimant', nil).present?
-
-      return if !has_claimant_headers && !has_claimant_data # No claimant headers or data? not a problem!
-      return if has_claimant_headers && has_claimant_data # Has both claimant headers and data? A-ok!
-
-      add_error('Claimant data was provided but missing claimant headers') unless has_claimant_headers
-      add_error('Claimant headers were provided but missing claimant data') unless has_claimant_data
-    end
-
-    def contestable_issue_dates_are_valid_dates
-      return if contestable_issues.blank?
-
-      contestable_issues.each_with_index do |issue, index|
-        decision_date_not_in_past(issue, index)
-      end
-    end
-
-    def decision_date_not_in_past(issue, issue_index)
-      return if issue.decision_date.nil? || issue.decision_date_past?
-
-      add_decision_date_error "isn't in the past: #{issue.decision_date_string.inspect}", issue_index
-    end
-
-    def add_decision_date_error(string, issue_index)
-      add_error "included[#{issue_index}].attributes.decisionDate #{string}"
-    end
-
-    def add_error(message)
-      errors.add(:base, message)
+    # Used in shared model validations
+    def birth_date
+      veteran.birth_date
     end
 
     def clear_memoized_values

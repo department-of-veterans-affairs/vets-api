@@ -43,7 +43,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
         it 'throws an error' do
           expect(notice_of_disagreement.errors.count).to be 1
           expect(notice_of_disagreement.errors.first.attribute).to eq(:'/data/attributes/hearingTypePreference')
-          expect(notice_of_disagreement.errors.first.options[:detail]).to eq(
+          expect(notice_of_disagreement.errors.first.message).to eq(
             "If '/data/attributes/boardReviewOption' 'hearing' is selected, '/data/attributes/hearingTypePreference' must also be present"
           )
         end
@@ -62,7 +62,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
         it 'throws an error' do
           expect(notice_of_disagreement.errors.count).to be 1
           expect(notice_of_disagreement.errors.first.attribute).to eq(:'/data/attributes/hearingTypePreference')
-          expect(notice_of_disagreement.errors.first.options[:detail]).to eq(
+          expect(notice_of_disagreement.errors.first.message).to eq(
             "If '/data/attributes/boardReviewOption' 'direct_review' or 'evidence_submission' is selected, '/data/attributes/hearingTypePreference' must not be selected"
           )
         end
@@ -91,9 +91,8 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       auth_headers['X-VA-Birth-Date'] = (Time.zone.today + 2).to_s
 
       expect(notice_of_disagreement.valid?).to be false
-      expect(notice_of_disagreement.errors.to_a.length).to eq 1
-      expect(notice_of_disagreement.errors.to_a.first.downcase).to include 'veteran'
-      expect(notice_of_disagreement.errors.to_a.first.downcase).to include 'past'
+      expect(notice_of_disagreement.errors.size).to eq 1
+      expect(notice_of_disagreement.errors.first.message).to include 'Date must be in the past:'
     end
   end
 
@@ -311,13 +310,15 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       end
 
       context 'when a claimant birth date is in the future' do
-        it 'creates an invalid record' do
+        it 'creates an invalid record with proper source' do
           nod_with_non_veteran_claimant.auth_headers['X-VA-Claimant-Birth-Date'] = (Time.zone.today + 2).to_s
 
           expect(nod_with_non_veteran_claimant.valid?).to be false
-          expect(nod_with_non_veteran_claimant.errors.to_a.length).to eq 1
-          expect(nod_with_non_veteran_claimant.errors.to_a.first.downcase).to include 'claimant'
-          expect(nod_with_non_veteran_claimant.errors.to_a.first.downcase).to include 'past'
+          expect(nod_with_non_veteran_claimant.errors.size).to eq 1
+          error = nod_with_non_veteran_claimant.errors.first
+          expect(error.attribute).to be_blank
+          expect(error.options[:source]).to match_array({ header: 'X-VA-Claimant-Birth-Date' })
+          expect(error.message).to include 'Date must be in the past:'
         end
       end
 
@@ -328,18 +329,21 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
                                                                    X-VA-Claimant-Birth-Date])
 
             expect(nod_with_non_veteran_claimant.valid?).to be false
-            expect(nod_with_non_veteran_claimant.errors.to_a.length).to eq 1
-            expect(nod_with_non_veteran_claimant.errors.to_a.first).to include 'missing claimant headers'
+            expect(nod_with_non_veteran_claimant.errors.size).to eq 1
+            expect(nod_with_non_veteran_claimant.errors.first.message).to include 'missing claimant headers'
           end
         end
 
         context 'when headers provided but missing data' do
-          it 'creates an invalid record' do
+          it 'creates an invalid record with required field missing data' do
             nod_with_non_veteran_claimant.form_data['data']['attributes'].delete('claimant')
 
             expect(nod_with_non_veteran_claimant.valid?).to be false
-            expect(nod_with_non_veteran_claimant.errors.to_a.length).to eq 1
-            expect(nod_with_non_veteran_claimant.errors.to_a.first).to include 'missing claimant data'
+            expect(nod_with_non_veteran_claimant.errors.size).to eq 1
+            error = nod_with_non_veteran_claimant.errors.first
+            expect(error.attribute.to_s).to eq '/data/attributes'
+            expect(error.options[:error_tpath]).to eq 'common.exceptions.detailed_schema_errors.required'
+            expect(error.message.downcase).to include 'claimant headers were provided but missing'
           end
         end
       end
@@ -380,8 +384,10 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
           }]
 
           expect(extra_notice_of_disagreement_v2.valid?).to be false
-          expect(extra_notice_of_disagreement_v2.errors.to_a.length).to eq 1
-          expect(extra_notice_of_disagreement_v2.errors.to_a.first.downcase).to include "decisiondate isn't in the past"
+          expect(extra_notice_of_disagreement_v2.errors.size).to eq 1
+          error = extra_notice_of_disagreement_v2.errors.first
+          expect(error.attribute.to_s).to eq '/data/included[0]/attributes/decisionDate'
+          expect(error.message).to include 'Date must be in the past:'
         end
       end
 
@@ -390,8 +396,8 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
           nod_blank_api_version = FactoryBot.build(:extra_notice_of_disagreement_v2, api_version: '')
 
           expect(nod_blank_api_version.valid?).to be false
-          expect(nod_blank_api_version.errors.to_a.length).to eq 1
-          expect(nod_blank_api_version.errors.to_a.first.downcase).to include 'api_version attribute'
+          expect(nod_blank_api_version.errors.size).to eq 1
+          expect(nod_blank_api_version.errors.first.message).to include 'api_version attribute'
         end
       end
 
@@ -422,9 +428,9 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
           end
 
           it 'throws an error' do
-            expect(invalid_notice_of_disagreement.errors.count).to be 1
+            expect(invalid_notice_of_disagreement.errors.size).to eq 1
             expect(invalid_notice_of_disagreement.errors.first.attribute).to eq(:'/data/attributes/requestingExtension')
-            expect(invalid_notice_of_disagreement.errors.first.options[:detail]).to eq(
+            expect(invalid_notice_of_disagreement.errors.first.message).to eq(
               "If '/data/attributes/extensionReason' present, then " \
               "'/data/attributes/requestingExtension' must equal true"
             )

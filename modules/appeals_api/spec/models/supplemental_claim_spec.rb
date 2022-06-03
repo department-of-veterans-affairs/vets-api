@@ -22,9 +22,8 @@ describe AppealsApi::SupplementalClaim, type: :model do
 
       it 'creates an invalid record' do
         expect(sc_bad_birthdate.valid?).to be false
-        expect(sc_bad_birthdate.errors.to_a.length).to eq 1
-        expect(sc_bad_birthdate.errors.to_a.first.downcase).to include 'veteran'
-        expect(sc_bad_birthdate.errors.to_a.first.downcase).to include 'past'
+        expect(sc_bad_birthdate.errors.size).to eq 1
+        expect(sc_bad_birthdate.errors.first.message).to include 'Date must be in the past:'
       end
     end
 
@@ -57,9 +56,9 @@ describe AppealsApi::SupplementalClaim, type: :model do
 
       it 'creates an invalid record' do
         expect(sc_bad_issues_dates.valid?).to be false
-        expect(sc_bad_issues_dates.errors.to_a.length).to eq 1
-        expect(sc_bad_issues_dates.errors.to_a.first.downcase).to include 'decisiondate'
-        expect(sc_bad_issues_dates.errors.to_a.first.downcase).to include 'past'
+        expect(sc_bad_issues_dates.errors.size).to eq 1
+        expect(sc_bad_issues_dates.errors.first.attribute.to_s).to eq '/data/included[0]/attributes/decisionDate'
+        expect(sc_bad_issues_dates.errors.first.message).to include 'Date must be in the past:'
       end
     end
   end
@@ -365,23 +364,26 @@ describe AppealsApi::SupplementalClaim, type: :model do
       let(:form_data) { sc_with_nvc_built.form_data }
 
       context 'claimant header & form_data requirements' do
-        describe 'when headers are provided but form_data is missing' do
-          it 'creates and invalid record' do
-            auth_headers.except!(*%w[X-VA-Claimant-First-Name X-VA-Claimant-Last-Name X-VA-Claimant-Birth-Date])
+        describe 'when claimant data is provided but claimant headers are missing' do
+          it 'is invalid with error detailing the missing required claimant headers' do
+            auth_headers.except!(*%w[X-VA-Claimant-First-Name X-VA-Claimant-Middle-Initial X-VA-Claimant-Last-Name])
 
             expect(sc_with_nvc_built.valid?).to be false
-            expect(sc_with_nvc_built.errors.to_a.length).to eq 1
-            expect(sc_with_nvc_built.errors.to_a.first.downcase).to include 'missing claimant headers'
+            expect(sc_with_nvc_built.errors.size).to eq 1
+            error = sc_with_nvc_built.errors.first
+            expect(error.message).to include 'missing claimant headers'
+            expect(error.options[:meta]).to match_array({ missing_fields: %w[X-VA-Claimant-First-Name
+                                                                             X-VA-Claimant-Last-Name] })
           end
         end
 
-        describe 'when claimant data is provided but missing headers' do
-          it 'creates and invalid record' do
+        describe 'when claimant headers are provided but missing claimant data' do
+          it 'is not a valid record' do
             form_data.tap { |fd| fd['data']['attributes'].delete('claimant') }
 
             expect(sc_with_nvc_built.valid?).to be false
-            expect(sc_with_nvc_built.errors.to_a.length).to eq 1
-            expect(sc_with_nvc_built.errors.to_a.first.downcase).to include 'missing claimant data'
+            expect(sc_with_nvc_built.errors.size).to eq 1
+            expect(sc_with_nvc_built.errors.first.message).to include 'headers were provided but missing'
           end
         end
 

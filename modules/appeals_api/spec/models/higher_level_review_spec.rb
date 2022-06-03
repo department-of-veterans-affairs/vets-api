@@ -192,9 +192,8 @@ describe AppealsApi::HigherLevelReview, type: :model do
 
       it 'creates an invalid record' do
         expect(higher_level_review.valid?).to be false
-        expect(higher_level_review.errors.to_a.length).to eq 1
-        expect(higher_level_review.errors.to_a.first.downcase).to include 'veteran'
-        expect(higher_level_review.errors.to_a.first.downcase).to include 'past'
+        expect(higher_level_review.errors.size).to eq 1
+        expect(higher_level_review.errors.first.message).to include 'Date must be in the past:'
       end
     end
 
@@ -223,9 +222,9 @@ describe AppealsApi::HigherLevelReview, type: :model do
 
       it 'creates an invalid record' do
         expect(higher_level_review.valid?).to be false
-        expect(higher_level_review.errors.to_a.length).to eq 1
-        expect(higher_level_review.errors.to_a.first.downcase).to include 'decisiondate'
-        expect(higher_level_review.errors.to_a.first.downcase).to include 'past'
+        expect(higher_level_review.errors.size).to eq 1
+        expect(higher_level_review.errors.first.attribute.to_s).to eq '/data/included[0]/attributes/decisionDate'
+        expect(higher_level_review.errors.first.message).to include 'Date must be in the past:'
       end
     end
 
@@ -239,32 +238,37 @@ describe AppealsApi::HigherLevelReview, type: :model do
 
         it 'creates an invalid record' do
           expect(higher_level_review.valid?).to be false
-          expect(higher_level_review.errors.to_a.length).to eq 1
-          expect(higher_level_review.errors.to_a.first.downcase).to include 'claimant'
-          expect(higher_level_review.errors.to_a.first.downcase).to include 'past'
+          expect(higher_level_review.errors.size).to eq 1
+          expect(higher_level_review.errors.first.options[:source]).to eq({ header: 'X-VA-Claimant-Birth-Date' })
+          expect(higher_level_review.errors.first.message).to include 'Date must be in the past:'
         end
       end
 
       context 'claimant header & form_data requirements' do
         describe 'when headers are provided but form_data is missing' do
           let(:auth_headers) do
-            default_auth_headers.except(*%w[X-VA-Claimant-First-Name X-VA-Claimant-Last-Name X-VA-Claimant-Birth-Date])
+            default_auth_headers.except(*%w[X-VA-Claimant-First-Name X-VA-Claimant-Middle-Initial
+                                            X-VA-Claimant-Last-Name X-VA-Claimant-Birth-Date])
           end
 
-          it 'creates and invalid record' do
+          it 'invalid with error detailing missing required claimant headers' do
             expect(higher_level_review.valid?).to be false
-            expect(higher_level_review.errors.to_a.length).to eq 1
-            expect(higher_level_review.errors.to_a.first.downcase).to include 'missing claimant headers'
+            expect(higher_level_review.errors.size).to eq 1
+            error = higher_level_review.errors.first
+            expect(error.message).to include 'missing claimant headers'
+            expect(error.options[:meta]).to match_array({ missing_fields: %w[X-VA-Claimant-First-Name
+                                                                             X-VA-Claimant-Last-Name
+                                                                             X-VA-Claimant-Birth-Date] })
           end
         end
 
         describe 'when claimant data is provided but missing headers' do
           let(:form_data) { default_form_data.tap { |fd| fd['data']['attributes'].delete('claimant') } }
 
-          it 'creates and invalid record' do
+          it 'creates an invalid record' do
             expect(higher_level_review.valid?).to be false
-            expect(higher_level_review.errors.to_a.length).to eq 1
-            expect(higher_level_review.errors.to_a.first.downcase).to include 'missing claimant data'
+            expect(higher_level_review.errors.size).to eq 1
+            expect(higher_level_review.errors.first.message).to include 'Claimant headers were provided but missing'
           end
         end
 

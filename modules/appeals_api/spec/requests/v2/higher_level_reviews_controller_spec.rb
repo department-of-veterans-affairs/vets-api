@@ -104,11 +104,12 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
     end
 
     context 'returns 422 when decison date is not a date' do
-      it 'when given a string for the contestable issues decision date ' do
+      it 'when given a string for the contestable issues decision date' do
         data = JSON.parse(@data)
         data['included'][0]['attributes'].merge!('decisionDate' => 'banana')
 
         post(path, params: data.to_json, headers: @minimum_required_headers)
+
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
         expect(parsed['errors'][0]['title']).to include('Invalid pattern')
@@ -136,7 +137,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
       it 'returns an error' do
         post(path, params: @data, headers: @invalid_headers)
         expect(response.status).to eq(422)
-        expect(parsed['errors'][0]['detail']).to eq('Veteran birth date isn\'t in the past: 3000-12-31')
+        expect(parsed['errors'][0]['detail']).to eq 'Date must be in the past: 3000-12-31'
       end
     end
 
