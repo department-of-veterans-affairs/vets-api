@@ -619,6 +619,9 @@ features:
   va_global_downtime_notification:
     actor_type: user
     description: Enables global downtime notification- do not use in production
+  va_home_preview:
+    actor_type: user
+    description: Allows user testing for Homepage redesign - do not use in production
   va_online_scheduling:
     actor_type: user
     description: Allows veterans to view their VA and Community Care appointments
