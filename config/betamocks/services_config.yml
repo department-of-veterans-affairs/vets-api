@@ -397,6 +397,13 @@
       :uid_location: body
       :uid_locator: 'id (?:root="2.16.840.1.113883.4.349" )?extension="(.*)\^PN\^200VLGN\^USDVA\^A"(?:root="2.16.840.1.113883.4.349")?'
       :optional_code_locator: 'modifyCode code="(MVI\.COMP1\.RMS|MVI\.COMP2)"'
+  - :method: :post
+    :path: <%= URI(Settings.mvi.url).path %>
+    :file_path: "mvi/add_person_implicit"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: 'id (?:root="2.16.840.1.113883.4.349" )?extension="(.*)\^PN\^200VLGN\^USDVA\^A"(?:root="2.16.840.1.113883.4.349")?'
+      :optional_code_locator: 'PRPA_IN201301UV02'
 
 
 # EMIS
