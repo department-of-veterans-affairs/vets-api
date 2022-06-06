@@ -75,6 +75,12 @@ describe AppealsApi::HigherLevelReview, type: :model do
 
   describe '#stamp_text' do
     it { expect(higher_level_review.stamp_text).to eq('Doe - 6789') }
+
+    it 'truncates the last name if too long' do
+      full_last_name = 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdddddddddd'
+      higher_level_review.auth_headers['X-VA-Last-Name'] = full_last_name
+      expect(higher_level_review.stamp_text).to eq 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdd... - 6789'
+    end
   end
 
   describe '#ssn' do
@@ -182,118 +188,18 @@ describe AppealsApi::HigherLevelReview, type: :model do
   end
 
   context 'validations' do
-    let(:higher_level_review) do
-      described_class.new(form_data: form_data, auth_headers: auth_headers, api_version: api_version)
+    # V1 has been deprecated, so no need to check validations of records we've effectively archived
+    let(:appeal) do # appeal is used here since the shared example expects it
+      described_class.new(form_data: form_data, auth_headers: auth_headers, api_version: 'V2')
     end
-    let(:api_version) { 'V1' }
+    let(:auth_headers) { fixture_as_json 'valid_200996_headers_extra.json', version: 'v2' }
+    let(:form_data) { fixture_as_json 'valid_200996_extra.json', version: 'v2' }
 
-    context 'when a veteran birth date is in the future' do
-      let(:auth_headers) { default_auth_headers.merge 'X-VA-Birth-Date' => (Time.zone.today + 2).to_s }
-
-      it 'creates an invalid record' do
-        expect(higher_level_review.valid?).to be false
-        expect(higher_level_review.errors.size).to eq 1
-        expect(higher_level_review.errors.first.message).to include 'Date must be in the past:'
-      end
-    end
-
-    context 'bad contestable issue dates' do
-      let(:form_data) do
-        {
-          'data' => default_form_data['data'],
-          'included' => [
-            {
-              'type' => 'contestableIssue',
-              'attributes' => {
-                'issue' => 'PTSD',
-                'decisionDate' => (Time.zone.today + 2).to_s
-              }
-            },
-            {
-              'type' => 'contestableIssue',
-              'attributes' => {
-                'issue' => 'right knee',
-                'decisionDate' => '1901-01-31'
-              }
-            }
-          ]
-        }
-      end
-
-      it 'creates an invalid record' do
-        expect(higher_level_review.valid?).to be false
-        expect(higher_level_review.errors.size).to eq 1
-        expect(higher_level_review.errors.first.attribute.to_s).to eq '/data/included[0]/attributes/decisionDate'
-        expect(higher_level_review.errors.first.message).to include 'Date must be in the past:'
-      end
-    end
-
-    describe 'V2' do
-      let(:api_version) { 'V2' }
-      let(:default_auth_headers) { fixture_as_json 'valid_200996_headers_extra.json', version: 'v2' }
-      let(:default_form_data) { fixture_as_json 'valid_200996_extra.json', version: 'v2' }
-
-      context 'when a claimant birth date is in the future' do
-        let(:auth_headers) { default_auth_headers.merge 'X-VA-Claimant-Birth-Date' => (Time.zone.today + 2).to_s }
-
-        it 'creates an invalid record' do
-          expect(higher_level_review.valid?).to be false
-          expect(higher_level_review.errors.size).to eq 1
-          expect(higher_level_review.errors.first.options[:source]).to eq({ header: 'X-VA-Claimant-Birth-Date' })
-          expect(higher_level_review.errors.first.message).to include 'Date must be in the past:'
-        end
-      end
-
-      context 'claimant header & form_data requirements' do
-        describe 'when headers are provided but form_data is missing' do
-          let(:auth_headers) do
-            default_auth_headers.except(*%w[X-VA-Claimant-First-Name X-VA-Claimant-Middle-Initial
-                                            X-VA-Claimant-Last-Name X-VA-Claimant-Birth-Date])
-          end
-
-          it 'invalid with error detailing missing required claimant headers' do
-            expect(higher_level_review.valid?).to be false
-            expect(higher_level_review.errors.size).to eq 1
-            error = higher_level_review.errors.first
-            expect(error.message).to include 'missing claimant headers'
-            expect(error.options[:meta]).to match_array({ missing_fields: %w[X-VA-Claimant-First-Name
-                                                                             X-VA-Claimant-Last-Name
-                                                                             X-VA-Claimant-Birth-Date] })
-          end
-        end
-
-        describe 'when claimant data is provided but missing headers' do
-          let(:form_data) { default_form_data.tap { |fd| fd['data']['attributes'].delete('claimant') } }
-
-          it 'creates an invalid record' do
-            expect(higher_level_review.valid?).to be false
-            expect(higher_level_review.errors.size).to eq 1
-            expect(higher_level_review.errors.first.message).to include 'Claimant headers were provided but missing'
-          end
-        end
-
-        describe 'when both claimant and form data are missing' do
-          let(:auth_headers) do
-            default_auth_headers.except(*%w[X-VA-Claimant-First-Name X-VA-Claimant-Last-Name X-VA-Claimant-Birth-Date])
-          end
-          let(:form_data) { default_form_data.tap { |fd| fd['data']['attributes'].delete('claimant') } }
-
-          it 'creates a valid record' do
-            expect(higher_level_review.valid?).to be true
-          end
-        end
-      end
-    end
-
-    describe '#stamp_text' do
-      it { expect(higher_level_review.stamp_text).to eq('Doe - 6789') }
-
-      it 'truncates the last name if too long' do
-        full_last_name = 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdddddddddd'
-        auth_headers['X-VA-Last-Name'] = full_last_name
-        expect(higher_level_review.stamp_text).to eq 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdd... - 6789'
-      end
-    end
+    it_behaves_like 'shared model validations', validations: %i[birth_date_is_in_the_past
+                                                                contestable_issue_dates_are_in_the_past
+                                                                required_claimant_data_is_present
+                                                                claimant_birth_date_is_in_the_past],
+                                                required_claimant_headers: described_class.required_nvc_headers
   end
 
   describe '#update_status!' do

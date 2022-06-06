@@ -62,7 +62,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
       end
     end
 
-    context 'returns 422 when decison date is not a date' do
+    context 'returns 422 when decision date is not a date' do
       let(:error_content) do
         { 'status' => 422, 'detail' => "'banana' did not fit within the defined length limits" }
       end
@@ -228,17 +228,38 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
     let(:path) { base_path 'notice_of_disagreements' }
     let(:data) { JSON.parse(@minimum_data) }
 
-    it 'returns model errors in JSON API 1.0 ErrorObject format' do
+    it 'returns model errors in JSON API 1.1 ErrorObject format' do
       data['data']['attributes']['boardReviewOption'] = 'hearing'
+      headers = @max_headers.merge('X-VA-Birth-Date' => '3000-01-02')
 
-      post(path, params: data.to_json, headers: @headers)
+      post(path, params: data.to_json, headers: headers)
 
-      expect(response.status).to eq(422)
-      expect(parsed['errors'][0]['source']['pointer']).to eq('/data/attributes/hearingTypePreference')
-      expect(parsed['errors'][0]['detail']).to eq(
+      expect(response.status).to eq 422
+      expect(parsed['errors'].count).to eq 3
+      birth_date_error, hearing_error, missing_claimant_error = parsed['errors']
+
+      # Base exception is common.exceptions.detailed_schema_errors.range
+      expect(birth_date_error['code']).to eq 144
+      expect(birth_date_error['title']).to eq 'Value outside range'
+      expect(birth_date_error['source']).to eq({ 'header' => 'X-VA-Birth-Date' })
+
+      # Base exception is common.exceptions.validation_errors
+      expect(hearing_error['code']).to eq 100
+      expect(hearing_error['title']).to eq 'Validation error'
+      expect(hearing_error['source']['pointer']).to eq '/data/attributes/hearingTypePreference'
+      expect(hearing_error['detail']).to eq(
         "If '/data/attributes/boardReviewOption' 'hearing' is selected, " \
         "'/data/attributes/hearingTypePreference' must also be present"
       )
+
+      # Base exception is common.exceptions.detailed_schema_errors.required
+      expect(missing_claimant_error['code']).to eq 145
+      expect(missing_claimant_error['title']).to eq 'Missing required fields'
+      expect(missing_claimant_error['source']['pointer']).to eq '/data/attributes'
+      expect(missing_claimant_error['detail']).to eq(
+        "Claimant headers were provided but missing '/data/attributes/claimant' field"
+      )
+      expect(missing_claimant_error['meta']['missing_fields']).to eq ['claimant']
     end
   end
 end
