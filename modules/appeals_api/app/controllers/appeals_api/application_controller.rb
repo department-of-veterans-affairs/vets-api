@@ -35,5 +35,16 @@ module AppealsApi
       RequestStore.store['additional_request_attributes'] = { 'source' => 'appeals_api' }
       Raven.tags_context(source: 'appeals_api')
     end
+
+    def model_errors_to_json_api(model)
+      errors = model.errors.map do |error|
+        tpath = error.options.delete(:error_tpath) || 'common.exceptions.validation_errors'
+        data = I18n.t(tpath).deep_merge error.options
+        data[:detail] = error.message
+        data[:source] = { pointer: error.attribute.to_s } if error.options[:source].blank?
+        data.compact # remove nil keys
+      end
+      { errors: errors }
+    end
   end
 end

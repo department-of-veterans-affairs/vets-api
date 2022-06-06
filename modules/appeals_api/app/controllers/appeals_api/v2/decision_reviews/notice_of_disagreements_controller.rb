@@ -106,18 +106,7 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
 
   # Follows JSON API v1.0 error object standard (https://jsonapi.org/format/1.0/#error-objects)
   def render_model_errors
-    render json: model_errors_to_json_api, status: MODEL_ERROR_STATUS
-  end
-
-  def model_errors_to_json_api
-    errors = @notice_of_disagreement.errors.map do |error|
-      tpath = error.options.delete(:error_tpath) || 'common.exceptions.validation_errors'
-      data = I18n.t(tpath).deep_merge error.options
-      data[:detail] = error.message if error.options[:detail].blank?
-      data[:source] = { pointer: error.attribute.to_s } if error.options[:source].blank?
-      data
-    end
-    { errors: errors }
+    render json: model_errors_to_json_api(@notice_of_disagreement), status: MODEL_ERROR_STATUS
   end
 
   def find_notice_of_disagreement
