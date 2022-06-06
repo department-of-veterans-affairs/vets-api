@@ -89,7 +89,7 @@ module V1
     end
 
     def saml_settings(options = {})
-      options[:force_authn] ||= false
+      options[:force_authn] ||= true
       SAML::SSOeSettingsService.saml_settings(options)
     end
 
@@ -380,7 +380,7 @@ module V1
       'UNKNOWN'
     end
 
-    def url_service(force_authn = false)
+    def url_service(force_authn = true)
       @url_service ||= SAML::PostURLService.new(saml_settings(force_authn: force_authn),
                                                 session: @session_object,
                                                 user: current_user,
