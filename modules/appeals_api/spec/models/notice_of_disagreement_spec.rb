@@ -86,16 +86,6 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     end
   end
 
-  context 'when a veteran birth date is in the future' do
-    it 'creates an invalid record' do
-      auth_headers['X-VA-Birth-Date'] = (Time.zone.today + 2).to_s
-
-      expect(notice_of_disagreement.valid?).to be false
-      expect(notice_of_disagreement.errors.size).to eq 1
-      expect(notice_of_disagreement.errors.first.message).to include 'Date must be in the past:'
-    end
-  end
-
   describe '#veteran_first_name' do
     it { expect(notice_of_disagreement.veteran_first_name).to eq 'Jäñe' }
   end
@@ -297,6 +287,14 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     context 'when validating veteran and non-veteran claimant' do
       let(:nod_with_non_veteran_claimant) { build(:extra_notice_of_disagreement_v2, :board_review_hearing) }
 
+      let(:appeal) { nod_with_non_veteran_claimant }
+
+      it_behaves_like 'shared model validations', validations: %i[birth_date_is_in_the_past
+                                                                  contestable_issue_dates_are_in_the_past
+                                                                  required_claimant_data_is_present
+                                                                  claimant_birth_date_is_in_the_past],
+                                                  required_claimant_headers: described_class.required_nvc_headers
+
       describe '#veteran' do
         subject { nod_with_non_veteran_claimant.veteran }
 
@@ -307,45 +305,6 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
         subject { nod_with_non_veteran_claimant.claimant }
 
         it { expect(subject.class).to eq AppealsApi::Appellant }
-      end
-
-      context 'when a claimant birth date is in the future' do
-        it 'creates an invalid record with proper source' do
-          nod_with_non_veteran_claimant.auth_headers['X-VA-Claimant-Birth-Date'] = (Time.zone.today + 2).to_s
-
-          expect(nod_with_non_veteran_claimant.valid?).to be false
-          expect(nod_with_non_veteran_claimant.errors.size).to eq 1
-          error = nod_with_non_veteran_claimant.errors.first
-          expect(error.attribute).to be_blank
-          expect(error.options[:source]).to match_array({ header: 'X-VA-Claimant-Birth-Date' })
-          expect(error.message).to include 'Date must be in the past:'
-        end
-      end
-
-      context 'claimant header & form_data requirements' do
-        context 'when data provided but headers missing' do
-          it 'creates an invalid record' do
-            nod_with_non_veteran_claimant.auth_headers.except!(*%w[X-VA-Claimant-First-Name X-VA-Claimant-Last-Name
-                                                                   X-VA-Claimant-Birth-Date])
-
-            expect(nod_with_non_veteran_claimant.valid?).to be false
-            expect(nod_with_non_veteran_claimant.errors.size).to eq 1
-            expect(nod_with_non_veteran_claimant.errors.first.message).to include 'missing claimant headers'
-          end
-        end
-
-        context 'when headers provided but missing data' do
-          it 'creates an invalid record with required field missing data' do
-            nod_with_non_veteran_claimant.form_data['data']['attributes'].delete('claimant')
-
-            expect(nod_with_non_veteran_claimant.valid?).to be false
-            expect(nod_with_non_veteran_claimant.errors.size).to eq 1
-            error = nod_with_non_veteran_claimant.errors.first
-            expect(error.attribute.to_s).to eq '/data/attributes'
-            expect(error.options[:error_tpath]).to eq 'common.exceptions.detailed_schema_errors.required'
-            expect(error.message.downcase).to include 'claimant headers were provided but missing'
-          end
-        end
       end
 
       describe '#signing_appellant' do
@@ -372,24 +331,6 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
     context 'when validating form data' do
       let(:extra_notice_of_disagreement_v2) { build(:extra_notice_of_disagreement_v2, :board_review_hearing) }
-
-      context 'when contestable issue dates are in the future' do
-        it 'creates an invalid record' do
-          extra_notice_of_disagreement_v2.form_data['included'] = [{
-            'type' => 'contestableIssue',
-            'attributes' => {
-              'issue' => 'PTSD',
-              'decisionDate' => (Time.zone.today + 2).to_s
-            }
-          }]
-
-          expect(extra_notice_of_disagreement_v2.valid?).to be false
-          expect(extra_notice_of_disagreement_v2.errors.size).to eq 1
-          error = extra_notice_of_disagreement_v2.errors.first
-          expect(error.attribute.to_s).to eq '/data/included[0]/attributes/decisionDate'
-          expect(error.message).to include 'Date must be in the past:'
-        end
-      end
 
       describe '#validate_api_version_presence' do
         it 'throws an error when api_version is blank' do

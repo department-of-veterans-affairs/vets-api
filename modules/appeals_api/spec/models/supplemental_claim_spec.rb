@@ -13,54 +13,12 @@ describe AppealsApi::SupplementalClaim, type: :model do
   let(:sc_with_nvc) { create(:extra_supplemental_claim) }
 
   describe 'validations' do
-    context 'when a veteran birth date is in the future' do
-      let(:auth_headers) { default_auth_headers.merge 'X-VA-Birth-Date' => (Time.zone.today + 2).to_s }
+    let(:appeal) { build(:extra_supplemental_claim) }
 
-      let(:sc_bad_birthdate) do
-        described_class.new(form_data: default_form_data, auth_headers: auth_headers, api_version: 'V2')
-      end
-
-      it 'creates an invalid record' do
-        expect(sc_bad_birthdate.valid?).to be false
-        expect(sc_bad_birthdate.errors.size).to eq 1
-        expect(sc_bad_birthdate.errors.first.message).to include 'Date must be in the past:'
-      end
-    end
-
-    context 'bad contestable issue dates' do
-      let(:form_data) do
-        {
-          'data' => default_form_data['data'],
-          'included' => [
-            {
-              'type' => 'contestableIssue',
-              'attributes' => {
-                'issue' => 'PTSD',
-                'decisionDate' => (Time.zone.today + 2).to_s
-              }
-            },
-            {
-              'type' => 'contestableIssue',
-              'attributes' => {
-                'issue' => 'right knee',
-                'decisionDate' => '1901-01-31'
-              }
-            }
-          ]
-        }
-      end
-
-      let(:sc_bad_issues_dates) do
-        described_class.new(form_data: form_data, auth_headers: default_auth_headers, api_version: 'V2')
-      end
-
-      it 'creates an invalid record' do
-        expect(sc_bad_issues_dates.valid?).to be false
-        expect(sc_bad_issues_dates.errors.size).to eq 1
-        expect(sc_bad_issues_dates.errors.first.attribute.to_s).to eq '/data/included[0]/attributes/decisionDate'
-        expect(sc_bad_issues_dates.errors.first.message).to include 'Date must be in the past:'
-      end
-    end
+    it_behaves_like 'shared model validations', validations: %i[birth_date_is_in_the_past
+                                                                contestable_issue_dates_are_in_the_past
+                                                                required_claimant_data_is_present],
+                                                required_claimant_headers: described_class.required_nvc_headers
   end
 
   describe '#veteran_dob_month' do

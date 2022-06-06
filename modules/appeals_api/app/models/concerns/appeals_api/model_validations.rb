@@ -26,7 +26,7 @@ module AppealsApi
       def claimant_birth_date_is_in_the_past
         return if claimant.birth_date.blank? || self.class.past?(claimant.birth_date)
 
-        add_date_error '', birth_date, source: { header: 'X-VA-Claimant-Birth-Date' }
+        add_date_error '', claimant.birth_date, source: { header: 'X-VA-Claimant-Birth-Date' }
       end
 
       # validation (header & body)
