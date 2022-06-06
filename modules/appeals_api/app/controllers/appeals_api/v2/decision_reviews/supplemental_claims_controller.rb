@@ -91,17 +91,6 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
     render json: model_errors_to_json_api(model), status: MODEL_ERROR_STATUS
   end
 
-  def model_errors_to_json_api(model)
-    errors = model.errors.map do |error|
-      tpath = error.options.delete(:error_tpath) || 'common.exceptions.validation_errors'
-      data = I18n.t(tpath).deep_merge error.options
-      data[:detail] = error.message if error.options[:detail].blank?
-      data[:source] = { pointer: error.attribute.to_s } if error.options[:source].blank?
-      data
-    end
-    { errors: errors }
-  end
-
   def render_supplemental_claim_not_found(id)
     render(
       status: :not_found,
