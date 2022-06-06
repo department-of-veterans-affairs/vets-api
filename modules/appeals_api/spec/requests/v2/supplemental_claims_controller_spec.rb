@@ -244,6 +244,70 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
     end
   end
 
+  describe '#validate' do
+    let(:path) { base_path 'supplemental_claims/validate' }
+    let(:extra_headers) { fixture_as_json 'valid_200995_headers_extra.json', version: 'v2' }
+
+    context 'when validation passes' do
+      it 'returns a valid response' do
+        post(path, params: extra_data, headers: extra_headers)
+        expect(parsed['data']['attributes']['status']).to eq('valid')
+        expect(parsed['data']['type']).to eq('supplementalClaimValidation')
+      end
+    end
+
+    context 'when validation fails due to invalid data' do
+      before do
+        data = JSON.parse(extra_data)
+        data['data']['attributes']['veteran'].except!('phone', 'email')
+        post(path, params: data.to_json, headers: extra_headers)
+      end
+
+      it 'returns an error response' do
+        expect(response.status).to eq(422)
+        expect(parsed['errors']).not_to be_empty
+      end
+
+      it 'returns error objects in JSON API 1.0 ErrorObject format' do
+        expected_keys = %w[code detail meta source status title]
+        expect(parsed['errors'].first.keys).to include(*expected_keys)
+        expect(parsed['errors'][0]['meta']['missing_fields']).to eq %w[phone email]
+        expect(parsed['errors'][0]['source']['pointer']).to eq '/data/attributes/veteran'
+      end
+    end
+
+    context 'responds with a 422 when request.body isn\'t a JSON *object*' do
+      before do
+        fake_io_object = OpenStruct.new string: json
+        allow_any_instance_of(ActionDispatch::Request).to receive(:body).and_return(fake_io_object)
+      end
+
+      context 'request.body is a JSON string' do
+        let(:json) { '"Toodles!"' }
+
+        it 'responds with a properly formed error object' do
+          post(path, params: data, headers: headers)
+          body = JSON.parse(response.body)
+          expect(response.status).to eq 422
+          expect(body['errors']).to be_an Array
+          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
+        end
+      end
+
+      context 'request.body is a JSON integer' do
+        let(:json) { '66' }
+
+        it 'responds with a properly formed error object' do
+          post(path, params: data, headers: headers)
+          body = JSON.parse(response.body)
+          expect(response.status).to eq 422
+          expect(body['errors']).to be_an Array
+          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
+        end
+      end
+    end
+  end
+
   describe '#schema' do
     let(:path) { base_path 'supplemental_claims/schema' }
 

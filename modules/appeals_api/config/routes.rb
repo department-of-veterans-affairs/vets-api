@@ -66,7 +66,8 @@ AppealsApi::Engine.routes.draw do
       if Settings.modules_appeals_api.supplemental_claims_enabled
         resources :supplemental_claims, only: %i[create show] do
           collection do
-            get 'schema', to: 'supplemental_claims#schema'
+            get 'schema'
+            post 'validate'
           end
         end
       end
