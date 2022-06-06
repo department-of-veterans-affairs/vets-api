@@ -9,7 +9,7 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
 
   skip_before_action :authenticate
   before_action :validate_json_format, if: -> { request.post? }
-  before_action :validate_json_schema, only: %i[create]
+  before_action :validate_json_schema, only: %i[create validate]
 
   FORM_NUMBER = '200995'
   MODEL_ERROR_STATUS = 422
@@ -36,6 +36,10 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
     AppealsApi::PdfSubmitJob.perform_async(sc.id, 'AppealsApi::SupplementalClaim', 'V2')
 
     render json: AppealsApi::SupplementalClaimSerializer.new(sc).serializable_hash
+  end
+
+  def validate
+    render json: validation_success
   end
 
   def schema
@@ -81,6 +85,17 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
       SCHEMA_ERROR_TYPE,
       schema_version: 'v2'
     ).validate!(self.class::FORM_NUMBER, @json_body)
+  end
+
+  def validation_success
+    {
+      data: {
+        type: 'supplementalClaimValidation',
+        attributes: {
+          status: 'valid'
+        }
+      }
+    }
   end
 
   def request_headers
