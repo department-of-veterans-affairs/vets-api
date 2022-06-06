@@ -11,12 +11,28 @@ describe VANotify::InProgressFormReminder, type: :worker do
     it 'fails if ICN is not present' do
       user_without_icn = double('VANotify::Veteran')
       allow(VANotify::Veteran).to receive(:new).and_return(user_without_icn)
+      allow(user_without_icn).to receive(:first_name).and_return('first_name')
       allow(user_without_icn).to receive(:icn).and_return(nil)
 
       expect do
         described_class.new.perform(in_progress_form.id)
       end.to raise_error(VANotify::InProgressFormReminder::MissingICN,
                          "ICN not found for InProgressForm: #{in_progress_form.id}")
+    end
+
+    it 'skips sending reminder email if there is no first name' do
+      veteran_double = double('VaNotify::Veteran')
+      allow(veteran_double).to receive(:icn).and_return('icn')
+      allow(veteran_double).to receive(:first_name).and_return(nil)
+      allow(VANotify::InProgressFormHelper).to receive(:veteran_data).and_return(veteran_double)
+
+      allow(VANotify::IcnJob).to receive(:perform_async)
+
+      Sidekiq::Testing.inline! do
+        described_class.new.perform(in_progress_form.id)
+      end
+
+      expect(VANotify::IcnJob).not_to have_received(:perform_async)
     end
 
     describe 'single relevant in_progress_form' do
