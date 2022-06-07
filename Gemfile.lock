@@ -556,7 +556,7 @@ GEM
     jsonapi-parser (0.1.1.beta3)
     jsonapi-renderer (0.1.1.beta1)
     jwe (0.4.0)
-    jwt (2.3.0)
+    jwt (2.4.0)
     kms_encrypted (1.4.0)
       activesupport (>= 5.2)
     kramdown (2.4.0)
