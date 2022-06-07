@@ -88,9 +88,8 @@ module V1
       )
     end
 
-    def saml_settings(options = {})
-      options[:force_authn] ||= true
-      SAML::SSOeSettingsService.saml_settings(options)
+    def saml_settings(force_authn: true)
+      SAML::SSOeSettingsService.saml_settings(force_authn: force_authn)
     end
 
     def raise_saml_error(form)
@@ -167,13 +166,13 @@ module V1
 
       case type
       when 'mhv'
-        url_service(true).login_url('mhv', 'myhealthevet', AuthnContext::MHV)
+        url_service.login_url('mhv', 'myhealthevet', AuthnContext::MHV)
       when 'mhv_verified'
-        url_service(true).login_url('mhv', 'myhealthevet_loa3', AuthnContext::MHV)
+        url_service.login_url('mhv', 'myhealthevet_loa3', AuthnContext::MHV)
       when 'dslogon'
-        url_service(true).login_url('dslogon', 'dslogon', AuthnContext::DSLOGON)
+        url_service.login_url('dslogon', 'dslogon', AuthnContext::DSLOGON)
       when 'dslogon_verified'
-        url_service(true).login_url('dslogon', 'dslogon_loa3', AuthnContext::DSLOGON)
+        url_service.login_url('dslogon', 'dslogon_loa3', AuthnContext::DSLOGON)
       when 'idme'
         url_service.login_url('idme', LOA::IDME_LOA1_VETS, AuthnContext::ID_ME, AuthnContext::MINIMUM)
       when 'idme_verified'
@@ -206,7 +205,7 @@ module V1
         url_service.verify_url
       when 'custom'
         authn = validate_inbound_login_params
-        url_service.custom_url authn
+        url_service(false).custom_url authn
       end
     end
     # rubocop:enable Metrics/MethodLength
