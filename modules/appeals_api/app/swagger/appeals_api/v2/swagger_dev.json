@@ -6843,6 +6843,7 @@
                               "type": "supplementalClaim",
                               "attributes": {
                                 "benefitType": "fiduciary",
+                                "claimantType": "veteran",
                                 "veteran": {
                                   "address": {
                                     "addressLine1": "123 Main St",
@@ -6893,6 +6894,8 @@
                               "type": "supplementalClaim",
                               "attributes": {
                                 "benefitType": "compensation",
+                                "claimantType": "other",
+                                "claimantTypeOtherValue": "Veteran Attorney",
                                 "veteran": {
                                   "address": {
                                     "addressLine1": "123 Main St",
@@ -6912,16 +6915,14 @@
                                   "timezone": "America/Chicago"
                                 },
                                 "claimant": {
-                                  "claimantType": "other",
-                                  "claimantTypeOtherValue": "banana of veteran",
                                   "address": {
                                     "addressLine1": "456 First St",
                                     "addressLine2": "Apt 5",
                                     "addressLine3": "Box 1",
-                                    "city": "Detroit",
-                                    "countryCodeISO2": "US",
-                                    "stateCode": "MI",
-                                    "zipCode5": "48070"
+                                    "city": "Montreal",
+                                    "countryCodeISO2": "CA",
+                                    "zipCode5": "00000",
+                                    "internationalPostalCode": "A9999AAA"
                                   },
                                   "phone": {
                                     "countryCode": "1",
@@ -7156,6 +7157,7 @@
                       "type": "supplementalClaim",
                       "attributes": {
                         "benefitType": "lifeInsurance",
+                        "claimantType": "veteran",
                         "veteran": {
                           "address": {
                             "addressLine1": "123 Main St",
@@ -7195,6 +7197,8 @@
                       "type": "supplementalClaim",
                       "attributes": {
                         "benefitType": "compensation",
+                        "claimantType": "other",
+                        "claimantTypeOtherValue": "Veteran Attorney",
                         "veteran": {
                           "address": {
                             "addressLine1": "123 Main St",
@@ -7214,16 +7218,14 @@
                           "timezone": "America/Chicago"
                         },
                         "claimant": {
-                          "claimantType": "other",
-                          "claimantTypeOtherValue": "banana of veteran",
                           "address": {
                             "addressLine1": "456 First St",
                             "addressLine2": "Apt 5",
                             "addressLine3": "Box 1",
-                            "city": "Detroit",
-                            "countryCodeISO2": "US",
-                            "stateCode": "MI",
-                            "zipCode5": "48070"
+                            "city": "Montreal",
+                            "countryCodeISO2": "CA",
+                            "zipCode5": "00000",
+                            "internationalPostalCode": "A9999AAA"
                           },
                           "phone": {
                             "countryCode": "1",
@@ -7456,6 +7458,7 @@
                           "type": "supplementalClaim",
                           "attributes": {
                             "benefitType": "fiduciary",
+                            "claimantType": "veteran",
                             "veteran": {
                               "address": {
                                 "addressLine1": "123 Main St",
@@ -10990,6 +10993,21 @@
                       "nationalCemeteryAdministration"
                     ]
                   },
+                  "claimantType": {
+                    "type": "string",
+                    "enum": [
+                      "veteran",
+                      "spouse_of_veteran",
+                      "child_of_veteran",
+                      "parent_of_veteran",
+                      "other"
+                    ]
+                  },
+                  "claimantTypeOtherValue": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 25
+                  },
                   "veteran": {
                     "type": "object",
                     "properties": {
@@ -11033,21 +11051,6 @@
                     "type": "object",
                     "description": "If the claimant is a non-Veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
                     "properties": {
-                      "claimantType": {
-                        "type": "string",
-                        "enum": [
-                          "veteran",
-                          "spouse_of_veteran",
-                          "child_of_veteran",
-                          "parent_of_veteran",
-                          "other"
-                        ]
-                      },
-                      "claimantTypeOtherValue": {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 25
-                      },
                       "address": {
                         "$ref": "#/components/schemas/address"
                       },
@@ -11079,23 +11082,10 @@
                       }
                     },
                     "required": [
-                      "claimantType",
                       "address",
                       "phone",
                       "email"
-                    ],
-                    "if": {
-                      "properties": {
-                        "claimantType": {
-                          "const": "other"
-                        }
-                      }
-                    },
-                    "then": {
-                      "required": [
-                        "claimantTypeOtherValue"
-                      ]
-                    }
+                    ]
                   },
                   "evidenceSubmission": {
                     "description": "Evidence may be uploaded up to 7 days from the 'created_at' date of the associated Supplemental Claim via 'supplemental_claims/evidence_submissions'.",
@@ -11192,31 +11182,71 @@
                     "type": "boolean"
                   }
                 },
-                "required": [
-                  "veteran",
-                  "benefitType",
-                  "evidenceSubmission",
-                  "socOptIn"
-                ],
-                "if": {
-                  "properties": {
-                    "benefitType": {
-                      "const": "compensation"
+                "allOf": [
+                  {
+                    "required": [
+                      "veteran",
+                      "benefitType",
+                      "claimantType",
+                      "evidenceSubmission",
+                      "socOptIn"
+                    ]
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "benefitType": {
+                          "const": "compensation"
+                        }
+                      }
+                    },
+                    "then": {
+                      "required": [
+                        "form5103Acknowledged"
+                      ],
+                      "properties": {
+                        "form5103Acknowledged": {
+                          "enum": [
+                            true
+                          ]
+                        }
+                      }
                     }
-                  }
-                },
-                "then": {
-                  "required": [
-                    "form5103Acknowledged"
-                  ],
-                  "properties": {
-                    "form5103Acknowledged": {
-                      "enum": [
-                        true
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "claimantType": {
+                          "const": "other"
+                        }
+                      }
+                    },
+                    "then": {
+                      "required": [
+                        "claimantTypeOtherValue"
+                      ]
+                    }
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "claimantType": {
+                          "enum": [
+                            "spouse_of_veteran",
+                            "child_of_veteran",
+                            "parent_of_veteran",
+                            "other"
+                          ]
+                        }
+                      }
+                    },
+                    "then": {
+                      "required": [
+                        "claimant"
                       ]
                     }
                   }
-                }
+                ]
               }
             },
             "required": [

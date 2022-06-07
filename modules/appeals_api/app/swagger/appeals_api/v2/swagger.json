@@ -6720,6 +6720,7 @@
                               "type": "supplementalClaim",
                               "attributes": {
                                 "benefitType": "fiduciary",
+                                "claimantType": "veteran",
                                 "veteran": {
                                   "address": {
                                     "addressLine1": "123 Main St",
@@ -6770,6 +6771,7 @@
                               "type": "supplementalClaim",
                               "attributes": {
                                 "benefitType": "compensation",
+                                "claimantType": "veteran",
                                 "veteran": {
                                   "address": {
                                     "addressLine1": "123 Main St",
@@ -7012,6 +7014,7 @@
                       "type": "supplementalClaim",
                       "attributes": {
                         "benefitType": "lifeInsurance",
+                        "claimantType": "veteran",
                         "veteran": {
                           "address": {
                             "addressLine1": "123 Main St",
@@ -7051,6 +7054,7 @@
                       "type": "supplementalClaim",
                       "attributes": {
                         "benefitType": "compensation",
+                        "claimantType": "veteran",
                         "veteran": {
                           "address": {
                             "addressLine1": "123 Main St",
@@ -7291,6 +7295,7 @@
                           "type": "supplementalClaim",
                           "attributes": {
                             "benefitType": "fiduciary",
+                            "claimantType": "veteran",
                             "veteran": {
                               "address": {
                                 "addressLine1": "123 Main St",

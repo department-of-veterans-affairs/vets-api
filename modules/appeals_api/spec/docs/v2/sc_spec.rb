@@ -39,7 +39,11 @@ describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/ap
         },
         'all fields used' => {
           value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json'))).tap do |data|
-            data.dig('data', 'attributes')&.delete('claimant') unless DocHelpers.wip_doc_enabled?(:sc_v2_claimant)
+            unless DocHelpers.wip_doc_enabled?(:sc_v2_claimant)
+              data.dig('data', 'attributes')&.delete('claimant')
+              data.dig('data', 'attributes')&.delete('claimantTypeOtherValue')
+              data['data']['attributes']['claimantType'] = 'veteran'
+            end
           end
         }
       }
@@ -90,7 +94,11 @@ describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/ap
 
         let(:sc_body) do
           JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json'))).tap do |data|
-            data.dig('data', 'attributes')&.delete('claimant') unless DocHelpers.wip_doc_enabled?(:sc_v2_claimant)
+            unless DocHelpers.wip_doc_enabled?(:sc_v2_claimant)
+              data.dig('data', 'attributes')&.delete('claimant')
+              data.dig('data', 'attributes')&.delete('claimantTypeOtherValue')
+              data['data']['attributes']['claimantType'] = 'veteran'
+            end
           end
         end
 
@@ -105,7 +113,14 @@ describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/ap
         schema '$ref' => '#/components/schemas/errorModel'
 
         let(:sc_body) do
-          request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json')))
+          request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json'))).tap do |data|
+            unless DocHelpers.wip_doc_enabled?(:sc_v2_claimant)
+              data.dig('data', 'attributes')&.delete('claimant')
+              data.dig('data', 'attributes')&.delete('claimantTypeOtherValue')
+              data['data']['attributes']['claimantType'] = 'veteran'
+            end
+          end
+
           request_body['data']['attributes'].delete('form5103Acknowledged')
           request_body
         end
