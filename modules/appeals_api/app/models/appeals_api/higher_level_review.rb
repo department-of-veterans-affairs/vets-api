@@ -48,7 +48,7 @@ module AppealsApi
 
     # the controller applies the JSON Schemas in modules/appeals_api/config/schemas/
     # further validations:
-    validate :birth_date_is_in_the_past,
+    validate :veteran_birth_date_is_in_the_past,
              :contestable_issue_dates_are_in_the_past,
              if: proc { |a| a.form_data.present? }
 
@@ -117,16 +117,16 @@ module AppealsApi
       auth_headers['X-VA-File-Number']
     end
 
-    def birth_mm
-      birth_date.strftime '%m'
+    def veteran_birth_mm
+      veteran_birth_date.strftime '%m'
     end
 
-    def birth_dd
-      birth_date.strftime '%d'
+    def veteran_birth_dd
+      veteran_birth_date.strftime '%d'
     end
 
-    def birth_yyyy
-      birth_date.strftime '%Y'
+    def veteran_birth_yyyy
+      veteran_birth_date.strftime '%Y'
     end
 
     def service_number
@@ -304,7 +304,7 @@ module AppealsApi
         ssn: ssn,
         first_name: first_name,
         last_name: last_name,
-        birth_date: birth_date.iso8601
+        birth_date: veteran_birth_date.iso8601
       )
     end
 
@@ -324,12 +324,12 @@ module AppealsApi
       data_attributes&.dig('veteran')
     end
 
-    def birth_date_string
+    def veteran_birth_date_string
       auth_headers['X-VA-Birth-Date']
     end
 
-    def birth_date
-      self.class.date_from_string birth_date_string
+    def veteran_birth_date
+      self.class.date_from_string veteran_birth_date_string
     end
 
     def veteran_phone

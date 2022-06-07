@@ -38,16 +38,16 @@ module AppealsApi
             end
           end
 
-          describe 'birth_month' do
-            it { expect(form_fields.birth_month).to eq 'form1[0].#subform[2].DOBmonth[0]' }
+          describe 'veteran_birth_month' do
+            it { expect(form_fields.veteran_birth_month).to eq 'form1[0].#subform[2].DOBmonth[0]' }
           end
 
-          describe 'birth_day' do
-            it { expect(form_fields.birth_day).to eq 'form1[0].#subform[2].DOBday[0]' }
+          describe 'veteran_birth_day' do
+            it { expect(form_fields.veteran_birth_day).to eq 'form1[0].#subform[2].DOBday[0]' }
           end
 
-          describe 'birth_year' do
-            it { expect(form_fields.birth_year).to eq 'form1[0].#subform[2].DOByear[0]' }
+          describe 'veteran_birth_year' do
+            it { expect(form_fields.veteran_birth_year).to eq 'form1[0].#subform[2].DOByear[0]' }
           end
 
           describe 'file_number' do

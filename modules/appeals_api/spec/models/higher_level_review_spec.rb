@@ -95,20 +95,20 @@ describe AppealsApi::HigherLevelReview, type: :model do
     it('matches header') { is_expected.to eq auth_headers['X-VA-File-Number'] }
   end
 
-  describe '#birth_mm' do
-    subject { higher_level_review.birth_mm }
+  describe '#veteran_birth_mm' do
+    subject { higher_level_review.veteran_birth_mm }
 
     it('matches header') { is_expected.to eq auth_headers['X-VA-Birth-Date'][5..6] }
   end
 
-  describe '#birth_dd' do
-    subject { higher_level_review.birth_dd }
+  describe '#veteran_birth_dd' do
+    subject { higher_level_review.veteran_birth_dd }
 
     it('matches header') { is_expected.to eq auth_headers['X-VA-Birth-Date'][8..9] }
   end
 
-  describe '#birth_yyyy' do
-    subject { higher_level_review.birth_yyyy }
+  describe '#veteran_birth_yyyy' do
+    subject { higher_level_review.veteran_birth_yyyy }
 
     it('matches header') { is_expected.to eq auth_headers['X-VA-Birth-Date'][0..3] }
   end
@@ -195,7 +195,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
     let(:auth_headers) { fixture_as_json 'valid_200996_headers_extra.json', version: 'v2' }
     let(:form_data) { fixture_as_json 'valid_200996_extra.json', version: 'v2' }
 
-    it_behaves_like 'shared model validations', validations: %i[birth_date_is_in_the_past
+    it_behaves_like 'shared model validations', validations: %i[veteran_birth_date_is_in_the_past
                                                                 contestable_issue_dates_are_in_the_past
                                                                 required_claimant_data_is_present
                                                                 claimant_birth_date_is_in_the_past],

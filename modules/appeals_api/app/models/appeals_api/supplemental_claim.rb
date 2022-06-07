@@ -37,7 +37,7 @@ module AppealsApi
     # the controller applies the JSON Schemas in modules/appeals_api/config/schemas/
     # further validations:
     validate(
-      :birth_date_is_in_the_past,
+      :veteran_birth_date_is_in_the_past,
       :required_claimant_data_is_present,
       :contestable_issue_dates_are_in_the_past,
       if: proc { |a| a.form_data.present? }
@@ -234,7 +234,7 @@ module AppealsApi
     end
 
     # Used in shared model validations
-    def birth_date
+    def veteran_birth_date
       veteran.birth_date
     end
 

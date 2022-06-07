@@ -68,24 +68,24 @@ module AppealsApi
               end
             end
 
-            describe '#birth_mm' do
+            describe '#veteran_birth_mm' do
               it do
-                expect(higher_level_review).to receive(:birth_mm)
-                form_data.birth_month
+                expect(higher_level_review).to receive(:veteran_birth_mm)
+                form_data.veteran_birth_month
               end
             end
 
-            describe '#birth_dd' do
+            describe '#veteran_birth_dd' do
               it do
-                expect(higher_level_review).to receive(:birth_dd)
-                form_data.birth_day
+                expect(higher_level_review).to receive(:veteran_birth_dd)
+                form_data.veteran_birth_day
               end
             end
 
-            describe '#birth_yyyy' do
+            describe '#veteran_birth_yyyy' do
               it do
-                expect(higher_level_review).to receive(:birth_yyyy)
-                form_data.birth_year
+                expect(higher_level_review).to receive(:veteran_birth_yyyy)
+                form_data.veteran_birth_year
               end
             end
           end

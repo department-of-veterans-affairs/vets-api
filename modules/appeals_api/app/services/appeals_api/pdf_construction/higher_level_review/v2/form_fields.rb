@@ -20,15 +20,15 @@ module AppealsApi
           'form1[0].#subform[2].ClaimantsSocialSecurityNumber_LastFourNumbers[0]'
         end
 
-        def birth_month
+        def veteran_birth_month
           'form1[0].#subform[2].DOBmonth[0]'
         end
 
-        def birth_day
+        def veteran_birth_day
           'form1[0].#subform[2].DOBday[0]'
         end
 
-        def birth_year
+        def veteran_birth_year
           'form1[0].#subform[2].DOByear[0]'
         end
 
