@@ -12,12 +12,14 @@ shared_examples 'shared model validations' do |opts|
 
     before { appeal.auth_headers = appeal.auth_headers.merge 'X-VA-Birth-Date' => '3000-01-02' }
 
-    it 'errors with source at the veteran birth date header' do
-      expect(appeal.valid?).to be false
-      expect(appeal.errors.size).to eq 1
-      error = appeal.errors.first
-      expect(error.options[:source]).to eq({ header: 'X-VA-Birth-Date' })
-      expect(error.message).to eq 'Date must be in the past: 3000-01-02'
+    context 'when birth date is in the future' do
+      it 'errors with source at the veteran birth date header' do
+        expect(appeal.valid?).to be false
+        expect(appeal.errors.size).to eq 1
+        error = appeal.errors.first
+        expect(error.options[:source]).to eq({ header: 'X-VA-Birth-Date' })
+        expect(error.message).to eq 'Date must be in the past: 3000-01-02'
+      end
     end
   end
 
@@ -30,12 +32,14 @@ shared_examples 'shared model validations' do |opts|
       appeal.form_data = data
     end
 
-    it 'errors with source to the issue where the date failed' do
-      expect(appeal.valid?).to be false
-      expect(appeal.errors.size).to eq 1
-      error = appeal.errors.first
-      expect(error.attribute.to_s).to eq '/data/included[0]/attributes/decisionDate'
-      expect(error.message).to eq 'Date must be in the past: 3000-01-02'
+    context 'when issue date is in the future' do
+      it 'errors with source to the issue where the date failed' do
+        expect(appeal.valid?).to be false
+        expect(appeal.errors.size).to eq 1
+        error = appeal.errors.first
+        expect(error.attribute.to_s).to eq '/data/included[0]/attributes/decisionDate'
+        expect(error.message).to eq 'Date must be in the past: 3000-01-02'
+      end
     end
   end
 
@@ -46,12 +50,14 @@ shared_examples 'shared model validations' do |opts|
       appeal.auth_headers = appeal.auth_headers.merge('X-VA-Claimant-Birth-Date' => '3000-01-02')
     end
 
-    it 'errors with pointer to claimant birthdate header' do
-      expect(appeal.valid?).to be false
-      expect(appeal.errors.size).to eq 1
-      error = appeal.errors.first
-      expect(error.options[:source]).to eq({ header: 'X-VA-Claimant-Birth-Date' })
-      expect(error.message).to eq 'Date must be in the past: 3000-01-02'
+    context 'when claimant birth date is in the future' do
+      it 'errors with pointer to claimant birthdate header' do
+        expect(appeal.valid?).to be false
+        expect(appeal.errors.size).to eq 1
+        error = appeal.errors.first
+        expect(error.options[:source]).to eq({ header: 'X-VA-Claimant-Birth-Date' })
+        expect(error.message).to eq 'Date must be in the past: 3000-01-02'
+      end
     end
   end
 
