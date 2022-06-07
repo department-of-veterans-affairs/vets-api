@@ -60,6 +60,7 @@ describe VAOS::V2::AppointmentsService do
       # end
     end
 
+    # TODO: Verify CC request details
     context 'when cc appointment create request is valid' do
       it 'returns the created appointment - cc - proposed' do
         VCR.use_cassette('vaos/v2/appointments/post_appointments_cc_200_2222022', match_requests_on: %i[method uri]) do
