@@ -184,6 +184,10 @@
                 {
                   "if": { "properties": { "claimantType": { "const": "other" } } },
                   "then": { "required": ["claimantTypeOtherValue"] }
+                },
+                {
+                  "if": { "properties": { "claimantType": { "enum": ["spouse_of_veteran", "child_of_veteran", "parent_of_veteran", "other"] } } },
+                  "then": { "required": ["claimant"] }
                 }
               ]
             }
