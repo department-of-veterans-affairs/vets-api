@@ -15,11 +15,11 @@ module AppealsApi
 
     included do
       # validation (header)
-      def birth_date_is_in_the_past
-        return unless birth_date
-        return if self.class.past?(birth_date)
+      def veteran_birth_date_is_in_the_past
+        return unless veteran_birth_date
+        return if self.class.past?(veteran_birth_date)
 
-        add_date_error '', birth_date, source: { header: 'X-VA-Birth-Date' }
+        add_date_error '', veteran_birth_date, source: { header: 'X-VA-Birth-Date' }
       end
 
       # validation (header)

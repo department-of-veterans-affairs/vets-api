@@ -7,8 +7,8 @@ shared_examples 'shared model validations' do |opts|
   all_claimant_headers = %w[X-VA-Claimant-First-Name X-VA-Claimant-Middle-Initial X-VA-Claimant-Last-Name
                             X-VA-Claimant-Birth-Date].freeze
 
-  describe '#birth_date_is_in_the_past' do
-    next unless opts[:validations].include? :birth_date_is_in_the_past
+  describe '#veteran_birth_date_is_in_the_past' do
+    next unless opts[:validations].include? :veteran_birth_date_is_in_the_past
 
     before { appeal.auth_headers = appeal.auth_headers.merge 'X-VA-Birth-Date' => '3000-01-02' }
 

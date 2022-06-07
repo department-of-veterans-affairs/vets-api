@@ -15,7 +15,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
   describe 'validations' do
     let(:appeal) { build(:extra_supplemental_claim) }
 
-    it_behaves_like 'shared model validations', validations: %i[birth_date_is_in_the_past
+    it_behaves_like 'shared model validations', validations: %i[veteran_birth_date_is_in_the_past
                                                                 contestable_issue_dates_are_in_the_past
                                                                 required_claimant_data_is_present],
                                                 required_claimant_headers: described_class.required_nvc_headers

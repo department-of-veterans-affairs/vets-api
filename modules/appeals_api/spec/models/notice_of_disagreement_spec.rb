@@ -289,7 +289,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
       let(:appeal) { nod_with_non_veteran_claimant }
 
-      it_behaves_like 'shared model validations', validations: %i[birth_date_is_in_the_past
+      it_behaves_like 'shared model validations', validations: %i[veteran_birth_date_is_in_the_past
                                                                   contestable_issue_dates_are_in_the_past
                                                                   required_claimant_data_is_present
                                                                   claimant_birth_date_is_in_the_past],

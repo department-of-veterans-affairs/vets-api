@@ -26,16 +26,16 @@ module AppealsApi
           ssn.last(4)
         end
 
-        def birth_month
-          higher_level_review.birth_mm
+        def veteran_birth_month
+          higher_level_review.veteran_birth_mm
         end
 
-        def birth_day
-          higher_level_review.birth_dd
+        def veteran_birth_day
+          higher_level_review.veteran_birth_dd
         end
 
-        def birth_year
-          higher_level_review.birth_yyyy
+        def veteran_birth_year
+          higher_level_review.veteran_birth_yyyy
         end
 
         delegate :file_number, to: :higher_level_review

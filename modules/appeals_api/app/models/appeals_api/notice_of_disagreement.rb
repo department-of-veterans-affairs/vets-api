@@ -43,7 +43,7 @@ module AppealsApi
 
     # the controller applies the JSON Schemas in modules/appeals_api/config/schemas/
     # further validations:
-    validate :birth_date_is_in_the_past,
+    validate :veteran_birth_date_is_in_the_past,
              :contestable_issue_dates_are_in_the_past,
              :validate_hearing_type_selection,
              if: proc { |a| a.form_data.present? }
@@ -256,7 +256,7 @@ module AppealsApi
         ssn: ssn,
         first_name: veteran_first_name,
         last_name: veteran_last_name,
-        birth_date: birth_date.iso8601
+        birth_date: veteran_birth_date.iso8601
       )
     end
 
@@ -318,7 +318,7 @@ module AppealsApi
       !board_review_hearing_selected? && includes_hearing_type_preference?
     end
 
-    def birth_date
+    def veteran_birth_date
       self.class.date_from_string header_field_as_string 'X-VA-Birth-Date'
     end
 
