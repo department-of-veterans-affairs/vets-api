@@ -461,6 +461,10 @@ features:
     actor_type: user
     description: Show/hide the fax number UI on the profile page
     enable_in_development: true
+  profile_force_bad_address_indicator:
+    actor_type: user
+    description: Allows to force the BAI experience for UAT testing
+    enable_in_development: false
   profile_show_demographics:
     actor_type: user
     description: Used to show demographic data (preferred name and gender identity) for the profile
