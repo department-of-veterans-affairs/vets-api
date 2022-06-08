@@ -45,7 +45,21 @@ module ClaimsApi
       def validate_poa_code_for_current_user!(poa_code)
         return if valid_poa_code_for_current_user?(poa_code)
 
+        error_msg = 'Veterans making requests do not need to include identifying headers '\
+                    "such as 'X-VA-First-Name'. Please resubmit without extraneous headers"
+        raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_msg) if target_veteran_is_current_user?
+
         raise ::Common::Exceptions::InvalidFieldValue.new('poaCode', poa_code)
+      end
+
+      #
+      # Request headers are only required if the issuer of the request is *not* the target veteran.
+      # If a request is made that unnneccesarily includes headers, we need to check and issue a failure.
+      #
+      # @return [Boolean] True if current user == request header identity, false if not
+      def target_veteran_is_current_user?
+        # Certain users might have inconsistencies in naming, so use SSN as a more reliable indicator
+        @current_user.ssn == request.headers.fetch('X-VA-SSN')
       end
 
       #
