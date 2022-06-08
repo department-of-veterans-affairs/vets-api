@@ -26,7 +26,7 @@ module CARMA
           context 'successfully' do
             before do
               expect(response).to receive(:status).and_return(200)
-              expect(response).to receive(:body).and_return(body)
+              allow(response).to receive(:body).and_return(body)
             end
 
             it 'POSTs to the correct resource' do
@@ -47,11 +47,15 @@ module CARMA
           context 'gets an error from the remote' do
             before do
               expect(response).to receive(:status).and_return(400)
+              allow(response).to receive(:body).and_return('error')
             end
 
             it 'raises an error' do
               expect(client).to receive(:perform).with(:post, 'submit', payload, exp_headers, exp_opts)
                                                  .and_return(response)
+
+              expect(Raven).to receive(:extra_context).with(response_body: 'error')
+
               expect { client.create_submission(payload) }.to raise_error(Common::Exceptions::SchemaValidationErrors)
             end
           end
@@ -60,7 +64,7 @@ module CARMA
         describe 'attachments' do
           before do
             expect(response).to receive(:status).and_return(201)
-            expect(response).to receive(:body).and_return(body)
+            allow(response).to receive(:body).and_return(body)
           end
 
           it 'POSTs to the correct resource' do
