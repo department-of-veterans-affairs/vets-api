@@ -39,6 +39,7 @@ module AppealsApi
     validate(
       :veteran_birth_date_is_in_the_past,
       :required_claimant_data_is_present,
+      :validate_claimant_type,
       :contestable_issue_dates_are_in_the_past,
       if: proc { |a| a.form_data.present? }
     )
@@ -207,6 +208,15 @@ module AppealsApi
     end
 
     private
+
+    #  Must supply non-veteran claimantType if claimant fields present
+    def validate_claimant_type
+      return unless claimant_type == 'veteran' && signing_appellant.claimant?
+
+      source = '/data/attributes/claimantType'
+
+      errors.add source, I18n.t('appeals_api.errors.sc_incorrect_claimant_type')
+    end
 
     def mpi_veteran
       AppealsApi::Veteran.new(

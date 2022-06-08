@@ -8,6 +8,7 @@ en:
         mismatched_file_numbers: "Request header 'X-VA-File-Number' does not match the associated appeal's file number"
         nod_requesting_extension_must_be_true: "If '/data/attributes/extensionReason' present, then '/data/attributes/requestingExtension' must equal true"
         nod_outside_legal_window: "This evidence submission is outside the 90 day legal window for submission."
+        sc_incorrect_claimant_type: "If '/data/attributes/claimant' field is supplied, 'data/attributes/claimantType' must not be 'veteran'."
         sc_outside_submission_window: "This submission is outside of the 7-day window for evidence submission."
         missing_uuid: 'Must supply a corresponding %{appeal_type} id in order to submit evidence'
         no_evidence_submission_accepted: "Corresponding Notice of Disagreement 'boardReviewOption' must be 'evidence_submission'"
