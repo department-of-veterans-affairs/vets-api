@@ -125,6 +125,10 @@ features:
     actor_type: user
     description: Enables language translation for the pre-check-in experience
     enable_in_development: true
+  check_in_experience_translation_disclaimer_spanish_enabled:
+    actor_type: user
+    description: Enables disclaimer for possible untranslated content on spanish pages
+    enable_in_development: true
   check_in_experience_lorota_security_updates_enabled:
     actor_type: user
     description: Enables DOB instead of last 4 of SSN.
