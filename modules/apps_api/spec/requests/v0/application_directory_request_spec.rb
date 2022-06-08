@@ -71,6 +71,24 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
       expect(body.length).to be(1)
       expect(response).to have_http_status(:ok)
     end
+
+    it 'has :unprocessable_entity when given invalid params' do
+      post '/services/apps/v0/directory',
+           params: { id: 'testing', directory_application: valid_params },
+           headers: valid_headers
+
+      other_valid_params = valid_params.dup
+      other_valid_params[:name] = 'testing2'
+      post '/services/apps/v0/directory',
+           params: { id: 'testing2', directory_application: other_valid_params },
+           headers: valid_headers
+
+      # try changing first app's name to the same name as the second app
+      put '/services/apps/v0/directory/testing',
+          params: { id: 'testing', directory_application: other_valid_params },
+          headers: valid_headers
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
   end
 
   describe '#destroy /services/apps/v0/directory/:name' do
@@ -143,16 +161,6 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
       VCR.use_cassette('okta/verification-scopes', match_requests_on: %i[method path]) do
         get '/services/apps/v0/directory/scopes'
         expect(response).to have_http_status(:no_content)
-      end
-    end
-  end
-
-  describe '#get /services/apps/v0/directory/:page' do
-    context 'when paginating' do
-      it 'returns paginated apps' do
-        get '/services/apps/v0/directory?page=1'
-        body = JSON.parse(response.body)
-        expect(body['data'].length).to be <= 10
       end
     end
   end
