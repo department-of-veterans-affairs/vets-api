@@ -168,6 +168,31 @@ RSpec.describe 'Power of Attorney ', type: :request do
           end
         end
 
+        context 'when the current user is the Veteran and uses request headers' do
+          let(:headers) do
+            { 'X-VA-SSN': '796111863',
+              'X-VA-First-Name': 'Abraham',
+              'X-VA-Last-Name': 'Lincoln',
+              'X-VA-Birth-Date': '1809-02-12',
+              'X-VA-Gender': 'M' }
+          end
+
+          before do
+            stub_mpi
+          end
+
+          it 'responds with a 422' do
+            with_okta_user(scopes) do |auth_header|
+              post path, params: data, headers: headers.merge(auth_header)
+
+              expect(response.status).to eq(422)
+              error_detail = JSON.parse(response.body)['errors'][0]['detail']
+              substring = 'Veterans making requests do not need to include identifying headers'
+              expect(error_detail.include?(substring)).to be true
+            end
+          end
+        end
+
         context 'when poa code is not associated with current user' do
           before do
             stub_mpi
