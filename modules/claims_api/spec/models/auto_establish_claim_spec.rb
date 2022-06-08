@@ -89,7 +89,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
 
     it 'adds an identifier for Lighthouse submissions' do
       payload = JSON.parse(pending_record.to_internal)
-      expect(payload['form526']['claimSubmissionSource']).to eq('Lighthouse')
+      expect(payload['form526']['claimSubmissionSource']).to eq('LH-B')
     end
 
     it 'converts special issues to EVSS codes' do
