@@ -182,5 +182,31 @@ describe VAProfile::Models::Address do
         expect(address.valid?).to eq(false)
       end
     end
+
+    context 'when address pou is correspondence' do
+      it 'correspondence? is true' do
+        address.address_pou = VAProfile::Models::Address::CORRESPONDENCE
+        expect(address.correspondence?).to eq(true)
+      end
+
+      it 'bad address is false' do
+        address.address_pou = VAProfile::Models::Address::CORRESPONDENCE
+        json = JSON.parse(address.in_json)
+        expect(json['bio']['badAddress']).to eq(false)
+      end
+    end
+
+    context 'when address pou is residence' do
+      it 'correspondence? is false' do
+        address.address_pou = VAProfile::Models::Address::RESIDENCE
+        expect(address.correspondence?).to eq(false)
+      end
+
+      it 'bad address is nil' do
+        address.address_pou = VAProfile::Models::Address::RESIDENCE
+        json = JSON.parse(address.in_json)
+        expect(json['bio']['badAddress']).to eq(nil)
+      end
+    end
   end
 end

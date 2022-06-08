@@ -47,6 +47,8 @@ module VAProfile
           address_attributes[:overrideIndicator] = true
         end
 
+        address_attributes[:badAddress] = false if correspondence?
+
         {
           bio: address_attributes
         }.to_json
@@ -91,6 +93,10 @@ module VAProfile
         )
       end
       # rubocop:enable Metrics/MethodLength
+
+      def correspondence?
+        @address_pou == VAProfile::Models::Address::CORRESPONDENCE
+      end
     end
   end
 end
