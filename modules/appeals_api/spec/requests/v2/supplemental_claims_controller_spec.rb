@@ -10,7 +10,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
     "/services/appeals/v2/decision_reviews/#{path}"
   end
 
-  let(:minimum_data) { fixture_to_s 'valid_200995_minimum.json', version: 'v2' }
+  let(:minimum_data) { fixture_to_s 'valid_200995.json', version: 'v2' }
   let(:data) { fixture_to_s 'valid_200995.json', version: 'v2' }
   let(:extra_data) { fixture_to_s 'valid_200995_extra.json', version: 'v2' }
   let(:headers) { fixture_as_json 'valid_200995_headers.json', version: 'v2' }

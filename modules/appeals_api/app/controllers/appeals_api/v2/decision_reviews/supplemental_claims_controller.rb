@@ -51,8 +51,11 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
       ).schema(self.class::FORM_NUMBER)
     )
     response.tap do |s|
-      s.dig(*%w[definitions scCreate properties data properties attributes properties]).delete('claimant')
+      properties = s.dig(*%w[definitions scCreate properties data properties attributes properties])
+      properties.delete('claimant')
+      properties.delete('claimantTypeOther')
     end
+
     render json: response
   end
 

@@ -44,7 +44,7 @@ FactoryBot.define do
       JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/v2/valid_200995_headers_minimum.json"
     end
     form_data do
-      JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/v2/valid_200995_minimum.json"
+      JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/v2/valid_200995.json"
     end
   end
 end

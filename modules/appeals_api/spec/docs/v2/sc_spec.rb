@@ -35,7 +35,7 @@ describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/ap
 
       parameter in: :body, examples: {
         'minimum fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_minimum.json')))
+          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995.json')))
         },
         'all fields used' => {
           value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json'))).tap do |data|
@@ -155,6 +155,120 @@ describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/ap
         let(:uuid) { 'invalid' }
 
         it_behaves_like 'rswag example', desc: 'returns a 404 response'
+      end
+    end
+  end
+
+  path '/supplemental_claims/schema' do
+    get 'Gets the Supplemental Claims JSON Schema.' do
+      tags 'Supplemental Claims'
+      operationId 'scSchema'
+      description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /supplemental_claims` endpoint.'
+      security [
+        { apikey: [] }
+      ]
+      produces 'application/json'
+
+      response '200', 'the JSON Schema for POST /supplemental_claims' do
+        it_behaves_like 'rswag example', desc: 'returns a 200 response'
+      end
+    end
+  end
+
+  path '/supplemental_claims/validate' do
+    post 'Validates a POST request body against the JSON schema.' do
+      tags 'Supplemental Claims'
+      operationId 'scValidate'
+      description 'Like the POST /supplemental_claims, but only does the validations <b>—does not submit anything.</b>'
+      security [
+        { apikey: [] }
+      ]
+      consumes 'application/json'
+      produces 'application/json'
+
+      parameter name: :sc_body, in: :body, schema: { '$ref' => '#/components/schemas/scCreate' }
+
+      parameter in: :body, examples: {
+        'minimum fields used' => {
+          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995.json')))
+        },
+        'all fields used' => {
+          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json'))).tap do |data|
+            unless DocHelpers.wip_doc_enabled?(:sc_v2_claimant)
+              data['data']['attributes']['claimantType'] = 'veteran'
+              data.dig('data', 'attributes')&.delete('claimant')
+              data.dig('data', 'attributes')&.delete('claimantTypeOtherValue')
+            end
+          end
+        }
+      }
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_ssn_header]
+      let(:'X-VA-SSN') { '000000000' }
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_first_name_header]
+      let(:'X-VA-First-Name') { 'first' }
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_middle_initial_header]
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_last_name_header]
+      let(:'X-VA-Last-Name') { 'last' }
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_birth_date_header]
+      let(:'X-VA-Birth-Date') { '1900-01-01' }
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header]
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_insurance_policy_number_header]
+
+      if DocHelpers.wip_doc_enabled?(:sc_v2_claimant)
+        parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_first_name_header]
+        parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_last_name_header]
+      end
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_username_header]
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_id_header]
+
+      response '200', 'Valid Minimum' do
+        let(:sc_body) do
+          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995.json')))
+        end
+
+        schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'sc_validate.json')))
+
+        it_behaves_like 'rswag example', desc: 'returns a 200 response'
+      end
+
+      response '200', 'Valid maximum' do
+        let(:sc_body) do
+          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json'))).tap do |data|
+            unless DocHelpers.wip_doc_enabled?(:sc_v2_claimant)
+              data.dig('data', 'attributes')&.delete('claimant')
+              data.dig('data', 'attributes')&.delete('claimantTypeOtherValue')
+              data['data']['attributes']['claimantType'] = 'veteran'
+            end
+          end
+        end
+
+        if DocHelpers.wip_doc_enabled?(:sc_v2_claimant)
+          let(:'X-VA-Claimant-First-Name') { 'first' }
+          let(:'X-VA-Claimant-Last-Name') { 'last' }
+        end
+
+        schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'sc_validate.json')))
+
+        it_behaves_like 'rswag example', desc: 'returns a 200 response'
+      end
+
+      response '422', 'Violates JSON schema' do
+        schema '$ref' => '#/components/schemas/errorModel'
+
+        let(:sc_body) do
+          request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995.json')))
+          request_body['data']['attributes'].delete('veteran')
+          request_body
+        end
+
+        it_behaves_like 'rswag example', desc: 'returns a 422 response'
       end
     end
   end
