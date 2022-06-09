@@ -4,11 +4,16 @@ require 'rails_helper'
 
 RSpec.describe SignIn::CodeChallengeStateMap, type: :model do
   let(:code_challenge_state_map) do
-    create(:code_challenge_state_map, code_challenge: code_challenge, state: state, client_state: client_state)
+    create(:code_challenge_state_map,
+           code_challenge: code_challenge,
+           client_id: client_id,
+           state: state,
+           client_state: client_state)
   end
 
   let(:code_challenge) { Base64.urlsafe_encode64(SecureRandom.hex) }
   let(:state) { SecureRandom.hex }
+  let(:client_id) { SignIn::Constants::Auth::CLIENT_IDS.first }
   let(:client_state) { SecureRandom.hex }
 
   describe 'validations' do
@@ -31,6 +36,30 @@ RSpec.describe SignIn::CodeChallengeStateMap, type: :model do
 
       context 'when state is nil' do
         let(:state) { nil }
+        let(:expected_error) { Common::Exceptions::ValidationErrors }
+        let(:expected_error_message) { 'Validation error' }
+
+        it 'raises validation error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+    end
+
+    describe '#client_id' do
+      subject { code_challenge_state_map.client_id }
+
+      context 'when client_id is nil' do
+        let(:client_id) { nil }
+        let(:expected_error) { Common::Exceptions::ValidationErrors }
+        let(:expected_error_message) { 'Validation error' }
+
+        it 'raises validation error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+
+      context 'when client_id is an arbitrary value' do
+        let(:client_id) { 'some-client-id' }
         let(:expected_error) { Common::Exceptions::ValidationErrors }
         let(:expected_error_message) { 'Validation error' }
 

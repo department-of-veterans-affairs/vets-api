@@ -4,10 +4,11 @@ require 'rails_helper'
 
 RSpec.describe SignIn::UserCreator do
   describe '#perform' do
-    subject { SignIn::UserCreator.new(user_attributes: user_attributes, state: state).perform }
+    subject { SignIn::UserCreator.new(user_attributes: user_attributes, state: state, type: type).perform }
 
     let(:user_attributes) { { some_user_attribute: 'some-user-attribute' } }
     let(:state) { 'some-state' }
+    let(:type) { 'some-type' }
 
     context 'when state does not match a code challenge state map object' do
       let(:state) { 'some-arbitrary-state' }
@@ -20,9 +21,15 @@ RSpec.describe SignIn::UserCreator do
     end
 
     context 'when state matches a code challenge state map object' do
-      let!(:code_challenge_state_map) { create(:code_challenge_state_map, state: state, client_state: client_state) }
+      let!(:code_challenge_state_map) do
+        create(:code_challenge_state_map,
+               state: state,
+               client_id: client_id,
+               client_state: client_state)
+      end
       let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
       let(:state) { 'some-state' }
+      let(:client_id) { SignIn::Constants::Auth::CLIENT_IDS.first }
 
       context 'and user_attributes matches normalized attributes from a logingov service' do
         let(:user_attributes) do
@@ -108,13 +115,17 @@ RSpec.describe SignIn::UserCreator do
           expect(user.last_name).to eq(last_name)
         end
 
-        it 'returns a login code and client state' do
-          expect(subject).to eq(expected_return_object)
+        it 'returns a user code map with expected attributes' do
+          user_code_map = subject
+          expect(user_code_map.login_code).to eq(login_code)
+          expect(user_code_map.type).to eq(type)
+          expect(user_code_map.client_state).to eq(client_state)
+          expect(user_code_map.client_id).to eq(client_id)
         end
 
         it 'creates a code container mapped to expected login code' do
-          code, _client_state = subject
-          code_container = SignIn::CodeContainer.find(code)
+          user_code_map = subject
+          code_container = SignIn::CodeContainer.find(user_code_map.login_code)
           expect(code_container.user_verification_id).to eq(user_verification.id)
           expect(code_container.code_challenge).to eq(code_challenge_state_map.code_challenge)
           expect(code_container.credential_email).to eq(csp_email)
@@ -146,7 +157,6 @@ RSpec.describe SignIn::UserCreator do
         let(:service_name) { SAML::User::IDME_CSID }
         let!(:user_verification) { create(:idme_user_verification, idme_uuid: csp_id) }
         let(:login_code) { 'some-login-code' }
-        let(:expected_return_object) { [login_code, client_state] }
 
         before do
           allow(SecureRandom).to receive(:uuid).and_return(login_code)
@@ -162,13 +172,17 @@ RSpec.describe SignIn::UserCreator do
           expect(user.last_name).to eq(last_name)
         end
 
-        it 'returns a login code and client state' do
-          expect(subject).to eq(expected_return_object)
+        it 'returns a user code map with expected attributes' do
+          user_code_map = subject
+          expect(user_code_map.login_code).to eq(login_code)
+          expect(user_code_map.type).to eq(type)
+          expect(user_code_map.client_state).to eq(client_state)
+          expect(user_code_map.client_id).to eq(client_id)
         end
 
         it 'creates a code container mapped to expected login code' do
-          code, _client_state = subject
-          code_container = SignIn::CodeContainer.find(code)
+          user_code_map = subject
+          code_container = SignIn::CodeContainer.find(user_code_map.login_code)
           expect(code_container.user_verification_id).to eq(user_verification.id)
           expect(code_container.code_challenge).to eq(code_challenge_state_map.code_challenge)
           expect(code_container.credential_email).to eq(csp_email)

@@ -15,10 +15,10 @@ Rails.application.routes.draw do
 
   get '/v0/sign_in/:type/authorize',
       to: 'v0/sign_in#authorize',
-      constraints: ->(request) { V0::SignInController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
+      constraints: ->(request) { SignIn::Constants::Auth::REDIRECT_URLS.include?(request.path_parameters[:type]) }
   get '/v0/sign_in/:type/callback',
       to: 'v0/sign_in#callback',
-      constraints: ->(request) { V0::SignInController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
+      constraints: ->(request) { SignIn::Constants::Auth::REDIRECT_URLS.include?(request.path_parameters[:type]) }
   post '/v0/sign_in/refresh', to: 'v0/sign_in#refresh'
   post '/v0/sign_in/revoke', to: 'v0/sign_in#revoke'
   post '/v0/sign_in/token', to: 'v0/sign_in#token'

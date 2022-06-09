@@ -2,11 +2,12 @@
 
 module SignIn
   class UserCreator
-    attr_reader :user_attributes, :state
+    attr_reader :user_attributes, :state, :type
 
-    def initialize(user_attributes:, state:)
+    def initialize(user_attributes:, state:, type:)
       @user_attributes = user_attributes
       @state = state
+      @type = type
     end
 
     def perform
@@ -14,7 +15,7 @@ module SignIn
       check_and_add_mpi_user
       update_and_persist_user
       create_code_container
-      [login_code, client_state]
+      user_code_map
     end
 
     private
@@ -44,6 +45,7 @@ module SignIn
 
     def create_code_container
       SignIn::CodeContainer.new(code: login_code,
+                                client_id: code_challenge_state_map.client_id,
                                 code_challenge: code_challenge_state_map.code_challenge,
                                 user_verification_id: user_verification.id,
                                 credential_email: credential_email).save!
@@ -65,12 +67,15 @@ module SignIn
       @current_user = user
     end
 
-    def user_verification
-      @user_verification ||= Login::UserVerifier.new(current_user).perform
+    def user_code_map
+      @user_code_map ||= SignIn::UserCodeMap.new(login_code: login_code,
+                                                 type: type,
+                                                 client_state: code_challenge_state_map.client_state,
+                                                 client_id: code_challenge_state_map.client_id)
     end
 
-    def client_state
-      code_challenge_state_map.client_state
+    def user_verification
+      @user_verification ||= Login::UserVerifier.new(current_user).perform
     end
 
     def credential_email
