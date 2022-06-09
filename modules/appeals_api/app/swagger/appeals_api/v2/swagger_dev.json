@@ -2556,22 +2556,11 @@
                                         }
                                       },
                                       "additionalProperties": false,
-                                      "oneOf": [
-                                        {
-                                          "required": [
-                                            "zipCode5"
-                                          ]
-                                        },
-                                        {
-                                          "required": [
-                                            "internationalPostalCode"
-                                          ]
-                                        }
-                                      ],
                                       "required": [
                                         "addressLine1",
                                         "city",
-                                        "countryCodeISO2"
+                                        "countryCodeISO2",
+                                        "zipCode5"
                                       ]
                                     },
                                     "phone": {
@@ -9464,22 +9453,11 @@
                           }
                         },
                         "additionalProperties": false,
-                        "oneOf": [
-                          {
-                            "required": [
-                              "zipCode5"
-                            ]
-                          },
-                          {
-                            "required": [
-                              "internationalPostalCode"
-                            ]
-                          }
-                        ],
                         "required": [
                           "addressLine1",
                           "city",
-                          "countryCodeISO2"
+                          "countryCodeISO2",
+                          "zipCode5"
                         ]
                       },
                       "phone": {
