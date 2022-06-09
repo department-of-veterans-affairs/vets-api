@@ -882,6 +882,18 @@ components:
                 type: "string"
               detail:
                 type: "string"
+    AppointmentReasonCodes:
+      type: string
+      description: |-
+        | Code | Definition |
+        |------|------------|
+        | Routine Follow-up | This is a routine or follow-up visit. |
+        | New Problem | The patient has a new medical issue. |
+        | Medication Concern | The patient has a concern or question about a medication. |
+      enum:
+        - Routine Follow-up
+        - New Problem
+        - Medication Concern
     Clinic:
       type: "object"
       required:
@@ -970,18 +982,8 @@ components:
         FHIR reference: https://www.hl7.org/fhir/datatypes.html#CodeableConcept
     Coding:
       properties:
-        system:
-          type: string
-          description: Identity of the terminology system
         code:
-          type: string
-          description: Symbol in syntax defined by the system
-        display:
-          type: string
-          description: A human-readable representation defined by the system.
-      description: >- 
-        A Coding is a representation of a defined concept using a symbol from a defined "code system". 
-        FHIR reference: https://www.hl7.org/fhir/datatypes.html#Coding
+          "$ref": "#/components/schemas/AppointmentReasonCodes"
     CommunityCareLocation:
       type: object
       properties:
