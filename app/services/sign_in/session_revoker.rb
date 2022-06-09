@@ -4,17 +4,16 @@ require 'sign_in/logger'
 
 module SignIn
   class SessionRevoker
-    attr_reader :refresh_token, :anti_csrf_token, :enable_anti_csrf, :session
+    attr_reader :refresh_token, :anti_csrf_token, :session
 
-    def initialize(refresh_token:, anti_csrf_token:, enable_anti_csrf:)
+    def initialize(refresh_token:, anti_csrf_token:)
       @refresh_token = refresh_token
       @anti_csrf_token = anti_csrf_token
-      @enable_anti_csrf = enable_anti_csrf
     end
 
     def perform
-      anti_csrf_check if enable_anti_csrf
       find_valid_oauth_session
+      anti_csrf_check if anti_csrf_enabled_client?
       delete_session!
     end
 
@@ -55,6 +54,10 @@ module SignIn
 
     def refresh_token_hash
       @refresh_token_hash ||= get_hash(refresh_token.to_json)
+    end
+
+    def anti_csrf_enabled_client?
+      Constants::ClientConfig::ANTI_CSRF_ENABLED.include?(session.client_id)
     end
 
     def get_hash(object)

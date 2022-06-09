@@ -69,7 +69,7 @@ RSpec.describe V0::SignInController, type: :controller do
     end
 
     context 'when client_id is in CLIENT_IDS' do
-      let(:client_id_value) { SignIn::Constants::Auth::CLIENT_IDS.first }
+      let(:client_id_value) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
 
       context 'when type param is not given' do
         let(:type) { {} }
@@ -438,7 +438,7 @@ RSpec.describe V0::SignInController, type: :controller do
           end
           let(:state) { { state: code_challenge_state_map.state } }
           let(:client_code) { 'some-client-code' }
-          let(:client_id) { SignIn::Constants::Auth::CLIENT_IDS.first }
+          let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
           let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
           let(:expected_url) do
             "#{Settings.sign_in.redirect_uri}?code=#{client_code}&state=#{client_state}&type=#{type_value}"
@@ -540,7 +540,7 @@ RSpec.describe V0::SignInController, type: :controller do
           let(:code_challenge_state_map) do
             create(:code_challenge_state_map, client_state: client_state, client_id: client_id)
           end
-          let(:client_id) { SignIn::Constants::Auth::CLIENT_IDS.first }
+          let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
           let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
           let(:expected_url) do
             "#{Settings.sign_in.redirect_uri}?code=#{client_code}&state=#{client_state}&type=#{type_value}"
@@ -735,8 +735,10 @@ RSpec.describe V0::SignInController, type: :controller do
           create(:code_container,
                  code: code_value,
                  code_challenge: code_challenge,
+                 client_id: client_id,
                  user_verification_id: user_verification_id)
         end
+        let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
         let(:code_challenge) { 'some-code-challenge' }
 
         context 'and code_verifier does not match expected code_challenge value' do
@@ -779,16 +781,42 @@ RSpec.describe V0::SignInController, type: :controller do
                 expect(subject).to have_http_status(:ok)
               end
 
-              it 'returns expected body with access token' do
-                expect(JSON.parse(subject.body)['data']).to have_key('access_token')
+              context 'and authentication is for a session with client id that is api auth' do
+                let(:client_id) { SignIn::Constants::ClientConfig::API_AUTH.first }
+
+                it 'returns expected body with access token' do
+                  expect(JSON.parse(subject.body)['data']).to have_key('access_token')
+                end
+
+                it 'returns expected body with refresh token' do
+                  expect(JSON.parse(subject.body)['data']).to have_key('refresh_token')
+                end
               end
 
-              it 'returns expected body with refresh token' do
-                expect(JSON.parse(subject.body)['data']).to have_key('refresh_token')
-              end
+              context 'and authentication is for a session with client id that is cookie auth' do
+                let(:client_id) { SignIn::Constants::ClientConfig::COOKIE_AUTH.first }
+                let(:access_token_cookie_name) { SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME }
+                let(:refresh_token_cookie_name) { SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME }
 
-              it 'returns expected body with anti csrf token token' do
-                expect(JSON.parse(subject.body)['data']).to have_key('anti_csrf_token')
+                it 'returns empty hash for body' do
+                  expect(JSON.parse(subject.body)).to eq({})
+                end
+
+                it 'sets access token cookie' do
+                  expect(subject.cookies).to have_key(access_token_cookie_name)
+                end
+
+                it 'sets refresh token cookie' do
+                  expect(subject.cookies).to have_key(refresh_token_cookie_name)
+                end
+
+                context 'and session has client id that is anti csrf enabled' do
+                  let(:anti_csrf_token_cookie_name) { SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME }
+
+                  it 'returns expected body with refresh token' do
+                    expect(subject.cookies).to have_key(anti_csrf_token_cookie_name)
+                  end
+                end
               end
 
               it 'logs the successful token request' do
@@ -810,141 +838,6 @@ RSpec.describe V0::SignInController, type: :controller do
     end
   end
 
-  describe 'POST revoke' do
-    subject { post(:revoke, params: {}.merge(refresh_token_param).merge(anti_csrf_token_param)) }
-
-    let(:refresh_token_param) { { refresh_token: refresh_token } }
-    let(:refresh_token) { 'example-refresh-token' }
-    let(:anti_csrf_token_param) { { anti_csrf_token: anti_csrf_token } }
-    let(:anti_csrf_token) { 'example-anti-csrf-token' }
-    let(:enable_anti_csrf) { false }
-    let(:user_verification) { create(:user_verification) }
-    let(:user_account) { user_verification.user_account }
-    let(:validated_credential) { create(:validated_credential, user_verification: user_verification) }
-    let(:error_context) { { refresh_token: refresh_token, anti_csrf_token: anti_csrf_token } }
-
-    before do
-      allow(Settings.sign_in).to receive(:enable_anti_csrf).and_return(enable_anti_csrf)
-    end
-
-    shared_examples 'error response' do
-      let(:expected_error_json) { { 'errors' => expected_error } }
-      let(:statsd_revoke_failure) { SignIn::Constants::Statsd::STATSD_SIS_REVOKE_FAILURE }
-
-      it 'renders expected error' do
-        expect(JSON.parse(subject.body)).to eq(expected_error_json)
-      end
-
-      it 'returns expected status' do
-        expect(subject).to have_http_status(expected_error_status)
-      end
-
-      it 'logs the failed revocation attempt' do
-        expect(Rails.logger).to receive(:error).once.with("#{expected_error} : #{error_context}")
-        subject
-      end
-
-      it 'updates StatsD with a revoke request failure' do
-        expect { subject }.to trigger_statsd_increment(statsd_revoke_failure)
-      end
-    end
-
-    context 'when Settings sign_in enable_anti_csrf is enabled' do
-      let(:enable_anti_csrf) { true }
-
-      context 'and anti_csrf_token param is not given' do
-        let(:expected_error) { 'Anti CSRF token is not defined' }
-        let(:expected_error_status) { :bad_request }
-        let(:anti_csrf_token_param) { {} }
-        let(:anti_csrf_token) { nil }
-
-        it_behaves_like 'error response'
-      end
-
-      context 'and anti_csrf_token has been modified' do
-        let(:session_container) { SignIn::SessionCreator.new(validated_credential: validated_credential).perform }
-        let(:refresh_token) do
-          SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
-        end
-        let(:anti_csrf_token) { 'some-modified-anti-csrf-token' }
-        let(:expected_error) { 'Anti CSRF token is not valid' }
-        let(:expected_error_status) { :unauthorized }
-
-        it_behaves_like 'error response'
-      end
-    end
-
-    context 'when refresh_token is a random string' do
-      let(:expected_error) { 'Refresh token cannot be decrypted' }
-      let(:expected_error_status) { :unauthorized }
-
-      it_behaves_like 'error response'
-    end
-
-    context 'when refresh_token is encrypted correctly' do
-      let(:session_container) { SignIn::SessionCreator.new(validated_credential: validated_credential).perform }
-      let(:refresh_token) do
-        SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
-      end
-      let(:expected_log_message) { '[SignInService] [V0::SignInController] revoke' }
-      let(:statsd_revoke_success) { SignIn::Constants::Statsd::STATSD_SIS_REVOKE_SUCCESS }
-      let(:expected_log_attributes) do
-        {
-          session_id: expected_session_handle,
-          token_type: 'Refresh',
-          user_id: user_account.id
-        }
-      end
-
-      context 'when refresh token is expired' do
-        let(:expected_error) { 'No valid Session found' }
-        let(:expected_error_status) { :unauthorized }
-
-        before do
-          session = session_container.session
-          session.refresh_expiration = 1.day.ago
-          session.save!
-        end
-
-        it_behaves_like 'error response'
-      end
-
-      context 'when refresh token does not map to an existing session' do
-        let(:expected_error) { 'No valid Session found' }
-        let(:expected_error_status) { :unauthorized }
-
-        before do
-          session = session_container.session
-          session.destroy!
-        end
-
-        it_behaves_like 'error response'
-      end
-
-      context 'when refresh token is unmodified and valid' do
-        let(:expected_session_handle) { session_container.session.handle }
-
-        it 'returns ok status' do
-          expect(subject).to have_http_status(:ok)
-        end
-
-        it 'destroys user session' do
-          subject
-          expect { session_container.session.reload }.to raise_error(ActiveRecord::RecordNotFound)
-        end
-
-        it 'logs the session revocation' do
-          expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_attributes)
-          subject
-        end
-
-        it 'updates StatsD with a revoke request success' do
-          expect { subject }.to trigger_statsd_increment(statsd_revoke_success)
-        end
-      end
-    end
-  end
-
   describe 'POST refresh' do
     subject { post(:refresh, params: {}.merge(refresh_token_param).merge(anti_csrf_token_param)) }
 
@@ -952,15 +845,13 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:anti_csrf_token_param) { { anti_csrf_token: anti_csrf_token } }
     let(:refresh_token) { 'some-refresh-token' }
     let(:anti_csrf_token) { 'some-anti-csrf-token' }
-    let(:enable_anti_csrf) { true }
     let(:user_verification) { create(:user_verification) }
     let(:user_account) { user_verification.user_account }
-    let(:validated_credential) { create(:validated_credential, user_verification: user_verification) }
-    let(:error_context) { { refresh_token: refresh_token, anti_csrf_token: anti_csrf_token } }
-
-    before do
-      allow(Settings.sign_in).to receive(:enable_anti_csrf).and_return(enable_anti_csrf)
+    let(:validated_credential) do
+      create(:validated_credential, user_verification: user_verification, client_id: client_id)
     end
+    let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
+    let(:error_context) { { refresh_token: refresh_token, anti_csrf_token: anti_csrf_token } }
 
     shared_examples 'error response' do
       let(:expected_error_json) { { 'errors' => expected_error } }
@@ -984,26 +875,25 @@ RSpec.describe V0::SignInController, type: :controller do
       end
     end
 
-    context 'when Settings sign_in enable_anti_csrf is enabled' do
-      let(:enable_anti_csrf) { true }
+    context 'when session has been created with a client id that is anti csrf enabled' do
+      let(:client_id) { SignIn::Constants::ClientConfig::ANTI_CSRF_ENABLED.first }
+      let(:session_container) { SignIn::SessionCreator.new(validated_credential: validated_credential).perform }
+      let(:refresh_token) do
+        SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
+      end
+      let(:expected_error) { 'Anti CSRF token is not valid' }
+      let(:expected_error_status) { :unauthorized }
 
       context 'and anti_csrf_token param is not given' do
-        let(:expected_error) { 'Anti CSRF token is not defined' }
         let(:anti_csrf_token_param) { {} }
         let(:anti_csrf_token) { nil }
-        let(:expected_error_status) { :bad_request }
 
         it_behaves_like 'error response'
       end
 
       context 'and anti_csrf_token has been modified' do
-        let(:session_container) { SignIn::SessionCreator.new(validated_credential: validated_credential).perform }
-        let(:refresh_token) do
-          SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
-        end
         let(:expected_error) { 'Anti CSRF token is not valid' }
         let(:anti_csrf_token) { 'some-modified-anti-csrf-token' }
-        let(:expected_error_status) { :unauthorized }
 
         it_behaves_like 'error response'
       end
@@ -1122,16 +1012,42 @@ RSpec.describe V0::SignInController, type: :controller do
           expect(subject).to have_http_status(:ok)
         end
 
-        it 'returns expected body with access token' do
-          expect(JSON.parse(subject.body)['data']).to have_key('access_token')
+        context 'and refresh token is for a session with client id that is api auth' do
+          let(:client_id) { SignIn::Constants::ClientConfig::API_AUTH.first }
+
+          it 'returns expected body with access token' do
+            expect(JSON.parse(subject.body)['data']).to have_key('access_token')
+          end
+
+          it 'returns expected body with refresh token' do
+            expect(JSON.parse(subject.body)['data']).to have_key('refresh_token')
+          end
         end
 
-        it 'returns expected body with refresh token' do
-          expect(JSON.parse(subject.body)['data']).to have_key('refresh_token')
-        end
+        context 'and refresh token is for a session with client id that is cookie auth' do
+          let(:client_id) { SignIn::Constants::ClientConfig::COOKIE_AUTH.first }
+          let(:access_token_cookie_name) { SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME }
+          let(:refresh_token_cookie_name) { SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME }
 
-        it 'returns expected body with anti csrf token token' do
-          expect(JSON.parse(subject.body)['data']).to have_key('anti_csrf_token')
+          it 'returns empty hash for body' do
+            expect(JSON.parse(subject.body)).to eq({})
+          end
+
+          it 'sets access token cookie' do
+            expect(subject.cookies).to have_key(access_token_cookie_name)
+          end
+
+          it 'sets refresh token cookie' do
+            expect(subject.cookies).to have_key(refresh_token_cookie_name)
+          end
+
+          context 'and session has client id that is anti csrf enabled' do
+            let(:anti_csrf_token_cookie_name) { SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME }
+
+            it 'returns expected body with refresh token' do
+              expect(subject.cookies).to have_key(anti_csrf_token_cookie_name)
+            end
+          end
         end
 
         it 'logs the session refresh' do
@@ -1156,16 +1072,25 @@ RSpec.describe V0::SignInController, type: :controller do
     end
   end
 
-  shared_examples 'authenticated endpoint errors' do
-    let(:access_token_object) { create(:access_token) }
-    let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
-    let(:authorization) { "Bearer #{access_token}" }
+  describe 'POST revoke' do
+    subject { post(:revoke, params: {}.merge(refresh_token_param).merge(anti_csrf_token_param)) }
 
-    shared_examples 'authentication error response' do
+    let(:refresh_token_param) { { refresh_token: refresh_token } }
+    let(:refresh_token) { 'example-refresh-token' }
+    let(:anti_csrf_token_param) { { anti_csrf_token: anti_csrf_token } }
+    let(:anti_csrf_token) { 'example-anti-csrf-token' }
+    let(:enable_anti_csrf) { false }
+    let(:user_verification) { create(:user_verification) }
+    let(:user_account) { user_verification.user_account }
+    let(:validated_credential) do
+      create(:validated_credential, user_verification: user_verification, client_id: client_id)
+    end
+    let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
+    let(:error_context) { { refresh_token: refresh_token, anti_csrf_token: anti_csrf_token } }
+
+    shared_examples 'error response' do
       let(:expected_error_json) { { 'errors' => expected_error } }
-      let(:error_context) { { authorization: authorization } }
-      let(:expected_error_log) { "#{expected_error} : #{error_context}" }
-      let(:expected_error_status) { :unauthorized }
+      let(:statsd_revoke_failure) { SignIn::Constants::Statsd::STATSD_SIS_REVOKE_FAILURE }
 
       it 'renders expected error' do
         expect(JSON.parse(subject.body)).to eq(expected_error_json)
@@ -1175,45 +1100,106 @@ RSpec.describe V0::SignInController, type: :controller do
         expect(subject).to have_http_status(expected_error_status)
       end
 
-      it 'logs the failed authentication' do
-        expect(Rails.logger).to receive(:error).with(expected_error_log)
+      it 'logs the failed revocation attempt' do
+        expect(Rails.logger).to receive(:error).once.with("#{expected_error} : #{error_context}")
         subject
       end
+
+      it 'updates StatsD with a revoke request failure' do
+        expect { subject }.to trigger_statsd_increment(statsd_revoke_failure)
+      end
     end
 
-    context 'when authorization header does not exist' do
-      let(:authorization) { nil }
-      let(:authorization_header) { nil }
-      let(:expected_error) { 'Access token JWT is malformed' }
+    context 'when session has been created with a client id that is anti csrf enabled' do
+      let(:client_id) { SignIn::Constants::ClientConfig::ANTI_CSRF_ENABLED.first }
+      let(:session_container) { SignIn::SessionCreator.new(validated_credential: validated_credential).perform }
+      let(:refresh_token) do
+        SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
+      end
+      let(:expected_error) { 'Anti CSRF token is not valid' }
+      let(:expected_error_status) { :unauthorized }
 
-      it_behaves_like 'authentication error response'
+      context 'and anti_csrf_token param is not given' do
+        let(:anti_csrf_token_param) { {} }
+        let(:anti_csrf_token) { nil }
+
+        it_behaves_like 'error response'
+      end
+
+      context 'and anti_csrf_token has been modified' do
+        let(:expected_error) { 'Anti CSRF token is not valid' }
+        let(:anti_csrf_token) { 'some-modified-anti-csrf-token' }
+
+        it_behaves_like 'error response'
+      end
     end
 
-    context 'when authorization header exists' do
-      before do
-        request.headers['Authorization'] = authorization
+    context 'when refresh_token is a random string' do
+      let(:expected_error) { 'Refresh token cannot be decrypted' }
+      let(:expected_error_status) { :unauthorized }
+
+      it_behaves_like 'error response'
+    end
+
+    context 'when refresh_token is encrypted correctly' do
+      let(:session_container) { SignIn::SessionCreator.new(validated_credential: validated_credential).perform }
+      let(:refresh_token) do
+        SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
+      end
+      let(:expected_log_message) { '[SignInService] [V0::SignInController] revoke' }
+      let(:statsd_revoke_success) { SignIn::Constants::Statsd::STATSD_SIS_REVOKE_SUCCESS }
+      let(:expected_log_attributes) do
+        {
+          session_id: expected_session_handle,
+          token_type: 'Refresh',
+          user_id: user_account.id
+        }
       end
 
-      context 'and access_token is some arbitrary value' do
-        let(:access_token) { 'some-arbitrary-access-token' }
-        let(:expected_error) { 'Access token JWT is malformed' }
+      context 'when refresh token is expired' do
+        let(:expected_error) { 'No valid Session found' }
+        let(:expected_error_status) { :unauthorized }
 
-        it_behaves_like 'authentication error response'
-      end
-
-      context 'and access_token is an expired JWT' do
-        let(:access_token_object) { create(:access_token, expiration_time: expiration_time) }
-        let(:expiration_time) { Time.zone.now - 1.day }
-        let(:expected_error) { 'Access token has expired' }
-        let(:expected_error_status) { :forbidden }
-        let(:expected_error_json) { { 'errors' => expected_error } }
-
-        it 'renders expected error' do
-          expect(JSON.parse(subject.body)).to eq(expected_error_json)
+        before do
+          session = session_container.session
+          session.refresh_expiration = 1.day.ago
+          session.save!
         end
 
-        it 'returns expected status' do
-          expect(subject).to have_http_status(expected_error_status)
+        it_behaves_like 'error response'
+      end
+
+      context 'when refresh token does not map to an existing session' do
+        let(:expected_error) { 'No valid Session found' }
+        let(:expected_error_status) { :unauthorized }
+
+        before do
+          session = session_container.session
+          session.destroy!
+        end
+
+        it_behaves_like 'error response'
+      end
+
+      context 'when refresh token is unmodified and valid' do
+        let(:expected_session_handle) { session_container.session.handle }
+
+        it 'returns ok status' do
+          expect(subject).to have_http_status(:ok)
+        end
+
+        it 'destroys user session' do
+          subject
+          expect { session_container.session.reload }.to raise_error(ActiveRecord::RecordNotFound)
+        end
+
+        it 'logs the session revocation' do
+          expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_attributes)
+          subject
+        end
+
+        it 'updates StatsD with a revoke request success' do
+          expect { subject }.to trigger_statsd_increment(statsd_revoke_success)
         end
       end
     end
@@ -1221,8 +1207,6 @@ RSpec.describe V0::SignInController, type: :controller do
 
   describe 'GET introspect' do
     subject { get(:introspect) }
-
-    it_behaves_like 'authenticated endpoint errors'
 
     context 'when successfully authenticated' do
       let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
@@ -1289,8 +1273,6 @@ RSpec.describe V0::SignInController, type: :controller do
 
   describe 'GET revoke_all_sessions' do
     subject { get(:revoke_all_sessions) }
-
-    it_behaves_like 'authenticated endpoint errors'
 
     context 'when successfully authenticated' do
       let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }

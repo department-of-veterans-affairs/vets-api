@@ -12,7 +12,8 @@ module SignIn
       SessionContainer.new(session: session,
                            refresh_token: refresh_token,
                            access_token: access_token,
-                           anti_csrf_token: anti_csrf_token)
+                           anti_csrf_token: anti_csrf_token,
+                           client_id: client_id)
     end
 
     private
@@ -68,6 +69,7 @@ module SignIn
     def create_new_session
       SignIn::OAuthSession.create!(user_account: user_account,
                                    user_verification: user_verification,
+                                   client_id: client_id,
                                    credential_email: credential_email,
                                    handle: handle,
                                    hashed_refresh_token: double_parent_refresh_token_hash,
@@ -85,6 +87,10 @@ module SignIn
 
     def get_hash(object)
       Digest::SHA256.hexdigest(object)
+    end
+
+    def client_id
+      @client_id ||= validated_credential.client_id
     end
 
     def user_verification

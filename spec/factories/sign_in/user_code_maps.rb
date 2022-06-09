@@ -7,7 +7,7 @@ FactoryBot.define do
     login_code { SecureRandom.uuid }
     type { SignIn::Constants::Auth::REDIRECT_URLS.first }
     client_state { SecureRandom.hex }
-    client_id { SignIn::Constants::Auth::CLIENT_IDS.first }
+    client_id { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
 
     initialize_with do
       new(login_code: login_code,

@@ -4,6 +4,7 @@ FactoryBot.define do
   factory :oauth_session, class: 'SignIn::OAuthSession' do
     handle { SecureRandom.uuid }
     user_account { create(:user_account) }
+    client_id { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
     hashed_refresh_token { SecureRandom.hex }
     refresh_expiration { Time.zone.now }
     refresh_creation { Time.zone.now + 1000 }

@@ -8,7 +8,8 @@ module SignIn
       :session,
       :refresh_token,
       :access_token,
-      :anti_csrf_token
+      :anti_csrf_token,
+      :client_id
     )
 
     validates(
@@ -16,17 +17,20 @@ module SignIn
       :refresh_token,
       :access_token,
       :anti_csrf_token,
+      :client_id,
       presence: true
     )
 
     def initialize(session:,
                    refresh_token:,
                    access_token:,
-                   anti_csrf_token:)
+                   anti_csrf_token:,
+                   client_id:)
       @session = session
       @refresh_token = refresh_token
       @access_token = access_token
       @anti_csrf_token = anti_csrf_token
+      @client_id = client_id
 
       validate!
     end

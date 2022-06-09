@@ -39,10 +39,6 @@ module SignIn
       @code_container ||= SignIn::CodeContainer.find(code)
     end
 
-    def credential_email
-      @credential_email ||= code_container.credential_email
-    end
-
     def remove_base64_padding(data)
       Base64.urlsafe_encode64(Base64.urlsafe_decode64(data.to_s), padding: false)
     rescue ArgumentError
@@ -51,7 +47,8 @@ module SignIn
 
     def validated_credential
       @validated_credential ||= SignIn::ValidatedCredential.new(user_verification: user_verification,
-                                                                credential_email: credential_email)
+                                                                credential_email: code_container.credential_email,
+                                                                client_id: code_container.client_id)
     end
   end
 end
