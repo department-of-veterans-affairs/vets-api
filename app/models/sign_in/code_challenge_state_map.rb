@@ -12,7 +12,7 @@ module SignIn
     attribute :client_state, String
 
     validates(:code_challenge, :state, presence: true)
-    validates(:client_id, inclusion: { in: Constants::Auth::CLIENT_IDS })
+    validates(:client_id, inclusion: { in: Constants::ClientConfig::CLIENT_IDS })
     validates(:client_state, length: { minimum: Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH }, allow_blank: true)
   end
 end

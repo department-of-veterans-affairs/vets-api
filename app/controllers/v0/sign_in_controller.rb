@@ -46,39 +46,34 @@ module V0
       code_verifier = params[:code_verifier]
       grant_type = params[:grant_type]
 
-      raise SignIn::Errors::MalformedParamsError, 'Code is not defined' unless code
-      raise SignIn::Errors::MalformedParamsError, 'Code Verifier is not defined' unless code_verifier
-      raise SignIn::Errors::MalformedParamsError, 'Grant Type is not defined' unless grant_type
-
+      validate_token_params(code, code_verifier, grant_type)
       validated_credential = SignIn::CodeValidator.new(code: code,
                                                        code_verifier: code_verifier,
                                                        grant_type: grant_type).perform
       session_container = SignIn::SessionCreator.new(validated_credential: validated_credential).perform
-      sign_in_logger.refresh_token_log('token',
-                                       session_container.refresh_token,
-                                       { code: code })
-      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS)
+      log_successful_token(session_container, code)
 
-      render json: session_token_response(session_container), status: :ok
+      serializer_response = SignIn::TokenSerializer.new(session_container: session_container,
+                                                        cookies: token_cookies).perform
+      render json: serializer_response, status: :ok
     rescue SignIn::Errors::StandardError => e
       handle_token_error(e)
     end
 
     def refresh
-      refresh_token = params[:refresh_token]
-      anti_csrf_token = params[:anti_csrf_token]
-      enable_anti_csrf = Settings.sign_in.enable_anti_csrf
+      refresh_token = params[:refresh_token] || token_cookies[SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME]
+      anti_csrf_token = params[:anti_csrf_token] || token_cookies[SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME]
 
       raise SignIn::Errors::MalformedParamsError, 'Refresh token is not defined' unless refresh_token
-      if enable_anti_csrf && anti_csrf_token.nil?
-        raise SignIn::Errors::MalformedParamsError, 'Anti CSRF token is not defined'
-      end
 
-      session_container = refresh_session(refresh_token, anti_csrf_token, enable_anti_csrf)
-      sign_in_logger.refresh_token_log('refresh', session_container.refresh_token)
-      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_SUCCESS)
+      decrypted_refresh_token = SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token: refresh_token).perform
+      session_container = SignIn::SessionRefresher.new(refresh_token: decrypted_refresh_token,
+                                                       anti_csrf_token: anti_csrf_token).perform
+      log_successful_refresh(session_container.refresh_token)
 
-      render json: session_token_response(session_container), status: :ok
+      serializer_response = SignIn::TokenSerializer.new(session_container: session_container,
+                                                        cookies: token_cookies).perform
+      render json: serializer_response, status: :ok
     rescue SignIn::Errors::MalformedParamsError => e
       handle_refresh_error(e, status: :bad_request)
     rescue SignIn::Errors::StandardError => e
@@ -88,14 +83,13 @@ module V0
     def revoke
       refresh_token = params[:refresh_token]
       anti_csrf_token = params[:anti_csrf_token]
-      enable_anti_csrf = Settings.sign_in.enable_anti_csrf
 
       raise SignIn::Errors::MalformedParamsError, 'Refresh token is not defined' unless refresh_token
-      if enable_anti_csrf && anti_csrf_token.nil?
-        raise SignIn::Errors::MalformedParamsError, 'Anti CSRF token is not defined'
-      end
 
-      revoke_session(refresh_token, anti_csrf_token, enable_anti_csrf)
+      decrypted_refresh_token = SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token: refresh_token).perform
+      SignIn::SessionRevoker.new(refresh_token: decrypted_refresh_token,
+                                 anti_csrf_token: anti_csrf_token).perform
+      log_successful_revoke(decrypted_refresh_token)
 
       render status: :ok
     rescue SignIn::Errors::MalformedParamsError => e
@@ -105,10 +99,8 @@ module V0
     end
 
     def revoke_all_sessions
-      sign_in_logger.access_token_log('revoke all sessions', @access_token)
-      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_SUCCESS)
-
       SignIn::RevokeSessionsForUser.new(user_uuid: @current_user.uuid).perform
+      log_successful_revoke_all_sessions(@access_token)
 
       render status: :ok
     rescue SignIn::Errors::StandardError => e
@@ -127,7 +119,7 @@ module V0
     private
 
     def validate_authorize_params(type, client_id, code_challenge, code_challenge_method)
-      unless SignIn::Constants::Auth::CLIENT_IDS.include?(client_id)
+      unless SignIn::Constants::ClientConfig::CLIENT_IDS.include?(client_id)
         raise SignIn::Errors::MalformedParamsError, 'Client id is not valid'
       end
       unless SignIn::Constants::Auth::REDIRECT_URLS.include?(type)
@@ -143,6 +135,12 @@ module V0
       end
       raise SignIn::Errors::MalformedParamsError, 'Code is not defined' unless code
       raise SignIn::Errors::MalformedParamsError, 'State is not defined' unless state
+    end
+
+    def validate_token_params(code, code_verifier, grant_type)
+      raise SignIn::Errors::MalformedParamsError, 'Code is not defined' unless code
+      raise SignIn::Errors::MalformedParamsError, 'Code Verifier is not defined' unless code_verifier
+      raise SignIn::Errors::MalformedParamsError, 'Grant Type is not defined' unless grant_type
     end
 
     # rubocop:disable Metrics/ParameterLists
@@ -186,41 +184,26 @@ module V0
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS, tags: ["context:#{type}"])
     end
 
-    def session_token_response(session_container)
-      encrypt_refresh_token = SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
-      encode_access_token = SignIn::AccessTokenJwtEncoder.new(access_token: session_container.access_token).perform
-
-      token_json_response(encode_access_token, encrypt_refresh_token, session_container.anti_csrf_token)
+    def log_successful_token(session_container, code)
+      sign_in_logger.refresh_token_log('token',
+                                       session_container.refresh_token,
+                                       { code: code })
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS)
     end
 
-    def token_json_response(access_token, refresh_token, anti_csrf_token)
-      {
-        data:
-          {
-            access_token: access_token,
-            refresh_token: refresh_token,
-            anti_csrf_token: anti_csrf_token
-          }
-      }
+    def log_successful_refresh(refresh_token)
+      sign_in_logger.refresh_token_log('refresh', refresh_token)
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_SUCCESS)
     end
 
-    def refresh_session(refresh_token, anti_csrf_token, enable_anti_csrf)
-      SignIn::SessionRefresher.new(refresh_token: decrypted_refresh_token(refresh_token),
-                                   anti_csrf_token: anti_csrf_token,
-                                   enable_anti_csrf: enable_anti_csrf).perform
-    end
-
-    def revoke_session(refresh_token, anti_csrf_token, enable_anti_csrf)
-      refresh_token = decrypted_refresh_token(refresh_token)
+    def log_successful_revoke(refresh_token)
       sign_in_logger.refresh_token_log('revoke', refresh_token)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_SUCCESS)
-      SignIn::SessionRevoker.new(refresh_token: refresh_token,
-                                 anti_csrf_token: anti_csrf_token,
-                                 enable_anti_csrf: enable_anti_csrf).perform
     end
 
-    def decrypted_refresh_token(refresh_token)
-      SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token: refresh_token).perform
+    def log_successful_revoke_all_sessions(access_token)
+      sign_in_logger.access_token_log('revoke all sessions', access_token)
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_SUCCESS)
     end
 
     def create_user_code_map(type, state, code)
@@ -272,6 +255,10 @@ module V0
       log_message_to_sentry(error.message, :error, context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_FAILURE)
       render json: { errors: error }, status: :unauthorized
+    end
+
+    def token_cookies
+      @token_cookies ||= defined?(cookies) ? cookies : nil
     end
 
     def auth_service(type)

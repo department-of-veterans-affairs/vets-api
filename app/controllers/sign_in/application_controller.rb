@@ -5,6 +5,7 @@ module SignIn
     include SignIn::Authentication
     include SignIn::Instrumentation
     include Pundit::Authorization
+    include ActionController::Cookies
     include ExceptionHandling
     include Headers
     include SentryLogging

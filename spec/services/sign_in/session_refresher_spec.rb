@@ -4,9 +4,7 @@ require 'rails_helper'
 
 RSpec.describe SignIn::SessionRefresher do
   let(:session_refresher) do
-    SignIn::SessionRefresher.new(refresh_token: refresh_token,
-                                 anti_csrf_token: input_anti_csrf_token,
-                                 enable_anti_csrf: enable_anti_csrf)
+    SignIn::SessionRefresher.new(refresh_token: refresh_token, anti_csrf_token: input_anti_csrf_token)
   end
 
   describe '#perform' do
@@ -33,17 +31,18 @@ RSpec.describe SignIn::SessionRefresher do
                refresh_expiration: session_expiration,
                hashed_refresh_token: session_hashed_refresh_token,
                handle: session_handle,
-               user_account: user_account)
+               user_account: user_account,
+               client_id: client_id)
       end
       let(:session_expiration) { Time.zone.now + 5.minutes }
-      let(:enable_anti_csrf) { true }
+      let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
 
       before { Timecop.freeze(Time.zone.now.floor) }
 
       after { Timecop.return }
 
-      context 'when enable_anti_csrf is true' do
-        let(:enable_anti_csft) { true }
+      context 'when client id is in list of anti csrf enabled clients' do
+        let(:client_id) { SignIn::Constants::ClientConfig::ANTI_CSRF_ENABLED.first }
 
         context 'and anti csrf token does not match value in refresh token' do
           let(:input_anti_csrf_token) { 'some-arbitrary-csrf-token-value' }

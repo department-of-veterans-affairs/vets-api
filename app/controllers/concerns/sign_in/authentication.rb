@@ -25,14 +25,20 @@ module SignIn
 
     private
 
-    def bearer_token(with_validation: true)
+    def bearer_token
       header = request.authorization
-      access_token_jwt = header.gsub(BEARER_PATTERN, '') if header&.match(BEARER_PATTERN)
-      SignIn::AccessTokenJwtDecoder.new(access_token_jwt: access_token_jwt).perform(with_validation: with_validation)
+      header.gsub(BEARER_PATTERN, '') if header&.match(BEARER_PATTERN)
     end
 
-    def authenticate_access_token
-      bearer_token
+    def cookie_access_token
+      return unless defined?(cookies)
+
+      cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME]
+    end
+
+    def authenticate_access_token(with_validation: true)
+      access_token_jwt = bearer_token || cookie_access_token
+      SignIn::AccessTokenJwtDecoder.new(access_token_jwt: access_token_jwt).perform(with_validation: with_validation)
     end
 
     def load_user
@@ -40,7 +46,11 @@ module SignIn
     end
 
     def handle_authenticate_error(error)
-      context = { authorization: request.authorization }
+      context = {
+        access_token_authorization_header: bearer_token,
+        access_token_cookie: cookie_access_token
+      }.compact
+
       log_message_to_sentry(error.message, :error, context)
       render json: { errors: error }, status: :unauthorized
     end

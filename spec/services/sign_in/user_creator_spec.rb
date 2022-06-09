@@ -29,7 +29,7 @@ RSpec.describe SignIn::UserCreator do
       end
       let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
       let(:state) { 'some-state' }
-      let(:client_id) { SignIn::Constants::Auth::CLIENT_IDS.first }
+      let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
 
       context 'and user_attributes matches normalized attributes from a logingov service' do
         let(:user_attributes) do

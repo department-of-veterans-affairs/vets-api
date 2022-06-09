@@ -13,7 +13,7 @@ RSpec.describe SignIn::CodeChallengeStateMap, type: :model do
 
   let(:code_challenge) { Base64.urlsafe_encode64(SecureRandom.hex) }
   let(:state) { SecureRandom.hex }
-  let(:client_id) { SignIn::Constants::Auth::CLIENT_IDS.first }
+  let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
   let(:client_state) { SecureRandom.hex }
 
   describe 'validations' do

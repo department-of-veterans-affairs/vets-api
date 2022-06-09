@@ -46,7 +46,7 @@ RSpec.describe SignIn::CodeChallengeStateMapper do
           Base64.urlsafe_encode64(Base64.urlsafe_decode64(code_challenge.to_s), padding: false)
         end
         let(:state) { 'some-state-value' }
-        let(:client_id) { SignIn::Constants::Auth::CLIENT_IDS.first }
+        let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
         let(:client_state) { SecureRandom.alphanumeric(client_state_minimum_length + 1) }
 
         before do
@@ -77,7 +77,7 @@ RSpec.describe SignIn::CodeChallengeStateMapper do
         end
 
         context 'and given client_id is within accepted client ids list' do
-          let(:client_id) { SignIn::Constants::Auth::CLIENT_IDS.first }
+          let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
 
           it_behaves_like 'properly mapped code challenge state'
         end

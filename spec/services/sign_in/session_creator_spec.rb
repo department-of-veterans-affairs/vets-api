@@ -9,8 +9,9 @@ RSpec.describe SignIn::SessionCreator do
     subject { session_creator.perform }
 
     context 'when input object is a ValidatedCredentual' do
-      let(:validated_credential) { create(:validated_credential) }
+      let(:validated_credential) { create(:validated_credential, client_id: client_id) }
       let(:user_account) { validated_credential.user_verification.user_account }
+      let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.last }
 
       context 'expected anti_csrf_token' do
         let(:expected_anti_csrf_token) { 'some-anti-csrf-token' }
@@ -65,6 +66,7 @@ RSpec.describe SignIn::SessionCreator do
           expect(session.hashed_refresh_token).to eq(expected_double_hashed_parent_refresh_token)
           expect(session.refresh_creation).to eq(expected_created_time)
           expect(session.refresh_expiration).to eq(expected_expiration_time)
+          expect(session.client_id).to eq(client_id)
         end
       end
 

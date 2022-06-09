@@ -9,7 +9,8 @@ RSpec.describe SignIn::OAuthSession, type: :model do
            handle: handle,
            hashed_refresh_token: hashed_refresh_token,
            refresh_expiration: refresh_expiration,
-           refresh_creation: refresh_creation)
+           refresh_creation: refresh_creation,
+           client_id: client_id)
   end
 
   let(:user_verification) { create(:user_verification) }
@@ -17,6 +18,7 @@ RSpec.describe SignIn::OAuthSession, type: :model do
   let(:hashed_refresh_token) { SecureRandom.hex }
   let(:refresh_expiration) { Time.zone.now + 1000 }
   let(:refresh_creation) { Time.zone.now }
+  let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
 
   describe 'validations' do
     describe '#user_verification' do
@@ -95,6 +97,28 @@ RSpec.describe SignIn::OAuthSession, type: :model do
       context 'when refresh_creation is nil' do
         let(:refresh_creation) { nil }
         let(:expected_error_message) { "Validation failed: Refresh creation can't be blank" }
+
+        it 'raises validation error' do
+          expect { subject }.to raise_error(ActiveRecord::RecordInvalid, expected_error_message)
+        end
+      end
+    end
+
+    describe '#client_id' do
+      subject { oauth_session.client_id }
+
+      context 'when client_id is nil' do
+        let(:client_id) { nil }
+        let(:expected_error_message) { 'Validation failed: Client is not included in the list' }
+
+        it 'raises validation error' do
+          expect { subject }.to raise_error(ActiveRecord::RecordInvalid, expected_error_message)
+        end
+      end
+
+      context 'when client_id is arbitrary' do
+        let(:client_id) { 'some-client-id' }
+        let(:expected_error_message) { 'Validation failed: Client is not included in the list' }
 
         it 'raises validation error' do
           expect { subject }.to raise_error(ActiveRecord::RecordInvalid, expected_error_message)

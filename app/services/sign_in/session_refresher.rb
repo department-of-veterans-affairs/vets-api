@@ -2,17 +2,16 @@
 
 module SignIn
   class SessionRefresher
-    attr_reader :refresh_token, :anti_csrf_token, :enable_anti_csrf, :session
+    attr_reader :refresh_token, :anti_csrf_token, :session
 
-    def initialize(refresh_token:, anti_csrf_token:, enable_anti_csrf:)
+    def initialize(refresh_token:, anti_csrf_token:)
       @refresh_token = refresh_token
       @anti_csrf_token = anti_csrf_token
-      @enable_anti_csrf = enable_anti_csrf
     end
 
     def perform
-      anti_csrf_check if enable_anti_csrf
       find_valid_oauth_session
+      anti_csrf_check if anti_csrf_enabled_client?
       detect_token_theft
       update_session! if parent_refresh_token_in_session?
       create_new_tokens
@@ -50,6 +49,7 @@ module SignIn
       SessionContainer.new(session: session,
                            refresh_token: child_refresh_token,
                            access_token: access_token,
+                           client_id: session.client_id,
                            anti_csrf_token: updated_anti_csrf_token)
     end
 
@@ -89,6 +89,10 @@ module SignIn
 
     def updated_anti_csrf_token
       @updated_anti_csrf_token ||= SecureRandom.hex
+    end
+
+    def anti_csrf_enabled_client?
+      Constants::ClientConfig::ANTI_CSRF_ENABLED.include?(session.client_id)
     end
 
     def get_hash(object)
