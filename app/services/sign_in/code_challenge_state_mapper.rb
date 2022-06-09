@@ -2,11 +2,12 @@
 
 module SignIn
   class CodeChallengeStateMapper
-    attr_reader :code_challenge, :code_challenge_method, :client_state
+    attr_reader :code_challenge, :code_challenge_method, :client_id, :client_state
 
-    def initialize(code_challenge:, code_challenge_method:, client_state: nil)
+    def initialize(code_challenge:, code_challenge_method:, client_id:, client_state: nil)
       @code_challenge = code_challenge
       @code_challenge_method = code_challenge_method
+      @client_id = client_id
       @client_state = client_state
     end
 
@@ -27,9 +28,10 @@ module SignIn
     def map_code_challenge_to_state
       CodeChallengeStateMap.new(code_challenge: remove_base64_padding(code_challenge),
                                 state: state,
+                                client_id: client_id,
                                 client_state: client_state).save!
     rescue Common::Exceptions::ValidationErrors
-      raise Errors::CodeChallengeStateMapError, 'Code Challenge or State is not valid'
+      raise Errors::CodeChallengeStateMapError, 'Code Challenge or State or Client id is not valid'
     end
 
     def state

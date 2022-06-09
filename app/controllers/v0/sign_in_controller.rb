@@ -8,33 +8,23 @@ module V0
   class SignInController < SignIn::ApplicationController
     skip_before_action :authenticate, only: %i[authorize callback token refresh revoke]
 
-    REDIRECT_URLS = %w[idme logingov dslogon mhv].freeze
-    VERSION_TAG = 'version:v0'
-
     def authorize
       type = params[:type]
       client_state = params[:state]
       code_challenge = params[:code_challenge]
       code_challenge_method = params[:code_challenge_method]
+      client_id = params[:client_id]
 
-      raise SignIn::Errors::AuthorizeInvalidType, 'Authorization type is not valid' unless REDIRECT_URLS.include?(type)
-      raise SignIn::Errors::MalformedParamsError, 'Code Challenge is not defined' unless code_challenge
-      raise SignIn::Errors::MalformedParamsError, 'Code Challenge Method is not defined' unless code_challenge_method
-
+      validate_authorize_params(type, client_id, code_challenge, code_challenge_method)
       state = SignIn::CodeChallengeStateMapper.new(code_challenge: code_challenge,
                                                    code_challenge_method: code_challenge_method,
+                                                   client_id: client_id,
                                                    client_state: client_state).perform
-      attributes = { state: state,
-                     type: type,
-                     client_state: client_state,
-                     code_challenge: code_challenge,
-                     code_challenge_method: code_challenge_method }
-      sign_in_logger.info_log('Sign in Service Authorization Attempt', attributes)
-      sign_in_logger.authorize_stats(:success, ["context:#{type}", VERSION_TAG])
+      log_successful_authorize(type, state, client_state, code_challenge, code_challenge_method, client_id)
 
       render body: auth_service(type).render_auth(state: state), content_type: 'text/html'
     rescue SignIn::Errors::StandardError => e
-      handle_authorize_error(e)
+      handle_authorize_error(e, type, client_state, code_challenge, code_challenge_method, client_id)
     end
 
     def callback
@@ -42,18 +32,13 @@ module V0
       code = params[:code]
       state = params[:state]
 
-      raise SignIn::Errors::CallbackInvalidType, 'Callback type is not valid' unless REDIRECT_URLS.include?(type)
-      raise SignIn::Errors::MalformedParamsError, 'Code is not defined' unless code
-      raise SignIn::Errors::MalformedParamsError, 'State is not defined' unless state
+      validate_callback_params(type, code, state)
+      user_code_map = create_user_code_map(type, state, code)
+      log_successful_callback(state, type, code, user_code_map)
 
-      login_code, client_state = login(type, state, code)
-      attributes = { state: state, type: type, code: code, login_code: login_code, client_state: client_state }
-      sign_in_logger.info_log('Sign in Service Authorization Callback', attributes)
-      sign_in_logger.callback_stats(:success, ["context:#{type}", VERSION_TAG])
-
-      redirect_to login_redirect_url(login_code, client_state)
+      redirect_to SignIn::LoginRedirectUrlGenerator.new(user_code_map: user_code_map).perform
     rescue SignIn::Errors::StandardError => e
-      handle_callback_error(e)
+      handle_callback_error(e, type, state, code)
     end
 
     def token
@@ -69,10 +54,10 @@ module V0
                                                        code_verifier: code_verifier,
                                                        grant_type: grant_type).perform
       session_container = SignIn::SessionCreator.new(validated_credential: validated_credential).perform
-      sign_in_logger.refresh_token_log('Sign in Service Token Response',
+      sign_in_logger.refresh_token_log('token',
                                        session_container.refresh_token,
                                        { code: code })
-      sign_in_logger.token_stats(:success, [VERSION_TAG])
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS)
 
       render json: session_token_response(session_container), status: :ok
     rescue SignIn::Errors::StandardError => e
@@ -90,8 +75,8 @@ module V0
       end
 
       session_container = refresh_session(refresh_token, anti_csrf_token, enable_anti_csrf)
-      sign_in_logger.refresh_token_log('Sign in Service Tokens Refresh', session_container.refresh_token)
-      sign_in_logger.refresh_stats(:success, [VERSION_TAG])
+      sign_in_logger.refresh_token_log('refresh', session_container.refresh_token)
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_SUCCESS)
 
       render json: session_token_response(session_container), status: :ok
     rescue SignIn::Errors::MalformedParamsError => e
@@ -120,8 +105,8 @@ module V0
     end
 
     def revoke_all_sessions
-      sign_in_logger.access_token_log('Sign in Service Revoke All Sessions', @access_token)
-      sign_in_logger.revoke_all_sessions_stats(:success, [VERSION_TAG])
+      sign_in_logger.access_token_log('revoke all sessions', @access_token)
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_SUCCESS)
 
       SignIn::RevokeSessionsForUser.new(user_uuid: @current_user.uuid).perform
 
@@ -131,8 +116,8 @@ module V0
     end
 
     def introspect
-      sign_in_logger.access_token_log('Sign in Service Introspect', @access_token)
-      sign_in_logger.introspect_stats(:success, [VERSION_TAG])
+      sign_in_logger.access_token_log('introspect', @access_token)
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_INTROSPECT_SUCCESS)
 
       render json: @current_user, serializer: SignIn::IntrospectSerializer, status: :ok
     rescue SignIn::Errors::StandardError => e
@@ -140,6 +125,66 @@ module V0
     end
 
     private
+
+    def validate_authorize_params(type, client_id, code_challenge, code_challenge_method)
+      unless SignIn::Constants::Auth::CLIENT_IDS.include?(client_id)
+        raise SignIn::Errors::MalformedParamsError, 'Client id is not valid'
+      end
+      unless SignIn::Constants::Auth::REDIRECT_URLS.include?(type)
+        raise SignIn::Errors::AuthorizeInvalidType, 'Authorization type is not valid'
+      end
+      raise SignIn::Errors::MalformedParamsError, 'Code Challenge is not defined' unless code_challenge
+      raise SignIn::Errors::MalformedParamsError, 'Code Challenge Method is not defined' unless code_challenge_method
+    end
+
+    def validate_callback_params(type, code, state)
+      unless SignIn::Constants::Auth::REDIRECT_URLS.include?(type)
+        raise SignIn::Errors::CallbackInvalidType, 'Callback type is not valid'
+      end
+      raise SignIn::Errors::MalformedParamsError, 'Code is not defined' unless code
+      raise SignIn::Errors::MalformedParamsError, 'State is not defined' unless state
+    end
+
+    # rubocop:disable Metrics/ParameterLists
+    def log_successful_authorize(type, state, client_state, code_challenge, code_challenge_method, client_id)
+      attributes = {
+        state: state,
+        type: type,
+        client_state: client_state,
+        code_challenge: code_challenge,
+        code_challenge_method: code_challenge_method,
+        client_id: client_id
+      }
+      sign_in_logger.info('authorize', attributes)
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_SUCCESS, tags: ["context:#{type}"])
+    end
+
+    def handle_authorize_error(error, type, client_state, code_challenge, code_challenge_method, client_id)
+      context = {
+        type: type,
+        client_state: client_state,
+        code_challenge: code_challenge,
+        code_challenge_method: code_challenge_method,
+        client_id: client_id
+      }
+      log_message_to_sentry(error.message, :error, context)
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_FAILURE, tags: ["context:#{type}"])
+      render json: { errors: error }, status: :bad_request
+    end
+    # rubocop:enable Metrics/ParameterLists
+
+    def log_successful_callback(state, type, code, user_code_map)
+      attributes = {
+        state: state,
+        type: type,
+        code: code,
+        login_code: user_code_map.login_code,
+        client_id: user_code_map.client_id,
+        client_state: user_code_map.client_state
+      }
+      sign_in_logger.info('callback', attributes)
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS, tags: ["context:#{type}"])
+    end
 
     def session_token_response(session_container)
       encrypt_refresh_token = SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
@@ -167,8 +212,8 @@ module V0
 
     def revoke_session(refresh_token, anti_csrf_token, enable_anti_csrf)
       refresh_token = decrypted_refresh_token(refresh_token)
-      sign_in_logger.refresh_token_log('Sign in Service Session Revoke', refresh_token)
-      sign_in_logger.revoke_stats(:success, [VERSION_TAG])
+      sign_in_logger.refresh_token_log('revoke', refresh_token)
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_SUCCESS)
       SignIn::SessionRevoker.new(refresh_token: refresh_token,
                                  anti_csrf_token: anti_csrf_token,
                                  enable_anti_csrf: enable_anti_csrf).perform
@@ -178,74 +223,54 @@ module V0
       SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token: refresh_token).perform
     end
 
-    def login(type, state, code)
+    def create_user_code_map(type, state, code)
       response = auth_service(type).token(code)
-
       raise SignIn::Errors::CodeInvalidError, 'Authentication Code is not valid' unless response
 
       user_info = auth_service(type).user_info(response[:access_token])
-
       normalized_attributes = auth_service(type).normalized_attributes(user_info)
-
-      SignIn::UserCreator.new(user_attributes: normalized_attributes, state: state).perform
+      SignIn::UserCreator.new(user_attributes: normalized_attributes, state: state, type: type).perform
     end
 
-    def login_redirect_url(login_code, client_state = nil)
-      redirect_uri_params = { code: login_code }
-      redirect_uri_params[:state] = client_state if client_state.present?
-
-      redirect_uri = URI.parse(Settings.sign_in.redirect_uri)
-      redirect_uri.query = redirect_uri_params.to_query
-      redirect_uri.to_s
-    end
-
-    def handle_authorize_error(error)
-      context = { type: params[:type], client_state: params[:state], code_challenge: params[:code_challenge],
-                  code_challenge_method: params[:code_challenge_method] }
+    def handle_callback_error(error, type, state, code)
+      context = { type: type, state: state, code: code }
       log_message_to_sentry(error.message, :error, context)
-      sign_in_logger.authorize_stats(:failure, ["context:#{params[:type]}", VERSION_TAG])
-      render json: { errors: error }, status: :bad_request
-    end
-
-    def handle_callback_error(error)
-      context = { type: params[:type], state: params[:state], code: params[:code] }
-      log_message_to_sentry(error.message, :error, context)
-      sign_in_logger.callback_stats(:failure, ["context:#{params[:type]}", VERSION_TAG])
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE, tags: ["context:#{type}"])
       render json: { errors: error }, status: :bad_request
     end
 
     def handle_token_error(error)
       context = { code: params[:code], code_verifier: params[:code_verifier], grant_type: params[:grant_type] }
       log_message_to_sentry(error.message, :error, context)
-      sign_in_logger.token_stats(:failure, [VERSION_TAG])
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_FAILURE)
       render json: { errors: error }, status: :bad_request
     end
 
     def handle_refresh_error(error, status: :unauthorized)
       context = { refresh_token: params[:refresh_token], anti_csrf_token: params[:anti_csrf_token] }
       log_message_to_sentry(error.message, :error, context)
-      sign_in_logger.refresh_stats(:failure, [VERSION_TAG])
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_FAILURE)
       render json: { errors: error }, status: status
     end
 
     def handle_revoke_error(error, status: :unauthorized)
       context = { refresh_token: params[:refresh_token], anti_csrf_token: params[:anti_csrf_token] }
       log_message_to_sentry(error.message, :error, context)
-      sign_in_logger.revoke_stats(:failure, [VERSION_TAG])
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_FAILURE)
       render json: { errors: error }, status: status
     end
 
     def handle_introspect_error(error)
       context = { user_uuid: @current_user.uuid }
       log_message_to_sentry(error.message, :error, context)
-      sign_in_logger.introspect_stats(:failure, [VERSION_TAG])
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_INTROSPECT_FAILURE)
       render json: { errors: error }, status: :unauthorized
     end
 
     def handle_revoke_all_sessions_error(error)
       context = { user_uuid: @current_user.uuid }
       log_message_to_sentry(error.message, :error, context)
-      sign_in_logger.revoke_all_sessions_stats(:failure, [VERSION_TAG])
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_FAILURE)
       render json: { errors: error }, status: :unauthorized
     end
 
@@ -271,7 +296,7 @@ module V0
     end
 
     def sign_in_logger
-      @sign_in_logger = SignIn::Logger.new
+      @sign_in_logger = SignIn::Logger.new(prefix: self.class)
     end
   end
 end

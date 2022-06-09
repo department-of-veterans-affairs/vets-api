@@ -64,15 +64,11 @@ Rails.application.reloader.to_prepare do
   end
 
   # Sign in Service
-  V0::SignInController::REDIRECT_URLS.each do |csp|
-    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_SUCCESS, 0,
-                     tags: ['version:v0', "context:#{csp}"])
-    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_FAILURE, 0,
-                     tags: ['version:v0', "context:#{csp}"])
-    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS, 0,
-                     tags: ['version:v0', "context:#{csp}"])
-    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE, 0,
-                     tags: ['version:v0', "context:#{csp}"])
+  SignIn::Constants::Auth::REDIRECT_URLS.each do |type|
+    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_SUCCESS, 0, tags: ["context:#{type}"])
+    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_FAILURE, 0, tags: ["context:#{type}"])
+    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS, 0, tags: ["context:#{type}"])
+    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE, 0, tags: ["context:#{type}"])
   end
   StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS, 0, tags: ['version:v0'])
   StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_FAILURE, 0, tags: ['version:v0'])

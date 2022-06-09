@@ -7,12 +7,14 @@ RSpec.describe SignIn::CodeChallengeStateMapper do
     subject do
       SignIn::CodeChallengeStateMapper.new(code_challenge: code_challenge,
                                            code_challenge_method: code_challenge_method,
-                                           client_state: client_state).perform
+                                           client_state: client_state,
+                                           client_id: client_id).perform
     end
 
     let(:code_challenge) { 'some-code-challenge' }
     let(:code_challenge_method) { 'some-code-challenge-method' }
     let(:client_state) { 'some-client-state' }
+    let(:client_id) { 'some-client-id' }
     let(:client_state_minimum_length) { SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH }
 
     context 'when code_challenge_method does not equal accepted method' do
@@ -44,6 +46,8 @@ RSpec.describe SignIn::CodeChallengeStateMapper do
           Base64.urlsafe_encode64(Base64.urlsafe_decode64(code_challenge.to_s), padding: false)
         end
         let(:state) { 'some-state-value' }
+        let(:client_id) { SignIn::Constants::Auth::CLIENT_IDS.first }
+        let(:client_state) { SecureRandom.alphanumeric(client_state_minimum_length + 1) }
 
         before do
           allow(SecureRandom).to receive(:hex).and_return(state)
@@ -62,6 +66,22 @@ RSpec.describe SignIn::CodeChallengeStateMapper do
           end
         end
 
+        context 'and given client_id is not within accepted client ids list' do
+          let(:client_id) { 'some-arbitrary-client-id' }
+          let(:expected_error) { SignIn::Errors::CodeChallengeStateMapError }
+          let(:expected_error_message) { 'Code Challenge or State or Client id is not valid' }
+
+          it 'raises a code challenge state map error' do
+            expect { subject }.to raise_exception(expected_error, expected_error_message)
+          end
+        end
+
+        context 'and given client_id is within accepted client ids list' do
+          let(:client_id) { SignIn::Constants::Auth::CLIENT_IDS.first }
+
+          it_behaves_like 'properly mapped code challenge state'
+        end
+
         context 'and given client_state is nil' do
           let(:client_state) { nil }
 
@@ -71,7 +91,7 @@ RSpec.describe SignIn::CodeChallengeStateMapper do
         context 'and given client_state is less than minimum client state length' do
           let(:client_state) { SecureRandom.alphanumeric(client_state_minimum_length - 1) }
           let(:expected_error) { SignIn::Errors::CodeChallengeStateMapError }
-          let(:expected_error_message) { 'Code Challenge or State is not valid' }
+          let(:expected_error_message) { 'Code Challenge or State or Client id is not valid' }
 
           it 'raises a code challenge state map error' do
             expect { subject }.to raise_exception(expected_error, expected_error_message)

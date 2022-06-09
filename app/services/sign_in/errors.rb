@@ -29,5 +29,6 @@ module SignIn
     class UserAccountNotFoundError < StandardError; end
     class SessionNotFoundError < StandardError; end
     class MPIUserCreationFailedError < StandardError; end
+    class InvalidClientIdError < StandardError; end
   end
 end
