@@ -25,6 +25,10 @@ RUN sed -i '/rights="none" pattern="PDF"/d' /etc/ImageMagick-6/policy.xml
 
 COPY config/clamd.conf /etc/clamav/clamd.conf
 
+# Install fwdproxy.crt into trust store
+# Relies on update-ca-certificates being run in following step
+COPY config/ca-trust/*.crt /usr/local/share/ca-certificates/
+
 # Download VA Certs
 RUN wget -q -r -np -nH -nd -a .cer -P /usr/local/share/ca-certificates http://aia.pki.va.gov/PKI/AIA/VA/ \
   && for f in /usr/local/share/ca-certificates/*.cer; do openssl x509 -inform der -in $f -out $f.crt; done \
