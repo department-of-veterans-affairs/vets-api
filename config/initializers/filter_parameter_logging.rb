@@ -10,6 +10,7 @@ ALLOWLIST = %w[
   from_date
   to_date
   qqtotalfilesize
+  type
 ].freeze
 Rails.application.config.filter_parameters = [lambda do |k, v|
   v.replace('FILTERED') if v.is_a?(String) && ALLOWLIST.exclude?(k)
