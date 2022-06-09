@@ -1432,7 +1432,7 @@ paths:
       security:
         - Bearer: []
       summary: /v0/health/immunizations
-  /v0/health/location/{id}:
+  /v0/health/locations/{id}:
     get:
       description: Returns location info based on location id from vaccine record
       operationId: immunizations
@@ -1507,7 +1507,7 @@ paths:
           description: A response from an upstream service timed out.
       security:
         - Bearer: []
-      summary: /v0/health/location/{id}
+      summary: /v0/health/locations/{id}
   /v0/health/rx/prescriptions:
     get:
       description: Returns the users prescriptions.
