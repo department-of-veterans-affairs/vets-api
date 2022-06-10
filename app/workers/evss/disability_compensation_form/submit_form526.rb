@@ -2,6 +2,7 @@
 
 require 'evss/disability_compensation_form/service_exception'
 require 'evss/disability_compensation_form/gateway_timeout'
+require 'sentry_logging'
 
 module EVSS
   module DisabilityCompensationForm
@@ -16,12 +17,38 @@ module EVSS
       # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
       # :nocov:
       sidekiq_retries_exhausted do |msg, _ex|
-        job_exhausted(msg, STATSD_KEY_PREFIX)
-        submission = Form526Submission.find msg['args'].first
-        submission.submit_with_birls_id_that_hasnt_been_tried_yet!(
-          silence_errors_and_log_to_sentry: true,
-          extra_content_for_sentry: { job_class: msg['class'].demodulize, job_id: msg['jid'] }
-        )
+        submission = nil
+        next_birls_jid = nil
+
+        # log, mark Form526JobStatus for submission as "exhausted"
+        begin
+          job_exhausted(msg, STATSD_KEY_PREFIX)
+        rescue => e
+          log_exception_to_sentry(e)
+        end
+
+        # Submit under different birls if avail
+        begin
+          submission = Form526Submission.find msg['args'].first
+          next_birls_jid = submission.submit_with_birls_id_that_hasnt_been_tried_yet!(
+            silence_errors_and_log_to_sentry: true,
+            extra_content_for_sentry: { job_class: msg['class'].demodulize, job_id: msg['jid'] }
+          )
+        rescue => e
+          log_exception_to_sentry(e)
+        end
+
+        # if no more unused birls to attempt submit with, give up, let vet know
+        begin
+          notify_enabled = Flipper.enabled?(:disability_compensation_pif_fail_notification)
+          if submission && next_birls_jid.nil? && msg['error_message'] == 'PIF in use' && notify_enabled
+            first_name = submission.get_first_name&.capitalize || 'Sir or Madam'
+            params = submission.personalization_parameters(first_name)
+            Form526SubmissionFailedEmailJob.perform_async(params)
+          end
+        rescue => e
+          log_exception_to_sentry(e)
+        end
       end
       # :nocov:
 

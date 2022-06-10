@@ -32,6 +32,6 @@ class Form526SubmissionFailedEmailJob
     log_exception_to_sentry(ex)
     StatsD.increment(STATSD_ERROR_NAME)
 
-    raise ex if ex.status_code.between?(500, 599)
+    raise ex if ex.respond_to?(:status_code) && ex.status_code.between?(500, 599)
   end
 end
