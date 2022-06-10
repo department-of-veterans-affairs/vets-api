@@ -11,7 +11,7 @@ class InProgressForm < ApplicationRecord
     alias serialize cast
   end
 
-  attr_accessor :skip_exipry_update
+  attr_accessor :skip_exipry_update, :real_user_uuid
 
   RETURN_URL_SQL = "CAST(metadata -> 'returnUrl' AS text)"
   scope :has_attempted_submit, lambda {
@@ -79,7 +79,7 @@ class InProgressForm < ApplicationRecord
   private
 
   def log_hca_email_diff
-    HCA::LogEmailDiffJob.perform_async(id) if form_id == '1010ez'
+    HCA::LogEmailDiffJob.perform_async(id, real_user_uuid) if form_id == '1010ez'
   end
 
   # Some IDs we get from ID.me are 20, 21, 22 or 23 char hex strings

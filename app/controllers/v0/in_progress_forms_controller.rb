@@ -16,6 +16,7 @@ module V0
 
     def update
       form = InProgressForm.where(form_id: form_id, user_uuid: @current_user.uuid).first_or_initialize
+      form.real_user_uuid = @current_user.uuid
       form.update!(form_data: params[:form_data] || params[:formData], metadata: params[:metadata])
       render json: form, key_transform: :unaltered
     end
