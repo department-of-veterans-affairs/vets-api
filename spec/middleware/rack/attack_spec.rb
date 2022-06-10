@@ -122,7 +122,7 @@ RSpec.describe Rack::Attack do
   describe 'facility_locator/ip' do
     let(:endpoint) { '/facilities_api/v1/ccp/provider' }
     let(:headers) { { 'X-Real-Ip' => '1.2.3.4' } }
-    let(:limit) { 3 }
+    let(:limit) { 8 }
 
     before do
       limit.times do
