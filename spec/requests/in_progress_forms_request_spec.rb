@@ -283,6 +283,17 @@ RSpec.describe V0::InProgressFormsController do
           end
         end
 
+        it 'runs the LogEmailDiffJob job' do
+          new_form.form_id = '1010ez'
+          new_form.save!
+          expect(HCA::LogEmailDiffJob).to receive(:perform_async).with(new_form.id, user.uuid)
+
+          put v0_in_progress_form_url(new_form.form_id), params: {
+            formData: new_form.form_data,
+            metadata: new_form.metadata
+          }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
+        end
+
         it 'inserts the form', run_at: '2017-01-01' do
           expect do
             put v0_in_progress_form_url(new_form.form_id), params: {

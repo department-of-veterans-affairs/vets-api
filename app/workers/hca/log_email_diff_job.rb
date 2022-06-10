@@ -5,12 +5,11 @@ module HCA
     include Sidekiq::Worker
     sidekiq_options retry: false
 
-    def perform(in_progress_form_id)
+    def perform(in_progress_form_id, user_uuid)
       in_progress_form = InProgressForm.find(in_progress_form_id)
       parsed_form = JSON.parse(in_progress_form.form_data)
       form_email = parsed_form['email']
       email_confirmation = parsed_form['view:email_confirmation']
-      user_uuid = in_progress_form.user_uuid
 
       return if form_email.blank? || form_email != email_confirmation
 

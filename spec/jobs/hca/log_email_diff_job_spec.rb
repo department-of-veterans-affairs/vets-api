@@ -8,7 +8,7 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
 
   before do
     in_progress_form.update!(user_uuid: user.uuid)
-    allow(User).to receive(:find).with(in_progress_form.user_uuid).and_return(user)
+    allow(User).to receive(:find).with(user.uuid).and_return(user)
   end
 
   def self.expect_does_nothing
@@ -22,7 +22,7 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
     it "logs that email is #{tag}" do
       expect(StatsD).to receive(:set).with(
         'api.1010ez.in_progress_form_email',
-        in_progress_form.user_uuid,
+        user.uuid,
         sample_rate: 1.0,
         tags: {
           email: tag
@@ -34,7 +34,7 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
   end
 
   describe '#perform' do
-    subject { described_class.new.perform(in_progress_form.id) }
+    subject { described_class.new.perform(in_progress_form.id, user.uuid) }
 
     context 'when form email is present' do
       context 'when email confirmation is different' do
