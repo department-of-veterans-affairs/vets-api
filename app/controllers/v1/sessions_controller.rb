@@ -168,19 +168,19 @@ module V1
       when 'mhv'
         url_service.login_url('mhv', 'myhealthevet', AuthnContext::MHV)
       when 'mhv_verified'
-        url_service.login_url('mhv', 'myhealthevet_loa3', AuthnContext::MHV)
+        url_service(false).login_url('mhv', 'myhealthevet_loa3', AuthnContext::MHV)
       when 'dslogon'
         url_service.login_url('dslogon', 'dslogon', AuthnContext::DSLOGON)
       when 'dslogon_verified'
-        url_service.login_url('dslogon', 'dslogon_loa3', AuthnContext::DSLOGON)
+        url_service(false).login_url('dslogon', 'dslogon_loa3', AuthnContext::DSLOGON)
       when 'idme'
         url_service.login_url('idme', LOA::IDME_LOA1_VETS, AuthnContext::ID_ME, AuthnContext::MINIMUM)
       when 'idme_verified'
-        url_service.login_url('idme', LOA::IDME_LOA3, AuthnContext::ID_ME, AuthnContext::MINIMUM)
+        url_service(false).login_url('idme', LOA::IDME_LOA3, AuthnContext::ID_ME, AuthnContext::MINIMUM)
       when 'idme_signup'
         url_service.idme_signup_url(LOA::IDME_LOA1_VETS)
       when 'idme_signup_verified'
-        url_service.idme_signup_url(LOA::IDME_LOA3)
+        url_service(false).idme_signup_url(LOA::IDME_LOA3)
       when 'logingov'
         url_service.login_url(
           'logingov',
@@ -189,7 +189,7 @@ module V1
           AuthnContext::MINIMUM
         )
       when 'logingov_verified'
-        url_service.login_url(
+        url_service(false).login_url(
           'logingov',
           [IAL::LOGIN_GOV_IAL2, AAL::LOGIN_GOV_AAL2],
           AuthnContext::LOGIN_GOV,
@@ -198,11 +198,11 @@ module V1
       when 'logingov_signup'
         url_service.logingov_signup_url([IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2])
       when 'logingov_signup_verified'
-        url_service.logingov_signup_url([IAL::LOGIN_GOV_IAL2, AAL::LOGIN_GOV_AAL2])
+        url_service(false).logingov_signup_url([IAL::LOGIN_GOV_IAL2, AAL::LOGIN_GOV_AAL2])
       when 'mfa'
         url_service.mfa_url
       when 'verify'
-        url_service.verify_url
+        url_service(false).verify_url
       when 'custom'
         authn = validate_inbound_login_params
         url_service(false).custom_url authn
