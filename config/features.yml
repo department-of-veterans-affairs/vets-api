@@ -242,6 +242,10 @@ features:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
     enable_in_development: true
+  disability_compensation_pif_fail_notification:
+    actor_type: user
+    description: enables sending notifications to vets if their 526 claim submission fails with PIF in Use Error
+    enable_in_development: true
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
