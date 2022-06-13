@@ -90,4 +90,25 @@ AppealsApi::Engine.routes.draw do
       get 'decision_reviews', to: 'docs#decision_reviews'
     end
   end
+
+  # For now, alias our new routes to their existing controller
+  namespace :notice_of_disagreements, defaults: { format: 'json' } do
+    namespace :v2 do
+      cpath = '/appeals_api/v2/decision_reviews/notice_of_disagreements'
+
+      namespace :forms do
+        resources '10182', only: %i[create show], controller: cpath do
+          collection do
+            post 'validate'
+          end
+        end
+      end
+
+      resources :evidence_submissions, only: %i[create show], controller: "#{cpath}/evidence_submissions"
+
+      namespace :schemas, controller: cpath do
+        get '10182', action: :schema
+      end
+    end
+  end
 end
