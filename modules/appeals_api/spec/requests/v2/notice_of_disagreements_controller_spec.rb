@@ -10,6 +10,10 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
     "/services/appeals/v2/decision_reviews/#{path}"
   end
 
+  def new_base_path(path)
+    "/services/appeals/notice_of_disagreements/v2/#{path}"
+  end
+
   before do
     @max_data = fixture_to_s 'valid_10182_extra.json', version: 'v2'
     @minimum_data = fixture_to_s 'valid_10182_minimum.json', version: 'v2'
@@ -31,6 +35,20 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
         expect(nod.source).to eq('va.gov')
         expect(parsed['data']['type']).to eq('noticeOfDisagreement')
         expect(parsed['data']['attributes']['status']).to eq('pending')
+      end
+
+      it 'behaves the same on new path' do
+        Timecop.freeze(Time.current) do
+          post(path, params: @max_data, headers: @max_headers)
+          orig_path_response = JSON.parse(response.body)
+          orig_path_response['data']['id'] = 'ignored'
+
+          post(new_base_path('forms/10182'), params: @max_data, headers: @max_headers)
+          new_path_response = JSON.parse(response.body)
+          new_path_response['data']['id'] = 'ignored'
+
+          expect(new_path_response).to match_array orig_path_response
+        end
       end
     end
 
@@ -133,6 +151,13 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
       expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
     end
 
+    it 'behaves the same on new path' do
+      uuid = create(:notice_of_disagreement_v2).id
+      get("#{new_base_path 'forms/10182'}/#{uuid}")
+      expect(response.status).to eq(200)
+      expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
+    end
+
     it 'allow for status simulation' do
       with_settings(Settings, vsp_environment: 'development') do
         with_settings(Settings.modules_appeals_api, status_simulation_enabled: true) do
@@ -163,6 +188,12 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
         expect(parsed['data']['attributes']['status']).to eq('valid')
         expect(parsed['data']['type']).to eq('noticeOfDisagreementValidation')
       end
+
+      it 'behaves the same on the new path' do
+        post(new_base_path('forms/10182/validate'), params: @max_data, headers: @max_headers)
+        expect(parsed['data']['attributes']['status']).to eq('valid')
+        expect(parsed['data']['type']).to eq('noticeOfDisagreementValidation')
+      end
     end
 
     context 'when validation fails due to invalid data' do
@@ -175,7 +206,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
         expect(parsed['errors']).not_to be_empty
       end
 
-      it 'returns error objects in JSON API 1.0 ErrorObject format' do
+      it 'returns error objects in JSON API 1.1 ErrorObject format' do
         expected_keys = %w[code detail meta source status title]
         expect(parsed['errors'].first.keys).to include(*expected_keys)
         expect(parsed['errors'][2]['meta']['missing_fields']).to eq %w[phone email]
@@ -221,6 +252,11 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
     it 'renders the json schema' do
       get path
       expect(response.status).to eq(200)
+    end
+
+    it 'behaves the same for new path' do
+      get new_base_path('schemas/10182')
+      expect(response.status).to eq 200
     end
   end
 
