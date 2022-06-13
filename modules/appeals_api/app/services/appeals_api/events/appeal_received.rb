@@ -79,7 +79,10 @@ module AppealsApi
 
       def template_id(template)
         t = claimant? ? "#{template}_claimant" : template
-        Settings.vanotify.services.lighthouse.template_id.public_send(t)
+        template_id = Settings.vanotify.services.lighthouse.template_id.public_send(t)
+        raise InvalidTemplateId, "AppealReceived: could not find template id for #{t}" if template_id.blank?
+
+        template_id
       end
 
       def personalisation
@@ -131,5 +134,6 @@ module AppealsApi
     end
 
     class InvalidKeys < StandardError; end
+    class InvalidTemplateId < StandardError; end
   end
 end

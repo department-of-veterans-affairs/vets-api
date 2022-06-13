@@ -28,6 +28,27 @@ module AppealsApi
             .to raise_error(InvalidKeys, 'Invalid email identifier')
         end
 
+        it 'errors if the template id cannot be found' do
+          error_prefix = 'AppealReceived: could not find template id for'
+
+          opts = {
+            'email_identifier' => { 'id_value' => 'fake_email@email.com', 'id_type' => 'email' },
+            'first_name' => 'first name',
+            'date_submitted' => DateTime.new(2021, 1, 2, 3, 4, 5).iso8601,
+            'guid' => '1234556',
+            'claimant_email' => '',
+            'claimant_first_name' => ''
+          }
+
+          expect { AppealsApi::Events::AppealReceived.new(opts).hlr_received }
+            .to raise_error(InvalidTemplateId, "#{error_prefix} higher_level_review_received")
+
+          opts['claimant_email'] = 'fake_claimant_email@email.com'
+          opts['claimant_first_name'] = 'Betty'
+          expect { AppealsApi::Events::AppealReceived.new(opts).hlr_received }
+            .to raise_error(InvalidTemplateId, "#{error_prefix} higher_level_review_received_claimant")
+        end
+
         it 'sends an email' do
           with_settings(Settings.vanotify.services.lighthouse.template_id,
                         higher_level_review_received: 'veteran_template',
@@ -61,29 +82,33 @@ module AppealsApi
         end
 
         it 'does not care about the order of email identifier hash' do
-          client = instance_double(VaNotify::Service)
-          allow(VaNotify::Service).to receive(:new).and_return(client)
-          allow(client).to receive(:send_email)
+          with_settings(Settings.vanotify.services.lighthouse.template_id,
+                        higher_level_review_received: 'veteran_template',
+                        higher_level_review_received_claimant: 'claimant_template') do
+            client = instance_double(VaNotify::Service)
+            allow(VaNotify::Service).to receive(:new).and_return(client)
+            allow(client).to receive(:send_email)
 
-          opts = {
-            'email_identifier' => { 'id_type' => 'email', 'id_value' => 'fake_email@email.com' }, # key order changed
-            'first_name' => 'first name',
-            'date_submitted' => DateTime.new(2021, 1, 2, 3, 4, 5).iso8601,
-            'guid' => '1234556'
-          }
-
-          AppealsApi::Events::AppealReceived.new(opts).hlr_received
-
-          expect(client).to have_received(:send_email).with(
-            {
-              email_address: 'fake_email@email.com',
-              template_id: nil,
-              personalisation: {
-                'first_name' => 'first name',
-                'date_submitted' => 'January 02, 2021'
-              }
+            opts = {
+              'email_identifier' => { 'id_type' => 'email', 'id_value' => 'fake_email@email.com' }, # key order changed
+              'first_name' => 'first name',
+              'date_submitted' => DateTime.new(2021, 1, 2, 3, 4, 5).iso8601,
+              'guid' => '1234556'
             }
-          )
+
+            AppealsApi::Events::AppealReceived.new(opts).hlr_received
+
+            expect(client).to have_received(:send_email).with(
+              {
+                email_address: 'fake_email@email.com',
+                template_id: 'veteran_template',
+                personalisation: {
+                  'first_name' => 'first name',
+                  'date_submitted' => 'January 02, 2021'
+                }
+              }
+            )
+          end
         end
 
         it 'sends email to claimant using the claimant template' do
