@@ -150,67 +150,65 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
   end
 
   describe 'authentication' do
-    def self.test_authorization_header(header, status)
-      # TODO: disabling this test because of persistent failures stalling PRs
-      xit "returns #{status}" do
-        request.headers['Authorization'] = header
+    context 'with missing Authorization header' do
+      it 'returns 403' do
+        request.headers['Authorization'] = nil
         post(:create, params: params)
-
-        expect(response.status).to eq(status)
+        expect(response.status).to eq(403)
       end
     end
 
-    context 'with missing Authorization header' do
-      test_authorization_header(
-        nil,
-        403
-      )
-    end
-
     context 'with invalid Authorization header' do
-      test_authorization_header(
-        'Bearer foo',
-        403
-      )
-
-      test_authorization_header(
-        'foo',
-        403
-      )
+      it 'returns 403' do
+        request.headers['Authorization'] = 'Bearer foo'
+        post(:create, params: params)
+        expect(response.status).to eq(403)
+      end
     end
 
     context 'with valid authentication' do
-      test_authorization_header(
-        "Bearer #{JWT.encode(
+      it 'returns 200' do
+        request.headers['Authorization'] = "Bearer #{JWT.encode(
           {
             user: 'va_notify',
             iat: Time.current.to_i,
             exp: 1.minute.from_now.to_i
           }, private_key, 'ES256'
-        )}",
-        200
-      )
+        )}"
+
+        post(:create, params: params)
+        expect(response.status).to eq(200)
+      end
     end
 
     context 'with expired token' do
-      payload = { user: 'va_notify', iat: Time.current.to_i, exp: 1.minute.ago.to_i }
-      test_authorization_header(
-        "Bearer #{JWT.encode(payload, private_key, 'ES256')}", 403
-      )
+      it 'returns 403' do
+        payload = { user: 'va_notify', iat: Time.current.to_i, exp: 1.minute.ago.to_i }
+        request.headers['Authorization'] = "Bearer #{JWT.encode(payload, private_key, 'ES256')}"
+
+        post(:create, params: params)
+        expect(response.status).to eq(403)
+      end
     end
 
     context 'with missing issued at' do
-      test_authorization_header(
-        "Bearer #{JWT.encode({ user: 'va_notify', exp: 1.minute.ago.to_i }, private_key, 'ES256')}",
-        403
-      )
+      it 'returns 403' do
+        payload = { user: 'va_notify', exp: 1.minute.ago.to_i }
+        request.headers['Authorization'] = "Bearer #{JWT.encode(payload, private_key, 'ES256')}"
+
+        post(:create, params: params)
+        expect(response.status).to eq(403)
+      end
     end
 
     context 'with missing expiration' do
-      test_authorization_header(
-        "Bearer #{JWT.encode({ user: 'va_notify', iat: Time.current.to_i }, private_key, 'ES256')}",
-        403
-      )
+      it 'returns 403' do
+        payload = { user: 'va_notify', iat: Time.current.to_i }
+        request.headers['Authorization'] = "Bearer #{JWT.encode(payload, private_key, 'ES256')}"
+
+        post(:create, params: params)
+        expect(response.status).to eq(403)
+      end
     end
   end
 end
