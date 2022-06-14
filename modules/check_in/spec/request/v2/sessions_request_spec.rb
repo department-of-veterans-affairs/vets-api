@@ -48,10 +48,6 @@ RSpec.describe 'V2::SessionsController', type: :request do
         }
       end
 
-      before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_refresh_pre_checkin').and_return(false)
-      end
-
       it 'returns read.none permissions' do
         get check_in.v2_session_path(uuid)
 
@@ -84,7 +80,6 @@ RSpec.describe 'V2::SessionsController', type: :request do
       end
 
       before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_refresh_pre_checkin').and_return(false)
         VCR.use_cassette 'check_in/lorota/token/token_200' do
           post '/check_in/v2/sessions', session_params
         end
@@ -121,7 +116,6 @@ RSpec.describe 'V2::SessionsController', type: :request do
       end
 
       before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_refresh_pre_checkin').and_return(true)
         allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
                                             .and_return(true)
         VCR.use_cassette 'check_in/lorota/token/token_200' do
@@ -159,7 +153,6 @@ RSpec.describe 'V2::SessionsController', type: :request do
       end
 
       before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_refresh_pre_checkin').and_return(true)
         VCR.use_cassette 'check_in/lorota/token/token_200' do
           post '/check_in/v2/sessions', session_params
         end
@@ -214,7 +207,6 @@ RSpec.describe 'V2::SessionsController', type: :request do
       end
 
       before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_refresh_pre_checkin').and_return(true)
         allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
                                             .and_return(true)
         VCR.use_cassette 'check_in/lorota/token/token_200' do
