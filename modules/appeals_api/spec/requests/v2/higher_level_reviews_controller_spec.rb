@@ -10,6 +10,10 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
     "/services/appeals/v2/decision_reviews/#{path}"
   end
 
+  def new_base_path(path)
+    "/services/appeals/higher_level_reviews/v2/#{path}"
+  end
+
   before do
     @data = fixture_to_s 'valid_200996_minimum.json', version: 'v2'
     @data_extra = fixture_to_s 'valid_200996_extra.json', version: 'v2'
@@ -33,6 +37,20 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         expect(hlr.source).to eq('va.gov')
         expect(parsed['data']['type']).to eq('higherLevelReview')
         expect(parsed['data']['attributes']['status']).to eq('pending')
+      end
+
+      it 'behaves the same on new path' do
+        Timecop.freeze(Time.current) do
+          post(path, params: @data, headers: @headers)
+          orig_path_response = JSON.parse(response.body)
+          orig_path_response['data']['id'] = 'ignored'
+
+          post(new_base_path('forms/200996'), params: @data, headers: @headers)
+          new_path_response = JSON.parse(response.body)
+          new_path_response['data']['id'] = 'ignored'
+
+          expect(new_path_response).to match_array orig_path_response
+        end
       end
     end
 
@@ -199,6 +217,12 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
       expect(parsed['data']['type']).to eq('higherLevelReviewValidation')
     end
 
+    it 'behaves the same on the new path' do
+      post(new_base_path('forms/200996/validate'), params: @data, headers: @headers)
+      expect(parsed['data']['attributes']['status']).to eq('valid')
+      expect(parsed['data']['type']).to eq('higherLevelReviewValidation')
+    end
+
     it 'returns a response when extra data valid' do
       post(path, params: @data_extra, headers: @headers_extra)
 
@@ -206,16 +230,53 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
       expect(parsed['data']['type']).to eq('higherLevelReviewValidation')
     end
 
-    it 'returns a response when invalid' do
-      post(path, params: @invalid_data, headers: @headers)
-      expect(response.status).to eq(422)
-      expect(parsed['errors']).not_to be_empty
+    context 'when validation fails due to invalid data' do
+      before do
+        post(path, params: @invalid_data, headers: @headers)
+      end
+
+      it 'returns an error response' do
+        expect(response.status).to eq(422)
+        expect(parsed['errors']).not_to be_empty
+      end
+
+      it 'returns error objects in JSON API 1.1 ErrorObject format' do
+        expected_keys = %w[code detail meta source status title]
+        expect(parsed['errors'].first.keys).to include(*expected_keys)
+        expect(parsed['errors'][3]['meta']['missing_fields']).to eq %w[addressLine1 countryCodeISO2 zipCode5]
+        expect(parsed['errors'][3]['source']['pointer']).to eq '/data/attributes/claimant/address'
+      end
     end
 
-    it 'responds properly when JSON parse error' do
-      allow(JSON).to receive(:parse).and_raise(JSON::ParserError)
-      post(path, params: @invalid_data, headers: @headers)
-      expect(response.status).to eq(422)
+    context 'responds with a 422 when request.body isn\'t a JSON *object*' do
+      before do
+        fake_io_object = OpenStruct.new string: json
+        allow_any_instance_of(ActionDispatch::Request).to receive(:body).and_return(fake_io_object)
+      end
+
+      context 'request.body is a JSON string' do
+        let(:json) { '"Poodles!"' }
+
+        it 'responds with a properly formed error object' do
+          post(path, params: @data, headers: @headers)
+          body = JSON.parse(response.body)
+          expect(response.status).to eq 422
+          expect(body['errors']).to be_an Array
+          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
+        end
+      end
+
+      context 'request.body is a JSON integer' do
+        let(:json) { '33' }
+
+        it 'responds with a properly formed error object' do
+          post(path, params: @data, headers: @headers)
+          body = JSON.parse(response.body)
+          expect(response.status).to eq 422
+          expect(body['errors']).to be_an Array
+          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
+        end
+      end
     end
   end
 
@@ -226,6 +287,11 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
       get path
       expect(response.status).to eq(200)
     end
+
+    it 'behaves the same for new path' do
+      get new_base_path('schemas/200996')
+      expect(response.status).to eq 200
+    end
   end
 
   describe '#show' do
@@ -234,6 +300,13 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
     it 'returns a higher_level_review with all of its data' do
       uuid = create(:higher_level_review).id
       get("#{path}#{uuid}")
+      expect(response.status).to eq(200)
+      expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
+    end
+
+    it 'behaves the same on new path' do
+      uuid = create(:higher_level_review_v2).id
+      get("#{new_base_path 'forms/200996'}/#{uuid}")
       expect(response.status).to eq(200)
       expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
     end

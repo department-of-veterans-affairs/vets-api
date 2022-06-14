@@ -111,4 +111,22 @@ AppealsApi::Engine.routes.draw do
       end
     end
   end
+
+  namespace :higher_level_reviews, defaults: { format: 'json' } do
+    namespace :v2 do
+      cpath = '/appeals_api/v2/decision_reviews/higher_level_reviews'
+
+      namespace :forms do
+        resources '200996', only: %i[create show], controller: cpath do
+          collection do
+            post 'validate'
+          end
+        end
+      end
+
+      namespace :schemas, controller: cpath do
+        get '200996', action: :schema
+      end
+    end
+  end
 end
