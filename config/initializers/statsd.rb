@@ -43,6 +43,10 @@ Rails.application.reloader.to_prepare do
                          tags: ["version:#{v}", "context:#{t}", "error:#{err[:code]}"])
       end
     end
+    %w[mhv myvahealth ebenefits vamobile vaoccmobile].each do |client|
+      StatsD.increment(SAML::PostURLService::STATSD_SSO_UNIFIED_NEW_KEY, tags: ["client:#{client}"])
+      StatsD.increment(SAML::PostURLService::STATSD_SSO_UNIFIED_CALLBACK_KEY, tags: ["client:#{client}"])
+    end
     %w[success failure].each do |s|
       (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
         StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_KEY, 0,

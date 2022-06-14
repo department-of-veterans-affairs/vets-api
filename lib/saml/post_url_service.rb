@@ -14,6 +14,8 @@ module SAML
   class PostURLService < URLService
     include SentryLogging
 
+    STATSD_SSO_UNIFIED_CALLBACK_KEY = 'api.auth.unified_callback'
+
     def initialize(saml_settings, session: nil, user: nil, params: {}, loa3_context: LOA::IDME_LOA3_VETS)
       unless %w[new saml_callback saml_logout_callback ssoe_slo_callback].include?(params[:action])
         raise Common::Exceptions::RoutingError, params[:path]
@@ -46,6 +48,11 @@ module SAML
 
     def login_redirect_url(auth: 'success', code: nil)
       if auth == 'success'
+        application = @tracker.payload_attr(:application)
+        if %w[mhv myvahealth ebenefits vamobile vaoccmobile].include?(application)
+          StatsD.increment(STATSD_SSO_UNIFIED_CALLBACK_KEY, tags: ["client:#{application}"])
+        end
+
         # if the original auth request specified a redirect, use that
         redirect_target = @tracker.payload_attr(:redirect)
         if redirect_target.present?
