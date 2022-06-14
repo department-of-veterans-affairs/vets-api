@@ -13,6 +13,7 @@ require 'pdf_fill/forms/va288832'
 require 'pdf_fill/forms/va21674'
 require 'pdf_fill/forms/va210538'
 require 'pdf_fill/forms/va261880'
+require 'pdf_fill/forms/va5655'
 
 module PdfFill
   module Filler
@@ -32,7 +33,8 @@ module PdfFill
       '28-8832' => PdfFill::Forms::Va288832,
       '21-674' => PdfFill::Forms::Va21674,
       '21-0538' => PdfFill::Forms::Va210538,
-      '26-1880' => PdfFill::Forms::Va261880
+      '26-1880' => PdfFill::Forms::Va261880,
+      '5655' => PdfFill::Forms::Va5655
     }.freeze
 
     def combine_extras(old_file_path, extras_generator)
