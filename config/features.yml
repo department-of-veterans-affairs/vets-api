@@ -101,10 +101,6 @@ features:
     actor_type: user
     description: Enables setting pre check-in started status by calling CHIP
     enable_in_development: true
-  check_in_experience_refresh_pre_checkin:
-    actor_type: user
-    description: Enables pre check-in refresh by calling CHIP
-    enable_in_development: true
   check_in_experience_lorota_401_mapping_enabled:
     actor_type: user
     description: Enables mapping of LoROTA 401 error to 401 response

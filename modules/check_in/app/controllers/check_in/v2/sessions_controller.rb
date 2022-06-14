@@ -11,9 +11,7 @@ module CheckIn
 
         render json: check_in_session.client_error, status: :ok and return unless check_in_session.valid_uuid?
 
-        if Flipper.enabled?('check_in_experience_refresh_pre_checkin') && pre_checkin?
-          ::V2::Chip::Service.build(check_in: check_in_session).refresh_precheckin
-        end
+        ::V2::Chip::Service.build(check_in: check_in_session).refresh_precheckin if pre_checkin?
 
         render json: check_in_session.unauthorized_message, status: :ok and return unless check_in_session.authorized?
 
