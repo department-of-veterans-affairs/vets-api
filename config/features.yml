@@ -634,6 +634,10 @@ features:
   va_home_preview:
     actor_type: user
     description: Allows user testing for Homepage redesign - do not use in production
+  va_online_filter36_vats:
+    actor_type: user
+    description: Update the filtering logic from 24 months to 36 months for a given clinic in the direct appointment schedule flow
+    enable_in_development: true
   va_online_scheduling:
     actor_type: user
     description: Allows veterans to view their VA and Community Care appointments
