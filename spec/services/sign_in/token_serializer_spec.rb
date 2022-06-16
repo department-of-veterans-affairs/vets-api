@@ -31,23 +31,59 @@ RSpec.describe SignIn::TokenSerializer do
 
     context 'when client id is in the list of cookie auth clients' do
       let(:client_id) { SignIn::Constants::ClientConfig::COOKIE_AUTH.first }
-      let(:expiration) { nil }
+      let(:access_token_expiration) { access_token.expiration_time }
+      let(:refresh_token_expiration) { session_container.session.refresh_expiration }
+      let(:info_cookie_value) do
+        {
+          access_token_expiration: access_token_expiration,
+          refresh_token_expiration: refresh_token_expiration
+        }
+      end
       let(:path) { '/' }
       let(:secure) { Settings.sign_in.cookies_secure }
       let(:httponly) { true }
+      let(:httponly_info_cookie) { false }
       let(:refresh_path) { SignIn::Constants::Auth::REFRESH_ROUTE_PATH }
       let(:expected_access_token_cookie) do
-        { value: encoded_access_token, expires: expiration, path: path, secure: secure, httponly: httponly }
+        {
+          value: encoded_access_token,
+          expires: access_token_expiration,
+          path: path,
+          secure: secure,
+          httponly: httponly
+        }
       end
       let(:expected_refresh_token_cookie) do
-        { value: encrypted_refresh_token, expires: expiration, path: refresh_path, secure: secure, httponly: httponly }
+        {
+          value: encrypted_refresh_token,
+          expires: refresh_token_expiration,
+          path: refresh_path,
+          secure: secure,
+          httponly: httponly
+        }
       end
       let(:expected_anti_csrf_token_cookie) do
-        { value: anti_csrf_token, expires: expiration, path: path, secure: secure, httponly: httponly }
+        {
+          value: anti_csrf_token,
+          expires: refresh_token_expiration,
+          path: path,
+          secure: secure,
+          httponly: httponly
+        }
+      end
+      let(:expected_info_cookie) do
+        {
+          value: info_cookie_value,
+          expires: refresh_token_expiration,
+          path: path,
+          secure: secure,
+          httponly: httponly_info_cookie
+        }
       end
       let(:access_token_cookie_name) { SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME }
       let(:refresh_token_cookie_name) { SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME }
       let(:anti_csrf_token_cookie_name) { SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME }
+      let(:info_cookie_name) { SignIn::Constants::Auth::INFO_COOKIE_NAME }
 
       it 'sets access token cookie' do
         subject
@@ -57,6 +93,11 @@ RSpec.describe SignIn::TokenSerializer do
       it 'sets refresh token cookie' do
         subject
         expect(cookies[refresh_token_cookie_name]).to eq(expected_refresh_token_cookie)
+      end
+
+      it 'sets info cookie' do
+        subject
+        expect(cookies[info_cookie_name]).to eq(expected_info_cookie)
       end
 
       context 'and client id is in the list of anti csrf enabled clients' do

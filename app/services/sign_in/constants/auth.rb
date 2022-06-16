@@ -10,6 +10,7 @@ module SignIn
       ACCESS_TOKEN_COOKIE_NAME = 'vagov_access_token'
       REFRESH_TOKEN_COOKIE_NAME = 'vagov_refresh_token'
       ANTI_CSRF_COOKIE_NAME = 'vagov_anti_csrf_token'
+      INFO_COOKIE_NAME = 'vagov_info_token'
       REFRESH_ROUTE_PATH = '/v0/sign_in/refresh'
     end
   end

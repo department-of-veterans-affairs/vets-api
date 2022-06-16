@@ -5,6 +5,7 @@
 module AuthenticationAndSSOConcerns
   extend ActiveSupport::Concern
   include ActionController::Cookies
+  include SignIn::Authentication
 
   included do
     before_action :authenticate
@@ -14,7 +15,11 @@ module AuthenticationAndSSOConcerns
   protected
 
   def authenticate
-    validate_session || render_unauthorized
+    if cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME]
+      super
+    else
+      validate_session || render_unauthorized
+    end
   end
 
   def render_unauthorized
