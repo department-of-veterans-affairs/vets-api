@@ -16,10 +16,16 @@ module VAProfile
           'military_service_history',
           'military_service_episodes')
 
+        episodes = service_episodes&.map { |e| VAProfile::Models::ServiceHistory.build_from(e) }
+
         new(
           raw_response&.status,
-          episodes: service_episodes&.map { |e| VAProfile::Models::ServiceHistory.build_from(e) }
+          episodes: sort_by_begin_date(episodes)
         )
+      end
+
+      def self.sort_by_begin_date(service_episodes)
+        service_episodes.sort_by { |se| se.begin_date || Time.zone.today + 3650 }
       end
     end
   end

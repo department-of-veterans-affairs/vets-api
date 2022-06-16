@@ -47,13 +47,25 @@ describe VAProfile::MilitaryPersonnel::Service do
           response = subject.get_service_history
           episodes = response.episodes
 
-          expect(episodes.count).to eq(2)
+          expect(episodes.count).to eq(3)
           episodes.each do |e|
             expect(e.branch_of_service).not_to be_nil
             expect(e.begin_date).not_to be_nil
             expect(e.end_date).not_to be_nil
             expect(e.personnel_category_type_code).not_to be_nil
           end
+        end
+      end
+
+      it 'sorts service history episodes' do
+        VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
+          response = subject.get_service_history
+          episodes = response.episodes
+
+          expect(episodes.count).to eq(3)
+          expect(episodes[0].begin_date).to eq('2002-02-02')
+          expect(episodes[1].begin_date).to eq('2009-03-01')
+          expect(episodes[2].begin_date).to eq('2012-03-02')
         end
       end
     end

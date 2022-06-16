@@ -55,6 +55,17 @@ http_interactions:
                     "militaryServiceHistory": {
                       "militaryServiceEpisodes": [
                         {
+                          "serviceEpisodeIdentifier": 343703,
+                          "branchOfServiceText": "Army",
+                          "branchOfServiceCode": "A",
+                          "episodeSequenceNumber": 1,
+                          "periodOfServiceTypeCode": "N",
+                          "periodOfServiceBeginDate": "2012-03-02",
+                          "periodOfServiceEndDate": "2018-10-31",
+                          "guardReserves": [],
+                          "deployments": []
+                        },                                               
+                        {
                           "serviceEpisodeIdentifier": 343701,
                           "branchOfServiceText": "Army",
                           "branchOfServiceCode": "A",
