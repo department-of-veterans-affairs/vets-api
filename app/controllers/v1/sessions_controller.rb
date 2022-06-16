@@ -34,6 +34,11 @@ module V1
     def new
       type = params[:type]
 
+      # As a temporary measure while we have the ability to authenticate either through SessionsController
+      # or through SignInController, we will delete all SignInController cookies when authenticating with SSOe
+      # to prevent undefined authentication behavior
+      delete_sign_in_service_cookies
+
       if type == 'slo'
         Rails.logger.info("SessionsController version:v1 LOGOUT of type #{type}", sso_logging_info)
         reset_session
@@ -78,6 +83,13 @@ module V1
     end
 
     private
+
+    def delete_sign_in_service_cookies
+      cookies.delete(SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME)
+      cookies.delete(SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME)
+      cookies.delete(SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME)
+      cookies.delete(SignIn::Constants::Auth::INFO_COOKIE_NAME)
+    end
 
     def set_sentry_context_for_callback
       temp_session_object = Session.find(session[:token])

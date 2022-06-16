@@ -16,7 +16,7 @@ module SignIn
 
     def authenticate
       @access_token = authenticate_access_token
-      @current_user = load_user
+      @current_user = load_user_object
     rescue SignIn::Errors::AccessTokenExpiredError => e
       render json: { errors: e }, status: :forbidden
     rescue SignIn::Errors::StandardError => e
@@ -41,7 +41,7 @@ module SignIn
       SignIn::AccessTokenJwtDecoder.new(access_token_jwt: access_token_jwt).perform(with_validation: with_validation)
     end
 
-    def load_user
+    def load_user_object
       SignIn::UserLoader.new(access_token: @access_token).perform
     end
 
