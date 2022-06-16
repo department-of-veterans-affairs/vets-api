@@ -59,7 +59,7 @@ RSpec.describe 'service_history', skip_emis: true do
               json = json_body_for(response)
               episodes = json.dig('attributes', 'service_history')
 
-              expect(episodes.count).to eq(2)
+              expect(episodes.count).to eq(3)
               episodes.each do |e|
                 expect(e['branch_of_service']).not_to be_nil
                 expect(e['begin_date']).not_to be_nil
