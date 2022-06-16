@@ -31,12 +31,6 @@ module AppealsApi
     def higher_level_review_ids
       relation = HigherLevelReview.v2.incomplete_statuses
 
-      # TODO: Remove this conditional after we turn on throttling in Flipper on all envs
-      if Settings.vsp_environment.present?
-        @higher_level_review_ids ||= throttled_ids(relation)
-        return @higher_level_review_ids
-      end
-
       @higher_level_review_ids ||= if Flipper.enabled?(:decision_review_hlr_status_update_throttling)
                                      throttled_ids relation
                                    else
