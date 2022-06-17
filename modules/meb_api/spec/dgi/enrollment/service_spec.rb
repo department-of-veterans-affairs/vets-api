@@ -8,7 +8,7 @@ RSpec.describe MebApi::DGI::Enrollment::Service do
   let(:service) { MebApi::DGI::Enrollment::Service.new(user) }
   let(:enrollment_verification_params) do
     {
-      claimant_id: 1,
+      claimant_id: 600_000_000,
       enrollments: [
         {
           "month": 'August',

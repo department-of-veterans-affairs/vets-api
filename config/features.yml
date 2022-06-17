@@ -592,6 +592,9 @@ features:
   show_updated_toe_app:
     actor_type: user
     description: This determines when the form should be displayed.
+  show_updated_fry_dea_app:
+    actor_type: user
+    description: This determines when the form should be displayed
   show_medical_copays:
     actor_type: user
     description: Enables the medical copays application on route /manage-va-debt/medical-copays/
