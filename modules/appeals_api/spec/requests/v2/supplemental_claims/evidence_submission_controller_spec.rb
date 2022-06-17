@@ -9,6 +9,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSubmission
   let(:headers) { fixture_as_json 'valid_200995_headers.json', version: 'v2' }
   let(:evidence_submissions) { create_list(:evidence_submission, 3, supportable: supplemental_claim) }
   let(:path) { '/services/appeals/v2/decision_reviews/supplemental_claims/evidence_submissions/' }
+  let(:new_path) { '/services/appeals/supplemental_claims/v2/evidence_submissions/' }
 
   let(:parsed) { JSON.parse(response.body) }
 
@@ -23,7 +24,15 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSubmission
         post path, params: { sc_uuid: 1979 }, headers: headers
 
         expect(response.status).to eq 404
-        expect(response.body).to include 'not found'
+        expect(response.body).to include 'SupplementalClaim with uuid 1979 not found'
+      end
+
+      it 'behaves the same on the new path' do
+        stub_upload_location
+        post new_path, params: { sc_uuid: 1979 }, headers: headers
+
+        expect(response.status).to eq 404
+        expect(response.body).to include 'SupplementalClaim with uuid 1979 not found'
       end
     end
 
@@ -33,6 +42,13 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSubmission
           stub_upload_location
           post path, params: { sc_uuid: supplemental_claim.id }, headers: headers
 
+          expect(response.status).to eq 202
+          expect(response.body).to include supplemental_claim.id
+        end
+
+        it 'behaves the same on the new path' do
+          stub_upload_location
+          post new_path, params: { sc_uuid: supplemental_claim.id }, headers: headers
           expect(response.status).to eq 202
           expect(response.body).to include supplemental_claim.id
         end
@@ -96,6 +112,11 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSubmission
   describe '#show' do
     it 'successfully requests the evidence submission' do
       get "#{path}#{evidence_submissions.sample.guid}"
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'behaves the same on new path' do
+      get "#{new_path}#{evidence_submissions.sample.guid}"
       expect(response).to have_http_status(:ok)
     end
 
