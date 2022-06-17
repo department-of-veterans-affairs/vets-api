@@ -1,0 +1,24 @@
+type: object
+required:
+  - type
+  - id
+  - attributes
+properties:
+  type:
+    type: string
+    example: clinic_slot
+  id:
+    type: string
+    example: "3230323230383032313833303A323032323038303231393030"
+  attributes:
+    type: object
+    required:
+      - start_date
+      - end_date
+    properties:
+      start_date:
+        type: string
+        example: 2022-08-01T12:00:00Z
+      end_date:
+        type: string
+        example: 2022-08-30T12:00:00Z

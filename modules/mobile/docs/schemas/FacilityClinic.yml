@@ -1,0 +1,20 @@
+type: object
+required:
+  - type
+  - id
+  - attributes
+properties:
+  type:
+    type: string
+    example: facility_clinic
+  id:
+    type: string
+    example: "12345"
+  attributes:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        example: 'C&P Optometry'
