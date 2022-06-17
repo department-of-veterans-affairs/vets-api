@@ -24,6 +24,7 @@ module DebtManagementCenter
     STATSD_KEY_PREFIX = 'api.dmc'
     DATE_TIMEZONE = 'Central Time (US & Canada)'
     CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.fsr_confirmation_email
+    DEBT_TYPES = %w[vba vha combined].freeze
 
     ##
     # Submit a financial status report to the Debt Management Center
