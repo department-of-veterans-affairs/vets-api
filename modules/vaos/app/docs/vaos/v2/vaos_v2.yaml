@@ -241,7 +241,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UpdateAppointmentRequest"   
+              $ref: "#/components/schemas/UpdateAppointmentRequest"
       responses:
         "200":
           description: The appointment status is updated
@@ -284,7 +284,7 @@ paths:
         "503":
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
-          $ref: "#/components/responses/GatewayTimeout"                      
+          $ref: "#/components/responses/GatewayTimeout"
   "/facilities":
     get:
       tags:
@@ -332,7 +332,7 @@ paths:
                           type: string
                           example: appointments
                         attributes:
-                          $ref: "#/components/schemas/Facility"   
+                          $ref: "#/components/schemas/Facility"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -734,7 +734,7 @@ components:
           description: the care type for the appointment
           type: string
         reasonCode:
-          "$ref": "#/components/schemas/CodeableConcept" 
+          "$ref": "#/components/schemas/CodeableConcept"
         priority:
           minimum: 0
           type: number
@@ -782,7 +782,7 @@ components:
             end:
               type: string
               description: Date/Time that the slot is to end.
-              format: date-time  
+              format: date-time
         created:
           type: string
           description: The date this appointment was initially created.
@@ -976,7 +976,7 @@ components:
         text:
           type: string
           description: Plain text representation of the concept
-      description: >- 
+      description: >-
         A CodeableConcept represents a value that is usually supplied by providing a
         reference to one or more terminologies or ontologies.
         FHIR reference: https://www.hl7.org/fhir/datatypes.html#CodeableConcept
@@ -1055,7 +1055,7 @@ components:
           description: Given names (not always first). Given Names appear in the correct order for presenting the name.
           items:
             type: string
-      description: A human name.  
+      description: A human name.
     Identifier:
       required:
         - system
@@ -1071,7 +1071,7 @@ components:
       required:
         - id
         - type
-        - attributes 
+        - attributes
       properties:
         id:
           type: string
@@ -1104,7 +1104,7 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/CodeableConcept'
-      description: The response for a patient scheduing eligibility request. 
+      description: The response for a patient scheduing eligibility request.
     PreferredLocation:
       type: object
       properties:
@@ -1121,75 +1121,25 @@ components:
         providerIdentifier:
           type: string
         providerIdentifierType:
-          type: string     
+          type: string
         name:
-          type: string  
+          type: string
         providerType:
-          type: string   
+          type: string
         address:
           type: string
         addressStreet:
-          type: string 
+          type: string
         addressCity:
           type: string
         addressStateProvince:
-          type: string 
+          type: string
         addressCounty:
-          type: string 
-        providerStatusReason:
-          type: string   
-        primaryCarePhysician:
-          type: boolean  
-        isAcceptingNewPatients:
-          type: boolean 
-        providerGender:
-          type: string  
-        isExternal:
-          type: boolean  
-        canCreateHealthCareOrders:
-          type: boolean   
-        contactMethodEmail:
-          type: boolean   
-        contactMethodFax:
-          type: boolean  
-        contactMethodVirtuPro:
-          type: boolean   
-        contactMethodHSRM:
-          type: boolean  
-        contactMethodPhone:
-          type: boolean   
-        contactMethodMail:
-          type: boolean  
-        contactMethodRefDoc:
-          type: boolean   
-        bulkEmails:
-          type: boolean  
-        bulkMails:
-          type: boolean 
-        emails:
-          type: boolean  
-        mails:
-          type: boolean
-        phoneCalls:
-          type: boolean 
-        faxes:
-          type: boolean  
-        preferredMeansReceivingReferralHSRM:
-          type: boolean
-        preferredMeansReceivingReferralSecuredEmail:
-          type: boolean
-        preferredMeansReceivingReferralMail:
-          type: boolean
-        preferredMeansReceivingReferralDirectMessaging:
-          type: boolean
-        preferredMeansReceivingReferralFax:
-          type: boolean
-        modifiedOnDate:
           type: string
     UpdateAppointmentRequest:
       description: A request to create a new appointment.
       type: object
-      properties: 
+      properties:
         status:
           "$ref": "#/components/schemas/AppointmentStatus"
     Slot:
@@ -1403,7 +1353,7 @@ components:
           type: string
         attributes:
           type: object
-          required: 
+          required:
             - facility_id
           properties:
             facility_id:
@@ -1468,7 +1418,7 @@ components:
                             end_time:
                               type: string
             community_care:
-              type: boolean            
+              type: boolean
     TasAddress:
       type: object
       properties:
