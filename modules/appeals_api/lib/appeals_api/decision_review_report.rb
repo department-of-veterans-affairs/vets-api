@@ -5,6 +5,10 @@ module AppealsApi
     attr_reader :from, :to
 
     FAULTY_STATUSES = %w[error].freeze
+    # Evidence Submissions have a numerical ID PK and a UUID, while the rest of the record types only have a UUID ID PK
+    # Use this presenter to display the UUID as though it were the ID attribute like the rest of the records
+    EvidenceSubmissionPresenter = Struct.new(*%i[id source status code detail created_at updated_at],
+                                             keyword_init: true)
 
     def initialize(from: nil, to: nil)
       @from = from
@@ -27,7 +31,12 @@ module AppealsApi
     end
 
     def total_hlr_successes
-      @total_hlr_successes ||= total_success_count(HigherLevelReview)
+      # HLRv1s final success status is "success", while HLRv2 is "complete", so we need to count on both
+      @total_hlr_successes ||= lambda do
+        sum = total_statuses_count(HigherLevelReview.v1, ['success'])
+        sum += total_statuses_count(HigherLevelReview.v2, ['complete'])
+        sum
+      end.call
     end
 
     # NOD
@@ -44,7 +53,7 @@ module AppealsApi
     end
 
     def total_nod_successes
-      @total_nod_successes ||= total_success_count(NoticeOfDisagreement)
+      @total_nod_successes ||= total_statuses_count(NoticeOfDisagreement)
     end
 
     # SC
@@ -61,7 +70,7 @@ module AppealsApi
     end
 
     def total_sc_successes
-      @total_sc_successes ||= total_success_count(SupplementalClaim)
+      @total_sc_successes ||= total_statuses_count(SupplementalClaim)
     end
 
     # Evidence submissions - NOD
@@ -70,8 +79,13 @@ module AppealsApi
     end
 
     def faulty_evidence_submission
-      @faulty_evidence_submission ||=
-        EvidenceSubmission.errored.where(created_at: from..to, supportable_type: 'AppealsApi::NoticeOfDisagreement')
+      @faulty_evidence_submission ||= [].tap do |a|
+        EvidenceSubmission
+          .errored
+          .where(created_at: from..to, supportable_type: 'AppealsApi::NoticeOfDisagreement')
+          .order(created_at: :desc)
+          .find_each { |es| a << new_evidence_submission_presenter(es) }
+      end
     end
 
     # Evidence submissions - SC
@@ -80,8 +94,13 @@ module AppealsApi
     end
 
     def sc_faulty_evidence_submission
-      @sc_faulty_evidence_submission ||=
-        EvidenceSubmission.errored.where(created_at: from..to, supportable_type: 'AppealsApi::SupplementalClaim')
+      @sc_faulty_evidence_submission ||= [].tap do |a|
+        EvidenceSubmission
+          .errored
+          .where(created_at: from..to, supportable_type: 'AppealsApi::SupplementalClaim')
+          .order(created_at: :desc)
+          .find_each { |es| a << new_evidence_submission_presenter(es) }
+      end
     end
 
     def no_faulty_records?
@@ -112,14 +131,26 @@ module AppealsApi
       statuses
     end
 
-    def total_success_count(record_type)
-      record_type.where(status: 'success').count
+    def total_statuses_count(record_type, statuses = ['success'])
+      record_type.where(status: statuses).count
     end
 
     def stuck_records(record_type, status_class, timeframe = 1.week.ago)
       record_type.where('updated_at < ?', timeframe.beginning_of_day)
                  .where(status: status_class::STATUSES - status_class::COMPLETE_STATUSES)
                  .order(created_at: :desc)
+    end
+
+    def new_evidence_submission_presenter(evidence_submission)
+      EvidenceSubmissionPresenter.new(
+        id: evidence_submission.guid,
+        source: evidence_submission.source,
+        status: evidence_submission.status,
+        code: evidence_submission.code,
+        detail: evidence_submission.detail,
+        created_at: evidence_submission.created_at,
+        updated_at: evidence_submission.updated_at
+      )
     end
   end
 end
