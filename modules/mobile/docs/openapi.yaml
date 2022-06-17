@@ -1620,6 +1620,65 @@ paths:
       security:
         - Bearer: [ ]
       summary: /v0/health/rx/prescriptions/{id}/refill
+  /v0/health/rx/prescriptions/{id}/tracking:
+    get:
+      description: Requests tracking data for a prescription
+      operationId: getRxTracking
+      parameters:
+        - description: id of the prescription tracking data is being requested for
+          example: 13650545
+          in: path
+          name: id
+          required: true
+          schema:
+            type: object
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/PrescriptionTracking.yml
+          description: OK
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not Found
+        '408':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The response from this API timed out.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An internal API error occured.
+        '502':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An upstream service the API depends on returned an error.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An upstream service is unavailable, or its circuit breaker
+            may have been tripped.
+        '504':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: A response from an upstream service timed out.
+      security:
+        - Bearer: [ ]
+      summary: /v0/health/rx/prescriptions/{id}/tracking
   /v0/letters:
     get:
       description: Returns the list of letter names and types for the given user

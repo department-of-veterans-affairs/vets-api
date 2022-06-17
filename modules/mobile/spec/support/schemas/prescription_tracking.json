@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "type": "object",
+  "required": [
+    "data"
+  ],
+  "properties": {
+    "data": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "attributes"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "required": [
+            "prescriptionName",
+            "trackingNumber",
+            "shippedDate",
+            "deliveryService",
+            "otherPrescriptions"
+          ],
+          "properties": {
+            "prescriptionName": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "trackingNumber": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "shippedDate": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "deliveryService": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "otherPresciptions": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "object",
+                "required": [
+                  "prescriptionName",
+                  "prescriptionNumber"
+                ],
+                "properties": {
+                  "prescriptionName": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "prescriptionNumber": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

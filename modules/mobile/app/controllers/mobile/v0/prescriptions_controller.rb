@@ -23,6 +23,11 @@ module Mobile
         head :no_content
       end
 
+      def tracking
+        tracking_data = client.get_tracking_rx(params[:id])
+        render json: Mobile::V0::PrescriptionTrackingSerializer.new(tracking_data)
+      end
+
       private
 
       def client
