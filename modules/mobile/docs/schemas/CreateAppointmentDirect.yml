@@ -1,0 +1,37 @@
+description: Direct schedule new appointment
+type: object
+required:
+  - kind
+  - status
+  - slot
+  - extension
+  - locationId
+  - comment
+properties:
+  kind:
+    enum:
+      - clinic
+    example: 'clinic'
+  status:
+    type: string
+    description: Always 'booked' for direct schedule
+    enum:
+      - booked
+    example: 'booked'
+  slot:
+    type: object
+    description: Id of direct schedule time slot
+    example: { "id": "3230323230383032313833303A323032323038303231393030" }
+  extension:
+    type: object
+    description: date of direct schedule time slot
+    example: { "desiredDate": "2022-08-02T00:00:00+00:00" }
+  locationId:
+    description: The sta6aid for the VAfacility where the appointment is registered.
+    type: string
+    example: '983GC'
+  comment:
+    description:
+      Free-form comment section to provide additional information about an appointment request.
+    type: string
+    example: 'free form comment here'

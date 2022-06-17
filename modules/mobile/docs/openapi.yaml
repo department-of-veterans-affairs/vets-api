@@ -548,6 +548,163 @@ paths:
       security:
         - Bearer: []
       summary: /v0/appointments/facility/eligibility
+  /v0/appointments/facilities/{facililty_id}/clinics:
+    get:
+      description: \*WIP* - Returns all available clinics at a facility for a given type of service.
+      operationId: clinic
+      parameters:
+        - description: Facility ID
+          in: path
+          name: facililty_id
+          required: true
+          schema:
+            type: string
+            example: 436GC
+        - description: Service Type
+          in: query
+          name: service_type
+          required: true
+          schema:
+            type: string
+            enum:
+              - amputation
+              - audiology
+              - covid
+              - optometry
+              - outpatientMentalHealth
+              - moveProgram
+              - foodAndNutrition
+              - clinicalPharmacyPrimaryCare
+              - primaryCare
+              - homeSleepTesting
+              - socialWork
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/FacilityClinics.yml
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Authentication is possible but has failed or not yet been provided.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The requested resource could not be found.
+        '408':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The response from this API timed out.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Failure in processing entity
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An internal API error occured.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An upstream service is unavailable, or its circuit breaker
+            may have been tripped.
+        '504':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: A response from an upstream service timed out.
+      security:
+        - Bearer: []
+      summary: WIP /v0/appointments/facilities/{facililty_id}/clinics
+  /v0/appointments/facilities/{facililty_id}/clinics/{clinic_id}/slots:
+    get:
+      description: \*WIP* - Accepts date range for a clinic at a va facility and returns available slots for a a direct schedule appointment.
+      operationId: slot
+      parameters:
+        - description: The start date for the range of appointments slots in ISO 8601 UTC
+            format. If not provided the start date will be considered now.
+          example: 2020-10-29T07:00:00Z
+          in: query
+          name: startDate
+          schema:
+            format: date-time
+            type: string
+        - description: The end date for the range of appointments slots in ISO 8601 UTC format.
+            If not provided the end date will be 2 months from today's date
+          example: 2021-11-29T08:00:00Z
+          in: query
+          name: endDate
+          schema:
+            format: date-time
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/ClinicSlots.yml
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Authentication is possible but has failed or not yet been provided.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The requested resource could not be found.
+        '408':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The response from this API timed out.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Failure in processing entity
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An internal API error occured.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An upstream service is unavailable, or its circuit breaker
+            may have been tripped.
+        '504':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: A response from an upstream service timed out.
+      security:
+        - Bearer: []
+      summary: WIP /v0/appointments/facilities/{facililty_id}/clinics/{clinic_id}/slots
   /v0/appointments/va/eligibility:
     get:
       description: Lists types of service. For each type of service, lists users registered facilities that support request and direct appointments.
@@ -614,16 +771,18 @@ paths:
       summary: /v0/appointments/va/eligibility
   /v0/appointment:
     post:
-      description: Creates a new appointment
+      description: \*DIRECT SCHEDULE IS WIP* - Creates a new appointment.
       operationId: CreateNewAppointment
       requestBody:
         content:
           application/json:
             schema:
-              $ref: ./schemas/CreateAppointmentRequest.yml
+              oneOf:
+                - $ref: ./schemas/CreateAppointmentRequest.yml
+                - $ref: ./schemas/CreateAppointmentDirect.yml
       responses:
-        "201":
-          description: Retrives a list of clincs for a given facility
+        "200":
+          description: OK
           content:
             application/json:
               schema:
@@ -694,7 +853,7 @@ paths:
           description: A response from an upstream service timed out.
       security:
         - Bearer: [ ]
-      summary: /v0/appointment
+      summary: WIP /v0/appointment
   /v0/claim/{id}:
     get:
       description: Returns info on all user's claims and appeals for mobile overview
