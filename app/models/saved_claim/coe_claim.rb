@@ -29,6 +29,7 @@ class SavedClaim::CoeClaim < SavedClaim
 
   # rubocop:disable Metrics/MethodLength
   def prepare_form_data
+    postal_code, postal_code_suffix = parsed_form['applicantAddress']['postalCode'].split('-', 2)
     form_copy = {
       'status' => 'SUBMITTED',
       'veteran' => {
@@ -41,14 +42,14 @@ class SavedClaim::CoeClaim < SavedClaim
         'vetAddress2' => parsed_form['applicantAddress']['street2'] || '',
         'vetCity' => parsed_form['applicantAddress']['city'],
         'vetState' => parsed_form['applicantAddress']['state'],
-        'vetZip' => parsed_form['applicantAddress']['postalCode'],
-        'vetZipSuffix' => '',
+        'vetZip' => postal_code,
+        'vetZipSuffix' => postal_code_suffix,
         'mailingAddress1' => parsed_form['applicantAddress']['street'],
         'mailingAddress2' => parsed_form['applicantAddress']['street2'] || '',
         'mailingCity' => parsed_form['applicantAddress']['city'],
         'mailingState' => parsed_form['applicantAddress']['state'],
-        'mailingZip' => parsed_form['applicantAddress']['postalCode'],
-        'mailingZipSuffix' => '',
+        'mailingZip' => postal_code,
+        'mailingZipSuffix' => postal_code_suffix || '',
         'contactPhone' => parsed_form['contactPhone'],
         'contactEmail' => parsed_form['contactEmail'],
         'vaLoanIndicator' => parsed_form['vaLoanIndicator'],
@@ -76,6 +77,7 @@ class SavedClaim::CoeClaim < SavedClaim
   # rubocop:disable Metrics/MethodLength
   def relevant_prior_loans(form_copy)
     parsed_form['relevantPriorLoans'].each do |loan_info|
+      property_zip, property_zip_suffix = loan_info['propertyAddress']['propertyZip'].split('-', 2)
       form_copy['relevantPriorLoans'] << {
         'vaLoanNumber' => loan_info['vaLoanNumber'].to_s,
         'startDate' => loan_info['dateRange']['from'],
@@ -94,9 +96,10 @@ class SavedClaim::CoeClaim < SavedClaim
         'propertyAddress2' => loan_info['propertyAddress']['propertyAddress2'] || '',
         'propertyCity' => loan_info['propertyAddress']['propertyCity'],
         'propertyState' => loan_info['propertyAddress']['propertyState'],
-        'propertyCounty' => loan_info['propertyAddress']['propertyCounty'],
-        'propertyZip' => loan_info['propertyAddress']['propertyZip'],
-        'propertyZipSuffix' => loan_info['propertyAddress']['propertyZipSuffix'] || ''
+        # confirmed OK to omit propertyCounty, but LGY still requires a string
+        'propertyCounty' => '',
+        'propertyZip' => property_zip,
+        'propertyZipSuffix' => property_zip_suffix || ''
         # 'willRefinance' => loan_info['propertyAddress']['willRefinance'] || false
       }
     end
