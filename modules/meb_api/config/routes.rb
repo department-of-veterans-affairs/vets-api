@@ -7,6 +7,7 @@ MebApi::Engine.routes.draw do
     get 'eligibility', to: 'education_benefits#eligibility'
     get 'claim_status', to: 'education_benefits#claim_status'
     get 'claim_letter', to: 'education_benefits#claim_letter'
+    get 'toe_letter', to: 'education_benefits#toe_letter'
     post 'submit_claim', to: 'education_benefits#submit_claim'
     get 'enrollment', to: 'education_benefits#enrollment'
     post 'submit_enrollment_verification', to: 'education_benefits#submit_enrollment_verification'
