@@ -129,4 +129,24 @@ AppealsApi::Engine.routes.draw do
       end
     end
   end
+
+  namespace :supplemental_claims, defaults: { format: 'json' } do
+    namespace :v2 do
+      cpath = '/appeals_api/v2/decision_reviews/supplemental_claims'
+
+      namespace :forms do
+        resources '200995', only: %i[create show], controller: cpath do
+          collection do
+            post 'validate'
+          end
+        end
+      end
+
+      resources :evidence_submissions, only: %i[create show], controller: "#{cpath}/evidence_submissions"
+
+      namespace :schemas, controller: cpath do
+        get '200995', action: :schema
+      end
+    end
+  end
 end
