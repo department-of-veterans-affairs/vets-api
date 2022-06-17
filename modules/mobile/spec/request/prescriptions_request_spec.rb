@@ -305,4 +305,39 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       end
     end
   end
+
+  describe 'GET /mobile/v0/health/rx/prescriptions/:id/tracking', :aggregate_failures do
+    context 'when id is found' do
+      it 'returns 200' do
+        VCR.use_cassette('rx_refill/prescriptions/gets_tracking_for_a_prescription') do
+          get '/mobile/v0/health/rx/prescriptions/13650541/tracking', headers: iam_headers
+        end
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to match_json_schema('prescription_tracking')
+      end
+    end
+
+    context 'when record is not found' do
+      it 'returns 404' do
+        VCR.use_cassette('rx_refill/prescriptions/tracking_error_id') do
+          get '/mobile/v0/health/rx/prescriptions/1/tracking', headers: iam_headers
+        end
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'with empty otherPrescriptions section' do
+      it 'returns 200 with ' do
+        VCR.use_cassette('rx_refill/prescriptions/gets_tracking_with_empty_other_prescriptions') do
+          get '/mobile/v0/health/rx/prescriptions/13650541/tracking', headers: iam_headers
+        end
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to match_json_schema('prescription_tracking')
+        expect(response.parsed_body.dig('data', 'attributes', 'otherPrescriptions')).to eq([])
+      end
+    end
+  end
 end
