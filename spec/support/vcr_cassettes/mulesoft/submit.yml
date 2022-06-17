@@ -1,0 +1,103 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MPI_URL>"
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        CjxlbnY6RW52ZWxvcGUgeG1sbnM6c29hcGVuYz0iaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvc29hcC9lbmNvZGluZy8iIHhtbG5zOnhzZD0iaHR0cDovL3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEiIHhtbG5zOmVudj0iaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvc29hcC9lbnZlbG9wZS8iIHhtbG5zOnhzaT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEtaW5zdGFuY2UiPgogIDxlbnY6SGVhZGVyLz4KICA8ZW52OkJvZHk+CiAgICA8aWRtOlBSUEFfSU4yMDEzMDVVVjAyIHhtbG5zOmlkbT0iaHR0cDovL3Zhd3cub2VkLm9pdC52YS5nb3YiIHhtbG5zOnhzaT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWHigJBpbnN0YW5jZSIgeHNpOnNjaGVtYUxvY2F0aW9uPSJ1cm46aGw34oCQb3JnOnYzIC4uLy4uL3NjaGVtYS9ITDdWMy9ORTIwMDgvbXVsdGljYWNoZXNjaGVtYXMvUFJQQV9JTjIwMTMwNVVWMDIueHNkIiB4bWxucz0idXJuOmhsN+KAkG9yZzp2MyIgSVRTVmVyc2lvbj0iWE1MXzEuMCI+CiAgICAgIDxpZCByb290PSIxLjIuODQwLjExNDM1MC4xLjEzLjAuMS43LjEuMSIgZXh0ZW5zaW9uPSIyMDBWR09WLTMwM2Y0ZTUwLTJlOTgtNDVlMS05MWU1LTQxNzc2YWE1MTY1MSIvPgogICAgICA8Y3JlYXRpb25UaW1lIHZhbHVlPSIyMDIyMDYxNzEwMzYwMSIvPgogICAgICA8dmVyc2lvbkNvZGUgY29kZT0iNC4xIi8+CiAgICAgIDxpbnRlcmFjdGlvbklkIHJvb3Q9IjIuMTYuODQwLjEuMTEzODgzLjEuNiIgZXh0ZW5zaW9uPSJQUlBBX0lOMjAxMzA1VVYwMiIvPgogICAgICA8cHJvY2Vzc2luZ0NvZGUgY29kZT0iVCIvPgogICAgICA8cHJvY2Vzc2luZ01vZGVDb2RlIGNvZGU9IlQiLz4KICAgICAgPGFjY2VwdEFja0NvZGUgY29kZT0iQUwiLz4KICAgICAgPHJlY2VpdmVyIHR5cGVDb2RlPSJSQ1YiPgogICAgICAgIDxkZXZpY2UgY2xhc3NDb2RlPSJERVYiIGRldGVybWluZXJDb2RlPSJJTlNUQU5DRSI+CiAgICAgICAgICA8aWQgcm9vdD0iMS4yLjg0MC4xMTQzNTAuMS4xMy45OTkuMjM0IiBleHRlbnNpb249IjIwME0iLz4KICAgICAgICA8L2RldmljZT4KICAgICAgPC9yZWNlaXZlcj4KICAgICAgPHNlbmRlciB0eXBlQ29kZT0iU05EIj4KICAgICAgICA8ZGV2aWNlIGNsYXNzQ29kZT0iREVWIiBkZXRlcm1pbmVyQ29kZT0iSU5TVEFOQ0UiPgogICAgICAgICAgPGlkIHJvb3Q9IjIuMTYuODQwLjEuMTEzODgzLjQuMzQ5IiBleHRlbnNpb249IjIwMFZHT1YiLz4KICAgICAgICA8L2RldmljZT4KICAgICAgPC9zZW5kZXI+CiAgICAgIDxjb250cm9sQWN0UHJvY2VzcyBjbGFzc0NvZGU9IkNBQ1QiIG1vb2RDb2RlPSJFVk4iPgogICAgICAgIDxjb2RlIGNvZGU9IlBSUEFfVEUyMDEzMDVVVjAyIiBjb2RlU3lzdGVtPSIyLjE2Ljg0MC4xLjExMzg4My4xLjYiLz4KICAgICAgICA8ZGF0YUVudGVyZXIgdHlwZUNvZGU9IkVOVCIgY29udGV4dENvbnRyb2xDb2RlPSJBUCI+CiAgICAgICAgICA8YXNzaWduZWRQZXJzb24gY2xhc3NDb2RlPSJBU1NJR05FRCI+CiAgICAgICAgICAgIDxpZCBleHRlbnNpb249Ijc5NjA0MzczNSIgcm9vdD0iMi4xNi44NDAuMS4xMTM4ODMuNzc3Ljk5OSIvPgogICAgICAgICAgICA8YXNzaWduZWRQZXJzb24gY2xhc3NDb2RlPSJQU04iIGRldGVybWluZXJDb2RlPSJJTlNUQU5DRSI+CiAgICAgICAgICAgICAgPG5hbWU+CiAgICAgICAgICAgICAgICA8Z2l2ZW4+V0VTTEVZPC9naXZlbj4KICAgICAgICAgICAgICAgIDxmYW1pbHk+Rk9SRDwvZmFtaWx5PgogICAgICAgICAgICAgIDwvbmFtZT4KICAgICAgICAgICAgPC9hc3NpZ25lZFBlcnNvbj4KICAgICAgICAgIDwvYXNzaWduZWRQZXJzb24+CiAgICAgICAgPC9kYXRhRW50ZXJlcj4KICAgICAgICA8cXVlcnlCeVBhcmFtZXRlcj4KICAgICAgICAgIDxxdWVyeUlkIHJvb3Q9IjEuMi44NDAuMTE0MzUwLjEuMTMuMjguMS4xOC41Ljk5OSIgZXh0ZW5zaW9uPSIxODIwNCIvPgogICAgICAgICAgPHN0YXR1c0NvZGUgY29kZT0ibmV3Ii8+CiAgICAgICAgICA8bW9kaWZ5Q29kZSBjb2RlPSJNVkkuQ09NUDEuUk1TIi8+CiAgICAgICAgICA8aW5pdGlhbFF1YW50aXR5IHZhbHVlPSIxIi8+CiAgICAgICAgICA8cGFyYW1ldGVyTGlzdD4KICAgICAgICAgICAgPGxpdmluZ1N1YmplY3RBZG1pbmlzdHJhdGl2ZUdlbmRlcj4KICAgICAgICAgICAgICA8dmFsdWUgY29kZT0iTSIvPgogICAgICAgICAgICAgIDxzZW1hbnRpY3NUZXh0PkdlbmRlcjwvc2VtYW50aWNzVGV4dD4KICAgICAgICAgICAgPC9saXZpbmdTdWJqZWN0QWRtaW5pc3RyYXRpdmVHZW5kZXI+CiAgICAgICAgICAgIDxsaXZpbmdTdWJqZWN0QmlydGhUaW1lPgogICAgICAgICAgICAgIDx2YWx1ZSB2YWx1ZT0iMTk4NjA1MDYiLz4KICAgICAgICAgICAgICA8c2VtYW50aWNzVGV4dD5EYXRlIG9mIEJpcnRoPC9zZW1hbnRpY3NUZXh0PgogICAgICAgICAgICA8L2xpdmluZ1N1YmplY3RCaXJ0aFRpbWU+CiAgICAgICAgICAgIDxsaXZpbmdTdWJqZWN0SWQ+CiAgICAgICAgICAgICAgPHZhbHVlIHJvb3Q9IjIuMTYuODQwLjEuMTEzODgzLjQuMSIgZXh0ZW5zaW9uPSI3OTYwNDM3MzUiLz4KICAgICAgICAgICAgICA8c2VtYW50aWNzVGV4dD5TU048L3NlbWFudGljc1RleHQ+CiAgICAgICAgICAgIDwvbGl2aW5nU3ViamVjdElkPgogICAgICAgICAgICA8bGl2aW5nU3ViamVjdE5hbWU+CiAgICAgICAgICAgICAgPHZhbHVlIHVzZT0iTCI+CiAgICAgICAgICAgICAgICA8Z2l2ZW4+V0VTTEVZPC9naXZlbj4KICAgICAgICAgICAgICAgIDxmYW1pbHk+Rk9SRDwvZmFtaWx5PgogICAgICAgICAgICAgIDwvdmFsdWU+CiAgICAgICAgICAgICAgPHNlbWFudGljc1RleHQ+TGVnYWwgTmFtZTwvc2VtYW50aWNzVGV4dD4KICAgICAgICAgICAgPC9saXZpbmdTdWJqZWN0TmFtZT4KICAgICAgICAgIDwvcGFyYW1ldGVyTGlzdD4KICAgICAgICA8L3F1ZXJ5QnlQYXJhbWV0ZXI+CiAgICAgIDwvY29udHJvbEFjdFByb2Nlc3M+CiAgICA8L2lkbTpQUlBBX0lOMjAxMzA1VVYwMj4KICA8L2VudjpCb2R5Pgo8L2VudjpFbnZlbG9wZT4K
+    headers:
+      Accept:
+      - text/xml;charset=UTF-8
+      Content-Type:
+      - text/xml;charset=UTF-8
+      User-Agent:
+      - Vets.gov Agent
+      Soapaction:
+      - PRPA_IN201305UV02
+      Date:
+      - Fri, 17 Jun 2022 10:36:01 GMT
+      Content-Length:
+      - '3051'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Backside-Transport:
+      - OK OK,OK OK
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Fri, 17 Jun 2022 10:36:01 GMT
+      Content-Type:
+      - text/xml
+      X-Global-Transaction-Id:
+      - 4bae058f62ac591102bb7b10
+    body:
+      encoding: UTF-8
+      string: |-
+        <?xml version="1.0" encoding="UTF-8"?>
+        <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><env:Header/><env:Body><idm:PRPA_IN201306UV02 ITSVersion="XML_1.0" xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201306UV02.xsd" xmlns="urn:hl7-org:v3" xmlns:idm="http://vaww.oed.oit.va.gov"><id extension="WSDOC2206170636016720359944498" root="2.16.840.1.113883.4.349"/><creationTime value="20220617063601"/><versionCode code="4.1"/><interactionId extension="PRPA_IN201306UV02" root="2.16.840.1.113883.1.6"/><processingCode code="T"/><processingModeCode code="T"/><acceptAckCode code="NE"/><receiver typeCode="RCV"><device classCode="DEV" determinerCode="INSTANCE"><id extension="200VGOV" root="2.16.840.1.113883.4.349"/></device></receiver><sender typeCode="SND"><device classCode="DEV" determinerCode="INSTANCE"><id extension="200M" root="2.16.840.1.113883.4.349"/></device></sender><acknowledgement><typeCode code="AA"/><targetMessage><id extension="200VGOV-303f4e50-2e98-45e1-91e5-41776aa51651" root="1.2.840.114350.1.13.0.1.7.1.1"/></targetMessage><acknowledgementDetail><code codeSystemName="MVI" code="132" displayName="IMT"/><text>Identity Match Threshold</text></acknowledgementDetail><acknowledgementDetail><code codeSystemName="MVI" code="120" displayName="PDT"/><text>Potential Duplicate Threshold</text></acknowledgementDetail></acknowledgement><controlActProcess classCode="CACT" moodCode="EVN"><code code="PRPA_TE201306UV02" codeSystem="2.16.840.1.113883.1.6"/><subject typeCode="SUBJ"><registrationEvent classCode="REG" moodCode="EVN"><id nullFlavor="NA"/><statusCode code="active"/><subject1 typeCode="SBJ"><patient classCode="PAT"><id extension="1008835774V206457^NI^200M^USVHA^P" root="2.16.840.1.113883.4.349"/><id extension="1008835774^PN^200PROV^USDVA^A" root="2.16.840.1.113883.4.349"/><id extension="ec8be01aa8d744979ff6df40ff2037bf^PN^200VIDM^USDVA^A" root="2.16.840.1.113883.4.349"/><id extension="0c4b7ca2b9d843bc81afa2eb2fe2e254^PN^200VIDM^USDVA^A" root="2.16.840.1.113883.4.349"/><id extension="796043735^PI^200BRLS^USVBA^A" root="2.16.840.1.113883.4.349"/><id extension="2810525^PI^200CORP^USVBA^A" root="2.16.840.1.113883.4.349"/><id extension="1008710003^PN^200PROV^USDVA^A" root="2.16.840.1.113883.4.349"/><id extension="1007697216^PN^200VMOCK^USDVA^A" root="2.16.840.1.113883.4.349"/><statusCode code="active"/><patientPerson><name use="L"><given>WESLEY</given><given>WATSON</given><family>FORD</family></name><telecom use="HP" value="(810)650-9974"/><administrativeGenderCode code="M"/><birthTime value="19860506"/><addr use="PHYS"><streetAddressLine>1234 MAIN ST</streetAddressLine><city>ATLANTA</city><state>GA</state><postalCode>30305</postalCode><country>USA</country></addr><asOtherIDs classCode="SSN"><id extension="796043735" root="2.16.840.1.113883.4.1"/><scopingOrganization classCode="ORG" determinerCode="INSTANCE"><id root="1.2.840.114350.1.13.99997.2.3412"/></scopingOrganization></asOtherIDs></patientPerson><subjectOf1><queryMatchObservation classCode="COND" moodCode="EVN"><code code="IHE_PDQ"/><value xsi:type="INT" value="167"/></queryMatchObservation></subjectOf1></patient></subject1><custodian typeCode="CST"><assignedEntity classCode="ASSIGNED"><id root="2.16.840.1.113883.4.349"/></assignedEntity></custodian></registrationEvent></subject><queryAck><queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/><queryResponseCode code="OK"/><resultCurrentQuantity value="1"/></queryAck><queryByParameter><queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/><statusCode code="new"/><modifyCode code="MVI.COMP1.RMS"/><initialQuantity value="1"/><parameterList><livingSubjectAdministrativeGender><value code="M"/><semanticsText>Gender</semanticsText></livingSubjectAdministrativeGender><livingSubjectBirthTime><value value="19860506"/><semanticsText>Date of Birth</semanticsText></livingSubjectBirthTime><livingSubjectId><value extension="796043735" root="2.16.840.1.113883.4.1"/><semanticsText>SSN</semanticsText></livingSubjectId><livingSubjectName><value use="L"><given>WESLEY</given><family>FORD</family></value><semanticsText>Legal Name</semanticsText></livingSubjectName></parameterList></queryByParameter></controlActProcess></idm:PRPA_IN201306UV02></env:Body></env:Envelope>
+  recorded_at: Fri, 17 Jun 2022 10:36:01 GMT
+- request:
+    method: post
+    uri: https://fake-mulesoft.vapi.va.gov/va-carma-caregiver-papi/api/v1/application/1010CG/submit
+    body:
+      encoding: UTF-8
+      string: '{"data":{"veteran":{"fullName":{"first":"WESLEY","last":"FORD"},"ssnOrTin":"796043735","dateOfBirth":"1986-05-06","address":{"street":"111
+        2nd St S","city":"Seattle","state":"WA","postalCode":"33771"},"primaryPhoneNumber":"8887775544","plannedClinic":"740","certifications":["information-is-correct-and-true","consent-to-caregivers-to-perform-care"],"gender":"M"},"primaryCaregiver":{"fullName":{"first":"Joan","last":"Doe"},"dateOfBirth":"1978-07-03","address":{"street":"111
+        2nd St S","city":"Seattle","state":"WA","postalCode":"33771"},"primaryPhoneNumber":"8887775544","vetRelationship":"Spouse","hasHealthInsurance":true,"certifications":["information-is-correct-and-true","at-least-18-years-of-age","member-of-veterans-family","agree-to-perform-services--as-primary","understand-revocable-status--as-primary","have-understanding-of-non-employment-relationship"]},"secondaryCaregiverOne":{"fullName":{"first":"John
+        Doe","middle":"A","last":"Doe"},"dateOfBirth":"1989-11-06","address":{"street":"111
+        2nd St S","city":"Seattle","state":"WA","postalCode":"33771-1234"},"primaryPhoneNumber":"8887775544","vetRelationship":"Friend/Neighbor","certifications":["information-is-correct-and-true","at-least-18-years-of-age","not-member-of-veterans-family","currently-or-will-reside-with-veteran--as-secondary","agree-to-perform-services--as-secondary","understand-revocable-status--as-secondary","have-understanding-of-non-employment-relationship"]}},"metadata":{"claimId":null,"claimGuid":"f6056cff-d4cb-4058-8fb0-42296e12698f","veteran":{"icn":null,"isVeteran":false},"primaryCaregiver":{"icn":null},"secondaryCaregiverOne":{"icn":null},"secondaryCaregiverTwo":null}}'
+    headers:
+      User-Agent:
+      - Vets.gov Agent
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      Client-Id:
+      - BEEFCAFE1234
+      Client-Secret:
+      - "<MULESOFT_SECRET>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 17 Jun 2022 10:36:32 GMT
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-Length:
+      - '156'
+      Connection:
+      - keep-alive
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains;
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "data": {
+            "carmacase": {
+              "createdAt": "2022-06-17 06:36:31",
+              "id": "aB93S0000000BFlSAM"
+            }
+          },
+          "message": "Application Received"
+        }
+  recorded_at: Fri, 17 Jun 2022 10:36:32 GMT
+recorded_with: VCR 6.1.0
