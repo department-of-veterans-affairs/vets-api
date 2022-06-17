@@ -98,9 +98,11 @@ describe AppealsApi::DecisionReviewReport do
 
   describe '#total_hlr_successes' do
     it 'shows correct count of all successful HLRs regardless of timeframe' do
-      create_list :higher_level_review, 5, created_at: 3.weeks.ago
-      create_list :higher_level_review, 5, status: 'success', created_at: 3.weeks.ago
-      expect(subject.total_hlr_successes).to eq 5
+      create_list :higher_level_review, 1, created_at: 3.weeks.ago # Ignored
+      create_list :higher_level_review, 2, status: 'success', created_at: 3.weeks.ago # Added to total
+      create_list :higher_level_review_v2, 4, status: 'success', created_at: 4.weeks.ago # Ignored
+      create_list :higher_level_review_v2, 8, status: 'complete', created_at: 4.weeks.ago # Added to total
+      expect(subject.total_hlr_successes).to eq 10
     end
   end
 
@@ -240,19 +242,18 @@ describe AppealsApi::DecisionReviewReport do
       end
 
       describe '#faulty_evidence_submission' do
-        let(:recent_error) { create(:evidence_submission, :status_error, created_at: 1.day.ago) }
-        let(:old_error) { create(:evidence_submission, :status_error, created_at: 1.year.ago) }
+        let!(:recent_error) { create(:evidence_submission, :status_error, created_at: 1.day.ago) }
+        let!(:old_error) { create(:evidence_submission, :status_error, created_at: 1.year.ago) }
 
-        it 'will retrieve recent errored records if dates are provided' do
+        it 'will retrieve recent errored records if dates are provided, and show the ID attribute as GUID' do
           subject = described_class.new(from: 5.days.ago, to: Time.now.utc)
-
-          expect(subject.faulty_evidence_submission).to eq([recent_error])
+          expect(subject.faulty_evidence_submission.map(&:id)).to eq([recent_error.guid])
         end
 
-        it 'will retrieve all errored records if no dates are provided' do
+        it 'will retrieve all errored records if no dates are provided, and show the ID attribute as GUID' do
           subject = described_class.new(from: nil, to: nil)
 
-          expect(subject.faulty_evidence_submission).to eq([recent_error])
+          expect(subject.faulty_evidence_submission.map(&:id)).to eq([recent_error.guid, old_error.guid])
         end
       end
     end
@@ -300,19 +301,19 @@ describe AppealsApi::DecisionReviewReport do
 
       describe '#faulty_evidence_submission' do
         let!(:recent_evidence_submission_error) { create(:evidence_submission, :status_error, created_at: 1.day.ago) }
-        let(:recent_error) { create(:sc_evidence_submission, :status_error, created_at: 1.day.ago) }
-        let(:old_error) { create(:sc_evidence_submission, :status_error, created_at: 1.year.ago) }
+        let!(:recent_error) { create(:sc_evidence_submission, :status_error, created_at: 1.day.ago) }
+        let!(:old_error) { create(:sc_evidence_submission, :status_error, created_at: 1.year.ago) }
 
-        it 'will retrieve recent errored records if dates are provided' do
+        it 'will retrieve recent errored records if dates are provided, and show the ID attribute as GUID' do
           subject = described_class.new(from: 5.days.ago, to: Time.now.utc)
 
-          expect(subject.sc_faulty_evidence_submission).to eq([recent_error])
+          expect(subject.sc_faulty_evidence_submission.map(&:id)).to eq([recent_error.guid])
         end
 
-        it 'will retrieve all errored records if no dates are provided' do
+        it 'will retrieve all errored records if no dates are provided, and show the ID attribute as GUID' do
           subject = described_class.new(from: nil, to: nil)
 
-          expect(subject.sc_faulty_evidence_submission).to eq([recent_error])
+          expect(subject.sc_faulty_evidence_submission.map(&:id)).to eq([recent_error.guid, old_error.guid])
         end
       end
     end

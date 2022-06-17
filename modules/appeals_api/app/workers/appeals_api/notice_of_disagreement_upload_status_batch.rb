@@ -9,11 +9,13 @@ module AppealsApi
     # No need to retry since the schedule will run this every hour
     sidekiq_options retry: false
 
+    BATCH_SIZE = 100
+
     def perform
       return unless enabled? && notice_of_disagreement_ids.present?
 
       Sidekiq::Batch.new.jobs do
-        notice_of_disagreement_ids.each_slice(slice_size) do |ids|
+        notice_of_disagreement_ids.each_slice(BATCH_SIZE) do |ids|
           NoticeOfDisagreementUploadStatusUpdater.perform_async(ids)
         end
       end
@@ -23,10 +25,6 @@ module AppealsApi
 
     def notice_of_disagreement_ids
       @notice_of_disagreement_ids ||= NoticeOfDisagreement.in_process_statuses.order(created_at: :asc).pluck(:id)
-    end
-
-    def slice_size
-      (notice_of_disagreement_ids.length / 5.0).ceil
     end
 
     def enabled?
