@@ -795,6 +795,38 @@ RSpec.describe Form1010cg::Service do
       expect { subject.process_claim! }.to raise_error(described_class::InvalidVeteranStatus)
     end
 
+    it 'submits to mulesoft', run_at: 'Fri, 17 Jun 2022 10:36:01 GMT' do
+      require 'saved_claim/caregivers_assistance_claim'
+
+      allow(SecureRandom).to receive(:uuid).and_return('f6056cff-d4cb-4058-8fb0-42296e12698f')
+      claim = build(:caregivers_assistance_claim)
+      claim.parsed_form['veteran'].merge!(
+        'fullName' => {
+          'first' => 'WESLEY',
+          'last' => 'FORD'
+        },
+        'gender' => 'M',
+        'ssnOrTin' => '796043735',
+        'dateOfBirth' => '1986-05-06'
+      )
+
+      allow(SecureRandom).to receive(:uuid).and_return('303f4e50-2e98-45e1-91e5-41776aa51651')
+
+      VCR.use_cassette('mulesoft/submit', VCR::MATCH_EVERYTHING) do
+        described_class.new(claim).process_claim!
+      end
+
+      pdf_fixture = 'spec/fixtures/carma/10-10CG_f6056cff-d4cb-4058-8fb0-42296e12698f.pdf'
+      allow_any_instance_of(SavedClaim::CaregiversAssistanceClaim).to receive(:to_pdf).with(sign: true).and_return(
+        pdf_fixture
+      )
+      expect(File).to receive(:delete).with(pdf_fixture)
+
+      VCR.use_cassette('mulesoft/addDocument', VCR::MATCH_EVERYTHING) do
+        Form1010cg::DeliverAttachmentsJob.drain
+      end
+    end
+
     context 'with valid state' do
       let(:expected) do
         {
