@@ -494,6 +494,10 @@ features:
     description: "Use the new VAOS v2 API endpoints"
     enable_in_development: true
     actor_type: user
+  pw_ehr_cta_drupal_source_of_truth:
+    actor_type: user
+    description: Enabling Public Websites-managed EHR CTAs to use Drupal EHR data, including for Cerner cutovers
+    enable_in_development: true
   request_locked_pdf_password:
     actor_type: user
     description: Ask for a password when an encrypted PDF is detected before uploading
