@@ -310,9 +310,6 @@
           "description": "Object describing Veteran Homelessness if applicable.",
           "type": "object",
           "additionalProperties": false,
-          "dependentRequired": {
-            "pointOfContact": ["currentlyHomeless", "homelessnessRisk"]
-            },
           "properties": {
             "pointOfContact": {
               "description": "Object describing Homeless Veteran Point of Contact.",
@@ -356,7 +353,7 @@
                 "homelessSituationType": {
                   "description": "Current state of the veteran's homelessness.",
                   "type": "string",
-                  "default": "OTHER",
+                  "default": "other",
                   "enum": [
                     "fleeing",
                     "shelter",
@@ -367,7 +364,7 @@
                   "example": "fleeing"
                 },
                 "otherLivingSituation": {
-                  "description": "List any other living scenarios.",
+                  "description": "For a 'homelessSituationType' of value 'other', please provide additional comments on the living situation.",
                   "type": "string",
                   "maxLength": 500,
                   "example": "other living situation"
@@ -384,12 +381,14 @@
               "properties": {
                 "homelessnessRiskSituationType": {
                   "type": "string",
-                  "default": "OTHER",
+                  "default": "other",
                   "enum": ["losingHousing", "leavingShelter", "other"]
                 },
                 "otherLivingSituation": {
+                  "description": "For a 'homelessnessRiskSituationType' of value 'other', please provide additional comments on the living situation.",
                   "type": "string",
-                  "maxLength": 500
+                  "maxLength": 500,
+                  "example": "other living situation"
                 }
               }
             }

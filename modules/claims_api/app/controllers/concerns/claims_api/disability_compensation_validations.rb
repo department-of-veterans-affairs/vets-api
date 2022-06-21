@@ -198,10 +198,24 @@ module ClaimsApi
     end
 
     def validate_form_526_veteran_homelessness!
-      if too_many_homelessness_attributes_provided? || unnecessary_homelessness_point_of_contact_provided?
-        raise ::Common::Exceptions::InvalidFieldValue.new(
-          'homelessness',
-          form_attributes['veteran']['homelessness']
+      if too_many_homelessness_attributes_provided?
+        raise ::Common::Exceptions::UnprocessableEntity.new(
+          detail: "Must define only one of 'veteran.homelessness.currentlyHomeless' or "\
+                  "'veteran.homelessness.homelessnessRisk'"
+        )
+      end
+
+      if unnecessary_homelessness_point_of_contact_provided?
+        raise ::Common::Exceptions::UnprocessableEntity.new(
+          detail: "If 'veteran.homelessness.pointOfContact' is defined, then one of "\
+                  "'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk' is required"
+        )
+      end
+
+      if missing_point_of_contact?
+        raise ::Common::Exceptions::UnprocessableEntity.new(
+          detail: "If one of 'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk' is "\
+                  "defined, then 'veteran.homelessness.pointOfContact' is required"
         )
       end
     end
@@ -254,6 +268,15 @@ module ClaimsApi
 
       # EVSS does not allow passing a 'pointOfContact' if neither homelessness attribute is provided
       currently_homeless_attr.blank? && homelessness_risk_attr.blank? && homelessness_poc_attr.present?
+    end
+
+    def missing_point_of_contact?
+      homelessness_poc_attr   = form_attributes.dig('veteran', 'homelessness', 'pointOfContact')
+      currently_homeless_attr = form_attributes.dig('veteran', 'homelessness', 'currentlyHomeless')
+      homelessness_risk_attr  = form_attributes.dig('veteran', 'homelessness', 'homelessnessRisk')
+
+      # 'pointOfContact' is required when either currentlyHomeless or homelessnessRisk is provided
+      homelessness_poc_attr.blank? && (currently_homeless_attr.present? || homelessness_risk_attr.present?)
     end
 
     def validate_form_526_disabilities!

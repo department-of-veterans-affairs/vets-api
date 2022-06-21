@@ -497,7 +497,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bafb6daf-3669-444a-a952-313cbd262373",
+                    "id": "800cdf31-546c-4a63-a803-ee94ce27b7a1",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -546,11 +546,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "42cef2a6-16b2-486c-8138-76aaad909d99",
+                          "id": "55dd903f-c071-4b7c-b56b-e03dd29f535c",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2022-05-18T20:39:00.407Z"
+                          "uploaded_at": "2022-06-10T20:08:02.903Z"
                         }
                       ]
                     }
@@ -1270,12 +1270,6 @@
                               "description": "Object describing Veteran Homelessness if applicable.",
                               "type": "object",
                               "additionalProperties": false,
-                              "dependentRequired": {
-                                "pointOfContact": [
-                                  "currentlyHomeless",
-                                  "homelessnessRisk"
-                                ]
-                              },
                               "properties": {
                                 "pointOfContact": {
                                   "description": "Object describing Homeless Veteran Point of Contact.",
@@ -1328,7 +1322,7 @@
                                     "homelessSituationType": {
                                       "description": "Current state of the veteran's homelessness.",
                                       "type": "string",
-                                      "default": "OTHER",
+                                      "default": "other",
                                       "enum": [
                                         "fleeing",
                                         "shelter",
@@ -1339,7 +1333,7 @@
                                       "example": "fleeing"
                                     },
                                     "otherLivingSituation": {
-                                      "description": "List any other living scenarios.",
+                                      "description": "For a 'homelessSituationType' of value 'other', please provide additional comments on the living situation.",
                                       "type": "string",
                                       "maxLength": 500,
                                       "example": "other living situation"
@@ -1356,7 +1350,7 @@
                                   "properties": {
                                     "homelessnessRiskSituationType": {
                                       "type": "string",
-                                      "default": "OTHER",
+                                      "default": "other",
                                       "enum": [
                                         "losingHousing",
                                         "leavingShelter",
@@ -1364,8 +1358,10 @@
                                       ]
                                     },
                                     "otherLivingSituation": {
+                                      "description": "For a 'homelessnessRiskSituationType' of value 'other', please provide additional comments on the living situation.",
                                       "type": "string",
-                                      "maxLength": 500
+                                      "maxLength": 500,
+                                      "example": "other living situation"
                                     }
                                   }
                                 }
@@ -2442,7 +2438,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e013590b-ece7-4ac9-9788-47343450f97a",
+                    "id": "7bbe1f94-89bb-46e7-b103-1c559a411760",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2460,13 +2456,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-05-18T20:39:00.931Z",
+                      "updated_at": "2022-06-10T20:08:03.204Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "e013590b-ece7-4ac9-9788-47343450f97a",
+                      "token": "7bbe1f94-89bb-46e7-b103-1c559a411760",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3135,12 +3131,6 @@
                                 "description": "Object describing Veteran Homelessness if applicable.",
                                 "type": "object",
                                 "additionalProperties": false,
-                                "dependentRequired": {
-                                  "pointOfContact": [
-                                    "currentlyHomeless",
-                                    "homelessnessRisk"
-                                  ]
-                                },
                                 "properties": {
                                   "pointOfContact": {
                                     "description": "Object describing Homeless Veteran Point of Contact.",
@@ -3193,7 +3183,7 @@
                                       "homelessSituationType": {
                                         "description": "Current state of the veteran's homelessness.",
                                         "type": "string",
-                                        "default": "OTHER",
+                                        "default": "other",
                                         "enum": [
                                           "fleeing",
                                           "shelter",
@@ -3204,7 +3194,7 @@
                                         "example": "fleeing"
                                       },
                                       "otherLivingSituation": {
-                                        "description": "List any other living scenarios.",
+                                        "description": "For a 'homelessSituationType' of value 'other', please provide additional comments on the living situation.",
                                         "type": "string",
                                         "maxLength": 500,
                                         "example": "other living situation"
@@ -3221,7 +3211,7 @@
                                     "properties": {
                                       "homelessnessRiskSituationType": {
                                         "type": "string",
-                                        "default": "OTHER",
+                                        "default": "other",
                                         "enum": [
                                           "losingHousing",
                                           "leavingShelter",
@@ -3229,8 +3219,10 @@
                                         ]
                                       },
                                       "otherLivingSituation": {
+                                        "description": "For a 'homelessnessRiskSituationType' of value 'other', please provide additional comments on the living situation.",
                                         "type": "string",
-                                        "maxLength": 500
+                                        "maxLength": 500,
+                                        "example": "other living situation"
                                       }
                                     }
                                   }
@@ -4320,7 +4312,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e3dd33bd-546c-45e8-a6cd-1b83eda8cb0a",
+                    "id": "488256ae-521b-4c53-b84a-761d7d1bcf20",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4338,13 +4330,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-05-18T20:39:01.306Z",
+                      "updated_at": "2022-06-10T20:08:03.458Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "e3dd33bd-546c-45e8-a6cd-1b83eda8cb0a",
+                      "token": "488256ae-521b-4c53-b84a-761d7d1bcf20",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5426,12 +5418,6 @@
                                 "description": "Object describing Veteran Homelessness if applicable.",
                                 "type": "object",
                                 "additionalProperties": false,
-                                "dependentRequired": {
-                                  "pointOfContact": [
-                                    "currentlyHomeless",
-                                    "homelessnessRisk"
-                                  ]
-                                },
                                 "properties": {
                                   "pointOfContact": {
                                     "description": "Object describing Homeless Veteran Point of Contact.",
@@ -5484,7 +5470,7 @@
                                       "homelessSituationType": {
                                         "description": "Current state of the veteran's homelessness.",
                                         "type": "string",
-                                        "default": "OTHER",
+                                        "default": "other",
                                         "enum": [
                                           "fleeing",
                                           "shelter",
@@ -5495,7 +5481,7 @@
                                         "example": "fleeing"
                                       },
                                       "otherLivingSituation": {
-                                        "description": "List any other living scenarios.",
+                                        "description": "For a 'homelessSituationType' of value 'other', please provide additional comments on the living situation.",
                                         "type": "string",
                                         "maxLength": 500,
                                         "example": "other living situation"
@@ -5512,7 +5498,7 @@
                                     "properties": {
                                       "homelessnessRiskSituationType": {
                                         "type": "string",
-                                        "default": "OTHER",
+                                        "default": "other",
                                         "enum": [
                                           "losingHousing",
                                           "leavingShelter",
@@ -5520,8 +5506,10 @@
                                         ]
                                       },
                                       "otherLivingSituation": {
+                                        "description": "For a 'homelessnessRiskSituationType' of value 'other', please provide additional comments on the living situation.",
                                         "type": "string",
-                                        "maxLength": 500
+                                        "maxLength": 500,
+                                        "example": "other living situation"
                                       }
                                     }
                                   }
@@ -6611,7 +6599,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "75ef5838-79e9-4bab-a632-2c78d089ed42",
+                    "id": "0a31ac63-52aa-4757-97f9-9c735d4095d7",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6625,7 +6613,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-05-18T20:39:02.179Z",
+                      "updated_at": "2022-06-10T20:08:03.985Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6634,7 +6622,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "ba0b9af0-bf90-44fa-b6b3-45070e0809b8",
+                          "id": "1a0880d1-90dc-454d-88bb-a239b58f80da",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8610,11 +8598,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "840ac442-3785-4483-aa7a-d9256c8c9103",
+                    "id": "a91aa1f8-035c-4377-b0c1-868262c0c55f",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2022-05-18",
+                      "date_request_accepted": "2022-06-10",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9323,11 +9311,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "684b5282-2120-47e6-9f91-05355b2f5a1b",
+                    "id": "55283ec5-eed5-4c88-b282-af43542e097e",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-05-18",
+                      "date_request_accepted": "2022-06-10",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9778,11 +9766,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "cf6053db-3441-4ad1-908a-97ae5b155536",
+                    "id": "d685431e-da8f-4327-8071-9f2aa334c455",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-05-18",
+                      "date_request_accepted": "2022-06-10",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -11001,6 +10989,7 @@
       }
     }
   },
+  "basePath": "/services/benefits/v1",
   "servers": [
     {
       "url": "https://sandbox-api.va.gov/services/claims/{version}",

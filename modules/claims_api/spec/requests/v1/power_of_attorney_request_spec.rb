@@ -113,7 +113,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
                     response_body = JSON.parse response.body
                     expect(response.status).to eq(422)
                     expect(response_body['errors'][0]['detail']).to eq(
-                      'Veteran is missing a participant ID. Please contact the Digital Transformation Center (DTC) at 202-921-0911 for assistance.' # rubocop:disable Layout/LineLength
+                      'Veteran is missing a participant ID. '\
+                      'Please contact the Digital Transformation Center (DTC) at 202-921-0911 for assistance.'
                     )
                   end
                 end

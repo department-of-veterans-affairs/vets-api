@@ -3,6 +3,7 @@
 require 'json_marshal/marshaller'
 require 'claims_api/special_issue_mappers/evss'
 require 'claims_api/homelessness_situation_type_mapper'
+require 'claims_api/homelessness_risk_situation_type_mapper'
 require 'claims_api/service_branch_mapper'
 require 'claims_api/claim_logger'
 
@@ -68,6 +69,7 @@ module ClaimsApi
 
       resolve_special_issue_mappings!
       resolve_homelessness_situation_type_mappings!
+      resolve_homelessness_risk_situation_type_mappings!
 
       {
         form526: form_data
@@ -162,7 +164,35 @@ module ClaimsApi
 
       mapper = ClaimsApi::HomelessnessSituationTypeMapper.new
       name = form_data['veteran']['homelessness']['currentlyHomeless']['homelessSituationType']
+      # previous documentation has a default example value of "OTHER", so make sure that that value is case-insensitive
+      name = name.downcase if name.downcase == 'other'
+
       form_data['veteran']['homelessness']['currentlyHomeless']['homelessSituationType'] = mapper.code_from_name(name)
+
+      if mapper.code_from_name(name) == 'OTHER' &&
+         form_data['veteran']['homelessness']['currentlyHomeless']['otherLivingSituation'].blank?
+        # Transform to meet EVSS requirements of minLength 1
+        form_data['veteran']['homelessness']['currentlyHomeless']['otherLivingSituation'] = ' '
+      end
+    end
+
+    def resolve_homelessness_risk_situation_type_mappings!
+      return if form_data['veteran']['homelessness'].blank?
+      return if form_data['veteran']['homelessness']['homelessnessRisk'].blank?
+
+      mapper = ClaimsApi::HomelessnessRiskSituationTypeMapper.new
+      name = form_data['veteran']['homelessness']['homelessnessRisk']['homelessnessRiskSituationType']
+      # previous documentation has a default example value of "OTHER", so make sure that that value is case-insensitive
+      name = name.downcase if name.downcase == 'other'
+
+      form_data['veteran']['homelessness']['homelessnessRisk']['homelessnessRiskSituationType'] =
+        mapper.code_from_name(name)
+
+      if mapper.code_from_name(name) == 'OTHER' &&
+         form_data['veteran']['homelessness']['homelessnessRisk']['otherLivingSituation'].blank?
+        # Transform to meet EVSS requirements of minLength 1
+        form_data['veteran']['homelessness']['homelessnessRisk']['otherLivingSituation'] = ' '
+      end
     end
 
     def log_flashes
