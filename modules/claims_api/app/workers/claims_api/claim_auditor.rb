@@ -20,8 +20,13 @@ module ClaimsApi
                                        channel: '#api-benefits-claims',
                                        username: 'ClaimAuditor')
       environment_name = Settings.claims_api.claims_pending_reporting.environment_name
-      message = "#{claims.count} claims in #{environment_name} surpass defined pending status threshold: "
-      message += "#{report_threshold}ms"
+      message = "#{claims.count} claim#{claims.count == 1 ? '' : 's'} in #{environment_name} "\
+                "surpass#{claims.count == 1 ? 'es' : ''} defined pending status threshold of "\
+                "#{report_threshold / 1000 / 60 / 60 / 24} days. Please check these claims to determine "\
+                "if any resubmissions or other fixes are required.\n\n"
+
+      message += "*Claim ids:*\n"
+      claims.each { |claim| message += "- `#{claim.id}`\n" }
       client.notify(message)
     end
   end
