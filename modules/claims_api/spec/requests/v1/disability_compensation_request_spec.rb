@@ -1129,20 +1129,6 @@ RSpec.describe 'Disability Claims ', type: :request do
           Timecop.return
         end
 
-        context "and 'claim_date' is same as the UTC day" do
-          let(:claim_date) { Time.zone.today.to_s }
-
-          # 'claim_date' has to be <= the current day relative to EVSS' time zone (Central Time)
-          it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                post path, params: data, headers: headers.merge(auth_header)
-                expect(response.status).to eq(400)
-              end
-            end
-          end
-        end
-
         context "and 'claim_date' is same as the Central Time Zone day" do
           let(:claim_date) { (Time.zone.today - 1.day).to_s }
 
@@ -1226,6 +1212,97 @@ RSpec.describe 'Disability Claims ', type: :request do
               VCR.use_cassette('evss/claims/claims') do
                 post path, params: data, headers: headers.merge(auth_header)
                 expect(response.status).to eq(400)
+              end
+            end
+          end
+        end
+
+        context "and 'claim_date' has timezone (iso w/Z)" do
+          let(:claim_date) { (Time.zone.now - 1.day).iso8601 }
+
+          it 'responds with a 200' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response.status).to eq(200)
+              end
+            end
+          end
+        end
+
+        context "and 'claim_date' has timezone (iso wo/Z)" do
+          let(:claim_date) { (Time.zone.now - 1.day).iso8601.sub('Z', '-00:00') }
+
+          it 'responds with a 200' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response.status).to eq(200)
+              end
+            end
+          end
+        end
+
+        context "and 'claim_date' has timezone (iso w/out zone)" do
+          let(:claim_date) { (Time.zone.now - 1.day).iso8601.sub('Z', '') }
+
+          it 'responds with a bad request' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response.status).to eq(422)
+              end
+            end
+          end
+        end
+
+        context "and 'claim_date' has timezone (TZ String)" do
+          let(:claim_date) { (Time.zone.now - 1.day).to_s }
+
+          it 'responds with a 422' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response.status).to eq(422)
+              end
+            end
+          end
+        end
+
+        context "and 'claim_date' has timezone (w/out T)" do
+          let(:claim_date) { (Time.zone.now - 1.day).iso8601.sub('T', ' ') }
+
+          it 'responds with a 422' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response.status).to eq(422)
+              end
+            end
+          end
+        end
+
+        context "and 'claim_date' improperly formatted (hello world)" do
+          let(:claim_date) { 'hello world' }
+
+          it 'responds with bad request' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response.status).to eq(422)
+              end
+            end
+          end
+        end
+
+        context "and 'claim_date' improperly formatted (empty string)" do
+          let(:claim_date) { '' }
+
+          it 'responds with bad request' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response.status).to eq(422)
               end
             end
           end

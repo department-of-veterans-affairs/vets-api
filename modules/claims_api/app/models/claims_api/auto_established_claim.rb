@@ -55,7 +55,7 @@ module ClaimsApi
 
     def to_internal
       form_data['applicationExpirationDate'] ||= build_application_expiration
-      form_data['claimDate'] ||= (persisted? ? created_at.to_date.to_s : Time.zone.today.to_s)
+      form_data['claimDate'] ||= persisted? ? created_at.iso8601 : Time.zone.now.iso8601
       form_data['claimSubmissionSource'] = 'LH-B'
       form_data['servicePay']['separationPay']['receivedDate'] = transform_separation_pay_received_date if separation_pay_received_date? # rubocop:disable Layout/LineLength
       form_data['veteran']['changeOfAddress'] = transform_change_of_address_type_case if change_of_address_provided?
