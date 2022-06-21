@@ -785,24 +785,26 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
 
         it 'requires homelessness homelessnessRisk subfields' do
-          with_okta_user(scopes) do |auth_header|
-            par = json_data
-            par['data']['attributes']['veteran']['homelessness'] = {
-              pointOfContact: {
-                pointOfContactName: 'John Doe',
-                primaryPhone: {
-                  areaCode: '555',
-                  phoneNumber: '555-5555'
+          VCR.use_cassette('evss/claims/claims') do
+            with_okta_user(scopes) do |auth_header|
+              par = json_data
+              par['data']['attributes']['veteran']['homelessness'] = {
+                pointOfContact: {
+                  pointOfContactName: 'John Doe',
+                  primaryPhone: {
+                    areaCode: '555',
+                    phoneNumber: '555-5555'
+                  }
+                },
+                homelessnessRisk: {
+                  homelessnessRiskSituationType: 'NOT_A_RISK_TYPE',
+                  otherLivingSituation: 'other living situations'
                 }
-              },
-              homelessnessRisk: {
-                homelessnessRiskSituationType: 'NOT_RISK_TYPE',
-                otherLivingSituation: 'other living situations'
               }
-            }
-            post path, params: par.to_json, headers: headers.merge(auth_header)
-            expect(response.status).to eq(422)
-            expect(JSON.parse(response.body)['errors'].size).to eq(1)
+              post path, params: par.to_json, headers: headers.merge(auth_header)
+              expect(response.status).to eq(422)
+              expect(JSON.parse(response.body)['errors'].size).to eq(1)
+            end
           end
         end
 
@@ -1422,31 +1424,33 @@ RSpec.describe 'Disability Claims ', type: :request do
 
     describe 'Veteran homelessness validations' do
       context "when 'currentlyHomeless' and 'homelessnessRisk' are both provided" do
-        it 'responds with a bad request' do
+        it 'responds with a 422' do
           with_okta_user(scopes) do |auth_header|
-            VCR.use_cassette('evss/claims/claims') do
-              VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                json_data = JSON.parse data
-                params = json_data
-                params['data']['attributes']['veteran']['homelessness']['currentlyHomeless'] = {
-                  homelessSituationType: 'fleeing',
-                  otherLivingSituation: 'community help center'
-                }
-                params['data']['attributes']['veteran']['homelessness']['homelessnessRisk'] = {
-                  homelessnessRiskSituationType: 'losingHousing',
-                  otherLivingSituation: 'community help center'
-                }
-                post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response.status).to eq(400)
-              end
-            end
+            json_data = JSON.parse data
+            params = json_data
+            params['data']['attributes']['veteran']['homelessness']['currentlyHomeless'] = {
+              homelessSituationType: 'fleeing',
+              otherLivingSituation: 'community help center'
+            }
+            params['data']['attributes']['veteran']['homelessness']['homelessnessRisk'] = {
+              homelessnessRiskSituationType: 'losingHousing',
+              otherLivingSituation: 'community help center'
+            }
+            post path, params: params.to_json, headers: headers.merge(auth_header)
+            expect(response.status).to eq(422)
+            response_body = JSON.parse(response.body)
+            expect(response_body['errors'].length).to eq(1)
+            expect(response_body['errors'][0]['detail']).to eq(
+              "Must define only one of 'veteran.homelessness.currentlyHomeless' or "\
+              "'veteran.homelessness.homelessnessRisk'"
+            )
           end
         end
       end
 
       context "when neither 'currentlyHomeless' nor 'homelessnessRisk' is provided" do
         context "when 'pointOfContact' is provided" do
-          it 'responds with a bad request' do
+          it 'responds with a 422' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
                 VCR.use_cassette('evss/reference_data/get_intake_sites') do
@@ -1461,23 +1465,42 @@ RSpec.describe 'Disability Claims ', type: :request do
                     }
                   }
                   post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(400)
+                  expect(response.status).to eq(422)
+                  response_body = JSON.parse(response.body)
+                  expect(response_body['errors'].length).to eq(1)
+                  expect(response_body['errors'][0]['detail']).to eq(
+                    "If 'veteran.homelessness.pointOfContact' is defined, then one of "\
+                    "'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk'"\
+                    ' is required'
+                  )
                 end
               end
             end
           end
         end
+      end
 
+      context "when either 'currentlyHomeless' or 'homelessnessRisk' is provided" do
         context "when 'pointOfContact' is not provided" do
-          it 'responds with a 200' do
+          it 'responds with a 422' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
                 VCR.use_cassette('evss/reference_data/get_intake_sites') do
                   json_data = JSON.parse data
                   params = json_data
-                  params['data']['attributes']['veteran']['homelessness'] = {}
+                  params['data']['attributes']['veteran']['homelessness']['currentlyHomeless'] = {
+                    homelessSituationType: 'fleeing',
+                    otherLivingSituation: 'community help center'
+                  }
+                  params['data']['attributes']['veteran']['homelessness'].delete('pointOfContact')
                   post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(200)
+                  expect(response.status).to eq(422)
+                  response_body = JSON.parse(response.body)
+                  expect(response_body['errors'].length).to eq(1)
+                  expect(response_body['errors'][0]['detail']).to eq(
+                    "If one of 'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk' is"\
+                    " defined, then 'veteran.homelessness.pointOfContact' is required"
+                  )
                 end
               end
             end

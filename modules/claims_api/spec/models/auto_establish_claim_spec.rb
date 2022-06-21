@@ -103,6 +103,74 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
       expect(actual).to eq('FLEEING_CURRENT_RESIDENCE')
     end
 
+    it 'converts homelessness risk situation type to EVSS code' do
+      temp_form_data = pending_record.form_data
+      temp_form_data['veteran']['homelessness'].delete('currentlyHomeless')
+      temp_form_data['veteran']['homelessness']['homelessnessRisk'] = {
+        'homelessnessRiskSituationType' => 'losingHousing',
+        'otherLivingSituation' => 'something'
+      }
+      pending_record.form_data = temp_form_data
+      payload = JSON.parse(pending_record.to_internal)
+      actual = payload['form526']['veteran']['homelessness']['homelessnessRisk']['homelessnessRiskSituationType']
+      expect(actual).to eq('HOUSING_WILL_BE_LOST_IN_30_DAYS')
+    end
+
+    context 'when homelessness risk situation type is "other" and "otherLivingSituation" is not provided' do
+      it 'tranforms "otherLivingSituation" to a string with a single whitespace to pass EVSS validations' do
+        temp_form_data = pending_record.form_data
+        temp_form_data['veteran']['homelessness'].delete('currentlyHomeless')
+        temp_form_data['veteran']['homelessness']['homelessnessRisk'] = {
+          'homelessnessRiskSituationType' => 'other'
+        }
+        pending_record.form_data = temp_form_data
+        payload = JSON.parse(pending_record.to_internal)
+        homelessness_risk = payload['form526']['veteran']['homelessness']['homelessnessRisk']
+        expect(homelessness_risk['homelessnessRiskSituationType']).to eq('OTHER')
+        expect(homelessness_risk['otherLivingSituation']).to eq(' ')
+      end
+    end
+
+    context 'when homelessness risk situation type is "other" and "otherLivingSituation" is an empty string' do
+      it 'tranforms "otherLivingSituation" to a string with a single whitespace to pass EVSS validations' do
+        temp_form_data = pending_record.form_data
+        temp_form_data['veteran']['homelessness'].delete('currentlyHomeless')
+        temp_form_data['veteran']['homelessness']['homelessnessRisk'] = {
+          'homelessnessRiskSituationType' => 'other',
+          'otherLivingSituation' => ''
+        }
+        pending_record.form_data = temp_form_data
+        payload = JSON.parse(pending_record.to_internal)
+        homelessness_risk = payload['form526']['veteran']['homelessness']['homelessnessRisk']
+        expect(homelessness_risk['homelessnessRiskSituationType']).to eq('OTHER')
+        expect(homelessness_risk['otherLivingSituation']).to eq(' ')
+      end
+    end
+
+    it 'is case insensitive when the homelessnessRiskSituationType is "OTHER"' do
+      temp_form_data = pending_record.form_data
+      temp_form_data['veteran']['homelessness'].delete('currentlyHomeless')
+      temp_form_data['veteran']['homelessness']['homelessnessRisk'] = {
+        'homelessnessRiskSituationType' => 'OTHER'
+      }
+      pending_record.form_data = temp_form_data
+      payload = JSON.parse(pending_record.to_internal)
+      homelessness_risk = payload['form526']['veteran']['homelessness']['homelessnessRisk']
+      expect(homelessness_risk['homelessnessRiskSituationType']).to eq('OTHER')
+      expect(homelessness_risk['otherLivingSituation']).to eq(' ')
+    end
+
+    it 'is case insensitive when the homelessSituationType is "OTHER"' do
+      temp_form_data = pending_record.form_data
+      temp_form_data['veteran']['homelessness']['currentlyHomeless']['homelessSituationType'] = 'OTHER'
+
+      pending_record.form_data = temp_form_data
+      payload = JSON.parse(pending_record.to_internal)
+      currently_homeless = payload['form526']['veteran']['homelessness']['currentlyHomeless']
+
+      expect(currently_homeless['homelessSituationType']).to eq('OTHER')
+    end
+
     describe "breaking out 'separationPay.receivedDate'" do
       it 'breaks it out by year, month, day' do
         temp_form_data = pending_record.form_data
