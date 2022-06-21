@@ -171,7 +171,7 @@ AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii:
   description: "Remove PII of NoticeOfDisagreements that have 1) reached one of the 'completed' statuses and 2) are a week old"
 
 AppealsApi::NoticeOfDisagreementUploadStatusBatch:
-  every: "60m"
+  cron: "10 * * * *" # Every hour, 10 minutes after the hour
   class: AppealsApi::NoticeOfDisagreementUploadStatusBatch
   description: "Update NoticeOfDisagreement statuses with their Central Mail status"
 
@@ -179,6 +179,11 @@ AppealsApi::SupplementalClaimCleanUpPii:
   every: ['24h', first_in: '45m']
   class: AppealsApi::SupplementalClaimCleanUpPii
   description: "Remove PII of SupplementalClaims that have 1) reached one of the 'completed' statuses and 2) are a week old"
+
+AppealsApi::SupplementalClaimUploadStatusBatch:
+  cron: "15 * * * *" # Every hour, 15 minutes after the hour
+  class: AppealsApi::SupplementalClaimUploadStatusBatch
+  description: "Update SupplementalClaim statuses with their Central Mail status"
 
 TransactionalEmailAnalyticsJob:
   cron: "0 1 * * * America/New_York"
