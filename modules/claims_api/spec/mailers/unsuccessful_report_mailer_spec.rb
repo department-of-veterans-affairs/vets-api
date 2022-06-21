@@ -7,18 +7,11 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
     FactoryBot.create(:auto_established_claim, :status_errored)
     ClaimsApi::AutoEstablishedClaim.where(status: 'errored')
                                    .order(:source, :status)
-                                   .pluck(:source, :status, :id).map do |source, status, id|
-                                     { id: id, status: status, source: source }
+                                   .pluck(:source, :created_at, :id).map do |source, created_at, id|
+                                     { id: id, created_at: created_at, source: source }
                                    end
   end
-  let(:uploaded_upload) do
-    FactoryBot.create(:auto_established_claim, :status_established)
-    ClaimsApi::AutoEstablishedClaim.where(status: 'established')
-                                   .order(:source, :status)
-                                   .pluck(:source, :status, :id).map do |source, status, id|
-                                     { id: id, status: status, source: source }
-                                   end
-  end
+
   let(:totals) do
     [
       {
@@ -42,23 +35,11 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
       }
     ]
   end
-  let(:statistics) do
-    [
-      { code: 'POW', count: 1, percentage: '50.0%' },
-      { code: 'Homeless', count: 1, percentage: '50.0%' },
-      { code: 'Terminally Ill', count: 1, percentage: '50.0%' }
-    ]
-  end
 
   describe '#build' do
     subject do
       described_class.build(7.days.ago, Time.zone.now, consumer_claims_totals: totals,
                                                        unsuccessful_claims_submissions: unsuccessful_claims_submissions,
-                                                       grouped_claims_errors: statistics,
-                                                       grouped_claims_warnings: statistics,
-                                                       pending_claims_submissions: uploaded_upload,
-                                                       flash_statistics: statistics,
-                                                       special_issues_statistics: statistics,
                                                        poa_totals: { total: 0 },
                                                        unsuccessful_poa_submissions: []).deliver_now
     end

@@ -9,12 +9,7 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
       from,
       to,
       consumer_claims_totals: claims_totals,
-      pending_claims_submissions: pending_claims,
       unsuccessful_claims_submissions: unsuccessful_claims_submissions,
-      grouped_claims_errors: uniq_claims_errors,
-      grouped_claims_warnings: uniq_claims_warnings,
-      flash_statistics: flash_statistics,
-      special_issues_statistics: special_issues_statistics,
       poa_totals: poa_totals,
       unsuccessful_poa_submissions: unsuccessful_poa_submissions
     )
@@ -24,42 +19,7 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
 
   def unsuccessful_claims_submissions
     [
-      { id: '019be853-fd70-4b65-b37b-c3f3842aaaca', status: 'errored', source: 'GDIT' }
-    ]
-  end
-
-  def pending_claims
-    [
-      { id: '6ceaa096-0d6d-4f23-a587-04ef359cee4a', status: 'pending', source: 'GDIT' },
-      { id: 'b8c5c06c-e3ae-4ad1-b8da-b2d1b028e6bf', status: 'pending', source: 'GDIT' }
-    ]
-  end
-
-  def uniq_claims_errors
-    [
-      { code: { 'key' => 'key-here', 'severity' => 'FATAL', 'text' => 'message-here' }, count: 2, percentage: '0%' },
-      { code: { 'key' => 'key-here', 'severity' => 'ERROR', 'text' => 'message-here' }, count: 1, percentage: '0%' }
-    ]
-  end
-
-  def uniq_claims_warnings
-    [
-      { code: { 'key' => 'key-here', 'severity' => 'WARNING', 'text' => 'message-here' }, count: 2, percentage: '0%' }
-    ]
-  end
-
-  def flash_statistics
-    [
-      { code: 'POW', count: 1, percentage: '50.0%' },
-      { code: 'Homeless', count: 1, percentage: '50.0%' },
-      { code: 'Terminally Ill', count: 1, percentage: '50.0%' }
-    ]
-  end
-
-  def special_issues_statistics
-    [
-      { code: 'ALS', count: 1, percentage: '50.0%' },
-      { code: 'PTSD/2', count: 1, percentage: '50.0%' }
+      { id: '019be853-fd70-4b65-b37b-c3f3842aaaca', status: 'errored', source: 'GDIT', created_at: 1.day.ago.to_s }
     ]
   end
 
@@ -68,7 +28,6 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
       { 'GDIT' => { pending: 2,
                     errored: 1,
                     totals: 3,
-                    error_rate: '33%',
                     percentage_with_flashes: '50.0%',
                     percentage_with_special_issues: '50.0%' } }
     ]

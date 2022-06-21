@@ -19,12 +19,7 @@ module ClaimsApi
       @date_from = date_from.in_time_zone('Eastern Time (US & Canada)').strftime('%a %D %I:%M %p')
       @date_to = date_to.in_time_zone('Eastern Time (US & Canada)').strftime('%a %D %I:%M %p')
       @consumer_claims_totals = data[:consumer_claims_totals]
-      @pending_claims_submissions = data[:pending_claims_submissions]
       @unsuccessful_claims_submissions = data[:unsuccessful_claims_submissions]
-      @grouped_claims_errors = data[:grouped_claims_errors]
-      @grouped_claims_warnings = data[:grouped_claims_warnings]
-      @flash_statistics = data[:flash_statistics]
-      @special_issues_statistics = data[:special_issues_statistics]
       @poa_totals = poa_totals = data[:poa_totals]
       @unsuccessful_poa_submissions = data[:unsuccessful_poa_submissions]
 

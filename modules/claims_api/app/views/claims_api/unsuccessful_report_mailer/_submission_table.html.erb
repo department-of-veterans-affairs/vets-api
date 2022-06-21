@@ -1,14 +1,14 @@
 <table>
   <thead>
     <tr>
-      <th>Status</th>
+      <th>Created At</th>
       <th>GUID</th>
     </tr>
   </thead>
   <tbody>
     <% claims.each do |claim| %>
       <tr>
-        <td><%= claim[:status] %></td>
+        <td><%= claim[:created_at] %></td>
         <td><%= claim[:id] %></td>
       </tr>
     <% end %>

@@ -45,18 +45,10 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
           from,
           to,
           consumer_claims_totals: [],
-          flash_statistics: [],
-          special_issues_statistics: [],
-          pending_claims_submissions: ClaimsApi::AutoEstablishedClaim.where(created_at: from..to,
-                                                                            status: 'pending')
-                                                                .order(:source, :status)
-                                                                .pluck(:source, :status, :id),
           unsuccessful_claims_submissions: ClaimsApi::AutoEstablishedClaim.where(created_at: from..to,
                                                                                  status: 'errored')
                                                                       .order(:source, :status)
                                                                       .pluck(:source, :status, :id),
-          grouped_claims_errors: [],
-          grouped_claims_warnings: [],
           poa_totals: { total: 0 },
           unsuccessful_poa_submissions: []
         ).and_return(double.tap do |mailer|
@@ -64,19 +56,6 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
                      end)
         described_class.new.perform
         Timecop.return
-      end
-    end
-
-    it 'group errors' do
-      with_settings(Settings.claims_api,
-                    report_enabled: true) do
-        errored_upload_claims
-
-        job = described_class.new
-        job.perform
-        grouped_claims_errors = job.claims_errors_hash[:uniq_errors]
-
-        expect(grouped_claims_errors.count).to eq(1)
       end
     end
 
@@ -91,7 +70,6 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
         claims_totals = job.claims_totals
 
         expect(claims_totals.first.keys).to eq(['test consumer'])
-        expect(claims_totals.first.values.first[:error_rate]).to eq('80%')
       end
     end
 
