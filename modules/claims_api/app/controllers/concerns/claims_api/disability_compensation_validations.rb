@@ -105,7 +105,7 @@ module ClaimsApi
       return if form_attributes['claimDate'].blank?
       # EVSS runs in the Central US Time Zone.
       # So 'claim_date' needs to be <= current day according to the Central US Time Zone.
-      return if Date.parse(form_attributes['claimDate']) <= Time.find_zone!('Central Time (US & Canada)').today
+      return if DateTime.parse(form_attributes['claimDate']) <= Time.zone.now
 
       raise ::Common::Exceptions::InvalidFieldValue.new('claimDate', form_attributes['claimDate'])
     end

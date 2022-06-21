@@ -84,7 +84,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
     it 'adds an active claim date' do
       pending_record.form_data.delete('claimDate')
       payload = JSON.parse(pending_record.to_internal)
-      expect(payload['form526']['claimDate']).to eq(pending_record.created_at.to_date.to_s)
+      expect(payload['form526']['claimDate']).to eq(pending_record.created_at.iso8601)
     end
 
     it 'adds an identifier for Lighthouse submissions' do
