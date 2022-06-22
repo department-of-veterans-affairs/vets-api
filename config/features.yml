@@ -97,10 +97,6 @@ features:
     actor_type: user
     description: Enables the health care pre-check-in experiences to send demographics confirmation.
     enable_in_development: true
-  check_in_experience_set_pre_checkin_status:
-    actor_type: user
-    description: Enables setting pre check-in started status by calling CHIP
-    enable_in_development: true
   check_in_experience_lorota_401_mapping_enabled:
     actor_type: user
     description: Enables mapping of LoROTA 401 error to 401 response
