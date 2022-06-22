@@ -1,28 +1,18 @@
 # frozen_string_literal: true
 
 module Mobile
-  class ApplicationController < ActionController::API
-    include ExceptionHandling
-    include Headers
-    include Pundit::Authorization
-    include SentryLogging
-    include SentryControllerLogging
-
+  class ApplicationController < SignIn::ApplicationController
     before_action :authenticate
     before_action :set_tags_and_extra_context
     skip_before_action :authenticate, only: :cors_preflight
-
-    ACCESS_TOKEN_REGEX = /^Bearer /.freeze
-
-    def cors_preflight
-      head(:ok)
-    end
 
     private
 
     attr_reader :current_user
 
     def authenticate
+      return super if sis_authentication?
+
       raise_unauthorized('Missing Authorization header') if request.headers['Authorization'].nil?
       raise_unauthorized('Authorization header Bearer token is blank') if access_token.blank?
 
@@ -32,8 +22,12 @@ module Mobile
       @current_user
     end
 
+    def sis_authentication?
+      request.headers['Authentication-Method'] == 'SIS'
+    end
+
     def access_token
-      @access_token ||= request.headers['Authorization']&.gsub(ACCESS_TOKEN_REGEX, '')
+      @access_token ||= bearer_token
     end
 
     def raise_unauthorized(detail)
@@ -63,10 +57,10 @@ module Mobile
       !vets360_link_redis_lock.get(account_uuid).nil?
     end
 
-    def append_info_to_payload(payload)
-      super
-      payload[:session] = Session.obscure_token(access_token) if access_token.present?
-      payload[:user_uuid] = current_user.uuid if current_user.present?
+    def session
+      return super if sis_authentication?
+
+      Session.obscure_token(access_token)
     end
 
     def set_tags_and_extra_context
