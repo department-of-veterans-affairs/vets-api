@@ -26,9 +26,7 @@ module CheckIn
 
         token_data = ::V2::Lorota::Service.build(check_in: check_in_session).token
 
-        if Flipper.enabled?('check_in_experience_set_pre_checkin_status') && pre_checkin?
-          ::V2::Chip::Service.build(check_in: check_in_session).set_precheckin_started
-        end
+        ::V2::Chip::Service.build(check_in: check_in_session).set_precheckin_started if pre_checkin?
 
         self.low_auth_token = token_data[:jwt]
         render json: token_data[:permission_data]

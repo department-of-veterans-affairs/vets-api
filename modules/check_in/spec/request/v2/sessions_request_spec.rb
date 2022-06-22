@@ -10,7 +10,6 @@ RSpec.describe 'V2::SessionsController', type: :request do
     allow(Rails).to receive(:cache).and_return(memory_store)
     allow(Flipper).to receive(:enabled?)
       .with('check_in_experience_enabled').and_return(true)
-    allow(Flipper).to receive(:enabled?).with('check_in_experience_set_pre_checkin_status').and_return(false)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_401_mapping_enabled').and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_custom_cookie_for_low_auth').and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled').and_return(false)
@@ -499,10 +498,6 @@ RSpec.describe 'V2::SessionsController', type: :request do
     end
 
     context 'when pre_checkin in session created using last4' do
-      before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_set_pre_checkin_status').and_return(true)
-      end
-
       let(:session_params) do
         {
           params: {
@@ -551,7 +546,6 @@ RSpec.describe 'V2::SessionsController', type: :request do
 
     context 'when pre_checkin in session created using DOB' do
       before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_set_pre_checkin_status').and_return(true)
         allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
                                             .and_return(true)
       end
