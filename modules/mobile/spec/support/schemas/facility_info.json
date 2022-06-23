@@ -31,10 +31,6 @@
     "miles": {
       "description": "distance in miles from current location or home",
       "type": "string"
-    },
-    "clinics": {
-      "description": "array of clinics to be used for direct scheduling",
-      "type": "array"
     }
   },
   "type": "object"

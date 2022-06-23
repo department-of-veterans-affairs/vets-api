@@ -14,7 +14,6 @@ module Mobile
       attribute :state, Types::String
       attribute :cerner, Types::Bool
       attribute :miles, Types::Float.optional
-      attribute :clinics, Types::Array.optional
     end
   end
 end
