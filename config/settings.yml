@@ -208,7 +208,7 @@ vet360:
     cache_enabled: false
     enabled: true
     timeout: 30
-    mock: false    
+    mock: false
   address_validation:
     hostname: "sandbox-api.va.gov"
     api_key: "<AV_KEY>"
@@ -1126,6 +1126,8 @@ vanotify:
     va_gov:
       api_key: fake_secret
       template_id:
+        ch31_vbms_form_confirmation_email: ch31_vbms_fake_template_id
+        ch31_central_mail_form_confirmation_email: ch31_central_mail_fake_template_id
         contact_info_change: fake_template_id
         form526_confirmation_email: fake_template_id
         form526_submission_failed_email: fake_template_id

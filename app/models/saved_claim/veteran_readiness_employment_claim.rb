@@ -112,12 +112,13 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   def send_to_vre(user)
     if user&.participant_id.blank?
-      send_to_central_mail!
+      send_to_central_mail!(user)
     else
       begin
         upload_to_vbms
+        send_vbms_confirmation_email(user)
       rescue
-        send_to_central_mail!
+        send_to_central_mail!(user)
       end
     end
 
@@ -149,7 +150,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     end
   end
 
-  def send_to_central_mail!
+  def send_to_central_mail!(user)
     form_copy = parsed_form.clone
 
     form_copy['veteranSocialSecurityNumber'] = parsed_form.dig('veteranInformation', 'ssn')
@@ -163,11 +164,49 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     log_to_statsd('cmp') do
       process_attachments!
     end
+
+    send_central_mail_confirmation_email(user)
   end
 
   # SavedClaims require regional_office to be defined
   def regional_office
     []
+  end
+
+  def send_vbms_confirmation_email(user)
+    return unless Flipper.enabled?(:ch31_vbms_form_confirmation_email)
+    return if user.va_profile_email.blank?
+
+    VANotify::EmailJob.perform_async(
+      user.va_profile_email,
+      Settings.vanotify.services.va_gov.template_id.ch31_vbms_form_confirmation_email,
+      {
+        'first_name' => user&.first_name&.upcase.presence,
+        'date' => Time.zone.today.strftime('%B %d, %Y')
+      }
+    )
+  end
+
+  def send_central_mail_confirmation_email(user)
+    return unless Flipper.enabled?(:ch31_central_mail_form_confirmation_email)
+    return if user.va_profile_email.blank?
+
+    VANotify::EmailJob.perform_async(
+      user.va_profile_email,
+      Settings.vanotify.services.va_gov.template_id.ch31_central_mail_form_confirmation_email,
+      {
+        'first_name' => user&.first_name&.upcase.presence,
+        'date' => Time.zone.today.strftime('%B %d, %Y')
+      }
+    )
+  end
+
+  def process_attachments!
+    refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
+    files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
+    files.find_each { |f| f.update(saved_claim_id: id) }
+
+    CentralMail::SubmitSavedClaimJob.new.perform(id)
   end
 
   private
