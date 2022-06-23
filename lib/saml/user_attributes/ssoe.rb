@@ -247,7 +247,7 @@ module SAML
                   else
                     SAML::User::AUTHN_CONTEXTS.fetch(authn_context).fetch(:sign_in)
                   end
-        sign_in.merge(account_type: account_type)
+        sign_in.merge(account_type: account_type, auth_broker: SAML::URLService::BROKER_CODE)
       end
 
       def to_hash

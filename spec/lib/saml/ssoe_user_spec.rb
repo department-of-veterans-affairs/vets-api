@@ -126,7 +126,8 @@ RSpec.describe SAML::User do
           loa: { current: 1, highest: 1 },
           sign_in: {
             service_name: 'logingov',
-            account_type: 'N/A'
+            account_type: 'N/A',
+            auth_broker: SAML::URLService::BROKER_CODE
           },
           multifactor: true,
           participant_id: nil,
@@ -184,7 +185,7 @@ RSpec.describe SAML::User do
           logingov_uuid: 'aa478abc-e494-4af1-9f87-d002f8fe1cda',
           verified_at: '2021-10-28T23:54:46Z',
           loa: { current: 3, highest: 3 },
-          sign_in: { service_name: 'logingov', account_type: 'N/A' },
+          sign_in: { service_name: 'logingov', account_type: 'N/A', auth_broker: SAML::URLService::BROKER_CODE },
           sec_id: '1200049153',
           participant_id: nil,
           birls_id: nil,
@@ -235,7 +236,8 @@ RSpec.describe SAML::User do
           loa: { current: 1, highest: 1 },
           sign_in: {
             service_name: 'idme',
-            account_type: 'N/A'
+            account_type: 'N/A',
+            auth_broker: SAML::URLService::BROKER_CODE
           },
           sec_id: nil,
           participant_id: nil,
@@ -291,7 +293,8 @@ RSpec.describe SAML::User do
           loa: { current: 1, highest: 3 },
           sign_in: {
             service_name: 'idme',
-            account_type: 'N/A'
+            account_type: 'N/A',
+            auth_broker: SAML::URLService::BROKER_CODE
           },
           sec_id: nil,
           participant_id: nil,
@@ -356,7 +359,7 @@ RSpec.describe SAML::User do
           verified_at: nil,
           multifactor: true,
           loa: { current: 3, highest: 3 },
-          sign_in: { service_name: 'idme', account_type: 'N/A' },
+          sign_in: { service_name: 'idme', account_type: 'N/A', auth_broker: SAML::URLService::BROKER_CODE },
           sec_id: '1008830476',
           participant_id: nil,
           birls_id: nil,
@@ -401,7 +404,8 @@ RSpec.describe SAML::User do
           logingov_uuid: nil,
           verified_at: nil,
           loa: { current: 1, highest: 3 },
-          sign_in: { service_name: 'myhealthevet', account_type: 'Advanced' },
+          sign_in: { service_name: 'myhealthevet', account_type: 'Advanced',
+                     auth_broker: SAML::URLService::BROKER_CODE },
           sec_id: nil,
           participant_id: nil,
           birls_id: nil,
@@ -459,7 +463,8 @@ RSpec.describe SAML::User do
           logingov_uuid: nil,
           verified_at: nil,
           loa: { current: 3, highest: 3 },
-          sign_in: { service_name: 'myhealthevet', account_type: 'Advanced' },
+          sign_in: { service_name: 'myhealthevet', account_type: 'Advanced',
+                     auth_broker: SAML::URLService::BROKER_CODE },
           sec_id: '1013183292',
           participant_id: nil,
           birls_id: nil,
@@ -514,7 +519,8 @@ RSpec.describe SAML::User do
           loa: { current: 1, highest: 1 },
           sign_in: {
             service_name: 'myhealthevet',
-            account_type: 'Basic'
+            account_type: 'Basic',
+            auth_broker: SAML::URLService::BROKER_CODE
           },
           sec_id: nil,
           birls_id: nil,
@@ -573,7 +579,8 @@ RSpec.describe SAML::User do
           loa: { current: 3, highest: 3 },
           sign_in: {
             service_name: 'myhealthevet',
-            account_type: 'Premium'
+            account_type: 'Premium',
+            auth_broker: SAML::URLService::BROKER_CODE
           },
           sec_id: '1012853550',
           participant_id: nil,
@@ -640,7 +647,8 @@ RSpec.describe SAML::User do
           loa: { current: 3, highest: 3 },
           sign_in: {
             service_name: 'myhealthevet',
-            account_type: 'Premium'
+            account_type: 'Premium',
+            auth_broker: SAML::URLService::BROKER_CODE
           },
           sec_id: '1012853550',
           participant_id: nil,
@@ -1115,7 +1123,8 @@ RSpec.describe SAML::User do
           loa: { current: 1, highest: 3 },
           sign_in: {
             service_name: 'dslogon',
-            account_type: '1'
+            account_type: '1',
+            auth_broker: SAML::URLService::BROKER_CODE
           },
           sec_id: nil,
           participant_id: nil,
@@ -1162,7 +1171,8 @@ RSpec.describe SAML::User do
           loa: { current: 3, highest: 3 },
           sign_in: {
             service_name: 'dslogon',
-            account_type: '2'
+            account_type: '2',
+            auth_broker: SAML::URLService::BROKER_CODE
           },
           sec_id: '1013173963',
           participant_id: nil,
@@ -1222,7 +1232,8 @@ RSpec.describe SAML::User do
           loa: { current: 3, highest: 3 },
           sign_in: {
             service_name: 'dslogon',
-            account_type: '2'
+            account_type: '2',
+            auth_broker: SAML::URLService::BROKER_CODE
           },
           sec_id: '0000028007',
           participant_id: '600043180',
@@ -1285,7 +1296,8 @@ RSpec.describe SAML::User do
           loa: { current: 3, highest: 3 },
           sign_in: {
             service_name: 'dslogon',
-            account_type: '2'
+            account_type: '2',
+            auth_broker: SAML::URLService::BROKER_CODE
           },
           sec_id: '0000028007',
           participant_id: '600043180',
@@ -1371,7 +1383,8 @@ RSpec.describe SAML::User do
           loa: { current: 3, highest: 3 },
           sign_in: {
             service_name: 'dslogon',
-            account_type: 'N/A'
+            account_type: 'N/A',
+            auth_broker: SAML::URLService::BROKER_CODE
           },
           sec_id: '1012779219',
           participant_id: nil,
@@ -1447,7 +1460,8 @@ RSpec.describe SAML::User do
           loa: { current: 3, highest: 3 },
           sign_in: {
             service_name: 'myhealthevet',
-            account_type: 'N/A'
+            account_type: 'N/A',
+            auth_broker: SAML::URLService::BROKER_CODE
           },
           sec_id: '1013062086',
           participant_id: nil,
@@ -1509,7 +1523,8 @@ RSpec.describe SAML::User do
           loa: { current: 3, highest: 3 },
           sign_in: {
             service_name: 'idme',
-            account_type: 'N/A'
+            account_type: 'N/A',
+            auth_broker: SAML::URLService::BROKER_CODE
           },
           sec_id: '1012827134',
           participant_id: '600152411',

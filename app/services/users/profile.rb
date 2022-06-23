@@ -172,6 +172,7 @@ module Users
 
     def session_data
       {
+        auth_broker: @user.identity.sign_in[:auth_broker],
         ssoe: @session[:ssoe_transactionid] ? true : false,
         transactionid: @session[:ssoe_transactionid]
       }

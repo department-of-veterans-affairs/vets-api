@@ -49,7 +49,8 @@ FactoryBot.define do
 
       sign_in do
         {
-          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
+          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
+          auth_broker: SAML::URLService::BROKER_CODE
         }
       end
 
@@ -132,7 +133,8 @@ FactoryBot.define do
 
       sign_in do
         {
-          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
+          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
+          auth_broker: SAML::URLService::BROKER_CODE
         }
       end
 
@@ -151,7 +153,8 @@ FactoryBot.define do
 
       sign_in do
         {
-          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
+          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
+          auth_broker: SAML::URLService::BROKER_CODE
         }
       end
 
@@ -170,7 +173,8 @@ FactoryBot.define do
 
       sign_in do
         {
-          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
+          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
+          auth_broker: SAML::URLService::BROKER_CODE
         }
       end
 
@@ -183,7 +187,8 @@ FactoryBot.define do
       authn_context { LOA::IDME_LOA1_VETS }
       sign_in do
         {
-          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
+          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
+          auth_broker: SAML::URLService::BROKER_CODE
         }
       end
 
@@ -197,7 +202,8 @@ FactoryBot.define do
 
       sign_in do
         {
-          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
+          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
+          auth_broker: SAML::URLService::BROKER_CODE
         }
       end
 
@@ -213,7 +219,8 @@ FactoryBot.define do
       authn_context { IAL::LOGIN_GOV_IAL1 }
       sign_in do
         {
-          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
+          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
+          auth_broker: SAML::URLService::BROKER_CODE
         }
       end
 
@@ -436,7 +443,8 @@ FactoryBot.define do
 
       sign_in do
         {
-          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
+          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
+          auth_broker: SAML::URLService::BROKER_CODE
         }
       end
 
@@ -453,7 +461,8 @@ FactoryBot.define do
 
       sign_in do
         {
-          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name]
+          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
+          auth_broker: SAML::URLService::BROKER_CODE
         }
       end
 
@@ -510,7 +519,8 @@ FactoryBot.define do
 
       sign_in do
         {
-          service_name: 'myhealthevet'
+          service_name: 'myhealthevet',
+          auth_broker: SAML::URLService::BROKER_CODE
         }
       end
 
@@ -557,7 +567,8 @@ FactoryBot.define do
 
       sign_in do
         {
-          service_name: 'dslogon'
+          service_name: 'dslogon',
+          auth_broker: SAML::URLService::BROKER_CODE
         }
       end
 

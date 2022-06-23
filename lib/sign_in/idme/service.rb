@@ -79,7 +79,7 @@ module SignIn
           first_name: user_info.fname,
           last_name: user_info.lname,
           csp_email: user_info.email,
-          sign_in: { service_name: config.service_name },
+          sign_in: { service_name: config.service_name, auth_broker: SignIn::Constants::Auth::BROKER_CODE },
           authn_context: type
         }
       end
@@ -96,7 +96,7 @@ module SignIn
           last_name: user_info.dslogon_lname,
           edipi: user_info.dslogon_uuid,
           csp_email: user_info.email,
-          sign_in: { service_name: config.service_name },
+          sign_in: { service_name: config.service_name, auth_broker: SignIn::Constants::Auth::BROKER_CODE },
           authn_context: type
         }
       end
@@ -108,7 +108,7 @@ module SignIn
           loa: { current: user_info.level_of_assurance, highest: user_info.level_of_assurance },
           mhv_correlation_id: user_info.mhv_uuid,
           mhv_icn: user_info.mhv_icn,
-          sign_in: { service_name: config.service_name },
+          sign_in: { service_name: config.service_name, auth_broker: SignIn::Constants::Auth::BROKER_CODE },
           authn_context: type
         }
       end

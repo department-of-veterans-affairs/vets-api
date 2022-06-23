@@ -57,7 +57,7 @@ module SignIn
           first_name: user_info[:given_name],
           last_name: user_info[:family_name],
           csp_email: user_info[:email],
-          sign_in: { service_name: config.service_name },
+          sign_in: { service_name: config.service_name, auth_broker: SignIn::Constants::Auth::BROKER_CODE },
           authn_context: config.service_name
         }
       end

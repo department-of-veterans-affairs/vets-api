@@ -134,7 +134,9 @@ FactoryBot.define do
 
     trait :no_multifactor do
       callback(:after_build, :after_stub, :after_create) do |user, _t|
-        user_identity = create(:iam_user_identity, multifactor: false, sign_in: { service_name: 'oauth_DSL' })
+        user_identity = create(:iam_user_identity,
+                               multifactor: false,
+                               sign_in: { service_name: 'oauth_DSL', auth_broker: SAML::URLService::BROKER_CODE })
         user.instance_variable_set(:@identity, user_identity)
       end
     end
@@ -148,7 +150,9 @@ FactoryBot.define do
 
     trait :logingov do
       callback(:after_build, :after_stub, :after_create) do |user, _t|
-        user_identity = create(:iam_user_identity, multifactor: true, sign_in: { service_name: 'oauth_LOGINGOV' })
+        user_identity = create(:iam_user_identity,
+                               multifactor: true,
+                               sign_in: { service_name: 'oauth_LOGINGOV', auth_broker: SAML::URLService::BROKER_CODE })
         user.instance_variable_set(:@identity, user_identity)
       end
     end
@@ -202,8 +206,9 @@ FactoryBot.define do
 
     trait :mhv do
       callback(:after_build, :after_stub, :after_create) do |user, _t|
-        user_identity = create(:iam_user_identity, mhv_account_type: 'Premium',
-                                                   sign_in: { service_name: 'myhealthevet' })
+        user_identity = create(:iam_user_identity,
+                               mhv_account_type: 'Premium',
+                               sign_in: { service_name: 'myhealthevet', auth_broker: SAML::URLService::BROKER_CODE })
         user.instance_variable_set(:@identity, user_identity)
         user.instance_variable_set(:@mhv_account_type, 'Premium')
       end
