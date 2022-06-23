@@ -75,6 +75,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
       it 'does not raise an error' do
         VCR.use_cassette('vbms/document_upload_417') do
+          allow(claim).to receive(:send_to_central_mail!)
           expect { subject }.not_to raise_error
         end
       end
@@ -117,6 +118,15 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
             expect(response).to eq(nil)
           end
         end
+
+        it 'sends confirmation email' do
+          VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
+            expect(claim).to receive(:send_vbms_confirmation_email).with(user_object)
+
+            claim.add_claimant_info(user_object)
+            claim.send_to_vre(user_object)
+          end
+        end
       end
 
       context 'non-submission to VRE' do
@@ -139,7 +149,9 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       let(:user_object) { create(:unauthorized_evss_user) }
 
       it 'PDF is sent to Central Mail and not VBMS' do
-        expect(claim).to receive(:send_to_central_mail!).once.and_call_original
+        expect(claim).to receive(:send_to_central_mail!).with(user_object).once.and_call_original
+        expect(claim).to receive(:process_attachments!)
+        expect(claim).to receive(:send_central_mail_confirmation_email)
         expect(claim).not_to receive(:upload_to_vbms)
         expect(VeteranReadinessEmploymentMailer).to receive(:build).with(
           user_object.participant_id, 'VRE.VBAPIT@va.gov', true
@@ -156,16 +168,51 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   end
 
   describe '#send_to_central_mail!' do
-    subject { claim.send_to_central_mail! }
+    subject { claim.send_to_central_mail!(user_object) }
 
     it 'adds `veteranFullName` key to db so that SavedClaimJob can use it' do
       Sidekiq::Testing.inline! do
         VCR.use_cassette('central_mail/upload_one_attachment') do
           expect(claim.parsed_form['veteranFullName']).to be_nil
+          expect(claim).to receive(:send_central_mail_confirmation_email).with(user_object)
           subject
           expect(JSON.parse(claim.form)['veteranFullName']).not_to be_nil
         end
       end
+    end
+  end
+
+  describe '#send_vbms_confirmation_email' do
+    subject { claim.send_vbms_confirmation_email(user_object) }
+
+    it 'calls the VA notify email job' do
+      expect(VANotify::EmailJob).to receive(:perform_async).with(
+        user_object.va_profile_email,
+        'ch31_vbms_fake_template_id',
+        {
+          'date' => Time.zone.today.strftime('%B %d, %Y'),
+          'first_name' => 'WESLEY'
+        }
+      )
+
+      subject
+    end
+  end
+
+  describe '#send_central_mail_confirmation_email' do
+    subject { claim.send_central_mail_confirmation_email(user_object) }
+
+    it 'calls the VA notify email job' do
+      expect(VANotify::EmailJob).to receive(:perform_async).with(
+        user_object.va_profile_email,
+        'ch31_central_mail_fake_template_id',
+        {
+          'date' => Time.zone.today.strftime('%B %d, %Y'),
+          'first_name' => 'WESLEY'
+        }
+      )
+
+      subject
     end
   end
 end
