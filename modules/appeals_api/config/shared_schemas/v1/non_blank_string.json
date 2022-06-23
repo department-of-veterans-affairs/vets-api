@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-2020-12/schema#",
+  "description": "JSON Schema for VA Decision Review Forms: 'nonBlankString'",
+  "$ref": "#/definitions/nonBlankString",
+  "definitions": {
+    "nonBlankString": {
+      "type": "string",
+      "pattern": "[^ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]"
+    }
+  }
+}

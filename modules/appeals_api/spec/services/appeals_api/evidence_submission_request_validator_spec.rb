@@ -14,7 +14,7 @@ module AppealsApi
 
           expect(result).to eq([
                                  :error,
-                                 { title: 'not_found', detail: 'NoticeOfDisagreement with uuid fake_id not found.' }
+                                 { title: 'not_found', detail: 'NoticeOfDisagreement with uuid fake_id not found' }
                                ])
         end
 
@@ -133,7 +133,7 @@ module AppealsApi
 
           expect(result).to eq([
                                  :error,
-                                 { title: 'not_found', detail: 'SupplementalClaim with uuid fake_id not found.' }
+                                 { title: 'not_found', detail: 'SupplementalClaim with uuid fake_id not found' }
                                ])
         end
 
@@ -151,7 +151,7 @@ module AppealsApi
                                  :error,
                                  {
                                    title: 'unprocessable_entity',
-                                   detail: 'This submission is outside of the 7-day window for evidence submission.',
+                                   detail: 'This submission is outside of the 7-day window for evidence submission',
                                    code: 'OutsideSubmissionWindow',
                                    status: '422'
                                  }
