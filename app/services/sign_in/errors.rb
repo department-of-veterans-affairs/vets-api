@@ -16,10 +16,11 @@ module SignIn
     class CodeChallengeMethodMismatchError < StandardError; end
     class CodeChallengeMalformedError < StandardError; end
     class CodeChallengeMismatchError < StandardError; end
-    class CodeChallengeStateMapError < StandardError; end
+    class StatePayloadError < StandardError; end
+    class StatePayloadSignatureMismatchError < StandardError; end
+    class StatePayloadMalformedJWTError < StandardError; end
     class GrantTypeValueError < StandardError; end
     class CodeInvalidError < StandardError; end
-    class StateMismatchError < StandardError; end
     class UserAttributesMalformedError < StandardError; end
     class MalformedParamsError < StandardError; end
     class TokenSessionMismatch < StandardError; end
@@ -30,5 +31,10 @@ module SignIn
     class SessionNotFoundError < StandardError; end
     class MPIUserCreationFailedError < StandardError; end
     class InvalidClientIdError < StandardError; end
+    class InvalidAcrError < StandardError; end
+    class InvalidTypeError < StandardError; end
+    class InvalidCredentialLevelError < StandardError; end
+    class CodeChallengeStateMapError < StandardError; end
+    class StateMismatchError < StandardError; end
   end
 end

@@ -17,10 +17,16 @@ module LOA
   # authentication context values but currently only the LOA3 one is used
   # within vets-api
   IDME_LOA3 = 'http://idmanagement.gov/ns/assurance/loa/3'
+  IDME_CLASSIC_LOA3 = 'classic_loa3'
 
   # MHV accounts with this designation are considered LOA3 level
   MHV_PREMIUM_VERIFIED = %w[Premium].freeze
 
   # DSLogon accounts with these assurance levels are considered LOA3
   DSLOGON_PREMIUM_VERIFIED = %w[2 3].freeze
+
+  IDME_MHV_LOA1 = 'myhealthevet'
+  IDME_MHV_LOA3 = 'myhealthevet_loa3'
+  IDME_DSLOGON_LOA1 = 'dslogon'
+  IDME_DSLOGON_LOA3 = 'dslogon_loa3'
 end
