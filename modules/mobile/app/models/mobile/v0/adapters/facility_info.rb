@@ -23,8 +23,7 @@ module Mobile
             city: facility[:physical_address][:city],
             state: facility[:physical_address][:state],
             cerner: user.cerner_facility_ids.include?(facility.id),
-            miles: Mobile::FacilitiesHelper.haversine_distance(user_location, [facility.lat, facility.long]).to_s,
-            clinics: [] # blank for now, will be used by direct scheduling
+            miles: Mobile::FacilitiesHelper.haversine_distance(user_location, [facility.lat, facility.long]).to_s
           )
         end
 
@@ -35,8 +34,7 @@ module Mobile
             city: facility[:address].dig('physical', 'city'),
             state: facility[:address].dig('physical', 'state'),
             cerner: user.cerner_facility_ids.include?(facility.id.delete('vha_')),
-            miles: Mobile::FacilitiesHelper.haversine_distance(user_location, [facility.lat, facility.long]).to_s,
-            clinics: [] # blank for now, will be used by direct scheduling
+            miles: Mobile::FacilitiesHelper.haversine_distance(user_location, [facility.lat, facility.long]).to_s
           )
         end
 

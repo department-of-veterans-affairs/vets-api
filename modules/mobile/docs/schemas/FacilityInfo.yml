@@ -26,9 +26,4 @@ properties:
     type: string
     example: "3.17"
     description: Distance from requested location (current/home) based on haversine distance
-  clinics:
-    type: array
-    description: array of clinics to be used by direct scheduling
-    items:
-      type: object
 
