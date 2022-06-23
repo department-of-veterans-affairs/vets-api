@@ -50,10 +50,11 @@
             },
             "session": {
               "type": "object",
-              "required": ["ssoe", "transactionid"],
+              "required": ["ssoe", "transactionid", "authBroker"],
               "properties": {
                 "ssoe": { "type": "boolean"},
-                "transactionid": { "type": [ "string", null ] }
+                "transactionid": { "type": [ "string", null ] },
+                "authBroker": { "type": "string" }
               }
             },
             "services": {
@@ -166,7 +167,11 @@
                   "properties": {
                     "serviceName": {
                       "type": "string"
+                    },
+                    "authBroker": {
+                      "type": "string"
                     }
+
                   }
                 },
                 "authnContext": {

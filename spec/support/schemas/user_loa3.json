@@ -27,9 +27,10 @@
             "prefills_available": { "type": [ "array", null ] },
             "session": {
               "type": "object",
-              "required": ["ssoe", "transactionid"],
+              "required": ["auth_broker", "ssoe", "transactionid"],
               "properties": {
-                "ssoe": { "type": "boolean"},
+                "auth_broker": { "type": "string" },
+                "ssoe": { "type": "boolean" },
                 "transactionid": { "type": [ "string", null ] }
               }
             },
@@ -80,7 +81,8 @@
                 "sign_in": {
                   "type": "object",
                   "properties":  {
-                    "service_name": { "type": "string" }
+                    "service_name": { "type": "string" },
+                    "auth_broker": { "type": "string" }
                   }
                 },
                 "authn_context": { "type": "string" },

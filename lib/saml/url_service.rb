@@ -22,6 +22,7 @@ module SAML
     LOGIN_REDIRECT_PARTIAL = '/auth/login/callback'
     LOGOUT_REDIRECT_PARTIAL = '/logout/'
     STATSD_SSO_UNIFIED_NEW_KEY = 'api.auth.unified_new'
+    BROKER_CODE = 'iam'
 
     attr_reader :saml_settings, :session, :user, :authn_context, :type, :query_params, :tracker
 

@@ -50,7 +50,8 @@ module SAML
 
       Raven.tags_context(
         sign_in_service_name: user_attributes.sign_in&.fetch(:service_name, nil),
-        sign_in_account_type: user_attributes.sign_in&.fetch(:account_type, nil)
+        sign_in_account_type: user_attributes.sign_in&.fetch(:account_type, nil),
+        sign_in_auth_broker: user_attributes.sign_in&.fetch(:auth_broker, nil)
       )
     end
 
