@@ -13,7 +13,7 @@ module ClaimsApi
           raise ::Common::Exceptions::Forbidden
         end
 
-        render json: ClaimsApi::V2::Blueprints::VeteranIdentifierBlueprint.render(target_veteran)
+        render json: ClaimsApi::V2::Blueprints::VeteranIdentifierBlueprint.render(target_veteran), status: :created
       end
 
       protected

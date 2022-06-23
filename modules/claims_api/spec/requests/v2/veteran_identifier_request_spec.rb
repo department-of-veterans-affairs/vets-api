@@ -32,7 +32,7 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request do
               icn = JSON.parse(response.body)['id']
 
               expect(icn).to eq(test_user_icn)
-              expect(response.status).to eq(200)
+              expect(response.status).to eq(201)
             end
           end
         end
@@ -62,7 +62,7 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request do
               icn = JSON.parse(response.body)['id']
 
               expect(icn).to eq(test_user_icn)
-              expect(response.status).to eq(200)
+              expect(response.status).to eq(201)
             end
           end
         end
@@ -74,7 +74,7 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request do
 
       context 'when provided' do
         context 'when valid' do
-          it 'returns a 200' do
+          it 'returns a 201' do
             allow(JWT).to receive(:decode).and_return(nil)
             allow(Token).to receive(:new).and_return(ccg_token)
             allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
@@ -84,7 +84,7 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request do
 
             post path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
 
-            expect(response.status).to eq(200)
+            expect(response.status).to eq(201)
           end
         end
 
