@@ -36,7 +36,7 @@ describe 'Veteran Identifier', swagger_doc: 'modules/claims_api/app/swagger/clai
       let(:veteran_mpi_data) { MPIData.new }
 
       describe 'Getting a successful response' do
-        response '200', "Veteran's unique identifier" do
+        response '201', "Veteran's unique identifier" do
           schema JSON.parse(
             File.read(
               Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'veteran_identifier', 'submission.json')
@@ -62,7 +62,7 @@ describe 'Veteran Identifier', swagger_doc: 'modules/claims_api/app/swagger/clai
             }
           end
 
-          it 'returns a valid 200 response' do |example|
+          it 'returns a valid 201 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end
