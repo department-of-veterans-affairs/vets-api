@@ -109,6 +109,8 @@ AppealsApi::Engine.routes.draw do
       namespace :schemas, controller: cpath do
         get '10182', action: :schema
       end
+
+      resources :schemas, only: :show, param: :schema_type, controller: '/appeals_api/schemas/shared_schemas'
     end
   end
 
@@ -127,6 +129,8 @@ AppealsApi::Engine.routes.draw do
       namespace :schemas, controller: cpath do
         get '200996', action: :schema
       end
+
+      resources :schemas, only: :show, param: :schema_type, controller: '/appeals_api/schemas/shared_schemas'
     end
   end
 
@@ -147,6 +151,8 @@ AppealsApi::Engine.routes.draw do
       namespace :schemas, controller: cpath do
         get '200995', action: :schema
       end
+
+      resources :schemas, only: :show, param: :schema_type, controller: '/appeals_api/schemas/shared_schemas'
     end
   end
 end

@@ -29,7 +29,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
         error = appeal.errors.first
         expect(error.attribute).to eq(:'/data/attributes/claimantType')
         expect(error.message).to eq "If '/data/attributes/claimant' field is supplied, " \
-                                    "'data/attributes/claimantType' must not be 'veteran'."
+                                    "'data/attributes/claimantType' must not be 'veteran'"
       end
     end
   end
@@ -88,7 +88,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
   describe '#outside_submission_window_error' do
     error = {
       title: 'unprocessable_entity',
-      detail: 'This submission is outside of the 7-day window for evidence submission.',
+      detail: 'This submission is outside of the 7-day window for evidence submission',
       code: 'OutsideSubmissionWindow',
       status: '422'
     }
