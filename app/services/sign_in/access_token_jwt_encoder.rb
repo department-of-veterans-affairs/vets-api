@@ -33,7 +33,7 @@ module SignIn
     end
 
     def jwt_encode_access_token
-      JWT.encode(payload, private_key, Constants::AccessToken::JWT_ENCODE_ALROGITHM)
+      JWT.encode(payload, private_key, Constants::AccessToken::JWT_ENCODE_ALGORITHM)
     end
 
     def private_key

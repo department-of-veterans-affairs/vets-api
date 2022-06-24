@@ -7,9 +7,9 @@ module SignIn
     class Service < Common::Client::Base
       configuration SignIn::Logingov::Configuration
 
-      SCOPE = 'profile email openid social_security_number'
+      SCOPE = 'profile profile:verified_at address email social_security_number openid'
 
-      def render_auth(state: SecureRandom.hex)
+      def render_auth(state: SecureRandom.hex, acr: IAL::LOGIN_GOV_IAL1)
         renderer = ActionController::Base.renderer
         renderer.controller.prepend_view_path(Rails.root.join('lib', 'sign_in', 'templates'))
         renderer.render(template: 'oauth_get_form',
@@ -17,7 +17,7 @@ module SignIn
                           url: auth_url,
                           params:
                           {
-                            acr_values: IAL::LOGIN_GOV_IAL2,
+                            acr_values: acr,
                             client_id: config.client_id,
                             nonce: nonce,
                             prompt: config.prompt,
@@ -46,13 +46,14 @@ module SignIn
         raise e
       end
 
-      def normalized_attributes(user_info)
-        loa = user_info[:verified_at].nil? ? LOA::ONE : LOA::THREE
+      def normalized_attributes(user_info, credential_level)
+        loa_current = ial_to_loa(credential_level.current_ial)
+        loa_highest = ial_to_loa(credential_level.max_ial)
         {
           uuid: user_info[:sub],
           logingov_uuid: user_info[:sub],
-          loa: { current: loa, highest: loa },
-          ssn: user_info[:social_security_number].tr('-', ''),
+          loa: { current: loa_current, highest: loa_highest },
+          ssn: user_info[:social_security_number]&.tr('-', ''),
           birth_date: user_info[:birthdate],
           first_name: user_info[:given_name],
           last_name: user_info[:family_name],
@@ -63,6 +64,10 @@ module SignIn
       end
 
       private
+
+      def ial_to_loa(ial)
+        ial == IAL::TWO ? LOA::THREE : LOA::ONE
+      end
 
       def auth_url
         "#{config.base_path}/#{config.auth_path}"

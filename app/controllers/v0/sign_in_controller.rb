@@ -14,31 +14,46 @@ module V0
       code_challenge = params[:code_challenge]
       code_challenge_method = params[:code_challenge_method]
       client_id = params[:client_id]
+      acr = params[:acr]
 
-      validate_authorize_params(type, client_id, code_challenge, code_challenge_method)
-      state = SignIn::CodeChallengeStateMapper.new(code_challenge: code_challenge,
-                                                   code_challenge_method: code_challenge_method,
-                                                   client_id: client_id,
-                                                   client_state: client_state).perform
-      log_successful_authorize(type, state, client_state, code_challenge, code_challenge_method, client_id)
+      validate_authorize_params(type, client_id, code_challenge, code_challenge_method, acr)
 
-      render body: auth_service(type).render_auth(state: state), content_type: 'text/html'
+      acr_for_type = SignIn::AcrTranslator.new(acr: acr, type: type).perform
+      state = SignIn::StatePayloadJwtEncoder.new(code_challenge: code_challenge,
+                                                 code_challenge_method: code_challenge_method,
+                                                 acr: acr,
+                                                 client_id: client_id,
+                                                 type: type,
+                                                 client_state: client_state).perform
+      log_successful_authorize(type, client_id, acr)
+
+      render body: auth_service(type).render_auth(state: state, acr: acr_for_type), content_type: 'text/html'
     rescue SignIn::Errors::StandardError => e
-      handle_authorize_error(e, type, client_state, code_challenge, code_challenge_method, client_id)
+      handle_authorize_error(e, type, client_id, acr)
     end
 
     def callback
-      type = params[:type]
       code = params[:code]
       state = params[:state]
 
-      validate_callback_params(type, code, state)
-      user_code_map = create_user_code_map(type, state, code)
-      log_successful_callback(state, type, code, user_code_map)
+      validate_callback_params(code, state)
 
-      redirect_to SignIn::LoginRedirectUrlGenerator.new(user_code_map: user_code_map).perform
+      state_payload = SignIn::StatePayloadJwtDecoder.new(state_payload_jwt: state).perform
+      service_token_response = auth_service(state_payload.type).token(code)
+      raise SignIn::Errors::CodeInvalidError, 'Code is not valid' unless service_token_response
+
+      user_info = auth_service(state_payload.type).user_info(service_token_response[:access_token])
+      credential_level = SignIn::CredentialLevelCreator.new(requested_acr: state_payload.acr,
+                                                            type: state_payload.type,
+                                                            id_token: service_token_response[:id_token],
+                                                            user_info: user_info).perform
+      if credential_level.can_uplevel_credential?
+        render_uplevel_credential(state_payload, state)
+      else
+        create_login_code(state_payload, user_info, credential_level)
+      end
     rescue SignIn::Errors::StandardError => e
-      handle_callback_error(e, type, state, code)
+      handle_callback_error(e, state_payload, state, code)
     end
 
     def token
@@ -118,21 +133,21 @@ module V0
 
     private
 
-    def validate_authorize_params(type, client_id, code_challenge, code_challenge_method)
+    def validate_authorize_params(type, client_id, code_challenge, code_challenge_method, acr)
       unless SignIn::Constants::ClientConfig::CLIENT_IDS.include?(client_id)
         raise SignIn::Errors::MalformedParamsError, 'Client id is not valid'
       end
       unless SignIn::Constants::Auth::REDIRECT_URLS.include?(type)
-        raise SignIn::Errors::AuthorizeInvalidType, 'Authorization type is not valid'
+        raise SignIn::Errors::AuthorizeInvalidType, 'Type is not valid'
+      end
+      unless SignIn::Constants::Auth::ACR_VALUES.include?(acr)
+        raise SignIn::Errors::MalformedParamsError, 'ACR is not valid'
       end
       raise SignIn::Errors::MalformedParamsError, 'Code Challenge is not defined' unless code_challenge
       raise SignIn::Errors::MalformedParamsError, 'Code Challenge Method is not defined' unless code_challenge_method
     end
 
-    def validate_callback_params(type, code, state)
-      unless SignIn::Constants::Auth::REDIRECT_URLS.include?(type)
-        raise SignIn::Errors::CallbackInvalidType, 'Callback type is not valid'
-      end
+    def validate_callback_params(code, state)
       raise SignIn::Errors::MalformedParamsError, 'Code is not defined' unless code
       raise SignIn::Errors::MalformedParamsError, 'State is not defined' unless state
     end
@@ -143,42 +158,31 @@ module V0
       raise SignIn::Errors::MalformedParamsError, 'Grant Type is not defined' unless grant_type
     end
 
-    # rubocop:disable Metrics/ParameterLists
-    def log_successful_authorize(type, state, client_state, code_challenge, code_challenge_method, client_id)
+    def log_successful_authorize(type, client_id, acr)
       attributes = {
-        state: state,
         type: type,
-        client_state: client_state,
-        code_challenge: code_challenge,
-        code_challenge_method: code_challenge_method,
-        client_id: client_id
+        client_id: client_id,
+        acr: acr
       }
       sign_in_logger.info('authorize', attributes)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_SUCCESS, tags: ["context:#{type}"])
     end
 
-    def handle_authorize_error(error, type, client_state, code_challenge, code_challenge_method, client_id)
+    def handle_authorize_error(error, type, client_id, acr)
       context = {
         type: type,
-        client_state: client_state,
-        code_challenge: code_challenge,
-        code_challenge_method: code_challenge_method,
-        client_id: client_id
+        client_id: client_id,
+        acr: acr
       }
       log_message_to_sentry(error.message, :error, context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_FAILURE, tags: ["context:#{type}"])
       render json: { errors: error }, status: :bad_request
     end
-    # rubocop:enable Metrics/ParameterLists
 
-    def log_successful_callback(state, type, code, user_code_map)
+    def log_successful_callback(type, client_id)
       attributes = {
-        state: state,
         type: type,
-        code: code,
-        login_code: user_code_map.login_code,
-        client_id: user_code_map.client_id,
-        client_state: user_code_map.client_state
+        client_id: client_id
       }
       sign_in_logger.info('callback', attributes)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS, tags: ["context:#{type}"])
@@ -206,19 +210,10 @@ module V0
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_SUCCESS)
     end
 
-    def create_user_code_map(type, state, code)
-      response = auth_service(type).token(code)
-      raise SignIn::Errors::CodeInvalidError, 'Authentication Code is not valid' unless response
-
-      user_info = auth_service(type).user_info(response[:access_token])
-      normalized_attributes = auth_service(type).normalized_attributes(user_info)
-      SignIn::UserCreator.new(user_attributes: normalized_attributes, state: state, type: type).perform
-    end
-
-    def handle_callback_error(error, type, state, code)
-      context = { type: type, state: state, code: code }
+    def handle_callback_error(error, state_payload, state, code)
+      context = { type: state_payload&.type, state: state, code: code }
       log_message_to_sentry(error.message, :error, context)
-      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE, tags: ["context:#{type}"])
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE, tags: ["context:#{state_payload&.type}"])
       render json: { errors: error }, status: :bad_request
     end
 
@@ -255,6 +250,20 @@ module V0
       log_message_to_sentry(error.message, :error, context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_FAILURE)
       render json: { errors: error }, status: :unauthorized
+    end
+
+    def render_uplevel_credential(state_payload, state)
+      acr_for_type = SignIn::AcrTranslator.new(acr: state_payload.acr, type: state_payload.type, uplevel: true).perform
+      render body: auth_service(state_payload.type).render_auth(state: state, acr: acr_for_type),
+             content_type: 'text/html'
+    end
+
+    def create_login_code(state_payload, user_info, credential_level)
+      user_attributes = auth_service(state_payload.type).normalized_attributes(user_info, credential_level)
+      user_code_map = SignIn::UserCreator.new(user_attributes: user_attributes, state_payload: state_payload).perform
+      log_successful_callback(state_payload.type, state_payload.client_id)
+
+      redirect_to SignIn::LoginRedirectUrlGenerator.new(user_code_map: user_code_map).perform
     end
 
     def token_cookies

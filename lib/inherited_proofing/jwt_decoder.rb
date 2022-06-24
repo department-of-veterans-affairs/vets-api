@@ -7,7 +7,7 @@ module InheritedProofing
   class JwtDecoder
     attr_reader :access_token_jwt
 
-    JWT_ENCODE_ALROGITHM = 'RS256'
+    JWT_ENCODE_ALGORITHM = 'RS256'
 
     def initialize(access_token_jwt:)
       @access_token_jwt = access_token_jwt
@@ -30,7 +30,7 @@ module InheritedProofing
         with_validation,
         {
           verify_expiration: with_validation,
-          algorithm: JWT_ENCODE_ALROGITHM
+          algorithm: JWT_ENCODE_ALGORITHM
         }
       )&.first
       OpenStruct.new(decoded_jwt)

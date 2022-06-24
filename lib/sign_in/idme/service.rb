@@ -10,7 +10,7 @@ module SignIn
 
       attr_accessor :type
 
-      def render_auth(state: SecureRandom.hex)
+      def render_auth(state: SecureRandom.hex, acr: LOA::IDME_LOA1_VETS)
         renderer = ActionController::Base.renderer
         renderer.controller.prepend_view_path(Rails.root.join('lib', 'sign_in', 'templates'))
         renderer.render(template: 'oauth_get_form',
@@ -18,25 +18,26 @@ module SignIn
                           url: auth_url,
                           params:
                           {
-                            scope: scope,
+                            scope: acr,
                             state: state,
                             client_id: config.client_id,
-                            redirect_uri: redirect_uri,
+                            redirect_uri: config.redirect_uri,
                             response_type: config.response_type
                           }
                         },
                         format: :html)
       end
 
-      def normalized_attributes(user_info)
-        case type
-        when 'idme'
-          idme_normalized_attributes(user_info)
-        when 'dslogon'
-          dslogon_normalized_attributes(user_info)
-        when 'mhv'
-          mhv_normalized_attributes(user_info)
-        end
+      def normalized_attributes(user_info, credential_level)
+        attributes = case type
+                     when 'idme'
+                       idme_attributes(user_info)
+                     when 'dslogon'
+                       dslogon_attributes(user_info)
+                     when 'mhv'
+                       mhv_attributes(user_info)
+                     end
+        attributes.merge(standard_attributes(user_info, credential_level))
       end
 
       def token(code)
@@ -58,59 +59,48 @@ module SignIn
 
       private
 
-      def redirect_uri
-        case type
-        when 'idme'
-          config.redirect_uri
-        when 'dslogon'
-          config.dslogon_redirect_uri
-        when 'mhv'
-          config.mhv_redirect_uri
-        end
-      end
-
-      def idme_normalized_attributes(user_info)
+      def standard_attributes(user_info, credential_level)
+        loa_current = ial_to_loa(credential_level.current_ial)
+        loa_highest = ial_to_loa(credential_level.max_ial)
         {
           uuid: user_info.sub,
           idme_uuid: user_info.sub,
-          loa: { current: user_info.level_of_assurance, highest: user_info.level_of_assurance },
-          ssn: user_info.social&.tr('-', ''),
-          birth_date: user_info.birth_date,
-          first_name: user_info.fname,
-          last_name: user_info.lname,
-          csp_email: user_info.email,
+          loa: { current: loa_current, highest: loa_highest },
           sign_in: { service_name: config.service_name, auth_broker: SignIn::Constants::Auth::BROKER_CODE },
+          csp_email: user_info.email,
           authn_context: type
         }
       end
 
-      def dslogon_normalized_attributes(user_info)
+      def idme_attributes(user_info)
         {
-          uuid: user_info.sub,
-          idme_uuid: user_info.sub,
-          loa: { current: user_info.level_of_assurance, highest: user_info.level_of_assurance },
+          ssn: user_info.social&.tr('-', ''),
+          birth_date: user_info.birth_date,
+          first_name: user_info.fname,
+          last_name: user_info.lname
+        }
+      end
+
+      def dslogon_attributes(user_info)
+        {
           ssn: user_info.dslogon_idvalue&.tr('-', ''),
           birth_date: user_info.dslogon_birth_date,
           first_name: user_info.dslogon_fname,
           middle_name: user_info.dslogon_mname,
           last_name: user_info.dslogon_lname,
-          edipi: user_info.dslogon_uuid,
-          csp_email: user_info.email,
-          sign_in: { service_name: config.service_name, auth_broker: SignIn::Constants::Auth::BROKER_CODE },
-          authn_context: type
+          edipi: user_info.dslogon_uuid
         }
       end
 
-      def mhv_normalized_attributes(user_info)
+      def mhv_attributes(user_info)
         {
-          uuid: user_info.sub,
-          idme_uuid: user_info.sub,
-          loa: { current: user_info.level_of_assurance, highest: user_info.level_of_assurance },
           mhv_correlation_id: user_info.mhv_uuid,
-          mhv_icn: user_info.mhv_icn,
-          sign_in: { service_name: config.service_name, auth_broker: SignIn::Constants::Auth::BROKER_CODE },
-          authn_context: type
+          mhv_icn: user_info.mhv_icn
         }
+      end
+
+      def ial_to_loa(ial)
+        ial == IAL::TWO ? LOA::THREE : LOA::ONE
       end
 
       def scope
@@ -160,7 +150,7 @@ module SignIn
           code: code,
           client_id: config.client_id,
           client_secret: config.client_secret,
-          redirect_uri: redirect_uri
+          redirect_uri: config.redirect_uri
         }.to_json
       end
     end

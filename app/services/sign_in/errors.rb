@@ -34,7 +34,5 @@ module SignIn
     class InvalidAcrError < StandardError; end
     class InvalidTypeError < StandardError; end
     class InvalidCredentialLevelError < StandardError; end
-    class CodeChallengeStateMapError < StandardError; end
-    class StateMismatchError < StandardError; end
   end
 end

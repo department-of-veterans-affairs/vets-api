@@ -113,7 +113,7 @@ RSpec.describe InheritedProofingController, type: :controller do
       let(:private_key) { OpenSSL::PKey::RSA.new(512) }
       let(:public_key) { private_key.public_key }
       let(:access_token_jwt) do
-        JWT.encode(payload, private_key, InheritedProofing::JwtDecoder::JWT_ENCODE_ALROGITHM)
+        JWT.encode(payload, private_key, InheritedProofing::JwtDecoder::JWT_ENCODE_ALGORITHM)
       end
       let(:payload) { { inherited_proofing_auth: auth_code, exp: expiration_time.to_i } }
       let(:expiration_time) { Time.zone.now + 5.minutes }

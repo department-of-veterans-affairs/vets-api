@@ -42,6 +42,7 @@ describe SignIn::Idme::Service do
   let(:current_time) { 1_652_141_421 }
   let(:idme_originating_url) { 'https://api.idmelabs.com/oidc' }
   let(:state) { 'some-state' }
+  let(:acr) { 'some-acr' }
   let(:idme_client_id) { 'ef7f1237ed3c396e4b4a2b04b608a7b1' }
   let(:user_uuid) { '6400bbf301eb4e6e95ccea7693eced6f' }
   let(:birth_date) { '1950-10-04' }
@@ -59,7 +60,7 @@ describe SignIn::Idme::Service do
   end
 
   describe '#render_auth' do
-    let(:response) { subject.render_auth(state: state).to_s }
+    let(:response) { subject.render_auth(state: state, acr: acr).to_s }
     let(:configuration) { SignIn::Idme::Configuration }
     let(:expected_authorization_page) { "#{base_path}/#{auth_path}" }
     let(:base_path) { 'some-base-path' }
@@ -178,6 +179,136 @@ describe SignIn::Idme::Service do
         VCR.use_cassette('identity/idme_200_responses') do
           expect { subject.user_info(token) }.to raise_error(expected_error, expected_error_message)
         end
+      end
+    end
+  end
+
+  describe '#normalized_attributes' do
+    before { subject.type = type }
+
+    let(:expected_standard_attributes) do
+      {
+        uuid: user_uuid,
+        idme_uuid: user_uuid,
+        loa: { current: LOA::THREE, highest: LOA::THREE },
+        sign_in: { service_name: 'idme', auth_broker: SignIn::Constants::Auth::BROKER_CODE },
+        csp_email: email,
+        authn_context: type
+      }
+    end
+    let(:credential_level) { create(:credential_level, current_ial: IAL::TWO, max_ial: IAL::TWO) }
+
+    context 'when type is idme' do
+      let(:type) { 'idme' }
+      let(:user_info) do
+        OpenStruct.new(
+          {
+            iss: idme_originating_url,
+            sub: user_uuid,
+            aud: idme_client_id,
+            exp: expiration_time,
+            iat: current_time,
+            credential_aal_highest: 2,
+            credential_ial_highest: 'classic_loa3',
+            birth_date: birth_date,
+            email: email,
+            fname: first_name,
+            social: ssn,
+            lname: last_name,
+            level_of_assurance: 3,
+            multifactor: true,
+            credential_aal: 2,
+            credential_ial: 'classic_loa3',
+            uuid: user_uuid
+          }
+        )
+      end
+      let(:expected_attributes) do
+        expected_standard_attributes.merge({ ssn: ssn,
+                                             birth_date: birth_date,
+                                             first_name: first_name,
+                                             last_name: last_name })
+      end
+
+      it 'returns expected idme attributes' do
+        expect(subject.normalized_attributes(user_info, credential_level)).to eq(expected_attributes)
+      end
+    end
+
+    context 'when type is dslogon' do
+      let(:type) { 'dslogon' }
+      let(:user_info) do
+        OpenStruct.new(
+          {
+            iss: idme_originating_url,
+            sub: user_uuid,
+            aud: idme_client_id,
+            exp: expiration_time,
+            iat: current_time,
+            credential_aal_highest: 2,
+            credential_ial_highest: 'classic_loa3',
+            dslogon_birth_date: birth_date,
+            email: email,
+            dslogon_uuid: edipi,
+            dslogon_fname: first_name,
+            dslogon_idvalue: ssn,
+            dslogon_lname: last_name,
+            dslogon_mname: middle_name,
+            level_of_assurance: 3,
+            multifactor: true,
+            credential_aal: 2,
+            credential_ial: 'classic_loa3',
+            uuid: user_uuid
+          }
+        )
+      end
+      let(:middle_name) { 'some-middle-name' }
+      let(:edipi) { 'some-edipi' }
+      let(:expected_attributes) do
+        expected_standard_attributes.merge({ ssn: ssn,
+                                             birth_date: birth_date,
+                                             first_name: first_name,
+                                             middle_name: middle_name,
+                                             last_name: last_name,
+                                             edipi: edipi })
+      end
+
+      it 'returns expected dslogon attributes' do
+        expect(subject.normalized_attributes(user_info, credential_level)).to eq(expected_attributes)
+      end
+    end
+
+    context 'when type is mhv' do
+      let(:type) { 'mhv' }
+      let(:user_info) do
+        OpenStruct.new(
+          {
+            iss: idme_originating_url,
+            sub: user_uuid,
+            aud: idme_client_id,
+            exp: expiration_time,
+            iat: current_time,
+            credential_aal_highest: 2,
+            credential_ial_highest: 'classic_loa3',
+            email: email,
+            mhv_uuid: mhv_correlation_id,
+            mhv_icn: mhv_icn,
+            level_of_assurance: 3,
+            multifactor: true,
+            credential_aal: 2,
+            credential_ial: 'classic_loa3',
+            uuid: user_uuid
+          }
+        )
+      end
+      let(:mhv_correlation_id) { 'some-mhv-correlation-id' }
+      let(:mhv_icn) { 'some-mhv-icn' }
+      let(:expected_attributes) do
+        expected_standard_attributes.merge({ mhv_icn: mhv_icn, mhv_correlation_id: mhv_correlation_id })
+      end
+
+      it 'returns expected mhv attributes' do
+        expect(subject.normalized_attributes(user_info, credential_level)).to eq(expected_attributes)
       end
     end
   end

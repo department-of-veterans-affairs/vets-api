@@ -9,8 +9,9 @@ RSpec.describe V0::SignInController, type: :controller do
     end
 
     let(:authorize_params) do
-      {}.merge(type).merge(code_challenge).merge(code_challenge_method).merge(client_state).merge(client_id)
+      {}.merge(type).merge(code_challenge).merge(code_challenge_method).merge(client_state).merge(client_id).merge(acr)
     end
+    let(:acr) { { acr: 'some-acr' } }
     let(:code_challenge) { { code_challenge: 'some-code-challenge' } }
     let(:code_challenge_method) { { code_challenge_method: 'some-code-challenge-method' } }
     let(:client_id) { { client_id: client_id_value } }
@@ -22,10 +23,8 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:error_context) do
       {
         type: type[:type],
-        client_state: client_state[:state],
-        code_challenge: code_challenge[:code_challenge],
-        code_challenge_method: code_challenge_method[:code_challenge_method],
-        client_id: client_id_value
+        client_id: client_id_value,
+        acr: acr[:acr]
       }
     end
     let(:statsd_tags) { ["context:#{type[:type]}"] }
@@ -73,16 +72,14 @@ RSpec.describe V0::SignInController, type: :controller do
 
       context 'when type param is not given' do
         let(:type) { {} }
-        let(:expected_error) { ActionController::UrlGenerationError }
+        let(:expected_error) { 'Type is not valid' }
 
-        it 'renders no route matches error' do
-          expect { subject }.to raise_error(expected_error)
-        end
+        it_behaves_like 'error response'
       end
 
       context 'when type param is given but not in REDIRECT_URLS' do
         let(:type) { { type: 'some-undefined-type' } }
-        let(:expected_error) { 'Authorization type is not valid' }
+        let(:expected_error) { 'Type is not valid' }
 
         it_behaves_like 'error response'
       end
@@ -90,221 +87,257 @@ RSpec.describe V0::SignInController, type: :controller do
       context 'when type param is logingov' do
         let(:type_value) { 'logingov' }
 
-        context 'and code_challenge_method is not given' do
-          let(:code_challenge_method) { {} }
-          let(:expected_error) { 'Code Challenge Method is not defined' }
+        context 'and acr param is not given' do
+          let(:acr) { {} }
+          let(:expected_error) { 'ACR is not valid' }
 
           it_behaves_like 'error response'
         end
 
-        context 'and code_challenge_method is S256' do
-          let(:code_challenge_method) { { code_challenge_method: 'S256' } }
+        context 'and acr param is given but not in ACR_VALUES' do
+          let(:acr) { { acr: 'some-undefiend-acr' } }
+          let(:expected_error) { 'ACR is not valid' }
 
-          context 'and code_challenge is not given' do
-            let(:code_challenge) { {} }
-            let(:expected_error) { 'Code Challenge is not defined' }
+          it_behaves_like 'error response'
+        end
+
+        context 'and acr param is given and in ACR_VALUES but not valid for logingov' do
+          let(:acr) { { acr: 'loa1' } }
+          let(:expected_error) { 'Invalid ACR for logingov' }
+
+          it_behaves_like 'error response'
+        end
+
+        context 'and acr param is given and in ACR_VALUES and valid for logingov' do
+          let(:acr) { { acr: 'ial1' } }
+
+          context 'and code_challenge_method is not given' do
+            let(:code_challenge_method) { {} }
+            let(:expected_error) { 'Code Challenge Method is not defined' }
 
             it_behaves_like 'error response'
           end
 
-          context 'and code_challenge is not properly URL encoded' do
-            let(:code_challenge) { { code_challenge: '///some+unsafe code+challenge//' } }
-            let(:expected_error) { 'Code Challenge is not valid' }
-            let(:expected_error_json) { { 'errors' => expected_error } }
+          context 'and code_challenge_method is S256' do
+            let(:code_challenge_method) { { code_challenge_method: 'S256' } }
 
-            it_behaves_like 'error response'
-          end
-
-          context 'and code_challenge is properly URL encoded' do
-            let(:code_challenge) { { code_challenge: Base64.urlsafe_encode64('some-safe-code-challenge') } }
-            let(:state) { 'some-random-state' }
-            let(:expected_redirect_uri) { Settings.logingov.redirect_uri }
-            let(:statsd_auth_success) { SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_SUCCESS }
-            let(:expected_log) { '[SignInService] [V0::SignInController] authorize' }
-            let(:expected_logger_context) do
-              {
-                state: state,
-                type: type[:type],
-                client_id: client_id_value,
-                client_state: client_state[:state],
-                code_challenge: code_challenge[:code_challenge],
-                code_challenge_method: code_challenge_method[:code_challenge_method]
-              }
-            end
-
-            before do
-              allow(SecureRandom).to receive(:hex).and_return(state)
-            end
-
-            shared_context 'successful response' do
-              it 'returns ok status' do
-                expect(subject).to have_http_status(:ok)
-              end
-
-              it 'renders expected state in template' do
-                expect(subject.body).to match(state)
-              end
-
-              it 'renders expected type in template' do
-                expect(subject.body).to match(type_value)
-              end
-
-              it 'renders expected redirect_uri in template' do
-                expect(subject.body).to match(expected_redirect_uri)
-              end
-
-              it 'logs the authentication attempt' do
-                expect(Rails.logger).to receive(:info).with(expected_log, expected_logger_context)
-                subject
-              end
-
-              it 'updates StatsD with a auth request success' do
-                expect { subject }.to trigger_statsd_increment(statsd_auth_success, tags: statsd_tags)
-              end
-            end
-
-            context 'and client_state is not given' do
-              let(:client_state) { {} }
-
-              it_behaves_like 'successful response'
-            end
-
-            context 'and client_state is greater than minimum client state length' do
-              let(:client_state) do
-                { state: SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH + 1) }
-              end
-
-              it_behaves_like 'successful response'
-            end
-
-            context 'and client_state is less than minimum client state length' do
-              let(:client_state) do
-                { state: SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH - 1) }
-              end
-              let(:expected_error) { 'Code Challenge or State or Client id is not valid' }
+            context 'and code_challenge is not given' do
+              let(:code_challenge) { {} }
+              let(:expected_error) { 'Code Challenge is not defined' }
 
               it_behaves_like 'error response'
             end
+
+            context 'and code_challenge is not properly URL encoded' do
+              let(:code_challenge) { { code_challenge: '///some+unsafe code+challenge//' } }
+              let(:expected_error) { 'Code Challenge is not valid' }
+              let(:expected_error_json) { { 'errors' => expected_error } }
+
+              it_behaves_like 'error response'
+            end
+
+            context 'and code_challenge is properly URL encoded' do
+              let(:code_challenge) { { code_challenge: Base64.urlsafe_encode64('some-safe-code-challenge') } }
+              let(:state) { 'some-state' }
+              let(:expected_redirect_uri) { Settings.logingov.redirect_uri }
+              let(:statsd_auth_success) { SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_SUCCESS }
+              let(:expected_log) { '[SignInService] [V0::SignInController] authorize' }
+              let(:expected_logger_context) do
+                {
+                  type: type[:type],
+                  client_id: client_id_value,
+                  acr: acr[:acr]
+                }
+              end
+
+              before do
+                allow(JWT).to receive(:encode).and_return(state)
+              end
+
+              shared_context 'successful response' do
+                it 'returns ok status' do
+                  expect(subject).to have_http_status(:ok)
+                end
+
+                it 'renders expected state' do
+                  expect(subject.body).to match(state)
+                end
+
+                it 'renders expected redirect_uri in template' do
+                  expect(subject.body).to match(expected_redirect_uri)
+                end
+
+                it 'logs the authentication attempt' do
+                  expect(Rails.logger).to receive(:info).with(expected_log, expected_logger_context)
+                  subject
+                end
+
+                it 'updates StatsD with a auth request success' do
+                  expect { subject }.to trigger_statsd_increment(statsd_auth_success, tags: statsd_tags)
+                end
+              end
+
+              context 'and client_state is not given' do
+                let(:client_state) { {} }
+
+                it_behaves_like 'successful response'
+              end
+
+              context 'and client_state is greater than minimum client state length' do
+                let(:client_state) do
+                  { state: SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH + 1) }
+                end
+
+                it_behaves_like 'successful response'
+              end
+
+              context 'and client_state is less than minimum client state length' do
+                let(:client_state) do
+                  { state: SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH - 1) }
+                end
+                let(:expected_error) { 'Attributes are not valid' }
+
+                it_behaves_like 'error response'
+              end
+            end
           end
-        end
 
-        context 'and code_challenge_method is not S256' do
-          let(:code_challenge_method) { { code_challenge_method: 'some-code-challenge-method' } }
-          let(:expected_error) { 'Code Challenge Method is not valid' }
+          context 'and code_challenge_method is not S256' do
+            let(:code_challenge_method) { { code_challenge_method: 'some-code-challenge-method' } }
+            let(:expected_error) { 'Code Challenge Method is not valid' }
 
-          it_behaves_like 'error response'
+            it_behaves_like 'error response'
+          end
         end
       end
 
       shared_context 'an idme authentication service interface' do
-        context 'and code_challenge_method is not given' do
-          let(:code_challenge_method) { {} }
-          let(:expected_error) { 'Code Challenge Method is not defined' }
+        context 'and acr param is not given' do
+          let(:acr) { {} }
+          let(:expected_error) { 'ACR is not valid' }
 
           it_behaves_like 'error response'
         end
 
-        context 'and code_challenge_method is S256' do
-          let(:code_challenge_method) { { code_challenge_method: 'S256' } }
+        context 'and acr param is given but not in ACR_VALUES' do
+          let(:acr) { { acr: 'some-undefiend-acr' } }
+          let(:expected_error) { 'ACR is not valid' }
 
-          context 'and code_challenge is not given' do
-            let(:code_challenge) { {} }
-            let(:expected_error) { 'Code Challenge is not defined' }
+          it_behaves_like 'error response'
+        end
+
+        context 'and acr param is given and in ACR_VALUES but not valid for type' do
+          let(:acr) { { acr: 'ial1' } }
+          let(:expected_error) { "Invalid ACR for #{type_value}" }
+
+          it_behaves_like 'error response'
+        end
+
+        context 'and acr param is given and in ACR_VALUES and valid for type' do
+          let(:acr) { { acr: 'loa1' } }
+
+          context 'and code_challenge_method is not given' do
+            let(:code_challenge_method) { {} }
+            let(:expected_error) { 'Code Challenge Method is not defined' }
 
             it_behaves_like 'error response'
           end
 
-          context 'and code_challenge is not properly URL encoded' do
-            let(:code_challenge) { { code_challenge: '///some+unsafe code+challenge//' } }
-            let(:expected_error) { 'Code Challenge is not valid' }
+          context 'and code_challenge_method is S256' do
+            let(:code_challenge_method) { { code_challenge_method: 'S256' } }
 
-            it_behaves_like 'error response'
-          end
-
-          context 'and code_challenge is properly URL encoded' do
-            let(:code_challenge) { { code_challenge: Base64.urlsafe_encode64('some-safe-code-challenge') } }
-            let(:state) { 'some-random-state' }
-            let(:statsd_auth_success) { SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_SUCCESS }
-            let(:expected_log) { '[SignInService] [V0::SignInController] authorize' }
-            let(:expected_logger_context) do
-              {
-                state: state,
-                type: type[:type],
-                client_state: client_state[:state],
-                code_challenge: code_challenge[:code_challenge],
-                code_challenge_method: code_challenge_method[:code_challenge_method],
-                client_id: client_id_value
-              }
-            end
-
-            before do
-              allow(SecureRandom).to receive(:hex).and_return(state)
-            end
-
-            shared_context 'successful response' do
-              it 'returns ok status' do
-                expect(subject).to have_http_status(:ok)
-              end
-
-              it 'renders expected state in template' do
-                expect(subject.body).to match(state)
-              end
-
-              it 'renders expected type in template' do
-                expect(subject.body).to match(expected_type_value)
-              end
-
-              it 'renders expected redirect_uri in template' do
-                expect(subject.body).to match(expected_redirect_uri)
-              end
-
-              it 'logs the authentication attempt' do
-                expect(Rails.logger).to receive(:info).with(expected_log, expected_logger_context)
-                subject
-              end
-
-              it 'updates StatsD with a auth request success' do
-                expect { subject }.to trigger_statsd_increment(statsd_auth_success, tags: statsd_tags)
-              end
-            end
-
-            context 'and client_state is not given' do
-              let(:client_state) { {} }
-
-              it_behaves_like 'successful response'
-            end
-
-            context 'and client_state is greater than minimum client state length' do
-              let(:client_state) do
-                { state: SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH + 1) }
-              end
-
-              it_behaves_like 'successful response'
-            end
-
-            context 'and client_state is less than minimum client state length' do
-              let(:client_state) do
-                { state: SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH - 1) }
-              end
-              let(:expected_error) { 'Code Challenge or State or Client id is not valid' }
+            context 'and code_challenge is not given' do
+              let(:code_challenge) { {} }
+              let(:expected_error) { 'Code Challenge is not defined' }
 
               it_behaves_like 'error response'
             end
+
+            context 'and code_challenge is not properly URL encoded' do
+              let(:code_challenge) { { code_challenge: '///some+unsafe code+challenge//' } }
+              let(:expected_error) { 'Code Challenge is not valid' }
+
+              it_behaves_like 'error response'
+            end
+
+            context 'and code_challenge is properly URL encoded' do
+              let(:code_challenge) { { code_challenge: Base64.urlsafe_encode64('some-safe-code-challenge') } }
+              let(:state) { 'some-state' }
+              let(:statsd_auth_success) { SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_SUCCESS }
+              let(:expected_log) { '[SignInService] [V0::SignInController] authorize' }
+              let(:expected_redirect_uri) { Settings.idme.redirect_uri }
+              let(:expected_logger_context) do
+                {
+                  type: type[:type],
+                  acr: acr[:acr],
+                  client_id: client_id_value
+                }
+              end
+
+              before do
+                allow(JWT).to receive(:encode).and_return(state)
+              end
+
+              shared_context 'successful response' do
+                it 'returns ok status' do
+                  expect(subject).to have_http_status(:ok)
+                end
+
+                it 'renders expected state in template' do
+                  expect(subject.body).to match(state)
+                end
+
+                it 'renders expected redirect_uri in template' do
+                  expect(subject.body).to match(expected_redirect_uri)
+                end
+
+                it 'logs the authentication attempt' do
+                  expect(Rails.logger).to receive(:info).with(expected_log, expected_logger_context)
+                  subject
+                end
+
+                it 'updates StatsD with a auth request success' do
+                  expect { subject }.to trigger_statsd_increment(statsd_auth_success, tags: statsd_tags)
+                end
+              end
+
+              context 'and client_state is not given' do
+                let(:client_state) { {} }
+
+                it_behaves_like 'successful response'
+              end
+
+              context 'and client_state is greater than minimum client state length' do
+                let(:client_state) do
+                  { state: SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH + 1) }
+                end
+
+                it_behaves_like 'successful response'
+              end
+
+              context 'and client_state is less than minimum client state length' do
+                let(:client_state) do
+                  { state: SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH - 1) }
+                end
+                let(:expected_error) { 'Attributes are not valid' }
+
+                it_behaves_like 'error response'
+              end
+            end
           end
-        end
 
-        context 'and code_challenge_method is not S256' do
-          let(:code_challenge_method) { { code_challenge_method: 'some-code-challenge-method' } }
-          let(:expected_error) { 'Code Challenge Method is not valid' }
+          context 'and code_challenge_method is not S256' do
+            let(:code_challenge_method) { { code_challenge_method: 'some-code-challenge-method' } }
+            let(:expected_error) { 'Code Challenge Method is not valid' }
 
-          it_behaves_like 'error response'
+            it_behaves_like 'error response'
+          end
         end
       end
 
       context 'when type param is idme' do
         let(:type_value) { 'idme' }
         let(:expected_type_value) { 'idme' }
-        let(:expected_redirect_uri) { Settings.idme.redirect_uri }
 
         it_behaves_like 'an idme authentication service interface'
       end
@@ -312,7 +345,6 @@ RSpec.describe V0::SignInController, type: :controller do
       context 'when type param is dslogon' do
         let(:type_value) { 'dslogon' }
         let(:expected_type_value) { 'dslogon' }
-        let(:expected_redirect_uri) { Settings.idme.dslogon_redirect_uri }
 
         it_behaves_like 'an idme authentication service interface'
       end
@@ -320,7 +352,6 @@ RSpec.describe V0::SignInController, type: :controller do
       context 'when type param is mhv' do
         let(:type_value) { 'mhv' }
         let(:expected_type_value) { 'myhealthevet' }
-        let(:expected_redirect_uri) { Settings.idme.mhv_redirect_uri }
 
         it_behaves_like 'an idme authentication service interface'
       end
@@ -328,31 +359,22 @@ RSpec.describe V0::SignInController, type: :controller do
   end
 
   describe 'GET callback' do
-    subject { get(:callback, params: {}.merge(type).merge(code).merge(state)) }
+    subject { get(:callback, params: {}.merge(code).merge(state)) }
 
     let(:code) { { code: code_value } }
-    let(:state) { { state: 'some-state' } }
-    let(:type) { { type: type_value } }
-    let(:type_value) { 'some-type-value' }
+    let(:state) { { state: state_value } }
+    let(:state_value) { 'some-state' }
     let(:code_value) { 'some-code' }
-    let(:statsd_context) { ["context:#{type[:type]}"] }
+    let(:statsd_context) { ["context:#{type}"] }
+    let(:type) {}
 
     before { allow(Rails.logger).to receive(:info) }
-
-    context 'when type param is not given' do
-      let(:type) { {} }
-      let(:expected_error) { ActionController::UrlGenerationError }
-
-      it 'renders no route matches error' do
-        expect { subject }.to raise_error(expected_error)
-      end
-    end
 
     shared_examples 'error response' do
       let(:expected_error_json) { { 'errors' => expected_error } }
       let(:expected_error_status) { :bad_request }
-      let(:error_context) { { type: type[:type], state: state[:state], code: code[:code] } }
-      let(:statsd_tags) { ["context:#{type[:type]}"] }
+      let(:error_context) { { type: type, state: state[:state], code: code[:code] } }
+      let(:statsd_tags) { ["context:#{type}"] }
       let(:statsd_callback_failure) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE }
 
       it 'renders expected error' do
@@ -373,291 +395,321 @@ RSpec.describe V0::SignInController, type: :controller do
       end
     end
 
-    context 'when type param is given but not in REDIRECT_URLS' do
-      let(:type) { { type: 'some-undefined-type' } }
-      let(:expected_error) { 'Callback type is not valid' }
+    context 'when code is not given' do
+      let(:code) { {} }
+      let(:expected_error) { 'Code is not defined' }
 
       it_behaves_like 'error response'
     end
 
-    context 'when type param is logingov' do
-      let(:type_value) { 'logingov' }
-      let(:response) { OpenStruct.new(access_token: token) }
-      let(:token) { 'some-token' }
-      let(:user_info) do
-        OpenStruct.new(
-          {
-            verified_at: '1-1-2022',
+    context 'when state is not given' do
+      let(:state) { {} }
+      let(:expected_error) { 'State is not defined' }
+
+      it_behaves_like 'error response'
+    end
+
+    context 'when state is arbitrary' do
+      let(:state_value) { 'some-state' }
+      let(:expected_error) { 'State JWT is malformed' }
+
+      it_behaves_like 'error response'
+    end
+
+    context 'when state is a JWT but with improper signature' do
+      let(:state_value) { JWT.encode('some-state', private_key, encode_algorithm) }
+      let(:private_key) { OpenSSL::PKey::RSA.new(2048) }
+      let(:encode_algorithm) { SignIn::Constants::Auth::JWT_ENCODE_ALGORITHM }
+      let(:expected_error) { 'State JWT body does not match signature' }
+
+      it_behaves_like 'error response'
+    end
+
+    context 'when state is a proper, expected JWT' do
+      let(:state_value) do
+        SignIn::StatePayloadJwtEncoder.new(code_challenge: code_challenge,
+                                           code_challenge_method: code_challenge_method,
+                                           acr: acr,
+                                           client_id: client_id,
+                                           type: type,
+                                           client_state: client_state).perform
+      end
+      let(:code_challenge) { Base64.urlsafe_encode64('some-code-challenge') }
+      let(:code_challenge_method) { SignIn::Constants::Auth::CODE_CHALLENGE_METHOD }
+      let(:acr) { SignIn::Constants::Auth::ACR_VALUES.first }
+      let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
+      let(:type) { SignIn::Constants::Auth::REDIRECT_URLS.first }
+      let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
+
+      context 'when type in state JWT is logingov' do
+        let(:type) { 'logingov' }
+        let(:response) { OpenStruct.new(access_token: token) }
+        let(:token) { 'some-token' }
+        let(:user_info) do
+          OpenStruct.new(
+            {
+              verified_at: '1-1-2022',
+              sub: 'some-sub',
+              social_security_number: '123456789',
+              birthdate: '1-1-2022',
+              given_name: 'some-name',
+              family_name: 'some-family-name',
+              email: 'some-email'
+            }
+          )
+        end
+
+        before do
+          allow_any_instance_of(SignIn::Logingov::Service).to receive(:token).with(code_value).and_return(response)
+          allow_any_instance_of(SignIn::Logingov::Service).to receive(:user_info).with(token).and_return(user_info)
+        end
+
+        context 'and code is given but does not match expected code for auth service' do
+          let(:response) { nil }
+          let(:expected_error) { 'Code is not valid' }
+
+          it_behaves_like 'error response'
+        end
+
+        context 'and code is given that matches expected code for auth service' do
+          let(:response) { OpenStruct.new(access_token: token, id_token: id_token) }
+          let(:id_token) { JWT.encode(id_token_payload, OpenSSL::PKey::RSA.new(2048), 'RS256') }
+          let(:id_token_payload) { { acr: login_gov_response_acr } }
+          let(:login_gov_response_acr) { IAL::LOGIN_GOV_IAL2 }
+
+          context 'and credential should be uplevelled' do
+            let(:acr) { 'min' }
+            let(:login_gov_response_acr) { IAL::LOGIN_GOV_IAL1 }
+            let(:expected_redirect_uri) { Settings.logingov.redirect_uri }
+
+            it 'returns ok status' do
+              expect(subject).to have_http_status(:ok)
+            end
+
+            it 'renders expected state' do
+              expect(subject.body).to match(state_value)
+            end
+
+            it 'renders expected redirect_uri in template' do
+              expect(subject.body).to match(expected_redirect_uri)
+            end
+          end
+
+          context 'and credential should not be uplevelled' do
+            let(:acr) { 'ial2' }
+            let(:client_code) { 'some-client-code' }
+            let(:expected_url) do
+              "#{Settings.sign_in.redirect_uri}?code=#{client_code}&state=#{client_state}&type=#{type}"
+            end
+            let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
+            let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
+            let(:expected_logger_context) do
+              {
+                type: type,
+                client_id: client_id
+              }
+            end
+            let(:expected_user_attributes) do
+              {
+                ssn: user_info.social_security_number,
+                birth_date: Formatters::DateFormatter.format_date(user_info.birthdate),
+                first_name: user_info.given_name,
+                last_name: user_info.family_name
+              }
+            end
+
+            before do
+              allow(SecureRandom).to receive(:uuid).and_return(client_code)
+            end
+
+            it 'returns found status' do
+              expect(subject).to have_http_status(:found)
+            end
+
+            it 'redirects to expected url' do
+              expect(subject).to redirect_to(expected_url)
+            end
+
+            it 'logs the successful callback' do
+              expect(Rails.logger).to receive(:info).with(expected_log, expected_logger_context)
+              subject
+            end
+
+            it 'updates StatsD with a callback request success' do
+              expect { subject }.to trigger_statsd_increment(statsd_callback_success, tags: statsd_context)
+            end
+
+            it 'creates a user with expected attributes' do
+              subject
+
+              user_account = UserAccount.last.id
+              user = User.find(user_account)
+              expect(user).to have_attributes(expected_user_attributes)
+            end
+          end
+        end
+      end
+
+      shared_context 'an idme authentication service' do
+        let(:response) { OpenStruct.new(access_token: token) }
+        let(:level_of_assurance) { LOA::THREE }
+        let(:credential_ial) { LOA::IDME_CLASSIC_LOA3 }
+        let(:token) { 'some-token' }
+
+        before do
+          allow_any_instance_of(SignIn::Idme::Service).to receive(:token).with(code_value).and_return(response)
+          allow_any_instance_of(SignIn::Idme::Service).to receive(:user_info).with(token).and_return(user_info)
+        end
+
+        context 'and code is given but does not match expected code for auth service' do
+          let(:response) { nil }
+          let(:expected_error) { 'Code is not valid' }
+
+          it_behaves_like 'error response'
+        end
+
+        context 'and code is given that matches expected code for auth service' do
+          let(:response) { OpenStruct.new(access_token: token) }
+          let(:level_of_assurance) { LOA::THREE }
+
+          context 'and credential should be uplevelled' do
+            let(:acr) { 'min' }
+            let(:credential_ial) { LOA::ONE }
+            let(:expected_redirect_uri) { Settings.idme.redirect_uri }
+
+            it 'returns ok status' do
+              expect(subject).to have_http_status(:ok)
+            end
+
+            it 'renders expected state' do
+              expect(subject.body).to match(state_value)
+            end
+
+            it 'renders expected redirect_uri in template' do
+              expect(subject.body).to match(expected_redirect_uri)
+            end
+          end
+
+          context 'and credential should not be uplevelled' do
+            let(:acr) { 'loa3' }
+            let(:credential_ial) { LOA::IDME_CLASSIC_LOA3 }
+            let(:client_code) { 'some-client-code' }
+            let(:expected_url) do
+              "#{Settings.sign_in.redirect_uri}?code=#{client_code}&state=#{client_state}&type=#{type}"
+            end
+            let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
+            let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
+            let(:expected_logger_context) do
+              {
+                type: type,
+                client_id: client_id
+              }
+            end
+
+            before do
+              allow(SecureRandom).to receive(:uuid).and_return(client_code)
+            end
+
+            it 'returns found status' do
+              expect(subject).to have_http_status(:found)
+            end
+
+            it 'redirects to expected url' do
+              expect(subject).to redirect_to(expected_url)
+            end
+
+            it 'logs the successful callback' do
+              expect(Rails.logger).to receive(:info).with(expected_log, expected_logger_context)
+              expect { subject }.to trigger_statsd_increment(statsd_callback_success, tags: statsd_context)
+            end
+
+            it 'creates a user with expected attributes' do
+              subject
+
+              user_account = UserAccount.last.id
+              user = User.find(user_account)
+              expect(user).to have_attributes(expected_user_attributes)
+            end
+          end
+        end
+      end
+
+      context 'when type in state JWT is idme' do
+        let(:type) { 'idme' }
+        let(:user_info) do
+          OpenStruct.new(
             sub: 'some-sub',
-            social_security_number: '123456789',
-            birthdate: '1-1-2022',
-            given_name: 'some-name',
-            family_name: 'some-family-name',
+            level_of_assurance: level_of_assurance,
+            credential_ial: credential_ial,
+            social: '123456789',
+            birth_date: '1-1-2022',
+            fname: 'some-name',
+            lname: 'some-family-name',
             email: 'some-email'
+          )
+        end
+        let(:expected_user_attributes) do
+          {
+            ssn: user_info.social,
+            birth_date: Formatters::DateFormatter.format_date(user_info.birth_date),
+            first_name: user_info.fname,
+            last_name: user_info.lname
           }
-        )
-      end
-
-      before do
-        allow_any_instance_of(SignIn::Logingov::Service).to receive(:token).with(code_value).and_return(response)
-        allow_any_instance_of(SignIn::Logingov::Service).to receive(:user_info).with(token).and_return(user_info)
-      end
-
-      context 'and code is not given' do
-        let(:code) { {} }
-        let(:expected_error) { 'Code is not defined' }
-
-        it_behaves_like 'error response'
-      end
-
-      context 'and code is given but does not match expected code for auth service' do
-        let(:response) { nil }
-        let(:expected_error) { 'Authentication Code is not valid' }
-
-        it_behaves_like 'error response'
-      end
-
-      context 'and code is given that matches expected code for auth service' do
-        context 'and state is not given' do
-          let(:state) { {} }
-          let(:expected_error) { 'State is not defined' }
-
-          it_behaves_like 'error response'
         end
 
-        context 'and state is given but does not match expected state' do
-          let(:state) { { state: 'some-state' } }
-          let(:expected_error) { 'Authentication Attempt Cannot be found' }
+        it_behaves_like 'an idme authentication service'
+      end
 
-          it_behaves_like 'error response'
+      context 'when type in state JWT is dslogon' do
+        let(:type) { 'dslogon' }
+        let(:user_info) do
+          OpenStruct.new(
+            sub: 'some-sub',
+            level_of_assurance: level_of_assurance,
+            credential_ial: credential_ial,
+            dslogon_idvalue: '123456789',
+            dslogon_birth_date: '1-1-2022',
+            dslogon_fname: 'some-name',
+            dslogon_mname: 'some-middle-name',
+            dslogon_lname: 'some-family-name',
+            dslogon_uuid: '987654321',
+            email: 'some-email'
+          )
+        end
+        let(:expected_user_attributes) do
+          {
+            ssn: user_info.dslogon_idvalue,
+            birth_date: Formatters::DateFormatter.format_date(user_info.dslogon_birth_date),
+            first_name: user_info.dslogon_fname,
+            middle_name: user_info.dslogon_mname,
+            last_name: user_info.dslogon_lname,
+            edipi: user_info.dslogon_uuid
+          }
         end
 
-        context 'and state is given and matches expected state' do
-          let(:code_challenge_state_map) do
-            create(:code_challenge_state_map, client_state: client_state, client_id: client_id)
-          end
-          let(:state) { { state: code_challenge_state_map.state } }
-          let(:client_code) { 'some-client-code' }
-          let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
-          let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
-          let(:expected_url) do
-            "#{Settings.sign_in.redirect_uri}?code=#{client_code}&state=#{client_state}&type=#{type_value}"
-          end
-          let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
-          let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
-          let(:expected_logger_context) do
-            {
-              state: state[:state],
-              type: type[:type],
-              code: code[:code],
-              login_code: client_code,
-              client_id: client_id,
-              client_state: client_state
-            }
-          end
-          let(:expected_user_attributes) do
-            {
-              ssn: user_info.social_security_number,
-              birth_date: Formatters::DateFormatter.format_date(user_info.birthdate),
-              first_name: user_info.given_name,
-              last_name: user_info.family_name
-            }
-          end
+        it_behaves_like 'an idme authentication service'
+      end
 
-          before do
-            allow(SecureRandom).to receive(:uuid).and_return(client_code)
-          end
-
-          it 'returns found status' do
-            expect(subject).to have_http_status(:found)
-          end
-
-          it 'redirects to expected url' do
-            expect(subject).to redirect_to(expected_url)
-          end
-
-          it 'logs the successful callback' do
-            expect(Rails.logger).to receive(:info).with(expected_log, expected_logger_context)
-            subject
-          end
-
-          it 'updates StatsD with a callback request success' do
-            expect { subject }.to trigger_statsd_increment(statsd_callback_success, tags: statsd_context)
-          end
-
-          it 'creates a user with expected attributes' do
-            subject
-
-            user_account = UserAccount.last.id
-            user = User.find(user_account)
-            expect(user).to have_attributes(expected_user_attributes)
-          end
+      context 'when type in state JWT is mhv' do
+        let(:type) { 'mhv' }
+        let(:user_info) do
+          OpenStruct.new(
+            sub: 'some-sub',
+            level_of_assurance: level_of_assurance,
+            credential_ial: credential_ial,
+            mhv_uuid: '123456789',
+            mhv_icn: '987654321V123456'
+          )
         end
-      end
-    end
-
-    shared_context 'an idme authentication service' do
-      let(:response) { OpenStruct.new(access_token: token) }
-      let(:token) { 'some-token' }
-
-      before do
-        allow_any_instance_of(SignIn::Idme::Service).to receive(:token).with(code_value).and_return(response)
-        allow_any_instance_of(SignIn::Idme::Service).to receive(:user_info).with(token).and_return(user_info)
-      end
-
-      context 'and code is not given' do
-        let(:code) { {} }
-        let(:expected_error) { 'Code is not defined' }
-
-        it_behaves_like 'error response'
-      end
-
-      context 'and code is given but does not match expected code for auth service' do
-        let(:response) { nil }
-        let(:expected_error) { 'Authentication Code is not valid' }
-
-        it_behaves_like 'error response'
-      end
-
-      context 'and code is given that matches expected code for auth service' do
-        context 'and state is not given' do
-          let(:state) { {} }
-          let(:expected_error) { 'State is not defined' }
-
-          it_behaves_like 'error response'
+        let(:expected_user_attributes) do
+          {
+            mhv_correlation_id: user_info.mhv_uuid,
+            mhv_icn: user_info.mhv_icn
+          }
         end
 
-        context 'and state is given but does not match expected state' do
-          let(:state) { { state: 'some-state' } }
-          let(:expected_error) { 'Authentication Attempt Cannot be found' }
-
-          it_behaves_like 'error response'
-        end
-
-        context 'and state is given and matches expected state' do
-          let(:state) { { state: code_challenge_state_map.state } }
-          let(:client_code) { 'some-client-code' }
-          let(:code_challenge_state_map) do
-            create(:code_challenge_state_map, client_state: client_state, client_id: client_id)
-          end
-          let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
-          let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
-          let(:expected_url) do
-            "#{Settings.sign_in.redirect_uri}?code=#{client_code}&state=#{client_state}&type=#{type_value}"
-          end
-          let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
-          let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
-          let(:expected_logger_context) do
-            {
-              state: state[:state],
-              type: type[:type],
-              code: code[:code],
-              login_code: client_code,
-              client_id: client_id,
-              client_state: client_state
-            }
-          end
-
-          before do
-            allow(SecureRandom).to receive(:uuid).and_return(client_code)
-          end
-
-          it 'returns found status' do
-            expect(subject).to have_http_status(:found)
-          end
-
-          it 'redirects to expected url' do
-            expect(subject).to redirect_to(expected_url)
-          end
-
-          it 'logs the successful callback' do
-            expect(Rails.logger).to receive(:info).with(expected_log, expected_logger_context)
-            expect { subject }.to trigger_statsd_increment(statsd_callback_success, tags: statsd_context)
-          end
-
-          it 'creates a user with expected attributes' do
-            subject
-
-            user_account = UserAccount.last.id
-            user = User.find(user_account)
-            expect(user).to have_attributes(expected_user_attributes)
-          end
-        end
+        it_behaves_like 'an idme authentication service'
       end
-    end
-
-    context 'when type param is idme' do
-      let(:type_value) { 'idme' }
-      let(:user_info) do
-        OpenStruct.new(
-          sub: 'some-sub',
-          level_of_assurance: 3,
-          social: '123456789',
-          birth_date: '1-1-2022',
-          fname: 'some-name',
-          lname: 'some-family-name',
-          email: 'some-email'
-        )
-      end
-      let(:expected_user_attributes) do
-        {
-          ssn: user_info.social,
-          birth_date: Formatters::DateFormatter.format_date(user_info.birth_date),
-          first_name: user_info.fname,
-          last_name: user_info.lname
-        }
-      end
-
-      it_behaves_like 'an idme authentication service'
-    end
-
-    context 'when type param is dslogon' do
-      let(:type_value) { 'dslogon' }
-      let(:user_info) do
-        OpenStruct.new(
-          sub: 'some-sub',
-          level_of_assurance: 3,
-          dslogon_idvalue: '123456789',
-          dslogon_birth_date: '1-1-2022',
-          dslogon_fname: 'some-name',
-          dslogon_mname: 'some-middle-name',
-          dslogon_lname: 'some-family-name',
-          dslogon_uuid: '987654321',
-          email: 'some-email'
-        )
-      end
-      let(:expected_user_attributes) do
-        {
-          ssn: user_info.dslogon_idvalue,
-          birth_date: Formatters::DateFormatter.format_date(user_info.dslogon_birth_date),
-          first_name: user_info.dslogon_fname,
-          middle_name: user_info.dslogon_mname,
-          last_name: user_info.dslogon_lname,
-          edipi: user_info.dslogon_uuid
-        }
-      end
-
-      it_behaves_like 'an idme authentication service'
-    end
-
-    context 'when type param is mhv' do
-      let(:type_value) { 'mhv' }
-      let(:user_info) do
-        OpenStruct.new(
-          sub: 'some-sub',
-          level_of_assurance: 3,
-          mhv_uuid: '123456789',
-          mhv_icn: '987654321V123456'
-        )
-      end
-      let(:expected_user_attributes) do
-        {
-          mhv_correlation_id: user_info.mhv_uuid,
-          mhv_icn: user_info.mhv_icn
-        }
-      end
-
-      it_behaves_like 'an idme authentication service'
     end
   end
 

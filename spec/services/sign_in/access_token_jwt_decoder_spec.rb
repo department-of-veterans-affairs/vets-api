@@ -43,7 +43,7 @@ RSpec.describe SignIn::AccessTokenJwtDecoder do
         JWT.encode(
           jwt_payload,
           OpenSSL::PKey::RSA.new(2048),
-          SignIn::Constants::AccessToken::JWT_ENCODE_ALROGITHM
+          SignIn::Constants::AccessToken::JWT_ENCODE_ALGORITHM
         )
       end
 
