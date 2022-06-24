@@ -9,7 +9,8 @@ module Mobile
       class MedicalService
         # 411 = podiatry
         SERVICE_TYPE_IDS = %w[amputation audiology covid optometry outpatientMentalHealth moveProgram foodAndNutrition
-                              clinicalPharmacyPrimaryCare 411 primaryCare homeSleepTesting socialWork].freeze
+                              clinicalPharmacyPrimaryCare 411 primaryCare homeSleepTesting socialWork cpap
+                              ophthalmology].freeze
 
         def parse(service_eligibilities)
           SERVICE_TYPE_IDS.collect do |service|

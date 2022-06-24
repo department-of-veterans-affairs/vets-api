@@ -33,4 +33,6 @@ properties:
                       {name: 'podiatry',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
                       {name: 'primaryCare',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
                       {name: 'homeSleepTesting',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
-                       {name: 'socialWork',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']}]
+                       {name: 'socialWork',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
+                      {name: 'cpap',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
+                      {name: 'ophthalmology',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']}]

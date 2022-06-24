@@ -80,6 +80,12 @@ RSpec.describe 'veterans Affairs Eligibility', type: :request do
                'directEligibleFacilities' => [] },
              { 'name' => 'socialWork',
                'requestEligibleFacilities' => [],
+               'directEligibleFacilities' => [] },
+             { 'name' => 'cpap',
+               'requestEligibleFacilities' => [],
+               'directEligibleFacilities' => [] },
+             { 'name' => 'ophthalmology',
+               'requestEligibleFacilities' => [],
                'directEligibleFacilities' => [] }]
           )
         end
@@ -140,6 +146,12 @@ RSpec.describe 'veterans Affairs Eligibility', type: :request do
                'requestEligibleFacilities' => [],
                'directEligibleFacilities' => [] },
              { 'name' => 'socialWork',
+               'requestEligibleFacilities' => [],
+               'directEligibleFacilities' => [] },
+             { 'name' => 'cpap',
+               'requestEligibleFacilities' => [],
+               'directEligibleFacilities' => [] },
+             { 'name' => 'ophthalmology',
                'requestEligibleFacilities' => [],
                'directEligibleFacilities' => [] }]
           )
@@ -205,6 +217,12 @@ RSpec.describe 'veterans Affairs Eligibility', type: :request do
                'directEligibleFacilities' => ['489'] },
              { 'name' => 'socialWork',
                'requestEligibleFacilities' => ['489'],
+               'directEligibleFacilities' => ['489'] },
+             { 'name' => 'cpap',
+               'requestEligibleFacilities' => ['489'],
+               'directEligibleFacilities' => ['489'] },
+             { 'name' => 'ophthalmology',
+               'requestEligibleFacilities' => ['489'],
                'directEligibleFacilities' => ['489'] }]
           )
         end
@@ -266,6 +284,12 @@ RSpec.describe 'veterans Affairs Eligibility', type: :request do
                'requestEligibleFacilities' => [],
                'directEligibleFacilities' => [] },
              { 'name' => 'socialWork',
+               'requestEligibleFacilities' => [],
+               'directEligibleFacilities' => [] },
+             { 'name' => 'cpap',
+               'requestEligibleFacilities' => [],
+               'directEligibleFacilities' => [] },
+             { 'name' => 'ophthalmology',
                'requestEligibleFacilities' => [],
                'directEligibleFacilities' => [] }]
           )
