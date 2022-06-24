@@ -550,7 +550,7 @@ paths:
       summary: /v0/appointments/facility/eligibility
   /v0/appointments/facilities/{facililty_id}/clinics:
     get:
-      description: \*WIP* - Returns all available clinics at a facility for a given type of service.
+      description: Returns all available clinics at a facility for a given type of service.
       operationId: clinic
       parameters:
         - description: Facility ID
@@ -630,7 +630,7 @@ paths:
           description: A response from an upstream service timed out.
       security:
         - Bearer: []
-      summary: WIP /v0/appointments/facilities/{facililty_id}/clinics
+      summary: /v0/appointments/facilities/{facililty_id}/clinics
   /v0/appointments/facilities/{facililty_id}/clinics/{clinic_id}/slots:
     get:
       description: \*WIP* - Accepts date range for a clinic at a va facility and returns available slots for a a direct schedule appointment.
