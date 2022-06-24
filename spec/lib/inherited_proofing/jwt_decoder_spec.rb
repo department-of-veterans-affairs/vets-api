@@ -10,7 +10,7 @@ RSpec.describe InheritedProofing::JwtDecoder do
     end
 
     let(:access_token_jwt) { JWT.encode(payload, private_key, jwt_encode_algorithm) }
-    let(:jwt_encode_algorithm) { InheritedProofing::JwtDecoder::JWT_ENCODE_ALROGITHM }
+    let(:jwt_encode_algorithm) { InheritedProofing::JwtDecoder::JWT_ENCODE_ALGORITHM }
     let(:private_key) { OpenSSL::PKey::RSA.new(512) }
     let(:public_key) { private_key.public_key }
     let(:payload) { { inherited_proofing_auth: auth_code, exp: expiration_time.to_i } }

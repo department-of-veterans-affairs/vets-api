@@ -17,23 +17,30 @@ describe SignIn::Logingov::Service do
   end
   let(:user_info) do
     {
-      sub: '12345678-0990-10a1-f038-2839ab281f90',
+      sub: user_uuid,
       iss: 'https://idp.int.identitysandbox.gov/',
-      email: 'user@test.com',
+      email: email,
       email_verified: true,
-      given_name: 'Bob',
-      family_name: 'User',
-      birthdate: '1993-01-01',
-      social_security_number: '999-11-9999',
+      given_name: first_name,
+      family_name: last_name,
+      birthdate: birth_date,
+      social_security_number: ssn,
       verified_at: 1_635_465_286
     }
   end
+  let(:first_name) { 'Bob' }
+  let(:last_name) { 'User' }
+  let(:birth_date) { '1993-01-01' }
+  let(:ssn) { '999-11-9999' }
+  let(:email) { 'user@test.com' }
+  let(:user_uuid) { '12345678-0990-10a1-f038-2839ab281f90' }
   let(:success_callback_url) { 'http://localhost:3001/auth/login/callback?type=logingov' }
   let(:failure_callback_url) { 'http://localhost:3001/auth/login/callback?auth=fail&code=007' }
   let(:state) { 'some-state' }
+  let(:acr) { 'some-acr' }
 
   describe '#render_auth' do
-    let(:response) { subject.render_auth(state: state).to_s }
+    let(:response) { subject.render_auth(state: state, acr: acr).to_s }
 
     it 'renders the oauth_get_form template' do
       expect(response).to include('form id="oauth-form"')
@@ -57,6 +64,31 @@ describe SignIn::Logingov::Service do
       VCR.use_cassette('identity/logingov_200_responses') do
         expect(subject.user_info(token)).to eq(user_info)
       end
+    end
+  end
+
+  describe '#normalized_attributes' do
+    let(:expected_standard_attributes) do
+      {
+        uuid: user_uuid,
+        logingov_uuid: user_uuid,
+        loa: { current: LOA::THREE, highest: LOA::THREE },
+        sign_in: { service_name: 'logingov', auth_broker: SignIn::Constants::Auth::BROKER_CODE },
+        csp_email: email,
+        authn_context: type
+      }
+    end
+    let(:credential_level) { create(:credential_level, current_ial: IAL::TWO, max_ial: IAL::TWO) }
+    let(:type) { 'logingov' }
+    let(:expected_attributes) do
+      expected_standard_attributes.merge({ ssn: ssn.tr('-', ''),
+                                           birth_date: birth_date,
+                                           first_name: first_name,
+                                           last_name: last_name })
+    end
+
+    it 'returns expected attributes' do
+      expect(subject.normalized_attributes(user_info, credential_level)).to eq(expected_attributes)
     end
   end
 end
