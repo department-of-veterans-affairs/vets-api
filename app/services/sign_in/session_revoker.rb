@@ -4,11 +4,12 @@ require 'sign_in/logger'
 
 module SignIn
   class SessionRevoker
-    attr_reader :refresh_token, :anti_csrf_token, :session
+    attr_reader :access_token, :refresh_token, :anti_csrf_token, :session
 
-    def initialize(refresh_token:, anti_csrf_token:)
+    def initialize(refresh_token:, anti_csrf_token:, access_token:)
       @refresh_token = refresh_token
       @anti_csrf_token = anti_csrf_token
+      @access_token = access_token
     end
 
     def perform
@@ -20,13 +21,13 @@ module SignIn
     private
 
     def anti_csrf_check
-      if anti_csrf_token != refresh_token.anti_csrf_token
+      if anti_csrf_token != revoking_token.anti_csrf_token
         raise SignIn::Errors::AntiCSRFMismatchError, 'Anti CSRF token is not valid'
       end
     end
 
     def find_valid_oauth_session
-      @session ||= SignIn::OAuthSession.find_by(handle: refresh_token.session_handle)
+      @session ||= SignIn::OAuthSession.find_by(handle: revoking_token.session_handle)
       raise SignIn::Errors::SessionNotAuthorizedError, 'No valid Session found' unless session&.active?
     end
 
@@ -56,6 +57,10 @@ module SignIn
       @refresh_token_hash ||= get_hash(refresh_token.to_json)
     end
 
+    def revoking_token
+      @revoking_token ||= access_token || refresh_token
+    end
+
     def anti_csrf_enabled_client?
       Constants::ClientConfig::ANTI_CSRF_ENABLED.include?(session.client_id)
     end
@@ -65,7 +70,7 @@ module SignIn
     end
 
     def delete_session!
-      detect_token_theft
+      detect_token_theft if refresh_token
     ensure
       session.destroy!
     end

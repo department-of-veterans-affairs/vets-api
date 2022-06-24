@@ -103,7 +103,8 @@ module V0
 
       decrypted_refresh_token = SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token: refresh_token).perform
       SignIn::SessionRevoker.new(refresh_token: decrypted_refresh_token,
-                                 anti_csrf_token: anti_csrf_token).perform
+                                 anti_csrf_token: anti_csrf_token,
+                                 access_token: nil).perform
       log_successful_revoke(decrypted_refresh_token)
 
       render status: :ok
@@ -120,6 +121,20 @@ module V0
       render status: :ok
     rescue SignIn::Errors::StandardError => e
       handle_revoke_all_sessions_error(e)
+    end
+
+    def logout
+      anti_csrf_token = params[:anti_csrf_token] || token_cookies[SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME]
+
+      SignIn::SessionRevoker.new(access_token: @access_token,
+                                 refresh_token: nil,
+                                 anti_csrf_token: anti_csrf_token).perform
+      delete_cookies if token_cookies
+      log_successful_logout(@access_token)
+
+      render status: :ok
+    rescue SignIn::Errors::StandardError => e
+      handle_logout_error(e)
     end
 
     def introspect
@@ -205,6 +220,11 @@ module V0
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_SUCCESS)
     end
 
+    def log_successful_logout(access_token)
+      sign_in_logger.access_token_log('logout', access_token)
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_SUCCESS)
+    end
+
     def log_successful_revoke_all_sessions(access_token)
       sign_in_logger.access_token_log('revoke all sessions', access_token)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_SUCCESS)
@@ -245,6 +265,13 @@ module V0
       render json: { errors: error }, status: :unauthorized
     end
 
+    def handle_logout_error(error)
+      context = { user_uuid: @current_user.uuid }
+      log_message_to_sentry(error.message, :error, context)
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE)
+      render json: { errors: error }, status: :unauthorized
+    end
+
     def handle_revoke_all_sessions_error(error)
       context = { user_uuid: @current_user.uuid }
       log_message_to_sentry(error.message, :error, context)
@@ -268,6 +295,13 @@ module V0
 
     def token_cookies
       @token_cookies ||= defined?(cookies) ? cookies : nil
+    end
+
+    def delete_cookies
+      cookies.delete(SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME)
+      cookies.delete(SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME)
+      cookies.delete(SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME)
+      cookies.delete(SignIn::Constants::Auth::INFO_COOKIE_NAME)
     end
 
     def auth_service(type)
