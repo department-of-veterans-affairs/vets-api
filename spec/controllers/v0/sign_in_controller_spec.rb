@@ -1323,6 +1323,83 @@ RSpec.describe V0::SignInController, type: :controller do
     end
   end
 
+  describe 'GET logout' do
+    subject { get(:logout) }
+
+    context 'when successfully authenticated' do
+      let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
+      let(:authorization) { "Bearer #{access_token}" }
+      let(:oauth_session) { create(:oauth_session) }
+      let(:access_token_object) do
+        create(:access_token, session_handle: oauth_session.handle)
+      end
+      let(:statsd_success) { SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_SUCCESS }
+      let(:expected_log) { '[SignInService] [V0::SignInController] logout' }
+      let(:expected_log_params) do
+        {
+          token_type: 'Access',
+          user_id: access_token_object.user_uuid,
+          session_id: access_token_object.session_handle,
+          access_token_id: access_token_object.uuid
+        }
+      end
+      let(:expected_status) { :ok }
+
+      before do
+        request.headers['Authorization'] = authorization
+      end
+
+      it 'deletes the OAuthSession object matching the session_handle in the access token' do
+        expect { subject }.to change {
+          SignIn::OAuthSession.find_by(handle: access_token_object.session_handle)
+        }.from(oauth_session).to(nil)
+      end
+
+      it 'returns ok status' do
+        expect(subject).to have_http_status(expected_status)
+      end
+
+      it 'logs the logout call' do
+        expect(Rails.logger).to receive(:info).with(expected_log, expected_log_params)
+        subject
+      end
+
+      it 'triggers statsd increment for successful call' do
+        expect { subject }.to trigger_statsd_increment(statsd_success)
+      end
+
+      context 'and some arbitrary Sign In Error is raised' do
+        let(:expected_error) { SignIn::Errors::StandardError }
+        let(:statsd_failure) { SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE }
+        let(:error_context) { { user_uuid: access_token_object.user_uuid } }
+        let(:expected_error_log) { "#{expected_error} : #{error_context}" }
+        let(:expected_error_json) { { 'errors' => expected_error.to_s } }
+        let(:expected_error_status) { :unauthorized }
+
+        before do
+          allow(SignIn::SessionRevoker).to receive(:new).and_raise(expected_error)
+        end
+
+        it 'renders expected error' do
+          expect(JSON.parse(subject.body)).to eq(expected_error_json)
+        end
+
+        it 'returns expected status' do
+          expect(subject).to have_http_status(expected_error_status)
+        end
+
+        it 'logs the failed logout call' do
+          expect(Rails.logger).to receive(:error).with(expected_error_log)
+          subject
+        end
+
+        it 'triggers statsd increment for failed call' do
+          expect { subject }.to trigger_statsd_increment(statsd_failure)
+        end
+      end
+    end
+  end
+
   describe 'GET revoke_all_sessions' do
     subject { get(:revoke_all_sessions) }
 

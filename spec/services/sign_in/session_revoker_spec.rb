@@ -4,7 +4,9 @@ require 'rails_helper'
 
 RSpec.describe SignIn::SessionRevoker do
   let(:session_revoker) do
-    SignIn::SessionRevoker.new(refresh_token: refresh_token, anti_csrf_token: input_anti_csrf_token)
+    SignIn::SessionRevoker.new(refresh_token: refresh_token,
+                               anti_csrf_token: input_anti_csrf_token,
+                               access_token: access_token)
   end
 
   describe '#perform' do
@@ -18,6 +20,7 @@ RSpec.describe SignIn::SessionRevoker do
                parent_refresh_token_hash: parent_refresh_token_hash,
                user_uuid: user_uuid)
       end
+      let(:access_token) { nil }
       let(:parent_refresh_token) { create(:refresh_token, user_uuid: user_uuid, session_handle: session_handle) }
       let(:parent_refresh_token_hash) { Digest::SHA256.hexdigest(parent_refresh_token.to_json) }
       let(:session_hashed_refresh_token) { Digest::SHA256.hexdigest(parent_refresh_token_hash) }
@@ -103,6 +106,82 @@ RSpec.describe SignIn::SessionRevoker do
         let(:expected_error_message) { 'No valid Session found' }
         let(:refresh_token) do
           create(:refresh_token, session_handle: refresh_token_session_handle, anti_csrf_token: anti_csrf_token)
+        end
+
+        it 'raises a session not authorized error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+    end
+
+    context 'given an access token' do
+      let(:access_token) do
+        create(:refresh_token,
+               anti_csrf_token: anti_csrf_token,
+               session_handle: session_handle,
+               user_uuid: user_uuid)
+      end
+      let(:refresh_token) { nil }
+      let(:anti_csrf_token) { 'some-anti-csrf-token' }
+      let(:input_anti_csrf_token) { anti_csrf_token }
+      let(:session_handle) { SecureRandom.uuid }
+      let(:user_uuid) { user_account.id }
+      let(:user_account) { create(:user_account) }
+      let!(:session) do
+        create(:oauth_session,
+               refresh_expiration: session_expiration,
+               handle: session_handle,
+               user_account: user_account,
+               client_id: client_id)
+      end
+      let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
+      let(:session_expiration) { Time.zone.now + 5.minutes }
+
+      before do
+        Timecop.freeze(Time.zone.now.floor)
+      end
+
+      after { Timecop.return }
+
+      context 'when client id is in list of anti csrf enabled clients' do
+        let(:client_id) { SignIn::Constants::ClientConfig::ANTI_CSRF_ENABLED.first }
+
+        context 'and anti csrf token does not match value in access token' do
+          let(:input_anti_csrf_token) { 'some-arbitrary-csrf-token-value' }
+          let(:expected_error) { SignIn::Errors::AntiCSRFMismatchError }
+          let(:expected_error_message) { 'Anti CSRF token is not valid' }
+
+          it 'raises an AntiCSRFMismatch Error' do
+            expect { subject }.to raise_error(expected_error, expected_error_message)
+          end
+        end
+      end
+
+      context 'when session handle in access token matches an existing oauth session' do
+        context 'when session is not expired' do
+          it 'destroys the session' do
+            session_revoker.perform
+            expect { session.reload }.to raise_error(ActiveRecord::RecordNotFound)
+          end
+        end
+
+        context 'when session is expired' do
+          let(:session_expiration) { Time.zone.now - 30.minutes }
+          let(:expected_error) { SignIn::Errors::SessionNotAuthorizedError }
+          let(:expected_error_message) { 'No valid Session found' }
+
+          it 'raises a session not authorized error' do
+            expect { subject }.to raise_error(expected_error, expected_error_message)
+          end
+        end
+      end
+
+      context 'when session handle in access token does not match an existing oauth session' do
+        let(:access_token_session_handle) { SecureRandom.uuid }
+        let(:expected_error) { SignIn::Errors::SessionNotAuthorizedError }
+        let(:expected_error_message) { 'No valid Session found' }
+        let(:access_token) do
+          create(:access_token, session_handle: access_token_session_handle, anti_csrf_token: anti_csrf_token)
         end
 
         it 'raises a session not authorized error' do

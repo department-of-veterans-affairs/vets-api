@@ -86,8 +86,13 @@ RSpec.describe Account, type: :model do
   end
 
   describe '.lookup_by_user_uuid' do
-    let!(:find_me) { create :account }
-    let!(:dont_find_me) { create :account }
+    let!(:find_me) { create(:account, idme_uuid: idme_uuid, logingov_uuid: logingov_uuid, icn: icn) }
+    let!(:dont_find_me) { create(:account, idme_uuid: other_idme_uuid, logingov_uuid: other_logingov_uuid) }
+    let(:idme_uuid) { 'some-idme-uuid' }
+    let(:logingov_uuid) { 'some-logingov-uuid' }
+    let(:other_idme_uuid) { 'some-other-idme-uuid' }
+    let(:other_logingov_uuid) { 'some-other-logingov-uuid' }
+    let(:icn) { 'some-icn' }
 
     it 'returns Account matching given idme_uuid' do
       expect(Account.lookup_by_user_uuid(find_me.idme_uuid)).to eq find_me
@@ -110,15 +115,54 @@ RSpec.describe Account, type: :model do
     end
 
     context 'when another account has a logingov_uuid matching user_uuid' do
-      let(:user_uuid) { 'uuid-i-am-looking-for' }
-
-      before do
-        find_me.update!(idme_uuid: user_uuid)
-        dont_find_me.update!(logingov_uuid: user_uuid)
-      end
+      let(:user_uuid) { 'some-user-uuid' }
+      let(:idme_uuid) { user_uuid }
+      let(:other_logingov_uuid) { user_uuid }
 
       it 'returns the account found by idme_uuid' do
         expect(Account.lookup_by_user_uuid(user_uuid)).to eq find_me
+      end
+    end
+
+    context 'when a user account has a uuid matching user_uuid' do
+      let(:user_uuid) { create(:user_account, icn: icn).id }
+
+      it 'returns the account that matches the icn in the user account' do
+        expect(Account.lookup_by_user_uuid(user_uuid)).to eq find_me
+      end
+    end
+  end
+
+  describe '.lookup_by_user_account_uuid' do
+    let!(:find_me) { create :account }
+    let!(:dont_find_me) { create :account }
+
+    context 'when user_uuid matches a UserAccount' do
+      let(:user_uuid) { create(:user_account, icn: icn).id }
+      let!(:account) { create(:account, icn: icn) }
+
+      context 'and matching UserAccount has an icn' do
+        let(:icn) { 'some-icn' }
+
+        it 'returns first Account with matching icn' do
+          expect(Account.lookup_by_user_account_uuid(user_uuid)).to eq(account)
+        end
+      end
+
+      context 'and matching UserAccount does not have an icn' do
+        let(:icn) { nil }
+
+        it 'returns nil' do
+          expect(Account.lookup_by_user_account_uuid(user_uuid)).to eq(nil)
+        end
+      end
+    end
+
+    context 'when user_uuid does not match a UserAccount' do
+      let(:user_uuid) { 'some-user-uuid' }
+
+      it 'returns nil' do
+        expect(Account.lookup_by_user_account_uuid(user_uuid)).to eq(nil)
       end
     end
   end

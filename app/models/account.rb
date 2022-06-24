@@ -52,7 +52,18 @@ class Account < ApplicationRecord
   def self.lookup_by_user_uuid(user_uuid)
     return if user_uuid.blank?
 
-    Account.find_by(idme_uuid: user_uuid) || Account.find_by(logingov_uuid: user_uuid)
+    Account.find_by(idme_uuid: user_uuid) ||
+      Account.find_by(logingov_uuid: user_uuid) ||
+      lookup_by_user_account_uuid(user_uuid)
+  end
+
+  # @param user_uuid [String] The uuid of current_user in ApplicationController;
+  #                           refers to id for UserAccount table
+  def self.lookup_by_user_account_uuid(user_uuid)
+    user_account = UserAccount.find_by(id: user_uuid)
+    return unless user_account&.icn
+
+    Account.where(icn: user_account.icn).first
   end
 
   private
