@@ -95,8 +95,8 @@ FactoryBot.define do
       comment { 'Follow-up/Routine: testing' }
       reason_code do
         { 'codeing' => [
-          'code': 'Routine Follow-up'
-        ],
+            'code': 'Routine Follow-up'
+          ],
           'text': 'text' }
       end
       contact do

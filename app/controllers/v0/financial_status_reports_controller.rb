@@ -77,11 +77,11 @@ module V0
           :net_take_home_pay,
           :total_monthly_net_income,
           { deductions: [
-            :taxes,
-            :retirement,
-            :social_security,
-            { other_deductions: name_amount }
-          ],
+              :taxes,
+              :retirement,
+              :social_security,
+              { other_deductions: name_amount }
+            ],
             other_income: name_amount }
         ],
         expenses: [

@@ -26,24 +26,24 @@ module AppsApi
 
         if @directory_application.save
           render json: {
-            data: @directory_application
-          }, status: :ok
+                   data: @directory_application
+                 }, status: :ok
         else
           render json: {
-            data: @directory_application.errors
-          }, status: :unprocessable_entity
+                   data: @directory_application.errors
+                 }, status: :unprocessable_entity
         end
       end
 
       def update
         if @directory_application.update(directory_application_params)
           render json: {
-            data: @directory_application
-          }, status: :ok
+                   data: @directory_application
+                 }, status: :ok
         else
           render json: {
-            data: @directory_application.errors
-          }, status: :unprocessable_entity
+                   data: @directory_application.errors
+                 }, status: :unprocessable_entity
         end
       end
 

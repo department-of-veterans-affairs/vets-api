@@ -28,17 +28,17 @@ module Swagger
         key :required, %i[name letter_type]
         property :name, type: :string, example: 'Proof of Service Letter'
         property :letter_type, type: :string, enum: %w[
-          commissary
-          proof_of_service
-          medicare_partd
-          minimum_essential_coverage
-          service_verification
-          civil_service
-          benefit_summary
-          benefit_summary_dependent
-          benefit_verification
-          certificate_of_eligibility
-        ], example: 'proof_of_service'
+                                                commissary
+                                                proof_of_service
+                                                medicare_partd
+                                                minimum_essential_coverage
+                                                service_verification
+                                                civil_service
+                                                benefit_summary
+                                                benefit_summary_dependent
+                                                benefit_verification
+                                                certificate_of_eligibility
+                                              ], example: 'proof_of_service'
       end
     end
   end

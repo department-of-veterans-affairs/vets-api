@@ -44,13 +44,13 @@ FactoryBot.define do
     }
     services {
       { 'health' => [
-        { 'sl1' => ['DentalServices'],
-          'sl2' => [] },
-        { 'sl1' => ['MentalHealthCare'],
-          'sl2' => [] },
-        { 'sl1' => ['PrimaryCare'],
-          'sl2' => [] }
-      ],
+          { 'sl1' => ['DentalServices'],
+            'sl2' => [] },
+          { 'sl1' => ['MentalHealthCare'],
+            'sl2' => [] },
+          { 'sl1' => ['PrimaryCare'],
+            'sl2' => [] }
+        ],
         'last_updated' => '2018-03-15' }
     }
     feedback {
@@ -132,21 +132,21 @@ FactoryBot.define do
     }
     services {
       { 'health' => [
-        { 'sl1' => ['DentalServices'],
-          'sl2' => [] },
-        { 'sl1' => ['MentalHealthCare'],
-          'sl2' => [] },
-        { 'sl1' => ['PrimaryCare'],
-          'sl2' => [] },
-        { 'sl1' => ['EmergencyCare'],
-          'sl2' => [] },
-        { 'sl1' => ['UrgentCare'],
-          'sl2' => [] },
-        { 'sl1' => ['Audiology'],
-          'sl2' => [] },
-        { 'sl1' => ['Optometry'],
-          'sl2' => [] }
-      ],
+          { 'sl1' => ['DentalServices'],
+            'sl2' => [] },
+          { 'sl1' => ['MentalHealthCare'],
+            'sl2' => [] },
+          { 'sl1' => ['PrimaryCare'],
+            'sl2' => [] },
+          { 'sl1' => ['EmergencyCare'],
+            'sl2' => [] },
+          { 'sl1' => ['UrgentCare'],
+            'sl2' => [] },
+          { 'sl1' => ['Audiology'],
+            'sl2' => [] },
+          { 'sl1' => ['Optometry'],
+            'sl2' => [] }
+        ],
         'last_updated' => '2018-03-15' }
     }
     feedback {
@@ -255,19 +255,19 @@ FactoryBot.define do
     }
     services {
       { 'health' => [
-        {
-          'sl1' => [
-            'MentalHealthCare'
-          ],
-          'sl2' => []
-        },
-        {
-          'sl1' => [
-            'PrimaryCare'
-          ],
-          'sl2' => []
-        }
-      ],
+          {
+            'sl1' => [
+              'MentalHealthCare'
+            ],
+            'sl2' => []
+          },
+          {
+            'sl1' => [
+              'PrimaryCare'
+            ],
+            'sl2' => []
+          }
+        ],
         'last_updated' => '2018-03-15' }
     }
     feedback { { 'health' => {} } }
@@ -322,13 +322,13 @@ FactoryBot.define do
     }
     services {
       { 'other' => [
-        {
-          'sl1' => [
-            'Online Scheduling'
-          ],
-          'sl2' => []
-        }
-      ],
+          {
+            'sl1' => [
+              'Online Scheduling'
+            ],
+            'sl2' => []
+          }
+        ],
         'health' => [],
         'last_updated' => '2019-06-04' }
     }
@@ -386,13 +386,13 @@ FactoryBot.define do
     }
     services {
       { 'health' => [
-        { 'sl1' => ['DentalServices'],
-          'sl2' => [] },
-        { 'sl1' => ['MentalHealthCare'],
-          'sl2' => [] },
-        { 'sl1' => ['PrimaryCare'],
-          'sl2' => [] }
-      ],
+          { 'sl1' => ['DentalServices'],
+            'sl2' => [] },
+          { 'sl1' => ['MentalHealthCare'],
+            'sl2' => [] },
+          { 'sl1' => ['PrimaryCare'],
+            'sl2' => [] }
+        ],
         'last_updated' => '2018-03-15' }
     }
     feedback {
