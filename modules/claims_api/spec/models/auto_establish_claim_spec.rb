@@ -22,6 +22,15 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
     pending_record
   end
 
+  it 'writes flashes and special issues to the DB on create' do
+    pending_record.status = 'submitted'
+    expected_claims = ClaimsApi::AutoEstablishedClaim.all
+    expect(expected_claims.first.id).to eq(pending_record.id)
+    expect(expected_claims.first.special_issues).to eq(pending_record.special_issues)
+    expect(expected_claims.first.flashes).to eq(%w[Hardship Homeless])
+    expect(expected_claims.first.special_issues.first['special_issues']).to eq(['FDC', 'PTSD/2'])
+  end
+
   describe 'validate_service_dates' do
     context 'when activeDutyEndDate is before activeDutyBeginDate' do
       it 'throws an error' do

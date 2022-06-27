@@ -52,7 +52,7 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
       expect(subject.to).to eq(
         %w[
           kayla.watanabe@adhocteam.us
-          dan.hinze@adhocteam.us
+          jennica.stiehl@oddball.io
           jeff.wallace@oddball.io
           zachary.goldfine@va.gov
           david.mazik@va.gov

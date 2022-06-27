@@ -38,33 +38,31 @@ module ClaimsApi
 
     def with_special_issues(source: nil)
       claims = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to)
-                                              .where.not(special_issues: nil)
-
       claims = claims.where(source: source) if source.present?
 
-      claims.order(:source, :status)
+      claims.map { |claim| claim[:special_issues].length.positive? ? 1 : 0 }.sum.to_f
     end
 
     def with_flashes(source: nil)
       claims = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to)
-                                              .where('array_length(flashes, 1) >= 1')
-
       claims = claims.where(source: source) if source.present?
 
-      claims.order(:source, :status)
+      claims.map { |claim| claim[:flashes].length.positive? ? 1 : 0 }.sum.to_f
     end
 
     def claims_totals
       @claims_consumers.map do |name|
         counts = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to, source: name).group(:status).count
-        totals = counts.sum { |_k, v| v }
-        percentage_with_flashes = (with_flashes(source: name).count.to_f / totals) * 100
-        percentage_with_special_issues = (with_special_issues(source: name).count.to_f / totals) * 100
+        totals = counts.sum { |_k, v| v }.to_f
+
+        percentage_with_flashes = "#{((with_flashes(source: name) / totals) * 100).round(2)}%"
+        percentage_with_special_issues = "#{((with_special_issues(source: name) / totals) * 100).round(2)}%"
+
         if totals.positive?
           {
             name => counts.merge(totals: totals,
-                                 percentage_with_flashes: "#{percentage_with_flashes}%",
-                                 percentage_with_special_issues: "#{percentage_with_special_issues}%")
+                                 percentage_with_flashes: percentage_with_flashes.to_s,
+                                 percentage_with_special_issues: percentage_with_special_issues.to_s)
                           .deep_symbolize_keys
           }
         end
