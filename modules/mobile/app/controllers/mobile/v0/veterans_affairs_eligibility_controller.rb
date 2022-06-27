@@ -7,7 +7,7 @@ module Mobile
         response = mobile_facility_service.get_scheduling_configurations(facility_ids)
         services = medical_service_adapter.parse(response[:data])
 
-        render json: Mobile::V0::VeteransAffairsEligibilitySerializer.new(@current_user.id, services)
+        render json: Mobile::V0::VeteransAffairsEligibilitySerializer.new(@current_user.uuid, services)
       end
 
       private

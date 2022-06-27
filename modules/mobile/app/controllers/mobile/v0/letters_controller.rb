@@ -11,12 +11,12 @@ module Mobile
 
       # returns list of letters available for a given user. List includes letter display name and letter type
       def index
-        render json: Mobile::V0::LettersSerializer.new(@current_user.id, service.get_letters.letters)
+        render json: Mobile::V0::LettersSerializer.new(@current_user.uuid, service.get_letters.letters)
       end
 
       # returns options and info needed to create user form required for benefit letter download
       def beneficiary
-        render json: Mobile::V0::LettersBeneficiarySerializer.new(@current_user.id, service.get_letter_beneficiary)
+        render json: Mobile::V0::LettersBeneficiarySerializer.new(@current_user.uuid, service.get_letter_beneficiary)
       end
 
       # returns a pdf of the requested letter type given the user has that letter type available
