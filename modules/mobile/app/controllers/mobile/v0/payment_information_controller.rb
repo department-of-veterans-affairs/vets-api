@@ -13,14 +13,14 @@ module Mobile
 
       def index
         payment_information = proxy.get_payment_information
-        render json: Mobile::V0::PaymentInformationSerializer.new(@current_user.id,
+        render json: Mobile::V0::PaymentInformationSerializer.new(@current_user.uuid,
                                                                   payment_information.payment_account,
                                                                   payment_information.control_information)
       end
 
       def update
         payment_information = proxy.update_payment_information(pay_info)
-        render json: Mobile::V0::PaymentInformationSerializer.new(@current_user.id,
+        render json: Mobile::V0::PaymentInformationSerializer.new(@current_user.uuid,
                                                                   payment_information.payment_account,
                                                                   payment_information.control_information)
       end

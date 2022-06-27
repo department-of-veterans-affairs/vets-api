@@ -12,7 +12,7 @@ module Mobile
           Mobile::V0::Adapters::FacilityInfo.new.parse(facility, @current_user, params)
         end
         sorted_facilities = sort(adapted_facilities, params[:sort])
-        render json: Mobile::V0::FacilitiesInfoSerializer.new(@current_user.id, sorted_facilities)
+        render json: Mobile::V0::FacilitiesInfoSerializer.new(@current_user.uuid, sorted_facilities)
       end
 
       private

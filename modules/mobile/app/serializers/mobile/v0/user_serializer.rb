@@ -64,7 +64,7 @@ module Mobile
       def initialize(user, options = {})
         @user = user
         fetch_additional_resources
-        resource = UserStruct.new(user.id, profile, authorized_services, health)
+        resource = UserStruct.new(user.uuid, profile, authorized_services, health)
         super(resource, options)
       end
 
