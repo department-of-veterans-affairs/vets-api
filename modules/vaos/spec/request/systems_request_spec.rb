@@ -151,8 +151,8 @@ RSpec.describe 'systems', type: :request do
         it 'returns a 200 with the correct camel-inflected schema' do
           VCR.use_cassette('vaos/systems/get_system_facilities', match_requests_on: %i[method uri]) do
             get '/vaos/v0/systems/688/direct_scheduling_facilities', params: {
-              parent_code: '688', type_of_care_id: '323'
-            }, headers: inflection_header
+                                                                       parent_code: '688', type_of_care_id: '323'
+                                                                     }, headers: inflection_header
 
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
@@ -186,8 +186,8 @@ RSpec.describe 'systems', type: :request do
         it 'returns a 200 with the correct camel-inflected schema' do
           VCR.use_cassette('vaos/systems/get_system_facilities_express_care', match_requests_on: %i[method uri]) do
             get '/vaos/v0/systems/983/direct_scheduling_facilities', params: {
-              parent_code: '983', type_of_care_id: 'CR1'
-            }, headers: inflection_header
+                                                                       parent_code: '983', type_of_care_id: 'CR1'
+                                                                     }, headers: inflection_header
 
             expect(response).to have_http_status(:ok)
             expect(response).to match_camelized_response_schema('vaos/system_facilities')

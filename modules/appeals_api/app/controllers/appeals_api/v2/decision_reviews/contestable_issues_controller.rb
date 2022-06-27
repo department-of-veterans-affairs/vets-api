@@ -132,15 +132,15 @@ module AppealsApi::V2
 
       def render_unprocessable_entity(message)
         render json: {
-          errors: [
-            {
-              title: 'Unprocessable Entity',
-              code: 'unprocessable_entity',
-              detail: message,
-              status: '422'
-            }
-          ]
-        }, status: '422'
+                 errors: [
+                   {
+                     title: 'Unprocessable Entity',
+                     code: 'unprocessable_entity',
+                     detail: message,
+                     status: '422'
+                   }
+                 ]
+               }, status: '422'
       end
 
       def request_headers

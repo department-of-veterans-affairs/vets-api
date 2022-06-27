@@ -22,10 +22,10 @@ module Swagger
         property :source, type: :string, example: 'EBN'
         property :status, type: :string, enum: EVSS::IntentToFile::IntentToFile::STATUS_TYPES, example: 'active'
         property :type, type: :string, enum: %w[
-          compensation
-          pension
-          survivor
-        ], example: 'compensation'
+                                         compensation
+                                         pension
+                                         survivor
+                                       ], example: 'compensation'
       end
 
       swagger_schema :IntentToFiles do

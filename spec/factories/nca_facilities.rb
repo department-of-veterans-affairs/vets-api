@@ -12,13 +12,13 @@ FactoryBot.define do
     location { 'POINT(-105.052859396 39.6455740260001)' }
     address {
       { 'mailing' => {
-        'zip' => '80236',
-        'city' => 'Denver',
-        'state' => 'CO',
-        'address_1' => '4400 W Kenyon Ave',
-        'address_2' => nil,
-        'address_3' => nil
-      },
+          'zip' => '80236',
+          'city' => 'Denver',
+          'state' => 'CO',
+          'address_1' => '4400 W Kenyon Ave',
+          'address_2' => nil,
+          'address_3' => nil
+        },
         'physical' => {
           'zip' => '80236',
           'city' => 'Denver',
@@ -53,13 +53,13 @@ FactoryBot.define do
     location { 'POINT(-122.540844696 45.4568385960001)' }
     address {
       { 'mailing' => {
-        'zip' => '97086-6937',
-        'city' => 'Portland',
-        'state' => 'OR',
-        'address_1' => '11800 SE Mt Scott Blvd',
-        'address_2' => nil,
-        'address_3' => nil
-      },
+          'zip' => '97086-6937',
+          'city' => 'Portland',
+          'state' => 'OR',
+          'address_1' => '11800 SE Mt Scott Blvd',
+          'address_2' => nil,
+          'address_3' => nil
+        },
         'physical' => {
           'zip' => '97086-6937',
           'city' => 'Portland',
@@ -98,13 +98,13 @@ FactoryBot.define do
     location { 'POINT(-76.8265631089999 42.111095628)' }
     address {
       { 'mailing' => {
-        'zip' => '14810',
-        'city' => 'Bath',
-        'state' => 'NY',
-        'address_1' => 'VA Medical Center',
-        'address_2' => nil,
-        'address_3' => nil
-      },
+          'zip' => '14810',
+          'city' => 'Bath',
+          'state' => 'NY',
+          'address_1' => 'VA Medical Center',
+          'address_2' => nil,
+          'address_3' => nil
+        },
         'physical' => {
           'zip' => '14901',
           'city' => 'Elmira',
@@ -142,13 +142,13 @@ FactoryBot.define do
     location { 'POINT(-73.72356501 42.7038448500001)' }
     address {
       { 'mailing' => {
-        'zip' => '12871-1721',
-        'city' => 'Schuylerville',
-        'state' => 'NY',
-        'address_1' => '200 Duell Road',
-        'address_2' => nil,
-        'address_3' => nil
-      },
+          'zip' => '12871-1721',
+          'city' => 'Schuylerville',
+          'state' => 'NY',
+          'address_1' => '200 Duell Road',
+          'address_2' => nil,
+          'address_3' => nil
+        },
         'physical' => {
           'zip' => '12204',
           'city' => 'Albany',
@@ -186,13 +186,13 @@ FactoryBot.define do
     location { 'POINT(-73.8812331729999 40.6859544970001)' }
     address {
       { 'mailing' => {
-        'zip' => '11208',
-        'city' => 'Farmingdale',
-        'state' => 'NY',
-        'address_1' => '2040 Wellwood Ave',
-        'address_2' => nil,
-        'address_3' => nil
-      },
+          'zip' => '11208',
+          'city' => 'Farmingdale',
+          'state' => 'NY',
+          'address_1' => '2040 Wellwood Ave',
+          'address_2' => nil,
+          'address_3' => nil
+        },
         'physical' => {
           'zip' => '11208',
           'city' => 'Brooklyn',
@@ -230,13 +230,13 @@ FactoryBot.define do
     location { 'POINT(-77.350304205 42.347251468)' }
     address {
       { 'mailing' => {
-        'zip' => '14810',
-        'city' => 'Bath',
-        'state' => 'NY',
-        'address_1' => 'VA Medical Center',
-        'address_2' => nil,
-        'address_3' => nil
-      },
+          'zip' => '14810',
+          'city' => 'Bath',
+          'state' => 'NY',
+          'address_1' => 'VA Medical Center',
+          'address_2' => nil,
+          'address_3' => nil
+        },
         'physical' => {
           'zip' => '14810',
           'city' => 'Bath',
@@ -274,13 +274,13 @@ FactoryBot.define do
     location { 'POINT(-73.617079936 43.026389889)' }
     address {
       { 'mailing' => {
-        'zip' => '12871-1721',
-        'city' => 'Schuylerville',
-        'state' => 'NY',
-        'address_1' => '200 Duell Rd',
-        'address_2' => nil,
-        'address_3' => nil
-      },
+          'zip' => '12871-1721',
+          'city' => 'Schuylerville',
+          'state' => 'NY',
+          'address_1' => '200 Duell Rd',
+          'address_2' => nil,
+          'address_3' => nil
+        },
         'physical' => {
           'zip' => '12871-1721',
           'city' => 'Schuylerville',
@@ -318,13 +318,13 @@ FactoryBot.define do
     location { 'POINT(-73.401496373 40.750563679)' }
     address {
       { 'mailing' => {
-        'zip' => '11735-1211',
-        'city' => 'Farmingdale',
-        'state' => 'NY',
-        'address_1' => '2040 Wellwood Ave',
-        'address_2' => nil,
-        'address_3' => nil
-      },
+          'zip' => '11735-1211',
+          'city' => 'Farmingdale',
+          'state' => 'NY',
+          'address_1' => '2040 Wellwood Ave',
+          'address_2' => nil,
+          'address_3' => nil
+        },
         'physical' => {
           'zip' => '11735-1211',
           'city' => 'Farmingdale',

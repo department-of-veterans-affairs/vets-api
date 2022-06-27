@@ -7,18 +7,18 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
   let(:uploaded_upload) { FactoryBot.create(:upload_submission, :status_uploaded) }
   let(:totals) do
     { 'vetraspec' => {
-      'error' => 1,
-      'expired' => 2,
-      'processing' => 4,
-      'received' => 1,
-      'success' => 1,
-      'uploaded' => 1,
-      'vbms' => 1,
-      :totals => 11,
-      :success_rate => '18%',
-      :error_rate => '9%',
-      :expired_rate => '18%'
-    },
+        'error' => 1,
+        'expired' => 2,
+        'processing' => 4,
+        'received' => 1,
+        'success' => 1,
+        'uploaded' => 1,
+        'vbms' => 1,
+        :totals => 11,
+        :success_rate => '18%',
+        :error_rate => '9%',
+        :expired_rate => '18%'
+      },
       'vetpro' => {
         'expired' => 1,
         'success' => 1,
