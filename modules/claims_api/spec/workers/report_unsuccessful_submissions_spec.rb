@@ -3,25 +3,33 @@
 require 'rails_helper'
 
 RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
-  let(:errored_upload_claims) do
-    FactoryBot.create(:auto_established_claim,
-                      :status_errored,
-                      source: 'test consumer',
-                      evss_response: nil)
-    FactoryBot.create(:auto_established_claim,
-                      :status_errored,
-                      source: 'test consumer',
-                      evss_response: 'random string')
-
+  let(:upload_claims) do
+    upload_claims = []
+    upload_claims.push(FactoryBot.create(:auto_established_claim,
+                                         :status_errored,
+                                         source: 'test consumer',
+                                         evss_response: nil))
+    upload_claims.push(FactoryBot.create(:auto_established_claim,
+                                         :status_errored,
+                                         source: 'test consumer',
+                                         evss_response: 'random string'))
     evss_response_array = [{ 'key' => 'key-here', 'severity' => 'FATAL', 'text' => 'message-here' }]
-    FactoryBot.create(:auto_established_claim,
-                      :status_errored,
-                      source: 'test consumer',
-                      evss_response: evss_response_array)
-    FactoryBot.create(:auto_established_claim,
-                      :status_errored,
-                      source: 'test consumer',
-                      evss_response: evss_response_array.to_json)
+    upload_claims.push(FactoryBot.create(:auto_established_claim,
+                                         :status_errored,
+                                         source: 'test consumer',
+                                         evss_response: evss_response_array))
+    upload_claims.push(FactoryBot.create(:auto_established_claim,
+                                         :status_errored,
+                                         source: 'test consumer',
+                                         evss_response: evss_response_array.to_json))
+    upload_claims.push(FactoryBot.create(:auto_established_claim_without_flashes_or_special_issues,
+                                         :status_errored,
+                                         source: 'test consumer',
+                                         evss_response: evss_response_array.to_json))
+    upload_claims.push(FactoryBot.create(:auto_established_claim_without_flashes_or_special_issues,
+                                         :status_errored,
+                                         source: 'test consumer',
+                                         evss_response: evss_response_array.to_json))
   end
   let(:pending_claims) { FactoryBot.create(:auto_established_claim, source: 'test consumer') }
   let(:poa_submissions) { FactoryBot.create(:power_of_attorney) }
@@ -62,14 +70,22 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
     it 'calculate totals' do
       with_settings(Settings.claims_api,
                     report_enabled: true) do
-        errored_upload_claims
+        upload_claims.push(pending_claims)
         pending_claims
 
-        job = described_class.new
-        job.perform
-        claims_totals = job.claims_totals
+        special_issues = upload_claims.map { |claim| claim[:special_issues].length.positive? ? 1 : 0 }.sum
+        flashes = upload_claims.map { |claim| claim[:flashes].length.positive? ? 1 : 0 }.sum
+
+        report = described_class.new
+        report.perform
+        claims_totals = report.claims_totals
+
+        expected_issues = "#{((special_issues.to_f / claims_totals[0]['test consumer'][:totals]) * 100).round(2)}%"
+        expected_flash = "#{((flashes.to_f / claims_totals[0]['test consumer'][:totals]) * 100).round(2)}%"
 
         expect(claims_totals.first.keys).to eq(['test consumer'])
+        expect(claims_totals[0]['test consumer'][:percentage_with_flashes]).to eq(expected_flash)
+        expect(claims_totals[0]['test consumer'][:percentage_with_special_issues].to_s).to eq(expected_issues)
       end
     end
 

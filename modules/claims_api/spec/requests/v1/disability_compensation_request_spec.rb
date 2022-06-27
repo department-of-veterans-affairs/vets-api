@@ -2713,6 +2713,37 @@ RSpec.describe 'Disability Claims ', type: :request do
     end
   end
 
+  describe '#526 without flashes or special issues' do
+    let(:claim_date) { (Time.zone.today - 1.day).to_s }
+    let(:auto_cest_pdf_generation_disabled) { false }
+    let(:data_no_flashes) do
+      temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures',
+                                       'form_526_no_flashes_no_special_issues.json'))
+      temp = JSON.parse(temp)
+      temp['data']['attributes']['autoCestPDFGenerationDisabled'] = auto_cest_pdf_generation_disabled
+      temp['data']['attributes']['claimDate'] = claim_date
+      temp['data']['attributes']['applicationExpirationDate'] = (Time.zone.today + 1.day).to_s
+
+      temp.to_json
+    end
+    let(:path) { '/services/claims/v1/forms/526' }
+    let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', '526.json')) }
+
+    it 'sets the flashes and special_issues' do
+      with_okta_user(scopes) do |auth_header|
+        VCR.use_cassette('evss/claims/claims') do
+          VCR.use_cassette('evss/reference_data/get_intake_sites') do
+            post path, params: data_no_flashes, headers: headers.merge(auth_header)
+            token = JSON.parse(response.body)['data']['attributes']['token']
+            aec = ClaimsApi::AutoEstablishedClaim.find(token)
+            expect(aec.flashes).to eq(%w[])
+            expect(aec.special_issues).to eq(%w[])
+          end
+        end
+      end
+    end
+  end
+
   describe '#upload_documents' do
     let(:auto_claim) { create(:auto_established_claim) }
     let(:non_auto_claim) { create(:auto_established_claim, :autoCestPDFGeneration_disabled) }

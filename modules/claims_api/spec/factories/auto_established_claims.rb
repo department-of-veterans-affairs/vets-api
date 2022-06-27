@@ -49,4 +49,23 @@ FactoryBot.define do
       end
     end
   end
+
+  factory :auto_established_claim_without_flashes_or_special_issues, class: 'ClaimsApi::AutoEstablishedClaim' do
+    id { SecureRandom.uuid }
+    status { 'pending' }
+    source { 'oddball' }
+    evss_id { nil }
+    auth_headers { { test: ('a'..'z').to_a.shuffle.join } }
+    form_data do
+      # rubocop:disable Layout/LineLength
+      json = JSON.parse(File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/form_526_no_flashes_no_special_issues.json"))
+      json['data']['attributes']
+    end
+    # rubocop:enable Layout/LineLength
+
+    trait :status_errored do
+      status { 'errored' }
+      evss_response { 'something' }
+    end
+  end
 end
