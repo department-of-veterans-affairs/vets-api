@@ -74,7 +74,7 @@ describe V2::Lorota::Client do
 
     context 'when called with lorota security update feature flag on' do
       let(:auth_param_with_dob) do
-        { lastName: 'last', DOB: '1970-02-20' }
+        { lastName: 'last', dob: '1970-02-20' }
       end
 
       before do
