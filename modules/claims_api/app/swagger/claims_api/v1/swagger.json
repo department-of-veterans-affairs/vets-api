@@ -497,7 +497,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "800cdf31-546c-4a63-a803-ee94ce27b7a1",
+                    "id": "5bfe1d76-7cbf-46f4-b7b1-9f4c60f30e5d",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -546,11 +546,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "55dd903f-c071-4b7c-b56b-e03dd29f535c",
+                          "id": "ef542ae9-e7a4-49ba-b1e8-eadf563b0027",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2022-06-10T20:08:02.903Z"
+                          "uploaded_at": "2022-06-23T13:28:46.328Z"
                         }
                       ]
                     }
@@ -2355,7 +2355,7 @@
                         "claimDate": {
                           "description": "Date (or Timestamp with TimeZone) when claim is being submitted to the VA. Date cannot be in the future. UTC TimeZone is assumed unless otherwise specified.",
                           "type": "string",
-                          "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])(?:T[0-1][0-9]:[0-5][0-9]:[0-5][0-9](?:[-+][0-9]{2}:[0-9]{2}))*$",
+                          "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])(?:T[0-1][0-9]:[0-5][0-9]:[0-5][0-9](?:[-+][0-9]{2}:[0-9]{2}|Z))*$",
                           "example": "2018-08-28T19:53:45+00:00"
                         }
                       }
@@ -2438,7 +2438,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7bbe1f94-89bb-46e7-b103-1c559a411760",
+                    "id": "ddb649f6-8f01-43fb-89b7-8fc2565ba38e",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2456,13 +2456,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-06-10T20:08:03.204Z",
+                      "updated_at": "2022-06-23T13:28:46.556Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "7bbe1f94-89bb-46e7-b103-1c559a411760",
+                      "token": "ddb649f6-8f01-43fb-89b7-8fc2565ba38e",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -4216,7 +4216,7 @@
                           "claimDate": {
                             "description": "Date (or Timestamp with TimeZone) when claim is being submitted to the VA. Date cannot be in the future. UTC TimeZone is assumed unless otherwise specified.",
                             "type": "string",
-                            "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])(?:T[0-1][0-9]:[0-5][0-9]:[0-5][0-9](?:[-+][0-9]{2}:[0-9]{2}))*$",
+                            "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])(?:T[0-1][0-9]:[0-5][0-9]:[0-5][0-9](?:[-+][0-9]{2}:[0-9]{2}|Z))*$",
                             "example": "2018-08-28T19:53:45+00:00"
                           }
                         }
@@ -4312,7 +4312,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "488256ae-521b-4c53-b84a-761d7d1bcf20",
+                    "id": "dbae8497-b2b1-43bf-8cb5-485437e131dc",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4330,13 +4330,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-06-10T20:08:03.458Z",
+                      "updated_at": "2022-06-23T13:28:46.749Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "488256ae-521b-4c53-b84a-761d7d1bcf20",
+                      "token": "dbae8497-b2b1-43bf-8cb5-485437e131dc",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -6503,7 +6503,7 @@
                           "claimDate": {
                             "description": "Date (or Timestamp with TimeZone) when claim is being submitted to the VA. Date cannot be in the future. UTC TimeZone is assumed unless otherwise specified.",
                             "type": "string",
-                            "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])(?:T[0-1][0-9]:[0-5][0-9]:[0-5][0-9](?:[-+][0-9]{2}:[0-9]{2}))*$",
+                            "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])(?:T[0-1][0-9]:[0-5][0-9]:[0-5][0-9](?:[-+][0-9]{2}:[0-9]{2}|Z))*$",
                             "example": "2018-08-28T19:53:45+00:00"
                           }
                         }
@@ -6599,7 +6599,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0a31ac63-52aa-4757-97f9-9c735d4095d7",
+                    "id": "8a741db4-282d-4864-8efc-60fdc35b8923",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6613,7 +6613,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-06-10T20:08:03.985Z",
+                      "updated_at": "2022-06-23T13:28:47.177Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6622,7 +6622,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "1a0880d1-90dc-454d-88bb-a239b58f80da",
+                          "id": "27d8f4b3-0341-4f8a-a58b-80bba6912fc2",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8598,11 +8598,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a91aa1f8-035c-4377-b0c1-868262c0c55f",
+                    "id": "16a641f7-f545-4aaf-9bd5-3afa0a237a2d",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2022-06-10",
+                      "date_request_accepted": "2022-06-23",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9311,11 +9311,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "55283ec5-eed5-4c88-b282-af43542e097e",
+                    "id": "d187866d-d417-4d56-860d-2ec4f5709326",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-06-10",
+                      "date_request_accepted": "2022-06-23",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9766,11 +9766,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d685431e-da8f-4327-8071-9f2aa334c455",
+                    "id": "c8942abc-3a3e-4726-85cd-d161b37eb632",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-06-10",
+                      "date_request_accepted": "2022-06-23",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -10989,7 +10989,6 @@
       }
     }
   },
-  "basePath": "/services/benefits/v1",
   "servers": [
     {
       "url": "https://sandbox-api.va.gov/services/claims/{version}",

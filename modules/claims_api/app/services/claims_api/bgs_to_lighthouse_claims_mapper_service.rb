@@ -46,7 +46,7 @@ module ClaimsApi
         date_filed: bgs_claim[:claim_dt].present? ? bgs_claim[:claim_dt].strftime('%D') : nil,
         status: bgs_claim[:phase_type],
         contention_list: bgs_claim[:contentions],
-        va_representative: bgs_claim[:va_representative],
+        poa: bgs_claim[:poa],
         end_product_code: bgs_claim[:end_product_code],
         documents_needed: map_yes_no_to_boolean('attention_needed', bgs_claim[:attention_needed]),
         requested_decision: map_y_n_to_boolean('filed5103_waiver_ind', bgs_claim[:filed5103_waiver_ind]),

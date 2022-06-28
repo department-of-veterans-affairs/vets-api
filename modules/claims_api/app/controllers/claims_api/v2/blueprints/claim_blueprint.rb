@@ -42,13 +42,13 @@ module ClaimsApi
           end
         end
         field :type
-        field :va_representative
+        field :poa
 
         view :list do
           exclude :contention_list
           exclude :end_product_code
           exclude :supporting_documents
-          exclude :va_representative
+          exclude :poa
         end
 
         transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer

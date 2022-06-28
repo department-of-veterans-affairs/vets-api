@@ -1,9 +1,8 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "array",
   "items": {
     "additionalProperties": false,
-    "description": "Claim details.",
+    "description": "Claim details",
     "properties": {
       "id": {
         "type": "string",
@@ -12,12 +11,12 @@
       },
       "type": {
         "type": "string",
-        "description": "Name of Claim type",
-        "example": "Appeals Control"
+        "description": "Name of claim type",
+        "example": "Appeals control"
       },
       "status": {
         "type": "string",
-        "description": "Status of Claim",
+        "description": "Status of claim",
         "example": "Complete"
       },
       "date_filed": {
@@ -28,22 +27,23 @@
       },
       "documents_needed": {
         "type": "boolean",
-        "description": "Does the claim require additional documents to be submitted",
+        "description": "If true, the claim requires additional documents to be submitted",
         "example": "false"
       },
       "requested_decision": {
-        "type": ["boolean", "null"],
-        "description": "The claim filer has requested a claim decision be made",
+        "type": "boolean",
+        "nullable": true,
+        "description": "If true, the claim filer has requested a claim decision be made",
         "example": "false"
       },
       "development_letter_sent": {
         "type": "boolean",
-        "description": "Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim",
+        "description": "If true, a development letter has been sent to the claimant regarding a benefit claim",
         "example": "false"
       },
       "decision_letter_sent": {
         "type": "boolean",
-        "description": "Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim",
+        "description": "If true, a decision letter has been sent to the claimant regarding a benefit claim",
         "example": "false"
       },
       "@links": {

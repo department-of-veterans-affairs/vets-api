@@ -20,6 +20,7 @@ describe 'Claims', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v2/sw
                 in: :path,
                 required: true,
                 type: :string,
+                example: '1012667145V762142',
                 description: 'ID of Veteran'
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
@@ -142,19 +143,23 @@ describe 'Claims', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v2/sw
         { bearer_token: [] }
       ]
       produces 'application/json'
-      parameter name: :id, in: :path, type: :string, description: 'The ID of the claim being requested'
       description 'Retrieves a specific claim for a Veteran'
-
+      parameter name: :id,
+                in: :path,
+                type: :string,
+                example: '1234',
+                description: 'The ID of the claim being requested'
       parameter name: 'veteranId',
                 in: :path,
                 required: true,
                 type: :string,
+                example: '1012667145V762142',
                 description: 'ID of Veteran'
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
       let(:id) { '600131328' }
 
-      describe 'Getting a successul response' do
+      describe 'Getting a successful response' do
         response '200', 'claim response' do
           schema JSON.parse(
             File.read(

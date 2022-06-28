@@ -12,17 +12,17 @@
     "firstName": {
       "type": "string",
       "example": "Tamara",
-      "description": "First Name of Veteran being represented"
+      "description": "First name of Veteran being represented"
     },
     "lastName": {
       "type": "string",
       "example": "Ellis",
-      "description": "Last Name of Veteran being represented"
+      "description": "Last name of Veteran being represented"
     },
     "birthdate": {
       "type": "string",
       "example": "1967-06-19",
-      "description": "Date of Birth of Veteran being represented, in iso8601 format"
+      "description": "Date of birth of Veteran being represented, in iso8601 format"
     }
   }
 }
