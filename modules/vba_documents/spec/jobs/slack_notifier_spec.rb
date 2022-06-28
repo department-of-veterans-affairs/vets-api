@@ -12,7 +12,6 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
       update_stalled_notification_in_minutes: 180,
       daily_notification_hour: 7,
       default_alert_url: '',
-      invalid_parts_alert_url: '',
       enabled: true
     }
   end

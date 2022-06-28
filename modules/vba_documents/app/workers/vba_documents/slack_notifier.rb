@@ -29,7 +29,6 @@ module VBADocuments
 
     def fetch_settings
       @default_alert_url = Settings.vba_documents.slack.default_alert_url
-      @invalid_parts_alert_url = Settings.vba_documents.slack.invalid_parts_alert_url
       @in_flight_hungtime = Settings.vba_documents.slack.in_flight_notification_hung_time_in_days.to_i
       @renotify_time = Settings.vba_documents.slack.renotification_in_minutes.to_i
       @upload_hungtime = Settings.vba_documents.slack.update_stalled_notification_in_minutes.to_i
@@ -77,7 +76,7 @@ module VBADocuments
         text += "\tGUID: #{model.guid} has invalid parts: #{model.metadata['invalid_parts']}\n"
       end
       text = text.gsub(/"/, "'")
-      resp = send_to_slack(text, @invalid_parts_alert_url) if alert_on.any?
+      resp = send_to_slack(text, @default_alert_url) if alert_on.any?
       if resp&.success?
         alert_on.each do |model|
           model.metadata['invalid_parts_notified'] = true

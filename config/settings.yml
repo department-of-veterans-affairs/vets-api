@@ -577,8 +577,6 @@ vba_documents:
   slack:
     enabled: false
     default_alert_url:
-    invalid_parts_alert_url:
-    deployment_notification_benefits_url:
     deployment_notification_forms_url:
     in_flight_notification_hung_time_in_days: 14
     renotification_in_minutes: 240

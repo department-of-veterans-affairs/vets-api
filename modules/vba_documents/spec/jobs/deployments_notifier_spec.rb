@@ -4,11 +4,10 @@ require 'rails_helper'
 require './modules/vba_documents/app/workers/vba_documents/deployments_notifier'
 require './modules/vba_documents/spec/support/vba_document_fixtures'
 
-RSpec.describe 'VBADocuments::DeploymentsNotifer', type: :job do
+RSpec.describe 'VBADocuments::DeploymentsNotifier', type: :job do
   include VBADocuments::Fixtures
 
   let(:faraday_response) { instance_double('Faraday::Response') }
-  let(:git_items_benefits_json) { get_fixture('git_items_benefits.json').read }
   let(:git_items_forms_json) { get_fixture('git_items_forms.json').read }
 
   before do
@@ -17,7 +16,7 @@ RSpec.describe 'VBADocuments::DeploymentsNotifer', type: :job do
 
     allow(faraday_response).to receive(:success?).and_return(true)
     allow(faraday_response).to receive(:body) do
-      git_items_benefits_json
+      git_items_forms_json
     end
 
     allow(VBADocuments::GitItems).to receive(:query_git) {
@@ -41,20 +40,15 @@ RSpec.describe 'VBADocuments::DeploymentsNotifer', type: :job do
   end
 
   it 'populates and notifies on deployments' do
-    results = @job.perform('BenefitsIntake')
-    expect(results.first).to be(3) # fixture git_items_benefits.json has three records
-    allow(faraday_response).to receive(:body) do
-      git_items_forms_json
-    end
     results = @job.perform('Forms')
-    expect(results.first).to be(4)  # fixture git_items_forms.json has four records
+    expect(results.first).to be(4) # fixture git_items_forms.json has four records
   end
 
   it 'logs and returns the exception if something goes wrong' do
     allow(VBADocuments::GitItems).to receive(:populate) {
       raise RuntimeError
     }
-    results = @job.perform('BenefitsIntake')
+    results = @job.perform('Forms')
     expect(results.first.class).to be(RuntimeError)
   end
 
