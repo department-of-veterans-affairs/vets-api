@@ -13,9 +13,34 @@ module AppealsApi
       end
     end
 
+    # rubocop:disable Metrics/BlockLength
     included do
+      # TODO: Update our schema date definition(s) to keep this check from being necessary
+      def date_formats_are_valid
+        # check veteran birth date
+        vbd = auth_headers && auth_headers['X-VA-Birth-Date']
+        if vbd.present? && !valid_date?(vbd)
+          errors.add '', "Invalid date: #{vbd}", source: { header: 'X-VA-Birth-Date' }
+        end
+
+        # check claimant birth date
+        cbd = auth_headers && auth_headers['X-VA-Claimant-Birth-Date']
+        if cbd.present? && !valid_date?(cbd)
+          errors.add '', "Invalid date: #{cbd}", source: { header: 'X-VA-Claimant-Birth-Date' }
+        end
+
+        # check contestable issues dates
+        contestable_issues.each_with_index do |issue, index|
+          d = issue.decision_date_string
+          p = "/data/included[#{index}]/attributes/decisionDate"
+          errors.add p, "Invalid date: #{d}" unless valid_date?(d)
+        end
+      end
+
       # validation (header)
       def veteran_birth_date_is_in_the_past
+        # don't add more errors to veteran birth date if one already exists
+        return if errors.any? { |e| e.options.dig(:source, :header) == 'X-VA-Birth-Date' }
         return unless veteran_birth_date
         return if self.class.past?(veteran_birth_date)
 
@@ -24,6 +49,8 @@ module AppealsApi
 
       # validation (header)
       def claimant_birth_date_is_in_the_past
+        # don't add more errors to claimant birth date if one already exists
+        return if errors.any? { |e| e.options.dig(:source, :header) == 'X-VA-Claimant-Birth-Date' }
         return if claimant.birth_date.blank? || self.class.past?(claimant.birth_date)
 
         add_date_error '', claimant.birth_date, source: { header: 'X-VA-Claimant-Birth-Date' }
@@ -60,6 +87,8 @@ module AppealsApi
 
       # validation (body)
       def contestable_issue_dates_are_in_the_past
+        # don't add any more errors to issue dates if one already exists
+        return if errors.any? { |e| e.attribute =~ /decisionDate/ }
         return if contestable_issues.blank?
 
         contestable_issues.each_with_index do |issue, index|
@@ -73,11 +102,17 @@ module AppealsApi
         add_date_error "/data/included[#{issue_index}]/attributes/decisionDate", issue.decision_date
       end
 
+      # expects date_str in YYYY-MM-DD format
+      def valid_date?(date_str)
+        Date.valid_date?(*date_str.split('-').map(&:to_i))
+      end
+
       def add_date_error(pointer, date_str, error_opts = {})
         errors.add pointer,
                    "Date must be in the past: #{date_str}",
                    error_opts.merge(error_tpath: 'common.exceptions.detailed_schema_errors.range')
       end
     end
+    # rubocop:enable Metrics/BlockLength
   end
 end

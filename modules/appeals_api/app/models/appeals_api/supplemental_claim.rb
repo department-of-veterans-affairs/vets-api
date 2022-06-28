@@ -37,6 +37,7 @@ module AppealsApi
     # the controller applies the JSON Schemas in modules/appeals_api/config/schemas/
     # further validations:
     validate(
+      :date_formats_are_valid,
       :veteran_birth_date_is_in_the_past,
       :required_claimant_data_is_present,
       :validate_claimant_type,
