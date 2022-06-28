@@ -28,6 +28,7 @@ RSpec.describe 'Community Care Eligibility', type: :request do
         let(:service_type) { 'primaryCare' }
 
         before do
+          allow(Rails.logger).to receive(:info)
           VCR.use_cassette('cc_eligibility/get_eligibility_true', match_requests_on: %i[method uri]) do
             get "/mobile/v0/appointments/community_care/eligibility/#{service_type}", headers: iam_headers
           end
@@ -44,6 +45,12 @@ RSpec.describe 'Community Care Eligibility', type: :request do
 
         it 'returns expected schema' do
           expect(response.body).to match_json_schema('cc_eligibility')
+        end
+
+        it 'logs service_type and user_uuid' do
+          expect(Rails.logger).to have_received(:info).with('CC eligibility service call start',
+                                                            { service_type: 'primaryCare',
+                                                              user_uuid: '3097e489-ad75-5746-ab1a-e0aabc1b426a' })
         end
       end
 
