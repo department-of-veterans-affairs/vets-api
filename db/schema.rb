@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_06_09_131439) do
+ActiveRecord::Schema.define(version: 2022_06_27_202719) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -265,6 +265,7 @@ ActiveRecord::Schema.define(version: 2022_06_09_131439) do
     t.text "bgs_special_issue_responses_ciphertext"
     t.text "encrypted_kms_key"
     t.date "verified_decryptable_at"
+    t.string "cid"
     t.index ["evss_id"], name: "index_claims_api_auto_established_claims_on_evss_id"
     t.index ["md5"], name: "index_claims_api_auto_established_claims_on_md5"
     t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
@@ -852,8 +853,8 @@ ActiveRecord::Schema.define(version: 2022_06_09_131439) do
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.string "loa"
     t.text "services"
+    t.string "loa"
     t.uuid "idme_uuid"
     t.text "notes"
     t.string "mfa_code"
