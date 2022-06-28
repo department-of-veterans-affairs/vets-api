@@ -3234,10 +3234,14 @@ paths:
                           - appointments
                           - claims
                           - directDepositBenefits
+                          - disabilityRating
                           - lettersAndDocuments
                           - militaryServiceHistory
+                          - paymentHistory
                           - userProfileUpdate
+                          - secureMessaging
                           - scheduleAppointments
+                          - prescriptions
                         type: array
           description: OK
         '401':
@@ -3314,10 +3318,14 @@ paths:
                           - appointments
                           - claims
                           - directDepositBenefits
+                          - disabilityRating
                           - lettersAndDocuments
                           - militaryServiceHistory
+                          - paymentHistory
                           - userProfileUpdate
+                          - secureMessaging
                           - scheduleAppointments
+                          - prescriptions
                         type: array
           description: OK
         '401':
