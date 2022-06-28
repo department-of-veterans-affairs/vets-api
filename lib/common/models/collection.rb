@@ -139,6 +139,7 @@ module Common
       @mock_comparator_object ||= type.new
     end
 
+    # rubocop:disable Metrics/MethodLength
     def finder(object, filter)
       filter.to_hash.all? do |attribute, predicates|
         actual_value = object.send(attribute)
@@ -147,13 +148,20 @@ module Common
           raise Common::Exceptions::FilterNotAllowed, "#{operator} for #{attribute}" unless valid_operation
 
           op = OPERATIONS_MAP.fetch(operator)
-          mock_comparator_object.send("#{attribute}=", expected_value)
 
-          if op == 'match'
-            actual_value.downcase.include?(expected_value.downcase)
-          else
-            actual_value.send(op, mock_comparator_object.send(attribute))
+          parsed_value = expected_value.try(:split, ',') || expected_value
+
+          results = Array.wrap(parsed_value).collect do |item|
+            mock_comparator_object.send("#{attribute}=", item)
+
+            if op == 'match'
+              actual_value.downcase.include?(item.downcase)
+            else
+              actual_value.send(op, mock_comparator_object.send(attribute))
+            end
           end
+
+          results.any?
         end
       end
     rescue => e
@@ -161,6 +169,7 @@ module Common
 
       raise Common::Exceptions::InvalidFiltersSyntax.new(nil, detail: 'The syntax for your filters is invalid')
     end
+    # rubocop:enable Metrics/MethodLength
 
     def paginator(page, per_page)
       if defined?(::WillPaginate::Collection)
