@@ -798,8 +798,9 @@ RSpec.describe Form1010cg::Service do
     it 'submits to mulesoft', run_at: 'Fri, 17 Jun 2022 10:36:01 GMT' do
       require 'saved_claim/caregivers_assistance_claim'
 
-      allow(SecureRandom).to receive(:uuid).and_return('f6056cff-d4cb-4058-8fb0-42296e12698f')
+      allow(SecureRandom).to receive(:uuid).and_return('695e7111-4e3b-4cad-8703-cd3ec092c9d0')
       claim = build(:caregivers_assistance_claim)
+      claim.parsed_form['signAsRepresentative'] = true
       claim.parsed_form['veteran'].merge!(
         'fullName' => {
           'first' => 'WESLEY',
@@ -809,8 +810,9 @@ RSpec.describe Form1010cg::Service do
         'ssnOrTin' => '796043735',
         'dateOfBirth' => '1986-05-06'
       )
+      expect(claim.valid?).to eq(true)
 
-      allow(SecureRandom).to receive(:uuid).and_return('303f4e50-2e98-45e1-91e5-41776aa51651')
+      allow(SecureRandom).to receive(:uuid).and_return('74597dcc-8171-4755-830e-35046ac2f4d2')
 
       VCR.use_cassette('mulesoft/submit', VCR::MATCH_EVERYTHING) do
         described_class.new(claim).process_claim!
