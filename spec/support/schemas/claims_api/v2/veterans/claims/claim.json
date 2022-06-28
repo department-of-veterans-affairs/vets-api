@@ -1,5 +1,4 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "additionalProperties": false,
   "properties": {
@@ -19,6 +18,9 @@
     },
     "contentionList": {
       "type": "array",
+      "items": {
+        "type": "string"
+      },
       "description": "The contentions being submitted with a claim",
       "example": ["abnormal heart (New)", "abscess kidney (New)"]
     },
@@ -29,15 +31,15 @@
     },
     "decisionLetterSent": {
       "type": "boolean",
-      "description": "Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim"
+      "description": "If true, a decision letter has been sent to the claimant regarding a benefit claim"
     },
     "developmentLetterSent": {
       "type": "boolean",
-      "description": "Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim"
+      "description": "If true, a development letter has been sent to the claimant regarding a benefit claim"
     },
     "documentsNeeded": {
       "type": "boolean",
-      "description": "Indicates whether the claim requires additional documents to be submitted"
+      "description": "If true, the claim requires additional documents to be submitted"
     },
     "endProductCode": {
       "type": "string",
@@ -47,7 +49,7 @@
     "requestedDecision": {
       "type": "boolean",
       "nullable": true,
-      "description": "Indicates if a decision has been requested and/or if a Waiver 5103 has been submitted"
+      "description": "If true, indicateds a decision has been requested and/or a Waiver 5103 has been submitted"
     },
     "status": {
       "type": "string",
@@ -84,7 +86,7 @@
       "description": "Name of claim type",
       "example": "Appeals Control"
     },
-    "vaRepresentative": {
+    "poa": {
       "type": "string",
       "description": "The current organization or individual representing the Veteran on a claim",
       "example": "American Legion"

@@ -112,7 +112,7 @@ module ClaimsApi
             claim_dt: claim_details[:claim_dt],
             claim_status_type: claim_details[:claim_status_type],
             contentions: claim_details[:contentions]&.split(','),
-            va_representative: claim_details[:poa]&.titleize,
+            poa: claim_details[:poa]&.titleize,
             phase_type: claim_details[:bnft_claim_lc_status][:phase_type],
             end_product_code: claim_details[:end_prdct_type_cd],
             filed5103_waiver_ind: claim_details[:filed5103_waiver_ind],

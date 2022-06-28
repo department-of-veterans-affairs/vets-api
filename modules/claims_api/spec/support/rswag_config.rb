@@ -113,9 +113,8 @@ class ClaimsApi::RswagConfig
           securitySchemes: {
             bearer_token: {
               type: :http,
-              name: :token,
               scheme: :bearer,
-              bearer_format: :JWT
+              bearerFormat: :JWT
             },
             productionOauth: {
               type: :oauth2,

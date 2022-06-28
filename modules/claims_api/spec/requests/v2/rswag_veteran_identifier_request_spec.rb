@@ -7,7 +7,7 @@ require_relative '../../support/swagger_shared_components/v2'
 
 describe 'Veteran Identifier', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v2/swagger.json' do # rubocop:disable RSpec/DescribeClass
   path '/veteran-id:find' do
-    post 'Retrieve id of Veteran.' do
+    post 'Retrieve Veteran ID.' do
       tags 'Veteran Identifier'
       operationId 'postVeteranId'
       security [
@@ -17,7 +17,7 @@ describe 'Veteran Identifier', swagger_doc: 'modules/claims_api/app/swagger/clai
       ]
       consumes 'application/json'
       produces 'application/json'
-      description "Allows authenticated Veterans and Veteran representatives to retrieve a Veteran's id."
+      description "Allows authenticated and authorized users to retrieve a Veteran's ID."
 
       let(:Authorization) { 'Bearer token' }
       parameter SwaggerSharedComponents::V2.body_examples[:veteran_identifier]
