@@ -62,6 +62,14 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
   end
 
   describe '#form_subjects' do
+    it 'does not consider signAsRepresentative a form_subject' do
+      claim_1 = described_class.new(form: {
+        veteran: {},
+        signAsRepresentative: true
+      }.to_json)
+      expect(claim_1.form_subjects).to eq(%w[veteran])
+    end
+
     it 'returns a list of subjects present in #parsed_form' do
       claim_1 = described_class.new(form: {
         veteran: {}

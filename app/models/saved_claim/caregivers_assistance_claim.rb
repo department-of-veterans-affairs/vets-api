@@ -35,7 +35,13 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
   end
 
   def form_subjects
-    form.nil? ? [] : parsed_form.keys
+    if form.nil?
+      []
+    else
+      parsed_form.keys.find_all do |k|
+        %w[veteran primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo].include?(k)
+      end
+    end
   end
 
   def veteran_data
