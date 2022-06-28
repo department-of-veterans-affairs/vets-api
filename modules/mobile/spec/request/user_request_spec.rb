@@ -180,6 +180,7 @@ RSpec.describe 'user', type: :request do
             userProfileUpdate
             secureMessaging
             scheduleAppointments
+            prescriptions
           ]
         )
       end
@@ -267,6 +268,36 @@ RSpec.describe 'user', type: :request do
               paymentHistory
               userProfileUpdate
               scheduleAppointments
+            ]
+          )
+        end
+      end
+
+      context 'with a user that has mhv sign-in service' do
+        before do
+          allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
+          current_user = build(:iam_user, :mhv)
+          iam_sign_in(current_user)
+          VCR.use_cassette('payment_information/payment_information') do
+            VCR.use_cassette('user/get_facilities') do
+              get '/mobile/v0/user', headers: iam_headers
+            end
+          end
+        end
+
+        it 'includes prescriptions in authorized services' do
+          expect(attributes['authorizedServices']).to eq(
+            %w[
+              appeals
+              appointments
+              claims
+              disabilityRating
+              lettersAndDocuments
+              militaryServiceHistory
+              paymentHistory
+              userProfileUpdate
+              scheduleAppointments
+              prescriptions
             ]
           )
         end

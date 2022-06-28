@@ -49,7 +49,8 @@ module Mobile
         paymentHistory: :bgs,
         userProfileUpdate: :vet360,
         secureMessaging: :mhv_messaging,
-        scheduleAppointments: :schedule_appointment
+        scheduleAppointments: :schedule_appointment,
+        prescriptions: :mhv_prescriptions
       }.freeze
 
       set_type :user
