@@ -1680,7 +1680,7 @@ paths:
           schema:
             type: string
         - description: |
-            filter by field values. Syntax: ?filter[[refill_status][eq]]=refillinprocess. fields that can be filtered: prescription_id, refill_status, refill_submit_date, facility_name. eq can be switched out with not_eq.
+            filter by field values. Syntax: ?filter[[refill_status][eq]]=refillinprocess. fields that can be filtered: prescription_id, refill_status, refill_submit_date, facility_name. eq can be switched out with not_eq. to filter by multiple values of the same field, deliminate the parameter value with commas. Syntax: ?filter[[refill_status][eq]]=refillinprocess,active
           in: query
           name: filter
           required: false

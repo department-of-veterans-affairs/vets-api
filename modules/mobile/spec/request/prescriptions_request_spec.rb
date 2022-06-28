@@ -171,7 +171,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         end
       end
 
-      context 'filter by multiple criteria' do
+      context 'filter by multiple fields' do
         let(:filter_param) { 'filter[[is_refillable][eq]]=true&&filter[[is_trackable][eq]]=true' }
 
         it 'returns all prescriptions that are both trackable and refillable' do
@@ -183,6 +183,22 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
           expect(response.parsed_body['data'].size).to eq(1)
           expect(response.parsed_body.dig('data', 0, 'attributes', 'isTrackable')).to eq(true)
           expect(response.parsed_body.dig('data', 0, 'attributes', 'isRefillable')).to eq(true)
+        end
+      end
+
+      context 'filter by multiple types of refill_statuses' do
+        let(:params) { { page: { number: 1, size: 100 } } }
+        let(:filter_param) { 'filter[[refill_status][eq]]=refillinprocess,active' }
+
+        it 'returns all prescriptions that are both trackable and refillable' do
+          VCR.use_cassette('rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
+            get "/mobile/v0/health/rx/prescriptions?#{filter_param}", params: params, headers: iam_headers
+          end
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to match_json_schema('prescription')
+          refill_statuses = response.parsed_body['data'].map { |d| d.dig('attributes', 'refillStatus') }.uniq
+
+          expect(refill_statuses).to eq(%w[refillinprocess active])
         end
       end
 
