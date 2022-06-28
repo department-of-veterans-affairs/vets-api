@@ -5,16 +5,15 @@
 module VBADocuments
   class GitItems < ApplicationRecord
     GIT_QUERY = 'https://api.github.com/search/issues'
-    BENEFITS_PARAMS = { q: 'is:merged is:pr label:BenefitsIntake repo:department-of-veterans-affairs/vets-api' }.freeze
     FORMS_PARAMS = { q: 'is:merged is:pr label:Forms repo:department-of-veterans-affairs/vets-api' }.freeze
-    LABELS = %w[BenefitsIntake Forms].freeze
+    LABELS = %w[Forms].freeze
 
     validates :url, uniqueness: true
 
     module ClassMethods
       # notifies slack of all new deployments.  Returns the number notified on.
       def notify(label)
-        slack_url = fetch_url(label)
+        slack_url = Settings.vba_documents.slack.deployment_notification_forms_url
         text = "The following new merges are now in #{label.underscore.titleize}:\n"
         models = []
         GitItems.where(notified: false, label: label).find_each do |model|
@@ -38,7 +37,7 @@ module VBADocuments
       end
 
       def populate(label)
-        response = query_git(label.eql?('Forms') ? FORMS_PARAMS : BENEFITS_PARAMS)
+        response = query_git(FORMS_PARAMS)
         if response&.success?
           data = JSON(response.body)
           data['items'].each do |item|
@@ -60,11 +59,6 @@ module VBADocuments
       def query_git(params)
         Faraday.new(url: GIT_QUERY, params: params).get
       end
-
-      def fetch_url(label)
-        { 'BenefitsIntake' => Settings.vba_documents.slack.deployment_notification_benefits_url,
-          'Forms' => Settings.vba_documents.slack.deployment_notification_forms_url }[label]
-      end
     end
     extend ClassMethods
   end
@@ -72,5 +66,5 @@ end
 
 # load('./modules/vba_documents/app/models/vba_documents/git_items.rb')
 # Sample query:
-# https://api.github.com/search/issues?q=is:merged%20is:pr%20label:BenefitsIntake%20repo:department-of-veterans-affairs/vets-api
+# https://api.github.com/search/issues?q=is:merged%20is:pr%20label:Forms%20repo:department-of-veterans-affairs/vets-api
 #

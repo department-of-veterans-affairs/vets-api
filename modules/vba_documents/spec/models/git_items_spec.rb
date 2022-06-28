@@ -7,13 +7,10 @@ describe VBADocuments::GitItems, type: :model do
   include VBADocuments::Fixtures
 
   let(:faraday_response) { instance_double('Faraday::Response') }
-  let(:git_items_json) { get_fixture('git_items_benefits.json').read }
-  let(:git_items_benefits_json) { get_fixture('git_items_benefits.json').read }
   let(:git_items_forms_json) { get_fixture('git_items_forms.json').read }
 
   before do
     Settings.vba_documents.slack = Config::Options.new
-    Settings.vba_documents.slack.deployment_notification_benefits_url = nil # url post mocked out
     Settings.vba_documents.slack.deployment_notification_forms_url = nil # url post mocked out
     allow(faraday_response).to receive(:success?).and_return(true)
     allow(VBADocuments::GitItems).to receive(:query_git) {
@@ -22,16 +19,12 @@ describe VBADocuments::GitItems, type: :model do
     allow(VBADocuments::GitItems).to receive(:send_to_slack) {
       faraday_response # the body isn't used here, only the 'success' attribute via :success?
     }
-    @record_counts = []
-    allow(faraday_response).to receive(:body).and_return(git_items_benefits_json) # 3 records in this json file
-    @record_counts << VBADocuments::GitItems.populate('BenefitsIntake')
     allow(faraday_response).to receive(:body).and_return(git_items_forms_json) # 4 records in this json file
-    @record_counts << VBADocuments::GitItems.populate('Forms')
+    @record_counts = VBADocuments::GitItems.populate('Forms')
   end
 
   it 'populates itself from git' do
-    expect(@record_counts.first).to be(3)
-    expect(@record_counts.last).to be(4)
+    expect(@record_counts).to be(4)
   end
 
   it 'notifies on slack' do
@@ -47,34 +40,31 @@ describe VBADocuments::GitItems, type: :model do
       expect(model.notified).to be(true)
     end
 
-    expect(response.first).to be(3)
-    expect(response.last).to be(4)
+    expect(response.first).to be(4)
   end
 
   it 'only notifies on new things' do
-    VBADocuments::GitItems.notify('BenefitsIntake')
-    response = VBADocuments::GitItems.notify('BenefitsIntake')
+    VBADocuments::GitItems.notify('Forms')
+    response = VBADocuments::GitItems.notify('Forms')
     expect(response).to be(0)
     model = VBADocuments::GitItems.find_or_create_by(url: 'http://dummy/url')
     model.git_item = VBADocuments::GitItems.first.git_item
-    model.label = 'BenefitsIntake'
+    model.label = 'Forms'
     model.save
-    response = VBADocuments::GitItems.notify('BenefitsIntake')
+    response = VBADocuments::GitItems.notify('Forms')
     expect(response).to be(1)
   end
 
   it 'gracefully logs when the git query is not successful' do
     allow(faraday_response).to receive(:success?).and_return(false)
     VBADocuments::GitItems.destroy_all
-    record_count = VBADocuments::GitItems.populate('BenefitsIntake')
+    record_count = VBADocuments::GitItems.populate('Forms')
     expect(record_count).to be(0) # we expect code coverage for the logging of the failure.
   end
 
   it 'does not over populate' do
-    expect(@record_counts.first).to be(3)
-    record_count_benefits = VBADocuments::GitItems.populate('BenefitsIntake') # second populate with the same data
+    expect(@record_counts).to be(4)
     record_count_forms = VBADocuments::GitItems.populate('Forms') # second populate with the same data
-    expect(record_count_benefits).to be(3)
     expect(record_count_forms).to be(4)
   end
 end
