@@ -81,14 +81,6 @@ features:
     actor_type: user
     description: Enables the health care pre-check-in experiences to send demographics confirmation.
     enable_in_development: true
-  check_in_experience_editing_day_of_enabled:
-    actor_type: user
-    description: Enables editing of demographics for the day of check-in experience.
-    enable_in_development: true
-  check_in_experience_editing_pre_check_in_enabled:
-    actor_type: user
-    description: Enables editing of demographics for the pre-check-in experience.
-    enable_in_development: true
   check_in_experience_no_demographics_confirmation_for_unverified_enabled:
     actor_type: user
     description: Enables the health care pre-check-in experiences to send demographics confirmation.
@@ -120,10 +112,6 @@ features:
   check_in_experience_lorota_security_updates_enabled:
     actor_type: user
     description: Enables DOB instead of last 4 of SSN.
-    enable_in_development: false
-  check_in_experience_edit_messaging_enabled:
-    actor_type: user
-    description: Enables showing of edit messaging.
     enable_in_development: false
   check_in_experience_mock_enabled:
     actor_type: user
