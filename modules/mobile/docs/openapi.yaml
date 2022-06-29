@@ -771,7 +771,7 @@ paths:
       summary: /v0/appointments/va/eligibility
   /v0/appointment:
     post:
-      description: \*DIRECT SCHEDULE IS WIP* - Creates a new appointment.
+      description: Creates a new appointment or appointment request.
       operationId: CreateNewAppointment
       requestBody:
         content:
@@ -853,7 +853,7 @@ paths:
           description: A response from an upstream service timed out.
       security:
         - Bearer: [ ]
-      summary: WIP /v0/appointment
+      summary: /v0/appointment
   /v0/claim/{id}:
     get:
       description: Returns info on all user's claims and appeals for mobile overview
