@@ -15,15 +15,15 @@ module AppealsApi
 
       if sunset_date.today? || sunset_date.past?
         render json: {
-                 errors: [
-                   {
-                     title: 'Not found',
-                     detail: "There are no routes matching your request: #{request.path}",
-                     code: '411',
-                     status: '404'
-                   }
-                 ]
-               }, status: :not_found
+          errors: [
+            {
+              title: 'Not found',
+              detail: "There are no routes matching your request: #{request.path}",
+              code: '411',
+              status: '404'
+            }
+          ]
+        }, status: :not_found
       end
     end
 

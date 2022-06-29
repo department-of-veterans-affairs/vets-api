@@ -19,9 +19,9 @@ module V0
         validate!(claim)
 
         render json: {
-                 confirmationNumber: '0000-0000-0000',
-                 dateSubmitted: DateTime.now.utc.strftime('%m-%d-%Y')
-               }, status: :created
+          confirmationNumber: '0000-0000-0000',
+          dateSubmitted: DateTime.now.utc.strftime('%m-%d-%Y')
+        }, status: :created
       end
 
       private
