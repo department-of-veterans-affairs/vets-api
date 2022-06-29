@@ -38,16 +38,16 @@ module VAForms
       time = Time.zone.now.to_formatted_s(:iso8601)
 
       render json: {
-               description: HEALTH_DESCRIPTION_UPSTREAM,
-               status: health_checker.services_are_healthy? ? 'UP' : 'DOWN',
-               time: time,
-               details: {
-                 name: 'All upstream services',
-                 upstreamServices: VAForms::HealthChecker::SERVICES.map do |service|
-                                     upstream_service_details(service, health_checker, time)
-                                   end
-               }
-             }, status: health_checker.services_are_healthy? ? 200 : 503
+        description: HEALTH_DESCRIPTION_UPSTREAM,
+        status: health_checker.services_are_healthy? ? 'UP' : 'DOWN',
+        time: time,
+        details: {
+          name: 'All upstream services',
+          upstreamServices: VAForms::HealthChecker::SERVICES.map do |service|
+                              upstream_service_details(service, health_checker, time)
+                            end
+        }
+      }, status: health_checker.services_are_healthy? ? 200 : 503
     end
 
     private

@@ -41,9 +41,9 @@ medication_response = {
         'reference' => 'https://sandbox-api.va.gov/services/fhir/v0/r4/Medication/I2-D4UEEE77GHB7YU67LTAK6URFCD7NFTWEFMA6RCCVITIPG6NLXT3Q0000',
         'display' => 'Escitalopram 10 MG'
       }, 'subject' => {
-           'reference' => 'https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012667169V030190',
-           'display' => 'Mr. Jesse Gray'
-         }, 'authoredOn' => '2018-02-03T08:00:00Z',
+        'reference' => 'https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012667169V030190',
+        'display' => 'Mr. Jesse Gray'
+      }, 'authoredOn' => '2018-02-03T08:00:00Z',
       'requester' => {
         'reference' => 'https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-HRJI2MVST2IQSPR7U5SACWIWZA000000',
         'display' => 'DR. JANE460 DOE922 MD'
@@ -58,20 +58,20 @@ medication_response = {
           }
         },
         'asNeededBoolean' => false, 'route' => {
-                                      'text' => 'ORAL'
-                                    }, 'doseAndRate' => [
-                                      { 'doseQuantity' => { 'value' => 1.0 } }
-                                    ]
+          'text' => 'ORAL'
+        }, 'doseAndRate' => [
+          { 'doseQuantity' => { 'value' => 1.0 } }
+        ]
       }],
       'dispenseRequest' => {
         'numberOfRepeatsAllowed' => 0, 'quantity' => {
-                                         'value' => 1.0
-                                       }, 'expectedSupplyDuration' => {
-                                         'value' => 30,
-                                         'unit' => 'days',
-                                         'system' => 'http://unitsofmeasure.org',
-                                         'code' => 'd'
-                                       }
+          'value' => 1.0
+        }, 'expectedSupplyDuration' => {
+          'value' => 30,
+          'unit' => 'days',
+          'system' => 'http://unitsofmeasure.org',
+          'code' => 'd'
+        }
       }
     },
     'search' => {
