@@ -93,8 +93,8 @@ module ClaimsApi
               **Flashes and special issues**<br/>
               Including flashes and special issues in your 526 claim submission helps VA properly route and prioritize current and future claims for the Veteran and reduces claims processing time.
 
-               - Flashes are attributes that describe special circumstances which apply to a Veteran, such as homelessness or terminal illness. See a full list of [supported flashes](https://github.com/department-of-veterans-affairs/vets-api/blob/30659c8e5b2dd254d3e6b5d18849ff0d5f2e2356/modules/claims_api/config/schemas/526.json#L35).
-               - Special Issues are attributes that describe special circumstances which apply to a particular claim, such as PTSD. See a full list of [supported special Issues](https://github.com/department-of-veterans-affairs/vets-api/blob/30659c8e5b2dd254d3e6b5d18849ff0d5f2e2356/modules/claims_api/config/schemas/526.json#L28).
+               - Flashes are attributes that describe special circumstances which apply to a Veteran, such as homelessness or terminal illness.
+               - Special Issues are attributes that describe special circumstances which apply to a particular claim, such as PTSD.
             X
           )
           key :operationId, 'post526Claim'
