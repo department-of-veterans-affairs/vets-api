@@ -14,10 +14,7 @@ properties:
     "$ref": ./AppointmentKind.yml
     example: 'clinic'
   status:
-    type: string
-    description: Always 'proposed' for requests
-    enum:
-      - proposed
+    "$ref": ./AppointmentStatus.yml
     example: 'proposed'
   serviceType:
     type: string
