@@ -42,6 +42,7 @@ FactoryBot.define do
     suffix { Faker::Name.suffix }
     gender { %w[M F].sample }
     birth_date { Faker::Date.between(from: 80.years.ago, to: 30.years.ago).strftime('%Y%m%d') }
+    deceased_date { nil }
     ssn { Faker::IDNumber.valid.delete('-') }
     address { build(:mvi_profile_address) }
     home_phone { Faker::PhoneNumber.phone_number }
@@ -62,6 +63,7 @@ FactoryBot.define do
     icn_with_aaid { '1000123456V123456^NI^200M^USVHA' }
     mhv_ids { Array.new(2) { Faker::Number.number(digits: 11) } }
     active_mhv_ids { mhv_ids }
+    id_theft_flag { false }
     edipi { Faker::Number.number(digits: 10) }
     participant_id { Faker::Number.number(digits: 10) }
     birls = [Faker::Number.number(digits: 10)]
@@ -78,6 +80,8 @@ FactoryBot.define do
       suffix { 'Sr' }
       gender { 'M' }
       birth_date { '19800101' }
+      deceased_date { nil }
+      id_theft_flag { false }
       ssn { '555443333' }
       home_phone { '1112223333' }
       full_mvi_ids {

@@ -13,6 +13,7 @@ module MPI
       attribute :suffix, String
       attribute :gender, String
       attribute :birth_date, Common::DateTimeString
+      attribute :deceased_date, Common::DateTimeString
       attribute :ssn, String
       attribute :address, MviProfileAddress
       attribute :home_phone, String

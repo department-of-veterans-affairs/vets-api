@@ -31,6 +31,7 @@ module MPI
       SSN_XPATH = 'asOtherIDs'
       NAME_XPATH = 'name'
       ADDRESS_XPATH = 'addr'
+      DECEASED_XPATH = 'deceasedtime/@value'
       PHONE = 'telecom'
       PERSON_TYPE = 'PERSON_TYPE'
       PERSON_TYPE_SEPERATOR = '~'
@@ -124,6 +125,7 @@ module MPI
           suffix: name[:suffix],
           gender: locate_element(person_component, GENDER_XPATH),
           birth_date: locate_element(person_component, DOB_XPATH),
+          deceased_date: locate_element(person_component, DECEASED_XPATH),
           ssn: parse_ssn(locate_element(person_component, SSN_XPATH)),
           address: parse_address(person_component),
           home_phone: parse_phone(person, person_prefix),

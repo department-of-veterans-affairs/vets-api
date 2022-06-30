@@ -188,6 +188,10 @@ class User < Common::RedisStore
     }
   end
 
+  def deceased_date
+    Formatters::DateFormatter.format_date(mpi_profile&.deceased_date)
+  end
+
   def birth_date_mpi
     return nil unless mpi_profile
 

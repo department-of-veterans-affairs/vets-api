@@ -10,6 +10,7 @@ module SignIn
     end
 
     def perform
+      validate_mpi_record
       check_and_add_mpi_user
       update_and_persist_user
       create_code_container
@@ -17,6 +18,11 @@ module SignIn
     end
 
     private
+
+    def validate_mpi_record
+      raise SignIn::Errors::MPILockedAccountError, 'Theft Flag Detected' if current_user.id_theft_flag
+      raise SignIn::Errors::MPILockedAccountError, 'Death Flag Detected' if current_user.deceased_date
+    end
 
     def check_and_add_mpi_user
       return unless current_user.loa3? && current_user.icn.nil?
