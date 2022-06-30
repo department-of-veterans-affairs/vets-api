@@ -482,15 +482,26 @@ RSpec.describe 'Claims', type: :request do
               }
             }
           end
+          let(:lighthouse_claim) do
+            OpenStruct.new(
+              id: '0958d973-36fb-43ef-8801-2718bd33c825',
+              evss_id: '111111111',
+              claim_type: 'Compensation',
+              status: 'pending'
+            )
+          end
 
-          context 'and a Lighthouse claim does exist' do
-            let(:lighthouse_claim) do
-              OpenStruct.new(
-                id: '0958d973-36fb-43ef-8801-2718bd33c825',
-                evss_id: '111111111',
-                claim_type: 'Compensation',
-                status: 'pending'
-              )
+          context 'and there is 1 status' do
+            let(:bgs_claim) do
+              {
+                benefit_claim_details_dto: {
+                  benefit_claim_id: '111111111',
+                  claim_status_type: 'value from BGS',
+                  bnft_claim_lc_status: {
+                    phase_type: 'Pending'
+                  }
+                }
+              }
             end
 
             it "returns a claim with the Lighthouse 'id' and the BGS 'type'" do
@@ -508,6 +519,44 @@ RSpec.describe 'Claims', type: :request do
                 expect(response['endProductCode']).to eq(nil)
                 expect(json_response['id']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
                 expect(json_response['type']).to eq('value from BGS')
+                expect(json_response['status']).to eq('Pending')
+              end
+            end
+          end
+
+          context 'and there is more than 1 status' do
+            let(:bgs_claim) do
+              {
+                benefit_claim_details_dto: {
+                  benefit_claim_id: '111111111',
+                  claim_status_type: 'value from BGS',
+                  bnft_claim_lc_status: [{
+                    phas_chngd_dt: DateTime.now,
+                    phase_type: 'Pending'
+                  }, {
+                    phas_chngd_dt: DateTime.now - 1.day,
+                    phase_type: 'In Review'
+                  }]
+                }
+              }
+            end
+
+            it "returns a claim with the Lighthouse 'id' and the BGS 'type'" do
+              with_okta_user(scopes) do |auth_header|
+                expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                  .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
+                expect(ClaimsApi::AutoEstablishedClaim)
+                  .to receive(:get_by_id_or_evss_id).and_return(lighthouse_claim)
+
+                get claim_by_id_path, headers: auth_header
+
+                json_response = JSON.parse(response.body)
+                expect(response.status).to eq(200)
+                expect(json_response).to be_an_instance_of(Hash)
+                expect(response['endProductCode']).to eq(nil)
+                expect(json_response['id']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
+                expect(json_response['type']).to eq('value from BGS')
+                expect(json_response['status']).to eq('Pending')
               end
             end
           end
