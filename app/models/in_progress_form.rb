@@ -3,6 +3,8 @@
 require 'json_marshal/marshaller'
 
 class InProgressForm < ApplicationRecord
+  belongs_to :user_account, dependent: nil, optional: true
+
   class CleanUUID < ActiveRecord::Type::String
     def cast(value)
       super(value.to_s.delete('-'))
