@@ -10,7 +10,6 @@ RSpec.describe 'V2::SessionsController', type: :request do
     allow(Rails).to receive(:cache).and_return(memory_store)
     allow(Flipper).to receive(:enabled?)
       .with('check_in_experience_enabled').and_return(true)
-    allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_401_mapping_enabled').and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_custom_cookie_for_low_auth').and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled').and_return(false)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
@@ -414,83 +413,53 @@ RSpec.describe 'V2::SessionsController', type: :request do
     end
 
     context 'when LoROTA returns a 401 for token' do
-      context 'when 401 mapping feature flag is enabled' do
-        let(:resp) do
-          {
-            'errors' => [
-              {
-                'title' => 'Authentication Error',
-                'detail' => 'Authentication Error',
-                'code' => 'LOROTA-MAPPED-API_401',
-                'status' => '401'
-              }
-            ]
-          }
-        end
-
-        context 'in session created using last4' do
-          it 'returns a 401 error' do
-            VCR.use_cassette 'check_in/lorota/token/token_401' do
-              post '/check_in/v2/sessions', session_params
-
-              expect(response.status).to eq(401)
-              expect(JSON.parse(response.body)).to eq(resp)
-            end
-          end
-        end
-
-        context 'in session created using DOB' do
-          let(:session_params_with_dob) do
+      let(:resp) do
+        {
+          'errors' => [
             {
-              params: {
-                session: {
-                  uuid: uuid,
-                  dob: '1980-03-18',
-                  last_name: 'Johnson'
-                }
-              }
+              'title' => 'Authentication Error',
+              'detail' => 'Authentication Error',
+              'code' => 'LOROTA-API_401',
+              'status' => '401'
             }
-          end
+          ]
+        }
+      end
 
-          before do
-            allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
-                                                .and_return(true)
-          end
+      context 'in session created using last4' do
+        it 'returns a 401 error' do
+          VCR.use_cassette 'check_in/lorota/token/token_401' do
+            post '/check_in/v2/sessions', session_params
 
-          it 'returns a 401 error' do
-            VCR.use_cassette 'check_in/lorota/token/token_401' do
-              post '/check_in/v2/sessions', session_params_with_dob
-
-              expect(response.status).to eq(401)
-              expect(JSON.parse(response.body)).to eq(resp)
-            end
+            expect(response.status).to eq(401)
+            expect(JSON.parse(response.body)).to eq(resp)
           end
         end
       end
 
-      context 'when 401 mapping feature flag is disabled' do
-        let(:resp) do
+      context 'in session created using DOB' do
+        let(:session_params_with_dob) do
           {
-            'errors' => [
-              {
-                'title' => 'Operation failed',
-                'detail' => 'Operation failed',
-                'code' => 'VA900',
-                'status' => '400'
+            params: {
+              session: {
+                uuid: uuid,
+                dob: '1980-03-18',
+                last_name: 'Johnson'
               }
-            ]
+            }
           }
         end
 
         before do
-          allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_401_mapping_enabled').and_return(false)
+          allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
+                                              .and_return(true)
         end
 
-        it 'returns a 400 error' do
+        it 'returns a 401 error' do
           VCR.use_cassette 'check_in/lorota/token/token_401' do
-            post '/check_in/v2/sessions', session_params
+            post '/check_in/v2/sessions', session_params_with_dob
 
-            expect(response.status).to eq(400)
+            expect(response.status).to eq(401)
             expect(JSON.parse(response.body)).to eq(resp)
           end
         end

@@ -56,7 +56,6 @@ describe V2::Lorota::Client do
       end
 
       before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_401_mapping_enabled').and_return(true)
         allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
                                             .and_return(false)
         allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
@@ -78,7 +77,6 @@ describe V2::Lorota::Client do
       end
 
       before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_401_mapping_enabled').and_return(true)
         allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
                                             .and_return(true)
         allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)

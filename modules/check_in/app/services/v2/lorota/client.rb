@@ -78,11 +78,7 @@ module V2
       def connection
         Faraday.new(url: url) do |conn|
           conn.use :breakers
-          if Flipper.enabled?('check_in_experience_lorota_401_mapping_enabled')
-            conn.response :raise_error, error_prefix: 'LOROTA-MAPPED-API'
-          else
-            conn.response :raise_error, error_prefix: service_name
-          end
+          conn.response :raise_error, error_prefix: 'LOROTA-API'
           conn.response :betamocks if mock_enabled?
 
           conn.adapter Faraday.default_adapter
