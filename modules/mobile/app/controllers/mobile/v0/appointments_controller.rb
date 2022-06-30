@@ -3,7 +3,7 @@
 module Mobile
   module V0
     class AppointmentsController < ApplicationController
-      after_action :clear_appointments_cache, only: %i[cancel create]
+      after_action :clear_appointments_cache, only: :cancel
 
       def index
         use_cache = params[:useCache] || true
@@ -46,16 +46,9 @@ module Mobile
       end
 
       def create
-        Rails.logger.info('mobile appointments create', user_uuid: @current_user.uuid,
-                                                        params: params.except(:description,
-                                                                              :comment,
-                                                                              :patient_instruction,
-                                                                              :contact,
-                                                                              :reason))
-
         new_appointment = appointments_helper.create_new_appointment(params)
         serializer = VAOS::V2::VAOSSerializer.new
-        serialized = serializer.serialize(new_appointment, 'appointment')
+        serialized = serializer.serialize(new_appointment, 'appointmentRequest')
         render json: { data: serialized }, status: :created
       end
 
