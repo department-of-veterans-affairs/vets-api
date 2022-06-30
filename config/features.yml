@@ -685,6 +685,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for health apartment proof of concept
+  va_online_scheduling_clinic_location:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for display of clinic location on appointment detail page
   va_online_scheduling_status_improvement:
     actor_type: user
     enable_in_development: true
