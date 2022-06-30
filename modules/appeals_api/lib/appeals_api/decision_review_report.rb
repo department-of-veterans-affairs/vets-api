@@ -5,10 +5,6 @@ module AppealsApi
     attr_reader :from, :to
 
     FAULTY_STATUSES = %w[error].freeze
-    # Evidence Submissions have a numerical ID PK and a UUID, while the rest of the record types only have a UUID ID PK
-    # Use this presenter to display the UUID as though it were the ID attribute like the rest of the records
-    EvidenceSubmissionPresenter = Struct.new(*%i[id source status code detail created_at updated_at],
-                                             keyword_init: true)
 
     def initialize(from: nil, to: nil)
       @from = from
@@ -79,13 +75,11 @@ module AppealsApi
     end
 
     def faulty_evidence_submission
-      @faulty_evidence_submission ||= [].tap do |a|
+      @faulty_evidence_submission ||=
         EvidenceSubmission
-          .errored
-          .where(created_at: from..to, supportable_type: 'AppealsApi::NoticeOfDisagreement')
-          .order(created_at: :desc)
-          .find_each { |es| a << new_evidence_submission_presenter(es) }
-      end
+        .errored
+        .where(created_at: from..to, supportable_type: 'AppealsApi::NoticeOfDisagreement')
+        .order(created_at: :desc)
     end
 
     # Evidence submissions - SC
@@ -94,13 +88,11 @@ module AppealsApi
     end
 
     def sc_faulty_evidence_submission
-      @sc_faulty_evidence_submission ||= [].tap do |a|
+      @sc_faulty_evidence_submission ||=
         EvidenceSubmission
-          .errored
-          .where(created_at: from..to, supportable_type: 'AppealsApi::SupplementalClaim')
-          .order(created_at: :desc)
-          .find_each { |es| a << new_evidence_submission_presenter(es) }
-      end
+        .errored
+        .where(created_at: from..to, supportable_type: 'AppealsApi::SupplementalClaim')
+        .order(created_at: :desc)
     end
 
     def no_faulty_records?
@@ -139,18 +131,6 @@ module AppealsApi
       record_type.where('updated_at < ?', timeframe.beginning_of_day)
                  .where(status: status_class::STATUSES - status_class::COMPLETE_STATUSES)
                  .order(created_at: :desc)
-    end
-
-    def new_evidence_submission_presenter(evidence_submission)
-      EvidenceSubmissionPresenter.new(
-        id: evidence_submission.guid,
-        source: evidence_submission.source,
-        status: evidence_submission.status,
-        code: evidence_submission.code,
-        detail: evidence_submission.detail,
-        created_at: evidence_submission.created_at,
-        updated_at: evidence_submission.updated_at
-      )
     end
   end
 end

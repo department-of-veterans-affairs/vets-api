@@ -27,9 +27,31 @@
         padding: 5px 10px;
         vertical-align: top;
       }
-      table tr td.right-align {
+      table tr td.right-align, table tr th.right-align {
         text-align: right;
       }
+
+      table tr td.shrink-spacing {
+        padding: 3px
+      }
+
+     .inner.vertical th, .inner.vertical td {
+        border: none;
+        border-bottom: 1px solid #d3d3d3;
+      }
+
+      .inner.vertical td {
+        border-left: 1px solid #d3d3d3;
+      }
+
+      .inner.vertical tr:last-child th, .inner.vertical tr:last-child td {
+        border-bottom: none;
+      }
+
+      th.evidence-identifiers {
+        min-width: 330px;
+      }
+
       h2 {
         margin: 30px 0 2px;
       }
@@ -52,7 +74,7 @@
     <br />
     <hr />
 
-    <%= render partial: 'appeal_table', locals: { appeal_name: 'NOD Evidence', appeal_status_and_count: @report.evidence_submission_by_status_and_count, faulty_appeals: @report.faulty_evidence_submission, total_count: nil } %>
+    <%= render partial: 'evidence_table', locals: { title: 'NOD Evidence', status_and_count: @report.evidence_submission_by_status_and_count, faulty: @report.faulty_evidence_submission, total_count: nil } %>
 
     <br />
     <hr />
@@ -62,6 +84,6 @@
     <br />
     <hr />
 
-    <%= render partial: 'appeal_table', locals: { appeal_name: 'SC Evidence', appeal_status_and_count: @report.sc_evidence_submission_by_status_and_count, faulty_appeals: @report.sc_faulty_evidence_submission, total_count: nil } %>
+    <%= render partial: 'evidence_table', locals: { title: 'SC Evidence', status_and_count: @report.sc_evidence_submission_by_status_and_count, faulty: @report.sc_faulty_evidence_submission, total_count: nil } %>
   </body>
 </html>
