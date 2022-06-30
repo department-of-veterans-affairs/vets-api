@@ -8,6 +8,8 @@ module Mobile
       include FastJsonapi::ObjectSerializer
 
       set_type :militaryInformation
+      set_id :uuid
+
       attribute :service_history do |user|
         formatted_result = []
         user.military_information.service_history.each do |service_period|
