@@ -102,6 +102,15 @@ module ClaimsApi
           claim_id.to_s.include?('-')
         end
 
+        # The status can either be an object or array
+        # This picks the most recent status from the array
+        def cast_claim_lc_status(status)
+          stat = [status].flatten.max_by do |t|
+            t[:phase_chngd_dt]
+          end
+          stat[:phase_type]
+        end
+
         # the 'ebenefits' services used in the 'index' and 'show' actions return differing data structures
         #  massage the 'show' data structure to be in a state that the BGSToLighthouseClaimsMapperService can use
         def massage_bgs_claim(bgs_claim:)
@@ -113,7 +122,7 @@ module ClaimsApi
             claim_status_type: claim_details[:claim_status_type],
             contentions: claim_details[:contentions]&.split(','),
             poa: claim_details[:poa]&.titleize,
-            phase_type: claim_details[:bnft_claim_lc_status][:phase_type],
+            phase_type: cast_claim_lc_status(claim_details[:bnft_claim_lc_status]),
             end_product_code: claim_details[:end_prdct_type_cd],
             filed5103_waiver_ind: claim_details[:filed5103_waiver_ind],
             development_letter_sent: claim_details[:development_letter_sent],
