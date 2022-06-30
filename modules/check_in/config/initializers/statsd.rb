@@ -20,6 +20,10 @@ unless Rails.env.test?
       CheckIn::V2::PreCheckInsController.statsd_count_success method, "api.check_in.v2.pre_checkins.#{method}.count"
     end
 
+    CheckIn::V2::DemographicsController.extend(StatsD::Instrument)
+    CheckIn::V2::DemographicsController.statsd_measure :update, 'api.check_in.v2.demographics.update.measure'
+    CheckIn::V2::DemographicsController.statsd_count_success :update, 'api.check_in.v2.demographics.update.count'
+
     # Measure the count/duration of GET/POST calls for LoROTA/CHIP services
     V2::Lorota::Client.extend(StatsD::Instrument)
     %i[token data].each do |method|
