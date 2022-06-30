@@ -42,7 +42,7 @@ FactoryBot.define do
              guid: SecureRandom.uuid,
              status: 'error',
              code: '404',
-             detail: SecureRandom.alphanumeric(150))
+             detail: Faker::Lorem.sentence(word_count: 20))
     }
   end
 end
