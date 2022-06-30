@@ -96,12 +96,12 @@ class MPIData < Common::RedisStore
   # The user's Cerner facility ids
   #
   # @return [Array[String]] the the list of Cerner facility ids
-  delegate :cerner_facility_ids, to: :profile
+  delegate :cerner_facility_ids, to: :profile, allow_nil: true
 
   # Identity theft flag
   #
   # @return [Boolean] presence or absence of identity theft flag
-  delegate :id_theft_flag, to: :profile
+  delegate :id_theft_flag, to: :profile, allow_nil: true
 
   # The person types that the user's profile represents
   #

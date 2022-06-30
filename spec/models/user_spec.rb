@@ -988,6 +988,33 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '#deceased_date' do
+    let!(:user) { described_class.new(build(:user, :mhv, mhv_icn: 'some-mhv-icn')) }
+
+    context 'and MPI Profile deceased date does not exist' do
+      before do
+        allow_any_instance_of(MPI::Models::MviProfile).to receive(:deceased_date).and_return nil
+      end
+
+      it 'returns nil' do
+        expect(user.deceased_date).to eq nil
+      end
+    end
+
+    context 'and MPI Profile deceased date does exist' do
+      let(:mvi_profile) { build(:mvi_profile, deceased_date: deceased_date) }
+      let(:deceased_date) { '20200202' }
+
+      before do
+        stub_mpi(mvi_profile)
+      end
+
+      it 'returns iso8601 parsed date from the MPI Profile deceased_date attribute' do
+        expect(user.deceased_date).to eq Date.parse(deceased_date).iso8601
+      end
+    end
+  end
+
   describe '#relationships' do
     let(:user) { described_class.new(build(:user_with_relationship)) }
 

@@ -146,6 +146,7 @@ describe MPI::Responses::ProfileParser do
           suffix: 'Jr',
           gender: 'M',
           birth_date: '19901004',
+          deceased_date: nil,
           ssn: '999123456',
           home_phone: '1112223333',
           icn: nil,
