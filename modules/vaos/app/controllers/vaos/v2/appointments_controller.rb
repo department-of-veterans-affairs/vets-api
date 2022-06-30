@@ -106,7 +106,7 @@ module VAOS
         cached_clinics = {}
         appointments.each do |appt|
           unless appt[:clinic].nil?
-            unless cached_clinics[:clinic]
+            unless cached_clinics[appt[:clinic]]
               clinic = get_clinic(appt[:location_id], appt[:clinic])
               cached_clinics[appt[:clinic]] = clinic
             end
@@ -124,7 +124,7 @@ module VAOS
         cached_facilities = {}
         appointments.each do |appt|
           unless appt[:location_id].nil?
-            unless cached_facilities[:location_id]
+            unless cached_facilities[appt[:location_id]]
               facility = get_facility(appt[:location_id])
               cached_facilities[appt[:location_id]] = facility
             end
