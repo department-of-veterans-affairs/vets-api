@@ -71,6 +71,7 @@ module V1
       Swagger::V1::Requests::Appeals::Appeals,
       Swagger::V1::Schemas::Appeals::Requests,
       Swagger::V1::Schemas::Appeals::HigherLevelReview,
+      Swagger::V1::Schemas::Appeals::NoticeOfDisagreement,
       self
     ].freeze
 

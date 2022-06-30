@@ -1,0 +1,77 @@
+{
+  "data": [
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "ratingIssueSubjectText": "right knee",
+        "ratingIssuePercentNumber": "10",
+        "ratingIssueReferenceId": "826209920000",
+        "ratingIssueProfileDate": "2019-02-22",
+        "ratingIssueDiagnosticCode": null,
+        "description": "Right knee",
+        "isRating": true,
+        "latestIssuesInChain": [
+          {
+            "id": null,
+            "approxDecisionDate": "2019-02-26"
+          }
+        ],
+        "decisionIssueId": null,
+        "ratingDecisionReferenceId": null,
+        "approxDecisionDate": "2019-02-26",
+        "rampClaimId": null,
+        "titleOfActiveReview": null,
+        "sourceReviewType": null,
+        "timely": true
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "ratingIssueSubjectText": "ptsd",
+        "ratingIssueReferenceId": "826209441170",
+        "ratingIssueProfileDate": "2019-02-22",
+        "ratingIssueDiagnosticCode": null,
+        "description": "PTSD",
+        "isRating": true,
+        "latestIssuesInChain": [
+          {
+            "id": null,
+            "approxDecisionDate": "2019-02-25"
+          }
+        ],
+        "decisionIssueId": null,
+        "ratingDecisionReferenceId": null,
+        "approxDecisionDate": "2019-02-25",
+        "rampClaimId": null,
+        "titleOfActiveReview": null,
+        "sourceReviewType": null,
+        "timely": true
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "ratingIssueSubjectText": "left knee",
+        "ratingIssueReferenceId": "826209597423",
+        "ratingIssueProfileDate": "2019-02-22",
+        "ratingIssueDiagnosticCode": null,
+        "description": "Left knee",
+        "isRating": true,
+        "latestIssuesInChain": [
+          {
+            "id": null,
+            "approxDecisionDate": "2019-02-24"
+          }
+        ],
+        "decisionIssueId": null,
+        "ratingDecisionReferenceId": null,
+        "approxDecisionDate": "2019-02-24",
+        "rampClaimId": null,
+        "titleOfActiveReview": null,
+        "sourceReviewType": null,
+        "timely": true
+      }
+    }
+  ]
+}

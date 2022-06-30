@@ -376,6 +376,11 @@ Rails.application.routes.draw do
       get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
     end
     resources :higher_level_reviews, only: %i[create show]
+
+    namespace :notice_of_disagreements do
+      get 'contestable_issues', to: 'contestable_issues#index'
+    end
+    resources :notice_of_disagreements, only: %i[create show]
   end
 
   root 'v0/example#index', module: 'v0'

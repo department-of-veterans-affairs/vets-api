@@ -1,0 +1,61 @@
+{
+  "data": {
+    "id": "00000000-1111-2222-3333-444444444444",
+    "type": "noticeOfDisagreement",
+    "attributes": {
+      "status": "pending",
+      "updatedAt": "2020-01-02T03:04:05.067Z",
+      "createdAt": "2020-01-02T03:04:05.067Z",
+      "formData": {
+        "data": {
+          "type": "noticeOfDisagreement",
+          "attributes": {
+            "veteran": {
+              "homeless": false,
+              "address": {
+                "addressLine1": "123 Main St",
+                "city": "North Pole",
+                "countryCodeISO2": "CA",
+                "zipCode5": "00000"
+              },
+              "phone": {
+                "areaCode": "555",
+                "phoneNumber": "8001111"
+              },
+              "email": "clause@north.com",
+              "timezone": "America/Chicago"
+            },
+            "representative": {
+              "name": "Tony Danza"
+            },
+            "boardReviewOption": "evidence_submission",
+            "requestingExtension": false,
+            "appealingVhaDenial": false
+          }
+        },
+        "included": [
+          {
+            "type": "contestableIssue",
+            "attributes": {
+              "issue": "tinnitus",
+              "decisionDate": "1900-01-01",
+              "decisionIssueId": 1,
+              "ratingIssueReferenceId": "2",
+              "ratingDecisionReferenceId": "3",
+              "disagreementArea": "Effective Date"
+            }
+          },
+          {
+            "type": "contestableIssue",
+            "attributes": {
+              "issue": "left knee",
+              "decisionDate": "1900-01-02",
+              "decisionIssueId": 4,
+              "ratingIssueReferenceId": "5"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
