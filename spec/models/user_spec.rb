@@ -189,6 +189,38 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '#common_name' do
+    let(:user) do
+      build(:user,
+            common_name: common_name,
+            first_name: first_name,
+            middle_name: middle_name,
+            last_name: last_name,
+            suffix: suffix)
+    end
+    let(:first_name) { 'some-first-name' }
+    let(:middle_name) { 'some-middle-name' }
+    let(:last_name) { 'some-last-name' }
+    let(:suffix) { 'some-suffix' }
+
+    context 'when common name is defined in the identity object' do
+      let(:common_name) { 'some-common-name' }
+
+      it 'returns the defined common name' do
+        expect(user.common_name).to eq(common_name)
+      end
+    end
+
+    context 'when common name is not defined in the identity object' do
+      let(:common_name) { nil }
+      let(:expected_common_name) { "#{first_name} #{middle_name} #{last_name} #{suffix}" }
+
+      it 'returns an expected generated common name string' do
+        expect(user.common_name).to eq(expected_common_name)
+      end
+    end
+  end
+
   describe '#ssn_mismatch?', :skip_mvi do
     let(:user) { build(:user, :loa3) }
     let(:mvi_profile) { build(:mvi_profile, ssn: mismatched_ssn) }

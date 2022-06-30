@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe BGS::BaseService do
-  let(:evss_user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:evss_user) { FactoryBot.create(:evss_user, :loa3, common_name: 'abraham.lincoln@vets.gov') }
   let(:user) { FactoryBot.create(:user, :loa3, icn: '12345', common_name: 'thisuserhasareallylongemailaddress@va.gov') }
 
   describe '#initialize_service' do
