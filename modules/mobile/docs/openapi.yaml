@@ -483,6 +483,8 @@ paths:
               - primaryCare
               - homeSleepTesting
               - socialWork
+              - cpap
+              - ophthalmology
         - description: List of facility ids
           in: path
           name: FacilityIds[]
@@ -578,6 +580,8 @@ paths:
               - primaryCare
               - homeSleepTesting
               - socialWork
+              - cpap
+              - ophthalmology
       responses:
         '200':
           content:
@@ -633,7 +637,7 @@ paths:
       summary: /v0/appointments/facilities/{facililty_id}/clinics
   /v0/appointments/facilities/{facililty_id}/clinics/{clinic_id}/slots:
     get:
-      description: \*WIP* - Accepts date range for a clinic at a va facility and returns available slots for a a direct schedule appointment.
+      description: Accepts date range for a clinic at a va facility and returns available slots for a a direct schedule appointment.
       operationId: slot
       parameters:
         - description: The start date for the range of appointments slots in ISO 8601 UTC
@@ -704,7 +708,7 @@ paths:
           description: A response from an upstream service timed out.
       security:
         - Bearer: []
-      summary: WIP /v0/appointments/facilities/{facililty_id}/clinics/{clinic_id}/slots
+      summary: /v0/appointments/facilities/{facililty_id}/clinics/{clinic_id}/slots
   /v0/appointments/va/eligibility:
     get:
       description: Lists types of service. For each type of service, lists users registered facilities that support request and direct appointments.

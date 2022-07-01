@@ -12,6 +12,7 @@ Mobile::Engine.routes.draw do
     get '/appointments/va/eligibility', to: 'veterans_affairs_eligibility#show'
     get '/appointments/facility/eligibility', to: 'facility_eligibility#index'
     get '/appointments/facilities/:facility_id/clinics', to: 'clinics#index'
+    get '/appointments/facilities/:facility_id/clinics/:clinic_id/slots', to: 'clinics#slots'
     post '/appointment', to: 'appointments#create'
     get '/claims-and-appeals-overview', to: 'claims_and_appeals#index'
     get '/claim/:id', to: 'claims_and_appeals#get_claim'
