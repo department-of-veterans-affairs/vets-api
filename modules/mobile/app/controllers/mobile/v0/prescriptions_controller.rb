@@ -5,8 +5,6 @@ require 'rx/client'
 module Mobile
   module V0
     class PrescriptionsController < ApplicationController
-      include Filterable
-
       before_action { authorize :mhv_prescriptions, :access? }
 
       def index
