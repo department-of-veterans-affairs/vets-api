@@ -54,10 +54,10 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         expect(response).to have_http_status(:not_found)
 
         expect(response.parsed_body).to eq({ 'errors' =>
-                                              [{ 'title' => 'Operation failed',
-                                                 'detail' => 'Prescription requested could not be found',
-                                                 'code' => 'RX138',
-                                                 'status' => '404' }] })
+                                               [{ 'title' => 'Operation failed',
+                                                  'detail' => 'Prescription requested could not be found',
+                                                  'code' => 'RX138',
+                                                  'status' => '404' }] })
       end
     end
 
@@ -136,32 +136,32 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         expect(response).to have_http_status(:ok)
         expect(response.body).to match_json_schema('prescription')
         expect(response.parsed_body['meta']).to eq({ 'pagination' =>
-                                                      { 'currentPage' => 2,
-                                                        'perPage' => 3,
-                                                        'totalPages' => 20,
-                                                        'totalEntries' => 59 } })
+                                                       { 'currentPage' => 2,
+                                                         'perPage' => 3,
+                                                         'totalPages' => 20,
+                                                         'totalEntries' => 59 } })
         expect(response.parsed_body['links']).to eq(
           { 'self' =>
-            'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=2',
+              'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=2',
             'first' =>
-            'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=1',
+              'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=1',
             'prev' =>
-            'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=1',
+              'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=1',
             'next' =>
-            'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=3',
+              'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=3',
             'last' =>
-            'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=20' }
+              'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=20' }
         )
       end
     end
 
     describe 'filtering parameters' do
       context 'filter by refill status' do
-        let(:filter_param) { 'filter[[refill_status][eq]]=refillinprocess' }
+        params = { filter: { refill_status: { eq: 'refillinprocess' } } }
 
         it 'returns all prescriptions that are refillinprocess status' do
           VCR.use_cassette('rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
-            get "/mobile/v0/health/rx/prescriptions?#{filter_param}", headers: iam_headers
+            get '/mobile/v0/health/rx/prescriptions', params: params, headers: iam_headers
           end
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('prescription')
@@ -172,11 +172,11 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       end
 
       context 'filter by multiple fields' do
-        let(:filter_param) { 'filter[[is_refillable][eq]]=true&&filter[[is_trackable][eq]]=true' }
+        params = { filter: { is_refillable: { eq: 'true' }, is_trackable: { eq: 'true' } } }
 
         it 'returns all prescriptions that are both trackable and refillable' do
           VCR.use_cassette('rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
-            get "/mobile/v0/health/rx/prescriptions?#{filter_param}", headers: iam_headers
+            get '/mobile/v0/health/rx/prescriptions', params: params, headers: iam_headers
           end
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('prescription')
@@ -187,12 +187,13 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       end
 
       context 'filter by multiple types of refill_statuses' do
-        let(:params) { { page: { number: 1, size: 100 } } }
-        let(:filter_param) { 'filter[[refill_status][eq]]=refillinprocess,active' }
+        let(:params) do
+          { page: { number: 1, size: 100 }, filter: { refill_status: { eq: 'refillinprocess,active' } } }
+        end
 
         it 'returns all prescriptions that are both trackable and refillable' do
           VCR.use_cassette('rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
-            get "/mobile/v0/health/rx/prescriptions?#{filter_param}", params: params, headers: iam_headers
+            get '/mobile/v0/health/rx/prescriptions', params: params, headers: iam_headers
           end
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('prescription')
@@ -203,12 +204,11 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       end
 
       context 'filter by not equal to refill status' do
-        params = { page: { number: 1, size: 59 } }
-        let(:filter_param) { 'filter[[refill_status][not_eq]]=refillinprocess' }
+        params = { page: { number: 1, size: 59 }, filter: { refill_status: { not_eq: 'refillinprocess' } } }
 
         it 'returns all prescriptions that are not refillinprocess status' do
           VCR.use_cassette('rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
-            get "/mobile/v0/health/rx/prescriptions?#{filter_param}", params: params, headers: iam_headers
+            get '/mobile/v0/health/rx/prescriptions', params: params, headers: iam_headers
           end
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('prescription')
@@ -221,19 +221,19 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       end
 
       context 'invalid filter option' do
-        let(:filter_param) { 'filter[[quantity][eq]]=8' }
+        params = { filter: { quantity: { eq: '8' } } }
 
         it 'cannot filter by unexpected field' do
           VCR.use_cassette('rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
-            get "/mobile/v0/health/rx/prescriptions?#{filter_param}", headers: iam_headers
+            get '/mobile/v0/health/rx/prescriptions', params: params, headers: iam_headers
           end
           expect(response).to have_http_status(:bad_request)
           expect(response.parsed_body).to eq({ 'errors' =>
-                                                [{ 'title' => 'Filter not allowed',
-                                                   'detail' =>
-                                                    '"{"quantity"=>{"eq"=>"8"}}" is not allowed for filtering',
-                                                   'code' => '104',
-                                                   'status' => '400' }] })
+                                                 [{ 'title' => 'Filter not allowed',
+                                                    'detail' =>
+                                                      '"{"quantity"=>{"eq"=>"8"}}" is not allowed for filtering',
+                                                    'code' => '104',
+                                                    'status' => '400' }] })
         end
       end
     end
@@ -267,10 +267,10 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('prescription')
           expect(response.parsed_body['data'].map do |d|
-                   d.dig('attributes',
-                         'refillStatus')
-                 end).to eq(%w[unknown transferred submitted submitted submitted submitted refillinprocess
-                               refillinprocess refillinprocess refillinprocess])
+            d.dig('attributes',
+                  'refillStatus')
+          end).to eq(%w[unknown transferred submitted submitted submitted submitted refillinprocess
+                        refillinprocess refillinprocess refillinprocess])
         end
       end
 
@@ -284,24 +284,22 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
 
           expect(response).to have_http_status(:bad_request)
           expect(response.parsed_body).to eq({ 'errors' =>
-                                                [{ 'title' => 'Invalid sort criteria',
-                                                   'detail' =>
-                                                    '"quantity" is not a valid sort criteria for "Prescription"',
-                                                   'code' => '106',
-                                                   'status' => '400' }] })
+                                                 [{ 'title' => 'Invalid sort criteria',
+                                                    'detail' =>
+                                                      '"quantity" is not a valid sort criteria for "Prescription"',
+                                                    'code' => '106',
+                                                    'status' => '400' }] })
         end
       end
     end
 
     describe 'all parameters' do
       it 'Filters, sorts and paginates prescriptions' do
-        params = { 'page' => { number: 2, size: 3 }, 'sort' => '-refill_date' }
-
-        # nested array causes issues as query param, so setting it in url
-        filter_param = 'filter[[refill_status][eq]]=refillinprocess'
+        params = { 'page' => { number: 2, size: 3 }, 'sort' => '-refill_date',
+                   filter: { refill_status: { eq: 'refillinprocess' } } }
 
         VCR.use_cassette('rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
-          get "/mobile/v0/health/rx/prescriptions?#{filter_param}", params: params, headers: iam_headers
+          get '/mobile/v0/health/rx/prescriptions', params: params, headers: iam_headers
         end
         expect(response).to have_http_status(:ok)
         expect(response.body).to match_json_schema('prescription')
