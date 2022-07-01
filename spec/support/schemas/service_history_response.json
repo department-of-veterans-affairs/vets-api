@@ -4,8 +4,11 @@
   "properties": {
     "data": {
       "properties": {
-        "attributes": {
-          "properties": {
+        "attributes": {       
+          "properties": {          
+            "data_source": {
+              "type": "string"
+            },            
             "service_history": {
               "description": "Array of service history hashes",
               "items": {

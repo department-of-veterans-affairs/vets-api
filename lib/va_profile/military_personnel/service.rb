@@ -15,7 +15,6 @@ module VAProfile
 
       configuration VAProfile::MilitaryPersonnel::Configuration
 
-      STATSD_KEY_PREFIX = 'api.vaprofile'
       OID = '2.16.840.1.113883.3.42.10001.100001.12'
       AAID = '^NI^200DOD^USDOD'
 

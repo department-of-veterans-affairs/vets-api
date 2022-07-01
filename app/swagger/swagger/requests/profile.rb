@@ -945,6 +945,7 @@ module Swagger
               property :data, type: :object do
                 key :required, [:attributes]
                 property :attributes, type: :object do
+                  property :data_source, type: :string, example: 'api.va_profile'
                   key :required, [:service_history]
                   property :service_history do
                     key :type, :array

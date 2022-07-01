@@ -19,6 +19,7 @@ module V0
       #       "id"         => "",
       #       "type"       => "arrays",
       #       "attributes" => {
+      #         "data_source" => "api.va_profile",
       #         "service_history" => [
       #           {
       #             "branch_of_service" => "Air Force",
@@ -50,7 +51,10 @@ module V0
 
         json = JSON.parse(response.episodes.to_json, symbolize_names: true)
 
-        render status: response.status, json: json, serializer: ServiceHistorySerializer
+        render status: response.status,
+               json: json,
+               serializer: ServiceHistorySerializer,
+               data_source: VAProfile::Stats::STATSD_KEY_PREFIX
       end
 
       def get_military_info_from_legacy
@@ -59,14 +63,14 @@ module V0
         handle_errors!(response)
         report_results(response)
 
-        render json: response, serializer: ServiceHistorySerializer
+        render json: response, serializer: ServiceHistorySerializer, data_source: EMIS::Service::STATSD_KEY_PREFIX
       end
 
       def check_authorization
         report_edipi_presence
 
         if use_vaprofile?
-          authorize :mpi, :queryable?
+          authorize :vet360, :military_access?
         else
           authorize :emis, :access?
         end
