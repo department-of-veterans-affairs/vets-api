@@ -4,4 +4,8 @@ Vet360Policy = Struct.new(:user, :vet360) do
   def access?
     user.vet360_id.present?
   end
+
+  def military_access?
+    user.edipi.present?
+  end
 end
