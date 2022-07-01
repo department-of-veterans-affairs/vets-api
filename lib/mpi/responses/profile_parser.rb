@@ -31,7 +31,7 @@ module MPI
       SSN_XPATH = 'asOtherIDs'
       NAME_XPATH = 'name'
       ADDRESS_XPATH = 'addr'
-      DECEASED_XPATH = 'deceasedtime/@value'
+      DECEASED_XPATH = 'deceasedTime/@value'
       PHONE = 'telecom'
       PERSON_TYPE = 'PERSON_TYPE'
       PERSON_TYPE_SEPERATOR = '~'
