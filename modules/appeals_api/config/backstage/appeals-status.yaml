@@ -3,6 +3,7 @@ kind: API
 metadata:
   name: appeals-status-api
   description: Appeals Status APIs for VA Lighthouse program
+  title: Appeals Status API
   tags:
   - lighthouse
   - external

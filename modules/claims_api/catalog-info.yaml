@@ -3,6 +3,7 @@ kind: API
 metadata:
   name: claims-benefits
   description: Benefits APIs for VA Lighthouse program
+  title: Claims Benefits API
   tags:
   - lighthouse
   - external

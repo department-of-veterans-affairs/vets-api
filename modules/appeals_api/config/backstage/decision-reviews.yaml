@@ -3,6 +3,7 @@ kind: API
 metadata:
   name: decision-reviews-api
   description: Decision Reviews APIs for VA Lighthouse program
+  title: Decision Reviews API
   tags:
   - lighthouse
   - external
