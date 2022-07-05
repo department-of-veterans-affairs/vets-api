@@ -51,6 +51,27 @@ describe SignIn::Logingov::Service do
     end
   end
 
+  describe '#render_logout' do
+    let(:logingov_id_token) { 'some-logingov-id-token' }
+    let(:logout_redirect_uri) { Settings.logingov.logout_redirect_uri }
+    let(:expected_url_params) do
+      {
+        id_token_hint: logingov_id_token,
+        post_logout_redirect_uri: logout_redirect_uri,
+        state: state
+      }
+    end
+    let(:expected_url_host) { Settings.logingov.oauth_url }
+    let(:expected_url_path) { 'openid_connect/logout' }
+    let(:expected_url) { "#{expected_url_host}/#{expected_url_path}?#{expected_url_params.to_query}" }
+
+    before { allow(SecureRandom).to receive(:hex).and_return(state) }
+
+    it 'renders expected logout url' do
+      expect(subject.render_logout(id_token: logingov_id_token)).to eq(expected_url)
+    end
+  end
+
   describe '#token' do
     it 'returns an access token' do
       VCR.use_cassette('identity/logingov_200_responses') do

@@ -35,5 +35,6 @@ module SignIn
     class InvalidAcrError < StandardError; end
     class InvalidTypeError < StandardError; end
     class InvalidCredentialLevelError < StandardError; end
+    class InvalidCredentialInfoError < StandardError; end
   end
 end
