@@ -436,6 +436,33 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
       end
 
+      it "assigns a 'cid' (OKTA client_id)" do
+        with_okta_user(scopes) do |auth_header|
+          VCR.use_cassette('evss/claims/claims') do
+            VCR.use_cassette('evss/reference_data/get_intake_sites') do
+              jwt_payload = {
+                'ver' => 1,
+                'jti' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
+                'iss' => 'https://example.com/oauth2/default',
+                'aud' => 'api://default',
+                'iat' => Time.current.utc.to_i,
+                'exp' => Time.current.utc.to_i + 3600,
+                'cid' => '0oa1c01m77heEXUZt2p7',
+                'uid' => '00u1zlqhuo3yLa2Xs2p7',
+                'scp' => %w[claim.write],
+                'sub' => 'ae9ff5f4e4b741389904087d94cd19b2'
+              }
+              allow_any_instance_of(Token).to receive(:payload).and_return(jwt_payload)
+
+              post path, params: data, headers: headers.merge(auth_header)
+              token = JSON.parse(response.body)['data']['attributes']['token']
+              aec = ClaimsApi::AutoEstablishedClaim.find(token)
+              expect(aec.cid).to eq(jwt_payload['cid'])
+            end
+          end
+        end
+      end
+
       it 'sets the flashes' do
         with_okta_user(scopes) do |auth_header|
           VCR.use_cassette('evss/claims/claims') do

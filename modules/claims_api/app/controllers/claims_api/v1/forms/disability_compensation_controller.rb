@@ -43,7 +43,8 @@ module ClaimsApi
             form_data: form_attributes,
             flashes: flashes,
             special_issues: special_issues_per_disability,
-            source: source_name
+            source: source_name,
+            cid: token.payload['cid']
           )
 
           ClaimsApi::Logger.log('526', claim_id: auto_claim.id, detail: 'Submitted to Lighthouse',

@@ -31,6 +31,17 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
     expect(expected_claims.first.special_issues.first['special_issues']).to eq(['FDC', 'PTSD/2'])
   end
 
+  describe "persisting 'cid' (OKTA client_id)" do
+    it "stores 'cid' in the DB upon creation" do
+      auto_form.cid = 'ABC123'
+      auto_form.save!
+
+      claim = ClaimsApi::AutoEstablishedClaim.first
+
+      expect(claim.cid).to eq('ABC123')
+    end
+  end
+
   describe 'validate_service_dates' do
     context 'when activeDutyEndDate is before activeDutyBeginDate' do
       it 'throws an error' do
