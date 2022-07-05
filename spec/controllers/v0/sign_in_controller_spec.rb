@@ -445,11 +445,12 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:type) { 'logingov' }
         let(:response) { OpenStruct.new(access_token: token) }
         let(:token) { 'some-token' }
+        let(:logingov_uuid) { 'some-logingov_uuid' }
         let(:user_info) do
           OpenStruct.new(
             {
               verified_at: '1-1-2022',
-              sub: 'some-sub',
+              sub: logingov_uuid,
               social_security_number: '123456789',
               birthdate: '1-1-2022',
               given_name: 'some-name',
@@ -472,8 +473,9 @@ RSpec.describe V0::SignInController, type: :controller do
         end
 
         context 'and code is given that matches expected code for auth service' do
-          let(:response) { OpenStruct.new(access_token: token, id_token: id_token) }
+          let(:response) { OpenStruct.new(access_token: token, id_token: id_token, expires_in: expires_in) }
           let(:id_token) { JWT.encode(id_token_payload, OpenSSL::PKey::RSA.new(2048), 'RS256') }
+          let(:expires_in) { 900 }
           let(:id_token_payload) { { acr: login_gov_response_acr } }
           let(:login_gov_response_acr) { IAL::LOGIN_GOV_IAL2 }
 
@@ -517,6 +519,7 @@ RSpec.describe V0::SignInController, type: :controller do
                 last_name: user_info.family_name
               }
             end
+            let(:expected_credential_info_attributes) { { id_token: id_token, csp_uuid: logingov_uuid } }
 
             before do
               allow(SecureRandom).to receive(:uuid).and_return(client_code)
@@ -545,6 +548,13 @@ RSpec.describe V0::SignInController, type: :controller do
               user_account = UserAccount.last.id
               user = User.find(user_account)
               expect(user).to have_attributes(expected_user_attributes)
+            end
+
+            it 'creates a credential_info with expected attributes' do
+              subject
+
+              credential_info = SignIn::CredentialInfo.find(logingov_uuid)
+              expect(credential_info).to have_attributes(expected_credential_info_attributes)
             end
           end
         end
@@ -1334,6 +1344,7 @@ RSpec.describe V0::SignInController, type: :controller do
         create(:access_token, session_handle: oauth_session.handle)
       end
       let(:statsd_success) { SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_SUCCESS }
+      let(:logingov_uuid) { 'some-logingov-uuid' }
       let(:expected_log) { '[SignInService] [V0::SignInController] logout' }
       let(:expected_log_params) do
         {
@@ -1343,7 +1354,9 @@ RSpec.describe V0::SignInController, type: :controller do
           access_token_id: access_token_object.uuid
         }
       end
+      let(:logingov_id_token) { 'some-logingov-id-token' }
       let(:expected_status) { :ok }
+      let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid, logingov_uuid: logingov_uuid) }
 
       before do
         request.headers['Authorization'] = authorization
@@ -1355,10 +1368,6 @@ RSpec.describe V0::SignInController, type: :controller do
         }.from(oauth_session).to(nil)
       end
 
-      it 'returns ok status' do
-        expect(subject).to have_http_status(expected_status)
-      end
-
       it 'logs the logout call' do
         expect(Rails.logger).to receive(:info).with(expected_log, expected_log_params)
         subject
@@ -1366,6 +1375,39 @@ RSpec.describe V0::SignInController, type: :controller do
 
       it 'triggers statsd increment for successful call' do
         expect { subject }.to trigger_statsd_increment(statsd_success)
+      end
+
+      context 'and credential info was found with id token' do
+        let!(:credential_info) do
+          SignIn::CredentialInfo.new(csp_uuid: logingov_uuid,
+                                     id_token: logingov_id_token,
+                                     credential_type: credential_type).save!
+        end
+        let(:state) { 'some-state' }
+        let(:credential_type) { 'logingov' }
+        let(:logout_redirect_uri) { Settings.logingov.logout_redirect_uri }
+        let(:expected_url_params) do
+          {
+            id_token_hint: logingov_id_token,
+            post_logout_redirect_uri: logout_redirect_uri,
+            state: state
+          }
+        end
+        let(:expected_url_host) { Settings.logingov.oauth_url }
+        let(:expected_url_path) { 'openid_connect/logout' }
+        let(:expected_url) { "#{expected_url_host}/#{expected_url_path}?#{expected_url_params.to_query}" }
+
+        before { allow(SecureRandom).to receive(:hex).and_return(state) }
+
+        it 'redirects to login gov single sign out URL' do
+          expect(subject).to redirect_to(expected_url)
+        end
+      end
+
+      context 'and credential info was not found with id token' do
+        it 'returns ok status' do
+          expect(subject).to have_http_status(expected_status)
+        end
       end
 
       context 'and some arbitrary Sign In Error is raised' do

@@ -50,7 +50,7 @@ module V0
       if credential_level.can_uplevel_credential?
         render_uplevel_credential(state_payload, state)
       else
-        create_login_code(state_payload, user_info, credential_level)
+        create_login_code(state_payload, user_info, credential_level, service_token_response)
       end
     rescue SignIn::Errors::StandardError => e
       handle_callback_error(e, state_payload, state, code)
@@ -132,7 +132,12 @@ module V0
       delete_cookies if token_cookies
       log_successful_logout(@access_token)
 
-      render status: :ok
+      credential_info = SignIn::CredentialInfo.find(@current_user.logingov_uuid)
+      if credential_info
+        redirect_to auth_service(credential_info.credential_type).render_logout(id_token: credential_info.id_token)
+      else
+        render status: :ok
+      end
     rescue SignIn::Errors::StandardError => e
       handle_logout_error(e)
     end
@@ -285,8 +290,10 @@ module V0
              content_type: 'text/html'
     end
 
-    def create_login_code(state_payload, user_info, credential_level)
+    def create_login_code(state_payload, user_info, credential_level, service_token_response)
       user_attributes = auth_service(state_payload.type).normalized_attributes(user_info, credential_level)
+      SignIn::CredentialInfoCreator.new(csp_user_attributes: user_attributes,
+                                        csp_token_response: service_token_response).perform
       user_code_map = SignIn::UserCreator.new(user_attributes: user_attributes, state_payload: state_payload).perform
       log_successful_callback(state_payload.type, state_payload.client_id)
 
