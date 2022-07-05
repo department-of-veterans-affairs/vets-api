@@ -11,6 +11,7 @@ module ClaimsApi
       include ClaimsApi::MPIVerification
       include ClaimsApi::HeaderValidation
       include ClaimsApi::JsonFormatValidation
+      include ClaimsApi::CcgTokenValidation
 
       before_action :validate_json_format, if: -> { request.post? }
       before_action :validate_veteran_identifiers
@@ -107,22 +108,6 @@ module ClaimsApi
         vet.participant_id = vet.participant_id_mpi
 
         vet
-      end
-
-      def validate_ccg_token!
-        client = TokenValidation::V2::Client.new(api_key: Settings.claims_api.token_validation.api_key)
-        root_url = request.base_url == 'http://localhost:3000' ? 'https://sandbox-api.va.gov' : request.base_url
-        claims_audience = "#{root_url}/services/claims"
-        request_method_to_scope = {
-          'GET' => 'claim.read',
-          'PUT' => 'claim.write',
-          'POST' => 'claim.write'
-        }
-
-        @is_token_valid ||= client.token_valid?(audience: claims_audience,
-                                                scope: request_method_to_scope[request.method],
-                                                token: token)
-        raise ::Common::Exceptions::Forbidden unless @is_token_valid
       end
 
       def authenticate_token
