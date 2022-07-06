@@ -7,31 +7,31 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
     upload_claims = []
     upload_claims.push(FactoryBot.create(:auto_established_claim,
                                          :status_errored,
-                                         source: 'test consumer',
+                                         cid: '0oa9uf05lgXYk6ZXn297',
                                          evss_response: nil))
     upload_claims.push(FactoryBot.create(:auto_established_claim,
                                          :status_errored,
-                                         source: 'test consumer',
+                                         cid: '0oa9uf05lgXYk6ZXn297',
                                          evss_response: 'random string'))
     evss_response_array = [{ 'key' => 'key-here', 'severity' => 'FATAL', 'text' => 'message-here' }]
     upload_claims.push(FactoryBot.create(:auto_established_claim,
                                          :status_errored,
-                                         source: 'test consumer',
+                                         cid: '0oa9uf05lgXYk6ZXn297',
                                          evss_response: evss_response_array))
     upload_claims.push(FactoryBot.create(:auto_established_claim,
                                          :status_errored,
-                                         source: 'test consumer',
+                                         cid: '0oa9uf05lgXYk6ZXn297',
                                          evss_response: evss_response_array.to_json))
     upload_claims.push(FactoryBot.create(:auto_established_claim_without_flashes_or_special_issues,
                                          :status_errored,
-                                         source: 'test consumer',
+                                         cid: '0oa9uf05lgXYk6ZXn297',
                                          evss_response: evss_response_array.to_json))
     upload_claims.push(FactoryBot.create(:auto_established_claim_without_flashes_or_special_issues,
                                          :status_errored,
-                                         source: 'test consumer',
+                                         cid: '0oa9uf05lgXYk6ZXn297',
                                          evss_response: evss_response_array.to_json))
   end
-  let(:pending_claims) { FactoryBot.create(:auto_established_claim, source: 'test consumer') }
+  let(:pending_claims) { FactoryBot.create(:auto_established_claim, cid: '0oa9uf05lgXYk6ZXn297') }
   let(:poa_submissions) { FactoryBot.create(:power_of_attorney) }
   let(:errored_poa_submissions) do
     FactoryBot.create(:power_of_attorney, :errored)
@@ -55,8 +55,8 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
           consumer_claims_totals: [],
           unsuccessful_claims_submissions: ClaimsApi::AutoEstablishedClaim.where(created_at: from..to,
                                                                                  status: 'errored')
-                                                                      .order(:source, :status)
-                                                                      .pluck(:source, :status, :id),
+                                                                      .order(:cid, :status)
+                                                                      .pluck(:cid, :status, :id),
           poa_totals: { total: 0 },
           unsuccessful_poa_submissions: []
         ).and_return(double.tap do |mailer|
@@ -80,12 +80,12 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
         report.perform
         claims_totals = report.claims_totals
 
-        expected_issues = "#{((special_issues.to_f / claims_totals[0]['test consumer'][:totals]) * 100).round(2)}%"
-        expected_flash = "#{((flashes.to_f / claims_totals[0]['test consumer'][:totals]) * 100).round(2)}%"
+        expected_issues = "#{((special_issues.to_f / claims_totals[0]['VA TurboClaim'][:totals]) * 100).round(2)}%"
+        expected_flash = "#{((flashes.to_f / claims_totals[0]['VA TurboClaim'][:totals]) * 100).round(2)}%"
 
-        expect(claims_totals.first.keys).to eq(['test consumer'])
-        expect(claims_totals[0]['test consumer'][:percentage_with_flashes]).to eq(expected_flash)
-        expect(claims_totals[0]['test consumer'][:percentage_with_special_issues].to_s).to eq(expected_issues)
+        expect(claims_totals.first.keys).to eq(['VA TurboClaim'])
+        expect(claims_totals[0]['VA TurboClaim'][:percentage_with_flashes]).to eq(expected_flash)
+        expect(claims_totals[0]['VA TurboClaim'][:percentage_with_special_issues].to_s).to eq(expected_issues)
       end
     end
 
