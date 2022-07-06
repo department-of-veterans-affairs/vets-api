@@ -22,6 +22,8 @@ tags:
     description: Enrollment List
   - name: submit enrollment verification
     description: Enrollment Verification Submission
+  - name: sponsors
+    description: Sponsors
 servers:
   - url: https://sandbox-api.va.gov/meb_api/v0
     description: VA.gov API sandbox environment
@@ -363,7 +365,66 @@ paths:
           $ref: '#/components/responses/GatewayTimeout'
         default:
           description: Default error sample response
-  
+  /sponsors:
+    post:
+      tags:
+        - sponsors
+      summary: >-
+        Retrieves a JSON object containing sponsors data for an authenticated
+        benefits recipient.
+      description: Retrieves and returns the sponsors data for benefit selection.
+      operationId: sponsors
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Sponsors'
+      responses:
+        '201':
+          description: Retrieves sponsors containing an array of sponsor data.
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      attributes:
+                        $ref: '#/components/schemas/Sponsors'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '502':
+          $ref: '#/components/responses/BadGateway'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+        default:
+          description: Default error sample response
 components:
   securitySchemes:
     bearerAuth:
@@ -712,6 +773,30 @@ components:
               paymentOnHold:
                 type: boolean
                 example: false
+    SponsorsResponse:
+      description: >-
+        Response proxied from DGI microservice pipeline.
+      type: object
+      properties:
+        sponsors:
+          type: array
+          description: Contains one or more sponsor data.
+          items:
+            type: object
+            properties:
+              firstName:
+                type: string
+                example: "Jeff"
+              lastName:
+                type: string
+                example: "Tedford"
+              sponsorRelationship:
+                type: string
+                example: "spouse"
+              dateOfBirth:
+                type: string
+                example: "2021-08-31"
+
 
     Errors:
       required:

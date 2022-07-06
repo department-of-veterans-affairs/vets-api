@@ -11,6 +11,9 @@ MebApi::Engine.routes.draw do
     post 'submit_claim', to: 'education_benefits#submit_claim'
     get 'enrollment', to: 'education_benefits#enrollment'
     post 'submit_enrollment_verification', to: 'education_benefits#submit_enrollment_verification'
+
+    post 'sponsors', to: 'toes#sponsors'
+
     get 'apidocs', to: 'apidocs#index'
   end
 end
