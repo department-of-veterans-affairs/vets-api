@@ -378,19 +378,19 @@ features:
     enable_in_development: true
   mhv_to_logingov_account_transition:
     actor_type: cookie_id
-    description: Enables/disables MHV to Login.gov account transfer experience
+    description: Enables/disables MHV to Login.gov account transfer experience (Identity)
     enable_in_development: false
   mhv_to_logingov_account_transition_modal:
     actor_type: cookie_id
-    description: Enables/disables MHV to Login.gov account transfer modal experience
+    description: Enables/disables MHV to Login.gov account transfer modal experience (Identity)
     enable_in_development: false
   mhv_to_logingov_account_transition_banner:
     actor_type: cookie_id
-    description: Enables/disables MHV to Login.gov account transfer banner experience
+    description: Enables/disables MHV to Login.gov account transfer banner experience (Identity)
     enable_in_development: false
   mhv_to_logingov_account_transition_urgent:
     actor_type: cookie_id
-    description: Enables/disables MHV to Login.gov account transfer urgent experience
+    description: Enables/disables MHV to Login.gov account transfer urgent experience (Identity)
     enable_in_development: false
   mobile_api:
     actor_type: user
@@ -495,7 +495,7 @@ features:
     description: For 526 disability compensation asthma claims, add RRD PDF and set RRD special issue to route to RVSRs
     enable_in_development: true
   my_va_redirect:
-    actor_type: cookie
+    actor_type: cookie_id
     description: After authentication redirects a user to the My VA page if they are on the homepage
     enable_in_development: true
   rrd_hypertension_compensation:
@@ -582,6 +582,10 @@ features:
   show_medical_copays:
     actor_type: user
     description: Enables the medical copays application on route /manage-va-debt/medical-copays/
+    enable_in_development: true
+  sign_in_service_enabled:
+    actor_type: cookie_id
+    description: Enables the ability to use OAuth authentication via the Sign in Service (Identity)
     enable_in_development: true
   medical_copays_zero_debt:
     actor_type: user
