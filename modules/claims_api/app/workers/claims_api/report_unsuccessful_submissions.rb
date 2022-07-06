@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'claims_api/cid_mapper'
 
 module ClaimsApi
   class ReportUnsuccessfulSubmissions
@@ -10,7 +11,7 @@ module ClaimsApi
       if Settings.claims_api.report_enabled
         @to = Time.zone.now
         @from = 1.day.ago
-        @claims_consumers = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to).pluck(:source).uniq
+        @claims_consumers = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to).pluck(:cid).uniq
 
         ClaimsApi::UnsuccessfulReportMailer.build(
           @from,
@@ -24,8 +25,8 @@ module ClaimsApi
     end
 
     def unsuccessful_claims_submissions
-      errored_claims.pluck(:source, :created_at, :id).map do |source, created_at, id|
-        { id: id, created_at: created_at, source: source }
+      errored_claims.pluck(:cid, :created_at, :id).map do |cid, created_at, id|
+        { id: id, created_at: created_at, cid: cid }
       end
     end
 
@@ -33,37 +34,38 @@ module ClaimsApi
       ClaimsApi::AutoEstablishedClaim.where(
         created_at: @from..@to,
         status: %w[errored]
-      ).order(:source, :status)
+      ).order(:cid, :status)
     end
 
-    def with_special_issues(source: nil)
+    def with_special_issues(cid: nil)
       claims = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to)
-      claims = claims.where(source: source) if source.present?
+      claims = claims.where(cid: cid) if cid.present?
 
       claims.map { |claim| claim[:special_issues].length.positive? ? 1 : 0 }.sum.to_f
     end
 
-    def with_flashes(source: nil)
+    def with_flashes(cid: nil)
       claims = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to)
-      claims = claims.where(source: source) if source.present?
+      claims = claims.where(cid: cid) if cid.present?
 
       claims.map { |claim| claim[:flashes].length.positive? ? 1 : 0 }.sum.to_f
     end
 
     def claims_totals
-      @claims_consumers.map do |name|
-        counts = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to, source: name).group(:status).count
+      @claims_consumers.map do |cid|
+        counts = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to, cid: cid).group(:status).count
         totals = counts.sum { |_k, v| v }.to_f
 
-        percentage_with_flashes = "#{((with_flashes(source: name) / totals) * 100).round(2)}%"
-        percentage_with_special_issues = "#{((with_special_issues(source: name) / totals) * 100).round(2)}%"
+        percentage_with_flashes = "#{((with_flashes(cid: cid) / totals) * 100).round(2)}%"
+        percentage_with_special_issues = "#{((with_special_issues(cid: cid) / totals) * 100).round(2)}%"
 
         if totals.positive?
+          consumer_name = ClaimsApi::CidMapper.new(cid: cid).name
           {
-            name => counts.merge(totals: totals,
-                                 percentage_with_flashes: percentage_with_flashes.to_s,
-                                 percentage_with_special_issues: percentage_with_special_issues.to_s)
-                          .deep_symbolize_keys
+            consumer_name => counts.merge(totals: totals,
+                                          percentage_with_flashes: percentage_with_flashes.to_s,
+                                          percentage_with_special_issues: percentage_with_special_issues.to_s)
+                                   .deep_symbolize_keys
           }
         end
       end
