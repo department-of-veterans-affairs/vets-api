@@ -54,7 +54,8 @@
               }
             },
             "previous_poa": {
-              "type": ["string", "null"],
+              "type": "string",
+              "nullable": true,
               "description": "Current or Previous Power of Attorney Code submitted for Veteran"
             }
           }

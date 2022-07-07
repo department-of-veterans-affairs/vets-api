@@ -19,7 +19,8 @@
           "required": ["expiration_date", "type", "status"],
           "properties": {
             "creation_date": {
-              "type": ["string", "null"],
+              "type": "string",
+              "nullable": true,
               "format": "date",
               "description": "Date the Intent to File was received at the VA"
             },

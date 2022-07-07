@@ -21,26 +21,31 @@
           "required": ["open", "updated_at", "events_timeline", "status", "supporting_documents"],
           "properties": {
             "evss_id": {
-              "type": ["integer", "null"],
+              "type": "integer", 
+              "nullable": true,
               "description": "EVSS Claim ID"
             },
             "date_filed": {
-              "type": ["string", "null"],
+              "type": "string",
+              "nullable": true,
               "format": "date",
               "description": "Date in YYYY-MM-DD the claim was first filed"
             },
             "min_est_date": {
-              "type": ["string", "null"],
+              "type": "string",
+              "nullable": true,
               "format": "date",
               "description": "Minimum Estimated Claim Completion Date"
             },
             "max_est_date": {
-              "type": ["string", "null"],
+              "type": "string",
+              "nullable": true,
               "format": "date",
               "description": "Maximum Estimated Claim Completion Date"
             },
             "phase_change_date": {
-              "type": ["string", "null"],
+              "type": "string",
+              "nullable": true,
               "format": "date",
               "description": "Date of last phase change"
             },
@@ -49,36 +54,45 @@
               "description": "Has the claim been resolved"
             },
             "waiver_submitted": {
-              "type": ["boolean", "null"],
+              "type": "boolean", 
+              "nullable": true,
               "description": "Requested Decision or Waiver 5103 Submitted"
             },
             "documents_needed": {
-              "type": ["boolean", "null"],
+              "type": "boolean", 
+              "nullable": true,
               "description": "Does the claim require additional documents to be submitted"
             },
             "development_letter_sent": {
-              "type": ["boolean", "null"],
+              "type": "boolean", 
+              "nullable": true,
               "description": "Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim"
             },
             "decision_letter_sent": {
-              "type": ["boolean", "null"],
+              "type": "boolean", 
+              "nullable": true,
               "description": "Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim"
             },
             "phase": {
-              "type": ["string", "null"]
+              "type": "string",
+              "nullable": true
             },
             "ever_phase_back": {
-              "type": ["string", "null"]
+              "type": "string",
+              "nullable": true
             },
             "current_phase_back": {
-              "type": ["string", "null"]
+              "type": "string",
+              "nullable": true
             },
             "requested_decision": {
-              "type": ["string", "null"],
+              "type": "string",
+              "nullable": true,
               "description": "The claim filer has requested a claim decision be made"
             },
             "claim_type": {
-              "type": ["string", "null"],
+              "type": "string",
+              "nullable": true,
               "description": "The type of claim originally submitted"
             },
             "updated_at": {
@@ -87,10 +101,12 @@
               "description": "Time stamp of last change to the claim"
             },
             "contention_list": {
-              "type": ["array", "null"]
+              "type": "array", 
+              "nullable": true
             },
             "va_representative": {
-              "type": ["string", "null"]
+              "type": "string",
+              "nullable": true
             },
             "events_timeline": {
               "type": "array"
@@ -114,15 +130,18 @@
                     "type": "string"
                   },
                   "md5": {
-                    "type": ["string", "null"],
+                    "type": "string",
+                    "nullable": true,
                     "description": "Hashed representation of document"
                   },
                   "filename": {
-                    "type": ["string", "null"],
+                  "type": "string",
+                  "nullable": true,
                     "description": "Name of document"
                   },
                   "uploaded_at": {
-                    "type": ["string", "null"],
+                  "type": "string",
+                  "nullable": true,
                     "format": "date",
                     "description": "Date and time document was uploaded"
                   }

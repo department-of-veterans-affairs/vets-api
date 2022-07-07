@@ -30,7 +30,8 @@
               ]
             },
             "date_request_accepted": {
-              "type": ["string", "null"],
+              "type": "string",
+              "nullable": true,
               "description": "Date request was first accepted",
               "format": "date"
             },
@@ -50,17 +51,20 @@
                     },
                     "first_name": {
                       "description": "First name of representative, null if representative is an organization",
-                      "type": ["string", "null"],
+                      "type": "string", 
+                      "nullable": true,
                       "example": "Jane"
                     },
                     "last_name": {
                       "description": "Last name of representative, null if representative is an organization",
-                      "type": ["string", "null"],
+                      "type": "string",
+                      "nullable": true,
                       "example": "Doe"
                     },
                     "organization_name": {
                       "description": "Name of representing organization, null if representative is an individual",
-                      "type": ["string", "null"],
+                      "type": "string",
+                      "nullable": true,
                       "example": "Some Great Organization"
                     },
                     "phone_number": {
@@ -73,7 +77,8 @@
               }
             },
             "previous_poa": {
-              "type": ["string", "null"],
+              "type": "string",
+              "nullable": true,
               "description": "Current or Previous Power of Attorney Code submitted for Veteran"
             }
           }
