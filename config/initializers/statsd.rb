@@ -172,6 +172,7 @@ Rails.application.reloader.to_prepare do
   StatsD.increment(Form1010cg::Auditor.metrics.submission.success, 0)
   StatsD.increment(Form1010cg::Auditor.metrics.submission.failure.client.data, 0)
   StatsD.increment(Form1010cg::Auditor.metrics.submission.failure.client.qualification, 0)
+  StatsD.increment(Form1010cg::Auditor.metrics.submission.failure.attachments, 0)
   StatsD.increment(Form1010cg::Auditor.metrics.pdf_download, 0)
 
   StatsD.increment(Form1010cg::Auditor.metrics.submission.caregivers.primary_no_secondary, 0)

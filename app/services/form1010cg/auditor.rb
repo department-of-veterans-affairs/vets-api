@@ -26,7 +26,8 @@ module Form1010cg
             client: OpenStruct.new(
               data: "#{submission_prefix}.failure.client.data",
               qualification: "#{submission_prefix}.failure.client.qualification"
-            )
+            ),
+            attachments: "#{submission_prefix}.failure.attachments"
           )
         ),
         pdf_download: "#{STATSD_KEY_PREFIX}.pdf_download"

@@ -10,6 +10,25 @@ RSpec.describe Form1010cg::DeliverAttachmentsJob do
     expect(described_class.ancestors).to include(Sidekiq::Worker)
   end
 
+  describe 'when job has failed' do
+    let(:claim_guid) { SecureRandom.uuid }
+
+    let(:msg) do
+      {
+        'args' => [claim_guid]
+      }
+    end
+
+    it 'increments the attachments failed counter' do
+      expect(StatsD).to receive(:increment).with(
+        Form1010cg::Auditor.metrics.submission.failure.attachments,
+        tags: { claim_guid: claim_guid }
+      )
+
+      described_class.new.sidekiq_retries_exhausted_block.call(msg)
+    end
+  end
+
   describe '#perform' do
     let(:vcr_options) do
       {

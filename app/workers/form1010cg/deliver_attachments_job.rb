@@ -8,6 +8,13 @@ module Form1010cg
 
     include Sidekiq::Worker
 
+    sidekiq_retries_exhausted do |msg, _e|
+      StatsD.increment(
+        Form1010cg::Auditor.metrics.submission.failure.attachments,
+        tags: { claim_guid: msg['args'][0] }
+      )
+    end
+
     def perform(claim_guid)
       find_submission(claim_guid)
 
