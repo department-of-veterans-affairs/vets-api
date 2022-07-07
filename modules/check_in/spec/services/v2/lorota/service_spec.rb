@@ -99,40 +99,39 @@ describe V2::Lorota::Service do
           workPhone: '5554445555',
           emailAddress: 'kermit.frog@sesameenterprises.us'
         },
-        appointments: [
-          {
-            appointmentIEN: '1',
-            patientDFN: '888',
-            stationNo: '5625',
-            zipCode: 'appointment.zipCode',
-            clinicName: 'appointment.clinicName',
-            startTime: '2021-08-19T10:00:00',
-            clinicPhoneNumber: 'appointment.clinicPhoneNumber',
-            clinicFriendlyName: 'appointment.patientFriendlyName',
-            facility: 'appointment.facility',
-            facilityId: 'some-id',
-            appointmentCheckInStart: '2021-08-19T09:030:00',
-            appointmentCheckInEnds: 'time checkin Ends',
-            status: 'the status',
-            timeCheckedIn: 'time the user checked already'
-          },
-          {
-            appointmentIEN: '2',
-            patientDFN: '888',
-            stationNo: '5625',
-            zipCode: 'appointment.zipCode',
-            clinicName: 'appointment.clinicName',
-            startTime: '2021-08-19T15:00:00',
-            clinicPhoneNumber: 'appointment.clinicPhoneNumber',
-            clinicFriendlyName: 'appointment.patientFriendlyName',
-            facility: 'appointment.facility',
-            facilityId: 'some-id',
-            appointmentCheckInStart: '2021-08-19T14:30:00',
-            appointmentCheckInEnds: 'time checkin Ends',
-            status: 'the status',
-            timeCheckedIn: 'time the user checked already'
-          }
-        ]
+        appointments: [{
+          appointmentIEN: '460',
+          patientDFN: '888',
+          clinicName: 'Family Wellness',
+          checkedInTime: '',
+          checkInSteps: {},
+          startTime: '2021-12-23T08:30:00',
+          clinicPhoneNumber: '555-555-5555',
+          clinicFriendlyName: 'Health Wellness',
+          clinicIen: '500',
+          facility: 'VEHU DIVISION',
+          kind: 'clinic',
+          checkInWindowStart: '2021-12-23T08:00:00.000-05:00',
+          checkInWindowEnd: '2021-12-23T08:40:00.000-05:00',
+          eligibility: 'ELIGIBLE',
+          status: ''
+        }, {
+          appointmentIEN: '460',
+          patientDFN: '888',
+          clinicName: 'CARDIOLOGY',
+          checkedInTime: '',
+          checkInSteps: {},
+          startTime: '2021-12-23T08:30:00',
+          clinicPhoneNumber: '555-555-5555',
+          clinicFriendlyName: 'CARDIOLOGY',
+          clinicIen: '500',
+          facility: 'CARDIO DIVISION',
+          kind: 'phone',
+          checkInWindowStart: '2021-12-23T08:00:00.000-05:00',
+          checkInWindowEnd: '2021-12-23T08:40:00.000-05:00',
+          eligibility: 'ELIGIBLE',
+          status: ''
+        }]
       }
     }
   end
@@ -186,32 +185,36 @@ describe V2::Lorota::Service do
         },
         appointments: [
           {
-            'appointmentIEN' => '1',
-            'zipCode' => 'appointment.zipCode',
-            'clinicName' => 'appointment.clinicName',
-            'startTime' => '2021-08-19T10:00:00',
-            'clinicPhoneNumber' => 'appointment.clinicPhoneNumber',
-            'clinicFriendlyName' => 'appointment.patientFriendlyName',
-            'facility' => 'appointment.facility',
-            'facilityId' => 'some-id',
-            'appointmentCheckInStart' => '2021-08-19T09:030:00',
-            'appointmentCheckInEnds' => 'time checkin Ends',
-            'status' => 'the status',
-            'timeCheckedIn' => 'time the user checked already'
+            'appointmentIEN' => '460',
+            'clinicName' => 'Family Wellness',
+            'checkedInTime' => '',
+            'checkInSteps' => {},
+            'startTime' => '2021-12-23T08:30:00',
+            'clinicPhoneNumber' => '555-555-5555',
+            'clinicFriendlyName' => 'Health Wellness',
+            'clinicIen' => '500',
+            'facility' => 'VEHU DIVISION',
+            'kind' => 'clinic',
+            'checkInWindowStart' => '2021-12-23T08:00:00.000-05:00',
+            'checkInWindowEnd' => '2021-12-23T08:40:00.000-05:00',
+            'eligibility' => 'ELIGIBLE',
+            'status' => ''
           },
           {
-            'appointmentIEN' => '2',
-            'zipCode' => 'appointment.zipCode',
-            'clinicName' => 'appointment.clinicName',
-            'startTime' => '2021-08-19T15:00:00',
-            'clinicPhoneNumber' => 'appointment.clinicPhoneNumber',
-            'clinicFriendlyName' => 'appointment.patientFriendlyName',
-            'facility' => 'appointment.facility',
-            'facilityId' => 'some-id',
-            'appointmentCheckInStart' => '2021-08-19T14:30:00',
-            'appointmentCheckInEnds' => 'time checkin Ends',
-            'status' => 'the status',
-            'timeCheckedIn' => 'time the user checked already'
+            'appointmentIEN' => '460',
+            'clinicName' => 'CARDIOLOGY',
+            'checkedInTime' => '',
+            'checkInSteps' => {},
+            'startTime' => '2021-12-23T08:30:00',
+            'clinicPhoneNumber' => '555-555-5555',
+            'clinicFriendlyName' => 'CARDIOLOGY',
+            'clinicIen' => '500',
+            'facility' => 'CARDIO DIVISION',
+            'kind' => 'phone',
+            'checkInWindowStart' => '2021-12-23T08:00:00.000-05:00',
+            'checkInWindowEnd' => '2021-12-23T08:40:00.000-05:00',
+            'eligibility' => 'ELIGIBLE',
+            'status' => ''
           }
         ]
       },
