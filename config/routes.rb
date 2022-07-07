@@ -324,10 +324,6 @@ Rails.application.routes.draw do
 
     get 'feature_toggles', to: 'feature_toggles#index'
 
-    namespace :coronavirus_chatbot do
-      resource :tokens, only: :create
-    end
-
     namespace :contact_us do
       resources :inquiries, only: %i[index create]
     end
