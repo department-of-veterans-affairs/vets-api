@@ -34,36 +34,30 @@ module CheckIn
         }
         demographics.merge!(nextOfKin1: next_of_kin1)
 
-        if Flipper.enabled?(:check_in_experience_emergency_contact_enabled)
-          raw_emergency_contact = object.payload.dig(:demographics, :emergencyContact)
-          emergency_contact = {
-            name: raw_emergency_contact[:name],
-            relationship: raw_emergency_contact[:relationship],
-            phone: raw_emergency_contact[:phone],
-            workPhone: raw_emergency_contact[:workPhone],
-            address: address_helper(raw_emergency_contact[:address])
-          }
-          demographics.merge!(emergencyContact: emergency_contact)
-        end
+        raw_emergency_contact = object.payload.dig(:demographics, :emergencyContact)
+        emergency_contact = {
+          name: raw_emergency_contact[:name],
+          relationship: raw_emergency_contact[:relationship],
+          phone: raw_emergency_contact[:phone],
+          workPhone: raw_emergency_contact[:workPhone],
+          address: address_helper(raw_emergency_contact[:address])
+        }
+        demographics.merge!(emergencyContact: emergency_contact)
 
-        if Flipper.enabled?(:check_in_experience_demographics_confirmation_enabled)
-          raw_confirmation = object.payload[:patientDemographicsStatus]
-          demographics_confirmation = {
-            demographicsNeedsUpdate: raw_confirmation[:demographicsNeedsUpdate],
-            demographicsConfirmedAt: raw_confirmation[:demographicsConfirmedAt],
-            nextOfKinNeedsUpdate: raw_confirmation[:nextOfKinNeedsUpdate],
-            nextOfKinConfirmedAt: raw_confirmation[:nextOfKinConfirmedAt],
-            emergencyContactNeedsUpdate: raw_confirmation[:emergencyContactNeedsUpdate],
-            emergencyContactConfirmedAt: raw_confirmation[:emergencyContactConfirmedAt]
-          }
-          {
-            demographics: demographics,
-            appointments: appointments,
-            patientDemographicsStatus: demographics_confirmation
-          }
-        else
-          { demographics: demographics, appointments: appointments }
-        end
+        raw_confirmation = object.payload[:patientDemographicsStatus]
+        demographics_confirmation = {
+          demographicsNeedsUpdate: raw_confirmation[:demographicsNeedsUpdate],
+          demographicsConfirmedAt: raw_confirmation[:demographicsConfirmedAt],
+          nextOfKinNeedsUpdate: raw_confirmation[:nextOfKinNeedsUpdate],
+          nextOfKinConfirmedAt: raw_confirmation[:nextOfKinConfirmedAt],
+          emergencyContactNeedsUpdate: raw_confirmation[:emergencyContactNeedsUpdate],
+          emergencyContactConfirmedAt: raw_confirmation[:emergencyContactConfirmedAt]
+        }
+        {
+          demographics: demographics,
+          appointments: appointments,
+          patientDemographicsStatus: demographics_confirmation
+        }
       end
 
       def self.address_helper(address)

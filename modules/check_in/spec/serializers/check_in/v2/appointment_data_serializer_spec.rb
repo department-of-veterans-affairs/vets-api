@@ -184,6 +184,23 @@ RSpec.describe CheckIn::V2::AppointmentDataSerializer do
                     zip4: nil,
                     country: 'USA'
                   }
+                },
+                emergencyContact: {
+                  name: 'VETERAN,JONAH',
+                  relationship: 'BROTHER',
+                  phone: '1112223333',
+                  workPhone: '4445556666',
+                  address: {
+                    street1: '123 Main St',
+                    street2: 'Ste 234',
+                    street3: '',
+                    city: 'Los Angeles',
+                    county: 'Los Angeles',
+                    state: 'CA',
+                    zip: '90089',
+                    zip4: nil,
+                    country: 'USA'
+                  }
                 }
               },
               appointments: [
@@ -215,7 +232,15 @@ RSpec.describe CheckIn::V2::AppointmentDataSerializer do
                   status: 'the status',
                   timeCheckedIn: 'time the user checked already'
                 }
-              ]
+              ],
+              patientDemographicsStatus: {
+                demographicsNeedsUpdate: true,
+                demographicsConfirmedAt: nil,
+                nextOfKinNeedsUpdate: false,
+                nextOfKinConfirmedAt: '2021-12-10T05:15:00.000-05:00',
+                emergencyContactNeedsUpdate: true,
+                emergencyContactConfirmedAt: '2021-12-10T05:30:00.000-05:00'
+              }
             }
           }
         }
@@ -223,126 +248,10 @@ RSpec.describe CheckIn::V2::AppointmentDataSerializer do
     end
 
     it 'returns a serialized hash' do
-      allow(Flipper).to receive(:enabled?)
-        .with(:check_in_experience_emergency_contact_enabled).and_return(false)
-      allow(Flipper).to receive(:enabled?)
-        .with(:check_in_experience_demographics_confirmation_enabled).and_return(false)
-
       appt_struct = OpenStruct.new(appointment_data)
       appt_serializer = CheckIn::V2::AppointmentDataSerializer.new(appt_struct)
 
       expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)
-    end
-
-    context 'with emergency contact flag turned off' do
-      it 'returns a serialized hash without emergency contact' do
-        allow(Flipper).to receive(:enabled?)
-          .with(:check_in_experience_emergency_contact_enabled).and_return(false)
-        allow(Flipper).to receive(:enabled?)
-          .with(:check_in_experience_demographics_confirmation_enabled).and_return(false)
-
-        appt_struct = OpenStruct.new(appointment_data)
-        appt_serializer = CheckIn::V2::AppointmentDataSerializer.new(appt_struct)
-
-        expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)
-      end
-    end
-
-    context 'with emergency contact flag turned on' do
-      let(:emergency_contact_data) do
-        {
-          data: {
-            attributes: {
-              payload: {
-                demographics: {
-                  emergencyContact: {
-                    name: 'VETERAN,JONAH',
-                    relationship: 'BROTHER',
-                    phone: '1112223333',
-                    workPhone: '4445556666',
-                    address: {
-                      street1: '123 Main St',
-                      street2: 'Ste 234',
-                      street3: '',
-                      city: 'Los Angeles',
-                      county: 'Los Angeles',
-                      state: 'CA',
-                      zip: '90089',
-                      zip4: nil,
-                      country: 'USA'
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      end
-      let(:serialized_hash_response_with_emergency_contact) do
-        serialized_hash_response.deep_merge(emergency_contact_data)
-      end
-
-      it 'returns a serialized hash with emergency contact' do
-        allow(Flipper).to receive(:enabled?)
-          .with(:check_in_experience_emergency_contact_enabled).and_return(true)
-        allow(Flipper).to receive(:enabled?)
-          .with(:check_in_experience_demographics_confirmation_enabled).and_return(false)
-
-        appt_struct = OpenStruct.new(appointment_data)
-        appt_serializer = CheckIn::V2::AppointmentDataSerializer.new(appt_struct)
-
-        expect(appt_serializer.serializable_hash).to eq(serialized_hash_response_with_emergency_contact)
-      end
-    end
-
-    context 'with demographics confirmation flag turned off' do
-      it 'returns a serialized hash without demographics confirmation' do
-        allow(Flipper).to receive(:enabled?)
-          .with(:check_in_experience_emergency_contact_enabled).and_return(false)
-        allow(Flipper).to receive(:enabled?)
-          .with(:check_in_experience_demographics_confirmation_enabled).and_return(false)
-
-        appt_struct = OpenStruct.new(appointment_data)
-        appt_serializer = CheckIn::V2::AppointmentDataSerializer.new(appt_struct)
-
-        expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)
-      end
-    end
-
-    context 'with demographics confirmation flag turned on' do
-      let(:demographics_confirmation_payload) do
-        {
-          data: {
-            attributes: {
-              payload: {
-                patientDemographicsStatus: {
-                  demographicsNeedsUpdate: true,
-                  demographicsConfirmedAt: nil,
-                  nextOfKinNeedsUpdate: false,
-                  nextOfKinConfirmedAt: '2021-12-10T05:15:00.000-05:00',
-                  emergencyContactNeedsUpdate: true,
-                  emergencyContactConfirmedAt: '2021-12-10T05:30:00.000-05:00'
-                }
-              }
-            }
-          }
-        }
-      end
-      let(:serialized_hash_response_with_demographics_confirmation) do
-        serialized_hash_response.deep_merge(demographics_confirmation_payload)
-      end
-
-      it 'returns a serialized hash with demographics confirmation' do
-        allow(Flipper).to receive(:enabled?)
-          .with(:check_in_experience_emergency_contact_enabled).and_return(false)
-        allow(Flipper).to receive(:enabled?)
-          .with(:check_in_experience_demographics_confirmation_enabled).and_return(true)
-
-        appt_struct = OpenStruct.new(appointment_data)
-        appt_serializer = CheckIn::V2::AppointmentDataSerializer.new(appt_struct)
-
-        expect(appt_serializer.serializable_hash).to eq(serialized_hash_response_with_demographics_confirmation)
-      end
     end
   end
 end
