@@ -99,39 +99,62 @@ describe V2::Lorota::Service do
           workPhone: '5554445555',
           emailAddress: 'kermit.frog@sesameenterprises.us'
         },
-        appointments: [{
-          appointmentIEN: '460',
-          patientDFN: '888',
-          clinicName: 'Family Wellness',
-          checkedInTime: '',
-          checkInSteps: {},
-          startTime: '2021-12-23T08:30:00',
-          clinicPhoneNumber: '555-555-5555',
-          clinicFriendlyName: 'Health Wellness',
-          clinicIen: '500',
-          facility: 'VEHU DIVISION',
-          kind: 'clinic',
-          checkInWindowStart: '2021-12-23T08:00:00.000-05:00',
-          checkInWindowEnd: '2021-12-23T08:40:00.000-05:00',
-          eligibility: 'ELIGIBLE',
-          status: ''
-        }, {
-          appointmentIEN: '460',
-          patientDFN: '888',
-          clinicName: 'CARDIOLOGY',
-          checkedInTime: '',
-          checkInSteps: {},
-          startTime: '2021-12-23T08:30:00',
-          clinicPhoneNumber: '555-555-5555',
-          clinicFriendlyName: 'CARDIOLOGY',
-          clinicIen: '500',
-          facility: 'CARDIO DIVISION',
-          kind: 'phone',
-          checkInWindowStart: '2021-12-23T08:00:00.000-05:00',
-          checkInWindowEnd: '2021-12-23T08:40:00.000-05:00',
-          eligibility: 'ELIGIBLE',
-          status: ''
-        }]
+        appointments: [
+          {
+            appointmentIEN: '460',
+            patientDFN: '888',
+            stationNo: '5625',
+            zipCode: 'appointment.zipCode',
+            clinicName: 'Family Wellness',
+            startTime: '2021-12-23T08:30:00',
+            clinicPhoneNumber: '555-555-5555',
+            clinicFriendlyName: 'Health Wellness',
+            facility: 'VEHU DIVISION',
+            facilityId: 'some-id',
+            appointmentCheckInStart: '2021-08-19T09:030:00',
+            appointmentCheckInEnds: 'time checkin Ends',
+            status: '',
+            timeCheckedIn: 'time the user checked already',
+            checkedInTime: '',
+            checkInSteps: {},
+            clinicIen: '500',
+            kind: 'clinic',
+            checkInWindowStart: '2021-12-23T08:00:00.000-05:00',
+            checkInWindowEnd: '2021-12-23T08:40:00.000-05:00',
+            eligibility: 'ELIGIBLE'
+          },
+          {
+            appointmentIEN: '460',
+            patientDFN: '888',
+            stationNo: '5625',
+            zipCode: 'appointment.zipCode',
+            clinicName: 'CARDIOLOGY',
+            startTime: '2021-12-23T08:30:00',
+            clinicPhoneNumber: '555-555-5555',
+            clinicFriendlyName: 'CARDIOLOGY',
+            facility: 'CARDIO DIVISION',
+            facilityId: 'some-id',
+            appointmentCheckInStart: '2021-08-19T14:30:00',
+            appointmentCheckInEnds: 'time checkin Ends',
+            status: '',
+            timeCheckedIn: 'time the user checked already',
+            checkedInTime: '',
+            checkInSteps: {},
+            clinicIen: '500',
+            kind: 'phone',
+            checkInWindowStart: '2021-12-23T08:00:00.000-05:00',
+            checkInWindowEnd: '2021-12-23T08:40:00.000-05:00',
+            eligibility: 'ELIGIBLE'
+          }
+        ],
+        patientDemographicsStatus: {
+          demographicsNeedsUpdate: true,
+          demographicsConfirmedAt: nil,
+          nextOfKinNeedsUpdate: false,
+          nextOfKinConfirmedAt: '2021-12-10T05:15:00.000-05:00',
+          emergencyContactNeedsUpdate: true,
+          emergencyContactConfirmedAt: '2021-12-10T05:30:00.000-05:00'
+        }
       }
     }
   end
@@ -181,11 +204,29 @@ describe V2::Lorota::Service do
               zip4: nil,
               country: 'USA'
             }
+          },
+          emergencyContact: {
+            name: 'VETERAN,JONAH',
+            relationship: 'BROTHER',
+            phone: '1112223333',
+            workPhone: '4445556666',
+            address: {
+              street1: '123 Main St',
+              street2: 'Ste 234',
+              street3: '',
+              city: 'Los Angeles',
+              county: 'Los Angeles',
+              state: 'CA',
+              zip: '90089',
+              zip4: nil,
+              country: 'USA'
+            }
           }
         },
         appointments: [
           {
             'appointmentIEN' => '460',
+            'zipCode' => 'appointment.zipCode',
             'clinicName' => 'Family Wellness',
             'checkedInTime' => '',
             'checkInSteps' => {},
@@ -194,14 +235,19 @@ describe V2::Lorota::Service do
             'clinicFriendlyName' => 'Health Wellness',
             'clinicIen' => '500',
             'facility' => 'VEHU DIVISION',
+            'facilityId' => 'some-id',
+            'appointmentCheckInStart' => '2021-08-19T09:030:00',
+            'appointmentCheckInEnds' => 'time checkin Ends',
             'kind' => 'clinic',
             'checkInWindowStart' => '2021-12-23T08:00:00.000-05:00',
             'checkInWindowEnd' => '2021-12-23T08:40:00.000-05:00',
             'eligibility' => 'ELIGIBLE',
-            'status' => ''
+            'status' => '',
+            'timeCheckedIn' => 'time the user checked already'
           },
           {
             'appointmentIEN' => '460',
+            'zipCode' => 'appointment.zipCode',
             'clinicName' => 'CARDIOLOGY',
             'checkedInTime' => '',
             'checkInSteps' => {},
@@ -210,13 +256,25 @@ describe V2::Lorota::Service do
             'clinicFriendlyName' => 'CARDIOLOGY',
             'clinicIen' => '500',
             'facility' => 'CARDIO DIVISION',
+            'facilityId' => 'some-id',
             'kind' => 'phone',
+            'appointmentCheckInStart' => '2021-08-19T14:30:00',
+            'appointmentCheckInEnds' => 'time checkin Ends',
+            'timeCheckedIn' => 'time the user checked already',
             'checkInWindowStart' => '2021-12-23T08:00:00.000-05:00',
             'checkInWindowEnd' => '2021-12-23T08:40:00.000-05:00',
             'eligibility' => 'ELIGIBLE',
             'status' => ''
           }
-        ]
+        ],
+        patientDemographicsStatus: {
+          demographicsNeedsUpdate: true,
+          demographicsConfirmedAt: nil,
+          nextOfKinNeedsUpdate: false,
+          nextOfKinConfirmedAt: '2021-12-10T05:15:00.000-05:00',
+          emergencyContactNeedsUpdate: true,
+          emergencyContactConfirmedAt: '2021-12-10T05:30:00.000-05:00'
+        }
       },
       id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d'
     }
@@ -258,35 +316,6 @@ describe V2::Lorota::Service do
   end
 
   describe '#check_in_data' do
-    let(:emergency_contact_data) do
-      {
-        payload: {
-          demographics: {
-            emergencyContact: {
-              name: 'VETERAN,JONAH',
-              relationship: 'BROTHER',
-              phone: '1112223333',
-              workPhone: '4445556666',
-              address: {
-                street1: '123 Main St',
-                street2: 'Ste 234',
-                street3: '',
-                city: 'Los Angeles',
-                county: 'Los Angeles',
-                state: 'CA',
-                zip: '90089',
-                zip4: nil,
-                country: 'USA'
-              }
-            }
-          }
-        }
-      }
-    end
-    let(:response_with_emergency_contact) do
-      approved_response.deep_merge(emergency_contact_data)
-    end
-
     before do
       allow_any_instance_of(::V2::Lorota::RedisClient).to receive(:get).and_return('123abc')
       allow_any_instance_of(::V2::Lorota::Client).to receive(:data)
@@ -296,13 +325,6 @@ describe V2::Lorota::Service do
     context 'when check_in_type is preCheckIn' do
       let(:opts) { { data: { check_in_type: 'preCheckIn' } } }
       let(:pre_check_in) { CheckIn::V2::Session.build(opts) }
-
-      before do
-        allow(Flipper).to receive(:enabled?)
-          .with(:check_in_experience_emergency_contact_enabled).and_return(true)
-        allow(Flipper).to receive(:enabled?)
-          .with(:check_in_experience_demographics_confirmation_enabled).and_return(false)
-      end
 
       it 'does not save appointment identifiers' do
         expect_any_instance_of(CheckIn::V2::PatientCheckIn).not_to receive(:save)
@@ -315,13 +337,6 @@ describe V2::Lorota::Service do
       let(:opts) { { data: { check_in_type: 'anything else' } } }
       let(:check_in) { CheckIn::V2::Session.build(opts) }
 
-      before do
-        allow(Flipper).to receive(:enabled?)
-          .with(:check_in_experience_emergency_contact_enabled).and_return(true)
-        allow(Flipper).to receive(:enabled?)
-          .with(:check_in_experience_demographics_confirmation_enabled).and_return(false)
-      end
-
       it 'saves appointment identifiers' do
         expect_any_instance_of(CheckIn::V2::PatientCheckIn).to receive(:save).once
 
@@ -329,30 +344,8 @@ describe V2::Lorota::Service do
       end
     end
 
-    context 'with emergency contact flag turned off' do
-      before do
-        allow(Flipper).to receive(:enabled?)
-          .with(:check_in_experience_emergency_contact_enabled).and_return(false)
-        allow(Flipper).to receive(:enabled?)
-          .with(:check_in_experience_demographics_confirmation_enabled).and_return(false)
-      end
-
-      it 'returns approved data without emergency contact' do
-        expect(subject.build(check_in: valid_check_in).check_in_data).to eq(approved_response)
-      end
-    end
-
-    context 'with emergency contact flag turned on' do
-      before do
-        allow(Flipper).to receive(:enabled?)
-          .with(:check_in_experience_emergency_contact_enabled).and_return(true)
-        allow(Flipper).to receive(:enabled?)
-          .with(:check_in_experience_demographics_confirmation_enabled).and_return(false)
-      end
-
-      it 'returns approved data with emergency contact' do
-        expect(subject.build(check_in: valid_check_in).check_in_data).to eq(response_with_emergency_contact)
-      end
+    it 'returns approved data' do
+      expect(subject.build(check_in: valid_check_in).check_in_data).to eq(approved_response)
     end
   end
 end
