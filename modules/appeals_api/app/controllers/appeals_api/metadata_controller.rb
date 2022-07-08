@@ -44,6 +44,13 @@ module AppealsApi
       health_checker = AppealsApi::HealthChecker.new
       time = Time.zone.now.to_formatted_s(:iso8601)
 
+      appeals_status_code = proc do
+        health_checker.appeals_services_are_healthy? ? 200 : 503
+      rescue => e
+        Rails.logger.error('AppealsApi Appeals Status Healthcheck error', status: e.status, message: e.body)
+        503
+      end
+
       render json: {
         description: 'Appeals API upstream health check',
         status: health_checker.appeals_services_are_healthy? ? 'UP' : 'DOWN',
@@ -54,12 +61,19 @@ module AppealsApi
                               upstream_service_details(service, health_checker, time)
                             end
         }
-      }, status: health_checker.appeals_services_are_healthy? ? 200 : 503
+      }, status: appeals_status_code.call
     end
 
     def decision_reviews_upstream_healthcheck
       health_checker = AppealsApi::HealthChecker.new
       time = Time.zone.now.to_formatted_s(:iso8601)
+
+      decision_reviews_status_code = proc do
+        health_checker.decision_reviews_services_are_healthy? ? 200 : 503
+      rescue => e
+        Rails.logger.error('AppealsApi Decision Reviews Healthcheck error', status: e.status, message: e.body)
+        503
+      end
 
       render json: {
         description: 'Appeals API upstream health check',
@@ -71,7 +85,7 @@ module AppealsApi
                               upstream_service_details(service, health_checker, time)
                             end
         }
-      }, status: health_checker.decision_reviews_services_are_healthy? ? 200 : 503
+      }, status: decision_reviews_status_code.call
     end
 
     private
@@ -79,6 +93,12 @@ module AppealsApi
     def upstream_service_details(service_name, health_checker, time)
       healthy = health_checker.healthy_service?(service_name)
 
+      service_details_response(service_name, healthy, time)
+    rescue
+      service_details_response(service_name, false, time)
+    end
+
+    def service_details_response(service_name, healthy, time)
       {
         description: service_name.titleize,
         status: healthy ? 'UP' : 'DOWN',
