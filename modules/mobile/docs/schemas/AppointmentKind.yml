@@ -5,7 +5,6 @@ enum:
   - telehealth
   - phone
 description: |
-  Required for VA and CC Requests.
   The kind of appointment:
    * clinic - A clinic (in-person) appointment
    * cc - A community-care appointment

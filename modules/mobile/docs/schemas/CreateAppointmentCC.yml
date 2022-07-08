@@ -7,8 +7,10 @@ required:
   - locationId
   - requestedPeriods
   - contact
-  - comment
   - preferredTimesForPhoneCall
+  - comment
+  - preferredLocation
+  - preferredLanguage
 properties:
   kind:
     "$ref": ./AppointmentKind.yml
@@ -19,21 +21,9 @@ properties:
     enum:
       - proposed
     example: 'proposed'
-  preferredTimesForPhoneCall:
-    type: array
-    description: A list of times the patient prefers to be contacted by phone.
-    items:
-      type: string
-      enum:
-        - Morning
-        - Afternoon
-        - Evening
-    example: [
-      "Morning"
-    ]
   serviceType:
     type: string
-    description: the care type for the appointment
+    description: The care type for the appointment
     enum:
       - amputation
       - audiology-hearing aid support
@@ -51,9 +41,11 @@ properties:
       - cpap
       - ophthalmology
     example: 'optometry'
-  reasonCode:
-    type: object
-    "$ref": ./ReasonCode.yml
+  practitioners:
+    description: practitioners
+    type: array
+    items:
+      "$ref": ./Practitioner.yml
   locationId:
     description: The sta6aid for the VAfacility where the appointment is registered.
     type: string
@@ -71,7 +63,26 @@ properties:
     ]
   contact:
     "$ref": ./PatientContact.yml
+  preferredTimesForPhoneCall:
+    type: array
+    description: A list of times the patient prefers to be contacted by phone.
+    items:
+      type: string
+      enum:
+        - Morning
+        - Afternoon
+        - Evening
+    example: [
+      "Morning"
+    ]
+  preferredLocation:
+    description: A list of times the patient prefers to be contacted by phone.
+    $ref: ./PreferredLocation.yml
   comment:
     description: Free-form comment section to provide additional information about an appointment request.
     type: string
     example: 'free form comment here'
+  preferredLanguage:
+    description: Preferred Language
+    type: string
+    example: 'English'

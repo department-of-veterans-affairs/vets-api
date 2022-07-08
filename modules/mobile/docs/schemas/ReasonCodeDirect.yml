@@ -1,5 +1,5 @@
 type: object
-description: Reason for appointment. If reason is given, code and text field will be the same value. If no reason was provided ('Other' option) then the 'coding' field array should be empty and text field should be populated with commment field text
+description: Reason for appointment. If no reason was provided, omit field.
 required:
   - coding
   - text
