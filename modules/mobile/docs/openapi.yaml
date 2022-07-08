@@ -782,6 +782,7 @@ paths:
           application/json:
             schema:
               oneOf:
+                - $ref: ./schemas/CreateAppointmentCC.yml
                 - $ref: ./schemas/CreateAppointmentRequest.yml
                 - $ref: ./schemas/CreateAppointmentDirect.yml
       responses:

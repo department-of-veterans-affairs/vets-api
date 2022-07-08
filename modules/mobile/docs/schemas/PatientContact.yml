@@ -1,4 +1,4 @@
-description: Required for VA and CC Requests. Patient contact information
+description: Patient contact information
 type: object
 required:
   - telecom

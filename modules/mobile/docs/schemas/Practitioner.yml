@@ -1,21 +1,50 @@
 type: object
+required:
+  - identifier
+  - address
 properties:
   identifier:
     type: array
     items:
-      "$ref": ./AppointmentIdentifier.yml
-  name:
+      type: object
+      required:
+        - system
+        - value
+      properties:
+        system:
+          type: string
+          example: http://hl7.org/fhir/sid/us-npi
+        value:
+          type: string
+          example: 1407938061
+  address:
     type: object
+    required:
+      - line
+      - city
+      - state
+      - postal_code
     properties:
-      family:
+      type:
         type: string
-        description: Family name (surname).
-      given:
+        example: postal
+      line:
         type: array
-        description: Given names (not always first). Given Names appear in the correct order for presenting the name.
         items:
           type: string
-    description: A human name.
-  address:
-    "$ref": ./AppointmentRequestAddress.yml
-description: Details about the practitioner.
+          example: 38143 Martha Ave
+      city:
+        type: string
+        example: Fremont
+      state:
+        type: string
+        example: CA
+      postal_code:
+        type: string
+        example: 94536
+      country:
+        type: string
+        example: USA
+      text:
+        type: string
+        example: test
