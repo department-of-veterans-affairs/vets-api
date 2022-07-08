@@ -1,6 +1,7 @@
 apiVersion: backstage.io/v1alpha1
-kind: Component
+kind: System
 metadata:
+  title: Veterans API
   name: vets-api
   description: This project provides common APIs for applications that live on VA.gov (formerly vets.gov APIs).
   annotations:
@@ -10,6 +11,5 @@ metadata:
     - ruby
     - rails
 spec:
-  type: service
   owner: platform-console-services
-  lifecycle: production
+  domain: platform-and-vfs
