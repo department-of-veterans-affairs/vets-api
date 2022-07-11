@@ -15,18 +15,16 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
 
   before { Sidekiq::Worker.clear_all }
 
-  let(:auth_headers) { fixture_to_s 'valid_200996_headers.json', version: 'v1' }
-  let(:higher_level_review) { create(:higher_level_review) }
+  let(:higher_level_review) { create(:higher_level_review_v2) }
   let(:notice_of_disagreement) { create(:notice_of_disagreement) }
   let(:supplemental_claim) { create(:supplemental_claim) }
   let(:client_stub) { instance_double('CentralMail::Service') }
   let(:faraday_response) { instance_double('Faraday::Response') }
-  let(:valid_doc) { fixture_to_s 'valid_200996.json', version: 'v1' }
 
   it_behaves_like 'a monitored worker'
 
   describe 'uploads a valid payload' do
-    it 'HLR' do
+    it 'HLRv2' do
       Timecop.freeze(DateTime.new(2020, 1, 1).utc) do
         file_digest_stub = instance_double('Digest::SHA256')
         allow(Digest::SHA256).to receive(:file) { file_digest_stub }
@@ -41,7 +39,7 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
           capture_body = arg
           faraday_response
         }
-        described_class.new.perform(higher_level_review.id, 'AppealsApi::HigherLevelReview')
+        described_class.new.perform(higher_level_review.id, 'AppealsApi::HigherLevelReview', 'V2')
         metadata = JSON.parse(capture_body['metadata'])
 
         expect(capture_body).to be_a(Hash)
@@ -56,8 +54,8 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
                                  'hashV' => 'file_digest_12345',
                                  'numberAttachments' => 0,
                                  'receiveDt' => '2019-12-31 18:00:00',
-                                 'numberPages' => 2,
-                                 'businessLine' => 'CMP',
+                                 'numberPages' => 3,
+                                 'businessLine' => 'FID',
                                  'docType' => '20-0996'
                                })
         expect(capture_body).to have_key('document')
