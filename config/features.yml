@@ -487,7 +487,7 @@ features:
     description: For 526 disability compensation asthma claims, add RRD PDF and set RRD special issue to route to RVSRs
     enable_in_development: true
   my_va_redirect:
-    actor_type: cookie_id
+    actor_type: user
     description: After authentication redirects a user to the My VA page if they are on the homepage
     enable_in_development: true
   rrd_hypertension_compensation:
