@@ -123,7 +123,7 @@ module AppealsApi
       statuses
     end
 
-    def total_statuses_count(record_type, statuses = ['success'])
+    def total_statuses_count(record_type, statuses = ['complete'])
       record_type.where(status: statuses).count
     end
 

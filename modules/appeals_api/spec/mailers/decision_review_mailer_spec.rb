@@ -32,8 +32,8 @@ RSpec.describe AppealsApi::DecisionReviewMailer, type: [:mailer] do
     end
 
     it 'displays totals on weekly report' do
-      create :notice_of_disagreement, status: 'success', created_at: 3.weeks.ago
-      create_list :supplemental_claim, 2, :status_success, created_at: 3.weeks.ago
+      create :notice_of_disagreement, status: 'complete', created_at: 3.weeks.ago
+      create_list :supplemental_claim, 2, status: 'complete', created_at: 3.weeks.ago
 
       mail = described_class.build(date_from: 7.days.ago, date_to: Time.zone.now, friendly_duration: 'Weekly',
                                    recipients: recipients).deliver_now
