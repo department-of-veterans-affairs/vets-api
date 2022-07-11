@@ -79,11 +79,6 @@ module AppealsApi
       def pdf_template_path
         Rails.root.join('modules', 'appeals_api', 'config', 'pdfs')
       end
-
-      # TODO: remove once hlr v1 sunset
-      def hlr_v1?
-        appeal.class.name.demodulize == 'HigherLevelReview' && appeal.pdf_version == 'V1'
-      end
     end
 
     class InvalidPdfClass < StandardError; end
