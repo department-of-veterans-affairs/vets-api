@@ -136,8 +136,12 @@ class MPIData < Common::RedisStore
   end
 
   # @return [MPI::Responses::FindProfileResponse] the response returned from MVI
-  def mvi_response(user_key: user_identity.uuid)
+  def mvi_response(user_key: get_user_key)
     @mvi_response ||= response_from_redis_or_service(user_key: user_key)
+  end
+
+  def mpi_response_is_cached?(user_key: get_user_key)
+    cached?(key: user_key)
   end
 
   # @return [String] Array representing the historical icn data for the user
@@ -176,6 +180,20 @@ class MPIData < Common::RedisStore
 
   private
 
+  def get_user_key
+    if user_identity.mhv_icn.present?
+      user_identity.mhv_icn
+    elsif user_identity.edipi.present?
+      user_identity.edipi
+    elsif user_identity.logingov_uuid.present?
+      user_identity.logingov_uuid
+    elsif user_identity.idme_uuid.present?
+      user_identity.idme_uuid
+    else
+      user_identity.uuid
+    end
+  end
+
   def update_user_identity_with_orch_search(search_response_profile)
     user_identity.icn_with_aaid = search_response_profile.icn_with_aaid
     user_identity.edipi = search_response_profile.edipi
@@ -198,7 +216,7 @@ class MPIData < Common::RedisStore
     cache(user_identity.uuid, mvi_response) if mvi_response.cache?
   end
 
-  def response_from_redis_or_service(user_key: user_identity.uuid)
+  def response_from_redis_or_service(user_key:)
     do_cached_with(key: user_key) do
       mpi_service.find_profile(user_identity)
     rescue ArgumentError => e

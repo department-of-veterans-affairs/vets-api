@@ -16,6 +16,7 @@ module ClaimsApi
        participant_id
        gender
        birls_file_number
+       icn
        idme_uuid
        logingov_uuid
        uuid
@@ -93,6 +94,7 @@ module ClaimsApi
         last_signed_in: Time.now.utc,
         loa: identity.loa,
         gender: identity.gender,
+        mvh_icn: identity.mhv_icn,
         idme_uuid: identity.idme_uuid,
         logingov_uuid: identity.logingov_uuid,
         ssn: identity.ssn,

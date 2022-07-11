@@ -10,9 +10,9 @@ module SignIn
     end
 
     def perform
-      validate_mpi_record
       check_and_add_mpi_user
-      update_and_persist_user
+      validate_mpi_record
+      create_authenticated_user
       create_code_container
       user_code_map
     end
@@ -20,27 +20,27 @@ module SignIn
     private
 
     def validate_mpi_record
-      raise SignIn::Errors::MPILockedAccountError, 'Theft Flag Detected' if current_user.id_theft_flag
-      raise SignIn::Errors::MPILockedAccountError, 'Death Flag Detected' if current_user.deceased_date
+      raise SignIn::Errors::MPILockedAccountError, 'Theft Flag Detected' if user_for_mpi_query.id_theft_flag
+      raise SignIn::Errors::MPILockedAccountError, 'Death Flag Detected' if user_for_mpi_query.deceased_date
     end
 
     def check_and_add_mpi_user
-      return unless current_user.loa3? && current_user.icn.nil?
+      return unless user_for_mpi_query.loa3? && user_for_mpi_query.icn.nil?
 
-      mpi_response = current_user.mpi_add_person_implicit_search
+      mpi_response = user_for_mpi_query.mpi_add_person_implicit_search
 
       raise SignIn::Errors::MPIUserCreationFailedError, 'User MPI record cannot be created' unless mpi_response.ok?
-
-      user_identity.icn = mpi_response.mvi_codes[:icn].presence
     end
 
-    def update_and_persist_user
+    def create_authenticated_user
       raise SignIn::Errors::UserAttributesMalformedError, 'User Attributes are Malformed' unless user_verification
 
-      current_user.uuid = user_verification.user_account.id
-      user_identity.uuid = user_verification.user_account.id
-      current_user.last_signed_in = Time.zone.now
-      current_user.save && user_identity.save
+      user = User.new
+      user.instance_variable_set(:@identity, user_identity_from_mpi_query)
+      user.uuid = user_verification.user_account.id
+      user_identity_from_mpi_query.uuid = user_verification.user_account.id
+      user.last_signed_in = Time.zone.now
+      user.save && user_identity_from_mpi_query.save
     end
 
     def create_code_container
@@ -51,16 +51,23 @@ module SignIn
                                 credential_email: credential_email).save!
     end
 
-    def user_identity
-      @user_identity ||= UserIdentity.new(user_attributes)
+    def user_identity_from_attributes
+      @user_identity_from_attributes ||= UserIdentity.new(user_attributes)
     end
 
-    def current_user
-      return @current_user if @current_user
+    def user_identity_from_mpi_query
+      @user_identity_from_mpi_query ||= UserIdentity.new({ idme_uuid: user_for_mpi_query.idme_uuid,
+                                                           logingov_uuid: user_for_mpi_query.logingov_uuid,
+                                                           loa: user_for_mpi_query.loa })
+    end
 
-      user = User.new
-      user.instance_variable_set(:@identity, user_identity)
-      @current_user = user
+    def user_for_mpi_query
+      @user_for_mpi_query ||= begin
+        user = User.new
+        user.instance_variable_set(:@identity, user_identity_from_attributes)
+        user.invalidate_mpi_cache
+        user
+      end
     end
 
     def user_code_map
@@ -71,7 +78,7 @@ module SignIn
     end
 
     def user_verification
-      @user_verification ||= Login::UserVerifier.new(current_user).perform
+      @user_verification ||= Login::UserVerifier.new(user_for_mpi_query).perform
     end
 
     def credential_email
