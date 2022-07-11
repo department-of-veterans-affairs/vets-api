@@ -41,30 +41,9 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
     }
   end.call
 
-  headers_json_schema = read_json[['config', 'schemas', 'v1', '200996_headers.json']]
-  headers_swagger = AppealsApi::JsonSchemaToSwaggerConverter.new(headers_json_schema).to_swagger
-  header_schemas = headers_swagger['components']['schemas']
-  headers = header_schemas['hlrCreateParameters']['properties'].keys
-  hlr_create_parameters = headers.map do |header|
-    {
-      name: header,
-      in: 'header',
-      description: header_schemas[header]['allOf'][0]['description'],
-      required: header_schemas['hlrCreateParameters']['required'].include?(header),
-      schema: { '$ref': "#/components/schemas/#{header}" }
-    }
-  end
-
-  hlr_create_json_schema = read_json[['config', 'schemas', 'v1', '200996.json']]
-
-  hlr_create_request_body = AppealsApi::JsonSchemaToSwaggerConverter.new(
-    hlr_create_json_schema
-  ).to_swagger['requestBody']
-
-  hlr_create_request_body['content']['application/json']['examples'] = {
-    'minimum fields used': { value: read_json[['spec', 'fixtures', 'v1', 'valid_200996_minimum.json']] },
-    'all fields used': { value: example_all_fields_used }
-  }
+  hlr_create_parameters = []
+  hlr_create_json_schema = {}
+  hlr_create_request_body = {}
 
   swagger_path '/higher_level_reviews' do
     operation :post, tags: HLR_TAG do
