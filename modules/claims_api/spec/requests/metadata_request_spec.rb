@@ -15,7 +15,7 @@ RSpec.describe 'Claims Status Metadata Endpoint', type: :request do
   end
 
   describe '#healthcheck' do
-    %w[v0 v1].each do |version|
+    %w[v1 v2].each do |version|
       context version do
         it 'returns a successful health check' do
           get "/services/claims/#{version}/healthcheck"
@@ -38,7 +38,7 @@ RSpec.describe 'Claims Status Metadata Endpoint', type: :request do
 
     after { Timecop.return }
 
-    %w[v0 v1].each do |version|
+    %w[v1].each do |version|
       context version do
         it 'returns correct response and status when healthy' do
           allow(EVSS::Service).to receive(:service_is_up?).and_return(true)

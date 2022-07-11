@@ -51,7 +51,6 @@ class SimpleCovHelper
     add_filter 'lib/search/response.rb'
     add_filter 'lib/vet360/exceptions/builder.rb'
     add_filter 'lib/vet360/response.rb'
-    add_filter 'modules/claims_api/app/controllers/claims_api/v0/forms/disability_compensation_controller.rb'
     add_filter 'modules/claims_api/app/controllers/claims_api/v1/forms/disability_compensation_controller.rb'
     add_filter 'modules/claims_api/app/swagger/*'
     add_filter 'lib/bip_claims/configuration.rb'

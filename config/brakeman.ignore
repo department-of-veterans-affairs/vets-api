@@ -117,26 +117,6 @@
       "note": "not being used to encrypt sensitive information."
     },
     {
-      "warning_type": "Weak Hash",
-      "warning_code": 90,
-      "fingerprint": "a7e9e57c86aacce9a5a495b956fa650b3f7a96c0787b7d6e13caac3f03a4f84b",
-      "check_name": "WeakHash",
-      "message": "Weak hashing algorithm used: MD5",
-      "file": "modules/claims_api/app/controllers/claims_api/v0/forms/power_of_attorney_controller.rb",
-      "line": 77,
-      "link": "https://brakemanscanner.org/docs/warning_types/weak_hash/",
-      "code": "Digest::MD5.hexdigest(auth_headers.except(\"va_eauth_authenticationauthority\", \"va_eauth_service_transaction_id\", \"va_eauth_issueinstant\", \"Authorization\").to_json)",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "ClaimsApi::V0::Forms::PowerOfAttorneyController",
-        "method": "header_md5"
-      },
-      "user_input": null,
-      "confidence": "Medium",
-      "note": "Stored as MD5 in database and not being used to encrypt sensitive information."
-    },
-    {
       "warning_type": "Mass Assignment",
       "warning_code": 70,
       "fingerprint": "ce6a522ea1e78c059df85272f098c22b586537f167093e29205db637819488d9",
