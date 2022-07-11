@@ -23,7 +23,7 @@ RSpec.describe 'facilities info', type: :request do
     JSON.parse(va_json, symbolize_names: true)
   )
 
-  appointments = (va_appointments).sort_by(&:start_date_utc)
+  appointments = va_appointments.sort_by(&:start_date_utc)
 
   before(:all) do
     @original_cassette_dir = VCR.configure(&:cassette_library_dir)
