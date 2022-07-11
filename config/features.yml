@@ -73,10 +73,6 @@ features:
     actor_type: user
     description: Enables the health care check-in experiences to show the pre-check-in experience.
     enable_in_development: true
-  check_in_experience_no_demographics_confirmation_for_unverified_enabled:
-    actor_type: user
-    description: Enables the health care pre-check-in experiences to send demographics confirmation.
-    enable_in_development: true
   check_in_experience_day_of_demographics_flags_enabled:
     actor_type: user
     description: Enables the capture of user responses to demographics up-to-date questions
