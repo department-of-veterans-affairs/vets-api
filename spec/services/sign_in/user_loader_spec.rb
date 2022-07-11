@@ -57,6 +57,10 @@ RSpec.describe SignIn::UserLoader do
         context 'and associated session exists' do
           let(:session) { create(:oauth_session) }
           let(:edipi) { 'some-mpi-edipi' }
+          let!(:idme_user_verification) { create(:idme_user_verification, user_account: user_account) }
+          let!(:logingov_user_verification) { create(:logingov_user_verification, user_account: user_account) }
+          let(:idme_uuid) { idme_user_verification.idme_uuid }
+          let(:logingov_uuid) { logingov_user_verification.logingov_uuid }
 
           before do
             stub_mpi(build(:mvi_profile, edipi: edipi))
@@ -67,6 +71,8 @@ RSpec.describe SignIn::UserLoader do
             expect(reloaded_user.uuid).to eq(user_uuid)
             expect(reloaded_user.loa).to eq(user_loa)
             expect(reloaded_user.mhv_icn).to eq(user_icn)
+            expect(reloaded_user.idme_uuid).to eq(idme_uuid)
+            expect(reloaded_user.logingov_uuid).to eq(logingov_uuid)
             expect(reloaded_user.last_signed_in).to eq(session.created_at)
           end
 

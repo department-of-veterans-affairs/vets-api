@@ -35,6 +35,8 @@ module SignIn
     def user_attributes
       {
         mhv_icn: user_account.icn,
+        idme_uuid: retrieve_credential_uuid(:idme_uuid),
+        logingov_uuid: retrieve_credential_uuid(:logingov_uuid),
         loa: { current: loa, highest: LOA::THREE }
       }
     end
@@ -53,6 +55,10 @@ module SignIn
 
     def user_account
       @user_account ||= UserAccount.find_by(id: user_uuid)
+    end
+
+    def retrieve_credential_uuid(credential_uuid_type)
+      user_account.user_verification.map(&credential_uuid_type).compact.pop
     end
 
     def user_identity

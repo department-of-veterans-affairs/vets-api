@@ -283,7 +283,6 @@ class User < Common::RedisStore
     return unless loa3? && !mpi_profile?
 
     invalidate_mpi_cache
-    @mpi = nil
     mpi.add_person_implicit_search
   end
 
@@ -296,9 +295,10 @@ class User < Common::RedisStore
   # Other MPI
 
   def invalidate_mpi_cache
-    mpi_cache = mpi
-    mpi_cache.mvi_response
-    mpi_cache.destroy
+    return unless mpi.mpi_response_is_cached?
+
+    mpi.destroy
+    @mpi = nil
   end
 
   # identity attributes

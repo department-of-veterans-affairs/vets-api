@@ -338,7 +338,7 @@ RSpec.describe 'Fetching user data' do
   end
 
   def new_user(type = :loa3)
-    user = build(:user, type, uuid: rand(1000..100_000))
+    user = build(:user, type, edipi: SecureRandom.uuid, uuid: rand(1000..100_000))
     create(:account, idme_uuid: user.uuid)
     user
   end

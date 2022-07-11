@@ -523,6 +523,11 @@ RSpec.describe V0::SignInController, type: :controller do
 
             before do
               allow(SecureRandom).to receive(:uuid).and_return(client_code)
+              stub_mpi(build(:mvi_profile,
+                             ssn: user_info.social_security_number,
+                             birth_date: Formatters::DateFormatter.format_date(user_info.birthdate),
+                             given_names: [user_info.given_name],
+                             family_name: user_info.family_name))
             end
 
             it 'returns found status' do
@@ -638,6 +643,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
               user_account = UserAccount.last.id
               user = User.find(user_account)
+
               expect(user).to have_attributes(expected_user_attributes)
             end
           end
@@ -665,6 +671,14 @@ RSpec.describe V0::SignInController, type: :controller do
             first_name: user_info.fname,
             last_name: user_info.lname
           }
+        end
+
+        before do
+          stub_mpi(build(:mvi_profile,
+                         ssn: user_info.social,
+                         birth_date: Formatters::DateFormatter.format_date(user_info.birth_date),
+                         given_names: [user_info.fname],
+                         family_name: user_info.lname))
         end
 
         it_behaves_like 'an idme authentication service'
@@ -697,6 +711,15 @@ RSpec.describe V0::SignInController, type: :controller do
           }
         end
 
+        before do
+          stub_mpi(build(:mvi_profile,
+                         ssn: user_info.dslogon_idvalue,
+                         birth_date: Formatters::DateFormatter.format_date(user_info.dslogon_birth_date),
+                         given_names: [user_info.dslogon_fname, user_info.dslogon_mname],
+                         family_name: user_info.dslogon_lname,
+                         edipi: user_info.dslogon_uuid))
+        end
+
         it_behaves_like 'an idme authentication service'
       end
 
@@ -714,8 +737,14 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:expected_user_attributes) do
           {
             mhv_correlation_id: user_info.mhv_uuid,
-            mhv_icn: user_info.mhv_icn
+            icn: user_info.mhv_icn
           }
+        end
+
+        before do
+          stub_mpi(build(:mvi_profile,
+                         icn: user_info.mhv_icn,
+                         mhv_ids: [user_info.mhv_uuid]))
         end
 
         it_behaves_like 'an idme authentication service'

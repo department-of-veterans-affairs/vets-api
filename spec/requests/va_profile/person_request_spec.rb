@@ -60,7 +60,7 @@ RSpec.describe 'person' do
 
       it 'invalidates the cache for the mpi-profile-response Redis key' do
         VCR.use_cassette('va_profile/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
-          expect_any_instance_of(Common::RedisStore).to receive(:destroy)
+          expect_any_instance_of(User).to receive(:invalidate_mpi_cache)
 
           post('/v0/profile/initialize_vet360_id', params: empty_body, headers: headers)
         end

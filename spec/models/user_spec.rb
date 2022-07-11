@@ -354,9 +354,24 @@ RSpec.describe User, type: :model do
     end
 
     describe 'invalidate_mpi_cache' do
-      it 'clears the user mpi cache' do
-        expect_any_instance_of(MPIData).to receive(:destroy)
-        subject.invalidate_mpi_cache
+      before { allow_any_instance_of(MPIData).to receive(:cached?).and_return(cache_exists) }
+
+      context 'when mpi object exists with cached mpi response' do
+        let(:cache_exists) { true }
+
+        it 'clears the user mpi cache' do
+          expect_any_instance_of(MPIData).to receive(:destroy)
+          subject.invalidate_mpi_cache
+        end
+      end
+
+      context 'when mpi object does not exist with cached mpi response' do
+        let(:cache_exists) { false }
+
+        it 'does not attempt to clear the user mpi cache' do
+          expect_any_instance_of(MPIData).not_to receive(:destroy)
+          subject.invalidate_mpi_cache
+        end
       end
     end
 
