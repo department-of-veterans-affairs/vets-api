@@ -150,7 +150,7 @@ describe AppealsApi::DecisionReviewReport do
   describe '#total_nod_successes' do
     it 'shows correct count of all successful NODs regardless of timeframe' do
       create_list :notice_of_disagreement, 5, created_at: 3.weeks.ago
-      create_list :notice_of_disagreement, 5, status: 'success', created_at: 3.weeks.ago
+      create_list :notice_of_disagreement, 5, status: 'complete', created_at: 3.weeks.ago
       expect(subject.total_nod_successes).to eq 5
     end
   end
@@ -199,7 +199,7 @@ describe AppealsApi::DecisionReviewReport do
   describe '#total_sc_successes' do
     it 'shows correct count of all successful SCs regardless of timeframe' do
       create_list :supplemental_claim, 5, created_at: 3.weeks.ago
-      create_list :supplemental_claim, 5, :status_success, created_at: 3.weeks.ago
+      create_list :supplemental_claim, 5, status: 'complete', created_at: 3.weeks.ago
       expect(subject.total_sc_successes).to eq 5
     end
   end
