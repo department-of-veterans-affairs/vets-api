@@ -82,28 +82,6 @@ RSpec.describe 'CSRF scenarios' do
     end
   end
 
-  describe 'OpenidApplicationController (Lighthouse) descendants' do
-    let(:headers) do
-      { 'X-VA-SSN': '796043735',
-        'X-VA-First-Name': 'WESLEY',
-        'X-VA-Last-Name': 'FORD',
-        'X-VA-EDIPI': '1007697216',
-        'X-Consumer-Username': 'TestConsumer',
-        'X-VA-User': 'adhoc.test.user',
-        'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
-        'X-VA-LOA' => '3',
-        'X-VA-Gender': 'M' }
-    end
-    let(:path) { '/services/claims/v0/forms/526' }
-    let(:data) { File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json')) }
-
-    it 'skips CSRF validation' do
-      post path, params: data, headers: headers
-      expect(response.status).to eq(200)
-      expect(response.body).not_to match(/Invalid Authenticity Token/)
-    end
-  end
-
   describe 'unknown route' do
     it 'skips CSRF validation' do
       post '/non_existent_route'

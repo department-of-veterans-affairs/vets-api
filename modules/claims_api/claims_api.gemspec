@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.version     = ClaimsApi::VERSION
   s.authors     = ['Alex Teal']
   s.email       = ['alex.teal@oddball.io']
-  s.homepage    = 'https://api.va.gov/services/claims/docs/v0'
+  s.homepage    = 'https://api.va.gov/services/claims/docs/v1'
   s.summary     = 'EVSS Claims Status'
   s.description = 'EVSS claim status API'
   s.license     = 'CC0'
