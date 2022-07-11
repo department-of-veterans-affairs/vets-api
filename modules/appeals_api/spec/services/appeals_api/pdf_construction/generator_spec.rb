@@ -117,33 +117,6 @@ describe AppealsApi::PdfConstruction::Generator do
       let(:extra_higher_level_review) { create(:extra_higher_level_review, created_at: '2021-02-03T14:15:16Z') }
       let(:minimal_higher_level_review) { create(:minimal_higher_level_review, created_at: '2021-02-03T14:15:16Z') }
 
-      context 'pdf content verification' do
-        it 'generates the expected pdf' do
-          generated_pdf = described_class.new(higher_level_review).generate
-          expected_pdf = fixture_filepath('expected_200996.pdf', version: 'v1')
-          expect(generated_pdf).to match_pdf expected_pdf
-          File.delete(generated_pdf) if File.exist?(generated_pdf)
-        end
-      end
-
-      context 'pdf extra content verification' do
-        it 'generates the expected pdf' do
-          generated_pdf = described_class.new(extra_higher_level_review).generate
-          expected_pdf = fixture_filepath('expected_200996_extra.pdf', version: 'v1')
-          expect(generated_pdf).to match_pdf expected_pdf
-          File.delete(generated_pdf) if File.exist?(generated_pdf)
-        end
-      end
-
-      context 'pdf minimum content verification' do
-        it 'generates the expected pdf' do
-          generated_pdf = described_class.new(minimal_higher_level_review).generate
-          expected_pdf = fixture_filepath('expected_200996_minimum.pdf', version: 'v1')
-          expect(generated_pdf).to match_pdf(expected_pdf)
-          File.delete(generated_pdf) if File.exist?(generated_pdf)
-        end
-      end
-
       context 'v2' do
         context 'pdf verification' do
           let(:higher_level_review_v2) { create(:higher_level_review_v2, created_at: '2021-02-03T14:15:16Z') }

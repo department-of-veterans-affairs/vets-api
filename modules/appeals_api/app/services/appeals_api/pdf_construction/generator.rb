@@ -22,9 +22,6 @@ module AppealsApi
         unstamped_path = finalize_pages
         #=> '#{appeal.id}-rebuilt-pages-tmp.pdf OR @all_pages_path'
 
-        # TODO: remove this call once hlr v1 is sunset
-        return structure.stamp(unstamped_path) if hlr_v1?
-
         AppealsApi::PdfConstruction::Stamper.new(appeal, unstamped_path).call
       end
 
