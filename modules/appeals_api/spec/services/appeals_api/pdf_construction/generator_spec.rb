@@ -113,10 +113,6 @@ describe AppealsApi::PdfConstruction::Generator do
     end
 
     context 'Higher Level Review' do
-      let(:higher_level_review) { create(:higher_level_review, created_at: '2021-02-03T14:15:16Z') }
-      let(:extra_higher_level_review) { create(:extra_higher_level_review, created_at: '2021-02-03T14:15:16Z') }
-      let(:minimal_higher_level_review) { create(:minimal_higher_level_review, created_at: '2021-02-03T14:15:16Z') }
-
       context 'v2' do
         context 'pdf verification' do
           let(:higher_level_review_v2) { create(:higher_level_review_v2, created_at: '2021-02-03T14:15:16Z') }
@@ -156,7 +152,7 @@ describe AppealsApi::PdfConstruction::Generator do
 
         context 'special character verification' do
           it 'allows certain typography characters into Windows-1252' do
-            hlr = build(:minimal_higher_level_review)
+            hlr = build(:minimal_higher_level_review_v2)
             hlr.form_data['included'][0]['attributes']['issue'] = 'Smartquotes: “”‘’'
             hlr.save!
             generated_pdf = described_class.new(hlr, version: 'V2').generate
@@ -166,7 +162,7 @@ describe AppealsApi::PdfConstruction::Generator do
           end
 
           it 'removes characters that fall outsize Windows-1252 charset that cannot be downgraded' do
-            hlr = build(:minimal_higher_level_review)
+            hlr = build(:minimal_higher_level_review_v2)
             hlr.form_data['included'][0]['attributes']['issue'] = '∑mer allergies'
             hlr.save!
             generated_pdf = described_class.new(hlr, version: 'V2').generate
