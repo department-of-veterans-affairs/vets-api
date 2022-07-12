@@ -94,7 +94,7 @@ module ClaimsApi
         last_signed_in: Time.now.utc,
         loa: identity.loa,
         gender: identity.gender,
-        mvh_icn: identity.mhv_icn,
+        mhv_icn: identity.mhv_icn,
         idme_uuid: identity.idme_uuid,
         logingov_uuid: identity.logingov_uuid,
         ssn: identity.ssn,
