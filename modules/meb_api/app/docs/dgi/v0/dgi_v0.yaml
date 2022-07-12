@@ -18,6 +18,8 @@ tags:
     description: Claim Status
   - name: claim letter
     description: Claim Letter
+  - name: fry claim letter
+    description: Fry Claim Letter
   - name: enrollment
     description: Enrollment List
   - name: submit enrollment verification
@@ -247,6 +249,47 @@ paths:
           $ref: '#/components/responses/ServiceUnavailable'
         '504':
           $ref: '#/components/responses/GatewayTimeout'
+  /claim_letter/fry:
+    post:
+      tags:
+        - fry claim letter
+      summary: Dowloads an approval or denial fry letter to the client.
+      operationId: getFryClaimLetter
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClaimantInfoRequestBody'
+      responses:
+        '201':
+          description: Retrives a Fry Claim Letter.
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '502':
+          $ref: '#/components/responses/BadGateway'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
   /enrollment:
     post:
       tags:
@@ -435,7 +478,7 @@ paths:
         Retrieves a JSON object containing sponsors data for an authenticated
         benefits recipient.
       description: Retrieves and returns the sponsors data for benefit selection.
-      operationId: sponsors
+      operationId: fry_dea_sponsors
       security:
         - bearerAuth: []
       requestBody:
@@ -494,6 +537,15 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    Sponsors:
+      description: >-
+        Unique identifier in the request body to create the claimant
+        information.
+      type: object
+      properties:
+        ssn:
+          type: string
+          example: 539139735
     ClaimantInfoRequestBody:
       description: >-
         Unique identifier in the request body to create the claimant
