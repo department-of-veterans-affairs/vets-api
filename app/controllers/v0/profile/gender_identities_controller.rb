@@ -8,8 +8,6 @@ module V0
       before_action { authorize :mpi, :queryable? }
 
       def update
-        raise Common::Exceptions::Forbidden unless Flipper.enabled?(:profile_show_demographics, @current_user)
-
         gender_identity = VAProfile::Models::GenderIdentity.new gender_identity_params
 
         if gender_identity.valid?

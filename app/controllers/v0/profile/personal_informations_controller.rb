@@ -10,12 +10,7 @@ module V0
       # Fetches the personal information for the current user.
       # Namely their gender, birth date, preferred name, and gender identity.
       def show
-        response =
-          if Flipper.enabled?(:profile_show_demographics, @current_user)
-            service.get_demographics
-          else
-            service.build_response(200, nil)
-          end
+        response = service.get_demographics
 
         handle_errors!(response)
 
