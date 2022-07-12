@@ -121,6 +121,9 @@ features:
     actor_type: user
     description: Enables users to interact with combined debt portal experience
     enable_in_development: true
+  combined_financial_status_report:
+    actor_type: user
+    description: Enables users to submit FSR forms for VHA and VBA debts
   communication_preferences:
     actor_type: user
     description: Allow user to access backend communication_preferences API

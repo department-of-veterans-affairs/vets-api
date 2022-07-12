@@ -13,83 +13,18 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
   describe '#submit_financial_status_report' do
     let(:valid_form_data) { get_fixture('dmc/fsr_submission') }
     let(:user) { build(:user, :loa3) }
-    let(:malformed_form_data) do
-      { 'bad' => 'data' }
-    end
 
-    context 'with valid form data' do
-      it 'accepts the submission' do
-        VCR.use_cassette('dmc/submit_fsr') do
-          VCR.use_cassette('bgs/people_service/person_data') do
-            service = described_class.new(user)
-            res = service.submit_financial_status_report(valid_form_data)
-            expect(res[:status]).to eq('Document created successfully and uploaded to File Net.')
-          end
-        end
-      end
-
-      it 'sends a confirmation email' do
-        VCR.use_cassette('dmc/submit_fsr') do
-          VCR.use_cassette('bgs/people_service/person_data') do
-            service = described_class.new(user)
-            expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(
-              user.email.downcase,
-              described_class::CONFIRMATION_TEMPLATE,
-              {
-                'name' => user.first_name,
-                'time' => '48 hours',
-                'date' => Time.zone.now.strftime('%m/%d/%Y')
-              }
-            )
-            service.submit_financial_status_report(valid_form_data)
-          end
-        end
-      end
-    end
-
-    context 'with malformed form' do
-      it 'does not accept the submission' do
-        VCR.use_cassette('dmc/submit_fsr_error') do
-          VCR.use_cassette('bgs/people_service/person_data') do
-            service = described_class.new(user)
-            expect { service.submit_financial_status_report(malformed_form_data) }.to raise_error(
-              Common::Exceptions::BackendServiceException
-            ) do |e|
-              expect(e.message).to match(/DMC400/)
-            end
-          end
-        end
-      end
-    end
-
-    context 'when saving FSR fails' do
-      subject { described_class.new(user) }
-
+    context 'The flipper is turned off' do
       before do
-        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry) do |_self, arg_1, arg_2|
-          expect(arg_1).to be_instance_of(ActiveModel::ValidationError)
-          expect(arg_1.message).to eq('Validation failed: Filenet can\'t be blank')
-          expect(arg_2).to eq(
-            {
-              fsr_attributes: {
-                uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
-                filenet_id: nil
-              },
-              fsr_response: {
-                response_body: {
-                  'status' => 'Document created successfully and uploaded to File Net.'
-                }
-              }
-            }
-          )
-        end
+        Flipper.disable(:combined_financial_status_report)
       end
 
-      it 'logs to sentry' do
+      it 'defaults to use vba submission' do
         VCR.use_cassette('dmc/submit_fsr') do
           VCR.use_cassette('bgs/people_service/person_data') do
-            res = subject.submit_financial_status_report(valid_form_data)
-            expect(res[:status]).to eq('Document created successfully and uploaded to File Net.')
+            service = described_class.new(user)
+            expect(service).to receive(:submit_vba_fsr).with(valid_form_data)
+            service.submit_financial_status_report(valid_form_data)
           end
         end
       end
@@ -124,6 +59,174 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
               ).force_encoding('ASCII-8BIT')
             )
           end
+        end
+      end
+    end
+  end
+
+  describe '#submit_vba_fsr' do
+    let(:valid_form_data) { get_fixture('dmc/fsr_submission') }
+    let(:user) { build(:user, :loa3) }
+    let(:malformed_form_data) do
+      { 'bad' => 'data' }
+    end
+
+    context 'with valid form data' do
+      it 'accepts the submission' do
+        VCR.use_cassette('dmc/submit_fsr') do
+          VCR.use_cassette('bgs/people_service/person_data') do
+            service = described_class.new(user)
+            res = service.submit_vba_fsr(valid_form_data)
+            expect(res[:status]).to eq('Document created successfully and uploaded to File Net.')
+          end
+        end
+      end
+
+      it 'sends a confirmation email' do
+        VCR.use_cassette('dmc/submit_fsr') do
+          VCR.use_cassette('bgs/people_service/person_data') do
+            service = described_class.new(user)
+            expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(
+              user.email.downcase,
+              described_class::CONFIRMATION_TEMPLATE,
+              {
+                'name' => user.first_name,
+                'time' => '48 hours',
+                'date' => Time.zone.now.strftime('%m/%d/%Y')
+              }
+            )
+            service.submit_vba_fsr(valid_form_data)
+          end
+        end
+      end
+    end
+
+    context 'with malformed form' do
+      it 'does not accept the submission' do
+        VCR.use_cassette('dmc/submit_fsr_error') do
+          VCR.use_cassette('bgs/people_service/person_data') do
+            service = described_class.new(user)
+            expect { service.submit_vba_fsr(malformed_form_data) }.to raise_error(Common::Client::Errors::ClientError)
+          end
+        end
+      end
+    end
+
+    context 'when saving FSR fails' do
+      subject { described_class.new(user) }
+
+      before do
+        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry) do |_self, arg_1, arg_2|
+          expect(arg_1).to be_instance_of(ActiveModel::ValidationError)
+          expect(arg_1.message).to eq('Validation failed: Filenet can\'t be blank')
+          expect(arg_2).to eq(
+            {
+              fsr_attributes: {
+                uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
+                filenet_id: nil
+              },
+              fsr_response: {
+                response_body: {
+                  'status' => 'Document created successfully and uploaded to File Net.'
+                }
+              }
+            }
+          )
+        end
+      end
+
+      it 'logs to sentry' do
+        VCR.use_cassette('dmc/submit_fsr') do
+          VCR.use_cassette('bgs/people_service/person_data') do
+            res = subject.submit_vba_fsr(valid_form_data)
+            expect(res[:status]).to eq('Document created successfully and uploaded to File Net.')
+          end
+        end
+      end
+    end
+  end
+
+  describe '#submit_vha_fsr' do
+    let(:valid_form_data) { get_fixture('dmc/fsr_submission') }
+    let(:user) { build(:user, :loa3) }
+
+    before do
+      response = Faraday::Response.new(status: 200, body:
+      {
+        message: 'Success'
+      })
+      valid_form_data['personal_identification']['debt_type'] = 'vha'
+      allow_any_instance_of(DebtManagementCenter::VBS::Request).to receive(:post).with(
+        "#{Settings.mcp.vbs_v2.base_path}/UploadFSRJsonDocument", valid_form_data
+      ).and_return(response)
+    end
+
+    it 'submits to the VBS endpoint' do
+      service = described_class.new(user)
+      expect(service.submit_vha_fsr(valid_form_data)).to eq({ status: 200 })
+    end
+
+    it 'sends a confirmation email' do
+      service = described_class.new(user)
+      expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(
+        user.email.downcase,
+        described_class::CONFIRMATION_TEMPLATE,
+        {
+          'name' => user.first_name,
+          'time' => '48 hours',
+          'date' => Time.zone.now.strftime('%m/%d/%Y')
+        }
+      )
+      service.submit_vha_fsr(valid_form_data)
+    end
+
+    it 'parses out delimiter characters' do
+      service = described_class.new(user)
+      valid_form_data['personal_identification']['debt_type'] = '^vha|'
+      parsed_form_string = service.send(:remove_form_delimiters, valid_form_data).to_s
+      expect(['^', '|'].any? { |i| parsed_form_string.include? i }).to be false
+    end
+  end
+
+  describe '#submit_combined_fsr' do
+    let(:valid_form_data) { get_fixture('dmc/fsr_submission') }
+    let(:user) { build(:user, :loa3) }
+
+    before do
+      response = Faraday::Response.new(status: 200, body:
+      {
+        message: 'Success'
+      })
+      allow_any_instance_of(DebtManagementCenter::VBS::Request).to receive(:post).with(
+        "#{Settings.mcp.vbs_v2.base_path}/UploadFSRJsonDocument", valid_form_data
+      ).and_return(response)
+    end
+
+    it 'submits to vba if specified' do
+      valid_form_data.merge!({ 'personalIdentification' => { 'debtType' => 'vba' } })
+      VCR.use_cassette('dmc/submit_fsr') do
+        VCR.use_cassette('bgs/people_service/person_data') do
+          service = described_class.new(user)
+          expect(service).to receive(:submit_vba_fsr).with(valid_form_data)
+          service.submit_combined_fsr(valid_form_data)
+        end
+      end
+    end
+
+    it 'submits to vha if specified' do
+      valid_form_data.merge!({ 'personalIdentification' => { 'debtType' => 'vha' } })
+      service = described_class.new(user)
+      expect(service).to receive(:submit_vha_fsr).with(valid_form_data)
+      service.submit_combined_fsr(valid_form_data)
+    end
+
+    it 'submits to vba if unspecified' do
+      VCR.use_cassette('dmc/submit_fsr') do
+        VCR.use_cassette('bgs/people_service/person_data') do
+          valid_form_data.merge!({ 'personalIdentification' => { 'debtType' => nil } })
+          service = described_class.new(user)
+          expect(service).to receive(:submit_vba_fsr).with(valid_form_data)
+          service.submit_combined_fsr(valid_form_data)
         end
       end
     end

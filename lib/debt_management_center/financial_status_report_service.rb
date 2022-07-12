@@ -6,6 +6,7 @@ require 'debt_management_center/responses/financial_status_report_response'
 require 'debt_management_center/models/financial_status_report'
 require 'debt_management_center/financial_status_report_downloader'
 require 'debt_management_center/workers/va_notify_email_job'
+require 'debt_management_center/vbs/request'
 require 'json'
 
 module DebtManagementCenter
@@ -36,13 +37,11 @@ module DebtManagementCenter
       with_monitoring_and_error_handling do
         form = add_personal_identification(form)
         validate_form_schema(form)
-        response = perform(:post, 'financial-status-report/formtopdf', form)
-        fsr_response = DebtManagementCenter::FinancialStatusReportResponse.new(response.body)
-
-        send_confirmation_email if response.success?
-
-        update_filenet_id(fsr_response)
-        { status: fsr_response.status }
+        if Flipper.enabled?(:combined_financial_status_report)
+          submit_combined_fsr(form)
+        else
+          submit_vba_fsr(form)
+        end
       end
     end
 
@@ -58,6 +57,37 @@ module DebtManagementCenter
 
       downloader = DebtManagementCenter::FinancialStatusReportDownloader.new(financial_status_report)
       downloader.download_pdf
+    end
+
+    def submit_combined_fsr(form)
+      case form['personalIdentification']['debtType']
+      when 'vba'
+        submit_vba_fsr(form)
+      when 'vha'
+        submit_vha_fsr(form)
+      else
+        submit_vba_fsr(form)
+      end
+    end
+
+    def submit_vba_fsr(form)
+      response = perform(:post, 'financial-status-report/formtopdf', form)
+      fsr_response = DebtManagementCenter::FinancialStatusReportResponse.new(response.body)
+
+      send_confirmation_email if response.success?
+
+      update_filenet_id(fsr_response)
+      { status: fsr_response.status }
+    end
+
+    def submit_vha_fsr(form)
+      request = DebtManagementCenter::VBS::Request.build
+      parsed_form = remove_form_delimiters(form)
+      response = request.post("#{vbs_settings.base_path}/UploadFSRJsonDocument", parsed_form)
+
+      send_confirmation_email if response.success?
+
+      { status: response.status }
     end
 
     private
@@ -117,6 +147,14 @@ module DebtManagementCenter
 
     def email_personalization_info
       { 'name' => @user.first_name, 'time' => '48 hours', 'date' => Time.zone.now.strftime('%m/%d/%Y') }
+    end
+
+    def remove_form_delimiters(form)
+      JSON.parse(form.to_s.gsub(/[\^|]/, '').gsub('=>', ':'))
+    end
+
+    def vbs_settings
+      Settings.mcp.vbs_v2
     end
   end
 end
