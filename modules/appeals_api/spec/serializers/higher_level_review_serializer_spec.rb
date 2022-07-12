@@ -4,7 +4,7 @@ require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe AppealsApi::HigherLevelReviewSerializer do
-  let(:higher_level_review) { create(:higher_level_review) }
+  let(:higher_level_review) { create(:higher_level_review_v2) }
   let(:rendered_hash) { described_class.new(higher_level_review).serializable_hash }
 
   it 'serializes the HLR properly' do

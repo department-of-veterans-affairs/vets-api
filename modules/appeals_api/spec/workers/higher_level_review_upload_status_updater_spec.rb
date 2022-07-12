@@ -5,7 +5,7 @@ require AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_for_mon
 
 describe AppealsApi::HigherLevelReviewUploadStatusUpdater, type: :job do
   let(:client_stub) { instance_double('CentralMail::Service') }
-  let(:upload) { create(:higher_level_review, :status_received) }
+  let(:upload) { create(:higher_level_review_v2, status: 'submitting') }
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:in_process_element) do
     [{ uuid: 'ignored',
@@ -36,7 +36,7 @@ describe AppealsApi::HigherLevelReviewUploadStatusUpdater, type: :job do
     end
 
     it 'notifies sentry & slack of individual bad records without affecting good records' do
-      bad_upload = create(:higher_level_review, :status_received)
+      bad_upload = create(:higher_level_review_v2, status: 'submitting')
       # Intentionally break decrypting
       bad_upload.update_column :form_data_ciphertext, ':(' # rubocop:disable Rails/SkipsModelValidations
 
@@ -56,7 +56,7 @@ describe AppealsApi::HigherLevelReviewUploadStatusUpdater, type: :job do
         upload.reload
         bad_upload.reload
         expect(upload.status).to eq('processing')
-        expect(bad_upload.status).to eq('received')
+        expect(bad_upload.status).to eq('submitting')
       end
     end
   end

@@ -28,15 +28,13 @@ describe AppealsApi::DecisionReviewReport do
   end
 
   it 'can correctly calculate hlrs' do
-    create :higher_level_review, status: 'processing'
-    create :higher_level_review, status: 'processing'
-    create :higher_level_review, status: 'processing'
+    create_list :higher_level_review_v2, 3, status: 'processing'
 
-    create :higher_level_review, created_at: 1.week.ago, status: 'success'
+    create :higher_level_review_v2, created_at: 1.week.ago, status: 'success'
     create :higher_level_review_v2, status: 'success'
     create :higher_level_review_v2, status: 'complete'
 
-    create :higher_level_review, :status_error
+    create :higher_level_review_v2, status: 'error'
 
     subject = described_class.new(from: 5.days.ago, to: Time.now.utc)
 
@@ -55,8 +53,8 @@ describe AppealsApi::DecisionReviewReport do
   end
 
   describe '#faulty_hlr' do
-    let(:old_error) { create(:higher_level_review, :status_error, created_at: 1.year.ago) }
-    let(:recent_error) { create(:higher_level_review, :status_error, created_at: 1.day.ago) }
+    let(:old_error) { create(:higher_level_review_v2, status: 'error', created_at: 1.year.ago) }
+    let(:recent_error) { create(:higher_level_review_v2, status: 'error', created_at: 1.day.ago) }
 
     it 'will retrieve recent errored records if dates are provided' do
       subject = described_class.new(from: 5.days.ago, to: Time.now.utc)
@@ -78,9 +76,9 @@ describe AppealsApi::DecisionReviewReport do
       unstuck_appeal = nil
 
       Timecop.freeze(1.year.ago) do
-        stuck_appeal_no_updates = create(:higher_level_review)
-        stuck_appeal_with_updates = create(:higher_level_review)
-        unstuck_appeal = create(:higher_level_review)
+        stuck_appeal_no_updates = create :higher_level_review_v1
+        stuck_appeal_with_updates = create :higher_level_review_v1
+        unstuck_appeal = create :higher_level_review_v1
       end
 
       unstuck_appeal.update! status: :complete, updated_at: 3.months.ago
@@ -97,9 +95,10 @@ describe AppealsApi::DecisionReviewReport do
   end
 
   describe '#total_hlr_successes' do
-    it 'shows correct count of all successful HLRs regardless of timeframe' do
-      create_list :higher_level_review, 1, created_at: 3.weeks.ago # Ignored
-      create_list :higher_level_review, 2, status: 'success', created_at: 3.weeks.ago # Added to total
+    it 'shows correct count of all successful HLRs regardless timeframe' do
+      # NOTE: HLRv1's "final status" is 'success', while HLRv2's is 'complete'
+      create_list :higher_level_review_v1, 1, created_at: 3.weeks.ago # Ignored
+      create_list :higher_level_review_v1, 2, status: 'success', created_at: 3.weeks.ago # Added to total
       create_list :higher_level_review_v2, 4, status: 'success', created_at: 4.weeks.ago # Ignored
       create_list :higher_level_review_v2, 8, status: 'complete', created_at: 4.weeks.ago # Added to total
       expect(subject.total_hlr_successes).to eq 10

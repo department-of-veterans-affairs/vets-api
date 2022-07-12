@@ -6,18 +6,14 @@ module AppealsApi
 
     MAX_UUIDS_PER_REQUEST = 100
 
-    # TODO: remove 'Processing Error' from this list once HLR v1 sunset
-    CENTRAL_MAIL_ERROR_STATUSES = ['Error', 'Processing Error'].freeze
+    CENTRAL_MAIL_ERROR_STATUSES = ['Error'].freeze
 
     CENTRAL_MAIL_STATUS_ATTRIBUTES = {
       'Received' => { status: 'submitted' }, # received upstream of our API
       'In Process' => { status: 'processing' }, # indicates vba intake
       'Success' => { status: 'success' }, # received by the centralized mail portal
       'VBMS Complete' => { status: 'complete' }, # document package received by vbms
-      'Error' => { status: 'error', code: 'DOC202' },
-      # TODO: Remove these HLRv1 statuses when HLRv1 is sunset
-      'Processing Success' => { status: 'processing' }, # HLRv1 only
-      'Processing Error' => { status: 'error', code: 'DOC202' } # HLRv1 only
+      'Error' => { status: 'error', code: 'DOC202' }
     }.freeze
 
     CENTRAL_MAIL_STATUSES = CENTRAL_MAIL_STATUS_ATTRIBUTES.to_a.map { |_, x| x.fetch(:status) }.freeze

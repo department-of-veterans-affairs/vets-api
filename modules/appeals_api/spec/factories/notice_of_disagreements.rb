@@ -14,9 +14,6 @@ FactoryBot.define do
     trait :status_error do
       status { 'error' }
     end
-    trait :status_received do
-      status { 'submitted' }
-    end
     trait :board_review_hearing do
       board_review_option { 'hearing' }
     end

@@ -91,7 +91,7 @@ module AppealsApi
 
           describe '#rep_country_code' do
             it 'defaults to 1 if countryCode is blank' do
-              higher_level_review = build_stubbed(:higher_level_review)
+              higher_level_review = build_stubbed(:higher_level_review_v2)
               form_data = described_class.new(higher_level_review)
               allow(higher_level_review).to receive(:informal_conference_rep_phone).and_return(
                 AppealsApi::HigherLevelReview::Phone.new(

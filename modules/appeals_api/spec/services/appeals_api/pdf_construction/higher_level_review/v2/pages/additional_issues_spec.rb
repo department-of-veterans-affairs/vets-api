@@ -5,7 +5,7 @@ require 'rails_helper'
 module AppealsApi::PdfConstruction::HigherLevelReview::V2
   describe Pages::AdditionalIssues do
     describe '#build!' do
-      let(:higher_level_review) { create(:higher_level_review) }
+      let(:higher_level_review) { create(:higher_level_review_v2) }
 
       it 'returns the same object that it received' do
         pdf = Prawn::Document.new
