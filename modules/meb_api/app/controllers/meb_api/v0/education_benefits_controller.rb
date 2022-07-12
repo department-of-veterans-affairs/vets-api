@@ -2,12 +2,9 @@
 
 require 'dgi/eligibility/service'
 require 'dgi/automation/service'
-require 'dgi/status/service'
 require 'dgi/submission/service'
-require 'dgi/letters/service'
 require 'dgi/toe/service'
 require 'dgi/enrollment/service'
-require 'dgi/claimant/service'
 
 module MebApi
   module V0
@@ -115,16 +112,8 @@ module MebApi
         MebApi::DGI::Automation::Service.new(@current_user)
       end
 
-      def claim_status_service
-        MebApi::DGI::Status::Service.new(@current_user)
-      end
-
       def submission_service
         MebApi::DGI::Submission::Service.new(@current_user)
-      end
-
-      def claim_letters_service
-        MebApi::DGI::Letters::Service.new(@current_user)
       end
 
       def toe_letter_service
@@ -133,10 +122,6 @@ module MebApi
 
       def enrollment_service
         MebApi::DGI::Enrollment::Service.new(@current_user)
-      end
-
-      def claimant_service
-        MebApi::DGI::Claimant::Service.new(@current_user)
       end
     end
   end
