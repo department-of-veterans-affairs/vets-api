@@ -32,7 +32,7 @@ describe AppealsApi::HigherLevelReviewUploadStatusBatch, type: :job do
       end
 
       context 'with HLRv1 records' do
-        let(:upload) { create(:higher_level_review, :status_received) }
+        let(:upload) { create(:higher_level_review_v1, status: 'received') }
 
         it 'ignores them' do
           with_settings(Settings.modules_appeals_api, higher_level_review_updater_enabled: true) do

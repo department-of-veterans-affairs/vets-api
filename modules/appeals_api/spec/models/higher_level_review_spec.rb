@@ -7,11 +7,11 @@ describe AppealsApi::HigherLevelReview, type: :model do
   include FixtureHelpers
 
   let(:higher_level_review) { default_higher_level_review }
-  let(:default_higher_level_review) { create :higher_level_review, :status_received }
+  let(:default_higher_level_review) { create :higher_level_review_v2, status: 'submitting' }
   let(:auth_headers) { default_auth_headers }
-  let(:default_auth_headers) { fixture_as_json 'valid_200996_headers.json', version: 'v1' }
+  let(:default_auth_headers) { fixture_as_json 'valid_200996_headers.json', version: 'v2' }
   let(:form_data) { default_form_data }
-  let(:default_form_data) { fixture_as_json 'valid_200996.json', version: 'v1' }
+  let(:default_form_data) { fixture_as_json 'valid_200996.json', version: 'v2' }
   let(:form_data_attributes) { form_data.dig('data', 'attributes') }
 
   describe '#first_name' do
@@ -74,7 +74,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
   end
 
   describe '#stamp_text' do
-    it { expect(higher_level_review.stamp_text).to eq('Doe - 6789') }
+    it { expect(higher_level_review.stamp_text).to eq('Doé - 6789') }
 
     it 'truncates the last name if too long' do
       full_last_name = 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdddddddddd'
@@ -134,13 +134,21 @@ describe AppealsApi::HigherLevelReview, type: :model do
   describe '#veteran_phone_number' do
     subject { higher_level_review.veteran_phone_number }
 
+    before do
+      data = higher_level_review.form_data
+      phone_data = data.dig(*%w[data attributes veteran phone])
+      phone_data['countryCode'] = '34'
+      phone_data['phoneNumberExt'] = '2'
+      higher_level_review.form_data = data
+    end
+
     it('matches json') { is_expected.to eq '+34-555-800-1111 ex2' }
   end
 
   describe '#email' do
     subject { higher_level_review.email }
 
-    it('matches json') { is_expected.to eq form_data_attributes['veteran']['emailAddressText'] }
+    it('matches json') { is_expected.to eq form_data_attributes['veteran']['email'] }
   end
 
   describe '#benefit_type' do
@@ -149,22 +157,10 @@ describe AppealsApi::HigherLevelReview, type: :model do
     it('matches json') { is_expected.to eq form_data_attributes['benefitType'] }
   end
 
-  describe '#same_office' do
-    subject { higher_level_review.same_office }
-
-    it('matches json') { is_expected.to eq form_data_attributes['sameOffice'] }
-  end
-
   describe '#informal_conference' do
     subject { higher_level_review.informal_conference }
 
     it('matches json') { is_expected.to eq form_data_attributes['informalConference'] }
-  end
-
-  describe '#informal_conference_times' do
-    subject { higher_level_review.informal_conference_times }
-
-    it('matches json') { is_expected.to eq form_data_attributes['informalConferenceTimes'] }
   end
 
   describe '#contestable_issues' do
@@ -294,7 +290,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
           expect(status_event['args']).to eq([
                                                'hlr_status_updated',
                                                {
-                                                 'from' => 'received',
+                                                 'from' => 'submitting',
                                                  'to' => 'submitted',
                                                  'status_update_time' => Time.zone.now.iso8601,
                                                  'statusable_id' => higher_level_review.id

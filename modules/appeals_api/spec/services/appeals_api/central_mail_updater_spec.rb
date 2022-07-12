@@ -33,19 +33,8 @@ describe AppealsApi::CentralMailUpdater do
       expect(appeal_1.status).to eq('complete')
     end
 
-    it 'hlr accepts VBMS Complete and maps it to complete' do
-      hlr = create(:higher_level_review)
-      central_mail_response[0][:uuid] = hlr.id
-      allow(faraday_response).to receive(:body).at_least(:once).and_return([central_mail_response].to_json)
-
-      subject.call([hlr])
-      hlr.reload
-      expect(hlr.status).to eq('complete')
-    end
-
     it 'hlr V2 accepts VBMS Complete and maps it to complete' do
-      hlr = create(:higher_level_review)
-      hlr.update!(api_version: 'V2')
+      hlr = create(:higher_level_review_v2)
       central_mail_response[0][:uuid] = hlr.id
       allow(faraday_response).to receive(:body).at_least(:once).and_return([central_mail_response].to_json)
 

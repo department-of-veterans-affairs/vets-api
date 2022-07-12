@@ -11,29 +11,21 @@ module AppealsApi
       end
 
       it 'removes PII from HLR records needing PII removal' do
-        day_old_has_pii = create :higher_level_review, status: 'success'
         day_old_has_pii_v2 = create :higher_level_review_v2, status: 'complete'
-        day_old_has_pii.update updated_at: 1.day.ago
         day_old_has_pii_v2.update updated_at: 1.day.ago
 
-        week_old_has_pii = create :higher_level_review, status: 'success'
         week_old_has_pii_v2 = create :higher_level_review_v2, status: 'complete'
         week_old_has_pii_v2_incomplete = create :higher_level_review_v2, status: 'success' # Former V1 final status
-        week_old_has_pii.update updated_at: 8.days.ago
         week_old_has_pii_v2.update updated_at: 8.days.ago
         week_old_has_pii_v2_incomplete.update updated_at: 8.days.ago
 
-        expect(day_old_has_pii.form_data_ciphertext).to be_present
         expect(day_old_has_pii_v2.form_data_ciphertext).to be_present
-        expect(week_old_has_pii.form_data_ciphertext).to be_present
         expect(week_old_has_pii_v2.form_data_ciphertext).to be_present
         expect(week_old_has_pii_v2_incomplete.form_data_ciphertext).to be_present
 
         RemovePii.new(form_type: HigherLevelReview).run!
 
-        expect(day_old_has_pii.reload.form_data_ciphertext).to be_present
         expect(day_old_has_pii_v2.reload.form_data_ciphertext).to be_present
-        expect(week_old_has_pii.reload.form_data_ciphertext).to be_nil
         expect(week_old_has_pii_v2.reload.form_data_ciphertext).to be_nil
         expect(week_old_has_pii_v2_incomplete.reload.form_data_ciphertext).to be_present
       end

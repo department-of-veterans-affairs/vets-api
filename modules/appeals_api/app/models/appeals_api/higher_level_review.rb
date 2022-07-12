@@ -181,31 +181,21 @@ module AppealsApi
     end
 
     def email
-      # V2 and V1 access the email data via different keys ('email' vs 'emailAddressText')
-      veteran.email.presence || veteran_data&.dig('emailAddressText').to_s.strip
+      veteran.email.presence
     end
 
     def benefit_type
       data_attributes&.dig('benefitType').to_s.strip
     end
 
-    def same_office
-      data_attributes&.dig('sameOffice')
-    end
-
     def informal_conference
       data_attributes&.dig('informalConference')
-    end
-
-    def informal_conference_times
-      data_attributes&.dig('informalConferenceTimes') || []
     end
 
     def informal_conference_contact
       data_attributes&.dig('informalConferenceContact')
     end
 
-    # V2 only allows one choice of conference time
     def informal_conference_time
       data_attributes&.dig('informalConferenceTime')
     end

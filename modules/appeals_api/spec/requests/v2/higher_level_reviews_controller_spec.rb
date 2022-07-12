@@ -19,9 +19,9 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
     @data_extra = fixture_to_s 'valid_200996_extra.json', version: 'v2'
     @invalid_data = fixture_to_s 'invalid_200996.json', version: 'v2'
     @headers = fixture_as_json 'valid_200996_headers.json', version: 'v2'
-    @minimum_required_headers = fixture_as_json 'valid_200996_headers_minimum.json', version: 'v1'
+    @minimum_required_headers = fixture_as_json 'valid_200996_headers_minimum.json', version: 'v2'
     @headers_extra = fixture_as_json 'valid_200996_headers_extra.json', version: 'v2'
-    @invalid_headers = fixture_as_json 'invalid_200996_headers.json', version: 'v1'
+    @invalid_headers = fixture_as_json 'invalid_200996_headers.json', version: 'v2'
   end
 
   let(:parsed) { JSON.parse(response.body) }
@@ -298,7 +298,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
     let(:path) { base_path 'higher_level_reviews/' }
 
     it 'returns a higher_level_review with all of its data' do
-      uuid = create(:higher_level_review).id
+      uuid = create(:higher_level_review_v2).id
       get("#{path}#{uuid}")
       expect(response.status).to eq(200)
       expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
@@ -314,7 +314,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
     it 'allow for status simulation' do
       with_settings(Settings, vsp_environment: 'development') do
         with_settings(Settings.modules_appeals_api, status_simulation_enabled: true) do
-          uuid = create(:higher_level_review).id
+          uuid = create(:higher_level_review_v2).id
           status_simulation_headers = { 'Status-Simulation' => 'error' }
           get("#{path}#{uuid}", headers: status_simulation_headers)
 
