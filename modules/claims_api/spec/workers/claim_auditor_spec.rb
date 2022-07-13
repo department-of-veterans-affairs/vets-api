@@ -16,25 +16,25 @@ RSpec.describe ClaimsApi::ClaimAuditor, type: :job do
   end
 
   it 'notifies slack' do
-    create(:auto_established_claim, created_at: 3.days.ago)
+    create(:auto_established_claim, :status_errored)
     expect_any_instance_of(SlackNotify::Client).to receive(:notify)
 
     with_settings(Settings.claims_api,
                   audit_enabled: true,
                   slack: OpenStruct.new(webhook_url: 'https://example.com'),
-                  claims_pending_reporting: OpenStruct.new(threshold: 86_400_000, environment_name: 'test')) do
+                  claims_error_reporting: OpenStruct.new(environment_name: 'test')) do
       subject.new.perform
     end
   end
 
   it 'does not notify slack' do
-    create(:auto_established_claim, created_at: Time.current)
+    create(:auto_established_claim, status: ClaimsApi::AutoEstablishedClaim::PENDING)
     expect_any_instance_of(SlackNotify::Client).not_to receive(:notify)
 
     with_settings(Settings.claims_api,
                   audit_enabled: true,
                   slack: OpenStruct.new(webhook_url: 'https://example.com'),
-                  claims_pending_reporting: OpenStruct.new(threshold: 86_400_000, environment_name: 'test')) do
+                  claims_error_reporting: OpenStruct.new(environment_name: 'test')) do
       subject.new.perform
     end
   end
