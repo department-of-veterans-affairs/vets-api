@@ -601,8 +601,7 @@ claims_api:
   schema_dir: config/schemas
   slack:
     webhook_url: https://example.com
-  claims_pending_reporting:
-    threshold: ~
+  claims_error_reporting:
     environment_name: ~
   v2_docs:
     enabled: false
