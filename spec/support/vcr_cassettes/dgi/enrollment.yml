@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Authorization:
-      - Bearer eyJraWQiOiJ2YW5vdGlmeSIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJpYXQiOjE2NDcwMzUxMTAsImV4cCI6MTY0NzAzNTQxMH0.dhavPX0yUaWZnrK8CRkf5cphoXIcgLM4R9HCyH6tJJdGEYd52_q8rryofpt3ZaOTithy2-dZ3UD-5NJ3BwN8Ln6aOMk6h0fh4rhhW9Ho57TA8PhtiY5xVxqogBjprSmdcO2wFKkgCYKYBDjr-PvY2MjhanIQUNEohnZI_tSiKZRWSSSuCnZe86yBD0VL91w7dp00hrNMSe_1H4L4fw-5Y_1K-JimNAH9-m-ry2D_4eiALFG3ptazeD2rgisA0YW64Lnx9DF_q9EIuYWZh86YzK2fv4oAG0OAvhDgNO9wofamMhFV9TjxNg_Qreew9Dk8dK2JlMA7xd1DD1pxx_RaaQ
+      - removed
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -46,7 +46,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Authorization:
-      - Bearer eyJraWQiOiJ2YW5vdGlmeSIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJpYXQiOjE2NDQ0MTM3NjIsImV4cCI6MTY0NDQxNDA2Mn0.IhoSHqP-kisKJjHjG67CzpiLrJOYaHLTLd40gmtPxsHw7kgzynJ-kVTdq1Pd3qFjEq5l3yWKJ0jlbP6WTYeTXWhQKtf3l-gIpyLJMeG0a0_VeXetrDuDir1kAt79f-RujBhJ1TcDAbC2ELm5VWnFTeOaS97-tnwzOMzPU6rLrZy_EzCLNhXD59eNanCuyezfj9x2n25qt5OPaxp9-7ffO09U4oRx_QMOKoIshJTYSZQfuXYXq8ykLt-tpAqeWX8s40NMHs3CZL44ewOWzyr0M_PyfU-RuUWOl_xIyZN6l_FVBVfHhq57hNGk8rHG34e1p-pfkPnTQtBT3WDIKLhfIQ
+      - removed
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -81,5 +81,5 @@ http_interactions:
             "createdDate": null
         }
       ]}'
-  recorded_at: Wed, 09 Feb 2022 13:36:02 GMT
+  recorded_at: Mon, 11 Jul 2022 20:49:28 GMT
 recorded_with: VCR 6.0.0

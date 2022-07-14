@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Authorization:
-      - Bearer eyJraWQiOiJ2YW5vdGlmeSIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJpYXQiOjE2NTUzMTg1NjEsImV4cCI6MTY1NTMxODg2MX0.B0ynF4m11rHjKGTqFIRa5SfiMjj5baNJ30udESd1vng3U5lJtjUmAZgNd_j-4O2hHGmAAlgm7B-jKH0kAtr9MlwpyKO95EsVq4jVQaygnc0TAuDudj_ZJc-hnXuBpPERKYXO8-SoJaC1Jl6XOXvTxu7C5RzYyF8A8AX_qD8Wucsx72ATQVt7Xqq6n_aR-IY7iv4aEuKQWaADADr37hBau4RehvlryzChxleRHkE_MenAtfxuX_yTA1jUS0x4W4ly-ce9HICgcHEMnhnwhFdDJJ0HP7bRImiNoo0h_dxuOJ22ZhW1WGDHAK4KsUopouMdw6gNOxl7LoSsezvxasJatw
+      - removed
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:

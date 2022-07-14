@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Authorization:
-      - Bearer eyJraWQiOiJ2YW5vdGlmeSIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJpYXQiOjE2NTUzMTg1NTYsImV4cCI6MTY1NTMxODg1Nn0.N01o4vcwfPw6nE0343Q3aj-7zPXlnAJxWlAYyJM7uFqzne5UekilIJqzXOsMIdCWqFFYvhFViLJAmI5UfLbTfUEpeFTjKUqqB9HxMDmIoUv4zmQiKI_xSCXQCGqKMhhPy5UOHlnUdpXY4Rns7BZLaM_pofenKvA5NN1k-fSf92BJvbZosr1_YEVyEYtoL3Vgie5xF_cjID7TWoUA6SQCaceDfHasPFKEArSezDfYdN0p69QnjQAO9-fKUZ7hZ67OXMe6nmoojZQvESfAvW1PL9g1DSTesIn-u9w3O1diyJ_yPHAgbCZli0dSvEFdac_3kZ0QYYYqds2BdzXarSX5-w
+      - removed
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -46,7 +46,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Authorization:
-      - Bearer eyJraWQiOiJ2YW5vdGlmeSIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJpYXQiOjE2NTUzMTg1NTYsImV4cCI6MTY1NTMxODg1Nn0.N01o4vcwfPw6nE0343Q3aj-7zPXlnAJxWlAYyJM7uFqzne5UekilIJqzXOsMIdCWqFFYvhFViLJAmI5UfLbTfUEpeFTjKUqqB9HxMDmIoUv4zmQiKI_xSCXQCGqKMhhPy5UOHlnUdpXY4Rns7BZLaM_pofenKvA5NN1k-fSf92BJvbZosr1_YEVyEYtoL3Vgie5xF_cjID7TWoUA6SQCaceDfHasPFKEArSezDfYdN0p69QnjQAO9-fKUZ7hZ67OXMe6nmoojZQvESfAvW1PL9g1DSTesIn-u9w3O1diyJ_yPHAgbCZli0dSvEFdac_3kZ0QYYYqds2BdzXarSX5-w
+      - removed
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -63,5 +63,5 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"claimantId":600000001,"claimServiceId":99000000113358369,"claimStatus":"ELIGIBLE","confirmationNumber":null,"receivedDate":"2022-06-13"}'
-  recorded_at: Wed, 15 Jun 2022 18:42:36 GMT
+  recorded_at: Mon, 11 Jul 2022 20:49:28 GMT
 recorded_with: VCR 6.1.0
