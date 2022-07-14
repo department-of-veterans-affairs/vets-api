@@ -66,10 +66,25 @@ module SignIn
           uuid: user_info.sub,
           idme_uuid: user_info.sub,
           loa: { current: loa_current, highest: loa_highest },
-          sign_in: { service_name: config.service_name, auth_broker: SignIn::Constants::Auth::BROKER_CODE },
+          sign_in: { service_name: get_service_name, auth_broker: SignIn::Constants::Auth::BROKER_CODE },
           csp_email: user_info.email,
-          authn_context: type
+          authn_context: get_authn_context(credential_level.current_ial)
         }
+      end
+
+      def get_service_name
+        type == 'mhv' ? 'myhealthevet' : type
+      end
+
+      def get_authn_context(current_ial)
+        case type
+        when 'idme'
+          current_ial == IAL::TWO ? LOA::IDME_LOA3 : LOA::IDME_LOA1_VETS
+        when 'dslogon'
+          current_ial == IAL::TWO ? LOA::IDME_DSLOGON_LOA3 : LOA::IDME_DSLOGON_LOA1
+        when 'mhv'
+          current_ial == IAL::TWO ? LOA::IDME_MHV_LOA3 : LOA::IDME_MHV_LOA1
+        end
       end
 
       def idme_attributes(user_info)

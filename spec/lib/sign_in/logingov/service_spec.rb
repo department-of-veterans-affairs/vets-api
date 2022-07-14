@@ -94,13 +94,15 @@ describe SignIn::Logingov::Service do
         uuid: user_uuid,
         logingov_uuid: user_uuid,
         loa: { current: LOA::THREE, highest: LOA::THREE },
-        sign_in: { service_name: 'logingov', auth_broker: SignIn::Constants::Auth::BROKER_CODE },
+        sign_in: { service_name: service_name, auth_broker: auth_broker },
         csp_email: email,
-        authn_context: type
+        authn_context: authn_context
       }
     end
     let(:credential_level) { create(:credential_level, current_ial: IAL::TWO, max_ial: IAL::TWO) }
-    let(:type) { 'logingov' }
+    let(:service_name) { SAML::User::LOGINGOV_CSID }
+    let(:auth_broker) { SignIn::Constants::Auth::BROKER_CODE }
+    let(:authn_context) { IAL::LOGIN_GOV_IAL2 }
     let(:expected_attributes) do
       expected_standard_attributes.merge({ ssn: ssn.tr('-', ''),
                                            birth_date: birth_date,
