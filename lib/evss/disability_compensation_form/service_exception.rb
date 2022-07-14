@@ -40,7 +40,8 @@ module EVSS
 
       def retryable?
         (@key == 'evss.external_service_unavailable' && only_has_retriable_message_texts?) ||
-          (@key == 'evss.disability_compensation_form.pif_in_use')
+          (@key == 'evss.disability_compensation_form.pif_in_use') ||
+          (@key == 'gov.va.wss.partner.veteranrecord.ws.client.VeteranRecordWsClientException')
       end
 
       def errors
