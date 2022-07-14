@@ -42,7 +42,7 @@ class AppealsApi::Schemas::SharedSchemasController < AppealsApi::ApplicationCont
   end
 
   def shared_schemas_file
-    Rails.root.join('modules', 'appeals_api', 'config', 'shared_schemas', schema_version, "#{schema_type}.json")
+    Rails.root.join('modules', 'appeals_api', 'config', 'schemas', 'shared', schema_version, "#{schema_type}.json")
   end
 
   def file_as_json

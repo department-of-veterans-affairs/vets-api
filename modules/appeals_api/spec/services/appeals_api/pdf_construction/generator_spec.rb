@@ -184,6 +184,10 @@ describe AppealsApi::PdfConstruction::Generator do
             allow_any_instance_of(AppealsApi::PdfConstruction::HigherLevelReview::V2::FormData).to receive(:claimant_phone_string).and_return('+WWW-WWWWWWWWWWWWWWW')
 
             hlr.form_data = data
+            # TODO: update countryCodeISO2 in expected_200996_maxlength.pdf with expected override_max_lengths tranforms
+            hlr.form_data['data']['attributes']['veteran']['address']['countryCodeISO2'] = 'US'
+            hlr.form_data['data']['attributes']['claimant']['address']['countryCodeISO2'] = 'US'
+
             # we tried to use JSON_SCHEMER for headers, but it did not work with our headers, and chose not to invest more time atm.
             hlr.auth_headers['X-VA-First-Name'] = 'W' * 30
             hlr.auth_headers['X-VA-Middle-Initial'] = 'W' * 1
@@ -245,7 +249,6 @@ describe AppealsApi::PdfConstruction::Generator do
           allow_any_instance_of(AppealsApi::PdfConstruction::SupplementalClaim::V2::FormData).to receive(:signing_appellant_email).and_return('W' * 255)
 
           sc.form_data = data
-
           # we tried to use JSON_SCHEMER, but it did not work with our headers, and chose not to invest more time atm.
           sc.auth_headers['X-VA-First-Name'] = 'W' * 30
           sc.auth_headers['X-VA-Last-Name'] = 'W' * 40

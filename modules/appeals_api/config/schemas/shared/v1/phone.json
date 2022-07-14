@@ -1,8 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-2020-12/schema#",
   "description": "JSON Schema for VA Decision Review Forms: 'phone'",
-  "$ref": "#/definitions/phone",
-  "definitions": {
+  "properties": {
     "phone": {
       "type": "object",
       "properties": {

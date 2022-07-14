@@ -77,7 +77,13 @@
                             "SC", "SD", "TN", "TX", "UT", "VT", "VI", "VA", "WA", "WV",
                             "WI", "WY"
                           ] },
-                        "countryCodeISO2": { "type": "string", "pattern": "^[A-Z]{2}$" },
+                        "countryCodeISO2": {
+                          "type": "string",
+                          "pattern": "^[A-Z]{2}$",
+                          "minLength": 2,
+                          "maxLength": 2
+    
+                        },
                         "zipCode5": {
                           "type": "string",
                           "description": "5-digit zipcode. Use \"00000\" if Veteran is outside the United States",
@@ -128,7 +134,12 @@
                             "SC", "SD", "TN", "TX", "UT", "VT", "VI", "VA", "WA", "WV",
                             "WI", "WY"
                           ] },
-                        "countryCodeISO2": { "type": "string", "pattern": "^[A-Z]{2}$" },
+                        "countryCodeISO2": {
+                          "type": "string",
+                          "pattern": "^[A-Z]{2}$",
+                          "minLength": 2,
+                          "maxLength": 2
+                        },
                         "zipCode5": {
                           "type": "string",
                           "description": "5-digit zipcode. Use \"00000\" if Veteran is outside the United States",
