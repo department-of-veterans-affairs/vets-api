@@ -85,11 +85,6 @@
       "type": "string",
       "description": "Name of claim type",
       "example": "Appeals Control"
-    },
-    "poa": {
-      "type": "string",
-      "description": "The current organization or individual representing the Veteran on a claim",
-      "example": "American Legion"
     }
   }
 }

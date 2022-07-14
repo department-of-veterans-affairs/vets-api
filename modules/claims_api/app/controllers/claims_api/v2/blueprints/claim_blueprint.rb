@@ -42,7 +42,6 @@ module ClaimsApi
           end
         end
         field :type
-        field :poa
 
         view :list do
           exclude :contention_list
