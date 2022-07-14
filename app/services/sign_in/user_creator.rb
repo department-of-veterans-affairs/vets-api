@@ -58,7 +58,10 @@ module SignIn
     def user_identity_from_mpi_query
       @user_identity_from_mpi_query ||= UserIdentity.new({ idme_uuid: user_for_mpi_query.idme_uuid,
                                                            logingov_uuid: user_for_mpi_query.logingov_uuid,
-                                                           loa: user_for_mpi_query.loa })
+                                                           loa: user_for_mpi_query.loa,
+                                                           sign_in: sign_in,
+                                                           email: credential_email,
+                                                           authn_context: authn_context })
     end
 
     def user_for_mpi_query
@@ -79,6 +82,14 @@ module SignIn
 
     def user_verification
       @user_verification ||= Login::UserVerifier.new(user_for_mpi_query).perform
+    end
+
+    def authn_context
+      user_attributes[:authn_context]
+    end
+
+    def sign_in
+      user_attributes[:sign_in]
     end
 
     def credential_email

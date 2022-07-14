@@ -191,15 +191,20 @@ describe SignIn::Idme::Service do
         uuid: user_uuid,
         idme_uuid: user_uuid,
         loa: { current: LOA::THREE, highest: LOA::THREE },
-        sign_in: { service_name: 'idme', auth_broker: SignIn::Constants::Auth::BROKER_CODE },
+        sign_in: { service_name: service_name, auth_broker: auth_broker },
         csp_email: email,
-        authn_context: type
+        authn_context: authn_context
       }
     end
+    let(:service_name) { 'idme' }
+    let(:authn_context) { LOA::IDME_LOA3 }
+    let(:auth_broker) { SignIn::Constants::Auth::BROKER_CODE }
     let(:credential_level) { create(:credential_level, current_ial: IAL::TWO, max_ial: IAL::TWO) }
 
     context 'when type is idme' do
       let(:type) { 'idme' }
+      let(:authn_context) { LOA::IDME_LOA3 }
+      let(:service_name) { 'idme' }
       let(:user_info) do
         OpenStruct.new(
           {
@@ -237,6 +242,8 @@ describe SignIn::Idme::Service do
 
     context 'when type is dslogon' do
       let(:type) { 'dslogon' }
+      let(:authn_context) { LOA::IDME_DSLOGON_LOA3 }
+      let(:service_name) { 'dslogon' }
       let(:user_info) do
         OpenStruct.new(
           {
@@ -280,6 +287,8 @@ describe SignIn::Idme::Service do
 
     context 'when type is mhv' do
       let(:type) { 'mhv' }
+      let(:authn_context) { LOA::IDME_MHV_LOA3 }
+      let(:service_name) { 'myhealthevet' }
       let(:user_info) do
         OpenStruct.new(
           {

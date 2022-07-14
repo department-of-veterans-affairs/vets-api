@@ -254,4 +254,46 @@ RSpec.describe UserVerification, type: :model do
       end
     end
   end
+
+  describe '#credential_type' do
+    subject { user_verification.credential_type }
+
+    let(:user_account) { create(:user_account) }
+
+    context 'when idme_uuid is present' do
+      let(:idme_uuid) { 'some-idme-uuid' }
+      let(:expected_credential_type) { SAML::User::IDME_CSID }
+
+      it 'returns expected credential type' do
+        expect(subject).to eq(expected_credential_type)
+      end
+    end
+
+    context 'when dslogon_uuid is present' do
+      let(:dslogon_uuid) { 'some-dslogon-uuid' }
+      let(:expected_credential_type) { SAML::User::DSLOGON_CSID }
+
+      it 'returns expected credential type' do
+        expect(subject).to eq(expected_credential_type)
+      end
+    end
+
+    context 'when mhv_uuid is present' do
+      let(:mhv_uuid) { 'some-mhv-uuid' }
+      let(:expected_credential_type) { SAML::User::MHV_MAPPED_CSID }
+
+      it 'returns expected credential type' do
+        expect(subject).to eq(expected_credential_type)
+      end
+    end
+
+    context 'when logingov_uuid is present' do
+      let(:logingov_uuid) { 'some-logingov-uuid' }
+      let(:expected_credential_type) { SAML::User::LOGINGOV_CSID }
+
+      it 'returns expected credential type' do
+        expect(subject).to eq(expected_credential_type)
+      end
+    end
+  end
 end

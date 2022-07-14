@@ -187,9 +187,10 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     subject { get :client_connection_failed }
 
     let(:authorization) { "Bearer #{access_token}" }
-    let(:access_token_object) { create(:access_token) }
+    let(:access_token_object) { create(:access_token, user_uuid: user_account.id, session_handle: session.handle) }
+    let(:session) { create(:oauth_session, user_account: user_account) }
     let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
-    let(:user_account) { UserAccount.find(access_token_object.user_uuid) }
+    let(:user_account) { create(:user_account) }
     let(:va_exception_error) do
       {
         va_exception_errors: [{
@@ -199,10 +200,12 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     end
     let(:controller_name) { 'application' }
     let(:client_type) { 'mhv_session' }
-    let(:tags_context) { { controller_name: controller_name, sign_in_method: nil, sign_in_acct_type: nil } }
+    let(:sign_in_method) { SAML::User::IDME_CSID }
+    let(:authn_context) { LOA::IDME_LOA3 }
+    let(:tags_context) { { controller_name: controller_name, sign_in_method: sign_in_method, sign_in_acct_type: nil } }
     let(:loa) { { current: 3, highest: 3 } }
     let(:user_context) do
-      { id: access_token_object.user_uuid, authn_context: nil, loa: loa, mhv_icn: user_account.icn }
+      { id: access_token_object.user_uuid, authn_context: authn_context, loa: loa, mhv_icn: user_account.icn }
     end
     let(:expected_error) { 'Service unavailable' }
 

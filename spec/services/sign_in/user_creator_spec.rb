@@ -30,7 +30,8 @@ RSpec.describe SignIn::UserCreator do
           first_name: first_name,
           last_name: last_name,
           csp_email: csp_email,
-          sign_in: { service_name: service_name }
+          sign_in: sign_in,
+          authn_context: authn_context
         }
       end
       let(:state) { 'some-state' }
@@ -47,6 +48,8 @@ RSpec.describe SignIn::UserCreator do
       let(:expected_return_object) { [login_code, client_state] }
       let(:id_theft_flag) { false }
       let(:deceased_date) { nil }
+      let(:sign_in) { { service_name: service_name } }
+      let(:authn_context) { service_name }
 
       before do
         allow(SecureRandom).to receive(:uuid).and_return(login_code)
@@ -141,6 +144,9 @@ RSpec.describe SignIn::UserCreator do
               expect(user.birth_date).to eq(birth_date)
               expect(user.first_name).to eq(first_name)
               expect(user.last_name).to eq(last_name)
+              expect(user.email).to eq(csp_email)
+              expect(user.identity_sign_in).to eq(sign_in)
+              expect(user.authn_context).to eq(authn_context)
             end
 
             it 'returns a user code map with expected attributes' do
