@@ -578,7 +578,7 @@ features:
   sign_in_service_enabled:
     actor_type: cookie_id
     description: Enables the ability to use OAuth authentication via the Sign in Service (Identity)
-    enable_in_development: true
+    enable_in_development: false
   medical_copays_zero_debt:
     actor_type: user
     description: Enables zero debt balances feature on the medical copays application
