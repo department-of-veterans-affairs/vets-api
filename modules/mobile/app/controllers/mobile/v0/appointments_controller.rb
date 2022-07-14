@@ -29,17 +29,19 @@ module Mobile
       end
 
       def cancel
-        id = params[:id]
-        # appointment request cancel ids is appointment id while other appointments will be encoded string
-        if uuid?(id)
-          appointment_request = appointments_proxy.get_appointment_request(id)
-          appointments_proxy.put_cancel_appointment_request(id, appointment_request)
+        if Flipper.enabled?(:mobile_appointment_use_VAOS_v2, @current_user)
+          appointments_v2_service.update_appointment(appointment_id, status_update)
+        elsif uuid?(appointment_id)
+          # appointment request cancel ids is appointment id while other appointments will be encoded string
+          appointment_request = appointments_proxy.get_appointment_request(appointment_id)
+          appointments_proxy.put_cancel_appointment_request(appointment_id, appointment_request)
         else
-          decoded_cancel_params = Mobile::V0::Appointment.decode_cancel_id(id)
+          decoded_cancel_params = Mobile::V0::Appointment.decode_cancel_id(appointment_id)
           # validates inputs
           Mobile::V0::Contracts::CancelAppointment.new.call(decoded_cancel_params)
 
           appointments_proxy.put_cancel_appointment(decoded_cancel_params)
+
         end
 
         head :no_content
@@ -60,6 +62,18 @@ module Mobile
       end
 
       private
+
+      def appointments_v2_service
+        VAOS::V2::AppointmentsService.new(@current_user)
+      end
+
+      def appointment_id
+        params.require(:id)
+      end
+
+      def status_update
+        params.require(:status)
+      end
 
       def uuid?(id)
         uuid_regex = /^[0-9a-f]{32}$/
