@@ -148,6 +148,9 @@ class SavedClaim::CoeClaim < SavedClaim
   def prepare_document_data
     persistent_attachments.each do |attachment|
       file_extension = File.extname(URI.parse(attachment.file.url).path)
+      claim_file_data =
+        parsed_form['files'].find { |f| f['confirmationCode'] == attachment['guid'] } ||
+        { 'attachmentType' => '', 'attachmentDescription' => '' }
 
       if %w[.jpg .jpeg .png .pdf].include? file_extension.downcase
         file_path = Common::FileHelpers.generate_temp_file(attachment.file.read)
@@ -156,8 +159,8 @@ class SavedClaim::CoeClaim < SavedClaim
         file_path = "#{file_path}#{file_extension}"
 
         document_data = {
-          'documentType' => file_extension,
-          'description' => parsed_form['fileType'],
+          'documentType' => claim_file_data['attachmentType'],
+          'description' => claim_file_data['attachmentDescription'],
           'contentsBase64' => Base64.encode64(File.read(file_path)),
           'fileName' => attachment.file.metadata['filename']
         }
