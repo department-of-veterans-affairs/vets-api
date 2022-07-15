@@ -10,75 +10,41 @@ describe AppealsApi::Schemas::SharedSchemasController, type: :request do
     "/services/appeals/#{appeal_type}/v2/schemas/#{schema_type}"
   end
 
-  describe '#show' do
-    describe "schema type 'non_blank_string'" do
-      appeal_types = %w[notice_of_disagreements higher_level_reviews supplemental_claims]
+  shared_examples 'successful schema request' do |schema_type, response_body_content|
+    appeal_types = %w[notice_of_disagreements higher_level_reviews supplemental_claims]
 
-      appeal_types.each do |appeal_type|
-        it "renders the 'nonBlankString' schema" do
-          get base_path appeal_type, :non_blank_string
+    appeal_types.each do |appeal_type|
+      it "renders the #{schema_type} schema" do
+        get base_path appeal_type, schema_type
 
-          expect(response.status).to eq(200)
-          expect(response.body).to include 'nonBlankString'
+        expect(response.status).to eq(200)
+
+        response_body_content.each do |content_string|
+          expect(response.body).to include content_string
         end
       end
+    end
+  end
+
+  describe '#show' do
+    describe "schema type 'non_blank_string'" do
+      it_behaves_like 'successful schema request', 'non_blank_string', %w[nonBlankString]
     end
 
     describe "schema type 'address'" do
-      appeal_types = %w[notice_of_disagreements higher_level_reviews supplemental_claims]
-
-      appeal_types.each do |appeal_type|
-        it "renders the 'address' schema" do
-          get base_path appeal_type, :address
-
-          expect(response.status).to eq(200)
-          expect(response.body).to include 'address'
-          expect(response.body).to include 'addressLine1'
-        end
-      end
+      it_behaves_like 'successful schema request', 'address', %w[address addressLine1]
     end
 
     describe "schema type 'date'" do
-      appeal_types = %w[notice_of_disagreements higher_level_reviews supplemental_claims]
-
-      appeal_types.each do |appeal_type|
-        it "renders the 'date' schema" do
-          get base_path appeal_type, :date
-
-          expect(response.status).to eq(200)
-          expect(response.body).to include 'date'
-          expect(response.body).to include '^[0-9]{4}(-[0-9]{2}){2}$'
-        end
-      end
+      it_behaves_like 'successful schema request', 'date', %w[date ^[0-9]{4}(-[0-9]{2}){2}$]
     end
 
     describe "schema type 'phone'" do
-      appeal_types = %w[notice_of_disagreements higher_level_reviews supplemental_claims]
-
-      appeal_types.each do |appeal_type|
-        it "renders the 'phone' schema" do
-          get base_path appeal_type, :phone
-
-          expect(response.status).to eq(200)
-          expect(response.body).to include 'phone'
-          expect(response.body).to include 'areaCode'
-        end
-      end
+      it_behaves_like 'successful schema request', 'phone', %w[phone areaCode]
     end
 
     describe "schema type 'timezone'" do
-      appeal_types = %w[notice_of_disagreements higher_level_reviews supplemental_claims]
-
-      appeal_types.each do |appeal_type|
-        it "renders the 'timezone' schema" do
-          get base_path appeal_type, :timezone
-
-          expect(response.status).to eq(200)
-          expect(response.body).to include 'timezone'
-          expect(response.body).to include 'Abu Dhabi'
-          expect(response.body).to include 'Zurich'
-        end
-      end
+      it_behaves_like 'successful schema request', 'timezone', ['timezone', 'Abu Dhabi', 'Zurich']
     end
 
     context 'when unacceptable schema type provided' do
