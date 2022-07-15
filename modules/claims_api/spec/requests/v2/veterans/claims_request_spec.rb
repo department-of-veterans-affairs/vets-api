@@ -188,11 +188,11 @@ RSpec.describe 'Claims', type: :request do
                 expect(claim['id']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
                 expect(claim['type']).to eq('Compensation')
                 expect(claim['status']).to eq('Pending')
-                expect(claim['date_filed']).to eq('05/02/17')
-                expect(claim['documents_needed']).to eq(true)
-                expect(claim['requested_decision']).to eq(true)
-                expect(claim['development_letter_sent']).to eq(true)
-                expect(claim['decision_letter_sent']).to eq(false)
+                expect(claim['dateFiled']).to eq('05/02/17')
+                expect(claim['documentsNeeded']).to eq(true)
+                expect(claim['requestedDecision']).to eq(true)
+                expect(claim['developmentLetterSent']).to eq(true)
+                expect(claim['decisionLetterSent']).to eq(false)
 
                 # End Product Code is omitted when getting all claims
                 expect(claim['end_product_code']).to eq(nil)

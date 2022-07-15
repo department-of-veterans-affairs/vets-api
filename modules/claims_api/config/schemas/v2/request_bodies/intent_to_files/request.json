@@ -10,11 +10,11 @@
       "description": "Type of Intent To File being submitted.",
       "enum": ["compensation", "pension"]
     },
-    "participant_claimant_id": {
+    "participantClaimantId": {
       "type": "string",
       "example": "123456789"
     },
-    "participant_vet_id": {
+    "participantVetId": {
       "type": "string",
       "example": "123456789"
     }

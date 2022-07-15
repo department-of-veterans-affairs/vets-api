@@ -43,14 +43,16 @@ module ClaimsApi
         end
         field :type
 
+        transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
+
         view :list do
           exclude :contention_list
           exclude :end_product_code
           exclude :supporting_documents
           exclude :poa
-        end
 
-        transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
+          transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
+        end
       end
     end
   end
