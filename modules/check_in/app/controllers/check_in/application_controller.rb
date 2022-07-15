@@ -22,19 +22,11 @@ module CheckIn
     end
 
     def low_auth_token
-      if Flipper.enabled?('check_in_experience_custom_cookie_for_low_auth')
-        cookies.encrypted[:cie_session]
-      else
-        session[:jwt]
-      end
+      cookies.encrypted[:cie_session]
     end
 
     def low_auth_token=(token)
-      if Flipper.enabled?('check_in_experience_custom_cookie_for_low_auth')
-        cookies.encrypted[:cie_session] = token
-      else
-        session[:jwt] = token
-      end
+      cookies.encrypted[:cie_session] = token
     end
 
     def authorize
