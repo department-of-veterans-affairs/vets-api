@@ -10,6 +10,19 @@ metadata:
   tags:
     - ruby
     - rails
+  links:
+    - url: https://app.ddog-gov.com/sb/f327ad72-c02a-11ec-a50a-da7ad0900007-6611d274b64e8b40b8db40fd6c94d2b5
+      title: Datadog - VSP - Breakers
+      icon: dashboard
+    - url: https://app.ddog-gov.com/sb/f327ad72-c02a-11ec-a50a-da7ad0900007-ce3061a8ca28b90d49fcb95d4444b080
+      title: Datadog - VSP Utility - Backend Service Report
+      icon: dashboard
+    - url: https://app.ddog-gov.com/sb/f327ad72-c02a-11ec-a50a-da7ad0900007-a1dfad12b43924de9033ad82897aadab
+      title: Datadog - VSP - External Service Performance Indicators
+      icon: dashboard
+    - url: https://api.va.gov/sidekiq
+      title: Sidekiq UI
+      icon: dashboard
 spec:
   owner: platform-console-services
   domain: platform-and-vfs
