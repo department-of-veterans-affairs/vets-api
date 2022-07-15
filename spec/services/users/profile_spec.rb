@@ -67,7 +67,8 @@ RSpec.describe Users::Profile do
         end
 
         it 'includes sign_in' do
-          expect(profile[:sign_in]).to eq(service_name: 'idme', auth_broker: SAML::URLService::BROKER_CODE)
+          expect(profile[:sign_in]).to eq(service_name: 'idme', auth_broker: SAML::URLService::BROKER_CODE,
+                                          client_id: 'web')
         end
 
         context 'multifactor' do
@@ -87,7 +88,9 @@ RSpec.describe Users::Profile do
         let(:user) { create(:user, :mhv) }
 
         it 'includes sign_in' do
-          expect(profile[:sign_in]).to eq(service_name: 'myhealthevet', auth_broker: SAML::URLService::BROKER_CODE)
+          expect(profile[:sign_in]).to eq(service_name: 'myhealthevet',
+                                          auth_broker: SAML::URLService::BROKER_CODE,
+                                          client_id: 'web')
         end
 
         context 'multifactor' do
@@ -111,7 +114,8 @@ RSpec.describe Users::Profile do
         let(:user) { create(:user, :dslogon) }
 
         it 'includes sign_in' do
-          expect(profile[:sign_in]).to eq(service_name: 'dslogon', auth_broker: SAML::URLService::BROKER_CODE)
+          expect(profile[:sign_in]).to eq(service_name: 'dslogon', auth_broker: SAML::URLService::BROKER_CODE,
+                                          client_id: 'web')
         end
 
         context 'multifactor' do

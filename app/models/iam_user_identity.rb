@@ -48,8 +48,8 @@ class IAMUserIdentity < ::UserIdentity
       loa: { current: loa_level, highest: loa_level },
       middle_name: iam_profile[:middle_name],
       multifactor: multifactor?(loa_level, iam_auth_n_type),
-      sign_in: { service_name: "oauth_#{iam_auth_n_type}",
-                 account_type: iam_profile[:fediamassur_level], auth_broker: SAML::URLService::BROKER_CODE }
+      sign_in: { service_name: "oauth_#{iam_auth_n_type}", account_type: iam_profile[:fediamassur_level],
+                 auth_broker: SAML::URLService::BROKER_CODE, client_id: 'mobile' }
     )
 
     identity.set_expire

@@ -49,7 +49,9 @@ module SignIn
     end
 
     def sign_in
-      { service_name: user_verification.credential_type, auth_broker: SignIn::Constants::Auth::BROKER_CODE }
+      { service_name: user_verification.credential_type,
+        client_id: session.client_id,
+        auth_broker: SignIn::Constants::Auth::BROKER_CODE }
     end
 
     def authn_context

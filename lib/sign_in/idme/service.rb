@@ -28,7 +28,7 @@ module SignIn
                         format: :html)
       end
 
-      def normalized_attributes(user_info, credential_level)
+      def normalized_attributes(user_info, credential_level, client_id)
         attributes = case type
                      when 'idme'
                        idme_attributes(user_info)
@@ -37,7 +37,7 @@ module SignIn
                      when 'mhv'
                        mhv_attributes(user_info)
                      end
-        attributes.merge(standard_attributes(user_info, credential_level))
+        attributes.merge(standard_attributes(user_info, credential_level, client_id))
       end
 
       def token(code)
@@ -59,14 +59,15 @@ module SignIn
 
       private
 
-      def standard_attributes(user_info, credential_level)
+      def standard_attributes(user_info, credential_level, client_id)
         loa_current = ial_to_loa(credential_level.current_ial)
         loa_highest = ial_to_loa(credential_level.max_ial)
         {
           uuid: user_info.sub,
           idme_uuid: user_info.sub,
           loa: { current: loa_current, highest: loa_highest },
-          sign_in: { service_name: get_service_name, auth_broker: SignIn::Constants::Auth::BROKER_CODE },
+          sign_in: { service_name: get_service_name, auth_broker: SignIn::Constants::Auth::BROKER_CODE,
+                     client_id: client_id },
           csp_email: user_info.email,
           authn_context: get_authn_context(credential_level.current_ial)
         }

@@ -22,7 +22,8 @@ FactoryBot.define do
     sign_in do
       {
         service_name: 'idme',
-        auth_broker: SAML::URLService::BROKER_CODE
+        auth_broker: SAML::URLService::BROKER_CODE,
+        client_id: 'web'
       }
     end
 
@@ -50,7 +51,8 @@ FactoryBot.define do
     sign_in do
       {
         service_name: 'myhealthevet',
-        auth_broker: SAML::URLService::BROKER_CODE
+        auth_broker: SAML::URLService::BROKER_CODE,
+        client_id: 'web'
       }
     end
 
@@ -78,7 +80,8 @@ FactoryBot.define do
     sign_in do
       {
         service_name: 'dslogon',
-        auth_broker: SAML::URLService::BROKER_CODE
+        auth_broker: SAML::URLService::BROKER_CODE,
+        client_id: 'web'
       }
     end
 
@@ -96,7 +99,8 @@ FactoryBot.define do
     sign_in do
       {
         service_name: 'idme',
-        auth_broker: SAML::URLService::BROKER_CODE
+        auth_broker: SAML::URLService::BROKER_CODE,
+        client_id: 'web'
       }
     end
 
