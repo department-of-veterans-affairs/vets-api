@@ -47,7 +47,11 @@ RSpec.describe SignIn::UserLoader do
         let(:email) { session.credential_email }
         let(:authn_context) { LOA::IDME_LOA3 }
         let(:credential_service_name) { user_verification.credential_type }
-        let(:sign_in) { { service_name: credential_service_name, auth_broker: SignIn::Constants::Auth::BROKER_CODE } }
+        let(:sign_in) do
+          { service_name: credential_service_name,
+            auth_broker: SignIn::Constants::Auth::BROKER_CODE,
+            client_id: SignIn::Constants::ClientConfig::API_AUTH.first }
+        end
 
         before do
           stub_mpi(build(:mvi_profile, edipi: edipi, icn: user_icn))

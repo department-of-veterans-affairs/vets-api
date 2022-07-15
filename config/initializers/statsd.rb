@@ -68,24 +68,43 @@ Rails.application.reloader.to_prepare do
   end
 
   # Sign in Service
-  SignIn::Constants::Auth::REDIRECT_URLS.each do |type|
-    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_SUCCESS, 0, tags: ["context:#{type}"])
-    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_FAILURE, 0, tags: ["context:#{type}"])
-    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS, 0, tags: ["context:#{type}"])
-    StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE, 0, tags: ["context:#{type}"])
+  SignIn::Constants::ClientConfig::CLIENT_IDS.each do |client_id|
+    SignIn::Constants::Auth::REDIRECT_URLS.each do |type|
+      acrs = client_id == 'logingov' ? %w[ial1 ial2 min] : %w[loa1 loa3 min]
+      acrs.each do |acr|
+        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_SUCCESS, 0,
+                         tags: ["csp:#{type}, client_id:#{client_id}, acr:#{acr}"])
+        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_FAILURE, 0,
+                         tags: ["csp:#{type}, client_id:#{client_id}, acr:#{acr}"])
+        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS, 0,
+                         tags: ["csp:#{type}, client_id:#{client_id}, acr:#{acr}"])
+        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE, 0,
+                         tags: ["csp:#{type}, client_id:#{client_id}, acr:#{acr}"])
+      end
+      %w[1 3].each do |loa|
+        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS, 0,
+                         tags: ["csp:#{type}, client_id:#{client_id}, loa:#{loa}"])
+        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_FAILURE, 0,
+                         tags: ["csp:#{type}, client_id:#{client_id}, loa:#{loa}"])
+        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_SUCCESS, 0,
+                         tags: ["csp:#{type}, client_id:#{client_id}, loa:#{loa}"])
+        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_FAILURE, 0,
+                         tags: ["csp:#{type}, client_id:#{client_id}, loa:#{loa}"])
+        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_SUCCESS, 0,
+                         tags: ["csp:#{type}, client_id:#{client_id}, loa:#{loa}"])
+        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_FAILURE, 0,
+                         tags: ["csp:#{type}, client_id:#{client_id}, loa:#{loa}"])
+        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_INTROSPECT_SUCCESS, 0,
+                         tags: ["csp:#{type}, client_id:#{client_id}, loa:#{loa}"])
+        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_INTROSPECT_FAILURE, 0,
+                         tags: ["csp:#{type}, client_id:#{client_id}, loa:#{loa}"])
+        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_SUCCESS, 0,
+                         tags: ["csp:#{type}, client_id:#{client_id}, loa:#{loa}"])
+        StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_FAILURE, 0,
+                         tags: ["csp:#{type}, client_id:#{client_id}, loa:#{loa}"])
+      end
+    end
   end
-  StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS, 0, tags: ['version:v0'])
-  StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_FAILURE, 0, tags: ['version:v0'])
-  StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_SUCCESS, 0, tags: ['version:v0'])
-  StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_FAILURE, 0, tags: ['version:v0'])
-  StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_SUCCESS, 0, tags: ['version:v0'])
-  StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_FAILURE, 0, tags: ['version:v0'])
-  StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_INTROSPECT_SUCCESS, 0, tags: ['version:v0'])
-  StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_INTROSPECT_FAILURE, 0, tags: ['version:v0'])
-  StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_SUCCESS, 0, tags: ['version:v0'])
-  StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE, 0, tags: ['version:v0'])
-  StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_SUCCESS, 0, tags: ['version:v0'])
-  StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_FAILURE, 0, tags: ['version:v0'])
 
   # init GiBillStatus stats to 0
   StatsD.increment(V0::Post911GIBillStatusesController::STATSD_GI_BILL_TOTAL_KEY, 0)

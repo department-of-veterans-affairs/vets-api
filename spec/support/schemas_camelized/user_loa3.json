@@ -167,6 +167,9 @@
                     },
                     "authBroker": {
                       "type": "string"
+                    },
+                    "clientId": {
+                      "type": "string"
                     }
                   }
                 },

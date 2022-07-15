@@ -50,7 +50,7 @@ module SignIn
         raise e
       end
 
-      def normalized_attributes(user_info, credential_level)
+      def normalized_attributes(user_info, credential_level, client_id)
         loa_current = ial_to_loa(credential_level.current_ial)
         loa_highest = ial_to_loa(credential_level.max_ial)
         {
@@ -62,7 +62,8 @@ module SignIn
           first_name: user_info[:given_name],
           last_name: user_info[:family_name],
           csp_email: user_info[:email],
-          sign_in: { service_name: config.service_name, auth_broker: SignIn::Constants::Auth::BROKER_CODE },
+          sign_in: { service_name: config.service_name, auth_broker: SignIn::Constants::Auth::BROKER_CODE,
+                     client_id: client_id },
           authn_context: get_authn_context(credential_level.current_ial)
         }
       end
