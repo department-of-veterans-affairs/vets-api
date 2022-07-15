@@ -19,29 +19,29 @@
         "description": "Status of claim",
         "example": "Complete"
       },
-      "date_filed": {
+      "dateFiled": {
         "type": "string",
         "format": "date",
         "description": "Date in YYYY-MM-DD the claim was first filed",
         "example": "2018-06-04"
       },
-      "documents_needed": {
+      "documentsNeeded": {
         "type": "boolean",
         "description": "If true, the claim requires additional documents to be submitted",
         "example": "false"
       },
-      "requested_decision": {
+      "requestedDecision": {
         "type": "boolean",
         "nullable": true,
         "description": "If true, the claim filer has requested a claim decision be made",
         "example": "false"
       },
-      "development_letter_sent": {
+      "developmentLetterSent": {
         "type": "boolean",
         "description": "If true, a development letter has been sent to the claimant regarding a benefit claim",
         "example": "false"
       },
-      "decision_letter_sent": {
+      "decisionLetterSent": {
         "type": "boolean",
         "description": "If true, a decision letter has been sent to the claimant regarding a benefit claim",
         "example": "false"

@@ -73,7 +73,7 @@
             "type": "string",
             "description": "Name of document"
           },
-          "uploaded_at": {
+          "uploadedAt": {
             "type": "string",
             "format": "date",
             "description": "Date and time document was uploaded"
