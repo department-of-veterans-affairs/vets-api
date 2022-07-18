@@ -7,7 +7,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
   include FixtureHelpers
 
   let(:higher_level_review) { default_higher_level_review }
-  let(:default_higher_level_review) { create :higher_level_review_v2, status: 'submitting' }
+  let(:default_higher_level_review) { create :higher_level_review_v2, status: 'pending' }
   let(:auth_headers) { default_auth_headers }
   let(:default_auth_headers) { fixture_as_json 'valid_200996_headers.json', version: 'v2' }
   let(:form_data) { default_form_data }
@@ -221,81 +221,70 @@ describe AppealsApi::HigherLevelReview, type: :model do
                          'Validation failed: Status is not included in the list')
     end
 
-    it 'emits an event' do
-      handler = instance_double(AppealsApi::Events::Handler)
-      allow(AppealsApi::Events::Handler).to receive(:new).and_return(handler)
-      allow(handler).to receive(:handle!)
-
-      higher_level_review.update_status!(status: 'pending')
-
-      expect(handler).to have_received(:handle!)
-    end
-
-    it 'does not emit event when to and from statuses are the same' do
-      handler = instance_double(AppealsApi::Events::Handler)
-      allow(AppealsApi::Events::Handler).to receive(:new).and_return(handler)
-      allow(handler).to receive(:handle!)
-
-      higher_level_review.update_status!(status: higher_level_review.status)
-
-      expect(handler).not_to have_received(:handle!)
-    end
-
-    it 'successfully gets the ICN when email isn\'t present' do
-      higher_level_review = described_class.create!(
-        api_version: 'v1',
-        auth_headers: auth_headers,
-        form_data: default_form_data.deep_merge({
-                                                  'data' => {
-                                                    'attributes' => {
-                                                      'veteran' => {
-                                                        'emailAddressText' => nil
-                                                      }
-                                                    }
-                                                  }
-                                                })
-      )
-
-      params = { event_type: :hlr_received, opts: {
-        email_identifier: { id_value: '1013062086V794840', id_type: 'ICN' },
-        first_name: higher_level_review.first_name,
-        date_submitted: higher_level_review.date_signed,
-        guid: higher_level_review.id
-      } }
-
-      stub_mpi
-
-      handler = instance_double(AppealsApi::Events::Handler)
-      allow(AppealsApi::Events::Handler).to receive(:new).and_call_original
-      allow(AppealsApi::Events::Handler).to receive(:new).with(params).and_return(handler)
-      allow(handler).to receive(:handle!)
-
-      higher_level_review.update_status!(status: 'submitted')
-
-      expect(AppealsApi::Events::Handler).to have_received(:new).exactly(2).times
-    end
-
-    context 'when PII is removed' do
-      before do
-        higher_level_review.update_columns form_data_ciphertext: nil, auth_headers_ciphertext: nil # rubocop:disable Rails/SkipsModelValidations
-        higher_level_review.reload
+    context 'status updated job' do
+      context 'when incoming and current statuses are different' do
+        it 'enqueues the status updated job' do
+          expect(AppealsApi::StatusUpdatedJob.jobs.size).to eq 0
+          higher_level_review.update_status!(status: 'submitted')
+          expect(AppealsApi::StatusUpdatedJob.jobs.size).to eq 1
+        end
       end
 
-      it 'successfully emits status update event, skips email event' do
-        Timecop.freeze(Time.current) do
-          higher_level_review.update_status!(status: 'submitted')
+      context 'when incoming and current statuses are the same' do
+        it 'does not enqueues the status updated job' do
+          expect(AppealsApi::StatusUpdatedJob.jobs.size).to eq 0
+          higher_level_review.update_status!(status: 'pending')
+          expect(AppealsApi::StatusUpdatedJob.jobs.size).to eq 0
+        end
+      end
+    end
 
-          expect(AppealsApi::EventsWorker.jobs.count).to eq 1
-          status_event = AppealsApi::EventsWorker.jobs.first
-          expect(status_event['args']).to eq([
-                                               'hlr_status_updated',
-                                               {
-                                                 'from' => 'submitting',
-                                                 'to' => 'submitted',
-                                                 'status_update_time' => Time.zone.now.iso8601,
-                                                 'statusable_id' => higher_level_review.id
-                                               }
-                                             ])
+    context 'appeal received job' do
+      context "when status is 'submitted' and claimant or veteran email data present" do
+        it 'enqueues the appeal received job' do
+          expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
+          higher_level_review.update_status!(status: 'submitted')
+          expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 1
+        end
+      end
+
+      context "when status is not 'submitted' but claimant or veteran email data present" do
+        it 'does not enqueue the appeal received job' do
+          expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
+          higher_level_review.update_status!(status: 'pending')
+          expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
+        end
+      end
+
+      context 'when veteran appellant without email provided' do
+        it 'gets the ICN and enqueues the appeal received job' do
+          hlr = described_class.create!(
+            auth_headers: auth_headers,
+            api_version: 'V2',
+            form_data: form_data.deep_merge(
+              { 'data' => { 'attributes' => { 'veteran' => { 'email' => nil } } } }
+            )
+          )
+
+          expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
+          hlr.update_status!(status: 'submitted')
+          expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 1
+
+          email_identifier = AppealsApi::AppealReceivedJob.jobs.last['args'].first['email_identifier']
+          expect(email_identifier.values).to include 'ICN'
+        end
+      end
+
+      context 'when auth_headers are blank' do
+        before do
+          higher_level_review.update_columns form_data_ciphertext: nil, auth_headers_ciphertext: nil # rubocop:disable Rails/SkipsModelValidations
+          higher_level_review.reload
+        end
+
+        it 'does not enqueue the appeal received job' do
+          expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
+          higher_level_review.update_status!(status: 'submitted')
+          expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
         end
       end
     end
