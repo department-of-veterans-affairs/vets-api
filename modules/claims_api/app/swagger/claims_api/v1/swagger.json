@@ -497,7 +497,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e8b4e91b-4b20-4588-9ea4-c4504003e573",
+                    "id": "f60f760a-f695-4866-8858-087f522e3ac8",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -546,11 +546,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "d374cd50-4a84-426c-82ae-18ccceee6708",
+                          "id": "d222da17-234b-4eaa-aa55-50faafbedc0e",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2022-07-05T15:00:42.068Z"
+                          "uploaded_at": "2022-07-08T20:34:39.345Z"
                         }
                       ]
                     }
@@ -2438,7 +2438,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "943f918e-9084-4320-8aa4-54a6a1467b76",
+                    "id": "3aa117f3-b4bf-4741-910b-6049fc8c5a1a",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2456,13 +2456,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-07-05T15:00:42.309Z",
+                      "updated_at": "2022-07-08T20:34:39.663Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "943f918e-9084-4320-8aa4-54a6a1467b76",
+                      "token": "3aa117f3-b4bf-4741-910b-6049fc8c5a1a",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -4312,7 +4312,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "37c34861-8d16-4eb6-b58c-a26146ca90b1",
+                    "id": "f4b6cd4d-a1d7-4e81-ac47-9301627dcd45",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4330,13 +4330,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-07-05T15:00:42.545Z",
+                      "updated_at": "2022-07-08T20:34:39.895Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "37c34861-8d16-4eb6-b58c-a26146ca90b1",
+                      "token": "f4b6cd4d-a1d7-4e81-ac47-9301627dcd45",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -6567,7 +6567,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ef974e20-a86e-4aa5-9af5-6b7f3534aafa",
+                    "id": "3dd70ce2-ef7b-4b68-add0-383cf2db704b",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6581,7 +6581,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-07-05T15:00:42.949Z",
+                      "updated_at": "2022-07-08T20:34:40.338Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6590,7 +6590,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "c4fff34e-2b18-41b2-95a3-3ab439720f5a",
+                          "id": "8d7d1090-7966-468a-abe4-a2a98083464a",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8180,6 +8180,12 @@
                                 "OTHER"
                               ],
                               "example": "ARMY"
+                            },
+                            "serviceBranchOther": {
+                              "description": "For a 'service branch' of value 'other', please provide the service branch name.",
+                              "type": "string",
+                              "maxLength": 50,
+                              "example": "Space Force"
                             }
                           }
                         },
@@ -8526,11 +8532,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d68c9544-0b9d-426d-b5db-89a5f6e7d6b8",
+                    "id": "d758faf7-225a-48b1-a607-5e71e16cfa53",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2022-07-05",
+                      "date_request_accepted": "2022-07-08",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8878,6 +8884,12 @@
                                   "OTHER"
                                 ],
                                 "example": "ARMY"
+                              },
+                              "serviceBranchOther": {
+                                "description": "For a 'service branch' of value 'other', please provide the service branch name.",
+                                "type": "string",
+                                "maxLength": 50,
+                                "example": "Space Force"
                               }
                             }
                           },
@@ -9237,11 +9249,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e651503c-931b-4b02-92dd-dade4e891b83",
+                    "id": "a7539542-cb1c-4329-a68c-6f93aba13718",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-07-05",
+                      "date_request_accepted": "2022-07-08",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9690,11 +9702,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "89a14870-7dcf-4d76-bacb-6002d742f1e6",
+                    "id": "98024a73-8317-43af-b5ce-561c8b3cdd0d",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-07-05",
+                      "date_request_accepted": "2022-07-08",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -10622,6 +10634,12 @@
                                   "OTHER"
                                 ],
                                 "example": "ARMY"
+                              },
+                              "serviceBranchOther": {
+                                "description": "For a 'service branch' of value 'other', please provide the service branch name.",
+                                "type": "string",
+                                "maxLength": 50,
+                                "example": "Space Force"
                               }
                             }
                           },
