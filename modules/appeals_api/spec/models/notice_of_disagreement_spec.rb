@@ -154,8 +154,6 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
   end
 
   describe '#update_status!' do
-    let(:notice_of_disagreement) { create(:notice_of_disagreement) }
-
     it 'error status' do
       notice_of_disagreement.update_status!(status: 'error', code: 'code', detail: 'detail')
 
@@ -177,108 +175,68 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
                          'Validation failed: Status is not included in the list')
     end
 
-    it 'emits events with expected values' do
-      Timecop.freeze(Time.zone.now) do
+    context 'when incoming and current statuses are different' do
+      it 'enqueues the status updated job' do
+        expect(AppealsApi::StatusUpdatedJob.jobs.size).to eq 0
         notice_of_disagreement.update_status!(status: 'submitted')
-
-        expect(AppealsApi::EventsWorker.jobs.size).to eq(2)
-
-        status_event = AppealsApi::EventsWorker.jobs.first
-        expect(status_event['args']).to eq([
-                                             'nod_status_updated',
-                                             {
-                                               'from' => 'pending',
-                                               'to' => 'submitted',
-                                               'status_update_time' => Time.zone.now.iso8601,
-                                               'statusable_id' => notice_of_disagreement.id
-                                             }
-                                           ])
-
-        email_event = AppealsApi::EventsWorker.jobs.last
-        expect(email_event['args']).to eq([
-                                            'nod_received',
-                                            {
-                                              'email_identifier' => {
-                                                'id_type' => 'email',
-                                                'id_value' => notice_of_disagreement.email
-                                              },
-                                              'first_name' => 'Jäñe',
-                                              'date_submitted' =>
-                                              notice_of_disagreement.created_at.in_time_zone('America/Chicago').iso8601,
-                                              'guid' => notice_of_disagreement.id,
-                                              'claimant_email' => '',
-                                              'claimant_first_name' => 'John'
-                                            }
-                                          ])
+        expect(AppealsApi::StatusUpdatedJob.jobs.size).to eq 1
       end
     end
 
-    it 'successfully gets the ICN when email isn\'t present' do
-      notice_of_disagreement = described_class.create!(
-        auth_headers: auth_headers,
-        api_version: 'V1',
-        form_data: form_data.deep_merge({
-                                          'data' => {
-                                            'attributes' => {
-                                              'veteran' => {
-                                                'emailAddressText' => nil
-                                              }
-                                            }
-                                          }
-                                        })
-      )
-
-      params = { event_type: :nod_received, opts: {
-        email_identifier: { id_value: '1013062086V794840', id_type: 'ICN' },
-        first_name: notice_of_disagreement.veteran_first_name,
-        date_submitted: notice_of_disagreement.created_at.in_time_zone('America/Chicago').iso8601,
-        guid: notice_of_disagreement.id
-      } }
-
-      stub_mpi
-
-      handler = instance_double(AppealsApi::Events::Handler)
-      allow(AppealsApi::Events::Handler).to receive(:new).and_call_original
-      allow(AppealsApi::Events::Handler).to receive(:new).with(params).and_return(handler)
-      allow(handler).to receive(:handle!)
-
-      notice_of_disagreement.update_status!(status: 'submitted')
-
-      expect(AppealsApi::Events::Handler).to have_received(:new).exactly(2).times
+    context 'when incoming and current statuses are the same' do
+      it 'does not enqueues the status updated job' do
+        expect(AppealsApi::StatusUpdatedJob.jobs.size).to eq 0
+        notice_of_disagreement.update_status!(status: 'pending')
+        expect(AppealsApi::StatusUpdatedJob.jobs.size).to eq 0
+      end
     end
 
-    it 'does not emit event when to and from statuses are the same' do
-      handler = instance_double(AppealsApi::Events::Handler)
-      allow(AppealsApi::Events::Handler).to receive(:new).and_return(handler)
-      allow(handler).to receive(:handle!)
-
-      notice_of_disagreement.update_status!(status: notice_of_disagreement.status)
-
-      expect(handler).not_to have_received(:handle!)
+    context "when status is 'submitted' and claimant or veteran email data present" do
+      it 'enqueues the appeal received job' do
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
+        notice_of_disagreement.update_status!(status: 'submitted')
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 1
+      end
     end
 
-    context 'when PII is removed' do
+    context "when status is not 'submitted' but claimant or veteran email data present" do
+      it 'does not enqueue the appeal received job' do
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
+        notice_of_disagreement.update_status!(status: 'pending')
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
+      end
+    end
+
+    context 'when veteran appellant without email provided' do
+      it 'gets the ICN and enqueues the appeal received job' do
+        nod = described_class.create!(
+          auth_headers: auth_headers,
+          api_version: 'V1',
+          form_data: form_data.deep_merge(
+            { 'data' => { 'attributes' => { 'veteran' => { 'emailAddressText' => nil } } } }
+          )
+        )
+
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
+        nod.update_status!(status: 'submitted')
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 1
+
+        email_identifier = AppealsApi::AppealReceivedJob.jobs.last['args'].first['email_identifier']
+        expect(email_identifier.values).to include 'ICN'
+      end
+    end
+
+    context 'when auth_headers are blank' do
       before do
+        notice_of_disagreement.save
         notice_of_disagreement.update_columns form_data_ciphertext: nil, auth_headers_ciphertext: nil # rubocop:disable Rails/SkipsModelValidations
         notice_of_disagreement.reload
       end
 
-      it 'successfully emits status update event' do
-        Timecop.freeze(Time.current) do
-          notice_of_disagreement.update_status!(status: 'submitted')
-
-          expect(AppealsApi::EventsWorker.jobs.count).to eq 1
-          status_event = AppealsApi::EventsWorker.jobs.first
-          expect(status_event['args']).to eq([
-                                               'nod_status_updated',
-                                               {
-                                                 'from' => 'pending',
-                                                 'to' => 'submitted',
-                                                 'status_update_time' => Time.zone.now.iso8601,
-                                                 'statusable_id' => notice_of_disagreement.id
-                                               }
-                                             ])
-        end
+      it 'does not enqueue the appeal received job' do
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
+        notice_of_disagreement.update_status!(status: 'submitted')
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
       end
     end
   end

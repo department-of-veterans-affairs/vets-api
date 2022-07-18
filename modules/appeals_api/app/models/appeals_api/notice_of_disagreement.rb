@@ -8,6 +8,7 @@ module AppealsApi
     include NodStatus
     include PdfOutputPrep
     include ModelValidations
+
     required_claimant_headers %w[X-VA-Claimant-First-Name X-VA-Claimant-Last-Name X-VA-Claimant-Birth-Date]
 
     attr_readonly :auth_headers
@@ -224,31 +225,41 @@ module AppealsApi
       "#{veteran.last_name.truncate(35)} - #{id}"
     end
 
+    # rubocop:disable Metrics/MethodLength
     def update_status!(status:, code: nil, detail: nil)
       current_status = self.status
+
       update!(status: status, code: code, detail: detail)
 
-      update_handler = Events::Handler.new(event_type: :nod_status_updated, opts: {
-                                             from: current_status,
-                                             to: status.to_s,
-                                             status_update_time: Time.zone.now.iso8601,
-                                             statusable_id: id
-                                           })
-      update_handler.handle! unless status == current_status
+      if status != current_status
+        AppealsApi::StatusUpdatedJob.perform_async(
+          {
+            status_event: 'nod_status_updated',
+            from: current_status,
+            to: status.to_s,
+            status_update_time: Time.zone.now.iso8601,
+            statusable_id: id
+          }
+        )
+      end
 
-      # Go no further if we've removed PII
-      return if auth_headers.blank?
+      return if auth_headers.blank? # Go no further if we've removed PII
 
-      email_handler = Events::Handler.new(event_type: :nod_received, opts: {
-                                            email_identifier: email_identifier,
-                                            first_name: veteran_first_name,
-                                            date_submitted: veterans_local_time.iso8601,
-                                            guid: id,
-                                            claimant_email: claimant.email,
-                                            claimant_first_name: claimant.first_name
-                                          })
-      email_handler.handle! if status == 'submitted' && (claimant.email.present? || email_identifier.present?)
+      if status == 'submitted' && email_present?
+        AppealsApi::AppealReceivedJob.perform_async(
+          {
+            receipt_event: 'nod_received',
+            email_identifier: email_identifier,
+            first_name: veteran_first_name,
+            date_submitted: veterans_local_time.iso8601,
+            guid: id,
+            claimant_email: claimant.email,
+            claimant_first_name: claimant.first_name
+          }
+        )
+      end
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
@@ -266,7 +277,7 @@ module AppealsApi
 
       icn = mpi_veteran.mpi_icn
 
-      return { id_type: 'ICN', id_value: icn } if icn.present?
+      { id_type: 'ICN', id_value: icn } if icn.present?
     end
 
     def data_attributes
@@ -339,6 +350,10 @@ module AppealsApi
     # After expunging pii, form_data is nil, update will fail unless validation skipped
     def pii_present?
       proc { |a| a.form_data.present? }
+    end
+
+    def email_present?
+      claimant.email.present? || email_identifier.present?
     end
 
     def clear_memoized_values
