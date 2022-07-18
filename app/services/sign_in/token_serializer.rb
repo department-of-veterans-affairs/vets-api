@@ -38,21 +38,24 @@ module SignIn
       end
     end
 
-    def set_cookie!(name:, value:, expires:, path: '/', httponly: true)
+    # rubocop:disable Metrics/ParameterLists
+    def set_cookie!(name:, value:, expires:, path: '/', secure: Settings.sign_in.cookies_secure, httponly: true)
       cookies[name] = {
         value: value,
         expires: expires,
         path: path,
-        secure: Settings.sign_in.cookies_secure,
+        secure: secure,
         httponly: httponly
       }
     end
+    # rubocop:enable Metrics/ParameterLists
 
     def set_info_cookie
       set_cookie!(name: Constants::Auth::INFO_COOKIE_NAME,
                   value: info_cookie_value,
                   expires: refresh_token_expiration,
-                  httponly: false)
+                  httponly: false,
+                  secure: false)
     end
 
     def info_cookie_value

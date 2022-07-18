@@ -43,6 +43,7 @@ RSpec.describe SignIn::TokenSerializer do
       let(:secure) { Settings.sign_in.cookies_secure }
       let(:httponly) { true }
       let(:httponly_info_cookie) { false }
+      let(:secure_info_cookie) { false }
       let(:refresh_path) { SignIn::Constants::Auth::REFRESH_ROUTE_PATH }
       let(:expected_access_token_cookie) do
         {
@@ -76,7 +77,7 @@ RSpec.describe SignIn::TokenSerializer do
           value: info_cookie_value,
           expires: refresh_token_expiration,
           path: path,
-          secure: secure,
+          secure: secure_info_cookie,
           httponly: httponly_info_cookie
         }
       end
