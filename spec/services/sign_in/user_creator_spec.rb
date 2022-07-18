@@ -50,6 +50,7 @@ RSpec.describe SignIn::UserCreator do
       let(:deceased_date) { nil }
       let(:sign_in) { { service_name: service_name } }
       let(:authn_context) { service_name }
+      let(:multifactor) { true }
 
       before do
         allow(SecureRandom).to receive(:uuid).and_return(login_code)
@@ -147,6 +148,7 @@ RSpec.describe SignIn::UserCreator do
               expect(user.email).to eq(csp_email)
               expect(user.identity_sign_in).to eq(sign_in)
               expect(user.authn_context).to eq(authn_context)
+              expect(user.multifactor).to eq(multifactor)
             end
 
             it 'returns a user code map with expected attributes' do

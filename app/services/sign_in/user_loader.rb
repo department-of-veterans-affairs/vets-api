@@ -39,6 +39,7 @@ module SignIn
         loa: loa,
         email: session.credential_email,
         authn_context: authn_context,
+        multifactor: multifactor,
         sign_in: sign_in
       }
     end
@@ -65,6 +66,14 @@ module SignIn
       when 'logingov'
         user_is_verified? ? IAL::LOGIN_GOV_IAL2 : IAL::LOGIN_GOV_IAL1
       end
+    end
+
+    def multifactor
+      user_is_verified? && idme_or_logingov_service
+    end
+
+    def idme_or_logingov_service
+      sign_in[:service_name] == 'idme' || sign_in[:service_name] == 'logingov'
     end
 
     def user_is_verified?
