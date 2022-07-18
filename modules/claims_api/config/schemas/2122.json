@@ -104,6 +104,12 @@
             "OTHER"
           ],
           "example": "ARMY"
+        },
+        "serviceBranchOther": {
+          "description": "For a 'service branch' of value 'other', please provide the service branch name.",
+          "type": "string",
+          "maxLength": 50,
+          "example": "Space Force"
         }
       }
     },
