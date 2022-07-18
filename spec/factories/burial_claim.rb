@@ -20,7 +20,15 @@ FactoryBot.define do
           postalCode: '90210',
           street: '123 Main St',
           city: 'Anytown'
-        }
+        },
+        claimantFullName: {
+          first: 'Derrick',
+          middle: 'A',
+          last: 'Stewart'
+        },
+        burialAllowance: true,
+        plotAllowance: true,
+        transportation: true
       }.to_json
     end
   end
