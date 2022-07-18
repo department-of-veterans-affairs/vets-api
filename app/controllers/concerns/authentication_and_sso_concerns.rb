@@ -121,7 +121,17 @@ module AuthenticationAndSSOConcerns
       'patientIcn' => @current_user.icn,
       'signIn' => @current_user.identity.sign_in.deep_transform_keys { |key| key.to_s.camelize(:lower) },
       'credential_used' => @current_user.identity.sign_in[:service_name],
-      'expirationTime' => @session_object.ttl_in_time.iso8601(0)
+      'expirationTime' => sign_in_service_session ? sign_in_service_expiration : @session_object.ttl_in_time.iso8601(0)
     }
+  end
+
+  def sign_in_service_expiration
+    sign_in_service_session.refresh_expiration.iso8601(0)
+  end
+
+  def sign_in_service_session
+    return unless @access_token
+
+    @sign_in_service_session ||= SignIn::OAuthSession.find_by(handle: @access_token.session_handle)
   end
 end
