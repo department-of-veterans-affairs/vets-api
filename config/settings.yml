@@ -54,7 +54,6 @@ sign_in:
   jwt_encode_key: 'spec/fixtures/sign_in/privatekey.pem'
   redirect_uri: 'vamobile://login-success'
   web_redirect_uri: 'http://localhost:3001/auth/login/callback'
-  enable_anti_csrf: false
   cookies_secure: false
 
 lockbox:
