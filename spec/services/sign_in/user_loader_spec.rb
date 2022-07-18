@@ -47,6 +47,7 @@ RSpec.describe SignIn::UserLoader do
         let(:email) { session.credential_email }
         let(:authn_context) { LOA::IDME_LOA3 }
         let(:credential_service_name) { user_verification.credential_type }
+        let(:multifactor) { true }
         let(:sign_in) do
           { service_name: credential_service_name,
             auth_broker: SignIn::Constants::Auth::BROKER_CODE,
@@ -68,6 +69,7 @@ RSpec.describe SignIn::UserLoader do
           expect(reloaded_user.email).to eq(email)
           expect(reloaded_user.authn_context).to eq(authn_context)
           expect(reloaded_user.identity_sign_in).to eq(sign_in)
+          expect(reloaded_user.multifactor).to eq(multifactor)
         end
 
         it 'reloads user object so that MPI can be called for additional attributes' do

@@ -61,6 +61,7 @@ module SignIn
                                                            loa: user_for_mpi_query.loa,
                                                            sign_in: sign_in,
                                                            email: credential_email,
+                                                           multifactor: multifactor,
                                                            authn_context: authn_context })
     end
 
@@ -94,6 +95,14 @@ module SignIn
 
     def credential_email
       user_attributes[:csp_email]
+    end
+
+    def multifactor
+      user_for_mpi_query.loa3? && idme_or_logingov_service
+    end
+
+    def idme_or_logingov_service
+      sign_in[:service_name] == 'idme' || sign_in[:service_name] == 'logingov'
     end
 
     def login_code
