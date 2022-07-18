@@ -28,7 +28,7 @@ describe 'Contestable Issues', swagger_doc: "modules/appeals_api/app/swagger/app
       parameter name: :decision_review_type,
                 in: :path, required: true,
                 description: 'Scoping of appeal type for associated issues',
-                schema: { 'type': 'string', 'enum': %w[higher_level_reviews notice_of_disagreements] }
+                schema: { 'type': 'string', 'enum': %w[higher_level_reviews notice_of_disagreements supplemental_claims] }
 
       let(:decision_review_type) { 'notice_of_disagreements' }
 

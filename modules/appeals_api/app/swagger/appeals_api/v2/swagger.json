@@ -54,7 +54,8 @@
               "type": "string",
               "enum": [
                 "higher_level_reviews",
-                "notice_of_disagreements"
+                "notice_of_disagreements",
+                "supplemental_claims"
               ]
             }
           },
