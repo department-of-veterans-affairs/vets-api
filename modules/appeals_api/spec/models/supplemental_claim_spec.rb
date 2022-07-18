@@ -155,98 +155,67 @@ describe AppealsApi::SupplementalClaim, type: :model do
                          'Validation failed: Status is not included in the list')
     end
 
-    it 'emits events with expected values' do
-      Timecop.freeze(Time.zone.now) do
-        sc_with_nvc.update_status!(status: 'submitted')
-
-        expect(AppealsApi::EventsWorker.jobs.size).to eq(2)
-
-        status_event = AppealsApi::EventsWorker.jobs.first
-        expect(status_event['args']).to eq([
-                                             'sc_status_updated',
-                                             {
-                                               'from' => 'pending',
-                                               'to' => 'submitted',
-                                               'status_update_time' => Time.zone.now.iso8601,
-                                               'statusable_id' => sc_with_nvc.id
-                                             }
-                                           ])
-
-        email_event = AppealsApi::EventsWorker.jobs.last
-        expect(email_event['args']).to eq([
-                                            'sc_received',
-                                            {
-                                              'email_identifier' => {
-                                                'id_type' => 'email',
-                                                'id_value' => 'joe@email.com'
-                                              },
-                                              'first_name' => 'Jäñe',
-                                              'date_submitted' =>
-                                                sc_with_nvc.created_at.in_time_zone('America/Detroit').iso8601,
-                                              'guid' => sc_with_nvc.id,
-                                              'claimant_email' => 'joe@email.com',
-                                              'claimant_first_name' => 'joe'
-                                            }
-                                          ])
+    context 'when incoming and current statuses are different' do
+      it 'enqueues the status updated job' do
+        expect(AppealsApi::StatusUpdatedJob.jobs.size).to eq 0
+        supplemental_claim.update_status!(status: 'submitted')
+        expect(AppealsApi::StatusUpdatedJob.jobs.size).to eq 1
       end
     end
 
-    it 'successfully gets the ICN when email isn\'t present' do
-      sc_with_nvc = described_class.create!(
-        auth_headers: default_auth_headers,
-        api_version: 'V2',
-        form_data: default_form_data.deep_merge({
-                                                  'data' => {
-                                                    'attributes' => {
-                                                      'veteran' => {
-                                                        'email' => nil
-                                                      }
-                                                    }
-                                                  }
-                                                })
-      )
-
-      params = { event_type: :sc_received, opts: {
-        email_identifier: { id_value: '1013062086V794840', id_type: 'ICN' },
-        first_name: sc_with_nvc.veteran.first_name,
-        date_submitted: sc_with_nvc.created_at.in_time_zone('America/Chicago').iso8601,
-        guid: sc_with_nvc.id
-      } }
-
-      stub_mpi
-
-      handler = instance_double(AppealsApi::Events::Handler)
-      allow(AppealsApi::Events::Handler).to receive(:new).and_call_original
-      allow(AppealsApi::Events::Handler).to receive(:new).with(params).and_return(handler)
-      allow(handler).to receive(:handle!)
-
-      sc_with_nvc.update_status!(status: 'submitted')
-
-      expect(AppealsApi::Events::Handler).to have_received(:new).exactly(2).times
+    context 'when incoming and current statuses are the same' do
+      it 'does not enqueues the status updated job' do
+        expect(AppealsApi::StatusUpdatedJob.jobs.size).to eq 0
+        supplemental_claim.update_status!(status: 'pending')
+        expect(AppealsApi::StatusUpdatedJob.jobs.size).to eq 0
+      end
     end
 
-    context 'when PII is removed' do
+    context "when status is 'submitted' and claimant or veteran email data present" do
+      it 'enqueues the appeal received job' do
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
+        supplemental_claim.update_status!(status: 'submitted')
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 1
+      end
+    end
+
+    context "when status is not 'submitted' but claimant or veteran email data present" do
+      it 'does not enqueue the appeal received job' do
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
+        supplemental_claim.update_status!(status: 'pending')
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
+      end
+    end
+
+    context 'when veteran appellant without email provided' do
+      it 'gets the ICN and enqueues the appeal received job' do
+        sc = described_class.create!(
+          auth_headers: default_auth_headers,
+          api_version: 'V2',
+          form_data: default_form_data.deep_merge(
+            { 'data' => { 'attributes' => { 'veteran' => { 'email' => nil } } } }
+          )
+        )
+
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
+        sc.update_status!(status: 'submitted')
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 1
+
+        email_identifier = AppealsApi::AppealReceivedJob.jobs.last['args'].first['email_identifier']
+        expect(email_identifier.values).to include 'ICN'
+      end
+    end
+
+    context 'when auth_headers are blank' do
       before do
-        sc_with_nvc.update_columns form_data_ciphertext: nil, auth_headers_ciphertext: nil # rubocop:disable Rails/SkipsModelValidations
-        sc_with_nvc.reload
+        supplemental_claim.update_columns form_data_ciphertext: nil, auth_headers_ciphertext: nil # rubocop:disable Rails/SkipsModelValidations
+        supplemental_claim.reload
       end
 
-      it 'successfully emits status update event, skips email event' do
-        Timecop.freeze(Time.current) do
-          sc_with_nvc.update_status!(status: 'submitted')
-
-          expect(AppealsApi::EventsWorker.jobs.count).to eq 1
-          status_event = AppealsApi::EventsWorker.jobs.first
-          expect(status_event['args']).to eq([
-                                               'sc_status_updated',
-                                               {
-                                                 'from' => 'pending',
-                                                 'to' => 'submitted',
-                                                 'status_update_time' => Time.zone.now.iso8601,
-                                                 'statusable_id' => sc_with_nvc.id
-                                               }
-                                             ])
-        end
+      it 'does not enqueue the appeal received job' do
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
+        supplemental_claim.update_status!(status: 'submitted')
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
       end
     end
   end
