@@ -18,6 +18,8 @@ module V0
 
       validate_authorize_params(type, client_id, code_challenge, code_challenge_method, acr)
 
+      delete_cookies if token_cookies
+
       acr_for_type = SignIn::AcrTranslator.new(acr: acr, type: type).perform
       state = SignIn::StatePayloadJwtEncoder.new(code_challenge: code_challenge,
                                                  code_challenge_method: code_challenge_method,
