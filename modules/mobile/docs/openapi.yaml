@@ -709,6 +709,132 @@ paths:
       security:
         - Bearer: []
       summary: /v0/appointments/facilities/{facililty_id}/clinics/{clinic_id}/slots
+  /v0/appointments/preferences:
+    get:
+      description: Returns VAOS appointment contact preferences
+      operationId: appointment_preferences
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/AppointmentPreferences.yml
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Authentication is possible but has failed or not yet been provided.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The requested resource could not be found.
+        '408':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The response from this API timed out.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Failure in processing entity
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An internal API error occured.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An upstream service is unavailable, or its circuit breaker
+            may have been tripped.
+        '504':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: A response from an upstream service timed out.
+      security:
+        - Bearer: [ ]
+      summary: /v0/appointments/preferences
+    put:
+      description: updates VAOS appointment preferences
+      operationId: appointment_preferences
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/AppointmentPreferencesRequest.yml
+        description: Preferences data to update
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/AppointmentPreferences.yml
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Authentication is possible but has failed or not yet been provided.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The requested resource could not be found.
+        '408':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The response from this API timed out.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Failure in processing entity
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An internal API error occured.
+        '502':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An upstream service the API depends on returned an error.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An upstream service is unavailable, or its circuit breaker
+            may have been tripped.
+        '504':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: A response from an upstream service timed out.
+      security:
+        - Bearer: []
+      summary: /v0/appointments/preferences
   /v0/appointments/va/eligibility:
     get:
       description: Lists types of service. For each type of service, lists users registered facilities that support request and direct appointments.
