@@ -1426,6 +1426,7 @@
                                       "Public Health Service",
                                       "Regular Philippine Scout",
                                       "Regular Scout Service",
+                                      "Space Force",
                                       "Special Philippine Scout",
                                       "Unknown",
                                       "US Military Academy",
@@ -2189,7 +2190,8 @@
                                         "Naval Academy",
                                         "Other",
                                         "US Military Academy",
-                                        "Women's Army Corps"
+                                        "Women's Army Corps",
+                                        "Space Force"
                                       ],
                                       "example": "Air Force"
                                     },
@@ -2269,7 +2271,8 @@
                                         "Naval Academy",
                                         "Other",
                                         "US Military Academy",
-                                        "Women's Army Corps"
+                                        "Women's Army Corps",
+                                        "Space Force"
                                       ],
                                       "example": "Air Force"
                                     },
@@ -3287,6 +3290,7 @@
                                         "Public Health Service",
                                         "Regular Philippine Scout",
                                         "Regular Scout Service",
+                                        "Space Force",
                                         "Special Philippine Scout",
                                         "Unknown",
                                         "US Military Academy",
@@ -4050,7 +4054,8 @@
                                           "Naval Academy",
                                           "Other",
                                           "US Military Academy",
-                                          "Women's Army Corps"
+                                          "Women's Army Corps",
+                                          "Space Force"
                                         ],
                                         "example": "Air Force"
                                       },
@@ -4130,7 +4135,8 @@
                                           "Naval Academy",
                                           "Other",
                                           "US Military Academy",
-                                          "Women's Army Corps"
+                                          "Women's Army Corps",
+                                          "Space Force"
                                         ],
                                         "example": "Air Force"
                                       },
@@ -5542,6 +5548,7 @@
                                         "Public Health Service",
                                         "Regular Philippine Scout",
                                         "Regular Scout Service",
+                                        "Space Force",
                                         "Special Philippine Scout",
                                         "Unknown",
                                         "US Military Academy",
@@ -6305,7 +6312,8 @@
                                           "Naval Academy",
                                           "Other",
                                           "US Military Academy",
-                                          "Women's Army Corps"
+                                          "Women's Army Corps",
+                                          "Space Force"
                                         ],
                                         "example": "Air Force"
                                       },
@@ -6385,7 +6393,8 @@
                                           "Naval Academy",
                                           "Other",
                                           "US Military Academy",
-                                          "Women's Army Corps"
+                                          "Women's Army Corps",
+                                          "Space Force"
                                         ],
                                         "example": "Air Force"
                                       },

@@ -33,6 +33,7 @@ SERVICE_BRANCH_VALUE_MAPPINGS = {
   'Regular Philippine Scout' => 'Other',
   'Regular Scout Service' => 'Other',
   'Special Philippine Scout' => 'Other',
+  'Space Force' => 'Space Force',
   'Unknown' => 'Other',
   'US Military Academy' => 'US Military Academy',
   'Woman Air Corps' => 'Other',
