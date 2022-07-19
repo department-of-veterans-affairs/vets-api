@@ -5,7 +5,7 @@ require 'va_notify/in_progress_form_helper'
 
 describe VANotify::InProgressFormHelper do
   describe '686c' do
-    let(:in_progress_form) { create(:in_progress_686c_form) }
+    let(:in_progress_form) { create_in_progress_form_days_ago(49, form_id: '686C-674') }
 
     it 'knows the template id' do
       expect(described_class::TEMPLATE_ID.fetch('686C-674')).to eq('fake_template_id')
@@ -21,8 +21,35 @@ describe VANotify::InProgressFormHelper do
     end
   end
 
+  describe '.form_age' do
+    it '7 days ago' do
+      in_progress_form = create_in_progress_form_days_ago(7, form_id: '686C-674')
+      expect(described_class.form_age(in_progress_form)).to eq('&7_days')
+    end
+
+    it '21 days ago' do
+      in_progress_form = create_in_progress_form_days_ago(21, form_id: '686C-674')
+      expect(described_class.form_age(in_progress_form)).to eq('&21_days')
+    end
+
+    it '35 days ago' do
+      in_progress_form = create_in_progress_form_days_ago(35, form_id: '686C-674')
+      expect(described_class.form_age(in_progress_form)).to eq('&35_days')
+    end
+
+    it '49 days ago' do
+      in_progress_form = create_in_progress_form_days_ago(49, form_id: '686C-674')
+      expect(described_class.form_age(in_progress_form)).to eq('&49_days')
+    end
+
+    it 'defaults to empty string' do
+      in_progress_form = create_in_progress_form_days_ago(6, form_id: '686C-674')
+      expect(described_class.form_age(in_progress_form)).to eq('')
+    end
+  end
+
   xdescribe '1010ez' do
-    let(:in_progress_form) { create(:in_progress_1010ez_form) }
+    let(:in_progress_form) { create(:in_progress_1010ez_form, updated_at: 7.days.ago) }
 
     it 'knows the template id' do
       expect(described_class::TEMPLATE_ID.fetch('1010ez')).to eq('fake_template_id')
@@ -35,5 +62,12 @@ describe VANotify::InProgressFormHelper do
     it '#veteran_data returns an instance of VANotify::Veteran' do
       expect(described_class.veteran_data(in_progress_form)).to be_a VANotify::Veteran
     end
+  end
+
+  def create_in_progress_form_days_ago(count, form_id:)
+    Timecop.freeze(count.days.ago)
+    in_progress_form = create(:in_progress_form, form_id: form_id)
+    Timecop.return
+    in_progress_form
   end
 end
