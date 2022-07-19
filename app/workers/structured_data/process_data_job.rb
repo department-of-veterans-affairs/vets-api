@@ -66,7 +66,7 @@ module StructuredData
       claimed << 'Burial Allowance' if @claim.parsed_form['burialAllowance']
       claimed << 'Plot Allowance' if @claim.parsed_form['plotAllowance']
       claimed << 'Transportation' if @claim.parsed_form['transportation']
-      "- #{claimed.join("\n - ")}"
+      " - #{claimed.join(" \n - ")}"
     end
   end
 end
