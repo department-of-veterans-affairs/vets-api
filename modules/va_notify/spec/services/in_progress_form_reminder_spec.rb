@@ -50,7 +50,8 @@ describe VANotify::InProgressFormReminder, type: :worker do
         expect(VANotify::IcnJob).to have_received(:perform_async).with('icn', 'fake_template_id',
                                                                        {
                                                                          'first_name' => 'FIRST_NAME',
-                                                                         'date' => expiration_date
+                                                                         'date' => expiration_date,
+                                                                         'form_age' => ''
                                                                        })
       end
     end

@@ -55,10 +55,18 @@ module VANotify
     end
 
     def personalisation_details_single
-      {
-        'first_name' => veteran.first_name.upcase,
-        'date' => in_progress_form.expires_at.strftime('%B %d, %Y')
-      }
+      if Flipper.enabled?(:in_progress_form_reminder_age_param)
+        {
+          'first_name' => veteran.first_name.upcase,
+          'date' => in_progress_form.expires_at.strftime('%B %d, %Y'),
+          'form_age' => VANotify::InProgressFormHelper.form_age(in_progress_form)
+        }
+      else
+        {
+          'first_name' => veteran.first_name.upcase,
+          'date' => in_progress_form.expires_at.strftime('%B %d, %Y')
+        }
+      end
     end
 
     def personalisation_details_multiple
