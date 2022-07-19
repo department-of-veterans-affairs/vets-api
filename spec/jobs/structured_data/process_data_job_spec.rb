@@ -51,7 +51,7 @@ RSpec.describe StructuredData::ProcessDataJob, uploader_helpers: true do
           'form_name' => 'Burial Benefit Claim (Form 21P-530)',
           'confirmation_number' => claim.guid,
           'deceased_veteran_first_name_last_initial' => 'WESLEY F.',
-          'benefits_claimed' => "- Burial Allowance\n - Plot Allowance\n - Transportation",
+          'benefits_claimed' => " - Burial Allowance \n - Plot Allowance \n - Transportation",
           'facility_name' => 'Attention:  St. Paul Pension Center',
           'street_address' => 'P.O. Box 5365',
           'city_state_zip' => 'Janesville, WI 53547-5365',
