@@ -10,7 +10,6 @@ RSpec.describe AppealsApi::DailyErrorReportMailer, type: [:mailer] do
 
     it 'sends the email' do
       with_settings(Settings, vsp_environment: 'mary Poppins') do
-        AppealsApi::Events::Handler.subscribe(:nod_status_updated, 'AppealsApi::Events::StatusUpdated')
         errored_nod = create(:notice_of_disagreement, :status_error)
         stuck_nod = create(:notice_of_disagreement, created_at: 1.year.ago)
 
