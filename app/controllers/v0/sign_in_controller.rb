@@ -198,14 +198,14 @@ module V0
       context = { type: type, client_id: client_id, acr: acr }
       sign_in_logger.info('authorize', context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_SUCCESS,
-                       tags: ["type:#{type}, client_id:#{client_id}, acr:#{acr}"])
+                       tags: ["type:#{type}", "client_id:#{client_id}", "acr:#{acr}"])
     end
 
     def log_successful_callback(type, client_id, acr)
       context = { type: type, client_id: client_id, acr: acr }
       sign_in_logger.info('callback', context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS,
-                       tags: ["type:#{type}, client_id:#{client_id}, acr:#{acr}"])
+                       tags: ["type:#{type}", "client_id:#{client_id}", "acr:#{acr}"])
     end
 
     def log_post_login_event(event, token, statsd_code, context = {})
@@ -217,14 +217,16 @@ module V0
         sign_in_logger.refresh_token_log(event, token, context)
       end
       StatsD.increment(statsd_code,
-                       tags: ["type:#{auth_info[:type]}, client_id:#{auth_info[:client_id]}, loa:#{auth_info[:loa]}"])
+                       tags: ["type:#{auth_info[:type]}",
+                              "client_id:#{auth_info[:client_id]}",
+                              "loa:#{auth_info[:loa]}"])
     end
 
     def handle_authorize_error(error, type, client_id, acr)
       context = { type: type, client_id: client_id, acr: acr }
       log_message_to_sentry(error.message, :error, context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_FAILURE,
-                       tags: ["type:#{type}, client_id:#{client_id}, acr:#{acr}"])
+                       tags: ["type:#{type}", "client_id:#{client_id}", "acr:#{acr}"])
       render json: { errors: error }, status: :bad_request
     end
 
@@ -235,7 +237,7 @@ module V0
       context = { type: type, client_id: client_id, acr: acr, state: state, code: code }
       log_message_to_sentry(error.message, :error, context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE,
-                       tags: ["type:#{type}, client_id:#{client_id}, acr:#{acr}"])
+                       tags: ["type:#{type}", "client_id:#{client_id}", "acr:#{acr}"])
       render json: { errors: error }, status: :bad_request
     end
 
@@ -244,7 +246,9 @@ module V0
       context = context.merge({ type: auth_info[:type], client_id: auth_info[:client_id], loa: auth_info[:loa] })
       log_message_to_sentry(error.message, :error, context)
       StatsD.increment(statsd_code,
-                       tags: ["type:#{auth_info[:type]}, client_id:#{auth_info[:client_id]}, loa:#{auth_info[:loa]}"])
+                       tags: ["type:#{auth_info[:type]}",
+                              "client_id:#{auth_info[:client_id]}",
+                              "loa:#{auth_info[:loa]}"])
       render json: { errors: error }, status: status
     end
 
@@ -256,7 +260,9 @@ module V0
                   loa: auth_info[:loa] }
       log_message_to_sentry(error.message, :error, context)
       StatsD.increment(statsd_code,
-                       tags: ["type:#{auth_info[:type]}, client_id:#{auth_info[:client_id]}, loa:#{auth_info[:loa]}"])
+                       tags: ["type:#{auth_info[:type]}",
+                              "client_id:#{auth_info[:client_id]}",
+                              "loa:#{auth_info[:loa]}"])
       render json: { errors: error }, status: :unauthorized
     end
 
