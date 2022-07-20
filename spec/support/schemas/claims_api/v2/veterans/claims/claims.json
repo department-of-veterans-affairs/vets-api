@@ -45,15 +45,6 @@
         "type": "boolean",
         "description": "If true, a decision letter has been sent to the claimant regarding a benefit claim",
         "example": "false"
-      },
-      "@links": {
-        "type": "object",
-        "description": "HATEOAS links in the HAL standard format",
-        "example": {
-          "rel": "self",
-          "type": "GET",
-          "url": "https://api.va.gov/services/claims/v2/claims/600131328"
-        }
       }
     }
   }

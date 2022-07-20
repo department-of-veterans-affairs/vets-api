@@ -7,15 +7,6 @@
       "description": "Claim ID",
       "example": "600131328"
     },
-    "@links": {
-      "type": "object",
-      "description": "HATEOAS links in the HAL standard format",
-      "example": {
-        "rel": "self",
-        "type": "GET",
-        "url": "https://api.va.gov/services/claims/v2/claims/600131328"
-      }
-    },
     "contentionList": {
       "type": "array",
       "items": {
