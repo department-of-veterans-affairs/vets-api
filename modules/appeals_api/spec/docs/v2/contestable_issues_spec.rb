@@ -34,7 +34,7 @@ describe 'Contestable Issues', swagger_doc: "modules/appeals_api/app/swagger/app
 
       parameter name: :benefit_type,
                 in: :query,
-                description: 'Required if decision review type is Higher Level Review.',
+                description: 'Required if decision review type is Higher Level Review or Supplemental Claims.',
                 schema: { 'type': 'string', 'enum': %w[compensation pensionSurvivorsBenefits fiduciary lifeInsurance veteransHealthAdministration veteranReadinessAndEmployment loanGuaranty education nationalCemeteryAdministration] }
 
       let(:benefit_type) { '' }
