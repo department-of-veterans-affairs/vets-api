@@ -61,7 +61,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
 
     context 'when a required headers is missing' do
       it 'returns an error' do
-        post(path, params: @data, headers: @headers.except('X-VA-File-Number'))
+        post(path, params: @minimum_data, headers: @headers.except('X-VA-File-Number'))
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
       end
@@ -74,7 +74,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
 
       it 'when given a string for the birth date ' do
         @headers.merge!('X-VA-Birth-Date' => 'apricot')
-        post(path, params: @data.to_json, headers: @headers)
+        post(path, params: @minimum_data.to_json, headers: @headers)
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
       end
@@ -114,12 +114,20 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
       allow(client_stub).to receive(:upload).and_return(faraday_response)
       allow(faraday_response).to receive(:success?).and_return(true)
 
-      Sidekiq::Testing.inline! do
-        post(path, params: @max_data, headers: @max_headers)
-      end
+      with_settings(Settings.vanotify.services.lighthouse.template_id,
+                    notice_of_disagreement_received: 'veteran_template',
+                    notice_of_disagreement_received_claimant: 'claimant_template') do
+        client = instance_double(VaNotify::Service)
+        allow(VaNotify::Service).to receive(:new).and_return(client)
+        allow(client).to receive(:send_email)
 
-      nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
-      expect(nod.status).to eq('submitted')
+        Sidekiq::Testing.inline! do
+          post(path, params: @max_data, headers: @max_headers)
+        end
+
+        nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
+        expect(nod.status).to eq('submitted')
+      end
     end
 
     context 'keeps track of board_review_option' do
@@ -224,7 +232,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
         let(:json) { '"Toodles!"' }
 
         it 'responds with a properly formed error object' do
-          post(path, params: @data, headers: @headers)
+          post(path, params: @minimum_data, headers: @headers)
           body = JSON.parse(response.body)
           expect(response.status).to eq 422
           expect(body['errors']).to be_an Array
@@ -236,7 +244,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
         let(:json) { '66' }
 
         it 'responds with a properly formed error object' do
-          post(path, params: @data, headers: @headers)
+          post(path, params: @minimum_data, headers: @headers)
           body = JSON.parse(response.body)
           expect(response.status).to eq 422
           expect(body['errors']).to be_an Array
