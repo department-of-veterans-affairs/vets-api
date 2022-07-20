@@ -135,7 +135,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
       end
     end
 
-    it 'create the job to build the PDF' do
+    it 'updates the appeal status once submitted to central mail' do
       client_stub = instance_double('CentralMail::Service')
       faraday_response = instance_double('Faraday::Response')
 
@@ -143,12 +143,20 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
       allow(client_stub).to receive(:upload).and_return(faraday_response)
       allow(faraday_response).to receive(:success?).and_return(true)
 
-      Sidekiq::Testing.inline! do
-        post(path, params: @data, headers: @headers)
-      end
+      with_settings(Settings.vanotify.services.lighthouse.template_id,
+                    higher_level_review_received: 'veteran_template',
+                    higher_level_review_received_claimant: 'claimant_template') do
+        client = instance_double(VaNotify::Service)
+        allow(VaNotify::Service).to receive(:new).and_return(client)
+        allow(client).to receive(:send_email)
 
-      nod = AppealsApi::HigherLevelReview.find_by(id: parsed['data']['id'])
-      expect(nod.status).to eq('submitted')
+        Sidekiq::Testing.inline! do
+          post(path, params: @data, headers: @headers)
+        end
+
+        hlr = AppealsApi::HigherLevelReview.find_by(id: parsed['data']['id'])
+        expect(hlr.status).to eq('submitted')
+      end
     end
 
     context 'when invalid headers supplied' do
