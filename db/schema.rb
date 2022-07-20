@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_06_28_222858) do
+ActiveRecord::Schema.define(version: 2022_07_20_183142) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -100,14 +100,6 @@ ActiveRecord::Schema.define(version: 2022_06_28_222858) do
     t.text "upload_metadata_ciphertext"
     t.text "encrypted_kms_key"
     t.date "verified_decryptable_at"
-  end
-
-  create_table "appeals_api_event_subscriptions", force: :cascade do |t|
-    t.string "topic"
-    t.string "callback"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["topic", "callback"], name: "index_appeals_api_event_subscriptions_on_topic_and_callback"
   end
 
   create_table "appeals_api_evidence_submissions", force: :cascade do |t|
