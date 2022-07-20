@@ -537,8 +537,14 @@ class AppealsApi::RswagConfig
     sc_v2_schema = parse_create_schema('v2', '200995.json')
     return sc_v2_schema if wip_doc_enabled?(:sc_v2_claimant)
 
+    # Removes NVC-related schema data from production docs
     sc_v2_schema.tap do |s|
-      s.dig(*%w[scCreate properties data properties attributes properties]).delete('claimant')
+      attrs = s.dig(*%w[scCreate properties data properties attributes])
+      attrs['properties'].delete('claimant')
+      attrs['properties']['claimantType']['enum'] = ['veteran']
+      attrs['properties'].delete('claimantTypeOtherValue')
+      attrs['allOf'].delete_at(3) # Remove 'if claimantType ~= NCV, require claimant'
+      attrs['allOf'].delete_at(2) # Remove 'if const "other", require claimantTypeOtherValue'
     end
   end
 

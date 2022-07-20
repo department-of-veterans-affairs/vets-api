@@ -100,5 +100,7 @@ Due to current system limitations, data for the status attribute for the followi
 - GET `/higher_level_reviews/{uuid}`
 - GET `/notice_of_disagreements/{uuid}`
 - GET `/notice_of_disagreements/evidence_submission/{uuid}`
+- GET `/supplemental_claims/{uuid}`
+- GET `/supplemental_claims/evidence_submission/{uuid}`
 
 The updated_at field indicates the last time the status for a given GUID was updated.

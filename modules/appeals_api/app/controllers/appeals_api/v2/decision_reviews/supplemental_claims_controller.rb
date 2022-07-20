@@ -50,10 +50,16 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
         schema_version: 'v2'
       ).schema(self.class::FORM_NUMBER)
     )
-    response.tap do |s|
-      properties = s.dig(*%w[definitions scCreate properties data properties attributes properties])
-      properties.delete('claimant')
-      properties.delete('claimantTypeOther')
+
+    if Settings.modules_appeals_api.documentation.wip_docs&.include?(:sc_v2_claimant)
+      response.tap do |s|
+        attrs = s.dig(*%w[definitions scCreate properties data properties attributes])
+        attrs['properties'].delete('claimant')
+        attrs['properties']['claimantType']['enum'] = ['veteran']
+        attrs['properties'].delete('claimantTypeOtherValue')
+        attrs['allOf'].delete_at(3) # Remove 'if claimantType ~= NCV, require claimant'
+        attrs['allOf'].delete_at(2) # Remove 'if const "other", require claimantTypeOtherValue'
+      end
     end
 
     render json: response
