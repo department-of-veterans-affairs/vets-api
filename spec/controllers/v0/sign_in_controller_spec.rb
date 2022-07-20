@@ -27,7 +27,7 @@ RSpec.describe V0::SignInController, type: :controller do
         acr: acr[:acr]
       }
     end
-    let(:statsd_tags) { ["type:#{type_value} client_id:#{client_id_value} acr:#{acr[:acr]}"] }
+    let(:statsd_tags) { ["type:#{type_value}", "client_id:#{client_id_value}", "acr:#{acr[:acr]}"] }
 
     shared_examples 'error response' do
       let(:expected_error_json) { { 'errors' => expected_error } }
@@ -367,7 +367,7 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:state) { { state: state_value } }
     let(:state_value) { 'some-state' }
     let(:code_value) { 'some-code' }
-    let(:statsd_tags) { ["type:#{type} client_id:#{client_id} acr:#{acr}"] }
+    let(:statsd_tags) { ["type:#{type}", "client_id:#{client_id}", "acr:#{acr}"] }
     let(:type) {}
     let(:acr) { nil }
     let(:client_id) { nil }
@@ -378,7 +378,7 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:expected_error_json) { { 'errors' => expected_error } }
       let(:expected_error_status) { :bad_request }
       let(:error_context) { { type: type, client_id: client_id, acr: acr, state: state[:state], code: code[:code] } }
-      let(:statsd_tags) { ["type:#{type} client_id:#{client_id} acr:#{acr}"] }
+      let(:statsd_tags) { ["type:#{type}", "client_id:#{client_id}", "acr:#{acr}"] }
       let(:statsd_callback_failure) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE }
 
       it 'renders expected error' do
