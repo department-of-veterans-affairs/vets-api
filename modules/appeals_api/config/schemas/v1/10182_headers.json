@@ -15,10 +15,6 @@
         "X-VA-SSN":             { "$ref": "#/definitions/X-VA-SSN" },
         "X-VA-File-Number":     { "$ref": "#/definitions/X-VA-File-Number" },
         "X-VA-Birth-Date":      { "$ref": "#/definitions/X-VA-Birth-Date" },
-        "X-VA-Claimant-First-Name":     { "$ref": "#/definitions/X-VA-Claimant-First-Name" },
-        "X-VA-Claimant-Middle-Initial": { "$ref": "#/definitions/X-VA-Claimant-Middle-Initial" },
-        "X-VA-Claimant-Last-Name":      { "$ref": "#/definitions/X-VA-Claimant-Last-Name" },
-        "X-VA-Claimant-Birth-Date":     { "$ref": "#/definitions/X-VA-Claimant-Birth-Date" },
         "X-Consumer-Username":  { "$ref": "#/definitions/X-Consumer-Username"},
         "X-Consumer-ID":        { "$ref": "#/definitions/X-Consumer-ID"}
       },

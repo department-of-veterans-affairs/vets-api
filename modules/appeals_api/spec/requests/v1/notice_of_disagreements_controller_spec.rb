@@ -66,12 +66,20 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       allow(client_stub).to receive(:upload).and_return(faraday_response)
       allow(faraday_response).to receive(:success?).and_return(true)
 
-      Sidekiq::Testing.inline! do
-        post(path, params: @data, headers: @headers)
-      end
+      with_settings(Settings.vanotify.services.lighthouse.template_id,
+                    notice_of_disagreement_received: 'veteran_template',
+                    notice_of_disagreement_received_claimant: 'claimant_template') do
+        client = instance_double(VaNotify::Service)
+        allow(VaNotify::Service).to receive(:new).and_return(client)
+        allow(client).to receive(:send_email)
 
-      nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
-      expect(nod.status).to eq('submitted')
+        Sidekiq::Testing.inline! do
+          post(path, params: @data, headers: @headers)
+        end
+
+        nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
+        expect(nod.status).to eq('submitted')
+      end
     end
 
     context 'keeps track of board_review_option' do
