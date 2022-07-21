@@ -31,7 +31,7 @@ describe SignIn::Idme::Service do
         social: ssn,
         lname: last_name,
         level_of_assurance: 3,
-        multifactor: true,
+        multifactor: multifactor,
         credential_aal: 2,
         credential_ial: 'classic_loa3',
         uuid: user_uuid
@@ -46,6 +46,7 @@ describe SignIn::Idme::Service do
   let(:idme_client_id) { 'ef7f1237ed3c396e4b4a2b04b608a7b1' }
   let(:user_uuid) { '6400bbf301eb4e6e95ccea7693eced6f' }
   let(:birth_date) { '1950-10-04' }
+  let(:multifactor) { true }
   let(:first_name) { 'MARK' }
   let(:last_name) { 'WEBB' }
   let(:ssn) { '796104437' }
@@ -194,6 +195,7 @@ describe SignIn::Idme::Service do
         loa: { current: LOA::THREE, highest: LOA::THREE },
         sign_in: { service_name: service_name, auth_broker: auth_broker, client_id: client_id },
         csp_email: email,
+        multifactor: multifactor,
         authn_context: authn_context
       }
     end
@@ -222,7 +224,7 @@ describe SignIn::Idme::Service do
             social: ssn,
             lname: last_name,
             level_of_assurance: 3,
-            multifactor: true,
+            multifactor: multifactor,
             credential_aal: 2,
             credential_ial: 'classic_loa3',
             uuid: user_uuid
@@ -265,7 +267,7 @@ describe SignIn::Idme::Service do
             dslogon_lname: last_name,
             dslogon_mname: middle_name,
             level_of_assurance: 3,
-            multifactor: true,
+            multifactor: multifactor,
             credential_aal: 2,
             credential_ial: 'classic_loa3',
             uuid: user_uuid
@@ -308,7 +310,7 @@ describe SignIn::Idme::Service do
             mhv_uuid: mhv_correlation_id,
             mhv_icn: mhv_icn,
             level_of_assurance: 3,
-            multifactor: true,
+            multifactor: multifactor,
             credential_aal: 2,
             credential_ial: 'classic_loa3',
             uuid: user_uuid

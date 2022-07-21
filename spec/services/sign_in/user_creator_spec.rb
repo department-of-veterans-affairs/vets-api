@@ -31,6 +31,7 @@ RSpec.describe SignIn::UserCreator do
           last_name: last_name,
           csp_email: csp_email,
           sign_in: sign_in,
+          multifactor: multifactor,
           authn_context: authn_context
         }
       end
@@ -39,9 +40,11 @@ RSpec.describe SignIn::UserCreator do
       let(:csp_id) { SecureRandom.hex }
       let(:ssn) { '123456780' }
       let(:birth_date) { '2022-01-01' }
+      let(:birth_date_ssn) { birth_date }
       let(:first_name) { 'some-first-name' }
       let(:last_name) { 'some-last-name' }
       let(:csp_email) { 'some-csp-email' }
+      let(:icn) { 'some-icn' }
       let(:service_name) { SAML::User::LOGINGOV_CSID }
       let!(:user_verification) { create(:logingov_user_verification, logingov_uuid: csp_id) }
       let(:login_code) { 'some-login-code' }
@@ -58,7 +61,8 @@ RSpec.describe SignIn::UserCreator do
                        id_theft_flag: id_theft_flag,
                        deceased_date: deceased_date,
                        ssn: ssn,
-                       birth_date: birth_date,
+                       icn: icn,
+                       birth_date: birth_date_ssn,
                        given_names: [first_name],
                        family_name: last_name))
       end
@@ -103,7 +107,7 @@ RSpec.describe SignIn::UserCreator do
           end
 
           context 'and user verification can be properly created' do
-            context 'and current user does not have a retrievable icn' do
+            shared_context 'mpi user creation' do
               let(:add_person_response) do
                 MPI::Responses::AddPersonResponse.new(status: status,
                                                       mvi_codes: mvi_codes,
@@ -116,7 +120,6 @@ RSpec.describe SignIn::UserCreator do
               let(:error) { nil }
 
               before do
-                stub_mpi_not_found
                 allow_any_instance_of(MPI::Service)
                   .to receive(:add_person_implicit_search).and_return(add_person_response)
               end
@@ -135,6 +138,20 @@ RSpec.describe SignIn::UserCreator do
                   expect { subject }.to raise_error(expected_error, expected_error_message)
                 end
               end
+            end
+
+            context 'and current user does not have a retrievable icn' do
+              before do
+                stub_mpi_not_found
+              end
+
+              it_behaves_like 'mpi user creation'
+            end
+
+            context 'and current user does not have required attributes' do
+              let(:birth_date_ssn) { nil }
+
+              it_behaves_like 'mpi user creation'
             end
 
             it 'creates a user with expected attributes' do

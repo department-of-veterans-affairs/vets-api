@@ -32,6 +32,7 @@ describe SignIn::Logingov::Service do
   let(:last_name) { 'User' }
   let(:birth_date) { '1993-01-01' }
   let(:ssn) { '999-11-9999' }
+  let(:multifactor) { true }
   let(:email) { 'user@test.com' }
   let(:user_uuid) { '12345678-0990-10a1-f038-2839ab281f90' }
   let(:success_callback_url) { 'http://localhost:3001/auth/login/callback?type=logingov' }
@@ -98,6 +99,7 @@ describe SignIn::Logingov::Service do
         sign_in: { service_name: service_name, auth_broker: auth_broker,
                    client_id: SignIn::Constants::ClientConfig::COOKIE_AUTH },
         csp_email: email,
+        multifactor: multifactor,
         authn_context: authn_context
       }
     end

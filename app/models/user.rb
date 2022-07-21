@@ -280,7 +280,7 @@ class User < Common::RedisStore
   end
 
   def mpi_add_person_implicit_search
-    return unless loa3? && !mpi_profile?
+    return unless loa3?
 
     invalidate_mpi_cache
     mpi.add_person_implicit_search

@@ -69,6 +69,7 @@ module SignIn
           sign_in: { service_name: get_service_name, auth_broker: SignIn::Constants::Auth::BROKER_CODE,
                      client_id: client_id },
           csp_email: user_info.email,
+          multifactor: user_info.multifactor,
           authn_context: get_authn_context(credential_level.current_ial)
         }
       end
