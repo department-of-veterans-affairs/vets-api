@@ -75,7 +75,8 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
   end
 
   def validate_json_schema_for_body
-    AppealsApi::FormSchemas.new(SCHEMA_ERROR_TYPE, schema_version: API_VERSION).validate!(FORM_NUMBER, @json_body)
+    schema = AppealsApi::FormSchemas.new(SCHEMA_ERROR_TYPE, schema_version: API_VERSION)
+    schema.validate!(FORM_NUMBER, @json_body)
   end
 
   def validation_success

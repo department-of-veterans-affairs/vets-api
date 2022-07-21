@@ -86,6 +86,7 @@ AppealsApi::Engine.routes.draw do
   namespace :notice_of_disagreements, defaults: { format: 'json' } do
     namespace :v2 do
       cpath = '/appeals_api/v2/decision_reviews/notice_of_disagreements'
+      nod_schema_cpath = '/appeals_api/notice_of_disagreements/v2/notice_of_disagreements'
 
       namespace :forms do
         resources '10182', only: %i[create show], controller: cpath do
@@ -97,7 +98,7 @@ AppealsApi::Engine.routes.draw do
 
       resources :evidence_submissions, only: %i[create show], controller: "#{cpath}/evidence_submissions"
 
-      namespace :schemas, controller: cpath do
+      namespace :schemas, controller: nod_schema_cpath do
         get '10182', action: :schema
       end
 
@@ -108,6 +109,7 @@ AppealsApi::Engine.routes.draw do
   namespace :higher_level_reviews, defaults: { format: 'json' } do
     namespace :v2 do
       cpath = '/appeals_api/v2/decision_reviews/higher_level_reviews'
+      hlr_schema_cpath = '/appeals_api/higher_level_reviews/v2/higher_level_reviews'
 
       namespace :forms do
         resources '200996', only: %i[create show], controller: cpath do
@@ -117,7 +119,7 @@ AppealsApi::Engine.routes.draw do
         end
       end
 
-      namespace :schemas, controller: cpath do
+      namespace :schemas, controller: hlr_schema_cpath do
         get '200996', action: :schema
       end
 
@@ -128,6 +130,7 @@ AppealsApi::Engine.routes.draw do
   namespace :supplemental_claims, defaults: { format: 'json' } do
     namespace :v2 do
       cpath = '/appeals_api/v2/decision_reviews/supplemental_claims'
+      sc_schema_cpath = '/appeals_api/supplemental_claims/v2/supplemental_claims'
 
       namespace :forms do
         resources '200995', only: %i[create show], controller: cpath do
@@ -139,7 +142,7 @@ AppealsApi::Engine.routes.draw do
 
       resources :evidence_submissions, only: %i[create show], controller: "#{cpath}/evidence_submissions"
 
-      namespace :schemas, controller: cpath do
+      namespace :schemas, controller: sc_schema_cpath do
         get '200995', action: :schema
       end
 
