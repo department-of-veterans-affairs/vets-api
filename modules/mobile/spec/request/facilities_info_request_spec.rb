@@ -9,11 +9,13 @@ RSpec.describe 'facilities info', type: :request do
 
   let(:params) { { lat: 40.5, long: 100.1 } }
   let(:user) { FactoryBot.build(:iam_user) }
+  let(:user_staging_ids) { FactoryBot.build(:iam_user, :staging_facility_ids) }
 
   before do
     allow_any_instance_of(IAMUser).to receive(:icn).and_return('24811694708759028')
     iam_sign_in(user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+    Settings.mhv.facility_range = [[358, 718], [720, 758], [983, 984]]
   end
 
   va_path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures',
@@ -94,6 +96,21 @@ RSpec.describe 'facilities info', type: :request do
           end
         end
       end
+
+      context 'when non-valid staging facility ids are used' do
+        before { iam_sign_in(user_staging_ids) }
+
+        it 'converts to valid ids' do
+          VCR.use_cassette('appointments/get_multiple_mfs_facilities_200', match_requests_on: %i[method uri]) do
+            get '/mobile/v0/facilities-info/home', headers: iam_headers, params: params
+            facilities = response.parsed_body.dig('data', 'attributes', 'facilities')
+            expect(response).to have_http_status(:ok)
+            expect(facilities[0]['id']).to eq('442')
+            expect(facilities[1]['id']).to eq('552')
+            expect(response.body).to match_json_schema('facilities_info')
+          end
+        end
+      end
     end
 
     context 'when the MFS flag is disabled' do
@@ -103,7 +120,8 @@ RSpec.describe 'facilities info', type: :request do
       end
 
       it 'returns facility details sorted by closest to home' do
-        VCR.use_cassette('appointments/legacy_get_facilities_for_facilities_info', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('appointments/legacy_get_facilities_for_facilities_info',
+                         match_requests_on: %i[method uri]) do
           get '/mobile/v0/facilities-info/home', headers: iam_headers, params: params
           facilities = response.parsed_body.dig('data', 'attributes', 'facilities')
           expect(response).to have_http_status(:ok)
@@ -114,8 +132,10 @@ RSpec.describe 'facilities info', type: :request do
       end
 
       it 'returns facility details sorted by closest to current location' do
-        VCR.use_cassette('appointments/legacy_get_facilities_for_facilities_info', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('appointments/legacy_get_facilities_for_facilities_info',
+                         match_requests_on: %i[method uri]) do
           get '/mobile/v0/facilities-info/current', headers: iam_headers, params: params
+
           facilities = response.parsed_body.dig('data', 'attributes', 'facilities')
           expect(response).to have_http_status(:ok)
           expect(facilities[0]['id']).to eq('757')
@@ -125,7 +145,8 @@ RSpec.describe 'facilities info', type: :request do
       end
 
       it 'returns facility details sorted alphabetically' do
-        VCR.use_cassette('appointments/legacy_get_facilities_for_facilities_info', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('appointments/legacy_get_facilities_for_facilities_info',
+                         match_requests_on: %i[method uri]) do
           get '/mobile/v0/facilities-info/alphabetical', headers: iam_headers, params: params
           facilities = response.parsed_body.dig('data', 'attributes', 'facilities')
           expect(response).to have_http_status(:ok)
@@ -136,13 +157,30 @@ RSpec.describe 'facilities info', type: :request do
       end
 
       it 'returns facility details sorted by most recent appointment' do
-        VCR.use_cassette('appointments/legacy_get_facilities_for_facilities_info', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('appointments/legacy_get_facilities_for_facilities_info',
+                         match_requests_on: %i[method uri]) do
           get '/mobile/v0/facilities-info/appointments', headers: iam_headers, params: params
           facilities = response.parsed_body.dig('data', 'attributes', 'facilities')
           expect(response).to have_http_status(:ok)
           expect(facilities[0]['id']).to eq('358')
           expect(facilities[1]['id']).to eq('757')
           expect(response.body).to match_json_schema('facilities_info')
+        end
+      end
+
+      context 'when non-valid staging facility ids are used' do
+        before { iam_sign_in(user_staging_ids) }
+
+        it 'converts to valid ids' do
+          VCR.use_cassette('appointments/legacy_get_facilities_for_facilities_info',
+                           match_requests_on: %i[method uri]) do
+            get '/mobile/v0/facilities-info/home', headers: iam_headers, params: params
+            facilities = response.parsed_body.dig('data', 'attributes', 'facilities')
+            expect(response).to have_http_status(:ok)
+            expect(facilities[0]['id']).to eq('442')
+            expect(facilities[1]['id']).to eq('552')
+            expect(response.body).to match_json_schema('facilities_info')
+          end
         end
       end
     end

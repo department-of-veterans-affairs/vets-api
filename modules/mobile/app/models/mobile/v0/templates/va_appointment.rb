@@ -21,7 +21,7 @@ module Mobile
         end
 
         def facility_id
-          @facility_id ||= Mobile::V0::Appointment.toggle_non_prod_id!(@request.dig(:facility, :facility_code))
+          @facility_id ||= Mobile::V0::Appointment.convert_non_prod_id!(@request.dig(:facility, :facility_code))
         end
 
         def location

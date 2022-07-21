@@ -8,7 +8,7 @@ module Mobile
       def index
         Rails.logger.info('Facilities info call start', { sort_method: params[:sort], user_uuid: @current_user.uuid })
         facility_ids = @current_user.va_treatment_facility_ids + @current_user.cerner_facility_ids
-        facilities = appointments_proxy.fetch_facilities_from_ids(facility_ids.uniq, true)
+        facilities = appointments_proxy.fetch_facilities_from_ids(facility_ids, true)
         adapted_facilities = facilities.map do |facility|
           Mobile::V0::Adapters::FacilityInfo.new.parse(facility, @current_user, params)
         end

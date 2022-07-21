@@ -194,6 +194,22 @@ FactoryBot.define do
       end
     end
 
+    trait :staging_facility_ids do
+      callback(:after_build, :after_stub, :after_create) do |user, _t|
+        user_identity = create(:iam_user_identity)
+        user.instance_variable_set(:@identity, user_identity)
+      end
+
+      after(:build) do
+        stub_mpi(
+          build(
+            :mvi_profile,
+            vha_facility_ids: %w[983 984]
+          )
+        )
+      end
+    end
+
     trait :loa2 do
       callback(:after_build, :after_stub, :after_create) do |user, _t|
         user_identity = create(:iam_user_identity, loa: {
