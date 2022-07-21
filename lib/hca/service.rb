@@ -23,8 +23,15 @@ module HCA
       content = Gyoku.xml(formatted)
       submission = soap.build_request(:save_submit_form, message: content)
 
+      is_short_form = HealthCareApplication.new(form: form.to_json).short_form?
+
       response = with_monitoring do
         perform(:post, '', submission.body)
+      rescue => e
+        increment_failure('submit_form_short_form', e) if is_short_form
+        raise e
+      ensure
+        increment_total('submit_form_short_form') if is_short_form
       end
 
       root = response.body.locate('S:Envelope/S:Body/submitFormResponse').first
