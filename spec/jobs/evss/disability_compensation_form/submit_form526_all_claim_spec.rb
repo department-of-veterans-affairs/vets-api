@@ -55,11 +55,35 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
                  saved_claim_id: saved_claim.id)
         end
 
+        it 'sends form526 to the MAS endpoint successfully' do
+          VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
+            VCR.use_cassette('mail_automation/mas_initiate_apcas_request') do
+              subject.perform_async(submission.id)
+              described_class.drain
+              expect(Form526JobStatus.last.status).to eq 'success'
+              rrd_submission = Form526Submission.find(Form526JobStatus.last.form526_submission_id)
+              expect(rrd_submission.form.dig('rrd_metadata', 'mas_packetId')).to eq '12345'
+            end
+          end
+        end
+
         it 'sends an email for tracking purposes' do
           VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
-            subject.perform_async(submission.id)
-            described_class.drain
-            expect(ActionMailer::Base.deliveries.last.subject).to eq 'MA claim - 6847'
+            VCR.use_cassette('mail_automation/mas_initiate_apcas_request') do
+              subject.perform_async(submission.id)
+              described_class.drain
+              expect(ActionMailer::Base.deliveries.last.subject).to eq 'MA claim - 6847'
+            end
+          end
+        end
+
+        it 'handles MAS endpoint handshake failure by sending failure notification' do
+          VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
+            VCR.use_cassette('mail_automation/mas_initiate_apcas_request_failure') do
+              subject.perform_async(submission.id)
+              described_class.drain
+              expect(ActionMailer::Base.deliveries.last.subject).to eq "Failure: MA claim - #{submitted_claim_id}"
+            end
           end
         end
       end
