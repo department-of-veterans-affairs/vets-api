@@ -421,20 +421,12 @@ features:
       Toggle for the entire pre-entry covid 19 self-screener available at /covid19screener and to be used by visitors
       to VHA facilities in lieu of manual screening with a VHA employee.
       This toggle is owned by Patrick B. and the rest of the CTO Health Products team.
-  profile_always_show_direct_deposit_display:
-    actor_type: user
-    description: Shows the direct deposit link for all veterans
-    enable_in_development: true
   profile_get_military_info_from_vaprofile:
     actor_type: user
     description: When enabled, the profile page will get military service history from VA Profile instead of eMIS.
   profile_notification_settings:
     actor_type: user
     description: Turns on the Notification Settings section of the VA.gov Profile
-    enable_in_development: true
-  profile_enhancements:
-    actor_type: user
-    description: Used to show any enhancement for the profile
     enable_in_development: true
   profile_schema_forms:
     actor_type: user
@@ -448,21 +440,10 @@ features:
     actor_type: user
     description: Show/Hide the "Bad Address" indicator in the profile page.
     enable_in_development: true
-  profile_show_fax_number:
-    actor_type: user
-    description: Show/hide the fax number UI on the profile page
-    enable_in_development: true
   profile_force_bad_address_indicator:
     actor_type: user
     description: Allows to force the BAI experience for UAT testing
     enable_in_development: false
-  profile_show_gender:
-    actor_type: user
-    description: Show/hide the gender field UI on the profile page
-    enable_in_development: true
-  profile_show_new_direct_deposit_cta_message:
-    actor_type: user
-    description: Show/hide the new CTA fields
   profile_show_pronouns_and_sexual_orientation:
     actor_type: user
     description: Show/hide Pronouns and Sexual Orientation fields on profile page
