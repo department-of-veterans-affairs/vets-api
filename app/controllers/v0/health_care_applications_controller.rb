@@ -13,12 +13,11 @@ module V0
     def create
       load_user
 
-      health_care_application = HealthCareApplication.new(params.permit(:form))
-      health_care_application.async_compatible = params[:async_all]
-      health_care_application.google_analytics_client_id = params[:ga_client_id]
-      health_care_application.user = current_user
+      @health_care_application.async_compatible = params[:async_all]
+      @health_care_application.google_analytics_client_id = params[:ga_client_id]
+      @health_care_application.user = current_user
 
-      result = health_care_application.process!
+      result = @health_care_application.process!
 
       clear_saved_form(FORM_ID)
 
@@ -54,7 +53,12 @@ module V0
     private
 
     def record_submission_attempt
+      @health_care_application = HealthCareApplication.new(params.permit(:form))
+
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.submission_attempt")
+      if @health_care_application.short_form?
+        StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.submission_attempt_short_form")
+      end
     end
 
     def skip_sentry_exception_types
