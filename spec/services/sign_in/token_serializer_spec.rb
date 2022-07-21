@@ -48,7 +48,7 @@ RSpec.describe SignIn::TokenSerializer do
       let(:expected_access_token_cookie) do
         {
           value: encoded_access_token,
-          expires: access_token_expiration,
+          expires: refresh_token_expiration,
           path: path,
           secure: secure,
           httponly: httponly

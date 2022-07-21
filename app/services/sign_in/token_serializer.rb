@@ -26,15 +26,15 @@ module SignIn
     def set_cookies
       set_cookie!(name: Constants::Auth::ACCESS_TOKEN_COOKIE_NAME,
                   value: encoded_access_token,
-                  expires: access_token_expiration)
+                  expires: session_expiration)
       set_cookie!(name: Constants::Auth::REFRESH_TOKEN_COOKIE_NAME,
                   value: encrypted_refresh_token,
                   path: Constants::Auth::REFRESH_ROUTE_PATH,
-                  expires: refresh_token_expiration)
+                  expires: session_expiration)
       if anti_csrf_enabled_client?
         set_cookie!(name: Constants::Auth::ANTI_CSRF_COOKIE_NAME,
                     value: anti_csrf_token,
-                    expires: refresh_token_expiration)
+                    expires: session_expiration)
       end
     end
 
@@ -51,7 +51,7 @@ module SignIn
     def set_info_cookie
       cookies[Constants::Auth::INFO_COOKIE_NAME] = {
         value: info_cookie_value,
-        expires: refresh_token_expiration,
+        expires: session_expiration,
         secure: Settings.sign_in.cookies_secure,
         httponly: false,
         domain: Settings.sign_in.info_cookie_domain
@@ -61,7 +61,7 @@ module SignIn
     def info_cookie_value
       {
         access_token_expiration: access_token_expiration,
-        refresh_token_expiration: refresh_token_expiration
+        refresh_token_expiration: session_expiration
       }
     end
 
@@ -89,8 +89,8 @@ module SignIn
       Constants::ClientConfig::ANTI_CSRF_ENABLED.include?(client_id)
     end
 
-    def refresh_token_expiration
-      @refresh_token_expiration ||= session_container.session.refresh_expiration
+    def session_expiration
+      @session_expiration ||= session_container.session.refresh_expiration
     end
 
     def access_token_expiration
