@@ -378,6 +378,14 @@ RSpec.describe HealthCareApplication, type: :model do
         end.to raise_error(Common::Exceptions::ValidationErrors)
       end
 
+      it 'triggers short form statsd' do
+        expect do
+          expect do
+            described_class.new(form: { mothersMaidenName: 'm' }.to_json).process!
+          end.to raise_error(Common::Exceptions::ValidationErrors)
+        end.to trigger_statsd_increment('api.1010ez.validation_error_short_form')
+      end
+
       it 'triggers statsd' do
         expect do
           expect do
@@ -423,6 +431,20 @@ RSpec.describe HealthCareApplication, type: :model do
               end.to raise_error(VCR::Errors::UnhandledHTTPRequestError)
             end.to trigger_statsd_increment('api.1010ez.failed_wont_retry')
           end
+
+          it 'increments short form statsd key if its a short form' do
+            new_form = JSON.parse(health_care_application.form)
+            new_form.delete('lastServiceBranch')
+            new_form['vaCompensationType'] = 'highDisability'
+            health_care_application.form = new_form.to_json
+            health_care_application.instance_variable_set(:@parsed_form, nil)
+
+            expect do
+              expect do
+                health_care_application.process!
+              end.to raise_error(VCR::Errors::UnhandledHTTPRequestError)
+            end.to trigger_statsd_increment('api.1010ez.failed_wont_retry_short_form')
+          end
         end
       end
 
@@ -449,6 +471,18 @@ RSpec.describe HealthCareApplication, type: :model do
       expect do
         health_care_application.update!(state: 'failed')
       end.to trigger_statsd_increment('api.1010ez.failed_wont_retry')
+    end
+
+    it 'triggers short form statsd' do
+      new_form = JSON.parse(health_care_application.form)
+      new_form.delete('lastServiceBranch')
+      new_form['vaCompensationType'] = 'highDisability'
+      health_care_application.form = new_form.to_json
+      health_care_application.instance_variable_set(:@parsed_form, nil)
+
+      expect do
+        health_care_application.update!(state: 'failed')
+      end.to trigger_statsd_increment('api.1010ez.failed_wont_retry_short_form')
     end
   end
 

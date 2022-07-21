@@ -79,6 +79,18 @@ describe HCA::Service do
           expect(result[:success]).to eq(true)
         end
       end
+
+      it 'increments statsd' do
+        allow(StatsD).to receive(:increment)
+
+        expect(StatsD).to receive(:increment).with('api.1010ez.submit_form_short_form.fail',
+                                                   tags: ['error:VCRErrorsUnhandledHTTPRequestError'])
+        expect(StatsD).to receive(:increment).with('api.1010ez.submit_form_short_form.total')
+
+        expect do
+          HCA::Service.new.submit_form(get_fixture('hca/short_form'))
+        end.to raise_error(StandardError)
+      end
     end
 
     context 'submitting with attachment' do

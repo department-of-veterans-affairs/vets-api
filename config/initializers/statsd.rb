@@ -135,15 +135,17 @@ Rails.application.reloader.to_prepare do
   StatsD.increment("#{Caseflow::Service::STATSD_KEY_PREFIX}.get_appeals.fail", 0)
 
   # init 1010ez
-  %w[submit_form health_check].each do |method|
+  %w[submit_form health_check submit_form_short_form].each do |method|
     %w[total fail].each do |type|
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.#{method}.#{type}", 0)
     end
   end
 
-  StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.submission_attempt", 0)
-  StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.validation_error", 0)
-  StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry", 0)
+  %w[submission_attempt validation_error failed_wont_retry].each do |stat|
+    key = "#{HCA::Service::STATSD_KEY_PREFIX}.#{stat}"
+    StatsD.increment(key, 0)
+    StatsD.increment("#{key}_short_form", 0)
+  end
 
   # init mulesoft
   %w[create_submission upload_attachments do_post].each do |method|
