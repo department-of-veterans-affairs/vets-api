@@ -68,14 +68,14 @@ module Mobile
       attribute :best_time_to_call, Types::Array.optional
       attribute :friendly_location_name, Types::String.optional
 
-      def self.toggle_non_prod_id!(id)
+      def self.convert_non_prod_id!(id)
         return id if Settings.hostname == 'api.va.gov' || id.nil?
 
-        match = id.match(/\A(983|984|552|442)/)
+        match = id.match(/\A(983|984)/)
         return id unless match
 
-        return id.sub(match[0], (%w[442 983] - [id]).first) if %w[442 983].include? match[0]
-        return id.sub(match[0], (%w[552 984] - [id]).first) if %w[552 984].include? match[0]
+        return id.sub(match[0], '442') if match[0] == '983'
+        return id.sub(match[0], '552') if match[0] == '984'
       end
 
       # VAOS appointments aren't cancelled by id but instead by a combination
