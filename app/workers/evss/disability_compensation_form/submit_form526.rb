@@ -67,7 +67,7 @@ module EVSS
           response_handler(response)
         end
         send_rrd_completed_notification(submission) if submission.rrd_job_selector.rrd_applicable?
-        submission.send_to_mas_email if submission.forward_to_mas?
+        submission.notify_mas if submission.forward_to_mas?
       rescue Common::Exceptions::BackendServiceException,
              Common::Exceptions::GatewayTimeout,
              Breakers::OutageException,

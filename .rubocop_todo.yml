@@ -154,6 +154,7 @@ Lint/MissingSuper:
     - 'modules/vaos/app/services/vaos/session_service.rb'
     - 'modules/veteran/app/models/veteran/user.rb'
     - 'spec/lib/carma/models/base_spec.rb'
+    - 'lib/mail_automation/client.rb'
 
 # Offense count: 569
 # Configuration parameters: IgnoredMethods, CountRepeatedAttributes.

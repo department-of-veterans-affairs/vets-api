@@ -1070,6 +1070,11 @@ lighthouse:
     url: https://sandbox-api.va.gov
     api_key: fake_key
 
+mail_automation:
+  url: https://viccs-api-test.ibm-intelligent-automation.com
+  client_id: va_gov_test
+  client_secret: fake_key
+
 forms:
   url: https://sandbox-api.va.gov/services/va_forms/v0/
   mock: false

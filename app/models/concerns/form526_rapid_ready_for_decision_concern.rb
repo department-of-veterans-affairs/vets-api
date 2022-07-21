@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'mail_automation/client'
+
+# rubocop:disable Metrics/ModuleLength
 module Form526RapidReadyForDecisionConcern
   extend ActiveSupport::Concern
 
@@ -19,7 +22,7 @@ module Form526RapidReadyForDecisionConcern
     ).deliver_now
   end
 
-  def send_to_mas_email
+  def notify_mas_tracking
     message = <<~BODY
       #{disabilities.pluck('name', 'diagnosticCode').join(', ')}
       <table border="1" cellspacing="1" cellpadding="5"><thead>
@@ -41,6 +44,23 @@ module Form526RapidReadyForDecisionConcern
     BODY
 
     send_rrd_alert_email("MA claim - #{diagnostic_codes.join(', ')}", message, nil,
+                         Settings.rrd.mas_tracking.recipients)
+  end
+
+  def notify_mas
+    notify_mas_tracking
+
+    if Flipper.enabled?(:rrd_mas_notification)
+      client = MailAutomation::Client.new({
+                                            file_number: birls_id,
+                                            claim_id: submitted_claim_id,
+                                            form526: form
+                                          })
+      response = client.initiate_apcas_processing
+      save_metadata(mas_packetId: response.dig('body', 'packetId'))
+    end
+  rescue => e
+    send_rrd_alert_email("Failure: MA claim - #{submitted_claim_id}", e.to_s, nil,
                          Settings.rrd.mas_tracking.recipients)
   end
 
@@ -124,3 +144,4 @@ module Form526RapidReadyForDecisionConcern
     rrd_pdf_added_for_uploading? && rrd_special_issue_set?
   end
 end
+# rubocop:enable Metrics/ModuleLength

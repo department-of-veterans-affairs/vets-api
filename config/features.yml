@@ -487,6 +487,10 @@ features:
     actor_type: user
     description: Enables Slack notifications for MAS-specific disabilities
     enable_in_development: true
+  rrd_mas_notification:
+    actor_type: user
+    description: Notifies MAS service that a MAS-relevant claim has come through
+    enable_in_development: true
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
