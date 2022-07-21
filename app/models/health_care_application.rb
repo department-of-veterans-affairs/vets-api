@@ -49,6 +49,10 @@ class HealthCareApplication < ApplicationRecord
     state == 'failed'
   end
 
+  def short_form?
+    form.present? && parsed_form['lastServiceBranch'].blank?
+  end
+
   def submit_sync
     result = begin
       HCA::Service.new(user).submit_form(parsed_form)
@@ -74,6 +78,8 @@ class HealthCareApplication < ApplicationRecord
 
     unless valid?
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.validation_error")
+
+      StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.validation_error_short_form") if short_form?
 
       Raven.extra_context(
         user_loa: user&.loa
@@ -231,6 +237,7 @@ class HealthCareApplication < ApplicationRecord
 
   def log_submission_failure
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
+    StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry_short_form") if short_form?
   end
 
   def send_failure_mail
