@@ -33,6 +33,42 @@ describe AppealsApi::SupplementalClaim, type: :model do
                                     "'data/attributes/claimantType' must not be 'veteran'"
       end
     end
+
+    context "when 'evidenceSubmission' fields have invalid date ranges under 'retrieveFrom'" do
+      it 'errors with a point to the offending evidenceDates index' do
+        retrieve_from = appeal.form_data['data']['attributes']['evidenceSubmission']['retrieveFrom']
+        retrieve_from[2]['attributes']['evidenceDates'][0]['startDate'] = '2020-05-10'
+
+        expect(appeal.valid?).to be false
+        expect(appeal.errors.size).to eq 1
+        error = appeal.errors.first
+        expect(error.attribute).to eq(
+          :"/data/attributes/evidenceSubmission/retrieveFrom[2]/attributes/evidenceDates[0]"
+        )
+        expect(error.message).to eq '2020-05-10 must before or the same day as 2020-04-10. '\
+                                    'Both dates must also be in the past.'
+      end
+    end
+
+    context "when 'evidenceSubmission' fields have invalid date formats under 'retrieveFrom'" do
+      it 'errors with a point to the offending date indices' do
+        retrieve_from = appeal.form_data['data']['attributes']['evidenceSubmission']['retrieveFrom']
+        retrieve_from[2]['attributes']['evidenceDates'][0]['startDate'] = '2020-04-31'
+        retrieve_from[2]['attributes']['evidenceDates'][0]['endDate'] = '2020-05-32'
+
+        expect(appeal.valid?).to be false
+        expect(appeal.errors.size).to eq 2
+
+        expect(appeal.errors.errors[0].attribute).to eq(
+          :"/data/attributes/evidenceSubmission/retrieveFrom[2]/attributes/evidenceDates[0]"
+        )
+        expect(appeal.errors.errors[0].message).to eq('Submitted date 2020-04-31 is not a valid date.')
+        expect(appeal.errors.errors[1].attribute).to eq(
+          :"/data/attributes/evidenceSubmission/retrieveFrom[2]/attributes/evidenceDates[0]"
+        )
+        expect(appeal.errors.errors[1].message).to eq('Submitted date 2020-05-32 is not a valid date.')
+      end
+    end
   end
 
   describe '#veteran_dob_month' do

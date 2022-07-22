@@ -42,6 +42,7 @@ module AppealsApi
       :required_claimant_data_is_present,
       :validate_claimant_type,
       :contestable_issue_dates_are_in_the_past,
+      :validate_retrieve_from_dates,
       if: proc { |a| a.form_data.present? }
     )
 
