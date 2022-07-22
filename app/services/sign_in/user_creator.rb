@@ -48,7 +48,7 @@ module SignIn
     end
 
     def check_and_add_mpi_user
-      return unless verified_user_missing_mpi? || mpi_missing_required_attributes?
+      return unless verified_user_needs_mpi_update?
 
       set_required_attributes
       mpi_response = user_for_mpi_query.mpi_add_person_implicit_search
@@ -109,12 +109,13 @@ module SignIn
                                                  client_id: state_payload.client_id)
     end
 
-    def verified_user_missing_mpi?
-      user_for_mpi_query.loa3? && user_for_mpi_query.icn.nil?
+    def verified_user_needs_mpi_update?
+      user_for_mpi_query.loa3? && mpi_missing_required_attributes?
     end
 
     def mpi_missing_required_attributes?
-      user_for_mpi_query.first_name.nil? ||
+      user_for_mpi_query.icn.nil? ||
+        user_for_mpi_query.first_name.nil? ||
         user_for_mpi_query.last_name.nil? ||
         user_for_mpi_query.birth_date.nil? ||
         user_for_mpi_query.ssn.nil?
