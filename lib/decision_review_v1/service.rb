@@ -22,6 +22,7 @@ module DecisionReviewV1
 
     HLR_REQUIRED_CREATE_HEADERS = %w[X-VA-First-Name X-VA-Last-Name X-VA-SSN X-VA-Birth-Date].freeze
     NOD_REQUIRED_CREATE_HEADERS = %w[X-VA-File-Number X-VA-First-Name X-VA-Last-Name X-VA-Birth-Date].freeze
+    SC_REQUIRED_CREATE_HEADERS = %w[X-VA-First-Name X-VA-Last-Name X-VA-SSN X-VA-Birth-Date].freeze
 
     HLR_CREATE_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-CREATE-RESPONSE-200_V1'
     HLR_SHOW_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-SHOW-RESPONSE-200_V1'
@@ -30,6 +31,11 @@ module DecisionReviewV1
     NOD_CREATE_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'NOD-CREATE-RESPONSE-200_V1'
     NOD_SHOW_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'NOD-SHOW-RESPONSE-200_V1'
 
+    SC_CREATE_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'SC-CREATE-RESPONSE-200_V1'
+    SC_SHOW_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'SC-SHOW-RESPONSE-200_V1'
+
+    # TODO: when making next round of schema changes, swap HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200
+    # for the generic schema
     GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200'
 
     ##
@@ -73,7 +79,7 @@ module DecisionReviewV1
     #
     def get_higher_level_review_contestable_issues(user:, benefit_type:)
       with_monitoring_and_error_handling do
-        path = "higher_level_reviews/contestable_issues/#{benefit_type}"
+        path = "contestable_issues/higher_level_reviews?benefit_type=#{benefit_type}"
         headers = get_contestable_issues_headers(user)
         response = perform :get, path, nil, headers
         raise_schema_error_unless_200_status response.status
@@ -157,9 +163,9 @@ module DecisionReviewV1
     # @param user [User] Veteran who the form is in regard to
     # @return [Faraday::Response]
     #
-    def get_notice_of_disagreement_contestable_issues(user:)
+    def get_notice_of_disagreement_contestable_issues(user:, benefit_type:)
       with_monitoring_and_error_handling do
-        path = 'contestable_issues/notice_of_disagreements'
+        path = "contestable_issues/notice_of_disagreements?benefit_type=#{benefit_type}"
         headers = get_contestable_issues_headers(user)
         response = perform :get, path, nil, headers
         raise_schema_error_unless_200_status response.status
@@ -187,7 +193,7 @@ module DecisionReviewV1
     end
 
     ##
-    # Get the url to upload supporting evidence for a Notice of Disagreement
+    # Upload supporting evidence for a Notice of Disagreement
     #
     # @param upload_url [String] The url for the document to be uploaded
     # @param file_path [String] The file path for the document to be uploaded
@@ -230,6 +236,122 @@ module DecisionReviewV1
     def get_notice_of_disagreement_upload(guid:)
       with_monitoring_and_error_handling do
         perform :get, "notice_of_disagreements/evidence_submissions/#{guid}", nil
+      end
+    end
+
+    ##
+    # Creates a new Supplemental Claim
+    #
+    # @param request_body [JSON] JSON serialized version of a Supplemental Claim Form (20-0995)
+    # @param user [User] Veteran who the form is in regard to
+    # @return [Faraday::Response]
+    #
+    def create_supplemental_claim(request_body:, user:)
+      with_monitoring_and_error_handling do
+        headers = create_supplemental_claims_headers(user)
+        response = perform :post, 'supplemental_claims', request_body, headers
+        raise_schema_error_unless_200_status response.status
+        validate_against_schema json: response.body, schema: SC_CREATE_RESPONSE_SCHEMA, append_to_error_class: ' (SC)'
+        response
+      end
+    end
+
+    ##
+    # Returns all of the data associated with a specific Supplemental Claim.
+    #
+    # @param uuid [uuid] supplemental Claim UUID
+    # @return [Faraday::Response]
+    #
+    def get_supplemental_claim(uuid)
+      with_monitoring_and_error_handling do
+        response = perform :get, "supplemental_claims/#{uuid}", nil
+        raise_schema_error_unless_200_status response.status
+        validate_against_schema json: response.body, schema: SC_SHOW_RESPONSE_SCHEMA, append_to_error_class: ' (SC)'
+        response
+      end
+    end
+
+    ##
+    # Returns all issues associated with a Veteran that have
+    # been decided as of the receiptDate.
+    # Not all issues returned are guaranteed to be eligible for appeal.
+    #
+    # @param user [User] Veteran who the form is in regard to
+    # @param benefit_type [String] Type of benefit the decision review is for
+    # @return [Faraday::Response]
+    #
+    def get_supplemental_claim_contestable_issues(user:, benefit_type:)
+      with_monitoring_and_error_handling do
+        path = "contestable_issues/supplemental_claims?benefit_type=#{benefit_type}"
+        headers = get_contestable_issues_headers(user)
+        response = perform :get, path, nil, headers
+        raise_schema_error_unless_200_status response.status
+        validate_against_schema(
+          json: response.body,
+          schema: GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA,
+          append_to_error_class: ' (SC)'
+        )
+        response
+      end
+    end
+
+    ##
+    # Get the url to upload supporting evidence for a Supplemental Claim
+    #
+    # @param sc_uuid [uuid] associated Supplemental Claim UUID
+    # @param ssn [Integer] veterans ssn
+    # @return [Faraday::Response]
+    #
+    def get_supplemental_claim_upload_url(sc_uuid:, ssn:)
+      with_monitoring_and_error_handling do
+        perform :post, 'supplemental_claims/evidence_submissions', { sc_uuid: sc_uuid },
+                { 'X-VA-SSN ' => ssn.to_s.strip.presence }
+      end
+    end
+
+    ##
+    # Upload supporting evidence for a Supplemental Claim
+    #
+    # @param upload_url [String] The url for the document to be uploaded
+    # @param file_path [String] The file path for the document to be uploaded
+    # @param metadata_string [Hash] additional data
+    #
+    # @return [Faraday::Response]
+    #
+    def put_supplemental_claim_upload(upload_url:, file_upload:, metadata_string:)
+      content_tmpfile = Tempfile.new(file_upload.filename, encoding: file_upload.read.encoding)
+      content_tmpfile.write(file_upload.read)
+      content_tmpfile.rewind
+
+      json_tmpfile = Tempfile.new('metadata.json', encoding: 'utf-8')
+      json_tmpfile.write(metadata_string)
+      json_tmpfile.rewind
+
+      params = { metadata: Faraday::UploadIO.new(json_tmpfile.path, Mime[:json].to_s, 'metadata.json'),
+                 content: Faraday::UploadIO.new(content_tmpfile.path, Mime[:pdf].to_s, file_upload.filename) }
+
+      # when we upgrade to Faraday >1.0
+      # params = { metadata: Faraday::FilePart.new(json_tmpfile, Mime[:json].to_s, 'metadata.json'),
+      #            content: Faraday::FilePart.new(content_tmpfile, Mime[:pdf].to_s, file_upload.filename) }
+      with_monitoring_and_error_handling do
+        perform :put, upload_url, params, { 'Content-Type' => 'multipart/form-data' }
+      end
+    ensure
+      content_tmpfile.close
+      content_tmpfile.unlink
+      json_tmpfile.close
+      json_tmpfile.unlink
+    end
+
+    ##
+    # Returns all of the data associated with a specific Supplemental Claim Evidence Submission.
+    #
+    # @param uuid [uuid] supplemental Claim UUID Evidence Submission
+    # @return [Faraday::Response]
+    #
+    def get_supplemental_claim_upload(uuid:)
+      with_monitoring_and_error_handling do
+        perform :get, "supplemental_claims/evidence_submissions/#{uuid}", nil
       end
     end
 
@@ -289,6 +411,26 @@ module DecisionReviewV1
       headers
     end
 
+    def create_supplemental_claims_headers(user)
+      headers = {
+        'X-VA-SSN' => user.ssn.to_s.strip.presence,
+        'X-VA-First-Name' => user.first_name.to_s.strip.first(12),
+        'X-VA-Middle-Initial' => middle_initial(user),
+        'X-VA-Last-Name' => user.last_name.to_s.strip.first(18).presence,
+        'X-VA-Birth-Date' => user.birth_date.to_s.strip.presence
+      }.compact
+
+      missing_required_fields = SC_REQUIRED_CREATE_HEADERS - headers.keys
+      if missing_required_fields.present?
+        raise Common::Exceptions::Forbidden.new(
+          source: "#{self.class}##{__method__}",
+          detail: { missing_required_fields: missing_required_fields }
+        )
+      end
+
+      headers
+    end
+
     def middle_initial(user)
       user.middle_name.to_s.strip.presence&.first&.upcase
     end
@@ -318,7 +460,7 @@ module DecisionReviewV1
 
     def save_error_details(error)
       PersonalInformationLog.create!(
-        error_class: "#{self.class.name}#save_error_details exception #{error.class} (HLR) (NOD)",
+        error_class: "#{self.class.name}#save_error_details exception #{error.class} (HLR) (NOD) (SC)",
         data: { error: Class.new.include(FailedRequestLoggable).exception_hash(error) }
       )
       Raven.tags_context external_service: self.class.to_s.underscore
