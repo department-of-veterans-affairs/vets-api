@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/services/appeals/v2/decision_reviews/higher_level_reviews/contestable_issues/compensation
+    uri: https://sandbox-api.va.gov/services/appeals/v2/decision_reviews/contestable_issues/higher_level_reviews?benefit_type=compensation
     body:
       encoding: US-ASCII
       string: ''

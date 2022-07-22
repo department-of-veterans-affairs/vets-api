@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/services/appeals/v2/decision_reviews/contestable_issues/higher_level_reviews?benefit_type=apricot
+    uri: https://sandbox-api.va.gov/services/appeals/v2/decision_reviews/contestable_issues/supplemental_claims?benefit_type=apricot
     body:
       encoding: US-ASCII
       string: ''
@@ -71,12 +71,15 @@ http_interactions:
         Max-Age=900; Path=/
     body:
       encoding: UTF-8
-      string: '{"errors":[{"status":422,"code":"invalid_benefit_type","title":"Invalid
-        Benefit Type","detail":"Benefit type \"apricot\" is invalid. Must be one of:
-        [\"compensation\", \"pension\", \"fiduciary\", \"insurance\", \"education\",
-        \"voc_rehab\", \"loan_guaranty\", \"vha\", \"nca\"]"}],"code":"invalid_benefit_type","detail":"Invalid
-        Benefit Type","source":"Benefit type \"apricot\" is invalid. Must be one of:
-        [\"compensation\", \"pension\", \"fiduciary\", \"insurance\", \"education\",
-        \"voc_rehab\", \"loan_guaranty\", \"vha\", \"nca\"]"}'
+      string: '{
+        "errors": [
+          {
+            "title": "Unprocessable Entity",
+            "code": "unprocessable_entity",
+            "detail": "decision_review_type must be one of: higher_level_reviews, notice_of_disagreements, supplemental_claims",
+            "status": "422"
+          }
+        ]
+      }'
   recorded_at: Wed, 02 Sep 2020 16:59:32 GMT
 recorded_with: VCR 6.0.0

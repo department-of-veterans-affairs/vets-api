@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/services/appeals/v2/decision_reviews/contestable_issues/higher_level_reviews?benefit_type=apricot
+    uri: https://sandbox-api.va.gov/services/appeals/v2/decision_reviews/contestable_issues/supplemental_claims?benefit_type=compensation
     body:
       encoding: US-ASCII
       string: ''
@@ -16,22 +16,20 @@ http_interactions:
       Apikey:
       - <LIGHTHOUSE_API_KEY>
       X-Va-Ssn:
-      - '212222112'
+      - '000000000'
       X-Va-Receipt-Date:
       - '2020-09-02'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 422
-      message: Unprocessable Entity
+      code: 404
+      message: Not Found
     headers:
       Date:
-      - Wed, 02 Sep 2020 16:59:32 GMT
+      - Wed, 02 Sep 2020 17:01:14 GMT
       Content-Type:
       - application/json; charset=utf-8
-      Content-Length:
-      - '536'
       Connection:
       - keep-alive
       Access-Control-Allow-Origin:
@@ -51,32 +49,38 @@ http_interactions:
       X-Kong-Proxy-Latency:
       - '1'
       X-Kong-Upstream-Latency:
-      - '46'
+      - '2339'
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Ratelimit-Limit-Minute:
       - '60'
       X-Ratelimit-Remaining-Minute:
-      - '57'
+      - '59'
       X-Request-Id:
-      - 07043d1a-2810-4214-b150-46bbb6c57569
+      - db835c99-b513-4beb-a672-bbfe8ac04615
       X-Runtime:
-      - '0.042046'
+      - '2.332546'
       X-Xss-Protection:
       - 1; mode=block
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       Set-Cookie:
-      - TS016f4012=01c8917e489e5207d72bdf0ff8ad0836898ad1a1e4d8f97670b5977468536fe766a41d40dfeef9a17f6d530ea181f456a736580e64;
+      - TS016f4012=01c8917e4806c83bd7ae01862692eac3662787ee2914bf80d6d0c3684c004372b7a749907a8f1b56cba8a80f9f9271016783267a73;
         Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
     body:
-      encoding: UTF-8
-      string: '{"errors":[{"status":422,"code":"invalid_benefit_type","title":"Invalid
-        Benefit Type","detail":"Benefit type \"apricot\" is invalid. Must be one of:
-        [\"compensation\", \"pension\", \"fiduciary\", \"insurance\", \"education\",
-        \"voc_rehab\", \"loan_guaranty\", \"vha\", \"nca\"]"}],"code":"invalid_benefit_type","detail":"Invalid
-        Benefit Type","source":"Benefit type \"apricot\" is invalid. Must be one of:
-        [\"compensation\", \"pension\", \"fiduciary\", \"insurance\", \"education\",
-        \"voc_rehab\", \"loan_guaranty\", \"vha\", \"nca\"]"}'
-  recorded_at: Wed, 02 Sep 2020 16:59:32 GMT
+      encoding: ASCII-8BIT
+      string: '{
+        "errors": [
+          {
+            "status": "404",
+            "title": "Veteran not found",
+            "detail": "A veteran with that SSN was not found in our systems."
+          }
+        ],
+        "code": 404,
+        "source": "Appeals Caseflow"
+      }'
+  recorded_at: Wed, 02 Sep 2020 17:01:14 GMT
 recorded_with: VCR 6.0.0

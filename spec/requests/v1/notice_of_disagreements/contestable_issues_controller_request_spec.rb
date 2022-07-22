@@ -11,10 +11,10 @@ RSpec.describe V1::NoticeOfDisagreements::ContestableIssuesController do
   describe '#index' do
     def personal_information_logs
       PersonalInformationLog.where 'error_class like ?',
-                                   'V1::NoticeOfDisagreements::ContestableIssuesController#index exception % (NOD)'
+                                   'V1::NoticeOfDisagreements::ContestableIssuesController#index exception % (NOD_V1)'
     end
 
-    subject { get '/v1/notice_of_disagreements/contestable_issues' }
+    subject { get '/v1/notice_of_disagreements/contestable_issues/compensation' }
 
     it 'fetches issues that the Veteran could contest via a notice of disagreement' do
       VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-200_V1') do
