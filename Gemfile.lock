@@ -138,7 +138,7 @@ GEM
   remote: https://enterprise.contribsys.com/
   specs:
     Ascii85 (1.1.0)
-    aasm (5.2.0)
+    aasm (5.3.0)
       concurrent-ruby (~> 1.0)
     actioncable (6.1.6.1)
       actionpack (= 6.1.6.1)
