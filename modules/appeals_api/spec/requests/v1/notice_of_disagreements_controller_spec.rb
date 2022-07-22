@@ -160,7 +160,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
         expect(parsed['errors']).not_to be_empty
       end
 
-      it 'returns error objects in JSON API 1.0 ErrorObject format' do
+      it 'returns error objects in JSON API 1.1 ErrorObject format' do
         expected_keys = %w[code detail meta source status title]
         expect(parsed['errors'].first.keys).to include(*expected_keys)
         expect(parsed['errors'][0]['meta']['missing_fields']).to eq ['address']
@@ -245,7 +245,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
     let(:path) { base_path 'notice_of_disagreements' }
     let(:data) { JSON.parse(@minimum_valid_data) }
 
-    it 'returns model errors in JSON API 1.0 ErrorObject format' do
+    it 'returns model errors in JSON API 1.1 ErrorObject format' do
       data['data']['attributes']['boardReviewOption'] = 'hearing'
 
       post(path, params: data.to_json, headers: @headers)
