@@ -54,6 +54,14 @@ RSpec.describe SignIn::UserCreator do
       let(:sign_in) { { service_name: service_name } }
       let(:authn_context) { service_name }
       let(:multifactor) { true }
+      let(:edipis) { ['some-edipi'] }
+      let(:edipi) { edipis.first }
+      let(:mhv_iens) { ['some-mhv-ien'] }
+      let(:mhv_ien) { mhv_iens.first }
+      let(:participant_ids) { ['some-participant-id'] }
+      let(:participant_id) { participant_ids.first }
+      let(:birls_ids) { ['some-birls-id'] }
+      let(:birls_id) { participant_ids.first }
 
       before do
         allow(SecureRandom).to receive(:uuid).and_return(login_code)
@@ -62,154 +70,193 @@ RSpec.describe SignIn::UserCreator do
                        deceased_date: deceased_date,
                        ssn: ssn,
                        icn: icn,
+                       edipis: edipis,
+                       edipi: edipi,
+                       mhv_ien: mhv_ien,
+                       mhv_iens: mhv_iens,
+                       birls_id: birls_id,
+                       birls_ids: birls_ids,
+                       participant_id: participant_id,
+                       participant_ids: participant_ids,
                        birth_date: birth_date_ssn,
                        given_names: [first_name],
                        family_name: last_name))
       end
 
-      context 'and current user id_theft_flag is detected as fradulent' do
-        let(:id_theft_flag) { true }
-        let(:expected_error) { SignIn::Errors::MPILockedAccountError }
-        let(:expected_error_message) { 'Theft Flag Detected' }
+      shared_context 'user creation blocked' do
+        it 'raises a malformed mpi account error' do
+          expect_any_instance_of(described_class).to receive(:log_message_to_sentry).with(expected_error_message,
+                                                                                          'warn')
 
-        it 'raises a locked account error' do
           expect { subject }.to raise_error(expected_error, expected_error_message)
         end
       end
 
-      context 'and current user is not detected as fradulent' do
-        let(:id_theft_flag) { false }
+      context 'when current user id_theft_flag is detected as fradulent' do
+        let(:id_theft_flag) { true }
+        let(:expected_error) { SignIn::Errors::MPILockedAccountError }
+        let(:expected_error_message) { 'Theft Flag Detected' }
 
-        context 'and current user is detected as deceased' do
-          let(:deceased_date) { '2022-01-01' }
-          let(:expected_error) { SignIn::Errors::MPILockedAccountError }
-          let(:expected_error_message) { 'Death Flag Detected' }
+        it_behaves_like 'user creation blocked'
+      end
 
-          it 'raises a locked account error' do
-            expect { subject }.to raise_error(expected_error, expected_error_message)
-          end
+      context 'when current user is detected as deceased' do
+        let(:deceased_date) { '2022-01-01' }
+        let(:expected_error) { SignIn::Errors::MPILockedAccountError }
+        let(:expected_error_message) { 'Death Flag Detected' }
+
+        it_behaves_like 'user creation blocked'
+      end
+
+      context 'when mpi record for user has multiple edipis' do
+        let(:edipis) { %w[some-edipi some-other-edipi] }
+        let(:expected_error) { SignIn::Errors::MPIMalformedAccountError }
+        let(:expected_error_message) { 'User attributes contain multiple distinct EDIPI values' }
+
+        it_behaves_like 'user creation blocked'
+      end
+
+      context 'when mpi record for user has multiple mhv ids' do
+        let(:mhv_iens) { %w[some-mhv-ien some-other-mhv-ien] }
+        let(:expected_error) { SignIn::Errors::MPIMalformedAccountError }
+        let(:expected_error_message) { 'User attributes contain multiple distinct MHV_ID values' }
+
+        it_behaves_like 'user creation blocked'
+      end
+
+      context 'when mpi record for user has multiple participant ids' do
+        let(:participant_ids) { %w[some-participant-id some-other-participant-id] }
+        let(:expected_error) { SignIn::Errors::MPIMalformedAccountError }
+        let(:expected_error_message) { 'User attributes contain multiple distinct CORP_ID values' }
+
+        it_behaves_like 'user creation blocked'
+      end
+
+      context 'when mpi record for user has multiple birls ids' do
+        let(:birls_ids) { %w[some-birls-id some-other-birls-id] }
+        let(:expected_message) { 'User attributes contain multiple distinct BIRLS_ID values' }
+
+        it 'logs a message to sentry' do
+          expect_any_instance_of(described_class).to receive(:log_message_to_sentry).with(expected_message, 'warn')
+          subject
+        end
+      end
+
+      context 'when user verification cannot be created' do
+        let(:expected_error) { SignIn::Errors::UserAttributesMalformedError }
+        let(:expected_error_message) { 'User Attributes are Malformed' }
+
+        before do
+          allow_any_instance_of(Login::UserVerifier).to receive(:perform).and_return(nil)
         end
 
-        context 'and current user is not detected as deceased' do
-          let(:deceased_date) { nil }
+        it 'raises user attributes malformed error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
 
-          context 'and user verification cannot be created' do
-            let(:expected_error) { SignIn::Errors::UserAttributesMalformedError }
-            let(:expected_error_message) { 'User Attributes are Malformed' }
+      context 'when user verification can be properly created' do
+        shared_context 'mpi user creation' do
+          let(:add_person_response) do
+            MPI::Responses::AddPersonResponse.new(status: status,
+                                                  mvi_codes: mvi_codes,
+                                                  error: error)
+          end
 
-            before do
-              allow_any_instance_of(Login::UserVerifier).to receive(:perform).and_return(nil)
-            end
+          let(:status) { 'OK' }
+          let(:mvi_codes) { { icn: icn } }
+          let(:icn) { 'some-icn' }
+          let(:error) { nil }
 
-            it 'logs a user verification not created message and raises user attributes malformed error' do
+          before do
+            allow_any_instance_of(MPI::Service)
+              .to receive(:add_person_implicit_search).and_return(add_person_response)
+          end
+
+          it 'makes an mpi call to create a new record' do
+            expect_any_instance_of(MPI::Service).to receive(:add_person_implicit_search)
+            subject
+          end
+
+          context 'and the mpi add_person call is not successful' do
+            let(:status) { 'some-not-successful-status' }
+            let(:expected_error) { SignIn::Errors::MPIUserCreationFailedError }
+            let(:expected_error_message) { 'User MPI record cannot be created' }
+
+            it 'raises an MPI user creation error' do
               expect { subject }.to raise_error(expected_error, expected_error_message)
             end
           end
+        end
 
-          context 'and user verification can be properly created' do
-            shared_context 'mpi user creation' do
-              let(:add_person_response) do
-                MPI::Responses::AddPersonResponse.new(status: status,
-                                                      mvi_codes: mvi_codes,
-                                                      error: error)
-              end
+        context 'and current user does not have a retrievable icn' do
+          before do
+            stub_mpi_not_found
+          end
 
-              let(:status) { 'OK' }
-              let(:mvi_codes) { { icn: icn } }
-              let(:icn) { 'some-icn' }
-              let(:error) { nil }
+          it_behaves_like 'mpi user creation'
+        end
 
-              before do
-                allow_any_instance_of(MPI::Service)
-                  .to receive(:add_person_implicit_search).and_return(add_person_response)
-              end
+        context 'and current user does not have required attributes' do
+          let(:birth_date_ssn) { nil }
 
-              it 'makes an mpi call to create a new record' do
-                expect_any_instance_of(MPI::Service).to receive(:add_person_implicit_search)
-                subject
-              end
+          it_behaves_like 'mpi user creation'
+        end
 
-              context 'and the mpi add_person call is not successful' do
-                let(:status) { 'some-not-successful-status' }
-                let(:expected_error) { SignIn::Errors::MPIUserCreationFailedError }
-                let(:expected_error_message) { 'User MPI record cannot be created' }
+        it 'creates a user with expected attributes' do
+          subject
+          user = User.find(user_verification.user_account.id)
+          expect(user.ssn).to eq(ssn)
+          expect(user.logingov_uuid).to eq(csp_id)
+          expect(user.birth_date).to eq(birth_date)
+          expect(user.first_name).to eq(first_name)
+          expect(user.last_name).to eq(last_name)
+          expect(user.email).to eq(csp_email)
+          expect(user.identity_sign_in).to eq(sign_in)
+          expect(user.authn_context).to eq(authn_context)
+          expect(user.multifactor).to eq(multifactor)
+        end
 
-                it 'raises an MPI user creation error' do
-                  expect { subject }.to raise_error(expected_error, expected_error_message)
-                end
-              end
-            end
+        it 'returns a user code map with expected attributes' do
+          user_code_map = subject
+          expect(user_code_map.login_code).to eq(login_code)
+          expect(user_code_map.type).to eq(type)
+          expect(user_code_map.client_state).to eq(client_state)
+          expect(user_code_map.client_id).to eq(client_id)
+        end
 
-            context 'and current user does not have a retrievable icn' do
-              before do
-                stub_mpi_not_found
-              end
+        it 'creates a code container mapped to expected login code' do
+          user_code_map = subject
+          code_container = SignIn::CodeContainer.find(user_code_map.login_code)
+          expect(code_container.user_verification_id).to eq(user_verification.id)
+          expect(code_container.code_challenge).to eq(code_challenge)
+          expect(code_container.credential_email).to eq(csp_email)
+          expect(code_container.client_id).to eq(client_id)
+        end
 
-              it_behaves_like 'mpi user creation'
-            end
+        context 'when there is a mismatch with credential and mpi attributes' do
+          let(:mpi_birth_date) { '1970-01-01' }
+          let(:mpi_first_name) { 'some-mpi-first-name' }
+          let(:mpi_last_name) { 'some-mpi-last-name' }
+          let(:mpi_ssn) { '098765432' }
 
-            context 'and current user does not have required attributes' do
-              let(:birth_date_ssn) { nil }
+          before do
+            stub_mpi(build(:mvi_profile,
+                           id_theft_flag: id_theft_flag,
+                           deceased_date: deceased_date,
+                           ssn: mpi_ssn,
+                           birth_date: mpi_birth_date,
+                           given_names: [mpi_first_name],
+                           family_name: mpi_last_name))
+          end
 
-              it_behaves_like 'mpi user creation'
-            end
-
-            it 'creates a user with expected attributes' do
-              subject
-              user = User.find(user_verification.user_account.id)
-              expect(user.ssn).to eq(ssn)
-              expect(user.logingov_uuid).to eq(csp_id)
-              expect(user.birth_date).to eq(birth_date)
-              expect(user.first_name).to eq(first_name)
-              expect(user.last_name).to eq(last_name)
-              expect(user.email).to eq(csp_email)
-              expect(user.identity_sign_in).to eq(sign_in)
-              expect(user.authn_context).to eq(authn_context)
-              expect(user.multifactor).to eq(multifactor)
-            end
-
-            it 'returns a user code map with expected attributes' do
-              user_code_map = subject
-              expect(user_code_map.login_code).to eq(login_code)
-              expect(user_code_map.type).to eq(type)
-              expect(user_code_map.client_state).to eq(client_state)
-              expect(user_code_map.client_id).to eq(client_id)
-            end
-
-            it 'creates a code container mapped to expected login code' do
-              user_code_map = subject
-              code_container = SignIn::CodeContainer.find(user_code_map.login_code)
-              expect(code_container.user_verification_id).to eq(user_verification.id)
-              expect(code_container.code_challenge).to eq(code_challenge)
-              expect(code_container.credential_email).to eq(csp_email)
-              expect(code_container.client_id).to eq(client_id)
-            end
-
-            context 'when there is a mismatch with credential and mpi attributes' do
-              let(:mpi_birth_date) { '1970-01-01' }
-              let(:mpi_first_name) { 'some-mpi-first-name' }
-              let(:mpi_last_name) { 'some-mpi-last-name' }
-              let(:mpi_ssn) { '098765432' }
-
-              before do
-                stub_mpi(build(:mvi_profile,
-                               id_theft_flag: id_theft_flag,
-                               deceased_date: deceased_date,
-                               ssn: mpi_ssn,
-                               birth_date: mpi_birth_date,
-                               given_names: [mpi_first_name],
-                               family_name: mpi_last_name))
-              end
-
-              it 'prefers mpi attributes on the created user' do
-                subject
-                user = User.find(user_verification.user_account.id)
-                expect(user.ssn).to eq(mpi_ssn)
-                expect(user.birth_date).to eq(mpi_birth_date)
-                expect(user.first_name).to eq(mpi_first_name)
-                expect(user.last_name).to eq(mpi_last_name)
-              end
-            end
+          it 'prefers mpi attributes on the created user' do
+            subject
+            user = User.find(user_verification.user_account.id)
+            expect(user.ssn).to eq(mpi_ssn)
+            expect(user.birth_date).to eq(mpi_birth_date)
+            expect(user.first_name).to eq(mpi_first_name)
+            expect(user.last_name).to eq(mpi_last_name)
           end
         end
       end

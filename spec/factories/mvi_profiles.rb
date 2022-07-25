@@ -65,7 +65,11 @@ FactoryBot.define do
     active_mhv_ids { mhv_ids }
     id_theft_flag { false }
     edipi { Faker::Number.number(digits: 10) }
+    edipis { [edipi] }
+    mhv_ien { Faker::Number.number(digits: 10) }
+    mhv_iens { [mhv_ien] }
     participant_id { Faker::Number.number(digits: 10) }
+    participant_ids { [participant_id] }
     birls = [Faker::Number.number(digits: 10)]
     birls_id { birls.first }
     birls_ids { birls }
@@ -100,6 +104,8 @@ FactoryBot.define do
       }
       icn { '1000123456V123456' }
       mhv_ids { ['123456'] }
+      mhv_ien { '1100792239' }
+      mhv_iens { ['1100792239'] }
       active_mhv_ids { ['123456'] }
       vha_facility_ids { %w[516 553 200HD 200IP 200MHV] }
       vha_facility_hash {
@@ -112,7 +118,9 @@ FactoryBot.define do
         }
       }
       edipi { '1234567890' }
+      edipis { [edipi] }
       participant_id { '12345678' }
+      participant_ids { [participant_id] }
       birls = ['796122306']
       birls_id { birls.first }
       birls_ids { birls }

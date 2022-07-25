@@ -13,7 +13,11 @@ module MPI
       attribute :vha_facility_ids, Array[String]
       attribute :vha_facility_hash, Hash
       attribute :edipi, String
+      attribute :edipis, Array[String]
       attribute :participant_id, String
+      attribute :participant_ids, Array[String]
+      attribute :mhv_ien, String
+      attribute :mhv_iens, Array[String]
       attribute :birls_id, String
       attribute :birls_ids, Array[String]
       attribute :sec_id, String
