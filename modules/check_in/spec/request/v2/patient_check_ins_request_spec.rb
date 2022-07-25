@@ -122,18 +122,22 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
       let(:appointment1) do
         {
           'appointmentIEN' => '460',
-          'clinicName' => 'Family Wellness',
           'checkedInTime' => '',
           'checkInSteps' => {},
-          'startTime' => '2021-12-23T08:30:00',
-          'clinicPhoneNumber' => '555-555-5555',
+          'checkInWindowEnd' => '2021-12-23T08:40:00.000-05:00',
+          'checkInWindowStart' => '2021-12-23T08:00:00.000-05:00',
+          'clinicCreditStopCodeName' => 'SOCIAL WORK SERVICE',
           'clinicFriendlyName' => 'Health Wellness',
-          'clinicIen' => '500',
+          'clinicIen' => 500,
+          'clinicLocation' => 'ATLANTA VAMC',
+          'clinicName' => 'Family Wellness',
+          'clinicPhoneNumber' => '555-555-5555',
+          'clinicStopCodeName' => 'PRIMARY CARE/MEDICINE',
+          'doctorName' => '',
+          'eligibility' => 'ELIGIBLE',
           'facility' => 'VEHU DIVISION',
           'kind' => 'clinic',
-          'checkInWindowStart' => '2021-12-23T08:00:00.000-05:00',
-          'checkInWindowEnd' => '2021-12-23T08:40:00.000-05:00',
-          'eligibility' => 'ELIGIBLE',
+          'startTime' => '2021-12-23T08:30:00',
           'status' => ''
         }
       end
@@ -267,18 +271,22 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
       let(:appointment1) do
         {
           'appointmentIEN' => '460',
-          'clinicName' => 'Family Wellness',
           'checkedInTime' => '',
           'checkInSteps' => {},
-          'startTime' => '2021-12-23T08:30:00',
-          'clinicPhoneNumber' => '555-555-5555',
+          'checkInWindowEnd' => '2021-12-23T08:40:00.000-05:00',
+          'checkInWindowStart' => '2021-12-23T08:00:00.000-05:00',
+          'clinicCreditStopCodeName' => 'SOCIAL WORK SERVICE',
           'clinicFriendlyName' => 'Health Wellness',
-          'clinicIen' => '500',
+          'clinicIen' => 500,
+          'clinicLocation' => 'ATLANTA VAMC',
+          'clinicName' => 'Family Wellness',
+          'clinicPhoneNumber' => '555-555-5555',
+          'clinicStopCodeName' => 'PRIMARY CARE/MEDICINE',
+          'doctorName' => '',
+          'eligibility' => 'ELIGIBLE',
           'facility' => 'VEHU DIVISION',
           'kind' => 'clinic',
-          'checkInWindowStart' => '2021-12-23T08:00:00.000-05:00',
-          'checkInWindowEnd' => '2021-12-23T08:40:00.000-05:00',
-          'eligibility' => 'ELIGIBLE',
+          'startTime' => '2021-12-23T08:30:00',
           'status' => ''
         }
       end
