@@ -2,7 +2,11 @@
 
 module V0
   class MedicalCopaysController < ApplicationController
-    before_action { authorize :medical_copays, :access? }
+    before_action(except: :send_new_statements_notifications) { authorize :medical_copays, :access? }
+
+    skip_before_action :verify_authenticity_token, only: [:send_new_statements_notifications]
+    skip_before_action :authenticate, only: [:send_new_statements_notifications]
+    skip_after_action :set_csrf_header, only: [:send_new_statements_notifications]
 
     rescue_from ::MedicalCopays::VBS::Service::StatementNotFound, with: :render_not_found
 
@@ -21,6 +25,10 @@ module V0
         type: 'application/pdf',
         filename: statement_params[:file_name]
       )
+    end
+
+    def send_new_statements_notifications
+      render json: vbs_service.send_new_statements_notifications(params[:statements])
     end
 
     private

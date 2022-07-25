@@ -242,6 +242,40 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/v0/medical_copays/send_new_statements_notifications' do
+        operation :post do
+          key :description, 'Endpoint to trigger notifications from new statements'
+          key :operationId, 'sendNewStatementsNotifications'
+          key :tags, %w[medical_copays]
+
+          key :produces, ['application/json']
+          key :consumes, ['application/json']
+
+          parameter do
+            key :name, :statements
+            key :in, :body
+            key :description, 'New statement data'
+            key :required, true
+
+            schema do
+              key :type, :object
+              key :required, [:statements]
+            end
+          end
+
+          response 200 do
+            key :description, 'New statement notifications sent successfully'
+
+            schema do
+              key :type, :object
+
+              property :status, type: :integer, example: 200
+              property :message, type: :string, example: 'Successfully sent notifications'
+            end
+          end
+        end
+      end
     end
   end
 end
