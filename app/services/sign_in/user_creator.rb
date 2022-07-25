@@ -2,6 +2,7 @@
 
 module SignIn
   class UserCreator
+    include SentryLogging
     attr_reader :state_payload,
                 :idme_uuid,
                 :logingov_uuid,
@@ -43,8 +44,29 @@ module SignIn
     private
 
     def validate_mpi_record
-      raise SignIn::Errors::MPILockedAccountError, 'Theft Flag Detected' if user_for_mpi_query.id_theft_flag
-      raise SignIn::Errors::MPILockedAccountError, 'Death Flag Detected' if user_for_mpi_query.deceased_date
+      check_mpi_lock_flag(user_for_mpi_query.id_theft_flag, 'Theft Flag Detected')
+      check_mpi_lock_flag(user_for_mpi_query.deceased_date, 'Death Flag Detected')
+      check_id_mismatch(user_for_mpi_query.mpi_edipis, 'EDIPI')
+      check_id_mismatch(user_for_mpi_query.mpi_mhv_iens, 'MHV_ID')
+      check_id_mismatch(user_for_mpi_query.mpi_participant_ids, 'CORP_ID')
+      check_id_mismatch(user_for_mpi_query.mpi_birls_ids, 'BIRLS_ID', raise_error: false)
+    end
+
+    def check_mpi_lock_flag(attribute, description)
+      if attribute
+        log_message_to_sentry(description, 'warn')
+        raise SignIn::Errors::MPILockedAccountError, description
+      end
+    end
+
+    def check_id_mismatch(id_array, id_description, raise_error: true)
+      return unless id_array
+
+      if id_array.compact.uniq.size > 1
+        log_message = "User attributes contain multiple distinct #{id_description} values"
+        log_message_to_sentry(log_message, 'warn')
+        raise SignIn::Errors::MPIMalformedAccountError, log_message if raise_error
+      end
     end
 
     def check_and_add_mpi_user

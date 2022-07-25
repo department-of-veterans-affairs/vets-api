@@ -30,7 +30,11 @@ FactoryBot.define do
     mhv_ids { ['993456'] }
     active_mhv_ids { ['993456'] }
     edipi { '9934567890' }
+    edipis { ['9934567890'] }
     participant_id { '99345678' }
+    participant_ids { ['99345678'] }
+    mhv_ien { nil }
+    mhv_iens { [] }
     vha_facility_ids { %w[916 593 200HD 200IP 200MHV] }
     sec_id { '9901234567' }
     birls_id { birls_ids.first }

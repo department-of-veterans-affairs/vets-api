@@ -313,6 +313,11 @@ class User < Common::RedisStore
 
   # mpi attributes
   delegate :birls_id, to: :mpi, prefix: true
+  delegate :mhv_ien, to: :mpi
+  delegate :mhv_iens, to: :mpi, prefix: true
+  delegate :participant_ids, to: :mpi, prefix: true
+  delegate :edipis, to: :mpi, prefix: true
+  delegate :birls_ids, to: :mpi, prefix: true
   delegate :icn, to: :mpi, prefix: true
   delegate :icn_with_aaid, to: :mpi
   delegate :vet360_id, to: :mpi

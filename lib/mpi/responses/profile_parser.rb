@@ -143,20 +143,34 @@ module MPI
       def create_ids_obj(full_mvi_ids, parsed_mvi_ids, historical_icns)
         {
           full_mvi_ids: full_mvi_ids,
+          historical_icns: parse_xml_historical_icns(historical_icns)
+        }.merge(parse_single_ids(parsed_mvi_ids).merge(parse_multiple_ids(parsed_mvi_ids)))
+      end
+
+      def parse_single_ids(parsed_mvi_ids)
+        {
           icn: parsed_mvi_ids[:icn],
-          mhv_ids: parsed_mvi_ids[:mhv_ids],
-          active_mhv_ids: parsed_mvi_ids[:active_mhv_ids],
           edipi: sanitize_edipi(parsed_mvi_ids[:edipi]),
           participant_id: sanitize_id(parsed_mvi_ids[:vba_corp_id]),
-          vha_facility_ids: parsed_mvi_ids[:vha_facility_ids],
-          vha_facility_hash: parsed_mvi_ids[:vha_facility_hash],
+          mhv_ien: sanitize_id(parsed_mvi_ids[:mhv_ien]),
           sec_id: parsed_mvi_ids[:sec_id],
           birls_id: sanitize_id(parsed_mvi_ids[:birls_id]),
-          birls_ids: sanitize_id_array(parsed_mvi_ids[:birls_ids]),
           vet360_id: parsed_mvi_ids[:vet360_id],
-          historical_icns: parse_xml_historical_icns(historical_icns),
           icn_with_aaid: parsed_mvi_ids[:icn_with_aaid],
-          cerner_id: parsed_mvi_ids[:cerner_id],
+          cerner_id: parsed_mvi_ids[:cerner_id]
+        }
+      end
+
+      def parse_multiple_ids(parsed_mvi_ids)
+        {
+          mhv_ids: parsed_mvi_ids[:mhv_ids],
+          active_mhv_ids: parsed_mvi_ids[:active_mhv_ids],
+          edipis: sanitize_id_array(parsed_mvi_ids[:edipis]),
+          participant_ids: sanitize_id_array(parsed_mvi_ids[:vba_corp_ids]),
+          mhv_iens: sanitize_id_array(parsed_mvi_ids[:mhv_iens]),
+          vha_facility_ids: parsed_mvi_ids[:vha_facility_ids],
+          vha_facility_hash: parsed_mvi_ids[:vha_facility_hash],
+          birls_ids: sanitize_id_array(parsed_mvi_ids[:birls_ids]),
           cerner_facility_ids: parsed_mvi_ids[:cerner_facility_ids]
         }
       end

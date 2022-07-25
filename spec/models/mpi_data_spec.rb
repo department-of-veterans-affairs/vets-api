@@ -241,6 +241,12 @@ describe MPIData, skip_mvi: true do
         end
       end
 
+      describe '#edipis' do
+        it 'matches the response' do
+          expect(mvi.edipis).to eq(profile_response.profile.edipis)
+        end
+      end
+
       describe '#icn' do
         it 'matches the response' do
           expect(mvi.icn).to eq(profile_response.profile.icn)
@@ -262,6 +268,36 @@ describe MPIData, skip_mvi: true do
       describe '#participant_id' do
         it 'matches the response' do
           expect(mvi.participant_id).to eq(profile_response.profile.participant_id)
+        end
+      end
+
+      describe '#participant_ids' do
+        it 'matches the response' do
+          expect(mvi.participant_ids).to eq(profile_response.profile.participant_ids)
+        end
+      end
+
+      describe '#birls_id' do
+        it 'matches the response' do
+          expect(mvi.birls_id).to eq(profile_response.profile.birls_id)
+        end
+      end
+
+      describe '#birls_ids' do
+        it 'matches the response' do
+          expect(mvi.birls_ids).to eq(profile_response.profile.birls_ids)
+        end
+      end
+
+      describe '#mhv_ien' do
+        it 'matches the response' do
+          expect(mvi.mhv_ien).to eq(profile_response.profile.mhv_ien)
+        end
+      end
+
+      describe '#mhv_iens' do
+        it 'matches the response' do
+          expect(mvi.mhv_iens).to eq(profile_response.profile.mhv_iens)
         end
       end
 
