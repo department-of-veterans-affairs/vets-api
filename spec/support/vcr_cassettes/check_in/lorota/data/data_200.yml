@@ -24,21 +24,25 @@ http_interactions:
             "appointments": [
               {
                 "appointmentIEN": "460",
-                "clinicName": "Family Wellness",
-                "patientDFN": "250",
-                "stationNo": 500,
                 "checkedInTime": "",
                 "checkInSteps": {},
-                "eligibility": "ELIGIBLE",
-                "clinicPhoneNumber": "555-555-5555",
+                "checkInWindowEnd": "2021-12-23T08:40:00.000-05:00",
+                "checkInWindowStart": "2021-12-23T08:00:00.000-05:00",
+                "clinicCreditStopCodeName": "SOCIAL WORK SERVICE",
                 "clinicFriendlyName": "Health Wellness",
-                "clinicIen": "500",
-                "startTime": "2021-12-23T08:30:00",
+                "clinicIen": 500,
+                "clinicLocation": "ATLANTA VAMC",
+                "clinicName": "Family Wellness",
+                "clinicPhoneNumber": "555-555-5555",
+                "clinicStopCodeName": "PRIMARY CARE/MEDICINE",
+                "doctorName": "",
+                "eligibility": "ELIGIBLE",
                 "facility": "VEHU DIVISION",
                 "kind": "clinic",
-                "checkInWindowEnd": "2021-12-23T08:40:00.000-05:00",
-                "status": "",
-                "checkInWindowStart": "2021-12-23T08:00:00.000-05:00"
+                "patientDFN": "250",
+                "startTime": "2021-12-23T08:30:00",
+                "stationNo": 500,
+                "status": ""
               }
             ],
             "patientDemographicsStatus": {
