@@ -569,6 +569,17 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           )
         end
       end
+
+      context 'medical copays send_new_statements_notifications' do
+        it 'validates the route' do
+          expect(subject).to validate(
+            :post,
+            '/v0/medical_copays/send_new_statements_notifications',
+            200,
+            headers
+          )
+        end
+      end
     end
 
     context 'eFolder tests' do

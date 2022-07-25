@@ -46,6 +46,7 @@ Rails.application.routes.draw do
 
     resources :medical_copays, only: %i[index show]
     get 'medical_copays/get_pdf_statement_by_id/:statement_id', to: 'medical_copays#get_pdf_statement_by_id'
+    post 'medical_copays/send_new_statements_notifications', to: 'medical_copays#send_new_statements_notifications'
 
     resources :apps, only: %i[index show]
     scope_default = { category: 'unknown_category' }
