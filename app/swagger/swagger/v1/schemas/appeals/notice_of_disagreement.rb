@@ -22,7 +22,7 @@ module Swagger
           end
 
           swagger_schema 'nodCreate' do
-            example JSON.parse(File.read('spec/fixtures/notice_of_disagreements/valid_NOD_create_request_V1.json'))
+            example VetsJsonSchema::EXAMPLES.fetch('NOD-CREATE-REQUEST-BODY_V1')
           end
 
           VetsJsonSchema::SCHEMAS.fetch('NOD-SHOW-RESPONSE-200_V1')['definitions'].each do |k, v|
@@ -30,15 +30,11 @@ module Swagger
           end
 
           swagger_schema 'nodShowRoot' do
-            example JSON.parse(File.read('spec/fixtures/notice_of_disagreements/NOD_show_response_200_V1.json'))
+            example VetsJsonSchema::EXAMPLES.fetch('NOD-SHOW-RESPONSE-200_V1')
           end
 
           swagger_schema 'nodContestableIssues' do
-            example JSON.parse(
-              File.read(
-                'spec/fixtures/notice_of_disagreements/NOD_contestable_issues_response_200_V1.json'
-              )
-            )
+            example VetsJsonSchema::EXAMPLES.fetch('DECISION-REVIEW-GET-CONTESTABLE-ISSUES-RESPONSE-200_V1')
           end
         end
       end

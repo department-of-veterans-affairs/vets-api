@@ -77,10 +77,11 @@ module Swagger
           swagger_schema(
             'hlrContestableIssues',
             remove_null_from_type_array(
-              VetsJsonSchema::SCHEMAS.fetch('HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200')
+              VetsJsonSchema::SCHEMAS.fetch('DECISION-REVIEW-GET-CONTESTABLE-ISSUES-RESPONSE-200_V1')
             ).merge(
               description: 'Fields may either be null or the type specified',
-              example: VetsJsonSchema::EXAMPLES.fetch('HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200')
+              # eventually there should be a generic contestable issues response
+              example: VetsJsonSchema::EXAMPLES.fetch('DECISION-REVIEW-GET-CONTESTABLE-ISSUES-RESPONSE-200_V1')
             ).except('$schema')
           )
         end

@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
-RSpec.describe V1::NoticeOfDisagreements::ContestableIssuesController do
+RSpec.describe V1::SupplementalClaims::ContestableIssuesController do
   let(:user) { build(:user, :loa3) }
 
   before { sign_in_as(user) }
@@ -11,13 +11,13 @@ RSpec.describe V1::NoticeOfDisagreements::ContestableIssuesController do
   describe '#index' do
     def personal_information_logs
       PersonalInformationLog.where 'error_class like ?',
-                                   'V1::NoticeOfDisagreements::ContestableIssuesController#index exception % (NOD_V1)'
+                                   'V1::SupplementalClaims::ContestableIssuesController#index exception % (SC_V1)'
     end
 
-    subject { get '/v1/notice_of_disagreements/contestable_issues' }
+    subject { get '/v1/supplemental_claims/contestable_issues/compensation' }
 
-    it 'fetches issues that the Veteran could contest via a notice of disagreement' do
-      VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-200_V1') do
+    it 'fetches issues that the Veteran could contest via a supplemental claim' do
+      VCR.use_cassette('decision_review/SC-GET-CONTESTABLE-ISSUES-RESPONSE-200_V1') do
         subject
         expect(response).to be_successful
         expect(JSON.parse(response.body)['data']).to be_an Array
@@ -25,7 +25,7 @@ RSpec.describe V1::NoticeOfDisagreements::ContestableIssuesController do
     end
 
     it 'adds to the PersonalInformationLog when an exception is thrown' do
-      VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-404_V1') do
+      VCR.use_cassette('decision_review/SC-GET-CONTESTABLE-ISSUES-RESPONSE-404_V1') do
         expect(personal_information_logs.count).to be 0
         subject
         expect(personal_information_logs.count).to be 1

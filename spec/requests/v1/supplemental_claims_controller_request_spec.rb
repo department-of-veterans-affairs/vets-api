@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
-RSpec.describe V1::NoticeOfDisagreementsController do
+RSpec.describe V1::SupplementalClaimsController do
   let(:user) { build(:user, :loa3) }
   let(:headers) { { 'CONTENT_TYPE' => 'application/json' } }
 
@@ -12,17 +12,17 @@ RSpec.describe V1::NoticeOfDisagreementsController do
   describe '#create' do
     def personal_information_logs
       PersonalInformationLog.where 'error_class like ?',
-                                   'V1::NoticeOfDisagreementsController#create exception % (NOD_V1)'
+                                   'V1::SupplementalClaimsController#create exception % (SC_V1)'
     end
 
     subject do
-      post '/v1/notice_of_disagreements',
-           params: VetsJsonSchema::EXAMPLES.fetch('NOD-CREATE-REQUEST-BODY_V1').to_json,
+      post '/v1/supplemental_claims',
+           params: VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY_V1').to_json,
            headers: headers
     end
 
-    it 'creates an NOD' do
-      VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE-200_V1') do
+    it 'creates an supplemental claim' do
+      VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-200_V1') do
         previous_appeal_submission_ids = AppealSubmission.all.pluck :submitted_appeal_uuid
         subject
         expect(response).to be_successful
@@ -30,12 +30,12 @@ RSpec.describe V1::NoticeOfDisagreementsController do
         id = parsed_response['data']['id']
         expect(previous_appeal_submission_ids).not_to include id
         appeal_submission = AppealSubmission.find_by(submitted_appeal_uuid: id)
-        expect(appeal_submission.type_of_appeal).to eq('NOD')
+        expect(appeal_submission.type_of_appeal).to eq('SC')
       end
     end
 
     it 'adds to the PersonalInformationLog when an exception is thrown' do
-      VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE-422_V1') do
+      VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-422_V1') do
         expect(personal_information_logs.count).to be 0
         subject
         expect(personal_information_logs.count).to be 1
