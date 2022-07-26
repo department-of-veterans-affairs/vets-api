@@ -3,10 +3,13 @@
 module SignIn
   module Constants
     module ClientConfig
-      CLIENT_IDS = %w[mobile web].freeze
-      COOKIE_AUTH = %w[web].freeze
-      API_AUTH = %w[mobile].freeze
-      ANTI_CSRF_ENABLED = %w[web].freeze
+      MOBILE_CLIENT = 'mobile'
+      MOBILE_TEST_CLIENT = 'mobile_test'
+      WEB_CLIENT = 'web'
+      CLIENT_IDS = [MOBILE_CLIENT, MOBILE_TEST_CLIENT, WEB_CLIENT].freeze
+      COOKIE_AUTH = [WEB_CLIENT].freeze
+      API_AUTH = [MOBILE_CLIENT, MOBILE_TEST_CLIENT].freeze
+      ANTI_CSRF_ENABLED = [WEB_CLIENT].freeze
     end
   end
 end

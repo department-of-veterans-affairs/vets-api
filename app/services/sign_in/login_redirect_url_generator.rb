@@ -22,10 +22,12 @@ module SignIn
 
     def get_client_id_mapped_redirect_uri
       case client_id
-      when 'mobile'
-        URI.parse(Settings.sign_in.redirect_uri)
-      when 'web'
-        URI.parse(Settings.sign_in.web_redirect_uri)
+      when SignIn::Constants::ClientConfig::MOBILE_CLIENT
+        URI.parse(Settings.sign_in.client_redirect_uris.mobile)
+      when SignIn::Constants::ClientConfig::MOBILE_TEST_CLIENT
+        URI.parse(Settings.sign_in.client_redirect_uris.mobile_test)
+      when SignIn::Constants::ClientConfig::WEB_CLIENT
+        URI.parse(Settings.sign_in.client_redirect_uris.web)
       else
         raise Errors::InvalidClientIdError, 'Client id is not valid'
       end

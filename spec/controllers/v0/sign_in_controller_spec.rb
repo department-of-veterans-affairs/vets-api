@@ -505,7 +505,7 @@ RSpec.describe V0::SignInController, type: :controller do
             let(:acr) { 'ial2' }
             let(:client_code) { 'some-client-code' }
             let(:expected_url) do
-              "#{Settings.sign_in.redirect_uri}?code=#{client_code}&state=#{client_state}&type=#{type}"
+              "#{Settings.sign_in.client_redirect_uris.mobile}?code=#{client_code}&state=#{client_state}&type=#{type}"
             end
             let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
             let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
@@ -615,7 +615,7 @@ RSpec.describe V0::SignInController, type: :controller do
             let(:credential_ial) { LOA::IDME_CLASSIC_LOA3 }
             let(:client_code) { 'some-client-code' }
             let(:expected_url) do
-              "#{Settings.sign_in.redirect_uri}?code=#{client_code}&state=#{client_state}&type=#{type}"
+              "#{Settings.sign_in.client_redirect_uris.mobile}?code=#{client_code}&state=#{client_state}&type=#{type}"
             end
             let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
             let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
