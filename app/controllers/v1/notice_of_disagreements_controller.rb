@@ -2,6 +2,15 @@
 
 module V1
   class NoticeOfDisagreementsController < AppealsBaseControllerV1
+    def show
+      render json: decision_review_service.get_notice_of_disagreement(params[:id]).body
+    rescue => e
+      log_exception_to_personal_information_log(
+        e, error_class: error_class(method: 'show', exception_class: e.class), id: params[:id]
+      )
+      raise
+    end
+
     def create
       nod_response_body = decision_review_service
                           .create_notice_of_disagreement(request_body: request_body_hash, user: @current_user)
@@ -24,19 +33,10 @@ module V1
       raise
     end
 
-    def show
-      render json: decision_review_service.get_notice_of_disagreement(params[:id]).body
-    rescue => e
-      log_exception_to_personal_information_log(
-        e, error_class: error_class(method: 'show', exception_class: e.class), id: params[:id]
-      )
-      raise
-    end
-
     private
 
     def error_class(method:, exception_class:)
-      "#{self.class.name}##{method} exception #{exception_class} (NOD)"
+      "#{self.class.name}##{method} exception #{exception_class} (NOD_V1)"
     end
   end
 end

@@ -10,19 +10,28 @@ describe DecisionReviewV1::Service do
   let(:user) { build(:user, :loa3, ssn: ssn_with_mockdata) }
 
   describe 'VetsJsonSchema used in service' do
+    describe 'ensure Contestable Issues schemas are present' do
+      %w[
+        DECISION-REVIEW-GET-CONTESTABLE-ISSUES-RESPONSE-200_V1
+      ].each do |schema_name|
+        it("#{schema_name} schema is present") { expect(VetsJsonSchema::SCHEMAS[schema_name]).to be_a Hash }
+      end
+    end
+
+    describe 'ensure Contestable Issues schema examples are present' do
+      %w[
+        DECISION-REVIEW-GET-CONTESTABLE-ISSUES-RESPONSE-200_V1
+      ].each do |schema_name|
+        it("#{schema_name} schema example is present") { expect(VetsJsonSchema::EXAMPLES).to have_key schema_name }
+      end
+    end
+
     describe 'ensure HLR schemas are present' do
       %w[
+        HLR-GET-CONTESTABLE-ISSUES-REQUEST-BENEFIT-TYPE_V1
         HLR-CREATE-REQUEST-BODY_V1
-        HLR-CREATE-REQUEST-HEADERS
-        HLR-CREATE-RESPONSE-200
-        HLR-CREATE-RESPONSE-422
-        HLR-GET-CONTESTABLE-ISSUES-REQUEST-BENEFIT-TYPE
-        HLR-GET-CONTESTABLE-ISSUES-REQUEST-HEADERS
-        HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200
-        HLR-GET-CONTESTABLE-ISSUES-RESPONSE-404
-        HLR-GET-CONTESTABLE-ISSUES-RESPONSE-422
-        HLR-SHOW-RESPONSE-200
-        HLR-SHOW-RESPONSE-404
+        HLR-CREATE-RESPONSE-200_V1
+        HLR-SHOW-RESPONSE-200_V1
       ].each do |schema_name|
         it("#{schema_name} schema is present") { expect(VetsJsonSchema::SCHEMAS[schema_name]).to be_a Hash }
       end
@@ -31,15 +40,6 @@ describe DecisionReviewV1::Service do
     describe 'ensure HLR schema examples are present' do
       %w[
         HLR-CREATE-REQUEST-BODY_V1
-        HLR-CREATE-REQUEST-HEADERS
-        HLR-CREATE-RESPONSE-200
-        HLR-CREATE-RESPONSE-422
-        HLR-GET-CONTESTABLE-ISSUES-REQUEST-HEADERS
-        HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200
-        HLR-GET-CONTESTABLE-ISSUES-RESPONSE-404
-        HLR-GET-CONTESTABLE-ISSUES-RESPONSE-422
-        HLR-SHOW-RESPONSE-200
-        HLR-SHOW-RESPONSE-404
       ].each do |schema_name|
         it("#{schema_name} schema example is present") { expect(VetsJsonSchema::EXAMPLES).to have_key schema_name }
       end
@@ -65,6 +65,7 @@ describe DecisionReviewV1::Service do
 
     describe 'ensure SC schemas are present' do
       %w[
+        SC-GET-CONTESTABLE-ISSUES-REQUEST-BENEFIT-TYPE_V1
         SC-CREATE-REQUEST-BODY_V1
         SC-CREATE-RESPONSE-200_V1
         SC-SHOW-RESPONSE-200_V1
@@ -186,7 +187,7 @@ describe DecisionReviewV1::Service do
     context '200 response with a malformed body' do
       def personal_information_logs
         PersonalInformationLog.where error_class: 'DecisionReviewV1::Service#validate_against_schema' \
-                                                  ' exception Common::Exceptions::SchemaValidationErrors (HLR)'
+                                                  ' exception Common::Exceptions::SchemaValidationErrors (HLR_V1)'
       end
 
       it 'returns a schema error' do
@@ -299,10 +300,8 @@ describe DecisionReviewV1::Service do
 
   describe '#get_notice_of_disagreement_contestable_issues' do
     subject do
-      described_class.new.get_notice_of_disagreement_contestable_issues(user: user, benefit_type: benefit_type)
+      described_class.new.get_notice_of_disagreement_contestable_issues(user: user)
     end
-
-    let(:benefit_type) { 'compensation' }
 
     context '200 response' do
       it 'returns a properly formatted 200 response' do
@@ -318,7 +317,7 @@ describe DecisionReviewV1::Service do
     context '200 response with a malformed body' do
       def personal_information_logs
         PersonalInformationLog.where error_class: 'DecisionReviewV1::Service#validate_against_schema' \
-                                                  ' exception Common::Exceptions::SchemaValidationErrors (NOD)'
+                                                  ' exception Common::Exceptions::SchemaValidationErrors (NOD_V1)'
       end
 
       it 'returns a schema error' do
@@ -523,7 +522,7 @@ describe DecisionReviewV1::Service do
     context '200 response with a malformed body' do
       def personal_information_logs
         PersonalInformationLog.where error_class: 'DecisionReviewV1::Service#validate_against_schema' \
-                                                  ' exception Common::Exceptions::SchemaValidationErrors (SC)'
+                                                  ' exception Common::Exceptions::SchemaValidationErrors (SC_V1)'
       end
 
       it 'returns a schema error' do

@@ -34,9 +34,8 @@ module DecisionReviewV1
     SC_CREATE_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'SC-CREATE-RESPONSE-200_V1'
     SC_SHOW_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'SC-SHOW-RESPONSE-200_V1'
 
-    # TODO: when making next round of schema changes, swap HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200
-    # for the generic schema
-    GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200'
+    GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA =
+      VetsJsonSchema::SCHEMAS.fetch 'DECISION-REVIEW-GET-CONTESTABLE-ISSUES-RESPONSE-200_V1'
 
     ##
     # Create a Higher-Level Review
@@ -50,7 +49,8 @@ module DecisionReviewV1
         headers = create_higher_level_review_headers(user)
         response = perform :post, 'higher_level_reviews', request_body, headers
         raise_schema_error_unless_200_status response.status
-        validate_against_schema json: response.body, schema: HLR_CREATE_RESPONSE_SCHEMA, append_to_error_class: ' (HLR)'
+        validate_against_schema json: response.body, schema: HLR_CREATE_RESPONSE_SCHEMA,
+                                append_to_error_class: ' (HLR_V1)'
         response
       end
     end
@@ -65,7 +65,8 @@ module DecisionReviewV1
       with_monitoring_and_error_handling do
         response = perform :get, "higher_level_reviews/#{uuid}", nil
         raise_schema_error_unless_200_status response.status
-        validate_against_schema json: response.body, schema: HLR_SHOW_RESPONSE_SCHEMA, append_to_error_class: ' (HLR)'
+        validate_against_schema json: response.body, schema: HLR_SHOW_RESPONSE_SCHEMA,
+                                append_to_error_class: ' (HLR_V1)'
         response
       end
     end
@@ -86,7 +87,7 @@ module DecisionReviewV1
         validate_against_schema(
           json: response.body,
           schema: GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA,
-          append_to_error_class: ' (HLR)'
+          append_to_error_class: ' (HLR_V1)'
         )
         response
       end
@@ -107,7 +108,7 @@ module DecisionReviewV1
         validate_against_schema(
           json: response.body,
           schema: HLR_GET_LEGACY_APPEALS_RESPONSE_SCHEMA,
-          append_to_error_class: ' (HLR)'
+          append_to_error_class: ' (HLR_V1)'
         )
         response
       end
@@ -134,7 +135,7 @@ module DecisionReviewV1
         response = perform :post, 'notice_of_disagreements', request_body, headers
         raise_schema_error_unless_200_status response.status
         validate_against_schema(
-          json: response.body, schema: NOD_CREATE_RESPONSE_SCHEMA, append_to_error_class: ' (NOD)'
+          json: response.body, schema: NOD_CREATE_RESPONSE_SCHEMA, append_to_error_class: ' (NOD_V1)'
         )
         response
       end
@@ -151,7 +152,7 @@ module DecisionReviewV1
         response = perform :get, "notice_of_disagreements/#{uuid}", nil
         raise_schema_error_unless_200_status response.status
         validate_against_schema(
-          json: response.body, schema: NOD_SHOW_RESPONSE_SCHEMA, append_to_error_class: ' (NOD)'
+          json: response.body, schema: NOD_SHOW_RESPONSE_SCHEMA, append_to_error_class: ' (NOD_V1)'
         )
         response
       end
@@ -163,16 +164,16 @@ module DecisionReviewV1
     # @param user [User] Veteran who the form is in regard to
     # @return [Faraday::Response]
     #
-    def get_notice_of_disagreement_contestable_issues(user:, benefit_type:)
+    def get_notice_of_disagreement_contestable_issues(user:)
       with_monitoring_and_error_handling do
-        path = "contestable_issues/notice_of_disagreements?benefit_type=#{benefit_type}"
+        path = 'contestable_issues/notice_of_disagreements'
         headers = get_contestable_issues_headers(user)
         response = perform :get, path, nil, headers
         raise_schema_error_unless_200_status response.status
         validate_against_schema(
           json: response.body,
           schema: GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA,
-          append_to_error_class: ' (NOD)'
+          append_to_error_class: ' (NOD_V1)'
         )
         response
       end
@@ -251,7 +252,8 @@ module DecisionReviewV1
         headers = create_supplemental_claims_headers(user)
         response = perform :post, 'supplemental_claims', request_body, headers
         raise_schema_error_unless_200_status response.status
-        validate_against_schema json: response.body, schema: SC_CREATE_RESPONSE_SCHEMA, append_to_error_class: ' (SC)'
+        validate_against_schema json: response.body, schema: SC_CREATE_RESPONSE_SCHEMA,
+                                append_to_error_class: ' (SC_V1)'
         response
       end
     end
@@ -266,7 +268,7 @@ module DecisionReviewV1
       with_monitoring_and_error_handling do
         response = perform :get, "supplemental_claims/#{uuid}", nil
         raise_schema_error_unless_200_status response.status
-        validate_against_schema json: response.body, schema: SC_SHOW_RESPONSE_SCHEMA, append_to_error_class: ' (SC)'
+        validate_against_schema json: response.body, schema: SC_SHOW_RESPONSE_SCHEMA, append_to_error_class: ' (SC_V1)'
         response
       end
     end
@@ -289,7 +291,7 @@ module DecisionReviewV1
         validate_against_schema(
           json: response.body,
           schema: GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA,
-          append_to_error_class: ' (SC)'
+          append_to_error_class: ' (SC_V1)'
         )
         response
       end
