@@ -13,6 +13,7 @@ end
 
 # Load rake support files
 Dir[Rails.root.join('lib', 'tasks', 'support', '**', '*.rb')].sort.each { |f| require f }
+Rake.add_rakelib 'rakelib/prod'
 Rails.application.load_tasks
 
 unless Rails.env.production?
