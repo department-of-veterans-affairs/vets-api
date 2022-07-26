@@ -105,6 +105,10 @@ features:
     actor_type: user
     description: Enables telephone appointments for check-in
     enable_in_development: false
+  check_in_experience_504_error_mapping_enabled:
+    actor_type: user
+    description: Enables 504 mapping for CHIP endpoint in check-in & pre-checkin
+    enable_in_development: true
   ch31_vbms_form_confirmation_email:
     actor_type: user
     description: Enables Ch31 form email submission confirmation after central mail

@@ -11,6 +11,8 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
     allow(Flipper).to receive(:enabled?).with('check_in_experience_enabled').and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled').and_return(false)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
+    allow(Flipper).to receive(:enabled?).with('check_in_experience_504_error_mapping_enabled')
+                                        .and_return(false)
 
     Rails.cache.clear
   end
@@ -379,6 +381,90 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
         expect(response.status).to eq(success_resp.status)
         expect(response.body).to eq(success_resp.body.to_json)
       end
+
+      context 'and chip call times out' do
+        context '504 error mapping feature flag enabled' do
+          let(:timeout_body) do
+            {
+              'errors' => [
+                {
+                  'title' => 'Timeout Error',
+                  'detail' => 'Request timed out',
+                  'code' => 'CHIP-MAPPED-API_504',
+                  'status' => '504'
+                }
+              ]
+            }
+          end
+          let(:timeout_resp) { Faraday::Response.new(body: timeout_body, status: 504) }
+
+          before do
+            allow(Flipper).to receive(:enabled?).with('check_in_experience_504_error_mapping_enabled')
+                                                .and_return(true)
+          end
+
+          it 'returns 504' do
+            VCR.use_cassette 'check_in/lorota/token/token_200' do
+              post '/check_in/v2/sessions', session_params
+              expect(response.status).to eq(200)
+            end
+
+            VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
+              get "/check_in/v2/patient_check_ins/#{id}"
+              expect(response.status).to eq(200)
+            end
+
+            VCR.use_cassette('check_in/chip/check_in/check_in_504', match_requests_on: [:host]) do
+              VCR.use_cassette 'check_in/chip/token/token_200' do
+                post '/check_in/v2/patient_check_ins', params: post_params
+              end
+            end
+            expect(response.status).to eq(timeout_resp.status)
+            expect(response.body).to eq(timeout_resp.body.to_json)
+          end
+        end
+
+        context '504 error mapping feature flag disabled' do
+          let(:timeout_body) do
+            {
+              'errors' => [
+                {
+                  'title' => 'Operation failed',
+                  'detail' => 'Operation failed',
+                  'code' => 'VA900',
+                  'status' => '400'
+                }
+              ]
+            }
+          end
+          let(:timeout_resp) { Faraday::Response.new(body: timeout_body, status: 400) }
+
+          before do
+            allow(Flipper).to receive(:enabled?).with('check_in_experience_504_error_mapping_enabled')
+                                                .and_return(false)
+          end
+
+          it 'returns 400' do
+            VCR.use_cassette 'check_in/lorota/token/token_200' do
+              post '/check_in/v2/sessions', session_params
+              expect(response.status).to eq(200)
+            end
+
+            VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
+              get "/check_in/v2/patient_check_ins/#{id}"
+              expect(response.status).to eq(200)
+            end
+
+            VCR.use_cassette('check_in/chip/check_in/check_in_504', match_requests_on: [:host]) do
+              VCR.use_cassette 'check_in/chip/token/token_200' do
+                post '/check_in/v2/patient_check_ins', params: post_params
+              end
+            end
+            expect(response.status).to eq(timeout_resp.status)
+            expect(response.body).to eq(timeout_resp.body.to_json)
+          end
+        end
+      end
     end
 
     context 'when session is authorized with DOB' do
@@ -419,6 +505,90 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
         end
         expect(response.status).to eq(success_resp.status)
         expect(response.body).to eq(success_resp.body.to_json)
+      end
+
+      context 'and chip call times out' do
+        context '504 error mapping feature flag enabled' do
+          let(:timeout_body) do
+            {
+              'errors' => [
+                {
+                  'title' => 'Timeout Error',
+                  'detail' => 'Request timed out',
+                  'code' => 'CHIP-MAPPED-API_504',
+                  'status' => '504'
+                }
+              ]
+            }
+          end
+          let(:timeout_resp) { Faraday::Response.new(body: timeout_body, status: 504) }
+
+          before do
+            allow(Flipper).to receive(:enabled?).with('check_in_experience_504_error_mapping_enabled')
+                                                .and_return(true)
+          end
+
+          it 'returns 504' do
+            VCR.use_cassette 'check_in/lorota/token/token_200' do
+              post '/check_in/v2/sessions', session_params
+              expect(response.status).to eq(200)
+            end
+
+            VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
+              get "/check_in/v2/patient_check_ins/#{id}"
+              expect(response.status).to eq(200)
+            end
+
+            VCR.use_cassette('check_in/chip/check_in/check_in_504', match_requests_on: [:host]) do
+              VCR.use_cassette 'check_in/chip/token/token_200' do
+                post '/check_in/v2/patient_check_ins', params: post_params
+              end
+            end
+            expect(response.status).to eq(timeout_resp.status)
+            expect(response.body).to eq(timeout_resp.body.to_json)
+          end
+        end
+
+        context '504 error mapping feature flag disabled' do
+          let(:timeout_body) do
+            {
+              'errors' => [
+                {
+                  'title' => 'Operation failed',
+                  'detail' => 'Operation failed',
+                  'code' => 'VA900',
+                  'status' => '400'
+                }
+              ]
+            }
+          end
+          let(:timeout_resp) { Faraday::Response.new(body: timeout_body, status: 400) }
+
+          before do
+            allow(Flipper).to receive(:enabled?).with('check_in_experience_504_error_mapping_enabled')
+                                                .and_return(false)
+          end
+
+          it 'returns 400' do
+            VCR.use_cassette 'check_in/lorota/token/token_200' do
+              post '/check_in/v2/sessions', session_params
+              expect(response.status).to eq(200)
+            end
+
+            VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
+              get "/check_in/v2/patient_check_ins/#{id}"
+              expect(response.status).to eq(200)
+            end
+
+            VCR.use_cassette('check_in/chip/check_in/check_in_504', match_requests_on: [:host]) do
+              VCR.use_cassette 'check_in/chip/token/token_200' do
+                post '/check_in/v2/patient_check_ins', params: post_params
+              end
+            end
+            expect(response.status).to eq(timeout_resp.status)
+            expect(response.body).to eq(timeout_resp.body.to_json)
+          end
+        end
       end
     end
 
