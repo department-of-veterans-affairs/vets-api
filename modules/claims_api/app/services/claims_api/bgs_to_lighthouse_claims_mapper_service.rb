@@ -42,17 +42,19 @@ module ClaimsApi
 
     def shared_claim_traits
       {
-        type: bgs_claim[:claim_status_type],
+        claim_type: bgs_claim[:claim_status_type],
         date_filed: bgs_claim[:claim_dt].present? ? bgs_claim[:claim_dt].strftime('%D') : nil,
         status: bgs_claim[:phase_type],
         contention_list: bgs_claim[:contentions],
-        poa: bgs_claim[:poa],
         end_product_code: bgs_claim[:end_product_code],
         documents_needed: map_yes_no_to_boolean('attention_needed', bgs_claim[:attention_needed]),
-        requested_decision: map_y_n_to_boolean('filed5103_waiver_ind', bgs_claim[:filed5103_waiver_ind]),
+        '5103_waiver_submitted'.to_sym => map_y_n_to_boolean('filed5103_waiver_ind', bgs_claim[:filed5103_waiver_ind]),
         development_letter_sent: map_yes_no_to_boolean('development_letter_sent', bgs_claim[:development_letter_sent]),
         decision_letter_sent: map_yes_no_to_boolean('decision_notification_sent',
-                                                    bgs_claim[:decision_notification_sent])
+                                                    bgs_claim[:decision_notification_sent]),
+        benefit_claim_type_code: bgs_claim[:benefit_claim_type_code],
+        submitter_application_code: bgs_claim[:submitter_application_code],
+        submitter_role_code: bgs_claim[:submitter_role_code]
       }
     end
 

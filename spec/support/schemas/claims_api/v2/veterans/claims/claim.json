@@ -2,10 +2,21 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "id": {
+    "claimId": {
       "type": "string",
-      "description": "Claim ID",
+      "nullable": true,
+      "description": "Claim ID in VBMS",
       "example": "600131328"
+    },
+    "benefitClaimTypeCode": {
+      "type": "string",
+      "description": "Type Code of benefit claim",
+      "example": "400PREDSCHRG"
+    },
+    "claimType": {
+      "type": "string",
+      "description": "Name of claim type",
+      "example": "Appeals Control"
     },
     "contentionList": {
       "type": "array",
@@ -37,15 +48,26 @@
       "description": "End product code of claim",
       "example": "930"
     },
-    "requestedDecision": {
-      "type": "boolean",
+    "lighthouseId": {
+      "type": "string",
       "nullable": true,
-      "description": "If true, indicateds a decision has been requested and/or a Waiver 5103 has been submitted"
+      "description": "Claim ID in Lighthouse",
+      "example": "600131328"
     },
     "status": {
       "type": "string",
       "description": "Status of claim",
       "example": "Complete"
+    },
+    "submitterApplicationCode": {
+      "type": "string",
+      "description": "Application Code of benefit claim submitter",
+      "example": "EBN"
+    },
+    "submitterRoleCode": {
+      "type": "string",
+      "description": "Role Code of benefit claim submitter",
+      "example": "VET"
     },
     "supportingDocuments": {
       "type": "array",
@@ -72,10 +94,11 @@
         }
       }
     },
-    "type": {
-      "type": "string",
-      "description": "Name of claim type",
-      "example": "Appeals Control"
+    "5103WaiverSubmitted": {
+      "type": "boolean",
+      "nullable": true,
+      "description": "If true, indicates a decision has been requested and/or a Waiver 5103 has been submitted",
+      "example": "false"
     }
   }
 }
