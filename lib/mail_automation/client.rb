@@ -38,7 +38,7 @@ module MailAutomation
         form526_uploads: @form526_uploads
       }
 
-      perform(:post, '/mas/api/test/masInsertAndInitiateApcasClaimProcessing', params.to_json.to_s, headers_hash)
+      perform(:post, Settings.mail_automation.endpoint, params.to_json.to_s, headers_hash)
     end
 
     private
@@ -46,7 +46,7 @@ module MailAutomation
     def authenticate(params)
       perform(
         :post,
-        'pca/api/test/token',
+        Settings.mail_automation.token_endpoint,
         URI.encode_www_form(params),
         { 'Content-Type': 'application/x-www-form-urlencoded' }
       )
