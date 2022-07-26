@@ -65,6 +65,7 @@ module ClaimsApi
         #
         # @return [JSON] Claim record
         def upload
+          validate_document_provided
           validate_documents_content_type
           validate_documents_page_size
           find_poa_by_id
