@@ -35,7 +35,7 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
           bgs_claim: bgs_claim, lighthouse_claim: lighthouse_claim
         )
 
-        expect(claim[:type]).to eq('Compensation')
+        expect(claim[:claim_type]).to eq('Compensation')
       end
 
       it "returns a claim that has the BGS 'status'" do
@@ -78,7 +78,7 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
           bgs_claim: bgs_claim
         )
 
-        expect(claim[:type]).to eq('Compensation')
+        expect(claim[:claim_type]).to eq('Compensation')
       end
 
       it "returns a claim that has the BGS 'status'" do

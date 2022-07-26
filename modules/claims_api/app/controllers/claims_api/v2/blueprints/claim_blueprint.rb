@@ -4,16 +4,19 @@ module ClaimsApi
   module V2
     module Blueprints
       class ClaimBlueprint < Blueprinter::Base
-        identifier :id
-
+        field :benefit_claim_type_code
+        field :claim_id
+        field :claim_type
         field :contention_list
         field :date_filed
         field :decision_letter_sent
         field :development_letter_sent
         field :documents_needed
         field :end_product_code
-        field :requested_decision
+        field :lighthouse_id
         field :status
+        field :submitter_application_code
+        field :submitter_role_code
         field :supporting_documents do |claim, _options|
           auto_established_claim = ClaimsApi::AutoEstablishedClaim.find_by evss_id: claim[:id]
           if auto_established_claim.present?
@@ -33,13 +36,16 @@ module ClaimsApi
             []
           end
         end
-        field :type
+        field '5103_waiver_submitted'.to_sym
 
         transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
 
         view :list do
+          exclude :benefit_claim_type_code
           exclude :contention_list
           exclude :end_product_code
+          exclude :submitter_application_code
+          exclude :submitter_role_code
           exclude :supporting_documents
 
           transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer

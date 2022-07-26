@@ -4,20 +4,16 @@
     "additionalProperties": false,
     "description": "Claim details",
     "properties": {
-      "id": {
+      "claimId": {
         "type": "string",
-        "description": "Claim ID",
+        "nullable": true,
+        "description": "Claim ID in VBMS",
         "example": "600131328"
       },
-      "type": {
+      "claimType": {
         "type": "string",
         "description": "Name of claim type",
         "example": "Appeals control"
-      },
-      "status": {
-        "type": "string",
-        "description": "Status of claim",
-        "example": "Complete"
       },
       "dateFiled": {
         "type": "string",
@@ -30,12 +26,6 @@
         "description": "If true, the claim requires additional documents to be submitted",
         "example": "false"
       },
-      "requestedDecision": {
-        "type": "boolean",
-        "nullable": true,
-        "description": "If true, the claim filer has requested a claim decision be made",
-        "example": "false"
-      },
       "developmentLetterSent": {
         "type": "boolean",
         "description": "If true, a development letter has been sent to the claimant regarding a benefit claim",
@@ -44,6 +34,23 @@
       "decisionLetterSent": {
         "type": "boolean",
         "description": "If true, a decision letter has been sent to the claimant regarding a benefit claim",
+        "example": "false"
+      },
+      "lighthouseId": {
+        "type": "string",
+        "nullable": true,
+        "description": "Claim ID in Lighthouse",
+        "example": "600131328"
+      },
+      "status": {
+        "type": "string",
+        "description": "Status of claim",
+        "example": "Complete"
+      },
+      "5103WaiverSubmitted": {
+        "type": "boolean",
+        "nullable": true,
+        "description": "If true, indicates a decision has been requested and/or a Waiver 5103 has been submitted",
         "example": "false"
       }
     }
