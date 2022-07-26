@@ -416,6 +416,19 @@ RSpec.describe 'Power of Attorney ', type: :request do
           end
         end
       end
+
+      context 'when no attachment is provided to the PUT endpoint' do
+        it 'rejects the request for missing param' do
+          with_okta_user(scopes) do |auth_header|
+            allow_any_instance_of(BGS::PersonWebService)
+              .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+            put("#{path}/#{power_of_attorney.id}", headers: headers.merge(auth_header))
+            expect(response.status).to eq(400)
+            expect(response.parsed_body['errors'][0]['title']).to eq('Missing parameter')
+            expect(response.parsed_body['errors'][0]['detail']).to eq('Must include attachment')
+          end
+        end
+      end
     end
 
     describe '#validate' do
