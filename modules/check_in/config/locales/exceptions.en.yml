@@ -26,3 +26,9 @@ en:
         code: 'LOROTA-API_401'
         detail: 'Authentication Error'
         status: 401
+      CHIP-MAPPED-API_504:
+        <<: *external_defaults
+        title: Timeout Error
+        code: 'CHIP-API_504'
+        detail: 'Request timed out'
+        status: 504
