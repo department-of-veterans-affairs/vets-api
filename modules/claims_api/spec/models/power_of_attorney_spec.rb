@@ -53,4 +53,15 @@ RSpec.describe ClaimsApi::PowerOfAttorney, type: :model do
       end
     end
   end
+
+  describe "persisting 'cid' (OKTA client_id)" do
+    it "stores 'cid' in the DB upon creation" do
+      pending_record.cid = 'ABC123'
+      pending_record.save!
+
+      claim = ClaimsApi::PowerOfAttorney.first
+
+      expect(claim.cid).to eq('ABC123')
+    end
+  end
 end

@@ -36,7 +36,8 @@ module ClaimsApi
               auth_headers: auth_headers,
               form_data: form_attributes,
               current_poa: current_poa_code,
-              header_md5: header_md5
+              header_md5: header_md5,
+              cid: token.payload['cid']
             }
             attributes.merge!({ source_data: source_data }) unless token.client_credentials_token?
 
