@@ -91,6 +91,13 @@ module VetsAPI
         redirect_uri: 'sidekiq/auth/github/callback'
       }
 
+      config.scope_defaults :coverband, config: {
+        client_id: Settings.coverband.github_oauth_key,
+        client_secret: Settings.coverband.github_oauth_secret,
+        scope: 'read:org',
+        redirect_uri: 'coverband/auth/github/callback'
+      }
+
       config.serialize_from_session { |key| Warden::GitHub::Verifier.load(key) }
       config.serialize_into_session { |user| Warden::GitHub::Verifier.dump(user) }
     end

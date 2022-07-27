@@ -1383,3 +1383,10 @@ form1095_b:
     bucket: 'bucket'
     enabled: true
     region: 'region'
+
+coverband:
+  github_organization: ~
+  github_team: ~
+  github_oauth_key: ~
+  github_oauth_secret: ~
+  github_api_key: ~
