@@ -17,7 +17,10 @@ module GithubAuthentication
         end
 
         def github_team_authenticate!(id)
-          throw :halt, [401, {}, ["You don't have access to team #{id}"]] unless session[:sidekiq_user].team_member?(id)
+          unless session[:sidekiq_user].team_member?(id)
+            throw :halt,
+                  [401, {}, ["You don't have access to team #{id}"]]
+          end
         end
       end
 
@@ -47,6 +50,7 @@ module GithubAuthentication
       end
     end
   end
+
   # rubocop:enable Lint/NestedMethodDefinition
   # rubocop:enable Metrics/MethodLength
 end
