@@ -2,7 +2,7 @@
 
 # config/coverband.rb NOT in the initializers
 Coverband.configure do |config|
-  config.store = Coverband::Adapters::RedisStore.new($redis)
+  config.store = Coverband::Adapters::RedisStore.new(Redis.new(url: Settings.redis.app_data.url))
   config.logger = Rails.logger
 
   # config options false, true. (defaults to false)
@@ -19,4 +19,14 @@ Coverband.configure do |config|
   # Does not track line-level usage, only indicates if an entire file
   # is used or not.
   # config.track_views = true
+
+  config.ignore += [
+    'config/application.rb',
+    'config/boot.rb',
+    'config/puma.rb',
+    'config/schedule.rb',
+    'bin/*',
+    'config/environments/*',
+    'lib/tasks/*'
+  ]
 end
