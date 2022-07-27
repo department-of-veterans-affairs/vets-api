@@ -123,11 +123,23 @@ module AppealsApi::V2
             "decision_review_type must be one of: #{VALID_DECISION_REVIEW_TYPES.join(', ')}"
           )
         end
+
+        if invalid_benefit_type?
+          render_unprocessable_entity(
+            "benefit_type must be one of: #{caseflow_benefit_type_mapping.keys.join(', ')}"
+          )
+        end
       end
 
       def invalid_decision_review_type?
         raw_decision_review_type = params[:decision_review_type]
         !raw_decision_review_type.in?(VALID_DECISION_REVIEW_TYPES)
+      end
+
+      def invalid_benefit_type?
+        return false if params[:decision_review_type] == 'notice_of_disagreements'
+
+        !params[:benefit_type].in?(caseflow_benefit_type_mapping.keys)
       end
 
       def render_unprocessable_entity(message)

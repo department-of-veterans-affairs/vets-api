@@ -33,6 +33,19 @@ RSpec.shared_examples 'contestable issues index requests' do |options|
       end
     end
 
+    if options[:benefit_type].present?
+      context 'when benefit_type is unknown' do
+        it 'returns a 422' do
+          tmp_options = options.dup
+          tmp_options[:benefit_type] = 'invalid benefit type'
+          get_issues(ssn: '872958715', options: tmp_options)
+          expect(response).to have_http_status(:unprocessable_entity)
+          json = JSON.parse(response.body)
+          expect(json['errors']).to be_an Array
+        end
+      end
+    end
+
     context 'when X-VA-SSN and X-VA-File-Number are missing' do
       it 'returns a 422' do
         get_issues(ssn: nil, file_number: nil, options: options)
