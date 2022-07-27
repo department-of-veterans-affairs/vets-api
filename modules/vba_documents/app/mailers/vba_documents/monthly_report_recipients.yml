@@ -1,8 +1,8 @@
 common:
-  - 'cranmer_kevin@bah.com'
-  - 'sexton_jessica@bah.com'
-  - 'harris_nichole@bah.com'
-  - 'kelly@adhocteam.us'
+  - 'kelly.lein@adhocteam.us'
+  - 'burnett_matthew@bah.com'
+  - 'viterna_mark@bah.com'
+  - 'kristen.brown@adhocteam.us'
   - 'drew.fisher@adhocteam.us'
 dev:
 staging:
