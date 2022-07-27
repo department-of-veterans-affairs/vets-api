@@ -13,7 +13,7 @@ module GithubAuthentication
         request.session[:coverband_user] = warden.user
       end
 
-      if github_organization_authenticate!(request.session[:coverband_user], Setting.coverband.github_organization,
+      if github_organization_authenticate!(request.session[:coverband_user], Settings.coverband.github_organization,
                                            Settings.coverband.github_team)
         return true
       end
