@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_07_20_183142) do
+ActiveRecord::Schema.define(version: 2022_07_27_124515) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -281,6 +281,7 @@ ActiveRecord::Schema.define(version: 2022_07_20_183142) do
     t.text "source_data_ciphertext"
     t.text "encrypted_kms_key"
     t.date "verified_decryptable_at"
+    t.string "cid"
     t.index ["header_md5"], name: "index_claims_api_power_of_attorneys_on_header_md5"
   end
 
