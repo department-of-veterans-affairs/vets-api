@@ -72,6 +72,17 @@ RSpec.describe 'Power of Attorney ', type: :request do
                 expect(parsed['data']['attributes']['status']).to eq('pending')
               end
             end
+
+            it "assigns a 'cid' (OKTA client_id)" do
+              with_okta_user(scopes) do |auth_header|
+                allow_any_instance_of(BGS::PersonWebService)
+                  .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+                post path, params: data, headers: headers.merge(auth_header)
+                token = JSON.parse(response.body)['data']['id']
+                poa = ClaimsApi::PowerOfAttorney.find(token)
+                expect(poa[:cid]).to eq('0oa1c01m77heEXUZt2p7')
+              end
+            end
           end
 
           context 'when Veteran is missing a participant_id' do
