@@ -23,7 +23,8 @@ module Mobile
         %i[idme auth_idme],
         %i[mhv secure_messaging],
         %i[vaos appointments],
-        %i[vet360 user_profile_update]
+        %i[vet360 user_profile_update],
+        %i[mhv rx_refill]
       )
 
       def index
