@@ -124,8 +124,8 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
         post(path, params: data.to_json, headers: @headers)
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
-        expect(parsed['errors'][0]['title']).to include('Invalid')
-        expect(parsed['errors'][0]['detail']).to include("'banana' did not fit")
+        expect(parsed['errors'][0]['title']).to include('Invalid format')
+        expect(parsed['errors'][0]['detail']).to include("'banana' did not match the defined format")
       end
     end
 

@@ -18,7 +18,8 @@
         "dessert": { "$ref": "#/definitions/dessert" },
         "location": { "$ref": "#/definitions/location" },
         "favoriteFruits": { "$ref":  "#/definitions/favoriteFruits" },
-        "requiredField": { "$ref": "#/definitions/requiredField" }
+        "requiredField": { "$ref": "#/definitions/requiredField" },
+        "date": { "$ref": "#/definitions/date" }
       },
       "required": ["name", "age", "married", "pattern", "email", "gender", "favoriteFood", "hungry?", "location", "requiredField"],
       "if": { "properties": { "hungry?": { "const":  true } } },
@@ -95,6 +96,9 @@
     },
     "requiredField": {
       "type": "string"
+    },
+    "date": {
+      "format": "date"
     }
   }
 }

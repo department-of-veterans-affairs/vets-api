@@ -150,7 +150,7 @@
                 "type": "object",
                 "properties": {
                   "issue": { "type": "string", "minLength": 1, "maxLength": 180 },
-                  "decisionDate": { "$ref": "#/definitions/date" },
+                  "decisionDate": { "type": "string", "format": "date" },
                   "decisionIssueId": { "type": "integer" },
                   "ratingIssueReferenceId": { "type": "string", "minLength": 1, "maxLength": 255 },
                   "ratingDecisionReferenceId": { "type": "string", "minLength": 1, "maxLength": 255 },

@@ -1,7 +1,0 @@
-{
-  "$schema": "http://json-schema.org/draft-2020-12/schema#",
-  "description": "JSON Schema for VA Decision Review Forms: 'date'",
-  "properties": {
-    "date": { "type": "string", "pattern": "^[0-9]{4}(-[0-9]{2}){2}$", "minLength": 10, "maxLength": 10 }
-  }
-}

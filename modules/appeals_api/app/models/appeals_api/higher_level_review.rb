@@ -53,8 +53,7 @@ module AppealsApi
              if: proc { |a| a.form_data.present? }
 
     # v2 validations
-    validate :date_formats_are_valid,
-             :claimant_birth_date_is_in_the_past,
+    validate :claimant_birth_date_is_in_the_past,
              :required_claimant_data_is_present,
              if: proc { |a| a.api_version.upcase != 'V1' && a.form_data.present? }
 

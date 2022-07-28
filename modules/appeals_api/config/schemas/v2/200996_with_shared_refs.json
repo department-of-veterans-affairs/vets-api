@@ -109,11 +109,11 @@
                 "type": "object",
                 "properties": {
                   "issue":                     { "allOf": [ { "$ref": "non_blank_string.json" }, { "maxLength": 140 } ] },
-                  "decisionDate":              { "$ref": "date.json" },
+                  "decisionDate":              { "type": "string", "format": "date" },
                   "decisionIssueId":           { "type": "integer" },
                   "ratingIssueReferenceId":    { "type": "string" },
                   "ratingDecisionReferenceId": { "type": "string" },
-                  "socDate":                   { "$ref": "date.json" },
+                  "socDate":                   { "type": "string", "format": "date" },
                   "disagreementArea":          { "type": "string", "maxLength": 90 }
                 },
                 "additionalProperties": false,

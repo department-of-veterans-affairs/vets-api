@@ -122,8 +122,8 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         post(path, params: sc_data.to_json, headers: headers)
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
-        expect(parsed['errors'][0]['title']).to include('Invalid')
-        expect(parsed['errors'][0]['detail']).to include("'banana' did not fit within the defined length limits")
+        expect(parsed['errors'][0]['title']).to include('Invalid format')
+        expect(parsed['errors'][0]['detail']).to include("'banana' did not match the defined format")
       end
 
       it 'errors when given a decision date in the future' do

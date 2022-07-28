@@ -26,7 +26,8 @@ describe Common::Exceptions::DetailedSchemaErrors do
                       'longitude' => -77.0316181 },
       'favoriteFood' => 'pizza',
       'hungry?' => false,
-      'requiredField' => 'exists' }
+      'requiredField' => 'exists',
+      'date' => '1969-12-31' }
   end
   let(:pointer) { subject[:source][:pointer] }
 
@@ -231,6 +232,15 @@ describe Common::Exceptions::DetailedSchemaErrors do
       expect(subject[:title]).to eq 'Missing required fields'
       expect(subject[:detail]).to eq 'One or more expected fields were not found'
       expect(subject[:meta][:missing_fields]).to eq ['dessert']
+    end
+  end
+
+  context 'date' do
+    it 'has title, detail, and meta' do
+      data['date'] = '02/01/1979'
+      expect(subject[:title]).to eq 'Invalid format'
+      expect(subject[:detail]).to eq "'#{data['date']}' did not match the defined format"
+      expect(subject[:meta][:format]).to eq 'date'
     end
   end
 end
