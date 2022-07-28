@@ -19,8 +19,8 @@ module MailAutomation
         faraday.use Faraday::Response::RaiseError
 
         # Uncomment this if you want curl command equivalent or response output to log
-        # faraday.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
-        # faraday.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
+        faraday.request(:curl, ::Logger.new($stdout), :warn) unless Rails.env.production?
+        faraday.response(:logger, ::Logger.new($stdout), bodies: true) unless Rails.env.production?
 
         faraday.response :json
         faraday.adapter Faraday.default_adapter
