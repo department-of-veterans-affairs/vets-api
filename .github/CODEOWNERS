@@ -71,6 +71,11 @@ modules/facilities_api @department-of-veterans-affairs/vsa-facilities-backend @d
 spec/support/*/facilities @department-of-veterans-affairs/vsa-facilities-backend @department-of-veterans-affairs/backend-review-group
 spec/support/*/lighthouse @department-of-veterans-affairs/vsa-facilities-backend @department-of-veterans-affairs/backend-review-group
 
+# debts product
+modules/debts_api  @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
+spec/support/*/debts_api/ @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
+
+
 # DHP connected devices
 modules/dhp_connected_devices/ @department-of-veterans-affairs/digital-health-platform @department-of-veterans-affairs/backend-review-group
 

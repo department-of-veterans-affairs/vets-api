@@ -105,6 +105,7 @@ PATH
       sidekiq
     covid_vaccine (0.1.0)
       sidekiq
+    debts_api (0.1.0)
     dhp_connected_devices (0.1.0)
     facilities_api (0.1.0)
     health_quest (0.1.0)
@@ -1028,6 +1029,7 @@ DEPENDENCIES
   date_validator
   ddtrace
   debase
+  debts_api!
   dhp_connected_devices!
   dry-struct
   dry-types
