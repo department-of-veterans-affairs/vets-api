@@ -202,6 +202,9 @@ module Swagger
         property :additional_data do
           key :$ref, :AdditionalData
         end
+
+        property :selected_debts, type: :array
+        property :selected_copays, type: :array
       end
     end
   end
