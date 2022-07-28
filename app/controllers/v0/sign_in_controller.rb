@@ -291,7 +291,7 @@ module V0
       cookies.delete(SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME)
       cookies.delete(SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME)
       cookies.delete(SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME)
-      cookies.delete(SignIn::Constants::Auth::INFO_COOKIE_NAME)
+      cookies.delete(SignIn::Constants::Auth::INFO_COOKIE_NAME, domain: Settings.sign_in.info_cookie_domain)
     end
 
     def get_user_auth_info(user = @current_user)
