@@ -39,8 +39,8 @@ module ClaimsApi
         version: '2.0.0',
         internal_only: false,
         status: VERSION_STATUS[:current],
-        path: '/services/benefits/docs/v2/api',
-        healthcheck: '/services/benefits/v2/healthcheck'
+        path: '/services/claims/docs/v2/api',
+        healthcheck: '/services/claims/v2/healthcheck'
       }
     end
   end

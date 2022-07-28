@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'token_validation/v2/client'
 
 RSpec.describe 'Veteran Identifier Endpoint', type: :request do
-  let(:path) { '/services/benefits/v2/veteran-id:find' }
+  let(:path) { '/services/claims/v2/veteran-id:find' }
   let(:data) do
     {
       ssn: '796130115',
@@ -225,7 +225,7 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request do
     end
 
     context 'when custom verb is invalid' do
-      let(:path) { '/services/benefits/v2/veteran-id:search' }
+      let(:path) { '/services/claims/v2/veteran-id:search' }
 
       describe 'veteran identifier' do
         it 'returns a 404 error code' do

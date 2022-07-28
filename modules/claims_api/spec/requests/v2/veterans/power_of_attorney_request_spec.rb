@@ -5,10 +5,10 @@ require 'token_validation/v2/client'
 
 RSpec.describe 'Power Of Attorney', type: :request do
   let(:veteran_id) { '1013062086V794840' }
-  let(:get_poa_path) { "/services/benefits/v2/veterans/#{veteran_id}/power-of-attorney" }
-  let(:appoint_individual_path) { "/services/benefits/v2/veterans/#{veteran_id}/power-of-attorney:appoint-individual" }
+  let(:get_poa_path) { "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney" }
+  let(:appoint_individual_path) { "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney:appoint-individual" }
   let(:appoint_organization_path) do
-    "/services/benefits/v2/veterans/#{veteran_id}/power-of-attorney:appoint-organization"
+    "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney:appoint-organization"
   end
   let(:scopes) { %w[claim.write] }
   let(:individual_poa_code) { 'A1H' }
