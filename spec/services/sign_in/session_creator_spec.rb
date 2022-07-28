@@ -10,7 +10,7 @@ RSpec.describe SignIn::SessionCreator do
 
     context 'when input object is a ValidatedCredentual' do
       let(:validated_credential) { create(:validated_credential, client_id: client_id) }
-      let(:user_account) { validated_credential.user_verification.user_account }
+      let(:user_uuid) { validated_credential.user_verification.credential_identifier }
       let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.last }
 
       context 'expected anti_csrf_token' do
@@ -28,7 +28,7 @@ RSpec.describe SignIn::SessionCreator do
       context 'expected session' do
         let(:expected_handle) { SecureRandom.uuid }
         let(:expected_created_time) { Time.zone.now }
-        let(:expected_user_uuid) { user_account.id }
+        let(:expected_user_uuid) { user_uuid }
         let(:expected_expiration_time) do
           Time.zone.now + SignIn::Constants::RefreshToken::VALIDITY_LENGTH_MINUTES.minutes
         end
@@ -72,7 +72,7 @@ RSpec.describe SignIn::SessionCreator do
 
       context 'expected refresh_token' do
         let(:expected_handle) { SecureRandom.uuid }
-        let(:expected_user_uuid) { user_account.id }
+        let(:expected_user_uuid) { user_uuid }
         let(:expected_anti_csrf_token) { stubbed_random_number }
         let(:stubbed_random_number) { 'some-stubbed-random-number' }
         let(:expected_parent_refresh_token_hash) { Digest::SHA256.hexdigest(parent_refresh_token.to_json) }
@@ -109,7 +109,7 @@ RSpec.describe SignIn::SessionCreator do
 
       context 'expected access_token' do
         let(:expected_handle) { SecureRandom.uuid }
-        let(:expected_user_uuid) { user_account.id }
+        let(:expected_user_uuid) { user_uuid }
         let(:expected_anti_csrf_token) { stubbed_random_number }
         let(:stubbed_random_number) { 'some-stubbed-random-number' }
         let(:expected_refresh_token_hash) { Digest::SHA256.hexdigest(refresh_token.to_json) }

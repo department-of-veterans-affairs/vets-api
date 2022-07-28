@@ -83,8 +83,8 @@ module SignIn
 
       user = User.new
       user.instance_variable_set(:@identity, user_identity_from_mpi_query)
-      user.uuid = user_verification.user_account.id
-      user_identity_from_mpi_query.uuid = user_verification.user_account.id
+      user.uuid = user_uuid
+      user_identity_from_mpi_query.uuid = user_uuid
       user.last_signed_in = Time.zone.now
       user.save && user_identity_from_mpi_query.save
     end
@@ -101,7 +101,7 @@ module SignIn
       @user_identity_from_attributes ||= UserIdentity.new({ idme_uuid: idme_uuid,
                                                             logingov_uuid: logingov_uuid,
                                                             loa: loa,
-                                                            sign_in: sign_in,
+                                                            sign_in: sign_in_backing_csp_type,
                                                             uuid: credential_uuid })
     end
 
@@ -152,6 +152,22 @@ module SignIn
 
     def user_verification
       @user_verification ||= Login::UserVerifier.new(user_for_mpi_query).perform
+    end
+
+    def sign_in_backing_csp_type
+      { service_name: service_name_backing_csp_type }
+    end
+
+    def service_name_backing_csp_type
+      logingov_auth? ? SAML::User::LOGINGOV_CSID : SAML::User::IDME_CSID
+    end
+
+    def logingov_auth?
+      sign_in[:service_name] == SAML::User::LOGINGOV_CSID
+    end
+
+    def user_uuid
+      @user_uuid ||= user_verification.credential_identifier
     end
 
     def login_code

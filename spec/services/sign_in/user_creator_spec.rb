@@ -47,6 +47,7 @@ RSpec.describe SignIn::UserCreator do
       let(:icn) { 'some-icn' }
       let(:service_name) { SAML::User::LOGINGOV_CSID }
       let!(:user_verification) { create(:logingov_user_verification, logingov_uuid: csp_id) }
+      let(:user_uuid) { user_verification.credential_identifier }
       let(:login_code) { 'some-login-code' }
       let(:expected_return_object) { [login_code, client_state] }
       let(:id_theft_flag) { false }
@@ -205,7 +206,7 @@ RSpec.describe SignIn::UserCreator do
 
         it 'creates a user with expected attributes' do
           subject
-          user = User.find(user_verification.user_account.id)
+          user = User.find(user_uuid)
           expect(user.ssn).to eq(ssn)
           expect(user.logingov_uuid).to eq(csp_id)
           expect(user.birth_date).to eq(birth_date)
@@ -252,7 +253,7 @@ RSpec.describe SignIn::UserCreator do
 
           it 'prefers mpi attributes on the created user' do
             subject
-            user = User.find(user_verification.user_account.id)
+            user = User.find(user_uuid)
             expect(user.ssn).to eq(mpi_ssn)
             expect(user.birth_date).to eq(mpi_birth_date)
             expect(user.first_name).to eq(mpi_first_name)

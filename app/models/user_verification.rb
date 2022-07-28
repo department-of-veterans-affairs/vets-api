@@ -17,6 +17,10 @@ class UserVerification < ApplicationRecord
     return SAML::User::DSLOGON_CSID if dslogon_uuid.present?
   end
 
+  def credential_identifier
+    idme_uuid || logingov_uuid || mhv_uuid || dslogon_uuid
+  end
+
   private
 
   # XOR operators between the four credential identifiers mean one, and only one, of these can be

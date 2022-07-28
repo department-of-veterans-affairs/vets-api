@@ -4,10 +4,9 @@ require 'rails_helper'
 
 RSpec.describe SignIn::RevokeSessionsForUser do
   describe '#perform' do
-    subject { SignIn::RevokeSessionsForUser.new(user_uuid: user_account_uuid).perform }
+    subject { SignIn::RevokeSessionsForUser.new(user_account: user_account).perform }
 
     let(:user_account) { create(:user_account) }
-    let(:user_account_uuid) { user_account.id }
     let!(:oauth_session_1) { create(:oauth_session, user_account: user_account) }
     let!(:oauth_session_2) { create(:oauth_session, user_account: user_account) }
     let(:oauth_session_count) { SignIn::OAuthSession.where(user_account: user_account).count }

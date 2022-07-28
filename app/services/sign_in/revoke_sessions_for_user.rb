@@ -2,10 +2,10 @@
 
 module SignIn
   class RevokeSessionsForUser
-    attr_reader :user_uuid, :sessions
+    attr_reader :user_account, :sessions
 
-    def initialize(user_uuid:)
-      @user_uuid = user_uuid
+    def initialize(user_account:)
+      @user_account = user_account
     end
 
     def perform
@@ -13,10 +13,6 @@ module SignIn
     end
 
     private
-
-    def user_account
-      @user_account ||= UserAccount.find(user_uuid)
-    end
 
     def delete_sessions!
       SignIn::OAuthSession.where(user_account: user_account).destroy_all
