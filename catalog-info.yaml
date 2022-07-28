@@ -21,7 +21,10 @@ metadata:
       title: Datadog - VSP - External Service Performance Indicators
       icon: dashboard
     - url: https://api.va.gov/sidekiq
-      title: Sidekiq UI
+      title: Sidekiq UI (Production)
+      icon: dashboard
+    - url: http://sidekiq-ui-dev.vfs.va.gov/
+      title: Sidekiq UI (Dev Environment Isolated from Veterans API)
       icon: dashboard
 spec:
   owner: platform-console-services
