@@ -130,8 +130,8 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
 
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
-        expect(parsed['errors'][0]['title']).to include('Invalid pattern')
-        expect(parsed['errors'][0]['detail']).to include(' did not match the defined pattern')
+        expect(parsed['errors'][0]['title']).to include('Invalid format')
+        expect(parsed['errors'][0]['detail']).to include(' did not match the defined format')
       end
     end
 

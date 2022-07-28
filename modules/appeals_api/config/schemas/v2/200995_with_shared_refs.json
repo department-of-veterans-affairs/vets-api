@@ -97,8 +97,8 @@
                                 "items": {
                                   "type": "object",
                                   "properties": {
-                                    "startDate": { "$ref": "date.json" },
-                                    "endDate": { "$ref": "date.json" }
+                                    "startDate": { "type": "string", "format": "date" },
+                                    "endDate": { "type": "string", "format": "date" }
                                   },
                                   "required": [ "startDate", "endDate" ]
                                 },
@@ -153,11 +153,11 @@
                 "type": "object",
                 "properties": {
                   "issue": { "type": "string", "minLength": 1, "maxLength": 140 },
-                  "decisionDate":{ "$ref": "date.json" },
+                  "decisionDate": { "type": "string", "format": "date" },
                   "decisionIssueId":{ "type": "integer" },
                   "ratingIssueReferenceId":{ "type": "string", "minLength": 1, "maxLength": 255 },
                   "ratingDecisionReferenceId": { "type": "string", "minLength": 1, "maxLength": 255 },
-                  "socDate":{ "$ref": "date.json" }
+                  "socDate": { "type": "string", "format": "date" }
                 },
                 "required": [ "issue", "decisionDate" ] }
             },

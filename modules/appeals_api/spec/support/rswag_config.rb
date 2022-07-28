@@ -129,12 +129,8 @@ class AppealsApi::RswagConfig
         ]
       },
       'X-VA-Birth-Date': {
-        'allOf': [
-          { 'description': 'birth date' },
-          { 'minLength': 10 },
-          { 'maxLength': 10 },
-          { '$ref': "#{ref_root}/date" }
-        ]
+        'description': "Veteran's birth date",
+        'type': 'string', 'format': 'date'
       },
       'X-VA-Claimant-First-Name': {
         'allOf': [
@@ -155,12 +151,8 @@ class AppealsApi::RswagConfig
         ]
       },
       'X-VA-Claimant-Birth-Date': {
-        'allOf': [
-          { 'description': 'birth date' },
-          { 'minLength': 10 },
-          { 'maxLength': 10 },
-          { '$ref': "#{ref_root}/date" }
-        ]
+        'description': "Claimant's birth date",
+        'type': 'string', 'format': 'date'
       },
       'X-VA-Claimant-SSN': {
         'allOf': [
@@ -669,7 +661,6 @@ class AppealsApi::RswagConfig
   def shared_schemas
     {
       'address': JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'address.json')))['properties']['address'],
-      'date': JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'date.json')))['properties']['date'],
       'non_blank_string': JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'non_blank_string.json')))['properties']['nonBlankString'],
       'phone': JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'phone.json')))['properties']['phone'],
       'timezone': JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'timezone.json')))['properties']['timezone']

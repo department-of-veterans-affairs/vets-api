@@ -44,8 +44,7 @@ module AppealsApi
 
     # the controller applies the JSON Schemas in modules/appeals_api/config/schemas/
     # further validations:
-    validate :date_formats_are_valid,
-             :veteran_birth_date_is_in_the_past,
+    validate :veteran_birth_date_is_in_the_past,
              :contestable_issue_dates_are_in_the_past,
              :validate_hearing_type_selection,
              if: proc { |a| a.form_data.present? }

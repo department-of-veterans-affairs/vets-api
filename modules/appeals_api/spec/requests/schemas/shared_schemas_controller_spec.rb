@@ -35,10 +35,6 @@ describe AppealsApi::Schemas::SharedSchemasController, type: :request do
       it_behaves_like 'successful schema request', 'address', %w[address addressLine1]
     end
 
-    describe "schema type 'date'" do
-      it_behaves_like 'successful schema request', 'date', %w[date ^[0-9]{4}(-[0-9]{2}){2}$]
-    end
-
     describe "schema type 'phone'" do
       it_behaves_like 'successful schema request', 'phone', %w[phone areaCode]
     end

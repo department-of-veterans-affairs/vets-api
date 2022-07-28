@@ -7,50 +7,6 @@ shared_examples 'shared model validations' do |opts|
   all_claimant_headers = %w[X-VA-Claimant-First-Name X-VA-Claimant-Middle-Initial X-VA-Claimant-Last-Name
                             X-VA-Claimant-Birth-Date].freeze
 
-  describe '#date_formats_are_valid' do
-    next unless opts[:validations].include? :date_formats_are_valid
-
-    context 'when veteran birth date is invalid' do
-      before { appeal.auth_headers = appeal.auth_headers.merge 'X-VA-Birth-Date' => '3011-22-33' }
-
-      it 'errors with a source at the veteran birth date header & does not include past check error' do
-        expect(appeal.valid?).to be false
-        expect(appeal.errors.size).to eq 1
-        error = appeal.errors.first
-        expect(error.options[:source]).to eq({ header: 'X-VA-Birth-Date' })
-        expect(error.message).to eq 'Invalid date: 3011-22-33'
-      end
-    end
-
-    context 'when claimant birth date is invalid' do
-      before { appeal.auth_headers = appeal.auth_headers.merge('X-VA-Claimant-Birth-Date' => '3044-55-66') }
-
-      it 'errors with a source at the claimant birth date header & does not include past check error' do
-        expect(appeal.valid?).to be false
-        expect(appeal.errors.size).to eq 1
-        error = appeal.errors.first
-        expect(error.options[:source]).to eq({ header: 'X-VA-Claimant-Birth-Date' })
-        expect(error.message).to eq 'Invalid date: 3044-55-66'
-      end
-    end
-
-    context 'when contestable issue decision date is invalid' do
-      before do
-        data = appeal.form_data
-        data['included'][0]['attributes']['decisionDate'] = '3077-88-99'
-        appeal.form_data = data
-      end
-
-      it 'errors with a source at the claimant birth date header & does not include past check error' do
-        expect(appeal.valid?).to be false
-        expect(appeal.errors.size).to eq 1
-        error = appeal.errors.first
-        expect(error.attribute.to_s).to eq '/data/included[0]/attributes/decisionDate'
-        expect(error.message).to eq 'Invalid date: 3077-88-99'
-      end
-    end
-  end
-
   describe '#veteran_birth_date_is_in_the_past' do
     next unless opts[:validations].include? :veteran_birth_date_is_in_the_past
 

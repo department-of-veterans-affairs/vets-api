@@ -35,8 +35,6 @@
       "required": [ "addressLine1", "city", "countryCodeISO2", "zipCode5" ]
     },
 
-    "date": { "type": "string", "pattern": "^[0-9]{4}(-[0-9]{2}){2}$", "minLength": 10, "maxLength": 10 },
-
     "phone": {
       "type": "object",
       "properties": {
@@ -149,8 +147,8 @@
                                 "items": {
                                   "type": "object",
                                   "properties": {
-                                    "startDate": { "$ref": "#/definitions/date" },
-                                    "endDate": { "$ref": "#/definitions/date" }
+                                    "startDate": { "type": "string", "format": "date" },
+                                    "endDate": { "type": "string", "format": "date" }
                                   },
                                   "required": [ "startDate", "endDate" ]
                                 },
@@ -205,11 +203,11 @@
                 "type": "object",
                 "properties": {
                   "issue": { "type": "string", "minLength": 1, "maxLength": 140 },
-                  "decisionDate":{ "$ref": "#/definitions/date" },
+                  "decisionDate": { "type": "string", "format": "date" },
                   "decisionIssueId":{ "type": "integer" },
                   "ratingIssueReferenceId":{ "type": "string", "minLength": 1, "maxLength": 255 },
                   "ratingDecisionReferenceId": { "type": "string", "minLength": 1, "maxLength": 255 },
-                  "socDate":{ "$ref": "#/definitions/date" }
+                  "socDate": { "type": "string", "format": "date" }
                 },
                 "required": [ "issue", "decisionDate" ] }
             },
