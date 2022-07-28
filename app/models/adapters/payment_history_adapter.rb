@@ -5,14 +5,17 @@ module Adapters
     attr_accessor :payments, :return_payments
 
     def initialize(input)
-      @input_payments = [input[:payments][:payment]].flatten
-      payments, return_payments = @input_payments.partition do |payment|
-        payment.dig(:return_payment, :check_trace_number).blank?
-      end
-
       if Flipper.enabled?(:payment_history)
+        @input_payments = [input[:payments][:payment]].flatten
+        payments, return_payments = @input_payments.partition do |payment|
+          payment.dig(:return_payment, :check_trace_number).blank?
+        end
+
         @payments = process_payments(payments)
         @return_payments = process_return_payments(return_payments)
+      else
+        @payments = []
+        @return_payments = []
       end
     end
 
