@@ -135,7 +135,9 @@ module V0
         ],
         applicant_certifications: %i[
           veteran_signature
-        ]
+        ],
+        selected_debts: [],
+        selected_copays: []
       ).to_hash
     end
     # rubocop:enable Metrics/MethodLength
