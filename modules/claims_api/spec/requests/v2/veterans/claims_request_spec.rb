@@ -6,8 +6,8 @@ require 'token_validation/v2/client'
 RSpec.describe 'Claims', type: :request do
   let(:veteran_id) { '1013062086V794840' }
   let(:claim_id) { '600131328' }
-  let(:all_claims_path) { "/services/benefits/v2/veterans/#{veteran_id}/claims" }
-  let(:claim_by_id_path) { "/services/benefits/v2/veterans/#{veteran_id}/claims/#{claim_id}" }
+  let(:all_claims_path) { "/services/claims/v2/veterans/#{veteran_id}/claims" }
+  let(:claim_by_id_path) { "/services/claims/v2/veterans/#{veteran_id}/claims/#{claim_id}" }
   let(:scopes) { %w[claim.read] }
 
   describe 'Claims' do

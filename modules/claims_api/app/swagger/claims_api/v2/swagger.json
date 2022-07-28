@@ -940,7 +940,7 @@
   },
   "servers": [
     {
-      "url": "https://sandbox-api.va.gov/services/benefits/{version}",
+      "url": "https://sandbox-api.va.gov/services/claims/{version}",
       "description": "VA.gov API sandbox environment",
       "variables": {
         "version": {
@@ -949,7 +949,7 @@
       }
     },
     {
-      "url": "https://api.va.gov/services/benefits/{version}",
+      "url": "https://api.va.gov/services/claims/{version}",
       "description": "VA.gov API production environment",
       "variables": {
         "version": {
