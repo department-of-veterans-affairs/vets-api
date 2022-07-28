@@ -48,7 +48,8 @@ module CentralMail
 
     def retry_errors(e, uploaded_object)
       if e.code == 'DOC201' && @retries <= RETRIES
-        self.class.perform_at(30.minutes.from_now, uploaded_object.id, { caller: 'DOC201_Retry' }, @retries + 1)
+        uuid = uploaded_object.respond_to?(:guid) ? uploaded_object.guid : uploaded_object.id
+        self.class.perform_at(30.minutes.from_now, uuid, { caller: 'DOC201_Retry' }, @retries + 1)
       else
         uploaded_object.update(status: 'error', code: e.code, detail: e.detail)
       end
