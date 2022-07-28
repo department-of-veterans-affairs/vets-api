@@ -49,7 +49,7 @@ module SignIn
     def create_new_access_token
       SignIn::AccessToken.new(
         session_handle: handle,
-        user_uuid: user_account.id,
+        user_uuid: user_uuid,
         refresh_token_hash: refresh_token_hash,
         parent_refresh_token_hash: parent_refresh_token_hash,
         anti_csrf_token: anti_csrf_token,
@@ -60,7 +60,7 @@ module SignIn
     def create_new_refresh_token(parent_refresh_token_hash: nil)
       SignIn::RefreshToken.new(
         session_handle: handle,
-        user_uuid: user_account.id,
+        user_uuid: user_uuid,
         parent_refresh_token_hash: parent_refresh_token_hash,
         anti_csrf_token: anti_csrf_token
       )
@@ -103,6 +103,10 @@ module SignIn
 
     def user_account
       @user_account ||= user_verification.user_account
+    end
+
+    def user_uuid
+      @user_uuid ||= user_verification.credential_identifier
     end
 
     def handle

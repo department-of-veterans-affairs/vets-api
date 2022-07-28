@@ -62,7 +62,7 @@ module SignIn
     def create_child_refresh_token
       SignIn::RefreshToken.new(
         session_handle: session.handle,
-        user_uuid: session.user_account.id,
+        user_uuid: refresh_token.user_uuid,
         anti_csrf_token: updated_anti_csrf_token,
         parent_refresh_token_hash: refresh_token_hash
       )
@@ -71,7 +71,7 @@ module SignIn
     def create_access_token
       SignIn::AccessToken.new(
         session_handle: session.handle,
-        user_uuid: session.user_account.id,
+        user_uuid: refresh_token.user_uuid,
         refresh_token_hash: get_hash(child_refresh_token.to_json),
         parent_refresh_token_hash: refresh_token_hash,
         anti_csrf_token: updated_anti_csrf_token,

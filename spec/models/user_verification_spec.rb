@@ -296,4 +296,46 @@ RSpec.describe UserVerification, type: :model do
       end
     end
   end
+
+  describe '#credential_identifier' do
+    subject { user_verification.credential_identifier }
+
+    let(:user_account) { create(:user_account) }
+
+    context 'when idme_uuid is present' do
+      let(:idme_uuid) { 'some-idme-uuid' }
+      let(:expected_credential_identifier) { idme_uuid }
+
+      it 'returns expected credential identifier' do
+        expect(subject).to eq(expected_credential_identifier)
+      end
+    end
+
+    context 'when dslogon_uuid is present' do
+      let(:dslogon_uuid) { 'some-dslogon-uuid' }
+      let(:expected_credential_identifier) { dslogon_uuid }
+
+      it 'returns expected credential identifier' do
+        expect(subject).to eq(expected_credential_identifier)
+      end
+    end
+
+    context 'when mhv_uuid is present' do
+      let(:mhv_uuid) { 'some-mhv-uuid' }
+      let(:expected_credential_identifier) { mhv_uuid }
+
+      it 'returns expected credential identifier' do
+        expect(subject).to eq(expected_credential_identifier)
+      end
+    end
+
+    context 'when logingov_uuid is present' do
+      let(:logingov_uuid) { 'some-logingov-uuid' }
+      let(:expected_credential_identifier) { logingov_uuid }
+
+      it 'returns expected credential identifier' do
+        expect(subject).to eq(expected_credential_identifier)
+      end
+    end
+  end
 end

@@ -555,8 +555,8 @@ RSpec.describe V0::SignInController, type: :controller do
             it 'creates a user with expected attributes' do
               subject
 
-              user_account = UserAccount.last.id
-              user = User.find(user_account)
+              user_uuid = UserVerification.last.credential_identifier
+              user = User.find(user_uuid)
               expect(user).to have_attributes(expected_user_attributes)
             end
 
@@ -647,8 +647,8 @@ RSpec.describe V0::SignInController, type: :controller do
             it 'creates a user with expected attributes' do
               subject
 
-              user_account = UserAccount.last.id
-              user = User.find(user_account)
+              user_uuid = UserVerification.last.credential_identifier
+              user = User.find(user_uuid)
 
               expect(user).to have_attributes(expected_user_attributes)
             end
@@ -763,7 +763,8 @@ RSpec.describe V0::SignInController, type: :controller do
 
     let(:user_verification) { create(:user_verification) }
     let(:user_verification_id) { user_verification.id }
-    let!(:user) { create(:user, uuid: user_verification.user_account.id) }
+    let!(:user) { create(:user, uuid: user_uuid) }
+    let(:user_uuid) { user_verification.credential_identifier }
     let(:code) { { code: code_value } }
     let(:code_verifier) { { code_verifier: code_verifier_value } }
     let(:grant_type) { { grant_type: grant_type_value } }
@@ -888,7 +889,7 @@ RSpec.describe V0::SignInController, type: :controller do
               end
 
               context 'and authentication is for a session with client id that is api auth' do
-                let!(:user) { create(:user, :api_auth, uuid: user_verification.user_account.id) }
+                let!(:user) { create(:user, :api_auth, uuid: user_uuid) }
                 let(:client_id) { SignIn::Constants::ClientConfig::API_AUTH.first }
 
                 it 'returns expected body with access token' do
@@ -906,7 +907,7 @@ RSpec.describe V0::SignInController, type: :controller do
                                      client_id: client_id_value,
                                      loa: loa,
                                      token_type: 'Refresh',
-                                     user_id: user_verification.user_account.id,
+                                     user_id: user_uuid,
                                      session_id: access_token['session_handle'] }
                   expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
                 end
@@ -949,7 +950,7 @@ RSpec.describe V0::SignInController, type: :controller do
                                      client_id: client_id_value,
                                      loa: loa,
                                      token_type: 'Refresh',
-                                     user_id: user_verification.user_account.id,
+                                     user_id: user_uuid,
                                      session_id: access_token['session_handle'] }
                   expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
                 end
@@ -968,7 +969,8 @@ RSpec.describe V0::SignInController, type: :controller do
   describe 'POST refresh' do
     subject { post(:refresh, params: {}.merge(refresh_token_param).merge(anti_csrf_token_param)) }
 
-    let!(:user) { create(:user, uuid: user_verification.user_account.id) }
+    let!(:user) { create(:user, uuid: user_uuid) }
+    let(:user_uuid) { user_verification.credential_identifier }
     let(:type) { nil }
     let(:client_id_value) { nil }
     let(:loa) { nil }
@@ -1053,7 +1055,7 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:expected_log_attributes) do
         {
           token_type: 'Refresh',
-          user_id: user_account.id,
+          user_id: user_uuid,
           session_id: expected_session_handle
         }
       end
@@ -1152,7 +1154,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
         context 'and refresh token is for a session with client id that is api auth' do
           let(:client_id) { SignIn::Constants::ClientConfig::API_AUTH.first }
-          let!(:user) { create(:user, :api_auth, uuid: user_verification.user_account.id) }
+          let!(:user) { create(:user, :api_auth, uuid: user_uuid) }
 
           it 'returns expected body with access token' do
             expect(JSON.parse(subject.body)['data']).to have_key('access_token')
@@ -1168,7 +1170,7 @@ RSpec.describe V0::SignInController, type: :controller do
                                client_id: client_id_value,
                                loa: loa,
                                token_type: 'Refresh',
-                               user_id: user_verification.user_account.id,
+                               user_id: user_uuid,
                                session_id: access_token['session_handle'] }
             expect(Rails.logger).to have_received(:info).with(expected_log_message, logger_context)
           end
@@ -1211,7 +1213,7 @@ RSpec.describe V0::SignInController, type: :controller do
                                client_id: client_id_value,
                                loa: loa,
                                token_type: 'Refresh',
-                               user_id: user_verification.user_account.id,
+                               user_id: user_uuid,
                                session_id: access_token['session_handle'] }
             expect(Rails.logger).to have_received(:info).with(expected_log_message, logger_context)
           end
@@ -1237,7 +1239,8 @@ RSpec.describe V0::SignInController, type: :controller do
   describe 'POST revoke' do
     subject { post(:revoke, params: {}.merge(refresh_token_param).merge(anti_csrf_token_param)) }
 
-    let!(:user) { create(:user, uuid: user_verification.user_account.id) }
+    let!(:user) { create(:user, uuid: user_uuid) }
+    let(:user_uuid) { user_verification.credential_identifier }
     let(:type) { nil }
     let(:client_id_value) { nil }
     let(:loa) { nil }
@@ -1330,7 +1333,7 @@ RSpec.describe V0::SignInController, type: :controller do
           loa: loa,
           session_id: expected_session_handle,
           token_type: 'Refresh',
-          user_id: user_account.id
+          user_id: user_uuid
         }
       end
 
@@ -1581,12 +1584,13 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:authorization) { "Bearer #{access_token}" }
       let!(:user_account) { Login::UserVerifier.new(user).perform.user_account }
       let(:user) { create(:user, :loa3, :api_auth) }
+      let(:user_uuid) { user.uuid }
       let(:type) { user.identity.sign_in[:service_name] }
       let(:client_id_value) { user.identity.sign_in[:client_id] }
       let(:loa) { user.identity.loa[:current] }
       let(:oauth_session) { create(:oauth_session, user_account: user_account) }
       let(:access_token_object) do
-        create(:access_token, session_handle: oauth_session.handle, user_uuid: user_account.id)
+        create(:access_token, session_handle: oauth_session.handle, user_uuid: user_uuid)
       end
       let(:oauth_session_count) { SignIn::OAuthSession.where(user_account: user_account).count }
       let(:statsd_success) { SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_SUCCESS }
@@ -1597,7 +1601,7 @@ RSpec.describe V0::SignInController, type: :controller do
           client_id: client_id_value,
           loa: loa,
           token_type: 'Access',
-          user_id: user_account.id,
+          user_id: user_uuid,
           session_id: access_token_object.session_handle,
           access_token_id: access_token_object.uuid
         }
@@ -1629,7 +1633,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:expected_error) { SignIn::Errors::StandardError }
         let(:statsd_failure) { SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_FAILURE }
         let(:error_context) do
-          { user_uuid: user_account.id,
+          { user_uuid: user_uuid,
             type: type,
             client_id: client_id_value,
             loa: loa }

@@ -24,7 +24,8 @@ RSpec.describe SignIn::SessionRefresher do
       let(:anti_csrf_token) { 'some-anti-csrf-token' }
       let(:input_anti_csrf_token) { anti_csrf_token }
       let(:session_handle) { SecureRandom.uuid }
-      let(:user_uuid) { user_account.id }
+      let(:user_uuid) { user_verification.credential_identifier }
+      let(:user_verification) { create(:user_verification, user_account: user_account) }
       let(:user_account) { create(:user_account) }
       let!(:session) do
         create(:oauth_session,

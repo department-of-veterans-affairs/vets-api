@@ -131,7 +131,7 @@ module V0
     end
 
     def revoke_all_sessions
-      SignIn::RevokeSessionsForUser.new(user_uuid: @current_user.uuid).perform
+      SignIn::RevokeSessionsForUser.new(user_account: @current_user.user_account).perform
       log_post_login_event('revoke all sessions', @access_token,
                            SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_SUCCESS)
 
