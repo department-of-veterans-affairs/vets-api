@@ -15,7 +15,7 @@ RSpec.describe 'facilities info', type: :request do
     allow_any_instance_of(IAMUser).to receive(:icn).and_return('24811694708759028')
     iam_sign_in(user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
-    Settings.mhv.facility_range = [[358, 718], [720, 758], [983, 984]]
+    allow(Settings.mhv).to receive(:facility_range).and_return([[358, 718], [720, 758], [983, 984]])
   end
 
   va_path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures',
