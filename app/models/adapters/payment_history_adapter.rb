@@ -10,8 +10,10 @@ module Adapters
         payment.dig(:return_payment, :check_trace_number).blank?
       end
 
-      @payments = process_payments(payments)
-      @return_payments = process_return_payments(return_payments)
+      if Flipper.enabled?(:payment_history)
+        @payments = process_payments(payments)
+        @return_payments = process_return_payments(return_payments)
+      end
     end
 
     private
