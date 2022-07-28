@@ -4282,6 +4282,42 @@
           },
           {
             "in": "header",
+            "name": "X-VA-Claimant-First-Name",
+            "required": false,
+            "description": "Non-Veteran claimant's first name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-Claimant-Middle-Initial",
+            "required": false,
+            "description": "Non-Veteran claimant's middle initial",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-Claimant-Last-Name",
+            "required": false,
+            "description": "Non-Veteran claimant's last name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-Claimant-Birth-Date",
+            "required": false,
+            "description": "Non-Veteran claimant's Birth Date",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
             "name": "X-Consumer-Username",
             "required": false,
             "description": "Consumer User Name (passed from Kong)",
@@ -4380,6 +4416,26 @@
                                   },
                                   "email": "bob@bobbytablesemail.com",
                                   "timezone": "America/Chicago"
+                                },
+                                "claimant": {
+                                  "homeless": false,
+                                  "address": {
+                                    "addressLine1": "456 First St",
+                                    "addressLine2": "Apt 5",
+                                    "addressLine3": "Box 1",
+                                    "city": "Detroit",
+                                    "countryCodeISO2": "US",
+                                    "stateCode": "MI",
+                                    "zipCode5": "48070"
+                                  },
+                                  "phone": {
+                                    "countryCode": "1",
+                                    "areaCode": "555",
+                                    "phoneNumber": "8111100",
+                                    "phoneNumberExt": "4"
+                                  },
+                                  "email": "bob@email.com",
+                                  "timezone": "America/Detroit"
                                 },
                                 "representative": {
                                   "name": "Tony Danza"
@@ -4552,6 +4608,26 @@
                           },
                           "email": "bob@bobbytablesemail.com",
                           "timezone": "America/Chicago"
+                        },
+                        "claimant": {
+                          "homeless": false,
+                          "address": {
+                            "addressLine1": "456 First St",
+                            "addressLine2": "Apt 5",
+                            "addressLine3": "Box 1",
+                            "city": "Detroit",
+                            "countryCodeISO2": "US",
+                            "stateCode": "MI",
+                            "zipCode5": "48070"
+                          },
+                          "phone": {
+                            "countryCode": "1",
+                            "areaCode": "555",
+                            "phoneNumber": "8111100",
+                            "phoneNumberExt": "4"
+                          },
+                          "email": "bob@email.com",
+                          "timezone": "America/Detroit"
                         },
                         "representative": {
                           "name": "Tony Danza"
@@ -6181,6 +6257,26 @@
                           "email": "bob@bobbytablesemail.com",
                           "timezone": "America/Chicago"
                         },
+                        "claimant": {
+                          "homeless": false,
+                          "address": {
+                            "addressLine1": "456 First St",
+                            "addressLine2": "Apt 5",
+                            "addressLine3": "Box 1",
+                            "city": "Detroit",
+                            "countryCodeISO2": "US",
+                            "stateCode": "MI",
+                            "zipCode5": "48070"
+                          },
+                          "phone": {
+                            "countryCode": "1",
+                            "areaCode": "555",
+                            "phoneNumber": "8111100",
+                            "phoneNumberExt": "4"
+                          },
+                          "email": "bob@email.com",
+                          "timezone": "America/Detroit"
+                        },
                         "representative": {
                           "name": "Tony Danza"
                         },
@@ -6679,6 +6775,33 @@
           },
           {
             "in": "header",
+            "name": "X-VA-Claimant-First-Name",
+            "required": false,
+            "description": "Non-Veteran claimant's first name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-Claimant-Middle-Initial",
+            "required": false,
+            "description": "Non-Veteran claimant's middle initial",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-Claimant-Last-Name",
+            "required": false,
+            "description": "Non-Veteran claimant's last name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
             "name": "X-Consumer-Username",
             "required": false,
             "description": "Consumer User Name (passed from Kong)",
@@ -6767,7 +6890,8 @@
                               "type": "supplementalClaim",
                               "attributes": {
                                 "benefitType": "compensation",
-                                "claimantType": "veteran",
+                                "claimantType": "other",
+                                "claimantTypeOtherValue": "Veteran Attorney",
                                 "veteran": {
                                   "address": {
                                     "addressLine1": "123 Main St",
@@ -6785,6 +6909,25 @@
                                   },
                                   "email": "bobsemail@bobbytablesemail.com",
                                   "timezone": "America/Chicago"
+                                },
+                                "claimant": {
+                                  "address": {
+                                    "addressLine1": "456 First St",
+                                    "addressLine2": "Apt 5",
+                                    "addressLine3": "Box 1",
+                                    "city": "Montreal",
+                                    "countryCodeISO2": "CA",
+                                    "zipCode5": "00000",
+                                    "internationalPostalCode": "A9999AAA"
+                                  },
+                                  "phone": {
+                                    "countryCode": "1",
+                                    "areaCode": "555",
+                                    "phoneNumber": "8111100",
+                                    "phoneNumberExt": "4"
+                                  },
+                                  "email": "joe@email.com",
+                                  "timezone": "America/Detroit"
                                 },
                                 "socOptIn": true,
                                 "form5103Acknowledged": true,
@@ -7050,7 +7193,8 @@
                       "type": "supplementalClaim",
                       "attributes": {
                         "benefitType": "compensation",
-                        "claimantType": "veteran",
+                        "claimantType": "other",
+                        "claimantTypeOtherValue": "Veteran Attorney",
                         "veteran": {
                           "address": {
                             "addressLine1": "123 Main St",
@@ -7068,6 +7212,25 @@
                           },
                           "email": "bobsemail@bobbytablesemail.com",
                           "timezone": "America/Chicago"
+                        },
+                        "claimant": {
+                          "address": {
+                            "addressLine1": "456 First St",
+                            "addressLine2": "Apt 5",
+                            "addressLine3": "Box 1",
+                            "city": "Montreal",
+                            "countryCodeISO2": "CA",
+                            "zipCode5": "00000",
+                            "internationalPostalCode": "A9999AAA"
+                          },
+                          "phone": {
+                            "countryCode": "1",
+                            "areaCode": "555",
+                            "phoneNumber": "8111100",
+                            "phoneNumberExt": "4"
+                          },
+                          "email": "joe@email.com",
+                          "timezone": "America/Detroit"
                         },
                         "socOptIn": true,
                         "form5103Acknowledged": true,
@@ -8336,8 +8499,17 @@
                                 "claimantType": {
                                   "type": "string",
                                   "enum": [
-                                    "veteran"
+                                    "veteran",
+                                    "spouse_of_veteran",
+                                    "child_of_veteran",
+                                    "parent_of_veteran",
+                                    "other"
                                   ]
+                                },
+                                "claimantTypeOtherValue": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 25
                                 },
                                 "veteran": {
                                   "type": "object",
@@ -8364,6 +8536,45 @@
                                       "allOf": [
                                         {
                                           "description": "Veteran's timezone. Used for adding the current date to the signature according to the veteran's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date)."
+                                        },
+                                        {
+                                          "$ref": "#/definitions/timezone"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "address",
+                                    "phone",
+                                    "email"
+                                  ]
+                                },
+                                "claimant": {
+                                  "type": "object",
+                                  "description": "If the claimant is a non-Veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
+                                  "properties": {
+                                    "address": {
+                                      "$ref": "#/definitions/address"
+                                    },
+                                    "phone": {
+                                      "allOf": [
+                                        {
+                                          "$ref": "#/definitions/phone"
+                                        },
+                                        {
+                                        }
+                                      ]
+                                    },
+                                    "email": {
+                                      "type": "string",
+                                      "format": "email",
+                                      "minLength": 6,
+                                      "maxLength": 255
+                                    },
+                                    "timezone": {
+                                      "allOf": [
+                                        {
+                                          "description": "Claimant's timezone. Used for adding the current date to the signature according to the claimant's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date)."
                                         },
                                         {
                                           "$ref": "#/definitions/timezone"
@@ -8503,6 +8714,39 @@
                                         ]
                                       }
                                     }
+                                  }
+                                },
+                                {
+                                  "if": {
+                                    "properties": {
+                                      "claimantType": {
+                                        "const": "other"
+                                      }
+                                    }
+                                  },
+                                  "then": {
+                                    "required": [
+                                      "claimantTypeOtherValue"
+                                    ]
+                                  }
+                                },
+                                {
+                                  "if": {
+                                    "properties": {
+                                      "claimantType": {
+                                        "enum": [
+                                          "spouse_of_veteran",
+                                          "child_of_veteran",
+                                          "parent_of_veteran",
+                                          "other"
+                                        ]
+                                      }
+                                    }
+                                  },
+                                  "then": {
+                                    "required": [
+                                      "claimant"
+                                    ]
                                   }
                                 }
                               ]
@@ -8662,6 +8906,24 @@
           },
           {
             "in": "header",
+            "name": "X-VA-Claimant-First-Name",
+            "required": false,
+            "description": "Non-Veteran claimant's first name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-Claimant-Last-Name",
+            "required": false,
+            "description": "Non-Veteran claimant's last name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
             "name": "X-Consumer-Username",
             "required": false,
             "description": "Consumer User Name (passed from Kong)",
@@ -8806,7 +9068,8 @@
                       "type": "supplementalClaim",
                       "attributes": {
                         "benefitType": "compensation",
-                        "claimantType": "veteran",
+                        "claimantType": "other",
+                        "claimantTypeOtherValue": "Veteran Attorney",
                         "veteran": {
                           "address": {
                             "addressLine1": "123 Main St",
@@ -8824,6 +9087,25 @@
                           },
                           "email": "bobsemail@bobbytablesemail.com",
                           "timezone": "America/Chicago"
+                        },
+                        "claimant": {
+                          "address": {
+                            "addressLine1": "456 First St",
+                            "addressLine2": "Apt 5",
+                            "addressLine3": "Box 1",
+                            "city": "Montreal",
+                            "countryCodeISO2": "CA",
+                            "zipCode5": "00000",
+                            "internationalPostalCode": "A9999AAA"
+                          },
+                          "phone": {
+                            "countryCode": "1",
+                            "areaCode": "555",
+                            "phoneNumber": "8111100",
+                            "phoneNumberExt": "4"
+                          },
+                          "email": "joe@email.com",
+                          "timezone": "America/Detroit"
                         },
                         "socOptIn": true,
                         "form5103Acknowledged": true,
@@ -12052,6 +12334,61 @@
                       ]
                     }
                   },
+                  "claimant": {
+                    "type": "object",
+                    "description": "If the claimant is a non-Veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
+                    "properties": {
+                      "homeless": {
+                        "type": "boolean"
+                      },
+                      "address": {
+                        "$ref": "#/components/schemas/address"
+                      },
+                      "phone": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/phone"
+                          },
+                          {
+                            "$comment": "the phone fields must not exceed 20 chars, when concatenated"
+                          }
+                        ]
+                      },
+                      "email": {
+                        "type": "string",
+                        "format": "email",
+                        "minLength": 6,
+                        "maxLength": 255
+                      },
+                      "timezone": {
+                        "allOf": [
+                          {
+                            "description": "Claimant's timezone. Used for adding the current date to the signature according to the claimant's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date)."
+                          },
+                          {
+                            "$ref": "#/components/schemas/timezone"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "homeless",
+                      "phone",
+                      "email"
+                    ],
+                    "if": {
+                      "properties": {
+                        "homeless": {
+                          "const": false
+                        }
+                      }
+                    },
+                    "then": {
+                      "required": [
+                        "address"
+                      ]
+                    }
+                  },
                   "representative": {
                     "type": "object",
                     "properties": {
@@ -12395,8 +12732,17 @@
                   "claimantType": {
                     "type": "string",
                     "enum": [
-                      "veteran"
+                      "veteran",
+                      "spouse_of_veteran",
+                      "child_of_veteran",
+                      "parent_of_veteran",
+                      "other"
                     ]
+                  },
+                  "claimantTypeOtherValue": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 25
                   },
                   "veteran": {
                     "type": "object",
@@ -12424,6 +12770,46 @@
                         "allOf": [
                           {
                             "description": "Veteran's timezone. Used for adding the current date to the signature according to the veteran's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date)."
+                          },
+                          {
+                            "$ref": "#/components/schemas/timezone"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "address",
+                      "phone",
+                      "email"
+                    ]
+                  },
+                  "claimant": {
+                    "type": "object",
+                    "description": "If the claimant is a non-Veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
+                    "properties": {
+                      "address": {
+                        "$ref": "#/components/schemas/address"
+                      },
+                      "phone": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/phone"
+                          },
+                          {
+                            "$comment": "the phone fields must not exceed 20 chars, when concatenated"
+                          }
+                        ]
+                      },
+                      "email": {
+                        "type": "string",
+                        "format": "email",
+                        "minLength": 6,
+                        "maxLength": 255
+                      },
+                      "timezone": {
+                        "allOf": [
+                          {
+                            "description": "Claimant's timezone. Used for adding the current date to the signature according to the claimant's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date)."
                           },
                           {
                             "$ref": "#/components/schemas/timezone"
@@ -12563,6 +12949,39 @@
                           ]
                         }
                       }
+                    }
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "claimantType": {
+                          "const": "other"
+                        }
+                      }
+                    },
+                    "then": {
+                      "required": [
+                        "claimantTypeOtherValue"
+                      ]
+                    }
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "claimantType": {
+                          "enum": [
+                            "spouse_of_veteran",
+                            "child_of_veteran",
+                            "parent_of_veteran",
+                            "other"
+                          ]
+                        }
+                      }
+                    },
+                    "then": {
+                      "required": [
+                        "claimant"
+                      ]
                     }
                   }
                 ]

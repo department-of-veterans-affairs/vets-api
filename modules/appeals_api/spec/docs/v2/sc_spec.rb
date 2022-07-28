@@ -38,13 +38,7 @@ describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/ap
           value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995.json')))
         },
         'all fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json'))).tap do |data|
-            unless DocHelpers.wip_doc_enabled?(:sc_v2_claimant)
-              data.dig('data', 'attributes')&.delete('claimant')
-              data.dig('data', 'attributes')&.delete('claimantTypeOtherValue')
-              data['data']['attributes']['claimantType'] = 'veteran'
-            end
-          end
+          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json')))
         }
       }
 
@@ -64,11 +58,9 @@ describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/ap
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header]
 
-      if DocHelpers.wip_doc_enabled?(:sc_v2_claimant)
-        parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_first_name_header]
-        parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_middle_initial_header]
-        parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_last_name_header]
-      end
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_first_name_header]
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_middle_initial_header]
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_last_name_header]
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_username_header]
       parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_id_header]
@@ -86,20 +78,12 @@ describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/ap
       end
 
       response '200', 'Info about a single Supplemental Claim' do
-        if DocHelpers.wip_doc_enabled?(:sc_v2_claimant)
-          let(:'X-VA-Claimant-First-Name') { 'first' }
-          let(:'X-VA-Claimant-Middle-Initial') { 'm' }
-          let(:'X-VA-Claimant-Last-Name') { 'last' }
-        end
+        let(:'X-VA-Claimant-First-Name') { 'first' }
+        let(:'X-VA-Claimant-Middle-Initial') { 'm' }
+        let(:'X-VA-Claimant-Last-Name') { 'last' }
 
         let(:sc_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json'))).tap do |data|
-            unless DocHelpers.wip_doc_enabled?(:sc_v2_claimant)
-              data.dig('data', 'attributes')&.delete('claimant')
-              data.dig('data', 'attributes')&.delete('claimantTypeOtherValue')
-              data['data']['attributes']['claimantType'] = 'veteran'
-            end
-          end
+          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json')))
         end
 
         schema '$ref' => '#/components/schemas/scCreateResponse'
@@ -113,13 +97,7 @@ describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/ap
         schema '$ref' => '#/components/schemas/errorModel'
 
         let(:sc_body) do
-          request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json'))).tap do |data|
-            unless DocHelpers.wip_doc_enabled?(:sc_v2_claimant)
-              data.dig('data', 'attributes')&.delete('claimant')
-              data.dig('data', 'attributes')&.delete('claimantTypeOtherValue')
-              data['data']['attributes']['claimantType'] = 'veteran'
-            end
-          end
+          request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json')))
 
           request_body['data']['attributes'].delete('form5103Acknowledged')
           request_body
@@ -193,13 +171,7 @@ describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/ap
           value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995.json')))
         },
         'all fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json'))).tap do |data|
-            unless DocHelpers.wip_doc_enabled?(:sc_v2_claimant)
-              data['data']['attributes']['claimantType'] = 'veteran'
-              data.dig('data', 'attributes')&.delete('claimant')
-              data.dig('data', 'attributes')&.delete('claimantTypeOtherValue')
-            end
-          end
+          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json')))
         }
       }
 
@@ -220,10 +192,8 @@ describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/ap
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header]
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_insurance_policy_number_header]
 
-      if DocHelpers.wip_doc_enabled?(:sc_v2_claimant)
-        parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_first_name_header]
-        parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_last_name_header]
-      end
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_first_name_header]
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_last_name_header]
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_username_header]
       parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_id_header]
@@ -240,19 +210,11 @@ describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/ap
 
       response '200', 'Valid maximum' do
         let(:sc_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json'))).tap do |data|
-            unless DocHelpers.wip_doc_enabled?(:sc_v2_claimant)
-              data.dig('data', 'attributes')&.delete('claimant')
-              data.dig('data', 'attributes')&.delete('claimantTypeOtherValue')
-              data['data']['attributes']['claimantType'] = 'veteran'
-            end
-          end
+          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json')))
         end
 
-        if DocHelpers.wip_doc_enabled?(:sc_v2_claimant)
-          let(:'X-VA-Claimant-First-Name') { 'first' }
-          let(:'X-VA-Claimant-Last-Name') { 'last' }
-        end
+        let(:'X-VA-Claimant-First-Name') { 'first' }
+        let(:'X-VA-Claimant-Last-Name') { 'last' }
 
         schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'sc_validate.json')))
 
