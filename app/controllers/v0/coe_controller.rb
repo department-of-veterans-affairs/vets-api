@@ -64,6 +64,12 @@ module V0
       end
     end
 
+    def document_download
+      document_url = lgy_service.get_document_url(params[:id])
+
+      render json: { data: { attributes: { url: document_url } } }, status: :ok
+    end
+
     private
 
     def lgy_service
