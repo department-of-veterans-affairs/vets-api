@@ -38,10 +38,6 @@ VBADocuments::Engine.routes.draw do
   end
 
   namespace :docs do
-    namespace :v0 do
-      resources :api, only: [:index]
-    end
-
     namespace :v1 do
       resources :api, only: [:index]
     end
