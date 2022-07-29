@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.version     = VBADocuments::VERSION
   s.authors     = ['Patrick Vinograd']
   s.email       = ['patrick@adhocteam.us']
-  s.homepage    = 'https://api.va.gov/services/vba_documents/docs/v0'
+  s.homepage    = 'https://api.va.gov/services/vba_documents/docs/v1/api'
   s.summary     = 'VBA Documents Upload'
   s.description = 'VBA Documents Upload API'
   s.license     = 'CC0'
