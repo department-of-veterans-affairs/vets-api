@@ -29,7 +29,7 @@ RSpec.describe V0::SignInController, type: :controller do
     end
     let(:statsd_tags) { ["type:#{type_value}", "client_id:#{client_id_value}", "acr:#{acr[:acr]}"] }
 
-    shared_examples 'error response' do
+    shared_examples 'api based error response' do
       let(:expected_error_json) { { 'errors' => expected_error } }
       let(:expected_error_status) { :bad_request }
       let(:statsd_auth_failure) { SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_FAILURE }
@@ -52,19 +52,65 @@ RSpec.describe V0::SignInController, type: :controller do
       end
     end
 
+    shared_examples 'error response' do
+      let(:expected_error_json) { { 'errors' => expected_error } }
+      let(:expected_error_status) { :bad_request }
+      let(:statsd_auth_failure) { SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_FAILURE }
+
+      context 'and client_id is a web based setting' do
+        let(:client_id_value) { SignIn::Constants::ClientConfig::COOKIE_AUTH.first }
+        let(:expected_error_status) { :redirect }
+        let(:expected_redirect_params) { { auth: 'fail', code: '400' }.merge(type).to_query }
+        let(:expected_redirect) do
+          uri = URI.parse(Settings.sign_in.client_redirect_uris.web)
+          uri.query = expected_redirect_params
+          uri.to_s
+        end
+
+        it 'redirects to frontend failure page' do
+          expect(subject).to redirect_to(expected_redirect)
+        end
+
+        it 'returns expected status' do
+          expect(subject).to have_http_status(expected_error_status)
+        end
+
+        it 'logs the failed authorize attempt' do
+          expect(Rails.logger).to receive(:error).with("#{expected_error} : #{error_context}")
+          subject
+        end
+
+        it 'updates StatsD with a auth request failure' do
+          expect { subject }.to trigger_statsd_increment(statsd_auth_failure, tags: statsd_tags)
+        end
+      end
+
+      context 'and client_id is an api based setting' do
+        let(:client_id_value) { SignIn::Constants::ClientConfig::API_AUTH.first }
+
+        it_behaves_like 'api based error response'
+      end
+    end
+
     context 'when client_id is not given' do
       let(:client_id) { {} }
       let(:client_id_value) { nil }
       let(:expected_error) { 'Client id is not valid' }
+      let(:expected_error_json) { { 'errors' => expected_error } }
+      let(:expected_error_status) { :bad_request }
+      let(:statsd_auth_failure) { SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_FAILURE }
 
-      it_behaves_like 'error response'
+      it_behaves_like 'api based error response'
     end
 
     context 'when client_id is an arbitrary value' do
       let(:client_id_value) { 'some-client-id' }
       let(:expected_error) { 'Client id is not valid' }
+      let(:expected_error_json) { { 'errors' => expected_error } }
+      let(:expected_error_status) { :bad_request }
+      let(:statsd_auth_failure) { SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_ATTEMPT_FAILURE }
 
-      it_behaves_like 'error response'
+      it_behaves_like 'api based error response'
     end
 
     context 'when client_id is in CLIENT_IDS' do
@@ -374,7 +420,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
     before { allow(Rails.logger).to receive(:info) }
 
-    shared_examples 'error response' do
+    shared_examples 'api based error response' do
       let(:expected_error_json) { { 'errors' => expected_error } }
       let(:expected_error_status) { :bad_request }
       let(:error_context) { { type: type, client_id: client_id, acr: acr, state: state[:state], code: code[:code] } }
@@ -399,25 +445,68 @@ RSpec.describe V0::SignInController, type: :controller do
       end
     end
 
+    shared_examples 'error response' do
+      let(:expected_error_json) { { 'errors' => expected_error } }
+      let(:expected_error_status) { :bad_request }
+      let(:error_context) { { type: type, client_id: client_id, acr: acr, state: state[:state], code: code[:code] } }
+      let(:statsd_tags) { ["type:#{type}", "client_id:#{client_id}", "acr:#{acr}"] }
+      let(:statsd_callback_failure) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE }
+
+      context 'and client_id is a web based setting' do
+        let(:client_id) { SignIn::Constants::ClientConfig::COOKIE_AUTH.first }
+        let(:expected_error_status) { :redirect }
+        let(:type_hash) { { type: type } }
+        let(:expected_redirect_params) { { auth: 'fail', code: '400' }.merge(type_hash).to_query }
+        let(:expected_redirect) do
+          uri = URI.parse(Settings.sign_in.client_redirect_uris.web)
+          uri.query = expected_redirect_params
+          uri.to_s
+        end
+
+        it 'redirects to frontend failure page' do
+          expect(subject).to redirect_to(expected_redirect)
+        end
+
+        it 'returns expected status' do
+          expect(subject).to have_http_status(expected_error_status)
+        end
+
+        it 'logs the failed callback' do
+          expect(Rails.logger).to receive(:error).with("#{expected_error} : #{error_context}")
+          subject
+        end
+
+        it 'updates StatsD with a callback request failure' do
+          expect { subject }.to trigger_statsd_increment(statsd_callback_failure, tags: statsd_tags)
+        end
+      end
+
+      context 'and client_id is an api based setting' do
+        let(:client_id) { SignIn::Constants::ClientConfig::API_AUTH.first }
+
+        it_behaves_like 'api based error response'
+      end
+    end
+
     context 'when code is not given' do
       let(:code) { {} }
       let(:expected_error) { 'Code is not defined' }
 
-      it_behaves_like 'error response'
+      it_behaves_like 'api based error response'
     end
 
     context 'when state is not given' do
       let(:state) { {} }
       let(:expected_error) { 'State is not defined' }
 
-      it_behaves_like 'error response'
+      it_behaves_like 'api based error response'
     end
 
     context 'when state is arbitrary' do
       let(:state_value) { 'some-state' }
       let(:expected_error) { 'State JWT is malformed' }
 
-      it_behaves_like 'error response'
+      it_behaves_like 'api based error response'
     end
 
     context 'when state is a JWT but with improper signature' do
@@ -426,7 +515,7 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:encode_algorithm) { SignIn::Constants::Auth::JWT_ENCODE_ALGORITHM }
       let(:expected_error) { 'State JWT body does not match signature' }
 
-      it_behaves_like 'error response'
+      it_behaves_like 'api based error response'
     end
 
     context 'when state is a proper, expected JWT' do
