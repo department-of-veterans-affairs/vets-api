@@ -15,6 +15,7 @@ module LGY
     def initialize(edipi:, icn:)
       @edipi = edipi
       @icn = icn
+      @temp_folder = 'tmp/lgy_coe'
     end
 
     def coe_status
@@ -102,9 +103,8 @@ module LGY
       response = get_coe_file
       # return if 404
 
-      folder = 'tmp/lgy_coe'
-      FileUtils.mkdir_p(folder)
-      filename = "#{folder}/#{DateTime.now.strftime('%Q')}.pdf"
+      FileUtils.mkdir_p(@temp_folder)
+      filename = "#{@temp_folder}/#{DateTime.now.strftime('%Q')}.pdf"
       File.open(filename, 'wb') do |f|
         f.write(response.body)
       end
@@ -137,6 +137,37 @@ module LGY
           request_headers
         )
       end
+    end
+
+    def get_document(id:)
+      with_monitoring do
+        perform(
+          :get,
+          "#{end_point}/document/#{id}/file",
+          { 'edipi' => @edipi, 'icn' => @icn },
+          request_headers
+        )
+      end
+    rescue Common::Client::Errors::ClientError => e
+      # a 404 is expected if no Document is available
+      return e if e.status == 404
+
+      raise e
+    end
+
+    def get_document_url(id:)
+      response = get_document(id: id)
+
+      FileUtils.mkdir_p(@temp_folder)
+      filename = "#{@temp_folder}/#{DateTime.now.strftime('%Q')}.pdf"
+      File.open(filename, 'wb') do |f|
+        f.write(response.body)
+      end
+
+      document_url = LGY::AwsUploader.get_s3_link(filename)
+      File.delete(filename)
+
+      document_url
     end
 
     def request_headers
