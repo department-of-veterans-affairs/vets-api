@@ -5,7 +5,6 @@ edit_uri: edit/main/docs/
 nav:
   - Deployment:
       - Information: 'deployment/information.md'
-  - Read Me: '../../../README.md'
   - Setup:
       - Betamocks: 'setup/betamocks.md'
       - Debugging with Docker RubyMine Windows: 'setup/debugging_with_docker_rubymine_windows.md'
