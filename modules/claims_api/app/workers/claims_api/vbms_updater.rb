@@ -18,7 +18,7 @@ module ClaimsApi
       ClaimsApi::Logger.log(
         'poa',
         poa_id: power_of_attorney_id,
-        status: 'Updating Access',
+        detail: 'Updating Access',
         poa_code: poa_form.form_data.dig('serviceOrganization', 'poaCode')
       )
 
@@ -39,7 +39,7 @@ module ClaimsApi
         poa_form.status = ClaimsApi::PowerOfAttorney::ERRORED
         ClaimsApi::Logger.log('poa',
                               poa_id: power_of_attorney_id,
-                              status: 'VBMS Failed',
+                              detail: 'VBMS Failed',
                               error: response[:return_message])
       end
 
