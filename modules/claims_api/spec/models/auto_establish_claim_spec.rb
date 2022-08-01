@@ -98,13 +98,19 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
   describe 'translate form_data' do
     it 'checks an active claim date' do
       payload = JSON.parse(pending_record.to_internal)
-      expect(payload['form526']['claimDate']).to eq('1990-01-03')
+      expect(payload['form526']['claimDate']).to eq('1990-01-03T00:00:00+00:00')
     end
 
     it 'adds an active claim date' do
       pending_record.form_data.delete('claimDate')
       payload = JSON.parse(pending_record.to_internal)
-      expect(payload['form526']['claimDate']).to eq(pending_record.created_at.iso8601)
+      expect(payload['form526']['claimDate']).to eq(DateTime.parse(pending_record.created_at.iso8601).iso8601)
+    end
+
+    it 'converts a claim date to UTC' do
+      pending_record.form_data['claimDate'] = '1990-01-03'
+      payload = JSON.parse(pending_record.to_internal)
+      expect(payload['form526']['claimDate']).to eq('1990-01-03T00:00:00+00:00')
     end
 
     it 'adds an identifier for Lighthouse submissions' do
