@@ -28,13 +28,15 @@ module MailAutomation
       raise ArgumentError, 'no file_number passed in for API request.' if @file_number.blank?
       raise ArgumentError, 'no claim_id passed in for API request.' if @claim_id.blank?
       raise ArgumentError, 'no form526 passed in for API request.' if @form526.blank?
+      raise ArgumentError, 'no disabilities passed in for API request.' if @form526.dig('form526', 'form526',
+                                                                                        'disabilities').blank?
     end
 
     def initiate_apcas_processing
       params = {
         file_number: @file_number,
         claim_id: @claim_id,
-        form526: @form526,
+        form526: @form526['form526'],
         form526_uploads: @form526_uploads
       }
 

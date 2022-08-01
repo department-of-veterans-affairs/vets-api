@@ -13,12 +13,14 @@ RSpec.describe MailAutomation::Client, :vcr do
                               file_number: 1234,
                               form526: {
                                 form526: {
-                                  disabilities: [{
-                                    name: 'sleep apnea',
-                                    diagnosticCode: 6847
-                                  }]
+                                  form526: {
+                                    disabilities: [{
+                                      name: 'sleep apnea',
+                                      diagnosticCode: 6847
+                                    }]
+                                  }
                                 }
-                              },
+                              }.as_json,
                               form526_uploads: []
                             }).initiate_apcas_processing
       end

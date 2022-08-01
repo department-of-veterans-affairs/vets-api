@@ -7,19 +7,22 @@ RSpec.describe MailAutomation::Client do
   # setting the client only once for this test set, as it mimics how it's used
 
   before(:all) do
-    @client = MailAutomation::Client.new({
-                                           claim_id: 1234,
-                                           file_number: 1234,
-                                           form526: {
-                                             form526: {
-                                               disabilities: [{
-                                                 name: 'sleep apnea',
-                                                 diagnosticCode: 6847
-                                               }]
-                                             }
-                                           },
-                                           form526_uploads: []
-                                         })
+    form526 = {
+      claim_id: 1234,
+      file_number: 1234,
+      form526: {
+        form526: {
+          form526: {
+            disabilities: [{
+              name: 'sleep apnea',
+              diagnosticCode: 6847
+            }]
+          }
+        }
+      }.as_json,
+      form526_uploads: []
+    }
+    @client = MailAutomation::Client.new(form526)
   end
 
   describe 'making requests' do
