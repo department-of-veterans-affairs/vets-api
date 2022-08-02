@@ -23,6 +23,8 @@ RSpec.describe OnsiteNotification, type: :model do
       expect_attr_invalid(onsite_notification, :template_id, 'is not included in the list')
       onsite_notification.template_id = 'f9947b27-df3b-4b09-875c-7f76594d766d'
       expect_attr_valid(onsite_notification, :template_id)
+      onsite_notification.template_id = '7efc2b8b-e59a-4571-a2ff-0fd70253e973'
+      expect_attr_valid(onsite_notification, :template_id)
     end
   end
 
