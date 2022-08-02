@@ -15,7 +15,8 @@ module SignIn
                 :first_name,
                 :last_name,
                 :birth_date,
-                :ssn
+                :ssn,
+                :mhv_icn
 
     def initialize(user_attributes:, state_payload:)
       @state_payload = state_payload
@@ -31,6 +32,7 @@ module SignIn
       @last_name = user_attributes[:last_name]
       @birth_date = user_attributes[:birth_date]
       @ssn = user_attributes[:ssn]
+      @mhv_icn = user_attributes[:mhv_icn]
     end
 
     def perform
@@ -148,6 +150,7 @@ module SignIn
       user_for_mpi_query.identity.last_name = user_for_mpi_query.last_name || last_name
       user_for_mpi_query.identity.birth_date = user_for_mpi_query.birth_date || birth_date
       user_for_mpi_query.identity.ssn = user_for_mpi_query.ssn || ssn
+      user_for_mpi_query.identity.mhv_icn = user_for_mpi_query.mhv_icn || mhv_icn
     end
 
     def user_verification

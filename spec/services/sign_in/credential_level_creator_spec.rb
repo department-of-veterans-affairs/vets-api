@@ -18,10 +18,12 @@ RSpec.describe SignIn::CredentialLevelCreator do
     let(:verified_at) { Time.zone.now }
     let(:credential_ial) { IAL::ONE }
     let(:level_of_assurance) { LOA::IDME_CLASSIC_LOA3 }
+    let(:mhv_assurance) { 'some-mhv-assurance' }
     let(:user_info) do
       OpenStruct.new({ verified_at: verified_at,
                        credential_ial: credential_ial,
-                       level_of_assurance: level_of_assurance })
+                       level_of_assurance: level_of_assurance,
+                       mhv_assurance: mhv_assurance })
     end
 
     context 'when requested_acr is arbitrary' do
@@ -55,7 +57,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
     end
 
     context 'and type is logingov' do
-      let(:type) { 'logingov' }
+      let(:type) { SAML::User::LOGINGOV_CSID }
 
       context 'and user info has verified_at trait' do
         let(:verified_at) { Time.zone.now }
@@ -96,8 +98,46 @@ RSpec.describe SignIn::CredentialLevelCreator do
       end
     end
 
+    context 'and type is mhv' do
+      let(:type) { SAML::User::MHV_ORIGINAL_CSID }
+
+      context 'and mhv assurance is set to premium' do
+        let(:mhv_assurance) { 'Premium' }
+        let(:expected_max_ial) { IAL::TWO }
+
+        context 'and requested_acr is set to loa3' do
+          let(:requested_acr) { SignIn::Constants::Auth::LOA3 }
+          let(:expected_current_ial) { IAL::TWO }
+
+          it_behaves_like 'a created credential level'
+        end
+
+        context 'and requested_acr is set to min' do
+          let(:requested_acr) { SignIn::Constants::Auth::MIN }
+          let(:expected_current_ial) { IAL::TWO }
+
+          it_behaves_like 'a created credential level'
+        end
+
+        context 'and requested_acr is set to loa1' do
+          let(:requested_acr) { SignIn::Constants::Auth::LOA1 }
+          let(:expected_current_ial) { IAL::ONE }
+
+          it_behaves_like 'a created credential level'
+        end
+      end
+
+      context 'and mhv assurance is not set to premium' do
+        let(:mhv_assurance) { 'some-mhv-assurance' }
+        let(:expected_max_ial) { IAL::ONE }
+        let(:expected_current_ial) { IAL::ONE }
+
+        it_behaves_like 'a created credential level'
+      end
+    end
+
     context 'and type is some other supported value' do
-      let(:type) { 'idme' }
+      let(:type) { SAML::User::IDME_CSID }
 
       context 'and user info level of assurance equals idme classic loa3' do
         let(:level_of_assurance) { LOA::THREE }
@@ -118,7 +158,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
         end
       end
 
-      context 'and user info level of assurance does not equal idme classi loa3' do
+      context 'and user info level of assurance does not equal idme classic loa3' do
         let(:level_of_assurance) { 'some-level-of-assurance' }
         let(:expected_max_ial) { IAL::ONE }
 

@@ -59,12 +59,8 @@ module SignIn
 
     def translate_mhv_values
       case acr
-      when 'loa1'
+      when 'loa1', 'loa3', 'min'
         LOA::IDME_MHV_LOA1
-      when 'loa3'
-        LOA::IDME_MHV_LOA3
-      when 'min'
-        uplevel ? LOA::IDME_MHV_LOA3 : LOA::IDME_MHV_LOA1
       else
         raise Errors::InvalidAcrError, 'Invalid ACR for mhv'
       end
