@@ -71,6 +71,17 @@ RSpec.describe 'service_history', skip_emis: true do
         end
 
         context 'when not successful' do
+          it 'returns a no service history episodes' do
+            VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200_empty') do
+              get '/v0/profile/service_history'
+              json = json_body_for(response)
+              expect(response).to be_ok
+
+              episodes = json.dig('attributes', 'service_history')
+              expect(episodes.count).to eq(0)
+            end
+          end
+
           context 'with a 400 error' do
             it 'returns nil service history' do
               VCR.use_cassette('va_profile/military_personnel/post_read_service_history_400') do

@@ -20,7 +20,7 @@ module VAProfile
 
         new(
           raw_response&.status,
-          episodes: sort_by_begin_date(episodes)
+          episodes: episodes ? sort_by_begin_date(episodes) : episodes
         )
       end
 
