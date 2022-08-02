@@ -309,6 +309,7 @@ describe SignIn::Idme::Service do
             email: email,
             mhv_uuid: mhv_correlation_id,
             mhv_icn: mhv_icn,
+            mhv_assurance: mhv_assurance,
             level_of_assurance: 3,
             multifactor: multifactor,
             credential_aal: 2,
@@ -319,8 +320,11 @@ describe SignIn::Idme::Service do
       end
       let(:mhv_correlation_id) { 'some-mhv-correlation-id' }
       let(:mhv_icn) { 'some-mhv-icn' }
+      let(:mhv_assurance) { 'some-mhv-assurance' }
       let(:expected_attributes) do
-        expected_standard_attributes.merge({ mhv_icn: mhv_icn, mhv_correlation_id: mhv_correlation_id })
+        expected_standard_attributes.merge({ mhv_icn: mhv_icn,
+                                             mhv_correlation_id: mhv_correlation_id,
+                                             mhv_assurance: mhv_assurance })
       end
 
       it 'returns expected mhv attributes' do

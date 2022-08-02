@@ -112,7 +112,8 @@ module SignIn
       def mhv_attributes(user_info)
         {
           mhv_correlation_id: user_info.mhv_uuid,
-          mhv_icn: user_info.mhv_icn
+          mhv_icn: user_info.mhv_icn,
+          mhv_assurance: user_info.mhv_assurance
         }
       end
 

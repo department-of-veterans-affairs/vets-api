@@ -14,7 +14,7 @@ module SignIn
       ANTI_CSRF_COOKIE_NAME = 'vagov_anti_csrf_token'
       INFO_COOKIE_NAME = 'vagov_info_token'
       REFRESH_ROUTE_PATH = '/v0/sign_in/refresh'
-      ACR_VALUES = %w[loa1 loa3 ial1 ial2 min].freeze
+      ACR_VALUES = [LOA1 = 'loa1', LOA3 = 'loa3', IAL1 = 'ial1', IAL2 = 'ial2', MIN = 'min'].freeze
     end
   end
 end

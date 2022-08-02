@@ -826,23 +826,102 @@ RSpec.describe V0::SignInController, type: :controller do
             level_of_assurance: level_of_assurance,
             credential_ial: credential_ial,
             mhv_uuid: '123456789',
-            mhv_icn: '987654321V123456'
+            mhv_icn: '987654321V123456',
+            mhv_assurance: mhv_assurance
           )
         end
-        let(:expected_user_attributes) do
-          {
-            mhv_correlation_id: user_info.mhv_uuid,
-            icn: user_info.mhv_icn
-          }
-        end
+        let(:response) { OpenStruct.new(access_token: token) }
+        let(:level_of_assurance) { LOA::THREE }
+        let(:credential_ial) { LOA::IDME_CLASSIC_LOA3 }
+        let(:token) { 'some-token' }
+        let(:mhv_assurance) { 'some-mhv-assurance' }
 
         before do
           stub_mpi(build(:mvi_profile,
                          icn: user_info.mhv_icn,
                          mhv_ids: [user_info.mhv_uuid]))
+          allow_any_instance_of(SignIn::Idme::Service).to receive(:token).with(code_value).and_return(response)
+          allow_any_instance_of(SignIn::Idme::Service).to receive(:user_info).with(token).and_return(user_info)
         end
 
-        it_behaves_like 'an idme authentication service'
+        context 'and code is given but does not match expected code for auth service' do
+          let(:response) { nil }
+          let(:expected_error) { 'Code is not valid' }
+
+          it_behaves_like 'error response'
+        end
+
+        context 'and code is given that matches expected code for auth service' do
+          let(:response) { OpenStruct.new(access_token: token) }
+          let(:level_of_assurance) { LOA::THREE }
+          let(:acr) { 'loa3' }
+          let(:credential_ial) { LOA::IDME_CLASSIC_LOA3 }
+          let(:client_code) { 'some-client-code' }
+          let(:expected_url) do
+            "#{Settings.sign_in.client_redirect_uris.mobile}?code=#{client_code}&state=#{client_state}&type=#{type}"
+          end
+          let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
+          let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
+          let(:expected_logger_context) do
+            {
+              type: type,
+              client_id: client_id,
+              acr: acr
+            }
+          end
+
+          before do
+            allow(SecureRandom).to receive(:uuid).and_return(client_code)
+          end
+
+          shared_context 'mhv successful callback' do
+            it 'returns found status' do
+              expect(subject).to have_http_status(:found)
+            end
+
+            it 'redirects to expected url' do
+              expect(subject).to redirect_to(expected_url)
+            end
+
+            it 'logs the successful callback' do
+              expect(Rails.logger).to receive(:info).with(expected_log, expected_logger_context)
+              expect { subject }.to trigger_statsd_increment(statsd_callback_success, tags: statsd_tags)
+            end
+
+            it 'creates a user with expected attributes' do
+              subject
+
+              user_uuid = UserVerification.last.credential_identifier
+              user = User.find(user_uuid)
+
+              expect(user).to have_attributes(expected_user_attributes)
+            end
+          end
+
+          context 'and mhv account is not premium' do
+            let(:mhv_assurance) { 'some-mhv-assurance' }
+            let(:expected_user_attributes) do
+              {
+                mhv_correlation_id: nil,
+                icn: nil
+              }
+            end
+
+            it_behaves_like 'mhv successful callback'
+          end
+
+          context 'and mhv account is premium' do
+            let(:mhv_assurance) { 'Premium' }
+            let(:expected_user_attributes) do
+              {
+                mhv_correlation_id: user_info.mhv_uuid,
+                icn: user_info.mhv_icn
+              }
+            end
+
+            it_behaves_like 'mhv successful callback'
+          end
+        end
       end
     end
   end
