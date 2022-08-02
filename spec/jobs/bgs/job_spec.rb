@@ -28,6 +28,8 @@ RSpec.describe BGS::Job, type: :job do
   end
 
   describe '#salvage_save_in_progress_form' do
+    let!(:user_verification) { create(:user_verification, idme_uuid: user.idme_uuid) }
+
     it 'returns nil if the in progress form is blank' do
       job = described_class.new
 
