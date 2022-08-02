@@ -69,7 +69,7 @@ module CovidVaccine
 
       def handle_facility(submission)
         facility = submission&.eligibility_info&.fetch('preferred_facility', nil) ||
-                   submission.raw_form_data['preferred_facility'].delete_prefix('vha_')
+                   submission.raw_form_data['preferred_facility']&.delete_prefix('vha_')
         handle_no_facility_error(submission) if facility.blank?
         facility
       end
