@@ -26,7 +26,8 @@ module DecisionReviewV1
 
     HLR_CREATE_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-CREATE-RESPONSE-200_V1'
     HLR_SHOW_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-SHOW-RESPONSE-200_V1'
-    HLR_GET_LEGACY_APPEALS_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-GET-LEGACY-APPEALS-RESPONSE-200'
+    # TODO: rename the imported schema as its shared with Supplemental Claims
+    GET_LEGACY_APPEALS_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-GET-LEGACY-APPEALS-RESPONSE-200'
 
     NOD_CREATE_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'NOD-CREATE-RESPONSE-200_V1'
     NOD_SHOW_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'NOD-SHOW-RESPONSE-200_V1'
@@ -94,7 +95,7 @@ module DecisionReviewV1
     end
 
     ##
-    # Get Legacy Appeals for a Higher-Level Review
+    # Get Legacy Appeals for either a Higher-Level Review or a Supplemental Claim
     #
     # @param user [User] Veteran who the form is in regard to
     # @return [Faraday::Response]
@@ -107,8 +108,8 @@ module DecisionReviewV1
         raise_schema_error_unless_200_status response.status
         validate_against_schema(
           json: response.body,
-          schema: HLR_GET_LEGACY_APPEALS_RESPONSE_SCHEMA,
-          append_to_error_class: ' (HLR_V1)'
+          schema: GET_LEGACY_APPEALS_RESPONSE_SCHEMA,
+          append_to_error_class: ' (DECISION_REVIEW_V1)'
         )
         response
       end
@@ -462,7 +463,7 @@ module DecisionReviewV1
 
     def save_error_details(error)
       PersonalInformationLog.create!(
-        error_class: "#{self.class.name}#save_error_details exception #{error.class} (HLR) (NOD) (SC)",
+        error_class: "#{self.class.name}#save_error_details exception #{error.class} (DECISION_REVIEW_V1)",
         data: { error: Class.new.include(FailedRequestLoggable).exception_hash(error) }
       )
       Raven.tags_context external_service: self.class.to_s.underscore
