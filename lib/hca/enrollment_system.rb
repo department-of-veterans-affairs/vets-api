@@ -467,8 +467,9 @@ module HCA
           'companyName' => 'Medicare',
           'enrolledInPartA' => veteran['isEnrolledMedicarePartA'],
           'insuranceMappingTypeName' => 'MDCR',
+          'policyNumber' => veteran['medicareClaimNumber'],
           'partAEffectiveDate' => Validations.date_of_birth(veteran['medicarePartAEffectiveDate'])
-        }
+        }.compact
       end
 
       return if insurance_collection.blank?
