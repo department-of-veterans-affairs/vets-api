@@ -41,7 +41,8 @@ Rails.application.routes.draw do
     resource :virtual_agent_token, only: [:create], controller: :virtual_agent_token
     resources :preferred_facilities, only: %i[index create destroy]
 
-    get 'form1095_bs/download/:tax_year', to: 'form1095_bs#download'
+    get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
+    get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'
     get 'form1095_bs/available_forms', to: 'form1095_bs#available_forms'
 
     resources :medical_copays, only: %i[index show]

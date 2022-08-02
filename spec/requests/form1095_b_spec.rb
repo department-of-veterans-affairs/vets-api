@@ -10,34 +10,66 @@ RSpec.describe Form1095B, type: :request do
   let(:user_without_form) { build(:user, :loa3, icn: '7832473474389') }
   let(:past_form) { create(:form1095_b, tax_year: 2010) }
 
-  describe 'GET /download for valid user' do
+  describe 'GET /download_pdf for valid user' do
     before do
       sign_in_as(user)
     end
 
     it 'returns http success' do
-      get '/v0/form1095_bs/download/2021'
+      get '/v0/form1095_bs/download_pdf/2021'
       expect(response).to have_http_status(:success)
     end
 
     it 'returns a PDF form' do
-      get '/v0/form1095_bs/download/2021'
+      get '/v0/form1095_bs/download_pdf/2021'
       expect(response.content_type).to eq('application/pdf')
     end
 
     it 'throws 404 when form not found' do
-      get '/v0/form1095_bs/download/2018'
+      get '/v0/form1095_bs/download_pdf/2018'
       expect(response.status).to eq(404)
     end
   end
 
-  describe 'GET /download for invalid user' do
+  describe 'GET /download_pdf for invalid user' do
     before do
       sign_in_as(invalid_user)
     end
 
     it 'returns http 403' do
-      get '/v0/form1095_bs/download/2021'
+      get '/v0/form1095_bs/download_pdf/2021'
+      expect(response.status).to eq(403)
+    end
+  end
+
+  describe 'GET /download_txt for valid user' do
+    before do
+      sign_in_as(user)
+    end
+
+    it 'returns http success' do
+      get '/v0/form1095_bs/download_txt/2021'
+      expect(response).to have_http_status(:success)
+    end
+
+    it 'returns a txt form' do
+      get '/v0/form1095_bs/download_txt/2021'
+      expect(response.content_type).to eq('text/plain')
+    end
+
+    it 'throws 404 when form not found' do
+      get '/v0/form1095_bs/download_txt/2018'
+      expect(response.status).to eq(404)
+    end
+  end
+
+  describe 'GET /download_txt for invalid user' do
+    before do
+      sign_in_as(invalid_user)
+    end
+
+    it 'returns http 403' do
+      get '/v0/form1095_bs/download_txt/2021'
       expect(response.status).to eq(403)
     end
   end

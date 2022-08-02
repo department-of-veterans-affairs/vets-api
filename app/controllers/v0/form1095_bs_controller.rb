@@ -3,16 +3,21 @@
 module V0
   class Form1095BsController < ApplicationController
     before_action { authorize :form1095, :access? }
-    before_action :set_form, only: :download
+    before_action :set_form, only: %i[download_pdf download_txt]
     before_action :set_available_forms, only: :available_forms
 
     def available_forms
       render json: { available_forms: @available_forms }
     end
 
-    def download
+    def download_pdf
       file_name = "1095B_#{download_params[:tax_year]}.pdf"
-      send_data @form.pdf, filename: file_name, type: 'application/pdf', disposition: 'attachment'
+      send_data @form.pdf_file, filename: file_name, type: 'application/pdf', disposition: 'inline'
+    end
+
+    def download_txt
+      file_name = "1095B_#{download_params[:tax_year]}.txt"
+      send_data @form.txt_file, filename: file_name, type: 'text/plain', disposition: 'inline'
     end
 
     private
