@@ -16,6 +16,9 @@ MebApi::Engine.routes.draw do
     post 'fry_dea_sponsors', to: 'fry_dea#sponsors'
     get 'claim_letter/fry', to: 'fry_dea#claim_letter'
 
+    post 'forms_sponsor', to: 'forms#sponsor'
+    get 'form_claim_letter', to: 'forms#claim_letter'
+
     get 'apidocs', to: 'apidocs#index'
   end
 end
