@@ -131,13 +131,13 @@ module ClaimsApi
           claim_id.to_s.include?('-')
         end
 
-        def build_claim_structure(data:, lighthouse_id:, upstream_id:)
+        def build_claim_structure(data:, lighthouse_id:, upstream_id:) # rubocop:disable Metrics/MethodLength
           {
             benefit_claim_type_code: data[:bnft_claim_type_cd],
             claim_id: upstream_id,
             claim_type: data[:claim_status_type],
             contention_list: data[:contentions]&.split(','),
-            date_filed: data[:claim_dt].present? ? data[:claim_dt].strftime('%D') : nil,
+            claim_date: data[:claim_dt].present? ? data[:claim_dt].strftime('%D') : nil,
             decision_letter_sent: map_yes_no_to_boolean(
               'decision_notification_sent',
               data[:decision_notification_sent]
@@ -145,11 +145,16 @@ module ClaimsApi
             development_letter_sent: map_yes_no_to_boolean('development_letter_sent', data[:development_letter_sent]),
             documents_needed: map_yes_no_to_boolean('attention_needed', data[:attention_needed]),
             end_product_code: data[:end_prdct_type_cd],
+            jurisdiction: data[:regional_office_jrsdctn],
             lighthouse_id: lighthouse_id,
+            maxEstClaimDate: data[:max_est_claim_complete_dt],
+            minEstClaimDate: data[:min_est_claim_complete_dt],
             status: detect_status(data),
             submitter_application_code: data[:submtr_applcn_type_cd],
             submitter_role_code: data[:submtr_role_type_cd],
-            '5103_waiver_submitted'.to_sym => map_yes_no_to_boolean('filed5103_waiver_ind', data[:filed5103_waiver_ind])
+            '5103_waiver_submitted'.to_sym => map_yes_no_to_boolean('filed5103_waiver_ind',
+                                                                    data[:filed5103_waiver_ind]),
+            tempJurisdiction: data[:temp_regional_office_jrsdctn]
           }
         end
 

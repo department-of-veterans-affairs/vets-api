@@ -20,7 +20,7 @@ module ClaimsApi
       @date_to = date_to.in_time_zone('Eastern Time (US & Canada)').strftime('%a %D %I:%M %p')
       @consumer_claims_totals = data[:consumer_claims_totals]
       @unsuccessful_claims_submissions = data[:unsuccessful_claims_submissions]
-      @poa_totals = poa_totals = data[:poa_totals]
+      @poa_totals = data[:poa_totals]
       @unsuccessful_poa_submissions = data[:unsuccessful_poa_submissions]
 
       template = File.read(path)

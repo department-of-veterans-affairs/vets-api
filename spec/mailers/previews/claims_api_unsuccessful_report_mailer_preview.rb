@@ -29,20 +29,30 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
                           errored: 1,
                           totals: 3,
                           percentage_with_flashes: '50.0%',
+                          percentage_with_special_issues: '50.0%' } },
+      { 'consumer 2' => { pending: 3,
+                          errored: 3,
+                          totals: 6,
+                          percentage_with_flashes: '50.0%',
                           percentage_with_special_issues: '50.0%' } }
     ]
   end
 
   def poa_totals
-    { total: 10, updated: 5, errored: 2, pending: 1, uploaded: 2 }
+    [
+      {
+        'consumer 1' => { total: 10, updated: 5, errored: 2, pending: 1, uploaded: 2 }
+      },
+      {
+        'consumer 2' => { total: 8, updated: 3, errored: 2, pending: 1, uploaded: 2 }
+      }
+    ]
   end
 
   def unsuccessful_poa_submissions
     [
-      { id: 'b1744635-25de-4adb-b64c-37436c1e4079', created_at: 1.day.ago.to_s,
-        vbms_error_message: 'File could not be retrieved from AWS' },
-      { id: '69d521f9-0879-40c5-ad43-27a38e462592', created_at: 1.day.ago.to_s,
-        vbms_error_message: 'An unknown error has occurred when uploading document' }
+      { id: '61f6d6c9-b6ac-49c7-b1df-bccd065dbf9c', created_at: 1.day.ago.to_s },
+      { id: '2753f720-d0a9-4b93-9721-eb3dd67fab9b', created_at: 1.day.ago.to_s }
     ]
   end
 end

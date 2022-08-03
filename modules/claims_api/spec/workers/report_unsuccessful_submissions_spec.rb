@@ -3,6 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
+  before(:all) do
+    DatabaseCleaner.clean_with(:truncation)
+  end
+
   let(:upload_claims) do
     upload_claims = []
     upload_claims.push(FactoryBot.create(:auto_established_claim,
@@ -32,17 +36,38 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
                                          evss_response: evss_response_array.to_json))
   end
   let(:pending_claims) { FactoryBot.create(:auto_established_claim, cid: '0oa9uf05lgXYk6ZXn297') }
-  let(:poa_submissions) { FactoryBot.create(:power_of_attorney) }
+  let(:poa_submissions) do
+    poa_submissions = []
+    poa_submissions.push(FactoryBot.create(:power_of_attorney,
+                                           cid: '0oa9uf05lgXYk6ZXn297'))
+    poa_submissions.push(FactoryBot.create(:power_of_attorney,
+                                           cid: '0oa9uf05lgXYk6ZXn297'))
+    poa_submissions.push(FactoryBot.create(:power_of_attorney,
+                                           cid: '0oa9uf05lgXYk6ZXn297'))
+  end
   let(:errored_poa_submissions) do
-    FactoryBot.create(:power_of_attorney, :errored)
-    FactoryBot.create(
-      :power_of_attorney,
-      :errored,
-      vbms_error_message: 'File could not be retrieved from AWS'
-    )
+    errored_poa_submissions = []
+    errored_poa_submissions.push(FactoryBot.create(:power_of_attorney, :errored, cid: '0oa9uf05lgXYk6ZXn297'))
+    errored_poa_submissions.push(FactoryBot.create(
+                                   :power_of_attorney,
+                                   :errored,
+                                   vbms_error_message: 'File could not be retrieved from AWS',
+                                   cid: '0oa9uf05lgXYk6ZXn297'
+                                 ))
+    errored_poa_submissions.push(FactoryBot.create(:power_of_attorney_without_doc, cid: '0oa9uf05lgXYk6ZXn297'))
   end
 
   describe '#perform' do
+    let(:from) { 1.day.ago }
+    let(:to) { Time.zone.now }
+    let(:cid) { '0oa9uf05lgXYk6ZXn297' }
+    let(:unsuccessful_poa_submissions) do
+      ClaimsApi::PowerOfAttorney.where(created_at: from..to,
+                                       status: 'errored')
+                                .order(:cid, :status)
+                                .pluck(:cid, :status, :id, :created_at)
+    end
+
     it 'sends mail' do
       with_settings(Settings.claims_api,
                     report_enabled: true) do
@@ -57,7 +82,7 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
                                                                                  status: 'errored')
                                                                       .order(:cid, :status)
                                                                       .pluck(:cid, :status, :id),
-          poa_totals: { total: 0 },
+          poa_totals: [],
           unsuccessful_poa_submissions: []
         ).and_return(double.tap do |mailer|
                        expect(mailer).to receive(:deliver_now).once
@@ -97,11 +122,10 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
 
         job = described_class.new
         job.perform
-
         poa_totals = job.poa_totals
         unsuccessful_poa_submissions = job.unsuccessful_poa_submissions
 
-        expect(poa_totals.count).to eq(3)
+        expect(poa_totals[0]['VA TurboClaim'][:totals]).to eq(6)
         expect(unsuccessful_poa_submissions.count).to eq(2)
       end
     end

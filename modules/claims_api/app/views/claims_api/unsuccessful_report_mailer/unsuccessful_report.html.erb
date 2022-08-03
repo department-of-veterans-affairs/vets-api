@@ -61,12 +61,9 @@
     <hr/>
 
     <h2>Power of Attorney Submissions</h2>
-
-    <h3>
-      <%= @poa_totals[:total] %>
-      <span class="title">POA Submissions</span>
-    </h3>
-    <%= render partial: 'poa_status_table', locals: { poa_submissions: @poa_totals } unless @poa_totals.blank? %>
+    
+    <h3><span class="title">Per Consumer Status Counts</span></h3>
+        <%= render partial: 'poa_status_table', locals: { poa_consumers: @poa_totals } unless @poa_totals.blank? %>
 
     <h3>
       <%= @unsuccessful_poa_submissions.count %>

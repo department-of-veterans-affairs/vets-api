@@ -405,12 +405,14 @@
                 "example": [
                   {
                     "5103WaiverSubmitted": false,
+                    "claimDate": "05/02/17",
                     "claimId": "555555555",
                     "claimType": "Compensation",
-                    "dateFiled": "05/02/17",
+                    "closeDate": null,
                     "decisionLetterSent": false,
                     "developmentLetterSent": false,
                     "documentsNeeded": false,
+                    "endProductCode": "404",
                     "lighthouseId": null,
                     "status": "Complete"
                   }
@@ -430,18 +432,25 @@
                       "claimType": {
                         "type": "string",
                         "description": "Name of claim type",
-                        "example": "Appeals control"
+                        "example": "Compensation"
                       },
-                      "dateFiled": {
-                        "type": "string",
+                      "claimDate": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
                         "format": "date",
                         "description": "Date in YYYY-MM-DD the claim was first filed",
                         "example": "2018-06-04"
                       },
-                      "documentsNeeded": {
-                        "type": "boolean",
-                        "description": "If true, the claim requires additional documents to be submitted",
-                        "example": "false"
+                      "closeDate": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "format": "date",
+                        "description": "Date claim was closed",
+                        "example": "2019-09-04"
                       },
                       "developmentLetterSent": {
                         "type": "boolean",
@@ -452,6 +461,15 @@
                         "type": "boolean",
                         "description": "If true, a decision letter has been sent to the claimant regarding a benefit claim",
                         "example": "false"
+                      },
+                      "documentsNeeded": {
+                        "type": "boolean",
+                        "description": "If true, the claim requires additional documents to be submitted",
+                        "example": "false"
+                      },
+                      "endProductCode": {
+                        "type": "string",
+                        "description": "End product code of claim"
                       },
                       "lighthouseId": {
                         "type": "string",
@@ -640,8 +658,10 @@
                 "example": {
                   "5103WaiverSubmitted": false,
                   "benefitClaimTypeCode": "400PREDSCHRG",
+                  "claimDate": "05/02/17",
                   "claimId": "555555555",
                   "claimType": "Compensation",
+                  "closeDate": null,
                   "contentionList": [
                     "abnormal heart (New)",
                     " abscess kidney (New)",
@@ -652,18 +672,21 @@
                     " groin condition (New)",
                     " metritis (New)"
                   ],
-                  "dateFiled": "05/02/17",
                   "decisionLetterSent": false,
                   "developmentLetterSent": false,
                   "documentsNeeded": false,
                   "endProductCode": "404",
+                  "jurisdiction": "National Work Queue",
                   "lighthouseId": null,
+                  "maxEstClaimDate": null,
+                  "minEstClaimDate": null,
                   "status": "Complete",
                   "submitterApplicationCode": "EBN",
                   "submitterRoleCode": "VET",
                   "supportingDocuments": [
 
-                  ]
+                  ],
+                  "tempJurisdiction": null
                 },
                 "schema": {
                   "type": "object",
@@ -683,7 +706,7 @@
                     "claimType": {
                       "type": "string",
                       "description": "Name of claim type",
-                      "example": "Appeals Control"
+                      "example": "Compensation"
                     },
                     "contentionList": {
                       "type": "array",
@@ -696,10 +719,22 @@
                         "abscess kidney (New)"
                       ]
                     },
-                    "dateFiled": {
-                      "type": "string",
+                    "claimDate": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
                       "description": "The date a claim was filed",
                       "example": "5/17/20"
+                    },
+                    "closeDate": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date",
+                      "description": "Date claim was closed",
+                      "example": "2019-09-04"
                     },
                     "decisionLetterSent": {
                       "type": "boolean",
@@ -738,6 +773,35 @@
                       "type": "string",
                       "description": "Role Code of benefit claim submitter",
                       "example": "VET"
+                    },
+                    "jurisdiction": {
+                      "type": "string",
+                      "description": "Jurisdiction of claim"
+                    },
+                    "tempJurisdiction": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "Temporary jurisdiction of claim"
+                    },
+                    "minEstClaimDate": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date",
+                      "description": "Minimum Estimated Claim Completion Date",
+                      "example": "2019-06-04"
+                    },
+                    "maxEstClaimDate": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date",
+                      "description": "Maximum Estimated Claim Completion Date",
+                      "example": "2019-09-04"
                     },
                     "supportingDocuments": {
                       "type": "array",

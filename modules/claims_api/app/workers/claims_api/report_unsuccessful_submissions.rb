@@ -12,6 +12,7 @@ module ClaimsApi
         @to = Time.zone.now
         @from = 1.day.ago
         @claims_consumers = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to).pluck(:cid).uniq
+        @poa_consumers = ClaimsApi::PowerOfAttorney.where(created_at: @from..@to).pluck(:cid).uniq
 
         ClaimsApi::UnsuccessfulReportMailer.build(
           @from,
@@ -72,14 +73,31 @@ module ClaimsApi
     end
 
     def poa_totals
-      totals = ClaimsApi::PowerOfAttorney.where(created_at: @from..@to).group(:status).count
-      total_submissions = totals.sum { |_k, v| v }
-      totals.merge(total: total_submissions).deep_symbolize_keys
+      @poa_consumers.map do |cid|
+        counts = ClaimsApi::PowerOfAttorney.where(created_at: @from..@to, cid: cid).group(:status).count
+        totals = counts.sum { |_k, v| v }
+
+        if totals.positive?
+          consumer_name = ClaimsApi::CidMapper.new(cid: cid).name
+          {
+            consumer_name => counts.merge(totals: totals)
+                                   .deep_symbolize_keys
+          }
+        end
+      end
     end
 
     def unsuccessful_poa_submissions
-      ClaimsApi::PowerOfAttorney.where(created_at: @from..@to, status: %w[errored]).order(:created_at,
-                                                                                          :vbms_error_message)
+      errored_poas.pluck(:cid, :created_at, :id).map do |cid, created_at, id|
+        { id: id, created_at: created_at, cid: cid }
+      end
+    end
+
+    def errored_poas
+      ClaimsApi::PowerOfAttorney.where(
+        created_at: @from..@to,
+        status: %w[errored]
+      ).order(:cid, :status)
     end
   end
 end
