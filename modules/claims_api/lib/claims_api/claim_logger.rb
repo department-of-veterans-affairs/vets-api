@@ -39,6 +39,13 @@ module ClaimsApi
         msg.append("Error Code: #{params[:error]}") if params[:error].present?
       when 'itf'
         msg.append("ITF: #{params[:detail]}") if params[:detail].present?
+      when 'validate_identifiers'
+        msg.append("RID: #{params[:rid]}") if params[:rid].present?
+        msg.append("BIRLS Required: #{params[:require_birls]}") if params[:require_birls].present?
+        msg.append("Header Request: #{params[:header_request]}") if params[:header_request].present?
+        msg.append("has ptcpnt_id: #{params[:ptcpnt_id]}") if params[:ptcpnt_id].present?
+        msg.append("has birls_id: #{params[:birls_id]}") if params[:birls_id].present?
+        msg.append("MPI Response OK: #{params[:mpi_res_ok]}") if params[:mpi_res_ok].present?
       else
         msg.append(params.to_json)
       end

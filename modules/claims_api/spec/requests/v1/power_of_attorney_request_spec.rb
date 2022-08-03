@@ -124,8 +124,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
                     response_body = JSON.parse response.body
                     expect(response.status).to eq(422)
                     expect(response_body['errors'][0]['detail']).to eq(
-                      'Veteran is missing a participant ID. '\
-                      'Please contact the Digital Transformation Center (DTC) at 202-921-0911 for assistance.'
+                      "Unable to locate Veteran's Participant ID in Master Person Index (MPI)." \
+                      'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
                     )
                   end
                 end
@@ -368,8 +368,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
         context 'BGS response is invalid' do
           let(:error_detail) do
-            'Unable to locate Veteran file number for eFolder. '\
-              'Please contact the Digital Transformation Center (DTC) at 202-921-0911 for assistance.'
+            "Unable to locate Veteran's File Number in Master Person Index (MPI)." \
+              'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
           end
 
           context "when the BGS response is 'nil'" do
