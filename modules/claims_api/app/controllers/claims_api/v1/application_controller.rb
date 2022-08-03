@@ -30,23 +30,34 @@ module ClaimsApi
 
         if require_birls && target_veteran.participant_id.present? && target_veteran.birls_id.blank?
           raise ::Common::Exceptions::UnprocessableEntity.new(detail:
-            'Unable to locate Veteran BIRLS ID. '\
-            'Please contact the Digital Transformation Center (DTC) at 202-921-0911 for assistance.')
+            "Unable to locate Veteran's BIRLS ID in Master Person Index (MPI)." \
+            'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
         end
 
         if header_request? && !target_veteran.mpi_record?
           raise ::Common::Exceptions::UnprocessableEntity.new(
             detail:
-              'Submitting an original claim requires the Veteran to be authenticated with an identity-verified account'
+              'Unable to locate Veteran in Master Person Index (MPI).' \
+              'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
           )
         end
 
+        ClaimsApi::Logger.log('validate_identifiers',
+                              rid: request.request_id,
+                              require_birls: require_birls,
+                              header_request: header_request?,
+                              ptcpnt_id: target_veteran.participant_id.present?,
+                              birls_id: target_veteran.birls_id.present?)
+
         mpi_add_response = target_veteran.mpi.add_person_proxy
         raise mpi_add_response.error unless mpi_add_response.ok?
+
+        ClaimsApi::Logger.log('validate_identifiers',
+                              rid: request.request_id, mpi_res_ok: mpi_add_response.ok?)
       rescue ::Common::Exceptions::UnprocessableEntity
         raise ::Common::Exceptions::UnprocessableEntity.new(detail:
-          'Veteran is missing a participant ID. '\
-          'Please contact the Digital Transformation Center (DTC) at 202-921-0911 for assistance.')
+          "Unable to locate Veteran's Participant ID in Master Person Index (MPI)." \
+          'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
       rescue ArgumentError
         raise ::Common::Exceptions::UnprocessableEntity.new(
           detail: 'Required values are missing. Please double check the accuracy of any request header values.'
