@@ -4,10 +4,10 @@ required:
   - kind
   - status
   - serviceType
+  - reasonCode
   - locationId
   - requestedPeriods
   - contact
-  - comment
   - preferredTimesForPhoneCall
 properties:
   kind:
@@ -71,7 +71,3 @@ properties:
     ]
   contact:
     "$ref": ./PatientContact.yml
-  comment:
-    description: Free-form comment section to provide additional information about an appointment request.
-    type: string
-    example: 'free form comment here'

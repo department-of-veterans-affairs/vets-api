@@ -1,5 +1,5 @@
 type: object
-description: Reason for appointment. If reason is given, code and text field will be the same value. If no reason was provided ('Other' option) then the 'coding' field array should be empty and text field should be populated with commment field text
+description: Reason for appointment. A reason will be selected, along with a required free form response. If no reason was provided ('My reason isn't listed' option) then no 'coding' field array will be provided and text field will be populated with the free form comment
 required:
   - coding
   - text
@@ -18,4 +18,5 @@ properties:
           example: 'Routine Follow-up'
   text:
     type: string
-    example: 'Routine Follow-up'
+    example: 'free form comment here'
+    maxLength: 100
