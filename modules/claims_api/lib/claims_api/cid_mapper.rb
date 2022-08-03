@@ -5,7 +5,10 @@ module ClaimsApi
   class CidMapper
     CID_MAPPINGS = {
       '0oa9uf05lgXYk6ZXn297' => 'VA TurboClaim',
-      '0oa66qzxiq37neilh297' => 'ETK Veteran’s Benefits'
+      '0oa66qzxiq37neilh297' => 'ETK Veteran’s Benefits',
+      '0oadnb0o063rsPupH297' => 'Vet Connect Pro',
+      '0oadnb1x4blVaQ5iY297' => 'Law Pro',
+      '0oadnavva9u5F6vRz297' => 'Vet Claim Pro'
     }.freeze
 
     def initialize(cid:)
