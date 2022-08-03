@@ -28,6 +28,10 @@ features:
     actor_type: user
     description: Enables American Indian SIGI question page.
     enable_in_development: true
+  hca_medicare_claim_number_enabled:
+    actor_type: user
+    description: Enables a form field for Medicare Claim Number.
+    enable_in_development: true
   hca_short_form_enabled:
     actor_type: user
     description: Enables Short Form for users with or self discloser of high disability.
