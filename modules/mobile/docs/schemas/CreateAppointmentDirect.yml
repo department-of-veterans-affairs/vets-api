@@ -4,10 +4,10 @@ required:
   - kind
   - clinic
   - status
+  - reasonCode
   - slot
   - extension
   - locationId
-  - comment
 properties:
   kind:
     enum:
@@ -25,7 +25,7 @@ properties:
     example: 'booked'
   reasonCode:
     type: object
-    "$ref": ./ReasonCodeDirect.yml
+    "$ref": ./ReasonCode.yml
   slot:
     type: object
     description: Id of direct schedule time slot
@@ -38,8 +38,3 @@ properties:
     description: The sta6aid for the VAfacility where the appointment is registered.
     type: string
     example: '983GC'
-  comment:
-    description:
-      Free-form comment section to provide additional information about an appointment request.
-    type: string
-    example: 'free form comment here'
