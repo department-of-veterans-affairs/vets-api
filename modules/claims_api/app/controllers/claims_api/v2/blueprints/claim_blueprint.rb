@@ -8,15 +8,20 @@ module ClaimsApi
         field :claim_id
         field :claim_type
         field :contention_list
-        field :date_filed
+        field :claim_date
+        field :close_date
         field :decision_letter_sent
         field :development_letter_sent
         field :documents_needed
         field :end_product_code
+        field :jurisdiction
         field :lighthouse_id
+        field :max_est_claim_date
+        field :min_est_claim_date
         field :status
         field :submitter_application_code
         field :submitter_role_code
+        field :temp_jurisdiction
         field :supporting_documents do |claim, _options|
           auto_established_claim = ClaimsApi::AutoEstablishedClaim.find_by evss_id: claim[:id]
           if auto_established_claim.present?
@@ -43,10 +48,14 @@ module ClaimsApi
         view :list do
           exclude :benefit_claim_type_code
           exclude :contention_list
-          exclude :end_product_code
+          exclude :jurisdiction
+          exclude :max_est_claim_date
+          exclude :min_est_claim_date
+          exclude :status_type
           exclude :submitter_application_code
           exclude :submitter_role_code
           exclude :supporting_documents
+          exclude :temp_jurisdiction
 
           transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
         end

@@ -13,18 +13,19 @@
       "claimType": {
         "type": "string",
         "description": "Name of claim type",
-        "example": "Appeals control"
+        "example": "Compensation"
       },
-      "dateFiled": {
-        "type": "string",
+      "claimDate": {
+        "type": ["string", "null"],
         "format": "date",
         "description": "Date in YYYY-MM-DD the claim was first filed",
         "example": "2018-06-04"
       },
-      "documentsNeeded": {
-        "type": "boolean",
-        "description": "If true, the claim requires additional documents to be submitted",
-        "example": "false"
+      "closeDate": {
+        "type": ["string", "null"],
+        "format": "date",
+        "description": "Date claim was closed",
+        "example": "2019-09-04"
       },
       "developmentLetterSent": {
         "type": "boolean",
@@ -35,6 +36,15 @@
         "type": "boolean",
         "description": "If true, a decision letter has been sent to the claimant regarding a benefit claim",
         "example": "false"
+      },
+      "documentsNeeded": {
+        "type": "boolean",
+        "description": "If true, the claim requires additional documents to be submitted",
+        "example": "false"
+      },
+      "endProductCode": {
+        "type": "string",
+        "description": "End product code of claim"
       },
       "lighthouseId": {
         "type": "string",
