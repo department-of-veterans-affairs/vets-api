@@ -3,10 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
-  before(:all) do
-    DatabaseCleaner.clean_with(:truncation)
-  end
-
   let(:upload_claims) do
     upload_claims = []
     upload_claims.push(FactoryBot.create(:auto_established_claim,
