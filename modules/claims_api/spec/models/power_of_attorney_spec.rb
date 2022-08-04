@@ -3,10 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe ClaimsApi::PowerOfAttorney, type: :model do
-  before(:all) do
-    DatabaseCleaner.clean_with(:truncation)
-  end
-
   let(:pending_record) { create(:power_of_attorney) }
 
   describe 'encrypted attributes' do
