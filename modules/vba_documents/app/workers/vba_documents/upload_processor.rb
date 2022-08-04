@@ -14,6 +14,8 @@ module VBADocuments
     include Sidekiq::Worker
     include VBADocuments::UploadValidations
 
+    sidekiq_options unique_until: :success
+
     def perform(guid, caller_data, retries = 0)
       return if cancelled?
 
