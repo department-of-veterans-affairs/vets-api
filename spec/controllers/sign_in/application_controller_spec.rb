@@ -5,10 +5,16 @@ require 'rx/client'
 
 RSpec.describe SignIn::ApplicationController, type: :controller do
   controller do
+    skip_before_action :authenticate, only: %(index_optional_auth)
     attr_reader :payload
 
     def index
       head :ok
+    end
+
+    def index_optional_auth
+      head :ok
+      load_user
     end
 
     def client_connection_failed
@@ -26,6 +32,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     routes.draw do
       get 'client_connection_failed' => 'sign_in/application#client_connection_failed'
       get 'index' => 'sign_in/application#index'
+      get 'index_optional_auth' => 'sign_in/application#index_optional_auth'
     end
   end
 
@@ -154,6 +161,119 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
 
         it 'returns ok status' do
           expect(subject).to have_http_status(:ok)
+        end
+      end
+    end
+  end
+
+  describe '#load_user' do
+    subject { get :index_optional_auth }
+
+    shared_context 'error response' do
+      let(:rails_log) { "load_user not authenticated, error: #{expected_error}" }
+
+      it 'returns ok status' do
+        expect(subject).to have_http_status(:ok)
+      end
+
+      it 'logs warning to sentry' do
+        expect(Rails.logger).to receive(:debug).with(rails_log)
+        subject
+      end
+    end
+
+    context 'when authorization header does not exist' do
+      let(:expected_error) { 'Access token JWT is malformed' }
+      let(:access_token) { nil }
+
+      context 'and access token cookie does not exist' do
+        let(:access_token_cookie) { nil }
+
+        it_behaves_like 'error response'
+      end
+
+      context 'and access token cookie exists' do
+        let(:access_token_cookie) { 'some-access-token' }
+
+        before do
+          cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME] = access_token_cookie
+        end
+
+        context 'and access_token is some arbitrary value' do
+          let(:access_token_cookie) { 'some-arbitrary-access-token' }
+
+          it_behaves_like 'error response'
+        end
+
+        context 'and access_token is an expired JWT' do
+          let(:access_token_object) { create(:access_token, expiration_time: expiration_time) }
+          let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
+          let(:expiration_time) { Time.zone.now - 1.day }
+          let(:expected_error) { 'Access token has expired' }
+
+          it_behaves_like 'error response'
+        end
+
+        context 'and access_token is an active JWT' do
+          let(:access_token_object) { create(:access_token) }
+          let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
+          let(:expected_error) { SignIn::Errors::AccessTokenMalformedJWTError.to_s }
+          let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid) }
+          let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
+          let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
+
+          it 'returns ok status' do
+            expect(subject).to have_http_status(:ok)
+          end
+
+          it 'does not log a warning to sentry' do
+            expect(Rails.logger).not_to receive(:debug)
+            subject
+          end
+        end
+      end
+    end
+
+    context 'when authorization header exists' do
+      let(:authorization) { "Bearer #{access_token}" }
+      let(:access_token) { 'some-access-token' }
+      let(:access_token_cookie) { nil }
+      let(:expected_error) { 'Access token JWT is malformed' }
+
+      before do
+        request.headers['Authorization'] = authorization
+      end
+
+      context 'and access_token is some arbitrary value' do
+        let(:access_token) { 'some-arbitrary-access-token' }
+
+        it_behaves_like 'error response'
+      end
+
+      context 'and access_token is an expired JWT' do
+        let(:access_token_object) { create(:access_token, expiration_time: expiration_time) }
+        let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
+        let(:expiration_time) { Time.zone.now - 1.day }
+        let(:expected_error) { 'Access token has expired' }
+
+        it_behaves_like 'error response'
+      end
+
+      context 'and access_token is an active JWT' do
+        let(:access_token_object) { create(:access_token) }
+        let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
+        let(:expected_error) { SignIn::Errors::AccessTokenMalformedJWTError.to_s }
+        let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid) }
+        let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
+        let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
+
+        it 'returns ok status' do
+          expect(subject).to have_http_status(:ok)
+        end
+
+        it 'does not log a warning to sentry' do
+          expect(Rails.logger).not_to receive(:debug)
+          subject
         end
       end
     end

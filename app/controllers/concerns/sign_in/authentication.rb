@@ -23,6 +23,14 @@ module SignIn
       handle_authenticate_error(e)
     end
 
+    def load_user
+      @access_token = authenticate_access_token
+      @current_user = load_user_object
+    rescue SignIn::Errors::StandardError => e
+      Rails.logger.debug("load_user not authenticated, error: #{e}")
+      nil
+    end
+
     private
 
     def bearer_token
