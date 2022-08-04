@@ -63,6 +63,7 @@ RSpec.describe SignIn::RefreshTokenDecryptor do
       let(:expected_parent_refresh_token_hash) { refresh_token.parent_refresh_token_hash }
       let(:expected_anti_csrf_token) { refresh_token.anti_csrf_token }
       let(:expected_nonce) { refresh_token.nonce }
+      let(:expected_uuid) { refresh_token.uuid }
       let(:expected_version) { refresh_token.version }
 
       it 'returns a decrypted refresh token with expected session handle' do
@@ -83,6 +84,10 @@ RSpec.describe SignIn::RefreshTokenDecryptor do
 
       it 'returns a decrypted refresh token with expected nonce' do
         expect(subject.nonce).to eq(expected_nonce)
+      end
+
+      it 'returns a decrypted refresh token with expected uuid' do
+        expect(subject.uuid).to eq(expected_uuid)
       end
 
       it 'returns a decrypted refresh token with expected version' do

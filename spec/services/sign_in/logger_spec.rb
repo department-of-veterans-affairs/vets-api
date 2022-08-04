@@ -15,44 +15,49 @@ RSpec.describe SignIn::Logger do
   end
 
   describe '#info' do
+    subject { logger.info(message, attributes) }
+
+    let(:attributes) { { attribute: attribute } }
+
     it 'create a Rails info log with expected values' do
-      expect(Rails.logger).to receive(:info).with(expected_logger_message, { attribute: attribute })
-      logger.info(message, { attribute: attribute })
+      expect(Rails.logger).to receive(:info).with(expected_logger_message, attributes)
+      subject
     end
   end
 
-  describe '#refresh_token_log' do
-    let(:refresh_token) { create(:refresh_token, user_uuid: user_account.id) }
-    let(:code) { 'some-code' }
-    let(:attributes) do
-      {
-        code: code,
-        token_type: 'Refresh',
-        user_id: user_account.id,
-        session_id: refresh_token.session_handle
-      }
+  describe '#token_log' do
+    subject { logger.token_log(message, token) }
+
+    context 'when invoked with an access token' do
+      let(:token) { create(:access_token, user_uuid: user_account.id) }
+      let(:attributes) do
+        {
+          user_uuid: user_account.id,
+          session_id: token.session_handle,
+          token_uuid: token.uuid
+        }
+      end
+
+      it 'logs the token and session informatino' do
+        expect(Rails.logger).to receive(:info).with(expected_logger_message, attributes)
+        subject
+      end
     end
 
-    it 'logs the refresh token' do
-      expect(Rails.logger).to receive(:info).with(expected_logger_message, attributes)
-      logger.refresh_token_log(message, refresh_token, { code: code })
-    end
-  end
+    context 'when invoked with a refresh token' do
+      let(:token) { create(:refresh_token, user_uuid: user_account.id) }
+      let(:attributes) do
+        {
+          user_uuid: user_account.id,
+          session_id: token.session_handle,
+          token_uuid: token.uuid
+        }
+      end
 
-  describe '#access_token_log' do
-    let(:access_token) { create(:access_token, user_uuid: user_account.id) }
-    let(:attributes) do
-      {
-        user_id: user_account.id,
-        token_type: 'Access',
-        access_token_id: access_token.uuid,
-        session_id: access_token.session_handle
-      }
-    end
-
-    it 'logs the access token' do
-      expect(Rails.logger).to receive(:info).with(expected_logger_message, attributes)
-      logger.access_token_log(message, access_token)
+      it 'logs the token and session informatino' do
+        expect(Rails.logger).to receive(:info).with(expected_logger_message, attributes)
+        subject
+      end
     end
   end
 end

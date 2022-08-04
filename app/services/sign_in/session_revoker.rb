@@ -6,7 +6,7 @@ module SignIn
   class SessionRevoker
     attr_reader :access_token, :refresh_token, :anti_csrf_token, :session
 
-    def initialize(refresh_token:, anti_csrf_token:, access_token:)
+    def initialize(anti_csrf_token:, access_token:, refresh_token: nil)
       @refresh_token = refresh_token
       @anti_csrf_token = anti_csrf_token
       @access_token = access_token

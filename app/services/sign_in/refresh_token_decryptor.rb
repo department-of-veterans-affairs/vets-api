@@ -14,6 +14,7 @@ module SignIn
 
       SignIn::RefreshToken.new(
         session_handle: decrypted_component.session_handle,
+        uuid: decrypted_component.uuid,
         user_uuid: decrypted_component.user_uuid,
         parent_refresh_token_hash: decrypted_component.parent_refresh_token_hash,
         anti_csrf_token: decrypted_component.anti_csrf_token,

@@ -938,13 +938,12 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:grant_type) { { grant_type: grant_type_value } }
     let(:code_value) { 'some-code' }
     let(:code_verifier_value) { 'some-code-verifier' }
-    let(:grant_type_value) { 'some-grand-type' }
+    let(:grant_type_value) { 'some-grant-type' }
     let(:type) { nil }
     let(:client_id_value) { nil }
     let(:loa) { nil }
     let(:error_context) do
-      { code: code[:code], code_verifier: code_verifier[:code_verifier], grant_type: grant_type[:grant_type],
-        type: type, client_id: client_id_value, loa: loa }
+      { code: code[:code], code_verifier: code_verifier[:code_verifier], grant_type: grant_type[:grant_type] }
     end
 
     shared_examples 'error response' do
@@ -1070,13 +1069,14 @@ RSpec.describe V0::SignInController, type: :controller do
 
                 it 'logs the successful token request' do
                   access_token = JWT.decode(JSON.parse(subject.body)['data']['access_token'], nil, false).first
-                  logger_context = { code: code[:code],
-                                     type: type,
-                                     client_id: client_id_value,
-                                     loa: loa,
-                                     token_type: 'Refresh',
-                                     user_id: user_uuid,
-                                     session_id: access_token['session_handle'] }
+                  logger_context = {
+                    user_uuid: user_uuid,
+                    type: type,
+                    client_id: client_id_value,
+                    loa: loa,
+                    session_id: access_token['session_handle'],
+                    token_uuid: access_token['jti']
+                  }
                   expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
                 end
 
@@ -1110,16 +1110,16 @@ RSpec.describe V0::SignInController, type: :controller do
                 end
 
                 it 'logs the successful token request' do
-                  access_token_regex = /(?<=vagov_access_token=)[\w+.\-]+/
-                  access_token_parsed = subject.headers['Set-Cookie'].match(access_token_regex)[0]
-                  access_token = JWT.decode(access_token_parsed, nil, false).first
-                  logger_context = { code: code[:code],
-                                     type: type,
-                                     client_id: client_id_value,
-                                     loa: loa,
-                                     token_type: 'Refresh',
-                                     user_id: user_uuid,
-                                     session_id: access_token['session_handle'] }
+                  access_token_cookie = subject.cookies[access_token_cookie_name]
+                  access_token = JWT.decode(access_token_cookie, nil, false).first
+                  logger_context = {
+                    user_uuid: user_uuid,
+                    type: type,
+                    client_id: client_id_value,
+                    loa: loa,
+                    session_id: access_token['session_handle'],
+                    token_uuid: access_token['jti']
+                  }
                   expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
                 end
 
@@ -1153,8 +1153,7 @@ RSpec.describe V0::SignInController, type: :controller do
     end
     let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
     let(:error_context) do
-      { refresh_token: refresh_token, anti_csrf_token: anti_csrf_token,
-        type: type, client_id: client_id_value, loa: loa }
+      { refresh_token: refresh_token, anti_csrf_token: anti_csrf_token }
     end
 
     shared_examples 'error response' do
@@ -1334,12 +1333,14 @@ RSpec.describe V0::SignInController, type: :controller do
 
           it 'logs the successful refresh request' do
             access_token = JWT.decode(JSON.parse(subject.body)['data']['access_token'], nil, false).first
-            logger_context = { type: type,
-                               client_id: client_id_value,
-                               loa: loa,
-                               token_type: 'Refresh',
-                               user_id: user_uuid,
-                               session_id: access_token['session_handle'] }
+            logger_context = {
+              user_uuid: user_uuid,
+              type: type,
+              client_id: client_id_value,
+              loa: loa,
+              session_id: access_token['session_handle'],
+              token_uuid: access_token['jti']
+            }
             expect(Rails.logger).to have_received(:info).with(expected_log_message, logger_context)
           end
 
@@ -1374,15 +1375,16 @@ RSpec.describe V0::SignInController, type: :controller do
           end
 
           it 'logs the successful refresh request' do
-            access_token_regex = /(?<=vagov_access_token=)[\w+.\-]+/
-            access_token_parsed = subject.headers['Set-Cookie'].match(access_token_regex)[0]
-            access_token = JWT.decode(access_token_parsed, nil, false).first
-            logger_context = { type: type,
-                               client_id: client_id_value,
-                               loa: loa,
-                               token_type: 'Refresh',
-                               user_id: user_uuid,
-                               session_id: access_token['session_handle'] }
+            access_token_cookie = subject.cookies[access_token_cookie_name]
+            access_token = JWT.decode(access_token_cookie, nil, false).first
+            logger_context = {
+              user_uuid: user_uuid,
+              type: type,
+              client_id: client_id_value,
+              loa: loa,
+              session_id: access_token['session_handle'],
+              token_uuid: access_token['jti']
+            }
             expect(Rails.logger).to have_received(:info).with(expected_log_message, logger_context)
           end
 
@@ -1424,8 +1426,7 @@ RSpec.describe V0::SignInController, type: :controller do
     end
     let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
     let(:error_context) do
-      { refresh_token: refresh_token, anti_csrf_token: anti_csrf_token,
-        type: type, client_id: client_id_value, loa: loa }
+      { refresh_token: refresh_token, anti_csrf_token: anti_csrf_token }
     end
 
     shared_examples 'error response' do
@@ -1500,8 +1501,8 @@ RSpec.describe V0::SignInController, type: :controller do
           client_id: client_id_value,
           loa: loa,
           session_id: expected_session_handle,
-          token_type: 'Refresh',
-          user_id: user_uuid
+          token_uuid: session_container.refresh_token.uuid,
+          user_uuid: user_uuid
         }
       end
 
@@ -1571,13 +1572,12 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:expected_log) { '[SignInService] [V0::SignInController] introspect' }
       let(:expected_log_params) do
         {
+          user_uuid: user.uuid,
           type: type,
           client_id: client_id_value,
           loa: loa,
-          token_type: 'Access',
-          user_id: user.uuid,
           session_id: access_token_object.session_handle,
-          access_token_id: access_token_object.uuid
+          token_uuid: access_token_object.uuid
         }
       end
       let(:expected_status) { :ok }
@@ -1629,6 +1629,32 @@ RSpec.describe V0::SignInController, type: :controller do
   describe 'GET logout' do
     subject { get(:logout) }
 
+    let(:web_logout_redirect_uri) { Settings.sign_in.client_redirect_uris.web_logout }
+
+    shared_context 'error response' do
+      let(:statsd_failure) { SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE }
+      let(:expected_error_log) { expected_error.to_s }
+      let(:expected_error_json) { { 'errors' => expected_error.to_s } }
+      let(:expected_error_status) { :redirect }
+
+      it 'redirects to web_logout redirect url' do
+        expect(subject).to redirect_to(web_logout_redirect_uri)
+      end
+
+      it 'returns expected status' do
+        expect(subject).to have_http_status(expected_error_status)
+      end
+
+      it 'logs the failed logout call' do
+        expect(Rails.logger).to receive(:error).with(expected_error_log)
+        subject
+      end
+
+      it 'triggers statsd increment for failed call' do
+        expect { subject }.to trigger_statsd_increment(statsd_failure)
+      end
+    end
+
     context 'when successfully authenticated' do
       let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
       let(:authorization) { "Bearer #{access_token}" }
@@ -1645,19 +1671,21 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:loa) { user.identity.loa[:current] }
       let(:expected_log_params) do
         {
+          user_uuid: access_token_object.user_uuid,
           type: type,
           client_id: client_id_value,
           loa: loa,
-          token_type: 'Access',
-          user_id: access_token_object.user_uuid,
           session_id: access_token_object.session_handle,
-          access_token_id: access_token_object.uuid
+          token_uuid: access_token_object.uuid
         }
       end
       let(:logingov_id_token) { 'some-logingov-id-token' }
-      let(:expected_status) { :ok }
+      let(:expected_status) { :redirect }
 
-      before { request.headers['Authorization'] = authorization }
+      before do
+        request.headers['Authorization'] = authorization
+        allow(Rails.logger).to receive(:info)
+      end
 
       it 'deletes the OAuthSession object matching the session_handle in the access token' do
         expect { subject }.to change {
@@ -1702,45 +1730,30 @@ RSpec.describe V0::SignInController, type: :controller do
       end
 
       context 'and credential info was not found with id token' do
-        it 'returns ok status' do
+        it 'returns redirect status' do
           expect(subject).to have_http_status(expected_status)
+        end
+
+        it 'redirects to web_logout redirect url' do
+          expect(subject).to redirect_to(web_logout_redirect_uri)
         end
       end
 
       context 'and some arbitrary Sign In Error is raised' do
         let(:expected_error) { SignIn::Errors::StandardError }
-        let(:statsd_failure) { SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE }
-        let(:error_context) do
-          { user_uuid: access_token_object.user_uuid,
-            type: type,
-            client_id: client_id_value,
-            loa: loa }
-        end
-        let(:expected_error_log) { "#{expected_error} : #{error_context}" }
-        let(:expected_error_json) { { 'errors' => expected_error.to_s } }
-        let(:expected_error_status) { :unauthorized }
 
         before do
           allow(SignIn::SessionRevoker).to receive(:new).and_raise(expected_error)
         end
 
-        it 'renders expected error' do
-          expect(JSON.parse(subject.body)).to eq(expected_error_json)
-        end
-
-        it 'returns expected status' do
-          expect(subject).to have_http_status(expected_error_status)
-        end
-
-        it 'logs the failed logout call' do
-          expect(Rails.logger).to receive(:error).with(expected_error_log)
-          subject
-        end
-
-        it 'triggers statsd increment for failed call' do
-          expect { subject }.to trigger_statsd_increment(statsd_failure)
-        end
+        it_behaves_like 'error response'
       end
+    end
+
+    context 'when not successfully authenticated' do
+      let(:expected_error) { SignIn::Errors::LogoutAuthorizationError }
+
+      it_behaves_like 'error response'
     end
   end
 
@@ -1765,13 +1778,12 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:expected_log) { '[SignInService] [V0::SignInController] revoke all sessions' }
       let(:expected_log_params) do
         {
+          user_uuid: user_uuid,
           type: type,
           client_id: client_id_value,
           loa: loa,
-          token_type: 'Access',
-          user_id: user_uuid,
           session_id: access_token_object.session_handle,
-          access_token_id: access_token_object.uuid
+          token_uuid: access_token_object.uuid
         }
       end
       let(:expected_status) { :ok }
