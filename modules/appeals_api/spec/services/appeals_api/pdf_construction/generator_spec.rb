@@ -47,7 +47,7 @@ describe AppealsApi::PdfConstruction::Generator do
           let(:nod_v2) { create(:notice_of_disagreement_v2, created_at: '2021-02-03T14:15:16Z') }
 
           it 'generates the expected pdf' do
-            generated_pdf = described_class.new(nod_v2, version: 'V2').generate
+            generated_pdf = described_class.new(nod_v2, pdf_version: 'v2').generate
             expected_pdf = fixture_filepath('expected_10182.pdf', version: 'v2')
             expect(generated_pdf).to match_pdf expected_pdf
             File.delete(generated_pdf) if File.exist?(generated_pdf)
@@ -61,7 +61,7 @@ describe AppealsApi::PdfConstruction::Generator do
             data = extra_nod_v2.form_data
             extra_nod_v2.form_data = data
 
-            generated_pdf = described_class.new(extra_nod_v2, version: 'V2').generate
+            generated_pdf = described_class.new(extra_nod_v2, pdf_version: 'v2').generate
             expected_pdf = fixture_filepath('expected_10182_extra.pdf', version: 'v2')
             expect(generated_pdf).to match_pdf expected_pdf
             File.delete(generated_pdf) if File.exist?(generated_pdf)
@@ -72,7 +72,7 @@ describe AppealsApi::PdfConstruction::Generator do
           let(:minimal_nod_v2) { create(:minimal_notice_of_disagreement_v2, created_at: '2021-02-03T14:15:16Z') }
 
           it 'generates the expected pdf' do
-            generated_pdf = described_class.new(minimal_nod_v2, version: 'V2').generate
+            generated_pdf = described_class.new(minimal_nod_v2, pdf_version: 'v2').generate
             expected_pdf = fixture_filepath('expected_10182_minimal.pdf', version: 'v2')
             expect(generated_pdf).to match_pdf expected_pdf
             File.delete(generated_pdf) if File.exist?(generated_pdf)
@@ -102,7 +102,7 @@ describe AppealsApi::PdfConstruction::Generator do
             nod.auth_headers['X-Consumer-ID'] = 'W' * 255
             nod.save!
 
-            generated_pdf = described_class.new(nod, version: 'v2').generate
+            generated_pdf = described_class.new(nod, pdf_version: 'v2').generate
             expected_pdf = fixture_filepath('expected_10182_maxlength.pdf', version: 'v2')
 
             expect(generated_pdf).to match_pdf(expected_pdf)
@@ -118,7 +118,7 @@ describe AppealsApi::PdfConstruction::Generator do
           let(:higher_level_review_v2) { create(:higher_level_review_v2, created_at: '2021-02-03T14:15:16Z') }
 
           it 'generates the expected pdf' do
-            generated_pdf = described_class.new(higher_level_review_v2, version: 'V2').generate
+            generated_pdf = described_class.new(higher_level_review_v2, pdf_version: 'V2').generate
             expected_pdf = fixture_filepath('expected_200996.pdf', version: 'v2')
             # Manually test changes to radio buttons
             expect(generated_pdf).to match_pdf(expected_pdf)
@@ -130,7 +130,7 @@ describe AppealsApi::PdfConstruction::Generator do
           let(:extra_hlr_v2) { create(:extra_higher_level_review_v2, created_at: '2021-02-03T14:15:16Z') }
 
           it 'generates the expected pdf' do
-            generated_pdf = described_class.new(extra_hlr_v2, version: 'V2').generate
+            generated_pdf = described_class.new(extra_hlr_v2, pdf_version: 'v2').generate
             expected_pdf = fixture_filepath('expected_200996_extra.pdf', version: 'v2')
             # Manually test changes to radio buttons
             expect(generated_pdf).to match_pdf(expected_pdf)
@@ -142,7 +142,7 @@ describe AppealsApi::PdfConstruction::Generator do
           let(:minimal_hlr_v2) { create(:minimal_higher_level_review_v2, created_at: '2021-02-03T14:15:16Z') }
 
           it 'generates the expected pdf' do
-            generated_pdf = described_class.new(minimal_hlr_v2, version: 'V2').generate
+            generated_pdf = described_class.new(minimal_hlr_v2, pdf_version: 'v2').generate
             expected_pdf = fixture_filepath('expected_200996_minimum.pdf', version: 'v2')
             # Manually test changes to radio buttons
             expect(generated_pdf).to match_pdf(expected_pdf)
@@ -155,7 +155,7 @@ describe AppealsApi::PdfConstruction::Generator do
             hlr = build(:minimal_higher_level_review_v2)
             hlr.form_data['included'][0]['attributes']['issue'] = 'Smartquotes: “”‘’'
             hlr.save!
-            generated_pdf = described_class.new(hlr, version: 'V2').generate
+            generated_pdf = described_class.new(hlr, pdf_version: 'v2').generate
             generated_reader = PDF::Reader.new(generated_pdf)
             expect(generated_reader.pages[1].text).to include 'Smartquotes: “”‘’'
             File.delete(generated_pdf) if File.exist?(generated_pdf)
@@ -165,7 +165,7 @@ describe AppealsApi::PdfConstruction::Generator do
             hlr = build(:minimal_higher_level_review_v2)
             hlr.form_data['included'][0]['attributes']['issue'] = '∑mer allergies'
             hlr.save!
-            generated_pdf = described_class.new(hlr, version: 'V2').generate
+            generated_pdf = described_class.new(hlr, pdf_version: 'v2').generate
             generated_reader = PDF::Reader.new(generated_pdf)
             expect(generated_reader.pages[1].text).to include 'mer allergies'
             File.delete(generated_pdf) if File.exist?(generated_pdf)
@@ -203,7 +203,7 @@ describe AppealsApi::PdfConstruction::Generator do
             hlr.auth_headers['X-Consumer-ID'] = 'W' * 255
             hlr.save!
 
-            generated_pdf = described_class.new(hlr, version: 'v2').generate
+            generated_pdf = described_class.new(hlr, pdf_version: 'v2').generate
             expected_pdf = fixture_filepath('expected_200996_maxlength.pdf', version: 'v2')
 
             expect(generated_pdf).to match_pdf(expected_pdf)
@@ -218,7 +218,7 @@ describe AppealsApi::PdfConstruction::Generator do
         let(:supplemental_claim) { create(:supplemental_claim, evidence_submission_indicated: true, created_at: '2021-02-03T14:15:16Z') }
 
         it 'generates the expected pdf' do
-          generated_pdf = described_class.new(supplemental_claim, version: 'V2').generate
+          generated_pdf = described_class.new(supplemental_claim, pdf_version: 'v2').generate
           expected_pdf = fixture_filepath('expected_200995.pdf', version: 'v2')
           expect(generated_pdf).to match_pdf(expected_pdf)
           File.delete(generated_pdf) if File.exist?(generated_pdf)
@@ -229,7 +229,7 @@ describe AppealsApi::PdfConstruction::Generator do
         let(:extra_supplemental_claim) { create(:extra_supplemental_claim, created_at: '2021-02-03T14:15:16Z') }
 
         it 'generates the expected pdf' do
-          generated_pdf = described_class.new(extra_supplemental_claim, version: 'V2').generate
+          generated_pdf = described_class.new(extra_supplemental_claim, pdf_version: 'v2').generate
           expected_pdf = fixture_filepath('expected_200995_extra.pdf', version: 'v2')
           expect(generated_pdf).to match_pdf(expected_pdf)
           File.delete(generated_pdf) if File.exist?(generated_pdf)
@@ -258,7 +258,7 @@ describe AppealsApi::PdfConstruction::Generator do
           sc.auth_headers['X-Consumer-ID'] = 'W' * 255
           sc.save!
 
-          generated_pdf = described_class.new(sc, version: 'v2').generate
+          generated_pdf = described_class.new(sc, pdf_version: 'v2').generate
           expected_pdf = fixture_filepath('expected_200995_maxlength.pdf', version: 'v2')
           expect(generated_pdf).to match_pdf(expected_pdf)
           File.delete(generated_pdf) if File.exist?(generated_pdf)

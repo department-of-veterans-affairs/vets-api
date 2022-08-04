@@ -22,7 +22,7 @@ module AppealsApi
       scope :incomplete_statuses, -> { where.not status: COMPLETE_STATUSES }
 
       def versioned_statuses
-        case api_version
+        case api_version.downcase
         when 'V2'
           V2_STATUSES
         else
