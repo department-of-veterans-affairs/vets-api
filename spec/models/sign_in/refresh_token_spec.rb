@@ -6,12 +6,14 @@ RSpec.describe SignIn::RefreshToken, type: :model do
   let(:refresh_token) do
     FactoryBot.create(:refresh_token,
                       user_uuid: user_uuid,
+                      uuid: uuid,
                       session_handle: session_handle,
                       anti_csrf_token: anti_csrf_token,
                       nonce: nonce,
                       version: version)
   end
   let(:user_uuid) { create(:user).uuid }
+  let(:uuid) { 'some-uuid' }
   let(:session_handle) { 'some-session-handle' }
   let(:anti_csrf_token) { 'some-anti-csrf-token' }
   let(:nonce) { 'some-nonce' }
@@ -73,6 +75,33 @@ RSpec.describe SignIn::RefreshToken, type: :model do
       end
 
       it 'sets the nonce to a random value' do
+        expect(subject.nonce).to eq(expected_random_number)
+      end
+    end
+
+    context 'when nil uuid is passed in' do
+      let(:uuid) { nil }
+      let(:expected_error) { ActiveModel::ValidationError }
+      let(:expected_error_message) { "Validation failed: Uuid can't be blank" }
+
+      it 'raises a missing uuid validation error' do
+        expect { subject }.to raise_exception(expected_error, expected_error_message)
+      end
+    end
+
+    context 'when uuid param is not defined' do
+      let(:refresh_token) do
+        SignIn::RefreshToken.new(user_uuid: user_uuid,
+                                 session_handle: session_handle,
+                                 anti_csrf_token: anti_csrf_token)
+      end
+      let(:expected_random_number) { 'some-random-number' }
+
+      before do
+        allow(SecureRandom).to receive(:hex).and_return(expected_random_number)
+      end
+
+      it 'sets the uuid to a random value' do
         expect(subject.nonce).to eq(expected_random_number)
       end
     end

@@ -57,6 +57,7 @@ sign_in:
   client_redirect_uris:
     mobile: 'vamobile://login-success'
     web: 'http://localhost:3001/auth/login/callback'
+    web_logout: 'http://localhost:3001'
     mobile_test: 'http://localhost:4001/auth/sis/login-success'
 
 lockbox:
