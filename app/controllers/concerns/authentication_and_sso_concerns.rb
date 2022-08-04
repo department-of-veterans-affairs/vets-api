@@ -28,8 +28,7 @@ module AuthenticationAndSSOConcerns
 
   def validate_inbound_login_params
     csp_type = params[:csp_type] ||= ''
-    case csp_type
-    when 'logingov'
+    if csp_type == 'logingov'
       ial = params[:ial]
       raise Common::Exceptions::ParameterMissing, 'ial' if ial.blank?
       raise Common::Exceptions::InvalidFieldValue.new('ial', ial) if %w[1 2].exclude?(ial)
@@ -58,8 +57,12 @@ module AuthenticationAndSSOConcerns
   end
 
   def load_user
-    @session_object = Session.find(session[:token])
-    @current_user = User.find(@session_object.uuid) if @session_object&.uuid
+    if cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME]
+      super
+    else
+      @session_object = Session.find(session[:token])
+      @current_user = User.find(@session_object.uuid) if @session_object&.uuid
+    end
   end
 
   # Destroys the user's session in Redis
@@ -105,11 +108,9 @@ module AuthenticationAndSSOConcerns
 
   # Info for logging purposes related to SSO.
   def sso_logging_info
-    {
-      user_uuid: @current_user&.uuid,
+    { user_uuid: @current_user&.uuid,
       sso_cookie_contents: sso_cookie_content,
-      request_host: request.host
-    }
+      request_host: request.host }
   end
 
   private
@@ -117,15 +118,13 @@ module AuthenticationAndSSOConcerns
   def sso_cookie_content
     return nil if @current_user.blank?
 
-    {
-      'patientIcn' => @current_user.icn,
+    { 'patientIcn' => @current_user.icn,
       'signIn' => @current_user.identity.sign_in.deep_transform_keys { |key| key.to_s.camelize(:lower) },
       'credential_used' => @current_user.identity.sign_in[:service_name],
-      'expirationTime' => sign_in_service_session ? sign_in_service_expiration : @session_object.ttl_in_time.iso8601(0)
-    }
+      'expirationTime' => sign_in_service_session ? sign_in_service_exp_time : @session_object.ttl_in_time.iso8601(0) }
   end
 
-  def sign_in_service_expiration
+  def sign_in_service_exp_time
     sign_in_service_session.refresh_expiration.iso8601(0)
   end
 
