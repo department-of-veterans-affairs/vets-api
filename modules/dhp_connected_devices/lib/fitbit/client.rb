@@ -6,16 +6,17 @@ require_relative 'configuration'
 
 module DhpConnectedDevices
   module Fitbit
+    class MissingAuthError < StandardError; end
+    class TokenExchangeError < StandardError; end
+
     class Client < Common::Client::Base
       configuration DhpConnectedDevices::Fitbit::Configuration
-
       ##
-      # HTTP POST call to the Fitbit API to exchange auth code for a user token
+      # HTTP POST call to the Fitbit API to exchange a string of the auth code for a user token
       #
-      # @return [Faraday::Response]
-      #
+      # @return [Hash]
       def get_token(auth_code)
-        connection.post(config.base_path) do |req|
+        resp = connection.post(config.base_path) do |req|
           req.headers = headers
           req.body = "client_id=#{Settings.dhp.fitbit.client_id}" \
                      "&code=#{auth_code}" \
@@ -23,15 +24,30 @@ module DhpConnectedDevices
                      '&grant_type=authorization_code' \
                      "&redirect_uri=#{Settings.dhp.fitbit.redirect_uri}"
         end
+
+        raise "response code: #{resp.status}, response body: #{resp.body}" unless resp.status == 200
+
+        JSON.parse(resp.body, symbolize_names: true)
+      rescue => e
+        raise TokenExchangeError, e.message.to_s
       end
 
       ##
       # Generates a Fitbit auth URL with PKCE code challenge
       #
       # @return [String]
-      #
       def auth_url_with_pkce
         "#{client.auth_url}&code_challenge=#{CODE_CHALLENGE}&code_challenge_method=S256"
+      end
+
+      ##
+      # Retrieves auth code from callback_params
+      #
+      # @return [String]
+      def get_auth_code(callback_params)
+        raise MissingAuthError, "callback_params: #{callback_params}" unless callback_params[:code]
+
+        callback_params[:code]
       end
 
       private

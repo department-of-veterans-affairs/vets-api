@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe DhpConnectedDevices::FitbitController, type: :request do
+RSpec.describe DhpConnectedDevices::Fitbit::FitbitController, type: :request do
   let(:current_user) { build(:user, :loa1) }
 
   describe 'fitbit#connect' do
@@ -75,34 +75,71 @@ RSpec.describe DhpConnectedDevices::FitbitController, type: :request do
     end
 
     context 'fitbit feature enabled and user authenticated' do
+      def error_path
+        'http://localhost:3001/health-care/connected-devices/?fitbit=error#_=_'
+      end
+
+      def success_path
+        'http://localhost:3001/health-care/connected-devices/?fitbit=success#_=_'
+      end
+
       before do
         sign_in_as(current_user)
         Flipper.enable(:dhp_connected_devices_fitbit)
         create(:device, :fitbit)
       end
 
-      it "redirects with 'fitbit=error' when error occurs" do
-        expect(fitbit_callback('?error=declined')).to redirect_to 'http://localhost:3001/health-care/connected-devices/?fitbit=error#_=_'
+      let(:fitbit_api) { instance_double(DhpConnectedDevices::Fitbit::Client) }
+      let(:fitbit_client) { DhpConnectedDevices::Fitbit::Client }
+      let(:token_storage_service) { instance_double(TokenStorageService) }
+      let(:token_exchange_error) { DhpConnectedDevices::Fitbit::TokenExchangeError }
+      let(:missing_auth_error) { DhpConnectedDevices::Fitbit::MissingAuthError }
+      let(:access_token) { '{"access_token":"token"}' }
+
+      it 'logs errors to Sentry ' do
+        allow_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(any_args)
+
+        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry)
+        expect(fitbit_callback('?error="error"')).to redirect_to error_path
       end
 
-      it "redirects with 'fitbit=success' when auth code is returned and token exchange is successful'" do
-        faraday_response = double('response', status: 200, body: '{ "access_token": "some token" }')
-        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(faraday_response)
-        expect(fitbit_callback('?code=889709')).to redirect_to 'http://localhost:3001/health-care/connected-devices/?fitbit=success#_=_'
+      it "redirects with 'fitbit=error' when authorization code is not received" do
+        allow(fitbit_api).to receive(:get_auth_code).with(any_args).and_raise(missing_auth_error)
+        allow_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(any_args)
+
+        expect(fitbit_api).not_to receive(:get_token)
+        expect(token_storage_service).not_to receive(:store_tokens)
+        expect(VeteranDeviceRecordsService).not_to receive(:create_or_activate)
+
+        expect(fitbit_callback('?')).to redirect_to error_path
+        expect(fitbit_callback('?error="error"')).to redirect_to error_path
       end
 
-      it "redirects with 'fitbit=error' when error is raised" do
-        faraday_response = double('response', status: 200, body: '{ "access_token": "some token" }')
-        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(faraday_response)
-        allow(VeteranDeviceRecordsService).to receive(:create_or_activate).with(anything, anything).and_raise(
-          ActiveRecord::ActiveRecordError
-        )
+      it "redirects with 'fitbit=error' when authorization is given but token exchange is unsuccessful" do
+        allow_any_instance_of(fitbit_client).to receive(:get_auth_code).with(any_args).and_return('889709')
+        allow_any_instance_of(fitbit_client).to receive(:get_token).with(any_args).and_raise(token_exchange_error)
+        allow_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(any_args)
 
-        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
-          instance_of(ActiveRecord::ActiveRecordError),
-          { icn: current_user.icn }
-        )
-        expect(fitbit_callback('?code=889709')).to redirect_to 'http://localhost:3001/health-care/connected-devices/?fitbit=error#_=_'
+        expect(token_storage_service).not_to receive(:store_tokens)
+
+        expect(fitbit_callback('?code=889709')).to redirect_to error_path
+      end
+
+      it "redirects with 'fitbit=error' when token exchange is successful but token storage is unsuccessful" do
+        allow_any_instance_of(fitbit_client).to receive(:get_auth_code).with(any_args).and_return('889709')
+        allow_any_instance_of(fitbit_client).to receive(:get_token).with(any_args).and_return(access_token)
+        allow_any_instance_of(TokenStorageService).to receive(:store_tokens).with(any_args).and_raise(TokenStorageError)
+        allow_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(any_args)
+
+        expect(fitbit_callback('?code=889709')).to redirect_to error_path
+      end
+
+      it "redirects with 'fitbit=success' when is token storage is successful'" do
+        allow_any_instance_of(fitbit_client).to receive(:get_auth_code).with(any_args).and_return('889709')
+        allow_any_instance_of(fitbit_client).to receive(:get_token).with(any_args).and_return(access_token)
+        allow_any_instance_of(TokenStorageService).to receive(:store_tokens).with(any_args).and_return(true)
+
+        expect(fitbit_callback('?code=889709')).to redirect_to success_path
       end
     end
   end
