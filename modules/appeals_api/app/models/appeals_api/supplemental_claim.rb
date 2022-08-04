@@ -45,9 +45,9 @@ module AppealsApi
       if: proc { |a| a.form_data.present? }
     )
 
-    def pdf_structure(version)
+    def pdf_structure(pdf_version)
       Object.const_get(
-        "AppealsApi::PdfConstruction::SupplementalClaim::#{version.upcase}::Structure"
+        "AppealsApi::PdfConstruction::SupplementalClaim::#{pdf_version.upcase}::Structure"
       ).new(self)
     end
 

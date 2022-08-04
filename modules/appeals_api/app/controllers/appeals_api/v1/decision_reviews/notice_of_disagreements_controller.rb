@@ -28,7 +28,10 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
     deprecate_headers
 
     @notice_of_disagreement.save
-    AppealsApi::PdfSubmitJob.perform_async(@notice_of_disagreement.id, 'AppealsApi::NoticeOfDisagreement', api_version)
+
+    # PDF and API versioning are not 1:1, but are closely coupled and in this case are the same
+    pdf_version = api_version
+    AppealsApi::PdfSubmitJob.perform_async(@notice_of_disagreement.id, 'AppealsApi::NoticeOfDisagreement', pdf_version)
     render_notice_of_disagreement
   end
 

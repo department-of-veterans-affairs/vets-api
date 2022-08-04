@@ -60,9 +60,9 @@ module AppealsApi
     has_many :evidence_submissions, as: :supportable, dependent: :destroy
     has_many :status_updates, as: :statusable, dependent: :destroy
 
-    def pdf_structure(version)
+    def pdf_structure(pdf_version)
       Object.const_get(
-        "AppealsApi::PdfConstruction::HigherLevelReview::#{version.upcase}::Structure"
+        "AppealsApi::PdfConstruction::HigherLevelReview::#{pdf_version.upcase}::Structure"
       ).new(self)
     end
 
