@@ -61,7 +61,7 @@ module SignIn
         user_is_verified? ? LOA::IDME_LOA3 : LOA::IDME_LOA1_VETS
       when 'dslogon'
         user_is_verified? ? LOA::IDME_DSLOGON_LOA3 : LOA::IDME_DSLOGON_LOA1
-      when 'myhealthevet'
+      when 'mhv'
         user_is_verified? ? LOA::IDME_MHV_LOA3 : LOA::IDME_MHV_LOA1
       when 'logingov'
         user_is_verified? ? IAL::LOGIN_GOV_IAL2 : IAL::LOGIN_GOV_IAL1

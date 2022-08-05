@@ -280,7 +280,7 @@ RSpec.describe UserVerification, type: :model do
 
     context 'when mhv_uuid is present' do
       let(:mhv_uuid) { 'some-mhv-uuid' }
-      let(:expected_credential_type) { SAML::User::MHV_MAPPED_CSID }
+      let(:expected_credential_type) { SAML::User::MHV_ORIGINAL_CSID }
 
       it 'returns expected credential type' do
         expect(subject).to eq(expected_credential_type)

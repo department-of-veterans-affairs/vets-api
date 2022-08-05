@@ -37,6 +37,7 @@ class AccountLoginStatisticsJob
 
   def count_column_sql_statements
     SAML::User::LOGIN_TYPES.map do |type|
+      type = SAML::User::MHV_MAPPED_CSID if type == SAML::User::MHV_ORIGINAL_CSID
       %(
         COUNT(#{type}_at) FILTER (WHERE #{type}_at IS NOT NULL) AS "account_login_stats.total_#{type}_accounts",
         COUNT(#{type}_at) FILTER (WHERE #{type}_at > $1) AS "account_login_stats.#{type}_past_year",

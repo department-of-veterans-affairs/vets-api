@@ -38,7 +38,7 @@ FactoryBot.define do
       ssn { nil }
       mhv_icn { nil }
       mhv_account_type { 'Basic' }
-      sign_in { [[:service_name, 'myhealthevet']].to_h }
+      sign_in { [[:service_name, 'mhv']].to_h }
       loa { [[:current, LOA::ONE], [:highest, LOA::THREE]].to_h }
     end
 

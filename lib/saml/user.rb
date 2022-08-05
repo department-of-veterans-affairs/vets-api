@@ -20,17 +20,17 @@ module SAML
       LOA::IDME_LOA3_VETS => { loa_current: LOA::THREE, sign_in: { service_name: IDME_CSID } },
       LOA::IDME_LOA3 => { loa_current: LOA::THREE, sign_in: { service_name: IDME_CSID } },
       'multifactor' => { loa_current: nil, sign_in: { service_name: IDME_CSID } },
-      'myhealthevet_multifactor' => { loa_current: nil, sign_in: { service_name: MHV_MAPPED_CSID } },
-      'myhealthevet_loa3' => { loa_current: LOA::THREE, sign_in: { service_name: MHV_MAPPED_CSID } },
+      'myhealthevet_multifactor' => { loa_current: nil, sign_in: { service_name: MHV_ORIGINAL_CSID } },
+      'myhealthevet_loa3' => { loa_current: LOA::THREE, sign_in: { service_name: MHV_ORIGINAL_CSID } },
       'dslogon_multifactor' => { loa_current: nil, sign_in: { service_name: DSLOGON_CSID } },
       'dslogon_loa3' => { loa_current: LOA::THREE, sign_in: { service_name: DSLOGON_CSID } },
-      'myhealthevet' => { loa_current: nil, sign_in: { service_name: MHV_MAPPED_CSID } },
+      'myhealthevet' => { loa_current: nil, sign_in: { service_name: MHV_ORIGINAL_CSID } },
       'dslogon' => { loa_current: nil, sign_in: { service_name: DSLOGON_CSID } },
       IAL::LOGIN_GOV_IAL1 => { loa_current: LOA::ONE, sign_in: { service_name: LOGINGOV_CSID } },
       IAL::LOGIN_GOV_IAL2 => { loa_current: LOA::THREE, sign_in: { service_name: LOGINGOV_CSID } }
     }.freeze
 
-    LOGIN_TYPES = [MHV_MAPPED_CSID, IDME_CSID, DSLOGON_CSID, LOGINGOV_CSID].freeze
+    LOGIN_TYPES = [MHV_ORIGINAL_CSID, IDME_CSID, DSLOGON_CSID, LOGINGOV_CSID].freeze
 
     attr_reader :saml_response, :saml_attributes, :user_attributes, :tracker_uuid
 
