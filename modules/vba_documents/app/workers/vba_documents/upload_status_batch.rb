@@ -5,7 +5,7 @@ module VBADocuments
     include Sidekiq::Worker
 
     sidekiq_options(
-      retry: true,
+      retry: false,
       unique_until: :success
     )
 
