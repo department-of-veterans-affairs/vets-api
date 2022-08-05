@@ -10,8 +10,8 @@ require 'authentication_token_service'
 module MebApi
   module DGI
     module Forms
-      module Service
-        class SponsorService < MebApi::DGI::Service
+      module Sponsor
+        class Service < MebApi::DGI::Service
           configuration MebApi::DGI::Forms::Configuration
           STATSD_KEY_PREFIX = 'api.dgi.fry_dea'
 
