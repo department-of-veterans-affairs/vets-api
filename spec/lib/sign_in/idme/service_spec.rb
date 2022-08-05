@@ -295,7 +295,7 @@ describe SignIn::Idme::Service do
     context 'when type is mhv' do
       let(:type) { 'mhv' }
       let(:authn_context) { LOA::IDME_MHV_LOA3 }
-      let(:service_name) { 'myhealthevet' }
+      let(:service_name) { 'mhv' }
       let(:user_info) do
         OpenStruct.new(
           {

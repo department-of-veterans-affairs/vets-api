@@ -243,7 +243,7 @@ module SAML
 
       def sign_in
         sign_in = if authn_context == INBOUND_AUTHN_CONTEXT
-                    { service_name: csid == SAML::User::MHV_ORIGINAL_CSID ? SAML::User::MHV_MAPPED_CSID : csid }
+                    { service_name: csid }
                   else
                     SAML::User::AUTHN_CONTEXTS.fetch(authn_context).fetch(:sign_in)
                   end

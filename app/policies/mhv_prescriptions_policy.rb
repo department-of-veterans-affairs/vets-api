@@ -7,6 +7,6 @@ MHVPrescriptionsPolicy = Struct.new(:user, :mhv_prescriptions) do
   # since we only query MVI for "Premium", and Rx is technically available to non-premium.
   def access?
     service_name = user.identity.sign_in[:service_name]
-    RX_ACCOUNT_TYPES.include?(user.mhv_account_type) && (user.va_patient? || service_name == 'myhealthevet')
+    RX_ACCOUNT_TYPES.include?(user.mhv_account_type) && (user.va_patient? || service_name == 'mhv')
   end
 end

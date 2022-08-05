@@ -399,7 +399,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
       context 'when type param is mhv' do
         let(:type_value) { 'mhv' }
-        let(:expected_type_value) { 'myhealthevet' }
+        let(:expected_type_value) { 'mhv' }
 
         it_behaves_like 'an idme authentication service interface'
       end

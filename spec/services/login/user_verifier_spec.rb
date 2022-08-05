@@ -305,7 +305,7 @@ RSpec.describe Login::UserVerifier do
     end
 
     context 'when user credential is mhv' do
-      let(:login_value) { 'myhealthevet' }
+      let(:login_value) { 'mhv' }
       let(:authn_identifier) { user.mhv_correlation_id }
       let(:authn_identifier_type) { :mhv_uuid }
 

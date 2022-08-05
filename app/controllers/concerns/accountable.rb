@@ -7,6 +7,8 @@ module Accountable
   def update_account_login_stats(login_type)
     return unless account_login_stats.present? && login_type.in?(SAML::User::LOGIN_TYPES)
 
+    login_type = login_type == SAML::User::MHV_ORIGINAL_CSID ? SAML::User::MHV_MAPPED_CSID : login_type
+
     account_login_stats.update!("#{login_type}_at" => Time.zone.now, current_verification: verification_level)
   rescue => e
     log_error(e, account_login_stats: 'update_failed')

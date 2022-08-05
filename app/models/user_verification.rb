@@ -13,7 +13,7 @@ class UserVerification < ApplicationRecord
   def credential_type
     return SAML::User::IDME_CSID if idme_uuid.present?
     return SAML::User::LOGINGOV_CSID if logingov_uuid.present?
-    return SAML::User::MHV_MAPPED_CSID if mhv_uuid.present?
+    return SAML::User::MHV_ORIGINAL_CSID if mhv_uuid.present?
     return SAML::User::DSLOGON_CSID if dslogon_uuid.present?
   end
 

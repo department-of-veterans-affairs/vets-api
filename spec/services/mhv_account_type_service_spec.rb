@@ -6,7 +6,7 @@ RSpec.describe MHVAccountTypeService do
   subject { described_class.new(user) }
 
   let(:unknown_error) { 'BackendServiceException: {:status=>400, :detail=>nil, :code=>"VA900", :source=>nil}' }
-  let(:sign_in) { { service_name: 'myhealthevet' } }
+  let(:sign_in) { { service_name: 'mhv' } }
   let(:user_identity) { instance_double('UserIdentity', mhv_account_type: nil, sign_in: sign_in) }
   let(:mhv_correlation_id) { '12210827' }
   let(:user) do

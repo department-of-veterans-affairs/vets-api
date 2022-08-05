@@ -54,7 +54,8 @@ RSpec.describe Login::AfterLoginActions do
 
     context 'saving account_login_stats' do
       let(:user) { create(:user) }
-      let(:login_type) { 'myhealthevet' }
+      let(:login_type) { SAML::User::MHV_ORIGINAL_CSID }
+      let(:login_type_stat) { SAML::User::MHV_MAPPED_CSID }
 
       before { allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: login_type) }
 
@@ -66,7 +67,7 @@ RSpec.describe Login::AfterLoginActions do
 
         it 'will update the correct login stats column' do
           described_class.new(user).perform
-          expect(AccountLoginStat.last.send("#{login_type}_at")).not_to be_nil
+          expect(AccountLoginStat.last.send("#{login_type_stat}_at")).not_to be_nil
         end
 
         it 'will update the current_verification column' do
@@ -106,7 +107,7 @@ RSpec.describe Login::AfterLoginActions do
         end
 
         it 'will set new value in blank login column' do
-          login_type = 'idme'
+          login_type = SAML::User::IDME_CSID
           allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: login_type)
           stat = AccountLoginStat.last
 

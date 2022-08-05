@@ -404,7 +404,7 @@ RSpec.describe SAML::User do
           logingov_uuid: nil,
           verified_at: nil,
           loa: { current: 1, highest: 3 },
-          sign_in: { service_name: 'myhealthevet', account_type: 'Advanced',
+          sign_in: { service_name: 'mhv', account_type: 'Advanced',
                      auth_broker: SAML::URLService::BROKER_CODE },
           sec_id: nil,
           participant_id: nil,
@@ -463,7 +463,7 @@ RSpec.describe SAML::User do
           logingov_uuid: nil,
           verified_at: nil,
           loa: { current: 3, highest: 3 },
-          sign_in: { service_name: 'myhealthevet', account_type: 'Advanced',
+          sign_in: { service_name: 'mhv', account_type: 'Advanced',
                      auth_broker: SAML::URLService::BROKER_CODE },
           sec_id: '1013183292',
           participant_id: nil,
@@ -518,7 +518,7 @@ RSpec.describe SAML::User do
           verified_at: nil,
           loa: { current: 1, highest: 1 },
           sign_in: {
-            service_name: 'myhealthevet',
+            service_name: 'mhv',
             account_type: 'Basic',
             auth_broker: SAML::URLService::BROKER_CODE
           },
@@ -578,7 +578,7 @@ RSpec.describe SAML::User do
           verified_at: nil,
           loa: { current: 3, highest: 3 },
           sign_in: {
-            service_name: 'myhealthevet',
+            service_name: 'mhv',
             account_type: 'Premium',
             auth_broker: SAML::URLService::BROKER_CODE
           },
@@ -646,7 +646,7 @@ RSpec.describe SAML::User do
           verified_at: nil,
           loa: { current: 3, highest: 3 },
           sign_in: {
-            service_name: 'myhealthevet',
+            service_name: 'mhv',
             account_type: 'Premium',
             auth_broker: SAML::URLService::BROKER_CODE
           },
@@ -1459,7 +1459,7 @@ RSpec.describe SAML::User do
           verified_at: nil,
           loa: { current: 3, highest: 3 },
           sign_in: {
-            service_name: 'myhealthevet',
+            service_name: 'mhv',
             account_type: 'N/A',
             auth_broker: SAML::URLService::BROKER_CODE
           },
