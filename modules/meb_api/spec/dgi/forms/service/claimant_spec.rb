@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'dgi/forms/service/claimant_info_service'
+require 'dgi/forms/service/claimant_service'
 
-Rspec.describe MebApi::DGI::Forms::ClaimantService do
+Rspec.describe MebApi::DGI::Forms::Claimant::Service do
   VCR.configure do |config|
     config.filter_sensitive_data('removed') do |interaction|
       if interaction.request.headers['Authorization']
@@ -25,7 +25,7 @@ Rspec.describe MebApi::DGI::Forms::ClaimantService do
     end
 
     let(:user) { FactoryBot.create(:user, :loa3, user_details) }
-    let(:service) { MebApi::DGI::Forms::ClaimantService.new(user) }
+    let(:service) { MebApi::DGI::Forms::Claimant::Service.new(user) }
 
     describe '#post_claimant_info' do
       let(:faraday_response) { double('faraday_connection') }

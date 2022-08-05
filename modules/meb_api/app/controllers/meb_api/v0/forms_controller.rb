@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'dgi/forms/service/sponsor_service'
+require 'dgi/forms/service/claimant_service'
+require 'dgi/forms/service/submission_service'
 
 module MebApi
   module V0
@@ -38,19 +40,19 @@ module MebApi
       end
 
       def claimant_service
-        MebApi::DGI::Forms::Service::ClaimantService.new(@current_user)
+        MebApi::DGI::Forms::Claimant::Service.new(@current_user)
       end
 
       def letter_service
-        MebApi::DGI::Forms::Service::LetterService.new(@current_user)
+        MebApi::DGI::Forms::Letter::Service.new(@current_user)
       end
 
       def sponsor_service
-        MebApi::DGI::Forms::Service::SponsorService.new(@current_user)
+        MebApi::DGI::Forms::Sponsor::Service.new(@current_user)
       end
 
       def submission_service
-        MebApi::DGI::Forms::Service::SubmissionService.new(@current_user)
+        MebApi::DGI::Forms::Submission::Service.new(@current_user)
       end
     end
   end

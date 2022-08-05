@@ -8,8 +8,8 @@ require 'authentication_token_service'
 module MebApi
   module DGI
     module Forms
-      module Service
-        class LetterService < MebApi::DGI::Service
+      module Letters
+        class Service < MebApi::DGI::Service
           configuration MebApi::DGI::Letters::Configuration
           STATSD_KEY_PREFIX = 'api.dgi.status'
 
