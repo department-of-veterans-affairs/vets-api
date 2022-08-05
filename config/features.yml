@@ -460,6 +460,10 @@ features:
     description: "Use the new VAOS v2 API endpoints"
     enable_in_development: true
     actor_type: user
+  profile_use_vafsc:
+    description: "Use VA Forms System Core for forms instead of schema based forms"
+    actor_type: user
+    enable_in_development: true
   pw_ehr_cta_drupal_source_of_truth:
     actor_type: user
     description: Enabling Public Websites-managed EHR CTAs to use Drupal EHR data, including for Cerner cutovers
