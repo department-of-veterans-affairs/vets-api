@@ -154,9 +154,13 @@ Rails.application.reloader.to_prepare do
     end
   end
 
-  # init  mvi
+  # init  mpi
   StatsD.increment("#{MPI::Service::STATSD_KEY_PREFIX}.find_profile.total", 0)
   StatsD.increment("#{MPI::Service::STATSD_KEY_PREFIX}.find_profile.fail", 0)
+  StatsD.increment("#{MPI::Service::STATSD_KEY_PREFIX}.add_person_proxy.total", 0)
+  StatsD.increment("#{MPI::Service::STATSD_KEY_PREFIX}.add_person_proxy.fail", 0)
+  StatsD.increment("#{MPI::Service::STATSD_KEY_PREFIX}.add_person_implicit_search.total", 0)
+  StatsD.increment("#{MPI::Service::STATSD_KEY_PREFIX}.add_person_implicit_search.fail", 0)
 
   # init Vet360
   VAProfile::Exceptions::Parser.instance.known_keys.each do |key|
