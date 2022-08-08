@@ -10,6 +10,17 @@ module ClaimsApi
     # - https://github.com/department-of-veterans-affairs/vets-website/blob/fcf944bd4319684f5eb3d1901606801d01a9a55e/src/applications/claims-status/utils/helpers.js#L9
     # As of the time of this comment they exist as the source of truth for this information
     # in the future we'll likely try to make this the source of truth
+    #
+    # 8/4/2022
+    # BNFT_CLAIM_LC_PHASE_TYPE from the corporate database schema (http://bepcert.vba.va.gov/VbaDaMetadata/metadata/common/queryType_typeTablePoUp.action):
+    # 1, Claim Received
+    # 2, Under Review
+    # 3, Gathering of Evidence
+    # 4, Review of Evidence
+    # 5, Preparation for Decision
+    # 6, Pending Decision Approval
+    # 7, Preparation for Notification
+    # 8, Complete
     #############################
     EVIDENCE_GATHERING = 'Evidence gathering, review, and decision'
 

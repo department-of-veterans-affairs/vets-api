@@ -158,7 +158,7 @@ RSpec.describe 'Claims', type: :request do
                 OpenStruct.new(
                   id: '0958d973-36fb-43ef-8801-2718bd33c825',
                   evss_id: '111111111',
-                  status: 'pending'
+                  status: 'Pending'
                 )
               ]
             end
@@ -491,7 +491,67 @@ RSpec.describe 'Claims', type: :request do
               json_response = JSON.parse(response.body)
               expect(response.status).to eq(200)
               expect(json_response).to be_an_instance_of(Hash)
-              expect(json_response['status']).to eq('Pending')
+              expect(json_response['status']).to eq('PENDING')
+            end
+          end
+        end
+
+        context 'when a typical status is received' do
+          let(:bgs_claim) do
+            {
+              benefit_claim_details_dto: {
+                benefit_claim_id: '111111111',
+                claim_status_type: 'value from BGS',
+                bnft_claim_lc_status: {
+                  phase_type: 'Preparation for Notification'
+                }
+              }
+            }
+          end
+
+          it "the v2 mapper sets the correct 'status'" do
+            with_okta_user(scopes) do |auth_header|
+              expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
+              expect(ClaimsApi::AutoEstablishedClaim)
+                .to receive(:get_by_id_or_evss_id).and_return(nil)
+
+              get claim_by_id_path, headers: auth_header
+
+              json_response = JSON.parse(response.body)
+              expect(response.status).to eq(200)
+              expect(json_response).to be_an_instance_of(Hash)
+              expect(json_response['status']).to eq('PREPARATION_FOR_NOTIFICATION')
+            end
+          end
+        end
+
+        context 'when a grouped status is received' do
+          let(:bgs_claim) do
+            {
+              benefit_claim_details_dto: {
+                benefit_claim_id: '111111111',
+                claim_status_type: 'value from BGS',
+                bnft_claim_lc_status: {
+                  phase_type: 'Pending Decision Approval'
+                }
+              }
+            }
+          end
+
+          it "the v2 mapper sets the 'status' correctly" do
+            with_okta_user(scopes) do |auth_header|
+              expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
+              expect(ClaimsApi::AutoEstablishedClaim)
+                .to receive(:get_by_id_or_evss_id).and_return(nil)
+
+              get claim_by_id_path, headers: auth_header
+
+              json_response = JSON.parse(response.body)
+              expect(response.status).to eq(200)
+              expect(json_response).to be_an_instance_of(Hash)
+              expect(json_response['status']).to eq('EVIDENCE_GATHERING_REVIEW_DECISION')
             end
           end
         end
@@ -507,7 +567,7 @@ RSpec.describe 'Claims', type: :request do
                   phase_type: 'Pending'
                 }, {
                   phas_chngd_dt: DateTime.now - 1.day,
-                  phase_type: 'In Review'
+                  phase_type: 'Initial Review'
                 }]
               }
             }
@@ -526,7 +586,7 @@ RSpec.describe 'Claims', type: :request do
               expect(response.status).to eq(200)
               expect(json_response).to be_an_instance_of(Hash)
               expect(json_response['claimType']).to eq('value from BGS')
-              expect(json_response['status']).to eq('Pending')
+              expect(json_response['status']).to eq('PENDING')
             end
           end
         end

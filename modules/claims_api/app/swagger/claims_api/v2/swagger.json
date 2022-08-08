@@ -414,7 +414,7 @@
                     "documentsNeeded": false,
                     "endProductCode": "404",
                     "lighthouseId": null,
-                    "status": "Complete"
+                    "status": "COMPLETE"
                   }
                 ],
                 "schema": {
@@ -478,7 +478,16 @@
                         "example": "600131328"
                       },
                       "status": {
-                        "type": "string",
+                        "type": {
+                          "enum": [
+                            "CLAIM_RECEIVED",
+                            "INITIAL_REVIEW",
+                            "PENDING",
+                            "EVIDENCE_GATHERING_REVIEW_DECISION",
+                            "PREPARATION_FOR_NOTIFICATION",
+                            "COMPLETE"
+                          ]
+                        },
                         "description": "Status of claim",
                         "example": "Complete"
                       },
@@ -680,7 +689,7 @@
                   "lighthouseId": null,
                   "maxEstClaimDate": null,
                   "minEstClaimDate": null,
-                  "status": "Complete",
+                  "status": "COMPLETE",
                   "submitterApplicationCode": "EBN",
                   "submitterRoleCode": "VET",
                   "supportingDocuments": [
@@ -760,7 +769,16 @@
                       "example": "600131328"
                     },
                     "status": {
-                      "type": "string",
+                      "type": {
+                        "enum": [
+                          "CLAIM_RECEIVED",
+                          "INITIAL_REVIEW",
+                          "PENDING",
+                          "EVIDENCE_GATHERING_REVIEW_DECISION",
+                          "PREPARATION_FOR_NOTIFICATION",
+                          "COMPLETE"
+                        ]
+                      },
                       "description": "Status of claim",
                       "example": "Complete"
                     },
