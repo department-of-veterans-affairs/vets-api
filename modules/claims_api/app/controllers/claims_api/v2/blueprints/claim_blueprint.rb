@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'claims_api/bgs_claim_status_mapper'
+
 module ClaimsApi
   module V2
     module Blueprints
@@ -18,7 +20,9 @@ module ClaimsApi
         field :lighthouse_id
         field :max_est_claim_date
         field :min_est_claim_date
-        field :status
+        field :status do |claim, _options|
+          ClaimsApi::BGSClaimStatusMapper.new(claim[:status]).name
+        end
         field :submitter_application_code
         field :submitter_role_code
         field :temp_jurisdiction
