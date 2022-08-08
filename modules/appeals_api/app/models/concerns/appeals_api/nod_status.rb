@@ -6,11 +6,11 @@ module AppealsApi
   module NodStatus
     extend ActiveSupport::Concern
 
-    INTERNAL_STATUSES = %w[pending submitting submitted].freeze
+    INTERNAL_STATUSES = %w[pending submitting submitted error].freeze
     STATUSES = [*INTERNAL_STATUSES, *CentralMailUpdater::CENTRAL_MAIL_STATUSES].uniq.freeze
 
     IN_PROCESS_STATUSES = %w[submitted processing success].freeze
-    COMPLETE_STATUSES = %w[complete error].freeze
+    COMPLETE_STATUSES = %w[complete].freeze
 
     included do
       scope :in_process_statuses, -> { where status: IN_PROCESS_STATUSES }
