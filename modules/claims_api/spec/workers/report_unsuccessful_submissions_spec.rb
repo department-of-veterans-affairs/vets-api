@@ -123,6 +123,7 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
 
         expect(poa_totals[0]['VA TurboClaim'][:totals]).to eq(6)
         expect(unsuccessful_poa_submissions.count).to eq(2)
+        expect(unsuccessful_poa_submissions[0][:cid]).to eq('0oa9uf05lgXYk6ZXn297')
       end
     end
   end

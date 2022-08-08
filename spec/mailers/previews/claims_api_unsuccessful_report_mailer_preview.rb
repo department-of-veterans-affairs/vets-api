@@ -41,10 +41,10 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
   def poa_totals
     [
       {
-        'consumer 1' => { total: 10, updated: 5, errored: 2, pending: 1, uploaded: 2 }
+        'consumer 1' => { totals: 10, updated: 5, errored: 2, pending: 1, uploaded: 2 }
       },
       {
-        'consumer 2' => { total: 8, updated: 3, errored: 2, pending: 1, uploaded: 2 }
+        'consumer 2' => { totals: 8, updated: 3, errored: 2, pending: 1, uploaded: 2 }
       }
     ]
   end

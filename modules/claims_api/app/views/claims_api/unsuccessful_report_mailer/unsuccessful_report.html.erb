@@ -31,6 +31,9 @@
       table tr td.right-align {
         text-align: right;
       }
+      table tr td.left-align {
+        text-align: left;
+      }
       h3 {
         margin: 30px 0 2px;
       }
@@ -54,7 +57,7 @@
 
     <h3>
       <%= @unsuccessful_claims_submissions.count %>
-      <span class="title">Errored Submissions</span>
+      <span class="title">526 Errored Submissions</span>
     </h3>
     <%= render partial: 'submission_table', locals: { claims: @unsuccessful_claims_submissions } unless @unsuccessful_claims_submissions.count.zero? %>
 
@@ -67,7 +70,7 @@
 
     <h3>
       <%= @unsuccessful_poa_submissions.count %>
-      <span class="title">Errored Submissions</span>
+      <span class="title">POA Errored Submissions</span>
     </h3>
     <%= render partial: 'poa_errors_table', locals: { poa_errors: @unsuccessful_poa_submissions } unless @unsuccessful_poa_submissions.count.zero? %>
   </body>
