@@ -2,49 +2,15 @@
 
 require 'mail_automation/client'
 
-# rubocop:disable Metrics/ModuleLength
 module Form526RapidReadyForDecisionConcern
   extend ActiveSupport::Concern
 
   def send_rrd_alert_email(subject, message, error = nil, to = Settings.rrd.alerts.recipients)
-    body = <<~BODY
-      Environment: #{Settings.vsp_environment}<br/>
-      Form526Submission.id: #{id}<br/>
-      <br/>
-      #{message}<br/>
-    BODY
-    body += "<br/>Error backtrace:\n #{error.backtrace.join(",<br/>\n ")}" if error
-    ActionMailer::Base.mail(
-      from: ApplicationMailer.default[:from],
-      to: to,
-      subject: subject,
-      body: body
-    ).deliver_now
+    RrdAlertMailer.build(self, subject, message, error, to).deliver_now
   end
 
   def notify_mas_tracking
-    message = <<~BODY
-      #{disabilities.pluck('name', 'diagnosticCode').join(', ')}
-      <table border="1" cellspacing="1" cellpadding="5"><thead>
-          <tr>
-            <td>Benefit Claim Id</td>
-            <td>Submission Date</td>
-            <td>Submission Time</td>
-            <td>Submission ID</td>
-          </tr>
-        </thead><tbody>
-          <tr>
-            <td>#{submitted_claim_id}</td>
-            <td>#{created_at.to_date}</td>
-            <td>#{created_at.strftime '%H:%M:%S'}</td>
-            <td>#{id}</td>
-          </tr>
-        </tbody>
-      </table>
-    BODY
-
-    send_rrd_alert_email("MA claim - #{diagnostic_codes.join(', ')}", message, nil,
-                         Settings.rrd.mas_tracking.recipients)
+    RrdMasNotificationMailer.build(self).deliver_now
   end
 
   def notify_mas
@@ -144,4 +110,3 @@ module Form526RapidReadyForDecisionConcern
     rrd_pdf_added_for_uploading? && rrd_special_issue_set?
   end
 end
-# rubocop:enable Metrics/ModuleLength

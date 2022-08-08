@@ -11,7 +11,7 @@ class RrdCompletedMailer < ApplicationMailer
     @asthma_medications_count = submission.form.dig('rrd_metadata', 'med_stats', 'asthma_medications_count') || 'N/A'
     @pdf_guid = submission.form.dig('rrd_metadata', 'pdf_guid') || 'N/A'
 
-    template = File.read('app/mailers/views/rrd_completed_mailer.erb.html')
+    template = File.read('app/mailers/views/rrd_completed_mailer.html.erb')
 
     environment = "[#{Settings.vsp_environment}] " unless Settings.vsp_environment == 'production'
     mail(
