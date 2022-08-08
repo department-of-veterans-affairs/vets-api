@@ -8,7 +8,7 @@ require 'ddtrace'
 require_relative 'config/application'
 
 Datadog.configure do |c|
-  c.use :rake
+  c.tracing.instrument :rake
 end
 
 # Load rake support files

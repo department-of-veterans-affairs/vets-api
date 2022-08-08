@@ -3,11 +3,31 @@
 envs = %w[development staging sandbox production]
 
 Datadog.configure do |c|
-  c.use :sidekiq
-  c.use :rails
-  c.service = 'vets-api'
-  c.env = Settings.vsp_environment
-  c.tracer.enabled = envs.include? Settings.vsp_environment
-  c.tracer hostname: 'datadog-agent',
-           port: 8126
+  if envs.include? Settings.vsp_environment
+    # Talk to DD agent in neighboring container
+    c.agent.host 'datadog-agent'
+    c.agent.port 8126
+
+    # Namespace our app
+    c.service = 'vets-api'
+    c.env = Settings.vsp_environment
+
+    # Enable instruments
+    c.tracing.instrument :rails
+    c.tracing.instrument :sidekiq
+    c.tracing.instrument :active_support, cache_service: 'vets-api-cache'
+    c.tracing.instrument :action_pack, service_name: 'vets-api-controllers'
+    c.tracing.instrument :active_record, service_name: 'vets-api-db'
+    c.tracing.instrument :redis, service_name: 'vets-api-redis'
+    c.tracing.instrument :pg, service_name: 'vets-api-pg'
+    c.tracing.instrument :faraday, service_name: 'vets-api-faraday'
+    c.tracing.instrument :http, service_name: 'vets-api-net-http'
+
+    # Enable profiling
+    c.profiling.enabled = true
+
+    # Enable ASM
+    c.appsec.enabled = true
+    c.appsec.instrument :rails
+  end
 end

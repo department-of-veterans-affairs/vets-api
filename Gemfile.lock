@@ -316,12 +316,14 @@ GEM
     date_validator (0.12.0)
       activemodel (>= 3)
       activesupport (>= 3)
-    ddtrace (0.54.2)
-      debase-ruby_core_source (<= 0.10.14)
+    ddtrace (1.3.0)
+      debase-ruby_core_source (= 0.10.16)
+      libdatadog (~> 0.7.0.1.0)
+      libddwaf (~> 1.3.0.2.0)
       msgpack
     debase (0.2.4.1)
       debase-ruby_core_source (>= 0.10.2)
-    debase-ruby_core_source (0.10.14)
+    debase-ruby_core_source (0.10.16)
     declarative (0.0.20)
     deep_merge (1.2.2)
     descendants_tracker (0.0.4)
@@ -567,6 +569,9 @@ GEM
       kramdown (~> 2.0)
     levenshtein-ffi (1.1.0)
       ffi (~> 1.9)
+    libdatadog (0.7.0.1.0)
+    libddwaf (1.3.0.2.0)
+      ffi (~> 1.0)
     liquid (5.4.0)
     listen (3.7.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
@@ -1056,6 +1061,7 @@ DEPENDENCIES
   google-apis-core
   google-apis-generator
   google-cloud-bigquery
+  google-protobuf
   googleauth
   govdelivery-tms (= 2.8.4)
   guard-rspec
