@@ -417,8 +417,12 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:type) {}
     let(:acr) { nil }
     let(:client_id) { nil }
+    let(:mpi_update_profile_response) { MPI::Responses::AddPersonResponse.new(status: 'OK') }
 
-    before { allow(Rails.logger).to receive(:info) }
+    before do
+      allow(Rails.logger).to receive(:info)
+      allow_any_instance_of(MPI::Service).to receive(:update_profile).and_return(mpi_update_profile_response)
+    end
 
     shared_examples 'api based error response' do
       let(:expected_error_json) { { 'errors' => expected_error } }

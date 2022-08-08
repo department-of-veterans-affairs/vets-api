@@ -30,23 +30,36 @@ describe MPI::Responses::AddParser do
 
     describe '#parse_ids' do
       context 'when given a list of attributes' do
+        let(:birls_id) { '111985523' }
+        let(:participant_id) { '32397028' }
+        let(:logingov_uuid) { 'aa478abc-e494-4af1-9f87-d002f8fe1cda' }
+        let(:idme_uuid) { '54e78de6140d473f87960f211be49c08' }
+        let(:edipi) { '2107307560' }
+        let(:icn) { '1013677486V514195' }
+        let(:error) { 'WRN206' }
         let(:attributes) do
           [
-            { codeSystemName: 'MVI', code: '111985523^PI^200BRLS^USVBA', displayName: 'IEN' },
-            { codeSystemName: 'MVI', code: '32397028^PI^200CORP^USVBA', displayName: 'IEN' },
-            { codeSystemName: 'MVI', code: '1013677486V514195', displayName: 'ICN' },
-            { codeSystemName: 'MVI', code: 'WRN206', displayName: 'test error' }
+            { codeSystemName: 'MVI', code: "#{birls_id}^PI^200BRLS^USVBA", displayName: 'IEN' },
+            { codeSystemName: 'MVI', code: "#{participant_id}^PI^200CORP^USVBA", displayName: 'IEN' },
+            { codeSystemName: 'MVI', code: "#{logingov_uuid}^PN^200VLGN^USDVA^A", displayName: 'IEN' },
+            { codeSystemName: 'MVI', code: "#{idme_uuid}^PN^200VIDM^USDVA^A", displayName: 'IEN' },
+            { codeSystemName: 'MVI', code: "#{edipi}^NI^200DOD^USDOD^A", displayName: 'IEN' },
+            { codeSystemName: 'MVI', code: icn, displayName: 'ICN' },
+            { codeSystemName: 'MVI', code: error, displayName: 'test error' }
           ]
         end
 
         let(:parsed_ids) do
           {
             other: [
-              { codeSystemName: 'MVI', code: 'WRN206', displayName: 'test error' }
+              { codeSystemName: 'MVI', code: error, displayName: 'test error' }
             ],
-            birls_id: '111985523',
-            participant_id: '32397028',
-            icn: '1013677486V514195'
+            birls_id: birls_id,
+            participant_id: participant_id,
+            logingov_uuid: logingov_uuid,
+            idme_uuid: idme_uuid,
+            edipi: edipi,
+            icn: icn
           }
         end
 
