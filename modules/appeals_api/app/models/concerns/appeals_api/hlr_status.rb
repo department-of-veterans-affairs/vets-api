@@ -8,18 +8,18 @@ module AppealsApi
 
     V1_STATUSES = %w[pending submitting submitted processing error uploaded received success expired complete].freeze
 
-    V2_INTERNAL_STATUSES = %w[pending submitting submitted].freeze
+    V2_INTERNAL_STATUSES = %w[pending submitting submitted error].freeze
     V2_STATUSES = [*V2_INTERNAL_STATUSES, *CentralMailUpdater::CENTRAL_MAIL_STATUSES].uniq.freeze
 
     # used primarly for reporting
     STATUSES = [*V1_STATUSES, *V2_STATUSES].uniq.freeze
 
     IN_PROCESS_STATUSES = %w[submitted received processing success].freeze
-    COMPLETE_STATUSES = %w[complete error].freeze
+    COMPLETE_STATUSES = %w[complete].freeze
 
     included do
       scope :in_process_statuses, -> { where status: IN_PROCESS_STATUSES }
-      scope :incomplete_statuses, -> { where.not status: COMPLETE_STATUSES }
+      scope :incomplete_statuses, -> { where.not status: COMPLETE_STATUSES + %w[error] }
 
       def versioned_statuses
         case api_version.downcase
