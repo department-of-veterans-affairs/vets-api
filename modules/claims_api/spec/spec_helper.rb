@@ -15,27 +15,4 @@ Dir[File.join(ENGINE_RAILS_ROOT, '../../spec/support/**/*.rb')].sort.each { |f| 
 RSpec.configure do |config|
   config.use_transactional_fixtures = true
   config.filter_run :focus
-  # Clean up the database
-  require 'database_cleaner'
-  config.before(:suite) do
-    DatabaseCleaner.orm = 'sequel'
-    DatabaseCleaner.clean_with :truncation, { only: %w[LIST OF TABLES HERE] }
-  end
-
-  config.before do
-    DatabaseCleaner.strategy = :transaction
-  end
-
-  config.before(:each, js: true) do
-    DatabaseCleaner.strategy = :truncation
-  end
-
-  config.before(:each, :database) do
-    # open transaction
-    DatabaseCleaner.start
-  end
-
-  config.after(:each, :database) do
-    DatabaseCleaner.clean
-  end
 end
