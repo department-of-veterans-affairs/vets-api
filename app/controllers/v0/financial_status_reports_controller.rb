@@ -50,7 +50,7 @@ module V0
     # rubocop:disable Metrics/MethodLength
     def fsr_form
       params.permit(
-        personal_identification: %i[fsr_reason ssn file_number debt_type],
+        personal_identification: %i[fsr_reason ssn file_number],
         personal_data: [
           :telephone_number,
           :email,
