@@ -22,7 +22,6 @@ Datadog.configure do |c|
     c.tracing.instrument :active_record, service_name: 'vets-api-db'
     c.tracing.instrument :redis, service_name: 'vets-api-redis'
     c.tracing.instrument :pg, service_name: 'vets-api-pg'
-    c.tracing.instrument :faraday, service_name: 'vets-api-faraday'
     c.tracing.instrument :http, service_name: 'vets-api-net-http'
 
     # Enable profiling
