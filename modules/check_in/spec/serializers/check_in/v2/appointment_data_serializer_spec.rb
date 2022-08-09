@@ -234,6 +234,7 @@ RSpec.describe CheckIn::V2::AppointmentDataSerializer do
                   facility: 'VEHU DIVISION',
                   kind: 'clinic',
                   startTime: '2021-12-23T08:30:00',
+                  stationNo: 5625,
                   status: ''
                 },
                 {
@@ -254,6 +255,7 @@ RSpec.describe CheckIn::V2::AppointmentDataSerializer do
                   facility: 'CARDIO DIVISION',
                   kind: 'phone',
                   startTime: '2021-12-23T09:30:00',
+                  stationNo: 5625,
                   status: ''
                 }
               ],
