@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_08_04_165221) do
+ActiveRecord::Schema.define(version: 2022_08_09_191220) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -132,6 +132,7 @@ ActiveRecord::Schema.define(version: 2022_08_04_165221) do
     t.text "encrypted_kms_key"
     t.date "verified_decryptable_at"
     t.string "veteran_icn"
+    t.index ["veteran_icn"], name: "index_appeals_api_higher_level_reviews_on_veteran_icn"
   end
 
   create_table "appeals_api_notice_of_disagreements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -149,6 +150,7 @@ ActiveRecord::Schema.define(version: 2022_08_04_165221) do
     t.text "encrypted_kms_key"
     t.date "verified_decryptable_at"
     t.string "veteran_icn"
+    t.index ["veteran_icn"], name: "index_appeals_api_notice_of_disagreements_on_veteran_icn"
   end
 
   create_table "appeals_api_status_updates", force: :cascade do |t|
@@ -177,6 +179,7 @@ ActiveRecord::Schema.define(version: 2022_08_04_165221) do
     t.boolean "evidence_submission_indicated"
     t.date "verified_decryptable_at"
     t.string "veteran_icn"
+    t.index ["veteran_icn"], name: "index_appeals_api_supplemental_claims_on_veteran_icn"
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
