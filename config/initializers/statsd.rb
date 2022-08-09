@@ -327,9 +327,13 @@ Rails.application.reloader.to_prepare do
                                                     'iam_ssoe_oauth.create_user_session'
   IAMSSOeOAuth::SessionManager.statsd_measure :create_user_session,
                                               'iam_ssoe_oauth.create_user_session.measure'
+
   StatsD.increment('iam_ssoe_oauth.create_user_session.success', 0)
   StatsD.increment('iam_ssoe_oauth.create_user_session.failure', 0)
   StatsD.increment('iam_ssoe_oauth.inactive_session', 0)
+  StatsD.increment('iam_ssoe_oauth.user_sign_in', 0)
+  StatsD.increment('iam_ssoe_oauth.call_to_introspect.total', 0)
+  StatsD.increment('iam_ssoe_oauth.user_session_creation_done', 0)
 
   %w[IDME MHV DSL LOGINGOV].each do |cred|
     StatsD.increment(
@@ -338,6 +342,8 @@ Rails.application.reloader.to_prepare do
     StatsD.increment(
       IAMSSOeOAuth::SessionManager::STATSD_OAUTH_SESSION_KEY, 0, tags: ['type:refresh', "credential:#{cred}"]
     )
+    StatsD.increment('iam_ssoe_oauth.created_user_profile', 0, tags: ["credential:#{cred}"])
+    StatsD.increment('iam_ssoe_oauth.call_to_introspect.success', 0, tags: ["credential:#{cred}"])
   end
 
   # init VEText Push Notifications
