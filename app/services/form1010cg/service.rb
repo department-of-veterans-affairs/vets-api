@@ -76,6 +76,19 @@ module Form1010cg
       }
     end
 
+    def process_claim_v2!
+      assert_veteran_status
+
+      payload = CARMA::Models::Submission.from_claim(claim, build_metadata).to_request_payload
+
+      claim_pdf_path, poa_attachment_path = self.class.collect_attachments(claim)
+      payload[:records] = generate_records(claim_pdf_path, poa_attachment_path)
+
+      [claim_pdf_path, poa_attachment_path].each { |p| File.delete(p) if p.present? }
+
+      CARMA::Client::MuleSoftClient.new.create_submission_v2(payload)
+    end
+
     # Will submit the claim to CARMA.
     #
     # @return [Form1010cg::Submission]
@@ -193,6 +206,30 @@ module Form1010cg
     end
 
     private
+
+    def generate_records(claim_pdf_path, poa_attachment_path)
+      [
+        {
+          file_path: claim_pdf_path, document_type: CARMA::Models::Attachment::DOCUMENT_TYPES['10-10CG']
+        },
+        {
+          file_path: poa_attachment_path, document_type: CARMA::Models::Attachment::DOCUMENT_TYPES['POA']
+        }
+      ].map do |doc_data|
+        next if doc_data[:file_path].blank?
+
+        CARMA::Models::Attachment.new(
+          doc_data.merge(
+            carma_case_id: nil,
+            veteran_name: {
+              first: claim.parsed_form.dig('veteran', 'fullName', 'first'),
+              last: claim.parsed_form.dig('veteran', 'fullName', 'last')
+            },
+            document_date: claim.created_at, id: nil
+          )
+        ).to_request_payload.compact
+      end.compact
+    end
 
     def mpi_service
       @mpi_service ||= MPI::Service.new
