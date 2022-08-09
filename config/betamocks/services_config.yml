@@ -726,3 +726,44 @@
       :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/actions/refresh-precheckin/*" %>
       :file_path: "/chip/refresh-precheckin/default"
       :response_delay: 4
+
+# LGY: Certificate of Eligibility
+- :name: "LGY"
+  :base_uri: <%= "#{URI(Settings.lgy.base_url).host}:#{URI(Settings.lgy.base_url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/eligibility-manager/api/eligibility/application"
+      :file_path: "/lgy/get_application"
+      :cache_multiple_responses:
+        :uid_location: 'query'
+        :uid_locator: 'edipi'
+    - :method: :put
+      :path: "/eligibility-manager/api/eligibility/application"
+      :file_path: "/lgy/put_application"
+      :cache_multiple_responses:
+        :uid_location: 'query'
+        :uid_locator: 'edipi'
+    - :method: :get
+      :path: "/eligibility-manager/api/eligibility/determination"
+      :file_path: "/lgy/get_determination"
+      :cache_multiple_responses:
+        :uid_location: 'query'
+        :uid_locator: 'edipi'
+    - :method: :get
+      :path: "/eligibility-manager/api/eligibility/documents"
+      :file_path: "/lgy/get_documents"
+      :cache_multiple_responses:
+        :uid_location: 'query'
+        :uid_locator: 'edipi'
+    - :method: :get
+      :path: "/eligibility-manager/api/eligibility/document/23215740/file"
+      :file_path: "/lgy/get_document_download"
+      :cache_multiple_responses:
+        :uid_location: 'query'
+        :uid_locator: 'edipi'
+    - :method: :get
+      :path: "/eligibility-manager/api/eligibility/documents/coe/file"
+      :file_path: "/lgy/get_coe_file"
+      :cache_multiple_responses:
+        :uid_location: 'query'
+        :uid_locator: 'edipi'

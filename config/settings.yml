@@ -1380,10 +1380,10 @@ sidekiq:
   github_api_key: ~
 
 lgy:
-  base_url: ~
+  base_url: 'http://www.example.com'
   app_id: ~
   api_key: ~
-  mock_coe: false
+  mock_coe: true 
 
 form1095_b:
   s3:
