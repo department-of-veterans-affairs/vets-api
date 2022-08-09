@@ -16,7 +16,7 @@ Datadog.configure do |c|
 
     # Enable instruments
     c.tracing.instrument :rails
-    c.tracing.instrument :sidekiq
+    c.tracing.instrument :sidekiq, service_name: 'vets-api-sidekiq'
     c.tracing.instrument :active_support, cache_service: 'vets-api-cache'
     c.tracing.instrument :action_pack, service_name: 'vets-api-controllers'
     c.tracing.instrument :active_record, service_name: 'vets-api-db'
