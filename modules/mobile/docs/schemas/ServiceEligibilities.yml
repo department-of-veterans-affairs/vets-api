@@ -18,10 +18,18 @@ properties:
       attributes:
         type: object
         required:
+          - ccSupported
           - services
         properties:
+          ccSupported:
+            type: array
+            items:
+              type: string
+            example: ["942"]
           services:
-            type: string
+            type: array
+            items:
+              type: object
             example: [{name: 'amputation',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
                       {name: 'audiology',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},
                       {name: 'covid',requestEligibleFacilities: ['942','123'], directEligibleFacilities: ['945','342']},

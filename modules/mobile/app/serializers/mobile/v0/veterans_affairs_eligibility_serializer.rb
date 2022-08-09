@@ -8,14 +8,14 @@ module Mobile
       include FastJsonapi::ObjectSerializer
 
       set_type :va_eligibility
-      attributes :services
+      attributes :services, :cc_supported
 
-      def initialize(id, services)
-        resource = ServiceStruct.new(id, services)
+      def initialize(id, services, cc_supported)
+        resource = ServiceStruct.new(id, services, cc_supported)
         super(resource, {})
       end
     end
 
-    ServiceStruct = Struct.new(:id, :services)
+    ServiceStruct = Struct.new(:id, :services, :cc_supported)
   end
 end

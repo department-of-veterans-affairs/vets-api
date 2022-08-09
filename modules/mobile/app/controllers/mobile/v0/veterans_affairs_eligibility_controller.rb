@@ -6,10 +6,11 @@ module Mobile
       def show
         Rails.logger.info('Veterans Affair eligibility service call start',
                           { facility_ids: facility_ids, user_uuid: @current_user.uuid })
-        response = mobile_facility_service.get_scheduling_configurations(facility_ids)
-        services = medical_service_adapter.parse(response[:data])
+        data = mobile_facility_service.get_scheduling_configurations(facility_ids)[:data]
+        services = medical_service_adapter.parse(data)
 
-        render json: Mobile::V0::VeteransAffairsEligibilitySerializer.new(@current_user.uuid, services)
+        render json: Mobile::V0::VeteransAffairsEligibilitySerializer.new(@current_user.uuid, services,
+                                                                          cc_supported_facility_ids(data))
       end
 
       private
@@ -25,6 +26,10 @@ module Mobile
       def facility_ids
         ids = params.require(:facilityIds)
         ids.join(',')
+      end
+
+      def cc_supported_facility_ids(service_eligibilities)
+        service_eligibilities.select(&:community_care)&.map(&:facility_id)
       end
     end
   end

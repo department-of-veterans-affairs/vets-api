@@ -89,6 +89,12 @@ RSpec.describe 'veterans Affairs Eligibility', type: :request do
                'directEligibleFacilities' => [] }]
           )
         end
+
+        it 'does not include non-cc supported facility in cc_supported ids' do
+          cc_supported_facility_ids = response.parsed_body.dig('data', 'attributes', 'ccSupported')
+
+          expect(cc_supported_facility_ids).to eq([])
+        end
       end
 
       context 'multiple facilities' do
@@ -155,6 +161,12 @@ RSpec.describe 'veterans Affairs Eligibility', type: :request do
                'requestEligibleFacilities' => [],
                'directEligibleFacilities' => [] }]
           )
+        end
+
+        it 'groups cc_supported ids ' do
+          cc_supported_facility_ids = response.parsed_body.dig('data', 'attributes', 'ccSupported')
+
+          expect(cc_supported_facility_ids).to eq(%w[984])
         end
       end
 
@@ -293,6 +305,12 @@ RSpec.describe 'veterans Affairs Eligibility', type: :request do
                'requestEligibleFacilities' => [],
                'directEligibleFacilities' => [] }]
           )
+        end
+
+        it 'does not include any cc_supported ids' do
+          cc_supported_facility_ids = response.parsed_body.dig('data', 'attributes', 'ccSupported')
+
+          expect(cc_supported_facility_ids).to eq(%w[])
         end
       end
     end
