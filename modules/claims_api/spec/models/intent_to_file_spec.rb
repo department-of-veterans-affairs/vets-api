@@ -3,49 +3,28 @@
 require 'rails_helper'
 
 RSpec.describe ClaimsApi::IntentToFile, type: :model do
-  describe "'active?'" do
-    let(:attributes) do
-      {
-        id: '1',
-        creation_date: creation_date,
-        expiration_date: expiration_date,
-        status: status,
-        type: 'compensation'
-      }
-    end
-    let(:creation_date) { Time.zone.now.to_date }
-    let(:expiration_date) { Time.zone.now.to_date + 1.year }
+  describe 'requiring fields' do
+    context "when 'status' is not provided" do
+      it 'fails validation' do
+        itf = ClaimsApi::IntentToFile.new(cid: 'helloworld')
 
-    context "when 'status' is not active" do
-      let(:status) { 'inactive' }
-
-      it 'is not active' do
-        itf = ClaimsApi::IntentToFile.new(attributes)
-        expect(itf.active?).to be false
+        expect { itf.save! }.to raise_error(ActiveRecord::RecordInvalid)
       end
     end
 
-    context "when 'status' is active" do
-      let(:status) { 'active' }
+    context "when 'cid' is not provided" do
+      it 'fails validation' do
+        itf = ClaimsApi::IntentToFile.new(status: 'submitted')
 
-      context 'but itf is expired' do
-        let(:creation_date) { Time.zone.now.to_date - 1.year }
-        let(:expiration_date) { Time.zone.now.to_date }
-
-        it 'is not active' do
-          itf = ClaimsApi::IntentToFile.new(attributes)
-          expect(itf.active?).to be false
-        end
+        expect { itf.save! }.to raise_error(ActiveRecord::RecordInvalid)
       end
+    end
 
-      context 'and itf is not expired' do
-        let(:creation_date) { Time.zone.now.to_date }
-        let(:expiration_date) { Time.zone.now.to_date + 1.year }
+    context 'when all required attributes are provided' do
+      it 'saves the record' do
+        itf = ClaimsApi::IntentToFile.new(status: 'submitted', cid: 'helloworld')
 
-        it 'is active' do
-          itf = ClaimsApi::IntentToFile.new(attributes)
-          expect(itf.active?).to be true
-        end
+        expect { itf.save! }.not_to raise_error
       end
     end
   end

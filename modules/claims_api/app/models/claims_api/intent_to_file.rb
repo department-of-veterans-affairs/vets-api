@@ -1,8 +1,19 @@
 # frozen_string_literal: true
 
+# 08/08/2022
+# The database table backing this model only exists so that we can provide daily
+# success/failure reporting on the number of ITFs submitted to BGS.
+# If we find in the future that we need to store off consumer submissions in order
+# to asynchronously submit them to BGS, the existing model and database table should
+# be easily adapted.
 module ClaimsApi
-  class IntentToFile
-    attr_reader :id, :creation_date, :expiration_date, :status, :type
+  class IntentToFile < ApplicationRecord
+    validates :status, presence: true
+    validates :cid, presence: true
+
+    SUBMITTED = 'submitted'
+    ERRORED = 'errored'
+    SUBMITTER_CODE = 'VETS.GOV'
 
     ITF_TYPES_TO_BGS_TYPES = {
       'compensation' => 'C',
@@ -15,19 +26,5 @@ module ClaimsApi
       'S' => 'burial',
       'P' => 'pension'
     }.freeze
-
-    SUBMITTER_CODE = 'VETS.GOV'
-
-    def initialize(id:, creation_date:, expiration_date:, status:, type:)
-      @id = id
-      @creation_date = creation_date
-      @expiration_date = expiration_date
-      @status = status.downcase if status.is_a? String
-      @type = BGS_TYPES_TO_ITF_TYPES[type]
-    end
-
-    def active?
-      status.casecmp?('active') && expiration_date.to_datetime > Time.zone.now
-    end
   end
 end
