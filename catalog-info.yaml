@@ -34,6 +34,9 @@ metadata:
     - url: http://sidekiq-ui-dev.vfs.va.gov/
       title: Sidekiq UI (Dev Environment Isolated from Veterans API)
       icon: dashboard
+    - url: http://sidekiq-ui-staging.vfs.va.gov/
+      title: Sidekiq UI (Staging Environment Isolated from Veterans API)
+      icon: dashboard
 spec:
   owner: platform-console-services
   domain: platform-and-vfs
