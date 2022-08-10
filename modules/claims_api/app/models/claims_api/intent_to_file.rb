@@ -13,6 +13,7 @@ module ClaimsApi
 
     SUBMITTED = 'submitted'
     ERRORED = 'errored'
+    ALL_STATUSES = [SUBMITTED, ERRORED].freeze
     SUBMITTER_CODE = 'VETS.GOV'
 
     ITF_TYPES_TO_BGS_TYPES = {

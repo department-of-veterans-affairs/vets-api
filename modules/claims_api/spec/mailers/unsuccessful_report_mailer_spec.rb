@@ -8,7 +8,8 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
       described_class.build(1.day.ago, Time.zone.now, consumer_claims_totals: [],
                                                       unsuccessful_claims_submissions: [],
                                                       poa_totals: [],
-                                                      unsuccessful_poa_submissions: []).deliver_now
+                                                      unsuccessful_poa_submissions: [],
+                                                      itf_totals: []).deliver_now
     end
 
     it 'sends the email' do

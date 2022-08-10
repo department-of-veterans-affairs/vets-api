@@ -11,7 +11,8 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
       consumer_claims_totals: claims_totals,
       unsuccessful_claims_submissions: unsuccessful_claims_submissions,
       poa_totals: poa_totals,
-      unsuccessful_poa_submissions: unsuccessful_poa_submissions
+      unsuccessful_poa_submissions: unsuccessful_poa_submissions,
+      itf_totals: itf_totals
     )
   end
 
@@ -53,6 +54,17 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
     [
       { id: '61f6d6c9-b6ac-49c7-b1df-bccd065dbf9c', created_at: 1.day.ago.to_s },
       { id: '2753f720-d0a9-4b93-9721-eb3dd67fab9b', created_at: 1.day.ago.to_s }
+    ]
+  end
+
+  def itf_totals
+    [
+      {
+        'consumer 1' => { totals: 2, submitted: 1, errored: 1 }
+      },
+      {
+        'consumer 2' => { totals: 1, submitted: 1, errored: 0 }
+      }
     ]
   end
 end
