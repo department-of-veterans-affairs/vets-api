@@ -14,7 +14,7 @@ module CovidVaccine
         # for the purposes of this register method we should not be fetching facilities and trying to reconcile;
         # instead we will set the state to :enrollment_out_of_band and raise an exception
 
-        facility = handle_facility(submission)
+        facility = handle_facility(submission) || []
         # MPI Query must succeed and return ICN and expected facilityID before we send this data to backend service
         # Application will retry for 24 hours
         # if records are > 24 hours old, we will send to VeText service without an ICN or facility match
