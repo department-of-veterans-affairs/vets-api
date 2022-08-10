@@ -286,6 +286,13 @@ class User < Common::RedisStore
     mpi.add_person_implicit_search
   end
 
+  def mpi_update_profile
+    return unless loa3?
+
+    invalidate_mpi_cache
+    mpi.update_profile
+  end
+
   def set_mhv_ids(mhv_id)
     mpi_profile.mhv_ids = [mhv_id] + mhv_ids
     mpi_profile.active_mhv_ids = [mhv_id] + active_mhv_ids

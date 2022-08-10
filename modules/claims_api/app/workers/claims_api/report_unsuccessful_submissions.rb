@@ -13,6 +13,7 @@ module ClaimsApi
         @from = 1.day.ago
         @claims_consumers = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to).pluck(:cid).uniq
         @poa_consumers = ClaimsApi::PowerOfAttorney.where(created_at: @from..@to).pluck(:cid).uniq
+        @itf_consumers = ClaimsApi::IntentToFile.where(created_at: @from..@to).pluck(:cid).uniq
 
         ClaimsApi::UnsuccessfulReportMailer.build(
           @from,
@@ -20,7 +21,8 @@ module ClaimsApi
           consumer_claims_totals: claims_totals,
           unsuccessful_claims_submissions: unsuccessful_claims_submissions,
           poa_totals: poa_totals,
-          unsuccessful_poa_submissions: unsuccessful_poa_submissions
+          unsuccessful_poa_submissions: unsuccessful_poa_submissions,
+          itf_totals: itf_totals
         ).deliver_now
       end
     end
@@ -98,6 +100,21 @@ module ClaimsApi
         created_at: @from..@to,
         status: %w[errored]
       ).order(:cid, :status)
+    end
+
+    def itf_totals
+      @itf_consumers.map do |cid|
+        counts = ClaimsApi::IntentToFile.where(created_at: @from..@to, cid: cid).group(:status).count
+        totals = counts.sum { |_k, v| v }
+
+        if totals.positive?
+          consumer_name = ClaimsApi::CidMapper.new(cid: cid).name
+          {
+            consumer_name => counts.merge(totals: totals)
+                                   .deep_symbolize_keys
+          }
+        end
+      end
     end
   end
 end

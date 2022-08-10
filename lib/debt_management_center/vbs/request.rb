@@ -46,7 +46,7 @@ module DebtManagementCenter
       def post(path, params)
         with_monitoring do
           connection.post(path) do |req|
-            req.body = Oj.dump(params)
+            req.body = params
           end
         end
       end

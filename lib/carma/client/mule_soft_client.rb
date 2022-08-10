@@ -11,11 +11,17 @@ module CARMA
 
       STATSD_KEY_PREFIX = 'api.carma.mulesoft'
 
+      def create_submission_v2(payload)
+        with_monitoring do
+          do_post('v2/application/1010CG/submit', payload)
+        end
+      end
+
       # @param payload [String] JSON payload to submit
       # @return [Faraday::Env]
       def create_submission(payload)
         with_monitoring do
-          do_post('submit', payload)
+          do_post('v1/application/1010CG/submit', payload)
         end
       end
 
@@ -23,7 +29,7 @@ module CARMA
       # @return [Faraday::Env]
       def upload_attachments(payload)
         with_monitoring do
-          do_post('addDocument', payload)
+          do_post('v1/application/1010CG/addDocument', payload)
         end
       end
 

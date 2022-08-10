@@ -27,10 +27,12 @@ module ClaimsApi
           check_for_invalid_burial_submission! if form_type == 'burial'
 
           bgs_response = bgs_service.intent_to_file.insert_intent_to_file(intent_to_file_options)
+          ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::SUBMITTED, cid: token.payload['cid'])
           ClaimsApi::Logger.log('itf', detail: 'Submitted to BGS')
           render json: bgs_response,
                  serializer: ClaimsApi::IntentToFileSerializer
         rescue Savon::SOAPFault => e
+          ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::ERRORED, cid: token.payload['cid'])
           raise ::Common::Exceptions::UnprocessableEntity.new(detail: e.message&.split('>')&.last)
         end
 

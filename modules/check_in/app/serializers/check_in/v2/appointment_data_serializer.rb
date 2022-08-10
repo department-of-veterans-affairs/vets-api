@@ -11,7 +11,7 @@ module CheckIn
       attribute :payload do |object|
         appointments =
           object.payload[:appointments].map do |appt|
-            appt.except!(:patientDFN, :stationNo)
+            appt.except!(:patientDFN)
           end
 
         raw_demographics = object.payload[:demographics]

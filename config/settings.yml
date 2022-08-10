@@ -939,6 +939,7 @@ flipper:
     - scy0846@gmail.com # Taylor Mitchell - GCIO
     - ssuddath@governmentcio.com
     - stephen.barrs@gmail.com
+    - teagan.stephenson@bracari.com
     - tim.wright@adhocteam.us
     - tony.williams@va.gov
     - travis.hilton@oddball.io
@@ -1380,10 +1381,10 @@ sidekiq:
   github_api_key: ~
 
 lgy:
-  base_url: ~
+  base_url: 'http://www.example.com'
   app_id: ~
   api_key: ~
-  mock_coe: false
+  mock_coe: true 
 
 form1095_b:
   s3:

@@ -7,7 +7,7 @@ module ClaimsApi
     included do
       def validate_ccg_token!
         client = TokenValidation::V2::Client.new(api_key: Settings.claims_api.token_validation.api_key)
-        root_url = request.base_url == 'http://localhost:3000' ? 'https://sandbox-api.va.gov' : request.base_url
+        root_url = request.base_url == 'https://api.va.gov' ? 'https://api.va.gov' : 'https://sandbox-api.va.gov'
         claims_audience = "#{root_url}/services/claims"
         request_method_to_scope = {
           'GET' => 'claim.read',

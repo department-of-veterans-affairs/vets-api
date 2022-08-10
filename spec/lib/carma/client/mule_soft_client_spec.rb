@@ -30,8 +30,11 @@ module CARMA
             end
 
             it 'POSTs to the correct resource' do
-              expect(client).to receive(:perform).with(:post, 'submit', payload, exp_headers, exp_opts)
-                                                 .and_return(response)
+              expect(client).to receive(:perform).with(
+                :post,
+                'v1/application/1010CG/submit', payload, exp_headers, exp_opts
+              ).and_return(response)
+
               expect { client.create_submission(payload) }.not_to raise_error
             end
 
@@ -51,7 +54,8 @@ module CARMA
             end
 
             it 'raises an error' do
-              expect(client).to receive(:perform).with(:post, 'submit', payload, exp_headers, exp_opts)
+              expect(client).to receive(:perform).with(:post, 'v1/application/1010CG/submit', payload, exp_headers,
+                                                       exp_opts)
                                                  .and_return(response)
 
               expect(Raven).to receive(:extra_context).with(response_body: 'error')
@@ -68,7 +72,8 @@ module CARMA
           end
 
           it 'POSTs to the correct resource' do
-            expect(client).to receive(:perform).with(:post, 'addDocument', payload, exp_headers, exp_opts)
+            expect(client).to receive(:perform).with(:post, 'v1/application/1010CG/addDocument', payload, exp_headers,
+                                                     exp_opts)
                                                .and_return(response)
             expect { client.upload_attachments(payload) }.not_to raise_error
           end

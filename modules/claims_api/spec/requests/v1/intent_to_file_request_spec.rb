@@ -207,6 +207,37 @@ RSpec.describe 'Intent to file', type: :request do
           end
         end
       end
+
+      describe 'creating a record for reporting purposes' do
+        context 'when submitting the ITF to BGS is successful' do
+          it "adds a 'ClaimsApi::IntentToFile' record" do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+                expect do
+                  post path, params: data.to_json, headers: headers.merge(auth_header)
+                end.to change(ClaimsApi::IntentToFile, :count).by(1)
+                expect(ClaimsApi::IntentToFile.last.status).to eq(ClaimsApi::IntentToFile::SUBMITTED)
+                expect(response.status).to eq(200)
+              end
+            end
+          end
+        end
+
+        context 'when submitting the ITF to BGS is NOT successful' do
+          it "adds a 'ClaimsApi::IntentToFile' record" do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file_500') do
+                data[:data][:attributes] = { type: 'pension' }
+                expect do
+                  post path, params: data.to_json, headers: headers.merge(auth_header)
+                end.to change(ClaimsApi::IntentToFile, :count).by(1)
+                expect(ClaimsApi::IntentToFile.last.status).to eq(ClaimsApi::IntentToFile::ERRORED)
+                expect(response.status).to eq(422)
+              end
+            end
+          end
+        end
+      end
     end
 
     context 'when Veteran is missing a participant_id' do

@@ -9,6 +9,32 @@ RSpec.describe Form1010cg::Service do
   let(:subject) { described_class.new build(:caregivers_assistance_claim) }
   let(:default_email_on_mvi_search) { 'no-email@example.com' }
 
+  let(:claim_with_mpi_veteran) do
+    require 'saved_claim/caregivers_assistance_claim'
+
+    claim = build(:caregivers_assistance_claim)
+    claim.parsed_form['signAsRepresentative'] = true
+
+    claim.parsed_form['veteran'].merge!(
+      'fullName' => {
+        'first' => 'WESLEY',
+        'last' => 'FORD'
+      },
+      'gender' => 'M',
+      'ssnOrTin' => '796043735',
+      'dateOfBirth' => '1986-05-06'
+    )
+
+    pdf_fixture = 'spec/fixtures/carma/10-10CG_f6056cff-d4cb-4058-8fb0-42296e12698f.pdf'
+    allow_any_instance_of(SavedClaim::CaregiversAssistanceClaim).to receive(:to_pdf).with(sign: true).and_return(
+      pdf_fixture
+    )
+    allow(File).to receive(:delete).and_call_original
+    allow(File).to receive(:delete).with(pdf_fixture)
+
+    claim
+  end
+
   describe '::auditor' do
     it 'is an instance of Form1010cg::Auditor' do
       expect(described_class::AUDITOR).to be_an_instance_of(Form1010cg::Auditor)
@@ -789,6 +815,100 @@ RSpec.describe Form1010cg::Service do
     end
   end
 
+  describe '#generate_records', run_at: '2022-08-02 17:12:53 -0700' do
+    subject do
+      require 'saved_claim/caregivers_assistance_claim'
+      described_class.new(create(:caregivers_assistance_claim))
+    end
+
+    context 'with claim pdf' do
+      let(:claim_pdf_path) { Common::FileHelpers.generate_temp_file('foo', 'claim.pdf') }
+
+      after do
+        File.delete(claim_pdf_path)
+      end
+
+      it 'generates the right records' do
+        expect(subject.send(:generate_records, claim_pdf_path, nil)).to eq(
+          [{ 'attributes' => { 'type' => 'ContentVersion', 'referenceId' => '1010CG' },
+             'Title' => '10-10CG_Jane Doe_Doe_08-03-2022',
+             'PathOnClient' => 'claim.pdf',
+             'CARMA_Document_Type__c' => '10-10CG',
+             'CARMA_Document_Date__c' => '2022-08-03',
+             'VersionData' => 'Zm9v' }]
+        )
+      end
+
+      context 'with poa pdf' do
+        let(:poa_pdf_path) { Common::FileHelpers.generate_temp_file('foo', 'poa.pdf') }
+
+        after do
+          File.delete(poa_pdf_path)
+        end
+
+        it 'generates the right records' do
+          expect(subject.send(:generate_records, claim_pdf_path, poa_pdf_path)).to eq(
+            [{ 'attributes' => { 'type' => 'ContentVersion', 'referenceId' => '1010CG' },
+               'Title' => '10-10CG_Jane Doe_Doe_08-03-2022',
+               'PathOnClient' => 'claim.pdf',
+               'CARMA_Document_Type__c' => '10-10CG',
+               'CARMA_Document_Date__c' => '2022-08-03',
+               'VersionData' => 'Zm9v' },
+             { 'attributes' => { 'type' => 'ContentVersion', 'referenceId' => 'POA' },
+               'Title' => 'POA_Jane Doe_Doe_08-03-2022',
+               'PathOnClient' => 'poa.pdf',
+               'CARMA_Document_Type__c' => 'POA',
+               'CARMA_Document_Date__c' => '2022-08-03',
+               'VersionData' => 'Zm9v' }]
+          )
+        end
+      end
+    end
+  end
+
+  describe '#process_claim_v2!' do
+    before do
+      allow(Settings.mvi).to receive(:vba_orchestration).and_return(true)
+    end
+
+    it 'submits to mulesoft', run_at: 'Thu, 04 Aug 2022 20:44:29 GMT' do
+      allow(SecureRandom).to receive(:uuid).and_return('398e6563-7850-405c-b13c-4b7ae900374d')
+      claim_with_mpi_veteran.save!
+      allow(claim_with_mpi_veteran).to receive(:id).and_return(4)
+
+      allow(SecureRandom).to receive(:uuid).and_return('c632cbd3-3ac3-44fd-97dd-fcb5126cf4ab')
+
+      VCR.use_cassette('mulesoft/submit_v2_no_poa', VCR::MATCH_EVERYTHING) do
+        described_class.new(claim_with_mpi_veteran).process_claim_v2!
+      end
+    end
+
+    context 'with a poa attachment' do
+      it 'submits to mulesoft', run_at: 'Thu, 04 Aug 2022 20:37:35 GMT' do
+        allow(SecureRandom).to receive(:uuid).and_return('099b42a0-94a0-44e0-8e2a-eb915b72923a')
+        claim_with_mpi_veteran
+
+        allow(SecureRandom).to receive(:uuid).and_return('9db06c21-a856-4780-8a7b-b04683beb408')
+        claim_with_mpi_veteran.parsed_form['poaAttachmentId'] = create(:form1010cg_attachment, :with_attachment).guid
+
+        claim_with_mpi_veteran.save!
+        allow(claim_with_mpi_veteran).to receive(:id).and_return(3)
+
+        allow(SecureRandom).to receive(:uuid).and_return('64c74760-34e1-43b9-b125-f8363dc3095c')
+
+        expect_any_instance_of(Form1010cg::Attachment).to receive(:to_local_file).and_return(
+          'spec/fixtures/files/doctors-note.jpg'
+        )
+
+        allow(File).to receive(:delete).with('spec/fixtures/files/doctors-note.jpg')
+
+        VCR.use_cassette('mulesoft/submit_v2', VCR::MATCH_EVERYTHING) do
+          described_class.new(claim_with_mpi_veteran).process_claim_v2!
+        end
+      end
+    end
+  end
+
   describe '#process_claim!' do
     it 'raises error when ICN not found for veteran' do
       expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
@@ -796,33 +916,14 @@ RSpec.describe Form1010cg::Service do
     end
 
     it 'submits to mulesoft', run_at: 'Fri, 17 Jun 2022 10:36:01 GMT' do
-      require 'saved_claim/caregivers_assistance_claim'
-
       allow(SecureRandom).to receive(:uuid).and_return('695e7111-4e3b-4cad-8703-cd3ec092c9d0')
-      claim = build(:caregivers_assistance_claim)
-      claim.parsed_form['signAsRepresentative'] = true
-      claim.parsed_form['veteran'].merge!(
-        'fullName' => {
-          'first' => 'WESLEY',
-          'last' => 'FORD'
-        },
-        'gender' => 'M',
-        'ssnOrTin' => '796043735',
-        'dateOfBirth' => '1986-05-06'
-      )
-      expect(claim.valid?).to eq(true)
+      expect(claim_with_mpi_veteran.valid?).to eq(true)
 
       allow(SecureRandom).to receive(:uuid).and_return('74597dcc-8171-4755-830e-35046ac2f4d2')
 
       VCR.use_cassette('mulesoft/submit', VCR::MATCH_EVERYTHING) do
-        described_class.new(claim).process_claim!
+        described_class.new(claim_with_mpi_veteran).process_claim!
       end
-
-      pdf_fixture = 'spec/fixtures/carma/10-10CG_f6056cff-d4cb-4058-8fb0-42296e12698f.pdf'
-      allow_any_instance_of(SavedClaim::CaregiversAssistanceClaim).to receive(:to_pdf).with(sign: true).and_return(
-        pdf_fixture
-      )
-      expect(File).to receive(:delete).with(pdf_fixture)
 
       VCR.use_cassette('mulesoft/addDocument', VCR::MATCH_EVERYTHING) do
         Form1010cg::DeliverAttachmentsJob.drain

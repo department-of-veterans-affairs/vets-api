@@ -21,7 +21,9 @@ module ClaimsApi
             bgs_itf_to_lighthouse_itf(bgs_itf: element)
           end
 
-          active_itf = intent_to_files.detect(&:active?)
+          active_itf = intent_to_files.detect do |itf|
+            itf[:status].casecmp?('active') && itf[:expiration_date].to_datetime > Time.zone.now
+          end
 
           message = "No active '#{params[:type]}' intent to file found."
           raise ::Common::Exceptions::ResourceNotFound.new(detail: message) if active_itf.blank?
@@ -57,14 +59,13 @@ module ClaimsApi
         end
 
         def bgs_itf_to_lighthouse_itf(bgs_itf:)
-          attributes = {
+          {
             id: bgs_itf[:intent_to_file_id],
             creation_date: bgs_itf[:create_dt],
             expiration_date: bgs_itf[:exprtn_dt],
             status: bgs_itf[:itf_status_type_cd],
             type: bgs_itf[:itf_type_cd]
           }
-          IntentToFile.new(attributes)
         end
       end
     end

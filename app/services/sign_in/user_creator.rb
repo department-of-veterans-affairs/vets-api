@@ -16,7 +16,8 @@ module SignIn
                 :last_name,
                 :birth_date,
                 :ssn,
-                :mhv_icn
+                :mhv_icn,
+                :edipi
 
     def initialize(user_attributes:, state_payload:)
       @state_payload = state_payload
@@ -33,11 +34,12 @@ module SignIn
       @birth_date = user_attributes[:birth_date]
       @ssn = user_attributes[:ssn]
       @mhv_icn = user_attributes[:mhv_icn]
+      @edipi = user_attributes[:edipi]
     end
 
     def perform
       validate_mpi_record
-      check_and_add_mpi_user
+      update_mpi_record
       create_authenticated_user
       create_code_container
       user_code_map
@@ -71,13 +73,22 @@ module SignIn
       end
     end
 
-    def check_and_add_mpi_user
-      return unless verified_user_needs_mpi_update?
+    def update_mpi_record
+      return unless user_for_mpi_query.loa3?
 
-      set_required_attributes
+      add_mpi_user if user_for_mpi_query.icn.blank?
+      update_mpi_correlation_record unless mhv_auth?
+    end
+
+    def add_mpi_user
       mpi_response = user_for_mpi_query.mpi_add_person_implicit_search
-
       raise SignIn::Errors::MPIUserCreationFailedError, 'User MPI record cannot be created' unless mpi_response.ok?
+    end
+
+    def update_mpi_correlation_record
+      user_for_mpi_query.identity.icn = user_for_mpi_query.icn
+      mpi_response = user_for_mpi_query.mpi_update_profile
+      raise SignIn::Errors::MPIUserUpdateFailedError, 'User MPI record cannot be updated' unless mpi_response.ok?
     end
 
     def create_authenticated_user
@@ -104,6 +115,13 @@ module SignIn
                                                             logingov_uuid: logingov_uuid,
                                                             loa: loa,
                                                             sign_in: sign_in_backing_csp_type,
+                                                            first_name: first_name,
+                                                            last_name: last_name,
+                                                            birth_date: birth_date,
+                                                            ssn: ssn,
+                                                            edipi: edipi,
+                                                            icn: mhv_icn,
+                                                            mhv_icn: mhv_icn,
                                                             uuid: credential_uuid })
     end
 
@@ -133,26 +151,6 @@ module SignIn
                                                  client_id: state_payload.client_id)
     end
 
-    def verified_user_needs_mpi_update?
-      user_for_mpi_query.loa3? && mpi_missing_required_attributes?
-    end
-
-    def mpi_missing_required_attributes?
-      user_for_mpi_query.icn.nil? ||
-        user_for_mpi_query.first_name.nil? ||
-        user_for_mpi_query.last_name.nil? ||
-        user_for_mpi_query.birth_date.nil? ||
-        user_for_mpi_query.ssn.nil?
-    end
-
-    def set_required_attributes
-      user_for_mpi_query.identity.first_name = user_for_mpi_query.first_name || first_name
-      user_for_mpi_query.identity.last_name = user_for_mpi_query.last_name || last_name
-      user_for_mpi_query.identity.birth_date = user_for_mpi_query.birth_date || birth_date
-      user_for_mpi_query.identity.ssn = user_for_mpi_query.ssn || ssn
-      user_for_mpi_query.identity.mhv_icn = user_for_mpi_query.mhv_icn || mhv_icn
-    end
-
     def user_verification
       @user_verification ||= Login::UserVerifier.new(user_for_mpi_query).perform
     end
@@ -167,6 +165,10 @@ module SignIn
 
     def logingov_auth?
       sign_in[:service_name] == SAML::User::LOGINGOV_CSID
+    end
+
+    def mhv_auth?
+      sign_in[:service_name] == SAML::User::MHV_ORIGINAL_CSID
     end
 
     def user_uuid

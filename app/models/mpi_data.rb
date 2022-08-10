@@ -195,6 +195,14 @@ class MPIData < Common::RedisStore
     mpi_service.add_person_implicit_search(user_identity)
   end
 
+  # Make a call for MPI Update Profile to revise an existing MPI record. This will add attributes to a correlation
+  # record, not necessarily a main view, which means MPI may prefer its own attributes over the provided ones
+  #
+  # @return [MPI::Responses::UpdateProfileResponse] the response returned from MPI Update Profile call
+  def update_profile
+    mpi_service.update_profile(user_identity)
+  end
+
   private
 
   def get_user_key

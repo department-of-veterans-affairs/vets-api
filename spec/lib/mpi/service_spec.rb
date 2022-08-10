@@ -288,6 +288,108 @@ describe MPI::Service do
     end
   end
 
+  describe '.update_profile' do
+    before do
+      expect(MPI::Messages::UpdateProfileMessage).to receive(:new).once.and_call_original
+    end
+
+    context 'valid request' do
+      let(:user) do
+        build(:user,
+              :loa3,
+              ssn: ssn,
+              first_name: first_name,
+              last_name: last_name,
+              birth_date: birth_date,
+              icn: icn,
+              idme_uuid: idme_uuid)
+      end
+      let(:ssn) { 796_111_863 }
+      let(:first_name) { 'abraham' }
+      let(:last_name) { 'lincoln' }
+      let(:birth_date) { '18090212' }
+      let(:icn) { '1013677101V363970' }
+      let(:idme_uuid) { 'b2fab2b56af045e1a9e2394347af91ef' }
+      let(:expected_response_codes) { { idme_uuid: idme_uuid } }
+
+      it 'successfully updates a correlation profile in MPI' do
+        VCR.use_cassette('mpi/update_profile/update_profile_success') do
+          response = subject.update_profile(user)
+          expect(response.status).to eq('OK')
+          expect(response.mvi_codes).to have_deep_attributes(expected_response_codes)
+        end
+      end
+
+      it 'returns no errors' do
+        VCR.use_cassette('mpi/update_profile/update_profile_success') do
+          response = subject.update_profile(user)
+
+          expect(response.error).to be_nil
+        end
+      end
+    end
+
+    context 'invalid requests' do
+      it 'properly responds if a server error occurs', :aggregate_failures do
+        expect(subject).to receive(:log_exception_to_sentry)
+
+        VCR.use_cassette('mpi/update_profile/update_profile_server_error') do
+          response = subject.update_profile(user)
+          exception = response.error.errors.first
+
+          expect(response.class).to eq MPI::Responses::AddPersonResponse
+          expect(response.status).to eq server_error
+          expect(response.mvi_codes).to be_nil
+          expect(exception.title).to eq 'Bad Gateway'
+          expect(exception.code).to eq 'MVI_502'
+          expect(exception.status).to eq '502'
+          expect(exception.source).to eq MPI::Service
+        end
+      end
+    end
+
+    context 'with an MVI timeout' do
+      let(:base_path) { MPI::Configuration.instance.base_path }
+
+      it 'raises a service error', :aggregate_failures do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
+        expect(subject).to receive(:log_message_to_sentry).with(
+          'MVI update_profile error: Gateway timeout',
+          :warn
+        )
+        response = subject.update_profile(user)
+
+        exception = response.error.errors.first
+
+        expect(response.class).to eq MPI::Responses::AddPersonResponse
+        expect(response.status).to eq server_error
+        expect(response.mvi_codes).to be_nil
+        expect(exception.title).to eq 'Gateway timeout'
+        expect(exception.code).to eq 'MVI_504'
+        expect(exception.status).to eq '504'
+        expect(exception.source).to eq MPI::Service
+      end
+    end
+
+    context 'with an ongoing breakers outage' do
+      it 'returns the correct thing', :aggregate_failures do
+        MPI::Configuration.instance.breakers_service.begin_forced_outage!
+        expect(Raven).to receive(:extra_context).once
+        response = subject.update_profile(user)
+
+        exception = response.error.errors.first
+
+        expect(response.class).to eq MPI::Responses::AddPersonResponse
+        expect(response.status).to eq server_error
+        expect(response.mvi_codes).to be_nil
+        expect(exception.title).to eq 'Service unavailable'
+        expect(exception.code).to eq 'MVI_503'
+        expect(exception.status).to eq '503'
+        expect(exception.source).to eq MPI::Service
+      end
+    end
+  end
+
   describe '.find_profile with orch_search' do
     let(:user) { build(:user, :loa3, user_hash) }
 

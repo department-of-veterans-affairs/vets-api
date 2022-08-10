@@ -1257,4 +1257,32 @@ RSpec.describe User, type: :model do
       end
     end
   end
+
+  describe '#mpi_update_profile' do
+    subject { user.mpi_update_profile }
+
+    let(:user) { create(:user, :loa3) }
+
+    before do
+      allow_any_instance_of(MPI::Service).to receive(:update_profile)
+    end
+
+    context 'when loa3? is true' do
+      before { stub_mpi_not_found }
+
+      it 'makes a call to MPI to update a user correlation profile' do
+        expect_any_instance_of(MPI::Service).to receive(:update_profile)
+        subject
+      end
+    end
+
+    context 'when loa3? is false' do
+      let(:user) { create(:user) }
+
+      it 'does not make a call to MPI to update a user correlation profile' do
+        expect_any_instance_of(MPI::Service).not_to receive(:update_profile)
+        subject
+      end
+    end
+  end
 end

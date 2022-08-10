@@ -4,10 +4,10 @@ module MPI
   module Constants
     # The MVI Service SOAP operations vets.gov has access toto three MVI endpoints:
     # * PRPA_IN201301UV02 (TODO(AJD): Add Person)
-    # * PRPA_IN201302UV02 (TODO(AJD): Update Person)
+    # * PRPA_IN201302UV02 (TODO(AJD): Update Profile)
     # * PRPA_IN201305UV02 (aliased as .find_profile)
     ADD_PERSON = 'PRPA_IN201301UV02'
-    UPDATE_PERSON = 'PRPA_IN201302UV02'
+    UPDATE_PROFILE = 'PRPA_IN201302UV02'
     FIND_PROFILE = 'PRPA_IN201305UV02'
 
     # MPI Service response error codes
@@ -24,5 +24,10 @@ module MPI
 
     IDME_IDENTIFIER = '200VIDM'
     LOGINGOV_IDENTIFIER = '200VLGN'
+    DSLOGON_IDENTIFIER = '200DOD'
+
+    IDME_FULL_IDENTIFIER = 'PN^200VIDM^USDVA'
+    LOGINGOV_FULL_IDENTIFIER = 'PN^200VLGN^USDVA'
+    DSLOGON_FULL_IDENTIFIER = 'NI^200DOD^USDOD'
   end
 end

@@ -74,6 +74,7 @@ gem 'google-apis-core'
 gem 'google-apis-generator'
 gem 'googleauth'
 gem 'google-cloud-bigquery'
+gem 'google-protobuf' # For Datadog Profiling
 gem 'govdelivery-tms', '2.8.4', require: 'govdelivery/tms/mail/delivery_method'
 gem 'gyoku'
 gem 'holidays'

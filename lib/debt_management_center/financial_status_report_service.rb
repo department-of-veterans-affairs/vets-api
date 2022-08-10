@@ -25,7 +25,6 @@ module DebtManagementCenter
     STATSD_KEY_PREFIX = 'api.dmc'
     DATE_TIMEZONE = 'Central Time (US & Canada)'
     CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.fsr_confirmation_email
-    DEBT_TYPES = %w[vba vha combined].freeze
 
     ##
     # Submit a financial status report to the Debt Management Center
@@ -60,18 +59,13 @@ module DebtManagementCenter
     end
 
     def submit_combined_fsr(form)
-      case form['personalIdentification']['debtType']
-      when 'vba'
-        submit_vba_fsr(form)
-      when 'vha'
-        submit_vha_fsr(form)
-      else
-        submit_vba_fsr(form)
-      end
+      submit_vba_fsr(form) if form['selectedDebts'].present?
+      submit_vha_fsr(form) if form['selectedCopays'].present?
     end
 
     def submit_vba_fsr(form)
-      response = perform(:post, 'financial-status-report/formtopdf', form)
+      parsed_form = remove_meta_debt_data(form)
+      response = perform(:post, 'financial-status-report/formtopdf', parsed_form)
       fsr_response = DebtManagementCenter::FinancialStatusReportResponse.new(response.body)
 
       send_confirmation_email if response.success?
@@ -81,19 +75,47 @@ module DebtManagementCenter
     end
 
     def submit_vha_fsr(form)
+      vha_forms = parse_vha_form(form)
       request = DebtManagementCenter::VBS::Request.build
-      parsed_form = remove_form_delimiters(form)
-      response = request.post("#{vbs_settings.base_path}/UploadFSRJsonDocument", parsed_form)
+      vbs_responses = []
+      vha_forms.each do |vha_form|
+        response = request.post("#{vbs_settings.base_path}/UploadFSRJsonDocument", { jsonDocument: vha_form.to_json })
+        vbs_responses << response
+      end
 
-      send_confirmation_email if response.success?
+      send_confirmation_email if vbs_responses.all?(&:success?)
 
-      { status: response.status }
+      { status: vbs_responses.collect(&:status) }
     end
 
     private
 
     def raise_client_error
       raise Common::Client::Errors::ClientError.new('malformed request', 400)
+    end
+
+    def parse_vha_form(form)
+      facility_forms = []
+      facility_copays = form['selectedCopays'].group_by { |copay| copay['station']['facilitYNum'] }
+      facility_copays.each do |facility_num, copays|
+        fsr_reason = copays.map do |c|
+          c['resolution']['resolutionType']
+        end.uniq.join(', ') + " - Facility #{facility_num}}"
+        facility_form = form.deep_dup
+        facility_form['personalIdentification']['fsrReason'] = fsr_reason
+        facility_form.delete('selectedCopays')
+        facility_form.delete('selectedDebts')
+        facility_forms << remove_form_delimiters(facility_form)
+      end
+
+      facility_forms
+    end
+
+    def remove_meta_debt_data(form)
+      form.delete('selectedCopays')
+      form.delete('selectedDebts')
+
+      form
     end
 
     def update_filenet_id(response)

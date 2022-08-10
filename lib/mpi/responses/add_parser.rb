@@ -46,6 +46,11 @@ module MPI
 
       private
 
+      def sanitize_uuid(full_identifier)
+        full_identifier.split(IDENTIFIERS_SPLIT_TOKEN).first
+      end
+
+      # rubocop:disable Metrics/MethodLength
       def parse_ids(attributes)
         codes = { other: [] }
         attributes.each do |attribute|
@@ -54,6 +59,12 @@ module MPI
             codes[:birls_id] = sanitize_id(attribute[:code])
           when /CORP/
             codes[:participant_id] = sanitize_id(attribute[:code])
+          when /200VIDM/
+            codes[:idme_uuid] = sanitize_uuid(attribute[:code])
+          when /200VLGN/
+            codes[:logingov_uuid] = sanitize_uuid(attribute[:code])
+          when /200DOD/
+            codes[:edipi] = sanitize_edipi(attribute[:code])
           else
             if attribute[:displayName] == 'ICN'
               codes[:icn] = attribute[:code]
@@ -66,5 +77,6 @@ module MPI
         codes
       end
     end
+    # rubocop:enable Metrics/MethodLength
   end
 end

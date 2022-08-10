@@ -79,7 +79,8 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
                                                                       .order(:cid, :status)
                                                                       .pluck(:cid, :status, :id),
           poa_totals: [],
-          unsuccessful_poa_submissions: []
+          unsuccessful_poa_submissions: [],
+          itf_totals: []
         ).and_return(double.tap do |mailer|
                        expect(mailer).to receive(:deliver_now).once
                      end)
@@ -124,6 +125,29 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
         expect(poa_totals[0]['VA TurboClaim'][:totals]).to eq(6)
         expect(unsuccessful_poa_submissions.count).to eq(2)
         expect(unsuccessful_poa_submissions[0][:cid]).to eq('0oa9uf05lgXYk6ZXn297')
+      end
+    end
+
+    it 'includes ITF metrics' do
+      with_settings(Settings.claims_api,
+                    report_enabled: true) do
+        ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::SUBMITTED, cid: '0oa9uf05lgXYk6ZXn297')
+        ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::ERRORED, cid: '0oa9uf05lgXYk6ZXn297')
+
+        ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::SUBMITTED, cid: '0oadnb0o063rsPupH297')
+        ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::ERRORED, cid: '0oadnb0o063rsPupH297')
+
+        job = described_class.new
+        job.perform
+        itf_totals = job.itf_totals
+
+        expect(itf_totals[0]['VA TurboClaim'][:submitted]).to eq(1)
+        expect(itf_totals[0]['VA TurboClaim'][:errored]).to eq(1)
+        expect(itf_totals[0]['VA TurboClaim'][:totals]).to eq(2)
+
+        expect(itf_totals[1]['Vet Connect Pro'][:submitted]).to eq(1)
+        expect(itf_totals[1]['Vet Connect Pro'][:errored]).to eq(1)
+        expect(itf_totals[1]['Vet Connect Pro'][:totals]).to eq(2)
       end
     end
   end

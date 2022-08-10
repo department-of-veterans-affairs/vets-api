@@ -56,13 +56,13 @@ RSpec.describe SignIn::UserCreator do
       let(:authn_context) { service_name }
       let(:multifactor) { true }
       let(:edipis) { ['some-edipi'] }
-      let(:edipi) { edipis.first }
       let(:mhv_iens) { ['some-mhv-ien'] }
-      let(:mhv_ien) { mhv_iens.first }
       let(:participant_ids) { ['some-participant-id'] }
-      let(:participant_id) { participant_ids.first }
       let(:birls_ids) { ['some-birls-id'] }
-      let(:birls_id) { participant_ids.first }
+      let(:update_profile) do
+        MPI::Responses::AddPersonResponse.new(status: update_status, mvi_codes: { logingov_uuid: csp_id }, error: nil)
+      end
+      let(:update_status) { 'OK' }
 
       before do
         allow(SecureRandom).to receive(:uuid).and_return(login_code)
@@ -72,16 +72,17 @@ RSpec.describe SignIn::UserCreator do
                        ssn: ssn,
                        icn: icn,
                        edipis: edipis,
-                       edipi: edipi,
-                       mhv_ien: mhv_ien,
+                       edipi: edipis.first,
+                       mhv_ien: mhv_iens.first,
                        mhv_iens: mhv_iens,
-                       birls_id: birls_id,
+                       birls_id: birls_ids.first,
                        birls_ids: birls_ids,
-                       participant_id: participant_id,
+                       participant_id: participant_ids.first,
                        participant_ids: participant_ids,
                        birth_date: birth_date_ssn,
                        given_names: [first_name],
                        family_name: last_name))
+        allow_any_instance_of(MPI::Service).to receive(:update_profile).and_return(update_profile)
       end
 
       shared_context 'user creation blocked' do
@@ -93,53 +94,55 @@ RSpec.describe SignIn::UserCreator do
         end
       end
 
-      context 'when current user id_theft_flag is detected as fradulent' do
-        let(:id_theft_flag) { true }
-        let(:expected_error) { SignIn::Errors::MPILockedAccountError }
-        let(:expected_error_message) { 'Theft Flag Detected' }
+      context 'mpi validations' do
+        context 'when current user id_theft_flag is detected as fradulent' do
+          let(:id_theft_flag) { true }
+          let(:expected_error) { SignIn::Errors::MPILockedAccountError }
+          let(:expected_error_message) { 'Theft Flag Detected' }
 
-        it_behaves_like 'user creation blocked'
-      end
+          it_behaves_like 'user creation blocked'
+        end
 
-      context 'when current user is detected as deceased' do
-        let(:deceased_date) { '2022-01-01' }
-        let(:expected_error) { SignIn::Errors::MPILockedAccountError }
-        let(:expected_error_message) { 'Death Flag Detected' }
+        context 'when current user is detected as deceased' do
+          let(:deceased_date) { '2022-01-01' }
+          let(:expected_error) { SignIn::Errors::MPILockedAccountError }
+          let(:expected_error_message) { 'Death Flag Detected' }
 
-        it_behaves_like 'user creation blocked'
-      end
+          it_behaves_like 'user creation blocked'
+        end
 
-      context 'when mpi record for user has multiple edipis' do
-        let(:edipis) { %w[some-edipi some-other-edipi] }
-        let(:expected_error) { SignIn::Errors::MPIMalformedAccountError }
-        let(:expected_error_message) { 'User attributes contain multiple distinct EDIPI values' }
+        context 'when mpi record for user has multiple edipis' do
+          let(:edipis) { %w[some-edipi some-other-edipi] }
+          let(:expected_error) { SignIn::Errors::MPIMalformedAccountError }
+          let(:expected_error_message) { 'User attributes contain multiple distinct EDIPI values' }
 
-        it_behaves_like 'user creation blocked'
-      end
+          it_behaves_like 'user creation blocked'
+        end
 
-      context 'when mpi record for user has multiple mhv ids' do
-        let(:mhv_iens) { %w[some-mhv-ien some-other-mhv-ien] }
-        let(:expected_error) { SignIn::Errors::MPIMalformedAccountError }
-        let(:expected_error_message) { 'User attributes contain multiple distinct MHV_ID values' }
+        context 'when mpi record for user has multiple mhv ids' do
+          let(:mhv_iens) { %w[some-mhv-ien some-other-mhv-ien] }
+          let(:expected_error) { SignIn::Errors::MPIMalformedAccountError }
+          let(:expected_error_message) { 'User attributes contain multiple distinct MHV_ID values' }
 
-        it_behaves_like 'user creation blocked'
-      end
+          it_behaves_like 'user creation blocked'
+        end
 
-      context 'when mpi record for user has multiple participant ids' do
-        let(:participant_ids) { %w[some-participant-id some-other-participant-id] }
-        let(:expected_error) { SignIn::Errors::MPIMalformedAccountError }
-        let(:expected_error_message) { 'User attributes contain multiple distinct CORP_ID values' }
+        context 'when mpi record for user has multiple participant ids' do
+          let(:participant_ids) { %w[some-participant-id some-other-participant-id] }
+          let(:expected_error) { SignIn::Errors::MPIMalformedAccountError }
+          let(:expected_error_message) { 'User attributes contain multiple distinct CORP_ID values' }
 
-        it_behaves_like 'user creation blocked'
-      end
+          it_behaves_like 'user creation blocked'
+        end
 
-      context 'when mpi record for user has multiple birls ids' do
-        let(:birls_ids) { %w[some-birls-id some-other-birls-id] }
-        let(:expected_message) { 'User attributes contain multiple distinct BIRLS_ID values' }
+        context 'when mpi record for user has multiple birls ids' do
+          let(:birls_ids) { %w[some-birls-id some-other-birls-id] }
+          let(:expected_message) { 'User attributes contain multiple distinct BIRLS_ID values' }
 
-        it 'logs a message to sentry' do
-          expect_any_instance_of(described_class).to receive(:log_message_to_sentry).with(expected_message, 'warn')
-          subject
+          it 'logs a message to sentry' do
+            expect_any_instance_of(described_class).to receive(:log_message_to_sentry).with(expected_message, 'warn')
+            subject
+          end
         end
       end
 
@@ -157,19 +160,16 @@ RSpec.describe SignIn::UserCreator do
       end
 
       context 'when user verification can be properly created' do
-        shared_context 'mpi user creation' do
+        context 'and current user does not have a retrievable icn' do
           let(:add_person_response) do
-            MPI::Responses::AddPersonResponse.new(status: status,
-                                                  mvi_codes: mvi_codes,
-                                                  error: error)
+            MPI::Responses::AddPersonResponse.new(status: status, mvi_codes: mvi_codes, error: nil)
           end
-
           let(:status) { 'OK' }
           let(:mvi_codes) { { icn: icn } }
           let(:icn) { 'some-icn' }
-          let(:error) { nil }
 
           before do
+            stub_mpi_not_found
             allow_any_instance_of(MPI::Service)
               .to receive(:add_person_implicit_search).and_return(add_person_response)
           end
@@ -190,18 +190,19 @@ RSpec.describe SignIn::UserCreator do
           end
         end
 
-        context 'and current user does not have a retrievable icn' do
-          before do
-            stub_mpi_not_found
-          end
+        context 'and mpi correlation record cannot be updated' do
+          let(:update_status) { 'some-not-successful-status' }
+          let(:expected_error) { SignIn::Errors::MPIUserUpdateFailedError }
+          let(:expected_error_message) { 'User MPI record cannot be updated' }
 
-          it_behaves_like 'mpi user creation'
+          it 'raises an MPI update profile error' do
+            expect { subject }.to raise_error(expected_error, expected_error_message)
+          end
         end
 
-        context 'and current user does not have required attributes' do
-          let(:birth_date_ssn) { nil }
-
-          it_behaves_like 'mpi user creation'
+        it 'makes an mpi call to update correlation record' do
+          expect_any_instance_of(MPI::Service).to receive(:update_profile)
+          subject
         end
 
         it 'creates a user with expected attributes' do

@@ -28,6 +28,7 @@ module SignIn
     class UserAccountNotFoundError < StandardError; end
     class SessionNotFoundError < StandardError; end
     class MPIUserCreationFailedError < StandardError; end
+    class MPIUserUpdateFailedError < StandardError; end
     class MPILockedAccountError < StandardError; end
     class MPIMalformedAccountError < StandardError; end
     class InvalidClientIdError < StandardError; end

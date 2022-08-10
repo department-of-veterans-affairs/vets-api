@@ -140,6 +140,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
           'facility' => 'VEHU DIVISION',
           'kind' => 'clinic',
           'startTime' => '2021-12-23T08:30:00',
+          'stationNo' => 500,
           'status' => ''
         }
       end
@@ -289,6 +290,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
           'facility' => 'VEHU DIVISION',
           'kind' => 'clinic',
           'startTime' => '2021-12-23T08:30:00',
+          'stationNo' => 500,
           'status' => ''
         }
       end
