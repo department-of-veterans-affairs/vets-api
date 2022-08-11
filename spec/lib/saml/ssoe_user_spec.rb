@@ -170,7 +170,7 @@ RSpec.describe SAML::User do
           },
           middle_name: 'LOGIN',
           gender: 'M',
-          ssn: '1231231',
+          ssn: '123123123',
           zip: '39876',
           mhv_icn: '1200049153V217987',
           mhv_correlation_id: '123456',

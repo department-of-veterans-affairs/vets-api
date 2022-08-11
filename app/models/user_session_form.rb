@@ -52,7 +52,11 @@ class UserSessionForm
 
   def normalize_saml(saml_user)
     saml_user.validate!
-    saml_user.to_hash
+    saml_user_attributes = saml_user.to_hash
+    if saml_user.needs_csp_id_mpi_update?
+      add_csp_id_to_mpi(saml_user_attributes, saml_user_attributes[:idme_uuid], saml_user_attributes[:logingov_uuid])
+    end
+    saml_user_attributes
   rescue SAML::UserAttributeError => e
     raise unless e.code == SAML::UserAttributeError::UUID_MISSING_CODE
 

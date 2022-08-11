@@ -21,6 +21,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                     changing_multifactor?: false,
                     user_attributes: user_attributes,
                     to_hash: saml_user_attributes,
+                    needs_csp_id_mpi_update?: false,
                     validate!: nil)
   end
 

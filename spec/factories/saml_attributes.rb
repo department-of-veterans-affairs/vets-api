@@ -215,7 +215,7 @@ FactoryBot.define do
     va_eauth_prefix { ['NOT_FOUND'] }
     va_eauth_street { ['123 Fantasy Lane'] }
     va_eauth_csponly { ['false'] }
-    va_eauth_pnid { ['1231231'] }
+    va_eauth_pnid { ['123123123'] }
     va_eauth_commonname { ['vets.gov.user+1000@example.com'] }
     va_eauth_transactionid { ['abcd1234xyz'] }
     va_eauth_suffix { ['NOT_FOUND'] }
