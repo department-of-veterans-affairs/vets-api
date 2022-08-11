@@ -35,6 +35,7 @@ module SAML
     attr_reader :saml_response, :saml_attributes, :user_attributes, :tracker_uuid
 
     delegate :to_hash, to: :user_attributes
+    delegate :needs_csp_id_mpi_update?, to: :user_attributes
 
     def initialize(saml_response)
       @saml_response = saml_response

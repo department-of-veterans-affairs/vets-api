@@ -250,18 +250,21 @@ module SAML
         sign_in.merge(account_type: account_type, auth_broker: SAML::URLService::BROKER_CODE)
       end
 
+      def needs_csp_id_mpi_update?
+        idme_uuid == safe_attr('va_eauth_uid') && mvi_ids[:idme_id].blank?
+      end
+
       def to_hash
         SERIALIZABLE_ATTRIBUTES.index_with { |k| send(k) }.merge(authn_context: authn_context)
       end
 
       # Raise any fatal exceptions due to validation issues
       def validate!
+        multiple_id_validations
         if should_raise_missing_uuid_error
           data = SAML::UserAttributeError::ERRORS[:uuid_missing].merge({ identifier: mhv_icn })
           raise SAML::UserAttributeError, data
         end
-
-        multiple_id_validations
       end
 
       private
@@ -278,7 +281,6 @@ module SAML
                                 'warn',
                                 { sec_id: @attributes['va_eauth_secid'] })
         end
-
         if birls_id_mismatch?
           log_message_to_sentry('User attributes contain multiple distinct BIRLS ID values.',
                                 'warn',
