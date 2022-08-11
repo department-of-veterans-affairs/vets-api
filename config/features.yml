@@ -429,6 +429,10 @@ features:
   profile_get_military_info_from_vaprofile:
     actor_type: user
     description: When enabled, the profile page will get military service history from VA Profile instead of eMIS.
+  profile_hide_direct_deposit_comp_and_pen:
+    actor_type: user
+    description: Hides disability comp and pen section of the Profile - Direct Deposit page during a service outage
+    enable_in_development: true
   profile_notification_settings:
     actor_type: user
     description: Turns on the Notification Settings section of the VA.gov Profile
