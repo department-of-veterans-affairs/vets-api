@@ -99,6 +99,7 @@ module Swagger
               property :accredited, type: :boolean
               property :accreditation_type, type: %i[null string]
               property :accreditation_status, type: %i[null string]
+              property :ownership_name, type: %i[null string]
               property :complaints, type: :object do
                 property :facility_code, type: :integer
                 property :financial_by_fac_code, type: :integer
@@ -228,6 +229,7 @@ module Swagger
           property :yr, type: %i[null boolean]
           property :poe, type: %i[null boolean]
           property :eight_keys, type: %i[null boolean]
+          property :ownership_name, type: %i[null string]
         end
 
         swagger_schema :GibctInstitutionsSelfLinks do
