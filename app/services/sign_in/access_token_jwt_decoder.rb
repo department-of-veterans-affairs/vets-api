@@ -10,7 +10,7 @@ module SignIn
 
     def perform(with_validation: true)
       decoded_token = jwt_decode_access_token(with_validation)
-      SignIn::AccessToken.new(
+      AccessToken.new(
         uuid: decoded_token.jti,
         session_handle: decoded_token.session_handle,
         user_uuid: decoded_token.sub,
@@ -38,11 +38,11 @@ module SignIn
       )&.first
       OpenStruct.new(decoded_jwt)
     rescue JWT::VerificationError
-      raise SignIn::Errors::AccessTokenSignatureMismatchError, 'Access token body does not match signature'
+      raise Errors::AccessTokenSignatureMismatchError, message: 'Access token body does not match signature'
     rescue JWT::ExpiredSignature
-      raise SignIn::Errors::AccessTokenExpiredError, 'Access token has expired'
+      raise Errors::AccessTokenExpiredError, message: 'Access token has expired'
     rescue JWT::DecodeError
-      raise SignIn::Errors::AccessTokenMalformedJWTError, 'Access token JWT is malformed'
+      raise Errors::AccessTokenMalformedJWTError, message: 'Access token JWT is malformed'
     end
 
     def private_key

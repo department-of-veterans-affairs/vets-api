@@ -20,15 +20,15 @@ module SignIn
 
     def validate_input
       unless refresh_token.version && refresh_token.nonce
-        raise SignIn::Errors::RefreshTokenMalformedError, 'Refresh token is malformed'
+        raise Errors::RefreshTokenMalformedError, message: 'Refresh token is malformed'
       end
     end
 
     def build_refresh_token_string(encrypted_refresh_token)
       string_array = []
-      string_array[SignIn::Constants::RefreshToken::ENCRYPTED_POSITION] = encrypted_refresh_token
-      string_array[SignIn::Constants::RefreshToken::NONCE_POSITION] = nonce
-      string_array[SignIn::Constants::RefreshToken::VERSION_POSITION] = version
+      string_array[Constants::RefreshToken::ENCRYPTED_POSITION] = encrypted_refresh_token
+      string_array[Constants::RefreshToken::NONCE_POSITION] = nonce
+      string_array[Constants::RefreshToken::VERSION_POSITION] = version
       string_array.join('.')
     end
 

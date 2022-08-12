@@ -86,11 +86,17 @@ RSpec.describe SignIn::UserCreator do
       end
 
       shared_context 'user creation blocked' do
-        it 'raises a malformed mpi account error' do
+        it 'raises the expected error error' do
           expect_any_instance_of(described_class).to receive(:log_message_to_sentry).with(expected_error_message,
                                                                                           'warn')
 
           expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+
+        it 'adds the expected error code to the raised error' do
+          subject
+        rescue => e
+          expect(e.code).to eq(expected_error_code)
         end
       end
 
@@ -99,6 +105,7 @@ RSpec.describe SignIn::UserCreator do
           let(:id_theft_flag) { true }
           let(:expected_error) { SignIn::Errors::MPILockedAccountError }
           let(:expected_error_message) { 'Theft Flag Detected' }
+          let(:expected_error_code) { SignIn::Constants::ErrorCode::MPI_LOCKED_ACCOUNT }
 
           it_behaves_like 'user creation blocked'
         end
@@ -107,6 +114,7 @@ RSpec.describe SignIn::UserCreator do
           let(:deceased_date) { '2022-01-01' }
           let(:expected_error) { SignIn::Errors::MPILockedAccountError }
           let(:expected_error_message) { 'Death Flag Detected' }
+          let(:expected_error_code) { SignIn::Constants::ErrorCode::MPI_LOCKED_ACCOUNT }
 
           it_behaves_like 'user creation blocked'
         end
@@ -115,6 +123,7 @@ RSpec.describe SignIn::UserCreator do
           let(:edipis) { %w[some-edipi some-other-edipi] }
           let(:expected_error) { SignIn::Errors::MPIMalformedAccountError }
           let(:expected_error_message) { 'User attributes contain multiple distinct EDIPI values' }
+          let(:expected_error_code) { SignIn::Constants::ErrorCode::MULTIPLE_EDIPI }
 
           it_behaves_like 'user creation blocked'
         end
@@ -123,6 +132,7 @@ RSpec.describe SignIn::UserCreator do
           let(:mhv_iens) { %w[some-mhv-ien some-other-mhv-ien] }
           let(:expected_error) { SignIn::Errors::MPIMalformedAccountError }
           let(:expected_error_message) { 'User attributes contain multiple distinct MHV_ID values' }
+          let(:expected_error_code) { SignIn::Constants::ErrorCode::MULTIPLE_MHV_IEN }
 
           it_behaves_like 'user creation blocked'
         end
@@ -131,32 +141,22 @@ RSpec.describe SignIn::UserCreator do
           let(:participant_ids) { %w[some-participant-id some-other-participant-id] }
           let(:expected_error) { SignIn::Errors::MPIMalformedAccountError }
           let(:expected_error_message) { 'User attributes contain multiple distinct CORP_ID values' }
+          let(:expected_error_code) { SignIn::Constants::ErrorCode::MULTIPLE_CORP_ID }
 
           it_behaves_like 'user creation blocked'
-        end
-
-        context 'when mpi record for user has multiple birls ids' do
-          let(:birls_ids) { %w[some-birls-id some-other-birls-id] }
-          let(:expected_message) { 'User attributes contain multiple distinct BIRLS_ID values' }
-
-          it 'logs a message to sentry' do
-            expect_any_instance_of(described_class).to receive(:log_message_to_sentry).with(expected_message, 'warn')
-            subject
-          end
         end
       end
 
       context 'when user verification cannot be created' do
         let(:expected_error) { SignIn::Errors::UserAttributesMalformedError }
         let(:expected_error_message) { 'User Attributes are Malformed' }
+        let(:expected_error_code) { SignIn::Constants::ErrorCode::INVALID_REQUEST }
 
         before do
           allow_any_instance_of(Login::UserVerifier).to receive(:perform).and_return(nil)
         end
 
-        it 'raises user attributes malformed error' do
-          expect { subject }.to raise_error(expected_error, expected_error_message)
-        end
+        it_behaves_like 'user creation blocked'
       end
 
       context 'when user verification can be properly created' do
@@ -183,10 +183,9 @@ RSpec.describe SignIn::UserCreator do
             let(:status) { 'some-not-successful-status' }
             let(:expected_error) { SignIn::Errors::MPIUserCreationFailedError }
             let(:expected_error_message) { 'User MPI record cannot be created' }
+            let(:expected_error_code) { SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE }
 
-            it 'raises an MPI user creation error' do
-              expect { subject }.to raise_error(expected_error, expected_error_message)
-            end
+            it_behaves_like 'user creation blocked'
           end
         end
 
@@ -194,10 +193,9 @@ RSpec.describe SignIn::UserCreator do
           let(:update_status) { 'some-not-successful-status' }
           let(:expected_error) { SignIn::Errors::MPIUserUpdateFailedError }
           let(:expected_error_message) { 'User MPI record cannot be updated' }
+          let(:expected_error_code) { SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE }
 
-          it 'raises an MPI update profile error' do
-            expect { subject }.to raise_error(expected_error, expected_error_message)
-          end
+          it_behaves_like 'user creation blocked'
         end
 
         it 'makes an mpi call to update correlation record' do

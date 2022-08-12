@@ -15,7 +15,7 @@ module SignIn
     private
 
     def delete_sessions!
-      SignIn::OAuthSession.where(user_account: user_account).destroy_all
+      OAuthSession.where(user_account: user_account).destroy_all
     end
   end
 end

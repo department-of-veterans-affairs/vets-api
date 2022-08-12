@@ -7,7 +7,7 @@ module SignIn
     attr_reader :user_uuid, :uuid, :session_handle, :parent_refresh_token_hash, :anti_csrf_token, :nonce, :version
 
     validates :user_uuid, :uuid, :session_handle, :anti_csrf_token, :nonce, :version, presence: true
-    validates :version, inclusion: SignIn::Constants::RefreshToken::VERSION_LIST
+    validates :version, inclusion: Constants::RefreshToken::VERSION_LIST
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(session_handle:,
@@ -16,7 +16,7 @@ module SignIn
                    uuid: create_uuid,
                    parent_refresh_token_hash: nil,
                    nonce: create_nonce,
-                   version: SignIn::Constants::RefreshToken::CURRENT_VERSION)
+                   version: Constants::RefreshToken::CURRENT_VERSION)
       @user_uuid = user_uuid
       @uuid = uuid
       @session_handle = session_handle

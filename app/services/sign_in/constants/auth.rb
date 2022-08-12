@@ -15,6 +15,7 @@ module SignIn
       INFO_COOKIE_NAME = 'vagov_info_token'
       REFRESH_ROUTE_PATH = '/v0/sign_in/refresh'
       ACR_VALUES = [LOA1 = 'loa1', LOA3 = 'loa3', IAL1 = 'ial1', IAL2 = 'ial2', MIN = 'min'].freeze
+      ACCESS_DENIED = 'access_denied'
     end
   end
 end

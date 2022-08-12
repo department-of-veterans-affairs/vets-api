@@ -5,7 +5,7 @@ require 'sign_in/logingov/configuration'
 module SignIn
   module Logingov
     class Service < Common::Client::Base
-      configuration SignIn::Logingov::Configuration
+      configuration Configuration
 
       SCOPE = 'profile profile:verified_at address email social_security_number openid'
 
@@ -63,7 +63,7 @@ module SignIn
           last_name: user_info[:family_name],
           csp_email: user_info[:email],
           multifactor: true,
-          sign_in: { service_name: config.service_name, auth_broker: SignIn::Constants::Auth::BROKER_CODE,
+          sign_in: { service_name: config.service_name, auth_broker: Constants::Auth::BROKER_CODE,
                      client_id: client_id },
           authn_context: get_authn_context(credential_level.current_ial)
         }

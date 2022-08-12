@@ -20,11 +20,11 @@ module SignIn
     private
 
     def validations
-      raise SignIn::Errors::CodeInvalidError, 'Code is not valid' unless code_container
+      raise Errors::CodeInvalidError, message: 'Code is not valid' unless code_container
       if code_challenge != code_container.code_challenge
-        raise SignIn::Errors::CodeChallengeMismatchError, 'Code Verifier is not valid'
+        raise Errors::CodeChallengeMismatchError, message: 'Code Verifier is not valid'
       end
-      raise SignIn::Errors::GrantTypeValueError, 'Grant Type is not valid' if grant_type != Constants::Auth::GRANT_TYPE
+      raise Errors::GrantTypeValueError, message: 'Grant Type is not valid' if grant_type != Constants::Auth::GRANT_TYPE
     end
 
     def user_verification
@@ -36,19 +36,19 @@ module SignIn
     end
 
     def code_container
-      @code_container ||= SignIn::CodeContainer.find(code)
+      @code_container ||= CodeContainer.find(code)
     end
 
     def remove_base64_padding(data)
       Base64.urlsafe_encode64(Base64.urlsafe_decode64(data.to_s), padding: false)
     rescue ArgumentError
-      raise Errors::CodeVerifierMalformedError, 'Code Verifier is malformed'
+      raise Errors::CodeVerifierMalformedError, message: 'Code Verifier is malformed'
     end
 
     def validated_credential
-      @validated_credential ||= SignIn::ValidatedCredential.new(user_verification: user_verification,
-                                                                credential_email: code_container.credential_email,
-                                                                client_id: code_container.client_id)
+      @validated_credential ||= ValidatedCredential.new(user_verification: user_verification,
+                                                        credential_email: code_container.credential_email,
+                                                        client_id: code_container.client_id)
     end
   end
 end

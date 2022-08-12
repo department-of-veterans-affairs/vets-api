@@ -22,18 +22,18 @@ module SignIn
 
     def anti_csrf_check
       if anti_csrf_token != revoking_token.anti_csrf_token
-        raise SignIn::Errors::AntiCSRFMismatchError, 'Anti CSRF token is not valid'
+        raise Errors::AntiCSRFMismatchError, message: 'Anti CSRF token is not valid'
       end
     end
 
     def find_valid_oauth_session
-      @session ||= SignIn::OAuthSession.find_by(handle: revoking_token.session_handle)
-      raise SignIn::Errors::SessionNotAuthorizedError, 'No valid Session found' unless session&.active?
+      @session ||= OAuthSession.find_by(handle: revoking_token.session_handle)
+      raise Errors::SessionNotAuthorizedError, message: 'No valid Session found' unless session&.active?
     end
 
     def detect_token_theft
       unless refresh_token_in_session? || parent_refresh_token_in_session?
-        raise SignIn::Errors::TokenTheftDetectedError, 'Token theft detected'
+        raise Errors::TokenTheftDetectedError, message: 'Token theft detected'
       end
     end
 

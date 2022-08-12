@@ -10,7 +10,7 @@ module SignIn
 
     def perform
       decoded_jwt = jwt_decode_state_payload
-      SignIn::StatePayload.new(
+      StatePayload.new(
         acr: decoded_jwt.acr,
         client_id: decoded_jwt.client_id,
         type: decoded_jwt.type,
@@ -33,9 +33,9 @@ module SignIn
       )&.first
       OpenStruct.new(decoded_jwt)
     rescue JWT::VerificationError
-      raise SignIn::Errors::StatePayloadSignatureMismatchError, 'State JWT body does not match signature'
+      raise Errors::StatePayloadSignatureMismatchError, message: 'State JWT body does not match signature'
     rescue JWT::DecodeError
-      raise SignIn::Errors::StatePayloadMalformedJWTError, 'State JWT is malformed'
+      raise Errors::StatePayloadMalformedJWTError, message: 'State JWT is malformed'
     end
 
     def private_key

@@ -32,7 +32,7 @@ module SignIn
     def id; end
 
     def access_token_ttl
-      SignIn::Constants::AccessToken::VALIDITY_LENGTH_MINUTES.minutes.seconds.to_i
+      Constants::AccessToken::VALIDITY_LENGTH_MINUTES.minutes.seconds.to_i
     end
 
     def verified

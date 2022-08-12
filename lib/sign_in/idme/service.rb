@@ -6,7 +6,7 @@ require 'sign_in/idme/errors'
 module SignIn
   module Idme
     class Service < Common::Client::Base
-      configuration SignIn::Idme::Configuration
+      configuration Configuration
 
       attr_accessor :type
 
@@ -66,7 +66,7 @@ module SignIn
           uuid: user_info.sub,
           idme_uuid: user_info.sub,
           loa: { current: loa_current, highest: loa_highest },
-          sign_in: { service_name: type, auth_broker: SignIn::Constants::Auth::BROKER_CODE,
+          sign_in: { service_name: type, auth_broker: Constants::Auth::BROKER_CODE,
                      client_id: client_id },
           csp_email: user_info.email,
           multifactor: user_info.multifactor,
