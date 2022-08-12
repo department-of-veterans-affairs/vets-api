@@ -24,6 +24,9 @@ class AppealSubmission < ApplicationRecord
                                                .body
     appeal_submission.submitted_appeal_uuid = nod_response_body.dig('data', 'id')
     appeal_submission.save!
+    # Clear in-progress form if submit was successful
+    InProgressForm.form_for_user('10182', current_user)&.destroy! unless appeal_submission.submitted_appeal_uuid.empty?
+
     appeal_submission.enqueue_uploads(uploads_arr, current_user)
     nod_response_body
   end
