@@ -53,6 +53,7 @@ module VAProfile
       attribute :zip_code, String
       attribute :zip_code_suffix, String
 
+      validate :ascii_only
       validates(:address_line1, presence: true)
       validates(:city, presence: true)
       validates(:country_code_iso3, length: { maximum: 3 })
@@ -119,6 +120,16 @@ module VAProfile
         validates :zip_code_suffix, absence: true
         validates :county_name, absence: true
         validates :county_code, absence: true
+      end
+
+      def ascii_only
+        address = [
+          address_line1,
+          address_line2,
+          address_line3
+        ].join('')
+
+        errors.add(:address, 'must contain ASCII characters only') unless address.ascii_only?
       end
 
       def zip_plus_four

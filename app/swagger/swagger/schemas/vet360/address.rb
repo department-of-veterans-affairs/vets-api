@@ -70,9 +70,16 @@ module Swagger
             property :address_line1,
                      type: :string,
                      example: '1493 Martin Luther King Rd',
-                     maxLength: ADDRESS_FIELD_LIMIT
-            property :address_line2, type: :string, maxLength: ADDRESS_FIELD_LIMIT
-            property :address_line3, type: :string, maxLength: ADDRESS_FIELD_LIMIT
+                     maxLength: ADDRESS_FIELD_LIMIT,
+                     pattern: 'US-ASCII'
+            property :address_line2,
+                     type: :string,
+                     maxLength: ADDRESS_FIELD_LIMIT,
+                     pattern: 'US-ASCII'
+            property :address_line3,
+                     type: :string,
+                     maxLength: ADDRESS_FIELD_LIMIT,
+                     pattern: 'US-ASCII'
           end
         end
 

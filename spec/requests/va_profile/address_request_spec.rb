@@ -243,6 +243,18 @@ RSpec.describe 'address' do
         put('/v0/profile/addresses', params: address.to_json, headers: headers)
       end
     end
+
+    context 'when non ASCII characters are used' do
+      it 'matches the error schema' do
+        address.address_line1 = '千代田区丸の'
+
+        put('/v0/profile/addresses', params: address.to_json, headers: headers)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to match_response_schema('errors')
+        expect(errors_for(response)).to include 'address - must contain ASCII characters only'
+      end
+    end
   end
 
   describe 'DELETE /v0/profile/addresses' do

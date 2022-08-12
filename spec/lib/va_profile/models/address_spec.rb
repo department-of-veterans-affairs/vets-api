@@ -208,5 +208,41 @@ describe VAProfile::Models::Address do
         expect(json['bio']['badAddress']).to eq(nil)
       end
     end
+
+    context 'when address characters are US ASCII' do
+      let(:address) { build(:va_profile_address, :international) }
+
+      it 'address is valid' do
+        address.address_line1 = ' "!@#$%^&*()-+,./_`{}~|'
+        expect(address.valid?).to eq(true)
+
+        address.address_line1 = '1234567890'
+        expect(address.valid?).to eq(true)
+
+        address.address_line1 = 'abcdefghijklmnopqrstuvwxyz'
+        expect(address.valid?).to eq(true)
+
+        address.address_line1 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        expect(address.valid?).to eq(true)
+      end
+    end
+
+    context 'when address characters are not US ASCII' do
+      let(:address) { build(:va_profile_address, :international) }
+
+      it 'address is invalid' do
+        address.address_line1 = '千代田区丸の内1-1-1'
+        expect(address.valid?).to eq(false)
+        expect(address.errors.messages[:address].first).to eq('must contain ASCII characters only')
+
+        address.address_line2 = 'Parkway 千 Street'
+        expect(address.valid?).to eq(false)
+        expect(address.errors.messages[:address].first).to eq('must contain ASCII characters only')
+
+        address.address_line3 = '千代田区丸の内1-1-1'
+        expect(address.valid?).to eq(false)
+        expect(address.errors.messages[:address].first).to eq('must contain ASCII characters only')
+      end
+    end
   end
 end
