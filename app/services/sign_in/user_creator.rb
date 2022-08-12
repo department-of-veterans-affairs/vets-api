@@ -48,29 +48,31 @@ module SignIn
     private
 
     def validate_mpi_record
-      check_mpi_lock_flag(user_for_mpi_query.id_theft_flag, 'Theft Flag Detected')
-      check_mpi_lock_flag(user_for_mpi_query.deceased_date, 'Death Flag Detected')
-      check_id_mismatch(user_for_mpi_query.mpi_edipis, 'EDIPI')
-      check_id_mismatch(user_for_mpi_query.mpi_mhv_iens, 'MHV_ID')
-      check_id_mismatch(user_for_mpi_query.mpi_participant_ids, 'CORP_ID')
-      check_id_mismatch(user_for_mpi_query.mpi_birls_ids, 'BIRLS_ID', raise_error: false)
+      check_mpi_lock_flag(user_for_mpi_query.id_theft_flag,
+                          'Theft Flag',
+                          Constants::ErrorCode::MPI_LOCKED_ACCOUNT)
+      check_mpi_lock_flag(user_for_mpi_query.deceased_date,
+                          'Death Flag',
+                          Constants::ErrorCode::MPI_LOCKED_ACCOUNT)
+      check_id_mismatch(user_for_mpi_query.mpi_edipis, 'EDIPI', Constants::ErrorCode::MULTIPLE_EDIPI)
+      check_id_mismatch(user_for_mpi_query.mpi_mhv_iens, 'MHV_ID', Constants::ErrorCode::MULTIPLE_MHV_IEN)
+      check_id_mismatch(user_for_mpi_query.mpi_participant_ids, 'CORP_ID', Constants::ErrorCode::MULTIPLE_CORP_ID)
     end
 
-    def check_mpi_lock_flag(attribute, description)
+    def check_mpi_lock_flag(attribute, attribute_description, code)
       if attribute
-        log_message_to_sentry(description, 'warn')
-        raise SignIn::Errors::MPILockedAccountError, description
+        log_message = "#{attribute_description} Detected"
+        log_message_to_sentry(log_message, 'warn')
+        raise Errors::MPILockedAccountError, message: log_message, code: code
       end
     end
 
-    def check_id_mismatch(id_array, id_description, raise_error: true)
-      return unless id_array
+    def check_id_mismatch(id_array, id_description, code)
+      return unless id_array && id_array.compact.uniq.size > 1
 
-      if id_array.compact.uniq.size > 1
-        log_message = "User attributes contain multiple distinct #{id_description} values"
-        log_message_to_sentry(log_message, 'warn')
-        raise SignIn::Errors::MPIMalformedAccountError, log_message if raise_error
-      end
+      log_message = "User attributes contain multiple distinct #{id_description} values"
+      log_message_to_sentry(log_message, 'warn')
+      raise Errors::MPIMalformedAccountError, message: log_message, code: code
     end
 
     def update_mpi_record
@@ -82,17 +84,32 @@ module SignIn
 
     def add_mpi_user
       mpi_response = user_for_mpi_query.mpi_add_person_implicit_search
-      raise SignIn::Errors::MPIUserCreationFailedError, 'User MPI record cannot be created' unless mpi_response.ok?
+      unless mpi_response.ok?
+        error_message = 'User MPI record cannot be created'
+        error_code = Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE
+        log_message_to_sentry(error_message, 'warn')
+        raise Errors::MPIUserCreationFailedError, message: error_message, code: error_code
+      end
     end
 
     def update_mpi_correlation_record
       user_for_mpi_query.identity.icn = user_for_mpi_query.icn
       mpi_response = user_for_mpi_query.mpi_update_profile
-      raise SignIn::Errors::MPIUserUpdateFailedError, 'User MPI record cannot be updated' unless mpi_response.ok?
+      unless mpi_response.ok?
+        error_message = 'User MPI record cannot be updated'
+        error_code = Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE
+        log_message_to_sentry(error_message, 'warn')
+        raise Errors::MPIUserUpdateFailedError, message: error_message, code: error_code
+      end
     end
 
     def create_authenticated_user
-      raise SignIn::Errors::UserAttributesMalformedError, 'User Attributes are Malformed' unless user_verification
+      unless user_verification
+        error_message = 'User Attributes are Malformed'
+        error_code = Constants::ErrorCode::INVALID_REQUEST
+        log_message_to_sentry(error_message, 'warn')
+        raise Errors::UserAttributesMalformedError, message: error_message, code: error_code
+      end
 
       user = User.new
       user.instance_variable_set(:@identity, user_identity_from_mpi_query)
@@ -103,11 +120,11 @@ module SignIn
     end
 
     def create_code_container
-      SignIn::CodeContainer.new(code: login_code,
-                                client_id: state_payload.client_id,
-                                code_challenge: state_payload.code_challenge,
-                                user_verification_id: user_verification.id,
-                                credential_email: credential_email).save!
+      CodeContainer.new(code: login_code,
+                        client_id: state_payload.client_id,
+                        code_challenge: state_payload.code_challenge,
+                        user_verification_id: user_verification.id,
+                        credential_email: credential_email).save!
     end
 
     def user_identity_from_attributes
@@ -145,10 +162,10 @@ module SignIn
     end
 
     def user_code_map
-      @user_code_map ||= SignIn::UserCodeMap.new(login_code: login_code,
-                                                 type: state_payload.type,
-                                                 client_state: state_payload.client_state,
-                                                 client_id: state_payload.client_id)
+      @user_code_map ||= UserCodeMap.new(login_code: login_code,
+                                         type: state_payload.type,
+                                         client_state: state_payload.client_state,
+                                         client_id: state_payload.client_id)
     end
 
     def user_verification

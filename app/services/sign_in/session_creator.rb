@@ -47,7 +47,7 @@ module SignIn
     end
 
     def create_new_access_token
-      SignIn::AccessToken.new(
+      AccessToken.new(
         session_handle: handle,
         user_uuid: user_uuid,
         refresh_token_hash: refresh_token_hash,
@@ -58,7 +58,7 @@ module SignIn
     end
 
     def create_new_refresh_token(parent_refresh_token_hash: nil)
-      SignIn::RefreshToken.new(
+      RefreshToken.new(
         session_handle: handle,
         user_uuid: user_uuid,
         parent_refresh_token_hash: parent_refresh_token_hash,
@@ -67,14 +67,14 @@ module SignIn
     end
 
     def create_new_session
-      SignIn::OAuthSession.create!(user_account: user_account,
-                                   user_verification: user_verification,
-                                   client_id: client_id,
-                                   credential_email: credential_email,
-                                   handle: handle,
-                                   hashed_refresh_token: double_parent_refresh_token_hash,
-                                   refresh_expiration: refresh_expiration_time,
-                                   refresh_creation: refresh_created_time)
+      OAuthSession.create!(user_account: user_account,
+                           user_verification: user_verification,
+                           client_id: client_id,
+                           credential_email: credential_email,
+                           handle: handle,
+                           hashed_refresh_token: double_parent_refresh_token_hash,
+                           refresh_expiration: refresh_expiration_time,
+                           refresh_creation: refresh_created_time)
     end
 
     def refresh_created_time

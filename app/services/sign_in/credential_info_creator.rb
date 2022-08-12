@@ -22,7 +22,7 @@ module SignIn
       credential_info.save!
       credential_info.expire(expires_in)
     rescue Common::Exceptions::ValidationErrors, Redis::CommandError
-      raise Errors::InvalidCredentialInfoError, 'Cannot save information for malformed credential'
+      raise Errors::InvalidCredentialInfoError, message: 'Cannot save information for malformed credential'
     end
 
     def authenticated_csp_is_logingov?

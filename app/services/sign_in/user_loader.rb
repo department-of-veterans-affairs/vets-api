@@ -28,7 +28,7 @@ module SignIn
     end
 
     def validate_account_and_session
-      raise Errors::SessionNotFoundError, 'Invalid Session Handle' unless session
+      raise Errors::SessionNotFoundError, message: 'Invalid Session Handle' unless session
     end
 
     def user_attributes
@@ -52,7 +52,7 @@ module SignIn
     def sign_in
       { service_name: user_verification.credential_type,
         client_id: session.client_id,
-        auth_broker: SignIn::Constants::Auth::BROKER_CODE }
+        auth_broker: Constants::Auth::BROKER_CODE }
     end
 
     def authn_context

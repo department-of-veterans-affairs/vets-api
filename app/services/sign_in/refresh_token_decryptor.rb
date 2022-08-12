@@ -12,7 +12,7 @@ module SignIn
       decrypted_component = get_decrypted_component
       validate_token!(decrypted_component)
 
-      SignIn::RefreshToken.new(
+      RefreshToken.new(
         session_handle: decrypted_component.session_handle,
         uuid: decrypted_component.uuid,
         user_uuid: decrypted_component.user_uuid,
@@ -27,34 +27,34 @@ module SignIn
 
     def validate_token!(decrypted_component)
       if decrypted_component.version != version_from_split_token
-        raise SignIn::Errors::RefreshVersionMismatchError, 'Refresh token version is invalid'
+        raise Errors::RefreshVersionMismatchError, message: 'Refresh token version is invalid'
       end
       if decrypted_component.nonce != nonce_from_split_token
-        raise SignIn::Errors::RefreshNonceMismatchError, 'Refresh nonce is invalid'
+        raise Errors::RefreshNonceMismatchError, message: 'Refresh nonce is invalid'
       end
     end
 
     def get_decrypted_component
-      decrypted_string = decrypt_refresh_token(split_token_array[SignIn::Constants::RefreshToken::ENCRYPTED_POSITION])
+      decrypted_string = decrypt_refresh_token(split_token_array[Constants::RefreshToken::ENCRYPTED_POSITION])
       deserialize_token(decrypted_string)
     end
 
     def nonce_from_split_token
-      split_token_array[SignIn::Constants::RefreshToken::NONCE_POSITION]
+      split_token_array[Constants::RefreshToken::NONCE_POSITION]
     end
 
     def version_from_split_token
-      split_token_array[SignIn::Constants::RefreshToken::VERSION_POSITION]
+      split_token_array[Constants::RefreshToken::VERSION_POSITION]
     end
 
     def split_encrypted_refresh_token(encrypted_refresh_token)
-      encrypted_refresh_token.split('.', SignIn::Constants::RefreshToken::ENCRYPTED_ARRAY.length)
+      encrypted_refresh_token.split('.', Constants::RefreshToken::ENCRYPTED_ARRAY.length)
     end
 
     def decrypt_refresh_token(encrypted_part)
       message_encryptor.decrypt(encrypted_part)
     rescue KmsEncrypted::DecryptionError
-      raise SignIn::Errors::RefreshTokenDecryptionError, 'Refresh token cannot be decrypted'
+      raise Errors::RefreshTokenDecryptionError, message: 'Refresh token cannot be decrypted'
     end
 
     def deserialize_token(decrypted_string)

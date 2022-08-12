@@ -17,7 +17,7 @@ module SignIn
       elsif api_authentication_client?
         token_json_response
       else
-        raise Errors::InvalidClientIdError, 'Client id is not valid'
+        raise Errors::InvalidClientIdError, message: 'Client id is not valid'
       end
     end
 
