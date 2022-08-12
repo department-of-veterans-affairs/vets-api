@@ -1460,6 +1460,11 @@ components:
         url:
           description: The meeting URL.
           type: string
+        group:
+          type: string
+        vvsKind:
+          description: The kind of telehealth appointment.
+          type: string
         atlas:
           "$ref": "#/components/schemas/TasInfo"
     Timezone:
