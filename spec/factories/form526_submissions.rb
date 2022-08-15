@@ -64,7 +64,7 @@ FactoryBot.define do
       disabilities = json.dig('form526', 'form526', 'disabilities')
       disabilities.append({
                             'name' => 'Asthma',
-                            'classificationCode' => 'string',
+                            'classificationCode' => '8935',
                             'disabilityActionType' => 'INCREASE',
                             'ratedDisabilityId' => '0',
                             'diagnosticCode' => 6602,
@@ -81,7 +81,7 @@ FactoryBot.define do
       disabilities = json.dig('form526', 'form526', 'disabilities')
       disabilities.append({
                             'name' => 'Non-RRD disability',
-                            'classificationCode' => 'string',
+                            'classificationCode' => '8935',
                             'disabilityActionType' => 'INCREASE',
                             'ratedDisabilityId' => '0',
                             'diagnosticCode' => 1000,
@@ -98,7 +98,7 @@ FactoryBot.define do
       disabilities = json.dig('form526', 'form526', 'disabilities')
       disabilities[0] = {
         'name' => 'Sleep Apnea',
-        'classificationCode' => 'string',
+        'classificationCode' => '8935',
         'disabilityActionType' => 'INCREASE',
         'ratedDisabilityId' => '0',
         'diagnosticCode' => 6847,
@@ -115,14 +115,14 @@ FactoryBot.define do
       disabilities = json.dig('form526', 'form526', 'disabilities')
       disabilities.concat([{
                             'name' => 'Sleep Apnea',
-                            'classificationCode' => 'string',
+                            'classificationCode' => '8935',
                             'disabilityActionType' => 'INCREASE',
                             'ratedDisabilityId' => '0',
                             'diagnosticCode' => 6847,
                             'secondaryDisabilities' => []
                           }, {
                             'name' => 'Rhinitis',
-                            'classificationCode' => 'string',
+                            'classificationCode' => '8935',
                             'disabilityActionType' => 'INCREASE',
                             'ratedDisabilityId' => '0',
                             'diagnosticCode' => 6522,

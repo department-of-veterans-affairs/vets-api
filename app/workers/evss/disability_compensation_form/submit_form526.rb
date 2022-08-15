@@ -60,6 +60,7 @@ module EVSS
       def perform(submission_id)
         Raven.tags_context(source: '526EZ-all-claims')
         super(submission_id)
+        submission.insert_classification_codes if submission.forward_to_mas?
         with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
           service = service(submission.auth_headers)
           submission.mark_birls_id_as_tried!
