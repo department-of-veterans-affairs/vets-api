@@ -21,7 +21,7 @@
           "properties": {
             "status": {
               "type": "string",
-              "description": "Says if the power of attorney is pending, submitted, updated or errored",
+              "description": "Status of Power of Attorney establishment",
               "enum": [
                 "pending",
                 "submitted",
@@ -51,7 +51,7 @@
                     },
                     "first_name": {
                       "description": "First name of representative, null if representative is an organization",
-                      "type": "string", 
+                      "type": "string",
                       "nullable": true,
                       "example": "Jane"
                     },

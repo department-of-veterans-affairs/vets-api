@@ -145,9 +145,9 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
         expect(itf_totals[0]['VA TurboClaim'][:errored]).to eq(1)
         expect(itf_totals[0]['VA TurboClaim'][:totals]).to eq(2)
 
-        expect(itf_totals[1]['Vet Connect Pro'][:submitted]).to eq(1)
-        expect(itf_totals[1]['Vet Connect Pro'][:errored]).to eq(1)
-        expect(itf_totals[1]['Vet Connect Pro'][:totals]).to eq(2)
+        expect(itf_totals[1]['VA Connect Pro'][:submitted]).to eq(1)
+        expect(itf_totals[1]['VA Connect Pro'][:errored]).to eq(1)
+        expect(itf_totals[1]['VA Connect Pro'][:totals]).to eq(2)
       end
     end
   end
