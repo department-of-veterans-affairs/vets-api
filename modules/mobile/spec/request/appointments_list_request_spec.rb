@@ -13,6 +13,7 @@ RSpec.describe 'appointments', type: :request do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
     Flipper.disable(:mobile_appointment_requests)
     Flipper.disable(:mobile_appointment_use_VAOS_MFS)
+    Flipper.disable(:mobile_appointment_use_VAOS_v2)
   end
 
   before(:all) do

@@ -98,6 +98,7 @@ module Mobile
         (DateTime.now.utc.beginning_of_day + 1.year)
       end
 
+      # rubocop:disable Metrics/MethodLength
       def fetch_cached_or_service(validated_params)
         appointments = nil
         appointments = Mobile::V0::Appointment.get_cached(@current_user) if use_cache?(validated_params)
@@ -107,10 +108,18 @@ module Mobile
         if appointments
           Rails.logger.info('mobile appointments cache fetch', user_uuid: @current_user.uuid)
         else
-          appointments = appointments_proxy.get_appointments(
-            start_date: [validated_params[:start_date], beginning_of_last_year].min,
-            end_date: [validated_params[:end_date], one_year_from_now].max
-          )
+          start_date = [validated_params[:start_date], beginning_of_last_year].min
+          end_date = [validated_params[:end_date], one_year_from_now].max
+          if Flipper.enabled?(:mobile_appointment_use_VAOS_v2)
+            appointments = appointments_v2_proxy.get_appointments(
+              start_date: start_date,
+              end_date: end_date,
+              pagination_params: { page: validated_params[:page_number], pageSize: validated_params[:page_size] }
+            )
+          else
+            appointments = appointments_proxy.get_appointments(start_date: start_date, end_date: end_date)
+          end
+
           Mobile::V0::Appointment.set_cached(@current_user, appointments)
           Rails.logger.info('mobile appointments service fetch', user_uuid: @current_user.uuid)
         end
@@ -120,6 +129,7 @@ module Mobile
 
         appointments
       end
+      # rubocop:enable Metrics/MethodLength
 
       def paginate(appointments, validated_params)
         appointments = appointments.filter do |appointment|
@@ -137,6 +147,10 @@ module Mobile
 
       def appointments_proxy
         Mobile::V0::Appointments::Proxy.new(@current_user)
+      end
+
+      def appointments_v2_proxy
+        Mobile::V2::Appointments::Proxy.new(@current_user)
       end
 
       def appointments_helper
