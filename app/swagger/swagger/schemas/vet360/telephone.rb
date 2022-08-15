@@ -27,7 +27,7 @@ module Swagger
           property :extension,
                    type: :string,
                    example: '101',
-                   maxLength: 10,
+                   maxLength: 6,
                    description: 'One-or-more digit number that must be dialed after reaching a main number, typically at
                    an establishment, in order to reach a specific party.'
           property :is_international,

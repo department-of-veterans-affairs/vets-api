@@ -33,6 +33,20 @@ describe VAProfile::Models::Telephone do
       expect(build(:telephone)).to be_valid
     end
 
+    it 'extension must be less than or equal to 6 digits' do
+      telephone = build(:telephone)
+      telephone.extension = '1234567'
+      expect(telephone).not_to be_valid
+      expect(telephone.errors[:extension].first).to eq('is too long (maximum is 6 characters)')
+    end
+
+    it 'extension must be numeric' do
+      telephone = build(:telephone)
+      telephone.extension = 'ABCDEF'
+      expect(telephone).not_to be_valid
+      expect(telephone.errors[:extension].first).to eq('is not a number')
+    end
+
     context 'is_international' do
       it 'is valid when set to false' do
         phone = build(:telephone, is_international: false)
