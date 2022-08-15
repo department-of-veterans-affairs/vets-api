@@ -143,6 +143,7 @@ module V0
       Swagger::Requests::FeatureToggles,
       Swagger::Requests::FinancialStatusReports,
       Swagger::Requests::Form1010cg::Attachments,
+      Swagger::Requests::Form1095Bs,
       Swagger::Requests::Forms,
       Swagger::Requests::Gibct::CalculatorConstants,
       Swagger::Requests::Gibct::Institutions,

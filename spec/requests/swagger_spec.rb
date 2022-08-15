@@ -3332,6 +3332,35 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    describe '1095-B' do
+      let(:user) { build(:user, :loa3, icn: '3456787654324567') }
+      let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
+      let(:bad_headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
+
+      before do
+        create(:form1095_b)
+      end
+
+      context 'available forms' do
+        it 'supports getting available forms' do
+          expect(subject).to validate(
+            :get,
+            '/v0/form1095_bs/available_forms',
+            200,
+            headers
+          )
+        end
+
+        it 'requires authorization' do
+          expect(subject).to validate(
+            :get,
+            '/v0/form1095_bs/available_forms',
+            401
+          )
+        end
+      end
+    end
+
     describe 'contact us' do
       describe 'POST v0/contact_us/inquiries' do
         let(:post_body) do
@@ -3615,6 +3644,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       # exclude these route as they return binaries
       subject.untested_mappings.delete('/v0/letters/{id}')
       subject.untested_mappings.delete('/v0/financial_status_reports/download_pdf')
+      subject.untested_mappings.delete('/v0/form1095_bs/download_pdf/{tax_year}')
+      subject.untested_mappings.delete('/v0/form1095_bs/download_txt/{tax_year}')
       expect(subject).to validate_all_paths
     end
   end
