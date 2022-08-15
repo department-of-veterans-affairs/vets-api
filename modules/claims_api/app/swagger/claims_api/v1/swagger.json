@@ -497,7 +497,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "612f6b61-ebc9-426d-a6de-833637388618",
+                    "id": "af11925f-e7bc-4bb1-b9f3-72f7f4c93937",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -546,11 +546,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "c3d80864-748e-4dc0-9cee-4ea3513e0eae",
+                          "id": "8d8f0840-a83a-404d-8bc2-7a1c749583e5",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2022-08-01T21:54:36.500Z"
+                          "uploaded_at": "2022-08-11T20:35:07.934Z"
                         }
                       ]
                     }
@@ -2441,7 +2441,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c6568b75-e913-44b1-9378-c693c1bc23e2",
+                    "id": "e12a769c-b812-469b-a188-58d00f7671ff",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2459,13 +2459,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-08-01T21:54:36.729Z",
+                      "updated_at": "2022-08-11T20:35:08.435Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "c6568b75-e913-44b1-9378-c693c1bc23e2",
+                      "token": "e12a769c-b812-469b-a188-58d00f7671ff",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -4318,7 +4318,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6245863f-dedc-4baa-9f2f-1f343751f20a",
+                    "id": "91eebf00-6483-4818-9d8d-74d4141d355e",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4336,13 +4336,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-08-01T21:54:36.927Z",
+                      "updated_at": "2022-08-11T20:35:08.813Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "6245863f-dedc-4baa-9f2f-1f343751f20a",
+                      "token": "91eebf00-6483-4818-9d8d-74d4141d355e",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -6576,7 +6576,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "710d782b-9f5e-441e-be38-8a900ae716c6",
+                    "id": "2ab61dcf-26e6-48a8-a12b-7fc397e8e613",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6590,7 +6590,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-08-01T21:54:37.379Z",
+                      "updated_at": "2022-08-11T20:35:09.685Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6599,7 +6599,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "c1bb4267-306b-4328-b985-875c4d850816",
+                          "id": "2b909112-e8dc-47be-a0f3-0b2c51f37f4a",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8541,11 +8541,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b2c22b11-7fab-4aa6-bbd2-ecde45ca1576",
+                    "id": "af3a3431-144f-4057-a95a-8e2bf2f19191",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2022-08-01",
+                      "date_request_accepted": "2022-08-11",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9258,11 +9258,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "523a1760-dc70-46bd-86e8-387ec1f5bd57",
+                    "id": "28a23eeb-cacb-4485-835c-86aca24dcedc",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-08-01",
+                      "date_request_accepted": "2022-08-11",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9493,7 +9493,7 @@
                   "errors": [
                     {
                       "title": "Unprocessable Entity",
-                      "detail": "Unable to locate Veteran file number for eFolder. Please contact the Digital Transformation Center (DTC) at 202-921-0911 for assistance.",
+                      "detail": "Unable to locate Veteran's File Number in Master Person Index (MPI).Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.",
                       "code": "422",
                       "status": "422"
                     }
@@ -9776,11 +9776,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f0a2f43b-f249-42b9-8721-cd83d1d3a9e6",
+                    "id": "a87df89c-31f3-4d6e-8a4b-a0fbdfe09c9b",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-08-01",
+                      "date_request_accepted": "2022-08-11",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -10127,7 +10127,7 @@
                           "properties": {
                             "status": {
                               "type": "string",
-                              "description": "Says if the power of attorney is pending, submitted, updated or errored",
+                              "description": "Status of Power of Attorney establishment",
                               "enum": [
                                 "pending",
                                 "submitted",
