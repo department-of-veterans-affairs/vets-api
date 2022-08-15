@@ -98,6 +98,18 @@ module Form526RapidReadyForDecisionConcern
       Flipper.enabled?(:rrd_mas_disability_tracking)
   end
 
+  def insert_classification_codes
+    submission_data = JSON.parse(form_json)
+    disabilities = submission_data.dig('form526', 'form526', 'disabilities')
+    disabilities.each do |disability|
+      mas_classification_code = RapidReadyForDecision::Constants::MAS_RELATED_CONTENTIONS[disability['diagnosticCode']]
+
+      disability['classificationCode'] = mas_classification_code unless mas_classification_code.nil?
+    end
+    update!(form_json: JSON.dump(submission_data))
+    invalidate_form_hash
+  end
+
   private
 
   def open_claims
