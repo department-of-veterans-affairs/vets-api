@@ -478,18 +478,16 @@
                         "example": "600131328"
                       },
                       "status": {
-                        "type": {
-                          "enum": [
-                            "CLAIM_RECEIVED",
-                            "INITIAL_REVIEW",
-                            "PENDING",
-                            "EVIDENCE_GATHERING_REVIEW_DECISION",
-                            "PREPARATION_FOR_NOTIFICATION",
-                            "COMPLETE"
-                          ]
-                        },
+                        "type": "string",
                         "description": "Status of claim",
-                        "example": "Complete"
+                        "enum": [
+                          "PENDING",
+                          "CLAIM_RECEIVED",
+                          "INITIAL_REVIEW",
+                          "EVIDENCE_GATHERING_REVIEW_DECISION",
+                          "PREPARATION_FOR_NOTIFICATION",
+                          "COMPLETE"
+                        ]
                       },
                       "5103WaiverSubmitted": {
                         "type": "boolean",
@@ -762,46 +760,15 @@
                       "description": "End product code of claim",
                       "example": "930"
                     },
+                    "jurisdiction": {
+                      "type": "string",
+                      "description": "Jurisdiction of claim"
+                    },
                     "lighthouseId": {
                       "type": "string",
                       "nullable": true,
                       "description": "Claim ID in Lighthouse",
                       "example": "600131328"
-                    },
-                    "status": {
-                      "type": {
-                        "enum": [
-                          "CLAIM_RECEIVED",
-                          "INITIAL_REVIEW",
-                          "PENDING",
-                          "EVIDENCE_GATHERING_REVIEW_DECISION",
-                          "PREPARATION_FOR_NOTIFICATION",
-                          "COMPLETE"
-                        ]
-                      },
-                      "description": "Status of claim",
-                      "example": "Complete"
-                    },
-                    "submitterApplicationCode": {
-                      "type": "string",
-                      "description": "Application Code of benefit claim submitter",
-                      "example": "EBN"
-                    },
-                    "submitterRoleCode": {
-                      "type": "string",
-                      "description": "Role Code of benefit claim submitter",
-                      "example": "VET"
-                    },
-                    "jurisdiction": {
-                      "type": "string",
-                      "description": "Jurisdiction of claim"
-                    },
-                    "tempJurisdiction": {
-                      "type": [
-                        "string",
-                        "null"
-                      ],
-                      "description": "Temporary jurisdiction of claim"
                     },
                     "minEstClaimDate": {
                       "type": [
@@ -820,6 +787,28 @@
                       "format": "date",
                       "description": "Maximum Estimated Claim Completion Date",
                       "example": "2019-09-04"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Status of claim",
+                      "enum": [
+                        "PENDING",
+                        "CLAIM_RECEIVED",
+                        "INITIAL_REVIEW",
+                        "EVIDENCE_GATHERING_REVIEW_DECISION",
+                        "PREPARATION_FOR_NOTIFICATION",
+                        "COMPLETE"
+                      ]
+                    },
+                    "submitterApplicationCode": {
+                      "type": "string",
+                      "description": "Application Code of benefit claim submitter",
+                      "example": "EBN"
+                    },
+                    "submitterRoleCode": {
+                      "type": "string",
+                      "description": "Role Code of benefit claim submitter",
+                      "example": "VET"
                     },
                     "supportingDocuments": {
                       "type": "array",
@@ -845,6 +834,13 @@
                           }
                         }
                       }
+                    },
+                    "tempJurisdiction": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "Temporary jurisdiction of claim"
                     },
                     "5103WaiverSubmitted": {
                       "type": "boolean",

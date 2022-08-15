@@ -53,18 +53,16 @@
         "example": "600131328"
       },
       "status": {
-        "type": { "enum": 
-        [
+        "type": "string",
+        "description": "Status of claim",
+        "enum": [
+          "PENDING",
           "CLAIM_RECEIVED",
           "INITIAL_REVIEW",
-          "PENDING",
           "EVIDENCE_GATHERING_REVIEW_DECISION",
           "PREPARATION_FOR_NOTIFICATION",
           "COMPLETE"
         ]
-      },
-        "description": "Status of claim",
-        "example": "Complete"
       },
       "5103WaiverSubmitted": {
         "type": "boolean",
