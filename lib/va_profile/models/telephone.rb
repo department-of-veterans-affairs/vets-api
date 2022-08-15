@@ -54,7 +54,9 @@ module VAProfile
 
       validates(
         :extension,
-        length: { maximum: 10 }
+        allow_blank: true,
+        numericality: { only_integer: true },
+        length: { maximum: 6 }
       )
 
       validates(
