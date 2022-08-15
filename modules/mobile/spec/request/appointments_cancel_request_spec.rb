@@ -11,6 +11,7 @@ RSpec.describe 'appointments', type: :request do
     allow_any_instance_of(IAMUser).to receive(:icn).and_return('24811694708759028')
     iam_sign_in(build(:iam_user))
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+    Flipper.disable(:mobile_appointment_use_VAOS_v2)
   end
 
   before(:all) do
