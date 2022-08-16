@@ -50,7 +50,8 @@ module InheritedProofing
         address: user.address,
         phone: user.home_phone,
         birth_date: user.birth_date,
-        ssn: user.ssn
+        ssn: user.ssn,
+        mhv_data: mhv_identity_data.data
       }
     end
 
@@ -65,7 +66,8 @@ module InheritedProofing
         address: mocked_address,
         phone: '2063119187',
         birth_date: '2022-1-31',
-        ssn: '123456789'
+        ssn: '123456789',
+        mhv_data: mocked_mhv_data
       }
     end
 
@@ -77,6 +79,21 @@ module InheritedProofing
         state: 'WA',
         country: nil,
         zip: '98037'
+      }
+    end
+
+    def mocked_mhv_data
+      {
+        'mhvId' => 99_999_999,
+        'identityProofedMethod' => 'IPA',
+        'identityDocumentExist' => true,
+        'identityProofingDate' => '2020-12-14',
+        'identityDocumentInfo' => {
+          'primaryIdentityDocumentNumber' => '88888888',
+          'primaryIdentityDocumentType' => 'StateIssuedId',
+          'primaryIdentityDocumentCountry' => 'United States',
+          'primaryIdentityDocumentExpirationDate' => '2222-03-30'
+        }
       }
     end
   end

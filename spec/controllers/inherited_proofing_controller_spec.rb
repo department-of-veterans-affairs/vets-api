@@ -200,6 +200,7 @@ RSpec.describe InheritedProofingController, type: :controller do
               expect(parsed_user_attributes['first_name']).to eq(user.first_name)
               expect(parsed_user_attributes['last_name']).to eq(user.last_name)
               expect(parsed_user_attributes['address']).to eq(user.address.with_indifferent_access)
+              expect(parsed_user_attributes['mhv_data']).to eq(mhv_identity_data.data.with_indifferent_access)
               expect(parsed_user_attributes['phone']).to eq(user.home_phone)
               expect(parsed_user_attributes['birth_date']).to eq(user.birth_date)
               expect(parsed_user_attributes['ssn']).to eq(user.ssn)

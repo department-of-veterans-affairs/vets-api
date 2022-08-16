@@ -67,6 +67,7 @@ RSpec.describe InheritedProofing::UserAttributesFetcher do
             zip: address[:postal_code]
           }
         end
+        let(:expected_mhv_data) { mhv_identity_data.data }
         let(:phone) { 'some-phone' }
         let(:birth_date) { '2021-01-01' }
         let(:ssn) { 'some-ssn' }
@@ -119,6 +120,7 @@ RSpec.describe InheritedProofing::UserAttributesFetcher do
             expect(user_attribute_hash[:first_name]).to eq(first_name)
             expect(user_attribute_hash[:last_name]).to eq(last_name)
             expect(user_attribute_hash[:address]).to eq(expected_address)
+            expect(user_attribute_hash[:mhv_data]).to eq(expected_mhv_data)
             expect(user_attribute_hash[:phone]).to eq(phone)
             expect(user_attribute_hash[:birth_date]).to eq(birth_date)
             expect(user_attribute_hash[:ssn]).to eq(ssn)
