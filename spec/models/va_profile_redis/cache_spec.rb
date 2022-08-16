@@ -31,12 +31,6 @@ describe VAProfileRedis::Cache, skip_vet360: true do
 
         VAProfileRedis::Cache.invalidate(user)
       end
-
-      it 'logs to sentry' do
-        expect_any_instance_of(described_class).to receive(:log_message_to_sentry).once
-
-        VAProfileRedis::Cache.invalidate(user)
-      end
     end
   end
 end
