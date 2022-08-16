@@ -11,9 +11,14 @@ module CARMA
 
       STATSD_KEY_PREFIX = 'api.carma.mulesoft'
 
+      class RecordParseError < StandardError; end
+
       def create_submission_v2(payload)
         with_monitoring do
-          do_post('v2/application/1010CG/submit', payload)
+          res = do_post('v2/application/1010CG/submit', payload)
+          raise RecordParseError if res.dig('record', 'hasErrors')
+
+          res
         end
       end
 

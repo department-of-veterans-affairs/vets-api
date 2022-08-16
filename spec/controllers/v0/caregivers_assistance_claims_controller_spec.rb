@@ -3,6 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
+  before do
+    allow(Flipper).to receive(:enabled?).with(:caregiver_async).and_return(false)
+  end
+
   describe '::auditor' do
     it 'is an instance of Form1010cg::Auditor' do
       expect(described_class::AUDITOR).to be_an_instance_of(Form1010cg::Auditor)
@@ -166,6 +170,19 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       expect_any_instance_of(Form1010cg::Auditor).to receive(:record_caregivers)
 
       post :create, params: params
+    end
+
+    context 'with caregiver_async on' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:caregiver_async).and_return(true)
+      end
+
+      it 'submits to background job' do
+        expect(Form1010cg::SubmissionJob).to receive(:perform_async)
+        post :create, params: { caregivers_assistance_claim: { form: claim.form } }
+
+        expect(JSON.parse(response.body)['data']['id']).to eq(SavedClaim::CaregiversAssistanceClaim.last.id.to_s)
+      end
     end
 
     it 'submits claim using Form1010cg::Service' do

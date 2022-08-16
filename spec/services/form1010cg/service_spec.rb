@@ -879,7 +879,8 @@ RSpec.describe Form1010cg::Service do
       allow(SecureRandom).to receive(:uuid).and_return('c632cbd3-3ac3-44fd-97dd-fcb5126cf4ab')
 
       VCR.use_cassette('mulesoft/submit_v2_no_poa', VCR::MATCH_EVERYTHING) do
-        described_class.new(claim_with_mpi_veteran).process_claim_v2!
+        res = described_class.new(claim_with_mpi_veteran).process_claim_v2!
+        expect(res['data']['carmacase']['id']).to eq('aB93S0000000FTqSAM')
       end
     end
 
@@ -903,7 +904,8 @@ RSpec.describe Form1010cg::Service do
         allow(File).to receive(:delete).with('spec/fixtures/files/doctors-note.jpg')
 
         VCR.use_cassette('mulesoft/submit_v2', VCR::MATCH_EVERYTHING) do
-          described_class.new(claim_with_mpi_veteran).process_claim_v2!
+          res = described_class.new(claim_with_mpi_veteran).process_claim_v2!
+          expect(res['data']['carmacase']['id']).to eq('aB93S0000000FTgSAM')
         end
       end
     end

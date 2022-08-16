@@ -14,6 +14,8 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
 
   accepts_nested_attributes_for :submission
 
+  before_destroy(:destroy_attachment)
+
   def process_attachments!
     # Inherited from SavedClaim. Disabling since this claim does not require attachements.
     raise NotImplementedError, 'Not Implemented for Form 10-10CG'
@@ -58,5 +60,13 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
 
   def secondary_caregiver_two_data
     parsed_form['secondaryCaregiverTwo'] unless form.nil?
+  end
+
+  private
+
+  def destroy_attachment
+    return if form.blank?
+
+    Form1010cg::Attachment.find_by(guid: parsed_form['poaAttachmentId'])&.destroy!
   end
 end

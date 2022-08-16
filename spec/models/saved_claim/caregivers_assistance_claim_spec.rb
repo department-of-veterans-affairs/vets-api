@@ -170,6 +170,42 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
     end
   end
 
+  describe '#destroy_attachment' do
+    let(:claim) { create(:caregivers_assistance_claim) }
+    let(:attachment) { create(:form1010cg_attachment, :with_attachment) }
+
+    context 'when attachment id is not present' do
+      it 'does nothing' do
+        claim.destroy!
+      end
+    end
+
+    context 'when attachment exists' do
+      before do
+        claim.parsed_form['poaAttachmentId'] = attachment.guid
+      end
+
+      it 'destroys the attachment' do
+        file = double
+        expect_any_instance_of(Form1010cg::Attachment).to receive(:get_file).and_return(file)
+        expect(file).to receive(:delete)
+
+        claim.destroy!
+        expect(Form1010cg::Attachment.exists?(id: attachment.id)).to eq(false)
+      end
+    end
+
+    context 'when the attachment doesnt exist' do
+      before do
+        claim.parsed_form['poaAttachmentId'] = SecureRandom.uuid
+      end
+
+      it 'does nothing' do
+        claim.destroy!
+      end
+    end
+  end
+
   describe '#secondary_caregiver_two_data' do
     it 'returns the veteran\'s data from the form as a hash' do
       subjects_data = { 'myName' => 'Secondary Caregiver II' }
