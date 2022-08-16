@@ -75,6 +75,30 @@ describe VAProfile::Models::Address do
         expect(address.valid?).to eq(false)
       end
 
+      it 'address_line1 must only have US-ASCII characters' do
+        address.address_line1 = '12-34 2nd & 31st Street!'
+        expect(address.valid?).to eq(true)
+        address.address_line1 = '千代田区丸の内1-1-1'
+        expect(address.valid?).to eq(false)
+        expect(address.errors.messages[:address].first).to eq('must contain ASCII characters only')
+      end
+
+      it 'address_line2 must only have US-ASCII characters' do
+        address.address_line2 = '12-34 2nd & 31st Street!'
+        expect(address.valid?).to eq(true)
+        address.address_line2 = '千代田区丸の内1-1-1'
+        expect(address.valid?).to eq(false)
+        expect(address.errors.messages[:address].first).to eq('must contain ASCII characters only')
+      end
+
+      it 'address_line3 must only have US-ASCII characters' do
+        address.address_line3 = '12-34 2nd & 31st Street!'
+        expect(address.valid?).to eq(true)
+        address.address_line3 = '千代田区丸の内1-1-1'
+        expect(address.valid?).to eq(false)
+        expect(address.errors.messages[:address].first).to eq('must contain ASCII characters only')
+      end
+
       it 'zip_code_suffix must be numeric' do
         expect(address.valid?).to eq(true)
         address.zip_code_suffix = 'Hello'
@@ -84,6 +108,14 @@ describe VAProfile::Models::Address do
 
     context 'when address_type is domestic' do
       let(:address) { build(:va_profile_address, :domestic) }
+
+      it 'city must only have US-ASCII characters' do
+        address.city = '12-34 2nd & 31st Street!'
+        expect(address.valid?).to eq(true)
+        address.city = '千代田区丸の内1-1-1'
+        expect(address.valid?).to eq(false)
+        expect(address.errors.messages[:address].first).to eq('must contain ASCII characters only')
+      end
 
       it 'state_code is required' do
         expect(address.valid?).to eq(true)
@@ -111,6 +143,22 @@ describe VAProfile::Models::Address do
 
     context 'when address_type is international' do
       let(:address) { build(:va_profile_address, :international) }
+
+      it 'province must only have US-ASCII characters' do
+        address.province = '12-34 2nd & 31st Street!'
+        expect(address.valid?).to eq(true)
+        address.province = '千代田区丸の内1-1-1'
+        expect(address.valid?).to eq(false)
+        expect(address.errors.messages[:address].first).to eq('must contain ASCII characters only')
+      end
+
+      it 'international_postal_code must only have US-ASCII characters' do
+        address.international_postal_code = '12-34 2nd & 31st Street!'
+        expect(address.valid?).to eq(true)
+        address.international_postal_code = '千代田区丸の内1-1-1'
+        expect(address.valid?).to eq(false)
+        expect(address.errors.messages[:address].first).to eq('must contain ASCII characters only')
+      end
 
       it 'state_code is disallowed' do
         expect(address.valid?).to eq(true)
@@ -206,42 +254,6 @@ describe VAProfile::Models::Address do
         address.address_pou = VAProfile::Models::Address::RESIDENCE
         json = JSON.parse(address.in_json)
         expect(json['bio']['badAddress']).to eq(nil)
-      end
-    end
-
-    context 'when address characters are US ASCII' do
-      let(:address) { build(:va_profile_address, :international) }
-
-      it 'address is valid' do
-        address.address_line1 = ' "!@#$%^&*()-+,./_`{}~|'
-        expect(address.valid?).to eq(true)
-
-        address.address_line1 = '1234567890'
-        expect(address.valid?).to eq(true)
-
-        address.address_line1 = 'abcdefghijklmnopqrstuvwxyz'
-        expect(address.valid?).to eq(true)
-
-        address.address_line1 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-        expect(address.valid?).to eq(true)
-      end
-    end
-
-    context 'when address characters are not US ASCII' do
-      let(:address) { build(:va_profile_address, :international) }
-
-      it 'address is invalid' do
-        address.address_line1 = '千代田区丸の内1-1-1'
-        expect(address.valid?).to eq(false)
-        expect(address.errors.messages[:address].first).to eq('must contain ASCII characters only')
-
-        address.address_line2 = 'Parkway 千 Street'
-        expect(address.valid?).to eq(false)
-        expect(address.errors.messages[:address].first).to eq('must contain ASCII characters only')
-
-        address.address_line3 = '千代田区丸の内1-1-1'
-        expect(address.valid?).to eq(false)
-        expect(address.errors.messages[:address].first).to eq('must contain ASCII characters only')
       end
     end
   end
