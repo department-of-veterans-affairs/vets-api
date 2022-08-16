@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'mobile/v0/vaos_appointments/appointments_helper'
+
 module Mobile
   module V0
     class AppointmentsController < ApplicationController
