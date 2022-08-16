@@ -22,6 +22,23 @@ module CARMA
           allow(config).to receive(:timeout).and_return(10)
         end
 
+        describe '#create_submission_v2' do
+          context 'with a records error' do
+            it 'raises RecordParseError' do
+              expect(client).to receive(:do_post).with('v2/application/1010CG/submit', {}).and_return(
+                { 'data' => { 'carmacase' => { 'createdAt' => '2022-08-04 16:44:37', 'id' => 'aB93S0000000FTqSAM' } },
+                  'record' => { 'hasErrors' => true,
+                                'results' => [{ 'referenceId' => '1010CG', 'id' => '0683S000000YBIFQA4',
+                                                'errors' => [] }] } }
+              )
+
+              expect do
+                client.create_submission_v2({})
+              end.to raise_error(CARMA::Client::MuleSoftClient::RecordParseError)
+            end
+          end
+        end
+
         describe 'form data' do
           context 'successfully' do
             before do

@@ -16,9 +16,16 @@ module V0
       if @claim.valid?
         Raven.tags_context(claim_guid: @claim.guid)
         auditor.record_caregivers(@claim)
-        submission = ::Form1010cg::Service.new(@claim).process_claim!
-        record_submission_success submission
-        render json: submission, serializer: ::Form1010cg::SubmissionSerializer
+
+        if Flipper.enabled?(:caregiver_async)
+          @claim.save!
+          ::Form1010cg::SubmissionJob.perform_async(@claim.id)
+          render(json: @claim, serializer: ::Form1010cg::ClaimSerializer)
+        else
+          submission = ::Form1010cg::Service.new(@claim).process_claim!
+          record_submission_success submission
+          render json: submission, serializer: ::Form1010cg::SubmissionSerializer
+        end
       else
         PersonalInformationLog.create!(data: { form: @claim.parsed_form }, error_class: '1010CGValidationError')
         auditor.record(:submission_failure_client_data, claim_guid: @claim.guid, errors: @claim.errors.messages)

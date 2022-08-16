@@ -38,6 +38,7 @@ RSpec.describe 'Caregivers Assistance Claims' do
     context 'submitting to salesforce' do
       before do
         allow(Flipper).to receive(:enabled?).with(:caregiver_mulesoft).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:caregiver_async).and_return(false)
       end
 
       it 'can submit a valid submission', run_at: timestamp.iso8601 do
