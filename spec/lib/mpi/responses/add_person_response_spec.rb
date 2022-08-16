@@ -58,6 +58,15 @@ describe MPI::Responses::AddPersonResponse do
   end
 
   describe '.with_parsed_response' do
+    let(:error_details) do
+      { other: [{ codeSystem: '2.16.840.1.113883.5.1100',
+                  code: 'INTERR',
+                  displayName: 'Internal System Error' }],
+        error_details: { ack_detail_code: ack_detail_code,
+                         id_extension: '200VGOV-1373004c-e23e-4d94-90c5-5b101f6be54a',
+                         error_texts: ['Internal System Error'] } }
+    end
+
     context 'with a successful response' do
       it 'builds a response with a nil errors a status of OK' do
         expect(ok_response.status).to eq('OK')
@@ -73,20 +82,22 @@ describe MPI::Responses::AddPersonResponse do
 
     context 'with an invalid request response' do
       let(:body) { Ox.parse(File.read('spec/support/mpi/add_person_invalid_response.xml')) }
+      let(:ack_detail_code) { 'AE' }
 
-      it 'raises an invalid request error' do
+      it 'raises an invalid request error with parsed details from MPI' do
         expect { described_class.with_parsed_response(faraday_response) }.to raise_error(
-          MPI::Errors::InvalidRequestError
+          MPI::Errors::InvalidRequestError, error_details.to_s
         )
       end
     end
 
     context 'with a failed request response' do
       let(:body) { Ox.parse(File.read('spec/support/mpi/add_person_internal_error_response.xml')) }
+      let(:ack_detail_code) { 'AR' }
 
-      it 'raises a failed request error' do
+      it 'raises a failed request error with parsed details from MPI' do
         expect { described_class.with_parsed_response(faraday_response) }.to raise_error(
-          MPI::Errors::FailedRequestError
+          MPI::Errors::FailedRequestError, error_details.to_s
         )
       end
     end

@@ -49,8 +49,9 @@ module MPI
       def self.with_parsed_response(response)
         add_parser = AddParser.new(response)
         mvi_codes = add_parser.parse
-        raise MPI::Errors::InvalidRequestError, mvi_codes if add_parser.invalid_request?
-        raise MPI::Errors::FailedRequestError, mvi_codes if add_parser.failed_request?
+
+        raise MPI::Errors::InvalidRequestError, add_parser.error_details(mvi_codes) if add_parser.invalid_request?
+        raise MPI::Errors::FailedRequestError, add_parser.error_details(mvi_codes) if add_parser.failed_request?
 
         AddPersonResponse.new(
           status: RESPONSE_STATUS[:ok],
