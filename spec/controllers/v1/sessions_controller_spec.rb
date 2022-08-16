@@ -85,9 +85,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       context 'routes not requiring auth' do
         %w[mhv mhv_verified dslogon dslogon_verified idme idme_verified logingov logingov_verified].each do |type|
           context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
-            let(:expected_force_authn) do
-              %w[mhv_verified dslogon_verified idme_verified logingov_verified].include?(type) ? false : true
-            end
+            let(:expected_force_authn) { true }
             let(:authn) do
               case type
               when 'mhv'
