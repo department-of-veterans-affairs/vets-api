@@ -197,6 +197,7 @@ module MPI
     end
 
     def mvi_error_handler(user_identity, error, source = '', request = '')
+      context = { error: error.try(:body) }
       case error
       when MPI::Errors::DuplicateRecords
         log_exception_to_sentry(error, nil, nil, 'warn')
@@ -205,12 +206,13 @@ module MPI
       when MPI::Errors::InvalidRequestError
         # NOTE: ICN based lookups do not return RecordNotFound. They return InvalidRequestError
         if user_identity.mhv_icn.present?
-          log_exception_to_sentry(error, {}, { message: 'Possible RecordNotFound', source: source })
+          log_exception_to_sentry(error, context, { message: 'Possible RecordNotFound', source: source })
         else
-          log_exception_to_sentry(error, { request: request }, { message: 'MVI Invalid Request', source: source })
+          context[:request] = request
+          log_exception_to_sentry(error, context, { message: 'MVI Invalid Request', source: source })
         end
       when MPI::Errors::FailedRequestError
-        log_exception_to_sentry(error)
+        log_exception_to_sentry(error, context)
       end
     end
 
