@@ -14,11 +14,7 @@ module VAProfileRedis
     def self.invalidate(user)
       contact_info = VAProfileRedis::ContactInformation.find(user.uuid)
 
-      if contact_info.present?
-        contact_info.destroy
-      else
-        new.log_message_to_sentry('VA Profile: Cannot invalidate a nil response cache', :info)
-      end
+      contact_info.destroy if contact_info.present?
     end
   end
 end
