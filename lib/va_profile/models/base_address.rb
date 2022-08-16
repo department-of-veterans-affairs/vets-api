@@ -126,7 +126,10 @@ module VAProfile
         address = [
           address_line1,
           address_line2,
-          address_line3
+          address_line3,
+          city,
+          province,
+          international_postal_code
         ].join('')
 
         errors.add(:address, 'must contain ASCII characters only') unless address.ascii_only?
