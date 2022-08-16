@@ -50,13 +50,13 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
         end
       end
 
-      xit 'sets consumer name from X-Consumer-Username header' do
+      it 'sets consumer name from X-Consumer-Username header' do
         post vba_documents.v2_uploads_path, params: nil, headers: { 'X-Consumer-Username': 'test consumer' }
         upload = VBADocuments::UploadSubmission.order(created_at: :desc).first
         expect(upload.consumer_name).to eq('test consumer')
       end
 
-      xit 'sets consumer id from X-Consumer-ID header' do
+      it 'sets consumer id from X-Consumer-ID header' do
         post vba_documents.v2_uploads_path,
              params: nil,
              headers: { 'X-Consumer-ID': '29090360-72a8-4b77-b5ea-6ea1c69c7d89' }
@@ -107,7 +107,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
         end
       end
 
-      xit 'returns error if spanning multiple api names' do
+      it 'returns error if spanning multiple api names' do
         observers = File.read("#{fixture_path}subscriptions_multiple.json")
 
         post vba_documents.v2_uploads_path,
@@ -124,7 +124,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
     let(:upload) { FactoryBot.create(:upload_submission) }
     let(:upload_large_detail) { FactoryBot.create(:upload_submission_large_detail) }
 
-    xit 'returns status of an upload submission' do
+    it 'returns status of an upload submission' do
       get vba_documents.v2_upload_path(upload.guid)
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
@@ -133,7 +133,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       expect(json['data']['attributes']['location']).to be_nil
     end
 
-    xit 'returns not_found with data for a non-existent submission' do
+    it 'returns not_found with data for a non-existent submission' do
       get vba_documents.v2_upload_path('non_existent_guid')
       expect(response).to have_http_status(:not_found)
       json = JSON.parse(response.body)
@@ -143,7 +143,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       expect(status['detail']).to include('non_existent_guid')
     end
 
-    xit 'keeps the displayed detail to 200 characters or less' do
+    it 'keeps the displayed detail to 200 characters or less' do
       get vba_documents.v2_upload_path(upload_large_detail.guid)
       json = JSON.parse(response.body)
       length = VBADocuments::UploadSerializer::MAX_DETAIL_DISPLAY_LENGTH
@@ -159,6 +159,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
         @md = JSON.parse(valid_metadata)
         @upload_submission = VBADocuments::UploadSubmission.new
         @upload_submission.update(status: 'uploaded')
+        allow_any_instance_of(VBADocuments::UploadProcessor).to receive(:cancelled?).and_return(false)
         allow(VBADocuments::MultipartParser).to receive(:parse) {
           { 'metadata' => @md.to_json, 'content' => valid_doc }
         }
@@ -175,7 +176,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
         }
       end
 
-      xit 'displays the line of business' do
+      it 'displays the line of business' do
         @md['businessLine'] = 'CMP'
         VBADocuments::UploadProcessor.new.perform(@upload_submission.guid, test_caller)
         get vba_documents.v2_upload_path(@upload_submission.guid)
@@ -188,7 +189,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       # for ticket: https://vajira.max.gov/browse/API-5293
       # production was broken, the pull request below fixes it.  This test ensures it never comes back.
       # https://github.com/department-of-veterans-affairs/vets-api/pull/6186
-      xit 'succeeds when giving a status on legacy data' do
+      it 'succeeds when giving a status on legacy data' do
         @md['businessLine'] = 'CMP'
         @upload_submission.metadata = {}
         @upload_submission.save!
@@ -198,7 +199,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       end
     end
 
-    xit 'returns not_found for an expired submission' do
+    it 'returns not_found for an expired submission' do
       upload.update(status: 'expired')
       get vba_documents.v2_upload_path(upload.guid)
       expect(response).to have_http_status(:ok)
@@ -208,7 +209,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
     context 'with vbms complete' do
       let!(:vbms_upload) { FactoryBot.create(:upload_submission, status: 'vbms') }
 
-      xit 'reports status of vbms' do
+      it 'reports status of vbms' do
         get vba_documents.v2_upload_path(vbms_upload.guid)
         expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('vbms')
       end
@@ -217,13 +218,13 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
     context 'with error status' do
       let!(:error_upload) { FactoryBot.create(:upload_submission, :status_error) }
 
-      xit 'returns json api errors' do
+      it 'returns json api errors' do
         get vba_documents.v2_upload_path(error_upload.guid)
         expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('error')
       end
     end
 
-    xit 'allows updating of the status' do
+    it 'allows updating of the status' do
       with_settings(
         Settings.vba_documents,
         enable_status_override: true
@@ -256,7 +257,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       end
     end
 
-    xit 'returns a 200 with content-type of zip' do
+    it 'returns a 200 with content-type of zip' do
       objstore = instance_double(VBADocuments::ObjectStore)
       version = instance_double(Aws::S3::ObjectVersion)
       bucket = instance_double(Aws::S3::Bucket)
@@ -275,14 +276,14 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       expect(response.headers['Content-Type']).to eq('application/zip')
     end
 
-    xit '200S even with an invalid doc' do
+    it '200S even with an invalid doc' do
       allow(VBADocuments::PayloadManager).to receive(:download_raw_file).and_return(invalid_doc)
       get vba_documents.v2_upload_download_path(upload.guid)
       expect(response.status).to eq(200)
       expect(response.headers['Content-Type']).to eq('application/zip')
     end
 
-    xit 'returns a 404 if deleted from s3' do
+    it 'returns a 404 if deleted from s3' do
       objstore = instance_double(VBADocuments::ObjectStore)
       version = instance_double(Aws::S3::ObjectVersion)
       bucket = instance_double(Aws::S3::Bucket)
