@@ -85,16 +85,21 @@ RSpec.describe DhpConnectedDevices::Fitbit::Client do
   describe 'get_auth_code' do
     let(:missing_auth_error) { DhpConnectedDevices::Fitbit::MissingAuthError }
 
-    it 'returns code as a string when auth code given' do
-      expect(subject.get_auth_code({ code: '1234' })).to eq('1234')
+    it 'returns code param as a string when auth code is included in request parameters' do
+      success_params = ActionController::Parameters.new(code: '1234')
+
+      expect(subject.get_auth_code(success_params.permit(:code))).to eq('1234')
     end
 
-    it 'raise errors when auth code not given' do
-      error_params = { error: 'error', error_details: 'details' }
-
+    it 'raises errors when auth code is not included in request parameters' do
+      error_params = ActionController::Parameters.new(error: 'error', error_details: 'details')
       expect { subject.get_auth_code(error_params) }.to raise_error(missing_auth_error)
-      expect { subject.get_auth_code({}) }.to raise_error(missing_auth_error)
-      expect { subject.get_auth_code({ random_param: '' }) }.to raise_error(missing_auth_error)
+
+      empty_params = ActionController::Parameters.new
+      expect { subject.get_auth_code(empty_params) }.to raise_error(missing_auth_error)
+
+      random_params = ActionController::Parameters.new(random_param: '')
+      expect { subject.get_auth_code(random_params) }.to raise_error(missing_auth_error)
     end
   end
 end

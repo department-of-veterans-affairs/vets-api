@@ -48,9 +48,8 @@ module DhpConnectedDevices
         @token_storage_service ||= TokenStorageService.new
       end
 
-      # Converts the ActionController::Parameters object into a Hash
       def callback_params
-        params.permit(:code, :error, :error_detail).to_hash
+        params.permit(:code, :error, :error_detail)
       end
 
       def feature_enabled
