@@ -99,7 +99,7 @@ features:
     description: Enables disclaimer for possible untranslated content on spanish pages
     enable_in_development: true
   check_in_experience_lorota_security_updates_enabled:
-    actor_type: user
+    actor_type: cookie_id
     description: Enables DOB instead of last 4 of SSN.
     enable_in_development: false
   check_in_experience_mock_enabled:

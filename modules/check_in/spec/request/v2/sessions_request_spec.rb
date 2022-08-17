@@ -10,7 +10,6 @@ RSpec.describe 'V2::SessionsController', type: :request do
     allow(Rails).to receive(:cache).and_return(memory_store)
     allow(Flipper).to receive(:enabled?)
       .with('check_in_experience_enabled').and_return(true)
-    allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled').and_return(false)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_504_error_mapping_enabled')
                                         .and_return(false)
@@ -115,8 +114,6 @@ RSpec.describe 'V2::SessionsController', type: :request do
       end
 
       before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
-                                            .and_return(true)
         VCR.use_cassette 'check_in/lorota/token/token_200' do
           post '/check_in/v2/sessions', session_params
         end
@@ -206,8 +203,6 @@ RSpec.describe 'V2::SessionsController', type: :request do
       end
 
       before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
-                                            .and_return(true)
         VCR.use_cassette 'check_in/lorota/token/token_200' do
           post '/check_in/v2/sessions', session_params
         end
@@ -311,11 +306,6 @@ RSpec.describe 'V2::SessionsController', type: :request do
         }
       end
 
-      before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
-                                            .and_return(true)
-      end
-
       it 'returns an error response' do
         post '/check_in/v2/sessions', session_params
 
@@ -351,11 +341,6 @@ RSpec.describe 'V2::SessionsController', type: :request do
         }
       end
 
-      before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
-                                            .and_return(true)
-      end
-
       it 'returns a success response' do
         allow_any_instance_of(CheckIn::V2::Session).to receive(:redis_session_prefix).and_return('check_in_lorota_v2')
         allow_any_instance_of(CheckIn::V2::Session).to receive(:jwt).and_return('jwt-123-1bc')
@@ -384,8 +369,6 @@ RSpec.describe 'V2::SessionsController', type: :request do
 
       before do
         expect_any_instance_of(::V2::Chip::Client).not_to receive(:set_precheckin_started).with(anything)
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
-                                            .and_return(true)
       end
 
       it 'returns a success response' do
@@ -451,11 +434,6 @@ RSpec.describe 'V2::SessionsController', type: :request do
           }
         end
 
-        before do
-          allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
-                                              .and_return(true)
-        end
-
         it 'returns a 401 error' do
           VCR.use_cassette 'check_in/lorota/token/token_401' do
             post '/check_in/v2/sessions', session_params_with_dob
@@ -515,11 +493,6 @@ RSpec.describe 'V2::SessionsController', type: :request do
     end
 
     context 'when pre_checkin in session created using DOB' do
-      before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
-                                            .and_return(true)
-      end
-
       let(:session_params) do
         {
           params: {

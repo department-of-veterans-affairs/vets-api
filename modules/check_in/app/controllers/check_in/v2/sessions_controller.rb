@@ -33,11 +33,7 @@ module CheckIn
       end
 
       def permitted_params
-        if Flipper.enabled?('check_in_experience_lorota_security_updates_enabled')
-          params.require(:session).permit(:uuid, :dob, :last_name, :check_in_type)
-        else
-          params.require(:session).permit(:uuid, :last4, :last_name, :check_in_type)
-        end
+        params.require(:session).permit(:uuid, :last4, :dob, :last_name, :check_in_type)
       end
 
       private

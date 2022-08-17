@@ -10,7 +10,6 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
     allow(Rails).to receive(:cache).and_return(memory_store)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_enabled').and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_pre_check_in_enabled').and_return(true)
-    allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled').and_return(false)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_504_error_mapping_enabled')
                                         .and_return(false)
@@ -327,11 +326,6 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
         }
       end
 
-      before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
-                                            .and_return(true)
-      end
-
       it 'returns valid response' do
         VCR.use_cassette 'check_in/lorota/token/token_200' do
           post '/check_in/v2/sessions', session_params
@@ -494,11 +488,6 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
       end
       let(:body) { { 'data' => 'Pre-checkin successful', 'status' => 200 } }
       let(:success_resp) { Faraday::Response.new(body: body, status: 200) }
-
-      before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
-                                            .and_return(true)
-      end
 
       it 'returns successful response' do
         VCR.use_cassette 'check_in/lorota/token/token_200' do
