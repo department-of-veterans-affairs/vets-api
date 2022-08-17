@@ -202,8 +202,15 @@ module Swagger
           key :$ref, :AdditionalData
         end
 
-        property :selected_debts, type: :array
-        property :selected_copays, type: :array
+        property :selected_debts_and_copays, type: :array do
+          items do
+            property :debt_type, type: :string
+            property :resolution_option, type: :string
+            property :station, type: :object do
+              property :facilit_y_num, type: :string
+            end
+          end
+        end
       end
     end
   end

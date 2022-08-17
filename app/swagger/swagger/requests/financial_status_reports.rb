@@ -26,8 +26,8 @@ module Swagger
             key :description, 'Form VA-5655 Financial Status Report successful submission'
 
             schema do
-              key :required, [:status]
-              property :status, type: :string
+              property :vha_status, type: :array
+              property :vba_status, type: :string
             end
           end
         end

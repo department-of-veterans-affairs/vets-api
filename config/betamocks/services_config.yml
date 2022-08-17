@@ -39,6 +39,9 @@
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'id'
+  - :method: :post
+    :path: "/vbsapi/UploadFSRJsonDocument"
+    :file_path: "vbs/fsr"
 
 - :name: 'MDOT'
   :base_uri: <%= "#{URI(Settings.mdot.url).host}:#{URI(Settings.mdot.url).port}" %>

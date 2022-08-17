@@ -36,7 +36,7 @@ module DebtManagementCenter
       with_monitoring_and_error_handling do
         form = add_personal_identification(form)
         validate_form_schema(form)
-        if Flipper.enabled?(:combined_financial_status_report)
+        if Flipper.enabled?(:combined_financial_status_report, @user)
           submit_combined_fsr(form)
         else
           submit_vba_fsr(form)
@@ -59,13 +59,15 @@ module DebtManagementCenter
     end
 
     def submit_combined_fsr(form)
-      submit_vba_fsr(form) if form['selectedDebts'].present?
-      submit_vha_fsr(form) if form['selectedCopays'].present?
+      vba_status = submit_vba_fsr(form) if selected_vba_debts(form['selectedDebtsAndCopays']).present?
+      vha_status = submit_vha_fsr(form) if selected_vha_copays(form['selectedDebtsAndCopays']).present?
+
+      { vba_status: vba_status, vha_status: vha_status }.compact
     end
 
     def submit_vba_fsr(form)
-      parsed_form = remove_meta_debt_data(form)
-      response = perform(:post, 'financial-status-report/formtopdf', parsed_form)
+      form.delete('selectedDebtsAndCopays')
+      response = perform(:post, 'financial-status-report/formtopdf', form)
       fsr_response = DebtManagementCenter::FinancialStatusReportResponse.new(response.body)
 
       send_confirmation_email if response.success?
@@ -96,26 +98,28 @@ module DebtManagementCenter
 
     def parse_vha_form(form)
       facility_forms = []
-      facility_copays = form['selectedCopays'].group_by { |copay| copay['station']['facilitYNum'] }
+      facility_copays = selected_vha_copays(form['selectedDebtsAndCopays']).group_by do |copay|
+        copay['station']['facilitYNum']
+      end
       facility_copays.each do |facility_num, copays|
         fsr_reason = copays.map do |c|
-          c['resolution']['resolutionType']
+          c['resolutionOption']
         end.uniq.join(', ') + " - Facility #{facility_num}}"
         facility_form = form.deep_dup
         facility_form['personalIdentification']['fsrReason'] = fsr_reason
-        facility_form.delete('selectedCopays')
-        facility_form.delete('selectedDebts')
+        facility_form.delete('selectedDebtsAndCopays')
         facility_forms << remove_form_delimiters(facility_form)
       end
 
       facility_forms
     end
 
-    def remove_meta_debt_data(form)
-      form.delete('selectedCopays')
-      form.delete('selectedDebts')
+    def selected_vba_debts(debts)
+      debts&.filter { |debt| debt['debtType'] == 'DEBT' }
+    end
 
-      form
+    def selected_vha_copays(debts)
+      debts&.filter { |debt| debt['debtType'] == 'COPAY' }
     end
 
     def update_filenet_id(response)
