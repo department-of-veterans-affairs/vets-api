@@ -9,6 +9,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     Sidekiq::Worker.clear_all
   end
 
+  around do |example|
+    VCR.use_cassette('evss/claims/claims_without_open_compensation_claims', allow_playback_repeats: true, &example)
+  end
+
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)

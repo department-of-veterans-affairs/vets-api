@@ -92,11 +92,14 @@ module Form526RapidReadyForDecisionConcern
   end
 
   def forward_to_mas?
+    return false unless Flipper.enabled?(:rrd_mas_disability_tracking)
+
     # only use the first diagnostic code because we can only support single-issue claims
+
     diagnostic_codes.size == 1 &&
       RapidReadyForDecision::Constants::MAS_DISABILITIES.include?(diagnostic_codes.first) &&
       disabilities.first['disabilityActionType']&.upcase == 'INCREASE' &&
-      Flipper.enabled?(:rrd_mas_disability_tracking)
+      !pending_eps?
   end
 
   def insert_classification_codes
