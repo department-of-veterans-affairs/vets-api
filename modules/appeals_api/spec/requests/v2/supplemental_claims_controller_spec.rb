@@ -21,6 +21,38 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
 
   let(:parsed) { JSON.parse(response.body) }
 
+  describe '#index' do
+    let(:path) { base_path 'supplemental_claims' }
+
+    context 'with minimum required headers' do
+      it 'returns all SCs for the given Veteran' do
+        uuid_1 = create(:supplemental_claim, veteran_icn: '1013062086V794840', form_data: nil).id
+        uuid_2 = create(:supplemental_claim, veteran_icn: '1013062086V794840').id
+        create(:supplemental_claim, veteran_icn: 'something_else')
+
+        get(path, headers: headers)
+
+        expect(parsed['data'].length).to eq(2)
+        # Returns SCs in desc creation date, so expect 2 before 1
+        expect(parsed['data'][0]['id']).to eq(uuid_2)
+        expect(parsed['data'][1]['id']).to eq(uuid_1)
+        # Strips out form_data
+        expect(parsed['data'][1]['attributes']['form_data']).to be_nil
+      end
+    end
+
+    context 'when no SCs for the requesting Veteran exist' do
+      it 'returns an empty array' do
+        create(:supplemental_claim, veteran_icn: 'someone_else')
+        create(:supplemental_claim, veteran_icn: 'also_someone_else')
+
+        get(path, headers: headers)
+
+        expect(parsed['data'].length).to eq(0)
+      end
+    end
+  end
+
   describe '#create' do
     let(:path) { base_path 'supplemental_claims' }
 
