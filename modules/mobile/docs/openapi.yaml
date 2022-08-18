@@ -2161,6 +2161,32 @@ paths:
       security:
         - Bearer: []
       summary: /v0/letters/{type}/download
+  /v0/maintenance_windows:
+    get:
+      description: List maintenance windows
+      operationId: get_maintenance_windows
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/MaintenanceWindows.yml
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to maintenance windows
+      security:
+        - Bearer: [ ]
+      summary: /v0/maintenance_windows
   /v0/messaging/health/folders:
     get:
       description: List available secure messaging folders
@@ -2187,6 +2213,37 @@ paths:
       security:
         - Bearer: []
       summary: /v0/messaging/health/folders
+    post:
+      description: Create a new secure messaging folder
+      operationId: post_create_folder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/CreateSecureMessagingFolder.yml
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/CreateSecureMessagingFolderResponse.yml
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      security:
+        - Bearer: [ ]
+      summary: /v0/messaging/health/folder
   /v0/messaging/health/folders/{id}:
     get:
       description: Get a secure messaging folder
