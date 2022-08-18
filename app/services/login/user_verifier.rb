@@ -6,10 +6,10 @@ module Login
   class UserVerifier
     def initialize(user)
       @user_uuid = user.uuid
-      @login_type = user.identity.sign_in&.dig(:service_name)
+      @login_type = user.sign_in&.dig(:service_name)
       @mhv_uuid = user.mhv_correlation_id
       @idme_uuid = user.idme_uuid
-      @dslogon_uuid = user.identity.edipi
+      @dslogon_uuid = user.edipi
       @logingov_uuid = user.logingov_uuid
       @icn = user.icn.presence
       @deprecated_log = nil
