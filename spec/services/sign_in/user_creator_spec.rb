@@ -24,7 +24,7 @@ RSpec.describe SignIn::UserCreator do
         {
           uuid: csp_id,
           logingov_uuid: csp_id,
-          loa: { current: LOA::THREE, highest: LOA::THREE },
+          loa: loa,
           ssn: ssn,
           birth_date: birth_date,
           first_name: first_name,
@@ -35,12 +35,12 @@ RSpec.describe SignIn::UserCreator do
           authn_context: authn_context
         }
       end
+      let(:loa) { { current: LOA::THREE, highest: LOA::THREE } }
       let(:state) { 'some-state' }
       let(:verified_at) { Time.zone.now }
       let(:csp_id) { SecureRandom.hex }
       let(:ssn) { '123456780' }
       let(:birth_date) { '2022-01-01' }
-      let(:birth_date_ssn) { birth_date }
       let(:first_name) { 'some-first-name' }
       let(:last_name) { 'some-last-name' }
       let(:csp_email) { 'some-csp-email' }
@@ -62,26 +62,35 @@ RSpec.describe SignIn::UserCreator do
       let(:update_profile) do
         MPI::Responses::AddPersonResponse.new(status: update_status, mvi_codes: { logingov_uuid: csp_id }, error: nil)
       end
+      let(:find_profile) do
+        MPI::Responses::FindProfileResponse.new(
+          status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+          profile: mpi_profile
+        )
+      end
+      let(:mpi_profile) do
+        build(:mvi_profile,
+              id_theft_flag: id_theft_flag,
+              deceased_date: deceased_date,
+              ssn: ssn,
+              icn: icn,
+              edipis: edipis,
+              edipi: edipis.first,
+              mhv_ien: mhv_iens.first,
+              mhv_iens: mhv_iens,
+              birls_id: birls_ids.first,
+              birls_ids: birls_ids,
+              participant_id: participant_ids.first,
+              participant_ids: participant_ids,
+              birth_date: birth_date,
+              given_names: [first_name],
+              family_name: last_name)
+      end
       let(:update_status) { 'OK' }
 
       before do
         allow(SecureRandom).to receive(:uuid).and_return(login_code)
-        stub_mpi(build(:mvi_profile,
-                       id_theft_flag: id_theft_flag,
-                       deceased_date: deceased_date,
-                       ssn: ssn,
-                       icn: icn,
-                       edipis: edipis,
-                       edipi: edipis.first,
-                       mhv_ien: mhv_iens.first,
-                       mhv_iens: mhv_iens,
-                       birls_id: birls_ids.first,
-                       birls_ids: birls_ids,
-                       participant_id: participant_ids.first,
-                       participant_ids: participant_ids,
-                       birth_date: birth_date_ssn,
-                       given_names: [first_name],
-                       family_name: last_name))
+        allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(find_profile)
         allow_any_instance_of(MPI::Service).to receive(:update_profile).and_return(update_profile)
       end
 
@@ -167,9 +176,9 @@ RSpec.describe SignIn::UserCreator do
           let(:status) { 'OK' }
           let(:mvi_codes) { { icn: icn } }
           let(:icn) { 'some-icn' }
+          let(:mpi_profile) { nil }
 
           before do
-            stub_mpi_not_found
             allow_any_instance_of(MPI::Service)
               .to receive(:add_person_implicit_search).and_return(add_person_response)
           end
@@ -206,11 +215,8 @@ RSpec.describe SignIn::UserCreator do
         it 'creates a user with expected attributes' do
           subject
           user = User.find(user_uuid)
-          expect(user.ssn).to eq(ssn)
           expect(user.logingov_uuid).to eq(csp_id)
-          expect(user.birth_date).to eq(birth_date)
-          expect(user.first_name).to eq(first_name)
-          expect(user.last_name).to eq(last_name)
+          expect(user.loa).to eq(loa)
           expect(user.email).to eq(csp_email)
           expect(user.identity_sign_in).to eq(sign_in)
           expect(user.authn_context).to eq(authn_context)

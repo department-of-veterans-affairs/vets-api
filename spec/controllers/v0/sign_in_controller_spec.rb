@@ -415,10 +415,19 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:acr) { nil }
     let(:client_id) { nil }
     let(:mpi_update_profile_response) { MPI::Responses::AddPersonResponse.new(status: 'OK') }
+    let(:find_profile) do
+      MPI::Responses::FindProfileResponse.new(
+        status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+        profile: mpi_profile
+      )
+    end
+    let(:mpi_profile) { nil }
 
     before do
       allow(Rails.logger).to receive(:info)
       allow_any_instance_of(MPI::Service).to receive(:update_profile).and_return(mpi_update_profile_response)
+      allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(find_profile)
+      allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(find_profile)
     end
 
     shared_examples 'api based error response' do
@@ -616,15 +625,15 @@ RSpec.describe V0::SignInController, type: :controller do
                 }
               end
               let(:expected_credential_info_attributes) { { id_token: id_token, csp_uuid: logingov_uuid } }
-
-              before do
-                allow(SecureRandom).to receive(:uuid).and_return(client_code)
-                stub_mpi(build(:mvi_profile,
-                               ssn: user_info.social_security_number,
-                               birth_date: Formatters::DateFormatter.format_date(user_info.birthdate),
-                               given_names: [user_info.given_name],
-                               family_name: user_info.family_name))
+              let(:mpi_profile) do
+                build(:mvi_profile,
+                      ssn: user_info.social_security_number,
+                      birth_date: Formatters::DateFormatter.format_date(user_info.birthdate),
+                      given_names: [user_info.given_name],
+                      family_name: user_info.family_name)
               end
+
+              before { allow(SecureRandom).to receive(:uuid).and_return(client_code) }
 
               it 'returns found status' do
                 expect(subject).to have_http_status(:found)
@@ -770,13 +779,12 @@ RSpec.describe V0::SignInController, type: :controller do
               last_name: user_info.lname
             }
           end
-
-          before do
-            stub_mpi(build(:mvi_profile,
-                           ssn: user_info.social,
-                           birth_date: Formatters::DateFormatter.format_date(user_info.birth_date),
-                           given_names: [user_info.fname],
-                           family_name: user_info.lname))
+          let(:mpi_profile) do
+            build(:mvi_profile,
+                  ssn: user_info.social,
+                  birth_date: Formatters::DateFormatter.format_date(user_info.birth_date),
+                  given_names: [user_info.fname],
+                  family_name: user_info.lname)
           end
 
           it_behaves_like 'an idme authentication service'
@@ -808,14 +816,13 @@ RSpec.describe V0::SignInController, type: :controller do
               edipi: user_info.dslogon_uuid
             }
           end
-
-          before do
-            stub_mpi(build(:mvi_profile,
-                           ssn: user_info.dslogon_idvalue,
-                           birth_date: Formatters::DateFormatter.format_date(user_info.dslogon_birth_date),
-                           given_names: [user_info.dslogon_fname, user_info.dslogon_mname],
-                           family_name: user_info.dslogon_lname,
-                           edipi: user_info.dslogon_uuid))
+          let(:mpi_profile) do
+            build(:mvi_profile,
+                  ssn: user_info.dslogon_idvalue,
+                  birth_date: Formatters::DateFormatter.format_date(user_info.dslogon_birth_date),
+                  given_names: [user_info.dslogon_fname, user_info.dslogon_mname],
+                  family_name: user_info.dslogon_lname,
+                  edipi: user_info.dslogon_uuid)
           end
 
           it_behaves_like 'an idme authentication service'
@@ -838,11 +845,13 @@ RSpec.describe V0::SignInController, type: :controller do
           let(:credential_ial) { LOA::IDME_CLASSIC_LOA3 }
           let(:token) { 'some-token' }
           let(:mhv_assurance) { 'some-mhv-assurance' }
+          let(:mpi_profile) do
+            build(:mvi_profile,
+                  icn: user_info.mhv_icn,
+                  mhv_ids: [user_info.mhv_uuid])
+          end
 
           before do
-            stub_mpi(build(:mvi_profile,
-                           icn: user_info.mhv_icn,
-                           mhv_ids: [user_info.mhv_uuid]))
             allow_any_instance_of(SignIn::Idme::Service).to receive(:token).with(code_value).and_return(response)
             allow_any_instance_of(SignIn::Idme::Service).to receive(:user_info).with(token).and_return(user_info)
           end
@@ -1813,7 +1822,7 @@ RSpec.describe V0::SignInController, type: :controller do
     context 'when successfully authenticated' do
       let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
       let(:authorization) { "Bearer #{access_token}" }
-      let!(:user_account) { Login::UserVerifier.new(user).perform.user_account }
+      let!(:user_account) { Login::UserVerifier.new(user.identity).perform.user_account }
       let(:user) { create(:user, :loa3, :api_auth) }
       let(:user_uuid) { user.uuid }
       let(:type) { user.identity.sign_in[:service_name] }
