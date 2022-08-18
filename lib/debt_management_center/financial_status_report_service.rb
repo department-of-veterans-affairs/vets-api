@@ -107,6 +107,7 @@ module DebtManagementCenter
         end.uniq.join(', ') + " - Facility #{facility_num}}"
         facility_form = form.deep_dup
         facility_form['personalIdentification']['fsrReason'] = fsr_reason
+        facility_form['facilityNum'] = facility_num
         facility_form.delete('selectedDebtsAndCopays')
         facility_forms << remove_form_delimiters(facility_form)
       end
