@@ -221,7 +221,7 @@ module V0
       log_message_to_sentry(error.message, :error)
       StatsD.increment(statsd_code)
       if SignIn::Constants::ClientConfig::COOKIE_AUTH.include?(client_id)
-        query_params = { auth: 'fail', code: error&.code }
+        query_params = { auth: 'fail', code: error.try(:code) }
         redirect_to failed_auth_url(query_params)
       else
         render json: { errors: error }, status: :bad_request

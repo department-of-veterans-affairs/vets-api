@@ -42,16 +42,28 @@ RSpec.describe RrdCompletedMailer, type: [:mailer] do
                            })
     end
 
-    it 'has the expected subject in production' do
-      prior_env = Settings.vsp_environment
-      Settings.vsp_environment = 'production'
-      expect(email.subject).to eq 'RRD claim - 7101 - Processed'
-      Settings.vsp_environment = prior_env
+    context 'when vsp_environment is production' do
+      let(:environment) { 'production' }
+
+      before do
+        allow(Settings).to receive(:vsp_environment).and_return(environment)
+      end
+
+      it 'has the expected subject' do
+        expect(email.subject).to eq 'RRD claim - 7101 - Processed'
+      end
     end
 
-    it 'has the expected subject in staging' do
-      Settings.vsp_environment = 'staging'
-      expect(email.subject).to eq '[staging] RRD claim - 7101 - Processed'
+    context 'when vsp_environment is staging' do
+      let(:environment) { 'staging' }
+
+      before do
+        allow(Settings).to receive(:vsp_environment).and_return(environment)
+      end
+
+      it 'has the expected subject' do
+        expect(email.subject).to eq '[staging] RRD claim - 7101 - Processed'
+      end
     end
 
     it 'has the expected content' do

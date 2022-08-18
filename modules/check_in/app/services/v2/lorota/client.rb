@@ -95,7 +95,7 @@ module V2
 
       def auth_params
         auth_hsh = { lastName: check_in.last_name }
-        if Flipper.enabled?('check_in_experience_lorota_security_updates_enabled')
+        if check_in.dob.present?
           auth_hsh[:dob] = check_in.dob
         else
           auth_hsh[:SSN4] = check_in.last4

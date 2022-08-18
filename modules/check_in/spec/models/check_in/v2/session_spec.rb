@@ -9,7 +9,6 @@ RSpec.describe CheckIn::V2::Session do
 
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
-    allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled').and_return(false)
     Rails.cache.clear
   end
 
@@ -60,7 +59,7 @@ RSpec.describe CheckIn::V2::Session do
   end
 
   describe '#valid?' do
-    context 'when called with lorota security update feature flag off' do
+    context 'when called with last4' do
       it 'returns true for valid params' do
         params_hsh = {
           data: {
@@ -85,12 +84,7 @@ RSpec.describe CheckIn::V2::Session do
       end
     end
 
-    context 'when called with lorota security update feature flag on' do
-      before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
-                                            .and_return(true)
-      end
-
+    context 'when called with dob' do
       it 'returns true for valid params' do
         params_hsh = {
           data: {
@@ -238,7 +232,7 @@ RSpec.describe CheckIn::V2::Session do
   end
 
   describe '#client_error' do
-    context 'when called with lorota security update feature flag off' do
+    context 'when called with invalid last4' do
       it 'has a response' do
         hsh = { error: true, message: 'Invalid last4 or last name!' }
         params_hsh = {
@@ -252,18 +246,15 @@ RSpec.describe CheckIn::V2::Session do
       end
     end
 
-    context 'when called with lorota security update feature flag on' do
-      before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_security_updates_enabled')
-                                            .and_return(true)
-      end
-
+    context 'when called with invalid dob' do
       it 'has a response' do
         hsh = { error: true, message: 'Invalid dob or last name!' }
         params_hsh = {
-          id: 'd602d9eb',
-          dob: '02-20-1970',
-          last_name: 'Johnson'
+          data: {
+            id: 'd602d9eb',
+            dob: '02-20-1970',
+            last_name: 'Johnson'
+          }
         }
         error = subject.build(params_hsh).client_error
 

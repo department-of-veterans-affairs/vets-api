@@ -136,8 +136,11 @@ module V0
         applicant_certifications: %i[
           veteran_signature
         ],
-        selected_debts: [],
-        selected_copays: []
+        selected_debts_and_copays: [
+          :debt_type,
+          :resolution_option,
+          { station: [:facilit_y_num] }
+        ]
       ).to_hash
     end
     # rubocop:enable Metrics/MethodLength

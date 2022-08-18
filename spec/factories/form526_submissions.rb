@@ -98,6 +98,22 @@ FactoryBot.define do
       disabilities = json.dig('form526', 'form526', 'disabilities')
       disabilities[0] = {
         'name' => 'Sleep Apnea',
+        'disabilityActionType' => 'INCREASE',
+        'ratedDisabilityId' => '0',
+        'diagnosticCode' => 6847,
+        'secondaryDisabilities' => []
+      }
+      json.to_json
+    end
+  end
+
+  trait :mas_diagnostic_code_with_classification do
+    form_json do
+      json_string = File.read("#{submissions_path}/only_526.json")
+      json = JSON.parse json_string
+      disabilities = json.dig('form526', 'form526', 'disabilities')
+      disabilities[0] = {
+        'name' => 'Sleep Apnea',
         'classificationCode' => '8935',
         'disabilityActionType' => 'INCREASE',
         'ratedDisabilityId' => '0',

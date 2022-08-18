@@ -268,14 +268,15 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
     end
 
     describe 'call Lighthouse mock when environment is staging' do
+      before do
+        allow(Settings).to receive(:vsp_environment).and_return('staging')
+      end
+
       describe 'when logged in with user+228' do
         let(:user) { create(:user, :loa3, ssn: '111223333', email: 'vets.gov.user+228@gmail.com') }
 
         it 'returns single appeal' do
           sign_in_as(user)
-
-          old_value = Settings.vsp_environment
-          allow(Settings).to receive(:vsp_environment).and_return('staging')
 
           # new cassette to use for lighthouse mock request
           VCR.use_cassette('caseflow/virtual_agent_appeals/lighthouse_mock_appeal', match_requests_on: [:headers]) do
@@ -293,10 +294,6 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
                                    'description' => ' (Service connection, sleep apnea) ',
                                    'appeal_or_review' => 'appeal'
                                  }])
-          expect(Settings.vsp_environment).to eq('staging')
-          # cleanup Settings mock
-          allow(Settings).to receive(:vsp_environment).and_call_original
-          expect(Settings.vsp_environment).to eq(old_value)
         end
       end
 
@@ -305,9 +302,6 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
 
         it 'returns no appeals' do
           sign_in_as(user)
-
-          old_value = Settings.vsp_environment
-          allow(Settings).to receive(:vsp_environment).and_return('staging')
 
           # new cassette to use for lighthouse mock request
           VCR.use_cassette('caseflow/virtual_agent_appeals/lighthouse_mock_no_appeals',
@@ -319,10 +313,6 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           expect(res_body).to be_kind_of(Array)
           expect(res_body.length).to equal(0)
           expect(res_body).to eq([])
-          expect(Settings.vsp_environment).to eq('staging')
-          # cleanup Settings mock
-          allow(Settings).to receive(:vsp_environment).and_call_original
-          expect(Settings.vsp_environment).to eq(old_value)
         end
       end
 
@@ -331,9 +321,6 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
 
         it 'returns multiple appeal' do
           sign_in_as(user)
-
-          old_value = Settings.vsp_environment
-          allow(Settings).to receive(:vsp_environment).and_return('staging')
 
           VCR.use_cassette('caseflow/virtual_agent_appeals/lighthouse_mock_multiple_appeals',
                            match_requests_on: [:headers]) do
@@ -367,10 +354,6 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
                                     'description' => ' (Service connection, sleep apnea) ',
                                     'appeal_or_review' => 'appeal'
                                   }])
-          expect(Settings.vsp_environment).to eq('staging')
-          # cleanup Settings mock
-          allow(Settings).to receive(:vsp_environment).and_call_original
-          expect(Settings.vsp_environment).to eq(old_value)
         end
       end
 
@@ -379,9 +362,6 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
 
         it 'returns no appeals' do
           sign_in_as(user)
-
-          old_value = Settings.vsp_environment
-          allow(Settings).to receive(:vsp_environment).and_return('staging')
 
           # new cassette to use for lighthouse mock request
           VCR.use_cassette('caseflow/virtual_agent_appeals/lighthouse_mock_no_appeals',
@@ -393,10 +373,6 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           expect(res_body).to be_kind_of(Array)
           expect(res_body.length).to equal(0)
           expect(res_body).to eq([])
-          expect(Settings.vsp_environment).to eq('staging')
-          # cleanup Settings mock
-          allow(Settings).to receive(:vsp_environment).and_call_original
-          expect(Settings.vsp_environment).to eq(old_value)
         end
       end
     end

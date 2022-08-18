@@ -39,6 +39,9 @@
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'id'
+  - :method: :post
+    :path: "/vbsapi/UploadFSRJsonDocument"
+    :file_path: "vbs/fsr"
 
 - :name: 'MDOT'
   :base_uri: <%= "#{URI(Settings.mdot.url).host}:#{URI(Settings.mdot.url).port}" %>
@@ -176,6 +179,13 @@
 - :name: 'EVSS'
   :base_uri: <%= "#{URI(Settings.evss.url).host}:#{URI(Settings.evss.url).port}" %>
   :endpoints:
+  # Persistent Properties
+  - :method: :post
+    :path: "/wss-common-services-web-11.6/rest/persistentPropertiesService/11.6/createUserAccount"
+    :file_path: "evss/persistent_properties/create_user_account"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
   # PCIU email
   - :method: :get
     :path: "/wss-pciu-services-web/rest/pciuServices/v1/emailAddress"

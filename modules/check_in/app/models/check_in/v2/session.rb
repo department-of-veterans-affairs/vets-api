@@ -78,7 +78,7 @@ module CheckIn
       # @return [Boolean]
       #
       def valid?
-        if Flipper.enabled?('check_in_experience_lorota_security_updates_enabled')
+        if dob.present?
           UUID_REGEX.match?(uuid) && DOB_REGEX.match?(dob) && LAST_NAME_REGEX.match?(last_name)
         else
           UUID_REGEX.match?(uuid) && LAST_FOUR_REGEX.match?(last4) && LAST_NAME_REGEX.match?(last_name)
@@ -118,7 +118,7 @@ module CheckIn
       # @return [Faraday::Response]
       #
       def client_error
-        if Flipper.enabled?('check_in_experience_lorota_security_updates_enabled')
+        if dob.present?
           { error: true, message: 'Invalid dob or last name!' }
         else
           { error: true, message: 'Invalid last4 or last name!' }
