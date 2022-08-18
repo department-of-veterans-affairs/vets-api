@@ -35,10 +35,10 @@ module Mobile
             cached_clinics[clinic_id] = get_clinic(appt[:location_id], clinic_id) unless cached
 
             service_name = cached_clinics.dig(clinic_id, :service_name)
-            appt[:service_name] = service_name if service_name
+            appt[:service_name] = service_name
 
             physical_location = cached_clinics.dig(clinic_id, :physical_location)
-            appt[:physical_location] = physical_location if physical_location
+            appt[:physical_location] = physical_location
           end
         end
 
@@ -50,7 +50,7 @@ module Mobile
 
             cached = cached_facilities[facility_id]
             cached_facilities[facility_id] = get_facility(facility_id) unless cached
-            appt[:location] = cached_facilities[facility_id] if cached_facilities[facility_id]
+            appt[:location] = cached_facilities[facility_id]
           end
         end
 

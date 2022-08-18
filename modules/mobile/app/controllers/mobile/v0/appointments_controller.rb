@@ -112,7 +112,7 @@ module Mobile
         else
           start_date = [validated_params[:start_date], beginning_of_last_year].min
           end_date = [validated_params[:end_date], one_year_from_now].max
-          if Flipper.enabled?(:mobile_appointment_use_VAOS_v2)
+          if Flipper.enabled?(:mobile_appointment_use_VAOS_v2, @current_user)
             appointments = appointments_v2_proxy.get_appointments(
               start_date: start_date,
               end_date: end_date,
