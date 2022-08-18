@@ -7,6 +7,7 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
   include AppealsApi::JsonFormatValidation
   include AppealsApi::StatusSimulation
   include AppealsApi::CharacterUtilities
+  include AppealsApi::MPIVeteran
 
   skip_before_action :authenticate
   before_action :validate_json_format, if: -> { request.post? }
@@ -23,9 +24,17 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
   )['definitions']['hlrCreateParameters']['properties'].keys
   SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
 
+  def index
+    veteran_hlrs = AppealsApi::HigherLevelReview.where(veteran_icn: target_veteran.mpi_icn)
+                                                .order(created_at: :desc)
+    options = { params: { is_collection: true } }
+    render json: AppealsApi::HigherLevelReviewSerializer.new(veteran_hlrs, options).serializable_hash
+  end
+
   def create
     @higher_level_review.save
     AppealsApi::PdfSubmitJob.perform_async(@higher_level_review.id, 'AppealsApi::HigherLevelReview', 'V2')
+    AppealsApi::AddIcnUpdater.perform_async(@higher_level_review.id, 'AppealsApi::HigherLevelReview')
     render_higher_level_review
   end
 

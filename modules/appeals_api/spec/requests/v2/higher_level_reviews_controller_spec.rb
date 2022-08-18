@@ -26,6 +26,38 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
 
   let(:parsed) { JSON.parse(response.body) }
 
+  describe '#index' do
+    let(:path) { base_path 'higher_level_reviews' }
+
+    context 'with minimum required headers' do
+      it 'returns all HLRs for the given Veteran' do
+        uuid_1 = create(:higher_level_review_v2, veteran_icn: '1013062086V794840', form_data: nil).id
+        uuid_2 = create(:higher_level_review_v2, veteran_icn: '1013062086V794840').id
+        create(:higher_level_review_v2, veteran_icn: 'something_else')
+
+        get(path, headers: @minimum_required_headers)
+
+        expect(parsed['data'].length).to eq(2)
+        # Returns HLRs in desc creation date, so expect 2 before 1
+        expect(parsed['data'][0]['id']).to eq(uuid_2)
+        expect(parsed['data'][1]['id']).to eq(uuid_1)
+        # Strips out form_data
+        expect(parsed['data'][1]['attributes']['form_data']).to be_nil
+      end
+    end
+
+    context 'when no HLRs for the requesting Veteran exist' do
+      it 'returns an empty array' do
+        create(:higher_level_review_v2, veteran_icn: 'someone_else')
+        create(:higher_level_review_v2, veteran_icn: 'also_someone_else')
+
+        get(path, headers: @minimum_required_headers)
+
+        expect(parsed['data'].length).to eq(0)
+      end
+    end
+  end
+
   describe '#create' do
     let(:path) { base_path 'higher_level_reviews' }
 

@@ -34,7 +34,7 @@ AppealsApi::Engine.routes.draw do
         get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
       end
 
-      resources :higher_level_reviews, only: %i[create show] do
+      resources :higher_level_reviews, only: %i[index create show] do
         collection do
           get 'schema'
           post 'validate'
@@ -55,7 +55,7 @@ AppealsApi::Engine.routes.draw do
       get 'legacy_appeals', to: 'legacy_appeals#index' if Settings.modules_appeals_api.legacy_appeals_enabled
 
       if Settings.modules_appeals_api.supplemental_claims_enabled
-        resources :supplemental_claims, only: %i[create show] do
+        resources :supplemental_claims, only: %i[index create show] do
           collection do
             get 'schema'
             post 'validate'
