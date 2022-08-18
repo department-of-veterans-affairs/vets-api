@@ -96,15 +96,14 @@ module Form1095
       produce_1095_hash(form_fields, unique_id, coverage_arr)
     end
 
-    def save_data?(form_data)
+    def save_data?(form_data, corrected)
       existing_form = Form1095B.find_by(veteran_icn: form_data[:veteran_icn], tax_year: form_data[:tax_year])
 
-      if !form_data[:is_corrected] && existing_form.present? # returns true to indicate successful entry
+      if !corrected && existing_form.present? # returns true to indicate successful entry
         Rails.logger.warn "Form for #{form_data[:tax_year]} already exists, but file is for Original 1095-B forms."
         return true
-      elsif form_data[:is_corrected] && existing_form.nil?
+      elsif corrected && existing_form.nil?
         Rails.logger.warn "Form for year #{form_data[:tax_year]} not found, but file is for Corrected 1095-B forms."
-        return true # return false here?? (or create form?) if is a correction, then it should already exist
       end
 
       if existing_form.nil?
@@ -119,15 +118,17 @@ module Form1095
       temp_file.each_line do |form|
         data = parse_form(form)
 
+        corrected = !file_details[:isOg?]
+
         data[:tax_year] = file_details[:tax_year]
-        data[:form_data][:is_corrected] = !file_details[:isOg?]
+        data[:form_data][:is_corrected] = corrected
         data[:form_data][:is_beneficiary] = file_details[:is_dep_file?]
         data[:form_data] = data[:form_data].to_json
 
         unique_id = data[:unique_id]
         data.delete(:unique_id)
 
-        unless save_data?(data)
+        unless save_data?(data, corrected)
           Rails.logger.error "Failed on form with unique ID: #{unique_id}"
           return false
         end
@@ -152,12 +153,15 @@ module Form1095
       return false if file_details.blank?
 
       # downloads S3 file into local file, allows for processing large files this way
-      temp_file = Tempfile.new(file_name)
+      temp_file = Tempfile.new(file_name, encoding: 'ascii-8bit')
 
       # downloads file into temp_file
       bucket.object(file_name).get(response_target: temp_file)
 
       process_file?(temp_file, file_details)
+    rescue => e
+      Rails.logger.error(e.message)
+      false
     end
 
     def perform
