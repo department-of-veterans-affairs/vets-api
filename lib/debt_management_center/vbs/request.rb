@@ -78,7 +78,7 @@ module DebtManagementCenter
         {
           'Host' => host,
           'Content-Type' => 'application/json',
-          'x-api-key' => settings.api_key
+          'apiKey' => settings.api_key
         }
       end
 

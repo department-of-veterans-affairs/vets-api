@@ -46,7 +46,7 @@ RSpec.describe DebtManagementCenter::VBS::Request do
     it 'has request headers' do
       expect(subject.headers).to eq({ 'Host' => 'fake_url.com:9000',
                                       'Content-Type' => 'application/json',
-                                      'x-api-key' => 'abcd1234abcd1234abcd1234abcd1234abcd1234' })
+                                      'apiKey' => 'abcd1234abcd1234abcd1234abcd1234abcd1234' })
     end
   end
 
