@@ -129,7 +129,7 @@ module AppealsApi
 
     def stuck_records(record_type, status_class, timeframe = 1.week.ago)
       record_type.where('updated_at < ?', timeframe.beginning_of_day)
-                 .where(status: status_class::STATUSES - status_class::COMPLETE_STATUSES)
+                 .where(status: status_class::STATUSES - status_class::COMPLETE_STATUSES - FAULTY_STATUSES)
                  .order(created_at: :desc)
     end
   end
