@@ -114,6 +114,10 @@ features:
     actor_type: user
     description: Enables 504 mapping for CHIP endpoint in check-in & pre-checkin
     enable_in_development: true
+  check_in_experience_lorota_deletion_enabled:
+    actor_type: cookie_id
+    description: Enables lorota delete endpoint call for users exceeding max auth attempts
+    enable_in_development: false
   ch31_vbms_form_confirmation_email:
     actor_type: user
     description: Enables Ch31 form email submission confirmation after central mail
