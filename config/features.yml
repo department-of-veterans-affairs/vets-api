@@ -458,6 +458,9 @@ features:
     actor_type: user
     description: Allows to force the BAI experience for UAT testing
     enable_in_development: false
+  profile_show_payments_notification_setting:
+    actor_type: user
+    description: Show/Hide the payments section of notifications in profile
   profile_show_pronouns_and_sexual_orientation:
     actor_type: user
     description: Show/hide Pronouns and Sexual Orientation fields on profile page
