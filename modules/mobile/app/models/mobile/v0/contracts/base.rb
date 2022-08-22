@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'mobile/v0/exceptions/validation_errors'
+
 module Mobile
   module V0
     module Contracts
