@@ -167,11 +167,12 @@ RSpec.describe Login::UserVerifier do
               context 'and the current user_verification is verified' do
                 let(:user_account) { UserAccount.new(icn: 'some-other-icn') }
                 let(:verified_at) { Time.zone.now - 1.day }
-                let(:expected_error) { Login::Errors::VerifiedUserAccountMismatch }
                 let(:expected_message) do
                   "[Login::UserVerifier] User Account Mismatch for UserVerification id=#{user_verification.id}, " \
                     "UserAccount id=#{user_account.id}, icn=#{user_account.icn}, " \
-                    "conflicts with UserAccount id=#{other_user_account.id} icn=#{other_user_account.icn}"
+                    "conflicts with UserAccount id=#{other_user_account.id} icn=#{other_user_account.icn} " \
+                    "Setting UserVerification id=#{user_verification.id} association to " \
+                    "UserAccount id=#{other_user_account.id}"
                 end
 
                 before do
@@ -179,9 +180,13 @@ RSpec.describe Login::UserVerifier do
                                            user_account: other_user_account)
                 end
 
-                it 'raises a verified user account mismatch error with user account mismatch message' do
+                it 'logs a user account mismatch message' do
                   expect(Rails.logger).to receive(:info).with(expected_message)
-                  expect { subject }.to raise_exception(expected_error)
+                  subject
+                end
+
+                it 'updates the user verification with the existing user account' do
+                  expect(subject.user_account).to eq(other_user_account)
                 end
               end
             end

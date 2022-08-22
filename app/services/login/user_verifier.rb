@@ -13,6 +13,7 @@ module Login
       @logingov_uuid = user.logingov_uuid
       @icn = user.icn.presence
       @deprecated_log = nil
+      @user_account_mismatch_log = nil
     end
 
     def perform
@@ -21,7 +22,15 @@ module Login
 
     private
 
-    attr_reader :user_uuid, :login_type, :mhv_uuid, :idme_uuid, :dslogon_uuid, :logingov_uuid, :icn, :deprecated_log
+    attr_reader :user_uuid,
+                :login_type,
+                :mhv_uuid,
+                :idme_uuid,
+                :dslogon_uuid,
+                :logingov_uuid,
+                :icn,
+                :deprecated_log,
+                :user_account_mismatch_log
 
     MHV_TYPE = :mhv_uuid
     IDME_TYPE = :idme_uuid
@@ -40,23 +49,25 @@ module Login
       ActiveRecord::Base.transaction do
         update_existing_user_verification if user_verification_needs_to_be_updated?
         create_user_verification if user_verification.nil?
-      rescue Errors::VerifiedUserAccountMismatch => e
-        Rails.logger.info(
-          "[Login::UserVerifier] User Account Mismatch for UserVerification id=#{user_verification.id}, " \
-          "UserAccount id=#{user_verification.user_account.id}, icn=#{user_verification.user_account.icn}, " \
-          "conflicts with UserAccount id=#{existing_user_account.id} icn=#{existing_user_account.icn}"
-        )
-        raise e
       end
 
       Rails.logger.info(deprecated_log) if deprecated_log
+      Rails.logger.info(user_account_mismatch_log) if user_account_mismatch_log
       user_verification
     end
 
     def update_existing_user_verification
       if existing_user_account
         if user_verification.verified?
-          raise Errors::VerifiedUserAccountMismatch
+          @user_account_mismatch_log = '[Login::UserVerifier] User Account Mismatch for ' \
+                                       "UserVerification id=#{user_verification.id}, " \
+                                       "UserAccount id=#{user_verification.user_account.id}, " \
+                                       "icn=#{user_verification.user_account.icn}, conflicts with " \
+                                       "UserAccount id=#{existing_user_account.id} " \
+                                       "icn=#{existing_user_account.icn} " \
+                                       "Setting UserVerification id=#{user_verification.id} " \
+                                       "association to UserAccount id=#{existing_user_account.id}"
+          user_verification.update(user_account: existing_user_account)
         else
           deprecate_unverified_user_account
         end
