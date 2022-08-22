@@ -24,7 +24,9 @@ module Mobile
         end
 
         def fetch_facilities_from_ids(facility_ids, include_children)
-          facility_ids = facility_ids.map { |facility| Mobile::V0::Appointment.convert_non_prod_id!(facility) }.uniq
+          facility_ids = facility_ids.map do |facility|
+            Mobile::V0::Appointment.convert_from_non_prod_id!(facility)
+          end.uniq
 
           if Flipper.enabled?(:mobile_appointment_use_VAOS_MFS)
             new_fetch_facilities(facility_ids, include_children)
@@ -43,7 +45,7 @@ module Mobile
         end
 
         def put_cancel_appointment(params)
-          facility_id = Mobile::V0::Appointment.convert_non_prod_id!(params[:facilityId])
+          facility_id = Mobile::V0::Appointment.convert_to_non_prod_id!(params[:facilityId])
 
           cancel_reasons = get_facility_cancel_reasons(facility_id)
           cancel_reason = extract_valid_reason(cancel_reasons.map(&:number))
