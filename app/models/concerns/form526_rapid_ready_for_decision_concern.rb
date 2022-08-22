@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require 'mail_automation/client'
+require 'lighthouse/veterans_health/client'
 
+# rubocop:disable Metrics/ModuleLength
 module Form526RapidReadyForDecisionConcern
   extend ActiveSupport::Concern
 
@@ -11,6 +13,16 @@ module Form526RapidReadyForDecisionConcern
 
   def notify_mas_tracking
     RrdMasNotificationMailer.build(self).deliver_now
+  end
+
+  def send_rrd_pact_related_notification
+    icn = RapidReadyForDecision::ClaimContext.new(self).user_icn
+    client = Lighthouse::VeteransHealth::Client.new(icn)
+
+    RrdNewDisabilityClaimMailer.build(self, {
+                                        bp_readings_count: client.list_bp_observations.body['total'],
+                                        medications_count: client.list_medication_requests.body['total']
+                                      }).deliver_now
   end
 
   def notify_mas
@@ -102,6 +114,15 @@ module Form526RapidReadyForDecisionConcern
       !pending_eps?
   end
 
+  def rrd_new_pact_related_disability?
+    return false unless Flipper.enabled?(:rrd_new_pact_related_disability)
+
+    disabilities.any? do |disability|
+      disability['disabilityActionType']&.upcase == 'NEW' &&
+        (RapidReadyForDecision::Constants::PACT_CLASSIFICATION_CODES.include? disability['classificationCode'])
+    end
+  end
+
   def insert_classification_codes
     submission_data = JSON.parse(form_json)
     disabilities = submission_data.dig('form526', 'form526', 'disabilities')
@@ -128,3 +149,4 @@ module Form526RapidReadyForDecisionConcern
     rrd_pdf_added_for_uploading? && rrd_special_issue_set?
   end
 end
+# rubocop:enable Metrics/ModuleLength

@@ -148,6 +148,27 @@ FactoryBot.define do
     end
   end
 
+  trait :with_pact_related_disabilities do
+    form_json do
+      json_string = File.read("#{submissions_path}/only_526.json")
+      json = JSON.parse json_string
+      disabilities = json.dig('form526', 'form526', 'disabilities')
+      disabilities.concat([{
+                            "name": 'hypertension',
+                            "classificationCode": '3460',
+                            "disabilityActionType": 'NEW'
+                          }, {
+                            'name' => 'Rhinitis',
+                            'classificationCode' => 'string',
+                            'disabilityActionType' => 'INCREASE',
+                            'ratedDisabilityId' => '0',
+                            'diagnosticCode' => 6522,
+                            'secondaryDisabilities' => []
+                          }])
+      json.to_json
+    end
+  end
+
   trait :with_one_succesful_job do
     after(:create) do |submission|
       create(:form526_job_status, form526_submission: submission)

@@ -48,6 +48,12 @@ module RapidReadyForDecision
 
     DISABILITIES_BY_CODE = DISABILITIES.map { |k, v| [v[:code], k] }.to_h
 
+    # a classificationCode is derived from EVSS and is represented as a string
+    PACT_CLASSIFICATION_CODES = [
+      '3460', # hypertension
+      '3370' # high blood pressure
+    ].freeze
+
     MAS_DISABILITIES = [
       7528, # prostate cancer
       6847, # sleep apnea

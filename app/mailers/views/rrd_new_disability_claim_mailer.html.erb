@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <%= @disabilities.pluck('name', 'diagnosticCode').join(', ') %>
+    <table border="1" cellspacing="1" cellpadding="5"><thead>
+      <tr>
+        <td>Benefit Claim Id</td>
+        <td>Submission Date</td>
+        <td>Submission Time</td>
+        <td>Submission ID</td>
+      </tr>
+      </thead><tbody>
+        <tr>
+          <td><%= @submitted_claim_id %></td>
+          <td><%= @created_at.to_date %></td>
+          <td><%= @created_at.strftime '%H:%M:%S' %></td>
+          <td><%= @id %></td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      <li>Number of BP readings: <%= @bp_readings %></li>
+      <li>Number of Active Medications: <%= @medications %></li>
+      <li>Number of claimed issues: <%= @num_issues %></li>
+    </p>
+  </body>
+</html>

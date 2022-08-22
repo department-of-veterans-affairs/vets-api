@@ -68,7 +68,7 @@ module EVSS
           response_handler(response)
         end
         send_rrd_completed_notification(submission) if submission.rrd_job_selector.rrd_applicable?
-        submission.notify_mas if submission.forward_to_mas?
+        send_rrd_ancillary_notifications(submission)
       rescue Common::Exceptions::BackendServiceException,
              Common::Exceptions::GatewayTimeout,
              Breakers::OutageException,
@@ -82,6 +82,11 @@ module EVSS
       end
 
       private
+
+      def send_rrd_ancillary_notifications(submission)
+        submission.notify_mas if submission.forward_to_mas?
+        submission.send_rrd_pact_related_notification if submission.rrd_new_pact_related_disability?
+      end
 
       def send_rrd_completed_notification(submission)
         RrdCompletedMailer.build(submission).deliver_now
