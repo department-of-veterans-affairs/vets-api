@@ -24,6 +24,10 @@ features:
     actor_type: user
     description: Whether to use MuleSoft when submitting to CARMA.
     enable_in_development: true
+  caregiver_use_facilities_API:
+    actor_type: user
+    description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
+    enable_in_development: true
   caregiver_async:
     actor_type: user
     description: Submit 1010cg applications using a background job
