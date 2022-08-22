@@ -127,6 +127,44 @@
       "type": ["string", "null"],
       "description": "Temporary jurisdiction of claim"
     },
+    "trackedItems": {
+      "type": "array",
+      "description": "",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "closedDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Date the tracked item was closed",
+            "example": "2022-01-01T00:00:00-04:00"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the tracked item",
+            "example": "Buddy mentioned - No complete address"
+          },
+          "suspensionDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Suspension date on the tracked item",
+            "example": "2022-01-01T00:00:00-04:00"
+          },
+          "requestedDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Date the tracked item was requested",
+            "example": "2022-01-01T00:00:00-04:00"
+          },
+          "trackedItemId": {
+            "type": "integer",
+            "description": "ID of the tracked item",
+            "example": 293454
+          }
+        }
+      }
+    },
     "5103WaiverSubmitted": {
       "type": "boolean",
       "nullable": true,
