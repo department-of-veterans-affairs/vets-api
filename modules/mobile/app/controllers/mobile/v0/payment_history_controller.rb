@@ -2,7 +2,6 @@
 
 require_dependency 'mobile/application_controller'
 require 'adapters/payment_history_adapter'
-require 'mobile/v0/exceptions/validation_errors'
 
 module Mobile
   module V0

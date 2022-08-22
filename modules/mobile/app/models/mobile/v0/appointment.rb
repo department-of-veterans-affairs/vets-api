@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/models/resource'
+require 'mobile/v0/exceptions/validation_errors'
 
 module Mobile
   module V0
