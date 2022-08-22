@@ -113,7 +113,7 @@ http_interactions:
     recorded_at: Tue, 13 Jul 2021 20:11:33 GMT
   - request:
       method: get
-      uri: https://veteran.apps.va.gov/facilities/v2/facilities?children=true&ids=442,552&pageSize=0
+      uri: https://veteran.apps.va.gov/facilities/v2/facilities?children=true&ids=983,984&pageSize=0
       body:
         encoding: US-ASCII
         string: ''
@@ -168,9 +168,9 @@ http_interactions:
         string: |-
           {
             "data" : [ {
-              "id" : "442",
-              "vistaSite" : "442",
-              "vastParent" : "442",
+              "id" : "983",
+              "vistaSite" : "983",
+              "vastParent" : "983",
               "type" : "va_facilities",
               "name" : "Cheyenne VA Medical Center",
               "classification" : "VA Medical Center (VAMC)",
@@ -199,9 +199,9 @@ http_interactions:
                 "code" : "NORMAL"
               }
             }, {
-              "id" : "552",
-              "vistaSite" : "552",
-              "vastParent" : "552",
+              "id" : "984",
+              "vistaSite" : "984",
+              "vastParent" : "984",
               "type" : "va_health_facility",
               "name" : "Ayton VA Medical Center",
               "classification" : "VA Medical Center (VAMC)",
