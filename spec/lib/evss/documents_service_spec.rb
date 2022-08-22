@@ -34,6 +34,18 @@ describe EVSS::DocumentsService do
       end
     end
 
+    context 'with headers' do
+      it 'gets claim documents', run_at: 'Fri, 05 Jan 2018 00:12:00 GMT' do
+        VCR.use_cassette(
+          'evss/documents/get_claim_documents',
+          match_requests_on: VCR.all_matches
+        ) do
+          response = subject.get_claim_documents(document_data.evss_claim_id)
+          expect(response).to be_success
+        end
+      end
+    end
+
     context 'with a backend service error' do
       it 'raises EVSSError' do
         VCR.use_cassette('evss/documents/upload_with_errors') do
