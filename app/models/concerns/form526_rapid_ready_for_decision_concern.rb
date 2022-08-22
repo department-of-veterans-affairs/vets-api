@@ -3,7 +3,6 @@
 require 'mail_automation/client'
 require 'lighthouse/veterans_health/client'
 
-# rubocop:disable Metrics/ModuleLength
 module Form526RapidReadyForDecisionConcern
   extend ActiveSupport::Concern
 
@@ -62,14 +61,6 @@ module Form526RapidReadyForDecisionConcern
     'unknown'
   end
 
-  # If a pending_ep was detected in the past, returns true
-  # Depends on offramp_reason in form JSON, which is inserted by pending_eps? method
-  def had_pending_eps?
-    return true if form.dig('rrd_metadata', 'offramp_reason') == 'pending_ep'
-
-    pending_eps?
-  end
-
   # Fetch all claims from EVSS
   # @return [Boolean] whether there are any open EP 020's
   def pending_eps?
@@ -111,17 +102,6 @@ module Form526RapidReadyForDecisionConcern
     disabilities.map { |disability| disability['diagnosticCode'] }
   end
 
-  def forward_to_mas?
-    return false unless Flipper.enabled?(:rrd_mas_disability_tracking)
-
-    # only use the first diagnostic code because we can only support single-issue claims
-
-    diagnostic_codes.size == 1 &&
-      RapidReadyForDecision::Constants::MAS_DISABILITIES.include?(diagnostic_codes.first) &&
-      disabilities.first['disabilityActionType']&.upcase == 'INCREASE' &&
-      !had_pending_eps?
-  end
-
   def rrd_new_pact_related_disability?
     return false unless Flipper.enabled?(:rrd_new_pact_related_disability)
 
@@ -157,4 +137,3 @@ module Form526RapidReadyForDecisionConcern
     rrd_pdf_added_for_uploading? && rrd_special_issue_set?
   end
 end
-# rubocop:enable Metrics/ModuleLength
