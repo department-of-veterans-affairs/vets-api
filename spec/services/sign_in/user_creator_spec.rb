@@ -240,6 +240,26 @@ RSpec.describe SignIn::UserCreator do
           expect(code_container.client_id).to eq(client_id)
         end
 
+        context 'when there is an existing user verification for the authenticating user' do
+          let!(:user_verification) { create(:logingov_user_verification, logingov_uuid: csp_id) }
+
+          it 'does not make a new va gov user log' do
+            expect_any_instance_of(SignIn::Logger).not_to receive(:info)
+            subject
+          end
+        end
+
+        context 'when there is not a previously existing user verification for the authenticating user' do
+          let(:user_verification) { nil }
+          let(:user_uuid) { SecureRandom.UUID }
+          let(:expected_log) { "New VA.gov user, type=#{service_name}" }
+
+          it 'does not make a new va gov user log' do
+            expect_any_instance_of(SignIn::Logger).to receive(:info).with(expected_log)
+            subject
+          end
+        end
+
         context 'when there is a mismatch with credential and mpi attributes' do
           let(:mpi_birth_date) { '1970-01-01' }
           let(:mpi_first_name) { 'some-mpi-first-name' }

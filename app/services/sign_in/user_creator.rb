@@ -42,6 +42,7 @@ module SignIn
     def perform
       validate_mpi_record
       update_mpi_record
+      log_first_time_user
       create_authenticated_user
       create_code_container
       user_code_map
@@ -84,6 +85,14 @@ module SignIn
         handle_error(Errors::MPIUserUpdateFailedError,
                      'User MPI record cannot be updated',
                      Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE)
+      end
+    end
+
+    def log_first_time_user
+      user_verification_type = logingov_auth? ? :logingov_uuid : :idme_uuid
+      user_verification_identifier = logingov_auth? ? logingov_uuid : idme_uuid
+      unless UserVerification.find_by(user_verification_type => user_verification_identifier)
+        sign_in_logger.info("New VA.gov user, type=#{sign_in[:service_name]}")
       end
     end
 
@@ -196,6 +205,10 @@ module SignIn
 
     def login_code
       @login_code ||= SecureRandom.uuid
+    end
+
+    def sign_in_logger
+      @sign_in_logger = SignIn::Logger.new(prefix: self.class)
     end
   end
 end
