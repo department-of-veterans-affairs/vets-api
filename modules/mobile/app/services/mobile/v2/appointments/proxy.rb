@@ -13,7 +13,7 @@ module Mobile
         def get_appointments(start_date:, end_date:, pagination_params:)
           response = vaos_v2_appointments_service.get_appointments(start_date, end_date, nil, pagination_params)
           response[:data].each do |appt|
-            appt[:location_id] = Mobile::V0::Appointment.convert_non_prod_id!(appt[:location_id])
+            appt[:location_id] = Mobile::V0::Appointment.convert_from_non_prod_id!(appt[:location_id])
           end
           appointments = merge_clinics(response[:data])
           appointments = merge_facilities(appointments)

@@ -69,7 +69,12 @@ module Mobile
       attribute :best_time_to_call, Types::Array.optional
       attribute :friendly_location_name, Types::String.optional
 
-      def self.convert_non_prod_id!(id)
+      # On staging, some upstream services use different facility ids for the same facility.
+      # These methods convert between the two sets of ids.
+      # 983 == 442 and 984 == 552
+      # For example, Lighthouse only recognizes 442 but not 983 while the
+      # VAOS cancel service only recognizes 983 but not 442
+      def self.convert_from_non_prod_id!(id)
         return id if Settings.hostname == 'api.va.gov' || id.nil?
 
         match = id.match(/\A(983|984)/)
@@ -77,6 +82,16 @@ module Mobile
 
         return id.sub(match[0], '442') if match[0] == '983'
         return id.sub(match[0], '552') if match[0] == '984'
+      end
+
+      def self.convert_to_non_prod_id!(id)
+        return id if Settings.hostname == 'api.va.gov' || id.nil?
+
+        match = id.match(/\A(442|552)/)
+        return id unless match
+
+        return id.sub(match[0], '983') if match[0] == '442'
+        return id.sub(match[0], '984') if match[0] == '552'
       end
 
       # VAOS appointments aren't cancelled by id but instead by a combination

@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/442/patient/ICN/24811694708759028/cancel-reasons-list
+      uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/983/patient/ICN/24811694708759028/cancel-reasons-list
       body:
         encoding: US-ASCII
         string: ''

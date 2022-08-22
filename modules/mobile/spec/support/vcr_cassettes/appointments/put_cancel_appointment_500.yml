@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/442/patient/ICN/24811694708759028/cancel-appointment
+    uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/983/patient/ICN/24811694708759028/cancel-appointment
     body:
       encoding: UTF-8
       string: '{"appointmentTime":"11/20/2019 17:00:00","clinicId":"437","cancelReason":"5","cancelCode":"PC","remarks":"","clinicName":"CHY

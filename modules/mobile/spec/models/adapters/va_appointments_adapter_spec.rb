@@ -41,7 +41,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a cancel id of the encoded cancel params' do
-      expect(booked_va[:cancel_id]).to eq('MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7R3JlZW4gVGVhbSBDbGluaWMx')
+      expect(booked_va[:cancel_id]).to eq('MzA4OzIwMjAxMTAzLjA5MDAwMDs5ODM7R3JlZW4gVGVhbSBDbGluaWMx')
     end
 
     it 'has a type of VA' do
