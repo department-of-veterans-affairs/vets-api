@@ -24,6 +24,10 @@ module EVSS
       end
     end
 
+    def get_claim_documents(claim_id)
+      get "documents/getClaimDocuments/#{claim_id}"
+    end
+
     def self.breakers_service
       BaseService.create_breakers_service(name: 'EVSS/Documents', url: BASE_URL)
     end
