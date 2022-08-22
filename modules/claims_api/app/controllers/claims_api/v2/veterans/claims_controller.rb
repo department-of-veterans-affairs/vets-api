@@ -30,6 +30,7 @@ module ClaimsApi
 
           output = generate_show_output(bgs_claim: bgs_claim, lighthouse_claim: lighthouse_claim)
           blueprint_options = { base_url: request.base_url, veteran_id: params[:veteranId] }
+
           render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(output, blueprint_options)
         end
 
@@ -152,9 +153,10 @@ module ClaimsApi
             status: detect_status(data),
             submitter_application_code: data[:submtr_applcn_type_cd],
             submitter_role_code: data[:submtr_role_type_cd],
+            tempJurisdiction: data[:temp_regional_office_jrsdctn],
+            tracked_items: map_bgs_tracked_items(upstream_id),
             '5103_waiver_submitted'.to_sym => map_yes_no_to_boolean('filed5103_waiver_ind',
-                                                                    data[:filed5103_waiver_ind]),
-            tempJurisdiction: data[:temp_regional_office_jrsdctn]
+                                                                    data[:filed5103_waiver_ind])
           }
         end
 
@@ -186,6 +188,20 @@ module ClaimsApi
           else
             Rails.logger.error "Expected key '#{key}' to be Yes/No. Got '#{s}'."
             nil
+          end
+        end
+
+        def map_bgs_tracked_items(claim_id)
+          bgs_response = bgs_service.tracked_items.find_tracked_items(claim_id)
+          bgs = bgs_response.dig(:benefit_claim, :dvlpmt_items) || []
+          bgs.map do |item|
+            {
+              closedDate: item[:jrn_dt].iso8601,
+              description: item[:short_nm],
+              suspensionDate: item[:suspns_dt].iso8601,
+              requestedDate: item[:req_dt].iso8601,
+              trackedItemId: item[:dvlpmt_item_id].to_i
+            }
           end
         end
       end

@@ -26,6 +26,7 @@ module ClaimsApi
         field :submitter_application_code
         field :submitter_role_code
         field :temp_jurisdiction
+        field :tracked_items
         field :supporting_documents do |claim, _options|
           auto_established_claim = ClaimsApi::AutoEstablishedClaim.find_by evss_id: claim[:id]
           if auto_established_claim.present?
@@ -60,6 +61,7 @@ module ClaimsApi
           exclude :submitter_role_code
           exclude :supporting_documents
           exclude :temp_jurisdiction
+          exclude :tracked_items
 
           transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
         end

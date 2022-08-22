@@ -42,12 +42,12 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: cbbb245c880a46a5d805eee40938f474bda922c9
+  revision: 63aff093d3180009cd4d4cbb039e3b8748c5fe32
   specs:
     bgs_ext (0.21.2)
       httpclient
       nokogiri (>= 1.8.5)
-      savon (~> 2.12)
+      savon (= 2.12)
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/connect_vbms.git
@@ -853,7 +853,7 @@ GEM
     rufus-scheduler (3.8.1)
       fugit (~> 1.1, >= 1.1.6)
     safe_shell (1.1.0)
-    savon (2.12.1)
+    savon (2.12.0)
       akami (~> 1.2)
       builder (>= 2.1.2)
       gyoku (~> 1.2)
