@@ -71,7 +71,7 @@ jobs:
           fetch-depth: 1
           path: vsp-infra-application-manifests
 
-      - name: Update image name in Manifest repo
+      - name: Update vets-api image name in Manifest repo
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
@@ -85,7 +85,13 @@ jobs:
             yq e -i '(.spec.template.spec.initContainers[] | select(.name == "schema-migrations").image) |= "008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/${{inputs.ecr_repository}}:${{ github.sha }}"' $env/deployment.yaml
             yq e -i '(.spec.template.spec.containers[] | select(.name == "vets-api-web").env[] | select(.name == "GIT_REVISION").value)|="${{ github.sha }}"' $env/deployment.yaml
           done
+          git diff
 
+      - name: Update sidekiq image name in Manifest repo
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
+        run: |
           cd vsp-infra-application-manifests/apps/sidekiq/dev
           # Update ecr image
           yq e -i '(.image_tag) |= "${{ github.sha }}"' values.yaml
