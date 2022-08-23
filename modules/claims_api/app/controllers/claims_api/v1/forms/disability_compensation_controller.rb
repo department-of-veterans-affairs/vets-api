@@ -44,7 +44,8 @@ module ClaimsApi
             flashes: flashes,
             special_issues: special_issues_per_disability,
             source: source_name,
-            cid: token.payload['cid']
+            cid: token.payload['cid'],
+            veteran_icn: target_veteran.mpi.icn
           )
 
           ClaimsApi::Logger.log('526', claim_id: auto_claim.id, detail: 'Submitted to Lighthouse',
