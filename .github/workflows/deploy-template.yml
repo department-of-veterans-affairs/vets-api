@@ -85,14 +85,22 @@ jobs:
             yq e -i '(.spec.template.spec.initContainers[] | select(.name == "schema-migrations").image) |= "008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/${{inputs.ecr_repository}}:${{ github.sha }}"' $env/deployment.yaml
             yq e -i '(.spec.template.spec.containers[] | select(.name == "vets-api-web").env[] | select(.name == "GIT_REVISION").value)|="${{ github.sha }}"' $env/deployment.yaml
           done
+
+          cd vsp-infra-application-manifests/apps/sidekiq
+          # Update ecr image
+          envs=( ${{ needs.prepare-values.outputs.environments }} )
+          for env in ${envs[*]};
+          do
+            yq e -i '(.image_tag) |= "${{ github.sha }}"' $env/values.yaml
+          done
           git diff
 
       - name: Add and Commit file
         uses: EndBug/add-and-commit@v7
         with:
           branch: main
-          add: '*'
+          add: "*"
           cwd: vsp-infra-application-manifests/apps/${{inputs.manifests_directory}}
           author_name: va-vsp-bot
           author_email: devops@va.gov
-          message: 'Release ${{ needs.prepare-values.outputs.environments }} for ${{inputs.ecr_repository}}.'
+          message: "Release ${{ needs.prepare-values.outputs.environments }} for ${{inputs.ecr_repository}}."
