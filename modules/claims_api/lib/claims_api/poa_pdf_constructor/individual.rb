@@ -16,6 +16,14 @@ module ClaimsApi
         Rails.root.join('modules', 'claims_api', 'config', 'pdf_templates', '21-22A', '2.pdf')
       end
 
+      def page3_template_path
+        Rails.root.join('modules', 'claims_api', 'config', 'pdf_templates', '21-22A', '3.pdf')
+      end
+
+      def page4_template_path
+        nil
+      end
+
       def page1_signatures(signatures)
         [
           ClaimsApi::PoaPdfConstructor::Signature.new(data: signatures['veteran'], x: 35, y: 90),
@@ -73,6 +81,7 @@ module ClaimsApi
           "#{base_form}.AIR_FORCECheckbox3[0]": (data.dig('veteran', 'serviceBranch') == 'AIR FORCE' ? 1 : 0),
           "#{base_form}.MARINE_CORPSCheckbox4[0]": (data.dig('veteran', 'serviceBranch') == 'MARINE CORPS' ? 1 : 0),
           "#{base_form}.COAST_GUARDCheckbox5[0]": (data.dig('veteran', 'serviceBranch') == 'COAST GUARD' ? 1 : 0),
+          "#{base_form}.SPACE_FORCECheckbox3[0]": (data.dig('veteran', 'serviceBranch') == 'SPACE FORCE' ? 1 : 0),
           "#{base_form}.OTHER_Checkbox6[0]": (data.dig('veteran', 'serviceBranch') == 'OTHER' ? 1 : 0),
           "#{base_form}.JF15[0]": data.dig('veteran', 'serviceBranchOther'),
 

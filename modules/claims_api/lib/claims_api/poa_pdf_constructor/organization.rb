@@ -16,6 +16,14 @@ module ClaimsApi
         Rails.root.join('modules', 'claims_api', 'config', 'pdf_templates', '21-22', '2.pdf')
       end
 
+      def page3_template_path
+        Rails.root.join('modules', 'claims_api', 'config', 'pdf_templates', '21-22', '3.pdf')
+      end
+
+      def page4_template_path
+        Rails.root.join('modules', 'claims_api', 'config', 'pdf_templates', '21-22', '4.pdf')
+      end
+
       def page1_signatures(_signatures)
         []
       end
