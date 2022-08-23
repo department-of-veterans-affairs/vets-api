@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require 'dgi/service'
 require 'dgi/forms/configuration/configuration'
-require 'dgi/forms/service/submission_service'
 require 'dgi/forms/response/submission_response'
 require 'authentication_token_service'
 
@@ -20,7 +20,7 @@ module MebApi
               options = { timeout: 60 }
               response = perform(:post, end_point(form_type), format_params(params), headers, options)
 
-              MebApi::DGI::Submission::SubmissionResponse.new(response.status, response)
+              MebApi::DGI::Forms::Submission::Response.new(response.status, response)
             end
           end
 
