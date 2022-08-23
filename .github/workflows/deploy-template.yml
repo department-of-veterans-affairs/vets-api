@@ -102,7 +102,7 @@ jobs:
         with:
           branch: main
           add: "*"
-          cwd: vsp-infra-application-manifests/apps/${{inputs.manifests_directory}}
+          cwd: vsp-infra-application-manifests/apps
           author_name: va-vsp-bot
           author_email: devops@va.gov
           message: "Release ${{ needs.prepare-values.outputs.environments }} for ${{inputs.ecr_repository}}."
