@@ -59,6 +59,7 @@ module DebtManagementCenter
     end
 
     def submit_combined_fsr(form)
+      persist_form_submission(form)
       vba_status = submit_vba_fsr(form) if selected_vba_debts(form['selectedDebtsAndCopays']).present?
       vha_status = submit_vha_fsr(form) if selected_vha_copays(form['selectedDebtsAndCopays']).present?
 
@@ -113,6 +114,22 @@ module DebtManagementCenter
       end
 
       facility_forms
+    end
+
+    def persist_form_submission(form)
+      metadata = {
+        debts: selected_vba_debts(form['selectedDebtsAndCopays']),
+        copays: selected_vha_copays(form['selectedDebtsAndCopays'])
+      }.to_json
+      form_json = form.deep_dup
+
+      form_json.delete('selectedDebtsAndCopays')
+
+      Form5655Submission.create(
+        form_json: form_json.to_json,
+        metadata: metadata,
+        user_uuid: @user.uuid
+      )
     end
 
     def selected_vba_debts(debts)
