@@ -450,7 +450,8 @@ RSpec.describe 'Disability Claims ', type: :request do
                 'cid' => '0oa1c01m77heEXUZt2p7',
                 'uid' => '00u1zlqhuo3yLa2Xs2p7',
                 'scp' => %w[claim.write],
-                'sub' => 'ae9ff5f4e4b741389904087d94cd19b2'
+                'sub' => 'ae9ff5f4e4b741389904087d94cd19b2',
+                'icn' => '1013062086V794840'
               }
               allow_any_instance_of(Token).to receive(:payload).and_return(jwt_payload)
 
@@ -458,6 +459,7 @@ RSpec.describe 'Disability Claims ', type: :request do
               token = JSON.parse(response.body)['data']['attributes']['token']
               aec = ClaimsApi::AutoEstablishedClaim.find(token)
               expect(aec.cid).to eq(jwt_payload['cid'])
+              expect(aec.veteran_icn).to eq(jwt_payload['icn'])
             end
           end
         end
