@@ -54,7 +54,9 @@ module Form1095
       i = 1
       while i <= 13
         val = "H#{i < 10 ? '0' : ''}#{i}"
-        coverage_arr.push(form_fields[val.to_sym] ? true : false)
+
+        field = form_fields[val.to_sym]
+        coverage_arr.push(field && field.strip == 'Y' ? true : false)
 
         i += 1
       end
@@ -114,30 +116,40 @@ module Form1095
       end
     end
 
+    def process_line?(form, file_details)
+      data = parse_form(form)
+
+      corrected = !file_details[:isOg?]
+
+      data[:tax_year] = file_details[:tax_year]
+      data[:form_data][:is_corrected] = corrected
+      data[:form_data][:is_beneficiary] = file_details[:is_dep_file?]
+      data[:form_data] = data[:form_data].to_json
+
+      unique_id = data[:unique_id]
+      data.delete(:unique_id)
+
+      if save_data?(data, corrected)
+        @form_count += 1
+        true
+      else
+        @error_count += 1
+        Rails.logger.warn "Failed to save form with unique ID: #{unique_id}"
+        false
+      end
+    end
+
     def process_file?(temp_file, file_details)
+      all_succeeded = true
       temp_file.each_line do |form|
-        data = parse_form(form)
-
-        corrected = !file_details[:isOg?]
-
-        data[:tax_year] = file_details[:tax_year]
-        data[:form_data][:is_corrected] = corrected
-        data[:form_data][:is_beneficiary] = file_details[:is_dep_file?]
-        data[:form_data] = data[:form_data].to_json
-
-        unique_id = data[:unique_id]
-        data.delete(:unique_id)
-
-        unless save_data?(data, corrected)
-          Rails.logger.error "Failed on form with unique ID: #{unique_id}"
-          return false
-        end
+        successful_line = process_line?(form, file_details)
+        all_succeeded = false if !successful_line && all_succeeded
       end
 
       temp_file.close
       temp_file.unlink
 
-      true
+      all_succeeded
     rescue => e
       Rails.logger.error(e.message)
       false
@@ -147,6 +159,9 @@ module Form1095
     # this will allow us to read large S3 files without exhausting resources/crashing the system
     def download_and_process_file?(file_name)
       Rails.logger.info "processing file: #{file_name}"
+
+      @form_count = 0
+      @error_count = 0
 
       file_details = parse_file_name(file_name)
 
@@ -168,16 +183,25 @@ module Form1095
       Rails.logger.info 'Checking for new 1095-B data'
 
       file_names = get_bucket_files
-      Rails.logger.info 'No new 1095 files found' if file_names.empty?
+      if file_names.empty?
+        Rails.logger.info 'No new 1095 files found'
+      else
+        Rails.logger.info "#{file_names.size} files found"
+      end
 
+      files_read_count = 0
       file_names.each do |file_name|
         if download_and_process_file?(file_name)
-          Rails.logger.info "#{file_name} read successfully, deleting file from S3"
+          files_read_count += 1
+          Rails.logger.info "Successfully read #{@form_count} 1095B forms from #{file_name}, deleting file from S3"
           bucket.delete_objects(delete: { objects: [{ key: file_name }] })
         else
-          Rails.logger.error "failed to load 1095 data from file: #{file_name}"
+          Rails.logger.error  "failed to save #{@error_count} forms from file: #{file_name};"\
+                              " successfully saved #{@form_count} forms"
         end
       end
+
+      Rails.logger.info "#{files_read_count}/#{file_names.size} files read successfully"
     end
   end
 end
