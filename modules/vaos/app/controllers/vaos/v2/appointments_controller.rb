@@ -5,6 +5,7 @@ require 'common/exceptions'
 module VAOS
   module V2
     class AppointmentsController < VAOS::V0::BaseController
+      STATSD_KEY = 'api.vaos.va_mobile.response.partial'
       def index
         appointments
 
@@ -13,7 +14,14 @@ module VAOS
 
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(appointments[:data], 'appointments')
-        render json: { data: serialized, meta: appointments[:meta] }
+
+        if !appointments[:meta][:failures]&.empty?
+          StatsDMetric.new(key: STATSD_KEY).save
+          StatsD.increment(STATSD_KEY, tags: ["failures:#{appointments[:meta][:failures]}"])
+          render json: { data: serialized, meta: appointments[:meta] }, status: :multi_status
+        else
+          render json: { data: serialized, meta: appointments[:meta] }, status: :ok
+        end
       end
 
       def show

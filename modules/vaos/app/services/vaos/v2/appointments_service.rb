@@ -19,7 +19,7 @@ module VAOS
           response = perform(:get, appointments_base_url, params, headers)
           {
             data: deserialized_appointments(response.body[:data]),
-            meta: pagination(pagination_params)
+            meta: pagination(pagination_params).merge(partial_errors(response))
           }
         end
       end
@@ -81,6 +81,20 @@ module VAOS
             total_pages: 0, # underlying api doesn't provide this; how do you build a pagination UI without it?
             total_entries: 0 # underlying api doesn't provide this.
           }
+        }
+      end
+
+      def partial_errors(response)
+        if response.status == 200 && response.body[:failures]&.any?
+          log_message_to_sentry(
+            'VAOS::AppointmentService#get_appointments has response errors.',
+            :info,
+            failures: response.body[:failures].to_json
+          )
+        end
+
+        {
+          failures: (response.body[:failures] || []) # VAMF drops null valued keys; ensure we always return empty array
         }
       end
 
