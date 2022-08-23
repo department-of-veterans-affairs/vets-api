@@ -14,16 +14,6 @@ module Form526RapidReadyForDecisionConcern
     RrdMasNotificationMailer.build(self).deliver_now
   end
 
-  def send_rrd_pact_related_notification
-    icn = RapidReadyForDecision::ClaimContext.new(self).user_icn
-    client = Lighthouse::VeteransHealth::Client.new(icn)
-
-    RrdNewDisabilityClaimMailer.build(self, {
-                                        bp_readings_count: client.list_bp_observations.body['total'],
-                                        medications_count: client.list_medication_requests.body['total']
-                                      }).deliver_now
-  end
-
   def notify_mas
     notify_mas_tracking
 
@@ -100,15 +90,6 @@ module Form526RapidReadyForDecisionConcern
 
   def diagnostic_codes
     disabilities.map { |disability| disability['diagnosticCode'] }
-  end
-
-  def rrd_new_pact_related_disability?
-    return false unless Flipper.enabled?(:rrd_new_pact_related_disability)
-
-    disabilities.any? do |disability|
-      disability['disabilityActionType']&.upcase == 'NEW' &&
-        (RapidReadyForDecision::Constants::PACT_CLASSIFICATION_CODES.include? disability['classificationCode'])
-    end
   end
 
   def insert_classification_codes

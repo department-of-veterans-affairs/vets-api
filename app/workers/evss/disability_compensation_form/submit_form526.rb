@@ -86,6 +86,12 @@ module EVSS
 
       private
 
+      def send_notifications(submission, forward_to_mas)
+        send_rrd_completed_notification(submission) if submission.rrd_job_selector.rrd_applicable?
+        submission.notify_mas if forward_to_mas
+        send_rrd_pact_related_notification(submission) if rrd_new_pact_related_disability?(submission)
+      end
+
       def forward_to_mas?(submission)
         return false unless Flipper.enabled?(:rrd_mas_disability_tracking)
 
@@ -97,14 +103,29 @@ module EVSS
           !submission.pending_eps?
       end
 
-      def send_notifications(submission, forward_to_mas)
-        send_rrd_completed_notification(submission) if submission.rrd_job_selector.rrd_applicable?
-        submission.notify_mas if forward_to_mas
-        submission.send_rrd_pact_related_notification if submission.rrd_new_pact_related_disability?
+      def rrd_new_pact_related_disability?(submission)
+        return false unless Flipper.enabled?(:rrd_new_pact_related_disability)
+
+        submission.disabilities.any? do |disability|
+          disability['disabilityActionType']&.upcase == 'NEW' &&
+            (RapidReadyForDecision::Constants::PACT_CLASSIFICATION_CODES.include? disability['classificationCode'])
+        end
       end
 
       def send_rrd_completed_notification(submission)
         RrdCompletedMailer.build(submission).deliver_now
+      end
+
+      def send_rrd_pact_related_notification(submission)
+        icn = RapidReadyForDecision::ClaimContext.new(submission).user_icn
+        client = Lighthouse::VeteransHealth::Client.new(icn)
+        bp_readings = RapidReadyForDecision::LighthouseObservationData.new(client.list_bp_observations).transform
+        meds = RapidReadyForDecision::LighthouseMedicationRequestData.new(client.list_medication_requests).transform
+
+        RrdNewDisabilityClaimMailer.build(submission, {
+                                            bp_readings_count: bp_readings.length,
+                                            medications_count: meds.length
+                                          }).deliver_now
       end
 
       def response_handler(response)
