@@ -173,6 +173,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             expect(data.size).to eq(4)
             expect(data[0]['attributes']['status']).to eq('proposed')
             expect(data[1]['attributes']['status']).to eq('proposed')
+            expect(response).to match_camelized_response_schema('vaos/v2/va_appointments', { strict: false })
           end
         end
 
@@ -186,6 +187,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             expect(data.size).to eq(4)
             expect(data[0]['attributes']['status']).to eq('proposed')
             expect(data[1]['attributes']['status']).to eq('proposed')
+            expect(response).to match_camelized_response_schema('vaos/v2/va_appointments', { strict: false })
           end
         end
 
@@ -200,6 +202,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             expect(data.size).to eq(4)
             expect(data[0]['attributes']['status']).to eq('proposed')
             expect(data[1]['attributes']['status']).to eq('booked')
+            expect(response).to match_camelized_response_schema('vaos/v2/va_appointments', { strict: false })
           end
         end
 
@@ -215,6 +218,18 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             expect(data.size).to eq(4)
             expect(data[0]['attributes']['status']).to eq('proposed')
             expect(data[1]['attributes']['status']).to eq('booked')
+            expect(response).to match_camelized_response_schema('vaos/v2/va_appointments', { strict: false })
+          end
+        end
+
+        it 'has access and returns va appointments having partial errors' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_v2_partial_error',
+                           match_requests_on: %i[method uri]) do
+            get '/vaos/v2/appointments?start=2022-01-01T19:25:00Z&end=2022-12-01T19:45:00Z&statuses[]=proposed',
+                params: params, headers: inflection_header
+
+            expect(response).to have_http_status(:multi_status)
+            expect(response).to match_camelized_response_schema('vaos/v2/va_appointments', { strict: false })
           end
         end
 
