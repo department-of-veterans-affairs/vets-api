@@ -86,13 +86,9 @@ jobs:
             yq e -i '(.spec.template.spec.containers[] | select(.name == "vets-api-web").env[] | select(.name == "GIT_REVISION").value)|="${{ github.sha }}"' $env/deployment.yaml
           done
 
-          cd vsp-infra-application-manifests/apps/sidekiq
+          cd vsp-infra-application-manifests/apps/sidekiq/dev
           # Update ecr image
-          envs=( ${{ needs.prepare-values.outputs.environments }} )
-          for env in ${envs[*]};
-          do
-            yq e -i '(.image_tag) |= "${{ github.sha }}"' $env/values.yaml
-          done
+          yq e -i '(.image_tag) |= "${{ github.sha }}"' values.yaml
           git diff
 
       - name: Add and Commit file
