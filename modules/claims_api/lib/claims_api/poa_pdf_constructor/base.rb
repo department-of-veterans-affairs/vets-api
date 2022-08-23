@@ -8,12 +8,14 @@ module ClaimsApi
       def initialize
         @page1_path = nil
         @page2_path = nil
+        @page3_path = nil
+        @page4_path = nil
       end
 
       def construct(data, id: SecureRandom.uuid)
         sign_pdf(data['signatures'])
         fill_pdf(data)
-        combine_pdf(id, @page1_path, @page2_path)
+        combine_pdf(id, @page1_path, @page2_path, @page3_path, @page4_path)
       end
 
       protected
@@ -25,6 +27,16 @@ module ClaimsApi
 
       # @return [String] Path to page 2 pdf template file
       def page2_template_path
+        raise 'NotImplemented' # Extend this class and implement
+      end
+
+      # @return [String] Path to page 3 pdf template file
+      def page3_template_path
+        raise 'NotImplemented' # Extend this class and implement
+      end
+
+      # @return [String] Path to page 4 pdf template file
+      def page4_template_path
         raise 'NotImplemented' # Extend this class and implement
       end
 
@@ -54,6 +66,20 @@ module ClaimsApi
         raise 'NotImplemented' # Extend this class and implement
       end
 
+      # @param data [Hash] Data to fill in pdf form
+      #
+      # @return [Hash] Data to fill in second page of pdf form
+      def page3_options(_data)
+        raise 'NotImplemented' # Extend this class and implement
+      end
+
+      # @param data [Hash] Data to fill in pdf form
+      #
+      # @return [Hash] Data to fill in second page of pdf form
+      def page4_options(_data)
+        raise 'NotImplemented' # Extend this class and implement
+      end
+
       #
       # Converts segmented address information into single string representation.
       #
@@ -76,12 +102,14 @@ module ClaimsApi
       # @param page2_path [String] Path to page 2 of pdf
       #
       # @return [String] Path to final pdf
-      def combine_pdf(id, page1_path, page2_path)
+      def combine_pdf(id, page1_path, page2_path, page3_path, page4_path)
         output_path = "/tmp/#{id}_final.pdf"
 
         pdf = CombinePDF.new
         pdf << CombinePDF.load(page1_path)
         pdf << CombinePDF.load(page2_path)
+        pdf << CombinePDF.load(page3_path) unless page3_path.nil?
+        pdf << CombinePDF.load(page4_path) unless page4_path.nil?
         pdf.save(output_path)
 
         output_path
@@ -120,6 +148,8 @@ module ClaimsApi
       def sign_pdf(signatures)
         @page1_path = insert_signatures(page1_template_path, page1_signatures(signatures))
         @page2_path = insert_signatures(page2_template_path, page2_signatures(signatures))
+        @page3_path = page3_template_path
+        @page4_path = page4_template_path
       end
 
       #
