@@ -16,7 +16,7 @@
             "description": "HTTP error detail"
           },
           "source": {
-            "type": ["string", "boolean"]
+            "type": "string"
           }
         }
       }
