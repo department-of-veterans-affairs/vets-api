@@ -17,7 +17,7 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
       tf
     end
 
-    let(:file_names2) { %w[MEC_DataExtract_O_2020_B_2021123017382.txt] }
+    let(:file_names2) { %w[MEC_DataExtract_O_2020_B_2020123017382.txt] }
     let(:file_data2) { File.read('spec/support/form1095/multiple_valid_forms.txt') }
     let(:tempfile2) do
       tf = Tempfile.new(file_names2[0])
@@ -31,6 +31,15 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
     let(:tempfile3) do
       tf = Tempfile.new(file_names3[0])
       tf.write(file_data3)
+      tf.rewind
+      tf
+    end
+
+    let(:file_names4) { %w[MEC_DataExtract_C_2020_B_2021012117364.txt] }
+    let(:file_data4) { File.read('spec/support/form1095/multiple_valid_forms_corrections.txt') }
+    let(:tempfile4) do
+      tf = Tempfile.new(file_names4[0])
+      tf.write(file_data4)
       tf.rewind
       tf
     end
@@ -71,6 +80,23 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
       expect(Rails.logger).to receive(:error).at_least(:once)
 
       subject.perform
+    end
+
+    context 'saves form corrections from a corrected file' do
+      before do
+        create :form1095_b, tax_year: 2020, veteran_icn: '23456789098765437'
+        create :form1095_b, tax_year: 2020, veteran_icn: '23456789098765464'
+
+        allow(objects).to receive(:collect).and_return(file_names4)
+        allow(Tempfile).to receive(:new).and_return(tempfile4)
+      end
+
+      it 'updates forms without errors' do
+        expect(Rails.logger).not_to receive(:error)
+        expect(Rails.logger).not_to receive(:warn)
+
+        subject.perform
+      end
     end
   end
 end
