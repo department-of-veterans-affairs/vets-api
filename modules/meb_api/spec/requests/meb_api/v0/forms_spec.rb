@@ -37,11 +37,11 @@ Rspec.describe MebApi::V0::FormsController, type: :request do
       sign_in_as(user)
     end
 
-    describe 'POST form_sponsor' do
+    describe 'POST form_sponsors' do
       context 'Retrieves sponsors for Toes' do
         it 'returns a 200 status when it' do
           VCR.use_cassette('dgi/forms/sponsor_toes') do
-            post '/meb_api/v0/forms_sponsor', params: { "ssn": '796121200', "form_type": 'Toes' }
+            post '/meb_api/v0/forms_sponsors', params: { "ssn": '796121200', "form_type": 'Toes' }
             expect(response).to have_http_status(:ok)
           end
         end
@@ -50,22 +50,31 @@ Rspec.describe MebApi::V0::FormsController, type: :request do
       context 'Retrieves sponsors for FryDea' do
         it 'returns a 200 status when it' do
           VCR.use_cassette('dgi/forms/sponsor_fry_dea') do
-            post '/meb_api/v0/forms_sponsor', params: { "ssn": '796121200', "form_type": 'FryDea' }
+            post '/meb_api/v0/forms_sponsors', params: { "ssn": '796121200', "form_type": 'FryDea' }
             expect(response).to have_http_status(:ok)
           end
         end
       end
     end
 
-    describe 'GET /meb_api/v0/claim_letter/fry' do
-      context 'Retrieves a fry veterans claim letter' do
-        it 'returns a 200 status when given claimant id as parameter' do
-          VCR.use_cassette('dgi/get_fry_claim_letter') do
-            get '/meb_api/v0/claim_letter/fry'
-            expect(response).to have_http_status(:ok)
-          end
-        end
-      end
-    end
+    # describe 'GET /meb_api/v0/forms_claim_letter' do
+    #   context 'Retrieves a fry veterans claim letter' do
+    #     it 'returns a 200 status when given claimant id as parameter' do
+    #       VCR.use_cassette('dgi/forms/get_fry_claim_letter') do
+    #         post '/meb_api/v0/forms_claim_letter', params: { "ssn": '796121200', "form_type": 'fry' }
+    #         expect(response).to have_http_status(:ok)
+    #       end
+    #     end
+    #   end
+
+    #   context 'Retrieves a TOE veterans claim letter' do
+    #     it 'returns a 200 status when given claimant id as parameter' do
+    #       VCR.use_cassette('dgi/forms/get_toe_claim_letter') do
+    #         post '/meb_api/v0/forms_claim_letter', params: { "ssn": '796121200' }
+    #         expect(response).to have_http_status(:ok)
+    #       end
+    #     end
+    #   end
+    # end
   end
 end

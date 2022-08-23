@@ -7,17 +7,13 @@ MebApi::Engine.routes.draw do
     get 'eligibility', to: 'education_benefits#eligibility'
     get 'claim_status', to: 'education_benefits#claim_status'
     get 'claim_letter', to: 'education_benefits#claim_letter'
-    get 'toe_letter', to: 'education_benefits#toe_letter'
     post 'submit_claim', to: 'education_benefits#submit_claim'
     get 'enrollment', to: 'education_benefits#enrollment'
     post 'submit_enrollment_verification', to: 'education_benefits#submit_enrollment_verification'
 
-    post 'sponsors', to: 'toes#sponsors'
-    post 'fry_dea_sponsors', to: 'fry_dea#sponsors'
-    get 'claim_letter/fry', to: 'fry_dea#claim_letter'
-
-    post 'forms_sponsor', to: 'forms#sponsor'
-    get 'form_claim_letter', to: 'forms#claim_letter'
+    post 'forms_claim_letter', to: 'forms#claim_letter'
+    post 'forms_sponsors', to: 'forms#sponsors'
+    post 'forms_submit_claim', to: 'forms#submit_claim'
 
     get 'apidocs', to: 'apidocs#index'
   end
