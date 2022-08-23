@@ -27,7 +27,7 @@ module ClaimsApi
         error = {
           status: status,
           detail: "The request body isn't a JSON object: #{body.inspect}",
-          source: false
+          source: ''
         }
         render status: status, json: { errors: [error] }
       end
