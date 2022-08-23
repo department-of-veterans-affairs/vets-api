@@ -158,8 +158,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             VCR.use_cassette('rrd/hypertension', match_requests_on: %i[host path method]) do
               subject.perform_async(submission.id)
               described_class.drain
-              expect(ActionMailer::Base.deliveries.last.body.include?('Number of BP readings: 7')).to eq true
-              expect(ActionMailer::Base.deliveries.last.body.include?('Number of Active Medications: 16')).to eq true
+              expect(ActionMailer::Base.deliveries.last.body.include?('Number of BP readings: 0')).to eq true
+              expect(ActionMailer::Base.deliveries.last.body.include?('Number of Active Medications: 11')).to eq true
               expect(ActionMailer::Base.deliveries.last.body.include?('Number of claimed issues: 3')).to eq true
               expect(ActionMailer::Base.deliveries.last.subject).to eq "NEW claim - #{submitted_claim_id}"
             end
