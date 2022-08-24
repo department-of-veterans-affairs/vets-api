@@ -4,22 +4,15 @@ require_dependency 'vba_documents/pdf_inspector'
 
 require 'central_mail/utilities'
 require 'central_mail/service'
-require 'pdf_info'
+require 'pdf_utilities/pdf_validator'
 
 # rubocop:disable Metrics/ModuleLength
 module VBADocuments
   module UploadValidations
     include CentralMail::Utilities
+    include PDFUtilities
 
-    VALID_NAME = %r{^[a-zA-Z\-/\s]{1,50}$}.freeze
-
-    def update_pdf_metadata(model, inspector)
-      model.update(uploaded_pdf: inspector.pdf_data)
-    end
-
-    def update_size(model, size)
-      model.update(metadata: model.metadata.merge({ 'size' => size }))
-    end
+    VALID_VETERAN_NAME_REGEX = %r{^[a-zA-Z\-/\s]{1,50}$}.freeze
 
     def validate_parts(model, parts)
       unless parts.key?(META_PART_NAME)
@@ -60,17 +53,48 @@ module VBADocuments
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Non-numeric or invalid-length fileNumber')
       end
 
-      validate_names(metadata['veteranFirstName'].strip, metadata['veteranLastName'].strip)
+      validate_veteran_name(metadata['veteranFirstName'].strip, metadata['veteranLastName'].strip)
       validate_line_of_business(metadata['businessLine'], submission_version)
     rescue JSON::ParserError
       raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Invalid JSON object')
     end
 
-    def validate_names(first, last)
+    def validate_documents(parts)
+      # Validate 'content' document
+      validate_document(parts[DOC_PART_NAME], DOC_PART_NAME)
+
+      # Validate attachments
+      attachment_names = parts.keys.select { |key| key.match(/attachment\d+/) }
+      attachment_names.each do |attachment_name|
+        validate_document(parts[attachment_name], attachment_name)
+      end
+    end
+
+    def perfect_metadata(model, parts, timestamp)
+      metadata = JSON.parse(parts['metadata'])
+      metadata['source'] = "#{model.consumer_name} via VA API"
+      metadata['receiveDt'] = timestamp.in_time_zone('US/Central').strftime('%Y-%m-%d %H:%M:%S')
+      metadata['uuid'] = model.guid
+      metadata['hashV'] = Digest::SHA256.file(parts[DOC_PART_NAME]).hexdigest
+      metadata['numberPages'] = model.uploaded_pdf.dig('content', 'page_count')
+      attachment_names = parts.keys.select { |k| k.match(/attachment\d+/) }
+      metadata['numberAttachments'] = attachment_names.size
+      attachment_names.each_with_index do |att, i|
+        metadata["ahash#{i + 1}"] = Digest::SHA256.file(parts[att]).hexdigest
+        metadata["numberPages#{i + 1}"] = model.uploaded_pdf.dig('content', 'attachments', i, 'page_count')
+      end
+      metadata['businessLine'] = VALID_LOB[metadata['businessLine'].to_s.upcase] if metadata.key? 'businessLine'
+      metadata['businessLine'] = AppealsApi::LineOfBusiness.new(model).value if model.appeals_consumer?
+      metadata
+    end
+
+    private
+
+    def validate_veteran_name(first, last)
       [first, last].each do |name|
         msg = 'Invalid Veteran name (e.g. empty, invalid characters, or too long). '
-        msg += "Names must match the regular expression #{VALID_NAME.inspect}"
-        raise VBADocuments::UploadError.new(code: 'DOC102', detail: msg) unless name =~ VALID_NAME
+        msg += "Names must match the regular expression #{VALID_VETERAN_NAME_REGEX.inspect}"
+        raise VBADocuments::UploadError.new(code: 'DOC102', detail: msg) unless name =~ VALID_VETERAN_NAME_REGEX
       end
     end
 
@@ -88,65 +112,29 @@ module VBADocuments
       end
     end
 
-    # rubocop:disable Metrics/MethodLength
-    def perfect_metadata(model, parts, timestamp)
-      metadata = JSON.parse(parts['metadata'])
-      metadata['source'] = "#{model.consumer_name} via VA API"
-      metadata['receiveDt'] = timestamp.in_time_zone('US/Central').strftime('%Y-%m-%d %H:%M:%S')
-      metadata['uuid'] = model.guid
-      check_size(parts[DOC_PART_NAME])
-      doc_info = get_hash_and_pages(parts[DOC_PART_NAME], DOC_PART_NAME)
-      validate_page_size(doc_info)
-      metadata['hashV'] = doc_info[:hash]
-      metadata['numberPages'] = doc_info[:pages]
-      attachment_names = parts.keys.select { |k| k.match(/attachment\d+/) }
-      metadata['numberAttachments'] = attachment_names.size
-      attachment_names.each_with_index do |att, i|
-        att_info = get_hash_and_pages(parts[att], att)
-        validate_page_size(att_info)
-        check_attachment_size(parts[att])
-        metadata["ahash#{i + 1}"] = att_info[:hash]
-        metadata["numberPages#{i + 1}"] = att_info[:pages]
-      end
-      metadata['businessLine'] = VALID_LOB[metadata['businessLine'].to_s.upcase] if metadata.key? 'businessLine'
-      metadata['businessLine'] = AppealsApi::LineOfBusiness.new(model).value if model.appeals_consumer?
-      metadata
-    end
-    # rubocop:enable Metrics/MethodLength
+    def validate_document(file_path, part_name)
+      validator = PDFValidator::Validator.new(file_path, { check_encryption: false })
+      result = validator.perform
 
-    def check_attachment_size(att_parts)
-      Thread.current[:checking_attachment] = true # used during unit test only, see upload_processor_spec.rb
-      check_size(att_parts)
-      Thread.current[:checking_attachment] = false
-    end
+      unless result.valid_pdf?
+        errors = result.errors
 
-    def validate_page_size(doc_info)
-      if doc_info[:size][:height] >= 21 || doc_info[:size][:width] >= 21
-        raise VBADocuments::UploadError.new(code: 'DOC108',
-                                            detail: VBADocuments::UploadError::DOC108)
+        if errors.grep(/#{PDFValidator::FILE_SIZE_LIMIT_EXCEEDED_MSG}/).any?
+          raise VBADocuments::UploadError.new(code: 'DOC106',
+                                              detail: 'Maximum document size exceeded. Limit is 100MB per document')
+        end
+
+        if errors.grep(/#{PDFValidator::USER_PASSWORD_MSG}|#{PDFValidator::INVALID_PDF_MSG}/).any?
+          raise VBADocuments::UploadError.new(code: 'DOC103',
+                                              detail: "Invalid PDF content, part #{part_name}")
+        end
+
+        if errors.grep(/#{PDFValidator::PAGE_SIZE_LIMIT_EXCEEDED_MSG}/).any?
+          raise VBADocuments::UploadError.new(code: 'DOC108',
+                                              detail: VBADocuments::UploadError::DOC108)
+        end
       end
     end
-
-    def check_size(file_path)
-      if File.size(file_path) > MAX_PART_SIZE
-        raise VBADocuments::UploadError.new(code: 'DOC106',
-                                            detail: 'Maximum document size exceeded. Limit is 100MB per document')
-      end
-    end
-
-    def get_hash_and_pages(file_path, part)
-      metadata = PdfInfo::Metadata.read(file_path)
-      {
-        hash: Digest::SHA256.file(file_path).hexdigest,
-        pages: metadata.pages,
-        size: metadata.page_size_inches
-      }
-    rescue PdfInfo::MetadataReadError
-      raise VBADocuments::UploadError.new(code: 'DOC103',
-                                          detail: "Invalid PDF content, part #{part}")
-    end
-
-    private
 
     def log_invalid_parts(model, invalid_parts)
       message = "VBADocuments Invalid Part Uploaded\t"\

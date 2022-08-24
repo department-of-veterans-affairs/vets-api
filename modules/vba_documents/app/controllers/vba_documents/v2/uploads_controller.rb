@@ -80,18 +80,25 @@ module VBADocuments
         File.delete(zip_file_name)
       end
 
+      # rubocop:disable Metrics/MethodLength
       def submit
         upload_model = UploadFile.new
         begin
           upload_model.multipart.attach(io: StringIO.new(request.raw_post), filename: upload_model.guid)
           upload_model.metadata['version'] = 2
           upload_model.save!
+
           parts = VBADocuments::MultipartParser.parse(StringIO.new(request.raw_post))
           inspector = VBADocuments::PDFInspector.new(pdf: parts)
+          upload_model.update(uploaded_pdf: inspector.pdf_data)
+
+          # Validations
           validate_parts(upload_model, parts)
           validate_metadata(parts[META_PART_NAME], submission_version: upload_model.metadata['version'].to_i)
-          update_pdf_metadata(upload_model, inspector)
+          validate_documents(parts)
+
           perfect_metadata(upload_model, parts, Time.zone.now)
+
           VBADocuments::UploadProcessor.perform_async(upload_model.guid, caller: self.class.name)
         rescue VBADocuments::UploadError => e
           Rails.logger.warn("UploadError download_and_process for guid #{upload_model.guid}.", e)
@@ -102,6 +109,7 @@ module VBADocuments
         status = upload_model.status.eql?('error') ? 400 : 200
         render json: upload_model, serializer: VBADocuments::V2::UploadSerializer, status: status
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 

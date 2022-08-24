@@ -48,7 +48,7 @@ module VBADocuments
                total_documents: 0, total_pages: 0, content: {} }
 
       # read the PDF content
-      data[:content].merge!(read_pdf_metadata(@parts['content']))
+      data[:content].merge!(metadata_for(@parts['content']))
       data[:content][:attachments] = []
       add_line_of_business(data, parts_metadata)
       total_pages = data[:content][:page_count]
@@ -58,10 +58,10 @@ module VBADocuments
       attachment_names = @parts.keys.select { |k| k.match(/attachment\d+/) }
 
       attachment_names.each do |att|
-        attach_data = read_pdf_metadata(@parts[att])
-        total_pages += attach_data[:page_count]
+        attachment_metadata = metadata_for(@parts[att])
+        total_pages += attachment_metadata[:page_count]
         total_documents += 1
-        data[:content][:attachments] << attach_data
+        data[:content][:attachments] << attachment_metadata
       end
       data[:total_documents] = total_documents
       data[:total_pages] = total_pages
@@ -79,23 +79,18 @@ module VBADocuments
       end
     end
 
-    def read_pdf_metadata(content_key)
-      # read the PDF content
-      parts_content = PdfInfo::Metadata.read(content_key)
-      data_hash = {}
-      data_hash[:page_count] = parts_content.pages
+    def metadata_for(pdf)
+      metadata = PdfInfo::Metadata.read(pdf)
+      dimensions = metadata.page_size_inches
 
-      # get and set the dimensions
-      doc_dim = round_dimensions(parts_content.page_size_inches)
-      doc_dim[:oversized_pdf] = doc_dim[:height] >= 21 || doc_dim[:width] >= 21
-      data_hash[:dimensions] = doc_dim
-      data_hash
-    end
-
-    def round_dimensions(dimensions)
-      { height: dimensions[:height].round(2), width: dimensions[:width].round(2) }
+      {
+        page_count: metadata.pages,
+        dimensions: {
+          height: dimensions[:height].round(2),
+          width: dimensions[:width].round(2),
+          oversized_pdf: dimensions[:height] > 21 || dimensions[:width] > 21
+        }
+      }
     end
   end
 end
-
-# load './modules/vba_documents/lib/vba_documents/pdf_inspector.rb'

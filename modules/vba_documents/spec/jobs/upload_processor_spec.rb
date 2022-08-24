@@ -217,15 +217,8 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         'sets error for file part size exceeding 100MB' => :valid_parts_attachment }.each_pair do |_k, v|
         it 'sets error for file part size exceeding 100MB' do
           allow(VBADocuments::MultipartParser).to receive(:parse) { send v }
-          allow(File).to receive(:size) do
-            r_val = 100_000_001
-            if Thread.current[:checking_attachment] && v.eql?(:valid_parts_attachment)
-              r_val = 100_000_001
-            elsif v.eql?(:valid_parts_attachment)
-              r_val = 1
-            end
-            r_val
-          end
+          allow(File).to receive(:size).and_return(100_000_001)
+
           described_class.new.perform(upload.guid, test_caller)
           updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
           expect(updated.status).to eq('error')
@@ -451,7 +444,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     end
 
     context 'with invalid sizes' do
-      %w[21x21 18x22 22x18].each do |invalid_size|
+      %w[18x22 22x18].each do |invalid_size|
         it 'sets an error status for invalid size' do
           allow(VBADocuments::MultipartParser).to receive(:parse) {
             { 'metadata' => valid_metadata, 'content' => get_fixture("#{invalid_size}.pdf") }
