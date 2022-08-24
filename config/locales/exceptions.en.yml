@@ -2144,6 +2144,12 @@ en:
         detail: 'Claim could not be established. Contact the BDN team and have them run the WIPP process to delete Cancelled/Cleared PIFs'
         code: 127
         status: 409
+      ws_client_exception:
+        <<: *defaults
+        title: Java Error (gov.va.wss.partner.veteranrecord.ws.client.VeteranRecordWsClientException)
+        detail: 'An exception occurred on the server.  The request cannot be fulfilled. Sidekiq Job will be retried.'
+        code: 129
+        status: 500
     unmapped_service_exception:
       <<: *defaults
       title: Internal Server Error

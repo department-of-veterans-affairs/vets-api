@@ -358,6 +358,17 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
     end
 
+    context 'with a VeteranRecordWsClientException java error' do
+      it 'sets the transaction to "retryable_error"' do
+        VCR.use_cassette('evss/disability_compensation_form/submit_500_with_java_ws_error') do
+          subject.perform_async(submission.id)
+          expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_retryable).once
+          expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::ServiceException)
+          expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:retryable_error]
+        end
+      end
+    end
+
     context 'with an error that is not mapped' do
       it 'sets the transaction to "retrying"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_500_with_unmapped') do
