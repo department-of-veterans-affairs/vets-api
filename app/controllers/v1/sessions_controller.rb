@@ -361,7 +361,14 @@ module V1
     end
 
     def after_login_actions
-      Login::UserVerifier.new(@current_user.identity).perform
+      user_verifier_object = OpenStruct.new({ uuid: @current_user.uuid,
+                                              sign_in: @current_user.identity.sign_in,
+                                              mhv_correlation_id: @current_user.mhv_correlation_id,
+                                              idme_uuid: @current_user.idme_uuid,
+                                              edipi: @current_user.identity.edipi,
+                                              logingov_uuid: @current_user.logingov_uuid,
+                                              icn: @current_user.icn })
+      Login::UserVerifier.new(user_verifier_object).perform
       Login::AfterLoginActions.new(@current_user).perform
       log_persisted_session_and_warnings
     end
