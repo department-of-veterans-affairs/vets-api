@@ -30,9 +30,11 @@ module EVSS
         militaryPayments: 'common.exceptions.validation_errors',
         serviceInformation: 'common.exceptions.validation_errors',
         treatments: 'common.exceptions.validation_errors',
+        VeteranRecordWsClientException: 'evss.disability_compensation_form.ws_client_exception',
         veteran: 'common.exceptions.validation_errors',
         MaxEPCode: 'evss.disability_compensation_form.max_ep_code',
-        PIFInUse: 'evss.disability_compensation_form.pif_in_use'
+        PIFInUse: 'evss.disability_compensation_form.pif_in_use',
+        default: 'evss.unmapped_service_exception'
       }.freeze
 
       # Retry if any upstream external service unavailability exceptions (unless it is caused by an invalid EP code)
@@ -41,7 +43,7 @@ module EVSS
       def retryable?
         (@key == 'evss.external_service_unavailable' && only_has_retriable_message_texts?) ||
           (@key == 'evss.disability_compensation_form.pif_in_use') ||
-          (@key == 'gov.va.wss.partner.veteranrecord.ws.client.VeteranRecordWsClientException')
+          (@key == 'evss.disability_compensation_form.ws_client_exception')
       end
 
       def errors
