@@ -57,14 +57,20 @@ module VBADocuments
       tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)
       response = nil
       begin
-        update_size(@upload, tempfile.size)
+        @upload.update(metadata: @upload.metadata.merge({ 'size' => tempfile.size }))
+
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
         inspector = VBADocuments::PDFInspector.new(pdf: parts)
+        @upload.update(uploaded_pdf: inspector.pdf_data)
+
+        # Validations
         validate_parts(@upload, parts)
         validate_metadata(parts[META_PART_NAME], submission_version: @upload.metadata['version'].to_i)
-        update_pdf_metadata(@upload, inspector)
+        validate_documents(parts)
+
         metadata = perfect_metadata(@upload, parts, timestamp)
         response = submit(metadata, parts)
+
         process_response(response)
         log_submission(@upload, metadata)
       rescue Common::Exceptions::GatewayTimeout, Faraday::TimeoutError => e
