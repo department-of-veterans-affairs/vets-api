@@ -33,7 +33,7 @@ describe MPI::Messages::UpdateProfileMessage do
 
     shared_examples 'error response' do
       let(:expected_error) { MPI::Errors::ArgumentError }
-      let(:expected_error_message) { 'Update Profile Missing Attributes' }
+      let(:expected_error_message) { "Update Profile Missing Attributes, missing values: #{[missing_keys]}" }
 
       it 'raises an argument error' do
         expect { subject }.to raise_error(expected_error, expected_error_message)
@@ -42,30 +42,35 @@ describe MPI::Messages::UpdateProfileMessage do
 
     context 'when first name is not defined' do
       let(:first_name) { nil }
+      let(:missing_keys) { :first_name }
 
       it_behaves_like 'error response'
     end
 
     context 'when last name is not defined' do
       let(:last_name) { nil }
+      let(:missing_keys) { :last_name }
 
       it_behaves_like 'error response'
     end
 
     context 'when ssn is not defined' do
       let(:ssn) { nil }
+      let(:missing_keys) { :ssn }
 
       it_behaves_like 'error response'
     end
 
     context 'when birth_date is not defined' do
       let(:birth_date) { nil }
+      let(:missing_keys) { :birth_date }
 
       it_behaves_like 'error response'
     end
 
     context 'when icn is not defined' do
       let(:icn) { nil }
+      let(:missing_keys) { :icn }
 
       it_behaves_like 'error response'
     end
@@ -74,6 +79,7 @@ describe MPI::Messages::UpdateProfileMessage do
       let(:logingov_uuid) { nil }
       let(:idme_uuid) { nil }
       let(:edipi) { nil }
+      let(:missing_keys) { :uuid }
 
       it_behaves_like 'error response'
     end
@@ -152,6 +158,7 @@ describe MPI::Messages::UpdateProfileMessage do
 
         context 'and idme_uuid is not defined' do
           let(:idme_uuid) { nil }
+          let(:missing_keys) { :uuid }
 
           it_behaves_like 'error response'
         end

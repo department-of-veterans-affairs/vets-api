@@ -326,6 +326,41 @@ describe MPI::Service do
       expect(MPI::Messages::UpdateProfileMessage).to receive(:new).once.and_call_original
     end
 
+    context 'malformed request' do
+      let(:user) do
+        build(:user,
+              :loa3,
+              ssn: ssn,
+              first_name: first_name,
+              last_name: last_name,
+              birth_date: birth_date,
+              icn: icn,
+              idme_uuid: idme_uuid)
+      end
+      let(:ssn) { 796_111_863 }
+      let(:first_name) { nil }
+      let(:last_name) { 'lincoln' }
+      let(:birth_date) { '18090212' }
+      let(:icn) { '1013677101V363970' }
+      let(:idme_uuid) { 'b2fab2b56af045e1a9e2394347af91ef' }
+      let(:expected_response_codes) { { idme_uuid: idme_uuid } }
+      let(:missing_keys) { [:first_name] }
+      let(:expected_sentry_warning) do
+        "MVI update_profile request error: Update Profile Missing Attributes, missing values: #{missing_keys}"
+      end
+
+      before { stub_mpi(build(:mvi_profile, given_names: [first_name])) }
+
+      it 'responds with nil' do
+        expect(subject.update_profile(user)).to eq(nil)
+      end
+
+      it 'logs a message to sentry' do
+        expect(subject).to receive(:log_message_to_sentry).with(expected_sentry_warning, :warn)
+        subject.update_profile(user)
+      end
+    end
+
     context 'valid request' do
       let(:user) do
         build(:user,
