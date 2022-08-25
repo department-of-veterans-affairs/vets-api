@@ -342,14 +342,6 @@ features:
     actor_type: user
     description: Enables secure messaging
     enable_in_development: true
-  gibct_eyb_bottom_sheet:
-    actor_type: user
-    description: >
-      Panel that displays while the user is modifying inputs to give context to their currently estimated benefits
-      until they reach the full your estimated benefits panel.
-  gibct_school_ratings:
-    actor_type: user
-    description: Show/Hide the school ratings section of the Comparison Tool School Profile Page.
   hlr_v2:
     actor_type: user
     description: Enable showing Higher-Level Review v2
