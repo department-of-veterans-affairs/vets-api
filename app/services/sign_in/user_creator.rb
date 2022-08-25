@@ -81,10 +81,11 @@ module SignIn
     def update_mpi_correlation_record
       user_identity_from_attributes.icn ||= mpi_find_profile_response.icn
       update_profile_response = mpi_service.update_profile(user_identity_from_attributes)
-      unless update_profile_response.ok?
+      unless update_profile_response&.ok?
         handle_error(Errors::MPIUserUpdateFailedError,
                      'User MPI record cannot be updated',
-                     Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE)
+                     Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
+                     raise_error: false)
       end
     end
 
@@ -164,9 +165,9 @@ module SignIn
       end
     end
 
-    def handle_error(error, error_message, error_code)
+    def handle_error(error, error_message, error_code, raise_error: true)
       log_message_to_sentry(error_message, 'warn')
-      raise error, message: error_message, code: error_code
+      raise error, message: error_message, code: error_code if raise_error
     end
 
     def mpi_find_profile_response

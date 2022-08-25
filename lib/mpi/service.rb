@@ -146,6 +146,9 @@ module MPI
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
       log_message_to_sentry("MVI update_profile error: #{e.message}", :warn)
       mvi_add_exception_response_for(MPI::Constants::CONNECTION_FAILED, e)
+    rescue Errors::ArgumentError => e
+      log_message_to_sentry("MVI update_profile request error: #{e.message}", :warn)
+      nil
     rescue MPI::Errors::Base => e
       key = get_mvi_error_key(e)
       mvi_error_handler(user_identity, e, 'update_profile')

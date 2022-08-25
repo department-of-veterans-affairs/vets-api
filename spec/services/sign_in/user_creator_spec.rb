@@ -95,7 +95,7 @@ RSpec.describe SignIn::UserCreator do
       end
 
       shared_context 'user creation blocked' do
-        it 'raises the expected error error' do
+        it 'raises the expected error' do
           expect_any_instance_of(described_class).to receive(:log_message_to_sentry).with(expected_error_message,
                                                                                           'warn')
 
@@ -204,7 +204,12 @@ RSpec.describe SignIn::UserCreator do
           let(:expected_error_message) { 'User MPI record cannot be updated' }
           let(:expected_error_code) { SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE }
 
-          it_behaves_like 'user creation blocked'
+          it 'makes a log to sentry' do
+            expect_any_instance_of(described_class).to receive(:log_message_to_sentry).with(expected_error_message,
+                                                                                            'warn')
+
+            subject
+          end
         end
 
         it 'makes an mpi call to update correlation record' do

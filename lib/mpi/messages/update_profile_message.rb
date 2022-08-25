@@ -44,14 +44,21 @@ module MPI
       private
 
       def validate_attributes
-        unless first_name.present? &&
-               last_name.present? &&
-               ssn.present? &&
-               birth_date.present? &&
-               icn.present? &&
-               (logingov_uuid.present? || edipi.present? || idme_uuid.present?)
-          raise Errors::ArgumentError, 'Update Profile Missing Attributes'
+        missing_keys = build_missing_attribute_keys
+        if missing_keys.present?
+          raise Errors::ArgumentError, "Update Profile Missing Attributes, missing values: #{missing_keys}"
         end
+      end
+
+      def build_missing_attribute_keys
+        missing_keys_array = []
+        missing_keys_array.append(:first_name) if first_name.blank?
+        missing_keys_array.append(:last_name) if last_name.blank?
+        missing_keys_array.append(:ssn) if ssn.blank?
+        missing_keys_array.append(:birth_date) if birth_date.blank?
+        missing_keys_array.append(:icn) if icn.blank?
+        missing_keys_array.append(:uuid) if logingov_uuid.blank? && edipi.blank? && idme_uuid.blank?
+        missing_keys_array
       end
 
       def build_content
