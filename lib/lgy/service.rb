@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'lgy/aws_uploader'
 require 'lgy/configuration'
 require 'common/client/base'
 
@@ -15,7 +14,6 @@ module LGY
     def initialize(edipi:, icn:)
       @edipi = edipi
       @icn = icn
-      @temp_folder = 'tmp/lgy_coe'
     end
 
     def coe_status
@@ -99,22 +97,6 @@ module LGY
       raise e
     end
 
-    def coe_url
-      response = get_coe_file
-      # return if 404
-
-      FileUtils.mkdir_p(@temp_folder)
-      filename = "#{@temp_folder}/#{DateTime.now.strftime('%Q')}.pdf"
-      File.open(filename, 'wb') do |f|
-        f.write(response.body)
-      end
-
-      coe_url = LGY::AwsUploader.get_s3_link(filename)
-      File.delete(filename)
-
-      coe_url
-    end
-
     def post_document(payload:)
       with_monitoring do
         perform(
@@ -139,7 +121,7 @@ module LGY
       end
     end
 
-    def get_document(id:)
+    def get_document(id)
       with_monitoring do
         perform(
           :get,
@@ -153,21 +135,6 @@ module LGY
       return e if e.status == 404
 
       raise e
-    end
-
-    def get_document_url(id:)
-      response = get_document(id: id)
-
-      FileUtils.mkdir_p(@temp_folder)
-      filename = "#{@temp_folder}/#{DateTime.now.strftime('%Q')}.pdf"
-      File.open(filename, 'wb') do |f|
-        f.write(response.body)
-      end
-
-      document_url = LGY::AwsUploader.get_s3_link(filename)
-      File.delete(filename)
-
-      document_url
     end
 
     def request_headers

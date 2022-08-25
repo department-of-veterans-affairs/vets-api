@@ -28,7 +28,7 @@ describe 'LGY API' do
           end
         end
 
-        it 'response status key is eligible' do
+        it 'response status key is ELIGIBLE' do
           VCR.use_cassette 'lgy/determination_eligible' do
             VCR.use_cassette 'lgy/application_not_found' do
               get '/v0/coe/status'
@@ -42,29 +42,27 @@ describe 'LGY API' do
 
     describe 'GET v0/coe/download' do
       context 'when COE file exists' do
+        before do
+          @lgy_service = double('LGY Service')
+          # Simulate http response object
+          @res = OpenStruct.new(body: File.read('spec/fixtures/files/lgy_file.pdf'))
+          allow(@lgy_service).to receive(:get_coe_file).and_return @res
+          allow_any_instance_of(V0::CoeController).to receive(:lgy_service) { @lgy_service }
+        end
+
         it 'response code is 200' do
-          lgy_service = double('LGY Service')
-          allow_any_instance_of(V0::CoeController).to receive(:lgy_service) { lgy_service }
-          expect(lgy_service).to receive(:coe_url).and_return 'http://s3.aws.com/file'
           get '/v0/coe/download_coe'
           expect(response).to have_http_status(:ok)
         end
 
-        it 'response is in JSON format' do
-          lgy_service = double('LGY Service')
-          allow_any_instance_of(V0::CoeController).to receive(:lgy_service) { lgy_service }
-          expect(lgy_service).to receive(:coe_url).and_return 'http://s3.aws.com/file'
+        it 'response is in PDF format' do
           get '/v0/coe/download_coe'
-          expect(response.content_type).to eq('application/json; charset=utf-8')
+          expect(response.content_type).to eq('application/pdf')
         end
 
-        it 'response url key is correct' do
-          lgy_service = double('LGY Service')
-          allow_any_instance_of(V0::CoeController).to receive(:lgy_service) { lgy_service }
-          expect(lgy_service).to receive(:coe_url).and_return 'http://s3.aws.com/file'
+        it 'response body is correct' do
           get '/v0/coe/download_coe'
-          json_body = JSON.parse(response.body)
-          expect(json_body['data']['attributes']).to eq 'url' => 'http://s3.aws.com/file'
+          expect(response.body).to eq @res.body
         end
       end
     end
@@ -91,29 +89,27 @@ describe 'LGY API' do
 
     describe 'GET v0/coe/document_download' do
       context 'when document exists' do
+        before do
+          @lgy_service = double('LGY Service')
+          # Simulate http response object
+          @res = OpenStruct.new(body: File.read('spec/fixtures/files/lgy_file.pdf'))
+          allow(@lgy_service).to receive(:get_document).and_return @res
+          allow_any_instance_of(V0::CoeController).to receive(:lgy_service) { @lgy_service }
+        end
+
         it 'response code is 200' do
-          lgy_service = double('LGY Service')
-          allow_any_instance_of(V0::CoeController).to receive(:lgy_service) { lgy_service }
-          expect(lgy_service).to receive(:get_document_url).and_return 'http://s3.aws.com/file'
-          get '/v0/coe/document_download/', params: { id: '123456789' }
+          get '/v0/coe/document_download/123456789'
           expect(response).to have_http_status(:ok)
         end
 
-        it 'response is in JSON format' do
-          lgy_service = double('LGY Service')
-          allow_any_instance_of(V0::CoeController).to receive(:lgy_service) { lgy_service }
-          expect(lgy_service).to receive(:get_document_url).and_return 'http://s3.aws.com/file'
-          get '/v0/coe/document_download/', params: { id: '123456789' }
-          expect(response.content_type).to eq('application/json; charset=utf-8')
+        it 'response is in PDF format' do
+          get '/v0/coe/document_download/123456789'
+          expect(response.content_type).to eq('application/pdf')
         end
 
-        it 'response url key is correct' do
-          lgy_service = double('LGY Service')
-          allow_any_instance_of(V0::CoeController).to receive(:lgy_service) { lgy_service }
-          expect(lgy_service).to receive(:get_document_url).and_return 'http://s3.aws.com/file'
-          get '/v0/coe/document_download/', params: { id: '123456789' }
-          json_body = JSON.parse(response.body)
-          expect(json_body['data']['attributes']).to eq 'url' => 'http://s3.aws.com/file'
+        it 'response body is correct' do
+          get '/v0/coe/document_download/123456789'
+          expect(response.body).to eq @res.body
         end
       end
     end

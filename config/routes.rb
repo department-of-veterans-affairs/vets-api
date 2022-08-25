@@ -334,7 +334,7 @@ Rails.application.routes.draw do
       get 'status'
       get 'download_coe'
       get 'documents'
-      get 'document_download'
+      get 'document_download/:id', action: 'document_download'
       post 'submit_coe_claim'
       post 'document_upload'
     end

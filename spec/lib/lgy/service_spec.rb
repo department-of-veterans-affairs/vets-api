@@ -221,7 +221,7 @@ describe LGY::Service do
     context 'when downloading an available document from LGY' do
       it 'returns the document' do
         VCR.use_cassette 'lgy/document_download' do
-          response = subject.get_document(id: '123456789')
+          response = subject.get_document('123456789')
           expect(response.status).to eq 200
         end
       end
@@ -230,7 +230,7 @@ describe LGY::Service do
     context 'when the document is not available' do
       it 'returns a 404 not found' do
         VCR.use_cassette 'lgy/document_download_not_found' do
-          response = subject.get_document(id: '234567890')
+          response = subject.get_document('234567890')
           puts response
           expect(response.status).to eq 404
         end

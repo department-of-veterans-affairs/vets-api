@@ -766,11 +766,11 @@
         :uid_location: 'query'
         :uid_locator: 'edipi'
     - :method: :get
-      :path: "/eligibility-manager/api/eligibility/document/23215740/file"
+      :path: "/eligibility-manager/api/eligibility/document/*/file"
       :file_path: "/lgy/get_document_download"
       :cache_multiple_responses:
-        :uid_location: 'query'
-        :uid_locator: 'edipi'
+        :uid_location: 'url'
+        :uid_locator: '\/eligibility-manager/api/eligibility/document\/(.+)\/file'
     - :method: :get
       :path: "/eligibility-manager/api/eligibility/documents/coe/file"
       :file_path: "/lgy/get_coe_file"
