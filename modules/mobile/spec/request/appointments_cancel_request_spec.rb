@@ -217,7 +217,7 @@ RSpec.describe 'appointments', type: :request do
 
       it 'returns a no content code' do
         VCR.use_cassette('appointments/VAOS_v2/cancel_appointment_200', match_requests_on: %i[method uri]) do
-          put "/mobile/v0/appointments/cancel/#{cancel_id}", params: { status: 'cancelled' }, headers: iam_headers
+          put "/mobile/v0/appointments/cancel/#{cancel_id}", params: nil, headers: iam_headers
 
           expect(response).to have_http_status(:no_content)
           expect(response.body).to be_an_instance_of(String).and be_empty
@@ -227,7 +227,7 @@ RSpec.describe 'appointments', type: :request do
       context 'when the appointment cannot be found' do
         it 'returns a 400 code' do
           VCR.use_cassette('appointments/VAOS_v2/cancel_appointment_400', match_requests_on: %i[method uri]) do
-            put "/mobile/v0/appointments/cancel/#{cancel_id}", params: { status: 'cancelled' }, headers: iam_headers
+            put "/mobile/v0/appointments/cancel/#{cancel_id}", params: nil, headers: iam_headers
 
             expect(response.status).to eq(400)
             expect(response.parsed_body.dig('errors', 0, 'code')).to eq('VAOS_400')
@@ -241,7 +241,7 @@ RSpec.describe 'appointments', type: :request do
       context 'when the backend service cannot handle the request' do
         it 'returns a 502 code' do
           VCR.use_cassette('appointments/VAOS_v2/cancel_appointment_500', match_requests_on: %i[method uri]) do
-            put "/mobile/v0/appointments/cancel/#{cancel_id}", params: { status: 'cancelled' }, headers: iam_headers
+            put "/mobile/v0/appointments/cancel/#{cancel_id}", params: nil, headers: iam_headers
             expect(response.status).to eq(502)
             expect(JSON.parse(response.body)['errors'][0]['code']).to eq('VAOS_502')
 

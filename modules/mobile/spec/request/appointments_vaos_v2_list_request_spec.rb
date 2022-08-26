@@ -60,6 +60,102 @@ RSpec.describe 'vaos v2 appointments', type: :request do
     let(:end_date) { Time.zone.parse('2023-01-01T00:00:00Z').iso8601 }
     let(:params) { { startDate: start_date, endDate: end_date } }
 
+    context 'backfill facility service returns data' do
+      before { mock_clinic }
+
+      it 'location is populated' do
+        VCR.use_cassette('appointments/VAOS_v2/get_facility_200',
+                         match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/VAOS_v2/get_appointment_200',
+                           match_requests_on: %i[method uri]) do
+            get '/mobile/v0/appointments', headers: iam_headers, params: params
+          end
+        end
+
+        location = response.parsed_body.dig('data', 0, 'attributes', 'location')
+        expect(response.body).to match_json_schema('VAOS_v2_appointments')
+        expect(location).to eq({ 'id' => '983',
+                                 'name' => 'Cheyenne VA Medical Center',
+                                 'address' =>
+                                 { 'street' => '2360 East Pershing Boulevard',
+                                   'city' => 'Cheyenne',
+                                   'state' => 'WY',
+                                   'zipCode' => '82001-5356' },
+                                 'lat' => 39.744507,
+                                 'long' => -104.830956,
+                                 'phone' =>
+                                 { 'areaCode' => '307', 'number' => '778-7550',
+                                   'extension' => nil },
+                                 'url' => nil,
+                                 'code' => nil })
+      end
+    end
+
+    context 'backfill facility service returns in error' do
+      before { mock_clinic }
+
+      it 'location is nil' do
+        VCR.use_cassette('appointments/VAOS_v2/get_facility_500',
+                         match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/VAOS_v2/get_appointment_200',
+                           match_requests_on: %i[method uri]) do
+            get '/mobile/v0/appointments', headers: iam_headers, params: params
+          end
+        end
+        expect(response.body).to match_json_schema('VAOS_v2_appointments')
+        expect(response.parsed_body['location']).to be_nil
+      end
+    end
+
+    context 'backfill clinic service returns data' do
+      before { mock_facility }
+
+      it 'healthcareService is populated' do
+        VCR.use_cassette('appointments/VAOS_v2/get_facility_clinics_200',
+                         match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/VAOS_v2/get_appointment_200',
+                           match_requests_on: %i[method uri]) do
+            get '/mobile/v0/appointments', headers: iam_headers, params: params
+          end
+        end
+        expect(response.body).to match_json_schema('VAOS_v2_appointments')
+        expect(response.parsed_body.dig('data', 0, 'attributes', 'healthcareService')).to eq('CHY C&P AUDIO')
+      end
+    end
+
+    context 'backfill clinic service no clinic data' do
+      before { mock_facility }
+
+      it 'healthcareService is nil' do
+        VCR.use_cassette('appointments/VAOS_v2/get_facility_clinics_bad_facility_id_200',
+                         match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/VAOS_v2/get_appointment_200',
+                           match_requests_on: %i[method uri]) do
+            get '/mobile/v0/appointments', headers: iam_headers, params: params
+          end
+        end
+
+        expect(response.body).to match_json_schema('VAOS_v2_appointments')
+        expect(response.parsed_body.dig('data', 0, 'attributes', 'healthcareService')).to be_nil
+      end
+    end
+
+    context 'backfill clinic service returns in error' do
+      before { mock_facility }
+
+      it 'healthcareService is nil' do
+        VCR.use_cassette('appointments/VAOS_v2/get_facility_clinics_500',
+                         match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/VAOS_v2/get_appointment_200',
+                           match_requests_on: %i[method uri]) do
+            get '/mobile/v0/appointments', headers: iam_headers, params: params
+          end
+        end
+        expect(response.body).to match_json_schema('VAOS_v2_appointments')
+        expect(response.parsed_body.dig('data', 0, 'attributes', 'healthcareService')).to be_nil
+      end
+    end
+
     context 'request VAOS v2 VA appointment' do
       before do
         mock_facility
