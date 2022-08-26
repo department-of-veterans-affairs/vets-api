@@ -47,5 +47,6 @@ module SignIn
     class MPIMalformedAccountError < StandardError; end
     class AccessDeniedError < StandardError; end
     class CredentialProviderError < StandardError; end
+    class MHVMissingMPIRecordError < StandardError; end
   end
 end
