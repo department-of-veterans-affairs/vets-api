@@ -178,6 +178,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       end
 
       it 'submits to background job' do
+        expect_any_instance_of(Form1010cg::Service).to receive(:assert_veteran_status)
         expect(Form1010cg::SubmissionJob).to receive(:perform_async)
         post :create, params: { caregivers_assistance_claim: { form: claim.form } }
 
