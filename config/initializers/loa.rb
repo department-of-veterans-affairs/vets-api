@@ -23,7 +23,7 @@ module LOA
   MHV_PREMIUM_VERIFIED = %w[Premium].freeze
 
   # DSLogon accounts with these assurance levels are considered LOA3
-  DSLOGON_PREMIUM_VERIFIED = %w[2 3].freeze
+  DSLOGON_PREMIUM_VERIFIED = [DSLOGON_ASSURANCE_TWO = '2', DSLOGON_ASSURANCE_THREE = '3'].freeze
 
   IDME_MHV_LOA1 = 'myhealthevet'
   IDME_MHV_LOA3 = 'myhealthevet_loa3'
