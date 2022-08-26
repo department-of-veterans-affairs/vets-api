@@ -18,6 +18,8 @@ module V0
         auditor.record_caregivers(@claim)
 
         if Flipper.enabled?(:caregiver_async)
+          ::Form1010cg::Service.new(@claim).assert_veteran_status
+
           @claim.save!
           ::Form1010cg::SubmissionJob.perform_async(@claim.id)
           render(json: @claim, serializer: ::Form1010cg::ClaimSerializer)

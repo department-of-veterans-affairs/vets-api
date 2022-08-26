@@ -77,8 +77,6 @@ module Form1010cg
     end
 
     def process_claim_v2!
-      assert_veteran_status
-
       payload = CARMA::Models::Submission.from_claim(claim, build_metadata).to_request_payload
 
       claim_pdf_path, poa_attachment_path = self.class.collect_attachments(claim)
