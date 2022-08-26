@@ -32,7 +32,7 @@ module Mobile
 
       def cancel
         if Flipper.enabled?(:mobile_appointment_use_VAOS_v2, @current_user)
-          appointments_v2_service.update_appointment(appointment_id, status_update)
+          appointments_v2_service.update_appointment(appointment_id, 'cancelled')
         elsif uuid?(appointment_id)
           # appointment request cancel ids is appointment id while other appointments will be encoded string
           appointment_request = appointments_proxy.get_appointment_request(appointment_id)
@@ -71,10 +71,6 @@ module Mobile
 
       def appointment_id
         params.require(:id)
-      end
-
-      def status_update
-        params.require(:status)
       end
 
       def uuid?(id)
