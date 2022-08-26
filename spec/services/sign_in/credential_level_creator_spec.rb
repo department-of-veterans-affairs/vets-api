@@ -19,11 +19,13 @@ RSpec.describe SignIn::CredentialLevelCreator do
     let(:credential_ial) { IAL::ONE }
     let(:level_of_assurance) { LOA::IDME_CLASSIC_LOA3 }
     let(:mhv_assurance) { 'some-mhv-assurance' }
+    let(:dslogon_assurance) { 'some-dslogon-assurance' }
     let(:user_info) do
       OpenStruct.new({ verified_at: verified_at,
                        credential_ial: credential_ial,
                        level_of_assurance: level_of_assurance,
-                       mhv_assurance: mhv_assurance })
+                       mhv_assurance: mhv_assurance,
+                       dslogon_assurance: dslogon_assurance })
     end
 
     context 'when requested_acr is arbitrary' do
@@ -129,6 +131,70 @@ RSpec.describe SignIn::CredentialLevelCreator do
 
       context 'and mhv assurance is not set to premium' do
         let(:mhv_assurance) { 'some-mhv-assurance' }
+        let(:expected_max_ial) { IAL::ONE }
+        let(:expected_current_ial) { IAL::ONE }
+
+        it_behaves_like 'a created credential level'
+      end
+    end
+
+    context 'and type is dslogon' do
+      let(:type) { SAML::User::DSLOGON_CSID }
+
+      context 'and dslogon assurance is set to dslogon assurance two' do
+        let(:dslogon_assurance) { LOA::DSLOGON_ASSURANCE_TWO }
+        let(:expected_max_ial) { IAL::TWO }
+
+        context 'and requested_acr is set to loa3' do
+          let(:requested_acr) { SignIn::Constants::Auth::LOA3 }
+          let(:expected_current_ial) { IAL::TWO }
+
+          it_behaves_like 'a created credential level'
+        end
+
+        context 'and requested_acr is set to min' do
+          let(:requested_acr) { SignIn::Constants::Auth::MIN }
+          let(:expected_current_ial) { IAL::TWO }
+
+          it_behaves_like 'a created credential level'
+        end
+
+        context 'and requested_acr is set to loa1' do
+          let(:requested_acr) { SignIn::Constants::Auth::LOA1 }
+          let(:expected_current_ial) { IAL::ONE }
+
+          it_behaves_like 'a created credential level'
+        end
+      end
+
+      context 'and dslogon assurance is set to 3' do
+        let(:dslogon_assurance) { LOA::DSLOGON_ASSURANCE_THREE }
+        let(:expected_max_ial) { IAL::TWO }
+
+        context 'and requested_acr is set to loa3' do
+          let(:requested_acr) { SignIn::Constants::Auth::LOA3 }
+          let(:expected_current_ial) { IAL::TWO }
+
+          it_behaves_like 'a created credential level'
+        end
+
+        context 'and requested_acr is set to min' do
+          let(:requested_acr) { SignIn::Constants::Auth::MIN }
+          let(:expected_current_ial) { IAL::TWO }
+
+          it_behaves_like 'a created credential level'
+        end
+
+        context 'and requested_acr is set to loa1' do
+          let(:requested_acr) { SignIn::Constants::Auth::LOA1 }
+          let(:expected_current_ial) { IAL::ONE }
+
+          it_behaves_like 'a created credential level'
+        end
+      end
+
+      context 'and dslogon assurance is set to an arbitrary value' do
+        let(:dslogon_assurance) { 'some-dslogon-assurance' }
         let(:expected_max_ial) { IAL::ONE }
         let(:expected_current_ial) { IAL::ONE }
 

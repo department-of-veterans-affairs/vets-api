@@ -32,6 +32,8 @@ module SignIn
         verified_ial_level(user_info[:verified_at])
       when SAML::User::MHV_ORIGINAL_CSID
         verified_ial_level(LOA::MHV_PREMIUM_VERIFIED.include?(user_info.mhv_assurance))
+      when SAML::User::DSLOGON_CSID
+        verified_ial_level(LOA::DSLOGON_PREMIUM_VERIFIED.include?(user_info.dslogon_assurance))
       else
         verified_ial_level(user_info.level_of_assurance == LOA::THREE)
       end
@@ -44,6 +46,9 @@ module SignIn
         verified_ial_level(acr == IAL::LOGIN_GOV_IAL2)
       when SAML::User::MHV_ORIGINAL_CSID
         verified_ial_level(requested_verified_account? && LOA::MHV_PREMIUM_VERIFIED.include?(user_info.mhv_assurance))
+      when SAML::User::DSLOGON_CSID
+        verified_ial_level(requested_verified_account? &&
+                           LOA::DSLOGON_PREMIUM_VERIFIED.include?(user_info.dslogon_assurance))
       else
         verified_ial_level(user_info.credential_ial == LOA::IDME_CLASSIC_LOA3)
       end
@@ -54,7 +59,7 @@ module SignIn
     end
 
     def requested_verified_account?
-      [Constants::Auth::LOA3, Constants::Auth::MIN].include?(requested_acr)
+      [Constants::Auth::IAL2, Constants::Auth::LOA3, Constants::Auth::MIN].include?(requested_acr)
     end
   end
 end
