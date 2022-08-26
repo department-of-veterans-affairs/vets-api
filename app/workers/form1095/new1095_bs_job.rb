@@ -74,8 +74,8 @@ module Form1095
           middle_name: form_fields[:A03] || '',
           last_4_ssn: form_fields[:A16] ? form_fields[:A16][-4...] : '',
           birth_date: form_fields[:N03] || '',
-          address: gen_address(form_fields[:B01], form_fields[:B02], form_fields[:B03]),
-          city: form_fields[:B04],
+          address: gen_address(form_fields[:B01] || ''.dup, form_fields[:B02], form_fields[:B03]),
+          city: form_fields[:B04] || '',
           state: form_fields[:B05] || '',
           country: form_fields[:B06],
           zip_code: form_fields[:B07] || '',
@@ -108,12 +108,16 @@ module Form1095
         Rails.logger.warn "Form for year #{form_data[:tax_year]} not found, but file is for Corrected 1095-B forms."
       end
 
+      rv = false
       if existing_form.nil?
         form = Form1095B.new(form_data)
-        form.save
+        rv = form.save
       else
-        existing_form.update(form_data)
+        rv = existing_form.update(form_data)
       end
+
+      @form_count += 1 if rv
+      rv
     end
 
     def process_line?(form, file_details)
@@ -129,14 +133,13 @@ module Form1095
       unique_id = data[:unique_id]
       data.delete(:unique_id)
 
-      if save_data?(data, corrected)
-        @form_count += 1
-        true
-      else
+      unless save_data?(data, corrected)
         @error_count += 1
         Rails.logger.warn "Failed to save form with unique ID: #{unique_id}"
-        false
+        return false
       end
+
+      true
     end
 
     def process_file?(temp_file, file_details)
