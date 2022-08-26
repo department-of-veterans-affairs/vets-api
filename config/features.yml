@@ -579,6 +579,10 @@ features:
     actor_type: user
     description: Allows for frontend to have progressivley enhanced backend endpoints to consume in staging.
     enable_in_development: true
+  show_meb_unverified_user_alert:
+    actor_type: user
+    description: Display an alert to unauthenticated users on the MEB introduction page.
+    enable_in_development: true
   show_forms_app:
     actor_type: user
     description: This determines when the form should be displayed.
