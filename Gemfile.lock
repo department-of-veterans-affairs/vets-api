@@ -890,9 +890,6 @@ GEM
       rufus-scheduler (~> 3.2)
       sidekiq (>= 4)
       tilt (>= 1.4.0)
-    sidekiq_alive (2.1.5)
-      sidekiq
-      webrick
     signet (0.17.0)
       addressable (~> 2.8)
       faraday (>= 0.17.5, < 3.a)
@@ -1158,7 +1155,6 @@ DEPENDENCIES
   sidekiq-ent!
   sidekiq-pro!
   sidekiq-scheduler
-  sidekiq_alive
   simplecov
   slack-notify
   spring
