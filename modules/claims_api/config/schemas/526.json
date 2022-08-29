@@ -81,7 +81,7 @@
               "example": "Portland"
             },
             "country": {
-              "description": "Country Veteran resides in.",
+              "description": "Country Veteran resides in.  Value must match the values returned by the \"/countries\" endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
               "type": "string",
               "example": "USA"
             },
@@ -217,7 +217,7 @@
               "example": "Portland"
             },
             "country": {
-              "description": "New country Veteran resides in.",
+              "description": "New country Veteran resides in. Value must match the values returned by the \"/countries\" endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
               "type": "string",
               "example": "USA"
             },
