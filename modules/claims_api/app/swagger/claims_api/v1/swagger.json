@@ -497,7 +497,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4f45d7a5-d713-418b-bcf8-1e47d3b973ac",
+                    "id": "a5c501d8-8308-4e88-8fc0-7b5f25bb4d6f",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -546,11 +546,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "ae88f45c-a9fe-4c8e-ace6-71b88fcea7fc",
+                          "id": "6f34f03c-af40-43de-bfd0-1d17e73ef4dd",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2022-08-22T21:52:45.291Z"
+                          "uploaded_at": "2022-08-24T19:23:35.455Z"
                         }
                       ]
                     }
@@ -1027,7 +1027,7 @@
                                   "example": "Portland"
                                 },
                                 "country": {
-                                  "description": "Country Veteran resides in.",
+                                  "description": "Country Veteran resides in.  Value must match the values returned by the \"/countries\" endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                   "type": "string",
                                   "example": "USA"
                                 },
@@ -1173,7 +1173,7 @@
                                   "example": "Portland"
                                 },
                                 "country": {
-                                  "description": "New country Veteran resides in.",
+                                  "description": "New country Veteran resides in. Value must match the values returned by the \"/countries\" endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                   "type": "string",
                                   "example": "USA"
                                 },
@@ -2441,7 +2441,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "2b2c059c-2371-4d98-977e-e1ab2121cced",
+                    "id": "93b3f022-6f73-4851-b402-4b327cc4c73b",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2459,13 +2459,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-08-22T21:52:45.769Z",
+                      "updated_at": "2022-08-24T19:23:35.977Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "2b2c059c-2371-4d98-977e-e1ab2121cced",
+                      "token": "93b3f022-6f73-4851-b402-4b327cc4c73b",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -2888,7 +2888,7 @@
                                     "example": "Portland"
                                   },
                                   "country": {
-                                    "description": "Country Veteran resides in.",
+                                    "description": "Country Veteran resides in.  Value must match the values returned by the \"/countries\" endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                     "type": "string",
                                     "example": "USA"
                                   },
@@ -3034,7 +3034,7 @@
                                     "example": "Portland"
                                   },
                                   "country": {
-                                    "description": "New country Veteran resides in.",
+                                    "description": "New country Veteran resides in. Value must match the values returned by the \"/countries\" endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                     "type": "string",
                                     "example": "USA"
                                   },
@@ -4315,7 +4315,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f77027e8-942a-46a9-b8bc-647e050da07b",
+                    "id": "77ce9635-2606-42dc-8171-34921dfcf5f3",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4333,13 +4333,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-08-22T21:52:46.119Z",
+                      "updated_at": "2022-08-24T19:23:36.345Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "f77027e8-942a-46a9-b8bc-647e050da07b",
+                      "token": "77ce9635-2606-42dc-8171-34921dfcf5f3",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5143,7 +5143,7 @@
                                     "example": "Portland"
                                   },
                                   "country": {
-                                    "description": "Country Veteran resides in.",
+                                    "description": "Country Veteran resides in.  Value must match the values returned by the \"/countries\" endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                     "type": "string",
                                     "example": "USA"
                                   },
@@ -5289,7 +5289,7 @@
                                     "example": "Portland"
                                   },
                                   "country": {
-                                    "description": "New country Veteran resides in.",
+                                    "description": "New country Veteran resides in. Value must match the values returned by the \"/countries\" endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                     "type": "string",
                                     "example": "USA"
                                   },
@@ -6570,7 +6570,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d78a4c92-1afc-4c3b-9c5d-a8c9173214c3",
+                    "id": "113822d1-ae66-4eac-8a91-181af9a0f578",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6584,7 +6584,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-08-22T21:52:46.948Z",
+                      "updated_at": "2022-08-24T19:23:37.187Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6593,7 +6593,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "f3debe58-6ca1-4be8-a766-ff0d1e3fd84b",
+                          "id": "2143d79a-1bed-48a9-a5c0-bf4f6728f8d6",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8530,11 +8530,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c877aac4-678e-4b8b-a5b6-f45ee52a796b",
+                    "id": "41ec65b5-b704-417d-abd0-5224d555bb95",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2022-08-22",
+                      "date_request_accepted": "2022-08-24",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9245,11 +9245,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "add8aedd-8d16-4844-ba11-8acec43f228c",
+                    "id": "eadc9f8d-9fa2-49c5-a6d2-29466823f5c3",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-08-22",
+                      "date_request_accepted": "2022-08-24",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9763,11 +9763,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "40b8e9c3-24c5-4c8d-8686-87bab2f5b30c",
+                    "id": "5351a77e-9a19-4fda-8722-8497919c2e85",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2022-08-22",
+                      "date_request_accepted": "2022-08-24",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"

@@ -60,14 +60,12 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'returns a bad request' do
             with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                  json_data = JSON.parse data
-                  params = json_data
-                  params['data']['attributes']['treatments'] = treatments
-                  post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(400)
-                end
+              VCR.use_cassette('evss/reference_data/countries') do
+                json_data = JSON.parse data
+                params = json_data
+                params['data']['attributes']['treatments'] = treatments
+                post path, params: params.to_json, headers: headers.merge(auth_header)
+                expect(response.status).to eq(400)
               end
             end
           end
@@ -79,7 +77,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           it 'returns a 200' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                VCR.use_cassette('evss/reference_data/countries') do
                   json_data = JSON.parse data
                   params = json_data
                   params['data']['attributes']['treatments'] = treatments
@@ -96,14 +94,12 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'returns a 422' do
             with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                  json_data = JSON.parse data
-                  params = json_data
-                  params['data']['attributes']['treatments'] = treatments
-                  post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(422)
-                end
+              VCR.use_cassette('evss/reference_data/countries') do
+                json_data = JSON.parse data
+                params = json_data
+                params['data']['attributes']['treatments'] = treatments
+                post path, params: params.to_json, headers: headers.merge(auth_header)
+                expect(response.status).to eq(422)
               end
             end
           end
@@ -127,7 +123,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           it 'returns a 200' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                VCR.use_cassette('evss/reference_data/countries') do
                   json_data = JSON.parse data
                   params = json_data
                   params['data']['attributes']['treatments'] = treatments
@@ -162,14 +158,12 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'returns a bad request' do
             with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                  json_data = JSON.parse data
-                  params = json_data
-                  params['data']['attributes']['treatments'] = treatments
-                  post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(400)
-                end
+              VCR.use_cassette('evss/reference_data/countries') do
+                json_data = JSON.parse data
+                params = json_data
+                params['data']['attributes']['treatments'] = treatments
+                post path, params: params.to_json, headers: headers.merge(auth_header)
+                expect(response.status).to eq(400)
               end
             end
           end
@@ -181,7 +175,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           it 'returns a 200' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                VCR.use_cassette('evss/reference_data/countries') do
                   json_data = JSON.parse data
                   params = json_data
                   params['data']['attributes']['treatments'] = treatments
@@ -212,7 +206,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           it 'returns a 200' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                VCR.use_cassette('evss/reference_data/countries') do
                   json_data = JSON.parse data
                   params = json_data
                   params['data']['attributes']['treatments'] = treatments
@@ -244,16 +238,14 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'returns a bad request' do
             with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                  json_data = JSON.parse data
-                  params = json_data
-                  params['data']['attributes']['treatments'] = treatments
-                  params['data']['attributes']['treatments'][0][:center][:country] = ''
+              VCR.use_cassette('evss/reference_data/countries') do
+                json_data = JSON.parse data
+                params = json_data
+                params['data']['attributes']['treatments'] = treatments
+                params['data']['attributes']['treatments'][0][:center][:country] = ''
 
-                  post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(422)
-                end
+                post path, params: params.to_json, headers: headers.merge(auth_header)
+                expect(response.status).to eq(422)
               end
             end
           end
@@ -264,17 +256,15 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'returns a bad request' do
             with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                  json_data = JSON.parse data
-                  params = json_data
-                  params['data']['attributes']['treatments'] = treatments
-                  params['data']['attributes']['treatments'][0][:center][:country] =
-                    'Here\'s a country that has a very very very long name'
+              VCR.use_cassette('evss/reference_data/countries') do
+                json_data = JSON.parse data
+                params = json_data
+                params['data']['attributes']['treatments'] = treatments
+                params['data']['attributes']['treatments'][0][:center][:country] =
+                  'Here\'s a country that has a very very very long name'
 
-                  post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(422)
-                end
+                post path, params: params.to_json, headers: headers.merge(auth_header)
+                expect(response.status).to eq(422)
               end
             end
           end
@@ -285,14 +275,12 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'returns a bad request' do
             with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                  json_data = JSON.parse data
-                  params = json_data
-                  params['data']['attributes']['treatments'] = treatments
-                  post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(400)
-                end
+              VCR.use_cassette('evss/reference_data/countries') do
+                json_data = JSON.parse data
+                params = json_data
+                params['data']['attributes']['treatments'] = treatments
+                post path, params: params.to_json, headers: headers.merge(auth_header)
+                expect(response.status).to eq(400)
               end
             end
           end
@@ -304,7 +292,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           it 'returns a 200' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                VCR.use_cassette('evss/reference_data/countries') do
                   json_data = JSON.parse data
                   params = json_data
                   params['data']['attributes']['treatments'] = treatments
@@ -321,7 +309,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             it 'returns a 200' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  VCR.use_cassette('evss/reference_data/countries') do
                     json_data = JSON.parse data
                     params = json_data
                     params['data']['attributes']['treatments'] = treatments
@@ -339,7 +327,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             it 'returns a 200' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  VCR.use_cassette('evss/reference_data/countries') do
                     json_data = JSON.parse data
                     params = json_data
                     params['data']['attributes']['treatments'] = treatments
@@ -357,7 +345,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             it 'returns a 200' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  VCR.use_cassette('evss/reference_data/countries') do
                     json_data = JSON.parse data
                     params = json_data
                     params['data']['attributes']['treatments'] = treatments
@@ -384,7 +372,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       it 'returns a successful response with all the data' do
         with_okta_user(scopes) do |auth_header|
           VCR.use_cassette('evss/claims/claims') do
-            VCR.use_cassette('evss/reference_data/get_intake_sites') do
+            VCR.use_cassette('evss/reference_data/countries') do
               post path, params: data, headers: headers.merge(auth_header)
               parsed = JSON.parse(response.body)
               expect(parsed['data']['type']).to eq('claims_api_claim')
@@ -400,7 +388,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         it 'creates the sidekick job' do
           with_okta_user(scopes) do |auth_header|
             VCR.use_cassette('evss/claims/claims') do
-              VCR.use_cassette('evss/reference_data/get_intake_sites') do
+              VCR.use_cassette('evss/reference_data/countries') do
                 expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
                 post path, params: data, headers: headers.merge(auth_header)
               end
@@ -415,7 +403,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         it 'creates the sidekick job' do
           with_okta_user(scopes) do |auth_header|
             VCR.use_cassette('evss/claims/claims') do
-              VCR.use_cassette('evss/reference_data/get_intake_sites') do
+              VCR.use_cassette('evss/reference_data/countries') do
                 post path, params: data, headers: headers.merge(auth_header)
               end
             end
@@ -426,7 +414,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       it 'assigns a source' do
         with_okta_user(scopes) do |auth_header|
           VCR.use_cassette('evss/claims/claims') do
-            VCR.use_cassette('evss/reference_data/get_intake_sites') do
+            VCR.use_cassette('evss/reference_data/countries') do
               post path, params: data, headers: headers.merge(auth_header)
               token = JSON.parse(response.body)['data']['attributes']['token']
               aec = ClaimsApi::AutoEstablishedClaim.find(token)
@@ -439,7 +427,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       it "assigns a 'cid' (OKTA client_id)" do
         with_okta_user(scopes) do |auth_header|
           VCR.use_cassette('evss/claims/claims') do
-            VCR.use_cassette('evss/reference_data/get_intake_sites') do
+            VCR.use_cassette('evss/reference_data/countries') do
               jwt_payload = {
                 'ver' => 1,
                 'jti' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
@@ -468,7 +456,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       it 'sets the flashes' do
         with_okta_user(scopes) do |auth_header|
           VCR.use_cassette('evss/claims/claims') do
-            VCR.use_cassette('evss/reference_data/get_intake_sites') do
+            VCR.use_cassette('evss/reference_data/countries') do
               post path, params: data, headers: headers.merge(auth_header)
               token = JSON.parse(response.body)['data']['attributes']['token']
               aec = ClaimsApi::AutoEstablishedClaim.find(token)
@@ -481,7 +469,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       it 'sets the special issues' do
         with_okta_user(scopes) do |auth_header|
           VCR.use_cassette('evss/claims/claims') do
-            VCR.use_cassette('evss/reference_data/get_intake_sites') do
+            VCR.use_cassette('evss/reference_data/countries') do
               post path, params: data, headers: headers.merge(auth_header)
               token = JSON.parse(response.body)['data']['attributes']['token']
               aec = ClaimsApi::AutoEstablishedClaim.find(token)
@@ -496,7 +484,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       it 'builds the auth headers' do
         with_okta_user(scopes) do |auth_header|
           VCR.use_cassette('evss/claims/claims') do
-            VCR.use_cassette('evss/reference_data/get_intake_sites') do
+            VCR.use_cassette('evss/reference_data/countries') do
               auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
               expect(EVSS::DisabilityCompensationAuthHeaders).to(receive(:new).once { auth_header_stub })
               expect(auth_header_stub).to receive(:add_headers).once
@@ -530,15 +518,13 @@ RSpec.describe 'Disability Claims ', type: :request do
 
               it 'raises an exception that beginningDate is not valid' do
                 with_okta_user(scopes) do |auth_header|
-                  VCR.use_cassette('evss/claims/claims') do
-                    VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                      VCR.use_cassette('evss/reference_data/countries') do
-                        par = json_data
-                        par['data']['attributes']['veteran']['changeOfAddress'] = change_of_address
+                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    VCR.use_cassette('evss/reference_data/countries') do
+                      par = json_data
+                      par['data']['attributes']['veteran']['changeOfAddress'] = change_of_address
 
-                        post path, params: par.to_json, headers: headers.merge(auth_header)
-                        expect(response.status).to eq(400)
-                      end
+                      post path, params: par.to_json, headers: headers.merge(auth_header)
+                      expect(response.status).to eq(400)
                     end
                   end
                 end
@@ -563,15 +549,13 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'raises an exception that country is invalid' do
             with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                  VCR.use_cassette('evss/reference_data/countries') do
-                    par = json_data
-                    par['data']['attributes']['veteran']['changeOfAddress'] = change_of_address
+              VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                VCR.use_cassette('evss/reference_data/countries') do
+                  par = json_data
+                  par['data']['attributes']['veteran']['changeOfAddress'] = change_of_address
 
-                    post path, params: par.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(400)
-                  end
+                  post path, params: par.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(400)
                 end
               end
             end
@@ -607,7 +591,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             it 'raises an exception that title10ActivationDate is invalid' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  VCR.use_cassette('evss/reference_data/countries') do
                     par = json_data
                     par['data']['attributes']['serviceInformation']['reservesNationalGuardService'] =
                       reserves_national_guard_service
@@ -625,15 +609,13 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'raises an exception that title10ActivationDate is invalid' do
               with_okta_user(scopes) do |auth_header|
-                VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                    par = json_data
-                    par['data']['attributes']['serviceInformation']['reservesNationalGuardService'] =
-                      reserves_national_guard_service
+                VCR.use_cassette('evss/reference_data/countries') do
+                  par = json_data
+                  par['data']['attributes']['serviceInformation']['reservesNationalGuardService'] =
+                    reserves_national_guard_service
 
-                    post path, params: par.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(400)
-                  end
+                  post path, params: par.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(400)
                 end
               end
             end
@@ -645,7 +627,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             it 'returns a successful response' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  VCR.use_cassette('evss/reference_data/countries') do
                     par = json_data
                     par['data']['attributes']['serviceInformation']['reservesNationalGuardService'] =
                       reserves_national_guard_service
@@ -664,7 +646,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             it 'returns a successful response' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  VCR.use_cassette('evss/reference_data/countries') do
                     par = json_data
                     par['data']['attributes']['serviceInformation']['reservesNationalGuardService'] =
                       reserves_national_guard_service
@@ -682,15 +664,13 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'raises an exception that title10ActivationDate is invalid' do
               with_okta_user(scopes) do |auth_header|
-                VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                    par = json_data
-                    par['data']['attributes']['serviceInformation']['reservesNationalGuardService'] =
-                      reserves_national_guard_service
+                VCR.use_cassette('evss/reference_data/countries') do
+                  par = json_data
+                  par['data']['attributes']['serviceInformation']['reservesNationalGuardService'] =
+                    reserves_national_guard_service
 
-                    post path, params: par.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(400)
-                  end
+                  post path, params: par.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(400)
                 end
               end
             end
@@ -704,7 +684,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             it "raises an exception that 'anticipatedSeparationDate' is invalid" do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  VCR.use_cassette('evss/reference_data/countries') do
                     par = json_data
                     par['data']['attributes']['serviceInformation']['reservesNationalGuardService'] =
                       reserves_national_guard_service
@@ -722,15 +702,13 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it "raises an exception that 'anticipatedSeparationDate' is invalid" do
               with_okta_user(scopes) do |auth_header|
-                VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                    par = json_data
-                    par['data']['attributes']['serviceInformation']['reservesNationalGuardService'] =
-                      reserves_national_guard_service
+                VCR.use_cassette('evss/reference_data/countries') do
+                  par = json_data
+                  par['data']['attributes']['serviceInformation']['reservesNationalGuardService'] =
+                    reserves_national_guard_service
 
-                    post path, params: par.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(400)
-                  end
+                  post path, params: par.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(400)
                 end
               end
             end
@@ -742,7 +720,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             it 'returns a successful response' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  VCR.use_cassette('evss/reference_data/countries') do
                     par = json_data
                     par['data']['attributes']['serviceInformation']['reservesNationalGuardService'] =
                       reserves_national_guard_service
@@ -863,7 +841,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           context 'when correct types are passed for specialIssues' do
             it 'returns a successful status' do
               VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                VCR.use_cassette('evss/reference_data/countries') do
                   with_okta_user(scopes) do |auth_header|
                     params = json_data
                     params['data']['attributes']['disabilities'][0]['specialIssues'] = %w[ALS PTSD/1]
@@ -892,7 +870,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           context 'when correct types are passed for flashes' do
             it 'returns a successful status' do
               VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                VCR.use_cassette('evss/reference_data/countries') do
                   with_okta_user(scopes) do |auth_header|
                     params = json_data
                     params['data']['attributes']['veteran']['flashes'] = %w[Hardship POW]
@@ -983,7 +961,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         it 'returns a successful response when valid' do
           VCR.use_cassette('evss/disability_compensation_form/form_526_valid_validation') do
             with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/reference_data/get_intake_sites') do
+              VCR.use_cassette('evss/reference_data/countries') do
                 VCR.use_cassette('evss/claims/claims') do
                   post path, params: data, headers: headers.merge(auth_header)
                   parsed = JSON.parse(response.body)
@@ -998,7 +976,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         it 'returns a list of errors when invalid hitting EVSS' do
           with_okta_user(scopes) do |auth_header|
             VCR.use_cassette('evss/disability_compensation_form/form_526_invalid_validation') do
-              VCR.use_cassette('evss/reference_data/get_intake_sites') do
+              VCR.use_cassette('evss/reference_data/countries') do
                 VCR.use_cassette('evss/claims/claims') do
                   post path, params: data, headers: headers.merge(auth_header)
                   parsed = JSON.parse(response.body)
@@ -1034,7 +1012,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           it 'is logged to PersonalInformationLog' do
             EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.begin_forced_outage!
             with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/reference_data/get_intake_sites') do
+              VCR.use_cassette('evss/reference_data/countries') do
                 VCR.use_cassette('evss/claims/claims') do
                   post path, params: data, headers: headers.merge(auth_header)
                   expect(PersonalInformationLog.count).to be_positive
@@ -1051,7 +1029,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             context error_klass.to_s do
               it 'is logged to PersonalInformationLog' do
                 with_okta_user(scopes) do |auth_header|
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  VCR.use_cassette('evss/reference_data/countries') do
                     VCR.use_cassette('evss/claims/claims') do
                       allow_any_instance_of(ClaimsApi::DisabilityCompensation::MockOverrideService)
                         .to receive(:validate_form526).and_raise(error_klass)
@@ -1078,11 +1056,9 @@ RSpec.describe 'Disability Claims ', type: :request do
       context 'when consumer is representative' do
         it 'returns an unprocessible entity status' do
           with_okta_user(scopes) do |auth_header|
-            VCR.use_cassette('evss/claims/claims') do
-              VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                post path, params: data, headers: headers.merge(auth_header)
-                expect(response.status).to eq(422)
-              end
+            VCR.use_cassette('evss/reference_data/countries') do
+              post path, params: data, headers: headers.merge(auth_header)
+              expect(response.status).to eq(422)
             end
           end
         end
@@ -1112,7 +1088,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         it 'adds person to MPI' do
           with_okta_user(scopes) do |auth_header|
             VCR.use_cassette('evss/claims/claims') do
-              VCR.use_cassette('evss/reference_data/get_intake_sites') do
+              VCR.use_cassette('evss/reference_data/countries') do
                 VCR.use_cassette('mpi/add_person/add_person_success') do
                   VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes') do
                     expect_any_instance_of(MPIData).to receive(:add_person_proxy).once.and_call_original
@@ -1138,11 +1114,9 @@ RSpec.describe 'Disability Claims ', type: :request do
 
         it 'returns an unprocessible entity status' do
           with_okta_user(scopes) do |auth_header|
-            VCR.use_cassette('evss/claims/claims') do
-              VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                post path, params: data, headers: headers.merge(auth_header)
-                expect(response.status).to eq(422)
-              end
+            VCR.use_cassette('evss/reference_data/countries') do
+              post path, params: data, headers: headers.merge(auth_header)
+              expect(response.status).to eq(422)
             end
           end
         end
@@ -1166,8 +1140,10 @@ RSpec.describe 'Disability Claims ', type: :request do
           it 'responds with a 200' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
-                post path, params: data, headers: headers.merge(auth_header)
-                expect(response.status).to eq(200)
+                VCR.use_cassette('evss/reference_data/countries') do
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(200)
+                end
               end
             end
           end
@@ -1179,8 +1155,10 @@ RSpec.describe 'Disability Claims ', type: :request do
           it 'responds with a 200' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
-                post path, params: data, headers: headers.merge(auth_header)
-                expect(response.status).to eq(200)
+                VCR.use_cassette('evss/reference_data/countries') do
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(200)
+                end
               end
             end
           end
@@ -1215,8 +1193,10 @@ RSpec.describe 'Disability Claims ', type: :request do
           it 'responds with a 200' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
-                post path, params: data, headers: headers.merge(auth_header)
-                expect(response.status).to eq(200)
+                VCR.use_cassette('evss/reference_data/countries') do
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(200)
+                end
               end
             end
           end
@@ -1228,8 +1208,10 @@ RSpec.describe 'Disability Claims ', type: :request do
           it 'responds with a 200' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
-                post path, params: data, headers: headers.merge(auth_header)
-                expect(response.status).to eq(200)
+                VCR.use_cassette('evss/reference_data/countries') do
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(200)
+                end
               end
             end
           end
@@ -1254,8 +1236,10 @@ RSpec.describe 'Disability Claims ', type: :request do
           it 'responds with a 200' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
-                post path, params: data, headers: headers.merge(auth_header)
-                expect(response.status).to eq(200)
+                VCR.use_cassette('evss/reference_data/countries') do
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(200)
+                end
               end
             end
           end
@@ -1267,8 +1251,10 @@ RSpec.describe 'Disability Claims ', type: :request do
           it 'responds with a 200' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
-                post path, params: data, headers: headers.merge(auth_header)
-                expect(response.status).to eq(200)
+                VCR.use_cassette('evss/reference_data/countries') do
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(200)
+                end
               end
             end
           end
@@ -1372,8 +1358,8 @@ RSpec.describe 'Disability Claims ', type: :request do
     context 'when submitted separationLocationCode is missing for a future activeDutyEndDate' do
       it 'responds with bad request' do
         with_okta_user(scopes) do |auth_header|
-          VCR.use_cassette('evss/claims/claims') do
-            VCR.use_cassette('evss/reference_data/get_intake_sites') do
+          VCR.use_cassette('evss/reference_data/get_intake_sites') do
+            VCR.use_cassette('evss/reference_data/countries') do
               json_data = JSON.parse data
               params = json_data
               params['data']['attributes']['serviceInformation']['servicePeriods'].first['activeDutyEndDate'] =
@@ -1389,17 +1375,15 @@ RSpec.describe 'Disability Claims ', type: :request do
     context 'when submitted separationLocationCode is invalid' do
       it 'responds with bad request' do
         with_okta_user(scopes) do |auth_header|
-          VCR.use_cassette('evss/claims/claims') do
-            VCR.use_cassette('evss/reference_data/get_intake_sites') do
-              json_data = JSON.parse data
-              params = json_data
-              params['data']['attributes']['serviceInformation']['servicePeriods'].first['activeDutyEndDate'] =
-                (Time.zone.today + 1.day).to_s
-              params['data']['attributes']['serviceInformation']['servicePeriods'].first['separationLocationCode'] =
-                '11111111111'
-              post path, params: params.to_json, headers: headers.merge(auth_header)
-              expect(response.status).to eq(400)
-            end
+          VCR.use_cassette('evss/reference_data/get_intake_sites') do
+            json_data = JSON.parse data
+            params = json_data
+            params['data']['attributes']['serviceInformation']['servicePeriods'].first['activeDutyEndDate'] =
+              (Time.zone.today + 1.day).to_s
+            params['data']['attributes']['serviceInformation']['servicePeriods'].first['separationLocationCode'] =
+              '11111111111'
+            post path, params: params.to_json, headers: headers.merge(auth_header)
+            expect(response.status).to eq(400)
           end
         end
       end
@@ -1409,7 +1393,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       it 'responds with a bad request' do
         with_okta_user(scopes) do |auth_header|
           VCR.use_cassette('evss/claims/claims') do
-            VCR.use_cassette('evss/reference_data/get_intake_sites') do
+            VCR.use_cassette('evss/reference_data/countries') do
               json_data = JSON.parse data
               params = json_data
               params['data']['attributes']['serviceInformation']['confinements'] = [{
@@ -1429,23 +1413,21 @@ RSpec.describe 'Disability Claims ', type: :request do
     context 'when confinements are overlapping' do
       it 'responds with a bad request' do
         with_okta_user(scopes) do |auth_header|
-          VCR.use_cassette('evss/claims/claims') do
-            VCR.use_cassette('evss/reference_data/get_intake_sites') do
-              json_data = JSON.parse data
-              params = json_data
-              params['data']['attributes']['serviceInformation']['confinements'] = [{
-                confinementBeginDate: '1980-03-05',
-                confinementEndDate: '1985-01-07'
-              }, {
-                confinementBeginDate: '1985-01-05',
-                confinementEndDate: '1989-04-05'
+          VCR.use_cassette('evss/reference_data/countries') do
+            json_data = JSON.parse data
+            params = json_data
+            params['data']['attributes']['serviceInformation']['confinements'] = [{
+              confinementBeginDate: '1980-03-05',
+              confinementEndDate: '1985-01-07'
+            }, {
+              confinementBeginDate: '1985-01-05',
+              confinementEndDate: '1989-04-05'
 
-              }]
-              post path, params: params.to_json, headers: headers.merge(auth_header)
-              response_error_details = JSON.parse(response.body)['errors'].first['detail']
-              expect(response.status).to eq(400)
-              expect(response_error_details).to include('confinements must not overlap other confinements')
-            end
+            }]
+            post path, params: params.to_json, headers: headers.merge(auth_header)
+            response_error_details = JSON.parse(response.body)['errors'].first['detail']
+            expect(response.status).to eq(400)
+            expect(response_error_details).to include('confinements must not overlap other confinements')
           end
         end
       end
@@ -1482,7 +1464,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           it 'responds with a 422' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                VCR.use_cassette('evss/reference_data/countries') do
                   json_data = JSON.parse data
                   params = json_data
                   params['data']['attributes']['veteran']['homelessness'] = {}
@@ -1513,24 +1495,22 @@ RSpec.describe 'Disability Claims ', type: :request do
         context "when 'pointOfContact' is not provided" do
           it 'responds with a 422' do
             with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                  json_data = JSON.parse data
-                  params = json_data
-                  params['data']['attributes']['veteran']['homelessness']['currentlyHomeless'] = {
-                    homelessSituationType: 'fleeing',
-                    otherLivingSituation: 'community help center'
-                  }
-                  params['data']['attributes']['veteran']['homelessness'].delete('pointOfContact')
-                  post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(422)
-                  response_body = JSON.parse(response.body)
-                  expect(response_body['errors'].length).to eq(1)
-                  expect(response_body['errors'][0]['detail']).to eq(
-                    "If one of 'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk' is"\
-                    " defined, then 'veteran.homelessness.pointOfContact' is required"
-                  )
-                end
+              VCR.use_cassette('evss/reference_data/countries') do
+                json_data = JSON.parse data
+                params = json_data
+                params['data']['attributes']['veteran']['homelessness']['currentlyHomeless'] = {
+                  homelessSituationType: 'fleeing',
+                  otherLivingSituation: 'community help center'
+                }
+                params['data']['attributes']['veteran']['homelessness'].delete('pointOfContact')
+                post path, params: params.to_json, headers: headers.merge(auth_header)
+                expect(response.status).to eq(422)
+                response_body = JSON.parse(response.body)
+                expect(response_body['errors'].length).to eq(1)
+                expect(response_body['errors'][0]['detail']).to eq(
+                  "If one of 'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk' is"\
+                  " defined, then 'veteran.homelessness.pointOfContact' is required"
+                )
               end
             end
           end
@@ -1566,7 +1546,7 @@ RSpec.describe 'Disability Claims ', type: :request do
               it 'responds with a bad request' do
                 with_okta_user(scopes) do |auth_header|
                   VCR.use_cassette('evss/claims/claims') do
-                    VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    VCR.use_cassette('evss/reference_data/countries') do
                       json_data = JSON.parse data
                       params = json_data
                       params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -1588,14 +1568,12 @@ RSpec.describe 'Disability Claims ', type: :request do
 
               it 'responds with a bad request' do
                 with_okta_user(scopes) do |auth_header|
-                  VCR.use_cassette('evss/claims/claims') do
-                    VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                      json_data = JSON.parse data
-                      params = json_data
-                      params['data']['attributes']['servicePay'] = service_pay_attribute
-                      post path, params: params.to_json, headers: headers.merge(auth_header)
-                      expect(response.status).to eq(400)
-                    end
+                  VCR.use_cassette('evss/reference_data/countries') do
+                    json_data = JSON.parse data
+                    params = json_data
+                    params['data']['attributes']['servicePay'] = service_pay_attribute
+                    post path, params: params.to_json, headers: headers.merge(auth_header)
+                    expect(response.status).to eq(400)
                   end
                 end
               end
@@ -1614,7 +1592,7 @@ RSpec.describe 'Disability Claims ', type: :request do
               it 'responds with a 200' do
                 with_okta_user(scopes) do |auth_header|
                   VCR.use_cassette('evss/claims/claims') do
-                    VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    VCR.use_cassette('evss/reference_data/countries') do
                       json_data = JSON.parse data
                       params = json_data
                       params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -1637,7 +1615,7 @@ RSpec.describe 'Disability Claims ', type: :request do
               it 'responds with a 200' do
                 with_okta_user(scopes) do |auth_header|
                   VCR.use_cassette('evss/claims/claims') do
-                    VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    VCR.use_cassette('evss/reference_data/countries') do
                       json_data = JSON.parse data
                       params = json_data
                       params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -1674,14 +1652,12 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'responds with an unprocessible entity' do
               with_okta_user(scopes) do |auth_header|
-                VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                    json_data = JSON.parse data
-                    params = json_data
-                    params['data']['attributes']['servicePay'] = service_pay_attribute
-                    post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(422)
-                  end
+                VCR.use_cassette('evss/reference_data/countries') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['servicePay'] = service_pay_attribute
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(422)
                 end
               end
             end
@@ -1697,7 +1673,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             it 'responds with an unprocessible entity' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  VCR.use_cassette('evss/reference_data/countries') do
                     json_data = JSON.parse data
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -1719,7 +1695,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             it 'responds with a 200' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  VCR.use_cassette('evss/reference_data/countries') do
                     json_data = JSON.parse data
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -1755,14 +1731,12 @@ RSpec.describe 'Disability Claims ', type: :request do
 
               it 'responds with an unprocessible entity' do
                 with_okta_user(scopes) do |auth_header|
-                  VCR.use_cassette('evss/claims/claims') do
-                    VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                      json_data = JSON.parse data
-                      params = json_data
-                      params['data']['attributes']['servicePay'] = service_pay_attribute
-                      post path, params: params.to_json, headers: headers.merge(auth_header)
-                      expect(response.status).to eq(422)
-                    end
+                  VCR.use_cassette('evss/reference_data/countries') do
+                    json_data = JSON.parse data
+                    params = json_data
+                    params['data']['attributes']['servicePay'] = service_pay_attribute
+                    post path, params: params.to_json, headers: headers.merge(auth_header)
+                    expect(response.status).to eq(422)
                   end
                 end
               end
@@ -1789,7 +1763,7 @@ RSpec.describe 'Disability Claims ', type: :request do
               it 'responds with a 200' do
                 with_okta_user(scopes) do |auth_header|
                   VCR.use_cassette('evss/claims/claims') do
-                    VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    VCR.use_cassette('evss/reference_data/countries') do
                       json_data = JSON.parse data
                       params = json_data
                       params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -1828,14 +1802,12 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'responds with an unprocessible entity' do
               with_okta_user(scopes) do |auth_header|
-                VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                    json_data = JSON.parse data
-                    params = json_data
-                    params['data']['attributes']['servicePay'] = service_pay_attribute
-                    post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(422)
-                  end
+                VCR.use_cassette('evss/reference_data/countries') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['servicePay'] = service_pay_attribute
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(422)
                 end
               end
             end
@@ -1851,7 +1823,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             it 'responds with an unprocessible entity' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  VCR.use_cassette('evss/reference_data/countries') do
                     json_data = JSON.parse data
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -1873,7 +1845,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             it 'responds with a 200' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  VCR.use_cassette('evss/reference_data/countries') do
                     json_data = JSON.parse data
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -1909,14 +1881,12 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'responds with a bad request' do
               with_okta_user(scopes) do |auth_header|
-                VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                    json_data = JSON.parse data
-                    params = json_data
-                    params['data']['attributes']['servicePay'] = service_pay_attribute
-                    post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(400)
-                  end
+                VCR.use_cassette('evss/reference_data/countries') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['servicePay'] = service_pay_attribute
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(400)
                 end
               end
             end
@@ -1932,7 +1902,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             it 'responds with a 200' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  VCR.use_cassette('evss/reference_data/countries') do
                     json_data = JSON.parse data
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -1955,20 +1925,18 @@ RSpec.describe 'Disability Claims ', type: :request do
       context 'when disabilityActionType is NONE without secondaryDisabilities' do
         it 'raises an exception' do
           with_okta_user(scopes) do |auth_header|
-            VCR.use_cassette('evss/claims/claims') do
-              VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                json_data = JSON.parse data
-                params = json_data
-                disabilities = [
-                  {
-                    disabilityActionType: 'NONE',
-                    name: 'PTSD (post traumatic stress disorder)'
-                  }
-                ]
-                params['data']['attributes']['disabilities'] = disabilities
-                post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response.status).to eq(400)
-              end
+            VCR.use_cassette('evss/reference_data/countries') do
+              json_data = JSON.parse data
+              params = json_data
+              disabilities = [
+                {
+                  disabilityActionType: 'NONE',
+                  name: 'PTSD (post traumatic stress disorder)'
+                }
+              ]
+              params['data']['attributes']['disabilities'] = disabilities
+              post path, params: params.to_json, headers: headers.merge(auth_header)
+              expect(response.status).to eq(400)
             end
           end
         end
@@ -1977,28 +1945,26 @@ RSpec.describe 'Disability Claims ', type: :request do
       context 'when secondaryDisability disabilityActionType is something other than SECONDARY' do
         it 'raises an exception' do
           with_okta_user(scopes) do |auth_header|
-            VCR.use_cassette('evss/claims/claims') do
-              VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                json_data = JSON.parse data
-                params = json_data
-                disabilities = [
-                  {
-                    disabilityActionType: 'NONE',
-                    name: 'PTSD (post traumatic stress disorder)',
-                    diagnosticCode: 9999,
-                    secondaryDisabilities: [
-                      {
-                        disabilityActionType: 'NEW',
-                        name: 'PTSD',
-                        serviceRelevance: 'Caused by a service-connected disability.'
-                      }
-                    ]
-                  }
-                ]
-                params['data']['attributes']['disabilities'] = disabilities
-                post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response.status).to eq(422)
-              end
+            VCR.use_cassette('evss/reference_data/countries') do
+              json_data = JSON.parse data
+              params = json_data
+              disabilities = [
+                {
+                  disabilityActionType: 'NONE',
+                  name: 'PTSD (post traumatic stress disorder)',
+                  diagnosticCode: 9999,
+                  secondaryDisabilities: [
+                    {
+                      disabilityActionType: 'NEW',
+                      name: 'PTSD',
+                      serviceRelevance: 'Caused by a service-connected disability.'
+                    }
+                  ]
+                }
+              ]
+              params['data']['attributes']['disabilities'] = disabilities
+              post path, params: params.to_json, headers: headers.merge(auth_header)
+              expect(response.status).to eq(422)
             end
           end
         end
@@ -2014,29 +1980,27 @@ RSpec.describe 'Disability Claims ', type: :request do
 
         it 'raises an exception' do
           with_okta_user(scopes) do |auth_header|
-            VCR.use_cassette('evss/claims/claims') do
-              VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                json_data = JSON.parse data
-                params = json_data
-                disabilities = [
-                  {
-                    disabilityActionType: 'NONE',
-                    name: 'PTSD (post traumatic stress disorder)',
-                    diagnosticCode: 9999,
-                    secondaryDisabilities: [
-                      {
-                        disabilityActionType: 'SECONDARY',
-                        name: 'PTSD',
-                        serviceRelevance: 'Caused by a service-connected disability.',
-                        classificationCode: '2222'
-                      }
-                    ]
-                  }
-                ]
-                params['data']['attributes']['disabilities'] = disabilities
-                post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response.status).to eq(400)
-              end
+            VCR.use_cassette('evss/reference_data/countries') do
+              json_data = JSON.parse data
+              params = json_data
+              disabilities = [
+                {
+                  disabilityActionType: 'NONE',
+                  name: 'PTSD (post traumatic stress disorder)',
+                  diagnosticCode: 9999,
+                  secondaryDisabilities: [
+                    {
+                      disabilityActionType: 'SECONDARY',
+                      name: 'PTSD',
+                      serviceRelevance: 'Caused by a service-connected disability.',
+                      classificationCode: '2222'
+                    }
+                  ]
+                }
+              ]
+              params['data']['attributes']['disabilities'] = disabilities
+              post path, params: params.to_json, headers: headers.merge(auth_header)
+              expect(response.status).to eq(400)
             end
           end
         end
@@ -2052,29 +2016,27 @@ RSpec.describe 'Disability Claims ', type: :request do
 
         it 'raises an exception' do
           with_okta_user(scopes) do |auth_header|
-            VCR.use_cassette('evss/claims/claims') do
-              VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                json_data = JSON.parse data
-                params = json_data
-                disabilities = [
-                  {
-                    disabilityActionType: 'NONE',
-                    name: 'PTSD (post traumatic stress disorder)',
-                    diagnosticCode: 9999,
-                    secondaryDisabilities: [
-                      {
-                        disabilityActionType: 'SECONDARY',
-                        name: 'PTSD',
-                        serviceRelevance: 'Caused by a service-connected disability.',
-                        classificationCode: '1111'
-                      }
-                    ]
-                  }
-                ]
-                params['data']['attributes']['disabilities'] = disabilities
-                post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response.status).to eq(400)
-              end
+            VCR.use_cassette('evss/reference_data/countries') do
+              json_data = JSON.parse data
+              params = json_data
+              disabilities = [
+                {
+                  disabilityActionType: 'NONE',
+                  name: 'PTSD (post traumatic stress disorder)',
+                  diagnosticCode: 9999,
+                  secondaryDisabilities: [
+                    {
+                      disabilityActionType: 'SECONDARY',
+                      name: 'PTSD',
+                      serviceRelevance: 'Caused by a service-connected disability.',
+                      classificationCode: '1111'
+                    }
+                  ]
+                }
+              ]
+              params['data']['attributes']['disabilities'] = disabilities
+              post path, params: params.to_json, headers: headers.merge(auth_header)
+              expect(response.status).to eq(400)
             end
           end
         end
@@ -2083,58 +2045,54 @@ RSpec.describe 'Disability Claims ', type: :request do
       context "when 'disabilites.secondaryDisabilities.approximateBeginDate' is present" do
         it 'raises an exception if date is invalid' do
           with_okta_user(scopes) do |auth_header|
-            VCR.use_cassette('evss/claims/claims') do
-              VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                json_data = JSON.parse data
-                params = json_data
-                disabilities = [
-                  {
-                    disabilityActionType: 'NONE',
-                    name: 'PTSD (post traumatic stress disorder)',
-                    diagnosticCode: 9999,
-                    secondaryDisabilities: [
-                      {
-                        disabilityActionType: 'SECONDARY',
-                        name: 'PTSD',
-                        serviceRelevance: 'Caused by a service-connected disability.',
-                        approximateBeginDate: '2019-02-30'
-                      }
-                    ]
-                  }
-                ]
-                params['data']['attributes']['disabilities'] = disabilities
-                post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response.status).to eq(400)
-              end
+            VCR.use_cassette('evss/reference_data/countries') do
+              json_data = JSON.parse data
+              params = json_data
+              disabilities = [
+                {
+                  disabilityActionType: 'NONE',
+                  name: 'PTSD (post traumatic stress disorder)',
+                  diagnosticCode: 9999,
+                  secondaryDisabilities: [
+                    {
+                      disabilityActionType: 'SECONDARY',
+                      name: 'PTSD',
+                      serviceRelevance: 'Caused by a service-connected disability.',
+                      approximateBeginDate: '2019-02-30'
+                    }
+                  ]
+                }
+              ]
+              params['data']['attributes']['disabilities'] = disabilities
+              post path, params: params.to_json, headers: headers.merge(auth_header)
+              expect(response.status).to eq(400)
             end
           end
         end
 
         it 'raises an exception if date is not in the past' do
           with_okta_user(scopes) do |auth_header|
-            VCR.use_cassette('evss/claims/claims') do
-              VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                json_data = JSON.parse data
-                params = json_data
-                disabilities = [
-                  {
-                    disabilityActionType: 'NONE',
-                    name: 'PTSD (post traumatic stress disorder)',
-                    diagnosticCode: 9999,
-                    secondaryDisabilities: [
-                      {
-                        disabilityActionType: 'SECONDARY',
-                        name: 'PTSD',
-                        serviceRelevance: 'Caused by a service-connected disability.',
-                        approximateBeginDate: "#{Time.zone.now.year + 1}-01-01"
-                      }
-                    ]
-                  }
-                ]
-                params['data']['attributes']['disabilities'] = disabilities
-                post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response.status).to eq(400)
-              end
+            VCR.use_cassette('evss/reference_data/countries') do
+              json_data = JSON.parse data
+              params = json_data
+              disabilities = [
+                {
+                  disabilityActionType: 'NONE',
+                  name: 'PTSD (post traumatic stress disorder)',
+                  diagnosticCode: 9999,
+                  secondaryDisabilities: [
+                    {
+                      disabilityActionType: 'SECONDARY',
+                      name: 'PTSD',
+                      serviceRelevance: 'Caused by a service-connected disability.',
+                      approximateBeginDate: "#{Time.zone.now.year + 1}-01-01"
+                    }
+                  ]
+                }
+              ]
+              params['data']['attributes']['disabilities'] = disabilities
+              post path, params: params.to_json, headers: headers.merge(auth_header)
+              expect(response.status).to eq(400)
             end
           end
         end
@@ -2143,28 +2101,26 @@ RSpec.describe 'Disability Claims ', type: :request do
       context "when 'disabilites.secondaryDisabilities.classificationCode' is not present" do
         it 'raises an exception if name is not valid structure' do
           with_okta_user(scopes) do |auth_header|
-            VCR.use_cassette('evss/claims/claims') do
-              VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                json_data = JSON.parse data
-                params = json_data
-                disabilities = [
-                  {
-                    disabilityActionType: 'NONE',
-                    name: 'PTSD (post traumatic stress disorder)',
-                    diagnosticCode: 9999,
-                    secondaryDisabilities: [
-                      {
-                        disabilityActionType: 'SECONDARY',
-                        name: 'PTSD_;;',
-                        serviceRelevance: 'Caused by a service-connected disability.'
-                      }
-                    ]
-                  }
-                ]
-                params['data']['attributes']['disabilities'] = disabilities
-                post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response.status).to eq(400)
-              end
+            VCR.use_cassette('evss/reference_data/countries') do
+              json_data = JSON.parse data
+              params = json_data
+              disabilities = [
+                {
+                  disabilityActionType: 'NONE',
+                  name: 'PTSD (post traumatic stress disorder)',
+                  diagnosticCode: 9999,
+                  secondaryDisabilities: [
+                    {
+                      disabilityActionType: 'SECONDARY',
+                      name: 'PTSD_;;',
+                      serviceRelevance: 'Caused by a service-connected disability.'
+                    }
+                  ]
+                }
+              ]
+              params['data']['attributes']['disabilities'] = disabilities
+              post path, params: params.to_json, headers: headers.merge(auth_header)
+              expect(response.status).to eq(400)
             end
           end
         end
@@ -2172,7 +2128,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         it 'raises an exception if name is longer than 255 characters' do
           with_okta_user(scopes) do |auth_header|
             VCR.use_cassette('evss/claims/claims') do
-              VCR.use_cassette('evss/reference_data/get_intake_sites') do
+              VCR.use_cassette('evss/reference_data/countries') do
                 json_data = JSON.parse data
                 params = json_data
                 disabilities = [
@@ -2214,7 +2170,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           it 'returns a successful response' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                VCR.use_cassette('evss/reference_data/countries') do
                   json_data = JSON.parse data
                   params = json_data
                   disabilities = [
@@ -2236,21 +2192,19 @@ RSpec.describe 'Disability Claims ', type: :request do
         context "when 'disabilites.classificationCode' is invalid" do
           it 'responds with a bad request' do
             with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                  json_data = JSON.parse data
-                  params = json_data
-                  disabilities = [
-                    {
-                      disabilityActionType: 'NEW',
-                      name: 'PTSD (post traumatic stress disorder)',
-                      classificationCode: '2222'
-                    }
-                  ]
-                  params['data']['attributes']['disabilities'] = disabilities
-                  post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(400)
-                end
+              VCR.use_cassette('evss/reference_data/countries') do
+                json_data = JSON.parse data
+                params = json_data
+                disabilities = [
+                  {
+                    disabilityActionType: 'NEW',
+                    name: 'PTSD (post traumatic stress disorder)',
+                    classificationCode: '2222'
+                  }
+                ]
+                params['data']['attributes']['disabilities'] = disabilities
+                post path, params: params.to_json, headers: headers.merge(auth_header)
+                expect(response.status).to eq(400)
               end
             end
           end
@@ -2263,7 +2217,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             it 'returns an unprocessible entity status' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  VCR.use_cassette('evss/reference_data/countries') do
                     json_data = JSON.parse data
                     params = json_data
                     disabilities = [
@@ -2286,7 +2240,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             it 'responds with a 200' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  VCR.use_cassette('evss/reference_data/countries') do
                     json_data = JSON.parse data
                     params = json_data
                     disabilities = [
@@ -2309,21 +2263,19 @@ RSpec.describe 'Disability Claims ', type: :request do
           context "and 'disabilities.diagnosticCode' is not provided" do
             it 'returns an unprocessible entity status' do
               with_okta_user(scopes) do |auth_header|
-                VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                    json_data = JSON.parse data
-                    params = json_data
-                    disabilities = [
-                      {
-                        ratedDisabilityId: '1100583',
-                        disabilityActionType: 'INCREASE',
-                        name: 'PTSD (post traumatic stress disorder)'
-                      }
-                    ]
-                    params['data']['attributes']['disabilities'] = disabilities
-                    post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(422)
-                  end
+                VCR.use_cassette('evss/reference_data/countries') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  disabilities = [
+                    {
+                      ratedDisabilityId: '1100583',
+                      disabilityActionType: 'INCREASE',
+                      name: 'PTSD (post traumatic stress disorder)'
+                    }
+                  ]
+                  params['data']['attributes']['disabilities'] = disabilities
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(422)
                 end
               end
             end
@@ -2336,7 +2288,7 @@ RSpec.describe 'Disability Claims ', type: :request do
               it 'returns an unprocessible entity status' do
                 with_okta_user(scopes) do |auth_header|
                   VCR.use_cassette('evss/claims/claims') do
-                    VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                    VCR.use_cassette('evss/reference_data/countries') do
                       json_data = JSON.parse data
                       params = json_data
                       disabilities = [
@@ -2369,7 +2321,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             it 'responds with a 200' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  VCR.use_cassette('evss/reference_data/countries') do
                     json_data = JSON.parse data
                     params = json_data
                     disabilities = [
@@ -2410,14 +2362,12 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'responds with a bad request' do
             with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                  json_data = JSON.parse data
-                  params = json_data
-                  params['data']['attributes']['disabilities'] = disabilities
-                  post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(400)
-                end
+              VCR.use_cassette('evss/reference_data/countries') do
+                json_data = JSON.parse data
+                params = json_data
+                params['data']['attributes']['disabilities'] = disabilities
+                post path, params: params.to_json, headers: headers.merge(auth_header)
+                expect(response.status).to eq(400)
               end
             end
           end
@@ -2433,7 +2383,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           it 'responds with a 200' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                VCR.use_cassette('evss/reference_data/countries') do
                   json_data = JSON.parse data
                   params = json_data
                   disabilities = [
@@ -2476,14 +2426,12 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'responds with a bad request' do
               with_okta_user(scopes) do |auth_header|
-                VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                    json_data = JSON.parse data
-                    params = json_data
-                    params['data']['attributes']['disabilities'] = disabilities
-                    post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(400)
-                  end
+                VCR.use_cassette('evss/reference_data/countries') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['disabilities'] = disabilities
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(400)
                 end
               end
             end
@@ -2491,7 +2439,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             it 'responds with a useful error message  ' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  VCR.use_cassette('evss/reference_data/countries') do
                     json_data = JSON.parse data
                     params = json_data
                     params['data']['attributes']['disabilities'] = disabilities
@@ -2515,7 +2463,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             it 'responds with a 200' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  VCR.use_cassette('evss/reference_data/countries') do
                     json_data = JSON.parse data
                     params = json_data
                     params['data']['attributes']['disabilities'] = disabilities
@@ -2539,32 +2487,28 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             it 'responds with a bad request' do
               with_okta_user(scopes) do |auth_header|
-                VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                    json_data = JSON.parse data
-                    params = json_data
-                    params['data']['attributes']['disabilities'] = disabilities
-                    params['data']['attributes']['serviceInformation'].delete('confinements')
-                    post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(400)
-                  end
+                VCR.use_cassette('evss/reference_data/countries') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['disabilities'] = disabilities
+                  params['data']['attributes']['serviceInformation'].delete('confinements')
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(400)
                 end
               end
             end
 
-            it 'responds with a useful error message  ' do
+            it 'responds with a useful error message ' do
               with_okta_user(scopes) do |auth_header|
-                VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                    json_data = JSON.parse data
-                    params = json_data
-                    params['data']['attributes']['disabilities'] = disabilities
-                    params['data']['attributes']['serviceInformation'].delete('confinements')
-                    post path, params: params.to_json, headers: headers.merge(auth_header)
-                    errors = JSON.parse(response.body)['errors']
-                    expected_verbiage = "Claim must include valid 'serviceInformation.confinements' value"
-                    expect(errors.any? { |error| error['detail'].include?(expected_verbiage) }).to be true
-                  end
+                VCR.use_cassette('evss/reference_data/countries') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['disabilities'] = disabilities
+                  params['data']['attributes']['serviceInformation'].delete('confinements')
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  errors = JSON.parse(response.body)['errors']
+                  expected_verbiage = "Claim must include valid 'serviceInformation.confinements' value"
+                  expect(errors.any? { |error| error['detail'].include?(expected_verbiage) }).to be true
                 end
               end
             end
@@ -2587,7 +2531,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             it 'responds with a 200' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  VCR.use_cassette('evss/reference_data/countries') do
                     json_data = JSON.parse data
                     params = json_data
                     params['data']['attributes']['disabilities'] = disabilities
@@ -2623,7 +2567,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                VCR.use_cassette('evss/reference_data/countries') do
                   json_data = JSON.parse data
                   params = json_data
                   params['data']['attributes']['disabilities'] = disabilities
@@ -2663,7 +2607,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                VCR.use_cassette('evss/reference_data/countries') do
                   json_data = JSON.parse data
                   params = json_data
                   params['data']['attributes']['disabilities'] = disabilities
@@ -2681,13 +2625,41 @@ RSpec.describe 'Disability Claims ', type: :request do
         it "accepts 'addressLine3' and returns a 200" do
           with_okta_user(scopes) do |auth_header|
             VCR.use_cassette('evss/claims/claims') do
-              VCR.use_cassette('evss/reference_data/get_intake_sites') do
+              VCR.use_cassette('evss/reference_data/countries') do
                 json_data = JSON.parse data
                 params = json_data
                 params['data']['attributes']['veteran']['currentMailingAddress']['addressLine3'] = 'Box 123'
                 post path, params: params.to_json, headers: headers.merge(auth_header)
                 expect(response.status).to eq(200)
               end
+            end
+          end
+        end
+      end
+
+      describe "'currentMailingAddress.country'" do
+        it "accepts 'USA'" do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('evss/reference_data/countries') do
+                json_data = JSON.parse data
+                params = json_data
+                params['data']['attributes']['veteran']['currentMailingAddress']['country'] = 'USA'
+                post path, params: params.to_json, headers: headers.merge(auth_header)
+                expect(response.status).to eq(200)
+              end
+            end
+          end
+        end
+
+        it "does not accept 'US'" do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/reference_data/countries') do
+              json_data = JSON.parse data
+              params = json_data
+              params['data']['attributes']['veteran']['currentMailingAddress']['country'] = 'US'
+              post path, params: params.to_json, headers: headers.merge(auth_header)
+              expect(response.status).to eq(400)
             end
           end
         end
@@ -2700,7 +2672,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           it 'responds with a 200' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                VCR.use_cassette('evss/reference_data/countries') do
                   json_data = JSON.parse data
                   params = json_data
                   params['data']['attributes'].delete('applicationExpirationDate')
@@ -2719,7 +2691,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         it 'is properly transformed to uppercase before submission to EVSS' do
           with_okta_user(scopes) do |auth_header|
             VCR.use_cassette('evss/claims/claims') do
-              VCR.use_cassette('evss/reference_data/get_intake_sites') do
+              VCR.use_cassette('evss/reference_data/countries') do
                 direct_deposit_info = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures',
                                                                 'form_526_direct_deposit.json'))
                 json_data = JSON.parse data
@@ -2761,7 +2733,7 @@ RSpec.describe 'Disability Claims ', type: :request do
     it 'sets the flashes and special_issues' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/claims/claims') do
-          VCR.use_cassette('evss/reference_data/get_intake_sites') do
+          VCR.use_cassette('evss/reference_data/countries') do
             post path, params: data_no_flashes, headers: headers.merge(auth_header)
             token = JSON.parse(response.body)['data']['attributes']['token']
             aec = ClaimsApi::AutoEstablishedClaim.find(token)

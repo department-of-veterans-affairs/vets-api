@@ -26,6 +26,8 @@ module ClaimsApi
       validate_form_526_title10_activation_date!
       # ensure 'title10Activation.anticipatedSeparationDate' is in the future
       validate_form_526_title10_anticipated_separation_date!
+      # ensure 'currentMailingAddress' attributes are valid
+      validate_form_526_current_mailing_address!
       # ensure 'changeOfAddress.beginningDate' is in the future if 'addressChangeType' is 'TEMPORARY'
       validate_form_526_change_of_address!
       # ensure any provided 'disability.classificationCode' is a known value in BGS
@@ -41,6 +43,23 @@ module ClaimsApi
       # ensure the 'treatment.endDate' is after the 'treatment.startDate'
       # ensure any provided 'treatment.treatedDisabilityNames' match a provided 'disabilities.name'
       validate_form_526_treatments!
+    end
+
+    def validate_form_526_current_mailing_address!
+      validate_form_526_current_mailing_address_country!
+    end
+
+    def validate_form_526_current_mailing_address_country!
+      current_mailing_address = form_attributes.dig('veteran', 'currentMailingAddress')
+
+      return if valid_countries.include?(current_mailing_address['country'])
+
+      raise ::Common::Exceptions::InvalidFieldValue.new('country', current_mailing_address['country'])
+    end
+
+    def valid_countries
+      @current_user.last_signed_in = Time.now.iso8601 if @current_user.last_signed_in.blank?
+      @valid_countries ||= EVSS::ReferenceData::Service.new(@current_user).get_countries.countries
     end
 
     def validate_form_526_change_of_address!
@@ -60,10 +79,7 @@ module ClaimsApi
     def validate_form_526_change_of_address_country!
       change_of_address = form_attributes.dig('veteran', 'changeOfAddress')
       return if change_of_address.blank?
-
-      @current_user.last_signed_in = Time.now.iso8601 if @current_user.last_signed_in.blank?
-      countries = EVSS::ReferenceData::Service.new(@current_user).get_countries.countries
-      return if countries.include?(change_of_address['country'])
+      return if valid_countries.include?(change_of_address['country'])
 
       raise ::Common::Exceptions::InvalidFieldValue.new('country', change_of_address['country'])
     end
