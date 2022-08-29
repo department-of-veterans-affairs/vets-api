@@ -17,6 +17,7 @@
         "X-VA-Last-Name":       { "$ref": "#/definitions/X-VA-Last-Name" },
         "X-VA-File-Number":     { "$ref": "#/definitions/X-VA-File-Number" },
         "X-VA-Birth-Date":      { "$ref": "#/definitions/X-VA-Birth-Date" },
+        "X-VA-ICN":             { "$ref": "#/definitions/X-VA-ICN" },
         "X-VA-Claimant-First-Name":     { "$ref": "#/definitions/X-VA-Claimant-First-Name" },
         "X-VA-Claimant-Middle-Initial": { "$ref": "#/definitions/X-VA-Claimant-Middle-Initial" },
         "X-VA-Claimant-Last-Name":      { "$ref": "#/definitions/X-VA-Claimant-Last-Name" },
@@ -63,6 +64,11 @@
     "X-VA-Birth-Date": {
       "description": "Veteran's birth date",
       "type": "string", "format": "date"
+    },
+
+    "X-VA-ICN": {
+      "type": "string",
+      "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)"
     },
 
     "X-VA-Claimant-First-Name": {
