@@ -15,6 +15,11 @@ describe Common::Exceptions::DetailedSchemaErrors do
     @validator = JSONSchemer.schema(schema)
   end
 
+  after(:all) do
+    schema = get_fixture 'json/detailed_schema_errors_schema'
+    @validator = JSONSchemer.schema(schema)
+  end
+
   let(:data) do
     { 'name' => 'Dom N. Ated',
       'age' => 30,
