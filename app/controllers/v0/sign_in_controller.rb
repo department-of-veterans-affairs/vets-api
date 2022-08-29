@@ -155,8 +155,7 @@ module V0
       SignIn::SessionRevoker.new(access_token: @access_token, anti_csrf_token: anti_csrf_token).perform
       delete_cookies if token_cookies
       log_post_login_event('logout', @access_token, SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_SUCCESS)
-    rescue => e
-      log_message_to_sentry(e.message, :error)
+    rescue
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE)
     ensure
       redirect_to logout_get_redirect_url

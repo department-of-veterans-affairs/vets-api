@@ -1801,11 +1801,6 @@ RSpec.describe V0::SignInController, type: :controller do
         expect(subject).to have_http_status(expected_error_status)
       end
 
-      it 'logs the failed logout call' do
-        expect(Rails.logger).to receive(:error).with(expected_error_message)
-        subject
-      end
-
       it 'triggers statsd increment for failed call' do
         expect { subject }.to trigger_statsd_increment(statsd_failure)
       end
