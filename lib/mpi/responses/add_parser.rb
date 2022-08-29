@@ -57,7 +57,8 @@ module MPI
           error_details[:error_texts] = error_text_nodes
         else
           error_text_nodes.each do |node|
-            error_details[:error_texts].append(node.text) unless error_details[:error_texts].include?(node.text)
+            error_text = node.text || node&.nodes&.first&.value
+            error_details[:error_texts].append(error_text) unless error_details[:error_texts].include?(error_text)
           end
         end
         mpi_codes[:error_details] = error_details

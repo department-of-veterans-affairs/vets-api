@@ -50,10 +50,10 @@ module MPI
       def self.with_parsed_response(response)
         profile_parser = ProfileParser.new(response)
         profile = profile_parser.parse
-        raise MPI::Errors::DuplicateRecords if profile_parser.multiple_match?
-        raise MPI::Errors::InvalidRequestError if profile_parser.invalid_request?
-        raise MPI::Errors::FailedRequestError if profile_parser.failed_request?
-        raise MPI::Errors::RecordNotFound unless profile
+        raise MPI::Errors::DuplicateRecords, profile_parser.error_details if profile_parser.multiple_match?
+        raise MPI::Errors::InvalidRequestError, profile_parser.error_details if profile_parser.invalid_request?
+        raise MPI::Errors::FailedRequestError, profile_parser.error_details if profile_parser.failed_request?
+        raise MPI::Errors::RecordNotFound, profile_parser.error_details unless profile
 
         FindProfileResponse.new(
           status: RESPONSE_STATUS[:ok],
