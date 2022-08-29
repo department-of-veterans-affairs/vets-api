@@ -24,7 +24,8 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
   def index
     veteran_scs = AppealsApi::SupplementalClaim.where(veteran_icn: target_veteran.mpi_icn)
                                                .order(created_at: :desc)
-    render json: AppealsApi::SupplementalClaimSerializer.new(veteran_scs).serializable_hash
+    options = { params: { is_collection: true } }
+    render json: AppealsApi::SupplementalClaimSerializer.new(veteran_scs, options).serializable_hash
   end
 
   def create
@@ -44,8 +45,7 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
     AppealsApi::PdfSubmitJob.perform_async(sc.id, 'AppealsApi::SupplementalClaim', pdf_version)
     AppealsApi::AddIcnUpdater.perform_async(sc.id, 'AppealsApi::SupplementalClaim')
 
-    options = { params: { is_collection: true } }
-    render json: AppealsApi::SupplementalClaimSerializer.new(sc, options).serializable_hash
+    render json: AppealsApi::SupplementalClaimSerializer.new(sc).serializable_hash
   end
 
   def validate
