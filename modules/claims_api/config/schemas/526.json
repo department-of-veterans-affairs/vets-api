@@ -1314,7 +1314,7 @@
       "example": false
     },
     "applicationExpirationDate": {
-      "description": "Time stamp of when claim expires in one year after submission.",
+      "description": "Time stamp of when claim expires.  If not provided, value will be set to 1 year in the future from current day.",
       "type": "string",
       "example": "2018-08-28T19:53:45+00:00"
     },
