@@ -15,6 +15,7 @@ module ClaimsApi
       'preparation for decision' => EVIDENCE_GATHERING,
       'pending decision approval' => EVIDENCE_GATHERING,
       'preparation for notification' => 'PREPARATION_FOR_NOTIFICATION',
+      'errored' => 'ERRORED',
       'complete' => 'COMPLETE'
     }.freeze
 

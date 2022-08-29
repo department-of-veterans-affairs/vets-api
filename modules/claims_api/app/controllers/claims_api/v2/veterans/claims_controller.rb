@@ -44,21 +44,24 @@ module ClaimsApi
         def generate_show_output(bgs_claim:, lighthouse_claim:)
           if lighthouse_claim.present? && bgs_claim.present?
             bgs_details = bgs_claim[:benefit_claim_details_dto]
-            build_claim_structure(
+            structure = build_claim_structure(
               data: bgs_details,
               lighthouse_id: lighthouse_claim.id,
               upstream_id: bgs_details[:benefit_claim_id]
             )
           elsif lighthouse_claim.present? && bgs_claim.blank?
-            {
+            structure = {
               lighthouse_id: lighthouse_claim.id,
               type: lighthouse_claim.claim_type,
               status: lighthouse_claim.status.capitalize
             }
           else
             bgs_details = bgs_claim[:benefit_claim_details_dto]
-            build_claim_structure(data: bgs_details, lighthouse_id: nil, upstream_id: bgs_details[:benefit_claim_id])
+            structure = build_claim_structure(data: bgs_details,
+                                              lighthouse_id: nil,
+                                              upstream_id: bgs_details[:benefit_claim_id])
           end
+          structure.merge(errors: get_errors(lighthouse_claim))
         end
 
         def map_claims(bgs_claims:, lighthouse_claims:) # rubocop:disable Metrics/MethodLength
@@ -164,6 +167,17 @@ module ClaimsApi
           return data[:phase_type] if data.key?(:phase_type)
 
           cast_claim_lc_status(data[:bnft_claim_lc_status])
+        end
+
+        def get_errors(lighthouse_claim)
+          return [] if lighthouse_claim.blank? || lighthouse_claim.evss_response.blank?
+
+          lighthouse_claim.evss_response.map do |error|
+            {
+              detail: "#{error['severity']} #{error['detail'] || error['text']}".squish,
+              source: error['key'] ? error['key'].gsub('.', '/') : error['key']
+            }
+          end
         end
 
         # The status can either be an object or array

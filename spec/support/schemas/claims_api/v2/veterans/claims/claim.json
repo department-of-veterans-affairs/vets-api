@@ -54,6 +54,22 @@
       "description": "End product code of claim",
       "example": "930"
     },
+    "errors": {
+      "type": "array",
+      "description": "Error details if claim is in an errored state.",
+      "items": {
+        "properties": {
+          "detail": {
+            "type": "string",
+            "example": "Something happened"
+          },
+          "source": {
+            "type": "string",
+            "example": "some/error/path"
+          }
+        }
+      }
+    },
     "jurisdiction": {
       "type": "string",
       "description": "Jurisdiction of claim"
@@ -85,7 +101,8 @@
         "INITIAL_REVIEW",
         "EVIDENCE_GATHERING_REVIEW_DECISION",
         "PREPARATION_FOR_NOTIFICATION",
-        "COMPLETE"
+        "COMPLETE",
+        "ERRORED"
       ]
     },
     "submitterApplicationCode": {
