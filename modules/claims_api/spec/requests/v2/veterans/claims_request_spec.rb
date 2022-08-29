@@ -612,6 +612,38 @@ RSpec.describe 'Claims', type: :request do
             end
           end
         end
+
+        context 'it has an errors array' do
+          let(:claim) do
+            create(
+              :auto_established_claim_with_supporting_documents,
+              :status_errored,
+              source: 'abraham lincoln',
+              evss_response: [
+                {
+                  severity: 'ERROR',
+                  detail: 'Something happened',
+                  key: 'test.path.here'
+                }
+              ]
+            )
+          end
+          let(:claim_by_id_path) { "/services/claims/v2/veterans/#{veteran_id}/claims/#{claim.id}" }
+
+          it "returns a claim with the 'errors' attribute populated" do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                get claim_by_id_path, headers: auth_header
+
+                json_response = JSON.parse(response.body)
+                expect(response.status).to eq(200)
+                expect(json_response.dig('errors', 0, 'detail')).to eq('ERROR Something happened')
+                expect(json_response.dig('errors', 0, 'source')).to eq('test/path/here')
+                expect(json_response['status']).to eq('ERRORED')
+              end
+            end
+          end
+        end
       end
 
       context 'CCG (Client Credentials Grant)' do

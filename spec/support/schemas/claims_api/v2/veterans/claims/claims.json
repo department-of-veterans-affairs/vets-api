@@ -61,7 +61,8 @@
           "INITIAL_REVIEW",
           "EVIDENCE_GATHERING_REVIEW_DECISION",
           "PREPARATION_FOR_NOTIFICATION",
-          "COMPLETE"
+          "COMPLETE",
+          "ERRORED"
         ]
       },
       "5103WaiverSubmitted": {

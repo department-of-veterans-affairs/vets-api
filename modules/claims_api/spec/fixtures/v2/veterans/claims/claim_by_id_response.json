@@ -17,6 +17,7 @@
         "decision_notification_sent": "No",
         "development_letter_sent": "No",
         "end_prdct_type_cd": "404",
+        "errors": [],
         "poa": "RANDOM E PERSON",
         "program_type": "CPL",
         "ptcpnt_clmant_id": "111111111",

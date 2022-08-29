@@ -16,6 +16,7 @@ module ClaimsApi
         field :development_letter_sent
         field :documents_needed
         field :end_product_code
+        field :errors
         field :jurisdiction
         field :lighthouse_id
         field :max_est_claim_date
@@ -53,6 +54,7 @@ module ClaimsApi
         view :list do
           exclude :benefit_claim_type_code
           exclude :contention_list
+          exclude :errors
           exclude :jurisdiction
           exclude :max_est_claim_date
           exclude :min_est_claim_date
