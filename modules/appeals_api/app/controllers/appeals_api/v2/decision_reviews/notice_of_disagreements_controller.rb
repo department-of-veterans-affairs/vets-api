@@ -9,6 +9,7 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
   include AppealsApi::CharacterUtilities
 
   skip_before_action :authenticate
+  before_action :validate_index_headers, only: %i[index]
   before_action :validate_json_format, if: -> { request.post? }
   before_action :validate_json_schema, only: %i[create validate]
   before_action :new_notice_of_disagreement, only: %i[create validate]
@@ -23,6 +24,13 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
     )
   )['definitions']['nodCreateParameters']['properties'].keys
   SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
+
+  def index
+    veteran_nods = AppealsApi::NoticeOfDisagreement.where(veteran_icn: request_headers['X-VA-ICN'])
+                                                   .order(created_at: :desc)
+    options = { params: { is_collection: true } }
+    render json: AppealsApi::NoticeOfDisagreementSerializer.new(veteran_nods, options).serializable_hash
+  end
 
   def create
     @notice_of_disagreement.save
@@ -59,6 +67,11 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
   end
 
   private
+
+  def validate_index_headers
+    validation_errors = [{ status: 422, detail: 'X-VA-ICN is required' }]
+    render json: { errors: validation_errors }, status: :unprocessable_entity if request_headers['X-VA-ICN'].nil?
+  end
 
   def validate_json_schema
     validate_json_schema_for_headers

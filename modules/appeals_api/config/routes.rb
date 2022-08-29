@@ -45,7 +45,7 @@ AppealsApi::Engine.routes.draw do
         resources :evidence_submissions, only: %i[create show]
       end
 
-      resources :notice_of_disagreements, only: %i[create show] do
+      resources :notice_of_disagreements, only: %i[index create show] do
         collection do
           get 'schema'
           post 'validate'
