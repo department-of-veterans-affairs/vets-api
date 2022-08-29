@@ -497,7 +497,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a5c501d8-8308-4e88-8fc0-7b5f25bb4d6f",
+                    "id": "ef8eda12-afb2-4b11-b987-6138c6bf4b6b",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -546,11 +546,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "6f34f03c-af40-43de-bfd0-1d17e73ef4dd",
+                          "id": "27034074-a93b-46ef-99d3-b94a81804570",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2022-08-24T19:23:35.455Z"
+                          "uploaded_at": "2022-08-24T19:51:12.363Z"
                         }
                       ]
                     }
@@ -2346,7 +2346,7 @@
                           "example": false
                         },
                         "applicationExpirationDate": {
-                          "description": "Time stamp of when claim expires in one year after submission.",
+                          "description": "Time stamp of when claim expires.  If not provided, value will be set to 1 year in the future from current day.",
                           "type": "string",
                           "example": "2018-08-28T19:53:45+00:00"
                         },
@@ -2441,7 +2441,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "93b3f022-6f73-4851-b402-4b327cc4c73b",
+                    "id": "e8d8ebe4-9cc7-4745-9947-ce4732036194",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2459,13 +2459,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-08-24T19:23:35.977Z",
+                      "updated_at": "2022-08-24T19:51:12.831Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "93b3f022-6f73-4851-b402-4b327cc4c73b",
+                      "token": "e8d8ebe4-9cc7-4745-9947-ce4732036194",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -4207,7 +4207,7 @@
                             "example": false
                           },
                           "applicationExpirationDate": {
-                            "description": "Time stamp of when claim expires in one year after submission.",
+                            "description": "Time stamp of when claim expires.  If not provided, value will be set to 1 year in the future from current day.",
                             "type": "string",
                             "example": "2018-08-28T19:53:45+00:00"
                           },
@@ -4315,7 +4315,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "77ce9635-2606-42dc-8171-34921dfcf5f3",
+                    "id": "bc7458c1-ae0b-4509-aeb6-418ff47bdef2",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4333,13 +4333,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-08-24T19:23:36.345Z",
+                      "updated_at": "2022-08-24T19:51:13.231Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "77ce9635-2606-42dc-8171-34921dfcf5f3",
+                      "token": "bc7458c1-ae0b-4509-aeb6-418ff47bdef2",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -6462,7 +6462,7 @@
                             "example": false
                           },
                           "applicationExpirationDate": {
-                            "description": "Time stamp of when claim expires in one year after submission.",
+                            "description": "Time stamp of when claim expires.  If not provided, value will be set to 1 year in the future from current day.",
                             "type": "string",
                             "example": "2018-08-28T19:53:45+00:00"
                           },
@@ -6570,7 +6570,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "113822d1-ae66-4eac-8a91-181af9a0f578",
+                    "id": "26800ec4-60b1-43ac-89ac-68366ca068b6",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6584,7 +6584,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2022-08-24T19:23:37.187Z",
+                      "updated_at": "2022-08-24T19:51:14.024Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6593,7 +6593,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "2143d79a-1bed-48a9-a5c0-bf4f6728f8d6",
+                          "id": "12f02667-2ee3-4294-b005-8eb8faca0c8f",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8530,7 +8530,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "41ec65b5-b704-417d-abd0-5224d555bb95",
+                    "id": "1690c43f-e7b3-4035-b019-6a288d9d6516",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
@@ -9245,7 +9245,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "eadc9f8d-9fa2-49c5-a6d2-29466823f5c3",
+                    "id": "bbee908f-7e3c-4c7e-b303-672e52825b1b",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
@@ -9763,7 +9763,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5351a77e-9a19-4fda-8722-8497919c2e85",
+                    "id": "62980cf7-c25b-403e-8122-581dca604eaa",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
