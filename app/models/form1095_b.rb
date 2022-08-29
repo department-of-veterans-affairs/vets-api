@@ -130,15 +130,14 @@ class Form1095B < ApplicationRecord
   def form_data_schema
     {
       "type": 'object',
-      "required": %w[first_name last_name coverage_months country],
+      "required": %w[first_name middle_name last_name address city country coverage_months],
       "properties": {
         "first_name": { "type": 'string' },
         "middle_name": { "type": 'string' },
         "last_name": { "type": 'string' },
         "last_4_ssn": {
           "type": 'string',
-          "minLength": 4,
-          "maxLength": 4
+          "pattern": '[0-9]{4}|^$'
         },
         "birth_date": {
           "type": 'string',
