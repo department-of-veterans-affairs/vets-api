@@ -5,8 +5,13 @@ require_dependency 'mobile/application_controller'
 module Mobile
   module V0
     class FacilitiesInfoController < ApplicationController
+      SORT_METHODS = %w[home current alphabetical appointments].freeze
+
       def index
         Rails.logger.info('Facilities info call start', { sort_method: params[:sort], user_uuid: @current_user.uuid })
+
+        raise_invalid_sort_method_error unless SORT_METHODS.include?(params[:sort])
+
         facility_ids = @current_user.va_treatment_facility_ids + @current_user.cerner_facility_ids
         facilities = appointments_proxy.fetch_facilities_from_ids(facility_ids, true)
         adapted_facilities = facilities.map do |facility|
@@ -27,27 +32,43 @@ module Mobile
         when 'home', 'current'
           facilities.sort_by(&:miles)
         when 'alphabetical'
-          facilities.sort_by(&:name)
+          sort_by_name(facilities)
         when 'appointments'
-          sort_by_recent_appointment(facilities)
+          sort_by_recent_appointment(sort_by_name(facilities))
         else
-          raise Common::Exceptions::ValidationErrorsBadRequest.new(
-            detail: 'Invalid sort method', source: self.class.to_s, sort_method: sort_method
-          )
+          raise Common::Exceptions::BackendServiceException, 'unimplemented_sort_method'
         end
       end
 
+      def sort_by_name(facilities)
+        facilities.sort_by(&:name)
+      end
+
       def sort_by_recent_appointment(facilities)
-        facilities.sort_by(&:name) # entries not in recent appointments will be sorted alphabetically
-        appointments = Mobile::V0::Appointment.get_cached(@current_user).sort_by(&:start_date_utc)
-        if appointments.blank?
-          raise Common::Exceptions::RecordNotFound.new(
-            detail: 'Could not fetch user appointments', source: self.class.to_s
-          )
+        appointments = Mobile::V0::Appointment.get_cached(@current_user)&.sort_by(&:start_date_utc)
+
+        log_nil_cache if appointments.nil?
+        return facilities if appointments.blank?
+
+        appointment_facility_ids = appointments.map(&:facility_id).uniq
+
+        appointment_facility_ids.map! do |facility_id|
+          Mobile::V0::Appointment.convert_to_non_prod_id!(facility_id)
         end
-        recent_facilities = appointments.map(&:facility_id).uniq
-        rf_hash = recent_facilities.each_with_index.to_h
-        facilities.sort_by { |facility| [rf_hash[facility.id] || recent_facilities.size, facility.id] }
+
+        appointment_facilities_hash = appointment_facility_ids.each_with_index.to_h
+
+        # appointment_facility_ids.size ensures any facility not found in appointment_facilities_hash is pushed to the
+        # bottom of the array
+        facilities.sort_by { |facility| appointment_facilities_hash[facility.id] || appointment_facility_ids.size }
+      end
+
+      def log_nil_cache
+        Rails.logger.info('mobile facilities info appointments cache nil', user_uuid: @current_user.uuid)
+      end
+
+      def raise_invalid_sort_method_error
+        raise Common::Exceptions::InvalidFieldValue.new('sort', params[:sort])
       end
     end
   end

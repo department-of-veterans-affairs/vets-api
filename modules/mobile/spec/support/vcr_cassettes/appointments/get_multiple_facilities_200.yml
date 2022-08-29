@@ -57,9 +57,9 @@ http_interactions:
         string: |-
           {
             "data" : [ {
-              "id" : "757",
-              "vistaSite" : "757",
-              "vastParent" : "757",
+              "id" : "358",
+              "vistaSite" : "358",
+              "vastParent" : "358",
               "type" : "va_facilities",
               "name" : "Cheyenne VA Medical Center",
               "classification" : "VA Medical Center (VAMC)",
@@ -88,9 +88,9 @@ http_interactions:
                 "code" : "NORMAL"
               }
             }, {
-              "id" : "358",
-              "vistaSite" : "358",
-              "vastParent" : "358",
+              "id" : "757",
+              "vistaSite" : "757",
+              "vastParent" : "757",
               "type" : "va_health_facility",
               "name" : "Ayton VA Medical Center",
               "classification" : "VA Medical Center (VAMC)",
@@ -108,7 +108,28 @@ http_interactions:
                 "postalCode" : "45428-9000"
               },
               "healthService" : [ "Audiology", "Cardiology", "DentalServices", "Dermatology", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "Urology", "WomensHealth" ]
-            } ]
+            }, {
+              "id" : "999",
+              "vistaSite" : "999",
+              "vastParent" : "999",
+              "type" : "va_health_facility",
+              "name" : "American Lake VA Medical Center",
+              "classification" : "VA Medical Center (VAMC)",
+              "lat" : 51.744507,
+              "long" : -151.830956,
+              "website" : "https://www.va.gov/puget-sound-health-care/locations/american-lake-va-medical-center/",
+              "phone" : {
+                "main" : "800-329-8387"
+              },
+              "physicalAddress" : {
+                "type" : "physical",
+                "line" : [ "9600 Veterans Drive Southwest" ],
+                "city" : "Tacoma",
+                "state" : "WA",
+                "postalCode" : "98493-0003"
+              },
+              "healthService" : [ "Audiology", "Cardiology", "DentalServices", "Dermatology", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "Urology", "WomensHealth" ]
+            }]
           }
     recorded_at: Tue, 13 Jul 2021 20:11:33 GMT
   - request:
@@ -217,6 +238,27 @@ http_interactions:
                 "city" : "Dayton",
                 "state" : "OH",
                 "postalCode" : "45428-9000"
+              },
+              "healthService" : [ "Audiology", "Cardiology", "DentalServices", "Dermatology", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "Urology", "WomensHealth" ]
+            }, {
+              "id" : "999",
+              "vistaSite" : "999",
+              "vastParent" : "999",
+              "type" : "va_health_facility",
+              "name" : "American Lake VA Medical Center",
+              "classification" : "VA Medical Center (VAMC)",
+              "lat" : 51.744507,
+              "long" : -151.830956,
+              "website" : "https://www.va.gov/puget-sound-health-care/locations/american-lake-va-medical-center/",
+              "phone" : {
+                "main" : "800-329-8387"
+              },
+              "physicalAddress" : {
+                "type" : "physical",
+                "line" : [ "9600 Veterans Drive Southwest" ],
+                "city" : "Tacoma",
+                "state" : "WA",
+                "postalCode" : "98493-0003"
               },
               "healthService" : [ "Audiology", "Cardiology", "DentalServices", "Dermatology", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "Urology", "WomensHealth" ]
             } ]
