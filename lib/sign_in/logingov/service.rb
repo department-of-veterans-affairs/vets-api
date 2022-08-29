@@ -40,14 +40,14 @@ module SignIn
         )
         response.body
       rescue Common::Client::Errors::ClientError => e
-        raise e
+        raise e, '[SignIn][Logingov][Service] Cannot perform Token request'
       end
 
       def user_info(token)
         response = perform(:get, config.userinfo_path, nil, { 'Authorization' => "Bearer #{token}" })
         response.body
       rescue Common::Client::Errors::ClientError => e
-        raise e
+        raise e, '[SignIn][Logingov][Service] Cannot perform UserInfo request'
       end
 
       def normalized_attributes(user_info, credential_level, client_id)

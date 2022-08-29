@@ -91,7 +91,7 @@ describe SignIn::Idme::Service do
 
     context 'when an issue occurs with the client request' do
       let(:expected_error) { Common::Client::Errors::ClientError }
-      let(:expected_error_message) { 'Cannot perform Token request' }
+      let(:expected_error_message) { '[SignIn][Idme][Service] Cannot perform Token request' }
 
       before do
         allow_any_instance_of(described_class).to receive(:perform).and_raise(Common::Client::Errors::ClientError)
@@ -112,7 +112,7 @@ describe SignIn::Idme::Service do
 
     context 'when an issue occurs with the client request' do
       let(:expected_error) { Common::Client::Errors::ClientError }
-      let(:expected_error_message) { 'Cannot perform UserInfo request' }
+      let(:expected_error_message) { '[SignIn][Idme][Service] Cannot perform UserInfo request' }
 
       before do
         allow_any_instance_of(described_class).to receive(:perform).and_raise(Common::Client::Errors::ClientError)
@@ -125,7 +125,7 @@ describe SignIn::Idme::Service do
 
     context 'when an issue occurs with the JWE decryption' do
       let(:expected_error) { SignIn::Idme::Errors::JWEDecodeError }
-      let(:expected_error_message) { 'JWE is malformed' }
+      let(:expected_error_message) { '[SignIn][Idme][Service] JWE is malformed' }
       let(:malformed_jwe) { OpenStruct.new({ body: 'some-malformed-jwe'.to_json }) }
 
       before do
@@ -139,7 +139,7 @@ describe SignIn::Idme::Service do
 
     context 'when the JWT decoding does not match expected verification' do
       let(:expected_error) { SignIn::Idme::Errors::JWTVerificationError }
-      let(:expected_error_message) { 'JWT body does not match signature' }
+      let(:expected_error_message) { '[SignIn][Idme][Service] JWT body does not match signature' }
       let(:mismatched_public_key) { OpenSSL::PKey::RSA.generate(2048) }
       let(:idme_configuration) { SignIn::Idme::Configuration }
 
@@ -157,7 +157,7 @@ describe SignIn::Idme::Service do
     context 'when the JWT has expired' do
       let(:current_time) { expiration_time + 100 }
       let(:expected_error) { SignIn::Idme::Errors::JWTExpiredError }
-      let(:expected_error_message) { 'JWT has expired' }
+      let(:expected_error_message) { '[SignIn][Idme][Service] JWT has expired' }
 
       it 'raises a jwe expired error with expected message' do
         VCR.use_cassette('identity/idme_200_responses') do
@@ -170,7 +170,7 @@ describe SignIn::Idme::Service do
       let(:current_time) { expiration_time + 100 }
       let(:jwt_decode_error) { JWT::DecodeError }
       let(:expected_error) { SignIn::Idme::Errors::JWTDecodeError }
-      let(:expected_error_message) { 'JWT is malformed' }
+      let(:expected_error_message) { '[SignIn][Idme][Service] JWT is malformed' }
 
       before do
         allow(JWT).to receive(:decode).and_raise(jwt_decode_error)
