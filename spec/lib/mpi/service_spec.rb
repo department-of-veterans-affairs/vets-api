@@ -24,11 +24,16 @@ describe MPI::Service do
   let(:error_texts) { ['Internal System Error'] }
   let(:error_display_name) { 'Internal System Error' }
   let(:id_extension) { '200VGOV-1373004c-e23e-4d94-90c5-5b101f6be54a' }
-  let(:error_details) do
+  let(:add_person_error_details) do
     { other: [{ codeSystem: code_system,
                 code: mpi_error_code,
                 displayName: error_display_name }],
       error_details: { ack_detail_code: ack_detail_code,
+                       id_extension: id_extension,
+                       error_texts: error_texts } }
+  end
+  let(:find_profile_error_details) do
+    { error_details: { ack_detail_code: ack_detail_code,
                        id_extension: id_extension,
                        error_texts: error_texts } }
   end
@@ -141,7 +146,7 @@ describe MPI::Service do
             expect(exception.status).to eq '502'
             expect(exception.source).to eq MPI::Service
 
-            expect(mpi_error_details).to eq(error_details)
+            expect(mpi_error_details).to eq(add_person_error_details)
           end
         end
       end
@@ -169,7 +174,7 @@ describe MPI::Service do
             expect(exception.status).to eq '502'
             expect(exception.source).to eq MPI::Service
 
-            expect(mpi_error_details).to eq(error_details)
+            expect(mpi_error_details).to eq(add_person_error_details)
           end
         end
       end
@@ -274,7 +279,7 @@ describe MPI::Service do
           expect(exception.status).to eq '502'
           expect(exception.source).to eq MPI::Service
 
-          expect(mpi_error_details).to eq(error_details)
+          expect(mpi_error_details).to eq(add_person_error_details)
         end
       end
     end
@@ -414,7 +419,7 @@ describe MPI::Service do
           expect(exception.status).to eq '502'
           expect(exception.source).to eq MPI::Service
 
-          expect(mpi_error_details).to eq(error_details)
+          expect(mpi_error_details).to eq(add_person_error_details)
         end
       end
     end
@@ -445,7 +450,7 @@ describe MPI::Service do
           expect(exception.status).to eq '502'
           expect(exception.source).to eq MPI::Service
 
-          expect(mpi_error_details).to eq(error_details)
+          expect(mpi_error_details).to eq(add_person_error_details)
         end
       end
     end
@@ -638,25 +643,35 @@ describe MPI::Service do
     end
 
     context 'invalid requests' do
-      it 'responds with a SERVER_ERROR if ICN is invalid', :aggregate_failures do
-        allow(user).to receive(:mhv_icn).and_return('invalid-icn-is-here^NI')
-        expect(subject).to receive(:log_exception_to_sentry)
+      context 'invalid ICN' do
+        let(:id_extension) { '200VGOV-d30c3b26-3523-481d-ba7f-cccf67b09d98' }
+        let(:error_texts) { ['Invalid VPID format'] }
 
-        VCR.use_cassette('mpi/find_candidate/invalid_icn') do
-          response = subject.find_profile(user)
+        it 'responds with a SERVER_ERROR', :aggregate_failures do
+          allow(user).to receive(:mhv_icn).and_return('invalid-icn-is-here^NI')
+          expect(subject).to receive(:log_exception_to_sentry)
 
-          server_error_502_expectations_for(response)
+          VCR.use_cassette('mpi/find_candidate/invalid_icn') do
+            response = subject.find_profile(user)
+
+            server_error_502_expectations_for(response)
+          end
         end
       end
 
-      it 'responds with a SERVER_ERROR if ICN has no matches', :aggregate_failures do
-        allow(user).to receive(:mhv_icn).and_return('1008714781V416999')
-        expect(subject).to receive(:log_exception_to_sentry)
+      context 'ICN has no matches' do
+        let(:id_extension) { '200VGOV-c311f64d-267c-43f5-8dd6-fc17d565f5ed' }
+        let(:error_texts) { ['MVI[S]:INVALID REQUEST'] }
 
-        VCR.use_cassette('mpi/find_candidate/icn_not_found') do
-          response = subject.find_profile(user)
+        it 'responds with a SERVER_ERROR', :aggregate_failures do
+          allow(user).to receive(:mhv_icn).and_return('1008714781V416999')
+          expect(subject).to receive(:log_exception_to_sentry)
 
-          server_error_502_expectations_for(response)
+          VCR.use_cassette('mpi/find_candidate/icn_not_found') do
+            response = subject.find_profile(user)
+
+            server_error_502_expectations_for(response)
+          end
         end
       end
     end
@@ -827,6 +842,9 @@ describe MPI::Service do
     end
 
     context 'when a MVI invalid request response is returned' do
+      let(:id_extension) { '200VGOV-2c3c0c78-5e44-4ad2-b542-11388c3e45cd' }
+      let(:error_texts) { ['MVI[S]:INVALID REQUEST'] }
+
       it 'raises a invalid request error', :aggregate_failures do
         invalid_xml = File.read('spec/support/mpi/find_candidate_invalid_request.xml')
         allow_any_instance_of(MPI::Service).to receive(:create_profile_message).and_return(invalid_xml)
@@ -841,6 +859,9 @@ describe MPI::Service do
 
     context 'when a MVI internal system problem response is returned' do
       let(:body) { File.read('spec/support/mpi/find_candidate_ar_code_database_error_response.xml') }
+      let(:ack_detail_code) { 'AR' }
+      let(:id_extension) { 'MCID-12345' }
+      let(:error_texts) { ['Environment Database Error'] }
 
       it 'raises a invalid request error', :aggregate_failures do
         expect(subject).to receive(:log_exception_to_sentry)
@@ -1085,6 +1106,7 @@ end
 
 def server_error_502_expectations_for(response)
   exception = response.error.errors.first
+  mpi_error_details = response.error.original_body
 
   expect(response.class).to eq MPI::Responses::FindProfileResponse
   expect(response.status).to eq server_error
@@ -1093,6 +1115,7 @@ def server_error_502_expectations_for(response)
   expect(exception.code).to eq 'MVI_502'
   expect(exception.status).to eq '502'
   expect(exception.source).to eq MPI::Service
+  expect(mpi_error_details).to eq find_profile_error_details
 end
 
 def server_error_503_expectations_for(response)

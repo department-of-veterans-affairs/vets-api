@@ -48,6 +48,7 @@ module MPI
       ].join('/').freeze
 
       ACKNOWLEDGEMENT_DETAIL_XPATH = 'acknowledgement/acknowledgementDetail/text'
+      ACKNOWLEDGEMENT_TARGET_MESSAGE_ID_EXTENSION_XPATH = 'acknowledgement/targetMessage/id/@extension'
       MULTIPLE_MATCHES_FOUND = 'Multiple Matches Found'
 
       PATIENT_RELATIONSHIP_XPATH = 'patientPerson/personalRelationship'
@@ -82,6 +83,24 @@ module MPI
         return nil unless patient
 
         build_mvi_profile(patient)
+      end
+
+      def error_details
+        error_details = {
+          ack_detail_code: @code,
+          id_extension: locate_element(@original_body, ACKNOWLEDGEMENT_TARGET_MESSAGE_ID_EXTENSION_XPATH),
+          error_texts: []
+        }
+        error_text_nodes = locate_elements(@original_body, ACKNOWLEDGEMENT_DETAIL_XPATH)
+        if error_text_nodes.nil?
+          error_details[:error_texts] = error_text_nodes
+        else
+          error_text_nodes.each do |node|
+            error_text = node.text || node&.nodes&.first&.value
+            error_details[:error_texts].append(error_text) unless error_details[:error_texts].include?(error_text)
+          end
+        end
+        { error_details: error_details }
       end
 
       private
