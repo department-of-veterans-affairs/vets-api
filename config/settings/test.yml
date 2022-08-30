@@ -286,3 +286,15 @@ form_10_10cg:
       client_id: BEEFCAFE1234
       client_secret: C0FFEEFACE4321
       timeout: 10
+
+vha:
+  sharepoint:
+    sharepoint_url: "https://fake_url.com"
+    client_id: "51dadf135qwwc"
+    client_secret: "xxxxxxxxx"
+    tenant_id: "ad21angkl35dadf43ad56"
+    resource: "23asdb54ada655a3"
+    service_name: "VHA-SHAREPOINT"
+    base_path: "/base"
+    authentication_url: "https://fake_auth_url.com"
+    mock: true
