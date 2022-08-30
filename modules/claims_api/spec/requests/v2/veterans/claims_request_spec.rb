@@ -662,7 +662,7 @@ RSpec.describe 'Claims', type: :request do
           end
           let(:claim_by_id_path) { "/services/claims/v2/veterans/#{veteran_id}/claims/#{claim.id}" }
 
-          it "returns a claim with the 'errors' attribute populated" do
+          xit "returns a claim with the 'errors' attribute populated" do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
                 get claim_by_id_path, headers: auth_header
