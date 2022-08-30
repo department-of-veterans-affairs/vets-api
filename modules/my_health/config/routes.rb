@@ -40,4 +40,6 @@ MyHealth::Engine.routes.draw do
       get :show, controller: 'health_record_contents', on: :collection
     end
   end
+
+  get 'apidocs', to: 'apidocs#index'
 end
