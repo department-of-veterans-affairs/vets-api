@@ -12,20 +12,20 @@ describe AppealsApi::HigherLevelReviewCleanUpWeekOldPii, type: :job do
     end
 
     context 'when pii_expunge flag is enabled' do
+      before { Flipper.enable :decision_review_hlr_pii_expunge_enabled }
+
       it 'calls AppealsApi::RemovePii' do
-        with_settings(Settings.modules_appeals_api, higher_level_review_pii_expunge_enabled: true) do
-          described_class.new.perform
-          expect(service).to have_received(:run!)
-        end
+        described_class.new.perform
+        expect(service).to have_received(:run!)
       end
     end
 
     context 'when pii_expunge flag is disabled' do
+      before { Flipper.disable :decision_review_hlr_pii_expunge_enabled }
+
       it 'does not call AppealsApi::RemovePii' do
-        with_settings(Settings.modules_appeals_api, higher_level_review_pii_expunge_enabled: false) do
-          described_class.new.perform
-          expect(service).not_to have_received(:run!)
-        end
+        described_class.new.perform
+        expect(service).not_to have_received(:run!)
       end
     end
   end

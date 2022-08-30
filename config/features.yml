@@ -206,6 +206,18 @@ features:
   decision_review_hlr_status_update_throttling:
     actor_type: user
     description: Throttles requests to CMP when updating HLR statuses
+  decision_review_hlr_pii_expunge_enabled:
+    actor_type: user
+    description: Enables the higher level review PII expunge job
+    enable_in_development: true
+  decision_review_nod_pii_expunge_enabled:
+    actor_type: user
+    description: Enables the notice of disagreement PII expunge job
+    enable_in_development: true
+  decision_review_sc_pii_expunge_enabled:
+    actor_type: user
+    description: Enables the supplemental claim PII expunge job
+    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.

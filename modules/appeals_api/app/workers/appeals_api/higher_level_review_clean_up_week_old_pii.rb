@@ -15,7 +15,7 @@ module AppealsApi
     private
 
     def enabled?
-      Settings.modules_appeals_api.higher_level_review_pii_expunge_enabled
+      Flipper.enabled?(:decision_review_hlr_pii_expunge_enabled)
     end
   end
 end
