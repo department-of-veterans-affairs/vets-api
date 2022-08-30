@@ -4,10 +4,10 @@ module BGS
   class PaymentService < BaseService
     def payment_history(person)
       response = @service.payment_information.retrieve_payment_summary_with_bdn(
-        person[:ptcpnt_id],
-        person[:file_nbr],
+        person.participant_id,
+        person.file_number,
         '00', # payee code
-        person[:ssn_nbr]
+        person.ssn_number
       )
       return empty_response if response[:payments].nil?
 

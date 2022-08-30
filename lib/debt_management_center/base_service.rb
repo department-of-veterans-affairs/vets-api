@@ -14,7 +14,8 @@ module DebtManagementCenter
     private
 
     def init_file_number
-      BGS::PeopleService.new(@user).find_person_by_participant_id[:file_nbr].presence || @user.ssn
+      response = BGS::People::Request.new.find_person_by_participant_id(user: @user)
+      response.file_number || @user.ssn
     rescue
       @user.ssn
     end

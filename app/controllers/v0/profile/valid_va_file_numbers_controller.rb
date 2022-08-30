@@ -6,8 +6,7 @@ module V0
       before_action { authorize :bgs, :access? }
 
       def show
-        service = BGS::PeopleService.new(current_user)
-        response = service.find_person_by_participant_id
+        response = BGS::People::Request.new.find_person_by_participant_id(user: current_user)
 
         render(
           json: valid_va_file_number_data(response),
@@ -18,7 +17,7 @@ module V0
       private
 
       def valid_va_file_number_data(service_response)
-        return { file_nbr: true } if service_response[:file_nbr].present?
+        return { file_nbr: true } if service_response.file_number.present?
 
         { file_nbr: false }
       end

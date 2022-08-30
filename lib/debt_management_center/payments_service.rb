@@ -14,7 +14,7 @@ module DebtManagementCenter
     def initialize(current_user)
       @person =
         begin
-          BGS::PeopleService.new(current_user).find_person_by_participant_id.presence || {}
+          BGS::People::Request.new.find_person_by_participant_id(user: current_user)
         rescue => e
           report_error(e, current_user)
           {}

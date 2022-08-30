@@ -16,9 +16,9 @@ class FormProfiles::DecisionReview < FormProfile
   end
 
   def va_file_number_last_four
+    response = BGS::People::Request.new.find_person_by_participant_id(user: user)
     (
-      BGS::PeopleService.new(user).find_person_by_participant_id[:file_nbr].presence ||
-      user.ssn.presence
+      response.file_number.presence || user.ssn.presence
     )&.last(4)
   end
 end

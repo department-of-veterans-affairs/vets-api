@@ -7,7 +7,8 @@ describe DebtManagementCenter::PaymentsService do
   let(:user) { build(:user, :loa3) }
   let(:bgs_people_service_instance) { double('BGS person service instance') }
   let(:bgs_payment_service_instance) { double('BGS payment service instance') }
-  let(:bgs_person) { { ptcpnt_id: '600061742', file_nbr: '796043735', ssn_nbr: '796043735' } }
+  let(:bgs_person) { BGS::People::Response.new(bgs_person_response) }
+  let(:bgs_person_response) { { ptcpnt_id: '600061742', file_nbr: '796043735', ssn_nbr: '796043735' } }
   let(:bgs_payments) do
     now = DateTime.now
 
@@ -32,7 +33,7 @@ describe DebtManagementCenter::PaymentsService do
   end
 
   def subject
-    expect(BGS::PeopleService).to receive(:new).with(user).and_return(bgs_people_service_instance)
+    expect(BGS::People::Service).to receive(:new).with(user).and_return(bgs_people_service_instance)
     expect(bgs_people_service_instance).to receive(:find_person_by_participant_id).and_return(bgs_person)
     expect(BGS::PaymentService).to receive(:new).with(user).and_return(bgs_payment_service_instance)
     expect(bgs_payment_service_instance).to receive(:payment_history).with(bgs_person).and_return(bgs_payments)
@@ -53,7 +54,7 @@ describe DebtManagementCenter::PaymentsService do
 
     describe 'fetching person' do
       before do
-        expect(BGS::PeopleService).to receive(:new).with(user).and_return(bgs_people_service_instance)
+        expect(BGS::People::Service).to receive(:new).with(user).and_return(bgs_people_service_instance)
       end
 
       context 'when person search raises an error' do
@@ -91,7 +92,7 @@ describe DebtManagementCenter::PaymentsService do
 
     describe 'fetching payments' do
       before do
-        expect(BGS::PeopleService).to receive(:new).with(user).and_return(bgs_people_service_instance)
+        expect(BGS::People::Service).to receive(:new).with(user).and_return(bgs_people_service_instance)
         expect(bgs_people_service_instance).to receive(:find_person_by_participant_id).and_return(bgs_person)
 
         expect(BGS::PaymentService).to receive(:new).with(user).and_return(bgs_payment_service_instance)
