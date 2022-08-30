@@ -53,7 +53,6 @@ redis:
   port: 6379
   app_data:
     url: redis://redis:6379
-    # secondary_url: redis://localhost:6378
   sidekiq:
     url: redis://redis:6379
 
