@@ -12,7 +12,7 @@ Datadog.configure do |c|
 
     # Namespace our app
     c.service = 'vets-api'
-    c.env = Settings.vsp_environment
+    c.env = Settings.vsp_environment unless ENV['DD_ENV']
 
     # Enable instruments
     c.tracing.instrument :rails
