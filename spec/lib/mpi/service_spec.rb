@@ -643,34 +643,30 @@ describe MPI::Service do
     end
 
     context 'invalid requests' do
-      context 'invalid ICN' do
-        let(:id_extension) { '200VGOV-d30c3b26-3523-481d-ba7f-cccf67b09d98' }
-        let(:error_texts) { ['Invalid VPID format'] }
+      let(:expected_rails_log) { 'MVI Record Not Found' }
 
+      context 'invalid ICN' do
         it 'responds with a SERVER_ERROR', :aggregate_failures do
           allow(user).to receive(:mhv_icn).and_return('invalid-icn-is-here^NI')
-          expect(subject).to receive(:log_exception_to_sentry)
+          expect(Rails.logger).to receive(:info).with(expected_rails_log)
 
           VCR.use_cassette('mpi/find_candidate/invalid_icn') do
             response = subject.find_profile(user)
 
-            server_error_502_expectations_for(response)
+            record_not_found_404_expectations_for(response)
           end
         end
       end
 
       context 'ICN has no matches' do
-        let(:id_extension) { '200VGOV-c311f64d-267c-43f5-8dd6-fc17d565f5ed' }
-        let(:error_texts) { ['MVI[S]:INVALID REQUEST'] }
-
         it 'responds with a SERVER_ERROR', :aggregate_failures do
           allow(user).to receive(:mhv_icn).and_return('1008714781V416999')
-          expect(subject).to receive(:log_exception_to_sentry)
+          expect(Rails.logger).to receive(:info).with(expected_rails_log)
 
           VCR.use_cassette('mpi/find_candidate/icn_not_found') do
             response = subject.find_profile(user)
 
-            server_error_502_expectations_for(response)
+            record_not_found_404_expectations_for(response)
           end
         end
       end
@@ -844,15 +840,16 @@ describe MPI::Service do
     context 'when a MVI invalid request response is returned' do
       let(:id_extension) { '200VGOV-2c3c0c78-5e44-4ad2-b542-11388c3e45cd' }
       let(:error_texts) { ['MVI[S]:INVALID REQUEST'] }
+      let(:expected_rails_log) { 'MVI Record Not Found' }
 
       it 'raises a invalid request error', :aggregate_failures do
         invalid_xml = File.read('spec/support/mpi/find_candidate_invalid_request.xml')
         allow_any_instance_of(MPI::Service).to receive(:create_profile_message).and_return(invalid_xml)
-        expect(subject).to receive(:log_exception_to_sentry)
+        expect(Rails.logger).to receive(:info).with(expected_rails_log)
 
         VCR.use_cassette('mpi/find_candidate/invalid') do
           response = subject.find_profile(user)
-          server_error_502_expectations_for(response)
+          record_not_found_404_expectations_for(response)
         end
       end
     end
