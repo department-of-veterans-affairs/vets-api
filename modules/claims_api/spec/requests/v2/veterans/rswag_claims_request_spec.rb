@@ -187,7 +187,7 @@ describe 'Claims', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v2/sw
           before do |example|
             with_okta_user(scopes) do
               VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
-                expect(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_or_evss_id).and_return(nil)
+                expect(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_and_icn).and_return(nil)
                 expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
                   .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_response)
 
@@ -280,7 +280,7 @@ describe 'Claims', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v2/sw
 
           before do |example|
             with_okta_user(scopes) do
-              expect(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_or_evss_id).and_return(nil)
+              expect(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_and_icn).and_return(nil)
               expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
                 .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(nil)
 
