@@ -39,9 +39,10 @@ class FormProfiles::VA5655 < FormProfile
 
     file_number =
       begin
-        BGS::PeopleService.new(@user).find_person_by_participant_id[:file_nbr].presence || @user.ssn
+        response = BGS::People::Request.new.find_person_by_participant_id(user: user)
+        response.file_number.presence || user.ssn
       rescue
-        @user.ssn
+        user.ssn
       end
 
     file_number&.last(4)

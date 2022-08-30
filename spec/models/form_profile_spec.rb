@@ -925,8 +925,8 @@ RSpec.describe FormProfile, type: :model do
       end
 
       before do
-        allow_any_instance_of(BGS::PeopleService).to(
-          receive(:find_person_by_participant_id).and_return({ file_nbr: '796043735' })
+        allow_any_instance_of(BGS::People::Service).to(
+          receive(:find_person_by_participant_id).and_return(BGS::People::Response.new({ file_nbr: '796043735' }))
         )
         allow_any_instance_of(User).to(
           receive(:participant_id).and_return('600061742')
@@ -1255,8 +1255,8 @@ RSpec.describe FormProfile, type: :model do
       let(:prefill) { Oj.load(form_profile.prefill.to_json)['form_data'] }
 
       before do
-        allow_any_instance_of(BGS::PeopleService).to(
-          receive(:find_person_by_participant_id).and_return({ file_nbr: '1234567890' })
+        allow_any_instance_of(BGS::People::Service).to(
+          receive(:find_person_by_participant_id).and_return(BGS::People::Response.new({ file_nbr: '1234567890' }))
         )
         allow_any_instance_of(VAProfile::Models::Address).to(
           receive(:address_line3).and_return('suite 500')
@@ -1304,8 +1304,8 @@ RSpec.describe FormProfile, type: :model do
       let(:prefill) { Oj.load(form_profile.prefill.to_json)['form_data'] }
 
       before do
-        allow_any_instance_of(BGS::PeopleService).to(
-          receive(:find_person_by_participant_id).and_return({ file_nbr: '1234567890' })
+        allow_any_instance_of(BGS::People::Service).to(
+          receive(:find_person_by_participant_id).and_return(BGS::People::Response.new({ file_nbr: '1234567890' }))
         )
         allow_any_instance_of(VAProfile::Models::Address).to(
           receive(:address_line3).and_return('suite 500')

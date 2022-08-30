@@ -4,46 +4,50 @@ require 'rails_helper'
 
 RSpec.describe BGS::PaymentService do
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
-  let(:person_hash) do
+  let(:person) { BGS::People::Response.new(bgs_response) }
+  let(:bgs_response) do
     {
-      file_nbr: '796043735',
-      ssn_nbr: '796043735',
-      ptcpnt_id: '600061742'
+      file_nbr: file_number,
+      ssn_nbr: ssn_number,
+      ptcpnt_id: participant_id
     }
   end
+  let(:file_number) { '796043735' }
+  let(:ssn_number) { '796043735' }
+  let(:participant_id) { '600061742' }
 
   describe '#payment_history' do
     it 'returns a user\'s payment history given the user\'s participant id and file number' do
       VCR.use_cassette('bgs/payment_service/payment_history') do
         service = BGS::PaymentService.new(user)
-        response = service.payment_history(person_hash)
+        response = service.payment_history(person)
 
         expect(response).to include(:payments)
       end
     end
 
-    it 'returns an empty result if there are no results for the user' do
-      VCR.use_cassette('bgs/payment_service/no_payment_history') do
-        person_hash[:file_nbr] = '000000000'
-        person_hash[:ptcpnt_id] = '000000000'
+    context 'if there are no results for the user' do
+      let(:file_number) { '000000000' }
+      let(:participant_id) { '000000000' }
 
-        response = BGS::PaymentService.new(user).payment_history(person_hash)
-
-        expect(response).to include({ payments: { payment: [] } })
+      it 'returns an empty result' do
+        VCR.use_cassette('bgs/payment_service/no_payment_history') do
+          response = BGS::PaymentService.new(user).payment_history(person)
+          expect(response).to include({ payments: { payment: [] } })
+        end
       end
     end
 
     context 'error' do
+      let(:file_number) { '000000000' }
+      let(:participant_id) { '000000000' }
+
       it 'logs an error' do
         response = BGS::PaymentService.new(user)
-
-        person_hash[:file_nbr] = '000000000'
-        person_hash[:ptcpnt_id] = '000000000'
         expect_any_instance_of(BGS::PaymentInformationService)
           .to receive(:retrieve_payment_summary_with_bdn).and_raise(StandardError)
         expect(response).to receive(:log_exception_to_sentry)
-
-        response.payment_history(person_hash)
+        response.payment_history(person)
       end
     end
   end

@@ -12,27 +12,6 @@ module BGS
     private
 
     def initialize_service
-      external_key = @user.common_name || @user.email
-
-      # temp logging to figure out why mobile is seeing failures from external_key being nil
-      if external_key.blank?
-        Rails.logger.info('BGS External Keys Nil', {
-                            common_name_nil: @user.common_name.nil?,
-                            email_nil: @user.email.nil?
-                          })
-      end
-
-      if external_key.length > 39
-        external_key = external_key[0, 39]
-
-        # this is temp logging
-        if @user.common_name.present? && @user.common_name.length > 39
-          log_message_to_sentry('common name greater than 39', :info, {}, { team: 'vfs-ebenefits' })
-        elsif @user.email.present? && @user.email.length > 39
-          log_message_to_sentry('email greater than 39', :info, {}, { team: 'vfs-ebenefits' })
-        end
-      end
-
       BGS::Services.new(
         external_uid: @user.icn,
         external_key: external_key
@@ -47,6 +26,14 @@ module BGS
         },
         { team: 'vfs-ebenefits' }
       )
+    end
+
+    def external_key
+      key = @user.common_name.presence || @user.email
+
+      raise Errors::MissingExternalKeyError if key.blank?
+
+      key.first(39)
     end
   end
 end

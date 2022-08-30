@@ -49,7 +49,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       VCR.use_cassette 'veteran_readiness_employment/add_claimant_info' do
         people_service_object = double('people_service')
         allow(people_service_object).to receive(:find_person_by_participant_id)
-        allow(BGS::PeopleService).to receive(:new) { people_service_object }
+        allow(BGS::People::Request).to receive(:new) { people_service_object }
 
         claim.add_claimant_info(user_object)
         expect(claim.parsed_form['veteranInformation']).to include('VAFileNumber' => nil)
