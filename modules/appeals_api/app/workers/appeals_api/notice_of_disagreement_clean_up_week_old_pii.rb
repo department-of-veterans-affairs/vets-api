@@ -15,7 +15,7 @@ module AppealsApi
     private
 
     def enabled?
-      Settings.modules_appeals_api.notice_of_disagreement_pii_expunge_enabled
+      Flipper.enabled?(:decision_review_nod_pii_expunge_enabled)
     end
   end
 end

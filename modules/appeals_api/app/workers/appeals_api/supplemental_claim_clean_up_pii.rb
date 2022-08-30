@@ -15,7 +15,7 @@ module AppealsApi
     private
 
     def enabled?
-      Settings.modules_appeals_api.supplemental_claim_pii_expunge_enabled
+      Flipper.enabled?(:decision_review_sc_pii_expunge_enabled)
     end
   end
 end
