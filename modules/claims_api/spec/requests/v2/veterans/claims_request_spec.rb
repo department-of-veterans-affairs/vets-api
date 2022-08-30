@@ -651,6 +651,7 @@ RSpec.describe 'Claims', type: :request do
               :auto_established_claim_with_supporting_documents,
               :status_errored,
               source: 'abraham lincoln',
+              veteran_icn: veteran_id,
               evss_response: [
                 {
                   severity: 'ERROR',
@@ -660,9 +661,9 @@ RSpec.describe 'Claims', type: :request do
               ]
             )
           end
-          let(:claim_by_id_path) { "/services/claims/v2/veterans/#{veteran_id}/claims/#{claim.id}" }
+          let(:claim_by_id_path) { "/services/claims/v2/veterans/#{claim.veteran_icn}/claims/#{claim.id}" }
 
-          xit "returns a claim with the 'errors' attribute populated" do
+          it "returns a claim with the 'errors' attribute populated" do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
                 get claim_by_id_path, headers: auth_header
