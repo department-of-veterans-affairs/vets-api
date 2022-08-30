@@ -94,6 +94,10 @@ module ClaimsApi
       end
     end
 
+    def self.get_by_id_and_icn(id, icn)
+      find_by(id: id, veteran_icn: icn)
+    end
+
     def set_md5
       headers = auth_headers.except('va_eauth_authenticationauthority',
                                     'va_eauth_service_transaction_id',
