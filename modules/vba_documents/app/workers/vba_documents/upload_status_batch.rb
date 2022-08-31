@@ -9,16 +9,12 @@ module VBADocuments
       unique_until: :success
     )
 
-    DIVISION_SIZE = 5.0
+    BATCH_SIZE = 100
 
     def perform
       if Settings.vba_documents.updater_enabled
         Sidekiq::Batch.new.jobs do
-          submissions = filtered_submissions
-          slice_size = (submissions.count / DIVISION_SIZE).ceil
-          next unless slice_size.positive?
-
-          submissions.each_slice(slice_size) do |slice|
+          filtered_submissions.each_slice(BATCH_SIZE) do |slice|
             VBADocuments::UploadStatusUpdater.perform_async(slice)
           end
         end
