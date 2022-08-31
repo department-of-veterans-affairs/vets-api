@@ -6,6 +6,16 @@ require 'common/client/errors'
 module VAOS
   module V2
     class MobileFacilityService < VAOS::SessionService
+      def get_clinic(station_id: nil, clinic_id: nil)
+        params = {}
+        parent_site_id = station_id[0, 3]
+        clinic_path = "/facilities/v2/facilities/#{parent_site_id}/clinics/#{clinic_id}"
+        with_monitoring do
+          response = perform(:get, clinic_path, params, headers)
+          OpenStruct.new(response[:body][:data])
+        end
+      end
+
       def get_facilities(ids:, children: nil, type: nil, pagination_params: {})
         params = {
           ids: ids,
