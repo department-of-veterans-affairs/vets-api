@@ -59,9 +59,9 @@ module DebtManagementCenter
     end
 
     def submit_combined_fsr(form)
-      persist_form_submission(form)
+      submission = persist_form_submission(form)
       vba_status = submit_vba_fsr(form) if selected_vba_debts(form['selectedDebtsAndCopays']).present?
-      vha_status = submit_vha_fsr(form) if selected_vha_copays(form['selectedDebtsAndCopays']).present?
+      vha_status = submit_vha_fsr(form, submission&.id) if selected_vha_copays(form['selectedDebtsAndCopays']).present?
 
       { vba_status: vba_status, vha_status: vha_status }.compact
     end
@@ -77,8 +77,8 @@ module DebtManagementCenter
       { status: fsr_response.status }
     end
 
-    def submit_vha_fsr(form)
-      vha_forms = parse_vha_form(form)
+    def submit_vha_fsr(form, form_submission_id)
+      vha_forms = parse_vha_form(form, form_submission_id)
       request = DebtManagementCenter::VBS::Request.build
       vbs_responses = []
       vha_forms.each do |vha_form|
@@ -97,7 +97,7 @@ module DebtManagementCenter
       raise Common::Client::Errors::ClientError.new('malformed request', 400)
     end
 
-    def parse_vha_form(form)
+    def parse_vha_form(form, form_submission_id)
       facility_forms = []
       facility_copays = selected_vha_copays(form['selectedDebtsAndCopays']).group_by do |copay|
         copay['station']['facilitYNum']
@@ -109,6 +109,7 @@ module DebtManagementCenter
         facility_form = form.deep_dup
         facility_form['personalIdentification']['fsrReason'] = fsr_reason
         facility_form['facilityNum'] = facility_num
+        facility_form['transactionId'] = form_submission_id
         facility_form.delete('selectedDebtsAndCopays')
         facility_forms << remove_form_delimiters(facility_form)
       end
