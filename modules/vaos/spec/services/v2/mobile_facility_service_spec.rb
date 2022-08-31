@@ -102,6 +102,41 @@ describe VAOS::V2::MobileFacilityService do
     end
   end
 
+  describe '#get_clinic' do
+    context 'with a valid request and station is a parent VHA facility' do
+      it 'returns the clinic information' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200',
+                         match_requests_on: %i[method path query]) do
+          clinic = subject.get_clinic(station_id: '983', clinic_id: '455')
+          expect(clinic[:station_id]).to eq('983')
+          expect(clinic[:clinic_id]).to eq('455')
+        end
+      end
+    end
+
+    context 'with a valid request and station is not a parent VHA facility' do
+      it 'returns the clinic information' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200',
+                         match_requests_on: %i[method path query]) do
+          clinic = subject.get_clinic(station_id: '983GB', clinic_id: '1053')
+          expect(clinic[:station_id]).to eq('983GB')
+          expect(clinic[:clinic_id]).to eq('1053')
+        end
+      end
+    end
+
+    context 'with a non existing clinic' do
+      it 'raises a BackendServiceException' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_500',
+                         match_requests_on: %i[method path query]) do
+          expect { subject.get_clinic(station_id: '983', clinic_id: 'does_not_exist') }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
+  end
+
   describe '#get_facility' do
     context 'with a valid request' do
       it 'returns a facility' do

@@ -79,15 +79,13 @@ module VAOS
       private
 
       def appointments_service
-        VAOS::V2::AppointmentsService.new(current_user)
-      end
-
-      def systems_service
-        VAOS::V2::SystemsService.new(current_user)
+        @appointments_service ||=
+          VAOS::V2::AppointmentsService.new(current_user)
       end
 
       def mobile_facility_service
-        VAOS::V2::MobileFacilityService.new(current_user)
+        @mobile_facility_service ||=
+          VAOS::V2::MobileFacilityService.new(current_user)
       end
 
       def appointments
@@ -143,14 +141,15 @@ module VAOS
       end
 
       def get_clinic(location_id, clinic_id)
-        clinics = systems_service.get_facility_clinics(location_id: location_id, clinic_ids: clinic_id)
-        clinics.first unless clinics.empty?
-      rescue Common::Exceptions::BackendServiceException
+        mobile_facility_service.get_clinic(station_id: location_id, clinic_id: clinic_id)
+      rescue Common::Exceptions::BackendServiceException => e
         Rails.logger.error(
           "Error fetching clinic #{clinic_id} for location #{location_id}",
           clinic_id: clinic_id,
-          location_id: location_id
+          location_id: location_id,
+          vamf_msg: e.original_body
         )
+        nil # on error log and return nil, calling code will handle nil
       end
 
       def get_facility(location_id)
