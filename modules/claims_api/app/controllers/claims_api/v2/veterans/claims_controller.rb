@@ -67,6 +67,7 @@ module ClaimsApi
           end
           structure.merge!(errors: get_errors(lighthouse_claim))
           structure.merge!(supporting_documents: build_supporting_docs(bgs_claim))
+          structure.merge!(tracked_items: map_bgs_tracked_items(bgs_claim))
         end
 
         def map_claims(bgs_claims:, lighthouse_claims:) # rubocop:disable Metrics/MethodLength
@@ -162,7 +163,6 @@ module ClaimsApi
             submitter_application_code: data[:submtr_applcn_type_cd],
             submitter_role_code: data[:submtr_role_type_cd],
             temp_jurisdiction: data[:temp_regional_office_jrsdctn],
-            tracked_items: map_bgs_tracked_items(upstream_id),
             '5103_waiver_submitted'.to_sym => map_yes_no_to_boolean('filed5103_waiver_ind',
                                                                     data[:filed5103_waiver_ind])
           }
@@ -210,7 +210,12 @@ module ClaimsApi
           end
         end
 
-        def map_bgs_tracked_items(claim_id)
+        def map_bgs_tracked_items(bgs_claim)
+          return [] if bgs_claim.nil?
+
+          claim_id = bgs_claim.dig(:benefit_claim_details_dto, :benefit_claim_id)
+          return [] if claim_id.nil?
+
           bgs_response = bgs_service.tracked_items.find_tracked_items(claim_id)
           bgs = bgs_response.dig(:benefit_claim, :dvlpmt_items) || []
           bgs.map do |item|
