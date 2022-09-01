@@ -120,22 +120,27 @@
       "description": "Information regarding any supported documents attached to a claim",
       "items": {
         "properties": {
-          "id": {
+          "documentId": {
             "type": "string",
             "description": "Unique identifier of document"
           },
-          "md5": {
+          "documentTypeLabel": {
             "type": "string",
-            "description": "Hashed representation of document"
+            "nullable": true
           },
-          "filename": {
+          "originalFileName": {
             "type": "string",
-            "description": "Name of document"
+            "description": "Name of document",
+            "nullable": true
           },
-          "uploadedAt": {
+          "trackedItemId": {
             "type": "string",
-            "format": "date",
-            "description": "Date and time document was uploaded"
+            "nullable": true
+          },
+          "uploadDate": {
+            "type": "date",
+            "description": "Date and time document was uploaded",
+            "nullable": true
           }
         }
       }
