@@ -178,6 +178,13 @@
                 },
                 "inheritedProofVerified": {
                   "type": "boolean"
+                },
+                "claims": {
+                  "type": "object",
+                  "properties": {
+                    "militaryHistory": { "type": "boolean" },
+                    "paymentHistory": { "type": "boolean" }
+                  }
                 }
               }
             },

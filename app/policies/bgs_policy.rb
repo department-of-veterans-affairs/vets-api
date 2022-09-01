@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 BGSPolicy = Struct.new(:user, :bgs) do
-  def access?
+  def access?(log_stats: true)
     accessible = user.icn.present? && user.ssn.present? && user.participant_id.present?
-    increment_statsd(accessible) if user.loa3?
+    increment_statsd(accessible) if user.loa3? && log_stats
     accessible
   end
 

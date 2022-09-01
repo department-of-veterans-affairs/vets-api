@@ -86,7 +86,14 @@
                   }
                 },
                 "authn_context": { "type": "string" },
-                "inherited_proof_verified": { "type": "boolean" }
+                "inherited_proof_verified": { "type": "boolean" },
+                "claims": {
+                  "type": "object",
+                  "properties":  {
+                    "military_history": { "type": "boolean" },
+                    "payment_history": { "type": "boolean" }
+                  }
+                }
               }
             },
             "va_profile": {
