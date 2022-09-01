@@ -78,7 +78,15 @@ module Users
         verified: user.loa3?,
         sign_in: user.identity.sign_in,
         authn_context: user.authn_context,
-        inherited_proof_verified: user.inherited_proof_verified
+        inherited_proof_verified: user.inherited_proof_verified,
+        claims: claims
+      }
+    end
+
+    def claims
+      {
+        military_history: Vet360Policy.new(user).military_access?,
+        payment_history: BGSPolicy.new(user).access?(log_stats: false)
       }
     end
 

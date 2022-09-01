@@ -44,5 +44,15 @@ RSpec.describe V0::UsersController, type: :controller do
       expect(response).to be_successful
       expect(mailing_address.key?('bad_address')).to be(true)
     end
+
+    it 'returns a JSON user profile with claims' do
+      get :show
+      json = json_body_for(response)
+      expect(response).to be_successful
+
+      claims = json.dig('attributes', 'profile', 'claims')
+      expect(claims.key?('military_history')).to be(true)
+      expect(claims.key?('payment_history')).to be(true)
+    end
   end
 end
