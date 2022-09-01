@@ -412,18 +412,20 @@ RSpec.describe 'Claims', type: :request do
               it "provides a value for 'lighthouseId' and 'claimId'" do
                 with_okta_user(scopes) do |auth_header|
                   VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
-                    expect(ClaimsApi::AutoEstablishedClaim)
-                      .to receive(:get_by_id_and_icn).and_return(lighthouse_claim)
-                    expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
-                      .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
+                    VCR.use_cassette('evss/documents/get_claim_documents') do
+                      expect(ClaimsApi::AutoEstablishedClaim)
+                        .to receive(:get_by_id_and_icn).and_return(lighthouse_claim)
+                      expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                        .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
 
-                    get matched_claim_veteran_path, headers: auth_header
+                      get matched_claim_veteran_path, headers: auth_header
 
-                    json_response = JSON.parse(response.body)
-                    expect(response.status).to eq(200)
-                    expect(json_response).to be_an_instance_of(Hash)
-                    expect(json_response['status']).to eq('no status received')
-                    expect(json_response['claimId']).to eq('111111111')
+                      json_response = JSON.parse(response.body)
+                      expect(response.status).to eq(200)
+                      expect(json_response).to be_an_instance_of(Hash)
+                      expect(json_response['lighthouseId']).to eq(lighthouse_claim.id)
+                      expect(json_response['claimId']).to eq('111111111')
+                    end
                   end
                 end
               end
@@ -470,18 +472,20 @@ RSpec.describe 'Claims', type: :request do
               it "provides a value for 'lighthouseId' and 'claimId'" do
                 with_okta_user(scopes) do |auth_header|
                   VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
-                    expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
-                      .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
-                    expect(ClaimsApi::AutoEstablishedClaim)
-                      .to receive(:get_by_id_and_icn).and_return(lighthouse_claim)
+                    VCR.use_cassette('evss/documents/get_claim_documents') do
+                      expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                        .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
+                      expect(ClaimsApi::AutoEstablishedClaim)
+                        .to receive(:get_by_id_and_icn).and_return(lighthouse_claim)
 
-                    get claim_by_id_path, headers: auth_header
+                      get claim_by_id_path, headers: auth_header
 
-                    json_response = JSON.parse(response.body)
-                    expect(response.status).to eq(200)
-                    expect(json_response).to be_an_instance_of(Hash)
-                    expect(json_response['lighthouseId']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
-                    expect(json_response['claimId']).to eq('111111111')
+                      json_response = JSON.parse(response.body)
+                      expect(response.status).to eq(200)
+                      expect(json_response).to be_an_instance_of(Hash)
+                      expect(json_response['lighthouseId']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
+                      expect(json_response['claimId']).to eq('111111111')
+                    end
                   end
                 end
               end
@@ -492,18 +496,20 @@ RSpec.describe 'Claims', type: :request do
             it "provides a value for 'claimId', but 'lighthouseId' will be 'nil' " do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
-                  expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
-                    .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
-                  expect(ClaimsApi::AutoEstablishedClaim)
-                    .to receive(:get_by_id_and_icn).and_return(nil)
+                  VCR.use_cassette('evss/documents/get_claim_documents') do
+                    expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                      .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
+                    expect(ClaimsApi::AutoEstablishedClaim)
+                      .to receive(:get_by_id_and_icn).and_return(nil)
 
-                  get claim_by_id_path, headers: auth_header
+                    get claim_by_id_path, headers: auth_header
 
-                  json_response = JSON.parse(response.body)
-                  expect(response.status).to eq(200)
-                  expect(json_response).to be_an_instance_of(Hash)
-                  expect(json_response['claimId']).to eq('111111111')
-                  expect(json_response['lighthouseId']).to be nil
+                    json_response = JSON.parse(response.body)
+                    expect(response.status).to eq(200)
+                    expect(json_response).to be_an_instance_of(Hash)
+                    expect(json_response['claimId']).to eq('111111111')
+                    expect(json_response['lighthouseId']).to be nil
+                  end
                 end
               end
             end
@@ -528,17 +534,19 @@ RSpec.describe 'Claims', type: :request do
           it "sets the 'status'" do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
-                expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
-                  .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
-                expect(ClaimsApi::AutoEstablishedClaim)
-                  .to receive(:get_by_id_and_icn).and_return(nil)
+                VCR.use_cassette('evss/documents/get_claim_documents') do
+                  expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                    .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
+                  expect(ClaimsApi::AutoEstablishedClaim)
+                    .to receive(:get_by_id_and_icn).and_return(nil)
 
-                get claim_by_id_path, headers: auth_header
+                  get claim_by_id_path, headers: auth_header
 
-                json_response = JSON.parse(response.body)
-                expect(response.status).to eq(200)
-                expect(json_response).to be_an_instance_of(Hash)
-                expect(json_response['status']).to eq('PENDING')
+                  json_response = JSON.parse(response.body)
+                  expect(response.status).to eq(200)
+                  expect(json_response).to be_an_instance_of(Hash)
+                  expect(json_response['status']).to eq('PENDING')
+                end
               end
             end
           end
@@ -560,17 +568,19 @@ RSpec.describe 'Claims', type: :request do
           it "the v2 mapper sets the correct 'status'" do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
-                expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
-                  .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
-                expect(ClaimsApi::AutoEstablishedClaim)
-                  .to receive(:get_by_id_and_icn).and_return(nil)
+                VCR.use_cassette('evss/documents/get_claim_documents') do
+                  expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                    .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
+                  expect(ClaimsApi::AutoEstablishedClaim)
+                    .to receive(:get_by_id_and_icn).and_return(nil)
 
-                get claim_by_id_path, headers: auth_header
+                  get claim_by_id_path, headers: auth_header
 
-                json_response = JSON.parse(response.body)
-                expect(response.status).to eq(200)
-                expect(json_response).to be_an_instance_of(Hash)
-                expect(json_response['status']).to eq('PREPARATION_FOR_NOTIFICATION')
+                  json_response = JSON.parse(response.body)
+                  expect(response.status).to eq(200)
+                  expect(json_response).to be_an_instance_of(Hash)
+                  expect(json_response['status']).to eq('PREPARATION_FOR_NOTIFICATION')
+                end
               end
             end
           end
@@ -592,17 +602,19 @@ RSpec.describe 'Claims', type: :request do
           it "the v2 mapper sets the 'status' correctly" do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
-                expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
-                  .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
-                expect(ClaimsApi::AutoEstablishedClaim)
-                  .to receive(:get_by_id_and_icn).and_return(nil)
+                VCR.use_cassette('evss/documents/get_claim_documents') do
+                  expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                    .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
+                  expect(ClaimsApi::AutoEstablishedClaim)
+                    .to receive(:get_by_id_and_icn).and_return(nil)
 
-                get claim_by_id_path, headers: auth_header
+                  get claim_by_id_path, headers: auth_header
 
-                json_response = JSON.parse(response.body)
-                expect(response.status).to eq(200)
-                expect(json_response).to be_an_instance_of(Hash)
-                expect(json_response['status']).to eq('EVIDENCE_GATHERING_REVIEW_DECISION')
+                  json_response = JSON.parse(response.body)
+                  expect(response.status).to eq(200)
+                  expect(json_response).to be_an_instance_of(Hash)
+                  expect(json_response['status']).to eq('EVIDENCE_GATHERING_REVIEW_DECISION')
+                end
               end
             end
           end
@@ -628,18 +640,128 @@ RSpec.describe 'Claims', type: :request do
           it "returns a claim with the 'claimId' and 'lighthouseId' set" do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
+                VCR.use_cassette('evss/documents/get_claim_documents') do
+                  expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                    .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
+                  expect(ClaimsApi::AutoEstablishedClaim)
+                    .to receive(:get_by_id_and_icn).and_return(nil)
+
+                  get claim_by_id_path, headers: auth_header
+
+                  json_response = JSON.parse(response.body)
+                  expect(response.status).to eq(200)
+                  expect(json_response).to be_an_instance_of(Hash)
+                  expect(json_response['claimType']).to eq('value from BGS')
+                  expect(json_response['status']).to eq('PENDING')
+                end
+              end
+            end
+          end
+        end
+      end
+
+      describe "handling the 'supporting_documents'" do
+        context 'it has documents' do
+          let(:bgs_claim) do
+            {
+              benefit_claim_details_dto: {
+                benefit_claim_id: '111111111',
+                claim_status_type: 'value from BGS',
+                bnft_claim_lc_status: [{
+                  phas_chngd_dt: DateTime.now,
+                  phase_type: 'Pending'
+                }, {
+                  phas_chngd_dt: DateTime.now - 1.day,
+                  phase_type: 'Initial Review'
+                }]
+              }
+            }
+          end
+
+          it "returns a claim with 'supporting_documents'" do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
+                VCR.use_cassette('evss/documents/get_claim_documents') do
+                  expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                    .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
+                  expect(ClaimsApi::AutoEstablishedClaim)
+                    .to receive(:get_by_id_and_icn).and_return(nil)
+
+                  get claim_by_id_path, headers: auth_header
+
+                  json_response = JSON.parse(response.body)
+                  first_doc_id = json_response.dig('supportingDocuments', 0, 'documentId')
+                  expect(response.status).to eq(200)
+                  expect(json_response).to be_an_instance_of(Hash)
+                  expect(json_response['claimType']).to eq('value from BGS')
+                  expect(first_doc_id).to eq('{54EF0C16-A9E7-4C3F-B876-B2C7BEC1F834}')
+                end
+              end
+            end
+          end
+        end
+
+        context 'it has no documents' do
+          let(:bgs_claim) do
+            {
+              benefit_claim_details_dto: {
+                benefit_claim_id: '222222222',
+                claim_status_type: 'value from BGS',
+                bnft_claim_lc_status: [{
+                  phas_chngd_dt: DateTime.now,
+                  phase_type: 'Pending'
+                }, {
+                  phas_chngd_dt: DateTime.now - 1.day,
+                  phase_type: 'Initial Review'
+                }]
+              }
+            }
+          end
+
+          it "returns a claim with 'suporting_documents' as an empty array" do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
+                VCR.use_cassette('evss/documents/get_claim_documents') do
+                  expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                    .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
+                  expect(ClaimsApi::AutoEstablishedClaim)
+                    .to receive(:get_by_id_and_icn).and_return(nil)
+
+                  get claim_by_id_path, headers: auth_header
+
+                  json_response = JSON.parse(response.body)
+                  expect(response.status).to eq(200)
+                  expect(json_response).to be_an_instance_of(Hash)
+                  expect(json_response['claimType']).to eq('value from BGS')
+                  expect(json_response['supportingDocuments']).to be_empty
+                end
+              end
+            end
+          end
+        end
+
+        context 'it has no bgs_claim' do
+          let(:lighthouse_claim) do
+            create(:auto_established_claim, status: 'PENDING', veteran_icn: '1013062086V794840',
+                                            evss_id: '111111111')
+          end
+          let(:matched_claim_veteran_path) do
+            "/services/claims/v2/veterans/#{lighthouse_claim.veteran_icn}/claims/#{lighthouse_claim.id}"
+          end
+          let(:bgs_claim) { nil }
+
+          it "returns a claim with 'suporting_documents' as an empty array" do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                 expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
                   .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
-                expect(ClaimsApi::AutoEstablishedClaim)
-                  .to receive(:get_by_id_and_icn).and_return(nil)
 
-                get claim_by_id_path, headers: auth_header
+                get matched_claim_veteran_path, headers: auth_header
 
                 json_response = JSON.parse(response.body)
                 expect(response.status).to eq(200)
                 expect(json_response).to be_an_instance_of(Hash)
-                expect(json_response['claimType']).to eq('value from BGS')
-                expect(json_response['status']).to eq('PENDING')
+                expect(json_response['supportingDocuments']).to be_empty
               end
             end
           end

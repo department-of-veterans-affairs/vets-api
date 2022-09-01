@@ -28,25 +28,7 @@ module ClaimsApi
         field :submitter_role_code
         field :temp_jurisdiction
         field :tracked_items
-        field :supporting_documents do |claim, _options|
-          auto_established_claim = ClaimsApi::AutoEstablishedClaim.find_by evss_id: claim[:id]
-          if auto_established_claim.present?
-            auto_established_claim.supporting_documents.map do |document|
-              {
-                id: document.id,
-                md5: if document.file_data['filename'].present?
-                       Digest::MD5.hexdigest(document.file_data['filename'])
-                     else
-                       ''
-                     end,
-                filename: document.file_data['filename'],
-                uploaded_at: document.created_at
-              }
-            end
-          else
-            []
-          end
-        end
+        field :supporting_documents
         field '5103_waiver_submitted'.to_sym
 
         transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
