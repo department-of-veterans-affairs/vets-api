@@ -196,7 +196,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'using salesforce' do
       before do
         allow(Flipper).to receive(:enabled?).with(:caregiver_mulesoft).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:caregiver_async).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:caregiver_async, nil).and_return(false)
       end
 
       it 'supports adding an caregiver\'s assistance claim' do
