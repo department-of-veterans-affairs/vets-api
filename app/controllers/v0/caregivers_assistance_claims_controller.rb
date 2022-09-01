@@ -17,7 +17,9 @@ module V0
         Raven.tags_context(claim_guid: @claim.guid)
         auditor.record_caregivers(@claim)
 
-        if Flipper.enabled?(:caregiver_async)
+        load_user
+
+        if Flipper.enabled?(:caregiver_async, current_user)
           ::Form1010cg::Service.new(@claim).assert_veteran_status
 
           @claim.save!
