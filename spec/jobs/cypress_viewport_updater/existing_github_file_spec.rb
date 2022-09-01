@@ -77,8 +77,8 @@ RSpec.shared_examples 'an existing file' do
 end
 
 context CypressViewportUpdater::ExistingGithubFile do
-  let!(:github_path) { 'config/cypress.json' }
-  let!(:name) { 'cypress.json' }
+  let!(:github_path) { 'config/cypress.config.js' }
+  let!(:name) { 'cypress.config.js' }
 
   before do
     @file = described_class.new(github_path: github_path, name: name)
@@ -87,9 +87,9 @@ context CypressViewportUpdater::ExistingGithubFile do
   it_behaves_like 'an existing file'
 end
 
-context CypressViewportUpdater::CypressJsonFile do
-  let!(:github_path) { 'config/cypress.json' }
-  let!(:name) { 'cypress.json' }
+context CypressViewportUpdater::CypressConfigJsFile do
+  let!(:github_path) { 'config/cypress.config.js' }
+  let!(:name) { 'cypress.config.js' }
 
   before do
     @file = described_class.new

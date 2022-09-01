@@ -2,7 +2,10 @@
 
 require 'rails_helper'
 
-RSpec.describe CypressViewportUpdater::CypressJsonFile do
+LINES_TO_SKIP = %w[vaTopTabletViewportsIterateUptoIndex vaTopDesktopViewportsIterateUptoIndex].freeze
+SPECIAL_CHARS = %w[\[ \] { }].freeze
+
+RSpec.describe CypressViewportUpdater::CypressConfigJsFile do
   VCR.configure do |c|
     # the following filter is used on requests to
     # https://analyticsreporting.googleapis.com/v4/reports:batchGet
@@ -67,7 +70,7 @@ RSpec.describe CypressViewportUpdater::CypressJsonFile do
                    .new(user_report: google.user_report)
                    .create(viewport_report: google.viewport_report)
 
-      VCR.use_cassette('cypress_viewport_updater/github_get_cypress_json_file') do
+      VCR.use_cassette('cypress_viewport_updater/github_get_cypress_config_js_file') do
         CypressViewportUpdater::GithubService
           .new
           .get_content(file: @file)
@@ -88,28 +91,25 @@ RSpec.describe CypressViewportUpdater::CypressJsonFile do
 
     it 'creates the correct number of mobile viewport objects' do
       required_number = CypressViewportUpdater::Viewports::NUM_TOP_VIEWPORTS[:mobile]
-      data = JSON.parse(@file.update(viewports: @viewports).updated_content)
-      actual_number = data['env']['vaTopMobileViewports'].count
-      expect(required_number).to eq(actual_number)
+      data = @file.update(viewports: @viewports).updated_content
+      expect(data.scan('VA Top Mobile Viewports').count).to eq(required_number)
     end
 
     it 'creates the correct number of tablet viewport objects' do
       required_number = CypressViewportUpdater::Viewports::NUM_TOP_VIEWPORTS[:tablet]
-      data = JSON.parse(@file.update(viewports: @viewports).updated_content)
-      actual_number = data['env']['vaTopTabletViewports'].count
-      expect(required_number).to eq(actual_number)
+      data = @file.update(viewports: @viewports).updated_content
+      expect(data.scan('VA Top Tablet Viewports').count).to eq(required_number)
     end
 
     it 'creates the correct number of desktop viewport objects' do
       required_number = CypressViewportUpdater::Viewports::NUM_TOP_VIEWPORTS[:desktop]
-      data = JSON.parse(@file.update(viewports: @viewports).updated_content)
-      actual_number = data['env']['vaTopDesktopViewports'].count
-      expect(required_number).to eq(actual_number)
+      data = @file.update(viewports: @viewports).updated_content
+      expect(data.scan('VA Top Desktop Viewports').count).to eq(required_number)
     end
 
     it 'creates mobile viewport objects with the correct data' do
-      data = JSON.parse(@file.update(viewports: @viewports).updated_content)
-      mobile_viewports = data['env']['vaTopMobileViewports']
+      data = @file.update(viewports: @viewports).updated_content
+      mobile_viewports = extract_viewport_data_from_javascript_file(data: data)['vaTopMobileViewports']
 
       if @viewports.mobile.count == mobile_viewports.count
         @viewports.mobile.each_with_index do |new_data, i|
@@ -126,8 +126,8 @@ RSpec.describe CypressViewportUpdater::CypressJsonFile do
     end
 
     it 'creates tablet viewport objects with the correct data' do
-      data = JSON.parse(@file.update(viewports: @viewports).updated_content)
-      tablet_viewports = data['env']['vaTopTabletViewports']
+      data = @file.update(viewports: @viewports).updated_content
+      tablet_viewports = extract_viewport_data_from_javascript_file(data: data)['vaTopTabletViewports']
 
       if @viewports.tablet.count == tablet_viewports.count
         @viewports.tablet.each_with_index do |new_data, i|
@@ -144,8 +144,8 @@ RSpec.describe CypressViewportUpdater::CypressJsonFile do
     end
 
     it 'creates desktop viewport objects with the correct data' do
-      data = JSON.parse(@file.update(viewports: @viewports).updated_content)
-      desktop_viewports = data['env']['vaTopDesktopViewports']
+      data = @file.update(viewports: @viewports).updated_content
+      desktop_viewports = extract_viewport_data_from_javascript_file(data: data)['vaTopDesktopViewports']
 
       if @viewports.desktop.count == desktop_viewports.count
         @viewports.desktop.each_with_index do |new_data, i|
@@ -161,4 +161,87 @@ RSpec.describe CypressViewportUpdater::CypressJsonFile do
       end
     end
   end
+
+  def number?(line)
+    line.match(/^-?[0-9]+\..?[0-9]+$/) || line.to_i.to_s == line
+  end
+
+  def special_char?(line)
+    SPECIAL_CHARS.any? { |char| line.include?(char) }
+  end
+
+  def extract_viewport_data_from_javascript_file(data:)
+    selected_lines = select_lines_from_file(data: data)
+    selected_lines = remove_chars(selected_lines: selected_lines)
+    JSON.parse("{#{format_as_json(selected_lines: selected_lines).join}")
+  end
+
+  def select_lines_from_file(data:)
+    select_lines = false
+
+    data.split("\n").each_with_object([]) do |line, array|
+      next if LINES_TO_SKIP.any? { |line_to_skip| line.include?(line_to_skip) }
+
+      select_lines = true if line.include?('vaTopMobileViewports:')
+      select_lines = false if line.include?('e2e: {')
+      array << line.strip if select_lines
+    end
+  end
+
+  def remove_chars(selected_lines:)
+    selected_lines = selected_lines.map do |line|
+      # only sub the first colon in a string (the one that follows the property name)
+      line = line.sub(':', ':DELINEATOR') if line.include?(': ')
+      # split on the first colon
+      line = line.split(':DELINEATOR').map(&:strip) if line.include?('DELINEATOR')
+      line
+    end
+
+    selected_lines.flatten.map do |line|
+      line = line.gsub('"', '\"') if line.include?('"') # escape double quotes
+      line = line.gsub("'", '') if line.include?("'") # remove single quotes
+      line = line.gsub(',', '') if line.end_with?(',') # remove commas
+      line
+    end
+  end
+
+  # rubocop:disable Metrics/MethodLength
+  def format_as_json(selected_lines:)
+    in_object = false
+    object_prop_index_is_even = nil
+    object_prop_index_is_odd = nil
+
+    selected_lines.each_with_index.map do |line, index|
+      # set flags
+      if line == '{'
+        in_object = true
+        object_prop_index_is_even = (index + 1).even?
+        object_prop_index_is_odd = (index + 1).odd?
+      end
+
+      in_object = false if line == '}'
+
+      # wrap strings in double quotes
+      line = "\"#{line}\"" if !number?(line) && !special_char?(line)
+
+      # append colon to properties/keys
+      line += ':' if %w[\[ \] { }].none? { |char| line.include?(char) } &&
+                     (selected_lines[index + 1] == '[' ||
+                     selected_lines[index + 1] == '{' ||
+                     in_object &&
+                     object_prop_index_is_even && index.even? || object_prop_index_is_odd && index.odd?)
+
+      # append comma where necessary (at the end of most values, etc.)
+      line += ',' if line == ']' && selected_lines[index + 1] != '}' ||
+                     line == '}' && selected_lines[index + 1] == '{' ||
+                     (in_object &&
+                     !line.include?('{') &&
+                     !selected_lines[index + 1].include?('}') &&
+                     !selected_lines[index + 1].include?(']') &&
+                     (object_prop_index_is_even && index.odd? || object_prop_index_is_odd && index.even?))
+
+      line
+    end
+  end
+  # rubocop:enable Metrics/MethodLength
 end

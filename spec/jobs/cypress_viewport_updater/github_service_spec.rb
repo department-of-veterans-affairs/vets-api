@@ -30,6 +30,7 @@ RSpec.describe CypressViewportUpdater::GithubService do
   end
 
   before do
+    # stub methods in GithubService#new
     allow(OpenSSL::PKey::RSA).to receive(:new).and_return(true)
     allow(JWT).to receive(:encode).and_return(true)
     allow_any_instance_of(Octokit::Client).to receive(:create_installation_access_token).and_return([%w[k v]])
@@ -43,7 +44,7 @@ RSpec.describe CypressViewportUpdater::GithubService do
   end
 
   describe '#get_content' do
-    let!(:file) { CypressViewportUpdater::CypressJsonFile.new }
+    let!(:file) { CypressViewportUpdater::CypressConfigJsFile.new }
 
     before do
       VCR.use_cassette('cypress_viewport_updater/github_service_get_content') do
@@ -77,7 +78,7 @@ RSpec.describe CypressViewportUpdater::GithubService do
   end
 
   describe '#update_content' do
-    let!(:file) { CypressViewportUpdater::CypressJsonFile.new }
+    let!(:file) { CypressViewportUpdater::CypressConfigJsFile.new }
 
     before do
       github = nil
@@ -87,7 +88,7 @@ RSpec.describe CypressViewportUpdater::GithubService do
       end
 
       VCR.use_cassette('cypress_viewport_updater/github_service_update_content_get_content') do
-        github = github.get_content(file: file)
+        github.get_content(file: file)
       end
 
       VCR.use_cassette('cypress_viewport_updater/github_service_update_content_create_branch') do
@@ -111,7 +112,7 @@ RSpec.describe CypressViewportUpdater::GithubService do
 
   describe '#submit_pr' do
     before do
-      file_1 = CypressViewportUpdater::CypressJsonFile.new
+      file_1 = CypressViewportUpdater::CypressConfigJsFile.new
       file_2 = CypressViewportUpdater::ViewportPresetJsFile.new
       github = nil
 
