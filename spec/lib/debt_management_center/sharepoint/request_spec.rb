@@ -6,6 +6,24 @@ require 'debt_management_center/sharepoint/request'
 RSpec.describe DebtManagementCenter::Sharepoint::Request do
   subject { described_class.new }
 
+  def mock_faraday
+    client_stub = instance_double('Faraday::Connection')
+    faraday_response = instance_double('Faraday::Response')
+    allow(Faraday).to receive(:new).and_return(client_stub)
+    allow(client_stub).to receive(:post).and_return(faraday_response)
+    allow(client_stub).to receive(:get).and_return(faraday_response)
+    allow(faraday_response).to receive(:body).and_return(body)
+    allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(file_path)
+
+    client_stub
+  end
+
+  before do
+    allow_any_instance_of(DebtManagementCenter::Sharepoint::Request)
+      .to receive(:set_sharepoint_access_token)
+      .and_return('123abc')
+  end
+
   describe 'attributes' do
     it 'responds to settings' do
       expect(subject.respond_to?(:settings)).to be(true)
@@ -14,7 +32,7 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
 
   describe 'settings' do
     it 'has a sharepoint_url' do
-      expect(subject.sharepoint_url).to eq('https://fake_url.com')
+      expect(subject.sharepoint_url).to eq('fake_url.com')
     end
 
     it 'has base_path' do
@@ -57,18 +75,23 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
     let(:form_submission) { create(:form5655_submission) }
     let(:station_id) { '123' }
     let(:file_path) { "#{::Rails.root}/spec/fixtures/dmc/5655.pdf" }
-    let(:response) { Faraday::Response.new }
-
-    before do
-      allow_any_instance_of(DebtManagementCenter::Sharepoint::Request)
-        .to receive(:set_sharepoint_access_token)
-        .and_return('123abc')
-      allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(response)
-      allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(file_path)
+    let(:body) do
+      {
+        'd' => {
+          'ID' => 1,
+          'ListItemAllFields' => {
+            '__deferred' => {
+              'uri' => 'https://fake_url.com/base/path'
+            }
+          }
+        }
+      }
     end
 
     it 'uploads a pdf file to SharePoint' do
-      expect_any_instance_of(Faraday::Connection).to receive(:post)
+      client_stub = mock_faraday
+      expect(client_stub).to receive(:post).twice
+      expect(client_stub).to receive(:get).once
 
       subject.upload(form_contents: form_content, form_submission: form_submission, station_id: station_id)
     end
