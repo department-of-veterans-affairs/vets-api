@@ -17,13 +17,13 @@ module CypressViewportUpdater
                   .create(viewport_report: analytics.viewport_report)
 
       github = CypressViewportUpdater::GithubService.new
-      cypress_json_file = CypressViewportUpdater::CypressJsonFile.new
+      cypress_config_js_file = CypressViewportUpdater::CypressConfigJsFile.new
       viewport_preset_js_file = CypressViewportUpdater::ViewportPresetJsFile.new
-      github.get_content(file: cypress_json_file)
+      github.get_content(file: cypress_config_js_file)
       github.get_content(file: viewport_preset_js_file)
       github.create_branch
 
-      [cypress_json_file, viewport_preset_js_file].each do |file|
+      [cypress_config_js_file, viewport_preset_js_file].each do |file|
         file.update(viewports: viewports)
         github.update_content(file: file)
       end

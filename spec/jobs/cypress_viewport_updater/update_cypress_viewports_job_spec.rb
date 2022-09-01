@@ -40,7 +40,7 @@ RSpec.describe CypressViewportUpdater::UpdateCypressViewportsJob do
         .to receive(:create).with(viewport_report: 1).and_return(true)
       allow(CypressViewportUpdater::GithubService)
         .to receive(:new) { github }
-      allow_any_instance_of(CypressViewportUpdater::CypressJsonFile)
+      allow_any_instance_of(CypressViewportUpdater::CypressConfigJsFile)
         .to receive(:update).and_return(true)
       allow_any_instance_of(CypressViewportUpdater::ViewportPresetJsFile)
         .to receive(:update).and_return(true)
