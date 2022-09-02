@@ -33,6 +33,7 @@ RSpec.describe V0::UsersController, type: :controller do
 
     before do
       sign_in_as(user)
+      Flipper.disable(:profile_user_claims)
     end
 
     it 'returns a JSON user profile with a bad_address' do
@@ -45,14 +46,29 @@ RSpec.describe V0::UsersController, type: :controller do
       expect(mailing_address.key?('bad_address')).to be(true)
     end
 
-    it 'returns a JSON user profile with claims' do
+    it 'returns a JSON user profile without claims' do
       get :show
       json = json_body_for(response)
       expect(response).to be_successful
 
       claims = json.dig('attributes', 'profile', 'claims')
-      expect(claims.key?('military_history')).to be(true)
-      expect(claims.key?('payment_history')).to be(true)
+      expect(claims).to be(nil)
+    end
+
+    context 'when profile claims enabled' do
+      before do
+        Flipper.enable(:profile_user_claims)
+      end
+
+      it 'returns a JSON user profile with claims' do
+        get :show
+        json = json_body_for(response)
+        expect(response).to be_successful
+
+        claims = json.dig('attributes', 'profile', 'claims')
+        expect(claims.key?('military_history')).to be(true)
+        expect(claims.key?('payment_history')).to be(true)
+      end
     end
   end
 end
