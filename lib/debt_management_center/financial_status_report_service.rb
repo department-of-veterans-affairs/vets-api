@@ -7,6 +7,7 @@ require 'debt_management_center/models/financial_status_report'
 require 'debt_management_center/financial_status_report_downloader'
 require 'debt_management_center/workers/va_notify_email_job'
 require 'debt_management_center/vbs/request'
+require 'debt_management_center/sharepoint/request'
 require 'json'
 
 module DebtManagementCenter
@@ -61,7 +62,7 @@ module DebtManagementCenter
     def submit_combined_fsr(form)
       submission = persist_form_submission(form)
       vba_status = submit_vba_fsr(form) if selected_vba_debts(form['selectedDebtsAndCopays']).present?
-      vha_status = submit_vha_fsr(form, submission&.id) if selected_vha_copays(form['selectedDebtsAndCopays']).present?
+      vha_status = submit_vha_fsr(form, submission) if selected_vha_copays(form['selectedDebtsAndCopays']).present?
 
       { vba_status: vba_status, vha_status: vha_status }.compact
     end
@@ -77,13 +78,20 @@ module DebtManagementCenter
       { status: fsr_response.status }
     end
 
-    def submit_vha_fsr(form, form_submission_id)
-      vha_forms = parse_vha_form(form, form_submission_id)
-      request = DebtManagementCenter::VBS::Request.build
+    def submit_vha_fsr(form, form_submission)
+      vha_forms = parse_vha_form(form, form_submission.id)
+      vbs_request = DebtManagementCenter::VBS::Request.build
+      sharepoint_request = DebtManagementCenter::Sharepoint::Request.new
       vbs_responses = []
       vha_forms.each do |vha_form|
-        response = request.post("#{vbs_settings.base_path}/UploadFSRJsonDocument", { jsonDocument: vha_form.to_json })
-        vbs_responses << response
+        sharepoint_request.upload(
+          form_contents: vha_form,
+          form_submission: form_submission,
+          station_id: vha_form['facilityNum']
+        )
+        vbs_response = vbs_request.post("#{vbs_settings.base_path}/UploadFSRJsonDocument",
+                                        { jsonDocument: vha_form.to_json })
+        vbs_responses << vbs_response
       end
 
       send_confirmation_email if vbs_responses.all?(&:success?)
