@@ -15,6 +15,7 @@ require 'common/exceptions/validation_errors'
 
 class ClaimsBaseController < ApplicationController
   skip_before_action(:authenticate)
+  before_action :load_user, only: :create
 
   # Creates and validates an instance of the class, removing any copies of
   # the form that had been previously saved by the user.
@@ -28,7 +29,6 @@ class ClaimsBaseController < ApplicationController
     claim.process_attachments!
     StatsD.increment("#{stats_key}.success")
     Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-    load_user
     clear_saved_form(claim.form_id)
     render(json: claim)
   end

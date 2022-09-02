@@ -3,9 +3,9 @@
 module V0
   class VeteranReadinessEmploymentClaimsController < ClaimsBaseController
     before_action :authenticate
+    skip_before_action :load_user
 
     def create
-      load_user
       claim = SavedClaim::VeteranReadinessEmploymentClaim.new(form: filtered_params[:form])
 
       if claim.save

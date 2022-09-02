@@ -23,9 +23,11 @@ module SignIn
       handle_authenticate_error(e)
     end
 
-    def load_user
+    def load_user(skip_expiration_check: false)
       @access_token = authenticate_access_token
       @current_user = load_user_object
+    rescue Errors::AccessTokenExpiredError => e
+      render json: { errors: e }, status: :forbidden unless skip_expiration_check
     rescue Errors::StandardError => e
       Rails.logger.debug("load_user not authenticated, error: #{e}")
       nil

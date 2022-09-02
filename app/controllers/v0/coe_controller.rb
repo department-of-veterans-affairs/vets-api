@@ -16,7 +16,6 @@ module V0
     end
 
     def submit_coe_claim
-      load_user
       claim = SavedClaim::CoeClaim.new(form: filtered_params[:form])
 
       unless claim.save
@@ -42,8 +41,6 @@ module V0
     end
 
     def document_upload
-      load_user
-
       attachments.each do |attachment|
         file_extension = attachment['file_type']
 

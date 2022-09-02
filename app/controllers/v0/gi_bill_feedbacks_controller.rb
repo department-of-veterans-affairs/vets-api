@@ -3,10 +3,9 @@
 module V0
   class GIBillFeedbacksController < ApplicationController
     skip_before_action(:authenticate)
+    before_action :load_user, only: :create
 
     def create
-      load_user
-
       gi_bill_feedback = GIBillFeedback.new(
         params.require(:gi_bill_feedback).permit(:form).merge(
           user: current_user

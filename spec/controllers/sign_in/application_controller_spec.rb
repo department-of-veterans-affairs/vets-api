@@ -6,6 +6,7 @@ require 'rx/client'
 RSpec.describe SignIn::ApplicationController, type: :controller do
   controller do
     skip_before_action :authenticate, only: %(index_optional_auth)
+    before_action :load_user, only: %(index_optional_auth)
     attr_reader :payload
 
     def index
@@ -14,7 +15,6 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
 
     def index_optional_auth
       head :ok
-      load_user
     end
 
     def client_connection_failed
@@ -210,8 +210,15 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
           let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
           let(:expiration_time) { Time.zone.now - 1.day }
           let(:expected_error) { 'Access token has expired' }
+          let(:expected_error_json) { { 'errors' => expected_error } }
 
-          it_behaves_like 'error response'
+          it 'renders Access Token Expired error' do
+            expect(JSON.parse(subject.body)).to eq(expected_error_json)
+          end
+
+          it 'returns forbidden status' do
+            expect(subject).to have_http_status(:forbidden)
+          end
         end
 
         context 'and access_token is an active JWT' do
@@ -255,8 +262,15 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
         let(:expiration_time) { Time.zone.now - 1.day }
         let(:expected_error) { 'Access token has expired' }
+        let(:expected_error_json) { { 'errors' => expected_error } }
 
-        it_behaves_like 'error response'
+        it 'renders Access Token Expired error' do
+          expect(JSON.parse(subject.body)).to eq(expected_error_json)
+        end
+
+        it 'returns forbidden status' do
+          expect(subject).to have_http_status(:forbidden)
+        end
       end
 
       context 'and access_token is an active JWT' do

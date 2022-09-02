@@ -18,7 +18,6 @@ module V0
       claim.submit_to_structured_data_services!
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-      load_user
       clear_saved_form(claim.form_id)
       render(json: claim)
     end

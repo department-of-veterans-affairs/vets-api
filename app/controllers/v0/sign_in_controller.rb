@@ -169,7 +169,9 @@ module V0
     def logout
       anti_csrf_token = params[:anti_csrf_token] || token_cookies[SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME]
 
-      raise SignIn::Errors::LogoutAuthorizationError, message: 'Unable to Authorize User' unless load_user
+      unless load_user(skip_expiration_check: true)
+        raise SignIn::Errors::LogoutAuthorizationError, message: 'Unable to Authorize User'
+      end
 
       SignIn::SessionRevoker.new(access_token: @access_token, anti_csrf_token: anti_csrf_token).perform
       delete_cookies if token_cookies
