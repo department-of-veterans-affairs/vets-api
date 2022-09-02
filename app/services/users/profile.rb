@@ -84,10 +84,12 @@ module Users
     end
 
     def claims
-      {
-        military_history: Vet360Policy.new(user).military_access?,
-        payment_history: BGSPolicy.new(user).access?(log_stats: false)
-      }
+      if Flipper.enabled?(:profile_user_claims, user)
+        {
+          military_history: Vet360Policy.new(user).military_access?,
+          payment_history: BGSPolicy.new(user).access?(log_stats: false)
+        }
+      end
     end
 
     def vet360_contact_information
