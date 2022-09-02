@@ -43,7 +43,11 @@ module Form1095
         next if ndx < 3
 
         vals = field.split('=')
-        fields[vals[0].to_sym] = vals[1] || nil
+
+        value = nil
+        value = vals[1] if vals[1] && vals[1].downcase != 'null'
+
+        fields[vals[0].to_sym] = value
       end
 
       fields
