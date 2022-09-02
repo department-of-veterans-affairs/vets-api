@@ -6,6 +6,10 @@ require 'common/client/errors'
 module VAOS
   module V2
     class MobilePPMSService < VAOS::SessionService
+      def config
+        VAOS::PPMSConfiguration.instance
+      end
+
       def get_provider(provider_id)
         params = {}
         with_monitoring do
