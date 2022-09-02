@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/ppms/v1/providers/1407938061
+    uri: https://staff.apps.va.gov/ppms/v1/providers/1407938061
     body:
       encoding: US-ASCII
       string: ''
