@@ -3,6 +3,7 @@
 module V0
   class EducationBenefitsClaimsController < ApplicationController
     skip_before_action(:authenticate)
+    before_action :load_user
 
     def create
       claim = SavedClaim::EducationBenefits.form_class(form_type).new(education_benefits_claim_params)
@@ -14,7 +15,6 @@ module V0
 
       StatsD.increment("#{stats_key}.success")
       Rails.logger.info "ClaimID=#{claim.id} RPO=#{claim.education_benefits_claim.region} Form=#{form_type}"
-      load_user
       claim.after_submit(@current_user)
       clear_saved_form(claim.in_progress_form_id)
       render(json: claim.education_benefits_claim)
@@ -22,7 +22,6 @@ module V0
 
     def stem_claim_status
       current_applications = []
-      load_user
       current_applications = user_stem_automated_decision_claims unless @current_user.nil?
 
       render json: current_applications, each_serializer: EducationStemClaimStatusSerializer

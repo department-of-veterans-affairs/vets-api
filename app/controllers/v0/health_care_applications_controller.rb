@@ -9,10 +9,9 @@ module V0
     skip_before_action(:authenticate)
 
     before_action :record_submission_attempt, only: :create
+    before_action :load_user, only: %i[create enrollment_status]
 
     def create
-      load_user
-
       @health_care_application.async_compatible = params[:async_all]
       @health_care_application.google_analytics_client_id = params[:ga_client_id]
       @health_care_application.user = current_user
@@ -29,7 +28,6 @@ module V0
     end
 
     def enrollment_status
-      load_user
       loa3 = current_user&.loa3?
 
       icn =

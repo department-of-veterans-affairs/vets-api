@@ -6,6 +6,7 @@ module V0
     AUDITOR = ::Form1010cg::Auditor.new
 
     skip_before_action :authenticate
+    before_action :load_user, only: :create
 
     before_action :record_submission_attempt, only: :create
     before_action :initialize_claim
@@ -16,8 +17,6 @@ module V0
       if @claim.valid?
         Raven.tags_context(claim_guid: @claim.guid)
         auditor.record_caregivers(@claim)
-
-        load_user
 
         if Flipper.enabled?(:caregiver_async, current_user)
           ::Form1010cg::Service.new(@claim).assert_veteran_status
