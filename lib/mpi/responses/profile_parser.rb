@@ -30,6 +30,7 @@ module MPI
       DOB_XPATH = 'birthTime/@value'
       SSN_XPATH = 'asOtherIDs'
       NAME_XPATH = 'name'
+      NAME_LEGAL_INDICATOR = 'L'
       ADDRESS_XPATH = 'addr'
       DECEASED_XPATH = 'deceasedTime/@value'
       PHONE = 'telecom'
@@ -137,7 +138,7 @@ module MPI
       def create_mvi_profile_identity(person, person_prefix)
         person_component = locate_element(person, person_prefix)
         person_types = parse_person_type(person)
-        name = parse_name(locate_element(person_component, NAME_XPATH))
+        name = parse_name(locate_elements(person_component, NAME_XPATH))
         {
           given_names: name[:given],
           family_name: name[:family],
@@ -217,11 +218,8 @@ module MPI
         end
       end
 
-      # name can be a hash or an array of hashes with extra unneeded details
-      # given may be an array if it includes middle name
       def parse_name(name)
-        name = [name] unless name.is_a? Array
-        name_element = [*name].first
+        name_element = parse_legal_name(name)
         given = [*name_element.locate('given')].map { |el| el.nodes.first.capitalize }
         family = name_element.locate('family').first.nodes.first.capitalize
         suffix = name_element.locate('suffix')&.first&.nodes&.first&.capitalize
@@ -229,6 +227,10 @@ module MPI
       rescue => e
         Rails.logger.warn "MPI::Response.parse_name failed: #{e.message}"
         { given: nil, family: nil }
+      end
+
+      def parse_legal_name(name_array)
+        name_array.find { |name_element| name_element if name_element.attributes[:use] == NAME_LEGAL_INDICATOR }
       end
 
       # other_ids can be hash or array of hashes
