@@ -5,6 +5,13 @@ require 'rails_helper'
 RSpec.describe DhpConnectedDevices::Fitbit::FitbitController, type: :request do
   let(:current_user) { build(:user, :loa1) }
 
+  def expected_error_logged(error_class, current_user)
+    expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
+      instance_of(error_class),
+      { icn: current_user.icn }
+    )
+  end
+
   describe 'fitbit#connect' do
     def fitbit_connect
       get '/dhp_connected_devices/fitbit'
@@ -154,25 +161,70 @@ RSpec.describe DhpConnectedDevices::Fitbit::FitbitController, type: :request do
         sign_in_as(current_user)
         @device = create(:device, :fitbit)
         @vdr = VeteranDeviceRecord.create(device_id: @device.id, active: true, icn: current_user.icn)
+        @token = { payload: { access_token: 'access_token_value' } }
+        @disconnect_success_path = 'http://localhost:3001/health-care/connected-devices/?fitbit=disconnect-success#_=_'
+        @disconnect_error_path = 'http://localhost:3001/health-care/connected-devices/?fitbit=disconnect-error#_=_'
       end
 
-      it 'updates the user\'s fitbit record to false' do
-        expect(VeteranDeviceRecord.active_devices(current_user).empty?).to be(false)
-        fitbit_disconnect
-        expect(VeteranDeviceRecord.active_devices(current_user).empty?).to eq true
+      context 'token present in S3, token revocation is successful, token deletion successful' do
+        before do
+          allow_any_instance_of(TokenStorageService).to receive(:get_token).with(any_args).and_return(@token)
+          allow_any_instance_of(TokenStorageService).to receive(:delete_token).with(any_args).and_return(true)
+          allow_any_instance_of(DhpConnectedDevices::Fitbit::Client)
+            .to receive(:revoke_token).with(any_args).and_return(nil)
+        end
+
+        it 'updates the user\'s fitbit record to false and redirect to success url' do
+          fitbit_disconnect
+          expect(VeteranDeviceRecord.active_devices(current_user).empty?).to eq true
+          expect(fitbit_disconnect).to redirect_to @disconnect_success_path
+        end
+
+        it 'redirects to frontend with disconnect-error code on device record not found error' do
+          VeteranDeviceRecord.delete(@vdr)
+          expected_error_logged(ActiveRecord::RecordNotFound, current_user)
+          expect(fitbit_disconnect).to redirect_to @disconnect_error_path
+        end
       end
 
-      it 'redirects to frontend with disconnect-success code on success' do
-        expect(fitbit_disconnect).to redirect_to 'http://localhost:3001/health-care/connected-devices/?fitbit=disconnect-success#_=_'
+      context 'token not present in s3' do
+        before do
+          allow_any_instance_of(TokenStorageService)
+            .to receive(:get_token).with(any_args).and_raise(TokenRetrievalError)
+        end
+
+        it 'redirects to frontend with disconnect-error and logs TokenRetrievalError' do
+          expected_error_logged(TokenRetrievalError, current_user)
+          expect(fitbit_disconnect).to redirect_to @disconnect_error_path
+        end
       end
 
-      it 'redirects to frontend with disconnect-error code on device record not found error' do
-        VeteranDeviceRecord.delete(@vdr)
-        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
-          instance_of(ActiveRecord::RecordNotFound),
-          { icn: current_user.icn }
-        )
-        expect(fitbit_disconnect).to redirect_to 'http://localhost:3001/health-care/connected-devices/?fitbit=disconnect-error#_=_'
+      context 'error revoking token with fitbit api' do
+        before do
+          allow_any_instance_of(TokenStorageService).to receive(:get_token).with(any_args).and_return(@token)
+          allow_any_instance_of(DhpConnectedDevices::Fitbit::Client)
+            .to receive(:revoke_token).with(any_args).and_raise(DhpConnectedDevices::Fitbit::TokenRevocationError)
+        end
+
+        it 'redirects to frontend with disconnect-error and logs TokenRevocationError' do
+          expected_error_logged(DhpConnectedDevices::Fitbit::TokenRevocationError, current_user)
+          expect(fitbit_disconnect).to redirect_to @disconnect_error_path
+        end
+      end
+
+      context 'error deleting token from storage' do
+        before do
+          allow_any_instance_of(TokenStorageService).to receive(:get_token).with(any_args).and_return(@token)
+          allow_any_instance_of(DhpConnectedDevices::Fitbit::Client)
+            .to receive(:revoke_token).with(any_args).and_return(nil)
+          allow_any_instance_of(TokenStorageService)
+            .to receive(:delete_token).with(any_args).and_raise(TokenDeletionError)
+        end
+
+        it 'redirects to frontend with disconnect-error and logs TokenDeletionError' do
+          expected_error_logged(TokenDeletionError, current_user)
+          expect(fitbit_disconnect).to redirect_to @disconnect_error_path
+        end
       end
     end
 

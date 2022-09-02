@@ -102,4 +102,21 @@ RSpec.describe DhpConnectedDevices::Fitbit::Client do
       expect { subject.get_auth_code(random_params) }.to raise_error(missing_auth_error)
     end
   end
+
+  describe 'revoke_token' do
+    let(:revocation_response_200) { double('Faraday::Response', status: 200) }
+    let(:revocation_response_400) { double('Faraday::Response', status: 400, body: 'unsuccessful response') }
+
+    token = { 'access_token': 'access_token_value' }
+
+    it 'returns true is token was successfully revoked' do
+      allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(revocation_response_200)
+      expect(subject.revoke_token(token).nil?).to eq(true)
+    end
+
+    it 'returns TokenRevocationError when fitbit returns 400' do
+      allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(revocation_response_400)
+      expect { subject.revoke_token(token) }.to raise_error(DhpConnectedDevices::Fitbit::TokenRevocationError)
+    end
+  end
 end

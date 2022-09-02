@@ -16,8 +16,8 @@ module DhpConnectedDevices
       def callback
         auth_code = fitbit_api.get_auth_code(callback_params)
         token_json = fitbit_api.get_token(auth_code)
-        token_storage_service.store_tokens(@current_user, 'fitbit', token_json)
-        VeteranDeviceRecordsService.create_or_activate(@current_user, 'fitbit')
+        token_storage_service.store_tokens(@current_user, device_key, token_json)
+        VeteranDeviceRecordsService.create_or_activate(@current_user, device_key)
         redirect_with_status('success')
       rescue => e
         Rails.logger.warn("Fitbit callback error: #{e}")
@@ -26,7 +26,10 @@ module DhpConnectedDevices
       end
 
       def disconnect
-        VeteranDeviceRecordsService.deactivate(@current_user, 'fitbit')
+        token = token_storage_service.get_token(@current_user, device_key)
+        fitbit_api.revoke_token(token[:payload])
+        token_storage_service.send(:delete_token, @current_user, device_key)
+        VeteranDeviceRecordsService.deactivate(@current_user, device_key)
         redirect_with_status('disconnect-success')
       rescue => e
         Rails.logger.warn("Fitbit disconnection error: #{e}")
@@ -38,6 +41,10 @@ module DhpConnectedDevices
 
       def fitbit_api
         @fitbit_client ||= DhpConnectedDevices::Fitbit::Client.new
+      end
+
+      def device_key
+        'fitbit'
       end
 
       def website_host_service
@@ -57,7 +64,7 @@ module DhpConnectedDevices
       end
 
       def redirect_with_status(status)
-        redirect_to website_host_service.get_redirect_url({ status: status, vendor: 'fitbit' })
+        redirect_to website_host_service.get_redirect_url({ status: status, vendor: device_key })
       end
 
       def log_error(error)
