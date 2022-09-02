@@ -48,8 +48,9 @@ module Sidekiq
           # rubocop:enable Rails/SkipsModelValidations
 
           ::Rails.logger.error(
-            'Form526 Exhausted', submission_id: msg['args'].first,
+            'Form526 Exhausted', submission_id: values[:form526_submission_id],
                                  job_id: job_id,
+                                 job_class: values[:job_class],
                                  error_class: error_class,
                                  error_message: error_message
           )
