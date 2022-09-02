@@ -40,7 +40,7 @@ module MPI
       end
 
       def locate_elements(el, path)
-        return nil unless el.present? && el.is_a?(Ox::Element)
+        return [] unless el.present? && el.is_a?(Ox::Element)
 
         el.locate(path)
       end

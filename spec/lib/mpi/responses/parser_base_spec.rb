@@ -125,16 +125,16 @@ describe MPI::Responses::ParserBase do
     context 'when el parameter is nil' do
       let(:el) { nil }
 
-      it 'returns nil' do
-        expect(subject).to be(nil)
+      it 'returns empty array' do
+        expect(subject).to eq([])
       end
     end
 
     context 'when el parameter is not an Ox XML parsing object' do
       let(:el) { 'some-parameter' }
 
-      it 'returns nil' do
-        expect(subject).to be(nil)
+      it 'returns empty array' do
+        expect(subject).to eq([])
       end
     end
 

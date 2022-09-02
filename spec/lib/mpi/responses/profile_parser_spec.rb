@@ -46,7 +46,7 @@ describe MPI::Responses::ProfileParser do
         expect(parser.parse).to have_deep_attributes(mvi_profile)
       end
 
-      context 'when name parsing fails' do
+      context 'when candidate is missing name' do
         let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_missing_name_response.xml')) }
         let(:mvi_profile) do
           build(
@@ -67,6 +67,31 @@ describe MPI::Responses::ProfileParser do
         end
 
         it 'sets the names to false' do
+          expect(parser.parse).to have_deep_attributes(mvi_profile)
+        end
+      end
+
+      context 'when candidate has multiple stanzas with name' do
+        let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_multiple_name_response.xml')) }
+        let(:mvi_profile) do
+          build(
+            :mpi_profile_response,
+            :address_austin,
+            family_name: 'Smith',
+            given_names: %w[John William],
+            suffix: 'Sr',
+            birls_id: nil,
+            birls_ids: [],
+            mhv_ien: nil,
+            mhv_iens: [],
+            sec_id: nil,
+            historical_icns: nil,
+            search_token: 'WSDOC1609131753362231779394902',
+            id_theft_flag: false
+          )
+        end
+
+        it 'sets the names to the stanza with legal names' do
           expect(parser.parse).to have_deep_attributes(mvi_profile)
         end
       end
