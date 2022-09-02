@@ -287,7 +287,9 @@ module Mobile
         end
 
         def time_zone(facility_id)
-          facility = Mobile::VA_FACILITIES_BY_ID["dfn-#{facility_id}"]
+          return nil unless facility_id
+
+          facility = Mobile::VA_FACILITIES_BY_ID["dfn-#{facility_id[0..2]}"]
           facility ? facility[:time_zone] : nil
         end
 

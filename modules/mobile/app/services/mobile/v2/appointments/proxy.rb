@@ -12,11 +12,9 @@ module Mobile
 
         def get_appointments(start_date:, end_date:, pagination_params:)
           response = vaos_v2_appointments_service.get_appointments(start_date, end_date, nil, pagination_params)
-          response[:data].each do |appt|
-            appt[:location_id] = Mobile::V0::Appointment.convert_from_non_prod_id!(appt[:location_id])
-          end
-          appointments = merge_clinics(response[:data])
-          appointments = merge_facilities(appointments)
+
+          appointments = merge_clinic_facility_address(response[:data])
+          appointments = merge_auxiliary_clinic_info(appointments)
 
           appointments = vaos_v2_to_v0_appointment_adapter.parse(appointments)
 
@@ -25,7 +23,31 @@ module Mobile
 
         private
 
-        def merge_clinics(appointments)
+        def merge_clinic_facility_address(appointments)
+          cached_facilities = {}
+          appointments.each do |appt|
+            facility_id = appt[:location_id]
+            next unless facility_id
+
+            cached = cached_facilities[facility_id]
+            cached_facilities[facility_id] = get_facility(facility_id) unless cached
+
+            appt[:location] = cached_facilities[facility_id]
+          end
+        end
+
+        def get_facility(location_id)
+          vaos_mobile_facility_service.get_facility(location_id)
+        rescue Common::Exceptions::BackendServiceException => e
+          Rails.logger.error(
+            "Error fetching facility details for location_id #{location_id}",
+            location_id: location_id,
+            vamf_msg: e.original_body
+          )
+          nil
+        end
+
+        def merge_auxiliary_clinic_info(appointments)
           cached_clinics = {}
           appointments.each do |appt|
             clinic_id = appt[:clinic]
@@ -42,36 +64,14 @@ module Mobile
           end
         end
 
-        def merge_facilities(appointments)
-          cached_facilities = {}
-          appointments.each do |appt|
-            facility_id = appt[:location_id]
-            next unless facility_id
-
-            cached = cached_facilities[facility_id]
-            cached_facilities[facility_id] = get_facility(facility_id) unless cached
-            appt[:location] = cached_facilities[facility_id]
-          end
-        end
-
         def get_clinic(location_id, clinic_id)
-          clinics = v2_systems_service.get_facility_clinics(location_id: location_id, clinic_ids: clinic_id)
-          clinics.first unless clinics.empty?
-        rescue Common::Exceptions::BackendServiceException
+          vaos_mobile_facility_service.get_clinic(station_id: location_id, clinic_id: clinic_id)
+        rescue Common::Exceptions::BackendServiceException => e
           Rails.logger.error(
             "Error fetching clinic #{clinic_id} for location #{location_id}",
             clinic_id: clinic_id,
-            location_id: location_id
-          )
-          nil
-        end
-
-        def get_facility(location_id)
-          vaos_mobile_facility_service.get_facility(location_id)
-        rescue Common::Exceptions::BackendServiceException
-          Rails.logger.error(
-            "Error fetching facility details for location_id #{location_id}",
-            location_id: location_id
+            location_id: location_id,
+            vamf_msg: e.original_body
           )
           nil
         end
