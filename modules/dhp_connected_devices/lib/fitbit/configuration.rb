@@ -10,6 +10,10 @@ module DhpConnectedDevices
         'https://api.fitbit.com/oauth2/token'
       end
 
+      def revoke_token_base_path
+        'https://api.fitbit.com/oauth2/revoke'
+      end
+
       def service_name
         'DHPConnectedDevices'
       end

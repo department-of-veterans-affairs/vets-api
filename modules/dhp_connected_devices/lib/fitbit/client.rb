@@ -8,6 +8,7 @@ module DhpConnectedDevices
   module Fitbit
     class MissingAuthError < StandardError; end
     class TokenExchangeError < StandardError; end
+    class TokenRevocationError < StandardError; end
 
     class Client < Common::Client::Base
       configuration DhpConnectedDevices::Fitbit::Configuration
@@ -48,6 +49,21 @@ module DhpConnectedDevices
         raise MissingAuthError, "callback_params: #{callback_params}" unless callback_params[:code]
 
         callback_params[:code]
+      end
+
+      ##
+      # Revokes fitbit access token
+      #
+      # @return [nil]
+      # @raise TokenRevocationError
+      def revoke_token(token)
+        resp = connection.post(config.revoke_token_base_path) do |req|
+          req.headers = headers
+          req.body = "token=#{token[:access_token]}"
+        end
+        raise "response code: #{resp.status}, response body: #{resp.body}" unless resp.status == 200
+      rescue => e
+        raise TokenRevocationError, e.message.to_s
       end
 
       private
