@@ -4,9 +4,10 @@ module MebApi
   class AuthenticationTokenService
     ALGORITHM_TYPE = 'RS256'
     TYP = 'JWT'
-    KID = 'vanotify'
+    KID = 'ch33'
     SIGNING_KEY = Settings.dgi.jwt.private_key_path
     RSA_PRIVATE = OpenSSL::PKey::RSA.new(File.read(SIGNING_KEY))
+
     DECODING_KEY = Settings.dgi.jwt.public_key_path
     RSA_PUBLIC = OpenSSL::PKey::RSA.new(File.read(DECODING_KEY))
 
