@@ -22,6 +22,11 @@ module Mobile
           appeals[:errors].nil? ? full_list.push(*appeals[:list]) : errors.push(appeals[:errors])
           data = Mobile::V0::Adapters::ClaimsOverview.new.parse(full_list)
 
+          errors.each do |error|
+            Rails.logger.error("Mobile Claims and Appeals: error received from #{error[:service]} service",
+                               error_details: error[:error_details])
+          end
+
           [data, errors]
         end
 
