@@ -85,8 +85,10 @@ Rails.application.reloader.to_prepare do
       SignIn::Constants::Auth::ACR_VALUES.each do |acr|
         StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_SUCCESS, 0,
                          tags: ["type:#{type}", "client_id:#{client_id}", "acr:#{acr}"])
+      end
+      [IAL::ONE, IAL::TWO].each do |ial|
         StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS, 0,
-                         tags: ["type:#{type}", "client_id:#{client_id}", "acr:#{acr}"])
+                         tags: ["type:#{type}", "client_id:#{client_id}", "ial:#{ial}"])
       end
     end
   end
