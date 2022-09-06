@@ -100,7 +100,16 @@ module EVSS
         submission.diagnostic_codes.size == 1 &&
           RapidReadyForDecision::Constants::MAS_DISABILITIES.include?(submission.diagnostic_codes.first) &&
           submission.disabilities.first['disabilityActionType']&.upcase == 'INCREASE' &&
-          !submission.pending_eps?
+          !submission.pending_eps? &&
+          !disability_not_service_connected?
+      end
+
+      def disability_not_service_connected?
+        rated_disability_id = submission.disabilities.first['ratedDisabilityId']
+        response = service(submission.auth_headers).get_rated_disabilities
+        disabilities = response.rated_disabilities
+        disability = disabilities.find { |dis| dis.rated_disability_id == rated_disability_id }
+        disability&.decision_code == 'NOTSVCCON'
       end
 
       def rrd_new_pact_related_disability?(submission)
