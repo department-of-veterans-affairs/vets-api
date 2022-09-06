@@ -28,7 +28,8 @@ module V0
       context = { type: type, client_id: client_id, acr: acr }
 
       sign_in_logger.info('authorize', context)
-      statsd_increment_acr(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_SUCCESS, context)
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_SUCCESS,
+                       tags: ["type:#{context[:type]}", "client_id:#{context[:client_id]}", "acr:#{context[:acr]}"])
 
       render body: auth_service(type).render_auth(state: state, acr: acr_for_type), content_type: 'text/html'
     rescue SignIn::Errors::StandardError => e
@@ -36,7 +37,7 @@ module V0
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_FAILURE)
       handle_pre_login_error(e, client_id)
     rescue => e
-      log_message_to_sentry(error.message, :error)
+      log_message_to_sentry(e.message, :error)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_FAILURE)
       handle_pre_login_error(e, client_id)
     end
@@ -73,7 +74,7 @@ module V0
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE)
       handle_pre_login_error(e, state_payload&.client_id)
     rescue => e
-      log_message_to_sentry(error.message, :error)
+      log_message_to_sentry(e.message, :error)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE)
       handle_pre_login_error(e, state_payload&.client_id)
     end
@@ -260,11 +261,6 @@ module V0
       uri.to_s
     end
 
-    def statsd_increment_acr(statsd_code, context)
-      StatsD.increment(statsd_code,
-                       tags: ["type:#{context[:type]}", "client_id:#{context[:client_id]}", "acr:#{context[:acr]}"])
-    end
-
     def render_uplevel_credential(state_payload, state)
       acr_for_type = SignIn::AcrTranslator.new(acr: state_payload.acr, type: state_payload.type, uplevel: true).perform
       render body: auth_service(state_payload.type).render_auth(state: state, acr: acr_for_type),
@@ -277,9 +273,10 @@ module V0
       SignIn::CredentialInfoCreator.new(csp_user_attributes: user_attributes,
                                         csp_token_response: service_token_response).perform
       user_code_map = SignIn::UserCreator.new(user_attributes: user_attributes, state_payload: state_payload).perform
-      context = { type: state_payload.type, client_id: state_payload.client_id, acr: state_payload.acr }
+      context = { type: state_payload.type, client_id: state_payload.client_id, ial: credential_level.current_ial }
       sign_in_logger.info('callback', context)
-      statsd_increment_acr(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS, context)
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS,
+                       tags: ["type:#{context[:type]}", "client_id:#{context[:client_id]}", "ial:#{context[:ial]}"])
 
       redirect_to SignIn::LoginRedirectUrlGenerator.new(user_code_map: user_code_map).perform
     end

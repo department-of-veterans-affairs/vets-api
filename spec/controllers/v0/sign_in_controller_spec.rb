@@ -423,7 +423,7 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:state_value) { 'some-state' }
     let(:code_value) { 'some-code' }
     let(:error_value) { 'some-error' }
-    let(:statsd_tags) { ["type:#{type}", "client_id:#{client_id}", "acr:#{acr}"] }
+    let(:statsd_tags) { ["type:#{type}", "client_id:#{client_id}", "ial:#{ial}"] }
     let(:type) {}
     let(:acr) { nil }
     let(:client_id) { nil }
@@ -629,6 +629,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
             context 'and credential should not be uplevelled' do
               let(:acr) { 'ial2' }
+              let(:ial) { 2 }
               let(:client_code) { 'some-client-code' }
               let(:expected_url) do
                 "#{Settings.sign_in.client_redirect_uris.mobile}?code=#{client_code}&state=#{client_state}&type=#{type}"
@@ -639,7 +640,7 @@ RSpec.describe V0::SignInController, type: :controller do
                 {
                   type: type,
                   client_id: client_id,
-                  acr: acr
+                  ial: ial
                 }
               end
               let(:expected_user_attributes) do
@@ -767,6 +768,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
             context 'and credential should not be uplevelled' do
               let(:acr) { 'loa3' }
+              let(:ial) { 2 }
               let(:credential_ial) { LOA::IDME_CLASSIC_LOA3 }
               let(:client_code) { 'some-client-code' }
               let(:expected_url) do
@@ -778,7 +780,7 @@ RSpec.describe V0::SignInController, type: :controller do
                 {
                   type: type,
                   client_id: client_id,
-                  acr: acr
+                  ial: ial
                 }
               end
 
@@ -869,6 +871,7 @@ RSpec.describe V0::SignInController, type: :controller do
             let(:response) { OpenStruct.new(access_token: token) }
             let(:level_of_assurance) { LOA::THREE }
             let(:acr) { 'loa3' }
+            let(:ial) { 2 }
             let(:credential_ial) { LOA::IDME_CLASSIC_LOA3 }
             let(:client_code) { 'some-client-code' }
             let(:expected_url) do
@@ -880,7 +883,7 @@ RSpec.describe V0::SignInController, type: :controller do
               {
                 type: type,
                 client_id: client_id,
-                acr: acr
+                ial: ial
               }
             end
 
@@ -914,6 +917,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
             context 'and dslogon account is not premium' do
               let(:dslogon_assurance) { 'some-dslogon-assurance' }
+              let(:ial) { 1 }
               let(:expected_user_attributes) do
                 {
                   ssn: nil,
@@ -930,6 +934,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
             context 'and dslogon account is premium' do
               let(:dslogon_assurance) { LOA::DSLOGON_ASSURANCE_THREE }
+              let(:ial) { 2 }
               let(:expected_user_attributes) do
                 {
                   ssn: user_info.dslogon_idvalue,
@@ -988,6 +993,7 @@ RSpec.describe V0::SignInController, type: :controller do
             let(:response) { OpenStruct.new(access_token: token) }
             let(:level_of_assurance) { LOA::THREE }
             let(:acr) { 'loa3' }
+            let(:ial) { 2 }
             let(:credential_ial) { LOA::IDME_CLASSIC_LOA3 }
             let(:client_code) { 'some-client-code' }
             let(:expected_url) do
@@ -999,7 +1005,7 @@ RSpec.describe V0::SignInController, type: :controller do
               {
                 type: type,
                 client_id: client_id,
-                acr: acr
+                ial: ial
               }
             end
 
@@ -1033,6 +1039,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
             context 'and mhv account is not premium' do
               let(:mhv_assurance) { 'some-mhv-assurance' }
+              let(:ial) { 1 }
               let(:expected_user_attributes) do
                 {
                   mhv_correlation_id: nil,
@@ -1045,6 +1052,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
             context 'and mhv account is premium' do
               let(:mhv_assurance) { 'Premium' }
+              let(:ial) { 2 }
               let(:expected_user_attributes) do
                 {
                   mhv_correlation_id: user_info.mhv_uuid,
