@@ -44,7 +44,7 @@ module AppealsApi
 
       return log_error(guid, 'NOD') unless valid_email_identifier?
 
-      template_type = 'higher_level_review_received'
+      template_type = 'notice_of_disagreement_received'
       template_name, template_id = template_id(template_type)
 
       return Rails.logger.error "AppealReceived: could not find template id for #{template_name}" if template_id.blank?
@@ -57,7 +57,7 @@ module AppealsApi
 
       return log_error(guid, 'SC') unless valid_email_identifier?
 
-      template_type = 'higher_level_review_received'
+      template_type = 'supplemental_claim_received'
       template_name, template_id = template_id(template_type)
 
       return Rails.logger.error "AppealReceived: could not find template id for #{template_name}" if template_id.blank?
