@@ -5,6 +5,85 @@ require 'rails_helper'
 # rubocop:disable Metrics/ModuleLength
 module AppealsApi
   RSpec.describe AppealReceivedJob, type: :job do
+    describe 'va notify vet email templates' do
+      before do
+        @dc = described_class.new
+        opts = { 'email_identifier' => { 'id_value' => 'fake_email@email.com', 'id_type' => 'email' } }
+        @dc.instance_variable_set(:@opts, opts)
+        allow(@dc).to receive(:params) do |template_opts|
+          template_opts
+        end
+
+        @client = instance_double(VaNotify::Service)
+        allow(VaNotify::Service).to receive(:new).and_return(@client)
+        allow(@client).to receive(:send_email)
+      end
+
+      it 'uses hlr email template' do
+        with_settings(Settings.vanotify.services.lighthouse.template_id,
+                      higher_level_review_received: 'hlr_veteran_template') do
+          @dc.hlr_received
+          expect(@client).to have_received(:send_email).with({ template_id: 'hlr_veteran_template' })
+        end
+      end
+
+      it 'uses nod email template' do
+        with_settings(Settings.vanotify.services.lighthouse.template_id,
+                      notice_of_disagreement_received: 'nod_veteran_template') do
+          @dc.nod_received
+          expect(@client).to have_received(:send_email).with({ template_id: 'nod_veteran_template' })
+        end
+      end
+
+      it 'uses sc email template' do
+        with_settings(Settings.vanotify.services.lighthouse.template_id,
+                      supplemental_claim_received: 'sc_veteran_template') do
+          @dc.sc_received
+          expect(@client).to have_received(:send_email).with({ template_id: 'sc_veteran_template' })
+        end
+      end
+    end
+
+    describe 'va notify claimant email templates' do
+      before do
+        @dc = described_class.new
+        opts = { 'email_identifier' => { 'id_value' => 'fake_email@email.com', 'id_type' => 'email' },
+                 'claimant_email' => 'ct@the.net' }
+        @dc.instance_variable_set(:@opts, opts)
+        allow(@dc).to receive(:params) do |template_opts|
+          template_opts
+        end
+
+        @client = instance_double(VaNotify::Service)
+        allow(VaNotify::Service).to receive(:new).and_return(@client)
+        allow(@client).to receive(:send_email)
+      end
+
+      it 'uses hlr email template' do
+        with_settings(Settings.vanotify.services.lighthouse.template_id,
+                      higher_level_review_received_claimant: 'hlr_claimant_template') do
+          @dc.hlr_received
+          expect(@client).to have_received(:send_email).with({ template_id: 'hlr_claimant_template' })
+        end
+      end
+
+      it 'uses nod email template' do
+        with_settings(Settings.vanotify.services.lighthouse.template_id,
+                      notice_of_disagreement_received_claimant: 'nod_claimant_template') do
+          @dc.nod_received
+          expect(@client).to have_received(:send_email).with({ template_id: 'nod_claimant_template' })
+        end
+      end
+
+      it 'uses sc email template' do
+        with_settings(Settings.vanotify.services.lighthouse.template_id,
+                      supplemental_claim_received_claimant: 'sc_claimant_template') do
+          @dc.sc_received
+          expect(@client).to have_received(:send_email).with({ template_id: 'sc_claimant_template' })
+        end
+      end
+    end
+
     describe 'higher_level_review' do
       it 'errors if the keys needed are missing' do
         client = instance_double(VaNotify::Service)
