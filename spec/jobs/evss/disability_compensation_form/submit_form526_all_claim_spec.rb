@@ -9,10 +9,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     Sidekiq::Worker.clear_all
   end
 
-  around do |example|
-    VCR.use_cassette('evss/claims/claims_without_open_compensation_claims', allow_playback_repeats: true, &example)
-  end
-
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
@@ -26,6 +22,18 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
              user_uuid: user.uuid,
              auth_headers_json: auth_headers.to_json,
              saved_claim_id: saved_claim.id)
+    end
+    let(:open_claims_cassette) { 'evss/claims/claims_without_open_compensation_claims' }
+    let(:rated_disabilities_cassette) { 'evss/disability_compensation_form/rated_disabilities' }
+    let(:submit_form_cassette) { 'evss/disability_compensation_form/submit_form_v2' }
+    let(:cassettes) { [open_claims_cassette, rated_disabilities_cassette, submit_form_cassette] }
+
+    before do
+      cassettes.each { |cassette| VCR.insert_cassette(cassette) }
+    end
+
+    after do
+      cassettes.each { |cassette| VCR.eject_cassette(cassette) }
     end
 
     def expect_retryable_error(error_class)
@@ -43,11 +51,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
 
       it 'submits successfully' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
-          subject.perform_async(submission.id)
-          described_class.drain
-          expect(Form526JobStatus.last.status).to eq 'success'
-        end
+        subject.perform_async(submission.id)
+        described_class.drain
+        expect(Form526JobStatus.last.status).to eq 'success'
       end
 
       context 'with an MAS-related diagnostic code' do
@@ -58,49 +64,41 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
                  auth_headers_json: auth_headers.to_json,
                  saved_claim_id: saved_claim.id)
         end
+        let(:mas_cassette) { 'mail_automation/mas_initiate_apcas_request' }
+        let(:cassettes) do
+          [open_claims_cassette, rated_disabilities_cassette, submit_form_cassette, mas_cassette]
+        end
 
         it 'sends form526 to the MAS endpoint successfully' do
-          VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
-            VCR.use_cassette('mail_automation/mas_initiate_apcas_request') do
-              subject.perform_async(submission.id)
-              described_class.drain
-              expect(Form526JobStatus.last.status).to eq 'success'
-              rrd_submission = Form526Submission.find(Form526JobStatus.last.form526_submission_id)
-              expect(rrd_submission.form.dig('rrd_metadata', 'mas_packetId')).to eq '12345'
-            end
-          end
+          subject.perform_async(submission.id)
+          described_class.drain
+          expect(Form526JobStatus.last.status).to eq 'success'
+          rrd_submission = Form526Submission.find(Form526JobStatus.last.form526_submission_id)
+          expect(rrd_submission.form.dig('rrd_metadata', 'mas_packetId')).to eq '12345'
         end
 
         it 'sends an email for tracking purposes' do
-          VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
-            VCR.use_cassette('mail_automation/mas_initiate_apcas_request') do
-              subject.perform_async(submission.id)
-              described_class.drain
-              expect(ActionMailer::Base.deliveries.last.subject).to eq 'MA claim - 6847'
-            end
-          end
+          subject.perform_async(submission.id)
+          described_class.drain
+          expect(ActionMailer::Base.deliveries.last.subject).to eq 'MA claim - 6847'
         end
 
-        it 'handles MAS endpoint handshake failure by sending failure notification' do
-          VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
-            VCR.use_cassette('mail_automation/mas_initiate_apcas_request_failure') do
-              subject.perform_async(submission.id)
-              described_class.drain
-              expect(ActionMailer::Base.deliveries.last.subject).to eq "Failure: MA claim - #{submitted_claim_id}"
-            end
+        context 'when MAS endpoint handshake fails' do
+          let(:mas_cassette) { 'mail_automation/mas_initiate_apcas_request_failure' }
+
+          it 'handles MAS endpoint handshake failure by sending failure notification' do
+            subject.perform_async(submission.id)
+            described_class.drain
+            expect(ActionMailer::Base.deliveries.last.subject).to eq "Failure: MA claim - #{submitted_claim_id}"
           end
         end
 
         it 'includes a proper classification code for EVSS submission' do
-          VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
-            VCR.use_cassette('mail_automation/mas_initiate_apcas_request') do
-              subject.perform_async(submission.id)
-              described_class.drain
-              mas_submission = Form526Submission.find(Form526JobStatus.last.form526_submission_id)
-              expect(mas_submission.form.dig('form526', 'form526',
-                                             'disabilities').first['classificationCode']).to eq '9012'
-            end
-          end
+          subject.perform_async(submission.id)
+          described_class.drain
+          mas_submission = Form526Submission.find(Form526JobStatus.last.form526_submission_id)
+          expect(mas_submission.form.dig('form526', 'form526',
+                                         'disabilities').first['classificationCode']).to eq '9012'
         end
 
         context 'MAS-related claim that already includes classification code' do
@@ -113,15 +111,25 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           end
 
           it 'already includes classification code and does not modify' do
-            VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
-              VCR.use_cassette('mail_automation/mas_initiate_apcas_request') do
-                subject.perform_async(submission.id)
-                described_class.drain
-                mas_submission = Form526Submission.find(Form526JobStatus.last.form526_submission_id)
-                expect(mas_submission.form.dig('form526', 'form526',
-                                               'disabilities').first['classificationCode']).to eq '8935'
-              end
-            end
+            subject.perform_async(submission.id)
+            described_class.drain
+            mas_submission = Form526Submission.find(Form526JobStatus.last.form526_submission_id)
+            expect(mas_submission.form.dig('form526', 'form526',
+                                           'disabilities').first['classificationCode']).to eq '8935'
+          end
+        end
+
+        context 'when the rated disability has decision code NOTSVCCON in EVSS' do
+          let(:rated_disabilities_cassette) do
+            'evss/disability_compensation_form/rated_disabilities_with_non_service_connected'
+          end
+
+          it 'skips forwarding to MAS' do
+            subject.perform_async(submission.id)
+            described_class.drain
+            expect(Form526JobStatus.last.status).to eq 'success'
+            rrd_submission = Form526Submission.find(submission.id)
+            expect(rrd_submission.form.dig('rrd_metadata', 'mas_packetId')).to be_nil
           end
         end
       end
@@ -136,11 +144,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         end
 
         it 'does not send an email' do
-          VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
-            subject.perform_async(submission.id)
-            described_class.drain
-            expect(ActionMailer::Base.deliveries.length).to eq 0
-          end
+          subject.perform_async(submission.id)
+          described_class.drain
+          expect(ActionMailer::Base.deliveries.length).to eq 0
         end
       end
 
@@ -154,15 +160,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         end
 
         it 'sends an email' do
-          VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
-            VCR.use_cassette('rrd/hypertension', match_requests_on: %i[host path method]) do
-              subject.perform_async(submission.id)
-              described_class.drain
-              expect(ActionMailer::Base.deliveries.last.body.include?('Number of BP readings: 0')).to eq true
-              expect(ActionMailer::Base.deliveries.last.body.include?('Number of Active Medications: 11')).to eq true
-              expect(ActionMailer::Base.deliveries.last.body.include?('Number of claimed issues: 3')).to eq true
-              expect(ActionMailer::Base.deliveries.last.subject).to eq "NEW claim - #{submitted_claim_id}"
-            end
+          VCR.use_cassette('rrd/hypertension', match_requests_on: %i[host path method]) do
+            subject.perform_async(submission.id)
+            described_class.drain
+            expect(ActionMailer::Base.deliveries.last.body.include?('Number of BP readings: 0')).to eq true
+            expect(ActionMailer::Base.deliveries.last.body.include?('Number of Active Medications: 11')).to eq true
+            expect(ActionMailer::Base.deliveries.last.body.include?('Number of claimed issues: 3')).to eq true
+            expect(ActionMailer::Base.deliveries.last.subject).to eq "NEW claim - #{submitted_claim_id}"
           end
         end
       end
@@ -178,40 +182,36 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
 
       it 'does not set a classification code for irrelevant claims' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
-          subject.perform_async(submission.id)
-          described_class.drain
-          mas_submission = Form526Submission.find(Form526JobStatus.last.form526_submission_id)
-          expect(mas_submission.form.dig('form526', 'form526',
-                                         'disabilities').first['classificationCode']).to eq '8935'
-        end
+        subject.perform_async(submission.id)
+        described_class.drain
+        mas_submission = Form526Submission.find(Form526JobStatus.last.form526_submission_id)
+        expect(mas_submission.form.dig('form526', 'form526',
+                                       'disabilities').first['classificationCode']).to eq '8935'
       end
     end
 
     context 'when retrying a job' do
       it 'doesnt recreate the job status' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
-          subject.perform_async(submission.id)
+        subject.perform_async(submission.id)
 
-          jid = subject.jobs.last['jid']
-          values = {
-            form526_submission_id: submission.id,
-            job_id: jid,
-            job_class: subject.class,
-            status: Form526JobStatus::STATUS[:try],
-            updated_at: Time.now.utc
-          }
-          Form526JobStatus.upsert(values, unique_by: :job_id)
-          expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to(
-            receive(:increment_success).with(false).once
-          )
-          described_class.drain
-          job_status = Form526JobStatus.where(job_id: values[:job_id]).first
-          expect(job_status.status).to eq 'success'
-          expect(job_status.error_class).to eq nil
-          expect(job_status.job_class).to eq 'SubmitForm526AllClaim'
-          expect(Form526JobStatus.count).to eq 1
-        end
+        jid = subject.jobs.last['jid']
+        values = {
+          form526_submission_id: submission.id,
+          job_id: jid,
+          job_class: subject.class,
+          status: Form526JobStatus::STATUS[:try],
+          updated_at: Time.now.utc
+        }
+        Form526JobStatus.upsert(values, unique_by: :job_id)
+        expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to(
+          receive(:increment_success).with(false).once
+        )
+        described_class.drain
+        job_status = Form526JobStatus.where(job_id: values[:job_id]).first
+        expect(job_status.status).to eq 'success'
+        expect(job_status.error_class).to eq nil
+        expect(job_status.job_class).to eq 'SubmitForm526AllClaim'
+        expect(Form526JobStatus.count).to eq 1
       end
     end
 
@@ -221,17 +221,15 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
 
       it 'runs the retryable_error_handler and raises a EVSS::DisabilityCompensationForm::GatewayTimeout' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
-          subject.perform_async(submission.id)
-          expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_retryable).once
-          expect(Rails.logger).to receive(:error).once
-          expect { described_class.drain }.to raise_error(Common::Exceptions::GatewayTimeout)
-          job_status = Form526JobStatus.find_by(form526_submission_id: submission.id,
-                                                job_class: 'SubmitForm526AllClaim')
-          expect(job_status.status).to eq 'retryable_error'
-          expect(job_status.error_class).to eq 'Common::Exceptions::GatewayTimeout'
-          expect(job_status.error_message).to eq 'Gateway timeout'
-        end
+        subject.perform_async(submission.id)
+        expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_retryable).once
+        expect(Rails.logger).to receive(:error).once
+        expect { described_class.drain }.to raise_error(Common::Exceptions::GatewayTimeout)
+        job_status = Form526JobStatus.find_by(form526_submission_id: submission.id,
+                                              job_class: 'SubmitForm526AllClaim')
+        expect(job_status.status).to eq 'retryable_error'
+        expect(job_status.error_class).to eq 'Common::Exceptions::GatewayTimeout'
+        expect(job_status.error_message).to eq 'Gateway timeout'
       end
     end
 
