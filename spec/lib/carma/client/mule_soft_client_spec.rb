@@ -8,6 +8,16 @@ module CARMA
     describe MuleSoftClient do
       let(:client) { described_class.new }
 
+      describe '#raise_error_unless_success' do
+        context 'with a 202 status code' do
+          it 'returns nil' do
+            expect(
+              client.send(:raise_error_unless_success, '', 202)
+            ).to eq(nil)
+          end
+        end
+      end
+
       describe 'submitting 10-10CG' do
         let(:config) { double('config') }
         let(:exp_headers) { { client_id: '1234', client_secret: 'abcd' } }
