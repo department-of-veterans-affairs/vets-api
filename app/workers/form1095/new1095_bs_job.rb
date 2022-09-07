@@ -4,6 +4,8 @@ module Form1095
   class New1095BsJob
     include Sidekiq::Worker
 
+    sidekiq_options(unique_for: 4.hours)
+
     def bucket
       @bucket ||= Aws::S3::Resource.new(
         region: Settings.form1095_b.s3.region,
