@@ -161,7 +161,7 @@ RSpec.describe DhpConnectedDevices::Fitbit::FitbitController, type: :request do
         sign_in_as(current_user)
         @device = create(:device, :fitbit)
         @vdr = VeteranDeviceRecord.create(device_id: @device.id, active: true, icn: current_user.icn)
-        @token = { payload: { access_token: 'access_token_value' } }
+        @token = { payload: { access_token: 'access_token_value', refresh_token: 'refresh_token_value' } }
         @disconnect_success_path = 'http://localhost:3001/health-care/connected-devices/?fitbit=disconnect-success#_=_'
         @disconnect_error_path = 'http://localhost:3001/health-care/connected-devices/?fitbit=disconnect-error#_=_'
       end
@@ -171,7 +171,7 @@ RSpec.describe DhpConnectedDevices::Fitbit::FitbitController, type: :request do
           allow_any_instance_of(TokenStorageService).to receive(:get_token).with(any_args).and_return(@token)
           allow_any_instance_of(TokenStorageService).to receive(:delete_token).with(any_args).and_return(true)
           allow_any_instance_of(DhpConnectedDevices::Fitbit::Client)
-            .to receive(:revoke_token).with(any_args).and_return(nil)
+            .to receive(:revoke_token).with(@token[:payload]).and_return(nil)
         end
 
         it 'updates the user\'s fitbit record to false and redirect to success url' do

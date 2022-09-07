@@ -59,7 +59,7 @@ module DhpConnectedDevices
       def revoke_token(token)
         resp = connection.post(config.revoke_token_base_path) do |req|
           req.headers = headers
-          req.body = "token=#{token[:access_token]}"
+          req.body = "token=#{token[:refresh_token]}"
         end
         raise "response code: #{resp.status}, response body: #{resp.body}" unless resp.status == 200
       rescue => e

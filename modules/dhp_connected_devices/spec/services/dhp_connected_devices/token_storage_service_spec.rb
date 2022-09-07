@@ -176,18 +176,14 @@ RSpec.describe TokenStorageService, type: :service do
       end
 
       it 'deletes token from S3' do
-        client = instance_double(Aws::S3::Client)
-        delete_success_output = Aws::S3::Types::DeleteObjectOutput.new(delete_marker: true)
-        allow(client).to receive(:delete_object).with(any_args).and_return(delete_success_output)
-        allow(Aws::S3::Client).to receive(:new).and_return(client)
-        expect(subject.delete_token(current_user, @device_key)).to eq(true)
+        allow_any_instance_of(TokenStorageService).to receive(:delete_device_token_files).with(any_args).and_return(nil)
+        allow_any_instance_of(TokenStorageService).to receive(:delete_icn_folder).with(any_args).and_return(nil)
+        expect(subject.delete_token(current_user, @device_key)).to eq(nil)
       end
 
       it 'raises TokenDeletionError when the token is not deleted' do
-        client = instance_double(Aws::S3::Client)
-        delete_failure_output = Aws::S3::Types::DeleteObjectOutput.new(delete_marker: false)
-        allow(client).to receive(:delete_object).with(any_args).and_return(delete_failure_output)
-        allow(Aws::S3::Client).to receive(:new).and_return(client)
+        allow_any_instance_of(TokenStorageService)
+          .to receive(:delete_device_token_files).with(any_args).and_raise(TokenDeletionError)
         expect { subject.delete_token(current_user, @device_key) }.to raise_error(TokenDeletionError)
       end
     end
@@ -206,6 +202,68 @@ RSpec.describe TokenStorageService, type: :service do
         allow(File).to receive(:delete).and_raise(StandardError)
         expect { subject.delete_token(current_user, @device_key) }.to raise_error(TokenDeletionError)
       end
+    end
+  end
+
+  describe 'delete_icn_folder' do
+    before do
+      @object_summary_icn_folder = instance_double(Aws::S3::ObjectSummary)
+      @contents = instance_double(Aws::S3::ObjectSummary::Collection)
+      @s3_resource = instance_double(Aws::S3::Resource)
+      allow(@contents).to receive(:first).and_return(@object_summary_icn_folder)
+      allow_any_instance_of(TokenStorageService).to receive(:s3_resource).and_return(@s3_resource)
+    end
+
+    it 'deletes icn folder from S3 when folder is empty' do
+      allow(@object_summary_icn_folder).to receive(:size).and_return(0)
+      allow(@contents).to receive(:batch_delete!).and_return(nil)
+      allow_any_instance_of(TokenStorageService).to receive(:get_s3_bucket_objects).with(any_args).and_return(@contents)
+
+      expect(@contents).to receive(:batch_delete!).once
+      expect(subject.send(:delete_icn_folder, current_user)).to eq(nil)
+    end
+
+    it 'doesn\'t delete icn folder from S3 when folder is not empty' do
+      allow(@object_summary_icn_folder).to receive(:size).and_return(400)
+      allow_any_instance_of(TokenStorageService).to receive(:get_s3_bucket_objects).with(any_args).and_return(@contents)
+
+      expect(@contents).not_to receive(:batch_delete!)
+      expect(subject.send(:delete_icn_folder, current_user)).to eq(nil)
+    end
+
+    it 'doesn\'t delete the folder when the contents is nil' do
+      allow(@object_summary_icn_folder).to receive(:size).and_return(0)
+      allow_any_instance_of(TokenStorageService).to receive(:get_s3_bucket_objects).with(any_args).and_return([])
+
+      expect(@contents).not_to receive(:batch_delete!)
+      expect(subject.send(:delete_icn_folder, current_user)).to eq(nil)
+    end
+
+    it 'raises TokenDeletionError when error occurs while deleting ICN folder' do
+      allow_any_instance_of(TokenStorageService)
+        .to receive(:get_s3_bucket_objects).with(any_args).and_raise(StandardError)
+      expect { subject.send(:delete_icn_folder, current_user) }.to raise_error(TokenDeletionError)
+    end
+  end
+
+  describe 'delete_device_token_files' do
+    before do
+      @contents = instance_double(Aws::S3::ObjectSummary::Collection)
+      @s3_resource = instance_double(Aws::S3::Resource)
+      allow_any_instance_of(TokenStorageService).to receive(:s3_resource).and_return(@s3_resource)
+    end
+
+    it 'deletes the token files' do
+      allow_any_instance_of(TokenStorageService).to receive(:get_s3_bucket_objects).with(any_args).and_return(@contents)
+      expect(@contents).to receive(:batch_delete!).once
+      subject.send(:delete_device_token_files, current_user, @device_key)
+    end
+
+    it 'raises error when error occurs while deleting token files' do
+      allow_any_instance_of(TokenStorageService)
+        .to receive(:get_s3_bucket_objects).with(any_args).and_raise(StandardError)
+      expect(@contents).not_to receive(:batch_delete!)
+      expect { subject.send(:delete_icn_folder, current_user) }.to raise_error(TokenDeletionError)
     end
   end
 end

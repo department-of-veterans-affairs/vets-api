@@ -19,7 +19,7 @@ class TokenStorageService
 
     resp = s3_client.put_object(
       bucket: Settings.dhp.s3.bucket,
-      key: "#{generate_prefix(current_user, device_key)}/tokens.json",
+      key: "#{generate_prefix(current_user, device_key)}tokens.json",
       body: payload_json
     )
     resp.etag ? true : raise('Error when storing token to S3')
@@ -51,11 +51,29 @@ class TokenStorageService
   def delete_token(current_user, device_key)
     return delete_locally(current_user, device_key) unless vsp_env_exists
 
-    resp = s3_client.delete_object({ bucket: Settings.dhp.s3.bucket, key: generate_prefix(current_user, device_key) })
-    resp.delete_marker ? true : raise(TokenDeletionError, "Error deleting file in S3 for icn: #{current_user.icn}")
+    delete_device_token_files(current_user, device_key)
+    delete_icn_folder(current_user)
+  rescue => e
+    raise(TokenDeletionError, "Error deleting token in s3 for icn: #{current_user.icn}, error: #{e.message}")
   end
 
   private
+
+  def delete_icn_folder(current_user)
+    contents = get_s3_bucket_objects(s3_resource, "icn=#{current_user.icn}/")
+    contents.batch_delete! if !contents.first.nil? && contents.first.size.zero?
+  rescue => e
+    raise(TokenDeletionError, "Error deleting icn folder in s3 for icn: #{current_user.icn}, error: #{e.message}")
+  end
+
+  def delete_device_token_files(current_user, device_key)
+    get_s3_bucket_objects(s3_resource, generate_prefix(current_user, device_key)).batch_delete!
+  rescue => e
+    raise(
+      TokenDeletionError,
+      "Error deleting files in s3 for icn: #{current_user.icn} device: #{device_key}, error: #{e.message}"
+    )
+  end
 
   def s3_client
     @s3_client ||= Aws::S3::Client.new(
@@ -65,16 +83,24 @@ class TokenStorageService
     )
   end
 
+  def s3_resource
+    @s3_resource ||= Aws::S3::Resource.new(client: s3_client)
+  end
+
   def vsp_env_exists
     !Settings.vsp_environment.nil?
   end
 
   def generate_prefix(current_user, device_key)
-    "icn=#{current_user.icn}/device=#{device_key}"
+    "icn=#{current_user.icn}/device=#{device_key}/"
+  end
+
+  def get_s3_bucket_objects(s3_resource, prefix)
+    s3_resource.bucket(Settings.dhp.s3.bucket).objects({ prefix: prefix })
   end
 
   def token_file_path(prefix)
-    "#{::Rails.root}/modules/dhp_connected_devices/tmp/#{prefix}/tokens.json"
+    "#{::Rails.root}/modules/dhp_connected_devices/tmp/#{prefix}tokens.json"
   end
 
   ##
