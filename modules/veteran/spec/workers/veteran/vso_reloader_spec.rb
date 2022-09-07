@@ -46,6 +46,26 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       end
     end
 
+    describe "storing a VSO's middle initial" do
+      it 'stores the middle initial if it exists' do
+        VCR.use_cassette('veteran/ogc_vso_rep_data') do
+          Veteran::VSOReloader.new.reload_vso_reps
+
+          veteran_rep = Veteran::Service::Representative.find_by!(first_name: 'Edgar', last_name: 'Anderson')
+          expect(veteran_rep.middle_initial).to eq('B')
+        end
+      end
+
+      it 'does not break if a middle initial does not exist' do
+        VCR.use_cassette('veteran/ogc_vso_rep_data_no_middle_initial') do
+          Veteran::VSOReloader.new.reload_vso_reps
+
+          veteran_rep = Veteran::Service::Representative.find_by!(first_name: 'Edgar', last_name: 'Anderson')
+          expect(veteran_rep.middle_initial).to eq('')
+        end
+      end
+    end
+
     context 'leaving test users alone' do
       before do
         Veteran::Service::Representative.create(
