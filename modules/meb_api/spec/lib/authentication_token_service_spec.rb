@@ -20,7 +20,7 @@ Rspec.describe MebApi::AuthenticationTokenService do
           'iat' => Time.now.to_i,
           'exp' => Time.now.to_i + (5 * 60)
         }, {
-          'kid' => 'ch33',
+          'kid' => 'vanotify',
           'typ' => 'JWT',
           'alg' => 'RS256'
         }]
