@@ -6,12 +6,17 @@ module Mobile
   module V2
     module Appointments
       class Proxy
+        VAOS_STATUSES = %w[proposed cancelled booked fulfilled].freeze
+
         def initialize(user)
           @user = user
         end
 
-        def get_appointments(start_date:, end_date:, pagination_params:)
-          response = vaos_v2_appointments_service.get_appointments(start_date, end_date, nil, pagination_params)
+        def get_appointments(start_date:, end_date:, include_pending:, pagination_params:)
+          statuses = include_pending ? VAOS_STATUSES : VAOS_STATUSES.excluding('proposed')
+
+          response = vaos_v2_appointments_service.get_appointments(start_date, end_date, statuses.join(','),
+                                                                   pagination_params)
 
           appointments = merge_clinic_facility_address(response[:data])
           appointments = merge_auxiliary_clinic_info(appointments)
