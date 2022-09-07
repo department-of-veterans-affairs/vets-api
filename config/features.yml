@@ -190,6 +190,9 @@ features:
   debt_letters_show_letters:
     actor_type: user
     description: Enables debt letters
+  debt_letters_show_letters_vbms:
+    actor_type: user
+    description: Enables debt letter download from VBMS
   decision_review_hlr_email:
     actor_type: user
     description: Send email notification for successful HLR submission
