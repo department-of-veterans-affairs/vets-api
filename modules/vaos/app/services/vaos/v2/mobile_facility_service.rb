@@ -6,7 +6,7 @@ require 'common/client/errors'
 module VAOS
   module V2
     class MobileFacilityService < VAOS::SessionService
-      def get_clinic(station_id: nil, clinic_id: nil)
+      def get_clinic(station_id:, clinic_id:)
         params = {}
         parent_site_id = station_id[0, 3]
         clinic_path = "/facilities/v2/facilities/#{parent_site_id}/clinics/#{clinic_id}"
