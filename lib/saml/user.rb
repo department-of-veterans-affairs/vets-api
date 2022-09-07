@@ -17,6 +17,8 @@ module SAML
 
     AUTHN_CONTEXTS = {
       LOA::IDME_LOA1_VETS => { loa_current: LOA::ONE, sign_in: { service_name: IDME_CSID } },
+      LOA::IDME_LOA1_2FA => { loa_current: LOA::ONE, sign_in: { service_name: IDME_CSID } },
+      LOA::IDME_LOA1_MFA => { loa_current: LOA::ONE, sign_in: { service_name: IDME_CSID } },
       LOA::IDME_LOA3_VETS => { loa_current: LOA::THREE, sign_in: { service_name: IDME_CSID } },
       LOA::IDME_LOA3 => { loa_current: LOA::THREE, sign_in: { service_name: IDME_CSID } },
       'multifactor' => { loa_current: nil, sign_in: { service_name: IDME_CSID } },
@@ -26,8 +28,14 @@ module SAML
       'dslogon_loa3' => { loa_current: LOA::THREE, sign_in: { service_name: DSLOGON_CSID } },
       'myhealthevet' => { loa_current: nil, sign_in: { service_name: MHV_ORIGINAL_CSID } },
       'dslogon' => { loa_current: nil, sign_in: { service_name: DSLOGON_CSID } },
+      LOA::IDME_LOA3_2FA => { loa_current: LOA::THREE, sign_in: { service_name: IDME_CSID } },
+      LOA::IDME_LOA3_MFA => { loa_current: LOA::THREE, sign_in: { service_name: IDME_CSID } },
       IAL::LOGIN_GOV_IAL1 => { loa_current: LOA::ONE, sign_in: { service_name: LOGINGOV_CSID } },
-      IAL::LOGIN_GOV_IAL2 => { loa_current: LOA::THREE, sign_in: { service_name: LOGINGOV_CSID } }
+      IAL::LOGIN_GOV_IAL1_2FA => { loa_current: LOA::ONE, sign_in: { service_name: LOGINGOV_CSID } },
+      IAL::LOGIN_GOV_IAL1_MFA => { loa_current: LOA::ONE, sign_in: { service_name: LOGINGOV_CSID } },
+      IAL::LOGIN_GOV_IAL2 => { loa_current: LOA::THREE, sign_in: { service_name: LOGINGOV_CSID } },
+      IAL::LOGIN_GOV_IAL2_2FA => { loa_current: LOA::THREE, sign_in: { service_name: LOGINGOV_CSID } },
+      IAL::LOGIN_GOV_IAL2_MFA => { loa_current: LOA::THREE, sign_in: { service_name: LOGINGOV_CSID } }
     }.freeze
 
     LOGIN_TYPES = [MHV_ORIGINAL_CSID, IDME_CSID, DSLOGON_CSID, LOGINGOV_CSID].freeze
