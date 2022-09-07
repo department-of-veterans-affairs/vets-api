@@ -4,6 +4,8 @@ require 'debt_management_center/debt_letter_downloader'
 
 module V0
   class DebtLettersController < ApplicationController
+    before_action { authorize :debt_letters, :access? }
+
     def index
       render(json: service.list_letters)
     end
