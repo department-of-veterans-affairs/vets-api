@@ -9,10 +9,18 @@ unless Rails.env.test?
     CheckIn::V2::PreCheckInsController.extend(StatsD::Instrument)
     %i[show create].each do |method|
       CheckIn::V2::SessionsController.statsd_measure method, lambda { |object, _args|
-        "api.#{check_in_type(object.params)}.v2.sessions.#{method}.measure"
+        if Flipper.enabled?('check_in_experience_synthetic_metric_name')
+          "api.#{metric_prefix(object.request.headers, object.request.params)}.v2.sessions.#{method}.measure"
+        else
+          "api.#{check_in_type(object.params)}.v2.sessions.#{method}.measure"
+        end
       }
       CheckIn::V2::SessionsController.statsd_count_success method, lambda { |object, _args|
-        "api.#{check_in_type(object.params)}.v2.sessions.#{method}.count"
+        if Flipper.enabled?('check_in_experience_synthetic_metric_name')
+          "api.#{metric_prefix(object.request.headers, object.request.params)}.v2.sessions.#{method}.count"
+        else
+          "api.#{check_in_type(object.params)}.v2.sessions.#{method}.count"
+        end
       }
       CheckIn::V2::PatientCheckInsController.statsd_measure method, "api.check_in.v2.checkins.#{method}.measure"
       CheckIn::V2::PatientCheckInsController.statsd_count_success method, "api.check_in.v2.checkins.#{method}.count"
@@ -45,5 +53,13 @@ unless Rails.env.test?
     check_in_param = params[:checkInType]
     check_in_param = params.dig(:session, :check_in_type) if check_in_param.nil?
     check_in_param == 'preCheckIn' ? 'pre_check_in' : 'check_in'
+  end
+
+  def metric_prefix(headers, params)
+    check_in_param = params[:checkInType] || params.dig(:session, :check_in_type)
+
+    prefix = check_in_param == 'preCheckIn' ? 'pre_check_in' : 'check_in'
+    prefix += '.synthetic' if headers.key?('Sec-Datadog')
+    prefix
   end
 end
