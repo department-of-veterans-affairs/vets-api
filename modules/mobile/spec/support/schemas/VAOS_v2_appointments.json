@@ -194,7 +194,8 @@
                 "enum": [
                   "BOOKED",
                   "CANCELLED",
-                  "HIDDEN"
+                  "HIDDEN",
+                  "SUBMITTED"
                 ]
               },
               "statusDetail": {

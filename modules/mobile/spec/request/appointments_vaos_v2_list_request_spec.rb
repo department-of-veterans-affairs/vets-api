@@ -58,7 +58,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
 
     let(:start_date) { Time.zone.parse('2021-01-01T00:00:00Z').iso8601 }
     let(:end_date) { Time.zone.parse('2023-01-01T00:00:00Z').iso8601 }
-    let(:params) { { startDate: start_date, endDate: end_date } }
+    let(:params) { { startDate: start_date, endDate: end_date, include: ['pending'] } }
 
     context 'backfill facility service returns data' do
       before { mock_clinic }
@@ -160,7 +160,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
       end
     end
 
-    context 'request all appointments' do
+    context 'request all appointments without requests' do
       before do
         mock_facility
         mock_clinic
@@ -168,19 +168,46 @@ RSpec.describe 'vaos v2 appointments', type: :request do
 
       let(:start_date) { Time.zone.parse('1991-01-01T00:00:00Z').iso8601 }
       let(:end_date) { Time.zone.parse('2023-01-01T00:00:00Z').iso8601 }
-      let(:params) { { page: { number: 1, size: 9999 }, startDate: start_date, endDate: end_date } }
+      let(:params) { { page: { number: 1, size: 100 }, startDate: start_date, endDate: end_date } }
 
-      it 'processes all appointments without error' do
+      it 'returns no appointment requests' do
+        VCR.use_cassette('appointments/VAOS_v2/get_appointments_no_requests_200',
+                         match_requests_on: %i[method uri]) do
+          get '/mobile/v0/appointments', headers: iam_headers, params: params
+        end
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to match_json_schema('VAOS_v2_appointments')
+
+        uniq_statuses = response.parsed_body['data'].map { |appt| appt.dig('attributes', 'status') }.uniq
+        expect(uniq_statuses).to eq(%w[CANCELLED BOOKED])
+      end
+    end
+
+    context 'request all appointments with requests' do
+      before do
+        mock_facility
+        mock_clinic
+      end
+
+      let(:start_date) { Time.zone.parse('1991-01-01T00:00:00Z').iso8601 }
+      let(:end_date) { Time.zone.parse('2023-01-01T00:00:00Z').iso8601 }
+      let(:params) do
+        { page: { number: 1, size: 9999 }, startDate: start_date, endDate: end_date, include: ['pending'] }
+      end
+
+      it 'processes appointments without error' do
         VCR.use_cassette('appointments/VAOS_v2/get_all_appointment_200_ruben',
                          match_requests_on: %i[method uri]) do
           get '/mobile/v0/appointments', headers: iam_headers, params: params
         end
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['data'].size).to eq(1233)
-
+        expect(JSON.parse(response.body)['data'].size).to eq(1305)
         # VAOS v2 appointment is only different from appointments by allowing some fields to be nil.
         # This is due to bad staging data.
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
+
+        uniq_statuses = response.parsed_body['data'].map { |appt| appt.dig('attributes', 'status') }.uniq
+        expect(uniq_statuses).to eq(%w[CANCELLED BOOKED SUBMITTED])
       end
     end
   end
