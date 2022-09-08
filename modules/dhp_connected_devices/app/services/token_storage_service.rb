@@ -61,7 +61,7 @@ class TokenStorageService
 
   def delete_icn_folder(current_user)
     contents = get_s3_bucket_objects(s3_resource, "icn=#{current_user.icn}/")
-    contents.batch_delete! if !contents.first.nil? && contents.first.size.zero?
+    contents.batch_delete! if !contents.first.nil? && contents.all? { |item| item.size.zero? }
   rescue => e
     raise(TokenDeletionError, "Error deleting icn folder in s3 for icn: #{current_user.icn}, error: #{e.message}")
   end

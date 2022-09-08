@@ -215,7 +215,7 @@ RSpec.describe TokenStorageService, type: :service do
     end
 
     it 'deletes icn folder from S3 when folder is empty' do
-      allow(@object_summary_icn_folder).to receive(:size).and_return(0)
+      allow(@contents).to receive(:all?).with(no_args).and_return(true)
       allow(@contents).to receive(:batch_delete!).and_return(nil)
       allow_any_instance_of(TokenStorageService).to receive(:get_s3_bucket_objects).with(any_args).and_return(@contents)
 
@@ -224,7 +224,7 @@ RSpec.describe TokenStorageService, type: :service do
     end
 
     it 'doesn\'t delete icn folder from S3 when folder is not empty' do
-      allow(@object_summary_icn_folder).to receive(:size).and_return(400)
+      allow(@contents).to receive(:all?).with(no_args).and_return(false)
       allow_any_instance_of(TokenStorageService).to receive(:get_s3_bucket_objects).with(any_args).and_return(@contents)
 
       expect(@contents).not_to receive(:batch_delete!)
@@ -232,7 +232,6 @@ RSpec.describe TokenStorageService, type: :service do
     end
 
     it 'doesn\'t delete the folder when the contents is nil' do
-      allow(@object_summary_icn_folder).to receive(:size).and_return(0)
       allow_any_instance_of(TokenStorageService).to receive(:get_s3_bucket_objects).with(any_args).and_return([])
 
       expect(@contents).not_to receive(:batch_delete!)
