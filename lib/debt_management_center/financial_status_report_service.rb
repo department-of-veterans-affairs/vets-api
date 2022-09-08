@@ -61,6 +61,9 @@ module DebtManagementCenter
 
     def submit_combined_fsr(form)
       submission = persist_form_submission(form)
+
+      Rails.logger.info('Submitting Combined FSR', submission_id: submission.id)
+
       vba_status = submit_vba_fsr(form) if selected_vba_debts(form['selectedDebtsAndCopays']).present?
       vha_status = submit_vha_fsr(form, submission) if selected_vha_copays(form['selectedDebtsAndCopays']).present?
 
@@ -68,8 +71,9 @@ module DebtManagementCenter
     end
 
     def submit_vba_fsr(form)
-      form.delete('selectedDebtsAndCopays')
-      response = perform(:post, 'financial-status-report/formtopdf', form)
+      vba_form = form.deep_dup
+      vba_form.delete('selectedDebtsAndCopays')
+      response = perform(:post, 'financial-status-report/formtopdf', vba_form)
       fsr_response = DebtManagementCenter::FinancialStatusReportResponse.new(response.body)
 
       send_confirmation_email if response.success?
@@ -79,6 +83,8 @@ module DebtManagementCenter
     end
 
     def submit_vha_fsr(form, form_submission)
+      Rails.logger.info('5655 Form Submitting to VHA', submission_id: form_submission.id)
+
       vha_forms = parse_vha_form(form, form_submission.id)
       vbs_request = DebtManagementCenter::VBS::Request.build
       sharepoint_request = DebtManagementCenter::Sharepoint::Request.new
@@ -113,7 +119,7 @@ module DebtManagementCenter
       facility_copays.each do |facility_num, copays|
         fsr_reason = copays.map do |c|
           c['resolutionOption']
-        end.uniq.join(', ') + " - Facility #{facility_num}}"
+        end.uniq.join(', ') + " - Facility #{facility_num}"
         facility_form = form.deep_dup
         facility_form['personalIdentification']['fsrReason'] = fsr_reason
         facility_form['facilityNum'] = facility_num
