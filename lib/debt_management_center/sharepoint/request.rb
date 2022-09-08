@@ -76,10 +76,12 @@ module DebtManagementCenter
           "#{base_path}/_api/Web/GetFolderByServerRelativeUrl('#{base_path}/Submissions')" \
           "/Files/add(url='#{file_name}.pdf',overwrite=true)"
 
-        sharepoint_file_connection.post(file_transfer_path) do |req|
-          req.headers['Content-Type'] = 'octet/stream'
-          req.headers['Content-Length'] = fsr_pdf.size.to_s
-          req.body = Faraday::UploadIO.new(fsr_pdf, 'octet/stream')
+        with_monitoring do
+          sharepoint_file_connection.post(file_transfer_path) do |req|
+            req.headers['Content-Type'] = 'octet/stream'
+            req.headers['Content-Length'] = fsr_pdf.size.to_s
+            req.body = Faraday::UploadIO.new(fsr_pdf, 'octet/stream')
+          end
         end
       end
 
@@ -94,12 +96,14 @@ module DebtManagementCenter
         uri = pdf_upload_response.body['d']['ListItemAllFields']['__deferred']['uri']
         path = uri.slice(uri.index(base_path)..-1)
 
-        get_item_response = sharepoint_connection.get(path)
+        with_monitoring do
+          get_item_response = sharepoint_connection.get(path)
 
-        list_item_id = get_item_response.body.dig('d', 'ID')
-        raise ListItemNotFound if list_item_id.nil?
+          list_item_id = get_item_response.body.dig('d', 'ID')
+          raise ListItemNotFound if list_item_id.nil?
 
-        list_item_id
+          list_item_id
+        end
       end
 
       ##
@@ -114,19 +118,21 @@ module DebtManagementCenter
       def update_list_item_fields(list_item_id:, form_submission:, station_id:)
         path = "#{base_path}/_api/Web/Lists/GetByTitle('Submissions')/items(#{list_item_id})"
         user = User.find(form_submission.user_uuid)
-        sharepoint_connection.post(path) do |req|
-          req.headers['Content-Type'] = 'application/json;odata=verbose'
-          req.headers['X-HTTP-METHOD'] = 'MERGE'
-          req.headers['If-Match'] = '*'
-          req.body = {
-            '__metadata' => {
-              'type' => 'SP.Data.SubmissionsItem'
-            },
-            'StationId' => station_id,
-            'UID' => form_submission.id,
-            'SSN' => user.ssn,
-            'Name1' => "#{user.last_name}, #{user.first_name}"
-          }.to_json
+        with_monitoring do
+          sharepoint_connection.post(path) do |req|
+            req.headers['Content-Type'] = 'application/json;odata=verbose'
+            req.headers['X-HTTP-METHOD'] = 'MERGE'
+            req.headers['If-Match'] = '*'
+            req.body = {
+              '__metadata' => {
+                'type' => 'SP.Data.SubmissionsItem'
+              },
+              'StationId' => station_id,
+              'UID' => form_submission.id,
+              'SSN' => user.ssn,
+              'Name1' => "#{user.last_name}, #{user.first_name}"
+            }.to_json
+          end
         end
       end
 
