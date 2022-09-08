@@ -15,11 +15,11 @@ Rails.application.reloader.to_prepare do
     config.default do
       activerecord_adapter = Flipper::Adapters::ActiveRecord.new
       cache = Rails.cache
+
       # Flipper settings will be stored in postgres and cached in memory for 1 minute in production/staging
-      cached_adapter = Flipper::Adapters::ActiveSupportCacheStore.new(activerecord_adapter, cache,
-                                                                      expires_in: 1.minute)
+      cached_adapter = Flipper::Adapters::ActiveSupportCacheStore.new(activerecord_adapter, cache, expires_in: 1.minute)
       instrumented = Flipper::Adapters::Instrumented.new(cached_adapter, instrumenter: ActiveSupport::Notifications)
-      # pass adapter to handy DSL instance
+
       Flipper.new(instrumented, instrumenter: ActiveSupport::Notifications)
     end
   end
@@ -31,12 +31,6 @@ Rails.application.reloader.to_prepare do
     config.custom_views_path = Rails.root.join('lib', 'flipper', 'views')
   end
 
-  # A contrived example of how we might use a "group"
-  # (a method that can be evaluated at runtime to determine feature status)
-  #
-  # Flipper.register(:first_name_is_hector) do |user|
-  #   user.respond_to?(:first_name) && user.first_name == 'HECTOR'
-  # end
   FLIPPER_ACTOR_USER = 'user'
   FLIPPER_ACTOR_STRING = 'cookie_id'
 
@@ -47,19 +41,18 @@ Rails.application.reloader.to_prepare do
       unless Flipper.exist?(feature)
         Flipper.add(feature)
 
-        # default features to enabled for test and those explicitly set for development
-        if Rails.env.test? ||
-           (Rails.env.development? && feature_config['enable_in_development'])
+        # Default features to enabled for test and those explicitly set for development
+        if Rails.env.test? || (Rails.env.development? && feature_config['enable_in_development'])
           Flipper.enable(feature)
         end
       end
 
-      # this will enable features on dev-api.va.gov if they are set to enable_in_development
+      # Enable features on dev-api.va.gov if they are set to enable_in_development
       Flipper.enable(feature) if Settings.vsp_environment == 'development' && feature_config['enable_in_development']
     end
-    # remove features from UI that have been removed from code
-    removed_features = (Flipper.features.collect(&:name) - FLIPPER_FEATURE_CONFIG['features'].keys)
-    removed_features.each { |feature_name| Flipper.remove(feature_name) }
+
+    removed_features = Flipper.features.collect(&:name) - FLIPPER_FEATURE_CONFIG['features'].keys
+    Rails.logger.warn "Consider removing features no longer in config/features.yml: #{removed_features.join(', ')}"
   rescue
     # make sure we can still run rake tasks before table has been created
     nil
