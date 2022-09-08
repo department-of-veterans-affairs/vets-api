@@ -5,6 +5,7 @@ required:
 properties:
   preference:
     type: string
+    enum: [ "appointment_reminders", "secure_message_alerts" ]
     example: "appointment_reminders"
   enabled:
     type: boolean
