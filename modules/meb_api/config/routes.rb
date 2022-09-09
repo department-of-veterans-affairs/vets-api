@@ -14,6 +14,7 @@ MebApi::Engine.routes.draw do
     post 'forms_claim_letter', to: 'forms#claim_letter'
     post 'forms_sponsors', to: 'forms#sponsors'
     post 'forms_submit_claim', to: 'forms#submit_claim'
+    get 'toe/claimant_info', to: 'forms#claimant_info'
 
     get 'apidocs', to: 'apidocs#index'
   end

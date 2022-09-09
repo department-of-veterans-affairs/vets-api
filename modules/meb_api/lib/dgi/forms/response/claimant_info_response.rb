@@ -7,11 +7,13 @@ module MebApi
     module Forms
       class ClaimantResponse < MebApi::DGI::Response
         attribute :claimant, Hash
+        attribute :toe_sponsors, Hash
         attribute :service_data, Array
 
         def initialize(status, response = nil)
           attributes = {
             claimant: response.body['claimant'],
+            toe_sponsors: response.body['toe_sponsors'],
             service_data: response.body['service_data']
           }
           super(status, attributes)

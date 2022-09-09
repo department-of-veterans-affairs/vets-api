@@ -44,5 +44,46 @@ Rspec.describe MebApi::DGI::Forms::Claimant::Service do
         end
       end
     end
+
+    describe '#post_toe_claimant_info' do
+      let(:user_details) do
+        {
+          first_name: 'Herbert',
+          last_name: 'Hoover',
+          middle_name: '',
+          birth_date: '1970-01-01',
+          ssn: '810907308'
+        }
+      end
+
+      let(:user) { FactoryBot.create(:user, :loa3, user_details) }
+      let(:service) { MebApi::DGI::Forms::Claimant::Service.new(user) }
+      let(:faraday_response) { double('faraday_connection') }
+
+      before do
+        allow(faraday_response).to receive(:env)
+      end
+
+      context 'with a successful submission and info exists for toe' do
+        it 'successfully receives an Claimant object' do
+          VCR.use_cassette('dgi/post_toe_claimant_info') do
+            response = service.get_claimant_info('Toe')
+            expect(response.status).to eq(200)
+            expect(response.toe_sponsors).to include({
+                                                       'transfer_of_entitlements' =>
+                                                         [
+                                                           {
+                                                             'fist_name' => 'SEAN',
+                                                             'second_name' => 'JOHNSON',
+                                                             'sponsor_relationship' => 'Child',
+                                                             'sponsor_va_id' => 1_000_000_077,
+                                                             'date_of_birth' => '1971-05-24'
+                                                           }
+                                                         ]
+                                                     })
+          end
+        end
+      end
+    end
   end
 end
