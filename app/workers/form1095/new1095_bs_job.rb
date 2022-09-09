@@ -108,7 +108,6 @@ module Form1095
       existing_form = Form1095B.find_by(veteran_icn: form_data[:veteran_icn], tax_year: form_data[:tax_year])
 
       if !corrected && existing_form.present? # returns true to indicate successful entry
-        Rails.logger.warn "Form for #{form_data[:tax_year]} already exists, but file is for Original 1095-B forms."
         return true
       elsif corrected && existing_form.nil?
         Rails.logger.warn "Form for year #{form_data[:tax_year]} not found, but file is for Corrected 1095-B forms."
@@ -160,7 +159,8 @@ module Form1095
 
       all_succeeded
     rescue => e
-      Rails.logger.error(e.message)
+      Rails.logger.error "#{e.message}.", backtrace: e.backtrace
+
       false
     end
 
