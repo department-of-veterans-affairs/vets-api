@@ -18,9 +18,10 @@ module Sidekiq
           error_class = msg['error_class']
           error_message = msg['error_message']
           timestamp = Time.now.utc
+          form526_submission_id = msg['args'].first
 
           values = {
-            form526_submission_id: msg['args'].first,
+            form526_submission_id: form526_submission_id,
             job_id: job_id,
             job_class: msg['class'].demodulize,
             status: Form526JobStatus::STATUS[:exhausted],
@@ -47,16 +48,22 @@ module Sidekiq
           Form526JobStatus.upsert(values, unique_by: :job_id)
           # rubocop:enable Rails/SkipsModelValidations
 
+          additional_birls_to_try = Form526Submission.find(form526_submission_id).birls_ids_that_havent_been_tried_yet
+
           ::Rails.logger.error(
-            'Form526 Exhausted', submission_id: values[:form526_submission_id],
+            'Form526 Exhausted', submission_id: form526_submission_id,
                                  job_id: job_id,
                                  job_class: values[:job_class],
                                  error_class: error_class,
-                                 error_message: error_message
+                                 error_message: error_message,
+                                 remaining_birls: additional_birls_to_try
           )
-          Metrics.new(statsd_key_prefix).increment_exhausted
         rescue => e
-          ::Rails.logger.error('error tracking job exhausted', error: e, class: msg['class'].demodulize)
+          emsg = 'Form526 Exhausted, with error tracking job exhausted'
+          error_details = { message: emsg, error: e, class: msg['class'].demodulize, jid: msg['jid'] }
+          ::Rails.logger.error(emsg, error_details)
+        ensure
+          Metrics.new(statsd_key_prefix).increment_exhausted
         end
         # rubocop:enable Metrics/MethodLength
       end
