@@ -8,7 +8,7 @@ module MebApi
   module V0
     class FormsController < MebApi::V0::BaseController
       before_action :check_forms_flipper
-      before_action :get_form_type
+      before_action :get_form_type, except: :claimant_info
 
       def claim_letter
         claimant_response = claimant_service.get_claimant_info(@form_type)
@@ -25,6 +25,12 @@ module MebApi
         send_data response.body, filename: "#{filename}.pdf", type: 'application/pdf', disposition: 'attachment'
 
         nil
+      end
+
+      def claimant_info
+        response = claimant_service.get_claimant_info('Toe')
+
+        render json: response, serializer: ToeClaimantInfoSerializer
       end
 
       def sponsors

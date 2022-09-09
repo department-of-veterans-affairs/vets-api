@@ -11,7 +11,7 @@ module MebApi
       before_action :check_flipper, only: %i[eligibility claimant_info claim_status claim_letter submit_claim]
 
       def claimant_info
-        response = automation_service.get_claimant_info
+        response = automation_service.get_claimant_info('Chapter33')
 
         render json: response, serializer: AutomationSerializer
       end

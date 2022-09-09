@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: http://localhost:8070/vets-service/v1/claimType/fry/claimants
+    uri: https://jenkins.ld.afsp.io:32512/vets-service/v1/claimType/fry/claimants
     body:
       encoding: UTF-8
       string: '{"ssn":"796126859"}'

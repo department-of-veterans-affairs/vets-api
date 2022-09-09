@@ -13,11 +13,11 @@ module MebApi
         configuration MebApi::DGI::Automation::Configuration
         STATSD_KEY_PREFIX = 'api.dgi.automation'
 
-        def get_claimant_info
+        def get_claimant_info(type = 'Chapter33')
           with_monitoring do
             headers = request_headers
             options = { timeout: 60 }
-            raw_response = perform(:post, end_point, { ssn: @user.ssn.to_s }.to_json, headers, options)
+            raw_response = perform(:post, end_point(type), { ssn: @user.ssn.to_s }.to_json, headers, options)
 
             MebApi::DGI::Automation::ClaimantResponse.new(raw_response.status, raw_response)
           end
@@ -25,8 +25,8 @@ module MebApi
 
         private
 
-        def end_point
-          'claimType/Chapter33/claimants'
+        def end_point(type)
+          "claimType/#{type}/claimants"
         end
 
         def request_headers
