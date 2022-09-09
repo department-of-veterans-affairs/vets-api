@@ -847,7 +847,8 @@ flipper:
   admin_user_emails:
     - aditya.sharma@thoughtworks.com # Virtual Agent
     - adrian.rollett@agile6.com # Adrian Rollett (Agile6), Engineer/Product Manager Health Care Experience/Check-In
-    - agarcia@clarityinnovates.com
+    - alexander.schmidt.garcia@gmail.com # Alexander Garcia (Clarity), Identity, Frontend Engineer
+    - afia.caruso@oddball.io # Afia Caruso (Oddball), Identity, Frontend Engineer
     - alastair@adhocteam.us
     - andrew.herzberg@adhocteam.us
     - bill.ryan@adhocteam.us
@@ -875,6 +876,7 @@ flipper:
     - ggupta@kindsys.us # Gaurav Gupta (Kindsys), BE Engineer Health Care Experience/Check-In
     - gescobar@governmentcio.com
     - grodriguez@governmentcio.com
+    - ian.hundere@oddball.io # Ian Hundere (Oddball), Identity, DevOps Engineer
     - jacob.gacek@thoughtworks.com # Virtual Agent
     - james.childers@gcio.com
     - james.adams2@va.gov # Jim Adams designer on GCIO
@@ -885,8 +887,8 @@ flipper:
     - jesse.cohn@adhocteam.us
     - jlinn@governmentcio.com
     - joe.hall@thoughtworks.com # Virtual Agent
-    - joeyn414@gmail.com # Joe Niquette Oddball VSP Identity Team Sr Security Engineer
-    - john.bramley@adhocteam.us # John Bramley VSP Identity Team Engineer
+    - joeyn414@gmail.com # Joe Niquette (Oddball), Identity, Sr Security Engineer
+    - john.bramley@adhocteam.us # John Bramley (AdHoc), Identity, Backend Engineer
     - julie.adair@agile6.com # Julie Adair (Agile6), Product Manager Health Care Experience/Check-In
     - jwolf@governmentcio.com # Jason Wolf Product Manager for GCIO
     - justin.trieu@thoughtworks.com # Virtual Agent
@@ -912,7 +914,6 @@ flipper:
     - micah@adhocteam.us
     - michel.mcdonald@adhocteam.us
     - michael.chelen@va.gov
-    - michael.fleet@oddball.io
     - michael.pelz-sherman@gcio.com
     - michelle.middaugh@adhocteam.us
     - n.ratana@gmail.com
@@ -934,10 +935,9 @@ flipper:
     - ssuddath@governmentcio.com
     - stephen.barrs@gmail.com
     - teagan.stephenson@bracari.com
-    - tim.wright@adhocteam.us
     - tony.williams@va.gov
     - travis.hilton@oddball.io
-    - trevor.bosaw@oddball.io
+    - trevor.bosaw@oddball.io # Trevor Bosaw (Oddball), Identity, Backend Engineer
     - tze@adhocteam.us
     - yangyang@navapbc.com
     - yoom@navapbc.com
