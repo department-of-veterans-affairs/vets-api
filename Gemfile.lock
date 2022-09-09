@@ -717,6 +717,7 @@ GEM
       rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
+    rack-timeout (0.6.3)
     rack-vcr (0.1.6)
       vcr (>= 2.9)
     rails (6.1.6.1)
@@ -1125,6 +1126,7 @@ DEPENDENCIES
   rack-attack
   rack-cors
   rack-test
+  rack-timeout
   rack-vcr
   rails (~> 6.1.6)
   rails-session_cookie
