@@ -804,6 +804,7 @@ RSpec.describe Form1010cg::Service do
   describe '#assert_veteran_status' do
     it 'will raise error if veteran\'s icn can not be found' do
       expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
+      expect(subject).to receive(:log_exception_to_sentry).with(instance_of(described_class::InvalidVeteranStatus))
       expect { subject.assert_veteran_status }.to raise_error(described_class::InvalidVeteranStatus)
     end
 

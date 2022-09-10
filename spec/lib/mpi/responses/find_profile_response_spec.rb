@@ -49,6 +49,32 @@ describe MPI::Responses::FindProfileResponse do
   describe '.with_parsed_response' do
     subject { described_class.with_parsed_response(raw_response) }
 
+    context 'with no profile' do
+      before do
+        allow_any_instance_of(MPI::Responses::ProfileParser).to receive(:parse).and_return(nil)
+      end
+
+      it 'sends mpi transaction id to raven extra context' do
+        expect(Raven).to receive(:extra_context).with(
+          mpi_transaction_id: 'f8ba531562ec2fa1098a9c93'
+        )
+
+        expect do
+          described_class.with_parsed_response(
+            OpenStruct.new(
+              response_headers: {
+                'x-backside-transport' => 'OK OK,OK OK',
+                'transfer-encoding' => 'chunked',
+                'date' => 'Thu, 04 Aug 2022 20:44:28 GMT',
+                'content-type' => 'text/xml',
+                'x-global-transaction-id' => 'f8ba531562ec2fa1098a9c93'
+              }
+            )
+          )
+        end.to raise_error(MPI::Errors::RecordNotFound)
+      end
+    end
+
     context 'when response parses multiple match' do
       let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_multiple_match_response.xml')) }
       let(:expected_error) { MPI::Errors::DuplicateRecords }

@@ -11,6 +11,7 @@ require 'emis/service'
 module Form1010cg
   class Service
     extend Forwardable
+    include SentryLogging
 
     class InvalidVeteranStatus < StandardError
     end
@@ -120,7 +121,11 @@ module Form1010cg
     #
     # @return [nil]
     def assert_veteran_status
-      raise InvalidVeteranStatus if icn_for('veteran') == NOT_FOUND
+      if icn_for('veteran') == NOT_FOUND
+        error = InvalidVeteranStatus.new
+        log_exception_to_sentry(error)
+        raise error
+      end
     end
 
     # Returns a metadata hash:
