@@ -28,16 +28,16 @@ module CARMA
         settings.key?(:timeout) ? settings.timeout : 10
       end
 
+      # @return [Config::Options]
+      def settings
+        Settings.form_10_10cg.carma.mulesoft
+      end
+
       private
 
       # @return [String]
       def base_path
         "#{settings.host}/va-carma-caregiver-papi/api/"
-      end
-
-      # @return [Config::Options]
-      def settings
-        Settings.form_10_10cg.carma.mulesoft
       end
     end
   end
