@@ -929,26 +929,6 @@ RSpec.describe SAML::User do
       end
     end
 
-    context 'with multi-value birls_id' do
-      let(:saml_attributes) do
-        build(:ssoe_idme_mhv_loa3,
-              va_eauth_birlsfilenumber: [birls_id])
-      end
-
-      context 'with different values' do
-        let(:birls_id) { '0123456789,0000000054' }
-
-        it 'logs warning to sentry' do
-          expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-            'User attributes contain multiple distinct BIRLS ID values.',
-            'warn',
-            { birls_ids: birls_id }
-          )
-          subject.validate!
-        end
-      end
-    end
-
     context 'with multi-value sec_id string' do
       let(:saml_attributes) do
         build(:ssoe_idme_mhv_loa3, va_eauth_secid: [sec_id])
