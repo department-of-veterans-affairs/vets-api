@@ -275,16 +275,10 @@ module SAML
         check_id_mismatch(mvi_ids[:vba_corp_ids], :multiple_corp_ids)
         check_id_mismatch(edipi_ids[:edipis], :multiple_edipis)
         check_id_mismatch(mhv_iens, :multiple_mhv_ids)
-        # SEC & BIRLS multiple IDs are more common, only log a warning
         if sec_id_mismatch?
           log_message_to_sentry('User attributes contains multiple sec_id values',
                                 'warn',
                                 { sec_id: @attributes['va_eauth_secid'] })
-        end
-        if birls_id_mismatch?
-          log_message_to_sentry('User attributes contain multiple distinct BIRLS ID values.',
-                                'warn',
-                                { birls_ids: @attributes['va_eauth_birlsfilenumber'] })
         end
       end
 
