@@ -53,7 +53,7 @@ module ClaimsApi
         raise mpi_add_response.error unless mpi_add_response.ok?
 
         # Delay to allow MPI caching to propegate
-        sleep 5
+        sleep 10
 
         ClaimsApi::Logger.log('validate_identifiers',
                               rid: request.request_id, mpi_res_ok: mpi_add_response.ok?,
