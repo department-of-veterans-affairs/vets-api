@@ -31,6 +31,26 @@
       "description": "The date a claim was filed",
       "example": "5/17/20"
     },
+    "claimPhaseDates": {
+      "currentPhaseBack": {
+        "type": "boolean",
+        "description": "Indicates whether the current phase is phased back, i.e. in the 2-digit phaseTypeChangeInd for the most recent phase change, if the first digit's value is greater than the second digit's value, then we are regressing or phasing back."
+      },
+      "everPhaseBack": {
+        "type": "boolean",
+        "description": "Flag to indicate we have phased back at some point in the history of the claim phases, even if we are moving forward in the current claim"
+      },
+      "latestPhaseType": {
+        "type": "string",
+        "nullable": true,
+        "description": "The most current phase for the claim"
+      },
+      "phaseChangeDate": {
+        "type": "date",
+        "nullable": true,
+        "description": "The date that the claim changed to its current phase"
+      }
+    },
     "closeDate": {
       "type": ["string", "null"],
       "format": "date",

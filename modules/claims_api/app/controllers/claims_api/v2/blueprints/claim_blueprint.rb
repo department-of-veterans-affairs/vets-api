@@ -9,6 +9,7 @@ module ClaimsApi
         field :benefit_claim_type_code
         field :claim_id
         field :claim_type
+        field :claim_phase_dates
         field :contention_list
         field :claim_date
         field :close_date
@@ -22,7 +23,7 @@ module ClaimsApi
         field :max_est_claim_date
         field :min_est_claim_date
         field :status do |claim, _options|
-          ClaimsApi::BGSClaimStatusMapper.new(claim[:status]).name
+          ClaimsApi::BGSClaimStatusMapper.new(claim).name
         end
         field :submitter_application_code
         field :submitter_role_code

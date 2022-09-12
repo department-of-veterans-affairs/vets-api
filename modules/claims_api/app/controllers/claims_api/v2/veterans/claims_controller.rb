@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'claims_api/bgs_claim_status_mapper'
+
 module ClaimsApi
   module V2
     module Veterans
@@ -68,6 +70,7 @@ module ClaimsApi
           structure.merge!(errors: get_errors(lighthouse_claim))
           structure.merge!(supporting_documents: build_supporting_docs(bgs_claim))
           structure.merge!(tracked_items: map_bgs_tracked_items(bgs_claim))
+          structure.merge!(build_claim_phase_attributes(bgs_claim, 'show'))
         end
 
         def map_claims(bgs_claims:, lighthouse_claims:) # rubocop:disable Metrics/MethodLength
@@ -76,7 +79,6 @@ module ClaimsApi
               lighthouse_collection: lighthouse_claims,
               bgs_claim: bgs_claim
             )
-
             if matching_claim
               lighthouse_claims.delete(matching_claim)
               build_claim_structure(
@@ -108,7 +110,9 @@ module ClaimsApi
         def find_bgs_claim_in_lighthouse_collection(lighthouse_collection:, bgs_claim:)
           # EVSS and BGS use the same ID to refer to a claim, hence the following
           # search condition to see if we've stored the same claim in vets-api
-          lighthouse_collection.find { |lighthouse_claim| lighthouse_claim.evss_id == bgs_claim[:benefit_claim_id] }
+          lighthouse_collection.find do |lighthouse_claim|
+            lighthouse_claim.evss_id.to_s == bgs_claim[:benefit_claim_id]
+          end
         end
 
         def find_lighthouse_claim!(claim_id:)
@@ -148,6 +152,7 @@ module ClaimsApi
             claim_type: data[:claim_status_type],
             contention_list: data[:contentions]&.split(','),
             claim_date: data[:claim_dt].present? ? data[:claim_dt].strftime('%D') : nil,
+            claim_phase_dates: build_claim_phase_attributes(data, 'index'),
             decision_letter_sent: map_yes_no_to_boolean(
               'decision_notification_sent',
               data[:decision_notification_sent]
@@ -166,6 +171,54 @@ module ClaimsApi
             '5103_waiver_submitted'.to_sym => map_yes_no_to_boolean('filed5103_waiver_ind',
                                                                     data[:filed5103_waiver_ind])
           }
+        end
+
+        def get_phase_type_indicator_array(data)
+          return if data[:benefit_claim_details_dto][:phase_type_change_ind].nil?
+
+          data = data[:benefit_claim_details_dto][:phase_type_change_ind]
+          data.split('')
+        end
+
+        def ever_phase_back(data)
+          return false if data[:benefit_claim_details_dto][:phase_type_change_ind].nil?
+
+          pt_ind_array = get_phase_type_indicator_array(data)
+          pt_ind_array.first.to_i > pt_ind_array.last.to_i
+        end
+
+        def get_bgs_phase_name(data, phase_number)
+          ClaimsApi::BGSClaimStatusMapper.new(data[:benefit_claim_details_dto], phase_number).name_from_phase
+        end
+
+        def current_phase_back(data)
+          return false if data[:benefit_claim_details_dto][:phase_type_change_ind].nil?
+
+          pt_ind_array = get_phase_type_indicator_array(data)
+          pt_ind_array.first.to_i > pt_ind_array.last.to_i
+        end
+
+        def latest_phase_type(data)
+          return if data[:benefit_claim_details_dto][:phase_type_change_ind].nil?
+
+          if !data[:benefit_claim_details_dto][:phase_type].nil?
+            data[:benefit_claim_details_dto][:phase_type]
+          else
+            pt_ind_array = get_phase_type_indicator_array(data)
+            claim = get_bgs_phase_name(data, pt_ind_array.last.to_i)
+            claim.bgs_status_from_phase(pt_ind_array.last.to_i)
+          end
+        end
+
+        def format_bgs_phase_chng_dates(data)
+          if data[:phase_chngd_dt].nil? &&
+             (data[:benefit_claim_details_dto].nil? || data[:benefit_claim_details_dto][:phase_chngd_dt].nil?)
+            return
+          end
+
+          phase_change_date = data[:phase_chngd_dt] || data[:benefit_claim_details_dto][:phase_chngd_dt]
+          d = Date.parse(phase_change_date)
+          d.strftime('%Y-%m-%d')
         end
 
         def detect_status(data)
@@ -242,6 +295,27 @@ module ClaimsApi
               original_file_name: doc['original_file_name'],
               tracked_item_id: doc['tracked_item_id'],
               upload_date: doc['upload_date']
+            }
+          end
+        end
+
+        def build_claim_phase_attributes(bgs_claim, view)
+          return {} if bgs_claim.nil?
+
+          case view
+          when 'show'
+            {
+              claim_phase_dates:
+                {
+                  phase_change_date: format_bgs_phase_chng_dates(bgs_claim),
+                  current_phase_back: current_phase_back(bgs_claim),
+                  ever_phase_back: ever_phase_back(bgs_claim),
+                  latest_phase_type: latest_phase_type(bgs_claim)
+                }
+            }
+          when 'index'
+            {
+              phase_change_date: format_bgs_phase_chng_dates(bgs_claim)
             }
           end
         end
