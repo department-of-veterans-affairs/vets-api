@@ -21,6 +21,13 @@
         "description": "Date in YYYY-MM-DD the claim was first filed",
         "example": "2018-06-04"
       },
+      "claimPhaseDates": {
+        "phaseChangeDate": {
+          "type": "date",
+          "nullable": true,
+          "description": "The date that the claim changed to its current phase"
+        }
+      },
       "closeDate": {
         "type": ["string", "null"],
         "format": "date",

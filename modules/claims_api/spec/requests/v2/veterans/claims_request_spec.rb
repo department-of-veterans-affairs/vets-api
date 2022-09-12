@@ -139,6 +139,50 @@ RSpec.describe 'Claims', type: :request do
         end
       end
 
+      describe 'BGS attributes' do
+        let(:bgs_claims) do
+          {
+            benefit_claims_dto: {
+              benefit_claim: [
+                {
+                  benefit_claim_id: '600098193',
+                  claim_status: 'CAN',
+                  claim_status_type: 'Compensation',
+                  phase_chngd_dt: 'Wed, 18 Oct 2017',
+                  phase_type: 'Complete',
+                  ptcpnt_clmant_id: veteran_id,
+                  ptcpnt_vet_id: veteran_id,
+                  phase_type_change_ind: '76'
+                }
+              ]
+            }
+          }
+        end
+
+        it 'are listed' do
+          lighthouse_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: veteran_id,
+                                                             evss_id: '600098193')
+          lh_claims = []
+          lh_claims.append(lighthouse_claim)
+
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
+              expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_claims)
+              expect(ClaimsApi::AutoEstablishedClaim)
+                .to receive(:where).and_return(lh_claims)
+
+              get all_claims_path, headers: auth_header
+
+              json_response = JSON.parse(response.body)
+              expect(response.status).to eq(200)
+              claim = json_response.first
+              expect(claim['claimPhaseDates']['phaseChangeDate']).to eq('2017-10-18')
+            end
+          end
+        end
+      end
+
       describe 'mapping of claims' do
         describe "handling 'lighthouseId' and 'claimId'" do
           context 'when BGS and Lighthouse claims exist' do
@@ -293,6 +337,45 @@ RSpec.describe 'Claims', type: :request do
     end
 
     describe 'show' do
+      describe ' BGS attributes' do
+        let(:bgs_claim) do
+          {
+            benefit_claim_details_dto: {
+              benefit_claim_id: '111111111',
+              phase_chngd_dt: 'Wed, 18 Oct 2017',
+              phase_type: 'Pending Decision Approval',
+              ptcpnt_clmant_id: veteran_id,
+              ptcpnt_vet_id: veteran_id,
+              phase_type_change_ind: '76'
+            }
+          }
+        end
+
+        it 'are listed' do
+          lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: veteran_id,
+                                                     evss_id: '111111111')
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
+              VCR.use_cassette('evss/documents/get_claim_documents') do
+                expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                  .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
+                expect(ClaimsApi::AutoEstablishedClaim)
+                  .to receive(:get_by_id_and_icn).and_return(lh_claim)
+
+                get claim_by_id_path, headers: auth_header
+
+                json_response = JSON.parse(response.body)
+                expect(response.status).to eq(200)
+                expect(json_response['claimPhaseDates']['currentPhaseBack']).to eq(true)
+                expect(json_response['claimPhaseDates']['latestPhaseType']).to eq('Pending Decision Approval')
+                expect(json_response['claimPhaseDates']['everPhaseBack']).to eq(true)
+                expect(json_response['claimPhaseDates']['phaseChangeDate']).to eq('2017-10-18')
+              end
+            end
+          end
+        end
+      end
+
       context 'when no auth header provided' do
         it 'returns a 401 error code' do
           with_okta_user(scopes) do

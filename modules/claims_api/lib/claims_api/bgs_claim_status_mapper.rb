@@ -19,14 +19,35 @@ module ClaimsApi
       'complete' => 'COMPLETE'
     }.freeze
 
-    def initialize(phase)
-      @phase = phase.downcase unless phase.nil?
+    BGS_PHASE_TO_STATUS = {
+      1 => 'Claim received',
+      2 => 'Initial review',
+      3 => 'Gathering of Evidence',
+      4 => 'Review of Evidence',
+      5 => 'Preparation for Decision',
+      6 => 'Pending Decision Approval',
+      7 => 'Preparation for notification',
+      8 => 'Complete'
+    }.freeze
+
+    def initialize(claim_data, phase_number = 0)
+      return if claim_data.nil?
+
+      @claim_details = claim_data
+      @phase_type = phase_number unless phase_number.nil?
+      @phase = claim_data[:status].downcase unless claim_data[:status].nil?
     end
 
     def name
       return 'no status received' if @phase.nil? || @phase.strip.empty?
 
       PHASE_TO_STATUS[@phase]
+    end
+
+    def name_from_phase
+      return 'no status received' if @phase_type.nil? || @phase_type.strip.empty?
+
+      BGS_PHASE_TO_STATUS[@phase_number]
     end
   end
 end
