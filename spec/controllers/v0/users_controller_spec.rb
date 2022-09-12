@@ -26,6 +26,27 @@ RSpec.describe V0::UsersController, type: :controller do
       expect(response).to be_successful
       expect(json['attributes']['profile']['email']).to eq(user.email)
     end
+
+    context 'when profile claims enabled' do
+      before do
+        Flipper.enable(:profile_user_claims)
+      end
+
+      it 'returns a JSON user profile with claims' do
+        get :show
+        json = json_body_for(response)
+        expect(response).to be_successful
+
+        claims = json.dig('attributes', 'profile', 'claims')
+        expect(claims['ch33_bank_accounts']).to be(false)
+        expect(claims['communication_preferences']).to be(false)
+        expect(claims['connected_apps']).to be(true)
+        expect(claims['military_history']).to be(false)
+        expect(claims['payment_history']).to be(false)
+        expect(claims['personal_information']).to be(true)
+        expect(claims['rating_info']).to be(false)
+      end
+    end
   end
 
   context 'when logged in as a vet360 user' do
@@ -66,8 +87,13 @@ RSpec.describe V0::UsersController, type: :controller do
         expect(response).to be_successful
 
         claims = json.dig('attributes', 'profile', 'claims')
-        expect(claims.key?('military_history')).to be(true)
-        expect(claims.key?('payment_history')).to be(true)
+        expect(claims['ch33_bank_accounts']).to be(true)
+        expect(claims['communication_preferences']).to be(true)
+        expect(claims['connected_apps']).to be(true)
+        expect(claims['military_history']).to be(true)
+        expect(claims['payment_history']).to be(true)
+        expect(claims['personal_information']).to be(true)
+        expect(claims['rating_info']).to be(true)
       end
     end
   end

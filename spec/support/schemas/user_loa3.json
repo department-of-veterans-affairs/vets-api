@@ -91,8 +91,13 @@
                 "claims": {
                   "type": "object",
                   "properties":  {
+                    "ch33_bank_accounts": { "type": "boolean" },
+                    "communication_preferences": { "type": "boolean" },
+                    "connected_apps": { "type": "boolean" },                    
                     "military_history": { "type": "boolean" },
-                    "payment_history": { "type": "boolean" }
+                    "payment_history": { "type": "boolean" },
+                    "personal_information": { "type": "boolean" },
+                    "rating_info": { "type": "boolean" }
                   }
                 }
               }
