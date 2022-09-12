@@ -6,8 +6,7 @@ module AppealsApi
   module NodStatus
     extend ActiveSupport::Concern
 
-    INTERNAL_STATUSES = %w[pending submitting submitted error].freeze
-    STATUSES = [*INTERNAL_STATUSES, *CentralMailUpdater::CENTRAL_MAIL_STATUSES].uniq.freeze
+    STATUSES = ['pending', 'submitting', 'submitted', *CentralMailUpdater::CENTRAL_MAIL_STATUSES, 'error'].uniq.freeze
 
     IN_PROCESS_STATUSES = %w[submitted processing success].freeze
     COMPLETE_STATUSES = %w[complete].freeze

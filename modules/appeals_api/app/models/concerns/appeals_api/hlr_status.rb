@@ -7,9 +7,8 @@ module AppealsApi
     extend ActiveSupport::Concern
 
     V1_STATUSES = %w[pending submitting submitted processing error uploaded received success expired complete].freeze
-
-    V2_INTERNAL_STATUSES = %w[pending submitting submitted error].freeze
-    V2_STATUSES = [*V2_INTERNAL_STATUSES, *CentralMailUpdater::CENTRAL_MAIL_STATUSES].uniq.freeze
+    V2_STATUSES = ['pending', 'submitting', 'submitted', *CentralMailUpdater::CENTRAL_MAIL_STATUSES,
+                   'error'].uniq.freeze
 
     # used primarly for reporting
     STATUSES = [*V1_STATUSES, *V2_STATUSES].uniq.freeze
