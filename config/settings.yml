@@ -135,6 +135,7 @@ form_10_10cg:
       client_id: ~
       client_secret: ~
       timeout: 30
+      async_timeout: 600
   poa:
     s3:
       aws_access_key_id: my-aws-key-id
