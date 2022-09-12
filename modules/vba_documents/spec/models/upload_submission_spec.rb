@@ -84,6 +84,47 @@ describe VBADocuments::UploadSubmission, type: :model do
     ret.to_json
   end
 
+  describe '.in_flight' do
+    subject { described_class.in_flight }
+
+    let(:all_statuses) { described_class::ALL_STATUSES }
+    let(:in_flight_statuses) { described_class::IN_FLIGHT_STATUSES }
+    let(:final_success_key) { described_class::FINAL_SUCCESS_STATUS_KEY }
+    let(:vbms_deployment_date) { described_class::VBMS_STATUS_DEPLOYMENT_DATE }
+
+    it "returns records that have a status defined in 'IN_FLIGHT_STATUSES'" do
+      all_statuses.each do |status|
+        upload = FactoryBot.create(:upload_submission, status: status, guid: SecureRandom.uuid)
+
+        if in_flight_statuses.include?(status)
+          expect(subject).to include(upload)
+        else
+          expect(subject).not_to include(upload)
+        end
+      end
+    end
+
+    it "returns records that do not have a 'final success' status key" do
+      upload = FactoryBot.create(:upload_submission, status: 'success')
+      expect(subject).to include(upload)
+    end
+
+    it "does not return records that have a 'final success' status key" do
+      upload = FactoryBot.create(:upload_submission, :status_final_success)
+      expect(subject).not_to include(upload)
+    end
+
+    it 'returns records created after the VBMS status deployment date' do
+      upload = FactoryBot.create(:upload_submission, status: 'success', created_at: vbms_deployment_date.next_day(1))
+      expect(subject).to include(upload)
+    end
+
+    it 'does not return records created before the VBMS status deployment date' do
+      upload = FactoryBot.create(:upload_submission, status: 'success', created_at: vbms_deployment_date.prev_day(1))
+      expect(subject).not_to include(upload)
+    end
+  end
+
   describe 'consumer_name' do
     it 'returns unknown when no name is set' do
       upload = FactoryBot.create(:upload_submission, consumer_name: nil)

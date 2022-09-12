@@ -58,7 +58,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
   end
 
   before do
-    allow_any_instance_of(described_class).to receive(:cancelled?).and_return(false)
     objstore = instance_double(VBADocuments::ObjectStore)
     version = instance_double(Aws::S3::ObjectVersion)
     bucket = instance_double(Aws::S3::Bucket)
@@ -536,12 +535,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
       expect(updated.detail).to start_with('The businessLine metadata field is missing or empty.')
-    end
-
-    xit 'sets error status for non-PDF attachment parts' do
-    end
-
-    xit 'sets error status for unexpected attachment part names' do
     end
 
     it 'sets error status for upstream zip code validation' do

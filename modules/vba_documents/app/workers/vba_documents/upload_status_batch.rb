@@ -1,33 +1,37 @@
 # frozen_string_literal: true
 
+require 'sidekiq'
+
 module VBADocuments
   class UploadStatusBatch
     include Sidekiq::Worker
 
-    sidekiq_options(
-      retry: false,
-      unique_until: :success
-    )
+    # No need to retry since the schedule will run this every hour
+    sidekiq_options retry: false
 
     BATCH_SIZE = 100
 
     def perform
-      if Settings.vba_documents.updater_enabled
-        Sidekiq::Batch.new.jobs do
-          filtered_submissions.each_slice(BATCH_SIZE) do |slice|
-            VBADocuments::UploadStatusUpdater.perform_async(slice)
-          end
+      return unless enabled?
+
+      Sidekiq::Batch.new.jobs do
+        filtered_submission_guids.each_slice(BATCH_SIZE) do |guids|
+          VBADocuments::UploadStatusUpdater.perform_async(guids)
         end
       end
     end
 
-    def filtered_submissions
-      where_str = "status = 'success' AND created_at < ?"
+    private
+
+    def filtered_submission_guids
       VBADocuments::UploadSubmission
         .in_flight
-        .where.not(where_str, VBADocuments::UploadSubmission::VBMS_IMPLEMENTATION_DATE)
         .order(created_at: :asc)
         .pluck(:guid)
+    end
+
+    def enabled?
+      Settings.vba_documents.updater_enabled
     end
   end
 end

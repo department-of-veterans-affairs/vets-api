@@ -26,15 +26,16 @@ module VBADocuments
       Please verify the identifying information and resubmit.
     ].join(' ')
 
-    # We don't want to check successes before
-    # this date as it used to be the endpoint
-    VBMS_IMPLEMENTATION_DATE = Date.parse('28-06-2019')
+    VBMS_STATUS_DEPLOYMENT_DATE = Date.parse('28-06-2019') # Before this date, 'success' was the final status
     FINAL_SUCCESS_STATUS_KEY = 'final_success_status'
     IN_FLIGHT_STATUSES = %w[received processing success].freeze
     ALL_STATUSES = IN_FLIGHT_STATUSES + %w[pending uploaded vbms error expired].freeze
     RPT_STATUSES = %w[pending uploaded] + IN_FLIGHT_STATUSES + %w[vbms error expired].freeze
 
-    scope :in_flight, -> { where(status: IN_FLIGHT_STATUSES) }
+    scope :in_flight, -> { where(status: IN_FLIGHT_STATUSES).not_final_success }
+    scope :not_final_success, lambda {
+      where("metadata -> '#{FINAL_SUCCESS_STATUS_KEY}' IS NULL AND created_at >= '#{VBMS_STATUS_DEPLOYMENT_DATE}'")
+    }
 
     # look_back is an int and unit of measure is a string or symbol (hours, days, minutes, etc)
     scope :aged_processing, lambda { |look_back, unit_of_measure, status|

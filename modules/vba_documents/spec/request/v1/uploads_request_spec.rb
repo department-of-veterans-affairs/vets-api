@@ -90,7 +90,6 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
         @md = JSON.parse(valid_metadata)
         @upload_submission = VBADocuments::UploadSubmission.new
         @upload_submission.update(status: 'uploaded')
-        allow_any_instance_of(VBADocuments::UploadProcessor).to receive(:cancelled?).and_return(false)
         allow(VBADocuments::MultipartParser).to receive(:parse) {
           { 'metadata' => @md.to_json, 'content' => valid_doc }
         }
