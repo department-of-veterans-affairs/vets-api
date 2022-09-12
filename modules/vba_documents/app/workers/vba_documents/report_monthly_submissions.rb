@@ -19,7 +19,7 @@ module VBADocuments
         @monthly_counts = run_sql(SQLSupport::MONTHLY_COUNT_SQL, last_month_start, last_month_end)
         still_processing = run_sql(SQLSupport::PROCESSING_SQL, last_month_start)
         still_success = run_sql(SQLSupport::SUCCESS_SQL,
-                                VBADocuments::UploadSubmission::VBMS_IMPLEMENTATION_DATE, last_month_start)
+                                VBADocuments::UploadSubmission::VBMS_STATUS_DEPLOYMENT_DATE, last_month_start)
         @monthly_grouping = run_sql(SQLSupport::MONTHLY_GROUP_SQL, last_month_end)
         @monthly_max_avg = run_sql(SQLSupport::MAX_AVG_SQL, last_month_end)
         @monthly_mode = run_sql(SQLSupport::MODE_SQL, last_month_end)

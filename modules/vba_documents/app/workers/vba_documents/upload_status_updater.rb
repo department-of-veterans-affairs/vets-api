@@ -6,16 +6,14 @@ module VBADocuments
   class UploadStatusUpdater
     include Sidekiq::Worker
 
-    sidekiq_options(
-      retry: false,
-      unique_until: :success
-    )
+    # Only retry for ~30 minutes since the job that spawns this one runs every hour
+    sidekiq_options retry: 5, unique_until: :success
 
     BATCH_SIZE = 100
 
     def perform(submission_guids)
-      VBADocuments::UploadSubmission.where(guid: submission_guids).find_in_batches(batch_size: BATCH_SIZE) do |slice|
-        VBADocuments::UploadSubmission.refresh_statuses!(slice)
+      VBADocuments::UploadSubmission.where(guid: submission_guids).find_in_batches(batch_size: BATCH_SIZE) do |group|
+        VBADocuments::UploadSubmission.refresh_statuses!(group)
       end
     end
   end

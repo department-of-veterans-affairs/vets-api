@@ -41,6 +41,11 @@ FactoryBot.define do
       code { 'DOC104' }
       detail { 'Upload rejected' }
     end
+
+    trait :status_final_success do
+      status { 'success' }
+      metadata { { 'final_success_status': Time.now.utc } }
+    end
   end
 
   factory :upload_submission_large_detail, class: 'VBADocuments::UploadSubmission', parent: :upload_submission do
