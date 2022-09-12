@@ -35,8 +35,6 @@
       "required": [ "addressLine1", "city", "countryCodeISO2", "zipCode5" ]
     },
 
-    "date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", "maxLength": 10, "minLength": 10 },
-
     "phone": {
       "type": "object",
       "properties": {

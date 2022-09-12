@@ -76,7 +76,8 @@ class AppealsApi::RswagConfig
     a << sc_create_schemas
     a << sc_response_schemas('#/components/schemas')
     a << legacy_appeals_schema('#/components/schemas')
-    a << shared_schemas unless Settings.vsp_environment == 'production'
+    # TODO: Uncomment when all schemas use shared schema refs.
+    # a << shared_schemas if DocHelpers.wip_doc_enabled?(:shared_schemas)
 
     a.reduce(&:merge).sort_by { |k, _| k.to_s.downcase }.to_h
   end

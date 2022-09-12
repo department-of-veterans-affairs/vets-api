@@ -1489,10 +1489,6 @@
                       "type": "string",
                       "pattern": "[^ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]"
                     },
-                    "date": {
-                      "type": "string",
-                      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
-                    },
                     "hlrCreatePhone": {
                       "type": "object",
                       "properties": {
@@ -3433,7 +3429,8 @@
                                     ]
                                   },
                                   "decisionDate": {
-                                    "$ref": "#/definitions/date"
+                                    "type": "string",
+                                    "format": "date"
                                   },
                                   "decisionIssueId": {
                                     "type": "integer"
@@ -3445,7 +3442,8 @@
                                     "type": "string"
                                   },
                                   "socDate": {
-                                    "$ref": "#/definitions/date"
+                                    "type": "string",
+                                    "format": "date"
                                   },
                                   "disagreementArea": {
                                     "type": "string",
@@ -4985,12 +4983,6 @@
                         "zipCode5"
                       ]
                     },
-                    "date": {
-                      "type": "string",
-                      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
-                      "maxLength": 10,
-                      "minLength": 10
-                    },
                     "phone": {
                       "type": "object",
                       "properties": {
@@ -5923,7 +5915,8 @@
                                     "maxLength": 180
                                   },
                                   "decisionDate": {
-                                    "$ref": "#/definitions/date"
+                                    "type": "string",
+                                    "format": "date"
                                   },
                                   "decisionIssueId": {
                                     "type": "integer"
@@ -7679,12 +7672,6 @@
                         "zipCode5"
                       ]
                     },
-                    "date": {
-                      "type": "string",
-                      "pattern": "^[0-9]{4}(-[0-9]{2}){2}$",
-                      "minLength": 10,
-                      "maxLength": 10
-                    },
                     "phone": {
                       "type": "object",
                       "properties": {
@@ -8631,10 +8618,12 @@
                                                   "type": "object",
                                                   "properties": {
                                                     "startDate": {
-                                                      "$ref": "#/definitions/date"
+                                                      "type": "string",
+                                                      "format": "date"
                                                     },
                                                     "endDate": {
-                                                      "$ref": "#/definitions/date"
+                                                      "type": "string",
+                                                      "format": "date"
                                                     }
                                                   },
                                                   "required": [
@@ -8777,7 +8766,8 @@
                                     "maxLength": 140
                                   },
                                   "decisionDate": {
-                                    "$ref": "#/definitions/date"
+                                    "type": "string",
+                                    "format": "date"
                                   },
                                   "decisionIssueId": {
                                     "type": "integer"
@@ -8793,7 +8783,8 @@
                                     "maxLength": 255
                                   },
                                   "socDate": {
-                                    "$ref": "#/definitions/date"
+                                    "type": "string",
+                                    "format": "date"
                                   }
                                 },
                                 "required": [
@@ -9905,12 +9896,6 @@
             }
           }
         }
-      },
-      "date": {
-        "type": "string",
-        "pattern": "^[0-9]{4}(-[0-9]{2}){2}$",
-        "minLength": 10,
-        "maxLength": 10
       },
       "documentUploadMetadata": {
         "type": "object",
@@ -12081,7 +12066,8 @@
                       ]
                     },
                     "decisionDate": {
-                      "$ref": "#/components/schemas/date"
+                      "type": "string",
+                      "format": "date"
                     },
                     "decisionIssueId": {
                       "type": "integer"
@@ -12093,7 +12079,8 @@
                       "type": "string"
                     },
                     "socDate": {
-                      "$ref": "#/components/schemas/date"
+                      "type": "string",
+                      "format": "date"
                     },
                     "disagreementArea": {
                       "type": "string",
@@ -12472,7 +12459,8 @@
                       "maxLength": 180
                     },
                     "decisionDate": {
-                      "$ref": "#/components/schemas/date"
+                      "type": "string",
+                      "format": "date"
                     },
                     "decisionIssueId": {
                       "type": "integer"
@@ -12866,10 +12854,12 @@
                                     "type": "object",
                                     "properties": {
                                       "startDate": {
-                                        "$ref": "#/components/schemas/date"
+                                        "type": "string",
+                                        "format": "date"
                                       },
                                       "endDate": {
-                                        "$ref": "#/components/schemas/date"
+                                        "type": "string",
+                                        "format": "date"
                                       }
                                     },
                                     "required": [
@@ -13012,7 +13002,8 @@
                       "maxLength": 140
                     },
                     "decisionDate": {
-                      "$ref": "#/components/schemas/date"
+                      "type": "string",
+                      "format": "date"
                     },
                     "decisionIssueId": {
                       "type": "integer"
@@ -13028,7 +13019,8 @@
                       "maxLength": 255
                     },
                     "socDate": {
-                      "$ref": "#/components/schemas/date"
+                      "type": "string",
+                      "format": "date"
                     }
                   },
                   "required": [
@@ -13977,36 +13969,14 @@
         ]
       },
       "X-VA-Birth-Date": {
-        "allOf": [
-          {
-            "description": "birth date"
-          },
-          {
-            "minLength": 10
-          },
-          {
-            "maxLength": 10
-          },
-          {
-            "$ref": "#/components/schemas/date"
-          }
-        ]
+        "description": "Veteran's birth date",
+        "type": "string",
+        "format": "date"
       },
       "X-VA-Claimant-Birth-Date": {
-        "allOf": [
-          {
-            "description": "birth date"
-          },
-          {
-            "minLength": 10
-          },
-          {
-            "maxLength": 10
-          },
-          {
-            "$ref": "#/components/schemas/date"
-          }
-        ]
+        "description": "Claimant's birth date",
+        "type": "string",
+        "format": "date"
       },
       "X-VA-Claimant-First-Name": {
         "allOf": [
