@@ -217,7 +217,7 @@ module ClaimsApi
           end
 
           phase_change_date = data[:phase_chngd_dt] || data[:benefit_claim_details_dto][:phase_chngd_dt]
-          d = Date.parse(phase_change_date)
+          d = Date.parse(phase_change_date.to_s)
           d.strftime('%Y-%m-%d')
         end
 
