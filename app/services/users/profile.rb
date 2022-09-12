@@ -86,8 +86,14 @@ module Users
     def claims
       if Flipper.enabled?(:profile_user_claims, user)
         {
+          ch33_bank_accounts: Ch33DdPolicy.new(user).access?,
+          communication_preferences: (Vet360Policy.new(user).access? &&
+                                      CommunicationPreferencesPolicy.new(user).access?),
+          connected_apps: true,
           military_history: Vet360Policy.new(user).military_access?,
-          payment_history: BGSPolicy.new(user).access?(log_stats: false)
+          payment_history: BGSPolicy.new(user).access?(log_stats: false),
+          personal_information: MPIPolicy.new(user).queryable?,
+          rating_info: EVSSPolicy.new(user).access?
         }
       end
     end
