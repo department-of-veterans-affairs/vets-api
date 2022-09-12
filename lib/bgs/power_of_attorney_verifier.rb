@@ -19,11 +19,24 @@ module BGS
       @previous_poa_code ||= @veteran.previous_power_of_attorney.try(:code)
     end
 
-    def verify(user)
+    def verify(user) # rubocop:disable Metrics/MethodLength
       reps = Veteran::Service::Representative.all_for_user(first_name: user.first_name,
                                                            last_name: user.last_name)
       raise ::Common::Exceptions::Unauthorized, detail: 'VSO Representative Not Found' if reps.blank?
-      raise ::Common::Exceptions::Unauthorized, detail: 'Ambiguous VSO Representative Results' if reps.count > 1
+
+      if reps.count > 1
+        if user.middle_name.blank?
+          raise ::Common::Exceptions::Unauthorized, detail: 'Ambiguous VSO Representative Results'
+        else
+          middle_initial = user.middle_name[0]
+          reps = Veteran::Service::Representative.all_for_user(first_name: user.first_name,
+                                                               last_name: user.last_name,
+                                                               middle_initial: middle_initial)
+
+          raise ::Common::Exceptions::Unauthorized, detail: 'VSO Representative Not Found' if reps.blank?
+          raise ::Common::Exceptions::Unauthorized, detail: 'Ambiguous VSO Representative Results' if reps.count > 1
+        end
+      end
 
       rep = reps.first
       veteran_poa_code = current_poa_code

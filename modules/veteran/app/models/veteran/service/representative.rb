@@ -26,12 +26,13 @@ module Veteran
       # @param dob: nil [String] Date of birth to search for
       #
       # @return [Array(Veteran::Service::Representative)] All representatives found using the submitted search criteria
-      def self.all_for_user(first_name:, last_name:, ssn: nil, dob: nil)
+      def self.all_for_user(first_name:, last_name:, ssn: nil, dob: nil, middle_initial: nil)
         reps = where('lower(first_name) = ? AND lower(last_name) = ?', first_name.downcase, last_name.downcase)
 
         reps.select do |rep|
           matching_ssn(rep, ssn) &&
-            matching_date_of_birth(rep, dob)
+            matching_date_of_birth(rep, dob) &&
+            matching_middle_initial(rep, middle_initial)
         end
       end
 
@@ -74,6 +75,19 @@ module Veteran
         return true if birth_date.blank?
 
         rep.dob.present? && rep.dob == birth_date
+      end
+
+      #
+      # Determine if representative middle initial matches submitted middle_initial search query
+      # @note Assumes that the consumer did not submit a middle_initial value if the value is blank
+      # @param rep [Veteran::Service::Representative] Representative to match soon with
+      # @param middle_initial [String] Submitted middle_initial to match against representative
+      #
+      # @return [Boolean] True if matches, false if not
+      def self.matching_middle_initial(rep, middle_initial)
+        return true if middle_initial.blank?
+
+        rep.middle_initial.present? && rep.middle_initial == middle_initial
       end
     end
   end
