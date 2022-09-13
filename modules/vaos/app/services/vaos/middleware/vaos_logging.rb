@@ -29,7 +29,7 @@ module VAOS
             log(:info, 'VAOS service call succeeded!', log_tags(env, start_time, response_env))
           else
             statsd_increment("#{STATSD_KEY_PREFIX}.fail", env)
-            log(:warn, 'VAOS service call failed!', log_tags(env, start_time, response_env))
+            log(:warn, 'VAOS service call failed!', log_error_tags(env, start_time, response_env))
           end
         end
       rescue Timeout::Error, Faraday::TimeoutError, Faraday::ConnectionFailed => e
@@ -48,6 +48,11 @@ module VAOS
           # service_name: service_name || 'VAOS Generic', # Need to figure out a clean way to do this with headers
           url: "(#{env.method.upcase}) #{env.url}"
         }
+      end
+
+      def log_error_tags(env, start_time, response_env)
+        tags = log_tags(env, start_time, response_env)
+        tags.merge(vamf_msg: response_env&.body)
       end
 
       def statsd_increment(key, env, error = nil)

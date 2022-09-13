@@ -82,7 +82,8 @@ describe VAOS::Middleware::VAOSLogging do
                                                   jti: 'unknown jti',
                                                   status: 500,
                                                   duration: 0.0,
-                                                  url: '(POST) https://veteran.apps.va.gov/users/v2/session?processRules=true').and_call_original
+                                                  url: '(POST) https://veteran.apps.va.gov/users/v2/session?processRules=true',
+                                                  vamf_msg: '').and_call_original
       client.post(user_service_uri)
     end
 
@@ -91,7 +92,8 @@ describe VAOS::Middleware::VAOSLogging do
                                                   jti: 'unknown jti',
                                                   status: 500,
                                                   duration: 0.0,
-                                                  url: '(GET) https://veteran.apps.va.gov/whatever').and_call_original
+                                                  url: '(GET) https://veteran.apps.va.gov/whatever',
+                                                  vamf_msg: '{}').and_call_original
       client.get(all_other_uris, nil, { 'X-Vamf-Jwt' => sample_jwt })
     end
 
@@ -100,7 +102,8 @@ describe VAOS::Middleware::VAOSLogging do
                                                   jti: 'unknown jti',
                                                   status: 500,
                                                   duration: 0.0,
-                                                  url: '(GET) https://veteran.apps.va.gov/user_service_refresh_uri').and_call_original
+                                                  url: '(GET) https://veteran.apps.va.gov/user_service_refresh_uri',
+                                                  vamf_msg: '{}').and_call_original
       client.get(user_service_refresh_uri, nil, { 'X-VAMF-JWT' => sample_jwt })
     end
   end

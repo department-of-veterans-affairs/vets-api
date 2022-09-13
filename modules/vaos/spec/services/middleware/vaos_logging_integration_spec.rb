@@ -60,7 +60,9 @@ describe VAOS::Middleware::VAOSLogging do
             status: 500,
             url: '(GET) https://veteran.apps.va.gov/appointments/v1'\
                  '/patients/1012845331V153043/appointments?endDate=2020-07-02T08%3A00%3A00Z&pageSize=0&startDate=' \
-                 '2020-06-02T07%3A00%3A00Z&useCache=false'
+                 '2020-06-02T07%3A00%3A00Z&useCache=false',
+            vamf_msg: '<html>\r\n<head><title>500 Internal Server Error</title></head>\r\n' \
+                      '<body>\r\n<center><h1>500 Internal Server Error/html>\r\n'
           )
           expect { service.get_appointments(type, start_date, end_date) }
             .to raise_error(Common::Exceptions::BackendServiceException)
