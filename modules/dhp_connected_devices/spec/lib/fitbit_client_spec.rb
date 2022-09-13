@@ -104,12 +104,22 @@ RSpec.describe DhpConnectedDevices::Fitbit::Client do
   end
 
   describe 'revoke_token' do
+    response_body_for_401 = {
+      "errors": [
+        {
+          "errorType": 'invalid_token',
+          "message": 'Access token invalid: refresh_token_value.'
+        }
+      ],
+      "success": false
+    }
     let(:revocation_response_200) { double('Faraday::Response', status: 200) }
     let(:revocation_response_400) { double('Faraday::Response', status: 400, body: 'unsuccessful response') }
+    let(:revocation_response_401) { double('Faraday::Response', status: 401, body: response_body_for_401.to_json) }
 
-    token = { 'access_token': 'access_token_value' }
+    token = { 'access_token': 'access_token_value', 'refresh_token': 'refresh_token_value' }
 
-    it 'returns true is token was successfully revoked' do
+    it 'returns true if token was successfully revoked' do
       allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(revocation_response_200)
       expect(subject.revoke_token(token).nil?).to eq(true)
     end
@@ -117,6 +127,11 @@ RSpec.describe DhpConnectedDevices::Fitbit::Client do
     it 'returns TokenRevocationError when fitbit returns 400' do
       allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(revocation_response_400)
       expect { subject.revoke_token(token) }.to raise_error(DhpConnectedDevices::Fitbit::TokenRevocationError)
+    end
+
+    it 'returns true if token was manually revoked by user through the Fitbit UI' do
+      allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(revocation_response_401)
+      expect(subject.revoke_token(token).nil?).to eq(true)
     end
   end
 end
