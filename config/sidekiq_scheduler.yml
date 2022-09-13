@@ -267,7 +267,7 @@ VBADocuments::ReportUnsuccessfulSubmissions:
   description: "Weekly report of unsuccessful benefits intake submissions"
 
 VBADocuments::RunUnsuccessfulSubmissions:
-  every: "2h"
+  cron: "5 */2 * * * America/New_York" # Every 2 hours, 5 minutes after the hour
   class: VBADocuments::RunUnsuccessfulSubmissions
   description: "Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status"
 
@@ -287,9 +287,9 @@ VBADocuments::UploadScanner:
   description: "Poll upload bucket for unprocessed uploads"
 
 VBADocuments::UploadStatusBatch:
-  every: "60m"
+  cron: "45 * * * * America/New_York" # Every hour, 45 minutes after the hour
   class: VBADocuments::UploadStatusBatch
-  description: "Cache Statuses for VBA Documents"
+  description: "Request updated statuses for benefits intake submissions"
 
 VRE::CreateCh31SubmissionsReportJob:
   cron: "0 0 * * * America/New_York"

@@ -12,7 +12,7 @@ module VBADocuments
     BATCH_SIZE = 100
 
     def perform
-      return unless enabled?
+      return unless enabled? && filtered_submission_guids.present?
 
       Sidekiq::Batch.new.jobs do
         filtered_submission_guids.each_slice(BATCH_SIZE) do |guids|
@@ -24,10 +24,7 @@ module VBADocuments
     private
 
     def filtered_submission_guids
-      VBADocuments::UploadSubmission
-        .in_flight
-        .order(created_at: :asc)
-        .pluck(:guid)
+      VBADocuments::UploadSubmission.in_flight.order(created_at: :asc).pluck(:guid)
     end
 
     def enabled?
