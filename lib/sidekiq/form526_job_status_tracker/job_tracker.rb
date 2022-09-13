@@ -48,7 +48,9 @@ module Sidekiq
           Form526JobStatus.upsert(values, unique_by: :job_id)
           # rubocop:enable Rails/SkipsModelValidations
 
-          additional_birls_to_try = Form526Submission.find(form526_submission_id).birls_ids_that_havent_been_tried_yet
+          submission_obj = Form526Submission.find(form526_submission_id)
+          additional_birls_to_try = submission_obj.birls_ids_that_havent_been_tried_yet
+          vagov_id = JSON.parse(submission_obj.auth_headers_json)['va_eauth_service_transaction_id']
 
           ::Rails.logger.error(
             'Form526 Exhausted', submission_id: form526_submission_id,
@@ -56,7 +58,8 @@ module Sidekiq
                                  job_class: values[:job_class],
                                  error_class: error_class,
                                  error_message: error_message,
-                                 remaining_birls: additional_birls_to_try
+                                 remaining_birls: additional_birls_to_try,
+                                 va_eauth_service_transaction_id: vagov_id
           )
         rescue => e
           emsg = 'Form526 Exhausted, with error tracking job exhausted'
