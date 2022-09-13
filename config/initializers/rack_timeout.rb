@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Adds a global timeout for all requests
-if !Rails.env.test? || Settings.rack_timeout
+if !Rails.env.test? && Settings.rack_timeout
   # @see https://github.com/zombocom/rack-timeout/blob/main/doc/settings.md
   Rails.application.configure do |config|
     config.middleware.insert_before(
