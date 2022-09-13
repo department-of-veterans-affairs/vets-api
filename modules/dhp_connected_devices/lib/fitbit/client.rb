@@ -57,16 +57,31 @@ module DhpConnectedDevices
       # @return [nil]
       # @raise TokenRevocationError
       def revoke_token(token)
+        refresh_token = token[:refresh_token]
         resp = connection.post(config.revoke_token_base_path) do |req|
           req.headers = headers
-          req.body = "token=#{token[:refresh_token]}"
+          req.body = "token=#{refresh_token}"
         end
-        raise "response code: #{resp.status}, response body: #{resp.body}" unless resp.status == 200
+        raise "response code: #{resp.status}, response body: #{resp.body}" unless token_revoked?(resp, refresh_token)
       rescue => e
         raise TokenRevocationError, e.message.to_s
       end
 
       private
+
+      def token_revoked?(resp, refresh_token)
+        resp.status == 200 || token_revoked_by_user?(resp, refresh_token)
+      end
+
+      def token_revoked_by_user?(resp, refresh_token)
+        resp_body = JSON.parse(resp.body).deep_symbolize_keys!
+        token_has_been_revoked = resp_body[:errors].any? { |e| token_revoked_error?(e, refresh_token) }
+        resp.status == 401 && token_has_been_revoked
+      end
+
+      def token_revoked_error?(error, refresh_token)
+        error[:errorType] == 'invalid_token' && error[:message].include?("Access token invalid: #{refresh_token}")
+      end
 
       def client
         @client ||= FitbitAPI::Client.new(redirect_uri: Settings.dhp.fitbit.redirect_uri,
