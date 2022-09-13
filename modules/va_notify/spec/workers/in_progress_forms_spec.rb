@@ -13,7 +13,7 @@ describe VANotify::InProgressForms, type: :worker do
 
       Sidekiq::Testing.inline! do
         expect(VANotify::InProgressFormReminder).to receive(:perform_async).with(in_progress_form_1.id)
-        expect(VANotify::InProgressFormReminder).to receive(:perform_async).with(in_progress_form_2.id)
+        expect(VANotify::InProgressFormReminder).not_to receive(:perform_async).with(in_progress_form_2.id)
 
         described_class.perform_async
       end

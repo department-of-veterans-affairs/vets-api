@@ -37,42 +37,6 @@ describe VANotify::FindInProgressForms do
 
         expect(subject.to_notify).to eq([in_progress_form_1.id])
       end
-
-      it '21 days' do
-        create_in_progress_form_days_ago(20, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
-                                             form_id: '686C-674')
-        in_progress_form_1 = create_in_progress_form_days_ago(21, user_uuid: user.uuid, form_id: '686C-674')
-        create_in_progress_form_days_ago(22, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
-                                             form_id: '686C-674')
-
-        subject = described_class.new
-
-        expect(subject.to_notify).to eq([in_progress_form_1.id])
-      end
-
-      it '35 days' do
-        create_in_progress_form_days_ago(34, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
-                                             form_id: '686C-674')
-        in_progress_form_1 = create_in_progress_form_days_ago(35, user_uuid: user.uuid, form_id: '686C-674')
-        create_in_progress_form_days_ago(36, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
-                                             form_id: '686C-674')
-
-        subject = described_class.new
-
-        expect(subject.to_notify).to eq([in_progress_form_1.id])
-      end
-
-      it '49 days' do
-        create_in_progress_form_days_ago(48, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
-                                             form_id: '686C-674')
-        in_progress_form_1 = create_in_progress_form_days_ago(49, user_uuid: user.uuid, form_id: '686C-674')
-        create_in_progress_form_days_ago(50, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid,
-                                             form_id: '686C-674')
-
-        subject = described_class.new
-
-        expect(subject.to_notify).to eq([in_progress_form_1.id])
-      end
     end
   end
 
