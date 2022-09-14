@@ -49,6 +49,7 @@ module VSPDanger
     EXCLUSIONS = %w[
       *.csv *.json *.tsv *.txt Gemfile.lock app/swagger modules/mobile/docs spec/fixtures/ spec/support/vcr_cassettes/
       modules/mobile/spec/support/vcr_cassettes/ db/seeds modules/vaos/app/docs modules/meb_api/app/docs
+      modules/appeals_api/app/swagger/
     ].freeze
     PR_SIZE = { recommended: 200, maximum: 500 }.freeze
 
