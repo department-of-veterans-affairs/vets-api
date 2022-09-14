@@ -85,7 +85,7 @@ module DebtManagementCenter
     def submit_vha_fsr(form, form_submission)
       Rails.logger.info('5655 Form Submitting to VHA', submission_id: form_submission.id)
 
-      vha_forms = parse_vha_form(form, form_submission.id)
+      vha_forms = parse_vha_form(form, form_submission)
       vbs_request = DebtManagementCenter::VBS::Request.build
       sharepoint_request = DebtManagementCenter::Sharepoint::Request.new
       vbs_responses = []
@@ -111,19 +111,18 @@ module DebtManagementCenter
       raise Common::Client::Errors::ClientError.new('malformed request', 400)
     end
 
-    def parse_vha_form(form, form_submission_id)
+    def parse_vha_form(form, form_submission)
       facility_forms = []
       facility_copays = selected_vha_copays(form['selectedDebtsAndCopays']).group_by do |copay|
         copay['station']['facilitYNum']
       end
       facility_copays.each do |facility_num, copays|
-        fsr_reason = copays.map do |c|
-          c['resolutionOption']
-        end.uniq.join(', ') + " - Facility #{facility_num}"
+        fsr_reason = copays.map { |copay| copay['resolutionOption'] }.uniq.join(', ')
         facility_form = form.deep_dup
         facility_form['personalIdentification']['fsrReason'] = fsr_reason
         facility_form['facilityNum'] = facility_num
-        facility_form['transactionId'] = form_submission_id
+        facility_form['transactionId'] = form_submission.id
+        facility_form['transactionDatetime'] = form_submission.created_at.strftime('%Y%m%dT%H%M')
         facility_form.delete('selectedDebtsAndCopays')
         facility_forms << remove_form_delimiters(facility_form)
       end
