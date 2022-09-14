@@ -73,8 +73,33 @@ module DocHelpers
   end
 
   def self.doc_suffix
-    return '' unless ENV.fetch('RSWAG_ENV', '').length.positive?
+    section = ENV['RSWAG_SECTION_SLUG']
+    env = ENV['RSWAG_ENV']
 
-    "_#{ENV['RSWAG_ENV']}"
+    parts = []
+    parts << section unless section.nil?
+    parts << env unless env.nil?
+
+    parts.empty? ? '' : "_#{parts.join('_')}"
+  end
+
+  DOC_SECTION_TITLES = {
+    hlr: 'Higher-Level Reviews',
+    nod: 'Notice of Disagreements',
+    sc: 'Supplemental Claims',
+    contestable_issues: 'Contestable Issues',
+    legacy_appeals: 'Legacy Appeals'
+  }.freeze
+
+  def self.doc_title
+    DOC_SECTION_TITLES[ENV.fetch('RSWAG_SECTION_SLUG', '').to_sym] || 'Decision Reviews'
+  end
+
+  def self.doc_tags
+    if (section_slug = ENV['RSWAG_SECTION_SLUG'])
+      [{ name: DOC_SECTION_TITLES[section_slug.to_sym], description: '' }]
+    else
+      DOC_SECTION_TITLES.values.collect { |title| { name: title, description: '' } }
+    end
   end
 end

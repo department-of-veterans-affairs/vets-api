@@ -1,0 +1,1 @@
+This will be the documentation for the legacy appeals section of the Decision Reviews API docs
