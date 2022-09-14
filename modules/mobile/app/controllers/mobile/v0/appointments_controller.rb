@@ -9,8 +9,8 @@ module Mobile
 
       def index
         use_cache = params[:useCache] || true
-        start_date = params[:startDate] || beginning_of_last_year.iso8601
-        end_date = params[:endDate] || one_year_from_now.iso8601
+        start_date = params[:startDate] || appointments_cache_interface.latest_allowable_cache_start_date
+        end_date = params[:endDate] || appointments_cache_interface.earliest_allowable_cache_end_date
         reverse_sort = !(params[:sort] =~ /-startDateUtc/).nil?
 
         validated_params = Mobile::V0::Contracts::Appointments.new.call(
@@ -24,7 +24,7 @@ module Mobile
           include: params[:include]
         )
 
-        appointments = fetch_cached_or_service(validated_params)
+        appointments = fetch_appointments(validated_params)
         page_appointments, page_meta_data = paginate(appointments, validated_params)
 
         render json: Mobile::V0::AppointmentSerializer.new(page_appointments, page_meta_data)
@@ -78,57 +78,21 @@ module Mobile
         uuid_regex.match?(id)
       end
 
-      def use_cache?(validated_params)
-        # use cache if date range is within beginning of last year to one year from now and use_cache is true
-        validated_params[:start_date] >= beginning_of_last_year.iso8601 &&
-          validated_params[:end_date] <= one_year_from_now.iso8601 && validated_params[:use_cache]
-      end
-
       def clear_appointments_cache
         Mobile::V0::Appointment.clear_cache(@current_user)
       end
 
-      def beginning_of_last_year
-        (DateTime.now.utc.beginning_of_year - 1.year)
-      end
-
-      def one_year_from_now
-        (DateTime.now.utc.beginning_of_day + 1.year)
-      end
-
-      # rubocop:disable Metrics/MethodLength
-      def fetch_cached_or_service(validated_params)
-        appointments = nil
-        appointments = Mobile::V0::Appointment.get_cached(@current_user) if use_cache?(validated_params)
-
-        # if appointments has been retrieved from redis, delete the cached version and return recovered appointments
-        # otherwise fetch appointments from the upstream service
-        if appointments
-          Rails.logger.info('mobile appointments cache fetch', user_uuid: @current_user.uuid)
-        else
-          start_date = [validated_params[:start_date], beginning_of_last_year].min
-          end_date = [validated_params[:end_date], one_year_from_now].max
-          if Flipper.enabled?(:mobile_appointment_use_VAOS_v2, @current_user)
-            appointments = appointments_v2_proxy.get_appointments(
-              start_date: start_date,
-              end_date: end_date,
-              include_pending: include_pending?(validated_params),
-              pagination_params: { page: validated_params[:page_number], pageSize: validated_params[:page_size] }
-            )
-          else
-            appointments = appointments_proxy.get_appointments(start_date: start_date, end_date: end_date)
-            Mobile::V0::Appointment.set_cached(@current_user, appointments)
-          end
-
-          Rails.logger.info('mobile appointments service fetch', user_uuid: @current_user.uuid)
-        end
+      def fetch_appointments(validated_params)
+        appointments = appointments_cache_interface.fetch_appointments(
+          user: @current_user, start_date: validated_params[:start_date], end_date: validated_params[:end_date],
+          fetch_cache: validated_params[:use_cache]
+        )
 
         appointments.filter! { |appt| appt.is_pending == false } unless include_pending?(validated_params)
         appointments.reverse! if validated_params[:reverse_sort]
 
         appointments
       end
-      # rubocop:enable Metrics/MethodLength
 
       def paginate(appointments, validated_params)
         appointments = appointments.filter do |appointment|
@@ -148,12 +112,12 @@ module Mobile
         Mobile::V0::Appointments::Proxy.new(@current_user)
       end
 
-      def appointments_v2_proxy
-        Mobile::V2::Appointments::Proxy.new(@current_user)
-      end
-
       def appointments_helper
         @appointments_helper ||= Mobile::V0::VAOSAppointments::AppointmentsHelper.new(@current_user)
+      end
+
+      def appointments_cache_interface
+        @appointments_cache_interface ||= Mobile::AppointmentsCacheInterface.new
       end
     end
   end
