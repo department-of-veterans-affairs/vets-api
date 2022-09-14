@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_09_12_152647) do
+ActiveRecord::Schema.define(version: 2022_09_13_100825) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -871,8 +871,8 @@ ActiveRecord::Schema.define(version: 2022_09_12_152647) do
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.text "services"
     t.string "loa"
+    t.text "services"
     t.uuid "idme_uuid"
     t.text "notes"
     t.string "mfa_code"
@@ -896,6 +896,8 @@ ActiveRecord::Schema.define(version: 2022_09_12_152647) do
     t.datetime "verified_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "backing_idme_uuid"
+    t.index ["backing_idme_uuid"], name: "index_user_verifications_on_backing_idme_uuid"
     t.index ["dslogon_uuid"], name: "index_user_verifications_on_dslogon_uuid", unique: true
     t.index ["idme_uuid"], name: "index_user_verifications_on_idme_uuid", unique: true
     t.index ["logingov_uuid"], name: "index_user_verifications_on_logingov_uuid", unique: true
