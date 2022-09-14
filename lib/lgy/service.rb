@@ -127,7 +127,7 @@ module LGY
           :get,
           "#{end_point}/document/#{id}/file",
           { 'edipi' => @edipi, 'icn' => @icn },
-          request_headers
+          request_headers.merge(pdf_headers)
         )
       end
     rescue Common::Client::Errors::ClientError => e
