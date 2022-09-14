@@ -23,8 +23,10 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
   describe '.perform_async' do
     before do
       Timecop.freeze(Time.zone.parse('2020-11-01T10:30:00Z'))
+      # turning off mobile_appointment_requests to simplify the test setup
       Flipper.disable(:mobile_appointment_requests)
       Flipper.disable(:mobile_appointment_use_VAOS_MFS)
+      Flipper.disable(:mobile_appointment_use_VAOS_v2)
     end
 
     after { Timecop.return }
@@ -168,6 +170,26 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
       it 'does nothing' do
         subject.perform(user.uuid)
         expect(Mobile::V0::Appointment.get_cached(user)).to be_nil
+      end
+    end
+
+    context 'with mobile_appointment_use_VAOS_v2 flag on' do
+      before do
+        Flipper.enable(:mobile_appointment_use_VAOS_v2)
+        Timecop.freeze(Time.zone.parse('2022-01-01T19:25:00Z'))
+        allow_any_instance_of(IAMUser).to receive(:icn).and_return('1012846043V576341')
+        mock_clinic = { service_name: 'Friendly Name Optometry' }
+        allow_any_instance_of(Mobile::V2::Appointments::Proxy).to receive(:get_clinic).and_return(mock_clinic)
+      end
+
+      it 'caches VAOS V2 appointments' do
+        VCR.use_cassette('appointments/VAOS_v2/get_facility_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
+            subject.perform(user.uuid)
+          end
+        end
+
+        expect(Mobile::V0::Appointment.get_cached(user).collect(&:id)).to eq(['121133'])
       end
     end
 

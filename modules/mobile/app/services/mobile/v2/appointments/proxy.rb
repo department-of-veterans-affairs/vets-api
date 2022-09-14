@@ -12,9 +12,11 @@ module Mobile
           @user = user
         end
 
-        def get_appointments(start_date:, end_date:, include_pending:, pagination_params:)
+        def get_appointments(start_date:, end_date:, include_pending:, pagination_params: {})
           statuses = include_pending ? VAOS_STATUSES : VAOS_STATUSES.excluding('proposed')
 
+          # VAOS V2 appointments service accepts pagination params but either it formats them incorrectly
+          # or the upstream serice does not use them.
           response = vaos_v2_appointments_service.get_appointments(start_date, end_date, statuses.join(','),
                                                                    pagination_params)
 
