@@ -384,6 +384,17 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
         end
       end
     end
+
+    it 'removes spaces' do
+      temp_form_data = pending_record.form_data
+      temp_form_data['disabilities'][0]['name'] = ' string with spaces '
+
+      pending_record.form_data = temp_form_data
+      payload = JSON.parse(pending_record.to_internal)
+      name = payload['form526']['disabilities'][0]['name']
+
+      expect(name).to eq('string with spaces')
+    end
   end
 
   describe 'evss_id_by_token' do

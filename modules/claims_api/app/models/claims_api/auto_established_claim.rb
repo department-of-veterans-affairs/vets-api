@@ -295,6 +295,7 @@ module ClaimsApi
         name = disability['name']
         name = truncate_disability_name(name: name) if name.length > 255
         name = sanitize_disablity_name(name: name, regex: invalid_characters) if name.match?(invalid_characters)
+        name = strip_disablity_name(name: name)
         disability['name'] = name
 
         disability
@@ -307,6 +308,10 @@ module ClaimsApi
 
     def sanitize_disablity_name(name:, regex:)
       name.gsub(regex, '')
+    end
+
+    def strip_disablity_name(name:)
+      name.strip
     end
 
     def invalid_change_of_address_ending_date?
