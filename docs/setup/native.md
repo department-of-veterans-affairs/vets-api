@@ -12,7 +12,7 @@ Vets API requires:
 
 ## Base Setup
 
-1. Follow the common [base setup](../../README.md#Base%20setup).
+1. Follow the common [base setup](https://github.com/department-of-veterans-affairs/vets-api/blob/master/README.md#Base%20setup).
 
 1. Install Bundler to manage Ruby dependencies
 
