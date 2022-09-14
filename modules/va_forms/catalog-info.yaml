@@ -3,7 +3,6 @@ kind: API
 metadata:
   name: va_forms
   description: Lookup API for VA Forms and any new form versions.
-  -ninjapigs
   title: VA Forms API
   tags:
     - forms

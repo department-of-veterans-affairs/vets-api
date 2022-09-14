@@ -1,1 +1,1 @@
---8<-- "README.md"
+--8<-- "modules/appeals_api/README.md"
