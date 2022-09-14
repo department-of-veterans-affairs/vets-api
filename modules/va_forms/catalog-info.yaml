@@ -3,7 +3,7 @@ kind: API
 metadata:
   name: va_forms
   description: Lookup API for VA Forms and any new form versions.
-  namespace: lighthouse-ninjapigs
+  -ninjapigs
   title: VA Forms API
   tags:
     - forms

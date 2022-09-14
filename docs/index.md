@@ -1,18 +1,15 @@
 # Vets API
-This project provides common APIs for applications that live on VA.gov (formerly vets.gov APIs). 
 
+This project provides common APIs for applications that live on VA.gov (formerly vets.gov APIs).
 
 [![Yard Docs](http://img.shields.io/badge/yard-docs-blue.svg)](https://www.rubydoc.info/github/department-of-veterans-affairs/vets-api)
-[![License: CC0-1.0](https://img.shields.io/badge/License-CC0%201.0-lightgrey.svg)](LICENSE.md)
+[![License: CC0-1.0](https://img.shields.io/badge/License-CC0%201.0-lightgrey.svg)](https://github.com/department-of-veterans-affairs/vets-api/blob/master/LICENSE.md)
 
 [Build Status](http://jenkins.vfs.va.gov/job/builds/job/vets-api/)
-
 
 [VA.gov Platform Documentation](https://depo-platform-documentation.scrollhelp.site/index.html)
 
 [API Docs](https://department-of-veterans-affairs.github.io/va-digital-services-platform-docs/api-reference/#/)
-
-
 
 For frontend, see [vets-website](https://github.com/department-of-veterans-affairs/vets-website) and [vets-content](https://github.com/department-of-veterans-affairs/vagov-content) repos.
 
@@ -56,20 +53,20 @@ For frontend, see [vets-website](https://github.com/department-of-veterans-affai
 
 1. Developers who work with vets-api daily tend to prefer the native setup because they don't have to deal with the abstraction of docker-compose while those who would to spend less time on getting started prefer the docker setup. Docker is also useful when it's necessary to have a setup as close to production as possible. Finally, it's possible to use a hybrid setup where you run vets-api natively, but run the Postgres and Redis dependencies in docker.
 
-   - [Native setup](docs/setup/native.md) (OSX/Ubuntu)
-   - [Docker setup](docs/setup/docker.md)
-   - [Hybrid setup](docs/setup/hybrid.md)
+   - [Native setup](setup/native.md) (OSX/Ubuntu)
+   - [Docker setup](setup/docker.md)
+   - [Hybrid setup](setup/hybrid.md)
 
 ## Running the app
 
-- [Running natively](docs/setup/running_natively.md)
-- [Running with Docker](docs/setup/running_docker.md)
-- [Debugging on Docker](docs/setup/debugging_with_docker_rubymine_windows.md)
+- [Running natively](setup/running_natively.md)
+- [Running with Docker](setup/running_docker.md)
+- [Debugging on Docker](setup/debugging_with_docker_rubymine_windows.md)
 
 ## Configuration
 
 Vets API is configured with [Config](https://github.com/railsconfig/config). The
-default configuration is contained in [settings.yml](config/settings.yml). To
+default configuration is contained in [settings.yml](https://github.com/department-of-veterans-affairs/vets-api/blob/master/config/settings.yml). To
 customize your setup, you can create a `config/settings.local.yml` file with
 configuration specific to your needs. For example, to configure Redis and
 PostgreSQL (PostGIS is required), place something like this in that file:
@@ -99,17 +96,17 @@ Some examples of configuration that will need to be added to these files are:
 
 The following features require additional configuration, click for details.
 
-- [Education Benefits](/docs/setup/edu_benefits.md)
-- [EVSS](/docs/setup/evss.md)
-- [Facilities Locator](/docs/setup/facilities_locator.md)
-- [Local Network Access](/docs/setup/local_network_access.md)
-- [Mailers](/docs/setup/mailer.md)
-- [Master Person Index (MPI)](/docs/setup/mpi.md)
-- [My HealtheVet (MHV)](/docs/setup/mhv.md)
-- [Virtual Machine Access](/docs/setup/virtual_machine_access.md)
+- [Education Benefits](setup/edu_benefits.md)
+- [EVSS](setup/evss.md)
+- [Facilities Locator](setup/facilities_locator.md)
+- [Local Network Access](setup/local_network_access.md)
+- [Mailers](setup/mailer.md)
+- [Master Person Index (MPI)](setup/mpi.md)
+- [My HealtheVet (MHV)](setup/mhv.md)
+- [Virtual Machine Access](setup/virtual_machine_access.md)
 - [Test User Dashboard](https://github.com/department-of-veterans-affairs/vsp-test-user-dashboard/blob/main/README.md#back-end)
 
-To mock one or more of the above services see [Betamocks](/docs/setup/betamocks.md)
+To mock one or more of the above services see [Betamocks](setup/betamocks.md)
 
 Vets API will still run in a limited capacity without configuring any of these
 features, and will run the unit tests successfully.
@@ -126,7 +123,7 @@ https://dev-api.va.gov/v0/status
 
 Additional deployment details can be found here:
 
-[additional deployment details](docs/deployment/information.md)
+[additional deployment details](deployment/information.md)
 
 ## API request key formatting
 
