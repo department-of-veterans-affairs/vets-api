@@ -6,6 +6,9 @@ module VBADocuments
   class UploadScanner
     include Sidekiq::Worker
 
+    # Only retry for ~5 minutes since this job runs every 30 minutes
+    sidekiq_options(unique_for: 5.minutes, retry: 3)
+
     def perform
       return unless Settings.vba_documents.s3.enabled
 

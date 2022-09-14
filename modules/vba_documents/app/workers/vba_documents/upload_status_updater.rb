@@ -7,7 +7,7 @@ module VBADocuments
     include Sidekiq::Worker
 
     # Only retry for ~30 minutes since the job that spawns this one runs every hour
-    sidekiq_options retry: 5, unique_until: :success
+    sidekiq_options(unique_for: 30.minutes, retry: 5)
 
     BATCH_SIZE = 100
 
