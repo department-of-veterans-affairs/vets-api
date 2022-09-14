@@ -11,12 +11,12 @@ class AppealsApi::RswagConfig
       "modules/appeals_api/app/swagger/appeals_api/v2/swagger#{DocHelpers.doc_suffix}.json" => {
         openapi: '3.0.0',
         info: {
-          title: 'Decision Reviews',
+          title: DocHelpers.doc_title,
           version: 'v2',
           termsOfService: 'https://developer.va.gov/terms-of-service',
           description: File.read(AppealsApi::Engine.root.join('app', 'swagger', 'appeals_api', 'v2', "api_description#{DocHelpers.doc_suffix}.md"))
         },
-        tags: tags,
+        tags: DocHelpers.doc_tags,
         paths: {},
         basePath: '/services/appeals/v2/decision_reviews',
         components: {
@@ -54,16 +54,6 @@ class AppealsApi::RswagConfig
   end
 
   private
-
-  def tags
-    [].tap do |a|
-      a << { name: 'Higher-Level Reviews', description: '' }
-      a << { name: 'Notice of Disagreements', description: '' }
-      a << { name: 'Supplemental Claims', description: '' }
-      a << { name: 'Contestable Issues', description: '' }
-      a << { name: 'Legacy Appeals', description: '' }
-    end
-  end
 
   def schemas
     a = []

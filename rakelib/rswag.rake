@@ -2,6 +2,22 @@
 
 require 'fileutils'
 
+APPEALS_API_DOCS_DIR = 'modules/appeals_api/spec/docs/v2'
+APPEALS_API_SECTION_SLUGS = Dir["#{APPEALS_API_DOCS_DIR}/*.rb"]
+                            .map { |file_name| file_name.split('/').last.gsub(/_spec.rb$/, '') }
+
+def generate_swagger_doc(dev: false, section: nil)
+  ENV['PATTERN'] = section ? "#{APPEALS_API_DOCS_DIR}/#{section}_spec.rb" : APPEALS_API_DOCS_DIR
+  ENV['RAILS_MODULE'] = 'appeals_api'
+  ENV['SWAGGER_DRY_RUN'] = '0'
+  ENV['RSWAG_SECTION_SLUG'] = section unless section.nil?
+  if dev
+    ENV['RSWAG_ENV'] = 'dev'
+    ENV['WIP_DOCS_ENABLED'] = Settings.modules_appeals_api.documentation.wip_docs&.join(',') || ''
+  end
+  Rake::Task['rswag:specs:swaggerize'].invoke
+end
+
 namespace :rswag do
   namespace :claims_api do
     desc 'Generate rswag docs for claims_api'
@@ -16,23 +32,43 @@ namespace :rswag do
   end
 
   namespace :appeals_api do
-    desc 'Generate rswag docs and schemas for appeals_api'
+    desc 'Generate single rswag docs and schemas for appeals_api'
     task run: %i[prod]
 
     task prod: :environment do
-      ENV['PATTERN'] = 'modules/appeals_api/spec/docs/'
-      ENV['RAILS_MODULE'] = 'appeals_api'
-      ENV['SWAGGER_DRY_RUN'] = '0'
-      Rake::Task['rswag:specs:swaggerize'].invoke
+      generate_swagger_doc
     end
 
     task dev: :environment do
-      ENV['PATTERN'] = 'modules/appeals_api/spec/docs/'
-      ENV['RSWAG_ENV'] = 'dev'
-      ENV['RAILS_MODULE'] = 'appeals_api'
-      ENV['SWAGGER_DRY_RUN'] = '0'
-      ENV['WIP_DOCS_ENABLED'] = Settings.modules_appeals_api.documentation.wip_docs&.join(',') || ''
-      Rake::Task['rswag:specs:swaggerize'].invoke
+      generate_swagger_doc(dev: true)
+    end
+
+    APPEALS_API_SECTION_SLUGS.each do |section_slug|
+      namespace section_slug do
+        task run: %i[prod]
+
+        task prod: :environment do
+          generate_swagger_doc(section: section_slug)
+        end
+
+        task dev: :environment do
+          generate_swagger_doc(dev: true, section: section_slug)
+        end
+      end
+    end
+
+    desc 'Generate rswag docs for all sections of the appeals_api'
+    task all: :environment do
+      Parallel.each(
+        ['rswag:appeals_api:run'].concat(APPEALS_API_SECTION_SLUGS.map { |section| "rswag:appeals_api:#{section}:run" })
+      ) { |task_name| Rake::Task[task_name].invoke }
+    end
+
+    desc 'Generate rswag docs for all sections of the appeals_api (dev)'
+    task all_dev: :environment do
+      Parallel.each(
+        ['rswag:appeals_api:dev'].concat(APPEALS_API_SECTION_SLUGS.map { |section| "rswag:appeals_api:#{section}:dev" })
+      ) { |task_name| Rake::Task[task_name].invoke }
     end
   end
 end
