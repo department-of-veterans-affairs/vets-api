@@ -835,10 +835,10 @@ GEM
     rubocop-ast (1.21.0)
       parser (>= 3.1.1.0)
     rubocop-junit-formatter (0.1.4)
-    rubocop-rails (2.15.2)
+    rubocop-rails (2.16.0)
       activesupport (>= 4.2.0)
       rack (>= 1.1)
-      rubocop (>= 1.7.0, < 2.0)
+      rubocop (>= 1.33.0, < 2.0)
     rubocop-rspec (2.12.1)
       rubocop (~> 1.31)
     rubocop-thread_safety (0.4.4)
@@ -950,7 +950,7 @@ GEM
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.8)
-    unicode-display_width (2.2.0)
+    unicode-display_width (2.3.0)
     uri_template (0.7.0)
     utf8-cleaner (1.0.0)
       activesupport
