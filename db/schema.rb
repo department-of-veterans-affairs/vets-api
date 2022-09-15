@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_09_13_100825) do
+ActiveRecord::Schema.define(version: 2022_09_15_172901) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -665,6 +665,15 @@ ActiveRecord::Schema.define(version: 2022_09_13_100825) do
     t.index ["user_uuid", "mhv_correlation_id"], name: "index_mhv_accounts_on_user_uuid_and_mhv_correlation_id", unique: true
   end
 
+  create_table "mhv_opt_in_flags", force: :cascade do |t|
+    t.string "user_account_uuid", null: false
+    t.string "opt_in_flag", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["opt_in_flag"], name: "index_mhv_opt_in_flags_on_opt_in_flag"
+    t.index ["user_account_uuid"], name: "index_mhv_opt_in_flags_on_user_account_uuid"
+  end
+
   create_table "mobile_users", force: :cascade do |t|
     t.string "icn", null: false
     t.datetime "created_at", precision: 6, null: false
@@ -871,8 +880,8 @@ ActiveRecord::Schema.define(version: 2022_09_13_100825) do
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.string "loa"
     t.text "services"
+    t.string "loa"
     t.uuid "idme_uuid"
     t.text "notes"
     t.string "mfa_code"
