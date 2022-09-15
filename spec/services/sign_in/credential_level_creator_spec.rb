@@ -20,13 +20,18 @@ RSpec.describe SignIn::CredentialLevelCreator do
     let(:level_of_assurance) { LOA::IDME_CLASSIC_LOA3 }
     let(:mhv_assurance) { 'some-mhv-assurance' }
     let(:dslogon_assurance) { 'some-dslogon-assurance' }
+    let(:sub) { 'some-sub-uuid' }
     let(:user_info) do
       OpenStruct.new({ verified_at: verified_at,
                        credential_ial: credential_ial,
                        level_of_assurance: level_of_assurance,
                        mhv_assurance: mhv_assurance,
-                       dslogon_assurance: dslogon_assurance })
+                       dslogon_assurance: dslogon_assurance,
+                       sub: sub })
     end
+    let(:auto_uplevel) { false }
+
+    before { allow(Settings.sign_in).to receive(:auto_uplevel).and_return(auto_uplevel) }
 
     context 'when requested_acr is arbitrary' do
       let(:requested_acr) { 'some-requested-acr' }
@@ -74,9 +79,52 @@ RSpec.describe SignIn::CredentialLevelCreator do
 
         context 'and id token acr is not defined as IAL 2' do
           let(:id_token_payload) { 'some-id-token-payload' }
-          let(:expected_current_ial) { IAL::ONE }
 
-          it_behaves_like 'a created credential level'
+          shared_examples 'an auto-uplevel capable credential' do
+            context 'and user has previously authenticated as a verified user' do
+              let!(:user_verification) { create(:logingov_user_verification, logingov_uuid: sub) }
+
+              context 'and sign_in auto_uplevel settings is false' do
+                let(:auto_uplevel) { false }
+                let(:expected_current_ial) { IAL::ONE }
+
+                it_behaves_like 'a created credential level'
+              end
+
+              context 'and sign_in auto_uplevel settings is true' do
+                let(:auto_uplevel) { true }
+
+                it_behaves_like 'a created credential level'
+              end
+            end
+
+            context 'and user has not previously authenticated as a verified user' do
+              let(:expected_current_ial) { IAL::ONE }
+
+              it_behaves_like 'a created credential level'
+            end
+          end
+
+          context 'and requested_acr is set to ial2' do
+            let(:requested_acr) { SignIn::Constants::Auth::IAL2 }
+            let(:expected_current_ial) { IAL::TWO }
+
+            it_behaves_like 'an auto-uplevel capable credential'
+          end
+
+          context 'and requested_acr is set to min' do
+            let(:requested_acr) { SignIn::Constants::Auth::MIN }
+            let(:expected_current_ial) { IAL::TWO }
+
+            it_behaves_like 'an auto-uplevel capable credential'
+          end
+
+          context 'and requested_acr is set to ial1' do
+            let(:requested_acr) { SignIn::Constants::Auth::IAL1 }
+            let(:expected_current_ial) { IAL::ONE }
+
+            it_behaves_like 'an auto-uplevel capable credential'
+          end
         end
       end
 
@@ -218,9 +266,52 @@ RSpec.describe SignIn::CredentialLevelCreator do
 
         context 'and user info credential ial does not equal idme classic loa3' do
           let(:credential_ial) { 'some-credential-ial' }
-          let(:expected_current_ial) { IAL::ONE }
 
-          it_behaves_like 'a created credential level'
+          shared_examples 'an auto-uplevel capable credential' do
+            context 'and user has previously authenticated as a verified user' do
+              let!(:user_verification) { create(:idme_user_verification, idme_uuid: sub) }
+
+              context 'and sign_in auto_uplevel settings is false' do
+                let(:auto_uplevel) { false }
+                let(:expected_current_ial) { IAL::ONE }
+
+                it_behaves_like 'a created credential level'
+              end
+
+              context 'and sign_in auto_uplevel settings is true' do
+                let(:auto_uplevel) { true }
+
+                it_behaves_like 'a created credential level'
+              end
+            end
+
+            context 'and user has not previously authenticated as a verified user' do
+              let(:expected_current_ial) { IAL::ONE }
+
+              it_behaves_like 'a created credential level'
+            end
+          end
+
+          context 'and requested_acr is set to loa3' do
+            let(:requested_acr) { SignIn::Constants::Auth::LOA3 }
+            let(:expected_current_ial) { IAL::TWO }
+
+            it_behaves_like 'an auto-uplevel capable credential'
+          end
+
+          context 'and requested_acr is set to min' do
+            let(:requested_acr) { SignIn::Constants::Auth::MIN }
+            let(:expected_current_ial) { IAL::TWO }
+
+            it_behaves_like 'an auto-uplevel capable credential'
+          end
+
+          context 'and requested_acr is set to ial1' do
+            let(:requested_acr) { SignIn::Constants::Auth::LOA1 }
+            let(:expected_current_ial) { IAL::ONE }
+
+            it_behaves_like 'an auto-uplevel capable credential'
+          end
         end
       end
 

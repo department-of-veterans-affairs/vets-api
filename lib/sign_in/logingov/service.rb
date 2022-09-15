@@ -45,7 +45,7 @@ module SignIn
 
       def user_info(token)
         response = perform(:get, config.userinfo_path, nil, { 'Authorization' => "Bearer #{token}" })
-        response.body
+        OpenStruct.new(response.body)
       rescue Common::Client::Errors::ClientError => e
         raise e, '[SignIn][Logingov][Service] Cannot perform UserInfo request'
       end
@@ -54,14 +54,14 @@ module SignIn
         loa_current = ial_to_loa(credential_level.current_ial)
         loa_highest = ial_to_loa(credential_level.max_ial)
         {
-          uuid: user_info[:sub],
-          logingov_uuid: user_info[:sub],
+          uuid: user_info.sub,
+          logingov_uuid: user_info.sub,
           loa: { current: loa_current, highest: loa_highest },
-          ssn: user_info[:social_security_number]&.tr('-', ''),
-          birth_date: user_info[:birthdate],
-          first_name: user_info[:given_name],
-          last_name: user_info[:family_name],
-          csp_email: user_info[:email],
+          ssn: user_info.social_security_number&.tr('-', ''),
+          birth_date: user_info.birthdate,
+          first_name: user_info.given_name,
+          last_name: user_info.family_name,
+          csp_email: user_info.email,
           multifactor: true,
           sign_in: { service_name: config.service_name, auth_broker: Constants::Auth::BROKER_CODE,
                      client_id: client_id },

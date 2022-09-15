@@ -16,17 +16,17 @@ describe SignIn::Logingov::Service do
     }
   end
   let(:user_info) do
-    {
-      sub: user_uuid,
-      iss: 'https://idp.int.identitysandbox.gov/',
-      email: email,
-      email_verified: true,
-      given_name: first_name,
-      family_name: last_name,
-      birthdate: birth_date,
-      social_security_number: ssn,
-      verified_at: 1_635_465_286
-    }
+    OpenStruct.new({
+                     sub: user_uuid,
+                     iss: 'https://idp.int.identitysandbox.gov/',
+                     email: email,
+                     email_verified: true,
+                     given_name: first_name,
+                     family_name: last_name,
+                     birthdate: birth_date,
+                     social_security_number: ssn,
+                     verified_at: 1_635_465_286
+                   })
   end
   let(:first_name) { 'Bob' }
   let(:last_name) { 'User' }
