@@ -38,7 +38,9 @@ module MebApi
           end
 
           def format_params(params)
-            camelize_keys_for_java_service(params)
+            camelized_keys = camelize_keys_for_java_service(params)
+            camelized_keys['claimant']&.merge({ personCriteria: @user.ssn,
+                                                type: 'ToeSubmission' }.stringify_keys)
           end
 
           def camelize_keys_for_java_service(params)
