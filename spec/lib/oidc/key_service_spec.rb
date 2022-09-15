@@ -39,7 +39,7 @@ RSpec.describe OIDC::KeyService do
       Timecop.return
 
       # Fill up the kid cache so the first key we've added is evicted
-      (0...1000).each do |x|
+      1000.times do |x|
         described_class.get_key(x, anything)
       end
 
