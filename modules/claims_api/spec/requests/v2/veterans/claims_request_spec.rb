@@ -884,6 +884,66 @@ RSpec.describe 'Claims', type: :request do
         end
       end
 
+      describe "handling the 'tracked_items'" do
+        context 'it has tracked items' do
+          let(:claim_id_with_items) { '600236068' }
+          let(:claim_by_id_with_items_path) do
+            "/services/claims/v2/veterans/#{veteran_id}/claims/#{claim_id_with_items}"
+          end
+
+          it "returns a claim with 'tracked_items'" do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette(
+                'bgs/ebenefits_benefit_claims_status/find_benefit_claim_details_by_benefit_claim_id'
+              ) do
+                VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
+                  VCR.use_cassette('evss/documents/get_claim_documents') do
+                    expect(ClaimsApi::AutoEstablishedClaim)
+                      .to receive(:get_by_id_and_icn).and_return(nil)
+
+                    get claim_by_id_with_items_path, headers: auth_header
+
+                    json_response = JSON.parse(response.body)
+                    first_doc_id = json_response.dig('trackedItems', 0, 'trackedItemId')
+                    expect(response.status).to eq(200)
+                    expect(json_response).to be_an_instance_of(Hash)
+                    expect(json_response['claimId']).to eq('600236068')
+                    expect(first_doc_id).to eq(325_525)
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        context 'it has no bgs_claim' do
+          let(:lighthouse_claim) do
+            create(:auto_established_claim, status: 'PENDING', veteran_icn: '1013062086V794840',
+                                            evss_id: '111111111')
+          end
+          let(:matched_claim_veteran_path) do
+            "/services/claims/v2/veterans/#{lighthouse_claim.veteran_icn}/claims/#{lighthouse_claim.id}"
+          end
+          let(:bgs_claim) { nil }
+
+          it "returns a claim with 'tracked_items' as an empty array" do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
+                expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                  .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
+
+                get matched_claim_veteran_path, headers: auth_header
+
+                json_response = JSON.parse(response.body)
+                expect(response.status).to eq(200)
+                expect(json_response).to be_an_instance_of(Hash)
+                expect(json_response['trackedItems']).to be_empty
+              end
+            end
+          end
+        end
+      end
+
       context 'CCG (Client Credentials Grant)' do
         let(:claim_id) { '123-abc-456-def' }
         let(:lighthouse_claim) do

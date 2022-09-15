@@ -722,18 +722,32 @@
                   "tempJurisdiction": null,
                   "trackedItems": [
                     {
-                      "closedDate": "2022-02-03T12:44:36-06:00",
-                      "description": "MG-not a recognized condition",
-                      "suspensionDate": "2022-03-06T00:00:00-06:00",
+                      "closedDate": null,
+                      "description": null,
+                      "displayedName": "Request 1",
+                      "dvlpmtTc": "CLMNTRQST",
+                      "openedDate": null,
+                      "overdue": true,
                       "requestedDate": "2022-02-04T00:00:00-06:00",
-                      "trackedItemId": 325525
+                      "suspenseDate": "2022-03-06T00:00:00-06:00",
+                      "trackedItemId": 325525,
+                      "trackedItemStatus": "NEEDED",
+                      "uploaded": false,
+                      "uploadsAllowed": false
                     },
                     {
-                      "closedDate": "2022-02-03T12:44:36-06:00",
-                      "description": "Line of Duty determination from claimant",
-                      "suspensionDate": "2022-03-06T00:00:00-06:00",
+                      "closedDate": null,
+                      "description": null,
+                      "displayedName": "Request 2",
+                      "dvlpmtTc": "CLMNTRQST",
+                      "openedDate": null,
+                      "overdue": true,
                       "requestedDate": "2022-02-04T00:00:00-06:00",
-                      "trackedItemId": 325524
+                      "suspenseDate": "2022-03-06T00:00:00-06:00",
+                      "trackedItemId": 325524,
+                      "trackedItemStatus": "NEEDED",
+                      "uploaded": false,
+                      "uploadsAllowed": false
                     }
                   ]
                 },
@@ -936,11 +950,13 @@
                           "closedDate": {
                             "type": "string",
                             "format": "date",
+                            "nullable": true,
                             "description": "Date the tracked item was closed",
                             "example": "2022-01-01T00:00:00-04:00"
                           },
                           "description": {
                             "type": "string",
+                            "nullable": true,
                             "description": "Description of the tracked item",
                             "example": "Buddy mentioned - No complete address"
                           },
@@ -960,6 +976,52 @@
                             "type": "integer",
                             "description": "ID of the tracked item",
                             "example": 293454
+                          },
+                          "dvlpmtTc": {
+                            "type": "string",
+                            "nullable": true,
+                            "example": "CLMNTRQST"
+                          },
+                          "displayedName": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "Request #",
+                            "example": "Request 5"
+                          },
+                          "openedDate": {
+                            "type": "string",
+                            "format": "date",
+                            "nullable": true,
+                            "description": "Date the tracked item was opened",
+                            "example": "2022-01-01T00:00:00-04:00"
+                          },
+                          "overdue": {
+                            "type": "boolean",
+                            "nullable": true,
+                            "description": "True if the item is overdue",
+                            "example": true
+                          },
+                          "suspenseDate": {
+                            "type": "string",
+                            "format": "date",
+                            "nullable": true,
+                            "example": "2022-01-01T00:00:00-04:00"
+                          },
+                          "trackedItemStatus": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "Enum with the status of the tracked item",
+                            "example": "NO_LONGER_REQUIRED"
+                          },
+                          "uploaded": {
+                            "type": "boolean",
+                            "nullable": true,
+                            "example": true
+                          },
+                          "uploadsAllowed": {
+                            "type": "boolean",
+                            "nullable": true,
+                            "example": true
                           }
                         }
                       }

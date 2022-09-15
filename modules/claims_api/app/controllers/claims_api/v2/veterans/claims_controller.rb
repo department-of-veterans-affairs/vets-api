@@ -263,21 +263,76 @@ module ClaimsApi
           end
         end
 
-        def map_bgs_tracked_items(bgs_claim)
+        def map_bgs_tracked_items(bgs_claim) # rubocop:disable Metrics/MethodLength
           return [] if bgs_claim.nil?
 
           claim_id = bgs_claim.dig(:benefit_claim_details_dto, :benefit_claim_id)
           return [] if claim_id.nil?
 
-          bgs_response = bgs_service.tracked_items.find_tracked_items(claim_id)
-          bgs = bgs_response.dig(:benefit_claim, :dvlpmt_items) || []
-          bgs.map do |item|
+          tracked_items = bgs_service
+                          .tracked_items
+                          .find_tracked_items(claim_id)
+                          .dig(:benefit_claim, :dvlpmt_items) || []
+          ebenefits_details = bgs_claim[:benefit_claim_details_dto]
+
+          # Just in case there's a doc in ebenefits that we don't have a tracked_item for
+          ids = tracked_items.pluck(:dvlpmt_item_id)
+          docs = (
+            (ebenefits_details[:wwsnfy] || []) +
+            (ebenefits_details[:wwr] || []) +
+            (ebenefits_details[:wwd] || [])
+          )
+          ids += docs.pluck(:dvlpmt_item_id)
+          ids = ids.uniq
+
+          ids.map.with_index do |id, i|
+            item = tracked_items.find { |t| t[:dvlpmt_item_id] == id } || {}
+            detail = docs.find do |doc|
+              doc[:dvlpmt_item_id] == id
+            end || {}
+
+            # Values for status enum: "ACCEPTED",
+            # "INITIAL_REVIEW_COMPLETE",
+            # "NEEDED",
+            # "NO_LONGER_REQUIRED"
+            # "SUBMITTED_AWAITING_REVIEW",
+
+            if detail[:date_rcvd].nil?
+              status = 'NEEDED'
+            else
+              status = 'SUBMITTED_AWAITING_REVIEW'
+
+              if item.present?
+                claim_status = bgs_claim.dig(:benefit_claim_details_dto, :bnft_claim_lc_status).max do |stat|
+                  stat[:phase_chngd_dt]
+                end
+                status = if ['Preparation for Decision',
+                             'Pending Decision Approval',
+                             'Preparation for Notification',
+                             'Complete'].include? claim_status
+                           'ACCEPTED'
+                         else
+                           'INITIAL_REVIEW_COMPLETE'
+                         end
+              end
+            end
+
+            uploads_allowed = ['NEEDED", "SUBMITTED_AWAITING_REVIEW", "INITIAL_REVIEW_COMPLETE']
+                              .include? status ? true : false
+
             {
-              closed_date: item[:jrn_dt].iso8601,
-              description: item[:short_nm],
-              suspension_date: item[:suspns_dt].iso8601,
-              requested_date: item[:req_dt].iso8601,
-              tracked_item_id: item[:dvlpmt_item_id].to_i
+              closed_date: detail[:date_closed]&.iso8601,
+              description: detail[:items],
+              displayed_name: "Request #{i + 1}", # +1 given a 1 index'd array
+              dvlpmt_tc: item[:dvlpmt_tc],
+              opened_date: detail[:date_open]&.iso8601,
+              overdue: item[:suspns_dt].nil? ? false : item[:suspns_dt] < Time.zone.now, # EVSS generates this field
+              requested_date: item[:req_dt]&.iso8601,
+              suspense_date: item[:suspns_dt]&.iso8601,
+              tracked_item_id: id.to_i,
+              tracked_item_status: status, # EVSS generates this field
+              uploaded: !detail[:date_rcvd].nil?, # EVSS generates this field
+              uploads_allowed: uploads_allowed # EVSS generates this field
             }
           end
         end
