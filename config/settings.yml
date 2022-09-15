@@ -54,6 +54,7 @@ sign_in:
   jwt_encode_key: 'spec/fixtures/sign_in/privatekey.pem'
   cookies_secure: false
   info_cookie_domain: localhost
+  auto_uplevel: true
   client_redirect_uris:
     mobile: 'vamobile://login-success'
     web: 'http://localhost:3001/auth/login/callback'
