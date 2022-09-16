@@ -138,8 +138,13 @@ RSpec.shared_examples 'contestable issues index requests' do |options|
     end
 
     path = if options[:version] == 'v2'
-             "/services/appeals/v2/decision_reviews/contestable_issues/#{options[:decision_review_type]}" \
-               "?benefit_type=#{options[:benefit_type]}"
+             (
+               if options[:use_versioned_namespace_route]
+                 '/services/appeals/contestable_issues/v2/contestable_issues'
+               else
+                 '/services/appeals/v2/decision_reviews/contestable_issues'
+               end
+             ) + "/#{options[:decision_review_type]}?benefit_type=#{options[:benefit_type]}"
            else
              "/services/appeals/v1/decision_reviews/#{options[:decision_review_type]}/" \
                "contestable_issues/#{options[:benefit_type]}"

@@ -149,4 +149,20 @@ AppealsApi::Engine.routes.draw do
       resources :schemas, only: :show, param: :schema_type, controller: '/appeals_api/schemas/shared_schemas'
     end
   end
+
+  namespace :contestable_issues, defaults: { format: 'json' } do
+    namespace :v2 do
+      cpath = '/appeals_api/v2/decision_reviews/contestable_issues'
+
+      get 'contestable_issues/:decision_review_type', to: "#{cpath}#index"
+    end
+  end
+
+  namespace :legacy_appeals, defaults: { format: 'json' } do
+    namespace :v2 do
+      cpath = '/appeals_api/v2/decision_reviews/legacy_appeals'
+
+      get 'legacy_appeals', to: "#{cpath}#index"
+    end
+  end
 end
