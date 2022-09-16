@@ -5,15 +5,16 @@ metadata:
   description: Appeals Status APIs for VA Lighthouse program
   title: Appeals Status API
   tags:
-  - lighthouse
-  - external
+    - lighthouse
+    - external
   links:
-  - url: https://developer.va.gov/explore/appeals/docs/appeals
-    title: Public Docs
-    icon: web
+    - url: https://developer.va.gov/explore/appeals/docs/appeals
+      title: Public Docs
+      icon: web
 spec:
   type: openapi
   lifecycle: production
   owner: lighthouse-banana-peels
+  system: vets-api
   definition:
     $text: https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/appeals_api/app/swagger/v0/appeals.yml
