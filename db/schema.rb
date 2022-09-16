@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_09_15_172901) do
+ActiveRecord::Schema.define(version: 2022_09_16_043854) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -666,12 +666,12 @@ ActiveRecord::Schema.define(version: 2022_09_15_172901) do
   end
 
   create_table "mhv_opt_in_flags", force: :cascade do |t|
-    t.string "user_account_uuid", null: false
-    t.string "opt_in_flag", null: false
+    t.uuid "user_account_id"
+    t.string "feature", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["opt_in_flag"], name: "index_mhv_opt_in_flags_on_opt_in_flag"
-    t.index ["user_account_uuid"], name: "index_mhv_opt_in_flags_on_user_account_uuid"
+    t.index ["feature"], name: "index_mhv_opt_in_flags_on_feature"
+    t.index ["user_account_id"], name: "index_mhv_opt_in_flags_on_user_account_id"
   end
 
   create_table "mobile_users", force: :cascade do |t|
@@ -1092,6 +1092,7 @@ ActiveRecord::Schema.define(version: 2022_09_15_172901) do
   add_foreign_key "deprecated_user_accounts", "user_verifications"
   add_foreign_key "in_progress_forms", "user_accounts"
   add_foreign_key "inherited_proof_verified_user_accounts", "user_accounts"
+  add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
   add_foreign_key "user_verifications", "user_accounts"
