@@ -4,7 +4,7 @@ metadata:
   name: appeals-apis
   description: A collection Appeal APIs
   tags:
-  - department-of-veteran-affairs
+    - department-of-veterans-affairs
 spec:
   targets:
     - ./config/backstage/appeals-status.yaml
