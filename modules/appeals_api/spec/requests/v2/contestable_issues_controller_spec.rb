@@ -9,6 +9,14 @@ describe AppealsApi::V2::DecisionReviews::ContestableIssuesController, type: :re
                    benefit_type: 'compensation',
                    version: 'v2'
 
+  describe 'using versioned namespace route' do
+    include_examples 'contestable issues index requests',
+                     decision_review_type: 'higher_level_reviews',
+                     benefit_type: 'compensation',
+                     use_versioned_namespace_route: true,
+                     version: 'v2'
+  end
+
   it 'errors are in  JsonAPI ErrorObject format' do
     opts = { decision_review_type: 'higher_level_review', benefit_type: 'compensation', version: 'v2' }
     get_issues ssn: 'abcdefghi', options: opts
