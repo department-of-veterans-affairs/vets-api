@@ -63,6 +63,7 @@ RSpec.describe Login::UserVerifier do
         let(:idme_uuid_identifier) { 'some-idme-uuid-identifier' }
         let!(:user_verification) do
           UserVerification.create!(type => idme_uuid_identifier,
+                                   backing_idme_uuid: backing_idme_uuid,
                                    user_account: user_account)
         end
         let(:user_account) { UserAccount.new }
@@ -88,12 +89,27 @@ RSpec.describe Login::UserVerifier do
           let!(:user_verification) do
             UserVerification.create!(authn_identifier_type => authn_identifier,
                                      user_account: user_account,
+                                     backing_idme_uuid: backing_idme_uuid,
                                      verified_at: verified_at)
           end
           let(:verified_at) { Time.zone.now - 1.day }
 
           it 'does not create a new user_verification' do
             expect { subject }.not_to change(UserVerification, :count)
+          end
+
+          context 'and determined backing idme uuid is different than existing backing idme uuid' do
+            let(:old_backing_idme_uuid) { 'some-old-backing-idme-uuid' }
+            let!(:user_verification) do
+              UserVerification.create!(authn_identifier_type => authn_identifier,
+                                       user_account: user_account,
+                                       backing_idme_uuid: old_backing_idme_uuid,
+                                       verified_at: verified_at)
+            end
+
+            it 'updates user verification with the new determined backing idme uuid' do
+              expect(subject.backing_idme_uuid).to eq(backing_idme_uuid)
+            end
           end
 
           context 'and user_account with the current user ICN exists' do
@@ -127,6 +143,7 @@ RSpec.describe Login::UserVerifier do
 
                 before do
                   UserVerification.create!(authn_identifier_type => 'some-other-authn-identifier',
+                                           backing_idme_uuid: backing_idme_uuid,
                                            user_account: other_user_account)
                 end
 
@@ -177,6 +194,7 @@ RSpec.describe Login::UserVerifier do
 
                 before do
                   UserVerification.create!(authn_identifier_type => 'some-other-authn-identifier',
+                                           backing_idme_uuid: backing_idme_uuid,
                                            user_account: other_user_account)
                 end
 
@@ -273,11 +291,25 @@ RSpec.describe Login::UserVerifier do
         context 'and user_verification for user credential already exists' do
           let!(:user_verification) do
             UserVerification.create!(authn_identifier_type => authn_identifier,
+                                     backing_idme_uuid: backing_idme_uuid,
                                      user_account: UserAccount.new(icn: nil))
           end
 
           it 'does not create user_verification' do
             expect { subject }.not_to change(UserVerification, :count)
+          end
+
+          context 'and determined backing idme uuid is different than existing backing idme uuid' do
+            let(:old_backing_idme_uuid) { 'some-old-backing-idme-uuid' }
+            let!(:user_verification) do
+              UserVerification.create!(authn_identifier_type => authn_identifier,
+                                       user_account: UserAccount.new(icn: nil),
+                                       backing_idme_uuid: old_backing_idme_uuid)
+            end
+
+            it 'updates user verification with the new determined backing idme uuid' do
+              expect(subject.backing_idme_uuid).to eq(backing_idme_uuid)
+            end
           end
 
           it 'returns existing user_verification' do
@@ -306,6 +338,7 @@ RSpec.describe Login::UserVerifier do
       let(:login_value) { 'mhv' }
       let(:authn_identifier) { user_identity.mhv_correlation_id }
       let(:authn_identifier_type) { :mhv_uuid }
+      let(:backing_idme_uuid) { idme_uuid_identifier }
 
       it_behaves_like 'user_verification with nil credential identifier'
       it_behaves_like 'user_verification with defined credential identifier'
@@ -315,6 +348,7 @@ RSpec.describe Login::UserVerifier do
       let(:login_value) { 'idme' }
       let(:authn_identifier) { user_identity.idme_uuid }
       let(:authn_identifier_type) { :idme_uuid }
+      let(:backing_idme_uuid) { nil }
 
       context 'when credential identifier is nil' do
         let(:authn_identifier) { nil }
@@ -338,6 +372,7 @@ RSpec.describe Login::UserVerifier do
       let(:login_value) { 'dslogon' }
       let(:authn_identifier) { user_identity.edipi }
       let(:authn_identifier_type) { :dslogon_uuid }
+      let(:backing_idme_uuid) { idme_uuid_identifier }
 
       it_behaves_like 'user_verification with nil credential identifier'
       it_behaves_like 'user_verification with defined credential identifier'
@@ -347,6 +382,7 @@ RSpec.describe Login::UserVerifier do
       let(:login_value) { 'logingov' }
       let(:authn_identifier) { user_identity.logingov_uuid }
       let(:authn_identifier_type) { :logingov_uuid }
+      let(:backing_idme_uuid) { nil }
 
       it_behaves_like 'user_verification with nil credential identifier'
       it_behaves_like 'user_verification with defined credential identifier'
@@ -354,13 +390,9 @@ RSpec.describe Login::UserVerifier do
 
     context 'when user credential is some other arbitrary value' do
       let(:login_value) { 'banana' }
-      let(:expected_log) do
-        "[Login::UserVerifier] Unknown or missing login_type for user=#{user_identity.uuid}, login_type=#{login_value}"
-      end
       let(:expected_error) { Login::Errors::UnknownLoginTypeError }
 
-      it 'logs messages to rails logger and raises Unknown Login Type error' do
-        expect(Rails.logger).to receive(:info).with(expected_log).ordered
+      it 'raises Unknown Login Type error' do
         expect { subject }.to raise_exception(expected_error)
       end
     end

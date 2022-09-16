@@ -9,6 +9,7 @@ RSpec.describe UserVerification, type: :model do
            logingov_uuid: logingov_uuid,
            dslogon_uuid: dslogon_uuid,
            mhv_uuid: mhv_uuid,
+           backing_idme_uuid: backing_idme_uuid,
            verified_at: verified_at,
            user_account_id: user_account&.id)
   end
@@ -18,9 +19,39 @@ RSpec.describe UserVerification, type: :model do
   let(:dslogon_uuid) { nil }
   let(:mhv_uuid) { nil }
   let(:user_account) { nil }
+  let(:backing_idme_uuid) { nil }
   let(:verified_at) { nil }
 
   describe 'validations' do
+    shared_examples 'failed credential identifier validation' do
+      let(:expected_error_message) { 'Validation failed: Must specify one, and only one, credential identifier' }
+
+      it 'raises validation error' do
+        expect { subject }.to raise_error(ActiveRecord::RecordInvalid, expected_error_message)
+      end
+    end
+
+    shared_examples 'failed backing uuid credentials validation' do
+      let(:expected_error_message) do
+        'Validation failed: Must define either an idme_uuid, logingov_uuid, or backing_idme_uuid'
+      end
+
+      it 'raises validation error' do
+        expect { subject }.to raise_error(ActiveRecord::RecordInvalid, expected_error_message)
+      end
+    end
+
+    shared_examples 'failed both validations' do
+      let(:expected_error_message) do
+        'Validation failed: Must specify one, and only one, credential identifier, ' \
+          'Must define either an idme_uuid, logingov_uuid, or backing_idme_uuid'
+      end
+
+      it 'raises validation error' do
+        expect { subject }.to raise_error(ActiveRecord::RecordInvalid, expected_error_message)
+      end
+    end
+
     describe '#user_account' do
       subject { user_verification.user_account }
 
@@ -60,22 +91,16 @@ RSpec.describe UserVerification, type: :model do
 
         context 'and idme_uuid is defined' do
           let(:idme_uuid) { 'some-idme-uuid' }
-          let(:expected_error_message) { 'Validation failed: Must specify one, and only one, credential identifier' }
 
-          it 'returns a validation error' do
-            expect { subject }.to raise_error(ActiveRecord::RecordInvalid, expected_error_message)
-          end
+          it_behaves_like 'failed credential identifier validation'
         end
       end
 
       context 'when another credential is not defined' do
         context 'and idme_uuid is not defined' do
-          let(:expected_error_message) { 'Validation failed: Must specify one, and only one, credential identifier' }
           let(:idme_uuid) { nil }
 
-          it 'raises validation error' do
-            expect { subject }.to raise_error(ActiveRecord::RecordInvalid, expected_error_message)
-          end
+          it_behaves_like 'failed both validations'
         end
 
         context 'and idme_uuid is defined' do
@@ -104,22 +129,16 @@ RSpec.describe UserVerification, type: :model do
 
         context 'and logingov_uuid is defined' do
           let(:logingov_uuid) { 'some-logingov-uuid' }
-          let(:expected_error_message) { 'Validation failed: Must specify one, and only one, credential identifier' }
 
-          it 'returns a validation error' do
-            expect { subject }.to raise_error(ActiveRecord::RecordInvalid, expected_error_message)
-          end
+          it_behaves_like 'failed credential identifier validation'
         end
       end
 
       context 'when another credential is not defined' do
         context 'and logingov_uuid is not defined' do
-          let(:expected_error_message) { 'Validation failed: Must specify one, and only one, credential identifier' }
           let(:logingov_uuid) { nil }
 
-          it 'raises validation error' do
-            expect { subject }.to raise_error(ActiveRecord::RecordInvalid, expected_error_message)
-          end
+          it_behaves_like 'failed both validations'
         end
 
         context 'and logingov_uuid is defined' do
@@ -148,29 +167,33 @@ RSpec.describe UserVerification, type: :model do
 
         context 'and dslogon_uuid is defined' do
           let(:dslogon_uuid) { 'some-dslogon-uuid' }
-          let(:expected_error_message) { 'Validation failed: Must specify one, and only one, credential identifier' }
 
-          it 'returns a validation error' do
-            expect { subject }.to raise_error(ActiveRecord::RecordInvalid, expected_error_message)
-          end
+          it_behaves_like 'failed credential identifier validation'
         end
       end
 
       context 'when another credential is not defined' do
         context 'and dslogon_uuid is not defined' do
-          let(:expected_error_message) { 'Validation failed: Must specify one, and only one, credential identifier' }
           let(:dslogon_uuid) { nil }
 
-          it 'raises validation error' do
-            expect { subject }.to raise_error(ActiveRecord::RecordInvalid, expected_error_message)
-          end
+          it_behaves_like 'failed both validations'
         end
 
         context 'and dslogon_uuid is defined' do
           let(:dslogon_uuid) { 'some-dslogon-uuid' }
 
-          it 'returns dslogon_uuid' do
-            expect(subject).to eq(dslogon_uuid)
+          context 'and backing_idme_uuid is not defined' do
+            let(:backing_idme_uuid) { nil }
+
+            it_behaves_like 'failed backing uuid credentials validation'
+          end
+
+          context 'and backing_idme_uuid is defined' do
+            let(:backing_idme_uuid) { 'some-backing-idme-uuid' }
+
+            it 'returns dslogon_uuid' do
+              expect(subject).to eq(dslogon_uuid)
+            end
           end
         end
       end
@@ -192,29 +215,33 @@ RSpec.describe UserVerification, type: :model do
 
         context 'and mhv_uuid is defined' do
           let(:mhv_uuid) { 'some-mhv-uuid' }
-          let(:expected_error_message) { 'Validation failed: Must specify one, and only one, credential identifier' }
 
-          it 'returns a validation error' do
-            expect { subject }.to raise_error(ActiveRecord::RecordInvalid, expected_error_message)
-          end
+          it_behaves_like 'failed credential identifier validation'
         end
       end
 
       context 'when another credential is not defined' do
         context 'and mhv_uuid is not defined' do
-          let(:expected_error_message) { 'Validation failed: Must specify one, and only one, credential identifier' }
           let(:mhv_uuid) { nil }
 
-          it 'raises validation error' do
-            expect { subject }.to raise_error(ActiveRecord::RecordInvalid, expected_error_message)
-          end
+          it_behaves_like 'failed both validations'
         end
 
         context 'and mhv_uuid is defined' do
           let(:mhv_uuid) { 'some-mhv-uuid' }
 
-          it 'returns mhv_uuid' do
-            expect(subject).to eq(mhv_uuid)
+          context 'and backing_idme_uuid is not defined' do
+            let(:backing_idme_uuid) { nil }
+
+            it_behaves_like 'failed backing uuid credentials validation'
+          end
+
+          context 'and backing_idme_uuid is defined' do
+            let(:backing_idme_uuid) { 'some-backing-idme-uuid' }
+
+            it 'returns mhv_uuid' do
+              expect(subject).to eq(mhv_uuid)
+            end
           end
         end
       end
@@ -271,6 +298,7 @@ RSpec.describe UserVerification, type: :model do
 
     context 'when dslogon_uuid is present' do
       let(:dslogon_uuid) { 'some-dslogon-uuid' }
+      let(:backing_idme_uuid) { 'some-backing-idme-uuid' }
       let(:expected_credential_type) { SAML::User::DSLOGON_CSID }
 
       it 'returns expected credential type' do
@@ -280,6 +308,7 @@ RSpec.describe UserVerification, type: :model do
 
     context 'when mhv_uuid is present' do
       let(:mhv_uuid) { 'some-mhv-uuid' }
+      let(:backing_idme_uuid) { 'some-backing-idme-uuid' }
       let(:expected_credential_type) { SAML::User::MHV_ORIGINAL_CSID }
 
       it 'returns expected credential type' do
@@ -313,6 +342,7 @@ RSpec.describe UserVerification, type: :model do
 
     context 'when dslogon_uuid is present' do
       let(:dslogon_uuid) { 'some-dslogon-uuid' }
+      let(:backing_idme_uuid) { 'some-backing-idme-uuid' }
       let(:expected_credential_identifier) { dslogon_uuid }
 
       it 'returns expected credential identifier' do
@@ -322,6 +352,7 @@ RSpec.describe UserVerification, type: :model do
 
     context 'when mhv_uuid is present' do
       let(:mhv_uuid) { 'some-mhv-uuid' }
+      let(:backing_idme_uuid) { 'some-backing-idme-uuid' }
       let(:expected_credential_identifier) { mhv_uuid }
 
       it 'returns expected credential identifier' do
