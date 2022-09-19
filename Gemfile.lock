@@ -835,7 +835,7 @@ GEM
     rubocop-ast (1.21.0)
       parser (>= 3.1.1.0)
     rubocop-junit-formatter (0.1.4)
-    rubocop-rails (2.16.0)
+    rubocop-rails (2.16.1)
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.33.0, < 2.0)
