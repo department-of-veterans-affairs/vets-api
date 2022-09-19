@@ -76,8 +76,8 @@ module Mobile
           sta6aid = facility_id
           type = parse_by_appointment_type(appointment_hash, appointment_hash[:kind])
           start_date_utc = start_date_utc(appointment_hash)
-          time_zone = time_zone(facility_id)
-          start_date_local = start_date_utc.in_time_zone(time_zone)
+          time_zone = timezone(appointment_hash, facility_id)
+          start_date_local = start_date_utc&.in_time_zone(time_zone)
           status = status(appointment_hash)
           adapted_hash = {
             id: appointment_hash[:id],
@@ -114,6 +114,17 @@ module Mobile
           Mobile::V0::Appointment.new(adapted_hash)
         end
         # rubocop:enable Metrics/MethodLength
+
+        def timezone(appointment_hash, facility_id)
+          time_zone = appointment_hash.dig(:location, :time_zone, :time_zone_id)
+          return time_zone if time_zone
+
+          return nil unless facility_id
+
+          # not always correct if clinic is different time zone than parent
+          facility = Mobile::VA_FACILITIES_BY_ID["dfn-#{facility_id[0..2]}"]
+          facility ? facility[:time_zone] : nil
+        end
 
         def cancel_id(appointment_hash)
           return nil unless appointment_hash[:cancellable]
@@ -284,13 +295,6 @@ module Mobile
             number: phone_captures[2].presence,
             extension: phone_captures[3].presence
           }
-        end
-
-        def time_zone(facility_id)
-          return nil unless facility_id
-
-          facility = Mobile::VA_FACILITIES_BY_ID["dfn-#{facility_id[0..2]}"]
-          facility ? facility[:time_zone] : nil
         end
 
         def healthcare_provider(practitioners)
