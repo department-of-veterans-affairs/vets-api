@@ -20,8 +20,8 @@ module AppealsApi
       return unless enabled? && higher_level_review_ids.present?
 
       Sidekiq::Batch.new.jobs do
-        higher_level_review_ids.each_slice(BATCH_SIZE) do |ids|
-          HigherLevelReviewUploadStatusUpdater.perform_async(ids)
+        higher_level_review_ids.each_slice(BATCH_SIZE).with_index do |ids, i|
+          HigherLevelReviewUploadStatusUpdater.perform_in((i + 5).seconds, ids)
         end
       end
     end

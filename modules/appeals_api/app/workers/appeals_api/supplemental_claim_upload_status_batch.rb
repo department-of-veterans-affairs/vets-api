@@ -15,8 +15,8 @@ module AppealsApi
       return unless enabled? && supplemental_claim_ids.present?
 
       Sidekiq::Batch.new.jobs do
-        supplemental_claim_ids.each_slice(BATCH_SIZE) do |ids|
-          SupplementalClaimUploadStatusUpdater.perform_async(ids)
+        supplemental_claim_ids.each_slice(BATCH_SIZE).with_index do |ids, i|
+          SupplementalClaimUploadStatusUpdater.perform_in((i + 5).seconds, ids)
         end
       end
     end

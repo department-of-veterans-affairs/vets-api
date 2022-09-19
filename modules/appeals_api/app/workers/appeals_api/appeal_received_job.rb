@@ -21,6 +21,7 @@ module AppealsApi
     def perform(opts)
       @opts = opts
 
+      return unless FeatureFlipper.send_email?
       return Rails.logger.error 'AppealReceived: Missing required keys' unless required_keys?
 
       send(opts['receipt_event'].to_sym)

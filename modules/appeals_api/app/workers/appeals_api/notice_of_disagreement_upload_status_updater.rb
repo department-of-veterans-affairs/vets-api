@@ -9,12 +9,13 @@ module AppealsApi
     include Sidekiq::MonitoredWorker
 
     # Only retry for ~30 minutes since the job that spawns this one runs every hour
-    sidekiq_options retry: 5, unique_until: :success
+    sidekiq_options retry: 5, unique_for: 30.minutes
 
     def perform(ids)
       batch_size = CentralMailUpdater::MAX_UUIDS_PER_REQUEST
-      NoticeOfDisagreement.where(id: ids).find_in_batches(batch_size: batch_size) do |batch|
+      NoticeOfDisagreement.where(id: ids).find_in_batches(batch_size: batch_size).with_index do |batch, i|
         CentralMailUpdater.new.call(batch)
+        sleep 5 if i.positive? # Avoid flooding CMP with requests all at once
       end
     end
 

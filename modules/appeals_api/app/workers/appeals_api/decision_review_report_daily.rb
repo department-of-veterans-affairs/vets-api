@@ -6,7 +6,7 @@ module AppealsApi
   class DecisionReviewReportDaily
     include Sidekiq::Worker
     # Only retry for ~8 hours since the job is run daily
-    sidekiq_options retry: 11
+    sidekiq_options retry: 11, unique_for: 8.hours
 
     def perform(to: Time.zone.now, from: (to.monday? ? 3.days.ago.beginning_of_day : 1.day.ago.beginning_of_day))
       recipients = Settings.modules_appeals_api.reports.daily_decision_review.recipients
