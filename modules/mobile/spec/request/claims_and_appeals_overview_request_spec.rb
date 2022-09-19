@@ -3,6 +3,7 @@
 require 'rails_helper'
 require_relative '../support/iam_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
+require 'caseflow/middleware/errors'
 
 RSpec.describe 'claims and appeals overview', type: :request do
   include JsonSchemaMatchers
@@ -136,6 +137,8 @@ RSpec.describe 'claims and appeals overview', type: :request do
     describe '#index is polled' do
       let(:params) { { useCache: false } }
 
+      before { allow(Rails.logger).to receive(:error) }
+
       it 'and claims service fails, but appeals succeeds' do
         VCR.use_cassette('claims/claims_with_errors') do
           VCR.use_cassette('appeals/appeals') do
@@ -171,7 +174,6 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
       it 'and appeals service fails, but claims succeeds' do
         VCR.use_cassette('claims/claims') do
           VCR.use_cassette('appeals/server_error') do
-            expect(Rails.logger).to receive(:error) # rails logger is called before the error we want to test
             expect(Rails.logger).to receive(:error).with(
               'Mobile Claims and Appeals: error received from appeals service',
               { error_details: [{ 'title' => 'Bad Gateway',
@@ -210,7 +212,6 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
 claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
               }] }
             )
-            expect(Rails.logger).to receive(:error) # rails logger is called before the error we want to test
             expect(Rails.logger).to receive(:error).with(
               'Mobile Claims and Appeals: error received from appeals service',
               { error_details: [{ 'title' => 'Bad Gateway',
