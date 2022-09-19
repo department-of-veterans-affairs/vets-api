@@ -43,7 +43,7 @@ module PDFUtilities
         @options = DEFAULT_OPTIONS.merge(options)
       end
 
-      def perform
+      def validate
         @result = ValidationResult.new
         @pdf_metadata = nil
 

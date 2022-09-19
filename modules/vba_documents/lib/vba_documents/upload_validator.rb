@@ -114,7 +114,7 @@ module VBADocuments
 
     def validate_document(file_path, part_name)
       validator = PDFValidator::Validator.new(file_path, { check_encryption: false })
-      result = validator.perform
+      result = validator.validate
 
       unless result.valid_pdf?
         errors = result.errors

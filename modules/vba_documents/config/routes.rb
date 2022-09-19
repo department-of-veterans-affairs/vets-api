@@ -29,6 +29,8 @@ VBADocuments::Engine.routes.draw do
   end
 
   namespace :v1, defaults: { format: 'json' } do
+    post '/uploads/validate_document', to: 'uploads#validate_document'
+
     resources :uploads, only: %i[create show] do
       get 'download', to: 'uploads#download'
       collection do

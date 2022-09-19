@@ -82,6 +82,7 @@ search_click_tracking:
 
 vba_documents:
   enable_download_endpoint: true
+  enable_validate_document_endpoint: true
 
 modules_appeals_api:
   documentation:
