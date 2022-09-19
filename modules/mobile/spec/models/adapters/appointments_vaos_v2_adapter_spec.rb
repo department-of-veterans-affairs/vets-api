@@ -170,11 +170,11 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                         },
                                         'minutes_duration' => 60,
                                         'phone_only' => false,
-                                        'start_date_local' => '2022-01-11T10:00:00.000-05:00',
+                                        'start_date_local' => '2022-01-11T08:00:00.000-07:00',
                                         'start_date_utc' => '2022-01-11T15:00:00.000+00:00',
                                         'status' => 'BOOKED',
                                         'status_detail' => nil,
-                                        'time_zone' => 'America/New_York',
+                                        'time_zone' => 'America/Denver',
                                         'vetext_id' => nil,
                                         'reason' => nil,
                                         'is_covid_vaccine' => false,
@@ -228,11 +228,11 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                           },
                                           'minutes_duration' => 60,
                                           'phone_only' => false,
-                                          'start_date_local' => '2022-01-25T19:00:00.000-05:00',
+                                          'start_date_local' => '2022-01-25T17:00:00.000-07:00',
                                           'start_date_utc' => '2022-01-26T00:00:00.000+00:00',
                                           'status' => 'SUBMITTED',
                                           'status_detail' => nil,
-                                          'time_zone' => 'America/New_York',
+                                          'time_zone' => 'America/Denver',
                                           'vetext_id' => nil,
                                           'reason' => nil,
                                           'is_covid_vaccine' => false,
@@ -541,6 +541,21 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(past_request_date_appt[:proposed_times]).to eq([{ date: '08/20/2021', time: 'PM' },
                                                              { date: '08/27/2021', time: 'PM' },
                                                              { date: '10/03/2021', time: 'PM' }])
+    end
+  end
+
+  context 'with no timezone' do
+    let(:no_timezone_appt) do
+      vaos_data = JSON.parse(appointment_fixtures, symbolize_names: true)
+      vaos_data.dig(0, :location).delete(:timezone)
+      appointments = subject.parse(vaos_data)
+      appointments[0]
+    end
+
+    it 'falls back to hardcoded timezone lookup' do
+      expect(no_timezone_appt[:start_date_local]).to eq('2022-08-27 09:45:00 -0600"')
+      expect(no_timezone_appt[:start_date_utc]).to eq('2022-08-27T15:45:00Z')
+      expect(no_timezone_appt[:time_zone]).to eq('America/Denver')
     end
   end
 end

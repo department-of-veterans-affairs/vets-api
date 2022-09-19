@@ -29,6 +29,9 @@ RSpec.describe 'vaos v2 appointments', type: :request do
   let(:mock_facility) do
     mock_facility = { id: '983',
                       name: 'Cheyenne VA Medical Center',
+                      time_zone: {
+                        time_zone_id: 'America/Denver'
+                      },
                       physical_address: { type: 'physical',
                                           line: ['2360 East Pershing Boulevard'],
                                           city: 'Cheyenne',
