@@ -5,13 +5,15 @@ require 'zip'
 require_dependency 'vba_documents/application_controller'
 require_dependency 'vba_documents/upload_error'
 require_dependency 'vba_documents/payload_manager'
+require_dependency 'vba_documents/document_request_validator'
 require 'common/exceptions'
 
 module VBADocuments
   module V1
     class UploadsController < ApplicationController
       skip_before_action(:authenticate)
-      before_action :verify_settings, only: [:download]
+      before_action :verify_download_enabled, only: [:download]
+      before_action :verify_validate_enabled, only: [:validate_document]
 
       def create
         submission = VBADocuments::UploadSubmission.create(
@@ -56,10 +58,29 @@ module VBADocuments
         File.delete(zip_file_name)
       end
 
+      def validate_document
+        validator = DocumentRequestValidator.new(request)
+        result = validator.validate
+
+        if result[:errors].present?
+          render json: result, status: :unprocessable_entity
+        else
+          render json: result
+        end
+      end
+
       private
 
-      def verify_settings
-        render plain: 'Not found', status: :not_found unless Settings.vba_documents.enable_download_endpoint
+      def verify_download_enabled
+        render_not_found unless Settings.vba_documents.enable_download_endpoint
+      end
+
+      def verify_validate_enabled
+        render_not_found unless Settings.vba_documents.enable_validate_document_endpoint
+      end
+
+      def render_not_found
+        render plain: 'Not found', status: :not_found
       end
     end
   end

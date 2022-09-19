@@ -46,13 +46,13 @@ describe PDFUtilities::PDFValidator::Validator do
     end
   end
 
-  describe '#perform' do
+  describe '#validate' do
     subject { validator }
 
     let(:fixture_path) { Rails.root.join('spec', 'fixtures', 'pdf_utilities', 'pdf_validator') }
     let(:file) { "#{fixture_path}/21x21.pdf" }
 
-    before { validator.perform }
+    before { validator.validate }
 
     it 'sets the result' do
       expect(validator.result).to be_a(PDFUtilities::PDFValidator::ValidationResult)
