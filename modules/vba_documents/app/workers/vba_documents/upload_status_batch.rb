@@ -7,7 +7,7 @@ module VBADocuments
     include Sidekiq::Worker
 
     # No need to retry since the schedule will run this every hour
-    sidekiq_options(unique_for: 30.minutes, retry: false)
+    sidekiq_options retry: false, unique_for: 1.hour
 
     BATCH_SIZE = 100
 
@@ -17,7 +17,7 @@ module VBADocuments
       Sidekiq::Batch.new.jobs do
         filtered_submission_guids.each_slice(BATCH_SIZE).with_index do |guids, i|
           # Stagger jobs by a few seconds so that we don't overwhelm the upstream service
-          VBADocuments::UploadStatusUpdater.perform_in((i + 5).seconds, guids)
+          VBADocuments::UploadStatusUpdater.perform_in((i * 5).seconds, guids)
         end
       end
     end

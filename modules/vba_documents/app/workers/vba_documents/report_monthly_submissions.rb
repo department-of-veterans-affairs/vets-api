@@ -9,6 +9,9 @@ module VBADocuments
     include Sidekiq::Worker
     extend VBADocuments::SQLSupport
 
+    # Only retry for ~3 days since the job is run monthly
+    sidekiq_options retry: 17, unique_for: 1.month
+
     def perform
       if Settings.vba_documents.monthly_report
         # get reporting date ranges

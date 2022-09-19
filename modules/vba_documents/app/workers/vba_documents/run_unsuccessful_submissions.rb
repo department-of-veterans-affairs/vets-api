@@ -6,6 +6,9 @@ module VBADocuments
   class RunUnsuccessfulSubmissions
     include Sidekiq::Worker
 
+    # Only retry for ~1 hour since the job is run every two hours
+    sidekiq_options retry: 7, unique_for: 2.hours
+
     def perform
       guids = VBADocuments::UploadSubmission.where(status: 'uploaded').pluck(:guid)
       guids.each do |guid|
