@@ -24,7 +24,6 @@ module VirtualRegionalOffice
         # faraday.request(:curl, ::Logger.new($stdout), :warn) unless Rails.env.production?
         # faraday.response(:logger, ::Logger.new($stdout), bodies: true) unless Rails.env.production?
 
-        faraday.response :json
         faraday.adapter Faraday.default_adapter
       end
     end

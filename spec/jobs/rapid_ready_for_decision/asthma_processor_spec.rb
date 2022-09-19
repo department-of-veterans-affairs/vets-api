@@ -10,6 +10,8 @@ RSpec.describe RapidReadyForDecision::AsthmaProcessor do
     end
   end
 
+  before { Flipper.disable(:rrd_call_vro_service) }
+
   let(:submission) { create(:form526_submission, :asthma_claim_for_increase) }
   let(:processor) { described_class.new(submission) }
 

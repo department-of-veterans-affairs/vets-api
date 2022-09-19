@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'virtual_regional_office/client'
+
 module RapidReadyForDecision
   class RrdProcessor
     attr_reader :form526_submission, :claim_context
@@ -10,16 +12,18 @@ module RapidReadyForDecision
     end
 
     def run
-      assess_data
+      use_vro = Flipper.enabled?(:rrd_call_vro_service)
+      use_vro ? assess_data_with_vro : assess_data
+
       unless @claim_context.sufficient_evidence
         return @form526_submission.save_metadata(offramp_reason: 'insufficient_data')
       end
 
       add_medical_stats
 
-      pdf = generate_pdf
+      pdf_body = (use_vro ? generate_pdf_body_with_vro : generate_pdf.render)
       @claim_context.add_metadata(pdf_created: true)
-      upload_pdf(pdf)
+      upload_pdf(pdf_body)
 
       set_special_issue if Flipper.enabled?(:rrd_add_special_issue) && release_pdf?
 
@@ -27,15 +31,32 @@ module RapidReadyForDecision
     end
 
     # Populates @claim_context.assessed_data and sets claim_context.sufficient_evidence
-    # Return nil to discontinue processing (i.e., doesn't generate pdf or set special issue)
     def assess_data
       raise "Method `assess_data` should be overriden by the subclass #{self.class}"
+    end
+
+    # Returns whether or not @claim_context.assessed_data contains sufficient evidence
+    def sufficient_evidence?
+      raise "Method `sufficient_evidence?` should be overridden by the subclass #{self.class}"
+    end
+
+    # Drop-in replacement for `assess_data` using new VRO service
+    def assess_data_with_vro
+      response = vro_client.assess_claim(veteran_icn: claim_context.user_icn)
+      claim_context.assessed_data = response.dig('body', 'evidence').transform_keys(&:to_sym)
+      claim_context.sufficient_evidence = sufficient_evidence?
     end
 
     # @claim_context.assessed_data has results from assess_data
     def generate_pdf
       # This should call a general PDF generator so that subclasses don't need to override this
       raise "Method `generate_pdf` should be overriden by the subclass #{self.class}"
+    end
+
+    # Drop-in replacement for `generate_pdf.render` using new VRO service
+    def generate_pdf_body_with_vro
+      vro_client.generate_summary(veteran_info: claim_context.patient_info, evidence: claim_context.assessed_data)
+      vro_client.download_summary.body
     end
 
     # Override this method to prevent the submission from getting the PDF and special issue
@@ -48,7 +69,7 @@ module RapidReadyForDecision
 
     def upload_pdf(pdf)
       RapidReadyForDecision::FastTrackPdfUploadManager.new(@claim_context)
-                                                      .handle_attachment(pdf.render, add_to_submission: release_pdf?)
+                                                      .handle_attachment(pdf, add_to_submission: release_pdf?)
     end
 
     def set_special_issue
@@ -67,6 +88,13 @@ module RapidReadyForDecision
 
     def lighthouse_client
       @lighthouse_client ||= Lighthouse::VeteransHealth::Client.new(@claim_context.user_icn)
+    end
+
+    def vro_client
+      @vro_client ||= VirtualRegionalOffice::Client.new(
+        diagnostic_code: @claim_context.disability_struct[:code],
+        claim_submission_id: form526_submission.id
+      )
     end
   end
 end

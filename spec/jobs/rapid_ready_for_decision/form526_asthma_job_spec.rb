@@ -8,6 +8,8 @@ RSpec.describe RapidReadyForDecision::Form526AsthmaJob, type: :worker do
     VCR.use_cassette('evss/claims/claims_without_open_compensation_claims', &example)
   end
 
+  before { Flipper.disable(:rrd_call_vro_service) }
+
   let(:submission) { create(:form526_submission, :asthma_claim_for_increase) }
 
   describe '#perform' do

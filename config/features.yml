@@ -534,6 +534,10 @@ features:
     actor_type: user
     description: Notifies MAS service that a MAS-relevant claim has come through
     enable_in_development: true
+  rrd_call_vro_service:
+    actor_type: user
+    description: Enables the RRD flow to call VRO for assessing health data and generating RRD PDF
+    enable_in_development: true
   rrd_new_pact_related_disability:
     actor_type: user
     description: Sends notification to Slack channel if a new claim includes a PACT-related disability that RRD handles

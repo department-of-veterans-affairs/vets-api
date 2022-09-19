@@ -6,27 +6,25 @@ require 'virtual_regional_office/client'
 RSpec.describe VirtualRegionalOffice::Client do
   before(:all) do
     @client = VirtualRegionalOffice::Client.new({
-                                                  veteran_icn: '9000682',
                                                   diagnostic_code: '7101',
                                                   claim_submission_id: '1234'
                                                 })
   end
 
   context 'initialization' do
-    describe 'when the caller passes a valid icn' do
-      it 'initializes the client with the icn set' do
-        expect(@client.instance_variable_get(:@veteran_icn)).to eq '9000682'
+    describe 'when the caller passes a valid diagnostic code' do
+      it 'initializes the client with the diagnostic code set' do
+        expect(@client.instance_variable_get(:@diagnostic_code)).to eq '7101'
       end
     end
 
-    describe 'when the caller passes no icn' do
+    describe 'when the caller passes no diagnostic code' do
       it 'raises an ArgumentError to the caller' do
         expect do
           VirtualRegionalOffice::Client.new({
-                                              diagnostic_code: '7101',
                                               claim_submission_id: '1234'
                                             })
-        end.to raise_error(ArgumentError, 'no veteran_icn passed in for request.')
+        end.to raise_error(ArgumentError, 'no diagnostic_code passed in for request.')
       end
     end
 
@@ -34,16 +32,17 @@ RSpec.describe VirtualRegionalOffice::Client do
       it 'raises an ArgumentError to the caller' do
         expect do
           VirtualRegionalOffice::Client.new({
-                                              veteran_icn: '',
-                                              diagnostic_code: '7101',
+                                              diagnostic_code: '',
                                               claim_submission_id: '1234'
                                             })
-        end.to raise_error(ArgumentError, 'no veteran_icn passed in for request.')
+        end.to raise_error(ArgumentError, 'no diagnostic_code passed in for request.')
       end
     end
   end
 
   describe 'making requests' do
+    subject { @client.assess_claim(veteran_icn: '9000682') }
+
     context 'valid requests' do
       describe 'when requesting health-data-assessment' do
         let(:generic_response) do
@@ -55,7 +54,7 @@ RSpec.describe VirtualRegionalOffice::Client do
         end
 
         it 'returns the api response' do
-          expect(@client.assess_claim).to eq generic_response
+          expect(subject).to eq generic_response
         end
       end
     end
@@ -70,7 +69,7 @@ RSpec.describe VirtualRegionalOffice::Client do
       end
 
       it 'handles an error' do
-        expect(@client.assess_claim).to eq error_state
+        expect(subject).to eq error_state
       end
     end
   end

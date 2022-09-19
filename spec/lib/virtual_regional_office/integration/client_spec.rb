@@ -9,10 +9,9 @@ RSpec.describe VirtualRegionalOffice::Client, :vcr do
     context 'with a sleep apnea request' do
       subject(:client) do
         described_class.new({
-                              veteran_icn: '9000682',
                               diagnostic_code: '7101',
                               claim_submission_id: '1234'
-                            }).assess_claim
+                            }).assess_claim(veteran_icn: '9000682')
       end
 
       it 'returns an assessment' do
