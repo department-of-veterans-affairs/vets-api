@@ -15,8 +15,8 @@ module AppealsApi
       return unless enabled? && notice_of_disagreement_ids.present?
 
       Sidekiq::Batch.new.jobs do
-        notice_of_disagreement_ids.each_slice(BATCH_SIZE) do |ids|
-          NoticeOfDisagreementUploadStatusUpdater.perform_async(ids)
+        notice_of_disagreement_ids.each_slice(BATCH_SIZE).with_index do |ids, i|
+          NoticeOfDisagreementUploadStatusUpdater.perform_in((i + 5).seconds, ids)
         end
       end
     end

@@ -6,6 +6,9 @@ module AppealsApi
   class StatusUpdatedJob
     include Sidekiq::Worker
 
+    # Retry for 24 hours
+    sidekiq_options retry: 14, unique_for: 1.day
+
     # @param [Hash] opts
     # @option opts [String] :status_event The callback indicating which appeal type's status was upated. Required.
     # @option opts [Hash] :from The appeal's original status. Required

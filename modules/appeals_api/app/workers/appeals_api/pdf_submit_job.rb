@@ -24,7 +24,7 @@ module AppealsApi
     }.freeze
 
     # Retry for ~7 days
-    sidekiq_options retry: 20
+    sidekiq_options retry: 20, unique_for: 7.days
 
     def perform(appeal_id, appeal_class_str, pdf_version = 'v1')
       appeal_class = Object.const_get(appeal_class_str)
