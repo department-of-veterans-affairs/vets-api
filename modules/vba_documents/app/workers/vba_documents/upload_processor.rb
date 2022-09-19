@@ -14,7 +14,9 @@ module VBADocuments
     include Sidekiq::Worker
     include VBADocuments::UploadValidations
 
-    sidekiq_options unique_until: :success
+    # Ensure that multiple jobs for the same GUID aren't spawned,
+    # to avoid race condition when parsing the multipart file
+    sidekiq_options unique_for: 30.days
 
     def perform(guid, caller_data, retries = 0)
       # @retries variable used via the CentralMail::Utilities which is included via VBADocuments::UploadValidations

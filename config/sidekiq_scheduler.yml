@@ -264,17 +264,17 @@ VBADocuments::ReportMonthlySubmissions:
 VBADocuments::ReportUnsuccessfulSubmissions:
   cron: "0 0 * * MON-FRI America/New_York"
   class: VBADocuments::ReportUnsuccessfulSubmissions
-  description: "Weekly report of unsuccessful benefits intake submissions"
+  description: "Daily report of unsuccessful benefits intake submissions"
+
+VBADocuments::SlackNotifier:
+  cron: "0 0 * * * * America/New_York"
+  class: VBADocuments::SlackNotifier
+  description: "Notifies slack channel if certain benefits states get stuck"
 
 VBADocuments::RunUnsuccessfulSubmissions:
   cron: "5 */2 * * * America/New_York" # Every 2 hours, 5 minutes after the hour
   class: VBADocuments::RunUnsuccessfulSubmissions
   description: "Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status"
-
-VBADocuments::SlackNotifier:
-  cron: "0 0 * * * * America/New_York"
-  class: VBADocuments::SlackNotifier
-  description: "Notifies slack channel if certain benefits states get stuck at the top of every hour"
 
 VBADocuments::UploadRemover:
   cron: "15,45 * * * * * America/New_York"

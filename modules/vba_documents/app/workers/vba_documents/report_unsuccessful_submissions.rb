@@ -7,6 +7,9 @@ module VBADocuments
     include Sidekiq::Worker
     include VBADocuments
 
+    # Only retry for ~3 hours since the job is run daily (weekdays only)
+    sidekiq_options retry: 9, unique_for: 1.day
+
     APPEALS_CONSUMER_NAME = 'appeals_api_nod_evidence_submission'
 
     def perform

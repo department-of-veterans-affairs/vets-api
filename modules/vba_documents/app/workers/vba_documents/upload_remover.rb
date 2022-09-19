@@ -7,6 +7,9 @@ module VBADocuments
   class UploadRemover
     include Sidekiq::Worker
 
+    # No need to retry since the job is run every 30 seconds
+    sidekiq_options retry: false, unique_for: 30.seconds
+
     EXPIRATION_TIME = 10.days
 
     REMOVAL_QUERY = <<-SQL.squish

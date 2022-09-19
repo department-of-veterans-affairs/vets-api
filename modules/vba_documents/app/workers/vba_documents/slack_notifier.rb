@@ -7,6 +7,9 @@ module VBADocuments
     include Sidekiq::Worker
     include ActionView::Helpers::DateHelper
 
+    # Only retry for ~30 minutes since the job is run every hour
+    sidekiq_options retry: 5, unique_for: 1.hour
+
     AGED_PROCESSING_QUERY_LIMIT = 10
     INVALID_PARTS_QUERY_LIMIT = 10
 
