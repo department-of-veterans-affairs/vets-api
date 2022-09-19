@@ -25,6 +25,7 @@ module Mobile
         )
 
         appointments = fetch_appointments(validated_params)
+        appointments = filter_by_date_range(appointments, validated_params)
         page_appointments, page_meta_data = paginate(appointments, validated_params)
 
         render json: Mobile::V0::AppointmentSerializer.new(page_appointments, page_meta_data)
@@ -94,12 +95,15 @@ module Mobile
         appointments
       end
 
-      def paginate(appointments, validated_params)
-        appointments = appointments.filter do |appointment|
+      def filter_by_date_range(appointments, validated_params)
+        appointments.filter do |appointment|
           appointment.start_date_utc.between?(
             validated_params[:start_date].beginning_of_day, validated_params[:end_date].end_of_day
           )
         end
+      end
+
+      def paginate(appointments, validated_params)
         url = request.base_url + request.path
         Mobile::PaginationHelper.paginate(list: appointments, validated_params: validated_params, url: url)
       end

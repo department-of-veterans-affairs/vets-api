@@ -32,7 +32,7 @@ RSpec.describe 'appointments', type: :request do
 
     describe 'start and end date' do
       let(:beginning_of_last_year) { (DateTime.now.utc.beginning_of_year - 1.year) }
-      let(:one_year_from_now) { (DateTime.now.utc.beginning_of_day + 1.year) }
+      let(:one_year_from_now) { (DateTime.now.utc.end_of_day + 1.year) }
 
       context 'when omitted from query params' do
         let(:params) { { page: { number: 1, size: 10 }, useCache: false } }
