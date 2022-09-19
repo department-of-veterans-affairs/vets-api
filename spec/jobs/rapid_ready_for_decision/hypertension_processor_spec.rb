@@ -10,6 +10,8 @@ RSpec.describe RapidReadyForDecision::HypertensionProcessor do
     end
   end
 
+  before { Flipper.disable(:rrd_call_vro_service) }
+
   let(:submission) do
     create(:form526_submission, :hypertension_claim_for_increase)
   end

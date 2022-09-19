@@ -7,7 +7,11 @@ module RapidReadyForDecision
     def assess_data
       med_requests = lighthouse_client.list_medication_requests
       claim_context.assessed_data = assess_asthma(med_requests)
-      claim_context.sufficient_evidence = claim_context.assessed_data[:medications].present?
+      claim_context.sufficient_evidence = sufficient_evidence?
+    end
+
+    def sufficient_evidence?
+      claim_context.assessed_data[:medications].present?
     end
 
     private

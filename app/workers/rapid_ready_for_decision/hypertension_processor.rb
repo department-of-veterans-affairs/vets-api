@@ -7,13 +7,17 @@ module RapidReadyForDecision
     def assess_data
       bp_observations = lighthouse_client.list_bp_observations
       claim_context.assessed_data = assess_hypertension(bp_observations)
-      claim_context.sufficient_evidence = claim_context.assessed_data[:bp_readings].present?
+      claim_context.sufficient_evidence = sufficient_evidence?
 
       return unless claim_context.sufficient_evidence
 
       # Add active medications to show in PDF
       med_requests = lighthouse_client.list_medication_requests
       claim_context.assessed_data[:medications] = filter_medications(med_requests)
+    end
+
+    def sufficient_evidence?
+      claim_context.assessed_data[:bp_readings].present?
     end
 
     private
