@@ -188,6 +188,12 @@ RSpec.describe SignIn::CredentialLevelCreator do
 
     context 'and type is dslogon' do
       let(:type) { SAML::User::DSLOGON_CSID }
+      let(:expected_rails_log) { "[CredentialLevelCreator] DSLogon level of assurance #{dslogon_assurance}" }
+
+      it 'logs the dslogon assurance from the user info' do
+        expect(Rails.logger).to receive(:info).with(expected_rails_log)
+        subject
+      end
 
       context 'and dslogon assurance is set to dslogon assurance two' do
         let(:dslogon_assurance) { LOA::DSLOGON_ASSURANCE_TWO }
