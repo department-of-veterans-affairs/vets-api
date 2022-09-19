@@ -56,7 +56,7 @@ module DocHelpers
     end
   end
 
-  def self.wip_doc_enabled?(sym)
+  def self.wip_doc_enabled?(sym, require_env_slug = false) # rubocop:disable Style/OptionalBooleanParameter
     # Only block doc generation if we still flag it as a WIP
     return true unless Settings.modules_appeals_api.documentation.wip_docs&.include?(sym.to_s)
 
@@ -65,7 +65,11 @@ module DocHelpers
     enabled_docs = ENV['WIP_DOCS_ENABLED'].split(',').map(&:to_sym)
     return false if enabled_docs.blank?
 
-    enabled_docs.include?(sym)
+    if require_env_slug
+      enabled_docs.include?(sym) && ENV.key?('RSWAG_SECTION_SLUG')
+    else
+      enabled_docs.include?(sym)
+    end
   end
 
   def wip_doc_enabled?(sym)
@@ -91,6 +95,14 @@ module DocHelpers
     legacy_appeals: 'Legacy Appeals'
   }.freeze
 
+  DOC_SECTION_PATHS = {
+    hlr: '/services/appeals/higher_level_reviews/{version}',
+    nod: '/services/appeals/notice_of_disagreements/{version}',
+    sc: '/services/appeals/supplemental_claims/{version}',
+    contestable_issues: '/services/appeals/contestable_issues/{version}',
+    legacy_appeals: '/services/appeals/legacy_appeals/{version}'
+  }.freeze
+
   def self.doc_title
     DOC_SECTION_TITLES[ENV.fetch('RSWAG_SECTION_SLUG', '').to_sym] || 'Decision Reviews'
   end
@@ -101,5 +113,13 @@ module DocHelpers
     else
       DOC_SECTION_TITLES.values.collect { |title| { name: title, description: '' } }
     end
+  end
+
+  def self.doc_basepath(version = nil)
+    path_template = DOC_SECTION_PATHS.fetch(ENV['RSWAG_SECTION_SLUG']&.to_sym,
+                                            '/services/appeals/{version}/decision_reviews')
+    return path_template if version.nil?
+
+    path_template.gsub('{version}', version)
   end
 end

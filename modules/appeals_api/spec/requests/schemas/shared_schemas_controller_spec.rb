@@ -45,9 +45,10 @@ describe AppealsApi::Schemas::SharedSchemasController, type: :request do
 
     context 'when unacceptable schema type provided' do
       appeal_types = %w[notice_of_disagreements higher_level_reviews supplemental_claims]
+      appeal_forms = %w[10182 200996 200995]
 
-      appeal_types.each do |appeal_type|
-        it 'raises an error' do
+      appeal_types.each.with_index do |appeal_type, i|
+        it 'raises an error with form number in meta' do
           get base_path appeal_type, :bananas
 
           error = JSON.parse(response.body)
@@ -56,6 +57,7 @@ describe AppealsApi::Schemas::SharedSchemasController, type: :request do
           expect(error['detail']).to include 'request parameter is invalid'
           expect(error['source']['parameter']).to include 'bananas'
           expect(error['meta']).to be_a Array
+          expect(error['meta']).to include appeal_forms[i]
         end
       end
     end
