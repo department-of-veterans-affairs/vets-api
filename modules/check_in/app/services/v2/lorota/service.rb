@@ -17,7 +17,17 @@ module V2
     #   @return [RedisClient]
     class Service
       extend Forwardable
-      attr_reader :check_in, :chip_service, :lorota_client, :redis_client
+
+      LOROTA_401_ERROR_MESSAGES = ['lastname does not match with current record',
+                                   'ssn4 does not match with current record',
+                                   'dob does not match with current record',
+                                   'lastname or dob does not match with current record'].freeze
+
+      LOROTA_UUID_NOT_FOUND = 'uuid not found'
+
+      attr_reader :check_in, :chip_service, :lorota_client, :redis_client, :settings
+
+      def_delegator :settings, :max_auth_retry_limit
 
       ##
       # Builds a Service instance
@@ -32,6 +42,7 @@ module V2
       end
 
       def initialize(opts)
+        @settings = Settings.check_in.authentication
         @check_in = opts[:check_in]
         @chip_service = V2::Chip::Service.build(check_in: check_in)
         @lorota_client = Client.build(check_in: check_in)
@@ -55,6 +66,12 @@ module V2
           permission_data: { permissions: 'read.full', uuid: check_in.uuid, status: 'success' },
           jwt: jwt_token
         }
+      rescue Common::Exceptions::BackendServiceException => e
+        if e.original_status == 401 && Flipper.enabled?('check_in_experience_lorota_deletion_enabled')
+          error_message_handler(e)
+        else
+          raise e
+        end
       end
 
       # Get the check-in data from LoROTA. To get the data, the token (which is required for LoROTA auth)
@@ -89,6 +106,26 @@ module V2
           "check_in_lorota_v2_appointment_identifiers_#{check_in.uuid}",
           namespace: 'check-in-lorota-v2-cache'
         )
+      end
+
+      private
+
+      def error_message_handler(e)
+        case Oj.load(e.original_body).fetch('error').strip.downcase
+        when *LOROTA_401_ERROR_MESSAGES
+          retry_attempt_count = redis_client.retry_attempt_count(uuid: check_in.uuid) || 0
+          if retry_attempt_count < max_auth_retry_limit
+            redis_client.save_retry_attempt_count(uuid: check_in.uuid, retry_count: retry_attempt_count + 1)
+            raise e
+            # else
+            # call delete endpoint
+            # throw 410 exception
+          end
+        when LOROTA_UUID_NOT_FOUND
+          # raise 404 custom exception
+        else
+          raise e
+        end
       end
     end
   end
