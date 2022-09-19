@@ -33,6 +33,7 @@ module SignIn
       when SAML::User::MHV_ORIGINAL_CSID
         verified_ial_level(LOA::MHV_PREMIUM_VERIFIED.include?(user_info.mhv_assurance))
       when SAML::User::DSLOGON_CSID
+        Rails.logger.info("[CredentialLevelCreator] DSLogon level of assurance #{user_info.dslogon_assurance}")
         verified_ial_level(LOA::DSLOGON_PREMIUM_VERIFIED.include?(user_info.dslogon_assurance))
       else
         verified_ial_level(user_info.level_of_assurance == LOA::THREE)
