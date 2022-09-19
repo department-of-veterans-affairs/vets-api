@@ -19,6 +19,7 @@ describe V2::Lorota::RedisClient do
   let(:redis_client) { subject.build }
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
   let(:redis_expiry_time) { 12.hours }
+  let(:retry_attempt_expiry) { 7.days }
 
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
@@ -27,8 +28,8 @@ describe V2::Lorota::RedisClient do
   end
 
   describe 'attributes' do
-    it 'responds to settings' do
-      expect(redis_client.respond_to?(:settings)).to be(true)
+    it 'responds to lorota_v2_settings' do
+      expect(redis_client.respond_to?(:lorota_v2_settings)).to be(true)
     end
 
     it 'gets redis_session_prefix from settings' do
@@ -37,6 +38,14 @@ describe V2::Lorota::RedisClient do
 
     it 'gets redis_token_expiry from settings' do
       expect(redis_client.redis_token_expiry).to eq(43_200)
+    end
+
+    it 'responds to authentication_settings' do
+      expect(redis_client.respond_to?(:authentication_settings)).to be(true)
+    end
+
+    it 'gets retry_attempt_expiry from settings' do
+      expect(redis_client.retry_attempt_expiry).to eq(604_800)
     end
   end
 
@@ -102,6 +111,65 @@ describe V2::Lorota::RedisClient do
         namespace: 'check-in-lorota-v2-cache'
       )
       expect(val).to eq(token)
+    end
+  end
+
+  describe '#retry_attempt_count' do
+    let(:uuid) { 'd602d9eb-9a31-484f-9637-13ab0b507e0d' }
+
+    context 'when cache exists' do
+      before do
+        Rails.cache.write(
+          "authentication_retry_limit_#{uuid}",
+          '2',
+          namespace: 'check-in-lorota-v2-cache',
+          expires_in: retry_attempt_expiry
+        )
+      end
+
+      it 'returns the cached value' do
+        expect(redis_client.retry_attempt_count(uuid: uuid)).to eq('2')
+      end
+    end
+
+    context 'when cache expires' do
+      let(:uuid) { Faker::Internet.uuid }
+
+      before do
+        Rails.cache.write(
+          "authentication_retry_limit_#{uuid}",
+          '2',
+          namespace: 'check-in-lorota-v2-cache',
+          expires_in: retry_attempt_expiry
+        )
+      end
+
+      it 'returns nil' do
+        Timecop.travel(retry_attempt_expiry.from_now) do
+          expect(redis_client.retry_attempt_count(uuid: uuid)).to eq(nil)
+        end
+      end
+    end
+
+    context 'when cache does not exist' do
+      it 'returns nil' do
+        expect(redis_client.retry_attempt_count(uuid: uuid)).to eq(nil)
+      end
+    end
+  end
+
+  describe '#save_retry_attempt_count' do
+    let(:uuid) { 'd602d9eb-9a31-484f-9637-13ab0b507e0d' }
+    let(:retry_count) { 3 }
+
+    it 'saves the value in cache' do
+      expect(redis_client.save_retry_attempt_count(uuid: uuid, retry_count: retry_count)).to eq(true)
+
+      val = Rails.cache.read(
+        "authentication_retry_limit_#{uuid}",
+        namespace: 'check-in-lorota-v2-cache'
+      )
+      expect(val).to eq(retry_count)
     end
   end
 end
