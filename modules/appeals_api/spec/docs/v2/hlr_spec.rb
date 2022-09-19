@@ -11,7 +11,8 @@ describe 'Higher-Level Reviews', swagger_doc: "modules/appeals_api/app/swagger/a
   include DocHelpers
   let(:apikey) { 'apikey' }
 
-  path '/higher_level_reviews' do
+  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/forms/200996' : '/higher_level_reviews'
+  path p do
     post 'Creates a new Higher-Level Review' do
       description 'Submits an appeal of type Higher Level Review. ' \
                   'This endpoint is the same as submitting [VA Form 20-0996](https://www.va.gov/decision-reviews/higher-level-review/request-higher-level-review-form-20-0996)' \
@@ -152,7 +153,8 @@ describe 'Higher-Level Reviews', swagger_doc: "modules/appeals_api/app/swagger/a
     end
   end
 
-  path '/higher_level_reviews/{uuid}' do
+  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/forms/200996/{uuid}' : '/higher_level_reviews/{uuid}'
+  path p do
     get 'Shows a specific Higher-Level Review. (a.k.a. the Show endpoint)' do
       description 'Returns all of the data associated with a specific Higher-Level Review.'
       tags 'Higher-Level Reviews'
@@ -210,166 +212,194 @@ describe 'Higher-Level Reviews', swagger_doc: "modules/appeals_api/app/swagger/a
     end
   end
 
-  path '/higher_level_reviews/contestable_issues/{benefit_type}' do
-    get 'Returns all contestable issues for a specific veteran.' do
-      tags 'Higher-Level Reviews'
-      operationId 'hlrContestableIssues'
-      description = 'Returns all issues associated with a Veteran that have been decided by a ' \
-                    'Higher-Level Review as of the receiptDate and bound by benefitType. Not all issues returned are guaranteed '\
-                    'to be eligible for appeal. Associate these results when creating a new Higher-Level Review.'
-      description description
-      security [
-        { apikey: [] }
-      ]
-      produces 'application/json'
+  unless DocHelpers.wip_doc_enabled?(:segmented_apis, true)
+    path '/higher_level_reviews/contestable_issues/{benefit_type}' do
+      get 'Returns all contestable issues for a specific veteran.' do
+        tags 'Higher-Level Reviews'
+        operationId 'hlrContestableIssues'
+        description = 'Returns all issues associated with a Veteran that have been decided by a ' \
+                      'Higher-Level Review as of the receiptDate and bound by benefitType. Not all issues returned are guaranteed '\
+                      'to be eligible for appeal. Associate these results when creating a new Higher-Level Review.'
+        description description
+        security [
+          { apikey: [] }
+        ]
+        produces 'application/json'
 
-      parameter name: :benefit_type, in: :path, type: :string,
-                description: 'benefit type - Available values: compensation'
+        parameter name: :benefit_type, in: :path, type: :string,
+                  description: 'benefit type - Available values: compensation'
 
-      ssn_override = { required: false, description: 'Either X-VA-SSN or X-VA-File-Number is required' }
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_ssn_header].merge(ssn_override)
-      file_num_override = { description: 'Either X-VA-SSN or X-VA-File-Number is required' }
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header].merge(file_num_override)
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:va_receipt_date]
+        ssn_override = { required: false, description: 'Either X-VA-SSN or X-VA-File-Number is required' }
+        parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_ssn_header].merge(ssn_override)
+        file_num_override = { description: 'Either X-VA-SSN or X-VA-File-Number is required' }
+        parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header].merge(file_num_override)
+        parameter AppealsApi::SwaggerSharedComponents.header_params[:va_receipt_date]
 
-      response '200', 'JSON:API response returning all contestable issues for a specific veteran.' do
-        schema '$ref' => '#/components/schemas/contestableIssues'
+        response '200', 'JSON:API response returning all contestable issues for a specific veteran.' do
+          schema '$ref' => '#/components/schemas/contestableIssues'
 
-        let(:benefit_type) { 'compensation' }
-        let(:'X-VA-SSN') { '872958715' }
-        let(:'X-VA-Receipt-Date') { '2019-12-01' }
+          let(:benefit_type) { 'compensation' }
+          let(:'X-VA-SSN') { '872958715' }
+          let(:'X-VA-Receipt-Date') { '2019-12-01' }
 
-        before do |example|
-          VCR.use_cassette('caseflow/higher_level_reviews/contestable_issues') do
-            submit_request(example.metadata)
+          before do |example|
+            VCR.use_cassette('caseflow/higher_level_reviews/contestable_issues') do
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 200 response' do |example|
+            assert_response_matches_metadata(example.metadata)
           end
         end
 
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
+        response '404', 'Veteran not found' do
+          schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', '404.json')))
+
+          let(:benefit_type) { 'compensation' }
+          let(:'X-VA-SSN') { '000000000' }
+          let(:'X-VA-Receipt-Date') { '2019-12-01' }
+
+          before do |example|
+            VCR.use_cassette('caseflow/higher_level_reviews/not_found') do
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
             }
-          }
-        end
+          end
 
-        it 'returns a 200 response' do |example|
-          assert_response_matches_metadata(example.metadata)
-        end
-      end
-
-      response '404', 'Veteran not found' do
-        schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', '404.json')))
-
-        let(:benefit_type) { 'compensation' }
-        let(:'X-VA-SSN') { '000000000' }
-        let(:'X-VA-Receipt-Date') { '2019-12-01' }
-
-        before do |example|
-          VCR.use_cassette('caseflow/higher_level_reviews/not_found') do
-            submit_request(example.metadata)
+          it 'returns a 404 response' do |example|
+            assert_response_matches_metadata(example.metadata)
           end
         end
 
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
+        response '422', 'Bad receipt date' do
+          schema '$ref' => '#/components/schemas/errorModel'
+
+          let(:benefit_type) { 'compensation' }
+          let(:'X-VA-SSN') { '872958715' }
+          let(:'X-VA-Receipt-Date') { '1900-01-01' }
+
+          before do |example|
+            VCR.use_cassette('caseflow/higher_level_reviews/bad_date') do
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
             }
-          }
-        end
+          end
 
-        it 'returns a 404 response' do |example|
-          assert_response_matches_metadata(example.metadata)
-        end
-      end
-
-      response '422', 'Bad receipt date' do
-        schema '$ref' => '#/components/schemas/errorModel'
-
-        let(:benefit_type) { 'compensation' }
-        let(:'X-VA-SSN') { '872958715' }
-        let(:'X-VA-Receipt-Date') { '1900-01-01' }
-
-        before do |example|
-          VCR.use_cassette('caseflow/higher_level_reviews/bad_date') do
-            submit_request(example.metadata)
+          it 'returns a 422 response' do |example|
+            assert_response_matches_metadata(example.metadata)
           end
         end
 
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
+        response '502', 'Unknown error' do
+          # schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', 'default.json')))
+          # #/errors/0/source is a string 'Appeals Caseflow' instead of an object...
 
-        it 'returns a 422 response' do |example|
-          assert_response_matches_metadata(example.metadata)
-        end
-      end
+          let(:benefit_type) { 'compensation' }
+          let(:'X-VA-SSN') { '872958715' }
+          let(:'X-VA-Receipt-Date') { '2019-12-01' }
 
-      response '502', 'Unknown error' do
-        # schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', 'default.json')))
-        # #/errors/0/source is a string 'Appeals Caseflow' instead of an object...
-
-        let(:benefit_type) { 'compensation' }
-        let(:'X-VA-SSN') { '872958715' }
-        let(:'X-VA-Receipt-Date') { '2019-12-01' }
-
-        before do |example|
-          VCR.use_cassette('caseflow/higher_level_reviews/server_error') do
-            submit_request(example.metadata)
+          before do |example|
+            VCR.use_cassette('caseflow/higher_level_reviews/server_error') do
+              submit_request(example.metadata)
+            end
           end
-        end
 
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
             }
-          }
-        end
+          end
 
-        it 'returns a 502 response' do |example|
-          assert_response_matches_metadata(example.metadata)
+          it 'returns a 502 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
         end
       end
     end
   end
 
-  path '/higher_level_reviews/schema' do
-    get 'Gets the Higher-Level Review JSON Schema.' do
-      tags 'Higher-Level Reviews'
-      operationId 'hlrSchema'
-      description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /higher_level_reviews` endpoint.'
-      security [
-        { apikey: [] }
-      ]
-      produces 'application/json'
+  if DocHelpers.wip_doc_enabled?(:segmented_apis, true)
+    path '/schemas/{schema_type}' do
+      get 'Gets JSON schema related to Higher-Level Review.' do
+        tags 'Higher-Level Reviews'
+        description 'Returns the [JSON Schema](https://json-schema.org) related to the POST /forms/200996 endpoint'
+        security [{ apikey: [] }]
+        produces 'application/json'
 
-      response '200', 'the JSON Schema for POST /higher_level_reviews' do
-        before do |example|
-          submit_request(example.metadata)
+        examples = {
+          '200996': { value: '200996' },
+          'address': { value: 'address' },
+          'non_blank_string': { value: 'non_blank_string' },
+          'phone': { value: 'phone' },
+          'timezone': { value: 'timezone' }
+        }
+
+        parameter name: :schema_type,
+                  in: :path,
+                  type: :string,
+                  description: "Schema type. Can be: `#{examples.keys.join('`, `')}`",
+                  required: true,
+                  examples: examples
+
+        examples.each do |_, v|
+          response '200', 'The JSON schema for the given `schema_type` parameter' do
+            let(:schema_type) { v[:value] }
+            it_behaves_like 'rswag example', desc: v[:value], extract_desc: true
+          end
         end
 
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
+        response '404', '`schema_type` not found' do
+          schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', '404.json')))
+          let(:schema_type) { 'invalid_schema_type' }
+          it_behaves_like 'rswag example', desc: 'schema type not found'
         end
+      end
+    end
+  else
+    path '/higher_level_reviews/schema' do
+      get 'Gets the Higher-Level Review JSON Schema.' do
+        tags 'Higher-Level Reviews'
+        operationId 'hlrSchema'
+        description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /higher_level_reviews` endpoint.'
+        security [
+          { apikey: [] }
+        ]
+        produces 'application/json'
 
-        it 'returns a 200 response' do |example|
-          assert_response_matches_metadata(example.metadata)
+        response '200', 'the JSON Schema for POST /higher_level_reviews' do
+          it_behaves_like 'rswag example', desc: 'returns a 200 response'
         end
       end
     end
   end
 
-  path '/higher_level_reviews/validate' do
+  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/forms/200996/validate' : '/higher_level_reviews/validate'
+  path p do
     post 'Validates a POST request body against the JSON schema.' do
       tags 'Higher-Level Reviews'
       operationId 'hlrValidate'

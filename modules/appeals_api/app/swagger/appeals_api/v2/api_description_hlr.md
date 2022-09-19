@@ -33,7 +33,7 @@ To check the status of an appeal as it will appear to a claimant, use the [Appea
 Test submissions do not progress through the same statuses as the production environment. In sandbox and staging, the final status of a submission is `submitted`; however, we allow passing a `Status-Simulation` header on the show endpoints so that you can simulate all production statuses.
 
 #### Status Caching
-Due to system limitations, status attribute data for the GET `/higher_level_reviews/{uuid}` endpoint is cached for 1 hour. The updated_at field indicates the last time the status for a given GUID was updated.
+Due to system limitations, status attribute data for the GET `/forms/200996/{uuid}` endpoint is cached for 1 hour. The updated_at field indicates the last time the status for a given GUID was updated.
 
 ### [Terms of service](https://developer.va.gov/terms-of-service)
 

@@ -18,7 +18,7 @@ class AppealsApi::RswagConfig
         },
         tags: DocHelpers.doc_tags,
         paths: {},
-        basePath: '/services/appeals/v2/decision_reviews',
+        basePath: DocHelpers.doc_basepath('v2'),
         components: {
           securitySchemes: {
             apikey: {
@@ -31,7 +31,7 @@ class AppealsApi::RswagConfig
         },
         servers: [
           {
-            url: 'https://sandbox-api.va.gov/services/appeals/{version}/decision_reviews',
+            url: "https://sandbox-api.va.gov#{DocHelpers.doc_basepath}",
             description: 'VA.gov API sandbox environment',
             variables: {
               version: {
@@ -40,7 +40,7 @@ class AppealsApi::RswagConfig
             }
           },
           {
-            url: 'https://api.va.gov/services/appeals/{version}/decision_reviews',
+            url: "https://api.va.gov#{DocHelpers.doc_basepath}",
             description: 'VA.gov API production environment',
             variables: {
               version: {
@@ -58,22 +58,37 @@ class AppealsApi::RswagConfig
   def schemas
     a = []
     a << generic_schemas('#/components/schemas')
-    a << hlr_v2_create_schemas
-    a << hlr_v2_response_schemas('#/components/schemas')
-    a << contestable_issues_schema('#/components/schemas')
-    a << nod_v2_create_schemas
-    a << nod_v2_response_schemas('#/components/schemas')
-    a << sc_create_schemas
-    a << sc_response_schemas('#/components/schemas')
-    a << legacy_appeals_schema('#/components/schemas')
-    # TODO: Uncomment when all schemas use shared schema refs.
-    # a << shared_schemas if DocHelpers.wip_doc_enabled?(:shared_schemas)
+    case ENV['RSWAG_SECTION_SLUG']
+    when 'hlr'
+      a << hlr_v2_create_schemas
+      a << hlr_v2_response_schemas('#/components/schemas')
+      a << shared_schemas
+    when 'nod'
+      a << nod_v2_create_schemas
+      a << nod_v2_response_schemas('#/components/schemas')
+      a << shared_schemas
+    when 'sc'
+      a << sc_create_schemas
+      a << sc_response_schemas('#/components/schemas')
+      a << shared_schemas
+    else
+      a << hlr_v2_create_schemas
+      a << hlr_v2_response_schemas('#/components/schemas')
+      a << contestable_issues_schema('#/components/schemas')
+      a << nod_v2_create_schemas
+      a << nod_v2_response_schemas('#/components/schemas')
+      a << sc_create_schemas
+      a << sc_response_schemas('#/components/schemas')
+      a << legacy_appeals_schema('#/components/schemas')
+    end
 
     a.reduce(&:merge).sort_by { |k, _| k.to_s.downcase }.to_h
   end
 
   def generic_schemas(ref_root)
-    {
+    nbs_ref = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? "#{ref_root}/non_blank_string" : "#{ref_root}/nonBlankString"
+
+    schemas = {
       'errorModel': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', 'default.json'))),
       'errorWithTitleAndDetail': {
         'type': 'array',
@@ -89,17 +104,12 @@ class AppealsApi::RswagConfig
           }
         }
       },
-      'documentUploadMetadata': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'document_upload_metadata.json'))),
       'X-VA-SSN': {
-        'allOf': [
-          { 'description': 'social security number' },
-          {
-            'type': 'string',
-            'minLength': 0,
-            'maxLength': 9,
-            'pattern': '^[0-9]{9}$'
-          }
-        ]
+        'description': 'social security number',
+        'type': 'string',
+        'minLength': 9,
+        'maxLength': 9,
+        'pattern': '^[0-9]{9}$'
       },
       'X-VA-First-Name': {
         'allOf': [
@@ -110,69 +120,67 @@ class AppealsApi::RswagConfig
       'X-VA-Middle-Initial': {
         'allOf': [
           { 'description': 'middle initial' },
-          { '$ref': "#{ref_root}/nonBlankString" }
+          { '$ref': nbs_ref }
         ]
       },
       'X-VA-Last-Name': {
         'allOf': [
           { 'description': 'last name' },
-          { '$ref': "#{ref_root}/nonBlankString" }
+          { '$ref': nbs_ref }
         ]
       },
       'X-VA-Birth-Date': {
         'description': "Veteran's birth date",
-        'type': 'string', 'format': 'date'
+        'type': 'string',
+        'format': 'date'
       },
       'X-VA-Claimant-First-Name': {
         'allOf': [
           { 'description': 'first name' },
-          { 'type': 'string' }
+          { '$ref': nbs_ref }
         ]
       },
       'X-VA-Claimant-Middle-Initial': {
         'allOf': [
           { 'description': 'middle initial' },
-          { '$ref': "#{ref_root}/nonBlankString" }
+          { '$ref': nbs_ref }
         ]
       },
       'X-VA-Claimant-Last-Name': {
         'allOf': [
           { 'description': 'last name' },
-          { '$ref': "#{ref_root}/nonBlankString" }
+          { '$ref': nbs_ref }
         ]
       },
       'X-VA-Claimant-Birth-Date': {
         'description': "Claimant's birth date",
-        'type': 'string', 'format': 'date'
+        'type': 'string',
+        'format': 'date'
       },
       'X-VA-Claimant-SSN': {
-        'allOf': [
-          { 'description': 'social security number' },
-          {
-            'type': 'string',
-            'minLength': 0,
-            'maxLength': 9,
-            'pattern': '^[0-9]{9}$'
-          }
-        ]
+        'description': 'social security number',
+        'type': 'string',
+        'minLength': 9,
+        'maxLength': 9,
+        'pattern': '^[0-9]{9}$'
       },
       'X-VA-File-Number': {
         'allOf': [
           { 'description': 'VA file number (c-file / css)' },
           { 'maxLength': 9 },
-          { '$ref': "#{ref_root}/nonBlankString" }
+          { '$ref': nbs_ref }
         ]
       },
       'X-Consumer-Username': {
         'allOf': [
           { 'description': 'Consumer Username (passed from Kong)' },
-          { '$ref': "#{ref_root}/nonBlankString" }
+          { '$ref': nbs_ref }
         ]
       },
       'X-Consumer-ID': {
         'allOf': [
           { 'description': 'Consumer GUID' },
-          { '$ref': "#{ref_root}/nonBlankString" }
+          { '$ref': nbs_ref }
         ]
       },
       'uuid': {
@@ -184,6 +192,12 @@ class AppealsApi::RswagConfig
         'pattern': '\\d{4}(-\\d{2}){2}T\\d{2}(:\\d{2}){2}\\.\\d{3}Z'
       }
     }
+
+    return schemas if ENV['RSWAG_SECTION_SLUG'].in?(%w[hlr])
+
+    # Add in extra schemas for non-HLR api docs
+    schemas['documentUploadMetadata'] = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'document_upload_metadata.json')))
+    schemas
   end
 
   def contestable_issues_schema(ref_root)
@@ -204,11 +218,12 @@ class AppealsApi::RswagConfig
   end
 
   def hlr_v2_create_schemas
-    parse_create_schema('v2', '200996.json')
+    file = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '200996_with_shared_refs.json' : '200996.json'
+    parse_create_schema('v2', file)
   end
 
   def hlr_v2_response_schemas(ref_root)
-    {
+    schemas = {
       'hlrShow': {
         'type': 'object',
         'properties': {
@@ -229,13 +244,16 @@ class AppealsApi::RswagConfig
                     'enum': AppealsApi::HlrStatus::V2_STATUSES
                   },
                   'updatedAt': {
-                    '$ref': "#{ref_root}/timeStamp"
+                    'description': 'The last time the submission was updated',
+                    'type': 'string',
+                    'format': 'date-time',
+                    'example': '2018-07-30T17:31:15.958Z'
                   },
                   'createdAt': {
-                    '$ref': "#{ref_root}/timeStamp"
-                  },
-                  'formData': {
-                    '$ref': "#{ref_root}/hlrCreate"
+                    'description': 'The last time the submission was updated',
+                    'type': 'string',
+                    'format': 'date-time',
+                    'example': '2018-07-30T17:31:15.958Z'
                   }
                 }
               }
@@ -244,136 +262,140 @@ class AppealsApi::RswagConfig
           }
         },
         'required': ['data']
-      },
-      'hlrContestableIssuesShow': {
-        'type': 'object',
-        'properties': {
-          'data': {
-            'type': 'array',
-            'items': {
-              'type': 'object',
-              'description': 'A contestable issue (to contest this, you include it as a RequestIssue when creating a HigherLevelReview, SupplementalClaim, or Appeal)',
-              'properties': {
-                'type': {
-                  'type': 'string',
-                  'enum': [
-                    'contestableIssue'
-                  ]
-                },
-                'id': {
-                  'type': 'string',
-                  'nullable': true
-                },
-                'attributes': {
-                  'type': 'object',
-                  'properties': {
-                    'ratingIssueReferenceId': {
-                      'type': 'string',
-                      'nullable': true,
-                      'description': 'RatingIssue ID',
-                      'example': '2385'
-                    },
-                    'ratingIssueProfileDate': {
-                      'type': 'string',
-                      'nullable': true,
-                      'format': 'date',
-                      'description': '(yyyy-mm-dd) RatingIssue profile date',
-                      'example': '2006-05-31'
-                    },
-                    'ratingIssueDiagnosticCode': {
-                      'type': 'string',
-                      'nullable': true,
-                      'description': 'RatingIssue diagnostic code',
-                      'example': '5005'
-                    },
-                    'ratingDecisionReferenceId': {
-                      'type': 'string',
-                      'nullable': true,
-                      'description': 'The BGS ID for the contested rating decision. This may be populated while ratingIssueReferenceId is nil',
-                      'example': 'null'
-                    },
-                    'decisionIssueId': {
-                      'type': 'integer',
-                      'nullable': true,
-                      'description': 'DecisionIssue ID',
-                      'example': 'null'
-                    },
-                    'approxDecisionDate': {
-                      'type': 'string',
-                      'nullable': true,
-                      'format': 'date',
-                      'description': '(yyyy-mm-dd) Approximate decision date',
-                      'example': '2006-11-27'
-                    },
-                    'description': {
-                      'type': 'string',
-                      'nullable': true,
-                      'description': 'Description',
-                      'example': 'Service connection for hypertension is granted with an evaluation of 10 percent effective July 24, 2005.'
-                    },
-                    'rampClaimId': {
-                      'type': 'string',
-                      'nullable': true,
-                      'description': 'RampClaim ID',
-                      'example': 'null'
-                    },
-                    'titleOfActiveReview': {
-                      'type': 'string',
-                      'nullable': true,
-                      'description': 'Title of DecisionReview that this issue is still active on',
-                      'example': 'null'
-                    },
-                    'sourceReviewType': {
-                      'type': 'string',
-                      'nullable': true,
-                      'description': 'The type of DecisionReview (HigherLevelReview, SupplementalClaim, Appeal) the issue was last decided on (if any)',
-                      'example': 'null'
-                    },
-                    'timely': {
-                      'type': 'boolean',
-                      'description': 'An issue is timely if the receipt date is within 372 dates of the decision date.',
-                      'example': false
-                    },
-                    'latestIssuesInChain': {
-                      'type': 'array',
-                      'description': 'Shows the chain of decision and rating issues that preceded this issue. Only the most recent issue can be contested (the object itself that contains the latestIssuesInChain attribute).',
-                      'items': {
-                        'type': 'object',
-                        'properties': {
-                          'id': {
-                            'type': %w[
-                              integer
-                              string
-                            ],
-                            'nullable': true,
-                            'example': 'null'
-                          },
-                          'approxDecisionDate': {
-                            'type': 'string',
-                            'nullable': true,
-                            'format': 'date',
-                            'example': '2006-11-27'
-                          }
+      }
+    }
+
+    # ContestableIssuesShow is not part of the segmented HLR api, so skip it when we're generating segmented docs
+    return schemas if DocHelpers.wip_doc_enabled?(:segmented_apis, true)
+
+    schemas['hlrContestableIssuesShow'] = {
+      'type': 'object',
+      'properties': {
+        'data': {
+          'type': 'array',
+          'items': {
+            'type': 'object',
+            'description': 'A contestable issue (to contest this, you include it as a RequestIssue when creating a HigherLevelReview, SupplementalClaim, or Appeal)',
+            'properties': {
+              'type': {
+                'type': 'string',
+                'enum': [
+                  'contestableIssue'
+                ]
+              },
+              'id': {
+                'type': 'string',
+                'nullable': true
+              },
+              'attributes': {
+                'type': 'object',
+                'properties': {
+                  'ratingIssueReferenceId': {
+                    'type': 'string',
+                    'nullable': true,
+                    'description': 'RatingIssue ID',
+                    'example': '2385'
+                  },
+                  'ratingIssueProfileDate': {
+                    'type': 'string',
+                    'nullable': true,
+                    'format': 'date',
+                    'description': '(yyyy-mm-dd) RatingIssue profile date',
+                    'example': '2006-05-31'
+                  },
+                  'ratingIssueDiagnosticCode': {
+                    'type': 'string',
+                    'nullable': true,
+                    'description': 'RatingIssue diagnostic code',
+                    'example': '5005'
+                  },
+                  'ratingDecisionReferenceId': {
+                    'type': 'string',
+                    'nullable': true,
+                    'description': 'The BGS ID for the contested rating decision. This may be populated while ratingIssueReferenceId is nil',
+                    'example': 'null'
+                  },
+                  'decisionIssueId': {
+                    'type': 'integer',
+                    'nullable': true,
+                    'description': 'DecisionIssue ID',
+                    'example': 'null'
+                  },
+                  'approxDecisionDate': {
+                    'type': 'string',
+                    'nullable': true,
+                    'format': 'date',
+                    'description': '(yyyy-mm-dd) Approximate decision date',
+                    'example': '2006-11-27'
+                  },
+                  'description': {
+                    'type': 'string',
+                    'nullable': true,
+                    'description': 'Description',
+                    'example': 'Service connection for hypertension is granted with an evaluation of 10 percent effective July 24, 2005.'
+                  },
+                  'rampClaimId': {
+                    'type': 'string',
+                    'nullable': true,
+                    'description': 'RampClaim ID',
+                    'example': 'null'
+                  },
+                  'titleOfActiveReview': {
+                    'type': 'string',
+                    'nullable': true,
+                    'description': 'Title of DecisionReview that this issue is still active on',
+                    'example': 'null'
+                  },
+                  'sourceReviewType': {
+                    'type': 'string',
+                    'nullable': true,
+                    'description': 'The type of DecisionReview (HigherLevelReview, SupplementalClaim, Appeal) the issue was last decided on (if any)',
+                    'example': 'null'
+                  },
+                  'timely': {
+                    'type': 'boolean',
+                    'description': 'An issue is timely if the receipt date is within 372 dates of the decision date.',
+                    'example': false
+                  },
+                  'latestIssuesInChain': {
+                    'type': 'array',
+                    'description': 'Shows the chain of decision and rating issues that preceded this issue. Only the most recent issue can be contested (the object itself that contains the latestIssuesInChain attribute).',
+                    'items': {
+                      'type': 'object',
+                      'properties': {
+                        'id': {
+                          'type': %w[
+                            integer
+                            string
+                          ],
+                          'nullable': true,
+                          'example': 'null'
+                        },
+                        'approxDecisionDate': {
+                          'type': 'string',
+                          'nullable': true,
+                          'format': 'date',
+                          'example': '2006-11-27'
                         }
                       }
-                    },
-                    'ratingIssueSubjectText': {
-                      'type': 'string',
-                      'nullable': true,
-                      'description': 'Short description of RatingIssue',
-                      'example': 'Hypertension'
-                    },
-                    'ratingIssuePercentNumber': {
-                      'type': 'string',
-                      'nullable': true,
-                      'description': 'Numerical rating for RatingIssue',
-                      'example': '10'
-                    },
-                    'isRating': {
-                      'type': 'boolean',
-                      'description': 'Whether or not this is a RatingIssue',
-                      'example': true
                     }
+                  },
+                  'ratingIssueSubjectText': {
+                    'type': 'string',
+                    'nullable': true,
+                    'description': 'Short description of RatingIssue',
+                    'example': 'Hypertension'
+                  },
+                  'ratingIssuePercentNumber': {
+                    'type': 'string',
+                    'nullable': true,
+                    'description': 'Numerical rating for RatingIssue',
+                    'example': '10'
+                  },
+                  'isRating': {
+                    'type': 'boolean',
+                    'description': 'Whether or not this is a RatingIssue',
+                    'example': true
                   }
                 }
               }
@@ -382,6 +404,7 @@ class AppealsApi::RswagConfig
         }
       }
     }
+    schemas
   end
 
   def nod_v2_create_schemas
