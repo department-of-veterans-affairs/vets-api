@@ -8,7 +8,7 @@
       "description": "Claim ID in VBMS",
       "example": "600131328"
     },
-    "benefitClaimTypeCode": {
+    "claimTypeCode": {
       "type": "string",
       "description": "Type Code of benefit claim",
       "example": "400PREDSCHRG"
@@ -74,6 +74,12 @@
       "description": "End product code of claim",
       "example": "930"
     },
+    "evidenceWaiverSubmitted5103": {
+      "type": "boolean",
+      "nullable": true,
+      "description": "If true, indicates a decision has been requested and/or a Waiver 5103 has been submitted",
+      "example": "false"
+    },
     "errors": {
       "type": "array",
       "description": "Error details if claim is in an errored state.",
@@ -92,7 +98,7 @@
     },
     "jurisdiction": {
       "type": "string",
-      "description": "Jurisdiction of claim"
+      "description": "Current station of jurisdiction"
     },
     "lighthouseId": {
       "type": "string",
@@ -254,12 +260,6 @@
           }
         }
       }
-    },
-    "5103WaiverSubmitted": {
-      "type": "boolean",
-      "nullable": true,
-      "description": "If true, indicates a decision has been requested and/or a Waiver 5103 has been submitted",
-      "example": "false"
     }
   }
 }

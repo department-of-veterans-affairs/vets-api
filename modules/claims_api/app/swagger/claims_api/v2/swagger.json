@@ -404,7 +404,6 @@
               "application/json": {
                 "example": [
                   {
-                    "5103WaiverSubmitted": false,
                     "claimDate": "05/02/17",
                     "claimId": "555555555",
                     "claimPhaseDates": {
@@ -416,6 +415,7 @@
                     "developmentLetterSent": false,
                     "documentsNeeded": false,
                     "endProductCode": "404",
+                    "evidenceWaiverSubmitted5103": false,
                     "lighthouseId": null,
                     "status": "COMPLETE"
                   }
@@ -481,6 +481,12 @@
                         "type": "string",
                         "description": "End product code of claim"
                       },
+                      "evidenceWaiverSubmitted5103": {
+                        "type": "boolean",
+                        "nullable": true,
+                        "description": "If true, indicates a decision has been requested and/or a Waiver 5103 has been submitted",
+                        "example": "false"
+                      },
                       "lighthouseId": {
                         "type": "string",
                         "nullable": true,
@@ -499,12 +505,6 @@
                           "COMPLETE",
                           "ERRORED"
                         ]
-                      },
-                      "5103WaiverSubmitted": {
-                        "type": "boolean",
-                        "nullable": true,
-                        "description": "If true, indicates a decision has been requested and/or a Waiver 5103 has been submitted",
-                        "example": "false"
                       }
                     }
                   }
@@ -674,8 +674,6 @@
             "content": {
               "application/json": {
                 "example": {
-                  "5103WaiverSubmitted": false,
-                  "benefitClaimTypeCode": "400PREDSCHRG",
                   "claimDate": "05/02/17",
                   "claimId": "555555555",
                   "claimPhaseDates": {
@@ -685,6 +683,7 @@
                     "latestPhaseType": null
                   },
                   "claimType": "Compensation",
+                  "claimTypeCode": "400PREDSCHRG",
                   "closeDate": null,
                   "contentionList": [
                     "abnormal heart (New)",
@@ -703,6 +702,7 @@
                   "errors": [
 
                   ],
+                  "evidenceWaiverSubmitted5103": false,
                   "jurisdiction": "National Work Queue",
                   "lighthouseId": null,
                   "maxEstClaimDate": null,
@@ -761,7 +761,7 @@
                       "description": "Claim ID in VBMS",
                       "example": "600131328"
                     },
-                    "benefitClaimTypeCode": {
+                    "claimTypeCode": {
                       "type": "string",
                       "description": "Type Code of benefit claim",
                       "example": "400PREDSCHRG"
@@ -836,6 +836,12 @@
                       "description": "End product code of claim",
                       "example": "930"
                     },
+                    "evidenceWaiverSubmitted5103": {
+                      "type": "boolean",
+                      "nullable": true,
+                      "description": "If true, indicates a decision has been requested and/or a Waiver 5103 has been submitted",
+                      "example": "false"
+                    },
                     "errors": {
                       "type": "array",
                       "description": "Error details if claim is in an errored state.",
@@ -854,7 +860,7 @@
                     },
                     "jurisdiction": {
                       "type": "string",
-                      "description": "Jurisdiction of claim"
+                      "description": "Current station of jurisdiction"
                     },
                     "lighthouseId": {
                       "type": "string",
@@ -1025,12 +1031,6 @@
                           }
                         }
                       }
-                    },
-                    "5103WaiverSubmitted": {
-                      "type": "boolean",
-                      "nullable": true,
-                      "description": "If true, indicates a decision has been requested and/or a Waiver 5103 has been submitted",
-                      "example": "false"
                     }
                   }
                 }

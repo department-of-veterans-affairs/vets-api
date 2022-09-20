@@ -147,19 +147,18 @@ module ClaimsApi
 
         def build_claim_structure(data:, lighthouse_id:, upstream_id:) # rubocop:disable Metrics/MethodLength
           {
-            benefit_claim_type_code: data[:bnft_claim_type_cd],
+            claim_date: data[:claim_dt].present? ? data[:claim_dt].strftime('%D') : nil,
             claim_id: upstream_id,
+            claim_phase_dates: build_claim_phase_attributes(data, 'index'),
+            claim_type_code: data[:bnft_claim_type_cd],
             claim_type: data[:claim_status_type],
             contention_list: data[:contentions]&.split(','),
-            claim_date: data[:claim_dt].present? ? data[:claim_dt].strftime('%D') : nil,
-            claim_phase_dates: build_claim_phase_attributes(data, 'index'),
-            decision_letter_sent: map_yes_no_to_boolean(
-              'decision_notification_sent',
-              data[:decision_notification_sent]
-            ),
+            decision_letter_sent: map_yes_no_to_boolean('decision_notification_sent',
+                                                        data[:decision_notification_sent]),
             development_letter_sent: map_yes_no_to_boolean('development_letter_sent', data[:development_letter_sent]),
             documents_needed: map_yes_no_to_boolean('attention_needed', data[:attention_needed]),
             end_product_code: data[:end_prdct_type_cd],
+            evidence_waiver_submitted_5103: map_yes_no_to_boolean('filed5103_waiver_ind', data[:filed5103_waiver_ind]),
             jurisdiction: data[:regional_office_jrsdctn],
             lighthouse_id: lighthouse_id,
             max_est_claim_date: data[:max_est_claim_complete_dt],
@@ -167,9 +166,7 @@ module ClaimsApi
             status: detect_status(data),
             submitter_application_code: data[:submtr_applcn_type_cd],
             submitter_role_code: data[:submtr_role_type_cd],
-            temp_jurisdiction: data[:temp_regional_office_jrsdctn],
-            '5103_waiver_submitted'.to_sym => map_yes_no_to_boolean('filed5103_waiver_ind',
-                                                                    data[:filed5103_waiver_ind])
+            temp_jurisdiction: data[:temp_regional_office_jrsdctn]
           }
         end
 
