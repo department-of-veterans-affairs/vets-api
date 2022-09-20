@@ -21,4 +21,12 @@ class SavedClaim::EducationCareerCounselingClaim < CentralMailClaim
     log_message_to_sentry(guid, :warn, { attachment_id: guid }, { team: 'vfs-ebenefits' })
     process_attachments!
   end
+
+  def process_attachments!
+    refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
+    files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
+    files.find_each { |f| f.update(saved_claim_id: id) }
+
+    CentralMail::SubmitSavedClaimJob.new.perform(id)
+  end
 end

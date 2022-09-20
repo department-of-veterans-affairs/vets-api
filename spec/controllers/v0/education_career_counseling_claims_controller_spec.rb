@@ -13,12 +13,20 @@ RSpec.describe V0::EducationCareerCounselingClaimsController, type: :controller 
 
   describe 'POST create' do
     context 'logged in loa3 user' do
+      let(:form_params) { { education_career_counseling_claim: { form: test_form.form } } }
+
+      before { sign_in_as(loa3_user) }
+
       it 'validates successfully' do
-        sign_in_as(loa3_user)
-        form_params = { education_career_counseling_claim: { form: test_form.form } }
+        post(:create, params: form_params)
+
+        expect(response.code).to eq('200')
+      end
+
+      it 'calls successfully submits the career counseling job' do
+        expect(CentralMail::SubmitCareerCounselingJob).to receive(:perform_async)
 
         post(:create, params: form_params)
-        expect(response.code).to eq('200')
       end
     end
 
