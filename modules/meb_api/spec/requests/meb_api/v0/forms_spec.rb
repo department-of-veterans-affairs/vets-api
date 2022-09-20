@@ -61,7 +61,7 @@ Rspec.describe MebApi::V0::FormsController, type: :request do
       context 'Looks up veteran in LTS ' do
         it 'returns a 200 with toe claimant info' do
           VCR.use_cassette('dgi/post_toe_claimant_info') do
-            get '/meb_api/v0/toe/claimant_info'
+            get '/meb_api/v0/forms_claimant_info'
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('dgi/toe_claimant_info_response', { strict: false })
           end
