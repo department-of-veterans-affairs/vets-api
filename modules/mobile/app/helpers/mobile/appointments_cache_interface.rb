@@ -58,8 +58,8 @@ module Mobile
     end
 
     def dates_within_cache_range?(start_date, end_date)
-      within_range = start_date >= latest_allowable_cache_start_date &&
-                     end_date <= earliest_allowable_cache_end_date
+      within_range = start_date.to_date >= latest_allowable_cache_start_date.to_date &&
+                     end_date.to_date <= earliest_allowable_cache_end_date.to_date
       # this should not be possible from the mobile app.
       unless within_range
         dates = {
