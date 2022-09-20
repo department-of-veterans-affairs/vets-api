@@ -5,7 +5,7 @@ class FormProfiles::VA1990emeb < FormProfile
     {
       version: 0,
       prefill: true,
-      returnUrl: '/applicant-information/personal-information'
+      returnUrl: '/applicant-information'
     }
   end
 end
