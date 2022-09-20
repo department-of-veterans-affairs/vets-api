@@ -60,9 +60,9 @@ module ClaimsApi
 
         def bgs_itf_to_lighthouse_itf(bgs_itf:)
           {
-            id: bgs_itf[:intent_to_file_id],
             creation_date: bgs_itf[:create_dt],
             expiration_date: bgs_itf[:exprtn_dt],
+            id: bgs_itf[:intent_to_file_id],
             status: bgs_itf[:itf_status_type_cd],
             type: bgs_itf[:itf_type_cd]
           }

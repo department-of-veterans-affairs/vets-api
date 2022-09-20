@@ -6,10 +6,10 @@ module ClaimsApi
       class PowerOfAttorneyBlueprint < Blueprinter::Base
         identifier :code
         field :name
-        field :type
         field :phone do |entity, _options|
           { number: entity[:phone_number] }
         end
+        field :type
 
         transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
       end

@@ -53,6 +53,12 @@
         "type": "string",
         "description": "End product code of claim"
       },
+      "evidenceWaiverSubmitted5103": {
+        "type": "boolean",
+        "nullable": true,
+        "description": "If true, indicates a decision has been requested and/or a Waiver 5103 has been submitted",
+        "example": "false"
+      },
       "lighthouseId": {
         "type": "string",
         "nullable": true,
@@ -71,12 +77,6 @@
           "COMPLETE",
           "ERRORED"
         ]
-      },
-      "5103WaiverSubmitted": {
-        "type": "boolean",
-        "nullable": true,
-        "description": "If true, indicates a decision has been requested and/or a Waiver 5103 has been submitted",
-        "example": "false"
       }
     }
   }
