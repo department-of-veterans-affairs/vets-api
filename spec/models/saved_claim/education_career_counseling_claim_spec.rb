@@ -14,6 +14,8 @@ RSpec.describe SavedClaim::EducationCareerCounselingClaim do
 
   describe '#send_to_central_mail!' do
     it 'formats data before sending to central mail' do
+      allow(claim).to receive(:process_attachments!)
+
       expect(claim).to receive(:update).with(form: a_string_including('"veteranSocialSecurityNumber":"333224444"'))
 
       claim.send_to_central_mail!

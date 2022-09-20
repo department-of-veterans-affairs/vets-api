@@ -6,7 +6,6 @@ FactoryBot.define do
 
     form {
       {
-        status: 'isVeteran',
         claimantAddress: {
           countryName: 'USA',
           addressLine1: '9417 Princess Palm',
@@ -14,29 +13,25 @@ FactoryBot.define do
           stateCode: 'FL',
           zipCode: '33928'
         },
-        ssn: '796104437',
-        dateOfBirth: '1950-10-04',
-        claimantPhoneNumber: '5555555555',
-        claimantEmailAddress: 'cohnjesse@gmail.xom',
-        claimantConfirmEmailAddress: 'cohnjesse@gmail.xom',
         format: 'json',
         controller: 'v0/education_career_counseling_claims',
         action: 'create',
-        educationCareerCounselingClaim: {
-          status: 'isVeteran',
-          claimantAddress: {
-            countryName: 'USA',
-            addressLine1: '9417 Princess Palm',
-            city: 'Tampa',
-            stateCode: 'FL',
-            zipCode: '33928'
+        status: 'isVeteran',
+        claimantInformation: {
+          fullName: {
+            first: 'Derrick',
+            middle: 'J',
+            last: 'Lewis'
           },
-          claimantPhoneNumber: '5555555555',
-          claimantEmailAddress: 'cohnjesse@gmail.xom',
-          claimantConfirmEmailAddress: 'cohnjesse@gmail.xom'
+          ssn: '796104437',
+          dateOfBirth: '1950-10-04',
+          emailAddress: 'foo@foo.com',
+          phoneNumber: '1234567890'
         },
         veteranFullName: {
-          first: 'MARK', middle: 'WEBB', last: 'WEBB'
+          first: 'MARK',
+          middle: 'WEBB',
+          last: 'WEBB'
         },
         veteranSocialSecurityNumber: '796104437'
       }.to_json

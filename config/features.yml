@@ -32,6 +32,10 @@ features:
     actor_type: user
     description: Submit 1010cg applications using a background job
     enable_in_development: false
+  career_counseling_confirmation_email:
+    actor_type: user
+    description: Enables Career Counseling claim email confirmation upon submission
+    enable_in_development: true
   hca_american_indian_enabled:
     actor_type: user
     description: Enables American Indian SIGI question page.
