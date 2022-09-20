@@ -36,7 +36,7 @@ RSpec.describe 'Organization', type: :request do
         end
 
         it 'returns a 200 and passes through the body' do
-          VCR.use_cassette('vaos/fhir/read_organization_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/fhir/read_organization_200', match_requests_on: %i[method path query]) do
             expect { get '/vaos/v1/Organization/353830' }
               .to trigger_statsd_increment('api.vaos.fhir.read.organization.total', times: 1, value: 1)
 
@@ -48,7 +48,7 @@ RSpec.describe 'Organization', type: :request do
 
       context 'with a 404 response' do
         it 'returns a 404 operation outcome' do
-          VCR.use_cassette('vaos/fhir/read_organization_404', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/fhir/read_organization_404', match_requests_on: %i[method path query]) do
             get '/vaos/v1/Organization/353000'
 
             expect(response).to have_http_status(:not_found)
@@ -59,7 +59,7 @@ RSpec.describe 'Organization', type: :request do
 
       context 'with a 500 response' do
         it 'returns a 502 operation outcome' do
-          VCR.use_cassette('vaos/fhir/read_organization_500', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/fhir/read_organization_500', match_requests_on: %i[method path query]) do
             get '/vaos/v1/Organization/1234567'
 
             expect(response).to have_http_status(:bad_gateway)
@@ -80,7 +80,7 @@ RSpec.describe 'Organization', type: :request do
         end
 
         it 'returns a 200' do
-          VCR.use_cassette('vaos/fhir/search_organization_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/fhir/search_organization_200', match_requests_on: %i[method path query]) do
             get '/vaos/v1/Organization?identifier=983,984'
 
             expect(response).to have_http_status(:ok)
@@ -99,7 +99,8 @@ RSpec.describe 'Organization', type: :request do
         end
 
         it 'returns a 200' do
-          VCR.use_cassette('vaos/fhir/search_organization_200_no_query_string', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/fhir/search_organization_200_no_query_string',
+                           match_requests_on: %i[method path query]) do
             get '/vaos/v1/Organization'
 
             expect(response).to have_http_status(:ok)
@@ -110,7 +111,7 @@ RSpec.describe 'Organization', type: :request do
 
       context 'when records are not found' do
         it 'returns a 404' do
-          VCR.use_cassette('vaos/fhir/search_organization_404', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/fhir/search_organization_404', match_requests_on: %i[method path query]) do
             get '/vaos/v1/Organization?identifier=101'
 
             expect(response).to have_http_status(:not_found)
@@ -121,7 +122,7 @@ RSpec.describe 'Organization', type: :request do
 
       context 'when a backend service exception occurs' do
         it 'returns a 502' do
-          VCR.use_cassette('vaos/fhir/search_organization_500', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/fhir/search_organization_500', match_requests_on: %i[method path query]) do
             get '/vaos/v1/Organization?identifier=983,101'
 
             expect(response).to have_http_status(:bad_gateway)

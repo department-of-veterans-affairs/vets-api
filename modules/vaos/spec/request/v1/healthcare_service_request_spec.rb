@@ -41,7 +41,7 @@ RSpec.describe 'VAOS::V1::HeathcareService', type: :request do
           let(:query_string) { '?organization.identifier=983&_include=HealthcareService:location' }
 
           it 'returns a 200' do
-            VCR.use_cassette('vaos/fhir/healthcare_service/search_200', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('vaos/fhir/healthcare_service/search_200', match_requests_on: %i[method path query]) do
               expect { get "/vaos/v1/HealthcareService#{query_string}" }
                 .to trigger_statsd_increment('api.vaos.fhir.search.healthcare_service.total', times: 1, value: 1)
 
@@ -63,7 +63,8 @@ RSpec.describe 'VAOS::V1::HeathcareService', type: :request do
           let(:query_string) { '?organization.identifier=123' }
 
           it 'returns a 200' do
-            VCR.use_cassette('vaos/fhir/healthcare_service/search_200_empty', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('vaos/fhir/healthcare_service/search_200_empty',
+                             match_requests_on: %i[method path query]) do
               get "/vaos/v1/HealthcareService#{query_string}"
 
               expect(response).to have_http_status(:success)

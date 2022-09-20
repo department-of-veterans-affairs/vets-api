@@ -27,7 +27,7 @@ RSpec.describe 'VAOS::V1::Slot', type: :request do
       let(:user) { FactoryBot.create(:user, :vaos) }
 
       it 'returns no slots' do
-        VCR.use_cassette('vaos/fhir/slot/search_200_no_slots_found', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/fhir/slot/search_200_no_slots_found', match_requests_on: %i[method path query]) do
           get '/vaos/v1/Slot?schedule=no-such-resource'
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['total']).to eq(0)
@@ -35,7 +35,7 @@ RSpec.describe 'VAOS::V1::Slot', type: :request do
       end
 
       it 'returns slots' do
-        VCR.use_cassette('vaos/fhir/slot/search_200_slots_found', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/fhir/slot/search_200_slots_found', match_requests_on: %i[method path query]) do
           get '/vaos/v1/Slot?schedule=Schedule/sch.nep.AVT987.20191208'
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['total']).to eq(2)
@@ -45,7 +45,7 @@ RSpec.describe 'VAOS::V1::Slot', type: :request do
       end
 
       it 'returns a 500 error' do
-        VCR.use_cassette('vaos/fhir/slot/search_500', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/fhir/slot/search_500', match_requests_on: %i[method path query]) do
           get '/vaos/v1/Slot?start=2020-12-08'
           expect(response).to have_http_status(:bad_gateway)
           expect(JSON.parse(response.body)['issue'].first['code']).to eq('VAOS_502')

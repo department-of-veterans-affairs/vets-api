@@ -19,7 +19,7 @@ RSpec.describe 'vaos scheduling/configurations', type: :request, skip_mvi: true 
       context 'has access and is given single facility id' do
         it 'returns a single scheduling configuration' do
           VCR.use_cassette('vaos/v2/mobile_facility_service/get_scheduling_configurations_200',
-                           match_requests_on: %i[method uri]) do
+                           match_requests_on: %i[method path query]) do
             get '/vaos/v2/scheduling/configurations?facility_ids=489', headers: inflection_header
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
@@ -32,7 +32,7 @@ RSpec.describe 'vaos scheduling/configurations', type: :request, skip_mvi: true 
       context 'has access and is given multiple facility ids as CSV' do
         it 'returns scheduling configurations' do
           VCR.use_cassette('vaos/v2/mobile_facility_service/get_scheduling_configurations_200',
-                           match_requests_on: %i[method uri]) do
+                           match_requests_on: %i[method path query]) do
             get '/vaos/v2/scheduling/configurations?facility_ids=489,984', headers: inflection_header
             expect(response).to have_http_status(:ok)
             data = JSON.parse(response.body)['data']
@@ -45,7 +45,7 @@ RSpec.describe 'vaos scheduling/configurations', type: :request, skip_mvi: true 
       context 'has access and is given multiple facility ids as []=' do
         it 'returns scheduling configurations' do
           VCR.use_cassette('vaos/v2/mobile_facility_service/get_scheduling_configurations_200',
-                           match_requests_on: %i[method uri]) do
+                           match_requests_on: %i[method path query]) do
             get '/vaos/v2/scheduling/configurations?facility_ids[]=489&facility_ids[]=984', headers: inflection_header
             expect(response).to have_http_status(:ok)
             data = JSON.parse(response.body)['data']
@@ -58,7 +58,7 @@ RSpec.describe 'vaos scheduling/configurations', type: :request, skip_mvi: true 
       context 'has access and is given multiple facility ids and cc enable parameters' do
         it 'returns scheduling configurations' do
           VCR.use_cassette('vaos/v2/mobile_facility_service/get_scheduling_configurations_200',
-                           match_requests_on: %i[method uri]) do
+                           match_requests_on: %i[method path query]) do
             get '/vaos/v2/scheduling/configurations?cc_enabled=true&facility_ids[]=489&facility_ids[]=984',
                 headers: inflection_header
             expect(response).to have_http_status(:ok)

@@ -21,7 +21,8 @@ RSpec.describe 'vaos patients', type: :request, skip_mvi: true do
 
       context 'patient appointment meta data' do
         it 'successfully returns patient appointment metadata' do
-          VCR.use_cassette('vaos/v2/patients/get_patient_appointment_metadata', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/v2/patients/get_patient_appointment_metadata',
+                           match_requests_on: %i[method path query]) do
             get '/vaos/v2/eligibility', params: params, headers: inflection_header
             expect(response).to have_http_status(:ok)
             attributes = JSON.parse(response.body)['data']['attributes']

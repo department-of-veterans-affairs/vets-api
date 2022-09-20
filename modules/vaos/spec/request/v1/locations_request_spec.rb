@@ -39,7 +39,7 @@ RSpec.describe 'VAOS::V1::Location', type: :request do
         end
 
         it 'returns a 200 returning Location resource corresponding to id' do
-          VCR.use_cassette('vaos/fhir/location/read_by_id_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/fhir/location/read_by_id_200', match_requests_on: %i[method path query]) do
             expect { get '/vaos/v1/Location/393833' }
               .to trigger_statsd_increment('api.vaos.fhir.read.location.total', times: 1, value: 1)
 
@@ -51,7 +51,7 @@ RSpec.describe 'VAOS::V1::Location', type: :request do
 
       context 'with a 404 response' do
         it 'returns a 404 operation outcome' do
-          VCR.use_cassette('vaos/fhir/location/read_by_id_404', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/fhir/location/read_by_id_404', match_requests_on: %i[method path query]) do
             get '/vaos/v1/Location/353000'
 
             expect(response).to have_http_status(:not_found)

@@ -19,7 +19,7 @@ RSpec.describe 'Available Slots Request', type: :request do
     describe 'GET available appointment slots' do
       context 'on a successful request' do
         it 'returns list of available slots' do
-          VCR.use_cassette('vaos/v2/systems/get_available_slots_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/v2/systems/get_available_slots_200', match_requests_on: %i[method path query]) do
             get '/vaos/v2/locations/983/clinics/1081/slots?end=2021-12-30T23:59:59Z&start=2021-10-26T00:00:00Z',
                 headers: inflection_header
             expect(response).to have_http_status(:ok)
@@ -38,7 +38,7 @@ RSpec.describe 'Available Slots Request', type: :request do
 
       context 'on a backend service error' do
         it 'returns a 502 status code' do
-          VCR.use_cassette('vaos/v2/systems/get_available_slots_500', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/v2/systems/get_available_slots_500', match_requests_on: %i[method path query]) do
             get '/vaos/v2/locations/983/clinics/1081/slots?end=2021-12-31T23:59:59Z&start=2021-10-01T00:00:00Z'
 
             expect(response).to have_http_status(:bad_gateway)

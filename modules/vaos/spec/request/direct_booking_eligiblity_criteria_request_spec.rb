@@ -30,7 +30,7 @@ RSpec.describe 'direct booking eligibility criteria', type: :request do
     let(:cassette) { 'vaos/systems/get_direct_booking_eligibility_criteria_by_id' }
 
     around do |example|
-      VCR.use_cassette(cassette, match_requests_on: %i[method uri], tag: :force_utf8) do
+      VCR.use_cassette(cassette, match_requests_on: %i[method path query], tag: :force_utf8) do
         example.run
       end
     end

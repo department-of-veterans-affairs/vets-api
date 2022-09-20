@@ -36,7 +36,7 @@ RSpec.describe 'VAOS::V1::Patient', type: :request do
         end
 
         it 'returns a 200' do
-          VCR.use_cassette('vaos/fhir/patient/search_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/fhir/patient/search_200', match_requests_on: %i[method path query]) do
             get '/vaos/v1/Patient?identifier=200000008'
 
             expect(response).to have_http_status(:ok)
@@ -47,7 +47,7 @@ RSpec.describe 'VAOS::V1::Patient', type: :request do
 
       context 'when records are not found' do
         it 'returns a 404 operation outcome' do
-          VCR.use_cassette('vaos/fhir/patient/search_404', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/fhir/patient/search_404', match_requests_on: %i[method path query]) do
             get '/vaos/v1/Patient?identifier=identifier-value'
 
             expect(response).to have_http_status(:not_found)
@@ -58,7 +58,7 @@ RSpec.describe 'VAOS::V1::Patient', type: :request do
 
       context 'when there is an internal FHIR server error' do
         it 'turns a 502 operation outcome' do
-          VCR.use_cassette('vaos/fhir/patient/search_500', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/fhir/patient/search_500', match_requests_on: %i[method path query]) do
             get '/vaos/v1/Patient?identifier=identifier-value'
 
             expect(response).to have_http_status(:bad_gateway)
