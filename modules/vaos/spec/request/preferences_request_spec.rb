@@ -29,7 +29,7 @@ RSpec.describe 'preferences', type: :request do
 
     context 'with a valid GET preferences request' do
       it 'returns a 200 with the correct schema' do
-        VCR.use_cassette('vaos/preferences/get_preferences', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/preferences/get_preferences', match_requests_on: %i[method path query]) do
           get '/vaos/v0/preferences'
 
           expect(response).to have_http_status(:ok)
@@ -39,7 +39,7 @@ RSpec.describe 'preferences', type: :request do
       end
 
       it 'returns a 200 with the correct schema when camel-inflected' do
-        VCR.use_cassette('vaos/preferences/get_preferences', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/preferences/get_preferences', match_requests_on: %i[method path query]) do
           get '/vaos/v0/preferences', headers: inflection_header
 
           expect(response).to have_http_status(:ok)
@@ -62,7 +62,7 @@ RSpec.describe 'preferences', type: :request do
       end
 
       it 'returns a 200 with correct schema' do
-        VCR.use_cassette('vaos/preferences/put_preferences', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/preferences/put_preferences', match_requests_on: %i[method path query]) do
           put '/vaos/v0/preferences', params: request_body
 
           expect(response).to have_http_status(:ok)
@@ -72,7 +72,7 @@ RSpec.describe 'preferences', type: :request do
       end
 
       it 'returns a 200 with correct camel-inflected schema' do
-        VCR.use_cassette('vaos/preferences/put_preferences', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/preferences/put_preferences', match_requests_on: %i[method path query]) do
           put '/vaos/v0/preferences', params: request_body, headers: inflection_header
 
           expect(response).to have_http_status(:ok)

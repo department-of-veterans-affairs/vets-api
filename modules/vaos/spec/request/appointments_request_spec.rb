@@ -137,7 +137,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
       context 'returns list of appointments' do
         it 'has access and returns va appointments' do
-          VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method path query]) do
             get '/vaos/v0/appointments', params: params
 
             expect(response).to have_http_status(:ok)
@@ -148,7 +148,8 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
 
         it 'has access and returns va appointments having partial errors' do
-          VCR.use_cassette('vaos/appointments/get_appointments_200_partial_error', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/appointments/get_appointments_200_partial_error',
+                           match_requests_on: %i[method path query]) do
             get '/vaos/v0/appointments', params: params
 
             expect(response).to have_http_status(:multi_status)
@@ -159,7 +160,8 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
 
         it 'increments statsD on a partial' do
-          VCR.use_cassette('vaos/appointments/get_appointments_200_partial_error', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/appointments/get_appointments_200_partial_error',
+                           match_requests_on: %i[method path query]) do
             expect { get('/vaos/v0/appointments', params: params) }
               .to trigger_statsd_increment(
                 'api.vaos.va_mobile.response.partial',
@@ -169,7 +171,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
 
         it 'has access and returns va appointments when camel-inflected' do
-          VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method path query]) do
             get '/vaos/v0/appointments', params: params, headers: inflection_header
 
             expect(response).to have_http_status(:ok)
@@ -181,7 +183,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
       context 'shows single appointment' do
         it 'returns single appointment based on appointment id' do
-          VCR.use_cassette('vaos/appointments/show_appointment', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/appointments/show_appointment', match_requests_on: %i[method path query]) do
             get '/vaos/v0/appointments/va/202006031600983000030800000000000000.aaaaaa', params: params
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
@@ -191,7 +193,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
 
         it 'returns single appointment based on appointment id when camel-inflected' do
-          VCR.use_cassette('vaos/appointments/show_appointment', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/appointments/show_appointment', match_requests_on: %i[method path query]) do
             get '/vaos/v0/appointments/va/202006031600983000030800000000000000.aaaaaa',
                 params: params,
                 headers: inflection_header
@@ -205,7 +207,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
       context 'when the upstream service returns an http status of 204, no content' do
         it 'returns an http status of 404 to the vets website' do
-          VCR.use_cassette('vaos/appointments/show_appointment', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/appointments/show_appointment', match_requests_on: %i[method path query]) do
             get '/vaos/v0/appointments/va/123456789101112'
             expect(response).to have_http_status(:not_found)
           end
@@ -214,7 +216,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
       context 'when the upstream service returns an http status of 204, no content and X-Key-Inflection set' do
         it 'returns an http status of 404 to the vets website' do
-          VCR.use_cassette('vaos/appointments/show_appointment', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/appointments/show_appointment', match_requests_on: %i[method path query]) do
             get '/vaos/v0/appointments/va/123456789101112', params: params, headers: inflection_header
             expect(response).to have_http_status(:not_found)
           end
@@ -223,7 +225,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
       context 'shows single appointment with dash in app id' do
         it 'returns single appointment based on appointment id' do
-          VCR.use_cassette('vaos/appointments/show_appointment_with_dash', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/appointments/show_appointment_with_dash', match_requests_on: %i[method path query]) do
             get '/vaos/v0/appointments/va/202006031600983000030800000000000000-aaaaaa', params: params
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
@@ -233,7 +235,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
 
         it 'returns single appointment based on appointment id when camel-inflected' do
-          VCR.use_cassette('vaos/appointments/show_appointment_with_dash', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/appointments/show_appointment_with_dash', match_requests_on: %i[method path query]) do
             get '/vaos/v0/appointments/va/202006031600983000030800000000000000-aaaaaa',
                 params: params,
                 headers: inflection_header
@@ -247,7 +249,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
       context 'cc appointments' do
         it 'has access and returns cc appointments' do
-          VCR.use_cassette('vaos/appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/appointments/get_cc_appointments', match_requests_on: %i[method path query]) do
             get '/vaos/v0/appointments', params: params.merge(type: 'cc')
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
@@ -256,7 +258,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
 
         it 'has access and returns cc appointments when camel-inflected' do
-          VCR.use_cassette('vaos/appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/appointments/get_cc_appointments', match_requests_on: %i[method path query]) do
             get '/vaos/v0/appointments', params: params.merge(type: 'cc'), headers: inflection_header
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
@@ -267,7 +269,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
       context 'with no appointments' do
         it 'returns an empty list' do
-          VCR.use_cassette('vaos/appointments/get_appointments_empty', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/appointments/get_appointments_empty', match_requests_on: %i[method path query]) do
             get '/vaos/v0/appointments', params: params
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(
@@ -287,7 +289,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
 
         it 'returns an empty list when camel-inflected' do
-          VCR.use_cassette('vaos/appointments/get_appointments_empty', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/appointments/get_appointments_empty', match_requests_on: %i[method path query]) do
             get '/vaos/v0/appointments', params: params, headers: inflection_header
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(
@@ -310,7 +312,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
       context 'with a response that includes blank providers' do
         it 'parses the data and does not throw an undefined method error' do
           VCR.use_cassette('vaos/appointments/get_appointments_map_error',
-                           match_requests_on: %i[method uri], tag: :force_utf8) do
+                           match_requests_on: %i[method path query], tag: :force_utf8) do
             get '/vaos/v0/appointments', params: params
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('vaos/va_appointments', { strict: false })
@@ -319,7 +321,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
         it 'parses the data and does not throw an undefined method error when camel-inflected' do
           VCR.use_cassette('vaos/appointments/get_appointments_map_error',
-                           match_requests_on: %i[method uri], tag: :force_utf8) do
+                           match_requests_on: %i[method path query], tag: :force_utf8) do
             get '/vaos/v0/appointments', params: params, headers: inflection_header
             expect(response).to have_http_status(:ok)
             expect(response).to match_camelized_response_schema('vaos/va_appointments', { strict: false })
@@ -352,7 +354,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
 
         it 'returns bad request with detail in errors' do
-          VCR.use_cassette('vaos/appointments/post_appointment_409', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/appointments/post_appointment_409', match_requests_on: %i[method path query]) do
             allow(Rails.logger).to receive(:warn).at_least(:once)
             post '/vaos/v0/appointments', params: request_body
 
@@ -371,7 +373,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
 
         it 'returns bad request with detail in errors' do
-          VCR.use_cassette('vaos/appointments/post_appointment_400', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/appointments/post_appointment_400', match_requests_on: %i[method path query]) do
             expect(Rails.logger).to receive(:warn).with('Direct schedule submission error', any_args)
             expect(Rails.logger).to receive(:warn).with('VAOS service call failed!', any_args)
             expect(Rails.logger).to receive(:warn).with(
@@ -395,7 +397,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
 
         it 'creates the appointment' do
-          VCR.use_cassette('vaos/appointments/post_appointment', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/appointments/post_appointment', match_requests_on: %i[method path query]) do
             post '/vaos/v0/appointments', params: request_body
 
             expect(response).to have_http_status(:no_content)
@@ -440,7 +442,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
 
         it 'returns bad request with detail in errors' do
-          VCR.use_cassette('vaos/appointments/put_cancel_appointment_409', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/appointments/put_cancel_appointment_409', match_requests_on: %i[method path query]) do
             expect(Rails.logger).to receive(:warn).with('VAOS service call failed!', any_args).once
             expect(Rails.logger).to receive(:warn).with(
               'Clinic does not support VAOS appointment cancel',
@@ -474,7 +476,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
 
         it 'cancels the appointment' do
-          VCR.use_cassette('vaos/appointments/put_cancel_appointment', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/appointments/put_cancel_appointment', match_requests_on: %i[method path query]) do
             put '/vaos/v0/appointments/cancel', params: request_body
 
             expect(response).to have_http_status(:no_content)

@@ -41,7 +41,7 @@ RSpec.describe 'Appointment', type: :request do
         end
 
         it 'returns HTTP status 200 and passes the body through' do
-          VCR.use_cassette('vaos/fhir/appointment/search_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/fhir/appointment/search_200', match_requests_on: %i[method path query]) do
             get "/vaos/v1/Appointment?#{query_string}"
 
             expect(response).to have_http_status(:ok)
@@ -65,7 +65,7 @@ RSpec.describe 'Appointment', type: :request do
         end
 
         it 'returns HTTP status 200 and passes the body through' do
-          VCR.use_cassette('vaos/fhir/appointment/search_no_records', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/fhir/appointment/search_no_records', match_requests_on: %i[method path query]) do
             get "/vaos/v1/Appointment?#{query_string}"
 
             expect(response).to have_http_status(:ok)
@@ -100,7 +100,7 @@ RSpec.describe 'Appointment', type: :request do
 
         it 'returns HTTP status 201, Created, and the new resource content in body' do
           VCR.use_cassette('vaos/fhir/appointment/post_appointment_create_request_201',
-                           match_requests_on: %i[method uri]) do
+                           match_requests_on: %i[method path query]) do
             headers = { 'Content-Type' => 'application/json+fhir', 'Accept' => 'application/json+fhir' }
             post '/vaos/v1/Appointment', params: request_body, headers: headers
             expect(response).to have_http_status(:created)
@@ -114,7 +114,7 @@ RSpec.describe 'Appointment', type: :request do
 
         it 'returns HTTP status 400, bad request' do
           VCR.use_cassette('vaos/fhir/appointment/post_appointment_invalid_request_400',
-                           match_requests_on: %i[method uri]) do
+                           match_requests_on: %i[method path query]) do
             headers = { 'Content-Type' => 'application/json+fhir', 'Accept' => 'application/json+fhir' }
             post '/vaos/v1/Appointment', params: invalid_request_body, headers: headers
             expect(response).to have_http_status(:bad_request)
@@ -148,7 +148,8 @@ RSpec.describe 'Appointment', type: :request do
         end
 
         it 'returns HTTP status 200 along with the updated resource' do
-          VCR.use_cassette('vaos/fhir/appointment/put_appointment_request_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/fhir/appointment/put_appointment_request_200',
+                           match_requests_on: %i[method path query]) do
             headers = { 'Content-Type' => 'application/json+fhir', 'Accept' => 'application/json+fhir' }
             put '/vaos/v1/Appointment/1631', params: request_body, headers: headers
             expect(response).to have_http_status(:ok)
@@ -160,7 +161,7 @@ RSpec.describe 'Appointment', type: :request do
       context 'with invalid appointment update' do
         it 'returns HTTP status 400' do
           VCR.use_cassette('vaos/fhir/appointment/put_appointment_invalid_request_400',
-                           match_requests_on: %i[method uri]) do
+                           match_requests_on: %i[method path query]) do
             headers = { 'Content-Type' => 'application/json+fhir', 'Accept' => 'application/json+fhir' }
             put '/vaos/v1/Appointment/1631X', params: request_body, headers: headers
             expect(response).to have_http_status(:bad_request)
@@ -174,7 +175,7 @@ RSpec.describe 'Appointment', type: :request do
 
         it 'returns HTTP status 200 along with the cancelled resource' do
           VCR.use_cassette('vaos/fhir/appointment/put_appointment_cancel_request_200',
-                           match_requests_on: %i[method uri]) do
+                           match_requests_on: %i[method path query]) do
             headers = { 'Content-Type' => 'application/json+fhir', 'Accept' => 'application/json+fhir' }
             put '/vaos/v1/Appointment/1631', params: request_body, headers: headers
             expect(response).to have_http_status(:ok)
