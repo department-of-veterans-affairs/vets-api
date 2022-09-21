@@ -139,7 +139,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(booked_cc[:healthcare_service]).to eq('CC practice name')
       expect(booked_cc[:location][:name]).to eq('CC practice name')
       expect(booked_cc[:friendly_location_name]).to eq('CC practice name')
-      expect(booked_cc[:type_of_care]).to eq('primaryCare')
+      expect(booked_cc[:type_of_care]).to eq('Primary Care')
       expect(booked_cc.as_json).to eq({
                                         'id' => '72106',
                                         'appointment_type' => 'COMMUNITY_CARE',
@@ -161,8 +161,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                           'lat' => nil,
                                           'long' => nil,
                                           'phone' => {
-                                            'area_code' => nil,
-                                            'number' => nil,
+                                            'area_code' => '321',
+                                            'number' => '417-0822',
                                             'extension' => nil
                                           },
                                           'url' => nil,
@@ -180,7 +180,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                         'is_covid_vaccine' => false,
                                         'is_pending' => false,
                                         'proposed_times' => nil,
-                                        'type_of_care' => 'primaryCare',
+                                        'type_of_care' => 'Primary Care',
                                         'patient_phone_number' => nil,
                                         'patient_email' => nil,
                                         'best_time_to_call' => nil,
@@ -196,7 +196,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(proposed_cc[:is_pending]).to eq(true)
       expect(proposed_cc[:status]).to eq('SUBMITTED')
       expect(proposed_cc[:appointment_type]).to eq('COMMUNITY_CARE')
-      expect(proposed_cc[:type_of_care]).to eq('primaryCare')
+      expect(proposed_cc[:type_of_care]).to eq('Primary Care')
       expect(proposed_cc[:proposed_times]).to eq([{ "date": '01/26/2022', "time": 'AM' }])
       expect(proposed_cc.as_json).to eq({
                                           'id' => '72105',
@@ -243,8 +243,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                               'time' => 'AM'
                                             }
                                           ],
-                                          'type_of_care' => 'primaryCare',
-                                          'patient_phone_number' => '2566832029',
+                                          'type_of_care' => 'Primary Care',
+                                          'patient_phone_number' => '256-683-2029',
                                           'patient_email' => 'Aarathi.poldass@va.gov',
                                           'best_time_to_call' => [
                                             'Morning'
@@ -307,7 +307,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                             { 'date' => '09/28/2021', 'time' => 'AM' }
                                           ],
                                           'type_of_care' => nil,
-                                          'patient_phone_number' => '7175555555',
+                                          'patient_phone_number' => '717-555-5555',
                                           'patient_email' => 'Aarathi.poldass@va.gov',
                                           'best_time_to_call' => [
                                             'Evening'
@@ -366,7 +366,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                          { 'date' => '10/01/2021', 'time' => 'PM' }
                                        ],
                                        'type_of_care' => nil,
-                                       'patient_phone_number' => '7175555555',
+                                       'patient_phone_number' => '717-555-5555',
                                        'patient_email' => 'judy.morrison@id.me',
                                        'best_time_to_call' => [
                                          'Morning'
@@ -414,8 +414,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                       'is_covid_vaccine' => false,
                                       'is_pending' => true,
                                       'proposed_times' => [{ 'date' => '09/08/2021', 'time' => 'PM' }],
-                                      'type_of_care' => 'PrimaryCare ',
-                                      'patient_phone_number' => '9999999992',
+                                      'type_of_care' => 'Primary Care ',
+                                      'patient_phone_number' => '999-999-9992',
                                       'patient_email' => nil,
                                       'best_time_to_call' => nil,
                                       'friendly_location_name' => nil })
@@ -468,8 +468,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                        'is_covid_vaccine' => false,
                                        'is_pending' => true,
                                        'proposed_times' => [{ 'date' => '09/08/2021', 'time' => 'PM' }],
-                                       'type_of_care' => 'PrimaryCare ',
-                                       'patient_phone_number' => '9999999992',
+                                       'type_of_care' => 'Primary Care ',
+                                       'patient_phone_number' => '999-999-9992',
                                        'patient_email' => nil,
                                        'best_time_to_call' => nil,
                                        'friendly_location_name' => nil })
@@ -514,8 +514,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                      'is_covid_vaccine' => false,
                                      'is_pending' => true,
                                      'proposed_times' => [{ 'date' => '09/08/2021', 'time' => 'PM' }],
-                                     'type_of_care' => 'PrimaryCare ',
-                                     'patient_phone_number' => '9999999992',
+                                     'type_of_care' => 'Primary Care ',
+                                     'patient_phone_number' => '999-999-9992',
                                      'patient_email' => nil,
                                      'best_time_to_call' => nil,
                                      'friendly_location_name' => nil })
@@ -556,6 +556,58 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(no_timezone_appt[:start_date_local]).to eq('2022-08-27 09:45:00 -0600"')
       expect(no_timezone_appt[:start_date_utc]).to eq('2022-08-27T15:45:00Z')
       expect(no_timezone_appt[:time_zone]).to eq('America/Denver')
+    end
+  end
+
+  context 'with non-human readable service type' do
+    let!(:no_readable_service_appt) do
+      vaos_data = JSON.parse(appointment_fixtures, symbolize_names: true)[2]
+      vaos_data[:service_type] = 'outpatientMentalHealth'
+      subject.parse([vaos_data])
+    end
+
+    it 'converts to human readable service type' do
+      expect(no_readable_service_appt.first[:type_of_care]).to eq('Mental Health')
+    end
+  end
+
+  context 'with different patient phone numbers formats' do
+    let(:vaos_data) { JSON.parse(appointment_fixtures, symbolize_names: true)[7] }
+
+    let(:parentheses_phone_num_appt) do
+      vaos_data[:contact][:telecom][0][:value] = '(480)-293-1922'
+      subject.parse([vaos_data])
+    end
+
+    let(:parentheses_no_dash_phone_num_appt) do
+      vaos_data[:contact][:telecom][0][:value] = '(480) 293-1922'
+      subject.parse([vaos_data])
+    end
+
+    let(:no_dashes_phone_num_appt) do
+      vaos_data[:contact][:telecom][0][:value] = '4802931922'
+      subject.parse([vaos_data])
+    end
+
+    let(:no_parentheses_phone_num_appt) do
+      vaos_data[:contact][:telecom][0][:value] = '480-293-1922'
+      subject.parse([vaos_data])
+    end
+
+    it 'formats phone number with parentheses' do
+      expect(parentheses_phone_num_appt.first[:patient_phone_number]).to eq('480-293-1922')
+    end
+
+    it 'formats phone number with parentheses and no first dash' do
+      expect(parentheses_no_dash_phone_num_appt.first[:patient_phone_number]).to eq('480-293-1922')
+    end
+
+    it 'formats phone number with no dashes' do
+      expect(no_dashes_phone_num_appt.first[:patient_phone_number]).to eq('480-293-1922')
+    end
+
+    it 'does not change phone number with correct format' do
+      expect(no_parentheses_phone_num_appt.first[:patient_phone_number]).to eq('480-293-1922')
     end
   end
 end

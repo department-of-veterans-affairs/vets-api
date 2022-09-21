@@ -47,6 +47,17 @@ module Mobile
         PHONE_KIND = 'phone'
         COVID_SERVICE = 'covid'
 
+        # Only a subset of types of service that requires human readable conversion
+        SERVICE_TYPES = {
+          outpatientMentalHealth: 'Mental Health',
+          moveProgram: 'Move Program',
+          foodAndNutrition: 'Nutrition and Food',
+          clinicalPharmacyPrimaryCare: 'Clinical Pharmacy Primary Care',
+          primaryCare: 'Primary Care',
+          homeSleepTesting: 'Home Sleep Testing',
+          socialWork: 'Social Work'
+        }.freeze
+
         # Takes a result set of VAOS v2 appointments from the appointments web service
         # and returns the set adapted to a common schema.
         #
@@ -102,7 +113,7 @@ module Mobile
             is_pending: status == STATUSES[:proposed],
             proposed_times: proposed_times(appointment_hash[:requested_periods]),
             type_of_care: type_of_care(appointment_hash[:service_type], type),
-            patient_phone_number: contact(appointment_hash.dig(:contact, :telecom), CONTACT_TYPE[:phone]),
+            patient_phone_number: patient_phone_number(appointment_hash),
             patient_email: contact(appointment_hash.dig(:contact, :telecom), CONTACT_TYPE[:email]),
             best_time_to_call: appointment_hash[:preferred_times_for_phone_call],
             friendly_location_name: appointment_hash.dig(:extension, :cc_location, :practice_name)
@@ -114,6 +125,17 @@ module Mobile
           Mobile::V0::Appointment.new(adapted_hash)
         end
         # rubocop:enable Metrics/MethodLength
+
+        def patient_phone_number(appointment_hash)
+          phone_number = contact(appointment_hash.dig(:contact, :telecom), CONTACT_TYPE[:phone])
+
+          return nil unless phone_number
+
+          parsed_phone = parse_phone(phone_number)
+          joined_phone = "#{parsed_phone[:area_code]}-#{parsed_phone[:number]}"
+          joined_phone += "x#{parsed_phone[:extension]}" if parsed_phone[:extension]
+          joined_phone
+        end
 
         def timezone(appointment_hash, facility_id)
           time_zone = appointment_hash.dig(:location, :time_zone, :time_zone_id)
@@ -133,7 +155,11 @@ module Mobile
         end
 
         def type_of_care(service_type, type)
-          va?(type) ? nil : service_type
+          return nil if service_type.nil? || va?(type)
+
+          service_type = SERVICE_TYPES[service_type.to_sym] || service_type
+
+          service_type.titleize
         end
 
         def cancellation_reason(cancellation_reason)
@@ -230,6 +256,14 @@ module Mobile
                 state: cc_location.dig(:address, :state),
                 zip_code: cc_location.dig(:address, :postal_code)
               }
+              if cc_location[:telecom].present?
+                phone_number = cc_location[:telecom]&.find do |contact|
+                  contact[:system] == CONTACT_TYPE[:phone]
+                end&.dig(:value)
+
+                location[:phone] = parse_phone(phone_number)
+              end
+
             end
           when APPOINTMENT_TYPES[:va_video_connect_atlas],
             APPOINTMENT_TYPES[:va_video_connect_home],
@@ -267,33 +301,30 @@ module Mobile
             end
             location[:lat] = appointment_hash.dig(:location, :lat)
             location[:long] = appointment_hash.dig(:location, :long)
-            location[:phone] = location_phone(appointment_hash)
+            location[:phone] = parse_phone(appointment_hash.dig(:location, :phone, :main))
           end
 
           location
         end
         # rubocop:enable Metrics/MethodLength
 
-        def location_phone(appointment_hash)
-          phone = appointment_hash.dig(:location, :phone, :main)
-
+        def parse_phone(phone)
           # captures area code (\d{3}) number (\d{3}-\d{4})
           # and optional extension (until the end of the string) (?:\sx(\d*))?$
-          phone_captures = phone&.match(/^(\d{3})-(\d{3}-\d{4})(?:\sx(\d*))?$/)
+          phone_captures = phone&.match(/^\(?(\d{3})\)?.?(\d{3})-?(\d{4})(?:\sx(\d*))?$/)
 
           if phone_captures.nil?
             Rails.logger.warn(
-              'mobile appointments failed to parse VAOS V2 facility phone number',
-              facility_id: appointment_hash.dig(:location, :id),
-              facility_phone: phone
+              'mobile appointments failed to parse VAOS V2 phone number',
+              phone: phone
             )
             return { area_code: nil, number: nil, extension: nil }
           end
 
           {
             area_code: phone_captures[1].presence,
-            number: phone_captures[2].presence,
-            extension: phone_captures[3].presence
+            number: "#{phone_captures[2].presence}-#{phone_captures[3].presence}",
+            extension: phone_captures[4].presence
           }
         end
 
