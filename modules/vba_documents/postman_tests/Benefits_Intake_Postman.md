@@ -3,17 +3,15 @@
 ### Setting the working directory
 The Benefits Intake API uploads files so you'll need to set the working directory for 
 Postman to know where the files are. To do so, go to File -> Settings. Most testing 
-files are in the following directory: vets-api\modules\vba_documents\spec\fixtures
+files are in the following directory: `vets-api/modules/vba_documents/spec/fixtures`
 
 ![GitHub Logo](./images/working-directory.png)
 
 ### Importing collections and environments
-You'll need to select Import and drag the files from their Github locations.  
-\vets-api\modules\vba_documents\postman_tests\Automated Benefits Intake API.postman_collection  
-\vets-api\modules\va_forms\postman_tests\Automated Forms API.postman_collection  
-\vets-api\modules\vba_documents\postman_tests\localhost Environment.postman_environment  
-\vets-api\modules\vba_documents\postman_tests\Sandbox Environment.postman_environment  
-
+You'll need to select Import and drag the files from their Github locations:
+- `vets-api/modules/vba_documents/postman_tests/Automated Benefits Intake API.postman_collection`
+- `vets-api/modules/vba_documents/postman_tests/localhost Environment.postman_environment`
+- `vets-api/modules/vba_documents/postman_tests/Sandbox Environment.postman_environment`
 
 ![GitHub Logo](./images/postman-files.png)
 
