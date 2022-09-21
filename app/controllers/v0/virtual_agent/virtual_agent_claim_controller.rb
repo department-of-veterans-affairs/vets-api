@@ -7,31 +7,32 @@ module V0
   module VirtualAgent
     class VirtualAgentClaimController < ApplicationController
       include IgnoreNotFound
-
       rescue_from 'EVSS::ErrorMiddleware::EVSSError', with: :service_exception_handler
-
       before_action { authorize :evss, :access? }
 
       def index
         claims, synchronized = service.all
-
         case synchronized
         when 'REQUESTED'
-          render json: {
-            data: nil,
-            meta: { sync_status: synchronized }
-          }
+          render json: { data: nil, meta: { sync_status: synchronized } }
         when 'FAILED'
           error = EVSS::ErrorMiddleware::EVSSError.new('Could not retrieve claims')
+          call_virtual_agent_store_user_info if Flipper.enabled?(:virtual_agent_user_access_records)
           service_exception_handler(error)
         else
           data_for_three_most_recent_open_comp_claims(claims)
-
-          render json: {
-            data: data_for_three_most_recent_open_comp_claims(claims),
-            meta: { sync_status: synchronized }
-          }
+          call_virtual_agent_store_user_info if Flipper.enabled?(:virtual_agent_user_access_records)
+          render json: { data: data_for_three_most_recent_open_comp_claims(claims),
+                         meta: { sync_status: synchronized } }
         end
+      end
+
+      def call_virtual_agent_store_user_info
+        kms = KmsEncrypted::Box.new(previous_versions: [{ key_id: Settings.lockbox.master_key }])
+        user_info = { first_name: current_user.first_name, last_name: current_user.last_name,
+                      ssn: kms.encrypt(current_user.ssn), icn: current_user.icn }
+
+        VirtualAgentStoreUserInfoJob.perform_async(user_info, 'claims', kms, {})
       end
 
       def show

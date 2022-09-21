@@ -388,5 +388,45 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
         end
       end
     end
+
+    describe 'VirtualAgentStoreUserInfoJob' do
+      context 'when virtual_agent_user_access_records toggle is on'
+      it 'runs with user info and appeals as action type' do
+        allow(Flipper).to receive(:enabled?).with(:virtual_agent_user_access_records).and_return(true)
+        sign_in_as(user)
+        kms = instance_double(KmsEncrypted::Box)
+        allow(kms).to receive(:encrypt).and_return('encrypted_ssn')
+
+        allow(KmsEncrypted::Box)
+          .to receive(:new)
+          .and_return(kms)
+
+        allow(VirtualAgentStoreUserInfoJob).to receive(:perform_async)
+
+        VCR.use_cassette('caseflow/virtual_agent_appeals/recent_open_compensation_appeal') do
+          get '/v0/virtual_agent/appeal'
+          expected_user_info_object = { first_name: user.first_name, last_name: user.last_name,
+                                        ssn: 'encrypted_ssn', icn: user.icn }
+          expect(kms).to have_received(:encrypt).with(user.ssn)
+          expect(VirtualAgentStoreUserInfoJob).to have_received(:perform_async).with(expected_user_info_object,
+                                                                                     'appeals', kms, {})
+        end
+        allow(Settings).to receive(:vsp_environment).and_call_original
+      end
+    end
+
+    context 'when virtual_agent_user_access_records toggle is off' do
+      it 'does not store user data' do
+        allow(Flipper).to receive(:enabled?).with(:virtual_agent_user_access_records).and_return(false)
+        sign_in_as(user)
+        allow(VirtualAgentStoreUserInfoJob).to receive(:perform_async)
+
+        VCR.use_cassette('caseflow/virtual_agent_appeals/recent_open_compensation_appeal') do
+          get '/v0/virtual_agent/appeal'
+        end
+
+        expect(VirtualAgentStoreUserInfoJob).not_to receive(:perform_async)
+      end
+    end
   end
 end

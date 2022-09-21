@@ -6,8 +6,7 @@ module V0
   module VirtualAgent
     class VirtualAgentAppealController < AppealsBaseController
       def index
-        # @appeal_status_description
-
+        call_virtual_agent_store_user_info if Flipper.enabled?(:virtual_agent_user_access_records)
         if Settings.vsp_environment == 'staging'
           @user_ssan, @user_name = set_user_credentials
           appeals_response = get_appeal_from_lighthouse(@user_ssan, @user_name)
@@ -24,6 +23,13 @@ module V0
         render json: {
           data: data
         }
+      end
+
+      def call_virtual_agent_store_user_info
+        kms = KmsEncrypted::Box.new(previous_versions: [{ key_id: Settings.lockbox.master_key }])
+        user_info = { first_name: current_user.first_name, last_name: current_user.last_name,
+                      ssn: kms.encrypt(current_user.ssn), icn: current_user.icn }
+        VirtualAgentStoreUserInfoJob.perform_async(user_info, 'appeals', kms, {})
       end
 
       def get_appeal_from_lighthouse(ssan, user_name)

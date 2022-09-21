@@ -241,4 +241,92 @@ RSpec.describe 'VirtualAgentClaims', type: :request do
       end
     end
   end
+
+  describe 'VirtualAgentStoreUserInfoJob' do
+    before do
+      @kms = instance_double(KmsEncrypted::Box)
+      allow(@kms).to receive(:encrypt).and_return('encrypted_ssn')
+
+      allow(KmsEncrypted::Box)
+        .to receive(:new)
+        .and_return(@kms)
+
+      allow(VirtualAgentStoreUserInfoJob).to receive(:perform_async)
+    end
+
+    context 'when the virtual_agent_user_access_records toggle is on' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:virtual_agent_user_access_records).and_return(true)
+      end
+
+      it 'runs with user info and claims as action type when claims retrieval is successful' do
+        sign_in_as(user)
+
+        VCR.use_cassette('evss/claims/claims_multiple_open_compensation_claims') do
+          EVSS::RetrieveClaimsFromRemoteJob.new.perform(user.uuid)
+
+          get '/v0/virtual_agent/claim'
+
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)['meta']['sync_status']).to eq 'SUCCESS'
+          expected_user_info_object = { first_name: user.first_name, last_name: user.last_name,
+                                        ssn: 'encrypted_ssn', icn: user.icn }
+          expect(@kms).to have_received(:encrypt).with(user.ssn)
+          expect(VirtualAgentStoreUserInfoJob).to have_received(:perform_async).with(expected_user_info_object,
+                                                                                     'claims', @kms, {})
+        end
+      end
+
+      it 'runs with user info and claims as action type when claims retrieval fails' do
+        sign_in_as(user)
+
+        VCR.use_cassette('evss/claims/claims_with_errors') do
+          EVSS::RetrieveClaimsFromRemoteJob.new.perform(user.uuid)
+        rescue
+
+          get '/v0/virtual_agent/claim'
+
+          expect(response).to have_http_status(:service_unavailable)
+          expected_user_info_object = { first_name: user.first_name, last_name: user.last_name,
+                                        ssn: 'encrypted_ssn', icn: user.icn }
+          expect(@kms).to have_received(:encrypt).with(user.ssn)
+          expect(VirtualAgentStoreUserInfoJob).to have_received(:perform_async).with(expected_user_info_object,
+                                                                                     'claims', @kms, {})
+        end
+      end
+    end
+
+    context 'when the virtual_agent_user_access_records toggle is off' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:virtual_agent_user_access_records).and_return(false)
+      end
+
+      it 'runs with user info and claims as action type when claims retrieval is successful' do
+        sign_in_as(user)
+
+        VCR.use_cassette('evss/claims/claims_multiple_open_compensation_claims') do
+          EVSS::RetrieveClaimsFromRemoteJob.new.perform(user.uuid)
+
+          get '/v0/virtual_agent/claim'
+
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)['meta']['sync_status']).to eq 'SUCCESS'
+          expect(VirtualAgentStoreUserInfoJob).not_to receive(:perform_async)
+        end
+      end
+
+      it 'runs with user info and claims as action type when claims retrieval fails' do
+        sign_in_as(user)
+        VCR.use_cassette('evss/claims/claims_with_errors') do
+          EVSS::RetrieveClaimsFromRemoteJob.new.perform(user.uuid)
+        rescue
+
+          get '/v0/virtual_agent/claim'
+
+          expect(response).to have_http_status(:service_unavailable)
+          expect(VirtualAgentStoreUserInfoJob).not_to receive(:perform_async)
+        end
+      end
+    end
+  end
 end
