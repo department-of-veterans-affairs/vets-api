@@ -159,8 +159,6 @@ group :development do
   # POSIX systems should have this already, so we're not going to bring it in on other platforms
   gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
   # Access an IRB console on exception pages or by using <%= console %> in views
-  gem 'debase'
-  gem 'ruby-debug-ide', git: 'https://github.com/corgibytes/ruby-debug-ide', branch: 'feature-add-fixed-port-range'
   gem 'web-console', platforms: :ruby
 end
 

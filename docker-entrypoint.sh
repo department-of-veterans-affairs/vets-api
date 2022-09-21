@@ -6,9 +6,3 @@
 bundle check || bundle install --binstubs="${BUNDLE_APP_CONFIG}/bin" --jobs=4
 
 exec "$@"
-
-if [ -e  "./docker_debugging" ] ; then
-  echo starting rake docker_debugging:setup
-  rake docker_debugging:setup
-fi
-
