@@ -58,6 +58,7 @@ class AppealsApi::RswagConfig
   def schemas
     a = []
     a << generic_schemas('#/components/schemas')
+    a << contestable_issues_schema('#/components/schemas')
     case ENV['RSWAG_SECTION_SLUG']
     when 'hlr'
       a << hlr_v2_create_schemas
@@ -74,7 +75,6 @@ class AppealsApi::RswagConfig
     else
       a << hlr_v2_create_schemas
       a << hlr_v2_response_schemas('#/components/schemas')
-      a << contestable_issues_schema('#/components/schemas')
       a << nod_v2_create_schemas
       a << nod_v2_response_schemas('#/components/schemas')
       a << sc_create_schemas
@@ -408,7 +408,8 @@ class AppealsApi::RswagConfig
   end
 
   def nod_v2_create_schemas
-    parse_create_schema('v2', '10182.json')
+    file = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '10182_with_shared_refs.json' : '10182.json'
+    parse_create_schema('v2', file)
   end
 
   def nod_v2_response_schemas(ref_root)
@@ -462,6 +463,45 @@ class AppealsApi::RswagConfig
             }
           }
         }
+      },
+      'nodShowResponse': {
+        'type': 'object',
+        'properties': {
+          'data': {
+            'properties': {
+              'id': {
+                '$ref': "#{ref_root}/uuid"
+              },
+              'type': {
+                'type': 'string',
+                'enum': ['noticeOfDisagreement']
+              },
+              'attributes': {
+                'properties': {
+                  'status': {
+                    'type': 'string',
+                    'example': AppealsApi::NodStatus::STATUSES.first,
+                    'enum': AppealsApi::NodStatus::STATUSES
+                  },
+                  'updatedAt': {
+                    'description': 'The last time the submission was updated',
+                    'type': 'string',
+                    'format': 'date-time',
+                    'example': '2018-07-30T17:31:15.958Z'
+                  },
+                  'createdAt': {
+                    'description': 'The last time the submission was updated',
+                    'type': 'string',
+                    'format': 'date-time',
+                    'example': '2018-07-30T17:31:15.958Z'
+                  }
+                }
+              }
+            },
+            'required': %w[id type attributes]
+          }
+        },
+        'required': ['data']
       },
       'nodEvidenceSubmissionResponse': {
         'type': 'object',

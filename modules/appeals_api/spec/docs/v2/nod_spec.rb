@@ -11,7 +11,8 @@ describe 'Notice of Disagreements', swagger_doc: "modules/appeals_api/app/swagge
   include DocHelpers
   let(:apikey) { 'apikey' }
 
-  path '/notice_of_disagreements' do
+  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/forms/10182' : '/notice_of_disagreements'
+  path p do
     post 'Creates a new Notice of Disagreement' do
       tags 'Notice of Disagreements'
       operationId 'createNod'
@@ -120,7 +121,8 @@ describe 'Notice of Disagreements', swagger_doc: "modules/appeals_api/app/swagge
     end
   end
 
-  path '/notice_of_disagreements/{uuid}' do
+  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/forms/10182/{uuid}' : '/notice_of_disagreements/{uuid}'
+  path p do
     get 'Shows a specific Notice of Disagreement. (a.k.a. the Show endpoint)' do
       tags 'Notice of Disagreements'
       operationId 'showNod'
@@ -134,7 +136,7 @@ describe 'Notice of Disagreements', swagger_doc: "modules/appeals_api/app/swagge
       parameter name: :uuid, in: :path, type: :string, description: 'Notice of Disagreement UUID'
 
       response '200', 'Info about a single Notice of Disagreement' do
-        schema '$ref' => '#/components/schemas/nodCreateResponse'
+        schema '$ref' => '#/components/schemas/nodShowResponse'
 
         let(:uuid) { FactoryBot.create(:notice_of_disagreement_v2).id }
 
@@ -151,27 +153,71 @@ describe 'Notice of Disagreements', swagger_doc: "modules/appeals_api/app/swagge
     end
   end
 
-  path '/notice_of_disagreements/schema' do
-    get 'Gets the Notice of Disagreement JSON Schema.' do
-      tags 'Notice of Disagreements'
-      operationId 'nodSchema'
-      description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /notice_of_disagreement` endpoint.'
-      security [
-        { apikey: [] }
-      ]
-      produces 'application/json'
+  if DocHelpers.wip_doc_enabled?(:segmented_apis, true)
+    path '/schemas/{schema_type}' do
+      get 'Gets the Notice of Disagreement JSON Schema.' do
+        tags 'Notice of Disagreements'
+        description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /forms/10182` endpoint.'
+        security [
+          { apikey: [] }
+        ]
+        produces 'application/json'
 
-      response '200', 'the JSON Schema for POST /notice_of_disagreements' do
-        it_behaves_like 'rswag example', desc: 'returns a 200 response'
+        examples = {
+          '10182': { value: '10182' },
+          'address': { value: 'address' },
+          'non_blank_string': { value: 'non_blank_string' },
+          'phone': { value: 'phone' },
+          'timezone': { value: 'timezone' }
+        }
+
+        parameter name: :schema_type,
+                  in: :path,
+                  type: :string,
+                  description: "Schema type. Can be: `#{examples.keys.join('`, `')}`",
+                  required: true,
+                  examples: examples
+
+        examples.each do |_, v|
+          response '200', 'The JSON schema for the given `schema_type` parameter' do
+            let(:schema_type) { v[:value] }
+            it_behaves_like 'rswag example', desc: v[:value], extract_desc: true
+          end
+        end
+
+        response '404', '`schema_type` not found' do
+          schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', '404.json')))
+          let(:schema_type) { 'invalid_schema_type' }
+          it_behaves_like 'rswag example', desc: 'schema type not found'
+        end
+      end
+    end
+  else
+    path '/notice_of_disagreements/schema' do
+      get 'Gets the Notice of Disagreement JSON Schema.' do
+        tags 'Notice of Disagreements'
+        operationId 'nodSchema'
+        description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /notice_of_disagreements` endpoint.'
+        security [
+          { apikey: [] }
+        ]
+        produces 'application/json'
+
+        response '200', 'the JSON Schema for POST /notice_of_disagreements' do
+          it_behaves_like 'rswag example', desc: 'returns a 200 response'
+        end
       end
     end
   end
 
-  path '/notice_of_disagreements/validate' do
+  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/forms/10182/validate' : '/notice_of_disagreements/validate'
+  path p do
     post 'Validates a POST request body against the JSON schema.' do
+      desc_path = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/forms/10182' : '/notice_of_disagreements'
+
       tags 'Notice of Disagreements'
       operationId 'nodValidate'
-      description 'Like the POST /notice_of_disagreements, but only does the validations <b>—does not submit anything.</b>'
+      description "Like the POST #{desc_path}, but only does the validations <b>—does not submit anything.</b>"
       security [
         { apikey: [] }
       ]
@@ -250,7 +296,8 @@ describe 'Notice of Disagreements', swagger_doc: "modules/appeals_api/app/swagge
     end
   end
 
-  path '/notice_of_disagreements/evidence_submissions/' do
+  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/evidence_submissions' : '/notice_of_disagreements/evidence_submissions'
+  path p do
     post 'Get a location for subsequent evidence submission document upload PUT request' do
       tags 'Notice of Disagreements'
       operationId 'postNoticeOfDisagreementEvidenceSubmission'
@@ -430,7 +477,8 @@ describe 'Notice of Disagreements', swagger_doc: "modules/appeals_api/app/swagge
     end
   end
 
-  path '/notice_of_disagreements/evidence_submissions/{uuid}' do
+  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/evidence_submissions/{uuid}' : '/notice_of_disagreements/evidence_submissions/{uuid}'
+  path p do
     get 'Returns all of the data associated with a specific Notice of Disagreement Evidence Submission.' do
       tags 'Notice of Disagreements'
       operationId 'getNoticeOfDisagreementEvidenceSubmission'
