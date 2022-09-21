@@ -14,7 +14,7 @@ describe VAOS::AppointmentRequestsService do
       let(:appointment_request_params) { build(:appointment_request_form, :creation, user: user).params }
 
       it 'creates a new appointment request' do
-        VCR.use_cassette('vaos/appointment_requests/post_request', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/appointment_requests/post_request', match_requests_on: %i[method path query]) do
           response = subject.post_request(appointment_request_params)
           expect(response[:data].unique_id).to eq('8a4886886e4c8e22016e92be77cb00f9')
           expect(response[:data].appointment_request_detail_code).to be_empty
@@ -26,7 +26,7 @@ describe VAOS::AppointmentRequestsService do
       let(:params) { build(:cc_appointment_request_form, :creation, user: user).params.merge(type: 'cc') }
 
       it 'creates a new CC appointment request' do
-        VCR.use_cassette('vaos/appointment_requests/post_request_CC', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/appointment_requests/post_request_CC', match_requests_on: %i[method path query]) do
           response = subject.post_request(params)
           expect(response[:data].created_date).not_to be_nil
         end
@@ -56,7 +56,7 @@ describe VAOS::AppointmentRequestsService do
       end
 
       it 'cancels a pending appointment request' do
-        VCR.use_cassette('vaos/appointment_requests/put_request', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/appointment_requests/put_request', match_requests_on: %i[method path query]) do
           response = subject.put_request(id, appointment_request_params)
           expect(response[:data].unique_id).to eq('8a4886886e4c8e22016e92be77cb00f9')
           expect(response[:data].appointment_request_detail_code.first[:created_date])
@@ -73,7 +73,7 @@ describe VAOS::AppointmentRequestsService do
 
     context 'without data params but with cc appointment data' do
       it 'includes the cc appointment data' do
-        VCR.use_cassette('vaos/appointment_requests/get_requests', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/appointment_requests/get_requests', match_requests_on: %i[method path query]) do
           response = subject.get_requests
           request_with_cc = response[:data][40]
           expect(request_with_cc.cc_appointment_request).to eq(
@@ -104,7 +104,8 @@ describe VAOS::AppointmentRequestsService do
 
     context 'with data params' do
       it 'returns an array of size 1' do
-        VCR.use_cassette('vaos/appointment_requests/get_requests_with_params', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/appointment_requests/get_requests_with_params',
+                         match_requests_on: %i[method path query]) do
           response = subject.get_requests(start_date, end_date)
           expect(response[:data].size).to eq(1)
         end
@@ -117,7 +118,7 @@ describe VAOS::AppointmentRequestsService do
 
     context 'with valid appointment id' do
       it 'returns a single appointment request' do
-        VCR.use_cassette('vaos/appointment_requests/get_request_with_id', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/appointment_requests/get_request_with_id', match_requests_on: %i[method path query]) do
           response = subject.get_request('8a4829dc7281184e017285000ab700cf')
           expect(response[:data].unique_id).to eq('8a4829dc7281184e017285000ab700cf')
         end

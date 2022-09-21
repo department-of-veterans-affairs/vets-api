@@ -12,7 +12,7 @@ describe VAOS::PreferencesService do
   describe '#get_preferences' do
     context 'with a 200 response' do
       it 'includes' do
-        VCR.use_cassette('vaos/preferences/get_preferences', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/preferences/get_preferences', match_requests_on: %i[method path query]) do
           response = subject.get_preferences
           expect(response.notification_frequency).to eq('Never')
           expect(response.email_allowed).to be_truthy
@@ -37,7 +37,7 @@ describe VAOS::PreferencesService do
 
     context 'with valid params' do
       it 'updates preferences', :skip_mvi do
-        VCR.use_cassette('vaos/preferences/put_preferences', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/preferences/put_preferences', match_requests_on: %i[method path query]) do
           response = subject.put_preferences(request_body)
 
           expect(response.notification_frequency).to eq('Each new message')

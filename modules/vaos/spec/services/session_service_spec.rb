@@ -30,7 +30,7 @@ describe VAOS::SessionService do
 
   describe 'headers' do
     it 'includes Referer, X-VAMF-JWT and X-Request-ID headers in each request' do
-      VCR.use_cassette('vaos/systems/get_systems', match_requests_on: %i[method uri]) do
+      VCR.use_cassette('vaos/systems/get_systems', match_requests_on: %i[method path query]) do
         response = klass.new(user).get_systems
         expect(response.request_headers).to eq(expected_request_headers)
       end

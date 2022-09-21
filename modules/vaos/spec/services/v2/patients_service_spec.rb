@@ -12,7 +12,8 @@ describe VAOS::V2::PatientsService do
   describe '#index' do
     context 'with an patient' do
       it 'returns a patient' do
-        VCR.use_cassette('vaos/v2/patients/get_patient_appointment_metadata', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/v2/patients/get_patient_appointment_metadata',
+                         match_requests_on: %i[method path query]) do
           response = subject.get_patient_appointment_metadata('primaryCare', '100', 'direct')
           expect(response[:eligible]).to eq(false)
 
@@ -23,7 +24,8 @@ describe VAOS::V2::PatientsService do
 
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
-        VCR.use_cassette('vaos/v2/patients/get_patient_appointment_metadata_500', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/v2/patients/get_patient_appointment_metadata_500',
+                         match_requests_on: %i[method path query]) do
           expect { subject.get_patient_appointment_metadata('primaryCare', '100', 'direct') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
