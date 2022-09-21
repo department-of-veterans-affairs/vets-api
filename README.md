@@ -64,7 +64,6 @@ For frontend, see [vets-website](https://github.com/department-of-veterans-affai
 
 - [Running natively](docs/setup/running_natively.md)
 - [Running with Docker](docs/setup/running_docker.md)
-- [Debugging on Docker](docs/setup/debugging_with_docker_rubymine_windows.md)
 
 ## Configuration
 

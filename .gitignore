@@ -64,10 +64,6 @@ config/ca-trust
 !config/ca-trust/README.md
 !config/ca-trust/fwdproxy.crt
 
-# Ignore docker_debugging and .env
-docker_debugging
-.env
-
 # Ignore lock files in modules (gems)
 modules/**/Gemfile.lock
 

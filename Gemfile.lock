@@ -1,12 +1,4 @@
 GIT
-  remote: https://github.com/corgibytes/ruby-debug-ide
-  revision: 4778461bf622c208f355bc193c9726871a8ed71d
-  branch: feature-add-fixed-port-range
-  specs:
-    ruby-debug-ide (0.7.3)
-      rake (>= 0.8.1)
-
-GIT
   remote: https://github.com/department-of-veterans-affairs/active_model_serializers
   revision: 19015caa80227e5ae5d62179129edcaa43fb3d9d
   branch: master
@@ -81,14 +73,6 @@ GIT
       nokogiri
       prawn
       prawn-table
-
-GIT
-  remote: https://github.com/resque/redis-namespace.git
-  revision: de6c3b9b01658b37e3ea776c52cf2eec3a89dcb3
-  ref: de6c3b9b01658b37e3ea776c52cf2eec3a89dcb3
-  specs:
-    redis-namespace (1.8.2)
-      redis (>= 3.0.4)
 
 PATH
   remote: modules
@@ -321,8 +305,6 @@ GEM
       libdatadog (~> 0.7.0.1.0)
       libddwaf (~> 1.3.0.2.0)
       msgpack
-    debase (0.2.4.1)
-      debase-ruby_core_source (>= 0.10.2)
     debase-ruby_core_source (0.10.16)
     declarative (0.0.20)
     deep_merge (1.2.2)
@@ -759,6 +741,8 @@ GEM
       ffi (~> 1.0)
     rchardet (1.8.0)
     redis (4.8.0)
+    redis-namespace (1.9.0)
+      redis (>= 4)
     regexp_parser (2.5.0)
     representable (3.2.0)
       declarative (< 0.1.0)
@@ -1037,7 +1021,6 @@ DEPENDENCIES
   database_cleaner
   date_validator
   ddtrace
-  debase
   debts_api!
   dhp_connected_devices!
   dry-struct
@@ -1133,7 +1116,7 @@ DEPENDENCIES
   rails_semantic_logger
   rainbow
   redis
-  redis-namespace!
+  redis-namespace
   request_store
   restforce
   rgeo-geojson
@@ -1149,7 +1132,6 @@ DEPENDENCIES
   rubocop-rails
   rubocop-rspec
   rubocop-thread_safety
-  ruby-debug-ide!
   ruby-saml
   rubyzip
   savon

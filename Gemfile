@@ -124,7 +124,7 @@ gem 'rack-timeout', require: 'rack/timeout/base'
 gem 'rails_semantic_logger'
 gem 'rails-session_cookie'
 gem 'redis'
-gem 'redis-namespace', github: 'resque/redis-namespace', ref: 'de6c3b9b01658b37e3ea776c52cf2eec3a89dcb3' # TODO: Remove ref once a new release has been made
+gem 'redis-namespace'
 gem 'request_store'
 gem 'restforce'
 gem 'rgeo-geojson'
@@ -159,8 +159,6 @@ group :development do
   # POSIX systems should have this already, so we're not going to bring it in on other platforms
   gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
   # Access an IRB console on exception pages or by using <%= console %> in views
-  gem 'debase'
-  gem 'ruby-debug-ide', git: 'https://github.com/corgibytes/ruby-debug-ide', branch: 'feature-add-fixed-port-range'
   gem 'web-console', platforms: :ruby
 end
 
