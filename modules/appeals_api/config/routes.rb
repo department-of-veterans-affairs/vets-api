@@ -81,6 +81,7 @@ AppealsApi::Engine.routes.draw do
       get 'decision_reviews', to: 'docs#decision_reviews'
       get 'hlr', to: 'docs#hlr'
       get 'nod', to: 'docs#nod'
+      get 'sc', to: 'docs#sc'
     end
   end
 
