@@ -30,6 +30,6 @@ namespace :breakers do
 
     Breakers.client.services.select { |s| s.name == service }.first.end_forced_outage!
 
-    puts "Successfully forced outage of: [#{ENV['service']}]"
+    puts "Successfully ended forced outage of: [#{ENV['service']}]"
   end
 end
