@@ -21,7 +21,7 @@ describe VAOS::Middleware::VAOSLogging do
     context 'with a succesful response' do
       # Line 38 fails Jenkins but would fail locally if removed.
       xit 'increments statsd' do
-        VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method path query]) do
           expect(Rails.logger).to receive(:info).with(
             'VAOS service call succeeded!',
             duration: 0.0,
@@ -52,7 +52,7 @@ describe VAOS::Middleware::VAOSLogging do
 
     context 'with a failed response' do
       it 'increments statsd' do
-        VCR.use_cassette('vaos/appointments/get_appointments_500', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/appointments/get_appointments_500', match_requests_on: %i[method path query]) do
           expect(Rails.logger).to receive(:warn).with(
             'VAOS service call failed!',
             duration: 0.0,

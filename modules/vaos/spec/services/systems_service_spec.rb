@@ -12,14 +12,14 @@ describe VAOS::SystemsService do
   describe '#get_systems' do
     context 'with 10 identifiers and 4 systems' do
       it 'returns an array of size 4' do
-        VCR.use_cassette('vaos/systems/get_systems', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_systems', match_requests_on: %i[method path query]) do
           response = subject.get_systems
           expect(response.size).to eq(4)
         end
       end
 
       it 'increments metrics total' do
-        VCR.use_cassette('vaos/systems/get_systems', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_systems', match_requests_on: %i[method path query]) do
           expect { subject.get_systems }.to trigger_statsd_increment(
             'api.vaos.get_systems.total', times: 1, value: 1
           )
@@ -29,7 +29,7 @@ describe VAOS::SystemsService do
 
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
-        VCR.use_cassette('vaos/systems/get_systems_500', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_systems_500', match_requests_on: %i[method path query]) do
           expect { subject.get_systems }.to trigger_statsd_increment(
             'api.vaos.get_systems.total', times: 1, value: 1
           ).and trigger_statsd_increment(
@@ -41,7 +41,7 @@ describe VAOS::SystemsService do
 
     context 'when the upstream server returns a 403' do
       it 'raises a backend exception' do
-        VCR.use_cassette('vaos/systems/get_systems_403', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_systems_403', match_requests_on: %i[method path query]) do
           expect { subject.get_systems }.to trigger_statsd_increment(
             'api.vaos.get_systems.fail', times: 1, value: 1
           ).and raise_error(Common::Exceptions::BackendServiceException)
@@ -53,7 +53,7 @@ describe VAOS::SystemsService do
   describe '#get_facilities' do
     context 'with 141 facilities' do
       it 'returns an array of size 141' do
-        VCR.use_cassette('vaos/systems/get_facilities', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_facilities', match_requests_on: %i[method path query]) do
           response = subject.get_facilities('688')
           expect(response.size).to eq(141)
         end
@@ -62,7 +62,7 @@ describe VAOS::SystemsService do
 
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
-        VCR.use_cassette('vaos/systems/get_facilities_500', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_facilities_500', match_requests_on: %i[method path query]) do
           expect { subject.get_facilities('688') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
@@ -74,7 +74,7 @@ describe VAOS::SystemsService do
   describe '#get_facility_clinics' do
     context 'with 1 clinic' do
       it 'returns an array of size 1' do
-        VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method path query]) do
           response = subject.get_facility_clinics('983', '323', '983')
           expect(response.size).to eq(4)
         end
@@ -83,7 +83,7 @@ describe VAOS::SystemsService do
 
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
-        VCR.use_cassette('vaos/systems/get_facility_clinics_500', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_facility_clinics_500', match_requests_on: %i[method path query]) do
           expect { subject.get_facility_clinics('984GA', '323', '984') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
@@ -95,7 +95,7 @@ describe VAOS::SystemsService do
   describe '#get_cancel_reasons' do
     context 'with a 200 response' do
       it 'returns an array of size 6' do
-        VCR.use_cassette('vaos/systems/get_cancel_reasons', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_cancel_reasons', match_requests_on: %i[method path query]) do
           response = subject.get_cancel_reasons('984')
           expect(response.size).to eq(6)
         end
@@ -104,7 +104,7 @@ describe VAOS::SystemsService do
 
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
-        VCR.use_cassette('vaos/systems/get_cancel_reasons_500', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_cancel_reasons_500', match_requests_on: %i[method path query]) do
           expect { subject.get_cancel_reasons('984') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
@@ -121,7 +121,8 @@ describe VAOS::SystemsService do
 
     context 'with a 200 response' do
       it 'lists available times by facility with coerced dates' do
-        VCR.use_cassette('vaos/systems/get_facility_available_appointments', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_facility_available_appointments',
+                         match_requests_on: %i[method path query]) do
           response = subject.get_facility_available_appointments(facility_id, start_date, end_date, clinic_ids)
           clinic = response.first
           first_available_time = clinic.appointment_time_slot.first
@@ -133,7 +134,7 @@ describe VAOS::SystemsService do
 
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
-        VCR.use_cassette('vaos/systems/get_facility_appointments', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_facility_appointments', match_requests_on: %i[method path query]) do
           expect { subject.get_cancel_reasons('984') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
@@ -145,14 +146,14 @@ describe VAOS::SystemsService do
   describe '#get_system_facilities' do
     context 'with a 200 response' do
       it 'returns the six facilities for the system with id of 688' do
-        VCR.use_cassette('vaos/systems/get_system_facilities', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_system_facilities', match_requests_on: %i[method path query]) do
           response = subject.get_system_facilities('688', '688', '323')
           expect(response.size).to eq(6)
         end
       end
 
       it 'flattens the facility data' do
-        VCR.use_cassette('vaos/systems/get_system_facilities', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_system_facilities', match_requests_on: %i[method path query]) do
           response = subject.get_system_facilities('688', '688', '323')
           facility = response.first.to_h
           expect(facility).to eq(
@@ -174,7 +175,7 @@ describe VAOS::SystemsService do
 
     context 'with express care' do
       it 'includes express care data' do
-        VCR.use_cassette('vaos/systems/get_system_facilities_express_care', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_system_facilities_express_care', match_requests_on: %i[method path query]) do
           response = subject.get_system_facilities('983', '983', 'CR1')
           expect(response.pluck(:express_times)).to eq(
             [
@@ -210,7 +211,7 @@ describe VAOS::SystemsService do
 
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
-        VCR.use_cassette('vaos/systems/get_system_facilities_500', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_system_facilities_500', match_requests_on: %i[method path query]) do
           expect { subject.get_system_facilities('688', '688', '323') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
@@ -222,7 +223,7 @@ describe VAOS::SystemsService do
   describe '#get_facility_limits' do
     context 'with a 200 response' do
       it 'returns the number of requests and limits for a facility' do
-        VCR.use_cassette('vaos/systems/get_facility_limits', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_facility_limits', match_requests_on: %i[method path query]) do
           response = subject.get_facility_limits('688', '323')
           expect(response.number_of_requests).to eq(0)
           expect(response.request_limit).to eq(1)
@@ -232,7 +233,7 @@ describe VAOS::SystemsService do
 
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
-        VCR.use_cassette('vaos/systems/get_facility_limits_500', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_facility_limits_500', match_requests_on: %i[method path query]) do
           expect { subject.get_facility_limits('688', '323') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
@@ -246,7 +247,7 @@ describe VAOS::SystemsService do
 
     context 'with a 200 response' do
       it 'returns a number of requests and limits for multiple facilities' do
-        VCR.use_cassette('vaos/systems/get_facilities_limits_for_multiple', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_facilities_limits_for_multiple', match_requests_on: %i[method path query]) do
           response = subject.get_facilities_limits(%w[688 442], '323')
           expect(response.size).to eq(2)
         end
@@ -255,7 +256,8 @@ describe VAOS::SystemsService do
 
     context 'with a 500 response' do
       it 'returns a number of requests and limits for multiple facilities' do
-        VCR.use_cassette('vaos/systems/get_facilities_limits_for_multiple_500', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_facilities_limits_for_multiple_500',
+                         match_requests_on: %i[method path query]) do
           expect { subject.get_facility_limits(%w[688 442], '323') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
@@ -267,7 +269,7 @@ describe VAOS::SystemsService do
   describe '#get_system_pact' do
     context 'with a 200 response' do
       it 'returns pact info' do
-        VCR.use_cassette('vaos/systems/get_system_pact', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_system_pact', match_requests_on: %i[method path query]) do
           response = subject.get_system_pact('688')
           expect(response.size).to eq(6)
           expect(response.first.to_h).to eq(
@@ -287,7 +289,7 @@ describe VAOS::SystemsService do
 
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
-        VCR.use_cassette('vaos/systems/get_system_pact_500', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_system_pact_500', match_requests_on: %i[method path query]) do
           expect { subject.get_system_pact('688') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
@@ -299,7 +301,7 @@ describe VAOS::SystemsService do
   describe '#get_facility_visits' do
     context 'with a 200 response for direct visits that is false' do
       it 'returns facility information showing no visits' do
-        VCR.use_cassette('vaos/systems/get_facility_visits', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_facility_visits', match_requests_on: %i[method path query]) do
           response = subject.get_facility_visits('688', '688', '323', 'direct')
           expect(response.has_visited_in_past_months).to be_falsey
           expect(response.duration_in_months).to eq(0)
@@ -309,7 +311,7 @@ describe VAOS::SystemsService do
 
     context 'with a 200 response for request visits that is true' do
       it 'returns facility information showing a past visit' do
-        VCR.use_cassette('vaos/systems/get_facility_visits_request', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_facility_visits_request', match_requests_on: %i[method path query]) do
           response = subject.get_facility_visits('688', '688', '323', 'request')
           expect(response.has_visited_in_past_months).to be_truthy
           expect(response.duration_in_months).to eq(2)
@@ -319,7 +321,7 @@ describe VAOS::SystemsService do
 
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
-        VCR.use_cassette('vaos/systems/get_facility_visits_500', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_facility_visits_500', match_requests_on: %i[method path query]) do
           expect { subject.get_facility_visits('688', '688', '323', 'direct') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
@@ -334,7 +336,7 @@ describe VAOS::SystemsService do
       let(:clinic_ids) { [16, 90, 110, 192, 193] }
 
       it 'returns only those clinics parsed correctly', :aggregate_failures do
-        VCR.use_cassette('vaos/systems/get_institutions', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_institutions', match_requests_on: %i[method path query]) do
           response = subject.get_clinic_institutions(system_id, clinic_ids)
           expect(response.map { |c| c[:location_ien].to_i }).to eq(clinic_ids)
           expect(response.last.to_h).to eq(
@@ -353,7 +355,7 @@ describe VAOS::SystemsService do
       let(:clinic_ids) { 16 }
 
       it 'returns the correctly parsed clinic', :aggregate_failures do
-        VCR.use_cassette('vaos/systems/get_institutions_single', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/systems/get_institutions_single', match_requests_on: %i[method path query]) do
           response = subject.get_clinic_institutions(system_id, clinic_ids)
           expect(response.map { |c| c[:location_ien].to_i }).to eq([*clinic_ids])
           expect(response.first.to_h).to eq(
@@ -372,7 +374,7 @@ describe VAOS::SystemsService do
     context 'with a site_codes param array' do
       it 'returns an array', :aggregate_failures do
         VCR.use_cassette('vaos/systems/get_request_eligibility_criteria_by_site_codes',
-                         match_requests_on: %i[method uri]) do
+                         match_requests_on: %i[method path query]) do
           response = subject.get_request_eligibility_criteria(site_codes: %w[442 534])
           expect(response.size).to eq(2)
           first_result = response.first
@@ -394,7 +396,7 @@ describe VAOS::SystemsService do
     context 'with a parent_sites param array' do
       it 'returns an array', :aggregate_failures do
         VCR.use_cassette('vaos/systems/get_request_eligibility_criteria_by_parent_sites',
-                         match_requests_on: %i[method uri]) do
+                         match_requests_on: %i[method path query]) do
           response = subject.get_request_eligibility_criteria(parent_sites: %w[983 984])
           expect(response.size).to eq(5)
           first_result = response.first
@@ -417,7 +419,7 @@ describe VAOS::SystemsService do
     context 'with a single id' do
       it 'returns the criteria for a single facility', :aggregate_failures do
         VCR.use_cassette('vaos/systems/get_request_eligibility_criteria_by_id',
-                         match_requests_on: %i[method uri]) do
+                         match_requests_on: %i[method path query]) do
           response = subject.get_request_eligibility_criteria(site_codes: '688')
           expect(response.first.to_h).to eq(
             { links: [{ title: 'request-eligibility-criteria',
@@ -523,7 +525,7 @@ describe VAOS::SystemsService do
     context 'with a site_codes param array' do
       it 'returns an array', :aggregate_failures do
         VCR.use_cassette('vaos/systems/get_direct_booking_eligibility_criteria_by_site_codes',
-                         match_requests_on: %i[method uri]) do
+                         match_requests_on: %i[method path query]) do
           response = subject.get_direct_booking_elig_crit(site_codes: %w[442 534])
           expect(response.size).to eq(2)
           first_result = response.first

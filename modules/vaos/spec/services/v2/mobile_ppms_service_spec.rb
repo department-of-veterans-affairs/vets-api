@@ -13,7 +13,7 @@ describe VAOS::V2::MobilePPMSService do
     context 'with a single provider id' do
       it 'returns a provider name' do
         VCR.use_cassette('vaos/v2/mobile_ppms_service/get_provider_200',
-                         match_requests_on: %i[method uri], tag: :force_utf8) do
+                         match_requests_on: %i[method path query], tag: :force_utf8) do
           response = subject.get_provider('1407938061')
           expect(response.name).to eq 'DEHGHAN, AMIR '
         end
@@ -23,7 +23,7 @@ describe VAOS::V2::MobilePPMSService do
     context 'when the upstream server returns a 400' do
       it 'raises a bad request' do
         VCR.use_cassette('vaos/v2/mobile_ppms_service/get_provider_400',
-                         match_requests_on: %i[method uri]) do
+                         match_requests_on: %i[method path query]) do
           expect { subject.get_provider(489) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
@@ -34,7 +34,7 @@ describe VAOS::V2::MobilePPMSService do
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/v2/mobile_ppms_service/get_provider_500',
-                         match_requests_on: %i[method uri]) do
+                         match_requests_on: %i[method path query]) do
           expect { subject.get_provider(489) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )

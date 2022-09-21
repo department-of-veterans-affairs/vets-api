@@ -12,7 +12,7 @@ describe VAOS::V2::SystemsService do
   describe '#get_facility_clinics' do
     context 'with 7 clinics' do
       it 'returns an array of size 7' do
-        VCR.use_cassette('vaos/v2/systems/get_facility_clinics_200', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/v2/systems/get_facility_clinics_200', match_requests_on: %i[method path query]) do
           response = subject.get_facility_clinics(location_id: '983', clinical_service: 'audiology')
           expect(response.size).to eq(7)
           expect(response[0][:id]).to eq('570')
@@ -22,7 +22,7 @@ describe VAOS::V2::SystemsService do
 
     context 'when the upstream server returns a 400' do
       it 'raises a backend exception' do
-        VCR.use_cassette('vaos/v2/systems/get_facility_clinics_400', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/v2/systems/get_facility_clinics_400', match_requests_on: %i[method path query]) do
           expect do
             subject.get_facility_clinics(location_id: '983', clinic_ids: '570', clinical_service: 'audiology')
           end.to raise_error(Common::Exceptions::BackendServiceException, /VAOS_400/)
@@ -34,7 +34,7 @@ describe VAOS::V2::SystemsService do
   describe '#get_available_slots' do
     context 'when the upstream server returns status code 500' do
       it 'raises a backend exception' do
-        VCR.use_cassette('vaos/v2/systems/get_available_slots_500', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/v2/systems/get_available_slots_500', match_requests_on: %i[method path query]) do
           expect do
             subject.get_available_slots(location_id: '983', clinic_id: '1081',
                                         start_dt: '2021-10-01T00:00:00Z',
@@ -46,7 +46,7 @@ describe VAOS::V2::SystemsService do
 
     context 'when the upstream server returns status code 200' do
       it 'returns a list of available slots' do
-        VCR.use_cassette('vaos/v2/systems/get_available_slots_200', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/v2/systems/get_available_slots_200', match_requests_on: %i[method path query]) do
           available_slots = subject.get_available_slots(location_id: '983', clinic_id: '1081',
                                                         start_dt: '2021-10-26T00:00:00Z',
                                                         end_dt: '2021-12-30T23:59:59Z')

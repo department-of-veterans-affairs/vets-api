@@ -12,14 +12,14 @@ describe VAOS::CCEligibilityService do
 
   describe '#get_eligibility', :skip_mvi do
     it 'gets an eligibility of true' do
-      VCR.use_cassette('vaos/cc_eligibility/get_eligibility_true', match_requests_on: %i[method uri]) do
+      VCR.use_cassette('vaos/cc_eligibility/get_eligibility_true', match_requests_on: %i[method path query]) do
         response = subject.get_eligibility(service_type)
         expect(response[:data].eligible).to eq(true)
       end
     end
 
     it 'gets an eligibility of false' do
-      VCR.use_cassette('vaos/cc_eligibility/get_eligibility_false', match_requests_on: %i[method uri]) do
+      VCR.use_cassette('vaos/cc_eligibility/get_eligibility_false', match_requests_on: %i[method path query]) do
         response = subject.get_eligibility(service_type)
         expect(response[:data].eligible).to eq(false)
       end
@@ -29,7 +29,7 @@ describe VAOS::CCEligibilityService do
       let(:service_type) { 'NotAType' }
 
       it 'handles 400 error appropriately' do
-        VCR.use_cassette('vaos/cc_eligibility/get_eligibility_400', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/cc_eligibility/get_eligibility_400', match_requests_on: %i[method path query]) do
           expect { subject.get_eligibility(service_type) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
