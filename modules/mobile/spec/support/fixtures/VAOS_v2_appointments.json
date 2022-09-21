@@ -159,7 +159,13 @@
           "state":"OH",
           "postal_code":"45414",
           "text":"1601\nNeedmore Rd Ste 1\nDayton OH 45414"
-        }
+        },
+        "telecom":[
+          {
+            "system":"phone",
+            "value":"3214170822"
+          }
+        ]
       }
     },
     "location":{
