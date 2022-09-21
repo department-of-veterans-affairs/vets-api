@@ -34,7 +34,7 @@ Statuses can also be simulated for evidence document uploads.
 
 ### Evidence uploads
 Our NOD evidence submission endpoints allow a client to upload a document package (documents and metadata) of supporting evidence for their submission by following these steps.
-1. Use the `POST endpoint /notice_of_disagreements/evidence_submissions` to return a JSON service response with the attributes listed below.
+1. Use the `POST /evidence_submissions` to return a JSON service response with the attributes listed below.
     * `guid`: An identifier used for subsequent evidence upload status requests (not to be confused with the NOD submission GUID)
     * `location`: A URL to which the actual document package payload can be submitted in the next step. The URL is specific to this upload request, and should not be re-used for subsequent uploads. The URL is valid for 900 seconds (15 minutes) from the time of this response. If the location is not used within 15 minutes, the GUID will expire. Once expired, status checks on the GUID will return a status of `expired`.
 2. Client Request: PUT to the location URL returned in step 1.
@@ -57,7 +57,7 @@ Example m`etadata.json` file:
 }
 ```
 
-The API will set the businessLine for your Evidence submission to ensure the documents are routed to the correct group within VA. You may check the status of your evidence document upload by using `GET /notice_of_disagreements/evidence_submissions/{uuid}`. If, after you've uploaded a document, the status hasn't changed to `uploaded` before 15 minutes has elapsed, we recommend retrying the submission to make sure the document properly reaches our servers.
+The API will set the businessLine for your Evidence submission to ensure the documents are routed to the correct group within VA. You may check the status of your evidence document upload by using `GET /evidence_submissions/{uuid}`. If, after you've uploaded a document, the status hasn't changed to `uploaded` before 15 minutes has elapsed, we recommend retrying the submission to make sure the document properly reaches our servers.
 
 For NODs, evidence may only be uploaded within 90 days of the NOD reaching submitted status. After 90 days an error will be returned if evidence uploads related to this NOD are attempted. 
 
@@ -80,8 +80,8 @@ The metadata.json file only supports a limited set of characters within the asci
 
 ### Status Caching
 Due to system limitations, status attribute data for these endpoints is cached for 1 hour: 
-* GET `/notice_of_disagreements/{uuid}`
-* GET `/notice_of_disagreements/evidence_submission/{uuid}`
+* GET `/forms/10182/{uuid}`
+* GET `/evidence_submission/{uuid}`
 
 The updated_at field indicates the last time the status for a given GUID was updated.
 

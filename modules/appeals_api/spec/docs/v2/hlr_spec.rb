@@ -347,7 +347,7 @@ describe 'Higher-Level Reviews', swagger_doc: "modules/appeals_api/app/swagger/a
     path '/schemas/{schema_type}' do
       get 'Gets JSON schema related to Higher-Level Review.' do
         tags 'Higher-Level Reviews'
-        description 'Returns the [JSON Schema](https://json-schema.org) related to the POST /forms/200996 endpoint'
+        description 'Returns the [JSON Schema](https://json-schema.org) related to the `POST /forms/200996` endpoint'
         security [{ apikey: [] }]
         produces 'application/json'
 

@@ -80,6 +80,7 @@ AppealsApi::Engine.routes.draw do
     namespace :v2, defaults: { format: 'json' } do
       get 'decision_reviews', to: 'docs#decision_reviews'
       get 'hlr', to: 'docs#hlr'
+      get 'nod', to: 'docs#nod'
     end
   end
 
