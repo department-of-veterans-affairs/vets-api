@@ -42,7 +42,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         expect(parsed['data'][0]['id']).to eq(uuid_2)
         expect(parsed['data'][1]['id']).to eq(uuid_1)
         # Strips out form_data
-        expect(parsed['data'][1]['attributes']['form_data']).to be_nil
+        expect(parsed['data'][1]['attributes'].key?('form_data')).to be false
       end
     end
 
@@ -69,6 +69,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         expect(hlr.source).to eq('va.gov')
         expect(parsed['data']['type']).to eq('higherLevelReview')
         expect(parsed['data']['attributes']['status']).to eq('pending')
+        expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
       end
 
       it 'behaves the same on new path' do
@@ -341,14 +342,14 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
       uuid = create(:higher_level_review_v2).id
       get("#{path}#{uuid}")
       expect(response.status).to eq(200)
-      expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
+      expect(parsed['data']['attributes'].key?('form_data')).to be false
     end
 
     it 'behaves the same on new path' do
       uuid = create(:higher_level_review_v2).id
       get("#{new_base_path 'forms/200996'}/#{uuid}")
       expect(response.status).to eq(200)
-      expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
+      expect(parsed['data']['attributes'].key?('form_data')).to be false
     end
 
     it 'allow for status simulation' do

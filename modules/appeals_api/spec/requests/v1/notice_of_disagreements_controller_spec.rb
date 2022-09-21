@@ -216,7 +216,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       uuid = create(:notice_of_disagreement).id
       get("#{path}#{uuid}")
       expect(response.status).to eq(200)
-      expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
+      expect(parsed['data']['attributes'].key?('form_data')).to be false
     end
 
     it 'allow for status simulation' do
