@@ -4,6 +4,7 @@ class AppealsApi::HigherLevelReviewSerializer
   include FastJsonapi::ObjectSerializer
   set_key_transform :camel_lower
   attributes :status, :updated_at, :created_at
-  attribute :form_data, if: proc { |_record, options| !options[:is_collection] }
+  # only return form_data for created records
+  attribute :form_data, if: proc { |record| record.saved_change_to_id? }
   set_type :higherLevelReview
 end

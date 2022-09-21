@@ -995,35 +995,7 @@
                     "attributes": {
                       "status": "pending",
                       "updatedAt": "2020-01-02T03:04:05.067Z",
-                      "createdAt": "2020-01-02T03:04:05.067Z",
-                      "formData": {
-                        "data": {
-                          "type": "higherLevelReview",
-                          "attributes": {
-                            "informalConference": false,
-                            "benefitType": "lifeInsurance",
-                            "veteran": {
-                              "homeless": false,
-                              "address": {
-                                "addressLine1": "123 Some St.",
-                                "city": "Sometown",
-                                "countryCodeISO2": "US",
-                                "zipCode5": "12345"
-                              }
-                            },
-                            "socOptIn": true
-                          }
-                        },
-                        "included": [
-                          {
-                            "type": "contestableIssue",
-                            "attributes": {
-                              "issue": "left shoulder",
-                              "decisionDate": "1920-12-01"
-                            }
-                          }
-                        ]
-                      }
+                      "createdAt": "2020-01-02T03:04:05.067Z"
                     }
                   }
                 },
@@ -4740,57 +4712,7 @@
                     "attributes": {
                       "status": "pending",
                       "updatedAt": "2020-01-02T03:04:05.067Z",
-                      "createdAt": "2020-01-02T03:04:05.067Z",
-                      "formData": {
-                        "data": {
-                          "type": "noticeOfDisagreement",
-                          "attributes": {
-                            "veteran": {
-                              "homeless": false,
-                              "address": {
-                                "addressLine1": "123 Main St",
-                                "city": "North Pole",
-                                "countryCodeISO2": "CA",
-                                "zipCode5": "00000"
-                              },
-                              "phone": {
-                                "areaCode": "555",
-                                "phoneNumber": "8001111"
-                              },
-                              "email": "clause@north.com",
-                              "timezone": "America/Chicago"
-                            },
-                            "representative": {
-                              "name": "Tony Danza"
-                            },
-                            "boardReviewOption": "evidence_submission",
-                            "requestingExtension": false,
-                            "appealingVhaDenial": false
-                          }
-                        },
-                        "included": [
-                          {
-                            "type": "contestableIssue",
-                            "attributes": {
-                              "issue": "tinnitus",
-                              "decisionDate": "1900-01-01",
-                              "decisionIssueId": 1,
-                              "ratingIssueReferenceId": "2",
-                              "ratingDecisionReferenceId": "3",
-                              "disagreementArea": "Effective Date"
-                            }
-                          },
-                          {
-                            "type": "contestableIssue",
-                            "attributes": {
-                              "issue": "left knee",
-                              "decisionDate": "1900-01-02",
-                              "decisionIssueId": 4,
-                              "ratingIssueReferenceId": "5"
-                            }
-                          }
-                        ]
-                      }
+                      "createdAt": "2020-01-02T03:04:05.067Z"
                     }
                   }
                 },
@@ -7441,45 +7363,7 @@
                     "attributes": {
                       "status": "pending",
                       "updatedAt": "2020-01-02T03:04:05.067Z",
-                      "createdAt": "2020-01-02T03:04:05.067Z",
-                      "formData": {
-                        "data": {
-                          "type": "supplementalClaim",
-                          "attributes": {
-                            "benefitType": "fiduciary",
-                            "claimantType": "veteran",
-                            "veteran": {
-                              "address": {
-                                "addressLine1": "123 Main St",
-                                "city": "New York",
-                                "countryCodeISO2": "US",
-                                "zipCode5": "30012"
-                              },
-                              "phone": {
-                                "areaCode": "555",
-                                "phoneNumber": "8001111"
-                              },
-                              "email": "josie@example.com",
-                              "timezone": "America/Chicago"
-                            },
-                            "socOptIn": false,
-                            "evidenceSubmission": {
-                              "evidenceType": [
-                                "upload"
-                              ]
-                            }
-                          }
-                        },
-                        "included": [
-                          {
-                            "type": "contestableIssue",
-                            "attributes": {
-                              "issue": "right shoulder",
-                              "decisionDate": "1900-01-06"
-                            }
-                          }
-                        ]
-                      }
+                      "createdAt": "2020-01-02T03:04:05.067Z"
                     }
                   }
                 },

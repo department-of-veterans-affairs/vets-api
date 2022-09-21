@@ -23,12 +23,13 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
     )
   )['definitions']['hlrCreateParameters']['properties'].keys
   SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
+  ALLOWED_COLUMNS = %i[id status code detail created_at updated_at].freeze
 
   def index
-    veteran_hlrs = AppealsApi::HigherLevelReview.where(veteran_icn: target_veteran.mpi_icn)
+    veteran_hlrs = AppealsApi::HigherLevelReview.select(ALLOWED_COLUMNS)
+                                                .where(veteran_icn: target_veteran.mpi_icn)
                                                 .order(created_at: :desc)
-    options = { params: { is_collection: true } }
-    render json: AppealsApi::HigherLevelReviewSerializer.new(veteran_hlrs, options).serializable_hash
+    render json: AppealsApi::HigherLevelReviewSerializer.new(veteran_hlrs).serializable_hash
   end
 
   def create
@@ -123,7 +124,7 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
 
   def find_higher_level_review
     @id = params[:id]
-    @higher_level_review = AppealsApi::HigherLevelReview.find(@id)
+    @higher_level_review = AppealsApi::HigherLevelReview.select(ALLOWED_COLUMNS).find(@id)
   rescue ActiveRecord::RecordNotFound
     render_higher_level_review_not_found
   end

@@ -24,12 +24,13 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
     )
   )['definitions']['nodCreateParameters']['properties'].keys
   SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
+  ALLOWED_COLUMNS = %i[id status code detail created_at updated_at].freeze
 
   def index
-    veteran_nods = AppealsApi::NoticeOfDisagreement.where(veteran_icn: request_headers['X-VA-ICN'])
+    veteran_nods = AppealsApi::NoticeOfDisagreement.select(ALLOWED_COLUMNS)
+                                                   .where(veteran_icn: request_headers['X-VA-ICN'])
                                                    .order(created_at: :desc)
-    options = { params: { is_collection: true } }
-    render json: AppealsApi::NoticeOfDisagreementSerializer.new(veteran_nods, options).serializable_hash
+    render json: AppealsApi::NoticeOfDisagreementSerializer.new(veteran_nods).serializable_hash
   end
 
   def create
@@ -125,7 +126,7 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
 
   def find_notice_of_disagreement
     @id = params[:id]
-    @notice_of_disagreement = AppealsApi::NoticeOfDisagreement.find(@id)
+    @notice_of_disagreement = AppealsApi::NoticeOfDisagreement.select(ALLOWED_COLUMNS).find(@id)
   rescue ActiveRecord::RecordNotFound
     render_notice_of_disagreement_not_found
   end
