@@ -766,6 +766,10 @@ features:
     actor_type: user
     description: Enables auth lock in order to access bot
     enable_in_development: true
+  virtual_agent_user_access_records:
+    actor_type: user
+    description: Enables collection of user data for VBA
+    enable_in_development: true
   yellow_ribbon_mvp_enhancement:
     actor_type: user
     description: Enhances Yellow Ribbon MVP.
