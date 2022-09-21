@@ -74,14 +74,6 @@ GIT
       prawn
       prawn-table
 
-GIT
-  remote: https://github.com/resque/redis-namespace.git
-  revision: de6c3b9b01658b37e3ea776c52cf2eec3a89dcb3
-  ref: de6c3b9b01658b37e3ea776c52cf2eec3a89dcb3
-  specs:
-    redis-namespace (1.8.2)
-      redis (>= 3.0.4)
-
 PATH
   remote: modules
   specs:
@@ -749,6 +741,8 @@ GEM
       ffi (~> 1.0)
     rchardet (1.8.0)
     redis (4.8.0)
+    redis-namespace (1.9.0)
+      redis (>= 4)
     regexp_parser (2.5.0)
     representable (3.2.0)
       declarative (< 0.1.0)
@@ -1122,7 +1116,7 @@ DEPENDENCIES
   rails_semantic_logger
   rainbow
   redis
-  redis-namespace!
+  redis-namespace
   request_store
   restforce
   rgeo-geojson

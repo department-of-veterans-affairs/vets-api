@@ -124,7 +124,7 @@ gem 'rack-timeout', require: 'rack/timeout/base'
 gem 'rails_semantic_logger'
 gem 'rails-session_cookie'
 gem 'redis'
-gem 'redis-namespace', github: 'resque/redis-namespace', ref: 'de6c3b9b01658b37e3ea776c52cf2eec3a89dcb3' # TODO: Remove ref once a new release has been made
+gem 'redis-namespace'
 gem 'request_store'
 gem 'restforce'
 gem 'rgeo-geojson'
