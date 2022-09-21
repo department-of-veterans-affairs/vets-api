@@ -8,6 +8,7 @@ threads(threads_count, threads_count)
 activate_control_app 'tcp://0.0.0.0:9293', { no_token: true }
 
 on_worker_boot do
+  Rails.cache.reconnect
   SemanticLogger.reopen
   ActiveRecord::Base.establish_connection
 end
