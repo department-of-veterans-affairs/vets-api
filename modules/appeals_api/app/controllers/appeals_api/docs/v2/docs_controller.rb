@@ -29,4 +29,13 @@ class AppealsApi::Docs::V2::DocsController < ApplicationController
               end
     render json: swagger
   end
+
+  def sc
+    swagger = if Settings.vsp_environment == 'production'
+                JSON.parse(File.read(AppealsApi::Engine.root.join('app/swagger/appeals_api/v2/swagger_sc.json')))
+              else
+                JSON.parse(File.read(AppealsApi::Engine.root.join('app/swagger/appeals_api/v2/swagger_sc_dev.json')))
+              end
+    render json: swagger
+  end
 end

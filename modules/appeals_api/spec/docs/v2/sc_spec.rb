@@ -11,7 +11,8 @@ describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/ap
   include DocHelpers
   let(:apikey) { 'apikey' }
 
-  path '/supplemental_claims' do
+  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/forms/200995' : '/supplemental_claims'
+  path p do
     post 'Creates a new Supplemental Claim' do
       tags 'Supplemental Claims'
       operationId 'createSc'
@@ -108,7 +109,8 @@ describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/ap
     end
   end
 
-  path '/supplemental_claims/{uuid}' do
+  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/forms/200995/{uuid}' : '/supplemental_claims/{uuid}'
+  path p do
     get 'Shows a specific Supplemental Claim. (a.k.a. the Show endpoint)' do
       tags 'Supplemental Claims'
       operationId 'showSc'
@@ -137,23 +139,65 @@ describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/ap
     end
   end
 
-  path '/supplemental_claims/schema' do
-    get 'Gets the Supplemental Claims JSON Schema.' do
-      tags 'Supplemental Claims'
-      operationId 'scSchema'
-      description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /supplemental_claims` endpoint.'
-      security [
-        { apikey: [] }
-      ]
-      produces 'application/json'
+  if DocHelpers.wip_doc_enabled?(:segmented_apis, true)
+    path '/schemas/{schema_type}' do
+      get 'Gets the Supplemental Claims JSON Schema.' do
+        tags 'Supplemental Claims'
+        description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /forms/200995` endpoint.'
+        security [
+          { apikey: [] }
+        ]
+        produces 'application/json'
 
-      response '200', 'the JSON Schema for POST /supplemental_claims' do
-        it_behaves_like 'rswag example', desc: 'returns a 200 response'
+        examples = {
+          '200995': { value: '200995' },
+          'address': { value: 'address' },
+          'non_blank_string': { value: 'non_blank_string' },
+          'phone': { value: 'phone' },
+          'timezone': { value: 'timezone' }
+        }
+
+        parameter name: :schema_type,
+                  in: :path,
+                  type: :string,
+                  description: "Schema type. Can be: `#{examples.keys.join('`, `')}`",
+                  required: true,
+                  examples: examples
+
+        examples.each do |_, v|
+          response '200', 'The JSON schema for the given `schema_type` parameter' do
+            let(:schema_type) { v[:value] }
+            it_behaves_like 'rswag example', desc: v[:value], extract_desc: true
+          end
+        end
+
+        response '404', '`schema_type` not found' do
+          schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', '404.json')))
+          let(:schema_type) { 'invalid_schema_type' }
+          it_behaves_like 'rswag example', desc: 'schema type not found'
+        end
+      end
+    end
+  else
+    path '/supplemental_claims/schema' do
+      get 'Gets the Supplemental Claims JSON Schema.' do
+        tags 'Supplemental Claims'
+        operationId 'scSchema'
+        description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /supplemental_claims` endpoint.'
+        security [
+          { apikey: [] }
+        ]
+        produces 'application/json'
+
+        response '200', 'the JSON Schema for POST /supplemental_claims' do
+          it_behaves_like 'rswag example', desc: 'returns a 200 response'
+        end
       end
     end
   end
 
-  path '/supplemental_claims/validate' do
+  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/forms/200995/validate' : '/supplemental_claims/validate'
+  path p do
     post 'Validates a POST request body against the JSON schema.' do
       tags 'Supplemental Claims'
       operationId 'scValidate'
@@ -235,7 +279,8 @@ describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/ap
     end
   end
 
-  path '/supplemental_claims/evidence_submissions/' do
+  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/evidence_submissions' : '/supplemental_claims/evidence_submissions'
+  path p do
     post 'Get a location for subsequent evidence submission document upload PUT request' do
       tags 'Supplemental Claims'
       operationId 'postSupplementalClaimEvidenceSubmission'
@@ -400,7 +445,8 @@ describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/ap
     end
   end
 
-  path '/supplemental_claims/evidence_submissions/{uuid}' do
+  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/evidence_submissions/{uuid}' : '/supplemental_claims/evidence_submissions/{uuid}'
+  path p do
     get 'Returns all of the data associated with a specific Supplemental Claim Evidence Submission.' do
       tags 'Supplemental Claims'
       operationId 'getSupplementalClaimEvidenceSubmission'
