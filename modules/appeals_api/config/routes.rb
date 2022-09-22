@@ -82,6 +82,8 @@ AppealsApi::Engine.routes.draw do
       get 'hlr', to: 'docs#hlr'
       get 'nod', to: 'docs#nod'
       get 'sc', to: 'docs#sc'
+      get 'ci', to: 'docs#ci'
+      get 'la', to: 'docs#la'
     end
   end
 

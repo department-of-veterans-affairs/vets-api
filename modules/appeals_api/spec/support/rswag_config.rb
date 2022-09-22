@@ -57,21 +57,33 @@ class AppealsApi::RswagConfig
 
   def schemas
     a = []
-    a << generic_schemas('#/components/schemas')
-    a << contestable_issues_schema('#/components/schemas')
     case ENV['RSWAG_SECTION_SLUG']
     when 'hlr'
       a << hlr_v2_create_schemas
       a << hlr_v2_response_schemas('#/components/schemas')
+      a << contestable_issues_schema('#/components/schemas')
+      a << generic_schemas('#/components/schemas')
       a << shared_schemas
     when 'nod'
       a << nod_v2_create_schemas
       a << nod_v2_response_schemas('#/components/schemas')
+      a << contestable_issues_schema('#/components/schemas')
+      a << generic_schemas('#/components/schemas')
       a << shared_schemas
     when 'sc'
       a << sc_create_schemas
       a << sc_response_schemas('#/components/schemas')
+      a << contestable_issues_schema('#/components/schemas')
+      a << generic_schemas('#/components/schemas')
       a << shared_schemas
+    when 'contestable_issues'
+      a << contestable_issues_schema('#/components/schemas')
+      a << generic_schemas('#/components/schemas').slice(*%i[errorModel errorWithTitleAndDetail X-VA-SSN X-VA-File-Number])
+      a << shared_schemas.slice(*%i[non_blank_string])
+    when 'legacy_appeals'
+      a << legacy_appeals_schema('#/components/schemas')
+      a << generic_schemas('#/components/schemas').slice(*%i[errorModel errorWithTitleAndDetail X-VA-SSN X-VA-File-Number])
+      a << shared_schemas.slice(*%i[non_blank_string])
     else
       a << hlr_v2_create_schemas
       a << hlr_v2_response_schemas('#/components/schemas')
@@ -79,7 +91,9 @@ class AppealsApi::RswagConfig
       a << nod_v2_response_schemas('#/components/schemas')
       a << sc_create_schemas
       a << sc_response_schemas('#/components/schemas')
+      a << contestable_issues_schema('#/components/schemas')
       a << legacy_appeals_schema('#/components/schemas')
+      a << generic_schemas('#/components/schemas')
     end
 
     a.reduce(&:merge).sort_by { |k, _| k.to_s.downcase }.to_h
