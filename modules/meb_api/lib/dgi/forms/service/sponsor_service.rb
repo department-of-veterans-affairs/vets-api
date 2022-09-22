@@ -15,7 +15,7 @@ module MebApi
           configuration MebApi::DGI::Forms::Configuration
           STATSD_KEY_PREFIX = 'api.dgi.fry_dea'
 
-          def post_sponsor(form_type)
+          def post_sponsor(form_type = 'toe')
             with_monitoring do
               options = { timeout: 60 }
               response = perform(:post, sponsor_end_point(form_type), { ssn: @user.ssn }.to_json, headers, options)

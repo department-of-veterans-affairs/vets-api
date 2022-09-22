@@ -13,7 +13,7 @@ module MebApi
           configuration MebApi::DGI::Letters::Configuration
           STATSD_KEY_PREFIX = 'api.dgi.status'
 
-          def get_claim_letter(claimant_id, type = 'Chapter33')
+          def get_claim_letter(claimant_id, type = 'toe')
             with_monitoring do
               headers = request_headers
               options = { timeout: 60 }

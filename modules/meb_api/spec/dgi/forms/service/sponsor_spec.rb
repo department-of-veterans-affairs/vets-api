@@ -19,7 +19,7 @@ RSpec.describe MebApi::DGI::Forms::Sponsor::Service do
       context 'Toes' do
         it 'returns a status of 200' do
           VCR.use_cassette('dgi/forms/sponsor_toes') do
-            response = service.post_sponsor('Toes')
+            response = service.post_sponsor
             expect(response.status).to eq(201)
             expect(response.sponsors).to eq([{ 'first_name' => 'Rodrigo', 'last_name' => 'Diaz',
                                                'sponsor_relationship' => 'Spouse', 'date_of_birth' => '06/12/1975' }])
