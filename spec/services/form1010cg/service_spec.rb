@@ -873,30 +873,30 @@ RSpec.describe Form1010cg::Service do
     end
 
     it 'submits to mulesoft', run_at: 'Thu, 04 Aug 2022 20:44:29 GMT' do
-      allow(SecureRandom).to receive(:uuid).and_return('398e6563-7850-405c-b13c-4b7ae900374d')
+      allow(SecureRandom).to receive(:uuid).and_return('884f6e51-027f-4cf1-a164-b95efbfb59f2')
       claim_with_mpi_veteran.save!
-      allow(claim_with_mpi_veteran).to receive(:id).and_return(4)
+      allow(claim_with_mpi_veteran).to receive(:id).and_return(2)
 
-      allow(SecureRandom).to receive(:uuid).and_return('c632cbd3-3ac3-44fd-97dd-fcb5126cf4ab')
+      allow(SecureRandom).to receive(:uuid).and_return('6484da2a-dd58-4227-ac76-9dab3e2f1a98')
 
       VCR.use_cassette('mulesoft/submit_v2_no_poa', VCR::MATCH_EVERYTHING) do
         res = described_class.new(claim_with_mpi_veteran).process_claim_v2!
-        expect(res['data']['carmacase']['id']).to eq('aB93S0000000FTqSAM')
+        expect(res['data']['carmacase']['id']).to eq('aB93R0000000erZSAQ')
       end
     end
 
     context 'with a poa attachment' do
       it 'submits to mulesoft', run_at: 'Thu, 04 Aug 2022 20:37:35 GMT' do
-        allow(SecureRandom).to receive(:uuid).and_return('099b42a0-94a0-44e0-8e2a-eb915b72923a')
+        allow(SecureRandom).to receive(:uuid).and_return('6e53ebe5-b1d8-4228-bc3b-f05dce4184fe')
         claim_with_mpi_veteran
 
-        allow(SecureRandom).to receive(:uuid).and_return('9db06c21-a856-4780-8a7b-b04683beb408')
+        allow(SecureRandom).to receive(:uuid).and_return('ada9fedd-8196-4bb6-95fc-91139e395b57')
         claim_with_mpi_veteran.parsed_form['poaAttachmentId'] = create(:form1010cg_attachment, :with_attachment).guid
 
         claim_with_mpi_veteran.save!
-        allow(claim_with_mpi_veteran).to receive(:id).and_return(3)
+        allow(claim_with_mpi_veteran).to receive(:id).and_return(4)
 
-        allow(SecureRandom).to receive(:uuid).and_return('64c74760-34e1-43b9-b125-f8363dc3095c')
+        allow(SecureRandom).to receive(:uuid).and_return('6c777349-0824-43e1-b2aa-3a94cd8d0a30')
 
         expect_any_instance_of(Form1010cg::Attachment).to receive(:to_local_file).and_return(
           'spec/fixtures/files/doctors-note.jpg'
@@ -906,7 +906,7 @@ RSpec.describe Form1010cg::Service do
 
         VCR.use_cassette('mulesoft/submit_v2', VCR::MATCH_EVERYTHING) do
           res = described_class.new(claim_with_mpi_veteran).process_claim_v2!
-          expect(res['data']['carmacase']['id']).to eq('aB93S0000000FTgSAM')
+          expect(res['data']['carmacase']['id']).to eq('aB93R0000000es3SAA')
         end
       end
     end
@@ -919,10 +919,12 @@ RSpec.describe Form1010cg::Service do
     end
 
     it 'submits to mulesoft', run_at: 'Fri, 17 Jun 2022 10:36:01 GMT' do
-      allow(SecureRandom).to receive(:uuid).and_return('695e7111-4e3b-4cad-8703-cd3ec092c9d0')
+      allow(Settings.mvi).to receive(:vba_orchestration).and_return(true)
+
+      allow(SecureRandom).to receive(:uuid).and_return('51d3b0b3-e02b-494d-b093-ac6166479763')
       expect(claim_with_mpi_veteran.valid?).to eq(true)
 
-      allow(SecureRandom).to receive(:uuid).and_return('74597dcc-8171-4755-830e-35046ac2f4d2')
+      allow(SecureRandom).to receive(:uuid).and_return('8cf363d6-45fe-430e-ad7c-466ff2678ed1')
 
       VCR.use_cassette('mulesoft/submit', VCR::MATCH_EVERYTHING) do
         described_class.new(claim_with_mpi_veteran).process_claim!
