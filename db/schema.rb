@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_09_16_043854) do
+ActiveRecord::Schema.define(version: 2022_09_20_211515) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -267,6 +267,14 @@ ActiveRecord::Schema.define(version: 2022_09_16_043854) do
     t.index ["evss_id"], name: "index_claims_api_auto_established_claims_on_evss_id"
     t.index ["md5"], name: "index_claims_api_auto_established_claims_on_md5"
     t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
+  end
+
+  create_table "claims_api_evidence_waiver_submissions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.text "auth_headers_ciphertext"
+    t.text "encrypted_kms_key"
+    t.string "cid"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "claims_api_intent_to_files", force: :cascade do |t|
