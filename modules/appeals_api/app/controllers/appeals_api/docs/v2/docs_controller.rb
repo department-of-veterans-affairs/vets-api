@@ -31,7 +31,7 @@ class AppealsApi::Docs::V2::DocsController < ApplicationController
 
   def swagger_file(stub, version: 'v2')
     filename = Settings.vsp_environment == 'production' ? "swagger_#{stub}.json" : "swagger_#{stub}_dev.json"
-    filename.gsub!('__', '') if stub.nil? # special case for pre-segmented documentation
+    filename = filename.gsub('__', '_') if stub.nil? # special case for pre-segmented documentation
     File.read AppealsApi::Engine.root.join("app/swagger/appeals_api/#{version}/#{filename}")
   end
 end
