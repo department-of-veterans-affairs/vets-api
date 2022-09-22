@@ -8,7 +8,6 @@ module MebApi
   module V0
     class FormsController < MebApi::V0::BaseController
       before_action :check_forms_flipper
-      before_action :get_form_type, except: :claimant_info
 
       def claim_letter
         claimant_response = claimant_service.get_claimant_info(@form_type)
@@ -28,19 +27,19 @@ module MebApi
       end
 
       def claimant_info
-        response = claimant_service.get_claimant_info('Toe')
+        response = claimant_service.get_claimant_info('toe')
 
         render json: response, serializer: ToeClaimantInfoSerializer
       end
 
       def sponsors
-        response = sponsor_service.post_sponsor(@form_type)
+        response = sponsor_service.post_sponsor
 
         render json: response, serializer: SponsorsSerializer
       end
 
       def submit_claim
-        response = submission_service.submit_claim(params[:education_benefit].except(:form_id), @form_type)
+        response = submission_service.submit_claim(params, 'toe')
 
         clear_saved_form(params[:form_id]) if params[:form_id]
 
@@ -52,10 +51,6 @@ module MebApi
       end
 
       private
-
-      def get_form_type
-        @form_type = params[:form_type]
-      end
 
       def claimant_service
         MebApi::DGI::Forms::Claimant::Service.new(@current_user)

@@ -17,7 +17,7 @@ RSpec.describe MebApi::DGI::Forms::Submission::Service do
     let(:user) { FactoryBot.create(:user, :loa3) }
     let(:service) { MebApi::DGI::Forms::Submission::Service.new(user) }
     let(:claimant_params) do
-      {
+      { form: {
         form_id: 1,
         education_benefit: {
           claimant: {
@@ -58,7 +58,7 @@ RSpec.describe MebApi::DGI::Forms::Submission::Service do
           account_type: 'savings',
           routing_number: '123123123'
         }
-      }
+      } }
     end
 
     describe '#submit_toe_claim' do
@@ -71,7 +71,7 @@ RSpec.describe MebApi::DGI::Forms::Submission::Service do
       context 'when successful' do
         it 'returns a status of 200' do
           VCR.use_cassette('dgi/forms/submit_toe_claim') do
-            response = service.submit_claim(ActionController::Parameters.new(claimant_params[:education_benefit]),
+            response = service.submit_claim(ActionController::Parameters.new(claimant_params),
                                             'toe')
             expect(response.status).to eq(200)
           end

@@ -14,11 +14,11 @@ module MebApi
           configuration MebApi::DGI::Submission::Configuration
           STATSD_KEY_PREFIX = 'api.dgi.submission'
 
-          def submit_claim(params, form_type)
+          def submit_claim(params, form_type = 'toe')
             with_monitoring do
               headers = request_headers
               options = { timeout: 60 }
-              response = perform(:post, end_point(form_type), format_params(params), headers, options)
+              response = perform(:post, end_point(form_type), format_params(params['form']), headers, options)
 
               MebApi::DGI::Forms::Submission::Response.new(response.status, response)
             end
@@ -39,8 +39,9 @@ module MebApi
 
           def format_params(params)
             camelized_keys = camelize_keys_for_java_service(params)
-            camelized_keys['claimant']&.merge({ personCriteria: @user.ssn,
-                                                type: 'ToeSubmission' }.stringify_keys)
+            modified_keys = camelized_keys['claimant']&.merge({ notificationMethod: 'NONE' }.stringify_keys)
+            camelized_keys['claimant'] = modified_keys
+            camelized_keys
           end
 
           def camelize_keys_for_java_service(params)
