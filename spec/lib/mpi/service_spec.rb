@@ -516,7 +516,6 @@ describe MPI::Service do
         it 'calls the find profile with an orchestrated search', run_at: 'Thu, 06 Feb 2020 23:59:36 GMT' do
           allow(SecureRandom).to receive(:uuid).and_return('b4d9a901-8f2f-46c0-802f-3eeb99c51dfb')
           allow(Socket).to receive(:ip_address_list).and_return([Addrinfo.ip('1.1.1.1')])
-          allow(Settings.mvi).to receive(:vba_orchestration).and_return(true)
 
           VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes', VCR::MATCH_EVERYTHING) do
             response = described_class.new.find_profile(user, orch_search: true)
@@ -544,7 +543,7 @@ describe MPI::Service do
 
   describe '.find_profile with icn', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
     before do
-      expect(MPI::Messages::FindProfileMessageIdentifier).to receive(:new).once.and_call_original
+      expect(MPI::Messages::FindProfileByIdentifier).to receive(:new).once.and_call_original
     end
 
     context 'valid requests' do
@@ -675,7 +674,7 @@ describe MPI::Service do
 
   describe '.find_profile with edipi', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
     before do
-      expect(MPI::Messages::FindProfileMessageEdipi).to receive(:new).once.and_call_original
+      expect(MPI::Messages::FindProfileByEdipi).to receive(:new).once.and_call_original
     end
 
     context 'valid requests' do
@@ -705,7 +704,7 @@ describe MPI::Service do
   describe '.find_profile with logingov uuid' do
     before do
       stub_mpi(build(:mvi_profile, edipi: nil))
-      allow(MPI::Messages::FindProfileMessageIdentifier).to receive(:new).and_call_original
+      allow(MPI::Messages::FindProfileByIdentifier).to receive(:new).and_call_original
     end
 
     context 'valid requests' do
@@ -713,12 +712,13 @@ describe MPI::Service do
       let(:logingov_uuid) { 'some-logingov-uuid' }
       let(:logingov_identifier) { MPI::Constants::LOGINGOV_IDENTIFIER }
       let(:correlation_identifier) { "#{logingov_uuid}^PN^#{logingov_identifier}^USDVA^A" }
-      let(:search_type) { { search_type: MPI::Constants::CORRELATION_WITH_RELATIONSHIP_DATA } }
+      let(:search_type) { MPI::Constants::CORRELATION_WITH_RELATIONSHIP_DATA }
 
       it 'fetches profile when no mhv_icn or edipi exists, but logingov_uuid is present' do
         VCR.use_cassette('mpi/find_candidate/valid') do
           expect(Raven).to receive(:tags_context).once.with(mvi_find_profile: 'logingov')
-          expect(MPI::Messages::FindProfileMessageIdentifier).to receive(:new).with(correlation_identifier, search_type)
+          expect(MPI::Messages::FindProfileByIdentifier).to receive(:new).with(identifier: correlation_identifier,
+                                                                               search_type: search_type)
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
           expect(response.profile.given_names).to eq(%w[Mitchell G])
@@ -740,7 +740,7 @@ describe MPI::Service do
   describe '.find_profile with idme uuid' do
     before do
       stub_mpi(build(:mvi_profile, edipi: nil))
-      allow(MPI::Messages::FindProfileMessageIdentifier).to receive(:new).and_call_original
+      allow(MPI::Messages::FindProfileByIdentifier).to receive(:new).and_call_original
     end
 
     context 'valid requests' do
@@ -748,12 +748,13 @@ describe MPI::Service do
       let(:idme_uuid) { 'some-idme-uuid' }
       let(:idme_identifier) { MPI::Constants::IDME_IDENTIFIER }
       let(:correlation_identifier) { "#{idme_uuid}^PN^#{idme_identifier}^USDVA^A" }
-      let(:search_type) { { search_type: MPI::Constants::CORRELATION_WITH_RELATIONSHIP_DATA } }
+      let(:search_type) { MPI::Constants::CORRELATION_WITH_RELATIONSHIP_DATA }
 
       it 'fetches profile when no mhv_icn or edipi exists, but idme_uuid is present' do
         VCR.use_cassette('mpi/find_candidate/valid') do
           expect(Raven).to receive(:tags_context).once.with(mvi_find_profile: 'idme')
-          expect(MPI::Messages::FindProfileMessageIdentifier).to receive(:new).with(correlation_identifier, search_type)
+          expect(MPI::Messages::FindProfileByIdentifier).to receive(:new).with(identifier: correlation_identifier,
+                                                                               search_type: search_type)
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
           expect(response.profile.given_names).to eq(%w[Mitchell G])
@@ -775,7 +776,7 @@ describe MPI::Service do
   describe '.find_profile without icn' do
     context 'valid request' do
       before do
-        expect(MPI::Messages::FindProfileMessageEdipi).to receive(:new).once.and_call_original
+        expect(MPI::Messages::FindProfileByEdipi).to receive(:new).once.and_call_original
       end
 
       it 'calls the find_profile endpoint with a find candidate message' do
@@ -900,7 +901,7 @@ describe MPI::Service do
 
     context 'when no subject is returned in the response body' do
       before do
-        expect(MPI::Messages::FindProfileMessageEdipi).to receive(:new).once.and_call_original
+        expect(MPI::Messages::FindProfileByEdipi).to receive(:new).once.and_call_original
       end
 
       let(:user_hash) do
@@ -958,7 +959,7 @@ describe MPI::Service do
 
     context 'when MVI returns 500 but VAAFI sends 200' do
       before do
-        expect(MPI::Messages::FindProfileMessageEdipi).to receive(:new).once.and_call_original
+        expect(MPI::Messages::FindProfileByEdipi).to receive(:new).once.and_call_original
       end
 
       %w[internal_server_error internal_server_error_2].each do |cassette|
@@ -978,7 +979,7 @@ describe MPI::Service do
 
     context 'when MVI multiple match failure response' do
       before do
-        expect(MPI::Messages::FindProfileMessageEdipi).to receive(:new).once.and_call_original
+        expect(MPI::Messages::FindProfileByEdipi).to receive(:new).once.and_call_original
       end
 
       it 'raises MPI::Errors::RecordNotFound', :aggregate_failures do

@@ -239,15 +239,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
           end
 
           it 'returns an unprocessible entity status' do
-            allow(MPI::Messages::FindProfileMessageFields).to receive(:new).and_return(
-              OpenStruct.new({
-                               given_names: ['abraham'],
-                               last_name: 'lincoln',
-                               birth_date: nil,
-                               ssn: '796111863',
-                               missing_values: [:birth_date]
-                             })
-            )
+            allow_any_instance_of(MPI::Service).to receive(:find_profile).and_raise(ArgumentError)
             with_okta_user(scopes) do |auth_header|
               post path, params: data, headers: headers.merge(auth_header)
               expect(response.status).to eq(422)

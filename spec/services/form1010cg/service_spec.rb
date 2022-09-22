@@ -868,10 +868,6 @@ RSpec.describe Form1010cg::Service do
   end
 
   describe '#process_claim_v2!' do
-    before do
-      allow(Settings.mvi).to receive(:vba_orchestration).and_return(true)
-    end
-
     it 'submits to mulesoft', run_at: 'Thu, 04 Aug 2022 20:44:29 GMT' do
       allow(SecureRandom).to receive(:uuid).and_return('884f6e51-027f-4cf1-a164-b95efbfb59f2')
       claim_with_mpi_veteran.save!
@@ -919,8 +915,6 @@ RSpec.describe Form1010cg::Service do
     end
 
     it 'submits to mulesoft', run_at: 'Fri, 17 Jun 2022 10:36:01 GMT' do
-      allow(Settings.mvi).to receive(:vba_orchestration).and_return(true)
-
       allow(SecureRandom).to receive(:uuid).and_return('51d3b0b3-e02b-494d-b093-ac6166479763')
       expect(claim_with_mpi_veteran.valid?).to eq(true)
 
