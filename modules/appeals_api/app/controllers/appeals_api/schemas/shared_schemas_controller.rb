@@ -14,6 +14,8 @@ class AppealsApi::Schemas::SharedSchemasController < AppealsApi::ApplicationCont
   ].freeze
 
   SCHEMA_METADATA = {
+    'contestable_issues_v2' => { shared_schema_version: 'v1', form: 'headers' },
+    'legacy_appeals_v2' => { shared_schema_version: 'v1', form: 'headers' },
     'notice_of_disagreements_v1' => { shared_schema_version: 'v1', form: '10182' },
     'notice_of_disagreements_v2' => { shared_schema_version: 'v1', form: '10182' },
     'higher_level_reviews_v2' => { shared_schema_version: 'v1', form: '200996' },
