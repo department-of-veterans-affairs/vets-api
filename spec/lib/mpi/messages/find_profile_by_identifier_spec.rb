@@ -1,14 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'mpi/messages/find_profile_message_edipi'
 
-describe MPI::Messages::FindProfileMessageEdipi do
-  describe '.to_xml' do
-    context 'with edipi' do
-      let(:edipi) { 'fake-edipi-number' }
+describe MPI::Messages::FindProfileByIdentifier do
+  describe '.perform' do
+    context 'with icn' do
+      let(:icn) { 'fake-icn-number' }
       let(:xml) do
-        described_class.new(edipi).to_xml
+        described_class.new(identifier: icn).perform
       end
       let(:idm_path) { 'env:Body/idm:PRPA_IN201305UV02' }
       let(:parameter_list_path) { "#{idm_path}/controlActProcess/queryByParameter/parameterList" }
@@ -30,18 +29,8 @@ describe MPI::Messages::FindProfileMessageEdipi do
       end
 
       it 'has an icn/id node' do
-        expect(xml).to eq_at_path("#{parameter_list_path}/id/@root", '2.16.840.1.113883.3.42.10001.100001.12')
-        expect(xml).to eq_at_path("#{parameter_list_path}/id/@extension", edipi)
-      end
-
-      context 'orchestration' do
-        it 'has orchestration related params when enabled' do
-          allow(Settings.mvi).to receive(:vba_orchestration).and_return(true)
-          expect(xml).to eq_text_at_path(
-            "#{parameter_list_path}/otherIDsScopingOrganization/semanticsText",
-            'MVI.ORCHESTRATION'
-          )
-        end
+        expect(xml).to eq_at_path("#{parameter_list_path}/id/@root", '2.16.840.1.113883.4.349')
+        expect(xml).to eq_at_path("#{parameter_list_path}/id/@extension", icn)
       end
     end
   end
