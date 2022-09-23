@@ -9,7 +9,11 @@ module AppealsApi
     include PdfOutputPrep
     include ModelValidations
 
-    required_claimant_headers %w[X-VA-Claimant-First-Name X-VA-Claimant-Last-Name X-VA-Claimant-Birth-Date]
+    required_claimant_headers %w[
+      X-VA-NonVeteranClaimant-First-Name
+      X-VA-NonVeteranClaimant-Last-Name
+      X-VA-NonVeteranClaimant-Birth-Date
+    ]
 
     attr_readonly :auth_headers
     attr_readonly :form_data

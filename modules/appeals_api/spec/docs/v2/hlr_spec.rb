@@ -96,10 +96,10 @@ describe 'Higher-Level Reviews', swagger_doc: "modules/appeals_api/app/swagger/a
         let(:hlr_body) do
           JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200996_extra.json')))
         end
-        let(:'X-VA-Claimant-SSN') { '999999999' }
-        let(:'X-VA-Claimant-First-Name') { 'first' }
-        let(:'X-VA-Claimant-Last-Name') { 'last' }
-        let(:'X-VA-Claimant-Birth-Date') { '1921-08-08' }
+        let(:'X-VA-NonVeteranClaimant-SSN') { '999999999' }
+        let(:'X-VA-NonVeteranClaimant-First-Name') { 'first' }
+        let(:'X-VA-NonVeteranClaimant-Last-Name') { 'last' }
+        let(:'X-VA-NonVeteranClaimant-Birth-Date') { '1921-08-08' }
 
         schema '$ref' => '#/components/schemas/hlrShow'
 
@@ -480,10 +480,10 @@ describe 'Higher-Level Reviews', swagger_doc: "modules/appeals_api/app/swagger/a
         let(:hlr_body) do
           JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200996_extra.json')))
         end
-        let(:'X-VA-Claimant-SSN') { '999999999' }
-        let(:'X-VA-Claimant-First-Name') { 'first' }
-        let(:'X-VA-Claimant-Last-Name') { 'last' }
-        let(:'X-VA-Claimant-Birth-Date') { '1921-08-08' }
+        let(:'X-VA-NonVeteranClaimant-SSN') { '999999999' }
+        let(:'X-VA-NonVeteranClaimant-First-Name') { 'first' }
+        let(:'X-VA-NonVeteranClaimant-Last-Name') { 'last' }
+        let(:'X-VA-NonVeteranClaimant-Birth-Date') { '1921-08-08' }
 
         schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'hlr_validate.json')))
 

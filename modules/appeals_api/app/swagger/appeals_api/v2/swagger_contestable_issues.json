@@ -4621,12 +4621,12 @@
         "type": "string",
         "format": "date"
       },
-      "X-VA-Claimant-Birth-Date": {
+      "X-VA-NonVeteranClaimant-Birth-Date": {
         "description": "Claimant's birth date",
         "type": "string",
         "format": "date"
       },
-      "X-VA-Claimant-First-Name": {
+      "X-VA-NonVeteranClaimant-First-Name": {
         "allOf": [
           {
             "description": "first name"
@@ -4636,7 +4636,7 @@
           }
         ]
       },
-      "X-VA-Claimant-Last-Name": {
+      "X-VA-NonVeteranClaimant-Last-Name": {
         "allOf": [
           {
             "description": "last name"
@@ -4646,7 +4646,7 @@
           }
         ]
       },
-      "X-VA-Claimant-Middle-Initial": {
+      "X-VA-NonVeteranClaimant-Middle-Initial": {
         "allOf": [
           {
             "description": "middle initial"
@@ -4656,7 +4656,7 @@
           }
         ]
       },
-      "X-VA-Claimant-SSN": {
+      "X-VA-NonVeteranClaimant-SSN": {
         "allOf": [
           {
             "description": "social security number"

@@ -28,10 +28,10 @@ module AppealsApi
       # validation (header)
       def claimant_birth_date_is_in_the_past
         # don't add more errors to claimant birth date if one already exists
-        return if errors.any? { |e| e.options.dig(:source, :header) == 'X-VA-Claimant-Birth-Date' }
+        return if errors.any? { |e| e.options.dig(:source, :header) == 'X-VA-NonVeteranClaimant-Birth-Date' }
         return if claimant.birth_date.blank? || self.class.past?(claimant.birth_date)
 
-        add_date_error '', claimant.birth_date, source: { header: 'X-VA-Claimant-Birth-Date' }
+        add_date_error '', claimant.birth_date, source: { header: 'X-VA-NonVeteranClaimant-Birth-Date' }
       end
 
       # validation (header & body)
@@ -47,7 +47,7 @@ module AppealsApi
 
         unless has_claimant_headers
           errors.add '',
-                     "'/data/attributes/claimant' field was provided, but missing claimant headers",
+                     "'/data/attributes/claimant' field was provided, but missing non-veteran claimant headers",
                      source: { header: '' }, # Blank header source since multiple are missing
                      error_tpath: 'common.exceptions.detailed_schema_errors.required',
                      meta: {
@@ -57,7 +57,7 @@ module AppealsApi
 
         unless has_claimant_data
           errors.add '/data/attributes',
-                     'Claimant headers were provided but missing \'/data/attributes/claimant\' field',
+                     'Non-veteran claimant headers were provided but missing \'/data/attributes/claimant\' field',
                      error_tpath: 'common.exceptions.detailed_schema_errors.required',
                      meta: { missing_fields: ['claimant'] }
         end

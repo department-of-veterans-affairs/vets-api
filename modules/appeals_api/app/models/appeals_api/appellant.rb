@@ -138,7 +138,7 @@ module AppealsApi
     attr_accessor :auth_headers, :form_data, :type
 
     def header_prefix
-      @header_prefix ||= veteran? ? '' : '-Claimant'
+      @header_prefix ||= veteran? ? '' : '-NonVeteranClaimant'
     end
 
     def address_combined
@@ -156,7 +156,7 @@ module AppealsApi
     end
 
     def claimant_headers_present?
-      auth_headers.include?('X-VA-Claimant-Last-Name')
+      auth_headers.include?('X-VA-NonVeteranClaimant-Last-Name')
     end
 
     def mpi_veteran

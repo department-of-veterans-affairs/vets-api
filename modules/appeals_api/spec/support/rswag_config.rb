@@ -148,30 +148,30 @@ class AppealsApi::RswagConfig
         'type': 'string',
         'format': 'date'
       },
-      'X-VA-Claimant-First-Name': {
+      'X-VA-NonVeteranClaimant-First-Name': {
         'allOf': [
           { 'description': 'first name' },
           { '$ref': nbs_ref }
         ]
       },
-      'X-VA-Claimant-Middle-Initial': {
+      'X-VA-NonVeteranClaimant-Middle-Initial': {
         'allOf': [
           { 'description': 'middle initial' },
           { '$ref': nbs_ref }
         ]
       },
-      'X-VA-Claimant-Last-Name': {
+      'X-VA-NonVeteranClaimant-Last-Name': {
         'allOf': [
           { 'description': 'last name' },
           { '$ref': nbs_ref }
         ]
       },
-      'X-VA-Claimant-Birth-Date': {
-        'description': "Claimant's birth date",
+      'X-VA-NonVeteranClaimant-Birth-Date': {
+        'description': "Non-veteran claimant's birth date",
         'type': 'string',
         'format': 'date'
       },
-      'X-VA-Claimant-SSN': {
+      'X-VA-NonVeteranClaimant-SSN': {
         'description': 'social security number',
         'type': 'string',
         'minLength': 9,

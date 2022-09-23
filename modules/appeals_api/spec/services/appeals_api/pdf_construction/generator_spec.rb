@@ -94,9 +94,9 @@ describe AppealsApi::PdfConstruction::Generator do
             nod.auth_headers['X-VA-First-Name'] = 'W' * 30
             nod.auth_headers['X-VA-Middle-Initial'] = 'W' * 1
             nod.auth_headers['X-VA-Last-Name'] = 'W' * 40
-            nod.auth_headers['X-VA-Claimant-First-Name'] = 'W' * 30
-            nod.auth_headers['X-VA-Claimant-Middle-Initial'] = 'W' * 1
-            nod.auth_headers['X-VA-Claimant-Last-Name'] = 'W' * 40
+            nod.auth_headers['X-VA-NonVeteranClaimant-First-Name'] = 'W' * 30
+            nod.auth_headers['X-VA-NonVeteranClaimant-Middle-Initial'] = 'W' * 1
+            nod.auth_headers['X-VA-NonVeteranClaimant-Last-Name'] = 'W' * 40
             nod.auth_headers['X-VA-File-Number'] = 'W' * 9
             nod.auth_headers['X-Consumer-Username'] = 'W' * 255
             nod.auth_headers['X-Consumer-ID'] = 'W' * 255
@@ -195,10 +195,10 @@ describe AppealsApi::PdfConstruction::Generator do
             hlr.auth_headers['X-VA-File-Number'] = 'W' * 9
             hlr.auth_headers['X-VA-SSN'] = 'W' * 9
             hlr.auth_headers['X-VA-Insurance-Policy-Number'] = 'W' * 18
-            hlr.auth_headers['X-VA-Claimant-SSN'] = 'W' * 9
-            hlr.auth_headers['X-VA-Claimant-First-Name'] = 'W' * 255
-            hlr.auth_headers['X-VA-Claimant-Middle-Initial'] = 'W' * 1
-            hlr.auth_headers['X-VA-Claimant-Last-Name'] = 'W' * 255
+            hlr.auth_headers['X-VA-NonVeteranClaimant-SSN'] = 'W' * 9
+            hlr.auth_headers['X-VA-NonVeteranClaimant-First-Name'] = 'W' * 255
+            hlr.auth_headers['X-VA-NonVeteranClaimant-Middle-Initial'] = 'W' * 1
+            hlr.auth_headers['X-VA-NonVeteranClaimant-Last-Name'] = 'W' * 255
             hlr.auth_headers['X-Consumer-Username'] = 'W' * 255
             hlr.auth_headers['X-Consumer-ID'] = 'W' * 255
             hlr.save!
@@ -252,8 +252,8 @@ describe AppealsApi::PdfConstruction::Generator do
           # we tried to use JSON_SCHEMER, but it did not work with our headers, and chose not to invest more time atm.
           sc.auth_headers['X-VA-First-Name'] = 'W' * 30
           sc.auth_headers['X-VA-Last-Name'] = 'W' * 40
-          sc.auth_headers['X-VA-Claimant-First-Name'] = 'W' * 30
-          sc.auth_headers['X-VA-Claimant-Last-Name'] = 'W' * 40
+          sc.auth_headers['X-VA-NonVeteranClaimant-First-Name'] = 'W' * 30
+          sc.auth_headers['X-VA-NonVeteranClaimant-Last-Name'] = 'W' * 40
           sc.auth_headers['X-Consumer-Username'] = 'W' * 255
           sc.auth_headers['X-Consumer-ID'] = 'W' * 255
           sc.save!

@@ -18,18 +18,18 @@
         "X-VA-File-Number":     { "$ref": "#/definitions/X-VA-File-Number" },
         "X-VA-Birth-Date":      { "$ref": "#/definitions/X-VA-Birth-Date" },
         "X-VA-ICN":             { "$ref": "#/definitions/X-VA-ICN" },
-        "X-VA-Claimant-First-Name":     { "$ref": "#/definitions/X-VA-Claimant-First-Name" },
-        "X-VA-Claimant-Middle-Initial": { "$ref": "#/definitions/X-VA-Claimant-Middle-Initial" },
-        "X-VA-Claimant-Last-Name":      { "$ref": "#/definitions/X-VA-Claimant-Last-Name" },
-        "X-VA-Claimant-Birth-Date":     { "$ref": "#/definitions/X-VA-Claimant-Birth-Date" },
+        "X-VA-NonVeteranClaimant-First-Name":     { "$ref": "#/definitions/X-VA-NonVeteranClaimant-First-Name" },
+        "X-VA-NonVeteranClaimant-Middle-Initial": { "$ref": "#/definitions/X-VA-NonVeteranClaimant-Middle-Initial" },
+        "X-VA-NonVeteranClaimant-Last-Name":      { "$ref": "#/definitions/X-VA-NonVeteranClaimant-Last-Name" },
+        "X-VA-NonVeteranClaimant-Birth-Date":     { "$ref": "#/definitions/X-VA-NonVeteranClaimant-Birth-Date" },
         "X-Consumer-Username":  { "$ref": "#/definitions/X-Consumer-Username"},
         "X-Consumer-ID":        { "$ref": "#/definitions/X-Consumer-ID"}
       },
       "dependencies": {
-        "X-VA-Claimant-First-Name": ["X-VA-Claimant-Last-Name", "X-VA-Claimant-Birth-Date"],
-        "X-VA-Claimant-Middle-Initial": ["X-VA-Claimant-First-Name", "X-VA-Claimant-Last-Name"],
-        "X-VA-Claimant-Last-Name": ["X-VA-Claimant-First-Name"],
-        "X-VA-Claimant-Birth-Date": ["X-VA-Claimant-Last-Name"]
+        "X-VA-NonVeteranClaimant-First-Name": ["X-VA-NonVeteranClaimant-Last-Name", "X-VA-NonVeteranClaimant-Birth-Date"],
+        "X-VA-NonVeteranClaimant-Middle-Initial": ["X-VA-NonVeteranClaimant-First-Name", "X-VA-NonVeteranClaimant-Last-Name"],
+        "X-VA-NonVeteranClaimant-Last-Name": ["X-VA-NonVeteranClaimant-First-Name"],
+        "X-VA-NonVeteranClaimant-Birth-Date": ["X-VA-NonVeteranClaimant-Last-Name"]
       },
       "required": [
         "X-VA-First-Name",
@@ -71,7 +71,7 @@
       "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)"
     },
 
-    "X-VA-Claimant-First-Name": {
+    "X-VA-NonVeteranClaimant-First-Name": {
       "type": "string",
       "description": "Non-Veteran claimant's first name",
       "minLength": 1,
@@ -79,21 +79,21 @@
       "$comment": "can be whitespace, to accommodate those with 1 legal name"
     },
 
-    "X-VA-Claimant-Middle-Initial": {
+    "X-VA-NonVeteranClaimant-Middle-Initial": {
       "allOf": [
         { "description": "Non-Veteran claimant's middle initial", "minLength": 1, "maxLength": 1 },
         { "$ref": "#/definitions/nonBlankString" }
       ]
     },
 
-    "X-VA-Claimant-Last-Name": {
+    "X-VA-NonVeteranClaimant-Last-Name": {
       "allOf": [
         { "description": "Non-Veteran claimant's last name", "minLength": 1, "maxLength": 255 },
         { "$ref": "#/definitions/nonBlankString" }
       ]
     },
 
-    "X-VA-Claimant-Birth-Date": {
+    "X-VA-NonVeteranClaimant-Birth-Date": {
       "description": "Non-Veteran claimant's birth date",
       "type": "string", "format": "date"
     },

@@ -96,9 +96,9 @@ describe 'Notice of Disagreements', swagger_doc: "modules/appeals_api/app/swagge
           JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_10182_extra.json')))
         end
 
-        let(:'X-VA-Claimant-First-Name') { 'first' }
-        let(:'X-VA-Claimant-Last-Name') { 'last' }
-        let(:'X-VA-Claimant-Birth-Date') { '1921-08-08' }
+        let(:'X-VA-NonVeteranClaimant-First-Name') { 'first' }
+        let(:'X-VA-NonVeteranClaimant-Last-Name') { 'last' }
+        let(:'X-VA-NonVeteranClaimant-Birth-Date') { '1921-08-08' }
 
         schema '$ref' => '#/components/schemas/nodCreateResponse'
 

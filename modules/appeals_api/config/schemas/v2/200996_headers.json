@@ -45,28 +45,28 @@
           { "description": "Veteran's insurance policy number", "maxLength": 18 },
           { "$ref": "#/definitions/nonBlankString" }
         ] },
-        "X-VA-Claimant-SSN": {
+        "X-VA-NonVeteranClaimant-SSN": {
           "type": "string",
           "description": "Non-Veteran claimants's SSN",
           "pattern": "^[0-9]{9}$"
         },
-        "X-VA-Claimant-First-Name": {
+        "X-VA-NonVeteranClaimant-First-Name": {
           "type": "string",
           "description": "Non-Veteran claimant's first name",
           "maxLength": 30,
           "$comment": "can be whitespace, to accommodate those with 1 legal name"
         },
-        "X-VA-Claimant-Middle-Initial": {
+        "X-VA-NonVeteranClaimant-Middle-Initial": {
           "allOf": [
             { "description": "Non-Veteran claimant's middle initial", "maxLength": 1 },
             { "$ref": "#/definitions/nonBlankString" }
           ]
         },
-        "X-VA-Claimant-Last-Name": { "allOf": [
+        "X-VA-NonVeteranClaimant-Last-Name": { "allOf": [
           { "description": "Non-Veteran claimant's last name", "maxLength": 40 },
           { "$ref": "#/definitions/nonBlankString" }
         ] },
-        "X-VA-Claimant-Birth-Date": {
+        "X-VA-NonVeteranClaimant-Birth-Date": {
           "description": "Non-Veteran claimant's birth date",
           "type": "string", "format": "date"
         },
@@ -89,11 +89,11 @@
         "X-VA-Birth-Date"
       ],
       "dependencies": {
-        "X-VA-Claimant-SSN": ["X-VA-Claimant-First-Name", "X-VA-Claimant-Last-Name", "X-VA-Claimant-Birth-Date"],
-        "X-VA-Claimant-First-Name": ["X-VA-Claimant-Last-Name", "X-VA-Claimant-Birth-Date"],
-        "X-VA-Claimant-Middle-Initial": ["X-VA-Claimant-First-Name", "X-VA-Claimant-Last-Name", "X-VA-Claimant-Birth-Date"],
-        "X-VA-Claimant-Last-Name": ["X-VA-Claimant-First-Name", "X-VA-Claimant-Birth-Date"],
-        "X-VA-Claimant-Birth-Date": ["X-VA-Claimant-First-Name", "X-VA-Claimant-Last-Name"]
+        "X-VA-NonVeteranClaimant-SSN": ["X-VA-NonVeteranClaimant-First-Name", "X-VA-NonVeteranClaimant-Last-Name", "X-VA-NonVeteranClaimant-Birth-Date"],
+        "X-VA-NonVeteranClaimant-First-Name": ["X-VA-NonVeteranClaimant-Last-Name", "X-VA-NonVeteranClaimant-Birth-Date"],
+        "X-VA-NonVeteranClaimant-Middle-Initial": ["X-VA-NonVeteranClaimant-First-Name", "X-VA-NonVeteranClaimant-Last-Name", "X-VA-NonVeteranClaimant-Birth-Date"],
+        "X-VA-NonVeteranClaimant-Last-Name": ["X-VA-NonVeteranClaimant-First-Name", "X-VA-NonVeteranClaimant-Birth-Date"],
+        "X-VA-NonVeteranClaimant-Birth-Date": ["X-VA-NonVeteranClaimant-First-Name", "X-VA-NonVeteranClaimant-Last-Name"]
       }
     }
   }
