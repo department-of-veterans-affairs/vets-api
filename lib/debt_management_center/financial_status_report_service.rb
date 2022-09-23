@@ -122,7 +122,7 @@ module DebtManagementCenter
         facility_form['personalIdentification']['fsrReason'] = fsr_reason
         facility_form['facilityNum'] = facility_num
         facility_form['transactionId'] = form_submission.id
-        facility_form['transactionDatetime'] = form_submission.created_at.strftime('%Y%m%dT%H%M')
+        facility_form['timestamp'] = form_submission.created_at.strftime('%Y%m%dT%H%M%S')
         facility_form.delete('selectedDebtsAndCopays')
         facility_forms << remove_form_delimiters(facility_form)
       end
