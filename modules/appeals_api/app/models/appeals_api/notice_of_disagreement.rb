@@ -46,8 +46,7 @@ module AppealsApi
     # further validations:
     validate :veteran_birth_date_is_in_the_past,
              :contestable_issue_dates_are_in_the_past,
-             :validate_hearing_type_selection,
-             if: proc { |a| a.form_data.present? }
+             :validate_hearing_type_selection, if: proc { |a| a.form_data.present? }
 
     # V2 validations
     validate  :required_claimant_data_is_present,

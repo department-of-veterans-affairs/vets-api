@@ -7,7 +7,7 @@ module AppealsApi
     include Sidekiq::Worker
 
     # No need to retry since the schedule will run this every hour
-    sidekiq_options retry: false
+    sidekiq_options retry: false, unique_for: 30.minutes
 
     BATCH_SIZE = 100
 
@@ -16,7 +16,7 @@ module AppealsApi
 
       Sidekiq::Batch.new.jobs do
         notice_of_disagreement_ids.each_slice(BATCH_SIZE).with_index do |ids, i|
-          NoticeOfDisagreementUploadStatusUpdater.perform_in((i + 5).seconds, ids)
+          NoticeOfDisagreementUploadStatusUpdater.perform_in((i * 5).seconds, ids)
         end
       end
     end
