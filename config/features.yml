@@ -809,7 +809,7 @@ features:
     actor_type: user
     description: Enables access to digital 1095-B form download
     enable_in_development: true
-  show_meb_mailing_address_foreign:
+  show_meb_dgi40_features:
     actor_type: user
-    description: Allows the city and state inputs to change if a user lives on a military base outside the USA.
+    description: Enables the UI integration with the meb dgi
     enable_in_development: true
