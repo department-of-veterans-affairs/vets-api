@@ -560,7 +560,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
   end
 
   context 'with non-human readable service type' do
-    let!(:no_readable_service_appt) do
+    let(:no_readable_service_appt) do
       vaos_data = JSON.parse(appointment_fixtures, symbolize_names: true)[2]
       vaos_data[:service_type] = 'outpatientMentalHealth'
       subject.parse([vaos_data])
@@ -568,6 +568,18 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
 
     it 'converts to human readable service type' do
       expect(no_readable_service_appt.first[:type_of_care]).to eq('Mental Health')
+    end
+  end
+
+  context 'with arrived status' do
+    let(:arrived_appt) do
+      vaos_data = JSON.parse(appointment_fixtures, symbolize_names: true)[1]
+      vaos_data[:status] = 'arrived'
+      subject.parse([vaos_data])
+    end
+
+    it 'converts status to BOOKED' do
+      expect(arrived_appt.first[:status]).to eq('BOOKED')
     end
   end
 

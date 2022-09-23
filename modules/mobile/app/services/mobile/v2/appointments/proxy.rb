@@ -6,7 +6,7 @@ module Mobile
   module V2
     module Appointments
       class Proxy
-        VAOS_STATUSES = %w[proposed cancelled booked fulfilled].freeze
+        VAOS_STATUSES = %w[proposed cancelled booked fulfilled arrived].freeze
 
         def initialize(user)
           @user = user

@@ -20,7 +20,6 @@ module Mobile
         }.freeze
 
         HIDDEN_STATUS = %w[
-          arrived
           noshow
           pending
         ].freeze
@@ -28,6 +27,7 @@ module Mobile
         STATUSES = {
           booked: 'BOOKED',
           fulfilled: 'BOOKED',
+          arrived: 'BOOKED',
           cancelled: 'CANCELLED',
           hidden: 'HIDDEN',
           proposed: 'SUBMITTED'
