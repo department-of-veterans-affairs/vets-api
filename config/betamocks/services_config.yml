@@ -765,6 +765,12 @@
       :cache_multiple_responses:
         :uid_location: 'query'
         :uid_locator: 'edipi'
+    - :method: :post
+      :path: "/eligibility-manager/api/eligibility/document"
+      :file_path: "/lgy/post_document"
+      :cache_multiple_responses:
+        :uid_location: 'query'
+        :uid_locator: 'edipi'
     - :method: :get
       :path: "/eligibility-manager/api/eligibility/document/*/file"
       :file_path: "/lgy/get_document_download"
