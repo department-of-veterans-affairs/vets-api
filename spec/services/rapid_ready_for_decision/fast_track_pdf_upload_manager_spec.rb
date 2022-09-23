@@ -13,10 +13,12 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfUploadManager do
 
   before do
     Timecop.freeze(time_freeze_time)
+    Flipper.enable(:rrd_asrd_doctype)
   end
 
   after do
     Timecop.return
+    Flipper.disable(:rrd_asrd_doctype)
   end
 
   describe '#add_upload(confirmation_code)' do
@@ -33,7 +35,7 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfUploadManager do
         expect(parsed_json).to match original_form_json_uploads + [
           { 'name' => 'VAMC_Hypertension_Rapid_Decision_Evidence-20211010.pdf',
             'confirmationCode' => 'fake_confirmation_code',
-            'attachmentId' => 'L048' }
+            'attachmentId' => 'L1489' }
         ]
       end
 
@@ -47,7 +49,7 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfUploadManager do
           expect(parsed_json).to match [
             { 'name' => 'VAMC_Hypertension_Rapid_Decision_Evidence-20211010.pdf',
               'confirmationCode' => 'fake_confirmation_code',
-              'attachmentId' => 'L048' }
+              'attachmentId' => 'L1489' }
           ]
         end
       end

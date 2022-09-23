@@ -550,6 +550,10 @@ features:
     actor_type: user
     description: Sends notification to Slack channel if a new claim includes a PACT-related disability that RRD handles
     enable_in_development: true
+  rrd_asrd_doctype:
+    actor_type: user
+    description: Uploads RRD summary PDFs to EVSS with new document type "Automated Review Summary Document"
+    enable_in_development: true
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application

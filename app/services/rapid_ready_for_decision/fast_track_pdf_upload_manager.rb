@@ -21,13 +21,17 @@ module RapidReadyForDecision
       end
     end
 
+    def document_type
+      Flipper.enabled?(:rrd_asrd_doctype) ? 'L1489' : 'L048'
+    end
+
     def add_upload(confirmation_code)
       data = JSON.parse(submission.form_json)
       uploads = data['form526_uploads'] || []
       new_upload = {
         name: file_upload_name,
         confirmationCode: confirmation_code,
-        attachmentId: 'L048'
+        attachmentId: document_type
       }
       uploads.append(new_upload)
       data['form526_uploads'] = uploads
