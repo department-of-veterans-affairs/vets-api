@@ -64,9 +64,9 @@
       ]
     },
 
-    "X-VA-Claimant-First-Name": {
+    "X-VA-NonVeteranClaimant-First-Name": {
       "allOf": [
-        { "description": "Non Veteran claimant's first name" },
+        { "description": "Non-Veteran claimant's first name" },
         {
           "type": "string",
           "$comment": "can be whitespace, to accommodate those with 1 legal name"
@@ -74,23 +74,23 @@
       ]
     },
 
-    "X-VA-Claimant-Middle-Initial": {
+    "X-VA-NonVeteranClaimant-Middle-Initial": {
       "allOf": [
-        { "description": "Non Veteran claimant's middle initial" },
+        { "description": "Non-Veteran claimant's middle initial" },
         { "$ref": "#/definitions/nodCreateHeadersNonBlankString" }
       ]
     },
 
-    "X-VA-Claimant-Last-Name": {
+    "X-VA-NonVeteranClaimant-Last-Name": {
       "allOf": [
-        { "description": "Non Veteran claimant's last name" },
+        { "description": "Non-Veteran claimant's last name" },
         { "$ref": "#/definitions/nodCreateHeadersNonBlankString" }
       ]
     },
 
-    "X-VA-Claimant-Birth-Date": {
+    "X-VA-NonVeteranClaimant-Birth-Date": {
       "allOf": [
-        { "description": "Non Veteran claimant's birth date" },
+        { "description": "Non-Veteran claimant's birth date" },
         { "type": "string", "format": "date" }
       ]
     },

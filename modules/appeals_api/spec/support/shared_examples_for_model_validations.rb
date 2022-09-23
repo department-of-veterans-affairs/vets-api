@@ -4,8 +4,12 @@ shared_examples 'shared model validations' do |opts|
   opts = opts.with_indifferent_access
 
   # All claimant headers across appeal models
-  all_claimant_headers = %w[X-VA-Claimant-First-Name X-VA-Claimant-Middle-Initial X-VA-Claimant-Last-Name
-                            X-VA-Claimant-Birth-Date].freeze
+  all_claimant_headers = %w[
+    X-VA-NonVeteranClaimant-First-Name
+    X-VA-NonVeteranClaimant-Middle-Initial
+    X-VA-NonVeteranClaimant-Last-Name
+    X-VA-NonVeteranClaimant-Birth-Date
+  ].freeze
 
   describe '#veteran_birth_date_is_in_the_past' do
     next unless opts[:validations].include? :veteran_birth_date_is_in_the_past
@@ -47,7 +51,7 @@ shared_examples 'shared model validations' do |opts|
     next unless opts[:validations].include? :claimant_birth_date_is_in_the_past
 
     before do
-      appeal.auth_headers = appeal.auth_headers.merge('X-VA-Claimant-Birth-Date' => '3000-01-02')
+      appeal.auth_headers = appeal.auth_headers.merge('X-VA-NonVeteranClaimant-Birth-Date' => '3000-01-02')
     end
 
     context 'when claimant birth date is in the future' do
@@ -55,7 +59,7 @@ shared_examples 'shared model validations' do |opts|
         expect(appeal.valid?).to be false
         expect(appeal.errors.size).to eq 1
         error = appeal.errors.first
-        expect(error.options[:source]).to eq({ header: 'X-VA-Claimant-Birth-Date' })
+        expect(error.options[:source]).to eq({ header: 'X-VA-NonVeteranClaimant-Birth-Date' })
         expect(error.message).to eq 'Date must be in the past: 3000-01-02'
       end
     end
@@ -71,18 +75,18 @@ shared_examples 'shared model validations' do |opts|
     context 'when claimant form data is provided but headers are missing' do
       before { appeal.auth_headers = appeal.auth_headers.except(*all_claimant_headers) }
 
-      it 'errors with detail to missing required claimant headers' do
+      it 'errors with detail to missing required non-veteran claimant headers' do
         expect(appeal.valid?).to be false
         expect(appeal.errors.size).to eq 1
         error = appeal.errors.first
         expect(error.options[:meta]).to match_array({ missing_fields: required_claimant_headers })
-        expect(error.message).to include 'missing claimant headers'
+        expect(error.message).to include 'missing non-veteran claimant headers'
       end
     end
 
-    context 'when claimant headers are provided but missing form data' do
+    context 'when non-veteran claimant headers are provided but missing form data' do
       before do
-        appeal.auth_headers['X-VA-Claimant-First-Name'] = 'Betty'
+        appeal.auth_headers['X-VA-NonVeteranClaimant-First-Name'] = 'Betty'
         data = appeal.form_data
         data.dig('data', 'attributes').delete('claimant')
         appeal.form_data = data
@@ -92,7 +96,7 @@ shared_examples 'shared model validations' do |opts|
         expect(appeal.valid?).to be false
         expect(appeal.errors.size).to eq 1
         error = appeal.errors.first
-        expect(error.message).to include 'Claimant headers were provided but missing'
+        expect(error.message).to include 'Non-veteran claimant headers were provided but missing'
         expect(error.options[:meta]).to eq({ missing_fields: ['claimant'] })
       end
     end

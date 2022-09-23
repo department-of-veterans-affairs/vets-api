@@ -31,7 +31,7 @@ module AppealsApi
         end
 
         def claimant_dob
-          header_field_as_string 'X-VA-Claimant-Birth-Date'
+          header_field_as_string 'X-VA-NonVeteranClaimant-Birth-Date'
         end
 
         def homeless
@@ -115,15 +115,15 @@ module AppealsApi
         end
 
         def claimant_first_name
-          header_field_as_string 'X-VA-Claimant-First-Name'
+          header_field_as_string 'X-VA-NonVeteranClaimant-First-Name'
         end
 
         def claimant_middle_initial
-          header_field_as_string 'X-VA-Claimant-Middle-Initial'
+          header_field_as_string 'X-VA-NonVeteranClaimant-Middle-Initial'
         end
 
         def claimant_last_name
-          header_field_as_string 'X-VA-Claimant-Last-Name'
+          header_field_as_string 'X-VA-NonVeteranClaimant-Last-Name'
         end
 
         def dob

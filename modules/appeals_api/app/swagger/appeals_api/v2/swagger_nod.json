@@ -76,7 +76,7 @@
           },
           {
             "in": "header",
-            "name": "X-VA-Claimant-First-Name",
+            "name": "X-VA-NonVeteranClaimant-First-Name",
             "required": false,
             "description": "Non-Veteran claimant's first name",
             "schema": {
@@ -85,7 +85,7 @@
           },
           {
             "in": "header",
-            "name": "X-VA-Claimant-Middle-Initial",
+            "name": "X-VA-NonVeteranClaimant-Middle-Initial",
             "required": false,
             "description": "Non-Veteran claimant's middle initial",
             "schema": {
@@ -94,7 +94,7 @@
           },
           {
             "in": "header",
-            "name": "X-VA-Claimant-Last-Name",
+            "name": "X-VA-NonVeteranClaimant-Last-Name",
             "required": false,
             "description": "Non-Veteran claimant's last name",
             "schema": {
@@ -103,7 +103,7 @@
           },
           {
             "in": "header",
-            "name": "X-VA-Claimant-Birth-Date",
+            "name": "X-VA-NonVeteranClaimant-Birth-Date",
             "required": false,
             "description": "Non-Veteran claimant's Birth Date",
             "schema": {
@@ -6834,12 +6834,12 @@
         "type": "string",
         "format": "date"
       },
-      "X-VA-Claimant-Birth-Date": {
+      "X-VA-NonVeteranClaimant-Birth-Date": {
         "description": "Claimant's birth date",
         "type": "string",
         "format": "date"
       },
-      "X-VA-Claimant-First-Name": {
+      "X-VA-NonVeteranClaimant-First-Name": {
         "allOf": [
           {
             "description": "first name"
@@ -6849,7 +6849,7 @@
           }
         ]
       },
-      "X-VA-Claimant-Last-Name": {
+      "X-VA-NonVeteranClaimant-Last-Name": {
         "allOf": [
           {
             "description": "last name"
@@ -6859,7 +6859,7 @@
           }
         ]
       },
-      "X-VA-Claimant-Middle-Initial": {
+      "X-VA-NonVeteranClaimant-Middle-Initial": {
         "allOf": [
           {
             "description": "middle initial"
@@ -6869,7 +6869,7 @@
           }
         ]
       },
-      "X-VA-Claimant-SSN": {
+      "X-VA-NonVeteranClaimant-SSN": {
         "allOf": [
           {
             "description": "social security number"
