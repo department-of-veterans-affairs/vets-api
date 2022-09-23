@@ -7,7 +7,7 @@ module AppealsApi
     include Sidekiq::Worker
 
     # No need to retry since the schedule will run this every hour
-    sidekiq_options retry: false
+    sidekiq_options retry: false, unique_for: 30.minutes
 
     # Throttling works by grabbing a majority of the oldest records, but also some of the newest.
     # This way more recent records won't appear to "stall out" while we play catch-up.
@@ -21,7 +21,7 @@ module AppealsApi
 
       Sidekiq::Batch.new.jobs do
         higher_level_review_ids.each_slice(BATCH_SIZE).with_index do |ids, i|
-          HigherLevelReviewUploadStatusUpdater.perform_in((i + 5).seconds, ids)
+          HigherLevelReviewUploadStatusUpdater.perform_in((i * 5).seconds, ids)
         end
       end
     end
