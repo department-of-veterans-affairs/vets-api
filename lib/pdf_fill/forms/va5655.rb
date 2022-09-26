@@ -472,7 +472,7 @@ module PdfFill
       end
 
       def merge_debts
-        @form_data['installmentContractsAndOtherDebts'].map do |debt|
+        @form_data['installmentContractsAndOtherDebts']&.map do |debt|
           debt['nameAndAddress'] = merge_name_and_address(debt, 'creditor')
           debt['dateAndPurpose'] = "#{debt['dateStarted']} #{debt['purpose']}"
         end
