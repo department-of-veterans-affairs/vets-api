@@ -12,6 +12,12 @@ RSpec.describe V0::FinancialStatusReportsController, type: :controller do
 
   before do
     sign_in_as(user)
+    mock_pdf_fill
+  end
+
+  def mock_pdf_fill
+    pdf_stub = class_double('PdfFill::Filler').as_stubbed_const
+    allow(pdf_stub).to receive(:fill_ancillary_form).and_return("#{::Rails.root}/spec/fixtures/dmc/5655.pdf")
   end
 
   describe '#create' do
