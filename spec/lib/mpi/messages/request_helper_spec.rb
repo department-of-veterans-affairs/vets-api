@@ -5,33 +5,18 @@ require 'mpi/messages/request_helper'
 
 describe MPI::Messages::RequestHelper do
   describe '.build_identifier' do
-    subject { described_class.build_identifier(identifier: identifier) }
+    subject { described_class.build_identifier(identifier: identifier, root: root) }
 
     let(:identifier) { 'some-identifier' }
+    let(:root) { 'some-root' }
     let(:expected_element) do
       element = Ox::Element.new('id')
-      element[:root] = '2.16.840.1.113883.4.349'
+      element[:root] = root
       element[:extension] = identifier
       element
     end
 
     it 'builds an Ox element with identifier attribute' do
-      expect(subject).to eq(expected_element)
-    end
-  end
-
-  describe '.build_edipi_identifier' do
-    subject { described_class.build_edipi_identifier(edipi: edipi) }
-
-    let(:edipi) { 'some-edipi' }
-    let(:expected_element) do
-      element = Ox::Element.new('id')
-      element[:root] = '2.16.840.1.113883.3.42.10001.100001.12'
-      element[:extension] = edipi
-      element
-    end
-
-    it 'builds an Ox element with edipi attribute' do
       expect(subject).to eq(expected_element)
     end
   end
@@ -163,8 +148,8 @@ describe MPI::Messages::RequestHelper do
     end
   end
 
-  describe '.build_orchestrated_search' do
-    subject { described_class.build_orchestrated_search(edipi: edipi) }
+  describe '.build_represented_organization' do
+    subject { described_class.build_represented_organization(edipi: edipi) }
 
     before { Timecop.freeze }
 
@@ -173,7 +158,7 @@ describe MPI::Messages::RequestHelper do
     let(:edipi) { 'some-edipi' }
     let(:expected_id_element) do
       element = Ox::Element.new('id')
-      element[:root] = '2.16.840.1.113883.4.349'
+      element[:root] = MPI::Constants::VA_ROOT_OID
       element[:extension] = "dslogon.#{edipi}"
       element
     end
@@ -335,13 +320,324 @@ describe MPI::Messages::RequestHelper do
     end
   end
 
+  describe '.build_subject_element' do
+    subject { described_class.build_subject_element }
+
+    let(:expected_element) do
+      element = Ox::Element.new('subject')
+      element[:typeCode] = 'SUBJ'
+      element
+    end
+
+    it 'builds an Ox element with subject element' do
+      expect(subject).to eq(expected_element)
+    end
+  end
+
+  describe '.build_registration_event_element' do
+    subject { described_class.build_registration_event_element }
+
+    let(:expected_element) do
+      element = Ox::Element.new('registrationEvent')
+      element[:classCode] = 'REG'
+      element[:moodCode] = 'EVN'
+      element
+    end
+
+    it 'builds an Ox element with registration event element' do
+      expect(subject).to eq(expected_element)
+    end
+  end
+
+  describe '.build_id_null_flavor' do
+    subject { described_class.build_id_null_flavor(type: type) }
+
+    let(:type) { 'some-type' }
+    let(:expected_element) do
+      element = Ox::Element.new('id')
+      element[:nullFlavor] = type
+      element
+    end
+
+    it 'builds an Ox element with id null flavor element' do
+      expect(subject).to eq(expected_element)
+    end
+  end
+
+  describe '.build_status_code' do
+    subject { described_class.build_status_code }
+
+    let(:expected_element) do
+      element = Ox::Element.new('statusCode')
+      element[:code] = 'active'
+      element
+    end
+
+    it 'builds an Ox element with status code element' do
+      expect(subject).to eq(expected_element)
+    end
+  end
+
+  describe '.build_subject_1_element' do
+    subject { described_class.build_subject_1_element }
+
+    let(:expected_element) do
+      element = Ox::Element.new('subject1')
+      element[:typeCode] = 'SBJ'
+      element
+    end
+
+    it 'builds an Ox element with subject 1 element' do
+      expect(subject).to eq(expected_element)
+    end
+  end
+
+  describe '.build_patient_element' do
+    subject { described_class.build_patient_element }
+
+    let(:expected_element) do
+      element = Ox::Element.new('patient')
+      element[:classCode] = 'PAT'
+      element
+    end
+
+    it 'builds an Ox element with patient person element' do
+      expect(subject).to eq(expected_element)
+    end
+  end
+
+  describe '.build_patient_person_element' do
+    subject { described_class.build_patient_person_element }
+
+    let(:expected_element) do
+      element = Ox::Element.new('patientPerson')
+      element
+    end
+
+    it 'builds an Ox element with patient person element' do
+      expect(subject).to eq(expected_element)
+    end
+  end
+
+  describe '.build_patient_person_name' do
+    subject { described_class.build_patient_person_name(given_names: given_names, family_name: family_name) }
+
+    let(:first_given_name) { 'some-given-name' }
+    let(:second_given_name) { 'some-other-given-name' }
+    let(:given_names) { [first_given_name, second_given_name] }
+    let(:family_name) { 'some-family-name' }
+    let(:expected_first_given_text_element) do
+      element = Ox::Element.new('given')
+      element.replace_text(first_given_name)
+      element
+    end
+    let(:expected_second_given_text_element) do
+      element = Ox::Element.new('given')
+      element.replace_text(second_given_name)
+      element
+    end
+    let(:expected_family_text_element) do
+      element = Ox::Element.new('family')
+      element.replace_text(family_name)
+      element
+    end
+    let(:expected_element) do
+      element = Ox::Element.new('name')
+      element[:use] = 'L'
+      element << expected_first_given_text_element
+      element << expected_second_given_text_element
+      element << expected_family_text_element
+      element
+    end
+
+    it 'builds an Ox element with name attribute' do
+      expect(subject).to eq(expected_element)
+    end
+  end
+
+  describe '.build_patient_person_birth_date' do
+    subject { described_class.build_patient_person_birth_date(birth_date: birth_date) }
+
+    let(:birth_date) { '19201030' }
+    let(:expected_element) do
+      element = Ox::Element.new('birthTime')
+      element[:value] = Date.parse(birth_date)&.strftime('%Y%m%d')
+      element
+    end
+
+    it 'builds an Ox element with birth date attribute' do
+      expect(subject).to eq(expected_element)
+    end
+  end
+
+  describe '.build_patient_identifier' do
+    subject { described_class.build_patient_identifier(identifier: identifier, root: root, class_code: class_code) }
+
+    let(:identifier) { 'some-identifier' }
+    let(:root) { 'some-root' }
+    let(:class_code) { 'some-class-code' }
+
+    let(:expected_scoping_id) do
+      element = Ox::Element.new('id')
+      element[:root] = root
+      element
+    end
+
+    let(:expected_scoping_organization) do
+      element = Ox::Element.new('scopingOrganization')
+      element[:determinerCode] = 'INSTANCE'
+      element[:classCode] = 'ORG'
+      element << expected_scoping_id
+      element
+    end
+    let(:expected_id) do
+      element = Ox::Element.new('id')
+      element[:extension] = identifier
+      element[:root] = root
+      element
+    end
+    let(:expected_element) do
+      element = Ox::Element.new('asOtherIDs')
+      element[:classCode] = class_code
+      element << expected_id
+      element << expected_scoping_organization
+      element
+    end
+
+    it 'builds an Ox element with patient identifier attribute' do
+      expect(subject).to eq(expected_element)
+    end
+  end
+
+  describe '.build_patient_person_proxy_add' do
+    subject { described_class.build_patient_person_proxy_add }
+
+    let(:identifier) { 'PROXY_ADD^PI^200VBA^USVBA' }
+    let(:root) { MPI::Constants::VA_ROOT_OID }
+    let(:class_code) { 'PAT' }
+
+    let(:expected_scoping_id) do
+      element = Ox::Element.new('id')
+      element[:root] = root
+      element
+    end
+    let(:expected_scoping_text) do
+      element = Ox::Element.new('name')
+      element.replace_text('MVI.ORCHESTRATION')
+      element
+    end
+    let(:expected_scoping_organization) do
+      element = Ox::Element.new('scopingOrganization')
+      element[:determinerCode] = 'INSTANCE'
+      element[:classCode] = 'ORG'
+      element << expected_scoping_id
+      element << expected_scoping_text
+      element
+    end
+    let(:expected_id) do
+      element = Ox::Element.new('id')
+      element[:extension] = identifier
+      element[:root] = root
+      element
+    end
+    let(:expected_element) do
+      element = Ox::Element.new('asOtherIDs')
+      element[:classCode] = class_code
+      element << expected_id
+      element << expected_scoping_organization
+      element
+    end
+
+    it 'builds an Ox element with patient person proxy add attribute' do
+      expect(subject).to eq(expected_element)
+    end
+  end
+
+  describe '.build_provider_organization' do
+    subject { described_class.build_provider_organization }
+
+    let(:expected_telecom) do
+      element = Ox::Element.new('telecom')
+      element[:value] = '3425558394'
+      element
+    end
+    let(:expected_contact_party) do
+      element = Ox::Element.new('contactParty')
+      element[:classCode] = 'CON'
+      element << expected_telecom
+      element
+    end
+    let(:expected_id) do
+      element = Ox::Element.new('id')
+      element[:root] = '2.16.840.1.113883.3.933'
+      element
+    end
+    let(:expected_text_element) do
+      element = Ox::Element.new('name')
+      element.replace_text('Good Health Clinic')
+      element
+    end
+    let(:expected_element) do
+      element = Ox::Element.new('providerOrganization')
+      element[:determinerCode] = 'INSTANCE'
+      element[:classCode] = 'ORG'
+      element << expected_id
+      element << expected_text_element
+      element << expected_contact_party
+      element
+    end
+
+    it 'builds an Ox element with provider organization attribute' do
+      expect(subject).to eq(expected_element)
+    end
+  end
+
+  describe '.build_custodian' do
+    subject { described_class.build_custodian }
+
+    let(:expected_text_element) do
+      element = Ox::Element.new('name')
+      element.replace_text('Good Health Clinic')
+      element
+    end
+    let(:expected_assigned_organization) do
+      element = Ox::Element.new('assignedOrganization')
+      element[:determinerCode] = 'INSTANCE'
+      element[:classCode] = 'ORG'
+      element << expected_text_element
+      element
+    end
+    let(:expected_id) do
+      element = Ox::Element.new('id')
+      element[:root] = '2.16.840.1.113883.3.933'
+      element
+    end
+    let(:expected_assigned_entity) do
+      element = Ox::Element.new('assignedEntity')
+      element[:classCode] = 'ASSIGNED'
+      element << expected_id
+      element << expected_assigned_organization
+      element
+    end
+    let(:expected_element) do
+      element = Ox::Element.new('custodian')
+      element[:typeCode] = 'CST'
+      element << expected_assigned_entity
+      element
+    end
+
+    it 'builds an Ox element with custodian attribute' do
+      expect(subject).to eq(expected_element)
+    end
+  end
+
   describe '.build_vba_orchestration' do
     subject { described_class.build_vba_orchestration }
 
     let(:expected_value_element) do
       element = Ox::Element.new('value')
       element[:extension] = 'VBA'
-      element[:root] = '2.16.840.1.113883.4.349'
+      element[:root] = MPI::Constants::VA_ROOT_OID
       element
     end
     let(:expected_semantics_text_element) do
@@ -361,24 +657,33 @@ describe MPI::Messages::RequestHelper do
     end
   end
 
-  describe '.build_control_act_process' do
-    subject { described_class.build_control_act_process }
+  describe '.build_control_act_process_element' do
+    subject { described_class.build_control_act_process_element }
 
-    let(:expected_control_act_process_element) do
-      element = Ox::Element.new('code')
-      element[:code] = 'PRPA_TE201305UV02'
-      element[:codeSystem] = '2.16.840.1.113883.1.6'
-      element
-    end
     let(:expected_element) do
       element = Ox::Element.new('controlActProcess')
       element[:classCode] = 'CACT'
       element[:moodCode] = 'EVN'
-      element << expected_control_act_process_element
       element
     end
 
     it 'builds an Ox element with control act process attribute' do
+      expect(subject).to eq(expected_element)
+    end
+  end
+
+  describe '.build_code' do
+    subject { described_class.build_code(code: code) }
+
+    let(:code) { 'some-code' }
+    let(:expected_element) do
+      element = Ox::Element.new('code')
+      element[:code] = code
+      element[:codeSystem] = '2.16.840.1.113883.1.6'
+      element
+    end
+
+    it 'builds an Ox element with code attribute' do
       expect(subject).to eq(expected_element)
     end
   end

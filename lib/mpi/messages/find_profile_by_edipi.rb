@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'request_helper'
+require_relative 'request_builder'
 require 'mpi/constants'
 
 module MPI
@@ -16,14 +17,15 @@ module MPI
       def perform
         MPI::Messages::RequestBuilder.new(extension: MPI::Constants::FIND_PROFILE, body: build_body).perform
       rescue => e
-        Rails.logger.error "[FindProfileByIdentifier] Failed to build request by identifier: #{e.message}"
+        Rails.logger.error "[FindProfileByEdipi] Failed to build request: #{e.message}"
         raise e
       end
 
       private
 
       def build_body
-        body = RequestHelper.build_control_act_process
+        body = RequestHelper.build_control_act_process_element
+        body << RequestHelper.build_code(code: MPI::Constants::FIND_PROFILE_CONTROL_ACT_PROCESS)
         body << query_by_parameter
         body
       end
@@ -35,9 +37,13 @@ module MPI
 
       def build_parameter_list
         element = RequestHelper.build_parameter_list_element
-        element << RequestHelper.build_edipi_identifier(edipi: edipi)
+        element << RequestHelper.build_identifier(identifier: edipi, root: edipi_root)
         element << RequestHelper.build_vba_orchestration
         element
+      end
+
+      def edipi_root
+        MPI::Constants::DOD_ROOT_OID
       end
     end
   end

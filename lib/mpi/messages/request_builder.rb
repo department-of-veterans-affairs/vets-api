@@ -5,11 +5,12 @@ module MPI
     class RequestBuilder
       extend ActiveSupport::Concern
 
-      attr_reader :extension, :body
+      attr_reader :extension, :body, :search_token
 
-      def initialize(extension:, body:)
+      def initialize(extension:, body:, search_token: nil)
         @extension = extension
         @body = body
+        @search_token = search_token
       end
 
       def perform
@@ -20,7 +21,15 @@ module MPI
 
       def build_document_component
         document = Ox::Document.new(version: '1.0')
+        document << build_instruct_component
         document << build_envelope_component
+      end
+
+      def build_instruct_component
+        instruct = Ox::Instruct.new(:xml)
+        instruct[:version] = '1.0'
+        instruct[:encoding] = 'utf-8'
+        instruct
       end
 
       def build_envelope_component
@@ -37,6 +46,7 @@ module MPI
         message = build_header
         message << build_receiver
         message << build_sender
+        message << build_attention_line if search_token
         message << body
       end
 
@@ -77,9 +87,15 @@ module MPI
         sender << build_sender_device
       end
 
+      def build_attention_line
+        attention_line = element('attentionLine')
+        attention_line << element('keyWordText', {}, 'Search.Token')
+        attention_line << element('value', { 'xsi:type' => 'ST' }, search_token)
+      end
+
       def build_sender_device
         device = element('device', classCode: 'DEV', determinerCode: 'INSTANCE')
-        device << element('id', root: '2.16.840.1.113883.4.349', extension: '200VGOV')
+        device << element('id', root: MPI::Constants::VA_ROOT_OID, extension: '200VGOV')
       end
 
       def build_envelope
@@ -97,9 +113,10 @@ module MPI
         Settings.mvi.processing_code
       end
 
-      def element(name, attributes = {})
+      def element(name, attributes = {}, body_text = nil)
         element = Ox::Element.new(name)
         attributes.each { |key, value| element[key] = value }
+        element.replace_text(body_text) if body_text
         element
       end
     end

@@ -229,13 +229,20 @@ module MPI
                                                         birth_date: user_identity.birth_date,
                                                         idme_uuid: user_identity.idme_uuid,
                                                         logingov_uuid: user_identity.logingov_uuid,
-                                                        first_name: user_identity.first_name).to_xml
+                                                        first_name: user_identity.first_name).perform
     end
 
     def create_add_person_proxy_message(user_identity)
       raise Common::Exceptions::ValidationErrors, user_identity unless user_identity.valid?
+      return if user_identity.icn_with_aaid.blank?
 
-      MPI::Messages::AddPersonProxyAddMessage.new(user_identity).to_xml if user_identity.icn_with_aaid.present?
+      MPI::Messages::AddPersonProxyAddMessage.new(last_name: user_identity.last_name,
+                                                  ssn: user_identity.ssn,
+                                                  birth_date: user_identity.birth_date,
+                                                  icn: user_identity.icn,
+                                                  edipi: user_identity.edipi,
+                                                  search_token: user_identity.search_token,
+                                                  first_name: user_identity.first_name).perform
     end
 
     def create_update_profile_message(user_identity)
@@ -248,7 +255,7 @@ module MPI
                                               idme_uuid: user_identity.idme_uuid,
                                               logingov_uuid: user_identity.logingov_uuid,
                                               edipi: user_identity.edipi,
-                                              first_name: user_identity.first_name).to_xml
+                                              first_name: user_identity.first_name).perform
     end
 
     def create_profile_message(user_identity,

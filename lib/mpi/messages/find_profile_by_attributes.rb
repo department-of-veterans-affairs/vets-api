@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'request_helper'
+require_relative 'request_builder'
 require 'mpi/constants'
 
 module MPI
@@ -26,7 +27,7 @@ module MPI
         validate_required_fields
         MPI::Messages::RequestBuilder.new(extension: MPI::Constants::FIND_PROFILE, body: build_body).perform
       rescue => e
-        Rails.logger.error "[FindProfileByIdentifier] Failed to build request by identifier: #{e.message}"
+        Rails.logger.error "[FindProfileByAttributes] Failed to build request: #{e.message}"
         raise e
       end
 
@@ -45,11 +46,12 @@ module MPI
         missing_values << :birth_date if birth_date.blank?
         missing_values << :ssn if ssn.blank?
         missing_values << :edipi if edipi.blank? && orch_search
-        raise ArgumentError, "Required values missing: #{missing_values}" if missing_values.present?
+        raise Errors::ArgumentError, "Required values missing: #{missing_values}" if missing_values.present?
       end
 
       def build_control_act_process
-        element = RequestHelper.build_control_act_process
+        element = RequestHelper.build_control_act_process_element
+        element << RequestHelper.build_code(code: MPI::Constants::FIND_PROFILE_CONTROL_ACT_PROCESS)
         element << build_data_enterer
         element
       end
@@ -64,7 +66,7 @@ module MPI
         element = RequestHelper.build_assigned_person_element
         element << RequestHelper.build_assigned_person_ssn(ssn: ssn)
         element << RequestHelper.build_assigned_person_instance(given_names: given_names, family_name: last_name)
-        element << RequestHelper.build_orchestrated_search(edipi: edipi) if orch_search
+        element << RequestHelper.build_represented_organization(edipi: edipi) if orch_search
         element
       end
 

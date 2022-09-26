@@ -32,10 +32,10 @@ describe MPI::Messages::FindProfileByAttributes do
 
     context 'missing required fields' do
       shared_context 'missing required fields response' do
-        let(:expected_error) { ArgumentError }
+        let(:expected_error) { MPI::Errors::ArgumentError }
         let(:expected_error_message) { "Required values missing: [:#{missing_value}]" }
         let(:expected_logger_message) do
-          "[FindProfileByIdentifier] Failed to build request by identifier: #{expected_error_message}"
+          "[FindProfileByAttributes] Failed to build request: #{expected_error_message}"
         end
 
         it 'raises an Argument Error with expected message and logs expected log' do
@@ -93,7 +93,7 @@ describe MPI::Messages::FindProfileByAttributes do
     end
 
     context 'with a valid set of parameters' do
-      let(:idm_path) { 'env:Body/idm:PRPA_IN201305UV02' }
+      let(:idm_path) { 'env:Envelope/env:Body/idm:PRPA_IN201305UV02' }
       let(:parameter_list_path) { "#{idm_path}/controlActProcess/queryByParameter/parameterList" }
 
       context 'when orch_search is set to true' do
