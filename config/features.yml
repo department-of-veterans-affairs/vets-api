@@ -514,6 +514,9 @@ features:
     actor_type: user
     description: Enabling Public Websites-managed EHR CTAs to use Drupal EHR data, including for Cerner cutovers
     enable_in_development: true
+  pw_ehr_cta_use_slo:
+    actor_type: user
+    description: Use single-logout (SLO) paths for Public Websites-managed EHR CTAs
   request_locked_pdf_password:
     actor_type: user
     description: Ask for a password when an encrypted PDF is detected before uploading
