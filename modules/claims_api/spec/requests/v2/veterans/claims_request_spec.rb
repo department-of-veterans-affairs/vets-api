@@ -368,7 +368,6 @@ RSpec.describe 'Claims', type: :request do
                 expect(response.status).to eq(200)
                 expect(json_response['claimPhaseDates']['currentPhaseBack']).to eq(true)
                 expect(json_response['claimPhaseDates']['latestPhaseType']).to eq('Pending Decision Approval')
-                expect(json_response['claimPhaseDates']['everPhaseBack']).to eq(true)
                 expect(json_response['claimPhaseDates']['phaseChangeDate']).to eq('2017-10-18')
               end
             end

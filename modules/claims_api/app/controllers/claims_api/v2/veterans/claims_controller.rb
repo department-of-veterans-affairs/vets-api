@@ -177,13 +177,6 @@ module ClaimsApi
           data.split('')
         end
 
-        def ever_phase_back(data)
-          return false if data[:benefit_claim_details_dto][:phase_type_change_ind].nil?
-
-          pt_ind_array = get_phase_type_indicator_array(data)
-          pt_ind_array.first.to_i > pt_ind_array.last.to_i
-        end
-
         def get_bgs_phase_name(data, phase_number)
           ClaimsApi::BGSClaimStatusMapper.new(data[:benefit_claim_details_dto], phase_number).name_from_phase
         end
@@ -361,7 +354,6 @@ module ClaimsApi
                 {
                   phase_change_date: format_bgs_phase_chng_dates(bgs_claim),
                   current_phase_back: current_phase_back(bgs_claim),
-                  ever_phase_back: ever_phase_back(bgs_claim),
                   latest_phase_type: latest_phase_type(bgs_claim)
                 }
             }
