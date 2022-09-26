@@ -4,12 +4,8 @@ module MPI
   module Messages
     class RequestHelper
       class << self
-        def build_identifier(identifier:)
-          element('id', root: '2.16.840.1.113883.4.349', extension: identifier)
-        end
-
-        def build_edipi_identifier(edipi:)
-          element('id', root: '2.16.840.1.113883.3.42.10001.100001.12', extension: edipi)
+        def build_identifier(identifier:, root:)
+          element('id', root: root, extension: identifier)
         end
 
         def build_name(given_names:, family_name:)
@@ -45,9 +41,10 @@ module MPI
           gender_element
         end
 
-        def build_orchestrated_search(edipi:)
+        def build_represented_organization(edipi:)
           orchestrated_search_element = element('representedOrganization', determinerCode: 'INSTANCE', classCode: 'ORG')
-          orchestrated_search_element << element('id', root: '2.16.840.1.113883.4.349', extension: "dslogon.#{edipi}")
+          orchestrated_search_element << build_identifier(identifier: "dslogon.#{edipi}",
+                                                          root: MPI::Constants::VA_ROOT_OID)
           orchestrated_search_element << element('code', code: Time.now.utc.strftime('%Y-%m-%d %H:%M:%S'))
           orchestrated_search_element << text_element('desc', 'vagov')
           ip_address = Socket.ip_address_list.find { |ip| ip.ipv4? && !ip.ipv4_loopback? }.ip_address
@@ -84,20 +81,91 @@ module MPI
         end
 
         def build_assigned_person_ssn(ssn:)
-          element('id', extension: ssn, root: '2.16.840.1.113883.777.999')
+          build_identifier(identifier: ssn, root: '2.16.840.1.113883.777.999')
+        end
+
+        def build_subject_element
+          element('subject', typeCode: 'SUBJ')
+        end
+
+        def build_registration_event_element
+          element('registrationEvent', classCode: 'REG', moodCode: 'EVN')
+        end
+
+        def build_id_null_flavor(type:)
+          element('id', nullFlavor: type)
+        end
+
+        def build_status_code
+          element('statusCode', code: 'active')
+        end
+
+        def build_subject_1_element
+          element('subject1', typeCode: 'SBJ')
+        end
+
+        def build_patient_element
+          element('patient', classCode: 'PAT')
+        end
+
+        def build_patient_person_element
+          element('patientPerson')
+        end
+
+        def build_patient_person_name(given_names:, family_name:)
+          name_value = element('name', use: 'L')
+          given_names.each do |given_name|
+            name_value << text_element('given', given_name)
+          end
+          name_value << text_element('family', family_name)
+        end
+
+        def build_patient_person_birth_date(birth_date:)
+          element('birthTime', value: Date.parse(birth_date)&.strftime('%Y%m%d'))
+        end
+
+        def build_patient_identifier(identifier:, root:, class_code:)
+          ssn_element = element('asOtherIDs', classCode: class_code)
+          ssn_element << build_identifier(identifier: identifier, root: root)
+          ssn_element << build_scoping_organization(root: root)
+          ssn_element
+        end
+
+        def build_patient_person_proxy_add
+          proxy_add_element = element('asOtherIDs', classCode: 'PAT')
+          proxy_add_element << build_identifier(identifier: 'PROXY_ADD^PI^200VBA^USVBA',
+                                                root: MPI::Constants::VA_ROOT_OID)
+          proxy_add_element << build_scoping_organization(root: MPI::Constants::VA_ROOT_OID, orchestration: true)
+          proxy_add_element
+        end
+
+        def build_provider_organization
+          provider_organization = element('providerOrganization', determinerCode: 'INSTANCE', classCode: 'ORG')
+          provider_organization << element('id', root: '2.16.840.1.113883.3.933')
+          provider_organization << text_element('name', 'Good Health Clinic')
+          provider_organization << build_contact_party
+          provider_organization
+        end
+
+        def build_custodian
+          custodian = element('custodian', typeCode: 'CST')
+          custodian << build_assigned_entity
+          custodian
         end
 
         def build_vba_orchestration
           vba_element = element('otherIDsScopingOrganization')
-          vba_element << element('value', extension: 'VBA', root: '2.16.840.1.113883.4.349')
+          vba_element << element('value', extension: 'VBA', root: MPI::Constants::VA_ROOT_OID)
           vba_element << text_element('semanticsText', 'MVI.ORCHESTRATION')
           vba_element
         end
 
-        def build_control_act_process
-          control_act_element = element('controlActProcess', classCode: 'CACT', moodCode: 'EVN')
-          control_act_element << element('code', code: 'PRPA_TE201305UV02', codeSystem: '2.16.840.1.113883.1.6')
-          control_act_element
+        def build_control_act_process_element
+          element('controlActProcess', classCode: 'CACT', moodCode: 'EVN')
+        end
+
+        def build_code(code:)
+          element('code', code: code, codeSystem: '2.16.840.1.113883.1.6')
         end
 
         def build_parameter_list_element
@@ -105,6 +173,32 @@ module MPI
         end
 
         private
+
+        def build_scoping_organization(root:, orchestration: nil)
+          scoping_organization = element('scopingOrganization', determinerCode: 'INSTANCE', classCode: 'ORG')
+          scoping_organization << element('id', root: root)
+          scoping_organization << text_element('name', 'MVI.ORCHESTRATION') if orchestration
+          scoping_organization
+        end
+
+        def build_assigned_entity
+          assigned_entity = element('assignedEntity', classCode: 'ASSIGNED')
+          assigned_entity << element('id', root: '2.16.840.1.113883.3.933')
+          assigned_entity << build_assigned_organization
+          assigned_entity
+        end
+
+        def build_assigned_organization
+          assigned_organization = element('assignedOrganization', determinerCode: 'INSTANCE', classCode: 'ORG')
+          assigned_organization << text_element('name', 'Good Health Clinic')
+          assigned_organization
+        end
+
+        def build_contact_party
+          contact_party = element('contactParty', classCode: 'CON')
+          contact_party << element('telecom', value: '3425558394')
+          contact_party
+        end
 
         def element(name, attributes = {})
           element = Ox::Element.new(name)

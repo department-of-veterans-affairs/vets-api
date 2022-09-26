@@ -107,7 +107,7 @@ describe MPI::Service do
         {
           birls_id: '796104437',
           participant_id: '13367440',
-          other: [{ codeSystem: '2.16.840.1.113883.4.349', code: 'WRN206', displayName: 'Existing Key Identifier' }]
+          other: [{ codeSystem: MPI::Constants::VA_ROOT_OID, code: 'WRN206', displayName: 'Existing Key Identifier' }]
         }
       end
 
@@ -351,7 +351,7 @@ describe MPI::Service do
       let(:expected_response_codes) { { idme_uuid: idme_uuid } }
       let(:missing_keys) { [:first_name] }
       let(:expected_sentry_warning) do
-        "MVI update_profile request error: Update Profile Missing Attributes, missing values: #{missing_keys}"
+        "MVI update_profile request error: Required values missing: #{missing_keys}"
       end
 
       before { stub_mpi(build(:mvi_profile, given_names: [first_name])) }
