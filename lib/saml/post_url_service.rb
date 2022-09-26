@@ -46,29 +46,21 @@ module SAML
       user.verified_at.present? && user.loa[:current] < LOA::THREE
     end
 
-    def login_redirect_url(auth: 'success', code: nil)
+    def login_redirect_url(auth: 'success', code: nil, request_id: nil)
       if auth == 'success'
         application = @tracker.payload_attr(:application)
         if %w[mhv myvahealth ebenefits vamobile vaoccmobile].include?(application)
           StatsD.increment(STATSD_SSO_UNIFIED_CALLBACK_KEY, tags: ["client:#{application}"])
         end
 
-        # if the original auth request specified a redirect, use that
-        redirect_target = @tracker.payload_attr(:redirect)
-        if redirect_target.present?
-          redirect_target += '&postLogin=true' if @tracker.payload_attr(:post_login) == 'true'
-          return redirect_target
-        end
+        return client_redirect_target if @tracker.payload_attr(:redirect).present?
       end
 
       # if the original auth request was an inbound ssoe autologin (type custom)
       # and authentication failed, set 'force-needed' so the FE can silently fail
       # authentication and NOT show the user an error page
       auth = 'force-needed' if auth != 'success' && @tracker&.payload_attr(:type) == 'custom'
-
-      @query_params[:type] = type if type
-      @query_params[:auth] = auth if auth != 'success'
-      @query_params[:code] = code if code
+      set_query_params(auth, code, request_id)
 
       if Settings.saml_ssoe.relay.present?
         add_query(Settings.saml_ssoe.relay, query_params)
@@ -87,6 +79,19 @@ module SAML
     end
 
     private
+
+    def client_redirect_target
+      redirect_target = @tracker.payload_attr(:redirect)
+      redirect_target += '&postLogin=true' if @tracker.payload_attr(:post_login) == 'true'
+      redirect_target
+    end
+
+    def set_query_params(auth, code, request_id)
+      @query_params[:type] = type if type
+      @query_params[:auth] = auth if auth != 'success'
+      @query_params[:code] = code if code
+      @query_params[:request_id] = request_id unless request_id.nil?
+    end
 
     # Builds the urls to trigger various SSO policies: mhv, dslogon, idme, logingov, mfa, or verify flows.
     # link_authn_context is the new proposed authn_context

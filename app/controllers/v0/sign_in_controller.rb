@@ -233,7 +233,7 @@ module V0
     def handle_pre_login_error(error, client_id)
       if SignIn::Constants::ClientConfig::COOKIE_AUTH.include?(client_id)
         error_code = error.try(:code) || SignIn::Constants::ErrorCode::INVALID_REQUEST
-        redirect_to failed_auth_url({ auth: 'fail', code: error_code })
+        redirect_to failed_auth_url({ auth: 'fail', code: error_code, request_id: request.request_id })
       else
         render json: { errors: error }, status: :bad_request
       end
