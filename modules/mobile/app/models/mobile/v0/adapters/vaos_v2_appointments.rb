@@ -97,7 +97,7 @@ module Mobile
             comment: appointment_hash[:comment] || appointment_hash.dig(:reason_code, :text),
             facility_id: facility_id,
             sta6aid: sta6aid,
-            healthcare_provider: healthcare_provider(appointment_hash[:practitioners]),
+            healthcare_provider: appointment_hash[:healthcare_provider],
             healthcare_service: healthcare_service(appointment_hash, type),
             location: location(type, appointment_hash),
             minutes_duration: minutes_duration(appointment_hash[:minutes_duration], type),
@@ -326,16 +326,6 @@ module Mobile
             number: "#{phone_captures[2].presence}-#{phone_captures[3].presence}",
             extension: phone_captures[4].presence
           }
-        end
-
-        def healthcare_provider(practitioners)
-          return nil if practitioners.nil? || practitioners.none? { |prac| prac[:name] }
-
-          practitioners.map do |practitioner|
-            first_name = practitioner.dig(:name, :given)&.join(' ')&.strip
-            last_name = practitioner.dig(:name, :family)
-            [first_name, last_name].compact.join(' ').presence
-          end.compact.join(', ')
         end
 
         def healthcare_service(appointment_hash, type)
