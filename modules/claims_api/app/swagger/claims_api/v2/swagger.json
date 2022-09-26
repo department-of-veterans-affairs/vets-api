@@ -447,10 +447,13 @@
                         "example": "2018-06-04"
                       },
                       "claimPhaseDates": {
-                        "phaseChangeDate": {
-                          "type": "date",
-                          "nullable": true,
-                          "description": "The date that the claim changed to its current phase"
+                        "type": "object",
+                        "properties": {
+                          "phaseChangeDate": {
+                            "type": "date",
+                            "nullable": true,
+                            "description": "The date that the claim changed to its current phase"
+                          }
                         }
                       },
                       "closeDate": {
@@ -790,19 +793,22 @@
                       "example": "5/17/20"
                     },
                     "claimPhaseDates": {
-                      "currentPhaseBack": {
-                        "type": "boolean",
-                        "description": "Indicates whether the current phase is phased back, i.e. in the 2-digit phaseTypeChangeInd for the most recent phase change, if the first digit's value is greater than the second digit's value, then we are regressing or phasing back."
-                      },
-                      "latestPhaseType": {
-                        "type": "string",
-                        "nullable": true,
-                        "description": "The most current phase for the claim"
-                      },
-                      "phaseChangeDate": {
-                        "type": "date",
-                        "nullable": true,
-                        "description": "The date that the claim changed to its current phase"
+                      "type": "object",
+                      "properties": {
+                        "currentPhaseBack": {
+                          "type": "boolean",
+                          "description": "Indicates whether the current phase is moving backward."
+                        },
+                        "latestPhaseType": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "The most current phase for the claim"
+                        },
+                        "phaseChangeDate": {
+                          "type": "date",
+                          "nullable": true,
+                          "description": "The date that the claim changed to its current phase"
+                        }
                       }
                     },
                     "closeDate": {
