@@ -67,7 +67,19 @@ module DebtManagementCenter
       vba_status = submit_vba_fsr(form) if selected_vba_debts(form['selectedDebtsAndCopays']).present?
       vha_status = submit_vha_fsr(form, submission) if selected_vha_copays(form['selectedDebtsAndCopays']).present?
 
-      { vba_status: vba_status, vha_status: vha_status }.compact
+      {
+        vba_status: vba_status,
+        vha_status: vha_status,
+        content: Base64.encode64(
+          File.read(
+            PdfFill::Filler.fill_ancillary_form(
+              form,
+              SecureRandom.uuid,
+              '5655'
+            )
+          )
+        )
+      }
     end
 
     def submit_vba_fsr(form)

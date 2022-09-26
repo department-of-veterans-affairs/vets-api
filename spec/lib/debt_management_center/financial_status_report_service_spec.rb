@@ -7,6 +7,10 @@ require 'debt_management_center/sharepoint/request'
 require 'support/financial_status_report_helpers'
 
 RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :service do
+  before do
+    mock_pdf_fill
+  end
+
   it 'inherits SentryLogging' do
     expect(described_class.ancestors).to include(SentryLogging)
   end
@@ -15,6 +19,11 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
     sp_stub = instance_double('DebtManagementCenter::Sharepoint::Request')
     allow(DebtManagementCenter::Sharepoint::Request).to receive(:new).and_return(sp_stub)
     allow(sp_stub).to receive(:upload).and_return(Faraday::Response.new)
+  end
+
+  def mock_pdf_fill
+    pdf_stub = class_double('PdfFill::Filler').as_stubbed_const
+    allow(pdf_stub).to receive(:fill_ancillary_form).and_return("#{::Rails.root}/spec/fixtures/dmc/5655.pdf")
   end
 
   describe '#submit_financial_status_report' do
