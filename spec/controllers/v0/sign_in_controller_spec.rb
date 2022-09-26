@@ -3,6 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe V0::SignInController, type: :controller do
+  let(:request_id) { SecureRandom.uuid }
+
+  before do
+    allow_any_instance_of(ActionController::TestRequest).to receive(:request_id).and_return(request_id)
+  end
+
   describe 'GET authorize' do
     subject do
       get(:authorize, params: authorize_params)
@@ -65,7 +71,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:client_id_value) { SignIn::Constants::ClientConfig::COOKIE_AUTH.first }
         let(:expected_error_status) { :redirect }
         let(:expected_redirect_params) do
-          { auth: 'fail', code: SignIn::Constants::ErrorCode::INVALID_REQUEST }.to_query
+          { auth: 'fail', code: SignIn::Constants::ErrorCode::INVALID_REQUEST, request_id: request_id }.to_query
         end
         let(:expected_redirect) do
           uri = URI.parse(Settings.sign_in.client_redirect_uris.web)
@@ -484,7 +490,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:client_id) { SignIn::Constants::ClientConfig::COOKIE_AUTH.first }
         let(:expected_error_status) { :redirect }
         let(:expected_redirect_params) do
-          { auth: 'fail', code: error_code }.to_query
+          { auth: 'fail', code: error_code, request_id: request_id }.to_query
         end
         let(:expected_redirect) do
           uri = URI.parse(Settings.sign_in.client_redirect_uris.web)

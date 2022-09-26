@@ -26,6 +26,7 @@ RSpec.describe V1::SessionsController, type: :controller do
   end
 
   let(:request_host)        { '127.0.0.1:3000' }
+  let(:request_id)          { SecureRandom.uuid }
   let(:callback_url)        { "http://#{request_host}/v1/sessions/callback" }
   let(:logout_redirect_url) { 'http://127.0.0.1:3001/logout/' }
 
@@ -57,6 +58,15 @@ RSpec.describe V1::SessionsController, type: :controller do
     )
   end
 
+  let(:expected_redirect_url) { 'http://127.0.0.1:3001/auth/login/callback' }
+  let(:error_code) { '007' }
+  let(:expected_redirect_params) { { auth: 'fail', code: error_code, request_id: request_id }.to_query }
+  let(:expected_redirect) do
+    uri = URI.parse(expected_redirect_url)
+    uri.query = expected_redirect_params
+    uri.to_s
+  end
+
   let(:once) { { times: 1, value: 1 } }
 
   def verify_session_cookie
@@ -78,6 +88,7 @@ RSpec.describe V1::SessionsController, type: :controller do
     request.host = request_host
     allow(SAML::SSOeSettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
     allow(SAML::Responses::Login).to receive(:new).and_return(valid_saml_response)
+    allow_any_instance_of(ActionController::TestRequest).to receive(:request_id).and_return(request_id)
   end
 
   context 'when not logged in' do
@@ -327,12 +338,14 @@ RSpec.describe V1::SessionsController, type: :controller do
 
     describe 'POST saml_callback' do
       context 'when too much time passed to consume the SAML Assertion' do
+        let(:error_code) { '005' }
+
         before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_too_late) }
 
         it 'redirects to an auth failure page' do
           expect(Rails.logger)
             .to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:auth_too_late][:short_message]}/)
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=005')
+          expect(post(:saml_callback)).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
       end
@@ -349,7 +362,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
       it 'redirect user to home page when no SAMLRequestTracker exists' do
         allow(SAML::User).to receive(:new).and_return(saml_user)
-        expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback')
+        expect(post(:saml_callback)).to redirect_to(expected_redirect_url)
       end
 
       context 'for a user with semantically invalid SAML attributes' do
@@ -365,10 +378,11 @@ RSpec.describe V1::SessionsController, type: :controller do
             issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
           )
         end
+        let(:error_code) { '102' }
 
         it 'redirects to an auth failure page' do
           expect(controller).to receive(:log_message_to_sentry)
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=102')
+          expect(post(:saml_callback)).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
 
@@ -504,7 +518,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
 
-          expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
+          expect(response.location).to start_with(expected_redirect_url)
 
           new_user = User.find(uuid)
           expect(new_user.ssn).to eq('796111863')
@@ -599,43 +613,50 @@ RSpec.describe V1::SessionsController, type: :controller do
             loa: { current: nil, highest: nil }
           )
         end
+        let(:error_code) { '004' }
 
         it 'handles no loa_highest present on new user_identity' do
           post :saml_callback
-          expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=004')
+          expect(response.location).to start_with(expected_redirect)
         end
       end
 
       context 'when user clicked DENY' do
+        let(:error_code) { '001' }
+
         before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_click_deny) }
 
         it 'redirects to an auth failure page' do
           expect(Raven).to receive(:tags_context).once
           expect(Rails.logger)
             .to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:clicked_deny][:short_message]}/)
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=001')
+          expect(post(:saml_callback)).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
       end
 
       context 'when too much time passed to consume the SAML Assertion' do
+        let(:error_code) { '002' }
+
         before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_too_late) }
 
         it 'redirects to an auth failure page' do
           expect(Rails.logger)
             .to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:auth_too_late][:short_message]}/)
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=002')
+          expect(post(:saml_callback)).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
       end
 
       context 'when clock drift causes us to consume the Assertion before its creation' do
+        let(:error_code) { '003' }
+
         before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_too_early) }
 
         it 'redirects to an auth failure page', :aggregate_failures do
           expect(Rails.logger)
             .to receive(:error).with(/#{SAML::Responses::Login::ERRORS[:auth_too_early][:short_message]}/)
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=003')
+          expect(post(:saml_callback)).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
 
@@ -651,6 +672,8 @@ RSpec.describe V1::SessionsController, type: :controller do
       end
 
       context 'when saml response returns an unknown type of error' do
+        let(:error_code) { '007' }
+
         before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_unknown_error) }
 
         it 'logs a generic error', :aggregate_failures do
@@ -665,7 +688,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                                 full_message: 'The status code of the Response was not Success, was Requester =>'\
                                               ' NoAuthnContext -> AuthnRequest without an authentication context.' }]
             )
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=007')
+          expect(post(:saml_callback)).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
 
@@ -763,7 +786,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         it 'logs a generic user validation error', :aggregate_failures do
           expect(Rails.logger).to receive(:warn).with(expected_warn_message)
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=007')
+          expect(post(:saml_callback)).to redirect_to(expected_redirect)
 
           expect(response).to have_http_status(:found)
         end
@@ -771,6 +794,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
       context 'when saml response contains multiple errors (known or otherwise)' do
         let(:multi_error_uuid) { '2222' }
+        let(:error_code) { '001' }
 
         before do
           allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_multi_error(multi_error_uuid))
@@ -792,7 +816,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                                 level: :error,
                                 full_message: 'Other random error' }]
             )
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=001')
+          expect(post(:saml_callback)).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
 
@@ -832,7 +856,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
-          expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
+          expect(response.location).to start_with(expected_redirect_url)
           MPI::Configuration.instance.breakers_service.end_forced_outage!
         end
       end
@@ -841,6 +865,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         let(:saml_user_attributes) do
           loa1_user.attributes.merge(loa1_user.identity.attributes).merge(uuid: nil)
         end
+        let(:error_code) { '004' }
 
         before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
@@ -872,7 +897,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                 mvi: 'breakers is open for MVI'
               }
             )
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=004')
+          expect(post(:saml_callback)).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
 
@@ -914,6 +939,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         let(:expected_warn_message) do
           "SessionsController version:#{version} context:{} message:#{expected_error_message}"
         end
+        let(:error_code) { '101' }
 
         before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
@@ -921,7 +947,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(controller).not_to receive(:log_message_to_sentry)
           expect(Rails.logger).to receive(:warn).ordered
           expect(Rails.logger).to receive(:warn).ordered.with(expected_warn_message)
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=101')
+          expect(post(:saml_callback)).to redirect_to(expected_redirect)
 
           expect(response).to have_http_status(:found)
         end
@@ -942,12 +968,13 @@ RSpec.describe V1::SessionsController, type: :controller do
           )
         end
         let(:saml_user) { SAML::User.new(saml_response) }
+        let(:error_code) { '102' }
 
         before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
         it 'redirects to the auth failed endpoint with a specific code', :aggregate_failures do
           expect(controller).to receive(:log_message_to_sentry)
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=102')
+          expect(post(:saml_callback)).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
       end
@@ -968,12 +995,13 @@ RSpec.describe V1::SessionsController, type: :controller do
           )
         end
         let(:saml_user) { SAML::User.new(saml_response) }
+        let(:error_code) { '103' }
 
         before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
         it 'logs a generic user validation error', :aggregate_failures do
           expect(controller).to receive(:log_message_to_sentry)
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=103')
+          expect(post(:saml_callback)).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
       end
