@@ -22,10 +22,13 @@
         "example": "2018-06-04"
       },
       "claimPhaseDates": {
-        "phaseChangeDate": {
-          "type": "date",
-          "nullable": true,
-          "description": "The date that the claim changed to its current phase"
+        "type":"object",
+        "properties": {
+          "phaseChangeDate": {
+            "type": "date",
+            "nullable": true,
+            "description": "The date that the claim changed to its current phase"
+          }
         }
       },
       "closeDate": {
