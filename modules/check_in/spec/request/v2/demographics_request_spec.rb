@@ -11,7 +11,7 @@ RSpec.describe 'V2::Demographics', type: :request do
     allow(Flipper).to receive(:enabled?).with('check_in_experience_enabled').and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_enabled', anything).and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
-    allow(Flipper).to receive(:enabled?).with('check_in_experience_504_error_mapping_enabled')
+    allow(Flipper).to receive(:enabled?).with('check_in_experience_chip_500_error_mapping_enabled')
                                         .and_return(false)
 
     Rails.cache.clear
@@ -75,7 +75,7 @@ RSpec.describe 'V2::Demographics', type: :request do
       end
     end
 
-    context 'when CHIP confirm_demographics throws exception with 500 status_code' do
+    context 'when CHIP confirm_demographics throws exception with 504 status_code' do
       let(:params) do
         {
           demographics: {
@@ -109,7 +109,7 @@ RSpec.describe 'V2::Demographics', type: :request do
           expect(response.status).to eq(200)
         end
 
-        VCR.use_cassette('check_in/chip/confirm_demographics/confirm_demographics_500', match_requests_on: [:host]) do
+        VCR.use_cassette('check_in/chip/confirm_demographics/confirm_demographics_504', match_requests_on: [:host]) do
           VCR.use_cassette('check_in/chip/token/token_200') do
             patch "/check_in/v2/demographics/#{id}", params: params
           end
@@ -119,8 +119,8 @@ RSpec.describe 'V2::Demographics', type: :request do
       end
     end
 
-    context 'when CHIP confirm_demographics throws exception with 504 status_code' do
-      context '504 error mapping feature flag disabled' do
+    context 'when CHIP confirm_demographics throws exception with 500 status_code' do
+      context '500 error mapping feature flag disabled' do
         let(:params) do
           {
             demographics: {
@@ -144,11 +144,11 @@ RSpec.describe 'V2::Demographics', type: :request do
         let(:error_resp) { { 'errors' => [operation_failed] } }
 
         before do
-          allow(Flipper).to receive(:enabled?).with('check_in_experience_504_error_mapping_enabled')
+          allow(Flipper).to receive(:enabled?).with('check_in_experience_chip_500_error_mapping_enabled')
                                               .and_return(false)
         end
 
-        it 'returns error response' do
+        it 'returns 400 error response' do
           VCR.use_cassette 'check_in/lorota/token/token_200' do
             post '/check_in/v2/sessions', session_params
             expect(response.status).to eq(200)
@@ -159,7 +159,7 @@ RSpec.describe 'V2::Demographics', type: :request do
             expect(response.status).to eq(200)
           end
 
-          VCR.use_cassette('check_in/chip/confirm_demographics/confirm_demographics_504', match_requests_on: [:host]) do
+          VCR.use_cassette('check_in/chip/confirm_demographics/confirm_demographics_500', match_requests_on: [:host]) do
             VCR.use_cassette('check_in/chip/token/token_200') do
               patch "/check_in/v2/demographics/#{id}", params: params
             end
@@ -169,7 +169,7 @@ RSpec.describe 'V2::Demographics', type: :request do
         end
       end
 
-      context '504 error mapping feature flag enabled' do
+      context '500 error mapping feature flag enabled' do
         let(:params) do
           {
             demographics: {
@@ -184,20 +184,20 @@ RSpec.describe 'V2::Demographics', type: :request do
 
         let(:operation_failed) do
           {
-            'title' => 'Timeout Error',
-            'detail' => 'Request timed out',
-            'code' => 'CHIP-MAPPED-API_504',
-            'status' => '504'
+            'title' => 'Internal Server Error',
+            'detail' => 'Internal Server Error',
+            'code' => 'CHIP-MAPPED-API_500',
+            'status' => '500'
           }
         end
         let(:error_resp) { { 'errors' => [operation_failed] } }
 
         before do
-          allow(Flipper).to receive(:enabled?).with('check_in_experience_504_error_mapping_enabled')
+          allow(Flipper).to receive(:enabled?).with('check_in_experience_chip_500_error_mapping_enabled')
                                               .and_return(true)
         end
 
-        it 'returns error response' do
+        it 'returns 500 error response' do
           VCR.use_cassette 'check_in/lorota/token/token_200' do
             post '/check_in/v2/sessions', session_params
             expect(response.status).to eq(200)
@@ -208,12 +208,12 @@ RSpec.describe 'V2::Demographics', type: :request do
             expect(response.status).to eq(200)
           end
 
-          VCR.use_cassette('check_in/chip/confirm_demographics/confirm_demographics_504', match_requests_on: [:host]) do
+          VCR.use_cassette('check_in/chip/confirm_demographics/confirm_demographics_500', match_requests_on: [:host]) do
             VCR.use_cassette('check_in/chip/token/token_200') do
               patch "/check_in/v2/demographics/#{id}", params: params
             end
           end
-          expect(response.status).to eq(504)
+          expect(response.status).to eq(500)
           expect(JSON.parse(response.body)).to eq(error_resp)
         end
       end
@@ -329,7 +329,7 @@ RSpec.describe 'V2::Demographics', type: :request do
       end
     end
 
-    context 'when CHIP confirm_demographics throws exception' do
+    context 'when CHIP confirm_demographics throws 504 exception' do
       let(:params) do
         {
           demographics: {
@@ -363,7 +363,7 @@ RSpec.describe 'V2::Demographics', type: :request do
           expect(response.status).to eq(200)
         end
 
-        VCR.use_cassette('check_in/chip/confirm_demographics/confirm_demographics_500', match_requests_on: [:host]) do
+        VCR.use_cassette('check_in/chip/confirm_demographics/confirm_demographics_504', match_requests_on: [:host]) do
           VCR.use_cassette('check_in/chip/token/token_200') do
             patch "/check_in/v2/demographics/#{id}", params: params
           end

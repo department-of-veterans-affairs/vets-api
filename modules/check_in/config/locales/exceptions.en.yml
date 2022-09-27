@@ -38,9 +38,9 @@ en:
         code: 'CIE-VETS-API_410'
         detail: 'Retry Attempt Exceeded'
         status: 410
-      CHIP-MAPPED-API_504:
+      CHIP-MAPPED-API_500:
         <<: *external_defaults
-        title: Timeout Error
-        code: 'CHIP-API_504'
-        detail: 'Request timed out'
-        status: 504
+        title: 'Internal Server Error'
+        code: 'CHIP-API_500'
+        detail: 'Internal Server Error'
+        status: 500
