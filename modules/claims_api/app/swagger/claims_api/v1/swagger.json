@@ -1003,21 +1003,21 @@
                                   "description": "Address Veteran resides in.",
                                   "type": "string",
                                   "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                  "maxLength": 20,
+                                  "maxLength": 30,
                                   "example": "1234 Couch Street"
                                 },
                                 "addressLine2": {
                                   "description": "Additional Address Information Veteran resides in.",
                                   "type": "string",
                                   "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                  "maxLength": 20,
+                                  "maxLength": 30,
                                   "example": "Apt. 22"
                                 },
                                 "addressLine3": {
                                   "description": "Additional Address Information Veteran resides in.",
                                   "type": "string",
                                   "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                  "maxLength": 20,
+                                  "maxLength": 30,
                                   "example": "Box 123"
                                 },
                                 "city": {
@@ -1156,14 +1156,14 @@
                                   "description": "New Address Veteran resides in.",
                                   "type": "string",
                                   "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                  "maxLength": 20,
+                                  "maxLength": 30,
                                   "example": "1234 Couch Street"
                                 },
                                 "addressLine2": {
                                   "description": "New Additional Address Information Veteran resides in.",
                                   "type": "string",
                                   "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                  "maxLength": 20,
+                                  "maxLength": 30,
                                   "example": "Apt. 22"
                                 },
                                 "city": {
@@ -2864,21 +2864,21 @@
                                     "description": "Address Veteran resides in.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 20,
+                                    "maxLength": 30,
                                     "example": "1234 Couch Street"
                                   },
                                   "addressLine2": {
                                     "description": "Additional Address Information Veteran resides in.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 20,
+                                    "maxLength": 30,
                                     "example": "Apt. 22"
                                   },
                                   "addressLine3": {
                                     "description": "Additional Address Information Veteran resides in.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 20,
+                                    "maxLength": 30,
                                     "example": "Box 123"
                                   },
                                   "city": {
@@ -3017,14 +3017,14 @@
                                     "description": "New Address Veteran resides in.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 20,
+                                    "maxLength": 30,
                                     "example": "1234 Couch Street"
                                   },
                                   "addressLine2": {
                                     "description": "New Additional Address Information Veteran resides in.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 20,
+                                    "maxLength": 30,
                                     "example": "Apt. 22"
                                   },
                                   "city": {
@@ -5119,21 +5119,21 @@
                                     "description": "Address Veteran resides in.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 20,
+                                    "maxLength": 30,
                                     "example": "1234 Couch Street"
                                   },
                                   "addressLine2": {
                                     "description": "Additional Address Information Veteran resides in.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 20,
+                                    "maxLength": 30,
                                     "example": "Apt. 22"
                                   },
                                   "addressLine3": {
                                     "description": "Additional Address Information Veteran resides in.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 20,
+                                    "maxLength": 30,
                                     "example": "Box 123"
                                   },
                                   "city": {
@@ -5272,14 +5272,14 @@
                                     "description": "New Address Veteran resides in.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 20,
+                                    "maxLength": 30,
                                     "example": "1234 Couch Street"
                                   },
                                   "addressLine2": {
                                     "description": "New Additional Address Information Veteran resides in.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 20,
+                                    "maxLength": 30,
                                     "example": "Apt. 22"
                                   },
                                   "city": {
@@ -8093,7 +8093,7 @@
                                   "description": "Street address with number and name.",
                                   "type": "string",
                                   "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                  "maxLength": 20
+                                  "maxLength": 30
                                 },
                                 "aptUnitNumber": {
                                   "type": "integer"
@@ -8228,7 +8228,7 @@
                                   "description": "Street address with number and name.",
                                   "type": "string",
                                   "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                  "maxLength": 20
+                                  "maxLength": 30
                                 },
                                 "aptUnitNumber": {
                                   "type": "integer"
@@ -8357,7 +8357,7 @@
                                   "description": "Street address with number and name.",
                                   "type": "string",
                                   "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                  "maxLength": 20
+                                  "maxLength": 30
                                 },
                                 "aptUnitNumber": {
                                   "type": "integer"
@@ -8795,7 +8795,7 @@
                                     "description": "Street address with number and name.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 20
+                                    "maxLength": 30
                                   },
                                   "aptUnitNumber": {
                                     "type": "integer"
@@ -8930,7 +8930,7 @@
                                     "description": "Street address with number and name.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 20
+                                    "maxLength": 30
                                   },
                                   "aptUnitNumber": {
                                     "type": "integer"
@@ -9059,7 +9059,7 @@
                                     "description": "Street address with number and name.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 20
+                                    "maxLength": 30
                                   },
                                   "aptUnitNumber": {
                                     "type": "integer"
@@ -10608,7 +10608,7 @@
                                     "description": "Street address with number and name.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 20
+                                    "maxLength": 30
                                   },
                                   "aptUnitNumber": {
                                     "type": "integer"
@@ -10743,7 +10743,7 @@
                                     "description": "Street address with number and name.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 20
+                                    "maxLength": 30
                                   },
                                   "aptUnitNumber": {
                                     "type": "integer"
@@ -10872,7 +10872,7 @@
                                     "description": "Street address with number and name.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 20
+                                    "maxLength": 30
                                   },
                                   "aptUnitNumber": {
                                     "type": "integer"
