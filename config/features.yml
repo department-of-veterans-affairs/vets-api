@@ -230,9 +230,9 @@ features:
     description: Enables the supplemental claim PII expunge job
     enable_in_development: true
   decision_review_icn_updater_enabled:
-      actor_type: user
-      description: Enables the ICN lookup job
-      enable_in_development: true
+    actor_type: user
+    description: Enables the ICN lookup job
+    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -639,7 +639,7 @@ features:
   sign_in_service_enabled:
     actor_type: cookie_id
     description: Enables the ability to use OAuth authentication via the Sign in Service (Identity)
-    enable_in_development: false
+    enable_in_development: true
   medical_copays_zero_debt:
     actor_type: user
     description: Enables zero debt balances feature on the medical copays application
