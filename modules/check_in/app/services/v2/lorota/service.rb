@@ -117,12 +117,12 @@ module V2
           if retry_attempt_count < max_auth_retry_limit
             redis_client.save_retry_attempt_count(uuid: check_in.uuid, retry_count: retry_attempt_count + 1)
             raise e
-            # else
-            # call delete endpoint
-            # throw 410 exception
+          else
+            # call chip delete endpoint
+            raise CheckIn::V2::CheckinServiceException.new(status: '410', original_body: e.original_body)
           end
         when LOROTA_UUID_NOT_FOUND
-          # raise 404 custom exception
+          raise CheckIn::V2::CheckinServiceException.new(status: '404', original_body: e.original_body)
         else
           raise e
         end

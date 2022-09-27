@@ -328,6 +328,9 @@ describe V2::Lorota::Service do
       let(:auth_exception_response_values) do
         { title: 'Authentication Error', detail: 'Authentication Error', code: 'LOROTA-API_401', status: 401 }
       end
+      let(:uuid_not_found_exception) do
+        { status: '404', detail: ['{ "error" : "UUID not found" }'], code: 'CIE-VETS-API_404' }
+      end
 
       context 'check_in_experience_lorota_deletion_enabled feature flag turned off' do
         before do
@@ -386,14 +389,27 @@ describe V2::Lorota::Service do
             end
           end
 
-          # context 'if redis retry_attempt >= max_auth_retry_limit' do
-          #   it 'throws exception with 410 status code' do
-          #     expect do
-          #       subject.build(check_in: valid_check_in).token
-          #     end.to raise_error(Common::Exceptions::BackendServiceException,
-          #                        "BackendServiceException: #{exception_response_values}")
-          #   end
-          # end
+          context 'if redis retry_attempt >= max_auth_retry_limit' do
+            let(:data_gone_exception) do
+              { status: '410', detail: [last_name_mismatch], code: 'CIE-VETS-API_410' }
+            end
+
+            before do
+              Rails.cache.write(
+                "authentication_retry_limit_#{id}",
+                retry_count + 3,
+                namespace: 'check-in-lorota-v2-cache',
+                expires_in: 604_800
+              )
+            end
+
+            it 'throws exception with 410 status code' do
+              expect do
+                subject.build(check_in: valid_check_in).token
+              end.to raise_error(CheckIn::V2::CheckinServiceException,
+                                 "BackendServiceException: #{data_gone_exception}")
+            end
+          end
         end
 
         context 'when status code is 401 with SSN4 does not match error message for second retry' do
@@ -428,14 +444,27 @@ describe V2::Lorota::Service do
             end
           end
 
-          # context 'if redis retry_attempt >= max_auth_retry_limit' do
-          #   it 'throws exception with 410 status code' do
-          #     expect do
-          #       subject.build(check_in: valid_check_in).token
-          #     end.to raise_error(Common::Exceptions::BackendServiceException,
-          #                        "BackendServiceException: #{exception_response_values}")
-          #   end
-          # end
+          context 'if redis retry_attempt >= max_auth_retry_limit' do
+            let(:data_gone_exception) do
+              { status: '410', detail: [ssn_mismatch], code: 'CIE-VETS-API_410' }
+            end
+
+            before do
+              Rails.cache.write(
+                "authentication_retry_limit_#{id}",
+                retry_count + 3,
+                namespace: 'check-in-lorota-v2-cache',
+                expires_in: 604_800
+              )
+            end
+
+            it 'throws exception with 410 status code' do
+              expect do
+                subject.build(check_in: valid_check_in).token
+              end.to raise_error(CheckIn::V2::CheckinServiceException,
+                                 "BackendServiceException: #{data_gone_exception}")
+            end
+          end
         end
 
         context 'when status code is 401 with DOB does not match error message for second retry' do
@@ -471,14 +500,27 @@ describe V2::Lorota::Service do
             end
           end
 
-          # context 'if redis retry_attempt >= max_auth_retry_limit' do
-          #   it 'throws exception with 410 status code' do
-          #     expect do
-          #       subject.build(check_in: valid_check_in).token
-          #     end.to raise_error(Common::Exceptions::BackendServiceException,
-          #                        "BackendServiceException: #{exception_response_values}")
-          #   end
-          # end
+          context 'if redis retry_attempt >= max_auth_retry_limit' do
+            let(:data_gone_exception) do
+              { status: '410', detail: [dob_mismatch], code: 'CIE-VETS-API_410' }
+            end
+
+            before do
+              Rails.cache.write(
+                "authentication_retry_limit_#{id}",
+                retry_count + 3,
+                namespace: 'check-in-lorota-v2-cache',
+                expires_in: 604_800
+              )
+            end
+
+            it 'throws exception with 410 status code' do
+              expect do
+                subject.build(check_in: valid_check_in).token
+              end.to raise_error(CheckIn::V2::CheckinServiceException,
+                                 "BackendServiceException: #{data_gone_exception}")
+            end
+          end
         end
 
         context 'when status code is 401 with last name and DOB mismatch error message' do
@@ -514,14 +556,27 @@ describe V2::Lorota::Service do
             end
           end
 
-          # context 'if redis retry_attempt >= max_auth_retry_limit' do
-          #   it 'throws exception with 410 status code' do
-          #     expect do
-          #       subject.build(check_in: valid_check_in).token
-          #     end.to raise_error(Common::Exceptions::BackendServiceException,
-          #                        "BackendServiceException: #{exception_response_values}")
-          #   end
-          # end
+          context 'if redis retry_attempt >= max_auth_retry_limit' do
+            let(:data_gone_exception) do
+              { status: '410', detail: [last_name_dob_mismatch], code: 'CIE-VETS-API_410' }
+            end
+
+            before do
+              Rails.cache.write(
+                "authentication_retry_limit_#{id}",
+                retry_count + 3,
+                namespace: 'check-in-lorota-v2-cache',
+                expires_in: 604_800
+              )
+            end
+
+            it 'throws exception with 410 status code' do
+              expect do
+                subject.build(check_in: valid_check_in).token
+              end.to raise_error(CheckIn::V2::CheckinServiceException,
+                                 "BackendServiceException: #{data_gone_exception}")
+            end
+          end
         end
 
         context 'when status code is 401 with leading and trailing whitespaces in error message' do
@@ -583,22 +638,23 @@ describe V2::Lorota::Service do
         end
       end
 
-      # context 'when status code is 401 with UUID not found error message' do
-      #   before do
-      #     allow_any_instance_of(V2::Lorota::Client).to receive(:token)
-      #                          .and_raise(Common::Exceptions::BackendServiceException.new('LOROTA-API_401',
-      #                                                                                     exception_response_values,
-      #                                                                                     401,
-      #                                                                                     uuid_not_found))
-      #   end
-      #   it 'throws exception with 404 status code' do
-      #     expect do
-      #       subject.build(check_in: valid_check_in).token
-      #     end.to raise_error(Common::Exceptions::BackendServiceException,
-      #                        "BackendServiceException: #{404_custom_exception}")
-      #   end
-      # end
-      #
+      context 'when status code is 401 with UUID not found error message' do
+        before do
+          allow_any_instance_of(V2::Lorota::Client).to receive(:token)
+            .and_raise(Common::Exceptions::BackendServiceException.new('LOROTA-API_401',
+                                                                       auth_exception_response_values,
+                                                                       401,
+                                                                       uuid_not_found))
+        end
+
+        it 'throws exception with 404 status code' do
+          expect do
+            subject.build(check_in: valid_check_in).token
+          end.to raise_error(CheckIn::V2::CheckinServiceException,
+                             "BackendServiceException: #{uuid_not_found_exception}")
+        end
+      end
+
       context 'when status code is 400 with internal service exception from downstream ' do
         let(:internal_service_exception) do
           { status: 400, detail: 'Internal Error', code: 'VA900' }
