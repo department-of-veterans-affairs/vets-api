@@ -165,7 +165,6 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
   describe '#submit_vha_fsr' do
     let(:valid_form_data) { get_fixture('dmc/fsr_submission') }
     let(:user) { build(:user, :loa3) }
-    let(:form_submission) { create(:form5655_submission) }
 
     before do
       response = Faraday::Response.new(status: 200, body:
@@ -186,7 +185,7 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
         'debtType' => 'COPAY'
       }]
       service = described_class.new(user)
-      expect(service.submit_vha_fsr(valid_form_data, form_submission)).to eq({ status: [200] })
+      expect(service.submit_vha_fsr(valid_form_data)).to eq({ status: [200] })
     end
 
     it 'sends a confirmation email' do
@@ -207,7 +206,7 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
           'date' => Time.zone.now.strftime('%m/%d/%Y')
         }
       )
-      service.submit_vha_fsr(valid_form_data, form_submission)
+      service.submit_vha_fsr(valid_form_data)
     end
 
     it 'parses out delimiter characters' do
@@ -250,7 +249,7 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
       ]
       service = described_class.new(user)
       expect_any_instance_of(DebtManagementCenter::VBS::Request).to receive(:post).twice
-      service.submit_vha_fsr(valid_form_data, form_submission)
+      service.submit_vha_fsr(valid_form_data)
     end
   end
 
