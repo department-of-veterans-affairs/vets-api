@@ -22,6 +22,10 @@ class UserVerification < ApplicationRecord
     idme_uuid || logingov_uuid || mhv_uuid || dslogon_uuid
   end
 
+  def backing_credential_identifier
+    logingov_uuid || idme_uuid || backing_idme_uuid
+  end
+
   private
 
   # XOR operators between the four credential identifiers mean one, and only one, of these can be

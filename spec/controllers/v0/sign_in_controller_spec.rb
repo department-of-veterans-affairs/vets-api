@@ -914,7 +914,7 @@ RSpec.describe V0::SignInController, type: :controller do
               it 'creates a user with expected attributes' do
                 subject
 
-                user_uuid = UserVerification.last.credential_identifier
+                user_uuid = UserVerification.last.backing_credential_identifier
                 user = User.find(user_uuid)
 
                 expect(user).to have_attributes(expected_user_attributes)
@@ -1036,7 +1036,7 @@ RSpec.describe V0::SignInController, type: :controller do
               it 'creates a user with expected attributes' do
                 subject
 
-                user_uuid = UserVerification.last.credential_identifier
+                user_uuid = UserVerification.last.backing_credential_identifier
                 user = User.find(user_uuid)
 
                 expect(user).to have_attributes(expected_user_attributes)
