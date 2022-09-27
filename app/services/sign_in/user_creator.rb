@@ -96,7 +96,7 @@ module SignIn
     end
 
     def log_first_time_user
-      user_verification_type = logingov_auth? ? :logingov_uuid : :idme_uuid
+      user_verification_type = logingov_auth? ? :logingov_uuid : :backing_idme_uuid
       user_verification_identifier = logingov_auth? ? logingov_uuid : idme_uuid
       unless UserVerification.find_by(user_verification_type => user_verification_identifier)
         sign_in_logger.info("New VA.gov user, type=#{sign_in[:service_name]}")
@@ -144,7 +144,7 @@ module SignIn
       @user_identity_from_attributes ||= UserIdentity.new({ idme_uuid: idme_uuid,
                                                             logingov_uuid: logingov_uuid,
                                                             loa: loa,
-                                                            sign_in: sign_in_backing_csp_type,
+                                                            sign_in: sign_in,
                                                             first_name: first_name,
                                                             last_name: last_name,
                                                             birth_date: birth_date,
@@ -208,14 +208,6 @@ module SignIn
       @user_verification ||= Login::UserVerifier.new(user_identity_from_attributes).perform
     end
 
-    def sign_in_backing_csp_type
-      { service_name: service_name_backing_csp_type }
-    end
-
-    def service_name_backing_csp_type
-      logingov_auth? ? SAML::User::LOGINGOV_CSID : SAML::User::IDME_CSID
-    end
-
     def logingov_auth?
       sign_in[:service_name] == SAML::User::LOGINGOV_CSID
     end
@@ -225,7 +217,7 @@ module SignIn
     end
 
     def user_uuid
-      @user_uuid ||= user_verification.credential_identifier
+      @user_uuid ||= user_verification.backing_credential_identifier
     end
 
     def login_code

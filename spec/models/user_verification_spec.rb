@@ -369,4 +369,43 @@ RSpec.describe UserVerification, type: :model do
       end
     end
   end
+
+  describe '#backing_credential_identifier' do
+    subject { user_verification.backing_credential_identifier }
+
+    let(:user_account) { create(:user_account) }
+
+    context 'when logingov_uuid is present' do
+      let(:logingov_uuid) { 'some-logingov-uuid' }
+      let(:expected_identifier) { logingov_uuid }
+
+      it 'returns logingov_uuid identifier' do
+        expect(subject).to eq(expected_identifier)
+      end
+    end
+
+    context 'when logingov_uuid is not present' do
+      let(:logingov_uuid) { nil }
+
+      context 'and idme_uuid is present' do
+        let(:idme_uuid) { 'some-idme-uuid' }
+        let(:expected_identifier) { idme_uuid }
+
+        it 'returns idme_uuid identifier' do
+          expect(subject).to eq(expected_identifier)
+        end
+      end
+
+      context 'and idme_uuid is not present' do
+        let(:idme_uuid) { nil }
+        let(:mhv_uuid) { 'some-mhv-uuid' }
+        let(:backing_idme_uuid) { 'some-backing-idme-uuid' }
+        let(:expected_identifier) { backing_idme_uuid }
+
+        it 'returns backing_idme_uuid identifier' do
+          expect(subject).to eq(expected_identifier)
+        end
+      end
+    end
+  end
 end
