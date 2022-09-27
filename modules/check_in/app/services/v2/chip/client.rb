@@ -146,14 +146,14 @@ module V2
           req.headers = default_headers.merge('Authorization' => "Bearer #{token}")
         end
       rescue => e
-        log_exception_to_sentry(e,
-                                {
-                                  original_body: e.original_body,
-                                  original_status: e.original_status,
-                                  uuid: check_in_session.uuid
-                                },
-                                { external_service: service_name, team: 'check-in' })
-        Faraday::Response.new(body: e.original_body, status: e.original_status)
+        log_message_to_sentry(e.original_body, :error,
+                              { uuid: check_in_session.uuid },
+                              { external_service: service_name, team: 'check-in' })
+        if Flipper.enabled?('check_in_experience_chip_500_error_mapping_enabled')
+          raise e
+        else
+          Faraday::Response.new(body: e.original_body, status: e.original_status)
+        end
       end
 
       private
@@ -167,7 +167,7 @@ module V2
       def connection
         Faraday.new(url: url) do |conn|
           conn.use :breakers
-          if Flipper.enabled?('check_in_experience_504_error_mapping_enabled')
+          if Flipper.enabled?('check_in_experience_chip_500_error_mapping_enabled')
             conn.response :raise_error, error_prefix: 'CHIP-MAPPED-API'
           else
             conn.response :raise_error, error_prefix: service_name
