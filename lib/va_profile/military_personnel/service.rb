@@ -26,7 +26,7 @@ module VAProfile
           edipi_present!
           response = perform(:post, identity_path, VAProfile::Models::ServiceHistory.in_json)
 
-          ServiceHistoryResponse.from(response)
+          ServiceHistoryResponse.from(@current_user, response)
         end
       rescue Common::Client::Errors::ClientError => e
         if e.status == 404

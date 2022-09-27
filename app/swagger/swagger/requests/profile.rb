@@ -951,9 +951,12 @@ module Swagger
                     key :type, :array
                     items do
                       key :required, %i[branch_of_service begin_date]
+                      property :service_type, type: :string, example: 'Military Service'
                       property :branch_of_service, type: :string, example: 'Air Force'
                       property :begin_date, type: :string, format: :date, example: '2007-04-01'
                       property :end_date, type: :string, format: :date, example: '2016-06-01'
+                      property :termination_reason_code, type: :string, example: 'S', description: 'S = Separation From Personnel Category, C = Completion of Active Service Period, D = Death while in personnel category or organization, W = Not Applicable'
+                      property :termination_reason_text, type: :string, example: 'Separation from personnel category or organization'
                       property :personnel_category_type_code, type: :string, example: 'V', description: 'A = Regular Active, N = Guard, V = Reserve, Q = Reserve Retiree'
                     end
                   end

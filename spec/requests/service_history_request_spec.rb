@@ -18,7 +18,13 @@ RSpec.describe 'service_history', skip_emis: true do
         Flipper.enable(:profile_get_military_info_from_vaprofile)
       end
 
-      context 'with a 200 response' do
+      # The following provides a description of the different termination reason codes:
+      # •	"S" Separation From Personnel Category
+      # •	"C" Completion of Active Service Period
+      # •	"D" Death while in personnel category or organization
+      # •	"W" Not Applicable
+
+      context 'when successful' do
         context 'with one military service episode' do
           it 'matches the service history schema' do
             VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
@@ -49,29 +55,69 @@ RSpec.describe 'service_history', skip_emis: true do
               expect(episode['begin_date']).to eq('2002-02-02')
               expect(episode['end_date']).to eq('2008-12-01')
               expect(episode['personnel_category_type_code']).to eq('N')
-            end
-          end
-
-          it 'returns multiple service history episodes' do
-            VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
-              get '/v0/profile/service_history'
-
-              json = json_body_for(response)
-              episodes = json.dig('attributes', 'service_history')
-
-              expect(episodes.count).to eq(3)
-              episodes.each do |e|
-                expect(e['branch_of_service']).not_to be_nil
-                expect(e['begin_date']).not_to be_nil
-                expect(e['end_date']).not_to be_nil
-                expect(e['personnel_category_type_code']).not_to be_nil
-              end
+              expect(episode['termination_reason_code']).to eq('S')
+              expect(episode['termination_reason_text']).to eq('Separation from personnel category or organization')
             end
           end
         end
 
-        context 'when not successful' do
-          it 'returns a no service history episodes' do
+        context 'with multiple military service episodes' do
+          context 'when academy attendance flag is off' do
+            before do
+              Flipper.disable(:profile_show_military_academy_attendance)
+            end
+
+            it 'returns military service episodes only' do
+              VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
+                get '/v0/profile/service_history'
+
+                json = json_body_for(response)
+                episodes = json.dig('attributes', 'service_history')
+
+                expect(episodes.count).to eq(3)
+                episodes.each do |e|
+                  expect(e['service_type']).to eq(VAProfile::Models::ServiceHistory::MILITARY_SERVICE)
+                  expect(e['branch_of_service']).not_to be_nil
+                  expect(e['begin_date']).not_to be_nil
+                  expect(e['end_date']).not_to be_nil
+                  expect(e['personnel_category_type_code']).not_to be_nil
+                  expect(e['termination_reason_code']).not_to be_nil
+                  expect(e['termination_reason_text']).not_to be_nil
+                end
+              end
+            end
+          end
+
+          context 'when academy attendance flag is on' do
+            before do
+              Flipper.enable(:profile_show_military_academy_attendance)
+            end
+
+            it 'returns military service and academy attendance episodes' do
+              VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
+                get '/v0/profile/service_history'
+
+                json = json_body_for(response)
+                episodes = json.dig('attributes', 'service_history')
+
+                expect(episodes.count).to eq(5)
+                episodes.each do |e|
+                  expect(e['branch_of_service']).not_to be_nil
+                  expect(e['begin_date']).not_to be_nil
+                  expect(e['end_date']).not_to be_nil
+                  unless e['service_type'] == VAProfile::Models::ServiceHistory::MILITARY_SERVICE
+                    expect(e['service_type']).to eq(VAProfile::Models::ServiceHistory::ACADEMY_ATTENDANCE)
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
+      context 'when not successful' do
+        context 'with a 200 response' do
+          it 'returns no service history episodes' do
             VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200_empty') do
               get '/v0/profile/service_history'
               json = json_body_for(response)
@@ -81,14 +127,14 @@ RSpec.describe 'service_history', skip_emis: true do
               expect(episodes.count).to eq(0)
             end
           end
+        end
 
-          context 'with a 400 error' do
-            it 'returns nil service history' do
-              VCR.use_cassette('va_profile/military_personnel/post_read_service_history_400') do
-                get '/v0/profile/service_history'
+        context 'with a 400 response' do
+          it 'returns nil service history' do
+            VCR.use_cassette('va_profile/military_personnel/post_read_service_history_400') do
+              get '/v0/profile/service_history'
 
-                expect(response.status).to eq(400)
-              end
+              expect(response.status).to eq(400)
             end
           end
         end

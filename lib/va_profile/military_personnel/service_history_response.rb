@@ -8,15 +8,12 @@ module VAProfile
     class ServiceHistoryResponse < VAProfile::Response
       attribute :episodes, Array
 
-      def self.from(raw_response = nil)
-        response_body = raw_response&.body
-        service_episodes = response_body&.dig(
-          'profile',
-          'military_person',
-          'military_service_history',
-          'military_service_episodes')
+      def self.from(current_user, raw_response = nil)
+        body = raw_response&.body
 
-        episodes = service_episodes&.map { |e| VAProfile::Models::ServiceHistory.build_from(e) }
+        episodes = []
+        episodes += get_military_service_episodes(body)
+        episodes += get_academy_attendance_episodes(body) if include_academy_attendance?(current_user)
 
         new(
           raw_response&.status,
@@ -24,8 +21,32 @@ module VAProfile
         )
       end
 
+      def self.get_military_service_episodes(body)
+        get_episodes(body, VAProfile::Models::ServiceHistory::MILITARY_SERVICE_EPISODE) || []
+      end
+
+      def self.get_academy_attendance_episodes(body)
+        get_episodes(body, VAProfile::Models::ServiceHistory::ACADEMY_ATTENDANCE_EPISODE) || []
+      end
+
+      def self.get_episodes(body, episode_type)
+        return nil unless body && episode_type
+
+        episodes = body&.dig(
+          'profile',
+          'military_person',
+          'military_service_history',
+          episode_type)
+
+        episodes&.map { |e| VAProfile::Models::ServiceHistory.build_from(e, episode_type) }
+      end
+
       def self.sort_by_begin_date(service_episodes)
         service_episodes.sort_by { |se| se.begin_date || Time.zone.today + 3650 }
+      end
+
+      def self.include_academy_attendance?(current_user)
+        Flipper.enabled?(:profile_show_military_academy_attendance, current_user)
       end
     end
   end
