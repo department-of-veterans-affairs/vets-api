@@ -621,6 +621,15 @@ RSpec.describe 'immunizations', type: :request do
           expect(response.parsed_body.dig('data', 3, 'attributes', 'date')).to be_nil
         end
       end
+
+      context 'when group name is missing' do
+        it 'returns a 200' do
+          VCR.use_cassette('lighthouse_health/get_immunizations_blank_group_name', match_requests_on: %i[method uri]) do
+            get '/mobile/v0/health/immunizations', headers: iam_headers, params: nil
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
     end
 
     describe 'order' do
