@@ -31,7 +31,7 @@
               "description": "Street address with number and name.",
               "type": "string",
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-              "maxLength": 20
+              "maxLength": 30
             },
             "aptUnitNumber":   { "type": "integer" },
             "city": {
@@ -150,7 +150,7 @@
               "description": "Street address with number and name.",
               "type": "string",
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-              "maxLength": 20
+              "maxLength": 30
             },
             "aptUnitNumber":   { "type": "integer" },
             "city": {
@@ -267,7 +267,7 @@
               "description": "Street address with number and name.",
               "type": "string",
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-              "maxLength": 20
+              "maxLength": 30
             },
             "aptUnitNumber":   { "type": "integer" },
             "city": {
