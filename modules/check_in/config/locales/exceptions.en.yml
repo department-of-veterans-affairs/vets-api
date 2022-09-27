@@ -26,6 +26,18 @@ en:
         code: 'LOROTA-API_401'
         detail: 'Authentication Error'
         status: 401
+      CIE-VETS-API_404:
+        <<: *external_defaults
+        title: Data Not Found
+        code: 'CIE-VETS-API_404'
+        detail: 'Data Not Found'
+        status: 404
+      CIE-VETS-API_410:
+        <<: *external_defaults
+        title: Data Gone
+        code: 'CIE-VETS-API_410'
+        detail: 'Retry Attempt Exceeded'
+        status: 410
       CHIP-MAPPED-API_504:
         <<: *external_defaults
         title: Timeout Error
