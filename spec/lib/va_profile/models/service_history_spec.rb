@@ -17,7 +17,8 @@ describe VAProfile::Models::ServiceHistory do
   context 'when service history json is present' do
     it 'returns a service_history model' do
       data = JSON.parse(json)
-      model = VAProfile::Models::ServiceHistory.build_from(data)
+      episode_type = VAProfile::Models::ServiceHistory::MILITARY_SERVICE_EPISODE
+      model = VAProfile::Models::ServiceHistory.build_from(data, episode_type)
 
       expect(model).not_to be_nil
       expect(model.branch_of_service).to eq('National Guard')
@@ -29,8 +30,16 @@ describe VAProfile::Models::ServiceHistory do
 
   context 'when service history json is nil' do
     it 'returns nil' do
-      model = VAProfile::Models::ServiceHistory.build_from(nil)
+      episode_type = VAProfile::Models::ServiceHistory::MILITARY_SERVICE_EPISODE
+      model = VAProfile::Models::ServiceHistory.build_from(nil, episode_type)
+      expect(model).to be_nil
+    end
+  end
 
+  context 'when episode type is nil' do
+    it 'returns nil' do
+      data = JSON.parse(json)
+      model = VAProfile::Models::ServiceHistory.build_from(data, nil)
       expect(model).to be_nil
     end
   end

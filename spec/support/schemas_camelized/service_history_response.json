@@ -16,6 +16,9 @@
                 "type": "hash"
               },
               "properties": {
+                "serviceType": {
+                  "type": "string"
+                },
                 "branchOfService": {
                   "type": "string"
                 },
@@ -25,6 +28,12 @@
                 "endDate": {
                   "type": "string"
                 },
+                "terminationReasonCode": {
+                  "type": "string"
+                },
+                "terminationReasonText": {
+                  "type": "string"
+                },                
                 "personnelCategoryTypeCode": {
                   "type": "string"
                 }
