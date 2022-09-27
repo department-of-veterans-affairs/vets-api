@@ -199,13 +199,25 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
     end
 
     it 'sends a retry notification' do
-      expect(client_stub).to receive(:upload) { |_arg| faraday_response }
-      messager_instance = instance_double(AppealsApi::Slack::Messager)
-      allow(AppealsApi::Slack::Messager).to receive(:new).and_return(messager_instance)
-      allow(messager_instance).to receive(:notify!).and_return(true)
-      described_class.new.perform(notice_of_disagreement.id, 'AppealsApi::NoticeOfDisagreement')
+      Timecop.freeze do
+        expect(client_stub).to receive(:upload) { |_arg| faraday_response }
+        messager_instance = instance_double(AppealsApi::Slack::Messager)
+        allow(AppealsApi::Slack::Messager).to receive(:new).with(
+          {
+            'class' => described_class.name,
+            'args' => [notice_of_disagreement.id, 'AppealsApi::NodPdfSubmitWrapper',
+                       notice_of_disagreement.created_at.iso8601],
+            'error_class' => 'DOC201',
+            'error_message' => 'Downstream status: 500 - ',
+            'failed_at' => Time.zone.now
+          }, notification_type: :error_retry
+        ).and_return(messager_instance)
 
-      expect(messager_instance).to have_received(:notify!)
+        allow(messager_instance).to receive(:notify!).and_return(true)
+        described_class.new.perform(notice_of_disagreement.id, 'AppealsApi::NoticeOfDisagreement')
+
+        expect(messager_instance).to have_received(:notify!)
+      end
     end
   end
 

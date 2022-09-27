@@ -4,7 +4,9 @@ class AppealsApi::Docs::V2::DocsController < ApplicationController
   skip_before_action(:authenticate)
 
   def decision_reviews
-    render json: JSON.parse(swagger_file(nil))
+    filename = Settings.vsp_environment == 'production' ? 'swagger.json' : 'swagger_dev.json'
+    file = File.read AppealsApi::Engine.root.join("app/swagger/appeals_api/v2/#{filename}")
+    render json: JSON.parse(file)
   end
 
   def hlr
@@ -31,7 +33,6 @@ class AppealsApi::Docs::V2::DocsController < ApplicationController
 
   def swagger_file(stub, version: 'v2')
     filename = Settings.vsp_environment == 'production' ? "swagger_#{stub}.json" : "swagger_#{stub}_dev.json"
-    filename = filename.gsub('__', '_') if stub.nil? # special case for pre-segmented documentation
     File.read AppealsApi::Engine.root.join("app/swagger/appeals_api/#{version}/#{filename}")
   end
 end

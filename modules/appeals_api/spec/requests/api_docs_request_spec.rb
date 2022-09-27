@@ -9,26 +9,27 @@ RSpec.describe 'Appeals Documentation Endpoints', type: :request do
   # @option opts [String] :server_path The OAS server suffix path. Required.
   # @option opts [Datetime] :openapi_version The openapi version to test with. Optional. Default is "3.0.0".
   shared_examples 'an openapi endpoint' do |opts|
-    before { get "/services/appeals/docs/#{opts.fetch(:api_version)}/#{opts.fetch(:doc_path)}" }
-
-    let(:json) { JSON.parse(response.body) }
+    let(:doc_url) { "/services/appeals/docs/#{opts.fetch(:api_version)}/#{opts.fetch(:doc_path)}" }
 
     it "successfully returns openapi spec for #{opts.fetch(:api_version)}" do
-      expect(response).to have_http_status(:ok)
-      expect(json['openapi']).to eq(opts.fetch(:openapi_version, '3.0.0'))
+      %w[sandbox production].each do |env|
+        with_settings(Settings, vsp_environment: env) do
+          spec_failure_msg = "Failed with #{doc_url} on #{env}"
+          get doc_url
+          expect(response).to have_http_status(:ok), spec_failure_msg
+          json = JSON.parse(response.body)
+          expect(json['openapi']).to eq(opts.fetch(:openapi_version, '3.0.0')), spec_failure_msg
+        end
+      end
     end
 
     context 'servers' do
-      let(:server_urls) { json.fetch('servers').map { |server| server['url'] } }
-
-      it 'lists the sandbox environment' do
-        url = "https://sandbox-api.va.gov/services/appeals/#{opts.fetch(:server_path)}"
-        expect(server_urls).to include(url)
-      end
-
-      it 'lists the production environment' do
-        url = "https://api.va.gov/services/appeals/#{opts.fetch(:server_path)}"
-        expect(server_urls).to include(url)
+      it 'lists the sandbox & production environments' do
+        get doc_url
+        json = JSON.parse response.body
+        server_urls = json.fetch('servers').map { |server| server['url'] }
+        expect(server_urls).to include("https://sandbox-api.va.gov/services/appeals/#{opts.fetch(:server_path)}")
+        expect(server_urls).to include("https://api.va.gov/services/appeals/#{opts.fetch(:server_path)}")
       end
     end
   end
