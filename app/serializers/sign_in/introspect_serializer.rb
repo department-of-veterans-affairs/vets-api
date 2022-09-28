@@ -5,14 +5,17 @@ module SignIn
     attributes :uuid, :first_name, :middle_name, :last_name, :birth_date,
                :email, :gender, :ssn, :birls_id, :authn_context,
                :icn, :edipi, :active_mhv_ids, :sec_id, :vet360_id,
-               :participant_id, :cerner_id, :cerner_facility_ids,
-               :vha_facility_ids, :id_theft_flag, :verified, :access_token_ttl
+               :participant_id, :cerner_id, :cerner_facility_ids, :idme_uuid,
+               :vha_facility_ids, :id_theft_flag, :verified, :access_token_ttl,
+               :logingov_uuid
 
     delegate :uuid, to: :object
     delegate :first_name, to: :object
     delegate :middle_name, to: :object
     delegate :last_name, to: :object
     delegate :birth_date, to: :object
+    delegate :logingov_uuid, to: :object
+    delegate :idme_uuid, to: :object
     delegate :email, to: :object
     delegate :gender, to: :object
     delegate :ssn, to: :object
