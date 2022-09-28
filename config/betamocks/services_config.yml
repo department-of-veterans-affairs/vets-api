@@ -736,6 +736,10 @@
       :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/actions/refresh-precheckin/*" %>
       :file_path: "/chip/refresh-precheckin/default"
       :response_delay: 4
+    - :method: :delete
+      :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/actions/deleteFromLorota/*" %>
+      :file_path: "/chip/deleteFromLorota/default"
+      :response_delay: 4
 
 # LGY: Certificate of Eligibility
 - :name: "LGY"
