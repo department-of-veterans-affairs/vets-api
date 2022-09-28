@@ -8,7 +8,7 @@ module VBADocuments
     CARRIAGE_RETURN = "\r"
 
     def self.parse(infile)
-      if base64_encoded(infile)
+      if base64_encoded?(infile)
         create_file_from_base64(infile)
       else
         parse_file(infile)
@@ -42,7 +42,7 @@ module VBADocuments
     end
     # rubocop:enable Metrics/MethodLength
 
-    def self.base64_encoded(infile)
+    def self.base64_encoded?(infile)
       if infile.is_a? StringIO
         content = infile.read
         infile.rewind
@@ -53,7 +53,6 @@ module VBADocuments
     end
 
     def self.create_file_from_base64(infile)
-      FileUtils.mkdir_p '/tmp/vets-api'
       if infile.is_a? String
         contents = `sed -r 's/data:multipart\\/.{3,},//g' #{infile.shellescape}`
       else
@@ -62,13 +61,14 @@ module VBADocuments
         infile.rewind
         contents = content.sub %r{data:((multipart)/.{3,}),}, ''
       end
-      decoded_data = Base64.decode64(contents)
-      filename = "temp_upload_#{Time.zone.now.to_i}"
 
-      File.open("/tmp/vets-api/#{filename}", 'wb') do |f|
-        f.write(decoded_data)
-      end
-      parse(File.open("/tmp/vets-api/#{filename}"))
+      decoded_data = Base64.decode64(contents)
+
+      decoded_file = Tempfile.new('vba_doc_base64_decoded', binmode: true)
+      decoded_file.write(decoded_data)
+      decoded_file.rewind
+
+      parse(decoded_file)
     end
 
     def self.validate_size(infile)
@@ -151,8 +151,7 @@ module VBADocuments
     end
 
     def self.consume_body_tempfile(lines, separator)
-      tf = Tempfile.new('vba_doc')
-      tf.binmode
+      tf = Tempfile.new('vba_doc', binmode: true)
       loop do
         begin
           line = lines.next[0]
