@@ -118,7 +118,7 @@ module V2
             redis_client.save_retry_attempt_count(uuid: check_in.uuid, retry_count: retry_attempt_count + 1)
             raise e
           else
-            # call chip delete endpoint
+            chip_service.delete
             raise CheckIn::V2::CheckinServiceException.new(status: '410', original_body: e.original_body)
           end
         when LOROTA_UUID_NOT_FOUND

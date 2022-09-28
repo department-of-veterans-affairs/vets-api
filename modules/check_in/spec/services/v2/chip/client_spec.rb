@@ -248,4 +248,48 @@ describe V2::Chip::Client do
         .to eq(resp)
     end
   end
+
+  describe '#delete' do
+    context 'when CHIP returns successfully' do
+      let(:response) { Faraday::Response.new(body: 'Delete successful', status: 200) }
+
+      let(:faraday_response) { Faraday::Response.new(body: resp, status: 200) }
+      let(:token) { 'abc123' }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:delete).with("/dev/actions/deleteFromLorota/#{uuid}")
+                                                                      .and_return(response)
+      end
+
+      it 'yields to block' do
+        expect_any_instance_of(Faraday::Connection).to receive(:delete).with("/dev/actions/deleteFromLorota/#{uuid}")
+                                                                       .and_yield(Faraday::Request.new)
+
+        subject.delete(token: token)
+      end
+
+      it 'returns success response' do
+        expect(subject.delete(token: token))
+          .to eq(response)
+      end
+    end
+
+    context 'when CHIP returns an error' do
+      let(:resp) { Faraday::Response.new(body: { 'title' => 'Unknown error' }.to_json, status: 500) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, nil, resp.status, resp.body) }
+      let(:token) { 'abc123' }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:delete).and_raise(exception)
+      end
+
+      it 'handles the exception and returns original error' do
+        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry)
+
+        response = subject.delete(token: token)
+        expect(response.status).to eq(resp.status)
+        expect(response.body).to eq(resp.body)
+      end
+    end
+  end
 end
