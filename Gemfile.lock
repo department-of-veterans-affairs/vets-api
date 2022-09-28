@@ -64,16 +64,6 @@ GIT
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
-GIT
-  remote: https://github.com/puzzle/prawn-markup.git
-  revision: f7956009df696c9d126843d2d35ff270b9c031cd
-  ref: f7956009df696c9d126843d2d35ff270b9c031cd
-  specs:
-    prawn-markup (0.3.5)
-      nokogiri
-      prawn
-      prawn-table
-
 PATH
   remote: modules
   specs:
@@ -675,6 +665,10 @@ GEM
     prawn (2.4.0)
       pdf-core (~> 0.9.0)
       ttfunk (~> 1.7)
+    prawn-markup (0.3.7)
+      nokogiri
+      prawn
+      prawn-table
     prawn-table (0.2.2)
       prawn (>= 1.3.0, < 3.0.0)
     pry (0.14.1)
@@ -1100,7 +1094,7 @@ DEPENDENCIES
   pg_search
   pkce_challenge
   prawn
-  prawn-markup!
+  prawn-markup
   prawn-table
   pry-byebug
   puma
