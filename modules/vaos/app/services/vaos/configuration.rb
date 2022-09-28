@@ -6,7 +6,7 @@ require 'common/client/configuration/rest'
 
 module VAOS
   class Configuration < Common::Client::Configuration::REST
-    self.read_timeout = Settings.va_mobile.timeout || 15
+    self.read_timeout = Settings.va_mobile.timeout || 55
 
     def base_path
       Settings.va_mobile.url
