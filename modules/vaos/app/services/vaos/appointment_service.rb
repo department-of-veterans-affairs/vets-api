@@ -11,7 +11,7 @@ module VAOS
       params = date_params(start_date, end_date).merge(page_params(pagination_params)).merge(other_params).compact
 
       with_monitoring do
-        response = perform(:get, get_appointments_base_url(type), params, headers, timeout: 55)
+        response = perform(:get, get_appointments_base_url(type), params, headers)
 
         {
           data: deserialized_appointments(response.body, type),

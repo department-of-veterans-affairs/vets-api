@@ -1009,7 +1009,7 @@ va_mobile:
   ppms_base_url: "https://staff.apps.va.gov"
   mock: false
   key_path: /fake/client/key/path
-  timeout: 15
+  timeout: 55
 
 vetext:
   url: "https://something.fake.va.gov"

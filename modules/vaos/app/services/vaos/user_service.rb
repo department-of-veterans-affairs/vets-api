@@ -4,8 +4,6 @@ require 'common/exceptions'
 
 module VAOS
   class UserService < VAOS::BaseService
-    TIMEOUT_OVERRIDE = 25
-
     def session(user)
       cached = cached_by_account_uuid(user.account_uuid)
       return cached.token if cached
@@ -24,7 +22,7 @@ module VAOS
       cached = cached_by_account_uuid(account_uuid)
       if cached
         url = '/users/v2/session/jwts'
-        response = perform(:get, url, nil, refresh_headers(account_uuid), timeout: TIMEOUT_OVERRIDE)
+        response = perform(:get, url, nil, refresh_headers(account_uuid))
         new_token = response.body[:jws]
         Rails.logger.info('VAOS session updated',
                           {
@@ -74,7 +72,7 @@ module VAOS
     def new_session_token(user)
       url = '/users/v2/session?processRules=true'
       token = VAOS::JwtWrapper.new(user).token
-      response = perform(:post, url, token, headers, timeout: TIMEOUT_OVERRIDE)
+      response = perform(:post, url, token, headers)
       raise Common::Exceptions::BackendServiceException.new('VAOS_502', source: self.class) unless body?(response)
 
       Rails.logger.info('VAOS session created',
