@@ -17,17 +17,15 @@ RSpec.describe MebApi::DGI::Enrollment::Service do
     let(:user) { FactoryBot.create(:user, :loa3) }
     let(:service) { MebApi::DGI::Enrollment::Service.new(user) }
     let(:enrollment_verification_params) do
-      {
-        claimant_id: 600_000_000,
-        enrollments: [
-          {
-            "month": 'August',
-            "credit_hours": 60,
-            "start_date": '2022-02-15',
-            "end_date": '2022-04-15'
-          }
-        ]
-      }
+      { enrollment_verifications: [
+        { enrollment_certify_requests: [{
+          "certified_period_begin_date": '2022-08-01',
+          "certified_period_end_date": '2022-08-31',
+          "certified_through_date": '2022-08-31',
+          "certification_method": 'MEB',
+          "app_communication": { "response_type": 'Y' }
+        }] }
+      ] }
     end
 
     describe '#get_enrollment' do
@@ -69,7 +67,8 @@ RSpec.describe MebApi::DGI::Enrollment::Service do
       context 'when successful' do
         it 'returns a status of 200' do
           VCR.use_cassette('dgi/submit_enrollment_verification') do
-            response = service.submit_enrollment(ActionController::Parameters.new(enrollment_verification_params))
+            response = service.submit_enrollment(ActionController::Parameters.new(enrollment_verification_params),
+                                                 123_456)
 
             expect(response.status).to eq(200)
           end

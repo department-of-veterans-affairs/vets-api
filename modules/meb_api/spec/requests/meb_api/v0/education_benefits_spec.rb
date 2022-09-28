@@ -102,19 +102,16 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
         it 'returns a 200 status when it' do
           VCR.use_cassette('dgi/submit_enrollment_verification') do
             post '/meb_api/v0/submit_enrollment_verification',
-                 params: { "enrollment_verifications": { "claimantId": 600_000_000,
-                                                         "enrollmentCertifyRequests": [
-                                                           { "claimantId": 600_000_000,
-                                                             "certifiedPeriodBeginDate": '2021-08-01',
-                                                             "certifiedPeriodEndDate": '2021-08-31',
-                                                             "certifiedThroughDate": '2021-08-31',
-                                                             "certificationMethod": 'MEB' },
-                                                           { "claimantId": 600_000_000,
-                                                             "certifiedPeriodBeginDate": '2021-09-01',
-                                                             "certifiedPeriodEndDate": '2021-09-30',
-                                                             "certifiedThroughDate": '2021-09-30',
-                                                             "certificationMethod": 'MEB' }
-                                                         ] } }
+                 params: { "education_benefit":
+                  { enrollment_verifications: [
+                    { enrollment_certify_requests: [{
+                      "certified_period_begin_date": '2022-08-01',
+                      "certified_period_end_date": '2022-08-31',
+                      "certified_through_date": '2022-08-31',
+                      "certification_method": 'MEB',
+                      "app_communication": { "response_type": 'Y' }
+                    }] }
+                  ] } }
             expect(response).to have_http_status(:ok)
           end
         end

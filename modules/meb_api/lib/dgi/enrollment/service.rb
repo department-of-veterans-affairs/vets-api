@@ -24,11 +24,11 @@ module MebApi
           end
         end
 
-        def submit_enrollment(params)
+        def submit_enrollment(params, claimant_id)
           with_monitoring do
             headers = request_headers
             options = { timeout: 60 }
-            response = perform(:post, submit_enrollment_url, format_params(params), headers, options)
+            response = perform(:post, submit_enrollment_url, format_params(params, claimant_id&.to_i), headers, options)
 
             MebApi::DGI::SubmitEnrollment::Response.new(response)
           end
@@ -51,8 +51,18 @@ module MebApi
           }
         end
 
-        def format_params(params)
-          camelize_keys_for_java_service(params)
+        def format_params(params, claimant_id)
+          camelized_keys = camelize_keys_for_java_service(params)
+
+          updated_certify_requests = camelized_keys['enrollmentVerifications'][0]['enrollmentCertifyRequests']
+                                     .each do |request|
+            request['claimantId'] = claimant_id
+          end
+
+          new_params_hash = {}
+          new_params_hash['claimantId'] = claimant_id
+          new_params_hash['enrollmentCertifyRequests'] = updated_certify_requests
+          new_params_hash
         end
 
         def camelize_keys_for_java_service(params)
