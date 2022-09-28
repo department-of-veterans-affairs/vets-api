@@ -168,7 +168,7 @@ module MPI
     end
 
     def get_mvi_error_key(e)
-      error_name = e.body&.[](:other)&.first&.[](:displayName)
+      error_name = e.try(:body)&.[](:other)&.first&.[](:displayName)
       return MPI::Constants::DUPLICATE_ERROR if error_name == 'Duplicate Key Identifier'
 
       MPI::Constants::ERROR
