@@ -55,10 +55,18 @@ module StringHelpers
       "#{$LAST_MATCH_INFO[:first_slash]}#{$LAST_MATCH_INFO[:user_path]}xxx#{$LAST_MATCH_INFO[:ending_slash]}"
     end
 
-    # for endpoints of type '/cce/v1/patients/xxx/eligibility/<specialty>' replace <specialty> with zzz to provide
-    # better grouping in grafana
-    if rslt =~ %r{/cce/v1/patients/xxx/eligibility/}
+    filter_misc_endpoints(rslt)
+  end
+
+  def filter_misc_endpoints(rslt)
+    # for endpoints of type '/cce/v1/patients/xxx/eligibility/<specialty>' replace <specialty> with zzz and
+    # for endpoints of type '/facilities/v2/facilities/<id>' replace <id> with xxx
+    # to provide better grouping in grafana
+    case rslt
+    when %r{/cce/v1/patients/xxx/eligibility/}
       "#{$LAST_MATCH_INFO}zzz"
+    when %r{/facilities/v2/facilities/}
+      "#{$LAST_MATCH_INFO}xxx"
     else
       rslt
     end
