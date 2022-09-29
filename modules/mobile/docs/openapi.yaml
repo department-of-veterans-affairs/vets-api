@@ -1912,7 +1912,7 @@ paths:
       summary: /v0/health/rx/prescriptions/{id}/refill
   /v0/health/rx/prescriptions/{id}/tracking:
     get:
-      description: Requests tracking data for a prescription
+      description: Requests list of tracking data for a prescription id
       operationId: getRxTracking
       parameters:
         - description: id of the prescription tracking data is being requested for

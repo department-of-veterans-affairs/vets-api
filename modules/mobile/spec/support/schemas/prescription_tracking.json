@@ -6,76 +6,99 @@
   ],
   "properties": {
     "data": {
-      "type": "object",
-      "required": [
-        "id",
-        "type",
-        "attributes"
-      ],
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "type": {
-          "type": "string"
-        },
-        "attributes": {
-          "type": "object",
-          "required": [
-            "prescriptionName",
-            "trackingNumber",
-            "shippedDate",
-            "deliveryService",
-            "otherPrescriptions"
-          ],
-          "properties": {
-            "prescriptionName": {
-              "type": [
-                "string",
-                "null"
-              ]
-            },
-            "trackingNumber": {
-              "type": [
-                "string",
-                "null"
-              ]
-            },
-            "shippedDate": {
-              "type": [
-                "string",
-                "null"
-              ]
-            },
-            "deliveryService": {
-              "type": [
-                "string",
-                "null"
-              ]
-            },
-            "otherPresciptions": {
-              "type": [
-                "array",
-                "null"
-              ],
-              "items": {
-                "type": "object",
-                "required": [
-                  "prescriptionName",
-                  "prescriptionNumber"
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "attributes"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "attributes": {
+            "type": "object",
+            "required": [
+              "prescriptionName",
+              "prescriptionNumber",
+              "prescriptionId",
+              "trackingNumber",
+              "ndcNumber",
+              "shippedDate",
+              "deliveryService",
+              "otherPrescriptions"
+            ],
+            "properties": {
+              "prescriptionName": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "prescriptionNumber": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "prescriptionId": {
+                "type": [
+                  "integer"
+                ]
+              },
+              "trackingNumber": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "ndcNumber": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "shippedDate": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "deliveryService": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "otherPrescriptions": {
+                "type": [
+                  "array",
+                  "null"
                 ],
-                "properties": {
-                  "prescriptionName": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "prescriptionNumber": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "prescriptionName",
+                    "prescriptionNumber"
+                  ],
+                  "properties": {
+                    "prescriptionName": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "prescriptionNumber": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
                   }
                 }
               }

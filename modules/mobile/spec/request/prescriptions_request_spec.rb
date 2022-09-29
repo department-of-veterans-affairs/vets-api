@@ -341,7 +341,6 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         VCR.use_cassette('rx_refill/prescriptions/gets_tracking_for_a_prescription') do
           get '/mobile/v0/health/rx/prescriptions/13650541/tracking', headers: iam_headers
         end
-
         expect(response).to have_http_status(:ok)
         expect(response.body).to match_json_schema('prescription_tracking')
       end
@@ -365,7 +364,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
 
         expect(response).to have_http_status(:ok)
         expect(response.body).to match_json_schema('prescription_tracking')
-        expect(response.parsed_body.dig('data', 'attributes', 'otherPrescriptions')).to eq([])
+        expect(response.parsed_body['data'].map { |p| p.dig('attributes', 'otherPrescriptions') }.uniq).to eq([[]])
       end
     end
   end

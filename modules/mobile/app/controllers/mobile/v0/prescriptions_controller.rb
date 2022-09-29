@@ -22,8 +22,8 @@ module Mobile
       end
 
       def tracking
-        tracking_data = client.get_tracking_rx(params[:id])
-        render json: Mobile::V0::PrescriptionTrackingSerializer.new(tracking_data)
+        resource = client.get_tracking_history_rx(params[:id])
+        render json: Mobile::V0::PrescriptionTrackingSerializer.new(resource.data)
       end
 
       private

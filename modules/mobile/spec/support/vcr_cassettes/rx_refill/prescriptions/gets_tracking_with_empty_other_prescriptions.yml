@@ -55,20 +55,7 @@ http_interactions:
             "shippedDate":"Sun, 26 Jun 2016 00:00:00 EDT",
             "deliveryService":"USPS",
             "trackingNumber":"345787647655",
-            "otherPrescriptionListIncluded":[
-              {
-                "prescriptionName":"ETHAMBUTOL HCL 100MG TAB",
-                "prescriptionNumber":"2719553",
-                "ndcNumber":"00078042034",
-                "stationNumber":"989"
-              },
-              {
-                "prescriptionName":"TERAZOSIN HCL 10MG CAP",
-                "prescriptionNumber":"2719554",
-                "ndcNumber":"07985440050",
-                "stationNumber":"989"
-              }
-            ]
+            "otherPrescriptionListIncluded":[]
           }
         ]
       }'
