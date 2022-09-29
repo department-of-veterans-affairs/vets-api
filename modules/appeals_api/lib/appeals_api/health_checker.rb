@@ -4,12 +4,17 @@ require 'caseflow/service'
 
 module AppealsApi
   class HealthChecker
+    MAIL_SERVICES = %w[central_mail].freeze
     APPEALS_SERVICES = %w[caseflow].freeze
     DECISION_REVIEWS_SERVICES = %w[caseflow central_mail].freeze
 
     def initialize
       @caseflow_healthy = nil
       @central_mail_healthy = nil
+    end
+
+    def mail_services_are_healthy?
+      central_mail_is_healthy?
     end
 
     def appeals_services_are_healthy?

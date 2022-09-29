@@ -40,10 +40,22 @@ module AppealsApi
       }
     end
 
-    def appeals_status_upstream_healthcheck
-      health_checker = AppealsApi::HealthChecker.new
-      time = Time.zone.now.to_formatted_s(:iso8601)
+    def mail_status_upstream_healthcheck
+      mail_status_code = proc do
+        health_checker.mail_services_are_healthy? ? 200 : 503
+      rescue => e
+        Rails.logger.error('AppealsApi Mail Status Healthcheck error', status: e.status, message: e.body)
+        503
+      end
 
+      render_upstream_services_response(
+        health_checker.mail_services_are_healthy?,
+        AppealsApi::HealthChecker::MAIL_SERVICES,
+        mail_status_code.call
+      )
+    end
+
+    def appeals_status_upstream_healthcheck
       appeals_status_code = proc do
         health_checker.appeals_services_are_healthy? ? 200 : 503
       rescue => e
@@ -51,23 +63,14 @@ module AppealsApi
         503
       end
 
-      render json: {
-        description: 'Appeals API upstream health check',
-        status: health_checker.appeals_services_are_healthy? ? 'UP' : 'DOWN',
-        time: time,
-        details: {
-          name: 'All upstream services',
-          upstreamServices: AppealsApi::HealthChecker::APPEALS_SERVICES.map do |service|
-                              upstream_service_details(service, health_checker, time)
-                            end
-        }
-      }, status: appeals_status_code.call
+      render_upstream_services_response(
+        health_checker.appeals_services_are_healthy?,
+        AppealsApi::HealthChecker::APPEALS_SERVICES,
+        appeals_status_code.call
+      )
     end
 
     def decision_reviews_upstream_healthcheck
-      health_checker = AppealsApi::HealthChecker.new
-      time = Time.zone.now.to_formatted_s(:iso8601)
-
       decision_reviews_status_code = proc do
         health_checker.decision_reviews_services_are_healthy? ? 200 : 503
       rescue => e
@@ -75,22 +78,36 @@ module AppealsApi
         503
       end
 
-      render json: {
-        description: 'Appeals API upstream health check',
-        status: health_checker.decision_reviews_services_are_healthy? ? 'UP' : 'DOWN',
-        time: time,
-        details: {
-          name: 'All upstream services',
-          upstreamServices: AppealsApi::HealthChecker::DECISION_REVIEWS_SERVICES.map do |service|
-                              upstream_service_details(service, health_checker, time)
-                            end
-        }
-      }, status: decision_reviews_status_code.call
+      render_upstream_services_response(
+        health_checker.decision_reviews_services_are_healthy?,
+        AppealsApi::HealthChecker::DECISION_REVIEWS_SERVICES,
+        decision_reviews_status_code.call
+      )
     end
 
     private
 
-    def upstream_service_details(service_name, health_checker, time)
+    def health_checker
+      @health_checker ||= AppealsApi::HealthChecker.new
+    end
+
+    def render_upstream_services_response(services_are_healthy, services, status_code)
+      time = Time.zone.now.to_formatted_s(:iso8601)
+
+      render json: {
+        description: 'Appeals API upstream health check',
+        status: services_are_healthy ? 'UP' : 'DOWN',
+        time: time,
+        details: {
+          name: 'All upstream services',
+          upstreamServices: services.map do |service|
+            upstream_service_details(service, time)
+          end
+        }
+      }, status: status_code
+    end
+
+    def upstream_service_details(service_name, time)
       healthy = health_checker.healthy_service?(service_name)
 
       service_details_response(service_name, healthy, time)
