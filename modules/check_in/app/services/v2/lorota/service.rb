@@ -114,7 +114,7 @@ module V2
         case Oj.load(e.original_body).fetch('error').strip.downcase
         when *LOROTA_401_ERROR_MESSAGES
           retry_attempt_count = redis_client.retry_attempt_count(uuid: check_in.uuid) || 0
-          if retry_attempt_count < max_auth_retry_limit
+          if retry_attempt_count < max_auth_retry_limit.to_i
             redis_client.save_retry_attempt_count(uuid: check_in.uuid, retry_count: retry_attempt_count + 1)
             raise e
           else

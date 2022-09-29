@@ -645,6 +645,36 @@ describe V2::Lorota::Service do
             end
           end
 
+          context 'when status code is 401 with max_auth_retry_limit as string' do
+            before do
+              allow_any_instance_of(V2::Lorota::Client).to receive(:token)
+                .and_raise(Common::Exceptions::BackendServiceException.new('LOROTA-API_401',
+                                                                           auth_exception_response_values,
+                                                                           401,
+                                                                           last_name_mismatch))
+              allow_any_instance_of(V2::Lorota::Service).to receive(:max_auth_retry_limit).and_return('3')
+              Rails.cache.write(
+                "authentication_retry_limit_#{id}",
+                retry_count,
+                namespace: 'check-in-lorota-v2-cache',
+                expires_in: 604_800
+              )
+            end
+
+            it 'treats max_auth_retry_limit as integer and increments entry in redis' do
+              expect do
+                subject.build(check_in: valid_check_in).token
+              end.to raise_error(Common::Exceptions::BackendServiceException,
+                                 "BackendServiceException: #{auth_exception_response_values}")
+
+              retry_attempt_count = Rails.cache.read(
+                "authentication_retry_limit_#{id}",
+                namespace: 'check-in-lorota-v2-cache'
+              )
+              expect(retry_attempt_count).to eq(retry_count + 1)
+            end
+          end
+
           context 'when status code is 401 with UUID not found error message' do
             before do
               allow_any_instance_of(V2::Lorota::Client).to receive(:token)
