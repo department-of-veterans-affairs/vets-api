@@ -3,16 +3,14 @@
 module Slack
   class Service
     def initialize(params)
-      @header = params[:header]
-      @text = params[:text]
       @channel = params[:channel]
       @webhook = params[:webhook]
     end
 
-    def notify
+    def notify(header, blocks = nil)
       data = {
-        text: @header,
-        blocks: build_blocks,
+        text: header,
+        blocks: blocks ? build_blocks(blocks) : nil,
         channel: @channel
       }
 
@@ -27,9 +25,9 @@ module Slack
 
     private
 
-    def build_blocks
+    def build_blocks(blocks_object)
       blocks = []
-      @text.each do |block|
+      blocks_object.each do |block|
         case block[:block_type]
         when 'divider'
           blocks.push({ type: 'divider' })
