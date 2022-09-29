@@ -74,4 +74,12 @@ describe StringHelpers do
       end
     end
   end
+
+  context 'filtered_endpoint_tag' do
+    it 'group labels facility v2 endpoints' do
+      facility_v2_path = '/facilities/v2/facilities/983GC'
+      facility_v2_filtered = '/facilities/v2/facilities/xxx'
+      expect(described_class.filtered_endpoint_tag(facility_v2_path)).to eq(facility_v2_filtered)
+    end
+  end
 end
