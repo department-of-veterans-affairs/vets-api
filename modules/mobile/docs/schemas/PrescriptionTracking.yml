@@ -1,50 +1,9 @@
 type: object
 required:
-  - type
-  - id
-  - attributes
+  - data
 properties:
-  type:
-    type: string
-    example: "PrescriptionTracking"
-  id:
-    type: string
-    example: "13650544"
-  attributes:
-    type: object
-    required:
-      - prescriptionName
-      - trackingNumber
-      - shippedDate
-      - deliveryService
-      - otherPrescriptions
-    properties:
-      prescriptionName:
-        type: string, null
-        example: "Ibuprofen 200mg"
-      trackingNumber:
-        type: string, null
-        example: "abcdefg12345"
-      shippedDate:
-        type: string, null
-        example: "2022-10-28T04:00:00.000Z"
-      deliveryService:
-        type: integer, null
-        example: 'USPS'
-      otherPrescriptions:
-        type: array, null
-        example: [{ prescriptionName: 'Ibuprofen 200mg', prescriptionNumber: '13650544' }]
-        items:
-          type: object
-          required:
-            - prescriptionName
-            - prescriptionNumber
-          properties:
-            prescriptionName:
-              type: string
-              example: 'Ibuprofen 200mg'
-            prescriptionNumber:
-              type: '13650544'
-
-
-
+  data:
+    type: array
+    items:
+      type: object
+      $ref: "./PrescriptionTrackingRecord.yml"

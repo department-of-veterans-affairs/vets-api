@@ -6,9 +6,12 @@ module Mobile
       include FastJsonapi::ObjectSerializer
 
       set_type :PrescriptionTracking
-      set_id(&:prescription_id)
+      set_id :tracking_number
 
       attributes :prescription_name,
+                 :prescription_number,
+                 :ndc_number,
+                 :prescription_id,
                  :tracking_number,
                  :shipped_date,
                  :delivery_service

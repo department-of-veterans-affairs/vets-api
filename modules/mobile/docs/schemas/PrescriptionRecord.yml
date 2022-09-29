@@ -1,15 +1,15 @@
 type: object
 required:
-  - type
   - id
+  - type
   - attributes
 properties:
-  type:
-    type: string
-    example: "Prescription"
   id:
     type: string
     example: "13650544"
+  type:
+    type: string
+    example: "Prescription"
   attributes:
     type: object
     required:
