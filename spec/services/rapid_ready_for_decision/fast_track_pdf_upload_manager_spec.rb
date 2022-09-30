@@ -13,12 +13,10 @@ RSpec.describe RapidReadyForDecision::FastTrackPdfUploadManager do
 
   before do
     Timecop.freeze(time_freeze_time)
-    Flipper.enable(:rrd_asrd_doctype)
   end
 
   after do
     Timecop.return
-    Flipper.disable(:rrd_asrd_doctype)
   end
 
   describe '#add_upload(confirmation_code)' do

@@ -22,7 +22,7 @@ module RapidReadyForDecision
     end
 
     def document_type
-      Flipper.enabled?(:rrd_asrd_doctype) ? 'L1489' : 'L048'
+      'L1489'
     end
 
     def add_upload(confirmation_code)
