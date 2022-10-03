@@ -3,7 +3,6 @@
 require 'rails_helper'
 require_relative '../support/iam_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
-require 'caseflow/middleware/errors'
 
 RSpec.describe 'claims and appeals overview', type: :request do
   include JsonSchemaMatchers
@@ -179,7 +178,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
               { error_details: [{ 'title' => 'Bad Gateway',
                                   'detail' => 'Received a 500 response from the upstream server',
                                   'code' => 'CASEFLOWSTATUS500',
-                                  'source' => 'Appeals Caseflow',
+                                  'source' => 'No method error',
                                   'status' => '502' }] }
             )
             get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params: params
@@ -217,7 +216,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
               { error_details: [{ 'title' => 'Bad Gateway',
                                   'detail' => 'Received a 500 response from the upstream server',
                                   'code' => 'CASEFLOWSTATUS500',
-                                  'source' => 'Appeals Caseflow',
+                                  'source' => 'No method error',
                                   'status' => '502' }] }
             )
             get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params: params
