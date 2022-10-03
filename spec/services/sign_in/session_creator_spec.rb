@@ -11,7 +11,8 @@ RSpec.describe SignIn::SessionCreator do
     context 'when input object is a ValidatedCredential' do
       let(:validated_credential) { create(:validated_credential, client_id: client_id) }
       let(:user_uuid) { validated_credential.user_verification.credential_identifier }
-      let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.last }
+      let(:client_id) { SignIn::Constants::ClientConfig::WEB_CLIENT }
+      let(:refresh_expiration_time) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES.minutes }
 
       context 'expected anti_csrf_token' do
         let(:expected_anti_csrf_token) { 'some-anti-csrf-token' }
@@ -31,9 +32,7 @@ RSpec.describe SignIn::SessionCreator do
         let(:expected_token_uuid) { SecureRandom.uuid }
         let(:expected_parent_token_uuid) { SecureRandom.uuid }
         let(:expected_user_uuid) { user_uuid }
-        let(:expected_expiration_time) do
-          Time.zone.now + SignIn::Constants::RefreshToken::VALIDITY_LENGTH_MINUTES.minutes
-        end
+        let(:expected_expiration_time) { Time.zone.now + refresh_expiration_time }
         let(:expected_double_hashed_parent_refresh_token) do
           Digest::SHA256.hexdigest(parent_refresh_token_hash)
         end
@@ -69,8 +68,25 @@ RSpec.describe SignIn::SessionCreator do
           expect(session.handle).to eq(expected_handle)
           expect(session.hashed_refresh_token).to eq(expected_double_hashed_parent_refresh_token)
           expect(session.refresh_creation).to eq(expected_created_time)
-          expect(session.refresh_expiration).to eq(expected_expiration_time)
           expect(session.client_id).to eq(client_id)
+        end
+
+        context 'and client_id is set to a short token expiration configuration' do
+          let(:client_id) { SignIn::Constants::ClientConfig::SHORT_TOKEN_EXPIRATION.first }
+          let(:refresh_expiration_time) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES.minutes }
+
+          it 'creates a session with the expected expiration time' do
+            expect(subject.session.refresh_expiration).to eq(expected_expiration_time)
+          end
+        end
+
+        context 'and client_id is set to a long token expiration configuration' do
+          let(:client_id) { SignIn::Constants::ClientConfig::LONG_TOKEN_EXPIRATION.first }
+          let(:refresh_expiration_time) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_LONG_DAYS.days }
+
+          it 'creates a session with the expected expiration time' do
+            expect(subject.session.refresh_expiration).to eq(expected_expiration_time)
+          end
         end
       end
 

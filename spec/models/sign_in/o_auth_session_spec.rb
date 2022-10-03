@@ -135,8 +135,30 @@ RSpec.describe SignIn::OAuthSession, type: :model do
     context 'when current time is before refresh_expiration' do
       let(:refresh_expiration) { current_time + 1000 }
 
-      it 'returns true' do
-        expect(subject).to be true
+      context 'and current time is before SESSION_MAX_VALIDITY_LENGTH_DAYS days from refresh_creation' do
+        let(:refresh_creation) { current_time }
+
+        it 'returns true' do
+          expect(subject).to be true
+        end
+      end
+
+      context 'and current time is after SESSION_MAX_VALIDITY_LENGTH_DAYS days from refresh_creation' do
+        let(:refresh_creation) do
+          current_time - SignIn::Constants::RefreshToken::SESSION_MAX_VALIDITY_LENGTH_DAYS.days - 1.day
+        end
+
+        it 'returns false' do
+          expect(subject).to be false
+        end
+      end
+
+      context 'and current time is equal to SESSION_MAX_VALIDITY_LENGTH_DAYS days from refresh_creation' do
+        let(:refresh_creation) { current_time - SignIn::Constants::RefreshToken::SESSION_MAX_VALIDITY_LENGTH_DAYS.days }
+
+        it 'returns false' do
+          expect(subject).to be false
+        end
       end
     end
 

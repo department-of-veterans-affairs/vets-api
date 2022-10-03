@@ -17,8 +17,8 @@ module SignIn
     def payload
       {
         iss: Constants::AccessToken::ISSUER,
-        aud: Constants::AccessToken::MOBILE_AUDIENCE,
-        client_id: Constants::AccessToken::MOBILE_CLIENT_ID,
+        aud: audience,
+        client_id: access_token.client_id,
         jti: access_token.uuid,
         sub: access_token.user_uuid,
         exp: access_token.expiration_time.to_i,
@@ -38,6 +38,17 @@ module SignIn
 
     def private_key
       OpenSSL::PKey::RSA.new(File.read(Settings.sign_in.jwt_encode_key))
+    end
+
+    def audience
+      case access_token.client_id
+      when Constants::ClientConfig::MOBILE_CLIENT
+        Constants::ClientConfig::MOBILE_AUDIENCE
+      when Constants::ClientConfig::MOBILE_TEST_CLIENT
+        Constants::ClientConfig::MOBILE_TEST_AUDIENCE
+      when Constants::ClientConfig::WEB_CLIENT
+        Constants::ClientConfig::WEB_AUDIENCE
+      end
     end
   end
 end

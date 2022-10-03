@@ -49,6 +49,7 @@ module SignIn
     def create_new_access_token
       AccessToken.new(
         session_handle: handle,
+        client_id: client_id,
         user_uuid: user_uuid,
         refresh_token_hash: refresh_token_hash,
         parent_refresh_token_hash: parent_refresh_token_hash,
@@ -82,7 +83,7 @@ module SignIn
     end
 
     def refresh_expiration_time
-      @expiration_at ||= Time.zone.now + Constants::RefreshToken::VALIDITY_LENGTH_MINUTES.minutes
+      @expiration_at ||= Time.zone.now + validity_length
     end
 
     def get_hash(object)
@@ -111,6 +112,14 @@ module SignIn
 
     def handle
       @handle ||= SecureRandom.uuid
+    end
+
+    def validity_length
+      if Constants::ClientConfig::SHORT_TOKEN_EXPIRATION.include?(client_id)
+        Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES.minutes
+      elsif Constants::ClientConfig::LONG_TOKEN_EXPIRATION.include?(client_id)
+        Constants::RefreshToken::VALIDITY_LENGTH_LONG_DAYS.days
+      end
     end
   end
 end

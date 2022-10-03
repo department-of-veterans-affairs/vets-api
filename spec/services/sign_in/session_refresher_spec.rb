@@ -36,7 +36,8 @@ RSpec.describe SignIn::SessionRefresher do
                client_id: client_id)
       end
       let(:session_expiration) { Time.zone.now + 5.minutes }
-      let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
+      let(:client_id) { SignIn::Constants::ClientConfig::MOBILE_CLIENT }
+      let(:refresh_expiration_time) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_LONG_DAYS.days }
 
       before { Timecop.freeze(Time.zone.now.floor) }
 
@@ -63,14 +64,33 @@ RSpec.describe SignIn::SessionRefresher do
               let(:double_hashed_refresh_token) do
                 Digest::SHA256.hexdigest(Digest::SHA256.hexdigest(refresh_token.to_json))
               end
-              let(:updated_session_expiration) { Time.zone.now + 30.minutes }
 
-              it 'updates the session with a new expiration time' do
-                expect do
-                  subject
-                  session.reload
-                end.to change(session, :refresh_expiration).from(session_expiration)
-                                                           .to(updated_session_expiration)
+              context 'and client_id is set to a short token expiration configuration' do
+                let(:client_id) { SignIn::Constants::ClientConfig::SHORT_TOKEN_EXPIRATION.first }
+                let(:refresh_expiration_time) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES.minutes }
+                let(:updated_session_expiration) { Time.zone.now + refresh_expiration_time }
+
+                it 'updates the session with a new expiration time' do
+                  expect do
+                    subject
+                    session.reload
+                  end.to change(session, :refresh_expiration).from(session_expiration)
+                                                             .to(updated_session_expiration)
+                end
+              end
+
+              context 'and client_id is set to a long token expiration configuration' do
+                let(:client_id) { SignIn::Constants::ClientConfig::LONG_TOKEN_EXPIRATION.first }
+                let(:refresh_expiration_time) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_LONG_DAYS.days }
+                let(:updated_session_expiration) { Time.zone.now + refresh_expiration_time }
+
+                it 'updates the session with a new expiration time' do
+                  expect do
+                    subject
+                    session.reload
+                  end.to change(session, :refresh_expiration).from(session_expiration)
+                                                             .to(updated_session_expiration)
+                end
               end
 
               it 'updates the session hashed_refresh_token with the input refresh token' do

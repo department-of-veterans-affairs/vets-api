@@ -6,8 +6,7 @@ module SignIn
                :email, :gender, :ssn, :birls_id, :authn_context,
                :icn, :edipi, :active_mhv_ids, :sec_id, :vet360_id,
                :participant_id, :cerner_id, :cerner_facility_ids, :idme_uuid,
-               :vha_facility_ids, :id_theft_flag, :verified, :access_token_ttl,
-               :logingov_uuid
+               :vha_facility_ids, :id_theft_flag, :verified, :logingov_uuid
 
     delegate :uuid, to: :object
     delegate :first_name, to: :object
@@ -33,10 +32,6 @@ module SignIn
     delegate :authn_context, to: :object
 
     def id; end
-
-    def access_token_ttl
-      Constants::AccessToken::VALIDITY_LENGTH_MINUTES.minutes.seconds.to_i
-    end
 
     def verified
       object.loa3?

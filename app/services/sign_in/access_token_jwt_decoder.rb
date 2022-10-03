@@ -13,6 +13,7 @@ module SignIn
       AccessToken.new(
         uuid: decoded_token.jti,
         session_handle: decoded_token.session_handle,
+        client_id: decoded_token.client_id,
         user_uuid: decoded_token.sub,
         refresh_token_hash: decoded_token.refresh_token_hash,
         anti_csrf_token: decoded_token.anti_csrf_token,
