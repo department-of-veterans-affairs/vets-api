@@ -13,7 +13,10 @@ module SignIn
         CURRENT_VERSION = 'V0'
       ].freeze
 
-      VALIDITY_LENGTH_MINUTES = 30
+      VALIDITY_LENGTH_SHORT_MINUTES = 30
+      VALIDITY_LENGTH_LONG_DAYS = 45
+
+      SESSION_MAX_VALIDITY_LENGTH_DAYS = 45
     end
   end
 end

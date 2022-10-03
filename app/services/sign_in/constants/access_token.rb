@@ -3,7 +3,8 @@
 module SignIn
   module Constants
     module AccessToken
-      VALIDITY_LENGTH_MINUTES = 5
+      VALIDITY_LENGTH_SHORT_MINUTES = 5
+      VALIDITY_LENGTH_LONG_MINUTES = 30
       JWT_ENCODE_ALGORITHM = 'RS256'
 
       VERSION_LIST = [
@@ -11,9 +12,6 @@ module SignIn
       ].freeze
 
       ISSUER = 'va.gov sign in'
-
-      MOBILE_CLIENT_ID = 'vamobile'
-      MOBILE_AUDIENCE = 'vamobile'
     end
   end
 end

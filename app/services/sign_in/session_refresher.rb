@@ -71,6 +71,7 @@ module SignIn
     def create_access_token
       AccessToken.new(
         session_handle: session.handle,
+        client_id: session.client_id,
         user_uuid: refresh_token.user_uuid,
         refresh_token_hash: get_hash(child_refresh_token.to_json),
         parent_refresh_token_hash: refresh_token_hash,
@@ -84,7 +85,15 @@ module SignIn
     end
 
     def refresh_expiration
-      @refresh_expiration ||= Time.zone.now + Constants::RefreshToken::VALIDITY_LENGTH_MINUTES.minutes
+      @refresh_expiration ||= Time.zone.now + validity_length
+    end
+
+    def validity_length
+      if Constants::ClientConfig::SHORT_TOKEN_EXPIRATION.include?(session.client_id)
+        Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES.minutes
+      elsif Constants::ClientConfig::LONG_TOKEN_EXPIRATION.include?(session.client_id)
+        Constants::RefreshToken::VALIDITY_LENGTH_LONG_DAYS.days
+      end
     end
 
     def updated_anti_csrf_token

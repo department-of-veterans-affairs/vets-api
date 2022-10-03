@@ -50,8 +50,8 @@ RSpec.describe SignIn::AccessTokenJwtDecoder do
       let(:jwt_payload) do
         {
           iss: SignIn::Constants::AccessToken::ISSUER,
-          aud: SignIn::Constants::AccessToken::MOBILE_AUDIENCE,
-          client_id: SignIn::Constants::AccessToken::MOBILE_CLIENT_ID,
+          aud: SignIn::Constants::ClientConfig::MOBILE_AUDIENCE,
+          client_id: SignIn::Constants::ClientConfig::MOBILE_CLIENT,
           jti: SecureRandom.hex,
           sub: access_token.user_uuid,
           exp: access_token.expiration_time.to_i,
@@ -102,6 +102,7 @@ RSpec.describe SignIn::AccessTokenJwtDecoder do
         decoded_access_token = subject
         expect(decoded_access_token.session_handle).to eq(access_token.session_handle)
         expect(decoded_access_token.user_uuid).to eq(access_token.user_uuid)
+        expect(decoded_access_token.client_id).to eq(access_token.client_id)
         expect(decoded_access_token.refresh_token_hash).to eq(access_token.refresh_token_hash)
         expect(decoded_access_token.anti_csrf_token).to eq(access_token.anti_csrf_token)
         expect(decoded_access_token.last_regeneration_time)

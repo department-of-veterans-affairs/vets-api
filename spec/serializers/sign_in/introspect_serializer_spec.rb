@@ -115,16 +115,4 @@ RSpec.describe SignIn::IntrospectSerializer do
       expect(attributes['verified']).to eq(expected_verified)
     end
   end
-
-  describe '#access_token_ttl' do
-    let(:expected_validity_minutes) { SignIn::Constants::AccessToken::VALIDITY_LENGTH_MINUTES.minutes }
-
-    it 'returns serialized #access_token_ttl data' do
-      expect(attributes['access_token_ttl']).to be_present
-    end
-
-    it 'returns integer representing access token validity in seconds' do
-      expect(attributes['access_token_ttl']).to eq(expected_validity_minutes.seconds.to_i)
-    end
-  end
 end
