@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'caseflow/middleware/errors'
+require 'common/client/middleware/response/caseflow_errors'
 require 'common/client/configuration/rest'
 require 'common/client/middleware/response/raise_error'
 
