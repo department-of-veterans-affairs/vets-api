@@ -12,6 +12,7 @@ module SignIn
       def render_auth(state: SecureRandom.hex, acr: IAL::LOGIN_GOV_IAL1)
         renderer = ActionController::Base.renderer
         renderer.controller.prepend_view_path(Rails.root.join('lib', 'sign_in', 'templates'))
+        Rails.logger.info("[SignIn][Logingov][Service] Rendering auth, state: #{state}, acr: #{acr}")
         renderer.render(template: 'oauth_get_form',
                         locals: {
                           url: auth_url,
@@ -38,16 +39,17 @@ module SignIn
         response = perform(
           :post, config.token_path, token_params(code), { 'Content-Type' => 'application/json' }
         )
+        Rails.logger.info("[SignIn][Logingov][Service] Token Success, code: #{code}")
         response.body
       rescue Common::Client::Errors::ClientError => e
-        raise e, '[SignIn][Logingov][Service] Cannot perform Token request'
+        raise_client_error(e, 'Token')
       end
 
       def user_info(token)
         response = perform(:get, config.userinfo_path, nil, { 'Authorization' => "Bearer #{token}" })
         OpenStruct.new(response.body)
       rescue Common::Client::Errors::ClientError => e
-        raise e, '[SignIn][Logingov][Service] Cannot perform UserInfo request'
+        raise_client_error(e, 'UserInfo')
       end
 
       def normalized_attributes(user_info, credential_level, client_id)
@@ -70,6 +72,13 @@ module SignIn
       end
 
       private
+
+      def raise_client_error(client_error, function_name)
+        status = client_error.status
+        description = client_error.body && client_error.body[:error]
+        raise client_error, "[SignIn][Logingov][Service] Cannot perform #{function_name} request, " \
+                            "status: #{status}, description: #{description}"
+      end
 
       def get_authn_context(current_ial)
         current_ial == IAL::TWO ? IAL::LOGIN_GOV_IAL2 : IAL::LOGIN_GOV_IAL1

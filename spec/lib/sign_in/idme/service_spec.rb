@@ -5,12 +5,13 @@ require 'sign_in/idme/service'
 
 describe SignIn::Idme::Service do
   let(:code) { '04e3f01f11764b50becb0cdcb618b804' }
+  let(:scope) { 'http://idmanagement.gov/ns/assurance/loa/3' }
   let(:token) do
     {
       access_token: '0f5ebddd60d0451782214e6705cac5d1',
       token_type: 'bearer',
       expires_in: 300,
-      scope: 'http://idmanagement.gov/ns/assurance/loa/3',
+      scope: scope,
       refresh_token: '26f282c510a740bb9c27aeed65fc08c4',
       refresh_expires_in: 604_800
     }
@@ -66,9 +67,15 @@ describe SignIn::Idme::Service do
     let(:expected_authorization_page) { "#{base_path}/#{auth_path}" }
     let(:base_path) { 'some-base-path' }
     let(:auth_path) { 'oauth/authorize' }
+    let(:expected_log) { "[SignIn][Idme][Service] Rendering auth, state: #{state}, acr: #{acr}" }
 
     before do
       allow(Settings.idme).to receive(:oauth_url).and_return(base_path)
+    end
+
+    it 'logs information to rails logger' do
+      expect(Rails.logger).to receive(:info).with(expected_log)
+      response
     end
 
     it 'renders the oauth_get_form template' do
@@ -82,6 +89,15 @@ describe SignIn::Idme::Service do
 
   describe '#token' do
     context 'when the request is successful' do
+      let(:expected_log) { "[SignIn][Idme][Service] Token Success, code: #{code}, scope: #{scope}" }
+
+      it 'logs information to rails logger' do
+        VCR.use_cassette('identity/idme_200_responses') do
+          expect(Rails.logger).to receive(:info).with(expected_log)
+          subject.token(code)
+        end
+      end
+
       it 'returns an access token' do
         VCR.use_cassette('identity/idme_200_responses') do
           expect(subject.token(code)).to eq(token)
@@ -91,10 +107,15 @@ describe SignIn::Idme::Service do
 
     context 'when an issue occurs with the client request' do
       let(:expected_error) { Common::Client::Errors::ClientError }
-      let(:expected_error_message) { '[SignIn][Idme][Service] Cannot perform Token request' }
+      let(:expected_error_message) do
+        "[SignIn][Idme][Service] Cannot perform Token request, status: #{status}, description: #{description}"
+      end
+      let(:status) { 'some-status' }
+      let(:description) { 'some-description' }
+      let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status, { error_description: description }) }
 
       before do
-        allow_any_instance_of(described_class).to receive(:perform).and_raise(Common::Client::Errors::ClientError)
+        allow_any_instance_of(described_class).to receive(:perform).and_raise(raised_error)
       end
 
       it 'raises a client error with expected message' do
@@ -112,10 +133,15 @@ describe SignIn::Idme::Service do
 
     context 'when an issue occurs with the client request' do
       let(:expected_error) { Common::Client::Errors::ClientError }
-      let(:expected_error_message) { '[SignIn][Idme][Service] Cannot perform UserInfo request' }
+      let(:expected_error_message) do
+        "[SignIn][Idme][Service] Cannot perform UserInfo request, status: #{status}, description: #{description}"
+      end
+      let(:status) { 'some-status' }
+      let(:description) { 'some-description' }
+      let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status, { error_description: description }) }
 
       before do
-        allow_any_instance_of(described_class).to receive(:perform).and_raise(Common::Client::Errors::ClientError)
+        allow_any_instance_of(described_class).to receive(:perform).and_raise(raised_error)
       end
 
       it 'raises a client error with expected message' do
