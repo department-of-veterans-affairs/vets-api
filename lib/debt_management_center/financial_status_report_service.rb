@@ -130,6 +130,7 @@ module DebtManagementCenter
         submission = persist_form_submission(form, copays)
         facility_form = form.deep_dup
         facility_form['personalIdentification']['fsrReason'] = fsr_reason
+        facility_form['personalIdentification']['fileNumber'] = @user.ssn
         facility_form['facilityNum'] = facility_num
         facility_form['transactionId'] = submission.id
         facility_form['timestamp'] = submission.created_at.strftime('%Y%m%dT%H%M%S')
