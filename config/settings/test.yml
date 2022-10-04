@@ -204,6 +204,13 @@ sidekiq:
   github_oauth_secret: 000xxx
 
 check_in:
+  travel_reimbursement_api:
+    auth_url: https://login.microsoftonline.us
+    tenant_id: 6d4d703a-2d9a-4c2a-ac90-976e52eacb52
+    client_id: 9f124d0c-e3d0-4a02-a540-64def7ef3889
+    client_secret: f3b721aa-f9c1-4ff2-bf47-9b3a30757013
+    scope: a7a9a4e6-44e6-4e55-a30f-43cd841ec68d/.default
+    service_name: BTSSS-API
   authentication:
     max_auth_retry_limit: 3
     retry_attempt_expiry: 604800 # 7 Days
