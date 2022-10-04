@@ -382,7 +382,8 @@ module PdfFill
           },
           'additionalComments' => {
             key: 'vaco5655[0].#subform[1].Field136[0]',
-            question_num: 36
+            question_num: 36,
+            limit: 450
           }
         }
       }.freeze
