@@ -77,6 +77,23 @@ module LGY
         )
         response.body
       end
+    rescue Faraday::ResourceNotFound => e
+      # We have been getting 404s from this endpoint, and it is not currently
+      # clear why. LGY recently stated they have an exception wrapper in place
+      # "that is blocking the exception messages [we] should be seeing that
+      # would provide the reason for the [404 errors]." LGY intends to "remove
+      # the wrapper so that the exception messages ... flow through." If these
+      # errors end up being helpful and end up making their way into the
+      # response body, we should make sure that we surface that response body to
+      # Sentry. Once these 404 errors are resolved, we may consider removing
+      # this error handler.
+      log_message_to_sentry(
+        'COE application submission 404\'d!',
+        :error,
+        { response_body: e.response[:body], response_headers: e.response[:headers] },
+        { team: 'vfs-ebenefits' }
+      )
+      raise e
     rescue Common::Client::Errors::ClientError => e
       raise e
     end

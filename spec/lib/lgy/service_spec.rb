@@ -176,6 +176,26 @@ describe LGY::Service do
         end
       end
     end
+
+    context 'LGY returns a 404' do
+      it 'logs response body and headers to sentry' do
+        fake_lgy_response_headers = { foo: 'bar' }
+        fake_lgy_response_body = { error: 'fake error' }
+        fake_lgy_response = {
+          headers: fake_lgy_response_headers,
+          body: fake_lgy_response_body
+        }
+        fake_faraday_error = Faraday::ResourceNotFound.new(nil, fake_lgy_response)
+        expect_any_instance_of(LGY::Service).to receive(:perform).and_raise(fake_faraday_error)
+        expect_any_instance_of(LGY::Service).to receive(:log_message_to_sentry).with(
+          'COE application submission 404\'d!',
+          :error,
+          { response_body: fake_lgy_response_body, response_headers: fake_lgy_response_headers },
+          { team: 'vfs-ebenefits' }
+        )
+        expect { subject.put_application(payload: {}) }.to raise_error(an_instance_of(Faraday::ResourceNotFound))
+      end
+    end
   end
 
   describe '#post_document' do
