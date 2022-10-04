@@ -326,6 +326,8 @@ Rails.application.routes.draw do
 
     get 'feature_toggles', to: 'feature_toggles#index'
 
+    resource :mhv_opt_in_flags, only: %i[show create]
+
     namespace :contact_us do
       resources :inquiries, only: %i[index create]
     end
