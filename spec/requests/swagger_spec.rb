@@ -1915,6 +1915,19 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    describe 'Lighthouse Benefits Reference Data' do
+      it 'gets data from endpoint' do
+        VCR.use_cassette('lighthouse/benefits_reference_data/200_response') do
+          expect(subject).to validate(
+            :get,
+            '/v0/benefits_reference_data/{path}',
+            200,
+            headers.merge('path' => 'disabilities')
+          )
+        end
+      end
+    end
+
     describe 'appeals' do
       it 'documents appeals 401' do
         expect(subject).to validate(:get, '/v0/appeals', 401)

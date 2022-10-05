@@ -70,6 +70,7 @@ Rails.application.routes.draw do
       get 'user_submissions'
       get 'separation_locations'
     end
+    get 'benefits_reference_data/*path', to: 'benefits_reference_data#get_data'
 
     resources :financial_status_reports, only: %i[create] do
       collection do
