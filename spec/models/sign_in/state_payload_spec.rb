@@ -9,12 +9,14 @@ RSpec.describe SignIn::StatePayload, type: :model do
            client_id: client_id,
            type: type,
            acr: acr,
+           code: code,
            client_state: client_state)
   end
 
   let(:code_challenge) { Base64.urlsafe_encode64(SecureRandom.hex) }
   let(:type) { SignIn::Constants::Auth::REDIRECT_URLS.first }
   let(:acr) { SignIn::Constants::Auth::ACR_VALUES.first }
+  let(:code) { SecureRandom.hex }
   let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
   let(:client_state) { SecureRandom.hex }
 
@@ -26,6 +28,20 @@ RSpec.describe SignIn::StatePayload, type: :model do
         let(:code_challenge) { nil }
         let(:expected_error) { ActiveModel::ValidationError }
         let(:expected_error_message) { "Validation failed: Code challenge can't be blank" }
+
+        it 'raises validation error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+    end
+
+    describe '#code' do
+      subject { state_payload.code }
+
+      context 'when code is nil' do
+        let(:code) { nil }
+        let(:expected_error) { ActiveModel::ValidationError }
+        let(:expected_error_message) { "Validation failed: Code can't be blank" }
 
         it 'raises validation error' do
           expect { subject }.to raise_error(expected_error, expected_error_message)

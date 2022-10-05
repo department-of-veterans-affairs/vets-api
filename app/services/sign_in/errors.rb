@@ -24,6 +24,7 @@ module SignIn
     class CodeChallengeMethodMismatchError < StandardError; end
     class CodeChallengeMalformedError < StandardError; end
     class CodeChallengeMismatchError < StandardError; end
+    class StateCodeInvalidError < StandardError; end
     class StatePayloadError < StandardError; end
     class StatePayloadSignatureMismatchError < StandardError; end
     class StatePayloadMalformedJWTError < StandardError; end

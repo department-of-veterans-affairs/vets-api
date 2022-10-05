@@ -160,6 +160,9 @@ development: &defaults
   sign_in_credential_info:
     namespace: sign_in_credential_info
     each_ttl: 900
+  sign_in_state_code:
+    namespace: sign_in_state_code
+    each_ttl: 1800
   mhv_identity_data:
     namespace: mhv_identity_data
     each_ttl: 5400
