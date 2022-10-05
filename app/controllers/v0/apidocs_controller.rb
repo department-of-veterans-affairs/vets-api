@@ -130,6 +130,7 @@ module V0
       Swagger::Requests::BackendStatuses,
       Swagger::Requests::BB::HealthRecords,
       Swagger::Requests::BurialClaims,
+      Swagger::Requests::BenefitsReferenceData,
       Swagger::Requests::ClaimStatus,
       Swagger::Requests::Debts,
       Swagger::Requests::DebtLetters,
