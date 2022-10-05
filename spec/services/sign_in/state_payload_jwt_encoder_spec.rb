@@ -49,14 +49,14 @@ RSpec.describe SignIn::StatePayloadJwtEncoder do
         let(:code_challenge_remove_base64_padding) do
           Base64.urlsafe_encode64(Base64.urlsafe_decode64(code_challenge.to_s), padding: false)
         end
-        let(:seed) { 'some-seed-value' }
+        let(:code) { 'some-state-code-value' }
         let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
         let(:acr) { SignIn::Constants::Auth::ACR_VALUES.first }
         let(:type) { SignIn::Constants::Auth::REDIRECT_URLS.first }
         let(:client_state) { SecureRandom.alphanumeric(client_state_minimum_length + 1) }
 
         before do
-          allow(SecureRandom).to receive(:hex).and_return(seed)
+          allow(SecureRandom).to receive(:hex).and_return(code)
         end
 
         shared_context 'properly encoded state payload jwt' do
@@ -67,7 +67,11 @@ RSpec.describe SignIn::StatePayloadJwtEncoder do
             expect(decoded_jwt.client_id).to eq(client_id)
             expect(decoded_jwt.code_challenge).to eq(code_challenge)
             expect(decoded_jwt.client_state).to eq(client_state)
-            expect(decoded_jwt.seed).to eq(seed)
+            expect(decoded_jwt.code).to eq(code)
+          end
+
+          it 'saves a StateCode in redis' do
+            expect { subject }.to change { SignIn::StateCode.find(code) }.from(nil)
           end
         end
 

@@ -9,29 +9,35 @@ module SignIn
     end
 
     def perform
-      decoded_jwt = jwt_decode_state_payload
+      create_state_payload
+    end
+
+    private
+
+    def create_state_payload
       StatePayload.new(
         acr: decoded_jwt.acr,
         client_id: decoded_jwt.client_id,
         type: decoded_jwt.type,
         code_challenge: decoded_jwt.code_challenge,
-        client_state: decoded_jwt.client_state
+        client_state: decoded_jwt.client_state,
+        code: decoded_jwt.code
       )
     end
 
-    private
-
-    def jwt_decode_state_payload
-      with_validation = true
-      decoded_jwt = JWT.decode(
-        state_payload_jwt,
-        private_key,
-        with_validation,
-        {
-          algorithm: Constants::Auth::JWT_ENCODE_ALGORITHM
-        }
-      )&.first
-      OpenStruct.new(decoded_jwt)
+    def decoded_jwt
+      @decoded_jwt ||= begin
+        with_validation = true
+        decoded_jwt = JWT.decode(
+          state_payload_jwt,
+          private_key,
+          with_validation,
+          {
+            algorithm: Constants::Auth::JWT_ENCODE_ALGORITHM
+          }
+        )&.first
+        OpenStruct.new(decoded_jwt)
+      end
     rescue JWT::VerificationError
       raise Errors::StatePayloadSignatureMismatchError, message: 'State JWT body does not match signature'
     rescue JWT::DecodeError

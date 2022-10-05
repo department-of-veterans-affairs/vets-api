@@ -18,6 +18,7 @@ module SignIn
     def perform
       check_code_challenge_method
       validate_state_payload
+      save_state_code
       jwt_encode_state_payload
     end
 
@@ -39,6 +40,10 @@ module SignIn
       JWT.encode(jwt_payload, private_key, Constants::Auth::JWT_ENCODE_ALGORITHM)
     end
 
+    def save_state_code
+      StateCode.new(code: state_code).save!
+    end
+
     def jwt_payload
       {
         acr: state_payload.acr,
@@ -46,7 +51,7 @@ module SignIn
         client_id: state_payload.client_id,
         code_challenge: state_payload.code_challenge,
         client_state: state_payload.client_state,
-        seed: state_payload.seed
+        code: state_payload.code
       }
     end
 
@@ -55,7 +60,12 @@ module SignIn
                                           type: type,
                                           client_id: client_id,
                                           code_challenge: remove_base64_padding(code_challenge),
+                                          code: state_code,
                                           client_state: client_state)
+    end
+
+    def state_code
+      @state_code ||= SecureRandom.hex
     end
 
     def remove_base64_padding(data)

@@ -50,6 +50,7 @@ module V0
       validate_callback_params(code, state, error)
 
       state_payload = SignIn::StatePayloadJwtDecoder.new(state_payload_jwt: state).perform
+      SignIn::StatePayloadVerifier.new(state_payload: state_payload).perform
 
       handle_credential_provider_error(error, state_payload&.type) if error
       service_token_response = auth_service(state_payload.type).token(code)
