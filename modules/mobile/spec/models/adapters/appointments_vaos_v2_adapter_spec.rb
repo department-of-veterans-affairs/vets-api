@@ -18,7 +18,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
   end
 
   it 'returns a list of appointments at the expected size' do
-    expect(adapted_appointments.size).to eq(11)
+    expect(adapted_appointments.size).to eq(12)
   end
 
   context 'with a cancelled VA appointment' do
@@ -28,6 +28,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(cancelled_va[:status_detail]).to eq('CANCELLED BY PATIENT')
       expect(cancelled_va[:status]).to eq('CANCELLED')
       expect(cancelled_va[:appointment_type]).to eq('VA')
+      expect(cancelled_va[:is_pending]).to eq(false)
       expect(cancelled_va.as_json).to eq({ 'id' => '121133',
                                            'appointment_type' => 'VA',
                                            'cancel_id' => nil,
@@ -519,6 +520,69 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                      'patient_email' => nil,
                                      'best_time_to_call' => nil,
                                      'friendly_location_name' => nil })
+    end
+  end
+
+  context 'with a cancelled requested VA appointment' do
+    let(:cancelled_requested_va_appt) { adapted_appointments[11] }
+
+    it 'has expected fields' do
+      expect(cancelled_requested_va_appt[:appointment_type]).to eq('VA')
+      expect(cancelled_requested_va_appt[:is_pending]).to eq(true)
+      expect(cancelled_requested_va_appt[:status]).to eq('CANCELLED')
+
+      expect(cancelled_requested_va_appt.as_json).to eq({
+                                                          'id' => '53241',
+                                                          'appointment_type' => 'VA',
+                                                          'cancel_id' => nil,
+                                                          'comment' => 'testing',
+                                                          'facility_id' => '442',
+                                                          'sta6aid' => '442',
+                                                          'healthcare_provider' => nil,
+                                                          'healthcare_service' => nil,
+                                                          'location' => {
+                                                            'id' => '442',
+                                                            'name' => 'Cheyenne VA Medical Center',
+                                                            'address' => {
+                                                              'street' => '2360 East Pershing Boulevard',
+                                                              'city' => 'Cheyenne',
+                                                              'state' => 'WY',
+                                                              'zip_code' => '82001-5356'
+                                                            },
+                                                            'lat' => 41.148026,
+                                                            'long' => -104.786255,
+                                                            'phone' => {
+                                                              'area_code' => '307',
+                                                              'number' => '778-7550',
+                                                              'extension' => nil
+                                                            },
+                                                            'url' => nil,
+                                                            'code' => nil
+                                                          },
+                                                          'minutes_duration' => nil,
+                                                          'phone_only' => false,
+                                                          'start_date_local' => '2017-05-15T18:00:00.000-06:00',
+                                                          'start_date_utc' => '2017-05-16T00:00:00.000+00:00',
+                                                          'status' => 'CANCELLED',
+                                                          'status_detail' => 'CANCELLED BY CLINIC',
+                                                          'time_zone' => 'America/Denver',
+                                                          'vetext_id' => nil,
+                                                          'reason' => 'Routine Follow-up',
+                                                          'is_covid_vaccine' => false,
+                                                          'is_pending' => true,
+                                                          'proposed_times' => [
+                                                            { 'date' => '05/16/2017', 'time' => 'AM' },
+                                                            { 'date' => '05/17/2017', 'time' => 'AM' },
+                                                            { 'date' => '05/31/2017', 'time' => 'AM' }
+                                                          ],
+                                                          'type_of_care' => nil,
+                                                          'patient_phone_number' => '788-999-9999',
+                                                          'patient_email' => nil,
+                                                          'best_time_to_call' => [
+                                                            'Afternoon'
+                                                          ],
+                                                          'friendly_location_name' => nil
+                                                        })
     end
   end
 

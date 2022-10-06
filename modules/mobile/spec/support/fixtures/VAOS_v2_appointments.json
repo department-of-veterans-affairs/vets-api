@@ -733,5 +733,92 @@
       "code":"other"
     },
     "cancellable":true
+  },
+  {
+    "id":"53241",
+    "identifier":[
+      {
+        "system":"http://med.va.gov/fhir/urn/vaos/ars/id",
+        "value":"8a759b255ba1a41b015bf2eeb5c7000f"
+      }
+    ],
+    "kind":"clinic",
+    "status":"cancelled",
+    "service_type":"primaryCare",
+    "reason_code":{
+      "coding":[
+        {
+          "code":"Routine Follow-up"
+        }
+      ]
+    },
+    "patient_icn":"1012853802V084487",
+    "location_id":"442",
+    "location":{
+      "id":"442",
+      "name":"Cheyenne VA Medical Center",
+      "time_zone" : {
+        "time_zone_id" : "America/Denver"
+      },
+      "physical_address":{
+        "type":"physical",
+        "line":[
+          "2360 East Pershing Boulevard"
+        ],
+        "city":"Cheyenne",
+        "state":"WY",
+        "postal_code":"82001-5356"
+      },
+      "lat":41.148026,
+      "long":-104.786255,
+      "phone":{
+        "main":"307-778-7550"
+      },
+      "url":null,
+      "code":null
+    },
+    "created":"2017-05-10T11:16:21Z",
+    "requested_periods":[
+      {
+        "start":"2017-05-16T00:00:00Z",
+        "end":"2017-05-16T11:59:59.999Z"
+      },
+      {
+        "start":"2017-05-17T00:00:00Z",
+        "end":"2017-05-17T11:59:59.999Z"
+      },
+      {
+        "start":"2017-05-31T00:00:00Z",
+        "end":"2017-05-31T11:59:59.999Z"
+      }
+    ],
+    "contact":{
+      "telecom":[
+        {
+          "type":"phone",
+          "value":"(788) 999-9999"
+        }
+      ]
+    },
+    "preferred_times_for_phone_call":[
+      "Afternoon"
+    ],
+    "cancelation_reason":{
+      "coding":[
+        {
+          "system":"http://terminology.hl7.org/CodeSystem/appointment-cancellation-reason",
+          "code":"prov",
+          "display":"The appointment was cancelled by the provider"
+        }
+      ]
+    },
+    "comment":"testing",
+    "extension":{
+      "cc_location":{
+        "address":{
+
+        }
+      }
+    }
   }
 ]

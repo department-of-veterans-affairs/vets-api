@@ -19,8 +19,14 @@ module Mobile
           # or the upstream serice does not use them.
           response = vaos_v2_appointments_service.get_appointments(start_date, end_date, statuses.join(','),
                                                                    pagination_params)
+          appointments = response[:data]
 
-          appointments = merge_clinic_facility_address(response[:data])
+          # Cancelled pending appointments are filtered out here to avoid unnecessary upstream calls.
+          # this can potentially make the cache inconsistent when calling the endpoint outside the app
+          # but in the app, is_pending param will always be false for older clients and always true for newer clients
+          appointments = appointments.select { |appt| appt[:requested_periods].blank? } unless include_pending
+
+          appointments = merge_clinic_facility_address(appointments)
           appointments = merge_auxiliary_clinic_info(appointments)
           appointments = merge_provider_names(appointments)
 
