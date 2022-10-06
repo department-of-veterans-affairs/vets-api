@@ -200,6 +200,10 @@ describe AppsApi::NotificationService do
       subject.instance_variable_set(:@time_period, 5.days.ago.utc.iso8601)
     end
 
+    after do
+      Timecop.return
+    end
+
     it 'returns a response body of connections' do
       VCR.use_cassette('okta/connection_logs', match_requests_on: %i[method path]) do
         response = subject.get_events('app.oauth2.as.consent.grant')
