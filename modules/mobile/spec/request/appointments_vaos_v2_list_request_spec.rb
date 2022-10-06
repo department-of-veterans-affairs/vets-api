@@ -184,7 +184,13 @@ RSpec.describe 'vaos v2 appointments', type: :request do
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
 
         uniq_statuses = response.parsed_body['data'].map { |appt| appt.dig('attributes', 'status') }.uniq
-        expect(uniq_statuses).to eq(%w[CANCELLED BOOKED])
+        expect(uniq_statuses).to match_array(%w[BOOKED CANCELLED])
+
+        proposed_times = response.parsed_body['data'].map { |appt| appt.dig('attributes', 'proposedTimes') }.uniq
+        expect(proposed_times).to eq([nil])
+
+        is_pending = response.parsed_body['data'].map { |appt| appt.dig('attributes', 'isPending') }.uniq
+        expect(is_pending).to eq([false])
       end
     end
 
@@ -214,7 +220,13 @@ RSpec.describe 'vaos v2 appointments', type: :request do
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
 
         uniq_statuses = response.parsed_body['data'].map { |appt| appt.dig('attributes', 'status') }.uniq
-        expect(uniq_statuses).to eq(%w[CANCELLED BOOKED SUBMITTED])
+        expect(uniq_statuses).to match_array(%w[CANCELLED BOOKED SUBMITTED])
+
+        proposed_times = response.parsed_body['data'].map { |appt| appt.dig('attributes', 'proposedTimes') }.uniq
+        expect(proposed_times).not_to eq([nil])
+
+        is_pending = response.parsed_body['data'].map { |appt| appt.dig('attributes', 'isPending') }.uniq
+        expect(is_pending).to eq([true, false])
       end
     end
 

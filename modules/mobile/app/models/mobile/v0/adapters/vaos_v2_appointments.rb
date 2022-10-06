@@ -110,7 +110,7 @@ module Mobile
             vetext_id: nil,
             reason: appointment_hash.dig(:reason_code, :coding, 0, :code),
             is_covid_vaccine: appointment_hash[:service_type] == COVID_SERVICE,
-            is_pending: status == STATUSES[:proposed],
+            is_pending: appointment_hash[:requested_periods].present?,
             proposed_times: proposed_times(appointment_hash[:requested_periods]),
             type_of_care: type_of_care(appointment_hash[:service_type], type),
             patient_phone_number: patient_phone_number(appointment_hash),
