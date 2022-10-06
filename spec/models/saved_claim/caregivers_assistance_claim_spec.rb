@@ -8,6 +8,18 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
       build(:caregivers_assistance_claim)
     end
 
+    it 'renders unicode chars correctly' do
+      unicode = 'name’'
+      claim.parsed_form['veteran']['fullName']['first'] = unicode
+      pdf_file = claim.to_pdf(sign: true)
+
+      expect(PdfFill::Filler::UNICODE_PDF_FORMS.get_fields(pdf_file).map(&:value).find do |val|
+        val == unicode
+      end).to eq(unicode)
+
+      File.delete(pdf_file)
+    end
+
     it 'calls PdfFill::Filler#fill_form' do
       expect(PdfFill::Filler).to receive(:fill_form).with(claim, claim.guid, {}).once.and_return(:expected_file_paths)
       expect(claim.to_pdf).to eq(:expected_file_paths)

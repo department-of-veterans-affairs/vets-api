@@ -20,6 +20,7 @@ module PdfFill
     module_function
 
     PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
+    UNICODE_PDF_FORMS = PdfForms.new(Settings.binaries.pdftk, data_format: 'XFdf', utf8_fields: true)
     FORM_CLASSES = {
       '21P-527EZ' => PdfFill::Forms::Va21p527ez,
       '21P-530' => PdfFill::Forms::Va21p530,
@@ -73,7 +74,7 @@ module PdfFill
         form_data: form_class.new(form_data).merge_fields(fill_options),
         pdftk_keys: form_class::KEY
       )
-      PDF_FORMS.fill_form(
+      (form_id == SavedClaim::CaregiversAssistanceClaim::FORM ? UNICODE_PDF_FORMS : PDF_FORMS).fill_form(
         "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
         file_path,
         new_hash,
