@@ -429,7 +429,7 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:state_value) { 'some-state' }
     let(:code_value) { 'some-code' }
     let(:error_value) { 'some-error' }
-    let(:statsd_tags) { ["type:#{type}", "client_id:#{client_id}", "ial:#{ial}"] }
+    let(:statsd_tags) { ["type:#{type}", "client_id:#{client_id}", "ial:#{ial}", "acr:#{acr}"] }
     let(:type) {}
     let(:acr) { nil }
     let(:client_id) { nil }
@@ -648,7 +648,8 @@ RSpec.describe V0::SignInController, type: :controller do
                   {
                     type: type,
                     client_id: client_id,
-                    ial: ial
+                    ial: ial,
+                    acr: acr
                   }
                 end
                 let(:expected_user_attributes) do
@@ -789,7 +790,8 @@ RSpec.describe V0::SignInController, type: :controller do
                   {
                     type: type,
                     client_id: client_id,
-                    ial: ial
+                    ial: ial,
+                    acr: acr
                   }
                 end
 
@@ -892,7 +894,8 @@ RSpec.describe V0::SignInController, type: :controller do
                 {
                   type: type,
                   client_id: client_id,
-                  ial: ial
+                  ial: ial,
+                  acr: acr
                 }
               end
 
@@ -1014,7 +1017,8 @@ RSpec.describe V0::SignInController, type: :controller do
                 {
                   type: type,
                   client_id: client_id,
-                  ial: ial
+                  ial: ial,
+                  acr: acr
                 }
               end
 
