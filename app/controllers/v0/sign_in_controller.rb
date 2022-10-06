@@ -274,10 +274,18 @@ module V0
       SignIn::CredentialInfoCreator.new(csp_user_attributes: user_attributes,
                                         csp_token_response: service_token_response).perform
       user_code_map = SignIn::UserCreator.new(user_attributes: user_attributes, state_payload: state_payload).perform
-      context = { type: state_payload.type, client_id: state_payload.client_id, ial: credential_level.current_ial }
+      context = {
+        type: state_payload.type,
+        client_id: state_payload.client_id,
+        ial: credential_level.current_ial,
+        acr: state_payload.acr
+      }
       sign_in_logger.info('callback', context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS,
-                       tags: ["type:#{context[:type]}", "client_id:#{context[:client_id]}", "ial:#{context[:ial]}"])
+                       tags: ["type:#{context[:type]}",
+                              "client_id:#{context[:client_id]}",
+                              "ial:#{context[:ial]}",
+                              "acr:#{context[:acr]}"])
 
       redirect_to SignIn::LoginRedirectUrlGenerator.new(user_code_map: user_code_map).perform
     end
