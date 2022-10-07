@@ -15,6 +15,16 @@ module HCA
       'isWhite' => '2106-3'
     }.freeze
 
+    SIGI_CODES = {
+      'M' => 'Male',
+      'F' => 'Female',
+      'TF' => 'Transgender Female',
+      'TM' => 'Transgender Male',
+      'O' => 'Other',
+      'NA' => 'Does not wish to disclose',
+      'NB' => 'Non-Binary'
+    }.freeze
+
     FORM_TEMPLATE = IceNine.deep_freeze(
       'va:form' => {
         '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
@@ -390,6 +400,14 @@ module HCA
       }
     end
 
+    def convert_sigi(sigi_genders)
+      return {} if sigi_genders.blank?
+
+      {
+        'selfIdentifiedGenderIdentity' => SIGI_CODES[sigi_genders]
+      }
+    end
+
     def veteran_to_person_info(veteran)
       convert_full_name(veteran['veteranFullName']).merge({
         'gender' => veteran['gender'],
@@ -405,7 +423,9 @@ module HCA
           nullable: true
         ),
         'placeOfBirthState' => convert_birth_state(veteran['stateOfBirth'])
-      }.merge(ssn_to_ssntext(veteran['veteranSocialSecurityNumber'])))
+      }.merge(ssn_to_ssntext(veteran['veteranSocialSecurityNumber']))).merge(
+        convert_sigi(veteran['sigiGenders'])
+      )
     end
 
     def convert_birth_state(birth_state)
