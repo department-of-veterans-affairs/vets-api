@@ -104,6 +104,26 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
       end
     end
 
+    context 'when icn header is present' do
+      let(:icn_updater_sidekiq_worker) { class_double(AppealsApi::AddIcnUpdater) }
+
+      before do
+        allow(AppealsApi::AddIcnUpdater).to receive(:new).and_return(icn_updater_sidekiq_worker)
+        allow(icn_updater_sidekiq_worker).to receive(:perform_async)
+      end
+
+      it 'adds header ICN' do
+        post(path, params: @data_extra, headers: @headers_extra)
+        hlr_guid = JSON.parse(response.body)['data']['id']
+        hlr = AppealsApi::HigherLevelReview.find(hlr_guid)
+
+        expect(hlr.source).to eq('va.gov')
+        expect(hlr.veteran_icn).to eq('1013062086V794840')
+        # since icn is already provided in header, the icn updater sidekiq worker is redundant and skipped
+        expect(icn_updater_sidekiq_worker).not_to have_received(:perform_async)
+      end
+    end
+
     context 'when header is missing' do
       it 'responds with status :unprocessable_entity' do
         post(path, params: @data, headers: @minimum_required_headers.except('X-VA-SSN'))

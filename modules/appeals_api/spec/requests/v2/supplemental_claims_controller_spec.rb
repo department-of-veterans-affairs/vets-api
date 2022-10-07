@@ -18,6 +18,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
   let(:data) { fixture_to_s 'valid_200995.json', version: 'v2' }
   let(:extra_data) { fixture_to_s 'valid_200995_extra.json', version: 'v2' }
   let(:headers) { fixture_as_json 'valid_200995_headers.json', version: 'v2' }
+  let(:max_headers) { fixture_as_json 'valid_200995_headers_extra.json', version: 'v2' }
 
   let(:parsed) { JSON.parse(response.body) }
 
@@ -64,6 +65,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         sc = AppealsApi::SupplementalClaim.find(sc_guid)
 
         expect(sc.source).to eq('va.gov')
+        expect(sc.veteran_icn).to be_nil
         expect(parsed['data']['type']).to eq('supplementalClaim')
         expect(parsed['data']['attributes']['status']).to eq('pending')
         expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
@@ -84,7 +86,27 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       end
     end
 
-    context 'when header is missing' do
+    context 'when icn header is present' do
+      let(:icn_updater_sidekiq_worker) { class_double(AppealsApi::AddIcnUpdater) }
+
+      before do
+        allow(AppealsApi::AddIcnUpdater).to receive(:new).and_return(icn_updater_sidekiq_worker)
+        allow(icn_updater_sidekiq_worker).to receive(:perform_async)
+      end
+
+      it 'adds header ICN' do
+        post(path, params: extra_data, headers: max_headers)
+        sc_guid = JSON.parse(response.body)['data']['id']
+        sc = AppealsApi::SupplementalClaim.find(sc_guid)
+
+        expect(sc.source).to eq('va.gov')
+        expect(sc.veteran_icn).to eq('1013062086V794840')
+        # since icn is already provided in header, the icn updater sidekiq worker is redundant and skipped
+        expect(icn_updater_sidekiq_worker).not_to have_received(:perform_async)
+      end
+    end
+
+    context 'when ssn header is missing' do
       it 'responds with status :unprocessable_entity' do
         post(path, params: data, headers: headers.except('X-VA-SSN'))
         expect(response.status).to eq(422)

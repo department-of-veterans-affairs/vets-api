@@ -30,7 +30,11 @@ FactoryBot.define do
     api_version { 'V2' }
     evidence_submission_indicated { true }
     auth_headers do
-      JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/v2/valid_200995_headers_extra.json"
+      JSON.parse(
+        File.read(
+          "#{::Rails.root}/modules/appeals_api/spec/fixtures/v2/valid_200995_headers_extra.json"
+        )
+      ).transform_values(&:strip)
     end
     form_data do
       JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/v2/valid_200995_extra.json"

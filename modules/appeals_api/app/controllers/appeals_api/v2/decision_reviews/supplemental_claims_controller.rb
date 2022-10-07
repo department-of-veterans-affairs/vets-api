@@ -33,9 +33,10 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
     sc = AppealsApi::SupplementalClaim.new(
       auth_headers: request_headers,
       form_data: @json_body,
-      source: request_headers['X-Consumer-Username'],
+      source: request_headers['X-Consumer-Username'].presence&.strip,
       evidence_submission_indicated: evidence_submission_indicated?,
-      api_version: 'V2'
+      api_version: 'V2',
+      veteran_icn: request_headers['X-VA-ICN'].presence&.strip
     )
 
     render_model_errors(sc) and return unless sc.validate
@@ -44,7 +45,7 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
 
     pdf_version = 'v2'
     AppealsApi::PdfSubmitJob.perform_async(sc.id, 'AppealsApi::SupplementalClaim', pdf_version)
-    AppealsApi::AddIcnUpdater.perform_async(sc.id, 'AppealsApi::SupplementalClaim')
+    AppealsApi::AddIcnUpdater.perform_async(sc.id, 'AppealsApi::SupplementalClaim') if sc.veteran_icn.blank?
 
     render json: AppealsApi::SupplementalClaimSerializer.new(sc).serializable_hash
   end

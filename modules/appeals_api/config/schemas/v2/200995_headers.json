@@ -13,6 +13,7 @@
       "type": "object",
       "properties": {
         "X-VA-SSN":             { "$ref": "#/definitions/X-VA-SSN" },
+        "X-VA-ICN":             { "$ref": "#/definitions/X-VA-ICN" },
         "X-VA-First-Name":      { "$ref": "#/definitions/X-VA-First-Name" },
         "X-VA-Middle-Initial":  { "$ref": "#/definitions/X-VA-Middle-Initial" },
         "X-VA-Last-Name":       { "$ref": "#/definitions/X-VA-Last-Name" },
@@ -45,6 +46,11 @@
       "pattern": "^[0-9]{9}",
       "minLength": 9,
       "maxLength": 9
+    },
+
+    "X-VA-ICN": {
+      "type": "string",
+      "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)"
     },
 
     "X-VA-First-Name": {
