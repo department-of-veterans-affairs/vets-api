@@ -17,15 +17,15 @@ RSpec.describe MebApi::DGI::Enrollment::Service do
     let(:user) { FactoryBot.create(:user, :loa3) }
     let(:service) { MebApi::DGI::Enrollment::Service.new(user) }
     let(:enrollment_verification_params) do
-      { enrollment_verifications: [
-        { enrollment_certify_requests: [{
+      { enrollment_verifications: {
+        enrollment_certify_requests: [{
           "certified_period_begin_date": '2022-08-01',
           "certified_period_end_date": '2022-08-31',
           "certified_through_date": '2022-08-31',
           "certification_method": 'MEB',
           "app_communication": { "response_type": 'Y' }
-        }] }
-      ] }
+        }]
+      } }
     end
 
     describe '#get_enrollment' do
