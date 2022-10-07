@@ -54,7 +54,7 @@ module MebApi
         def format_params(params, claimant_id)
           camelized_keys = camelize_keys_for_java_service(params)
 
-          updated_certify_requests = camelized_keys['enrollmentVerifications'][0]['enrollmentCertifyRequests']
+          updated_certify_requests = camelized_keys['enrollmentVerifications']['enrollmentCertifyRequests']
                                      .each do |request|
             request['claimantId'] = claimant_id
           end
