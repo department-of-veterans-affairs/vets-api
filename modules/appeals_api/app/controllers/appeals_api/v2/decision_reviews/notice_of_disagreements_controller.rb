@@ -28,7 +28,7 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
 
   def index
     veteran_nods = AppealsApi::NoticeOfDisagreement.select(ALLOWED_COLUMNS)
-                                                   .where(veteran_icn: request_headers['X-VA-ICN'])
+                                                   .where(veteran_icn: request_headers['X-VA-ICN'].presence&.strip)
                                                    .order(created_at: :desc)
     render json: AppealsApi::NoticeOfDisagreementSerializer.new(veteran_nods).serializable_hash
   end
@@ -112,9 +112,10 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
     @notice_of_disagreement = AppealsApi::NoticeOfDisagreement.new(
       auth_headers: request_headers,
       form_data: @json_body,
-      source: request_headers['X-Consumer-Username'],
+      source: request_headers['X-Consumer-Username'].presence&.strip,
       board_review_option: @json_body['data']['attributes']['boardReviewOption'],
-      api_version: API_VERSION
+      api_version: API_VERSION,
+      veteran_icn: request_headers['X-VA-ICN'].presence&.strip
     )
     render_model_errors unless @notice_of_disagreement.validate
   end

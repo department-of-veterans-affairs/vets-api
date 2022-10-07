@@ -1,5 +1,6 @@
 {
   "X-VA-SSN": "123456789",
+  "X-VA-ICN": "  1013062086V794840  ",
   "X-VA-First-Name": "Jäñe",
   "X-VA-Middle-Initial": "ø",
   "X-VA-Last-Name": "Doé",
@@ -7,7 +8,7 @@
   "X-VA-File-Number": "987654321",
   "X-VA-Service-Number": "876543210",
   "X-VA-Insurance-Policy-Number": "987654321123456789",
-  "X-Consumer-Username": "va.gov",
+  "X-Consumer-Username": "  va.gov  ",
   "X-Consumer-ID": "some-guid",
   "X-VA-NonVeteranClaimant-First-Name": "joe",
   "X-VA-NonVeteranClaimant-Middle-Initial": "b",

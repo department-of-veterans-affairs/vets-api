@@ -35,7 +35,10 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
   def create
     @higher_level_review.save
     AppealsApi::PdfSubmitJob.perform_async(@higher_level_review.id, 'AppealsApi::HigherLevelReview', 'V2')
-    AppealsApi::AddIcnUpdater.perform_async(@higher_level_review.id, 'AppealsApi::HigherLevelReview')
+    if @higher_level_review.veteran_icn.blank?
+      AppealsApi::AddIcnUpdater.perform_async(@higher_level_review.id, 'AppealsApi::HigherLevelReview')
+    end
+
     render_higher_level_review
   end
 
@@ -111,8 +114,9 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
     @higher_level_review = AppealsApi::HigherLevelReview.new(
       auth_headers: request_headers,
       form_data: @json_body,
-      source: request_headers['X-Consumer-Username'],
-      api_version: 'V2'
+      source: request_headers['X-Consumer-Username'].presence&.strip,
+      api_version: 'V2',
+      veteran_icn: request_headers['X-VA-ICN'].presence&.strip
     )
 
     render_model_errors unless @higher_level_review.validate
