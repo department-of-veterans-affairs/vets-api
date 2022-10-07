@@ -12,4 +12,6 @@ if !Rails.env.test? && Settings.rack_timeout
       wait_overtime: Settings.rack_timeout.wait_overtime || 0
     )
   end
+
+  Rack::Timeout::Logger.disable
 end
