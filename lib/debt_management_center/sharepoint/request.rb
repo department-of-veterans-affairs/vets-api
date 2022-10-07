@@ -70,7 +70,7 @@ module DebtManagementCenter
         pdf_path = PdfFill::Filler.fill_ancillary_form(form_contents, "#{form_submission.id}-#{station_id}", '5655')
         fsr_pdf = File.open(pdf_path)
         user = User.find(form_submission.user_uuid)
-        file_name = "#{DateTime.now.strftime('%Y%m%dT%H%M')}_#{user.ssn.last(4)}_#{user.last_name}"
+        file_name = "#{DateTime.now.strftime('%Y%m%dT%H%M%S')}_#{user.ssn.last(4)}_#{user.last_name}"
 
         file_transfer_path =
           "#{base_path}/_api/Web/GetFolderByServerRelativeUrl('#{base_path}/Submissions')" \
