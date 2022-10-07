@@ -84,6 +84,18 @@ describe HCA::Service do
       end
     end
 
+    context 'submitting sigi field' do
+      it 'works', run_at: 'Thu, 06 Oct 2022 04:40:11 GMT' do
+        VCR.use_cassette(
+          'hca/sigi',
+          VCR::MATCH_EVERYTHING.merge(erb: true)
+        ) do
+          result = HCA::Service.new.submit_form(get_fixture('hca/sigi'))
+          expect(result[:success]).to eq(true)
+        end
+      end
+    end
+
     context 'submitting short form' do
       it 'works', run_at: 'Wed, 16 Mar 2022 20:01:14 GMT' do
         VCR.use_cassette(
