@@ -86,12 +86,29 @@ module SignIn
 
     def update_mpi_correlation_record
       user_identity_from_attributes.icn ||= mpi_response_profile.icn
+      attribute_mismatch_check(:first_name,
+                               user_identity_from_attributes.first_name,
+                               mpi_response_profile.given_names.first)
+      attribute_mismatch_check(:last_name, user_identity_from_attributes.last_name, mpi_response_profile.family_name)
+      attribute_mismatch_check(:birth_date, user_identity_from_attributes.birth_date, mpi_response_profile.birth_date)
+      attribute_mismatch_check(:ssn, user_identity_from_attributes.ssn, mpi_response_profile.ssn, prevent_auth: true)
       update_profile_response = mpi_service.update_profile(user_identity_from_attributes)
       unless update_profile_response&.ok?
         handle_error(Errors::MPIUserUpdateFailedError,
                      'User MPI record cannot be updated',
                      Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
                      raise_error: false)
+      end
+    end
+
+    def attribute_mismatch_check(type, credential_attribute, mpi_attribute, prevent_auth: false)
+      return unless mpi_attribute
+
+      if credential_attribute != mpi_attribute
+        handle_error(Errors::AttributeMismatchError,
+                     "Attribute mismatch, #{type} in credential does not match MPI attribute",
+                     Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
+                     raise_error: prevent_auth)
       end
     end
 
