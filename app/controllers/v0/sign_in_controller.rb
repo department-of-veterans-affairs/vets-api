@@ -63,7 +63,7 @@ module V0
                                                             id_token: service_token_response[:id_token],
                                                             user_info: user_info).perform
       if credential_level.can_uplevel_credential?
-        render_uplevel_credential(state_payload, state)
+        render_uplevel_credential(state_payload)
       else
         create_login_code(state_payload, user_info, credential_level, service_token_response)
       end
@@ -262,8 +262,13 @@ module V0
       uri.to_s
     end
 
-    def render_uplevel_credential(state_payload, state)
+    def render_uplevel_credential(state_payload)
       acr_for_type = SignIn::AcrTranslator.new(acr: state_payload.acr, type: state_payload.type, uplevel: true).perform
+      state = SignIn::StatePayloadJwtEncoder.new(code_challenge: state_payload.code_challenge,
+                                                 code_challenge_method: SignIn::Constants::Auth::CODE_CHALLENGE_METHOD,
+                                                 acr: state_payload.acr, client_id: state_payload.client_id,
+                                                 type: state_payload.type,
+                                                 client_state: state_payload.client_state).perform
       render body: auth_service(state_payload.type).render_auth(state: state, acr: acr_for_type),
              content_type: 'text/html'
     end
