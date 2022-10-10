@@ -7,7 +7,28 @@ module ClaimsApi
         before_action :verify_access!
 
         def submit
-          render json: { status: 'OK' }
+          bgs_claim = find_bgs_claim!(claim_id: params[:id])
+
+          if bgs_claim&.dig(:bnft_claim_dto).nil?
+            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
+          end
+
+          render json: { success: true }
+        end
+
+        private
+
+        def find_bgs_claim!(claim_id:)
+          return if claim_id.blank?
+
+          bgs_service.benefit_claims.find_bnft_claim(claim_id: claim_id)
+        rescue Savon::SOAPFault => e
+          if e.message.include?("For input string: \"#{claim_id}\"") ||
+             e.message.include?("No BnftClaim found for #{claim_id}")
+            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found', status: 404)
+          end
+
+          raise
         end
       end
     end

@@ -4,26 +4,32 @@ require 'rails_helper'
 require 'token_validation/v2/client'
 
 RSpec.describe 'Evidence Waiver 5103', type: :request do
-  let(:veteran_id) { '1013062086V794840' }
-  let(:sub_path) { "/services/claims/v2/veterans/#{veteran_id}/5103" }
-  let(:scopes) { %w[claim.write] }
+  let(:veteran_id) { '1012667145V762142' }
+  let(:claim_id) { '600333346' }
+  let(:sub_path) { "/services/claims/v2/veterans/#{veteran_id}/claims/#{claim_id}/5103" }
+  let(:error_sub_path) { "/services/claims/v2/veterans/#{veteran_id}/claims/abc123/5103" }
+  let(:scopes) { %w[claim.read] }
 
   describe '5103 Waiver' do
     describe 'submit' do
-      context 'CCG (Client Credentials Grant) flow' do
+      context 'Vet flow' do
         let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: { 'scp' => [] }) }
 
         context 'when provided' do
           context 'when valid' do
             context 'when success' do
               it 'returns a 200' do
-                allow(JWT).to receive(:decode).and_return(nil)
-                allow(Token).to receive(:new).and_return(ccg_token)
-                allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('bgs/benefit_claim/find_bnft_claim_200') do
+                    allow(JWT).to receive(:decode).and_return(nil)
+                    allow(Token).to receive(:new).and_return(ccg_token)
+                    allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
 
-                post sub_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
+                    post sub_path, headers: auth_header
 
-                expect(response.status).to eq(200)
+                    expect(response.status).to eq(200)
+                  end
+                end
               end
             end
           end
@@ -37,6 +43,22 @@ RSpec.describe 'Evidence Waiver 5103', type: :request do
               post sub_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
 
               expect(response.status).to eq(403)
+            end
+          end
+
+          context 'when claim id is not found' do
+            it 'returns our error, rather than a Java error' do
+              with_okta_user(scopes) do |_auth_header|
+                VCR.use_cassette('bgs/benefit_claim/find_bnft_claim_500') do
+                  allow(JWT).to receive(:decode).and_return(nil)
+                  allow(Token).to receive(:new).and_return(ccg_token)
+                  allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
+
+                  post error_sub_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
+
+                  expect(response.status).to eq(404)
+                end
+              end
             end
           end
         end

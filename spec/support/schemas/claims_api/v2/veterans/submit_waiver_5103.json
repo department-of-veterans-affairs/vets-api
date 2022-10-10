@@ -1,10 +1,10 @@
 {
   "type": "object",
-  "additionalProperties": false,
+  "additionalProperties": true,
   "properties": {
-    "status": {
-      "type": "string",
-      "example": "OK"
+    "success": {
+      "type": "boolean",
+      "example": "true"
     }
   }
 }

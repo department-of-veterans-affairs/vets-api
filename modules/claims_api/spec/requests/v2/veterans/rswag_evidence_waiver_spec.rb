@@ -8,7 +8,7 @@ require_relative '../../../support/swagger_shared_components/v2'
 # doc generation for V2 5103 temporarily disabled
 describe 'EvidenceWaiver5103', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v2/swagger.json',
                                document: false do
-  path '/veterans/{veteranId}/5103' do
+  path '/veterans/{veteranId}/claims/{id}/5103' do
     post 'Submit Evidence Waiver 5103' do
       tags '5103 Waiver'
       operationId 'submitEvidenceWaiver5103'
@@ -21,19 +21,20 @@ describe 'EvidenceWaiver5103', swagger_doc: 'modules/claims_api/app/swagger/clai
       produces 'application/json'
       description 'Submit Evidence Waiver 5103 for Veteran.'
 
-      let(:Authorization) { 'Bearer token' }
+      parameter name: :id,
+                in: :path,
+                type: :string,
+                example: '1234',
+                description: 'The ID of the claim being requested'
       parameter name: 'veteranId',
                 in: :path,
                 required: true,
                 type: :string,
+                example: '1012667145V762142',
                 description: 'ID of Veteran'
-
+      let(:id) { '256803' }
+      let(:Authorization) { 'Bearer token' }
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
-      let(:scopes) { %w[claim.write] }
-      let(:data) do
-        {
-        }
-      end
 
       describe 'Getting a successful response' do
         response '200', 'Successful response' do
@@ -45,8 +46,28 @@ describe 'EvidenceWaiver5103', swagger_doc: 'modules/claims_api/app/swagger/clai
                                                       'veterans',
                                                       'submit_waiver_5103.json')))
 
+          let(:bgs_response) do
+            bgs_data = JSON.parse(
+              File.read(
+                Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'claims',
+                                'find_bnft_claim_response.json')
+              ),
+              symbolize_names: true
+            )
+            bgs_data[:bnft_claim_dto][:claim_rcvd_dt] = Date.parse(
+              bgs_data[:bnft_claim_dto][:claim_rcvd_dt]
+            )
+            bgs_data[:bnft_claim_dto][:jrn_dt] = Date.parse(
+              bgs_data[:bnft_claim_dto][:jrn_dt]
+            )
+            bgs_data
+          end
+          let(:scopes) { %w[claim.write] }
+
           before do |example|
             with_okta_user(scopes) do
+              expect_any_instance_of(BGS::BenefitClaimWebServiceV1)
+                .to receive(:find_bnft_claim).and_return(bgs_response)
               submit_request(example.metadata)
             end
           end
@@ -71,9 +92,12 @@ describe 'EvidenceWaiver5103', swagger_doc: 'modules/claims_api/app/swagger/clai
                                                       'default.json')))
 
           let(:Authorization) { nil }
+          let(:scopes) { %w[claim.read] }
 
           before do |example|
-            submit_request(example.metadata)
+            with_okta_user(scopes) do
+              submit_request(example.metadata)
+            end
           end
 
           after do |example|
@@ -85,6 +109,36 @@ describe 'EvidenceWaiver5103', swagger_doc: 'modules/claims_api/app/swagger/clai
           end
 
           it 'returns a 401 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
+      describe 'Getting a 403 response' do
+        response '403', 'Forbidden' do
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                                      'default.json')))
+
+          let(:veteran) { OpenStruct.new(mpi: nil, participant_id: nil) }
+          let(:scopes) { %w[claim.read] }
+
+          before do |example|
+            with_okta_user(scopes) do
+              expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
+
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 403 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end

@@ -38,6 +38,7 @@ ClaimsApi::Engine.routes.draw do
     namespace :veterans do
       get '/:veteranId/claims', to: 'claims#index'
       get '/:veteranId/claims/:id', to: 'claims#show'
+      post '/:veteranId/claims/:id/5103', to: 'evidence_waiver#submit'
       get '/:veteranId/power-of-attorney', to: 'power_of_attorney#show'
       put '/:veteranId/power-of-attorney:appoint-organization', to: 'power_of_attorney#appoint_organization',
                                                                 constraints: { 'appoint-organization': /:appoint-organization/ } # rubocop:disable Layout/LineLength
@@ -49,7 +50,6 @@ ClaimsApi::Engine.routes.draw do
             ClaimsApi::V2::Veterans::IntentToFilesController::ITF_TYPES.include?(request.path_parameters[:type])
           end)
       post '/:veteranId/intent-to-files', to: 'intent_to_files#submit'
-      post '/:veteranId/5103', to: 'evidence_waiver#submit'
     end
   end
 
