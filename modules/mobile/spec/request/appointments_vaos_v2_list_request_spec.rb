@@ -158,8 +158,11 @@ RSpec.describe 'vaos v2 appointments', type: :request do
 
         expect(response.body).to match_json_schema('appointments')
 
-        # removed vetextId due to lack of use on FE
-        expect(response_v2['attributes'].except('vetextId')).to eq(appt_v0_cancelled['attributes'].except('vetextId'))
+        response_v2 = response_v2['attributes'].except('vetextId', 'typeOfCare', 'friendlyLocationName')
+        response_v0 = appt_v0_cancelled['attributes'].except('vetextId', 'typeOfCare', 'friendlyLocationName')
+
+        # removed vetextId, typeOfCare, and friendlyLocationName due to change in behavior decided for v2 adaption to v0
+        expect(response_v2).to eq(response_v0)
       end
     end
 
