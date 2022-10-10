@@ -113,8 +113,6 @@ module SignIn
     end
 
     def log_first_time_user
-      user_verification_type = logingov_auth? ? :logingov_uuid : :backing_idme_uuid
-      user_verification_identifier = logingov_auth? ? logingov_uuid : idme_uuid
       unless UserVerification.find_by(user_verification_type => user_verification_identifier)
         sign_in_logger.info("New VA.gov user, type=#{sign_in[:service_name]}")
       end
@@ -225,8 +223,30 @@ module SignIn
       @user_verification ||= Login::UserVerifier.new(user_identity_from_attributes).perform
     end
 
-    def logingov_auth?
-      sign_in[:service_name] == SAML::User::LOGINGOV_CSID
+    def user_verification_type
+      case sign_in[:service_name]
+      when SAML::User::LOGINGOV_CSID
+        :logingov_uuid
+      when SAML::User::MHV_ORIGINAL_CSID
+        :mhv_uuid
+      when SAML::User::DSLOGON_CSID
+        :dslogon_uuid
+      when SAML::User::IDME_CSID
+        :idme_uuid
+      end
+    end
+
+    def user_verification_identifier
+      case sign_in[:service_name]
+      when SAML::User::LOGINGOV_CSID
+        logingov_uuid
+      when SAML::User::MHV_ORIGINAL_CSID
+        mhv_correlation_id
+      when SAML::User::DSLOGON_CSID
+        edipi
+      when SAML::User::IDME_CSID
+        idme_uuid
+      end
     end
 
     def mhv_auth?
