@@ -569,6 +569,14 @@ RSpec.describe V0::SignInController, type: :controller do
                                              type: type,
                                              client_state: client_state).perform
         end
+        let(:uplevel_state_value) do
+          SignIn::StatePayloadJwtEncoder.new(code_challenge: code_challenge,
+                                             code_challenge_method: code_challenge_method,
+                                             acr: acr,
+                                             client_id: client_id,
+                                             type: type,
+                                             client_state: client_state).perform
+        end
         let(:code_challenge) { Base64.urlsafe_encode64('some-code-challenge') }
         let(:code_challenge_method) { SignIn::Constants::Auth::CODE_CHALLENGE_METHOD }
         let(:acr) { SignIn::Constants::Auth::ACR_VALUES.first }
@@ -621,16 +629,26 @@ RSpec.describe V0::SignInController, type: :controller do
                 let(:login_gov_response_acr) { IAL::LOGIN_GOV_IAL1 }
                 let(:expected_redirect_uri) { Settings.logingov.redirect_uri }
 
+                before do
+                  allow_any_instance_of(SignIn::StatePayloadJwtEncoder).to receive(:perform)
+                    .and_return(uplevel_state_value)
+                end
+
                 it 'returns ok status' do
                   expect(subject).to have_http_status(:ok)
                 end
 
-                it 'renders expected state' do
-                  expect(subject.body).to match(state_value)
-                end
-
                 it 'renders expected redirect_uri in template' do
                   expect(subject.body).to match(expected_redirect_uri)
+                end
+
+                it 'generates a new state payload with a new StateCode' do
+                  expect_any_instance_of(SignIn::StatePayloadJwtEncoder).to receive(:perform)
+                  subject
+                end
+
+                it 'renders a new state' do
+                  expect(subject.body).to match(uplevel_state_value)
                 end
               end
 
@@ -762,16 +780,26 @@ RSpec.describe V0::SignInController, type: :controller do
                 let(:credential_ial) { LOA::ONE }
                 let(:expected_redirect_uri) { Settings.idme.redirect_uri }
 
+                before do
+                  allow_any_instance_of(SignIn::StatePayloadJwtEncoder).to receive(:perform)
+                    .and_return(uplevel_state_value)
+                end
+
                 it 'returns ok status' do
                   expect(subject).to have_http_status(:ok)
                 end
 
-                it 'renders expected state' do
-                  expect(subject.body).to match(state_value)
-                end
-
                 it 'renders expected redirect_uri in template' do
                   expect(subject.body).to match(expected_redirect_uri)
+                end
+
+                it 'generates a new state payload with a new StateCode' do
+                  expect_any_instance_of(SignIn::StatePayloadJwtEncoder).to receive(:perform)
+                  subject
+                end
+
+                it 'renders a new state' do
+                  expect(subject.body).to match(uplevel_state_value)
                 end
               end
 
