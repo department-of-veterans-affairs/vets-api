@@ -431,7 +431,7 @@
       "code":null
     },
     "status":"proposed",
-    "service_type":"PrimaryCare ",
+    "service_type":"PrimaryCare",
     "patient_icn":"1012845331V153043",
     "location_id":"983",
     "reason":"Test_SM test (tele)",
@@ -490,7 +490,7 @@
       "code":null
     },
     "status":"proposed",
-    "service_type":"PrimaryCare ",
+    "service_type":"PrimaryCare",
     "patient_icn":"1012845331V153043",
     "location_id":"983",
     "reason":"Test_SM test (tele)",
@@ -563,7 +563,7 @@
       "code":null
     },
     "status":"proposed",
-    "service_type":"PrimaryCare ",
+    "service_type":"PrimaryCare",
     "patient_icn":"1012845331V153043",
     "location_id":"983",
     "reason":"Test_SM test (tele)",

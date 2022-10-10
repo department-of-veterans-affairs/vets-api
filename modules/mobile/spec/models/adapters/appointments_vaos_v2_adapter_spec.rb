@@ -68,11 +68,11 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                            'is_covid_vaccine' => false,
                                            'is_pending' => false,
                                            'proposed_times' => nil,
-                                           'type_of_care' => nil,
+                                           'type_of_care' => 'Optometry',
                                            'patient_phone_number' => nil,
                                            'patient_email' => nil,
                                            'best_time_to_call' => nil,
-                                           'friendly_location_name' => nil })
+                                           'friendly_location_name' => 'Cheyenne VA Medical Center' })
     end
   end
 
@@ -122,11 +122,11 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                         'is_covid_vaccine' => false,
                                         'is_pending' => false,
                                         'proposed_times' => nil,
-                                        'type_of_care' => nil,
+                                        'type_of_care' => 'Optometry',
                                         'patient_phone_number' => nil,
                                         'patient_email' => nil,
                                         'best_time_to_call' => nil,
-                                        'friendly_location_name' => nil
+                                        'friendly_location_name' => 'Cheyenne VA Medical Center'
                                       })
     end
   end
@@ -307,13 +307,13 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                           'proposed_times' => [
                                             { 'date' => '09/28/2021', 'time' => 'AM' }
                                           ],
-                                          'type_of_care' => nil,
+                                          'type_of_care' => 'Social Work',
                                           'patient_phone_number' => '717-555-5555',
                                           'patient_email' => 'Aarathi.poldass@va.gov',
                                           'best_time_to_call' => [
                                             'Evening'
                                           ],
-                                          'friendly_location_name' => nil
+                                          'friendly_location_name' => 'Cheyenne VA Medical Center'
                                         })
     end
   end
@@ -366,13 +366,13 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                        'proposed_times' => [
                                          { 'date' => '10/01/2021', 'time' => 'PM' }
                                        ],
-                                       'type_of_care' => nil,
+                                       'type_of_care' => 'Primary Care',
                                        'patient_phone_number' => '717-555-5555',
                                        'patient_email' => 'judy.morrison@id.me',
                                        'best_time_to_call' => [
                                          'Morning'
                                        ],
-                                       'friendly_location_name' => nil
+                                       'friendly_location_name' => 'Cheyenne VA Medical Center'
                                      })
     end
   end
@@ -415,11 +415,11 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                       'is_covid_vaccine' => false,
                                       'is_pending' => true,
                                       'proposed_times' => [{ 'date' => '09/08/2021', 'time' => 'PM' }],
-                                      'type_of_care' => 'Primary Care ',
+                                      'type_of_care' => 'Primary Care',
                                       'patient_phone_number' => '999-999-9992',
                                       'patient_email' => nil,
                                       'best_time_to_call' => nil,
-                                      'friendly_location_name' => nil })
+                                      'friendly_location_name' => 'Cheyenne VA Medical Center' })
     end
   end
 
@@ -469,11 +469,11 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                        'is_covid_vaccine' => false,
                                        'is_pending' => true,
                                        'proposed_times' => [{ 'date' => '09/08/2021', 'time' => 'PM' }],
-                                       'type_of_care' => 'Primary Care ',
+                                       'type_of_care' => 'Primary Care',
                                        'patient_phone_number' => '999-999-9992',
                                        'patient_email' => nil,
                                        'best_time_to_call' => nil,
-                                       'friendly_location_name' => nil })
+                                       'friendly_location_name' => 'Cheyenne VA Medical Center' })
     end
   end
 
@@ -515,11 +515,11 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                      'is_covid_vaccine' => false,
                                      'is_pending' => true,
                                      'proposed_times' => [{ 'date' => '09/08/2021', 'time' => 'PM' }],
-                                     'type_of_care' => 'Primary Care ',
+                                     'type_of_care' => 'Primary Care',
                                      'patient_phone_number' => '999-999-9992',
                                      'patient_email' => nil,
                                      'best_time_to_call' => nil,
-                                     'friendly_location_name' => nil })
+                                     'friendly_location_name' => 'Cheyenne VA Medical Center' })
     end
   end
 
@@ -575,13 +575,13 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                                             { 'date' => '05/17/2017', 'time' => 'AM' },
                                                             { 'date' => '05/31/2017', 'time' => 'AM' }
                                                           ],
-                                                          'type_of_care' => nil,
+                                                          'type_of_care' => 'Primary Care',
                                                           'patient_phone_number' => '788-999-9999',
                                                           'patient_email' => nil,
                                                           'best_time_to_call' => [
                                                             'Afternoon'
                                                           ],
-                                                          'friendly_location_name' => nil
+                                                          'friendly_location_name' => 'Cheyenne VA Medical Center'
                                                         })
     end
   end

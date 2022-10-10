@@ -85,11 +85,12 @@ module Mobile
             appointment_hash[:location_id]
           )
           sta6aid = facility_id
-          type = parse_by_appointment_type(appointment_hash, appointment_hash[:kind])
+          type = map_appointment_type(appointment_hash, appointment_hash[:kind])
           start_date_utc = start_date_utc(appointment_hash)
           time_zone = timezone(appointment_hash, facility_id)
           start_date_local = start_date_utc&.in_time_zone(time_zone)
           status = status(appointment_hash)
+          location = location(type, appointment_hash)
           adapted_hash = {
             id: appointment_hash[:id],
             appointment_type: type,
@@ -99,7 +100,7 @@ module Mobile
             sta6aid: sta6aid,
             healthcare_provider: appointment_hash[:healthcare_provider],
             healthcare_service: healthcare_service(appointment_hash, type),
-            location: location(type, appointment_hash),
+            location: location,
             minutes_duration: minutes_duration(appointment_hash[:minutes_duration], type),
             phone_only: appointment_hash[:kind] == PHONE_KIND,
             start_date_local: start_date_local,
@@ -112,11 +113,11 @@ module Mobile
             is_covid_vaccine: appointment_hash[:service_type] == COVID_SERVICE,
             is_pending: appointment_hash[:requested_periods].present?,
             proposed_times: proposed_times(appointment_hash[:requested_periods]),
-            type_of_care: type_of_care(appointment_hash[:service_type], type),
+            type_of_care: type_of_care(appointment_hash[:service_type]),
             patient_phone_number: patient_phone_number(appointment_hash),
             patient_email: contact(appointment_hash.dig(:contact, :telecom), CONTACT_TYPE[:email]),
             best_time_to_call: appointment_hash[:preferred_times_for_phone_call],
-            friendly_location_name: appointment_hash.dig(:extension, :cc_location, :practice_name)
+            friendly_location_name: friendly_location_name(type, appointment_hash, location)
           }
 
           Rails.logger.info('metric.mobile.appointment.type', type: type)
@@ -125,6 +126,12 @@ module Mobile
           Mobile::V0::Appointment.new(adapted_hash)
         end
         # rubocop:enable Metrics/MethodLength
+
+        def friendly_location_name(type, appointment_hash, location)
+          return location[:name] if va?(type)
+
+          appointment_hash.dig(:extension, :cc_location, :practice_name)
+        end
 
         def patient_phone_number(appointment_hash)
           phone_number = contact(appointment_hash.dig(:contact, :telecom), CONTACT_TYPE[:phone])
@@ -154,8 +161,8 @@ module Mobile
           appointment_hash[:id]
         end
 
-        def type_of_care(service_type, type)
-          return nil if service_type.nil? || va?(type)
+        def type_of_care(service_type)
+          return nil if service_type.nil?
 
           service_type = SERVICE_TYPES[service_type.to_sym] || service_type
 
@@ -204,7 +211,7 @@ module Mobile
           end
         end
 
-        def parse_by_appointment_type(appointment_hash, type)
+        def map_appointment_type(appointment_hash, type)
           case type
           when 'phone', 'clinic'
             APPOINTMENT_TYPES[:va]
@@ -218,6 +225,8 @@ module Mobile
             else
               APPOINTMENT_TYPES[:va_video_connect_home]
             end
+          else
+            APPOINTMENT_TYPES[:va]
           end
         end
 
@@ -344,7 +353,10 @@ module Mobile
         end
 
         def va?(type)
-          type == APPOINTMENT_TYPES[:va]
+          [APPOINTMENT_TYPES[:va],
+           APPOINTMENT_TYPES[:va_video_connect_gfe],
+           APPOINTMENT_TYPES[:va_video_connect_atlas],
+           APPOINTMENT_TYPES[:va_video_connect_home]].include?(type)
         end
       end
     end
