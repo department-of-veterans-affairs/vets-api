@@ -11,6 +11,7 @@ require 'support/stub_financial_status_report'
 require 'support/sm_client_helpers'
 require 'support/rx_client_helpers'
 require 'bgs/service'
+require 'sign_in/logingov/service'
 
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
@@ -54,6 +55,107 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
               expect(subject).to validate(:get, '/v0/backend_statuses', 429, headers)
             end
           end
+        end
+      end
+    end
+
+    describe 'sign in service' do
+      describe 'POST v0/sign_in/token' do
+        let(:user_verification) { create(:user_verification) }
+        let(:user_verification_id) { user_verification.id }
+        let(:grant_type) { 'authorization_code' }
+        let(:code) { '0c2d21d3-465b-4054-8030-1d042da4f667' }
+        let(:code_verifier) { '5787d673fb784c90f0e309883241803d' }
+        let(:code_challenge) { '1BUpxy37SoIPmKw96wbd6MDcvayOYm3ptT-zbe6L_zM' }
+        let!(:code_container) do
+          create(:code_container,
+                 code: code,
+                 code_challenge: code_challenge,
+                 user_verification_id: user_verification_id)
+        end
+
+        it 'validates the authorization_code & returns tokens' do
+          expect(subject).to validate(
+            :post,
+            '/v0/sign_in/token',
+            200,
+            '_query_string' => "grant_type=#{grant_type}&code_verifier=#{code_verifier}&code=#{code}"
+          )
+        end
+      end
+
+      describe 'POST v0/sign_in/refresh' do
+        let(:user_verification) { create(:user_verification) }
+        let(:validated_credential) { create(:validated_credential, user_verification: user_verification) }
+        let(:session_container) { SignIn::SessionCreator.new(validated_credential: validated_credential).perform }
+        let(:refresh_token) do
+          CGI.escape(SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform)
+        end
+        let(:refresh_token_param) { { refresh_token: refresh_token } }
+
+        it 'refreshes the session and returns new tokens' do
+          expect(subject).to validate(
+            :post,
+            '/v0/sign_in/refresh',
+            200,
+            '_query_string' => "refresh_token=#{refresh_token}"
+          )
+        end
+      end
+
+      describe 'GET v0/sign_in/introspect' do
+        let(:access_token_object) { create(:access_token) }
+        let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
+        let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid, middle_name: 'leo') }
+
+        it 'returns user attributes' do
+          expect(subject).to validate(
+            :get,
+            '/v0/sign_in/introspect',
+            200,
+            '_headers' => {
+              'Authorization' => "Bearer #{access_token}"
+            }
+          )
+        end
+      end
+
+      describe 'POST v0/sign_in/revoke' do
+        let(:user_verification) { create(:user_verification) }
+        let(:validated_credential) { create(:validated_credential, user_verification: user_verification) }
+        let(:session_container) { SignIn::SessionCreator.new(validated_credential: validated_credential).perform }
+        let(:refresh_token) do
+          CGI.escape(SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform)
+        end
+        let(:refresh_token_param) { { refresh_token: CGI.escape(refresh_token) } }
+
+        it 'revokes the session' do
+          expect(subject).to validate(
+            :post,
+            '/v0/sign_in/revoke',
+            200,
+            '_query_string' => "refresh_token=#{refresh_token}"
+          )
+        end
+      end
+
+      describe 'GET v0/sign_in/revoke_all_sessions' do
+        let(:user_verification) { create(:user_verification) }
+        let(:validated_credential) { create(:validated_credential, user_verification: user_verification) }
+        let(:session_container) { SignIn::SessionCreator.new(validated_credential: validated_credential).perform }
+        let(:access_token_object) { session_container.access_token }
+        let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid, middle_name: 'leo') }
+        let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
+
+        it 'revokes the session' do
+          expect(subject).to validate(
+            :get,
+            '/v0/sign_in/revoke_all_sessions',
+            200,
+            '_headers' => {
+              'Authorization' => "Bearer #{access_token}"
+            }
+          )
         end
       end
     end
@@ -3662,6 +3764,11 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       subject.untested_mappings.delete('/v0/financial_status_reports/download_pdf')
       subject.untested_mappings.delete('/v0/form1095_bs/download_pdf/{tax_year}')
       subject.untested_mappings.delete('/v0/form1095_bs/download_txt/{tax_year}')
+      # SiS methods that involve forms & redirects
+      subject.untested_mappings.delete('/v0/sign_in/authorize')
+      subject.untested_mappings.delete('/v0/sign_in/callback')
+      subject.untested_mappings.delete('/v0/sign_in/logout')
+
       expect(subject).to validate_all_paths
     end
   end
