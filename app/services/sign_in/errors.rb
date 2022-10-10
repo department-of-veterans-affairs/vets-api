@@ -28,6 +28,7 @@ module SignIn
     class StatePayloadError < StandardError; end
     class StatePayloadSignatureMismatchError < StandardError; end
     class StatePayloadMalformedJWTError < StandardError; end
+    class AttributeMismatchError < StandardError; end
     class GrantTypeValueError < StandardError; end
     class CodeInvalidError < StandardError; end
     class MalformedParamsError < StandardError; end
