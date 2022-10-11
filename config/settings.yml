@@ -1139,6 +1139,11 @@ virtual_agent:
   webchat_secret_b: fake_secret_b
   lighthouse_api_uri: https://sandbox-api.va.gov/services/appeals/v0/appeals
   lighthouse_api_key: fake_api_key
+  cxdw_client_secret: fake_secret
+  cxdw_client_id: fake_id
+  cxdw_app_uri: fake_app_uri
+  cxdw_dataverse_uri: fake_dataverse_uri
+  cxdw_table_prefix: fake_table_prefix
 
 # Settings for notifications client
 vanotify:

@@ -12,18 +12,24 @@ module V0
 
       def index
         claims, synchronized = service.all
+        cxdw_reporting_service = V0::VirtualAgent::ReportToCxdw.new
+        conversation_id = params[:conversation_id]
         case synchronized
         when 'REQUESTED'
           render json: { data: nil, meta: { sync_status: synchronized } }
         when 'FAILED'
           error = EVSS::ErrorMiddleware::EVSSError.new('Could not retrieve claims')
+          cxdw_reporting_service.report_to_cxdw(current_user.icn, conversation_id)
           call_virtual_agent_store_user_info if Flipper.enabled?(:virtual_agent_user_access_records)
           service_exception_handler(error)
         else
           data_for_three_most_recent_open_comp_claims(claims)
+          cxdw_reporting_service.report_to_cxdw(current_user.icn, conversation_id)
           call_virtual_agent_store_user_info if Flipper.enabled?(:virtual_agent_user_access_records)
-          render json: { data: data_for_three_most_recent_open_comp_claims(claims),
-                         meta: { sync_status: synchronized } }
+          render json: {
+            data: data_for_three_most_recent_open_comp_claims(claims),
+            meta: { sync_status: synchronized }
+          }
         end
       end
 

@@ -6,6 +6,15 @@ RSpec.describe 'VirtualAgentClaims', type: :request do
   let(:user) { create(:user, :loa3) }
   let(:claim) { create(:evss_claim, user_uuid: user.uuid) }
 
+  before do
+    @mock_cxdw_reporting_service = instance_double(V0::VirtualAgent::ReportToCxdw)
+    allow(@mock_cxdw_reporting_service).to receive(:report_to_cxdw)
+
+    allow(V0::VirtualAgent::ReportToCxdw)
+      .to receive(:new)
+      .and_return(@mock_cxdw_reporting_service)
+  end
+
   describe 'GET /v0/virtual_agent/claim' do
     let!(:claim) do
       FactoryBot.create(:evss_claim, id: 11, evss_id: 600_118_854,
@@ -238,6 +247,36 @@ RSpec.describe 'VirtualAgentClaims', type: :request do
 
         # if :service_unavailable is the status, Sentry logging was called
         expect(response).to have_http_status(:service_unavailable)
+      end
+    end
+  end
+
+  describe 'Cxdw reporting service' do
+    it 'runs with user info when claims retrieval is successful' do
+      sign_in_as(user)
+
+      VCR.use_cassette('evss/claims/claims_multiple_open_compensation_claims') do
+        EVSS::RetrieveClaimsFromRemoteJob.new.perform(user.uuid)
+
+        get '/v0/virtual_agent/claim?conversation_id=123'
+
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)['meta']['sync_status']).to eq 'SUCCESS'
+        expect(@mock_cxdw_reporting_service).to have_received(:report_to_cxdw).with(user.icn, '123')
+      end
+    end
+
+    it 'runs with user info when claims retrieval fails' do
+      sign_in_as(user)
+
+      VCR.use_cassette('evss/claims/claims_with_errors') do
+        EVSS::RetrieveClaimsFromRemoteJob.new.perform(user.uuid)
+      rescue
+
+        get '/v0/virtual_agent/claim?conversation_id=123'
+
+        expect(response).to have_http_status(:service_unavailable)
+        expect(@mock_cxdw_reporting_service).to have_received(:report_to_cxdw).with(user.icn, '123')
       end
     end
   end
