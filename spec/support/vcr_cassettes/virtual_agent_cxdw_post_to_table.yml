@@ -1,0 +1,85 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://fake2.com/api/data/v9.2//table_prefix_claimsqueries
+    body:
+      encoding: UTF-8
+      string: '{"cr352_id":"conversation_id - 2022-10-10 16:30:44 UTC","cr352_icn":"icn","cr352_conversationid":"conversation_id","cr352_requestedtimestamp":"2022-10-10
+        16:30:44 UTC"}'
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+      Odata-Maxversion:
+      - '4.0'
+      Odata-Version:
+      - '4.0'
+      If-None-Match:
+      - 'null'
+      Authorization:
+      - Bearer fake_token
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - fake2.com
+  response:
+    status:
+      code: 204
+      message: No Content
+    headers:
+      Cache-Control:
+      - no-cache
+      Allow:
+      - OPTIONS,GET,HEAD,POST
+      Expires:
+      - "-1"
+      Location:
+      - https://fake2.com/api/data/v9.2/cr352_claimsqueries(2db5b1df-b848-ed11-bba0-001dd8027533)
+      X-Ms-Service-Request-Id:
+      - 1d552a6a-fdc7-429f-b052-e754c53498e4
+      - 9f0d00c3-59c2-40a7-94ef-a423807ac0cf
+      Set-Cookie:
+      - ARRAffinity=661cca142a76f6f55f864a118129fcbba572af5e01957183632fd148f6ec05c0eb29bb4b19df1459d2ea781b605f33064b9fea1f144b525b9d7676625c4ffb5408DAAAE0F8895404450184052;
+        domain=fake2.com; path=/; secure; HttpOnly
+      - ARRAffinity=661cca142a76f6f55f864a118129fcbba572af5e01957183632fd148f6ec05c0eb29bb4b19df1459d2ea781b605f33064b9fea1f144b525b9d7676625c4ffb5408DAAAE0F8895404450184052;
+        domain=fake2.com; path=/; secure; HttpOnly
+      - ReqClientId=c0f1ea87-b9b6-48d7-a3b0-d09ebd7b35c1; expires=Mon, 10-Oct-2072
+        16:30:44 GMT; path=/; secure; HttpOnly
+      - last_commit_time=2022-10-10 16:30:44Z; expires=Mon, 10-Oct-2022 16:31:44 GMT;
+        path=/; secure; HttpOnly
+      - orgId=e7c82d66-29fe-4639-870d-907c9b9972c4; expires=Mon, 10-Oct-2072 16:30:44
+        GMT; path=/; secure; HttpOnly
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Req-Id:
+      - 1d552a6a-fdc7-429f-b052-e754c53498e4
+      Authactivityid:
+      - f783ec2a-7bc5-423a-9b31-ff3772a9a5c1
+      X-Ms-Dop-Hint:
+      - '8'
+      X-Ms-Ratelimit-Time-Remaining-Xrm-Requests:
+      - '1,200.00'
+      X-Ms-Ratelimit-Burst-Remaining-Xrm-Requests:
+      - '7999'
+      X-Ms-Utilization-Percent:
+      - '0'
+      Odata-Version:
+      - '4.0'
+      Odata-Entityid:
+      - https://fake2.com/api/data/v9.2/cr352_claimsqueries(2db5b1df-b848-ed11-bba0-001dd8027533)
+      X-Source:
+      - '26182147114226122169993352552770188218202302447174331582401102068148236382122052'
+      - '38105545215765244101235106125102412081271519623139247161206237821128325210344156629'
+      Public:
+      - OPTIONS,GET,HEAD,POST
+      Date:
+      - Mon, 10 Oct 2022 16:30:44 GMT
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Mon, 10 Oct 2022 16:30:44 GMT
+recorded_with: VCR 6.1.0
