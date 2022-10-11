@@ -79,7 +79,8 @@ module SignIn
                      client_id: client_id },
           csp_email: user_info.email,
           multifactor: user_info.multifactor,
-          authn_context: get_authn_context(credential_level.current_ial)
+          authn_context: get_authn_context(credential_level.current_ial),
+          auto_uplevel: credential_level.auto_uplevel
         }
       end
 

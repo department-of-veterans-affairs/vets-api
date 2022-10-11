@@ -67,7 +67,8 @@ module SignIn
           multifactor: true,
           sign_in: { service_name: config.service_name, auth_broker: Constants::Auth::BROKER_CODE,
                      client_id: client_id },
-          authn_context: get_authn_context(credential_level.current_ial)
+          authn_context: get_authn_context(credential_level.current_ial),
+          auto_uplevel: credential_level.auto_uplevel
         }
       end
 

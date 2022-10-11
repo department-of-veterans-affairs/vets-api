@@ -222,10 +222,12 @@ describe SignIn::Idme::Service do
         sign_in: { service_name: service_name, auth_broker: auth_broker, client_id: client_id },
         csp_email: email,
         multifactor: multifactor,
-        authn_context: authn_context
+        authn_context: authn_context,
+        auto_uplevel: auto_uplevel
       }
     end
     let(:service_name) { 'idme' }
+    let(:auto_uplevel) { false }
     let(:authn_context) { LOA::IDME_LOA3 }
     let(:auth_broker) { SignIn::Constants::Auth::BROKER_CODE }
     let(:credential_level) { create(:credential_level, current_ial: IAL::TWO, max_ial: IAL::TWO) }

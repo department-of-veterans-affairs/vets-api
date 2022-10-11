@@ -153,13 +153,15 @@ describe SignIn::Logingov::Service do
                    client_id: SignIn::Constants::ClientConfig::COOKIE_AUTH },
         csp_email: email,
         multifactor: multifactor,
-        authn_context: authn_context
+        authn_context: authn_context,
+        auto_uplevel: auto_uplevel
       }
     end
     let(:credential_level) { create(:credential_level, current_ial: IAL::TWO, max_ial: IAL::TWO) }
     let(:service_name) { SAML::User::LOGINGOV_CSID }
     let(:auth_broker) { SignIn::Constants::Auth::BROKER_CODE }
     let(:authn_context) { IAL::LOGIN_GOV_IAL2 }
+    let(:auto_uplevel) { false }
     let(:expected_attributes) do
       expected_standard_attributes.merge({ ssn: ssn.tr('-', ''),
                                            birth_date: birth_date,
