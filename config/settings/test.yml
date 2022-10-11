@@ -210,6 +210,8 @@ check_in:
     client_id: 9f124d0c-e3d0-4a02-a540-64def7ef3889
     client_secret: f3b721aa-f9c1-4ff2-bf47-9b3a30757013
     scope: a7a9a4e6-44e6-4e55-a30f-43cd841ec68d/.default
+    claims_url: https://dev.integration.d365.va.gov/EC/dev/ClaimIngestSvc/api
+    client_number: CLI-00001002
     service_name: BTSSS-API
   authentication:
     max_auth_retry_limit: 3
