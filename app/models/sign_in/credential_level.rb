@@ -8,7 +8,8 @@ module SignIn
       :requested_acr,
       :current_ial,
       :max_ial,
-      :credential_type
+      :credential_type,
+      :auto_uplevel
     )
 
     validates(:requested_acr, inclusion: { in: Constants::Auth::ACR_VALUES })
@@ -16,11 +17,12 @@ module SignIn
     validates(:current_ial, inclusion: { in: [IAL::ONE, IAL::TWO] })
     validates(:max_ial, inclusion: { in: [IAL::ONE, IAL::TWO] })
 
-    def initialize(requested_acr:, credential_type:, current_ial:, max_ial:)
+    def initialize(requested_acr:, credential_type:, current_ial:, max_ial:, auto_uplevel: false)
       @requested_acr = requested_acr
       @credential_type = credential_type
       @current_ial = current_ial
       @max_ial = max_ial
+      @auto_uplevel = auto_uplevel
 
       validate!
     end

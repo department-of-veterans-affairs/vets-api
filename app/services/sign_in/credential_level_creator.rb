@@ -21,7 +21,8 @@ module SignIn
       CredentialLevel.new(requested_acr: requested_acr,
                           credential_type: type,
                           current_ial: current_ial,
-                          max_ial: max_ial)
+                          max_ial: max_ial,
+                          auto_uplevel: auto_uplevel)
     rescue ActiveModel::ValidationError
       raise Errors::InvalidCredentialLevelError, message: 'Unsupported credential authorization levels'
     end
@@ -43,8 +44,7 @@ module SignIn
     def current_ial
       case type
       when SAML::User::LOGINGOV_CSID
-        acr = JWT.decode(id_token, nil, false).first['acr']
-        verified_ial_level(acr == IAL::LOGIN_GOV_IAL2 || previously_verified?(:logingov_uuid))
+        verified_ial_level(logingov_acr == IAL::LOGIN_GOV_IAL2 || previously_verified?(:logingov_uuid))
       when SAML::User::MHV_ORIGINAL_CSID
         verified_ial_level(requested_verified_account? && LOA::MHV_PREMIUM_VERIFIED.include?(user_info.mhv_assurance))
       when SAML::User::DSLOGON_CSID
@@ -68,6 +68,21 @@ module SignIn
 
       user_verification = UserVerification.find_by(identifier_type => user_info.sub)
       user_verification&.verified?
+    end
+
+    def auto_uplevel
+      case type
+      when SAML::User::LOGINGOV_CSID
+        logingov_acr != IAL::LOGIN_GOV_IAL2 && previously_verified?(:logingov_uuid)
+      when SAML::User::IDME_CSID
+        user_info.credential_ial != LOA::IDME_CLASSIC_LOA3 && previously_verified?(:idme_uuid)
+      else
+        false
+      end
+    end
+
+    def logingov_acr
+      @logingov_acr ||= JWT.decode(id_token, nil, false).first['acr']
     end
   end
 end

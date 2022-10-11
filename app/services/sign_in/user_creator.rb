@@ -7,6 +7,7 @@ module SignIn
                 :idme_uuid,
                 :logingov_uuid,
                 :authn_context,
+                :auto_uplevel,
                 :loa,
                 :credential_uuid,
                 :sign_in,
@@ -25,6 +26,7 @@ module SignIn
       @idme_uuid = user_attributes[:idme_uuid]
       @logingov_uuid = user_attributes[:logingov_uuid]
       @authn_context = user_attributes[:authn_context]
+      @auto_uplevel = user_attributes[:auto_uplevel]
       @loa = user_attributes[:loa]
       @credential_uuid = user_attributes[:uuid]
       @sign_in = user_attributes[:sign_in]
@@ -85,6 +87,8 @@ module SignIn
     end
 
     def update_mpi_correlation_record
+      return if auto_uplevel
+
       user_identity_from_attributes.icn ||= mpi_response_profile.icn
       attribute_mismatch_check(:first_name,
                                user_identity_from_attributes.first_name,
@@ -104,12 +108,16 @@ module SignIn
     def attribute_mismatch_check(type, credential_attribute, mpi_attribute, prevent_auth: false)
       return unless mpi_attribute
 
-      if credential_attribute != mpi_attribute
+      if scrub_attribute(credential_attribute) != scrub_attribute(mpi_attribute)
         handle_error(Errors::AttributeMismatchError,
                      "Attribute mismatch, #{type} in credential does not match MPI attribute",
                      Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
                      raise_error: prevent_auth)
       end
+    end
+
+    def scrub_attribute(attribute)
+      attribute.tr('-', '').downcase
     end
 
     def log_first_time_user

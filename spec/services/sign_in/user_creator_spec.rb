@@ -32,7 +32,8 @@ RSpec.describe SignIn::UserCreator do
           csp_email: csp_email,
           sign_in: sign_in,
           multifactor: multifactor,
-          authn_context: authn_context
+          authn_context: authn_context,
+          auto_uplevel: auto_uplevel
         }
       end
       let(:loa) { { current: LOA::THREE, highest: LOA::THREE } }
@@ -48,11 +49,11 @@ RSpec.describe SignIn::UserCreator do
       let!(:user_verification) { create(:logingov_user_verification, logingov_uuid: csp_id) }
       let(:user_uuid) { user_verification.credential_identifier }
       let(:login_code) { 'some-login-code' }
-      let(:expected_return_object) { [login_code, client_state] }
       let(:id_theft_flag) { false }
       let(:deceased_date) { nil }
       let(:sign_in) { { service_name: service_name } }
       let(:authn_context) { service_name }
+      let(:auto_uplevel) { false }
       let(:multifactor) { true }
       let(:edipis) { ['some-edipi'] }
       let(:mhv_iens) { ['some-mhv-ien'] }
@@ -211,9 +212,22 @@ RSpec.describe SignIn::UserCreator do
           end
         end
 
-        it 'makes an mpi call to update correlation record' do
-          expect_any_instance_of(MPI::Service).to receive(:update_profile)
-          subject
+        context 'and credential has been auto upleveled' do
+          let(:auto_uplevel) { true }
+
+          it 'does not make an mpi call to update correlation record' do
+            expect_any_instance_of(MPI::Service).not_to receive(:update_profile)
+            subject
+          end
+        end
+
+        context 'and credential has not been auto upleveled' do
+          let(:auto_uplevel) { false }
+
+          it 'makes an mpi call to update correlation record' do
+            expect_any_instance_of(MPI::Service).to receive(:update_profile)
+            subject
+          end
         end
 
         it 'creates a user with expected attributes' do
