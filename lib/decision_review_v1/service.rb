@@ -374,6 +374,7 @@ module DecisionReviewV1
     def create_higher_level_review_headers(user)
       headers = {
         'X-VA-SSN' => user.ssn.to_s.strip.presence,
+        'X-VA-ICN' => user.icn.presence,
         'X-VA-First-Name' => user.first_name.to_s.strip.first(12),
         'X-VA-Middle-Initial' => middle_initial(user),
         'X-VA-Last-Name' => user.last_name.to_s.strip.first(18).presence,
@@ -400,7 +401,8 @@ module DecisionReviewV1
         'X-VA-First-Name' => user.first_name.to_s.strip,
         'X-VA-Middle-Initial' => middle_initial(user),
         'X-VA-Last-Name' => user.last_name.to_s.strip.presence,
-        'X-VA-Birth-Date' => user.birth_date.to_s.strip.presence
+        'X-VA-Birth-Date' => user.birth_date.to_s.strip.presence,
+        'X-VA-ICN' => user.icn.presence
       }.compact
 
       missing_required_fields = NOD_REQUIRED_CREATE_HEADERS - headers.keys
@@ -417,6 +419,7 @@ module DecisionReviewV1
     def create_supplemental_claims_headers(user)
       headers = {
         'X-VA-SSN' => user.ssn.to_s.strip.presence,
+        'X-VA-ICN' => user.icn.presence,
         'X-VA-First-Name' => user.first_name.to_s.strip.first(12),
         'X-VA-Middle-Initial' => middle_initial(user),
         'X-VA-Last-Name' => user.last_name.to_s.strip.first(18).presence,
@@ -443,6 +446,7 @@ module DecisionReviewV1
 
       {
         'X-VA-SSN' => user.ssn.to_s,
+        'X-VA-ICN' => user.icn.presence,
         'X-VA-Receipt-Date' => Time.zone.now.strftime('%Y-%m-%d')
       }
     end
@@ -451,7 +455,8 @@ module DecisionReviewV1
       raise Common::Exceptions::Forbidden.new source: "#{self.class}##{__method__}" unless user.ssn
 
       {
-        'X-VA-SSN' => user.ssn.to_s
+        'X-VA-SSN' => user.ssn.to_s,
+        'X-VA-ICN' => user.icn.presence
       }
     end
 

@@ -223,6 +223,7 @@ module DecisionReview
     def create_higher_level_review_headers(user)
       headers = {
         'X-VA-SSN' => user.ssn.to_s.strip.presence,
+        'X-VA-ICN' => user.icn.presence,
         'X-VA-First-Name' => user.first_name.to_s.strip.first(12),
         'X-VA-Middle-Initial' => middle_initial(user),
         'X-VA-Last-Name' => user.last_name.to_s.strip.first(18).presence,
@@ -249,6 +250,7 @@ module DecisionReview
         'X-VA-Middle-Initial' => middle_initial(user),
         'X-VA-Last-Name' => user.last_name.to_s.strip.presence,
         'X-VA-SSN' => user.ssn.to_s.strip.presence,
+        'X-VA-ICN' => user.icn.presence,
         'X-VA-File-Number' => nil,
         'X-VA-Birth-Date' => user.birth_date.to_s.strip.presence
       }.compact
