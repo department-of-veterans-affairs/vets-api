@@ -871,4 +871,40 @@ RSpec.describe Form526Submission do
       end
     end
   end
+
+  describe '#single_disability_eligible_for_mas?' do
+    subject { form_526_submission.single_disability_eligible_for_mas? }
+
+    context 'when form has a single hypertension issue' do
+      let(:hypertension_form_json) do
+        File.read('spec/support/disability_compensation_form/submissions/only_526_hypertension.json')
+      end
+      let(:form_526_submission) do
+        Form526Submission.create(
+          user_uuid: user.uuid,
+          saved_claim_id: saved_claim.id,
+          auth_headers_json: auth_headers.to_json,
+          form_json: hypertension_form_json
+        )
+      end
+
+      context 'when Flipper flag is enabled' do
+        before { Flipper.enable(:rrd_hypertension_mas_notification) }
+        after { Flipper.disable(:rrd_hypertension_mas_notification) }
+
+        it 'returns true' do
+          expect(subject).to be_truthy
+        end
+      end
+
+      context 'when Flipper flag is disabled' do
+        before { Flipper.disable(:rrd_hypertension_mas_notification) }
+        after { Flipper.enable(:rrd_hypertension_mas_notification) }
+
+        it 'returns false' do
+          expect(subject).to be_falsey
+        end
+      end
+    end
+  end
 end

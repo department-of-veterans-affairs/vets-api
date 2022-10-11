@@ -3,6 +3,7 @@
 require 'mail_automation/client'
 require 'lighthouse/veterans_health/client'
 
+# rubocop:disable Metrics/ModuleLength
 module Form526RapidReadyForDecisionConcern
   extend ActiveSupport::Concern
 
@@ -92,6 +93,30 @@ module Form526RapidReadyForDecisionConcern
     disabilities.map { |disability| disability['diagnosticCode'] }
   end
 
+  def prepare_for_evss!
+    return unless forward_to_mas?
+
+    save_metadata(forward_to_mas: true)
+    insert_classification_codes
+  end
+
+  def send_post_evss_notifications!
+    send_completed_notification if rrd_job_selector.rrd_applicable?
+    notify_mas if form.dig('rrd_metadata', 'forward_to_mas')
+    send_pact_related_notification if new_pact_related_disability?
+  end
+
+  # Return whether this Form 526 has a single disability that is eligible to be forwarded to MAS
+  def single_disability_eligible_for_mas?
+    return false unless diagnostic_codes.size == 1
+
+    return true if Flipper.enabled?(:rrd_hypertension_mas_notification) &&
+                   RapidReadyForDecision::Constants.extract_disability_symbol_list(self).first == :hypertension
+
+    RapidReadyForDecision::Constants::MAS_DISABILITIES.include?(diagnostic_codes.first) &&
+      disabilities.first['disabilityActionType']&.upcase == 'INCREASE'
+  end
+
   def insert_classification_codes
     submission_data = JSON.parse(form_json)
     disabilities = submission_data.dig('form526', 'form526', 'disabilities')
@@ -113,8 +138,51 @@ module Form526RapidReadyForDecisionConcern
     all_claims['open_claims']
   end
 
+  def rated_disabilities
+    response = EVSS::DisabilityCompensationForm::Service.new(auth_headers).get_rated_disabilities
+    response.rated_disabilities
+  end
+
   # @return if this claim submission was processed and fast-tracked by RRD
   def rrd_claim_processed?
     rrd_pdf_added_for_uploading? && rrd_special_issue_set?
   end
+
+  def disability_not_service_connected?
+    rated_disability_id = disabilities.first['ratedDisabilityId']
+    disability = rated_disabilities.find { |dis| dis.rated_disability_id == rated_disability_id }
+    disability&.decision_code == 'NOTSVCCON'
+  end
+
+  def forward_to_mas?
+    return false unless Flipper.enabled?(:rrd_mas_disability_tracking)
+
+    single_disability_eligible_for_mas? && !pending_eps? && !disability_not_service_connected?
+  end
+
+  def new_pact_related_disability?
+    return false unless Flipper.enabled?(:rrd_new_pact_related_disability)
+
+    disabilities.any? do |disability|
+      disability['disabilityActionType']&.upcase == 'NEW' &&
+        (RapidReadyForDecision::Constants::PACT_CLASSIFICATION_CODES.include? disability['classificationCode'])
+    end
+  end
+
+  def send_completed_notification
+    RrdCompletedMailer.build(self).deliver_now
+  end
+
+  def send_pact_related_notification
+    icn = RapidReadyForDecision::ClaimContext.new(self).user_icn
+    client = Lighthouse::VeteransHealth::Client.new(icn)
+    bp_readings = RapidReadyForDecision::LighthouseObservationData.new(client.list_bp_observations).transform
+    meds = RapidReadyForDecision::LighthouseMedicationRequestData.new(client.list_medication_requests).transform
+
+    RrdNewDisabilityClaimMailer.build(self, {
+                                        bp_readings_count: bp_readings.length,
+                                        medications_count: meds.length
+                                      }).deliver_now
+  end
 end
+# rubocop:enable Metrics/ModuleLength
