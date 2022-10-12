@@ -29,11 +29,12 @@ module SAML
         settings.assertion_consumer_service_url = Settings.saml_ssoe.callback_url
         settings.compress_request = false
 
+        settings.idp_sso_service_binding = Settings.saml_ssoe.idp_sso_service_binding
         settings.security[:authn_requests_signed] = Settings.saml_ssoe.request_signing
         settings.security[:want_assertions_signed] = Settings.saml_ssoe.response_signing
         settings.security[:want_assertions_encrypted] = Settings.saml_ssoe.response_encryption
-        settings.security[:embed_sign] = false
-        settings.security[:signature_method] = XMLSecurity::Document::RSA_SHA1
+        settings.security[:digest_method] = XMLSecurity::Document::SHA256
+        settings.security[:signature_method] = XMLSecurity::Document::RSA_SHA256
         settings
       end
 

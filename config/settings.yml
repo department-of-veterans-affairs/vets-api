@@ -41,6 +41,7 @@ saml_ssoe:
   response_signing: false
   response_encryption: false
   identity_slack_webhook: ~
+  idp_sso_service_binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
 
 ssoe_eauth_cookie:
   name: vagov_saml_request_localhost
