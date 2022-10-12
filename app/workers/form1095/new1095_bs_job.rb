@@ -31,7 +31,8 @@ module Form1095
         is_dep_file?: file_values.include?('B'),
         isOg?: file_values.include?('O'),
         tax_year: year,
-        timestamp: ts
+        timestamp: ts,
+        name: file_name
       }
     end
 
@@ -149,7 +150,9 @@ module Form1095
 
     def process_file?(temp_file, file_details)
       all_succeeded = true
+      lines = 0
       temp_file.each_line do |form|
+        lines += 1
         successful_line = process_line?(form, file_details)
         all_succeeded = false if !successful_line && all_succeeded
       end
@@ -159,8 +162,8 @@ module Form1095
 
       all_succeeded
     rescue => e
-      Rails.logger.error "#{e.message}.", backtrace: e.backtrace
-
+      Rails.logger.error "#{e.message}."
+      log_exception_to_sentry(e, 'context' => "Error processing file: #{file_details}, on line #{lines}")
       false
     end
 
