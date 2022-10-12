@@ -44,7 +44,6 @@ module SignIn
     class LogoutAuthorizationError < StandardError; end
     class UserAttributesMalformedError < StandardError; end
     class MPIUserCreationFailedError < StandardError; end
-    class MPIUserUpdateFailedError < StandardError; end
     class MPILockedAccountError < StandardError; end
     class MPIMalformedAccountError < StandardError; end
     class AccessDeniedError < StandardError; end

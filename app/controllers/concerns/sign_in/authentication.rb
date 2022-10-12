@@ -28,8 +28,7 @@ module SignIn
       @current_user = load_user_object
     rescue Errors::AccessTokenExpiredError => e
       render json: { errors: e }, status: :forbidden unless skip_expiration_check
-    rescue Errors::StandardError => e
-      Rails.logger.debug("load_user not authenticated, error: #{e}")
+    rescue Errors::StandardError
       nil
     end
 
@@ -63,10 +62,6 @@ module SignIn
 
       log_message_to_sentry(error.message, :error, context)
       render json: { errors: error }, status: :unauthorized
-    end
-
-    def sign_in_logger
-      @sign_in_logger = Logger.new
     end
   end
 end
