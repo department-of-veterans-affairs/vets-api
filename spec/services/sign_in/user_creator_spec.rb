@@ -96,8 +96,8 @@ RSpec.describe SignIn::UserCreator do
 
       shared_context 'user creation blocked' do
         it 'raises the expected error' do
-          expect_any_instance_of(described_class).to receive(:log_message_to_sentry).with(expected_error_message,
-                                                                                          'warn')
+          expect_any_instance_of(SignIn::Logger).to receive(:info).with('user creator error',
+                                                                        { errors: expected_error_message })
 
           expect { subject }.to raise_error(expected_error, expected_error_message)
         end
@@ -204,10 +204,9 @@ RSpec.describe SignIn::UserCreator do
           let(:expected_error_message) { 'User MPI record cannot be updated' }
           let(:expected_error_code) { SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE }
 
-          it 'makes a log to sentry' do
-            expect_any_instance_of(described_class).to receive(:log_message_to_sentry).with(expected_error_message,
-                                                                                            'warn')
-
+          it 'makes a log to rails logger' do
+            expect_any_instance_of(SignIn::Logger).to receive(:info).with('user creator error',
+                                                                          { errors: expected_error_message })
             subject
           end
         end
@@ -317,9 +316,9 @@ RSpec.describe SignIn::UserCreator do
             let(:expected_error) { SignIn::Errors::AttributeMismatchError }
             let(:expected_error_message) { 'Attribute mismatch, first_name in credential does not match MPI attribute' }
 
-            it 'makes a log to sentry' do
-              expect_any_instance_of(described_class).to receive(:log_message_to_sentry).with(expected_error_message,
-                                                                                              'warn')
+            it 'makes a log to rails logger' do
+              expect_any_instance_of(SignIn::Logger).to receive(:info).with('user creator error',
+                                                                            { errors: expected_error_message })
               subject
             end
 
@@ -335,9 +334,9 @@ RSpec.describe SignIn::UserCreator do
             let(:expected_error) { SignIn::Errors::AttributeMismatchError }
             let(:expected_error_message) { 'Attribute mismatch, last_name in credential does not match MPI attribute' }
 
-            it 'makes a log to sentry' do
-              expect_any_instance_of(described_class).to receive(:log_message_to_sentry).with(expected_error_message,
-                                                                                              'warn')
+            it 'makes a log to rails logger' do
+              expect_any_instance_of(SignIn::Logger).to receive(:info).with('user creator error',
+                                                                            { errors: expected_error_message })
               subject
             end
 
@@ -353,9 +352,9 @@ RSpec.describe SignIn::UserCreator do
             let(:expected_error) { SignIn::Errors::AttributeMismatchError }
             let(:expected_error_message) { 'Attribute mismatch, birth_date in credential does not match MPI attribute' }
 
-            it 'makes a log to sentry' do
-              expect_any_instance_of(described_class).to receive(:log_message_to_sentry).with(expected_error_message,
-                                                                                              'warn')
+            it 'makes a log to rails logger' do
+              expect_any_instance_of(SignIn::Logger).to receive(:info).with('user creator error',
+                                                                            { errors: expected_error_message })
               subject
             end
 

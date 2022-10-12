@@ -170,15 +170,8 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     subject { get :index_optional_auth }
 
     shared_context 'error response' do
-      let(:rails_log) { "load_user not authenticated, error: #{expected_error}" }
-
       it 'returns ok status' do
         expect(subject).to have_http_status(:ok)
-      end
-
-      it 'logs warning to sentry' do
-        expect(Rails.logger).to receive(:debug).with(rails_log)
-        subject
       end
     end
 

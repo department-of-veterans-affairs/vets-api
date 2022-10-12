@@ -80,9 +80,9 @@ module SignIn
       if add_person_response.ok?
         user_identity_from_attributes.icn = add_person_response.mvi_codes[:icn]
       else
-        handle_error(Errors::MPIUserCreationFailedError,
-                     'User MPI record cannot be created',
-                     Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE)
+        handle_error('User MPI record cannot be created',
+                     Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
+                     error: Errors::MPIUserCreationFailedError)
       end
     end
 
@@ -98,10 +98,7 @@ module SignIn
       attribute_mismatch_check(:ssn, user_identity_from_attributes.ssn, mpi_response_profile.ssn, prevent_auth: true)
       update_profile_response = mpi_service.update_profile(user_identity_from_attributes)
       unless update_profile_response&.ok?
-        handle_error(Errors::MPIUserUpdateFailedError,
-                     'User MPI record cannot be updated',
-                     Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
-                     raise_error: false)
+        handle_error('User MPI record cannot be updated', Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE)
       end
     end
 
@@ -109,10 +106,10 @@ module SignIn
       return unless mpi_attribute
 
       if scrub_attribute(credential_attribute) != scrub_attribute(mpi_attribute)
-        handle_error(Errors::AttributeMismatchError,
-                     "Attribute mismatch, #{type} in credential does not match MPI attribute",
+        error = prevent_auth ? Errors::AttributeMismatchError : nil
+        handle_error("Attribute mismatch, #{type} in credential does not match MPI attribute",
                      Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
-                     raise_error: prevent_auth)
+                     error: error)
       end
     end
 
@@ -128,9 +125,9 @@ module SignIn
 
     def create_authenticated_user
       unless user_verification
-        handle_error(Errors::UserAttributesMalformedError,
-                     'User Attributes are Malformed',
-                     Constants::ErrorCode::INVALID_REQUEST)
+        handle_error('User Attributes are Malformed',
+                     Constants::ErrorCode::INVALID_REQUEST,
+                     error: Errors::UserAttributesMalformedError)
       end
 
       user = User.new
@@ -151,9 +148,9 @@ module SignIn
 
     def set_user_attributes_from_mpi
       unless mpi_response_profile
-        handle_error(Errors::MHVMissingMPIRecordError,
-                     'No MPI Record for MHV Account',
-                     Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE)
+        handle_error('No MPI Record for MHV Account',
+                     Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
+                     error: Errors::MHVMissingMPIRecordError)
       end
       user_identity_from_attributes.first_name = mpi_response_profile.given_names.first
       user_identity_from_attributes.last_name = mpi_response_profile.family_name
@@ -197,20 +194,20 @@ module SignIn
     end
 
     def check_lock_flag(attribute, attribute_description, code)
-      handle_error(Errors::MPILockedAccountError, "#{attribute_description} Detected", code) if attribute
+      handle_error("#{attribute_description} Detected", code, error: Errors::MPILockedAccountError) if attribute
     end
 
     def check_id_mismatch(id_array, id_description, code)
       if id_array && id_array.compact.uniq.size > 1
-        handle_error(Errors::MPIMalformedAccountError,
-                     "User attributes contain multiple distinct #{id_description} values",
-                     code)
+        handle_error("User attributes contain multiple distinct #{id_description} values",
+                     code,
+                     error: Errors::MPIMalformedAccountError)
       end
     end
 
-    def handle_error(error, error_message, error_code, raise_error: true)
-      log_message_to_sentry(error_message, 'warn')
-      raise error, message: error_message, code: error_code if raise_error
+    def handle_error(error_message, error_code, error: nil)
+      sign_in_logger.info('user creator error', { errors: error_message })
+      raise error, message: error_message, code: error_code if error
     end
 
     def mpi_response_profile
@@ -270,7 +267,7 @@ module SignIn
     end
 
     def sign_in_logger
-      @sign_in_logger = SignIn::Logger.new(prefix: self.class)
+      @sign_in_logger = Logger.new(prefix: self.class)
     end
   end
 end
