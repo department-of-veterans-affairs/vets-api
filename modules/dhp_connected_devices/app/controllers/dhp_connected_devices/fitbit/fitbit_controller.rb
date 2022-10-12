@@ -60,7 +60,7 @@ module DhpConnectedDevices
       end
 
       def feature_enabled
-        routing_error unless Flipper.enabled?(:dhp_connected_devices_fitbit)
+        routing_error unless Flipper.enabled?(:dhp_connected_devices_fitbit, @current_user)
       end
 
       def redirect_with_status(status)
