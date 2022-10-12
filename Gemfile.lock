@@ -56,6 +56,15 @@ GIT
       xmlenc
 
 GIT
+  remote: https://github.com/department-of-veterans-affairs/ruby-saml
+  revision: c22d6bb9cdc6a409465692e8cca4e7bff3cb8df3
+  branch: master
+  specs:
+    ruby-saml (1.14.1)
+      nokogiri (>= 1.10.5)
+      rexml
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
   revision: e7887afae38610e54dcc9c931dd990682a21e4d7
   branch: master
@@ -823,9 +832,6 @@ GEM
       rubocop (>= 0.53.0)
     ruby-progressbar (1.11.0)
     ruby-rc4 (0.1.5)
-    ruby-saml (1.14.0)
-      nokogiri (>= 1.10.5)
-      rexml
     ruby-vips (2.1.4)
       ffi (~> 1.12)
     rubyzip (2.3.2)
@@ -1126,7 +1132,7 @@ DEPENDENCIES
   rubocop-rails
   rubocop-rspec
   rubocop-thread_safety
-  ruby-saml
+  ruby-saml (= 1.14.1)!
   rubyzip
   savon
   seedbank
