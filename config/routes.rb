@@ -122,6 +122,9 @@ Rails.application.routes.draw do
       resources :burial_claims, only: %i[create show]
     end
 
+    get 'claim_letters', to: 'claim_letters#index'
+    get 'claim_letters/:document_id', to: 'claim_letters#show'
+
     resources :efolder, only: %i[index show]
 
     resources :evss_claims, only: %i[index show] do
