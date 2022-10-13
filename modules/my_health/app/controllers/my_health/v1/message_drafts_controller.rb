@@ -4,19 +4,19 @@ module MyHealth
   module V1
     class MessageDraftsController < SMController
       def create
-        draft_response = client.post_create_message_draft(draft_params)
+        draft_response = client.post_create_message_draft(draft_params.to_h)
         render json: draft_response,
                serializer: MessageSerializer,
                status: :created
       end
 
       def update
-        client.post_create_message_draft(draft_params.merge(id: params[:id]))
+        client.post_create_message_draft(draft_params.merge(id: params[:id]).to_h)
         head :no_content
       end
 
       def create_reply_draft
-        draft_response = client.post_create_message_draft_reply(params[:reply_id], reply_draft_params)
+        draft_response = client.post_create_message_draft_reply(params[:reply_id], reply_draft_params.to_h)
         render json: draft_response,
                serializer: MessageSerializer,
                status: :created
@@ -24,7 +24,7 @@ module MyHealth
 
       def update_reply_draft
         client.post_create_message_draft_reply(
-          params[:reply_id], reply_draft_params.merge(id: params[:draft_id])
+          params[:reply_id], reply_draft_params.merge(id: params[:draft_id]).to_h
         )
         head :no_content
       end
