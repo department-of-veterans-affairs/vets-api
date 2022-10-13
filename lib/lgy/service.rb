@@ -77,7 +77,7 @@ module LGY
         )
         response.body
       end
-    rescue Faraday::Error => e
+    rescue Faraday::ClientError => e
       # LGY recently started returning error messages to us. We are logging
       # those errors in sentry to debug the issues described here:
       # https://github.com/department-of-veterans-affairs/va.gov-team/issues/47435#issuecomment-1268916462
