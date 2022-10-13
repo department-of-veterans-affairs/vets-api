@@ -13,6 +13,7 @@ module ClaimsApi
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
           end
 
+          EvidenceWaiverBuilderJob.new.perform(target_veteran: target_veteran, response: params[:response])
           render json: { success: true }
         end
 
