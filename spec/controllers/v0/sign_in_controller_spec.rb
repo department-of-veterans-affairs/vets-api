@@ -678,7 +678,6 @@ RSpec.describe V0::SignInController, type: :controller do
                     last_name: user_info.family_name
                   }
                 end
-                let(:expected_credential_info_attributes) { { id_token: id_token, csp_uuid: logingov_uuid } }
                 let(:mpi_profile) do
                   build(:mvi_profile,
                         ssn: user_info.social_security_number,
@@ -712,13 +711,6 @@ RSpec.describe V0::SignInController, type: :controller do
                   user_uuid = UserVerification.last.credential_identifier
                   user = User.find(user_uuid)
                   expect(user).to have_attributes(expected_user_attributes)
-                end
-
-                it 'creates a credential_info with expected attributes' do
-                  subject
-
-                  credential_info = SignIn::CredentialInfo.find(logingov_uuid)
-                  expect(credential_info).to have_attributes(expected_credential_info_attributes)
                 end
               end
             end
@@ -1916,18 +1908,14 @@ RSpec.describe V0::SignInController, type: :controller do
         expect { subject }.to trigger_statsd_increment(statsd_success)
       end
 
-      context 'and credential info was found with id token' do
-        let!(:credential_info) do
-          SignIn::CredentialInfo.new(csp_uuid: logingov_uuid,
-                                     id_token: logingov_id_token,
-                                     credential_type: credential_type).save!
-        end
-        let(:state) { 'some-state' }
-        let(:credential_type) { 'logingov' }
+      context 'and CSP is Login.gov' do
+        let!(:user) { create(:user, :ial1, uuid: access_token_object.user_uuid) }
+        let(:client_id) { Settings.logingov.client_id }
         let(:logout_redirect_uri) { Settings.logingov.logout_redirect_uri }
+        let(:state) { 'some-state' }
         let(:expected_url_params) do
           {
-            id_token_hint: logingov_id_token,
+            client_id: client_id,
             post_logout_redirect_uri: logout_redirect_uri,
             state: state
           }
@@ -1943,7 +1931,7 @@ RSpec.describe V0::SignInController, type: :controller do
         end
       end
 
-      context 'and credential info was not found with id token' do
+      context 'and CSP is not Login.gov' do
         it 'returns redirect status' do
           expect(subject).to have_http_status(expected_status)
         end
