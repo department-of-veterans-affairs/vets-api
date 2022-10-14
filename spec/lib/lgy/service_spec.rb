@@ -179,22 +179,18 @@ describe LGY::Service do
 
     context 'LGY returns an error' do
       it 'logs response body and headers to sentry' do
-        fake_lgy_response_headers = { foo: 'bar' }
-        fake_lgy_response_body = { error: 'fake error' }
-        fake_lgy_response = {
-          headers: fake_lgy_response_headers,
-          body: fake_lgy_response_body,
-          status: 400
-        }
-        fake_faraday_error = Faraday::ClientError.new(nil, fake_lgy_response)
-        expect_any_instance_of(LGY::Service).to receive(:perform).and_raise(fake_faraday_error)
-        expect_any_instance_of(LGY::Service).to receive(:log_message_to_sentry).with(
-          'COE application submission failed with http status: 400',
-          :error,
-          { response_body: fake_lgy_response_body, response_headers: fake_lgy_response_headers },
-          { team: 'vfs-ebenefits' }
-        )
-        expect { subject.put_application(payload: {}) }.to raise_error(Faraday::ClientError)
+        VCR.use_cassette 'lgy/application_put_500' do
+          expect_any_instance_of(LGY::Service).to receive(:log_message_to_sentry).with(
+            'COE application submission failed with http status: 500',
+            :error,
+            { message: 'the server responded with status 500', status: 500,
+              body: { 'errors' => [{ 'message' => 'Fake error message' }] } },
+            { team: 'vfs-ebenefits' }
+          )
+          expect do
+            subject.put_application(payload: coe_claim)
+          end.to raise_error(Common::Client::Errors::ClientError)
+        end
       end
     end
   end
