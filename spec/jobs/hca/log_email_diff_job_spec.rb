@@ -13,23 +13,20 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
 
   def self.expect_does_nothing
     it 'does nothing' do
-      expect(StatsD).not_to receive(:set)
+      expect(StatsD).not_to receive(:increment)
+      expect($redis).not_to receive(:set)
+
       subject
     end
   end
 
   def self.expect_email_tag(tag)
     it "logs that email is #{tag}" do
-      expect(StatsD).to receive(:set).with(
-        'api.1010ez.in_progress_form_email',
-        user.uuid,
-        sample_rate: 1.0,
-        tags: {
-          email: tag
-        }
-      )
+      expect do
+        subject
+      end.to trigger_statsd_increment("api.1010ez.in_progress_form_email.#{tag}")
 
-      subject
+      expect($redis.get("HCA::LogEmailDiffJob:#{user.uuid}")).to eq('t')
     end
   end
 
@@ -53,10 +50,18 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
 
       context 'when va profile is the same' do
         before do
-          expect(user).to receive(:va_profile_email).and_return('Email@email.com')
+          allow(user).to receive(:va_profile_email).and_return('Email@email.com')
         end
 
         expect_email_tag('same')
+
+        context 'when redis key for the user is already set' do
+          before do
+            $redis.set("HCA::LogEmailDiffJob:#{user.uuid}", 't')
+          end
+
+          expect_does_nothing
+        end
       end
 
       context 'when va profile email is blank' do
