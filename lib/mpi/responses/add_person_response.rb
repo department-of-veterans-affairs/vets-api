@@ -46,13 +46,18 @@ module MPI
       #
       # @param response [Ox::Element] ox element returned from the soap service middleware
       # @return [MPI::Responses::AddPersonResponse] response with a possible parsed codes
-      def self.with_parsed_response(response)
+      def self.with_parsed_response(type, response)
         add_parser = AddParser.new(response)
         mvi_codes = add_parser.parse
 
         raise MPI::Errors::InvalidRequestError, add_parser.error_details(mvi_codes) if add_parser.invalid_request?
         raise MPI::Errors::FailedRequestError, add_parser.error_details(mvi_codes) if add_parser.failed_request?
 
+        Rails.logger.info("[MPI][Responses][AddPersonResponse] #{type}, " \
+                          "icn=#{mvi_codes[:icn]}, " \
+                          "idme_uuid=#{mvi_codes[:idme_uuid]}, " \
+                          "logingov_uuid=#{mvi_codes[:logingov_uuid]}, " \
+                          "transaction_id=#{mvi_codes[:transaction_id]}")
         AddPersonResponse.new(
           status: RESPONSE_STATUS[:ok],
           mvi_codes: mvi_codes

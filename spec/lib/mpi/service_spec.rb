@@ -24,10 +24,12 @@ describe MPI::Service do
   let(:error_texts) { ['Internal System Error'] }
   let(:error_display_name) { 'Internal System Error' }
   let(:id_extension) { '200VGOV-1373004c-e23e-4d94-90c5-5b101f6be54a' }
+  let(:transaction_id) { '4bae058f5e3cb4a300385c30' }
   let(:add_person_error_details) do
     { other: [{ codeSystem: code_system,
                 code: mpi_error_code,
                 displayName: error_display_name }],
+      transaction_id: transaction_id,
       error_details: { ack_detail_code: ack_detail_code,
                        id_extension: id_extension,
                        error_texts: error_texts } }
@@ -64,7 +66,8 @@ describe MPI::Service do
         '32383600^PI^200CORP^USVBA^L'
       ],
       search_token: nil,
-      id_theft_flag: false
+      id_theft_flag: false,
+      transaction_id: transaction_id
     )
   end
 
@@ -79,7 +82,8 @@ describe MPI::Service do
       let(:mvi_codes) do
         {
           birls_id: '111985523',
-          participant_id: '32397028'
+          participant_id: '32397028',
+          transaction_id: '4bae058f5e3db50000682d01'
         }
       end
 
@@ -107,6 +111,7 @@ describe MPI::Service do
         {
           birls_id: '796104437',
           participant_id: '13367440',
+          transaction_id: '4bae058f5e3cb2c800274633',
           other: [{ codeSystem: MPI::Constants::VA_ROOT_OID, code: 'WRN206', displayName: 'Existing Key Identifier' }]
         }
       end
@@ -130,6 +135,8 @@ describe MPI::Service do
 
     context 'invalid requests' do
       context 'generic invalid request' do
+        let(:transaction_id) { '4bae058f5e3cb6080028a411' }
+
         it 'responds with a SERVER_ERROR if request is invalid', :aggregate_failures do
           expect(subject).to receive(:log_exception_to_sentry)
 
@@ -243,7 +250,8 @@ describe MPI::Service do
       let(:birth_date) { '18090212' }
       let(:idme_uuid) { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
       let(:expected_icn) { '1013677101V363970' }
-      let(:expected_response_codes) { { icn: expected_icn } }
+      let(:transaction_id) { '4bae058f5e3cb2c800274633' }
+      let(:expected_response_codes) { { icn: expected_icn, transaction_id: transaction_id } }
 
       it 'creates a new person in MPI' do
         VCR.use_cassette('mpi/add_person/add_person_implicit_search_success') do
@@ -263,6 +271,8 @@ describe MPI::Service do
     end
 
     context 'invalid requests' do
+      let(:transaction_id) { '4bae058f5e3cb2c800274634' }
+
       it 'properly responds if a server error occurs', :aggregate_failures do
         expect(subject).to receive(:log_exception_to_sentry)
 
@@ -383,7 +393,8 @@ describe MPI::Service do
       let(:birth_date) { '18090212' }
       let(:icn) { '1013677101V363970' }
       let(:idme_uuid) { 'b2fab2b56af045e1a9e2394347af91ef' }
-      let(:expected_response_codes) { { idme_uuid: idme_uuid } }
+      let(:transaction_id) { nil }
+      let(:expected_response_codes) { { idme_uuid: idme_uuid, transaction_id: transaction_id } }
 
       it 'successfully updates a correlation profile in MPI' do
         VCR.use_cassette('mpi/update_profile/update_profile_success') do
@@ -403,6 +414,8 @@ describe MPI::Service do
     end
 
     context 'failed requests' do
+      let(:transaction_id) { nil }
+
       it 'properly responds if a server error occurs', :aggregate_failures do
         expect(subject).to receive(:log_exception_to_sentry)
 
@@ -433,6 +446,7 @@ describe MPI::Service do
       end
       let(:error_display_name) { 'ICN-EDI PI Correlation does not exist' }
       let(:id_extension) { '200VGOV-0a8c7539-3490-4c5c-b36f-9df9c16af3a2' }
+      let(:transaction_id) { nil }
 
       it 'properly responds if an invalid request is made', :aggregate_failures do
         expect(subject).to receive(:log_exception_to_sentry)
@@ -547,76 +561,98 @@ describe MPI::Service do
     end
 
     context 'valid requests' do
-      it 'fetches profile when icn has ^NI^200M^USVHA^P' do
-        allow(user).to receive(:mhv_icn).and_return('1008714701V416111^NI^200M^USVHA^P')
+      context 'when icn has ^NI^200M^USVHA^P' do
+        let(:transaction_id) { '4bae058f5d5c4fa906c85472' }
 
-        VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
-          profile = mvi_profile
-          profile['search_token'] = 'WSDOC1908201553145951848240311'
-          expect(Raven).to receive(:tags_context).once.with(mvi_find_profile: 'icn')
-          response = subject.find_profile(user)
-          expect(response.status).to eq('OK')
-          expect(response.profile).to have_deep_attributes(profile)
+        before { allow(user).to receive(:mhv_icn).and_return('1008714701V416111^NI^200M^USVHA^P') }
+
+        it 'fetches profile' do
+          VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
+            profile = mvi_profile
+            profile['search_token'] = 'WSDOC1908201553145951848240311'
+            expect(Raven).to receive(:tags_context).once.with(mvi_find_profile: 'icn')
+            response = subject.find_profile(user)
+            expect(response.status).to eq('OK')
+            expect(response.profile).to have_deep_attributes(profile)
+          end
         end
       end
 
-      it 'fetches profile when icn has ^NI' do
-        allow(user).to receive(:mhv_icn).and_return('1008714701V416111^NI')
+      context 'when icn has ^NI' do
+        let(:transaction_id) { '4bae058f5d5c4fa706c85422' }
 
-        VCR.use_cassette('mpi/find_candidate/valid_icn_ni_only') do
-          profile = mvi_profile
-          profile['search_token'] = 'WSDOC1908201553117051423642755'
-          response = subject.find_profile(user)
-          expect(response.status).to eq('OK')
-          expect(response.profile).to have_deep_attributes(profile)
+        before { allow(user).to receive(:mhv_icn).and_return('1008714701V416111^NI') }
+
+        it 'fetches profile' do
+          VCR.use_cassette('mpi/find_candidate/valid_icn_ni_only') do
+            profile = mvi_profile
+            profile['search_token'] = 'WSDOC1908201553117051423642755'
+            response = subject.find_profile(user)
+            expect(response.status).to eq('OK')
+            expect(response.profile).to have_deep_attributes(profile)
+          end
         end
       end
 
-      it 'fetches profile when icn is just basic icn' do
-        allow(user).to receive(:mhv_icn).and_return('1008714701V416111')
+      context 'when icn is just basic icn' do
+        let(:transaction_id) { '4bae058f5d5c4fa506c853c2' }
 
-        VCR.use_cassette('mpi/find_candidate/valid_icn_without_ni') do
-          profile = mvi_profile
-          profile['search_token'] = 'WSDOC1908201553094460697640189'
-          response = subject.find_profile(user)
-          expect(response.status).to eq('OK')
-          expect(response.profile).to have_deep_attributes(profile)
+        before { allow(user).to receive(:mhv_icn).and_return('1008714701V416111') }
+
+        it 'fetches profile when icn is just basic icn' do
+          VCR.use_cassette('mpi/find_candidate/valid_icn_without_ni') do
+            profile = mvi_profile
+            profile['search_token'] = 'WSDOC1908201553094460697640189'
+            response = subject.find_profile(user)
+            expect(response.status).to eq('OK')
+            expect(response.profile).to have_deep_attributes(profile)
+          end
         end
       end
 
-      it 'correctly parses vet360 id if it exists', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
-        allow(user).to receive(:mhv_icn).and_return('1008787551V609092^NI^200M^USVHA^P')
+      context 'when vet360 id exists' do
+        before { allow(user).to receive(:mhv_icn).and_return('1008787551V609092^NI^200M^USVHA^P') }
 
-        VCR.use_cassette('mpi/find_candidate/valid_vet360_id') do
-          response = subject.find_profile(user)
-          expect(response.status).to eq('OK')
-          expect(response.profile['vet360_id']).to eq('80')
+        it 'correctly parses vet360 id', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
+          VCR.use_cassette('mpi/find_candidate/valid_vet360_id') do
+            response = subject.find_profile(user)
+            expect(response.status).to eq('OK')
+            expect(response.profile['vet360_id']).to eq('80')
+          end
         end
       end
 
-      it 'fetches historical icns if they exist', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
-        allow(user).to receive(:mhv_icn).and_return('1008787551V609092^NI^200M^USVHA^P')
-        allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
+      context 'when historical icns exist' do
+        before do
+          allow(user).to receive(:mhv_icn).and_return('1008787551V609092^NI^200M^USVHA^P')
+          allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
+        end
 
-        match = { match_requests_on: %i[method uri headers body] }
-        VCR.use_cassette('mpi/find_candidate/historical_icns_with_icn', match) do
-          response = subject.find_profile(user, search_type: MPI::Constants::CORRELATION_WITH_ICN_HISTORY)
-          expect(response.status).to eq('OK')
-          expect(response.profile['historical_icns']).to eq(
-            %w[1008692852V724999 1008787550V443247 1008787485V229771 1008795715V162680
-               1008795714V030791 1008795629V076564 1008795718V643356]
-          )
+        it 'fetches historical icns', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
+          match = { match_requests_on: %i[method uri headers body] }
+          VCR.use_cassette('mpi/find_candidate/historical_icns_with_icn', match) do
+            response = subject.find_profile(user, search_type: MPI::Constants::CORRELATION_WITH_ICN_HISTORY)
+            expect(response.status).to eq('OK')
+            expect(response.profile['historical_icns']).to eq(
+              %w[1008692852V724999 1008787550V443247 1008787485V229771 1008795715V162680
+                 1008795714V030791 1008795629V076564 1008795718V643356]
+            )
+          end
         end
       end
 
-      it 'fetches no historical icns if none exist', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
-        allow(user).to receive(:mhv_icn).and_return('1008710003V120120^NI^200M^USVHA^P')
-        allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
+      context 'when historical icns do not exist' do
+        before do
+          allow(user).to receive(:mhv_icn).and_return('1008710003V120120^NI^200M^USVHA^P')
+          allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
+        end
 
-        VCR.use_cassette('mpi/find_candidate/historical_icns_empty', VCR::MATCH_EVERYTHING) do
-          response = subject.find_profile(user, search_type: MPI::Constants::CORRELATION_WITH_ICN_HISTORY)
-          expect(response.status).to eq('OK')
-          expect(response.profile['historical_icns']).to eq([])
+        it 'fetches no historical icns if none exist', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
+          VCR.use_cassette('mpi/find_candidate/historical_icns_empty', VCR::MATCH_EVERYTHING) do
+            response = subject.find_profile(user, search_type: MPI::Constants::CORRELATION_WITH_ICN_HISTORY)
+            expect(response.status).to eq('OK')
+            expect(response.profile['historical_icns']).to eq([])
+          end
         end
       end
 
@@ -775,6 +811,8 @@ describe MPI::Service do
 
   describe '.find_profile without icn' do
     context 'valid request' do
+      let(:transaction_id) { '4bae058f5d66cc3801287d52' }
+
       before do
         expect(MPI::Messages::FindProfileByEdipi).to receive(:new).once.and_call_original
       end
@@ -826,6 +864,7 @@ describe MPI::Service do
             gender: nil
           }
         end
+        let(:transaction_id) { '4bae058f5d66d28b011bf351' }
 
         it 'calls the find_profile endpoint with a find candidate message' do
           VCR.use_cassette('mpi/find_candidate/valid_no_gender') do

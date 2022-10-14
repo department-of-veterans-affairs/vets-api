@@ -60,6 +60,8 @@ module MPI
           raise MPI::Errors::RecordNotFound
         end
 
+        Rails.logger.info("[MPI][Responses][FindProfileResponse] icn=#{profile.icn}, " \
+                          "transaction_id=#{profile.transaction_id}")
         FindProfileResponse.new(
           status: RESPONSE_STATUS[:ok],
           profile: profile

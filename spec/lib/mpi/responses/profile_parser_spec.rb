@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'mpi/responses/profile_parser'
 
 describe MPI::Responses::ProfileParser do
-  let(:faraday_response) { instance_double('Faraday::Response') }
+  let(:faraday_response) { instance_double('Faraday::Env') }
   let(:parser) { MPI::Responses::ProfileParser.new(faraday_response) }
   let(:ack_detail_code) { 'AE' }
   let(:error_details) do
@@ -12,13 +12,17 @@ describe MPI::Responses::ProfileParser do
                        id_extension: id_extension,
                        error_texts: error_texts } }
   end
+  let(:headers) { { 'x-global-transaction-id' => transaction_id } }
+  let(:transaction_id) { 'some-transaction-id' }
+
+  before do
+    allow(faraday_response).to receive(:body) { body }
+    allow(faraday_response).to receive(:response_headers) { headers }
+  end
 
   context 'given a valid response' do
     let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_response.xml')) }
-
-    before do
-      allow(faraday_response).to receive(:body) { body }
-    end
+    let(:headers) { { 'x-global-transaction-id' => transaction_id } }
 
     describe '#failed_or_invalid?' do
       it 'returns false' do
@@ -38,7 +42,8 @@ describe MPI::Responses::ProfileParser do
           sec_id: nil,
           historical_icns: nil,
           search_token: 'WSDOC1609131753362231779394902',
-          id_theft_flag: false
+          id_theft_flag: false,
+          transaction_id: transaction_id
         )
       end
 
@@ -62,7 +67,8 @@ describe MPI::Responses::ProfileParser do
             sec_id: nil,
             historical_icns: nil,
             search_token: 'WSDOC1609131753362231779394902',
-            id_theft_flag: false
+            id_theft_flag: false,
+            transaction_id: transaction_id
           )
         end
 
@@ -87,7 +93,8 @@ describe MPI::Responses::ProfileParser do
             sec_id: nil,
             historical_icns: nil,
             search_token: 'WSDOC1609131753362231779394902',
-            id_theft_flag: false
+            id_theft_flag: false,
+            transaction_id: transaction_id
           )
         end
 
@@ -124,7 +131,8 @@ describe MPI::Responses::ProfileParser do
               'UNK^PI^200CORP^USVBA^A'
             ],
             search_token: 'WSDOC1609131753362231779394902',
-            id_theft_flag: false
+            id_theft_flag: false,
+            transaction_id: transaction_id
           )
         end
 
@@ -160,7 +168,8 @@ describe MPI::Responses::ProfileParser do
               '1100792239^PI^200MHS^USVHA^A'
             ],
             search_token: 'WSDOC1908201553145951848240311',
-            id_theft_flag: false
+            id_theft_flag: false,
+            transaction_id: transaction_id
           )
         end
 
@@ -173,10 +182,6 @@ describe MPI::Responses::ProfileParser do
 
   context 'given a valid response with relationship information' do
     let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_with_relationship_response.xml')) }
-
-    before do
-      allow(faraday_response).to receive(:body) { body }
-    end
 
     describe '#parse' do
       let(:mvi_profile) do
@@ -215,7 +220,8 @@ describe MPI::Responses::ProfileParser do
           search_token: 'WSDOC2005221733165441605720989',
           person_types: %w[DEP VET],
           relationships: [mpi_profile_relationship_component],
-          id_theft_flag: false
+          id_theft_flag: false,
+          transaction_id: transaction_id
         )
       end
 
@@ -278,7 +284,6 @@ describe MPI::Responses::ProfileParser do
 
     describe '#parse' do
       it 'return nil if the response includes no suject element' do
-        allow(faraday_response).to receive(:body) { body }
         expect(parser.parse).to be_nil
       end
     end
@@ -289,7 +294,6 @@ describe MPI::Responses::ProfileParser do
 
     describe '#failed_or_invalid?' do
       it 'returns true' do
-        allow(faraday_response).to receive(:body) { body }
         expect(parser).to be_failed_or_invalid
       end
     end
@@ -299,7 +303,6 @@ describe MPI::Responses::ProfileParser do
       let(:error_texts) { ['MVI[S]:INVALID REQUEST'] }
 
       it 'parses the MPI response for additional attributes' do
-        allow(faraday_response).to receive(:body) { body }
         expect(parser.error_details).to eq(error_details)
       end
     end
@@ -310,7 +313,6 @@ describe MPI::Responses::ProfileParser do
 
     describe '#failed_or_invalid?' do
       it 'returns true' do
-        allow(faraday_response).to receive(:body) { body }
         expect(parser).to be_failed_or_invalid
       end
     end
@@ -321,7 +323,6 @@ describe MPI::Responses::ProfileParser do
       let(:error_texts) { ['Environment Database Error'] }
 
       it 'parses the MPI response for additional attributes' do
-        allow(faraday_response).to receive(:body) { body }
         expect(parser.error_details).to eq(error_details)
       end
     end
@@ -329,10 +330,6 @@ describe MPI::Responses::ProfileParser do
 
   context 'given a multiple match' do
     let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_multiple_match_response.xml')) }
-
-    before do
-      allow(faraday_response).to receive(:body) { body }
-    end
 
     describe '#failed_or_invalid?' do
       it 'returns false' do
@@ -351,7 +348,6 @@ describe MPI::Responses::ProfileParser do
       let(:error_texts) { ['Multiple Matches Found'] }
 
       it 'parses the MPI response for additional attributes' do
-        allow(faraday_response).to receive(:body) { body }
         expect(parser.error_details).to eq(error_details)
       end
     end
@@ -379,12 +375,9 @@ describe MPI::Responses::ProfileParser do
         ],
         search_token: 'WSDOC1611060614456041732180196',
         person_types: ['PAT'],
-        id_theft_flag: false
+        id_theft_flag: false,
+        transaction_id: transaction_id
       )
-    end
-
-    before do
-      allow(faraday_response).to receive(:body) { body }
     end
 
     it 'returns an array of mhv ids' do
@@ -405,12 +398,9 @@ describe MPI::Responses::ProfileParser do
         mhv_ien: nil,
         mhv_iens: [],
         search_token: 'WSDOC1609131753362231779394902',
-        id_theft_flag: false
+        id_theft_flag: false,
+        transaction_id: transaction_id
       )
-    end
-
-    before do
-      allow(faraday_response).to receive(:body) { body }
     end
 
     it 'correctly parses a Vet360 ID' do
@@ -421,12 +411,7 @@ describe MPI::Responses::ProfileParser do
   context 'with inactive MHV ID edge cases' do
     let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_inactive_mhv_ids.xml')) }
 
-    before do
-      Settings.sentry.dsn = 'asdf'
-      allow(faraday_response).to receive(:body) { body }
-    end
-
-    after { Settings.sentry.dsn = nil }
+    before { allow(Settings.sentry).to receive(:dsn).and_return('asdf') }
 
     it 'logs warning about inactive IDs' do
       msg1 = 'Inactive MHV correlation IDs present'

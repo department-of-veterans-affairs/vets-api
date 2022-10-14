@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'mpi/responses/add_parser'
 
 describe MPI::Responses::AddParser do
-  let(:faraday_response) { instance_double('Faraday::Response') }
+  let(:faraday_response) { instance_double('Faraday::Env') }
   let(:parser) { described_class.new(faraday_response) }
   let(:mpi_codes) { { other: [{ codeSystemName: 'MVI', code: 'INTERR', displayName: 'Internal System Error' }] } }
   let(:error_details) do
@@ -13,13 +13,16 @@ describe MPI::Responses::AddParser do
                        id_extension: '200VGOV-1373004c-e23e-4d94-90c5-5b101f6be54a',
                        error_texts: ['Internal System Error'] } }
   end
+  let(:headers) { { 'x-global-transaction-id' => transaction_id } }
+  let(:transaction_id) { 'some-transaction-id' }
+
+  before do
+    allow(faraday_response).to receive(:body) { body }
+    allow(faraday_response).to receive(:response_headers) { headers }
+  end
 
   context 'given a valid response' do
     let(:body) { Ox.parse(File.read('spec/support/mpi/add_person_response.xml')) }
-
-    before do
-      allow(faraday_response).to receive(:body) { body }
-    end
 
     describe '#failed_or_invalid?' do
       it 'returns false' do
@@ -28,7 +31,7 @@ describe MPI::Responses::AddParser do
     end
 
     describe '#parse' do
-      let(:codes) { { birls_id: '111985523', participant_id: '32397028' } }
+      let(:codes) { { birls_id: '111985523', participant_id: '32397028', transaction_id: transaction_id } }
 
       it 'returns a MviProfile with the parsed attributes' do
         expect(parser.parse).to have_deep_attributes(codes)
@@ -82,7 +85,6 @@ describe MPI::Responses::AddParser do
 
     describe '#failed_or_invalid?' do
       it 'returns true' do
-        allow(faraday_response).to receive(:body) { body }
         expect(parser).to be_failed_or_invalid
         expect(PersonalInformationLog.last.error_class).to eq 'MPI::Errors'
       end
@@ -92,7 +94,6 @@ describe MPI::Responses::AddParser do
       let(:ack_detail_code) { 'AE' }
 
       it 'parses the MPI response for additional attributes' do
-        allow(faraday_response).to receive(:body) { body }
         expect(parser.error_details(mpi_codes)).to eq(error_details)
       end
     end
@@ -103,7 +104,6 @@ describe MPI::Responses::AddParser do
 
     describe '#failed_or_invalid?' do
       it 'returns true' do
-        allow(faraday_response).to receive(:body) { body }
         expect(parser).to be_failed_or_invalid
       end
     end
@@ -112,7 +112,6 @@ describe MPI::Responses::AddParser do
       let(:ack_detail_code) { 'AR' }
 
       it 'parses the MPI response for additional attributes' do
-        allow(faraday_response).to receive(:body) { body }
         expect(parser.error_details(mpi_codes)).to eq(error_details)
       end
     end
