@@ -10,10 +10,10 @@ module MebApi
       before_action :check_forms_flipper
 
       def claim_letter
-        claimant_response = claimant_service.get_claimant_info(@form_type)
+        claimant_response = claimant_service.get_claimant_info('toe')
         claimant_id = claimant_response['claimant_id']
-        claim_status_response = claim_status_service.get_claim_status(@form_type, claimant_id)
-        claim_letter_response = letter_service.get_claim_letter(@form_type, claimant_id)
+        claim_status_response = claim_status_service.get_claim_status('toe', claimant_id)
+        claim_letter_response = letter_service.get_claim_letter('toe', claimant_id)
         is_eligible = claim_status_response.claim_status == 'ELIGIBLE'
         response = claimant_response.status == 201 ? claim_letter_response : claimant_response
 
@@ -24,6 +24,18 @@ module MebApi
         send_data response.body, filename: "#{filename}.pdf", type: 'application/pdf', disposition: 'attachment'
 
         nil
+      end
+
+      def claim_status
+        claimant_response = claimant_service.get_claimant_info('toe')
+        claimant_id = claimant_response['claimant']['claimant_id']
+
+        claim_status_response = claim_status_service.get_claim_status(claimant_id, 'toe')
+
+        response = claimant_response.status == 200 ? claim_status_response : claimant_response
+        serializer = claimant_response.status == 200 ? ClaimStatusSerializer : ClaimantSerializer
+
+        render json: response, serializer: serializer
       end
 
       def claimant_info

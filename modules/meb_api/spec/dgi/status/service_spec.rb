@@ -35,7 +35,7 @@ RSpec.describe MebApi::DGI::Status::Service do
       end
     end
 
-    describe '#get_fry_claim_status' do
+    describe '#get_toe_claim_status' do
       let(:faraday_response) { double('faraday_connection') }
       let(:service) { ::MebApi::DGI::Status::Service.new(user) }
 
@@ -45,8 +45,8 @@ RSpec.describe MebApi::DGI::Status::Service do
 
       context 'when successful' do
         it 'returns a status of 200' do
-          VCR.use_cassette('dgi/get_fry_claim_status') do
-            response = service.get_claim_status(claimant_id, 'fry')
+          VCR.use_cassette('dgi/get_toe_claim_status') do
+            response = service.get_claim_status(claimant_id, 'toe')
             expect(response.status).to eq(200)
           end
         end
