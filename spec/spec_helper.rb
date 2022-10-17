@@ -184,4 +184,8 @@ RSpec.configure do |config|
   config.after(:all, :enable_csrf_protection) do
     ActionController::Base.allow_forgery_protection = @original_allow_forgery_protection
   end
+
+  config.after do
+    Timecop.return
+  end
 end

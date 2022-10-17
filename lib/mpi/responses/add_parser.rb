@@ -24,6 +24,7 @@ module MPI
       def initialize(response)
         @original_body = locate_element(response.body, BODY_XPATH)
         @code = locate_element(@original_body, CODE_XPATH)
+        @transaction_id = response.response_headers['x-global-transaction-id']
 
         if failed_or_invalid?
           PersonalInformationLog.create(
@@ -43,7 +44,7 @@ module MPI
         return [] unless raw_codes
 
         attributes = raw_codes.map(&:attributes)
-        parse_ids(attributes)
+        parse_ids(attributes).merge({ transaction_id: @transaction_id })
       end
 
       def error_details(mpi_codes)

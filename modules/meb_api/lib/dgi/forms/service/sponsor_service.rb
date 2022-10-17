@@ -3,7 +3,6 @@
 require 'common/client/base'
 require 'dgi/forms/configuration/configuration'
 require 'dgi/service'
-require 'dgi/forms/service/sponsor_service'
 require 'dgi/forms/response/sponsor_response'
 require 'authentication_token_service'
 

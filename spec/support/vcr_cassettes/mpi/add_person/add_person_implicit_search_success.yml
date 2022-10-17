@@ -124,6 +124,8 @@ http_interactions:
       - Accept-Encoding
       Transfer-Encoding:
       - chunked
+      x-global-transaction-id:
+      - 4bae058f5e3cb2c800274633
     body:
       encoding: UTF-8
       string: |

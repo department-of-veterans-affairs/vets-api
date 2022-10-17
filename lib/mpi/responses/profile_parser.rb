@@ -59,6 +59,7 @@ module MPI
       # @param response [struct Faraday::Env] the Faraday response
       # @return [ProfileParser] an instance of this class
       def initialize(response)
+        @transaction_id = response.response_headers['x-global-transaction-id']
         @original_body = locate_element(response.body, BODY_XPATH)
         @code = locate_element(@original_body, CODE_XPATH)
       end
@@ -113,7 +114,8 @@ module MPI
         misc_hash = {
           search_token: locate_element(@original_body, 'id').attributes[:extension],
           relationships: parse_relationships(patient.locate(PATIENT_RELATIONSHIP_XPATH)),
-          id_theft_flag: parse_id_theft_flag(patient)
+          id_theft_flag: parse_id_theft_flag(patient),
+          transaction_id: @transaction_id
         }
 
         MPI::Models::MviProfile.new(profile_identity_hash.merge(profile_ids_hash).merge(misc_hash))

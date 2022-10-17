@@ -59,11 +59,11 @@ describe SignIn::Logingov::Service do
   end
 
   describe '#render_logout' do
-    let(:logingov_id_token) { 'some-logingov-id-token' }
+    let(:client_id) { Settings.logingov.client_id }
     let(:logout_redirect_uri) { Settings.logingov.logout_redirect_uri }
     let(:expected_url_params) do
       {
-        id_token_hint: logingov_id_token,
+        client_id: client_id,
         post_logout_redirect_uri: logout_redirect_uri,
         state: state
       }
@@ -75,7 +75,7 @@ describe SignIn::Logingov::Service do
     before { allow(SecureRandom).to receive(:hex).and_return(state) }
 
     it 'renders expected logout url' do
-      expect(subject.render_logout(id_token: logingov_id_token)).to eq(expected_url)
+      expect(subject.render_logout).to eq(expected_url)
     end
   end
 

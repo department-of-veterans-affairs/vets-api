@@ -92,6 +92,10 @@ RSpec.describe 'clinics', type: :request do
         Timecop.freeze(Time.zone.parse(current_time))
       end
 
+      after do
+        Timecop.return
+      end
+
       it 'defaults time from now to 2 months from now' do
         VCR.use_cassette('appointments/get_available_slots_200_no_start_end_date', match_requests_on: %i[method uri]) do
           get "/mobile/v0/appointments/facilities/#{facility_id}/clinics/#{clinic_id}/slots", headers: iam_headers

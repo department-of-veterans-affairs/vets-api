@@ -16,6 +16,7 @@ module MPI
       attribute :search_token, String
       attribute :relationships, Array[MviProfileRelationship]
       attribute :id_theft_flag, Boolean
+      attribute :transaction_id, String
     end
   end
 end

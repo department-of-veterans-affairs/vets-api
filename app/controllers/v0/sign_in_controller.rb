@@ -65,7 +65,7 @@ module V0
       if credential_level.can_uplevel_credential?
         render_uplevel_credential(state_payload)
       else
-        create_login_code(state_payload, user_info, credential_level, service_token_response)
+        create_login_code(state_payload, user_info, credential_level)
       end
     rescue SignIn::Errors::StandardError => e
       sign_in_logger.info('callback error', { errors: e.message,
@@ -223,9 +223,9 @@ module V0
     end
 
     def logout_get_redirect_url
-      credential_info = @current_user && SignIn::CredentialInfo.find(@current_user.logingov_uuid)
-      if credential_info
-        auth_service(credential_info.credential_type).render_logout(id_token: credential_info.id_token)
+      cspid = @current_user.nil? ? nil : @current_user.identity.sign_in[:service_name]
+      if cspid == SAML::User::LOGINGOV_CSID
+        auth_service(cspid).render_logout
       else
         URI.parse(Settings.sign_in.client_redirect_uris.web_logout).to_s
       end
@@ -273,11 +273,9 @@ module V0
              content_type: 'text/html'
     end
 
-    def create_login_code(state_payload, user_info, credential_level, service_token_response)
+    def create_login_code(state_payload, user_info, credential_level)
       user_attributes = auth_service(state_payload.type).normalized_attributes(user_info, credential_level,
                                                                                state_payload.client_id)
-      SignIn::CredentialInfoCreator.new(csp_user_attributes: user_attributes,
-                                        csp_token_response: service_token_response).perform
       user_code_map = SignIn::UserCreator.new(user_attributes: user_attributes, state_payload: state_payload).perform
       context = {
         type: state_payload.type,

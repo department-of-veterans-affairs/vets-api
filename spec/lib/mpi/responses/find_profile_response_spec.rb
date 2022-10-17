@@ -4,7 +4,9 @@ require 'rails_helper'
 require 'mpi/responses/find_profile_response'
 
 describe MPI::Responses::FindProfileResponse do
-  let(:raw_response) { OpenStruct.new({ body: body }) }
+  let(:raw_response) { OpenStruct.new({ body: body, response_headers: headers }) }
+  let(:headers) { { 'x-global-transaction-id' => transaction_id } }
+  let(:transaction_id) { 'some-transaction-id' }
   let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_response.xml')) }
   let(:ok_response) { MPI::Responses::FindProfileResponse.with_parsed_response(raw_response) }
   let(:error_response) { MPI::Responses::FindProfileResponse.with_server_error }
@@ -120,6 +122,13 @@ describe MPI::Responses::FindProfileResponse do
       let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_response.xml')) }
       let(:expected_status) { Common::Client::Concerns::ServiceStatus::RESPONSE_STATUS[:ok] }
       let(:expected_parsed_profile) { MPI::Responses::ProfileParser.new(raw_response).parse }
+      let(:icn) { expected_parsed_profile.icn }
+      let(:expected_log) { "[MPI][Responses][FindProfileResponse] icn=#{icn}, transaction_id=#{transaction_id}" }
+
+      it 'logs a message to rails logger' do
+        expect(Rails.logger).to receive(:info).with(expected_log)
+        subject
+      end
 
       it 'returns profile response with ok status' do
         expect(subject.status).to eq(expected_status)

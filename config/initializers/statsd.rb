@@ -128,6 +128,10 @@ Rails.application.reloader.to_prepare do
     end
   end
 
+  %w[same different].each do |type|
+    StatsD.increment("api.1010ez.in_progress_form_email.#{type}", 0)
+  end
+
   %w[submission_attempt validation_error failed_wont_retry].each do |stat|
     key = "#{HCA::Service::STATSD_KEY_PREFIX}.#{stat}"
     StatsD.increment(key, 0)

@@ -36,7 +36,7 @@ module MPI
             create_add_person_proxy_message(user_identity),
             soapaction: MPI::Constants::ADD_PERSON
           )
-          MPI::Responses::AddPersonResponse.with_parsed_response(raw_response)
+          MPI::Responses::AddPersonResponse.with_parsed_response('add_person_proxy', raw_response)
         end
       end
     rescue Breakers::OutageException => e
@@ -65,7 +65,7 @@ module MPI
             create_add_person_implicit_search_message(user_identity),
             soapaction: MPI::Constants::ADD_PERSON
           )
-          MPI::Responses::AddPersonResponse.with_parsed_response(raw_response)
+          MPI::Responses::AddPersonResponse.with_parsed_response('add_person_implicit_search', raw_response)
         end
       end
     rescue Breakers::OutageException => e
@@ -133,7 +133,7 @@ module MPI
             create_update_profile_message(user_identity),
             soapaction: MPI::Constants::UPDATE_PROFILE
           )
-          MPI::Responses::AddPersonResponse.with_parsed_response(raw_response)
+          MPI::Responses::AddPersonResponse.with_parsed_response('update_profile', raw_response)
         end
       end
     rescue Breakers::OutageException => e

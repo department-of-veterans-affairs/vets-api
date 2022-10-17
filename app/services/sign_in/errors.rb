@@ -40,7 +40,6 @@ module SignIn
     class InvalidAcrError < StandardError; end
     class InvalidTypeError < StandardError; end
     class InvalidCredentialLevelError < StandardError; end
-    class InvalidCredentialInfoError < StandardError; end
     class LogoutAuthorizationError < StandardError; end
     class UserAttributesMalformedError < StandardError; end
     class MPIUserCreationFailedError < StandardError; end
