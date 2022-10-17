@@ -32,7 +32,7 @@ unless Rails.env.test?
     CheckIn::V2::DemographicsController.statsd_measure :update, 'api.check_in.v2.demographics.update.measure'
     CheckIn::V2::DemographicsController.statsd_count_success :update, 'api.check_in.v2.demographics.update.count'
 
-    # Measure the count/duration of GET/POST calls for LoROTA/CHIP services
+    # Measure the count/duration of GET/POST calls for services
     V2::Lorota::Client.extend(StatsD::Instrument)
     %i[token data].each do |method|
       V2::Lorota::Client.statsd_count_success method, "api.check_in.v2.lorota.#{method}.count"
@@ -44,6 +44,12 @@ unless Rails.env.test?
        refresh_precheckin].each do |method|
       V2::Chip::Client.statsd_count_success method, "api.check_in.v2.chip.#{method}.count"
       V2::Chip::Client.statsd_measure method, "api.check_in.v2.chip.#{method}.measure"
+    end
+
+    TravelClaim::Client.extend(StatsD::Instrument)
+    %i[token].each do |method|
+      TravelClaim::Client.statsd_count_success method, "api.check_in.v2.travelclaim.#{method}.count"
+      TravelClaim::Client.statsd_measure method, "api.check_in.v2.travelclaim.#{method}.measure"
     end
   end
 
