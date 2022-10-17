@@ -85,4 +85,103 @@ describe TravelClaim::Client do
       end
     end
   end
+
+  describe '#submit_claim' do
+    let(:access_token) { 'test-token' }
+    let(:icn) { 'test-patient-icn' }
+    let(:appt_time) { '2022-09-01' }
+
+    context 'when claims service returns success response' do
+      let(:claim_response) do
+        { value: {
+            claimNumber: 'TC202207000011666'
+          },
+          statusCode: 200 }
+      end
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(claim_response)
+      end
+
+      it 'yields to block' do
+        expect_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_yield(Faraday::Request.new)
+
+        subject.submit_claim(token: access_token, patient_icn: icn, appointment_time: appt_time)
+      end
+
+      it 'returns claims number' do
+        expect(subject.submit_claim(token: access_token, patient_icn: icn,
+                                    appointment_time: appt_time)).to eq(claim_response)
+      end
+    end
+
+    context 'when claims service returns a 500 error response' do
+      let(:resp) { Faraday::Response.new(body: { error: 'Internal server error' }, status: 500) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(exception)
+      end
+
+      it 'logs message and raises exception' do
+        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+        expect do
+          subject.submit_claim(token: access_token, patient_icn: icn, appointment_time: appt_time)
+        end.to raise_exception(exception)
+      end
+    end
+
+    context 'when claims service returns a 400 error response' do
+      let(:resp) do
+        Faraday::Response.new(
+          body: { error: { currentDate: '[07/29/2022 01:05:41 PM]',
+                           message: '07/29/2022 : There were multiple appointments for that date' } }, status: 400
+        )
+      end
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(exception)
+      end
+
+      it 'logs message and raises exception' do
+        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+        expect do
+          subject.submit_claim(token: access_token, patient_icn: icn, appointment_time: appt_time)
+        end.to raise_exception(exception)
+      end
+    end
+
+    context 'when claims service returns a 401 error response' do
+      let(:resp) { Faraday::Response.new(body: { error: 'Unauthorized' }, status: 401) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(exception)
+      end
+
+      it 'logs message and raises exception' do
+        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+        expect do
+          subject.submit_claim(token: access_token, patient_icn: icn, appointment_time: appt_time)
+        end.to raise_exception(exception)
+      end
+    end
+
+    context 'when claims service returns a 404 error response' do
+      let(:resp) { Faraday::Response.new(body: { error: 'Not Found' }, status: 404) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(exception)
+      end
+
+      it 'logs message and raises exception' do
+        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+        expect do
+          subject.submit_claim(token: access_token, patient_icn: icn, appointment_time: appt_time)
+        end.to raise_exception(exception)
+      end
+    end
+  end
 end

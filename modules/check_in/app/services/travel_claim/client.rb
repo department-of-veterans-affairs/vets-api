@@ -9,10 +9,13 @@ module TravelClaim
     include SentryLogging
 
     GRANT_TYPE = 'client_credentials'
+    CLAIMANT_ID_TYPE = 'icn'
+    TRIP_TYPE = 'RoundTrip'
 
     attr_reader :settings, :check_in
 
-    def_delegators :settings, :auth_url, :tenant_id, :client_id, :client_secret, :scope, :service_name
+    def_delegators :settings, :auth_url, :tenant_id, :client_id, :client_secret, :scope, :claims_url, :client_number,
+                   :service_name
 
     ##
     # Builds a Client instance
@@ -40,6 +43,24 @@ module TravelClaim
       connection.post("/#{tenant_id}/oauth2/v2.0/token") do |req|
         req.headers = default_headers
         req.body = URI.encode_www_form(auth_params)
+      end
+    rescue => e
+      log_message_to_sentry(e.original_body, :error,
+                            { uuid: check_in.uuid },
+                            { external_service: service_name, team: 'check-in' })
+      raise e
+    end
+
+    ##
+    # HTTP POST call to the BTSSS ClaimIngest endpoint to submit the claim
+    #
+    # @return [Faraday::Response]
+    #
+    def submit_claim(token:, patient_icn:, appointment_time:)
+      connection.post("/#{claims_url}/ClaimIngest/submitclaim") do |req|
+        req.headers = claims_default_header.merge('Authorization' => "Bearer #{token}")
+        req.body = claims_data.merge({ ClaimantID: patient_icn, Appointment:
+          { AppointmentDateTime: appointment_time } })
       end
     rescue => e
       log_message_to_sentry(e.original_body, :error,
@@ -77,12 +98,30 @@ module TravelClaim
       }
     end
 
+    def claims_default_header
+      {
+        'Content-Type' => 'application/json'
+      }
+    end
+
     def auth_params
       {
         client_id: client_id,
         client_secret: client_secret,
         scope: scope,
         grant_type: GRANT_TYPE
+      }
+    end
+
+    def claims_data
+      {
+        ClientNumber: :client_number,
+        ClaimantIDType: CLAIMANT_ID_TYPE,
+        Appointment: {
+          MileageExpense: {
+            TripType: TRIP_TYPE
+          }
+        }
       }
     end
 
