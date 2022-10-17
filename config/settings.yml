@@ -1305,6 +1305,9 @@ github_cvu:
   private_pem: ~
 
 check_in:
+  travel_reimbursement_api:
+    redis_token_expiry: 3540 # 59 minutes
+    service_name: BTSSS-API
   authentication:
     max_auth_retry_limit: 3
     retry_attempt_expiry: 604800 # 7 Days
