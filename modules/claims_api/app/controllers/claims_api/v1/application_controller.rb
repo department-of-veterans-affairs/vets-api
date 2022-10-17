@@ -49,21 +49,6 @@ module ClaimsApi
                               ptcpnt_id: target_veteran.participant_id.present?,
                               birls_id: target_veteran.birls_id.present?)
 
-        if target_veteran.mpi.mpi_response_is_cached?
-          target_veteran.mpi.destroy
-          target_veteran.mpi = nil
-        end
-
-        unless target_veteran.mpi
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail:
-            'Unable to locate Veteran in Master Person Index (MPI).' \
-            'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
-          )
-        end
-
-        mpi_search_token = target_veteran.mpi.search_token
-        target_veteran.search_token = mpi_search_token
         mpi_add_response = target_veteran.mpi.add_person_proxy
 
         raise mpi_add_response.error unless mpi_add_response.ok?

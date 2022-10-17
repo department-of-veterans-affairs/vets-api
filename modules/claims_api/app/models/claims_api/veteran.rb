@@ -88,6 +88,7 @@ module ClaimsApi
 
     def self.from_identity(identity:)
       new(
+        icn: identity.icn,
         uuid: identity.uuid,
         first_name: identity.first_name,
         last_name: identity.last_name,
