@@ -365,8 +365,7 @@ module V1
     end
 
     def after_login_actions
-      user_verifier_object = OpenStruct.new({ uuid: @current_user.uuid,
-                                              sign_in: @current_user.identity.sign_in,
+      user_verifier_object = OpenStruct.new({ sign_in: @current_user.identity.sign_in,
                                               mhv_correlation_id: @current_user.mhv_correlation_id,
                                               idme_uuid: @current_user.idme_uuid,
                                               edipi: @current_user.identity.edipi,
