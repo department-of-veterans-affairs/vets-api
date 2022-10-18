@@ -907,4 +907,33 @@ RSpec.describe Form526Submission do
       end
     end
   end
+
+  describe '#single_issue_hypertension_cfi?' do
+    subject { form_526_submission.single_issue_hypertension_cfi? }
+
+    let(:form_526_submission) do
+      Form526Submission.create(
+        user_uuid: user.uuid,
+        saved_claim_id: saved_claim.id,
+        auth_headers_json: auth_headers.to_json,
+        form_json: File.read("spec/support/disability_compensation_form/submissions/#{form_json_filename}")
+      )
+    end
+
+    context 'when the form contains a single hypertension issue for increase' do
+      let(:form_json_filename) { 'only_526_hypertension.json' }
+
+      it 'returns true' do
+        expect(subject).to be_truthy
+      end
+    end
+
+    context 'when the form does not contain a single hypertension issue for increase' do
+      let(:form_json_filename) { 'only_526_asthma.json' }
+
+      it 'returns false' do
+        expect(subject).to be_falsey
+      end
+    end
+  end
 end
