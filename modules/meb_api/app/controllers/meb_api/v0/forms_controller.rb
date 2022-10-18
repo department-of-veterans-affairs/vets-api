@@ -11,7 +11,7 @@ module MebApi
 
       def claim_letter
         claimant_response = claimant_service.get_claimant_info('toe')
-        claimant_id = claimant_response['claimant_id']
+        claimant_id = claimant_response['claimant']['claimant_id']
         claim_status_response = claim_status_service.get_claim_status('toe', claimant_id)
         claim_letter_response = letter_service.get_claim_letter('toe', claimant_id)
         is_eligible = claim_status_response.claim_status == 'ELIGIBLE'
