@@ -18,7 +18,7 @@ module V0
     private
 
     def service
-      @service ||= ClaimStatusTool::ClaimLetterDownloader.new(@current_user.ssn)
+      @service ||= ClaimStatusTool::ClaimLetterDownloader.new(@current_user)
     end
   end
 end
