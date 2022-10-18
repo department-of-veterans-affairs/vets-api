@@ -27,21 +27,6 @@ describe VANotify::InProgressFormHelper do
       expect(described_class.form_age(in_progress_form)).to eq('&7_days')
     end
 
-    it '21 days ago' do
-      in_progress_form = create_in_progress_form_days_ago(21, form_id: '686C-674')
-      expect(described_class.form_age(in_progress_form)).to eq('&21_days')
-    end
-
-    it '35 days ago' do
-      in_progress_form = create_in_progress_form_days_ago(35, form_id: '686C-674')
-      expect(described_class.form_age(in_progress_form)).to eq('&35_days')
-    end
-
-    it '49 days ago' do
-      in_progress_form = create_in_progress_form_days_ago(49, form_id: '686C-674')
-      expect(described_class.form_age(in_progress_form)).to eq('&49_days')
-    end
-
     it 'defaults to empty string' do
       in_progress_form = create_in_progress_form_days_ago(6, form_id: '686C-674')
       expect(described_class.form_age(in_progress_form)).to eq('')
