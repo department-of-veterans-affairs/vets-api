@@ -9,7 +9,7 @@ describe VANotify::FindInProgressForms do
   end
 
   it 'verify correct form ids' do
-    expect(described_class::RELEVANT_FORMS).to eq(%w[686C-674])
+    expect(described_class::RELEVANT_FORMS).to eq(%w[686C-674 1010ez])
   end
 
   describe '#to_notify' do
@@ -17,12 +17,13 @@ describe VANotify::FindInProgressForms do
 
     it 'fetches only relevant forms by id' do
       in_progress_form_1 = create_in_progress_form_days_ago(7, user_uuid: user.uuid, form_id: '686C-674')
+      in_progress_form_2 = create_in_progress_form_days_ago(7, user_uuid: user.uuid, form_id: '1010ez')
       create_in_progress_form_days_ago(7, user_uuid: create(:user, uuid: SecureRandom.uuid).uuid, form_id: 'something')
       create_in_progress_form_days_ago(7, form_id: '1010')
 
       subject = described_class.new
 
-      expect(subject.to_notify).to eq([in_progress_form_1.id])
+      expect(subject.to_notify).to match_array([in_progress_form_2.id, in_progress_form_1.id])
     end
 
     context 'only fetches saved forms based on the correct cadence' do

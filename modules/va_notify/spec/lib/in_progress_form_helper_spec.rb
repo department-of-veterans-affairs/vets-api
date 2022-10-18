@@ -48,7 +48,7 @@ describe VANotify::InProgressFormHelper do
     end
   end
 
-  xdescribe '1010ez' do
+  describe '1010ez' do
     let(:in_progress_form) { create(:in_progress_1010ez_form, updated_at: 7.days.ago) }
 
     it 'knows the template id' do
