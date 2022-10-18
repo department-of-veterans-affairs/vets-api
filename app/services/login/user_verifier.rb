@@ -5,8 +5,8 @@ require 'login/errors'
 module Login
   class UserVerifier
     def initialize(user)
-      @user_uuid = user.uuid
       @login_type = user.sign_in&.dig(:service_name)
+      @auth_broker = user.sign_in&.dig(:auth_broker)
       @mhv_uuid = user.mhv_correlation_id
       @idme_uuid = user.idme_uuid
       @dslogon_uuid = user.edipi
@@ -22,15 +22,16 @@ module Login
 
     private
 
-    attr_reader :user_uuid,
-                :login_type,
+    attr_reader :login_type,
+                :auth_broker,
                 :mhv_uuid,
                 :idme_uuid,
                 :dslogon_uuid,
                 :logingov_uuid,
                 :icn,
                 :deprecated_log,
-                :user_account_mismatch_log
+                :user_account_mismatch_log,
+                :new_user_log
 
     MHV_TYPE = :mhv_uuid
     IDME_TYPE = :idme_uuid
@@ -47,13 +48,14 @@ module Login
       end
 
       ActiveRecord::Base.transaction do
-        update_existing_user_verification if user_verification_needs_to_be_updated?
-        update_backing_idme_uuid if backing_idme_uuid_has_changed?
-        create_user_verification if user_verification.nil?
+        if user_verification
+          update_existing_user_verification if user_verification_needs_to_be_updated?
+          update_backing_idme_uuid if backing_idme_uuid_has_changed?
+        else
+          create_user_verification
+        end
       end
-
-      Rails.logger.info(deprecated_log) if deprecated_log
-      Rails.logger.info(user_account_mismatch_log) if user_account_mismatch_log
+      post_transaction_message_logs
       user_verification
     end
 
@@ -96,6 +98,7 @@ module Login
     end
 
     def create_user_verification
+      set_new_user_log
       verified_at = icn ? Time.zone.now : nil
       UserVerification.create!(type => identifier,
                                user_account: existing_user_account || UserAccount.new(icn: icn),
@@ -104,15 +107,21 @@ module Login
     end
 
     def user_verification_needs_to_be_updated?
-      return false unless user_verification
-
       icn.present? && user_verification.user_account != existing_user_account
     end
 
     def backing_idme_uuid_has_changed?
-      return false unless user_verification
-
       backing_idme_uuid != user_verification.backing_idme_uuid
+    end
+
+    def set_new_user_log
+      @new_user_log = "[Login::UserVerifier] New VA.gov user, type=#{login_type}, broker=#{auth_broker}"
+    end
+
+    def post_transaction_message_logs
+      Rails.logger.info(deprecated_log) if deprecated_log
+      Rails.logger.info(user_account_mismatch_log) if user_account_mismatch_log
+      Rails.logger.info(new_user_log) if new_user_log
     end
 
     def set_deprecated_log(deprecated_user_account_id, user_verification_id, user_account_id)
@@ -156,13 +165,6 @@ module Login
                   DSLOGON_TYPE
                 when SAML::User::LOGINGOV_CSID
                   LOGINGOV_TYPE
-                else
-                  Rails.logger.info(
-                    '[Login::UserVerifier] Unknown or missing login_type ' \
-                    "for user=#{user_uuid}, login_type=#{login_type}"
-                  )
-
-                  raise Errors::UnknownLoginTypeError
                 end
     end
 

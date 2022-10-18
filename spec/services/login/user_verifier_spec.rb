@@ -9,9 +9,8 @@ RSpec.describe Login::UserVerifier do
     let(:user_identity) do
       OpenStruct.new(
         {
-          uuid: uuid,
           edipi: edipi_identifier,
-          sign_in: { service_name: login_value },
+          sign_in: { service_name: login_value, auth_broker: auth_broker },
           mhv_correlation_id: mhv_correlation_id_identifier,
           idme_uuid: idme_uuid_identifier,
           logingov_uuid: logingov_uuid_identifier,
@@ -21,7 +20,7 @@ RSpec.describe Login::UserVerifier do
         }
       )
     end
-    let(:uuid) { 'some-uuid' }
+    let(:auth_broker) { 'some-auth-broker' }
     let(:edipi_identifier) { 'some-edipi' }
     let(:mhv_correlation_id_identifier) { 'some-correlation-id' }
     let(:idme_uuid_identifier) { 'some-idme-uuid' }
@@ -83,6 +82,7 @@ RSpec.describe Login::UserVerifier do
     shared_examples 'user_verification with defined credential identifier' do
       context 'and current user is verified, with an ICN value' do
         let(:icn) { 'some-icn' }
+        let(:expected_log) { "[Login::UserVerifier] New VA.gov user, type=#{login_value}, broker=#{auth_broker}" }
 
         context 'and user_verification for user credential already exists' do
           let(:user_account) { UserAccount.new(icn: user_identity.icn) }
@@ -93,6 +93,11 @@ RSpec.describe Login::UserVerifier do
                                      verified_at: verified_at)
           end
           let(:verified_at) { Time.zone.now - 1.day }
+
+          it 'does not make new user log to rails logger' do
+            expect(Rails.logger).not_to receive(:info).with(expected_log)
+            subject
+          end
 
           it 'does not create a new user_verification' do
             expect { subject }.not_to change(UserVerification, :count)
@@ -236,6 +241,12 @@ RSpec.describe Login::UserVerifier do
 
         context 'and user_verification for user credential does not already exist' do
           let(:expected_verified_at_time) { Time.zone.now }
+          let(:expected_log) { "[Login::UserVerifier] New VA.gov user, type=#{login_value}, broker=#{auth_broker}" }
+
+          it 'makes a new user log to rails logger' do
+            expect(Rails.logger).to receive(:info).with(expected_log)
+            subject
+          end
 
           it 'creates a new user_verification record' do
             expect { subject }.to change(UserVerification, :count)
@@ -287,12 +298,18 @@ RSpec.describe Login::UserVerifier do
 
       context 'and current user is not verified, without an ICN value' do
         let(:icn) { nil }
+        let(:expected_log) { "[Login::UserVerifier] New VA.gov user, type=#{login_value}, broker=#{auth_broker}" }
 
         context 'and user_verification for user credential already exists' do
           let!(:user_verification) do
             UserVerification.create!(authn_identifier_type => authn_identifier,
                                      backing_idme_uuid: backing_idme_uuid,
                                      user_account: UserAccount.new(icn: nil))
+          end
+
+          it 'does not make new user log to rails logger' do
+            expect(Rails.logger).not_to receive(:info).with(expected_log)
+            subject
           end
 
           it 'does not create user_verification' do
@@ -318,6 +335,11 @@ RSpec.describe Login::UserVerifier do
         end
 
         context 'and user_verification for user credential does not already exist' do
+          it 'makes a new user log to rails logger' do
+            expect(Rails.logger).to receive(:info).with(expected_log)
+            subject
+          end
+
           it 'creates a new user_verification record' do
             expect { subject }.to change(UserVerification, :count)
           end
@@ -386,15 +408,6 @@ RSpec.describe Login::UserVerifier do
 
       it_behaves_like 'user_verification with nil credential identifier'
       it_behaves_like 'user_verification with defined credential identifier'
-    end
-
-    context 'when user credential is some other arbitrary value' do
-      let(:login_value) { 'banana' }
-      let(:expected_error) { Login::Errors::UnknownLoginTypeError }
-
-      it 'raises Unknown Login Type error' do
-        expect { subject }.to raise_exception(expected_error)
-      end
     end
   end
 end
