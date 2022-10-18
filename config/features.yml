@@ -475,7 +475,7 @@ features:
   profile_hide_direct_deposit_comp_and_pen:
     actor_type: user
     description: Hides disability comp and pen section of the Profile - Direct Deposit page during a service outage
-    enable_in_development: true
+    enable_in_development: false
   profile_notification_settings:
     actor_type: user
     description: Turns on the Notification Settings section of the VA.gov Profile
