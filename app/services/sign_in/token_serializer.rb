@@ -24,12 +24,12 @@ module SignIn
     private
 
     def set_cookies
-      set_cookie!(name: Constants::Auth::ACCESS_TOKEN_COOKIE_NAME,
-                  value: encoded_access_token,
-                  expires: session_expiration)
       set_cookie!(name: Constants::Auth::REFRESH_TOKEN_COOKIE_NAME,
                   value: encrypted_refresh_token,
                   path: Constants::Auth::REFRESH_ROUTE_PATH,
+                  expires: session_expiration)
+      set_cookie!(name: Constants::Auth::ACCESS_TOKEN_COOKIE_NAME,
+                  value: encoded_access_token,
                   expires: session_expiration)
       if anti_csrf_enabled_client?
         set_cookie!(name: Constants::Auth::ANTI_CSRF_COOKIE_NAME,
@@ -71,8 +71,8 @@ module SignIn
 
     def token_json_payload
       payload = {}
-      payload[:access_token] = encoded_access_token
       payload[:refresh_token] = encrypted_refresh_token
+      payload[:access_token] = encoded_access_token
       payload[:anti_csrf_token] = anti_csrf_token if anti_csrf_enabled_client?
       payload
     end
