@@ -1367,6 +1367,9 @@ rrd:
   mas_tracking:
     recipients:
       - fake_email
+  mas_all_claims_tracking:
+    recipients:
+      - fake_email
   pact_tracking:
     recipients:
       - fake_email

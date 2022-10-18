@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class RrdMasNotificationMailer < ApplicationMailer
-  def build(submission)
+  def build(submission, recipients = Settings.rrd.mas_tracking.recipients)
     @id = submission.id
     @submitted_claim_id = submission.submitted_claim_id
     @created_at = submission.created_at
@@ -11,7 +11,7 @@ class RrdMasNotificationMailer < ApplicationMailer
     template = File.read('app/mailers/views/rrd_mas_notification_mailer.html.erb')
 
     mail(
-      to: Settings.rrd.mas_tracking.recipients,
+      to: recipients,
       subject: "MA claim - #{submission.diagnostic_codes.join(', ')}",
       body: ERB.new(template).result(binding)
     )

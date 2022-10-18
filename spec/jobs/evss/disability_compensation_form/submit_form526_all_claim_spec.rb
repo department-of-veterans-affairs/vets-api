@@ -143,10 +143,22 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
                  saved_claim_id: saved_claim.id)
         end
 
-        it 'does not send an email' do
-          subject.perform_async(submission.id)
-          described_class.drain
-          expect(ActionMailer::Base.deliveries.length).to eq 0
+        context 'when all claims tracking is enabled' do
+          it 'sends only one email' do
+            Flipper.enable(:rrd_mas_all_claims_tracking)
+            subject.perform_async(submission.id)
+            described_class.drain
+            expect(ActionMailer::Base.deliveries.length).to eq 1
+          end
+        end
+
+        context 'when all claims tracking is disabled' do
+          it 'does not send an email' do
+            Flipper.disable(:rrd_mas_all_claims_tracking)
+            subject.perform_async(submission.id)
+            described_class.drain
+            expect(ActionMailer::Base.deliveries.length).to eq 0
+          end
         end
       end
 
@@ -245,6 +257,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
     context 'with a breakers outage' do
       it 'runs the retryable_error_handler and raises a gateway timeout' do
+        allow_any_instance_of(Form526Submission).to receive(:prepare_for_evss!).and_return(nil)
         EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.begin_forced_outage!
         expect(Rails.logger).to receive(:error).once
         expect_retryable_error(Breakers::OutageException)

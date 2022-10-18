@@ -26,6 +26,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
 
     context 'when the base class is used' do
       it 'raises an error as a subclass should be used to perform the job' do
+        allow_any_instance_of(Form526Submission).to receive(:prepare_for_evss!).and_return(nil)
         expect { subject.new.perform(submission.id) }.to raise_error NotImplementedError
       end
     end
