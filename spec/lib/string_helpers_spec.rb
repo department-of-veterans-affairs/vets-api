@@ -81,5 +81,11 @@ describe StringHelpers do
       facility_v2_filtered = '/facilities/v2/facilities/xxx'
       expect(described_class.filtered_endpoint_tag(facility_v2_path)).to eq(facility_v2_filtered)
     end
+
+    it 'group labels VAMF partial errors' do
+      vamf_partial_error = 'Could not get appointments from VistA Scheduling Service (20b69580-b51e-4f77-8358-99f2923)'
+      vamf_partial_filtered = 'Could not get appointments from VistA Scheduling Service <id>'
+      expect(described_class.filtered_endpoint_tag(vamf_partial_error)).to eq(vamf_partial_filtered)
+    end
   end
 end
