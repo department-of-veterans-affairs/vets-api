@@ -35,12 +35,6 @@ module VANotify
       case in_progress_form.updated_at
       when 7.days.ago.beginning_of_day..7.days.ago.end_of_day
         '&7_days'
-      when 21.days.ago.beginning_of_day..21.days.ago.end_of_day
-        '&21_days'
-      when 35.days.ago.beginning_of_day..35.days.ago.end_of_day
-        '&35_days'
-      when 49.days.ago.beginning_of_day..49.days.ago.end_of_day
-        '&49_days'
       else
         ''
       end
