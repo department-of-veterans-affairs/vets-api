@@ -16,7 +16,7 @@ module AppealsApi
           delegate :veteran_dob_month, :veteran_dob_day, :veteran_dob_year, :signing_appellant_zip_code,
                    :insurance_policy_number, :date_signed, :signing_appellant, :appellant_local_time,
                    :contestable_issues, :soc_opt_in, :new_evidence_locations, :claimant_type_other_text,
-                   :new_evidence_dates, :claimant, :veteran,
+                   :new_evidence_dates, :claimant, :veteran, :alternate_signer_full_name,
                    to: :supplemental_claim
 
           delegate :first_name, :last_name,
@@ -60,8 +60,18 @@ module AppealsApi
             "#{signing_appellant.full_name[0...180]} - Signed by digital authentication to api.va.gov"
           end
 
+          def signature_of_alternate_signer
+            return 'See attached page for signature of alternate signer' if long_signature?
+
+            "#{alternate_signer_full_name[0...180]} - Signed by digital authentication to api.va.gov"
+          end
+
           def long_signature?
-            signing_appellant.full_name.length > 70
+            if alternate_signer_full_name.present?
+              alternate_signer_full_name.length > 70
+            else
+              signing_appellant.full_name.length > 70
+            end
           end
 
           def print_name_veteran_claimaint_or_rep

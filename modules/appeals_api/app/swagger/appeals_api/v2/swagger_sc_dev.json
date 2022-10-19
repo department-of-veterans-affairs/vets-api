@@ -127,6 +127,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "in": "header",
+            "name": "X-Alternate-Signer-First-Name",
+            "required": false,
+            "description": "Alternate signer's first name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Alternate-Signer-Middle-Initial",
+            "required": false,
+            "description": "X-Alternate-Signer middle initial",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Alternate-Signer-Last-Name",
+            "required": false,
+            "description": "X-Alternate-Signer last name",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2317,6 +2344,33 @@
             "name": "X-Consumer-ID",
             "required": false,
             "description": "Consumer GUID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Alternate-Signer-First-Name",
+            "required": true,
+            "description": "Alternate signer's first name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Alternate-Signer-Middle-Initial",
+            "required": false,
+            "description": "X-Alternate-Signer middle initial",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Alternate-Signer-Last-Name",
+            "required": true,
+            "description": "X-Alternate-Signer last name",
             "schema": {
               "type": "string"
             }

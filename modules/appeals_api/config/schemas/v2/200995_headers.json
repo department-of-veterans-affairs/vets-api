@@ -25,12 +25,18 @@
         "X-Consumer-ID":        { "$ref": "#/definitions/X-Consumer-ID"},
         "X-VA-NonVeteranClaimant-First-Name":     { "$ref": "#/definitions/X-VA-NonVeteranClaimant-First-Name" },
         "X-VA-NonVeteranClaimant-Middle-Initial": { "$ref": "#/definitions/X-VA-NonVeteranClaimant-Middle-Initial" },
-        "X-VA-NonVeteranClaimant-Last-Name":      { "$ref": "#/definitions/X-VA-NonVeteranClaimant-Last-Name" }
+        "X-VA-NonVeteranClaimant-Last-Name":      { "$ref": "#/definitions/X-VA-NonVeteranClaimant-Last-Name" },
+        "X-Alternate-Signer-First-Name":     { "$ref": "#/definitions/X-Alternate-Signer-First-Name" },
+        "X-Alternate-Signer-Middle-Initial": { "$ref": "#/definitions/X-Alternate-Signer-Middle-Initial" },
+        "X-Alternate-Signer-Last-Name": { "$ref": "#/definitions/X-Alternate-Signer-Last-Name" }
       },
       "dependencies": {
         "X-VA-NonVeteranClaimant-First-Name": ["X-VA-NonVeteranClaimant-Last-Name"],
         "X-VA-NonVeteranClaimant-Middle-Initial": ["X-VA-NonVeteranClaimant-First-Name", "X-VA-NonVeteranClaimant-Last-Name"],
-        "X-VA-NonVeteranClaimant-Last-Name": ["X-VA-NonVeteranClaimant-First-Name"]
+        "X-VA-NonVeteranClaimant-Last-Name": ["X-VA-NonVeteranClaimant-First-Name"],
+        "X-Alternate-Signer-First-Name": ["X-Alternate-Signer-Last-Name"],
+        "X-Alternate-Signer-Middle-Initial": ["X-Alternate-Signer-First-Name", "X-Alternate-Signer-Last-Name"],
+        "X-Alternate-Signer-Last-Name": ["X-Alternate-Signer-First-Name"]
       },
       "required": [
         "X-VA-SSN",
@@ -53,26 +59,38 @@
       "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)"
     },
 
-    "X-VA-First-Name": {
+    "First-Name": {
       "type": "string",
-      "description": "Veteran's first name",
       "minLength": 1,
       "maxLength": 30,
       "$comment": "can be whitespace, to accommodate those with 1 legal name"
     },
 
+    "Middle-Initial": {
+      "minLength": 1,
+      "maxLength": 1,
+      "$ref": "#/definitions/nonBlankString" 
+    },
+
+    "Last-Name": {
+      "minLength":  1,
+      "maxLength":  40,
+      "$ref":  "#/definitions/nonBlankString" 
+    },
+
+    "X-VA-First-Name": {
+        "description": "Veteran's first name",
+        "$ref": "#/definitions/First-Name"
+    },
+
     "X-VA-Middle-Initial": {
-      "allOf": [
-        { "description": "Veteran's middle initial", "minLength": 1, "maxLength": 1 },
-        { "$ref": "#/definitions/nonBlankString" }
-      ]
+      "description": "Veteran's middle initial",
+      "$ref": "#/definitions/Middle-Initial"
     },
 
     "X-VA-Last-Name": {
-      "allOf": [
-        { "description":  "Veteran's last name", "minLength":  1, "maxLength":  40 },
-        { "$ref":  "#/definitions/nonBlankString" }
-      ]
+      "description":  "Veteran's last name",
+      "$ref":  "#/definitions/Last-Name"
     },
 
     "X-VA-Birth-Date": {
@@ -81,25 +99,18 @@
     },
 
     "X-VA-NonVeteranClaimant-First-Name": {
-      "type": "string",
       "description": "Non-Veteran Claimants's first name",
-      "minLength": 1,
-      "maxLength": 30,
-      "$comment": "can be whitespace, to accommodate those with 1 legal name"
+      "$ref": "#/definitions/First-Name"
     },
 
     "X-VA-NonVeteranClaimant-Middle-Initial": {
-      "allOf": [
-        { "description": "Non-Veteran Claimants's middle initial", "minLength": 1, "maxLength": 1 },
-        { "$ref": "#/definitions/nonBlankString" }
-      ]
+      "description": "Non-Veteran Claimants's middle initial",
+      "$ref": "#/definitions/Middle-Initial"
     },
 
     "X-VA-NonVeteranClaimant-Last-Name": {
-      "allOf": [
-        { "description": "Non-Veteran Claimants's last name", "minLength": 1, "maxLength": 40 },
-        { "$ref": "#/definitions/nonBlankString" }
-      ]
+      "description": "Non-Veteran Claimants's last name",
+      "$ref":  "#/definitions/Last-Name"
     },
 
     "X-VA-File-Number": {
@@ -134,6 +145,20 @@
         { "description": "Consumer GUID", "minLength": 1, "maxLength": 255 },
         { "$ref": "#/definitions/nonBlankString" }
       ]
+    },
+    "X-Alternate-Signer-First-Name": {
+      "description": "Alternate signer's first name",
+      "$ref": "#/definitions/First-Name"
+    },
+
+    "X-Alternate-Signer-Middle-Initial": {
+      "description": "Alternate signer's middle initial",
+      "$ref": "#/definitions/Middle-Initial"
+    },
+
+    "X-Alternate-Signer-Last-Name": {
+      "description":  "Alternate signer's last name",
+      "$ref": "#/definitions/Last-Name"
     }
   }
 }
