@@ -13,6 +13,7 @@ module AppealsApi
             @supplemental_claim = supplemental_claim
           end
 
+          # rubocop:disable Metrics/MethodLength
           def form_fill
             # Section I: Identifying Information
             # Name, address and email filled out through autosize text box, not pdf fields
@@ -35,9 +36,7 @@ module AppealsApi
               # Claimant
               # Claimant name is filled out through autosize text box, not pdf fields
               form_fields.claimant_middle_initial => form_data.claimant.middle_initial,
-
               form_fields.claimant_type => form_data.claimant_type,
-
               form_fields.benefit_type => form_data.benefit_type,
 
               # Section II: Issues (allows 7 in document fields)
@@ -51,10 +50,12 @@ module AppealsApi
               form_fields.form_5103_notice_acknowledged => form_data.form_5103_notice_acknowledged,
 
               # Section V: Signatures
-              # Signatures filled out through autosize text box, not pdf fields
-              form_fields.date_signed => form_data.date_signed
+              form_fields.date_signed => (form_data.date_signed if form_data.alternate_signer_full_name.blank?),
+              form_fields.alternate_signer_date_signed =>
+                (form_data.date_signed if form_data.alternate_signer_full_name.present?)
             }
           end
+          # rubocop:enable Metrics/MethodLength
 
           def insert_overlaid_pages(form_fill_path)
             pdftk = PdfForms.new(Settings.binaries.pdftk)
@@ -131,8 +132,14 @@ module AppealsApi
               fill_contestable_issues_text pdf
               pdf.start_new_page
 
-              pdf.text_box form_data.signature_of_veteran_claimant_or_rep,
-                           default_text_opts.merge(form_fields.boxes[:signature_of_veteran_claimant_or_rep])
+              # if alternate signer provided, leave vet_claimant\rep signature blank
+              if form_data.alternate_signer_full_name.present?
+                pdf.text_box form_data.signature_of_alternate_signer,
+                             default_text_opts.merge(form_fields.boxes[:signature_of_alternate_signer])
+              else
+                pdf.text_box form_data.signature_of_veteran_claimant_or_rep,
+                             default_text_opts.merge(form_fields.boxes[:signature_of_veteran_claimant_or_rep])
+              end
 
               fill_evidence_name_location_text pdf
               fill_new_evidence_dates pdf

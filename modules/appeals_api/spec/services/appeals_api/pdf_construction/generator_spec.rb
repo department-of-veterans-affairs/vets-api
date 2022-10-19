@@ -225,6 +225,36 @@ describe AppealsApi::PdfConstruction::Generator do
         end
       end
 
+      context 'pdf verification alternate signer' do
+        let(:supplemental_claim) { create(:supplemental_claim, evidence_submission_indicated: true, created_at: '2021-02-03T14:15:16Z') }
+
+        it 'generates the expected pdf' do
+          supplemental_claim.auth_headers['X-Alternate-Signer-First-Name'] = ' Wwwwwwww '
+          supplemental_claim.auth_headers['X-Alternate-Signer-Middle-Initial'] = 'W'
+          supplemental_claim.auth_headers['X-Alternate-Signer-Last-Name'] = 'Wwwwwwwwww'
+
+          generated_pdf = described_class.new(supplemental_claim, pdf_version: 'v2').generate
+          expected_pdf = fixture_filepath('expected_200995_alternate_signer.pdf', version: 'v2')
+          expect(generated_pdf).to match_pdf(expected_pdf)
+          File.delete(generated_pdf) if File.exist?(generated_pdf)
+        end
+      end
+
+      context 'pdf verification alternate signer overflow' do
+        let(:supplemental_claim) { create(:supplemental_claim, evidence_submission_indicated: true, created_at: '2021-02-03T14:15:16Z') }
+
+        it 'generates the expected pdf' do
+          supplemental_claim.auth_headers['X-Alternate-Signer-First-Name'] = 'W' * 30
+          supplemental_claim.auth_headers['X-Alternate-Signer-Middle-Initial'] = 'W' * 1
+          supplemental_claim.auth_headers['X-Alternate-Signer-Last-Name'] = 'W' * 40
+
+          generated_pdf = described_class.new(supplemental_claim, pdf_version: 'v2').generate
+          expected_pdf = fixture_filepath('expected_200995_alternate_signer_overflow.pdf', version: 'v2')
+          expect(generated_pdf).to match_pdf(expected_pdf)
+          File.delete(generated_pdf) if File.exist?(generated_pdf)
+        end
+      end
+
       context 'pdf extra content verification' do
         let(:extra_supplemental_claim) { create(:extra_supplemental_claim, created_at: '2021-02-03T14:15:16Z') }
 

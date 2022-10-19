@@ -119,6 +119,26 @@ module AppealsApi
       data_attributes['claimantTypeOtherValue']&.strip
     end
 
+    def alternate_signer_first_name
+      auth_headers['X-Alternate-Signer-First-Name']&.strip
+    end
+
+    def alternate_signer_middle_initial
+      auth_headers['X-Alternate-Signer-Middle-Initial']&.strip
+    end
+
+    def alternate_signer_last_name
+      auth_headers['X-Alternate-Signer-Last-Name']&.strip
+    end
+
+    def alternate_signer_full_name
+      first_name = alternate_signer_first_name
+      middle_initial = alternate_signer_middle_initial
+      last_name = alternate_signer_last_name
+
+      "#{first_name} #{middle_initial} #{last_name}".squeeze(' ').strip
+    end
+
     def contestable_issues
       issues = form_data['included'] || []
 

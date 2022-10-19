@@ -22,7 +22,10 @@ module AppealsApi
             pdf.text("\n<b>Additional Evidence Names and Locations</b>\n", inline_format: true)
             pdf.table(extra_locations_table_data, width: 540, header: true)
 
-            pdf.text("\n\n\n\n\n<b>Signature of veteran, claimant, or representative:</b>\n #{form_data.signing_appellant.full_name[0...180]}\n - Signed by digital authentication to api.va.gov", inline_format: true) if form_data.long_signature?
+            if form_data.long_signature?
+              signature_name = form_data.alternate_signer_full_name.presence || form_data.signing_appellant.full_name
+              pdf.text("\n\n\n\n\n<b>Signature of veteran, claimant, or representative:</b>\n #{signature_name[0...180]}\n - Signed by digital authentication to api.va.gov", inline_format: true)
+            end
 
             pdf
           end

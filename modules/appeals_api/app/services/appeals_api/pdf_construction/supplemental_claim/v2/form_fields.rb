@@ -98,6 +98,10 @@ module AppealsApi
             'form1[0].#subform[3].DATESIGNED[0]'
           end
 
+          def alternate_signer_date_signed
+            'form1[0].#subform[3].DATESIGNED[1]'
+          end
+
           def contestable_issues_coordinates
             [].tap do |n|
               Structure::MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM.times do |i|
@@ -138,6 +142,7 @@ module AppealsApi
             end
           end
 
+          # rubocop:disable Metrics/MethodLength
           def boxes
             {
               # PAGE 3 '#subform[2]'
@@ -164,9 +169,11 @@ module AppealsApi
               new_evidence_locations: new_evidence_locations_coordinates,
               new_evidence_dates: new_evidence_dates_coordinates,
 
-              signature_of_veteran_claimant_or_rep: { at: [0, 251], width: 410, height: 10, valign: :top }
+              signature_of_veteran_claimant_or_rep: { at: [0, 251], width: 410, height: 10, valign: :top },
+              signature_of_alternate_signer: { at: [0, 90], width: 410, height: 10, valign: :top }
             }
           end
+          # rubocop:enable Metrics/MethodLength
         end
       end
     end
