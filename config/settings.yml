@@ -1178,6 +1178,7 @@ vanotify:
       api_key: fake_secret
       template_id:
         fsr_confirmation_email: fake_template_id
+        vha_fsr_confirmation_email: fake_template_id
   mock: false
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
