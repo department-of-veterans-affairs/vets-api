@@ -104,7 +104,7 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
             service = described_class.new(user)
             expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(
               user.email.downcase,
-              described_class::CONFIRMATION_TEMPLATE,
+              described_class::VBA_CONFIRMATION_TEMPLATE,
               {
                 'name' => user.first_name,
                 'time' => '48 hours',
@@ -199,7 +199,7 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
       service = described_class.new(user)
       expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(
         user.email.downcase,
-        described_class::CONFIRMATION_TEMPLATE,
+        described_class::VHA_CONFIRMATION_TEMPLATE,
         {
           'name' => user.first_name,
           'time' => '48 hours',

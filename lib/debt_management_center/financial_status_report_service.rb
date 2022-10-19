@@ -25,7 +25,8 @@ module DebtManagementCenter
 
     STATSD_KEY_PREFIX = 'api.dmc'
     DATE_TIMEZONE = 'Central Time (US & Canada)'
-    CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.fsr_confirmation_email
+    VBA_CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.fsr_confirmation_email
+    VHA_CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.vha_fsr_confirmation_email
 
     ##
     # Submit a financial status report to the Debt Management Center
@@ -86,7 +87,7 @@ module DebtManagementCenter
       response = perform(:post, 'financial-status-report/formtopdf', vba_form)
       fsr_response = DebtManagementCenter::FinancialStatusReportResponse.new(response.body)
 
-      send_confirmation_email if response.success?
+      send_confirmation_email(VBA_CONFIRMATION_TEMPLATE) if response.success?
 
       update_filenet_id(fsr_response)
       { status: fsr_response.status }
@@ -109,7 +110,7 @@ module DebtManagementCenter
         vbs_responses << vbs_response
       end
 
-      send_confirmation_email if vbs_responses.all?(&:success?)
+      send_confirmation_email(VHA_CONFIRMATION_TEMPLATE) if vbs_responses.all?(&:success?)
 
       { status: vbs_responses.collect(&:status) }
     end
@@ -205,13 +206,13 @@ module DebtManagementCenter
       form['applicantCertifications']['veteranDateSigned'] = date_formatted if form['applicantCertifications']
     end
 
-    def send_confirmation_email
+    def send_confirmation_email(template_id)
       return unless Flipper.enabled?(:fsr_confirmation_email)
 
       email = @user.email&.downcase
       return if email.blank?
 
-      DebtManagementCenter::VANotifyEmailJob.perform_async(email, CONFIRMATION_TEMPLATE, email_personalization_info)
+      DebtManagementCenter::VANotifyEmailJob.perform_async(email, template_id, email_personalization_info)
     end
 
     def email_personalization_info
