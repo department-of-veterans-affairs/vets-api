@@ -155,6 +155,7 @@ module SignIn
       @user_identity_for_mpi_query ||= UserIdentity.new({ idme_uuid: idme_uuid,
                                                           logingov_uuid: logingov_uuid,
                                                           loa: loa,
+                                                          mhv_icn: mhv_icn,
                                                           uuid: credential_uuid })
     end
 
