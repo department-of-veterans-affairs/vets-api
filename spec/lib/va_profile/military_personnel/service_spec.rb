@@ -72,14 +72,12 @@ describe VAProfile::MilitaryPersonnel::Service do
     end
 
     context 'when not successful' do
-      context 'with a 400 error' do
-        it 'returns nil service history' do
-          VCR.use_cassette('va_profile/military_personnel/post_read_service_history_400') do
-            response = subject.get_service_history
+      it 'returns nil service history' do
+        VCR.use_cassette('va_profile/military_personnel/post_read_service_history_400') do
+          response = subject.get_service_history
 
-            expect(response).not_to be_ok
-            expect(response.episodes.count).to eq(0)
-          end
+          expect(response).not_to be_ok
+          expect(response.episodes.count).to eq(0)
         end
       end
 
