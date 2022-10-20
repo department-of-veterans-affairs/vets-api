@@ -965,8 +965,8 @@ module Swagger
             end
           end
 
-          response 502 do
-            key :description, 'Unexpected response body'
+          response 400 do
+            key :description, '_CUF_UNEXPECTED_ERROR'
             schema do
               key :required, [:errors]
 
@@ -974,12 +974,12 @@ module Swagger
                 key :type, :array
                 items do
                   key :required, %i[title detail code status source]
-                  property :title, type: :string, example: 'Unexpected response body'
+                  property :title, type: :string, example: '_CUF_UNEXPECTED_ERROR'
                   property :detail,
                            type: :string,
-                           example: 'EMIS service responded with something other than the expected array of service history hashes.'
-                  property :code, type: :string, example: 'EMIS_HIST502'
-                  property :status, type: :string, example: '502'
+                           example: 'there was an error encountered processing the Request.  Please retry.  If problem persists, please contact support with a copy of the Response.'
+                  property :code, type: :string, example: 'CORE100'
+                  property :status, type: :string, example: '400'
                   property :source, type: :string, example: 'V0::Profile::ServiceHistoriesController'
                 end
               end

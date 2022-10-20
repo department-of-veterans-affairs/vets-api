@@ -465,9 +465,6 @@ features:
   profile_user_claims:
     actor_type: user
     description: When enabled, /v0/user will return user profile claims for accessing service endpoints.
-  profile_get_military_info_from_vaprofile:
-    actor_type: user
-    description: When enabled, the profile page will get military service history from VA Profile instead of eMIS.
   profile_show_military_academy_attendance:
     actor_type: user
     description: When enabled, profile service history will include military academy attendance.
