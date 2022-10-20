@@ -15,6 +15,8 @@ module AppealsApi
     # @option opts [String] :to The status to which the appeal should be updated. Required.
     # @option opts [Datetime] :status_update_time The time at which the status update was called. Required.
     # @option opts [String] :statusable_id The associated appeal's guid. Required.
+    # @option opts [String] :code The status code, if any. Optional.
+    # @option opts [String] :detail The status detail, if any. Optional.
 
     def perform(opts)
       @opts = opts
@@ -30,7 +32,9 @@ module AppealsApi
         to: opts['to'],
         status_update_time: opts['status_update_time'],
         statusable_id: opts['statusable_id'],
-        statusable_type: 'AppealsApi::HigherLevelReview'
+        statusable_type: 'AppealsApi::HigherLevelReview',
+        code: opts['code'],
+        detail: opts['detail']
       )
     end
 
@@ -40,7 +44,9 @@ module AppealsApi
         to: opts['to'],
         status_update_time: opts['status_update_time'],
         statusable_id: opts['statusable_id'],
-        statusable_type: 'AppealsApi::NoticeOfDisagreement'
+        statusable_type: 'AppealsApi::NoticeOfDisagreement',
+        code: opts['code'],
+        detail: opts['detail']
       )
     end
 
@@ -50,7 +56,9 @@ module AppealsApi
         to: opts['to'],
         status_update_time: opts['status_update_time'],
         statusable_id: opts['statusable_id'],
-        statusable_type: 'AppealsApi::SupplementalClaim'
+        statusable_type: 'AppealsApi::SupplementalClaim',
+        code: opts['code'],
+        detail: opts['detail']
       )
     end
 

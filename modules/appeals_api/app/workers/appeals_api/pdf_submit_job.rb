@@ -87,7 +87,7 @@ module AppealsApi
 
     def handle_upload_error(appeal, e)
       log_upload_error(appeal, e)
-      appeal.update(status: 'error', code: e.code, detail: e.detail)
+      appeal.update_status(status: 'error', code: e.code, detail: e.detail)
 
       if e.code == 'DOC201' || e.code == 'DOC202'
         notify(
