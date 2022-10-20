@@ -189,18 +189,28 @@ module AppealsApi
     end
 
     # rubocop:disable Metrics/MethodLength
-    def update_status!(status:, code: nil, detail: nil)
+    def update_status(status:, code: nil, detail: nil, raise_on_error: false)
       current_status = self.status
-      update!(status: status, code: code, detail: detail)
+      current_code = self.code
+      current_detail = self.detail
 
-      if status != current_status
+      send(
+        raise_on_error ? :update! : :update,
+        status: status,
+        code: code,
+        detail: detail
+      )
+
+      if status != current_status || code != current_code || detail != current_detail
         AppealsApi::StatusUpdatedJob.perform_async(
           {
             status_event: 'sc_status_updated',
             from: current_status,
             to: status.to_s,
             status_update_time: Time.zone.now.iso8601,
-            statusable_id: id
+            statusable_id: id,
+            code: code,
+            detail: detail
           }
         )
       end
@@ -222,6 +232,10 @@ module AppealsApi
       end
     end
     # rubocop:enable Metrics/MethodLength
+
+    def update_status!(status:, code: nil, detail: nil)
+      update_status(status: status, code: code, detail: detail, raise_on_error: true)
+    end
 
     def lob
       {

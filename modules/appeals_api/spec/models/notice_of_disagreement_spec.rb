@@ -153,91 +153,16 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     it { expect(notice_of_disagreement.stamp_text).to eq 'Doe - 6789' }
   end
 
-  describe '#update_status!' do
-    it 'error status' do
-      notice_of_disagreement.update_status!(status: 'error', code: 'code', detail: 'detail')
-
-      expect(notice_of_disagreement.status).to eq('error')
-      expect(notice_of_disagreement.code).to eq('code')
-      expect(notice_of_disagreement.detail).to eq('detail')
-    end
-
-    it 'other valid status' do
-      notice_of_disagreement.update_status!(status: 'success')
-
-      expect(notice_of_disagreement.status).to eq('success')
-    end
-
-    it 'invalid status' do
-      expect do
-        notice_of_disagreement.update_status!(status: 'invalid_status')
-      end.to raise_error(ActiveRecord::RecordInvalid,
-                         'Validation failed: Status is not included in the list')
-    end
-
-    context 'when incoming and current statuses are different' do
-      it 'enqueues the status updated job' do
-        expect(AppealsApi::StatusUpdatedJob.jobs.size).to eq 0
-        notice_of_disagreement.update_status!(status: 'submitted')
-        expect(AppealsApi::StatusUpdatedJob.jobs.size).to eq 1
-      end
-    end
-
-    context 'when incoming and current statuses are the same' do
-      it 'does not enqueues the status updated job' do
-        expect(AppealsApi::StatusUpdatedJob.jobs.size).to eq 0
-        notice_of_disagreement.update_status!(status: 'pending')
-        expect(AppealsApi::StatusUpdatedJob.jobs.size).to eq 0
-      end
-    end
-
-    context "when status is 'submitted' and claimant or veteran email data present" do
-      it 'enqueues the appeal received job' do
-        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
-        notice_of_disagreement.update_status!(status: 'submitted')
-        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 1
-      end
-    end
-
-    context "when status is not 'submitted' but claimant or veteran email data present" do
-      it 'does not enqueue the appeal received job' do
-        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
-        notice_of_disagreement.update_status!(status: 'pending')
-        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
-      end
-    end
-
-    context 'when veteran appellant without email provided' do
-      it 'gets the ICN and enqueues the appeal received job' do
-        nod = described_class.create!(
-          auth_headers: auth_headers,
-          api_version: 'V1',
-          form_data: form_data.deep_merge(
-            { 'data' => { 'attributes' => { 'veteran' => { 'emailAddressText' => nil } } } }
-          )
+  it_behaves_like 'an appeal model with updatable status' do
+    let(:example_instance) { notice_of_disagreement }
+    let(:instance_without_email) do
+      described_class.create!(
+        auth_headers: auth_headers,
+        api_version: 'V1',
+        form_data: form_data.deep_merge(
+          { 'data' => { 'attributes' => { 'veteran' => { 'emailAddressText' => nil } } } }
         )
-
-        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
-        nod.update_status!(status: 'submitted')
-        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 1
-
-        email_identifier = AppealsApi::AppealReceivedJob.jobs.last['args'].first['email_identifier']
-        expect(email_identifier.values).to include 'ICN'
-      end
-    end
-
-    context 'when auth_headers are blank' do
-      before do
-        notice_of_disagreement.save
-        notice_of_disagreement.update_columns form_data_ciphertext: nil, auth_headers_ciphertext: nil # rubocop:disable Rails/SkipsModelValidations
-        notice_of_disagreement.reload
-      end
-
-      it 'does not enqueue the appeal received job' do
-        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
-        notice_of_disagreement.update_status!(status: 'submitted')
-        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
-      end
+      )
     end
   end
 
