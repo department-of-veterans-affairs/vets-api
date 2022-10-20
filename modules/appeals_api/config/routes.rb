@@ -10,6 +10,7 @@ AppealsApi::Engine.routes.draw do
   get '/v1/upstream_healthcheck', to: 'metadata#decision_reviews_upstream_healthcheck'
   get '/v2/upstream_healthcheck', to: 'metadata#decision_reviews_upstream_healthcheck'
   get '/v0/appeals', to: 'v0/appeals#index'
+  get '/v1/appeals', to: 'v1/appeals#index'
 
   namespace :v1, defaults: { format: 'json' } do
     namespace :decision_reviews do
