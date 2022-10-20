@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'pp'
 require 'set'
 
 namespace :form526 do
