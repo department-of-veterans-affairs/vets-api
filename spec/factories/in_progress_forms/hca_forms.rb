@@ -18,8 +18,7 @@ FactoryBot.define do
           'view:facilityState': 'AL',
           vaMedicalFacility: '520GA'
         },
-        'view:locator': {
-        },
+        'view:locator': {},
         wantsInitialVaContact: true,
         isCoveredByHealthInsurance: true,
         providers: [
