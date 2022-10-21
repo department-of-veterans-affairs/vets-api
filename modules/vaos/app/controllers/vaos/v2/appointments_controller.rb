@@ -99,13 +99,55 @@ module VAOS
       end
 
       def new_appointment
-        @new_appointment ||=
-          appointments_service.post_appointment(create_params)
+        @new_appointment ||= get_new_appointment
       end
 
       def updated_appointment
         @updated_appointment ||=
           appointments_service.update_appointment(update_appt_id, status_update)
+      end
+
+      # Makes a call to the VAOS service to create a new appointment.
+      def get_new_appointment
+        if create_params[:kind] == 'clinic' && create_params[:status] == 'booked' # a direct scheduled appointment
+          modify_desired_date(create_params, get_facility_timezone)
+        end
+
+        appointments_service.post_appointment(create_params)
+      end
+
+      # Modifies params so that the facility timezone offset is included in the desired date.
+      # The desired date is sent in this format: 2019-12-31T00:00:00-00:00
+      # This modifies the params in place. If params does not contain a desired date, it is not modified.
+      #
+      # @param [ActionController::Parameters] create_params - the params to be modified
+      # @param [String] timezone - the facility timezone id
+      def modify_desired_date(create_params, timezone)
+        desired_date = create_params[:extension]&.[](:desired_date)
+
+        return create_params if desired_date.nil?
+
+        create_params[:extension][:desired_date] = add_timezone_offset(desired_date, timezone)
+      end
+
+      # Returns a [DateTime] object with the timezone offset added.
+      #
+      # @param [DateTime] date - the date to be modified,  required
+      # @param [String] tz - the timezone id, if nil, the offset is not added
+      # @return [DateTime] date with timezone offset
+      #
+      def add_timezone_offset(date, tz)
+        raise Common::Exceptions::ParameterMissing, 'date' if date.nil?
+
+        utc_date = date.to_time.utc
+        date_w_tz = utc_date.in_time_zone(tz).iso8601
+        date_w_tz.to_datetime
+      end
+
+      # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
+      def get_facility_timezone
+        facility_info = get_facility(create_params[:location_id])
+        facility_info[:timezone]&.[](:time_zone_id)
       end
 
       def merge_clinics(appointments)
@@ -177,68 +219,76 @@ module VAOS
 
       # rubocop:disable Metrics/MethodLength
       def create_params
-        params.permit(:kind,
-                      :status,
-                      :location_id,
-                      :cancellable,
-                      :clinic,
-                      :comment,
-                      :reason,
-                      :service_type,
-                      :preferred_language,
-                      :minutes_duration,
-                      :patient_instruction,
-                      :priority,
-                      reason_code: [
-                        :text, { coding: %i[system code display] }
-                      ],
-                      slot: %i[id start end],
-                      contact: [telecom: %i[type value]],
-                      practitioner_ids: %i[system value],
-                      requested_periods: %i[start end],
-                      practitioners: [
-                        :first_name,
-                        :last_name,
-                        :practice_name,
-                        {
-                          name: %i[family given]
-                        },
-                        {
-                          identifier: %i[system value]
-                        },
-                        {
-                          address: [
-                            :type,
-                            { line: [] },
-                            :city,
-                            :state,
-                            :postal_code,
-                            :country,
-                            :text
-                          ]
-                        }
-                      ],
-                      preferred_location: %i[city state],
-                      preferred_times_for_phone_call: [],
-                      telehealth: [
-                        :url,
-                        :group,
-                        :vvs_kind,
-                        {
-                          atlas: [
-                            :site_code,
-                            :confirmation_code,
-                            {
-                              address: %i[
-                                street_address city state
-                                zip country latitude longitude
-                                additional_details
-                              ]
-                            }
-                          ]
-                        }
-                      ],
-                      extension: %i[desired_date])
+        @create_params ||= begin
+          # Gets around a bug that turns param values of [] into [""]. This changes them back to [].
+          # Without this the VAOS Service POST appointments call will fail as VAOS Service tries to parse [""].
+          params.transform_values! { |v| v.is_a?(Array) && v.count == 1 && (v[0] == '') ? [] : v }
+
+          params.permit(
+            :kind,
+            :status,
+            :location_id,
+            :cancellable,
+            :clinic,
+            :comment,
+            :reason,
+            :service_type,
+            :preferred_language,
+            :minutes_duration,
+            :patient_instruction,
+            :priority,
+            reason_code: [
+              :text, { coding: %i[system code display] }
+            ],
+            slot: %i[id start end],
+            contact: [telecom: %i[type value]],
+            practitioner_ids: %i[system value],
+            requested_periods: %i[start end],
+            practitioners: [
+              :first_name,
+              :last_name,
+              :practice_name,
+              {
+                name: %i[family given]
+              },
+              {
+                identifier: %i[system value]
+              },
+              {
+                address: [
+                  :type,
+                  { line: [] },
+                  :city,
+                  :state,
+                  :postal_code,
+                  :country,
+                  :text
+                ]
+              }
+            ],
+            preferred_location: %i[city state],
+            preferred_times_for_phone_call: [],
+            telehealth: [
+              :url,
+              :group,
+              :vvs_kind,
+              {
+                atlas: [
+                  :site_code,
+                  :confirmation_code,
+                  {
+                    address: %i[
+                      street_address city state
+                      zip country latitude longitude
+                      additional_details
+                    ]
+                  }
+                ]
+              }
+            ],
+            extension: %i[desired_date]
+          )
+        end
       end
       # rubocop:enable Metrics/MethodLength
 
