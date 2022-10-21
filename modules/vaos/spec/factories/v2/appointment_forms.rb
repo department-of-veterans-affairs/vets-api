@@ -73,18 +73,22 @@ FactoryBot.define do
       kind { 'clinic' }
       status { 'booked' }
       location_id { '983' }
-      clinic { '1020' } # this is the clinic id for audiology
+      clinic { '999' } # this is the clinic id for audiology
       slot do
         {
-          # 'end': DateTime.new(2022, 0o1, 26, 16, 0, 0).iso8601(3),
-          'id': '3230323230313236313530303A323032323031323631363030'
-          # 'start': DateTime.new(2022, 0o1, 26, 15, 0, 0).iso8601(3)
+          'id': '3230323231313330323034353A323032323131333032313030'
         }
       end
       extension do
         {
-          'desired_date': DateTime.new(2022, 0o1, 20)
+          'desired_date': DateTime.new(2022, 11, 30)
         }
+      end
+      reason_code do
+        { 'coding' => [
+            'code': 'Routine Follow-up'
+          ],
+          'text': 'testing' }
       end
     end
 
@@ -97,7 +101,7 @@ FactoryBot.define do
         { 'codeing' => [
             'code': 'Routine Follow-up'
           ],
-          'text': 'text' }
+          'text': 'testing' }
       end
       contact do
         {

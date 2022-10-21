@@ -14,7 +14,10 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
   }
 
   mock_facility = {
-    'test' => 'test'
+    'test' => 'test',
+    'timezone' => {
+      'timeZoneId' => 'America/New_York'
+    }
   }
 
   before do
@@ -77,7 +80,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
       it 'creates the va appointment - booked' do
         VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_JACQUELINE_M',
                          match_requests_on: %i[method path query]) do
-          post '/vaos/v2/appointments', params: va_proposed_request_body, headers: inflection_header
+          post '/vaos/v2/appointments', params: va_booked_request_body, headers: inflection_header
           expect(response).to have_http_status(:created)
           expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
         end
