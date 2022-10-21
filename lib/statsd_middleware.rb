@@ -81,6 +81,7 @@ class StatsdMiddleware
     resources-and-support
     search
     search-representative
+    secure-messaging
     static-pages
     terms-and-conditions
     vaos
