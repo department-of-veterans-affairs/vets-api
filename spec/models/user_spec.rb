@@ -991,11 +991,6 @@ RSpec.describe User, type: :model do
           allow(user.identity).to receive(:birth_date).and_return nil
         end
 
-        it 'logs a cannot find birth date message to Rails logger' do
-          expect(Rails.logger).to receive(:info).with "[User] Cannot find birth date for User with uuid: #{user.uuid}"
-          user.birth_date
-        end
-
         it 'returns nil' do
           expect(user.birth_date).to eq nil
         end

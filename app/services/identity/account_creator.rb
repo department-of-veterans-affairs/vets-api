@@ -1,11 +1,7 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
-
 module Identity
   class AccountCreator
-    include SentryLogging
-
     def initialize(user)
       @user = user
     end
@@ -35,7 +31,6 @@ module Identity
     end
 
     def find_matching_account(accounts)
-      Rails.logger.warn("[Identity::AccountCreator] Multiple Account Records with matching ids: #{accounts.map(&:id)}")
       match_account_for_identifier(accounts, :idme_uuid) ||
         match_account_for_identifier(accounts, :logingov_uuid) ||
         match_account_for_identifier(accounts, :sec_id) ||
@@ -70,9 +65,6 @@ module Identity
 
       return account if attribute_diff.blank?
 
-      log_message_to_sentry('Account record does not match User',
-                            'warning',
-                            { account: account_attributes, user: user_attributes })
       if attribute_diff[:logingov_uuid]
         clean_up_deprecated_accounts(account.id,
                                      attribute_diff[:logingov_uuid],
@@ -91,12 +83,7 @@ module Identity
 
       account = Account.find_by(identifier => uuid)
 
-      if account && account.id != current_account_id
-        log_message_to_sentry('Deleting deprecated account',
-                              'warning',
-                              "Account ID: #{account.id}, Conflicting Identifier: #{identifier}, UUID: #{uuid}")
-        account.destroy
-      end
+      account.destroy if account && account.id != current_account_id
     end
   end
 end
