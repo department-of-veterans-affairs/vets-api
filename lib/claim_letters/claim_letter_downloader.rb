@@ -55,6 +55,8 @@ module ClaimStatusTool
     private
 
     def file_number
+      return @user.ssn if @user.participant_id.blank?  # <- Some staging accounts don't have a participant id.
+
       bgs_file_number = BGS::People::Request.new.find_person_by_participant_id(user: @user).file_number
       bgs_file_number.empty? ? @user.ssn : bgs_file_number
     end
