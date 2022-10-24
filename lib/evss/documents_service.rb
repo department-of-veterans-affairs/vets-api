@@ -12,15 +12,17 @@ module EVSS
 
     def upload(file_body, document_data)
       headers = { 'Content-Type' => 'application/octet-stream' }
-      post 'queuedDocumentUploadService/ajaxUploadFile', file_body, headers do |req|
-        req.params['systemName'] = SYSTEM_NAME
-        req.params['docType'] = document_data.document_type
-        req.params['docTypeDescription'] = document_data.description
-        req.params['claimId'] = document_data.evss_claim_id
-        # In theory one document can correspond to multiple tracked items
-        # To do that, add multiple query parameters
-        req.params['trackedItemIds'] = document_data.tracked_item_id
-        req.params['qqfile'] = document_data.file_name
+      Timeout.timeout(DEFAULT_TIMEOUT) do
+        post 'queuedDocumentUploadService/ajaxUploadFile', file_body, headers do |req|
+          req.params['systemName'] = SYSTEM_NAME
+          req.params['docType'] = document_data.document_type
+          req.params['docTypeDescription'] = document_data.description
+          req.params['claimId'] = document_data.evss_claim_id
+          # In theory one document can correspond to multiple tracked items
+          # To do that, add multiple query parameters
+          req.params['trackedItemIds'] = document_data.tracked_item_id
+          req.params['qqfile'] = document_data.file_name
+        end
       end
     end
 
