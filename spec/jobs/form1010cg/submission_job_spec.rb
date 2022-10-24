@@ -51,6 +51,23 @@ RSpec.describe Form1010cg::SubmissionJob do
   describe '#perform' do
     let(:job) { described_class.new }
 
+    context 'when there is a standarderror' do
+      it 'increments statsd' do
+        allow_any_instance_of(Form1010cg::Service).to receive(
+          :process_claim_v2!
+        ).and_raise(StandardError)
+
+        expect(StatsD).to receive(:increment).twice.with('api.form1010cg.async.retries')
+        expect(StatsD).to receive(:increment).with('api.form1010cg.async.applications_retried')
+
+        2.times do
+          expect do
+            job.perform(claim.id)
+          end.to raise_error(StandardError)
+        end
+      end
+    end
+
     context 'when the service throws a record parse error' do
       it 'rescues the error and increments statsd' do
         expect_any_instance_of(Form1010cg::Service).to receive(

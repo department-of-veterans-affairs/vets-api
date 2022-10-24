@@ -197,7 +197,13 @@ Rails.application.reloader.to_prepare do
   StatsD.increment(Form1010cg::Auditor.metrics.submission.caregivers.no_primary_one_secondary, 0)
   StatsD.increment(Form1010cg::Auditor.metrics.submission.caregivers.no_primary_two_secondary, 0)
 
-  %w[record_parse_error failed_no_retries_left failed_ten_retries].each do |key|
+  %w[
+    record_parse_error
+    failed_no_retries_left
+    failed_ten_retries
+    retries
+    applications_retried
+  ].each do |key|
     StatsD.increment("#{Form1010cg::SubmissionJob::STATSD_KEY_PREFIX}#{key}", 0)
   end
 
