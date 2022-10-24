@@ -116,7 +116,7 @@ module Common
               (500..599).cover?(exception.status)
             when Faraday::ClientError
               # we're not yet using Faraday > 1.0, but when we do, 500 errors will be Faraday::ServerError
-              (500..599).cover?(exception.response[:status])
+              (500..599).cover?(exception.response&.[](:status))
             else
               false
             end
