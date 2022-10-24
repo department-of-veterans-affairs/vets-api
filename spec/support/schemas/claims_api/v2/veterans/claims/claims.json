@@ -66,7 +66,7 @@
         "type": "string",
         "nullable": true,
         "description": "Claim ID in Lighthouse",
-        "example": "600131328"
+        "example": "0BAEFC26-1CE4-4046-9B3C-3071055603DB"
       },
       "status": {
         "type": "string",
