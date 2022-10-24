@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_10_19_135935) do
+ActiveRecord::Schema.define(version: 2022_10_20_193309) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -278,6 +278,11 @@ ActiveRecord::Schema.define(version: 2022_10_19_135935) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "status"
+    t.string "vbms_error_message"
+    t.string "bgs_error_message"
+    t.integer "vbms_upload_failure_count", default: 0
+    t.integer "bgs_upload_failure_count", default: 0
+    t.string "claim_id"
   end
 
   create_table "claims_api_intent_to_files", force: :cascade do |t|
