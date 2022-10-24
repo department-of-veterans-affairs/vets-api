@@ -187,7 +187,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
 
         uniq_statuses = response.parsed_body['data'].map { |appt| appt.dig('attributes', 'status') }.uniq
-        expect(uniq_statuses).to match_array(%w[BOOKED CANCELLED])
+        expect(uniq_statuses).to match_array(%w[BOOKED])
 
         proposed_times = response.parsed_body['data'].map { |appt| appt.dig('attributes', 'proposedTimes') }.uniq
         expect(proposed_times).to eq([nil])
@@ -217,7 +217,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
           end
         end
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['data'].size).to eq(1305)
+        expect(JSON.parse(response.body)['data'].size).to eq(980)
         # VAOS v2 appointment is only different from appointments by allowing some fields to be nil.
         # This is due to bad staging data.
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
@@ -229,7 +229,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
         expect(proposed_times).not_to eq([nil])
 
         is_pending = response.parsed_body['data'].map { |appt| appt.dig('attributes', 'isPending') }.uniq
-        expect(is_pending).to eq([true, false])
+        expect(is_pending).to match_array([true, false])
       end
     end
 
