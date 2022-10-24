@@ -35,6 +35,23 @@ module Form1010cg
       end
     rescue CARMA::Client::MuleSoftClient::RecordParseError
       StatsD.increment("#{STATSD_KEY_PREFIX}record_parse_error", tags: ["claim_id:#{claim_id}"])
+    rescue
+      StatsD.increment("#{STATSD_KEY_PREFIX}retries")
+
+      increment_applications_retried(claim_id)
+
+      raise
+    end
+
+    private
+
+    def increment_applications_retried(claim_id)
+      redis_key = "Form1010cg::SubmissionJob:#{claim_id}"
+      return if $redis.get(redis_key).present?
+
+      StatsD.increment("#{STATSD_KEY_PREFIX}applications_retried")
+
+      $redis.set(redis_key, 't')
     end
   end
 end
