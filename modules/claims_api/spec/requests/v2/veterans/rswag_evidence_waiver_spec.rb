@@ -46,29 +46,13 @@ describe 'EvidenceWaiver5103', swagger_doc: 'modules/claims_api/app/swagger/clai
                                                       'veterans',
                                                       'submit_waiver_5103.json')))
 
-          let(:bgs_response) do
-            bgs_data = JSON.parse(
-              File.read(
-                Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'claims',
-                                'find_bnft_claim_response.json')
-              ),
-              symbolize_names: true
-            )
-            bgs_data[:bnft_claim_dto][:claim_rcvd_dt] = Date.parse(
-              bgs_data[:bnft_claim_dto][:claim_rcvd_dt]
-            )
-            bgs_data[:bnft_claim_dto][:jrn_dt] = Date.parse(
-              bgs_data[:bnft_claim_dto][:jrn_dt]
-            )
-            bgs_data
-          end
           let(:scopes) { %w[claim.write] }
 
           before do |example|
             with_okta_user(scopes) do
-              expect_any_instance_of(BGS::BenefitClaimWebServiceV1)
-                .to receive(:find_bnft_claim).and_return(bgs_response)
-              submit_request(example.metadata)
+              VCR.use_cassette('bgs/benefit_claim/update_5103_200') do
+                submit_request(example.metadata)
+              end
             end
           end
 

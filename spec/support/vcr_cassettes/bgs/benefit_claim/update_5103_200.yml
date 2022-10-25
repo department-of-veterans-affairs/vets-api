@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 25 Oct 2022 01:52:04 GMT
+      - Tue, 25 Oct 2022 01:52:02 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -214,7 +214,7 @@ http_interactions:
         </port>
         </service>
         </definitions>
-  recorded_at: Tue, 25 Oct 2022 01:52:04 GMT
+  recorded_at: Tue, 25 Oct 2022 01:52:03 GMT
 - request:
     method: post
     uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/EBenefitsBnftClaimStatusWebServiceBean/EbenefitsBenefitClaimsStatus
@@ -229,11 +229,11 @@ http_interactions:
             <vaws:CLIENT_MACHINE>10.0.0.163</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>2323369717</vaws:ExternalUid>
-            <vaws:ExternalKey>2323369717</vaws:ExternalKey>
+            <vaws:ExternalUid>6351881340</vaws:ExternalUid>
+            <vaws:ExternalKey>6351881340</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
-        </env:Header><env:Body><tns:findBenefitClaimDetailsByBnftClaimId><bnftClaimId>abc123</bnftClaimId></tns:findBenefitClaimDetailsByBnftClaimId></env:Body></env:Envelope>
+        </env:Header><env:Body><tns:findBenefitClaimDetailsByBnftClaimId><bnftClaimId>600333346</bnftClaimId></tns:findBenefitClaimDetailsByBnftClaimId></env:Body></env:Envelope>
     headers:
       Host:
       - ".vba.va.gov"
@@ -242,7 +242,7 @@ http_interactions:
       Content-Type:
       - text/xml;charset=UTF-8
       Content-Length:
-      - '1025'
+      - '1028'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -251,11 +251,11 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 500
-      message: Internal Server Error
+      code: 200
+      message: OK
     headers:
       Date:
-      - Tue, 25 Oct 2022 01:52:05 GMT
+      - Tue, 25 Oct 2022 01:52:03 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -266,9 +266,18 @@ http_interactions:
       - text/xml; charset=utf-8
     body:
       encoding: UTF-8
-      string: |-
-        <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Body><ns0:Fault xmlns:ns0="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.w3.org/2003/05/soap-envelope"><faultcode>ns0:Server</faultcode><faultstring>
-        Exception Description: The object [abc123], of class [class java.lang.String], from mapping [org.eclipse.persistence.oxm.mappings.XMLDirectMapping[bnftClaimId-->bnftClaimId/text()]] with descriptor [XMLDescriptor(gov.va.vba.ebenefits.services.claimstatus.jaxws.FindBenefitClaimDetailsByBnftClaimId --> [DatabaseTable(ns0:findBenefitClaimDetailsByBnftClaimId)])], could not be converted to [class java.lang.Long].
-        Internal Exception: java.lang.NumberFormatException: For input string: "abc123"</faultstring></ns0:Fault></S:Body></S:Envelope>
-  recorded_at: Tue, 25 Oct 2022 01:52:05 GMT
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdUAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABjMuMi4yOQAA</work:WorkContext></env:Header><S:Body><ns0:findBenefitClaimDetailsByBnftClaimIdResponse
+        xmlns:ns0="http://claimstatus.services.ebenefits.vba.va.gov/"><BenefitClaimDetailsDTO><attentionNeeded>No</attentionNeeded><baseEndPrdctTypeCd>020</baseEndPrdctTypeCd><benefitClaimId>600333346</benefitClaimId><bnftClaimLcStatus><maxEstClaimCompleteDt>2022-10-13</maxEstClaimCompleteDt><minEstClaimCompleteDt>2022-10-03</minEstClaimCompleteDt><phaseChngdDt>2022-09-26T11:43:04</phaseChngdDt><phaseType>Preparation
+        for Decision</phaseType><phaseTypeChangeInd>45</phaseTypeChangeInd></bnftClaimLcStatus><bnftClaimLcStatus><maxEstClaimCompleteDt>2022-09-29</maxEstClaimCompleteDt><minEstClaimCompleteDt>2022-09-27</minEstClaimCompleteDt><phaseChngdDt>2022-09-26T11:43:00</phaseChngdDt><phaseType>Review
+        of Evidence</phaseType><phaseTypeChangeInd>34</phaseTypeChangeInd></bnftClaimLcStatus><bnftClaimLcStatus><maxEstClaimCompleteDt>2023-02-28</maxEstClaimCompleteDt><minEstClaimCompleteDt>2023-01-10</minEstClaimCompleteDt><phaseChngdDt>2022-09-26T11:02:49</phaseChngdDt><phaseType>Gathering
+        of Evidence</phaseType><phaseTypeChangeInd>23</phaseTypeChangeInd></bnftClaimLcStatus><bnftClaimLcStatus><maxEstClaimCompleteDt>2022-10-08</maxEstClaimCompleteDt><minEstClaimCompleteDt>2022-09-30</minEstClaimCompleteDt><phaseChngdDt>2022-09-23T13:53:43</phaseChngdDt><phaseType>Under
+        Review</phaseType><phaseTypeChangeInd>12</phaseTypeChangeInd></bnftClaimLcStatus><bnftClaimLcStatus><maxEstClaimCompleteDt>2022-09-26</maxEstClaimCompleteDt><minEstClaimCompleteDt>2022-09-24</minEstClaimCompleteDt><phaseChngdDt>2022-09-23T13:53:12</phaseChngdDt><phaseType>Claim
+        Received</phaseType><phaseTypeChangeInd>N</phaseTypeChangeInd></bnftClaimLcStatus><bnftClaimTypeCd>020CLMINC</bnftClaimTypeCd><claimDt>2022-09-23</claimDt><claimStatus>RFD</claimStatus><claimStatusType>Compensation</claimStatusType><contentions>bilateral
+        hearing loss (Increase), tinnitus (New)</contentions><decisionNotificationSent>No</decisionNotificationSent><developmentLetterSent>Yes</developmentLetterSent><endPrdctTypeCd>021</endPrdctTypeCd><filed5103WaiverInd>Y</filed5103WaiverInd><maxEstClaimCompleteDt>2022-10-31</maxEstClaimCompleteDt><minEstClaimCompleteDt>2022-10-11</minEstClaimCompleteDt><poa>AMERICAN
+        LEGION</poa><programType>CPL</programType><ptcpntClmantId>600043201</ptcpntClmantId><ptcpntVetId>600043201</ptcpntVetId><regionalOfficeJrsdctn>National
+        Work Queue</regionalOfficeJrsdctn><submtrApplcnTypeCd>VBMS</submtrApplcnTypeCd><submtrRoleTypeCd>VBA</submtrRoleTypeCd><tempRegionalOfficeJrsdctn></tempRegionalOfficeJrsdctn><wsyswwn><addressLine1>National
+        Work Queue</addressLine1><addressLine2>810 Vermont Avenue NW</addressLine2><addressLine3></addressLine3><city>Washington</city><state>DC</state><zip>20420</zip></wsyswwn></BenefitClaimDetailsDTO></ns0:findBenefitClaimDetailsByBnftClaimIdResponse></S:Body></S:Envelope>
+  recorded_at: Tue, 25 Oct 2022 01:52:03 GMT
 recorded_with: VCR 6.1.0
