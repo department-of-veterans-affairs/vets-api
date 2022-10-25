@@ -51,13 +51,15 @@ describe DecisionReview::Service do
 
     let(:user) do
       name = 'x' * 100
-      build :user, first_name: name, middle_name: name, last_name: name
+      icn = 123
+      build :user, first_name: name, middle_name: name, last_name: name, icn: icn
     end
 
     it 'returns a properly formatted 200 response' do
       expect(subject['X-VA-First-Name']).to eq 'x' * 12
       expect(subject['X-VA-Middle-Initial']).to eq 'X'
       expect(subject['X-VA-Last-Name']).to eq 'x' * 18
+      expect(subject['X-VA-ICN']).to eq(123)
     end
   end
 
