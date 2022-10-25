@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 10 Oct 2022 21:07:25 GMT
+      - Tue, 25 Oct 2022 01:02:31 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -398,7 +398,7 @@ http_interactions:
         </port>
         </service>
         </definitions>
-  recorded_at: Mon, 10 Oct 2022 21:07:25 GMT
+  recorded_at: Tue, 25 Oct 2022 01:02:31 GMT
 - request:
     method: post
     uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/BenefitClaimWebServiceBean/BenefitClaimWebServiceV1
@@ -413,20 +413,20 @@ http_interactions:
             <vaws:CLIENT_MACHINE>10.0.0.163</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>3575846869</vaws:ExternalUid>
-            <vaws:ExternalKey>3575846869</vaws:ExternalKey>
+            <vaws:ExternalUid>600043201</vaws:ExternalUid>
+            <vaws:ExternalKey>600043201</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
-        </env:Header><env:Body><tns:findBnftClaim><bnftClaimId>600333346</bnftClaimId></tns:findBnftClaim></env:Body></env:Envelope>
+        </env:Header><env:Body><tns:updateBnftClaim><bnftClaimDTO><bnftClaimId>600333346</bnftClaimId><bnftClaimTypeCd>020CLMINC</bnftClaimTypeCd><bnftClaimTypeLabel>Compensation</bnftClaimTypeLabel><bnftClaimTypeNm>Claim for Increase</bnftClaimTypeNm><bnftClaimUserDisplay>YES</bnftClaimUserDisplay><claimJrsdtnLctnId>123725</claimJrsdtnLctnId><claimRcvdDt>2022-09-23</claimRcvdDt><cpClaimEndPrdctTypeCd>021</cpClaimEndPrdctTypeCd><jrnDt>2022-09-26T11:43:04</jrnDt><jrnLctnId>283</jrnLctnId><jrnObjId>cd_clm_lc_status_pkg.do_create</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VBMSSYSACCT</jrnUserId><payeeTypeCd>00</payeeTypeCd><payeeTypeNm>Veteran</payeeTypeNm><pgmTypeCd>CPL</pgmTypeCd><pgmTypeNm>Compensation-Pension Live</pgmTypeNm><ptcpntClmantId>600043201</ptcpntClmantId><ptcpntClmantNm>ELLIS TAMARA</ptcpntClmantNm><ptcpntMailAddrsId>14981239</ptcpntMailAddrsId><ptcpntPymtAddrsId>14906550</ptcpntPymtAddrsId><ptcpntVetId>600043201</ptcpntVetId><ptcpntVsrId>600831201</ptcpntVsrId><stationOfJurisdiction>499</stationOfJurisdiction><statusTypeCd>RFD</statusTypeCd><statusTypeNm>Ready for Decision</statusTypeNm><submtrApplcnTypeCd>VBMS</submtrApplcnTypeCd><submtrRoleTypeCd>VBA</submtrRoleTypeCd><svcTypeCd>CP</svcTypeCd><termnlDigitNbr>15</termnlDigitNbr><filed5103WaiverInd>Y</filed5103WaiverInd></bnftClaimDTO></tns:updateBnftClaim></env:Body></env:Envelope>
     headers:
       Host:
       - ".vba.va.gov"
       Soapaction:
-      - '"findBnftClaim"'
+      - '"updateBnftClaim"'
       Content-Type:
       - text/xml;charset=UTF-8
       Content-Length:
-      - '981'
+      - '2229'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -439,7 +439,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 10 Oct 2022 21:07:26 GMT
+      - Tue, 25 Oct 2022 01:02:31 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -452,11 +452,11 @@ http_interactions:
       encoding: UTF-8
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
-        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdUAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABjMuMi4yOQAA</work:WorkContext></env:Header><S:Body><ns0:findBnftClaimResponse
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdUAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABjMuMi4yOQAA</work:WorkContext></env:Header><S:Body><ns0:updateBnftClaimResponse
         xmlns:ns0="http://benefitclaim.services.vetsnet.vba.va.gov/"><BnftClaimDTO><bnftClaimId>600333346</bnftClaimId><bnftClaimTypeCd>020CLMINC</bnftClaimTypeCd><bnftClaimTypeLabel>Compensation</bnftClaimTypeLabel><bnftClaimTypeNm>Claim
-        for Increase</bnftClaimTypeNm><bnftClaimUserDisplay>YES</bnftClaimUserDisplay><claimJrsdtnLctnId>123725</claimJrsdtnLctnId><claimRcvdDt>2022-09-23T00:00:00-05:00</claimRcvdDt><claimSuspnsDt>2022-10-26T00:00:00-05:00</claimSuspnsDt><cpClaimEndPrdctTypeCd>021</cpClaimEndPrdctTypeCd><jrnDt>2022-09-26T11:43:04-05:00</jrnDt><jrnLctnId>283</jrnLctnId><jrnObjId>cd_clm_lc_status_pkg.do_create</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VBMSSYSACCT</jrnUserId><payeeTypeCd>00</payeeTypeCd><payeeTypeNm>Veteran</payeeTypeNm><pgmTypeCd>CPL</pgmTypeCd><pgmTypeNm>Compensation-Pension
+        for Increase</bnftClaimTypeNm><bnftClaimUserDisplay>YES</bnftClaimUserDisplay><claimJrsdtnLctnId>123725</claimJrsdtnLctnId><claimRcvdDt>2022-09-23T00:00:00-05:00</claimRcvdDt><cpClaimEndPrdctTypeCd>021</cpClaimEndPrdctTypeCd><filed5103WaiverInd>Y</filed5103WaiverInd><jrnDt>2022-10-19T13:37:51-05:00</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><payeeTypeCd>00</payeeTypeCd><payeeTypeNm>Veteran</payeeTypeNm><pgmTypeCd>CPL</pgmTypeCd><pgmTypeNm>Compensation-Pension
         Live</pgmTypeNm><ptcpntClmantId>600043201</ptcpntClmantId><ptcpntClmantNm>ELLIS
         TAMARA</ptcpntClmantNm><ptcpntMailAddrsId>14981239</ptcpntMailAddrsId><ptcpntPymtAddrsId>14906550</ptcpntPymtAddrsId><ptcpntVetId>600043201</ptcpntVetId><ptcpntVsrId>600831201</ptcpntVsrId><stationOfJurisdiction>499</stationOfJurisdiction><statusTypeCd>RFD</statusTypeCd><statusTypeNm>Ready
-        for Decision</statusTypeNm><submtrApplcnTypeCd>VBMS</submtrApplcnTypeCd><submtrRoleTypeCd>VBA</submtrRoleTypeCd><svcTypeCd>CP</svcTypeCd><termnlDigitNbr>15</termnlDigitNbr></BnftClaimDTO></ns0:findBnftClaimResponse></S:Body></S:Envelope>
-  recorded_at: Mon, 10 Oct 2022 21:07:26 GMT
+        for Decision</statusTypeNm><submtrApplcnTypeCd>VBMS</submtrApplcnTypeCd><submtrRoleTypeCd>VBA</submtrRoleTypeCd><svcTypeCd>CP</svcTypeCd><termnlDigitNbr>15</termnlDigitNbr></BnftClaimDTO></ns0:updateBnftClaimResponse></S:Body></S:Envelope>
+  recorded_at: Tue, 25 Oct 2022 01:02:32 GMT
 recorded_with: VCR 6.1.0

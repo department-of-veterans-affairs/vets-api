@@ -9,18 +9,25 @@ RSpec.describe 'Evidence Waiver 5103', type: :request do
   let(:sub_path) { "/services/claims/v2/veterans/#{veteran_id}/claims/#{claim_id}/5103" }
   let(:error_sub_path) { "/services/claims/v2/veterans/#{veteran_id}/claims/abc123/5103" }
   let(:scopes) { %w[claim.read] }
+  let(:ews) { build(:claims_api_evidence_waiver_submission) }
+  let(:payload) do
+    { 'ver' => 1,
+      'cid' => '0oa8r55rjdDAH5Vaj2p7',
+      'scp' => ['claim.write', 'claim.read'],
+      'sub' => '0oa8r55rjdDAH5Vaj2p7' }
+  end
 
   describe '5103 Waiver' do
     describe 'submit' do
       context 'Vet flow' do
-        let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: { 'scp' => [] }) }
+        let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: payload) }
 
         context 'when provided' do
           context 'when valid' do
             context 'when success' do
               it 'returns a 200' do
                 with_okta_user(scopes) do |auth_header|
-                  VCR.use_cassette('bgs/benefit_claim/find_bnft_claim_200') do
+                  VCR.use_cassette('bgs/benefit_claim/update_5103_200') do
                     allow(JWT).to receive(:decode).and_return(nil)
                     allow(Token).to receive(:new).and_return(ccg_token)
                     allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
@@ -47,14 +54,14 @@ RSpec.describe 'Evidence Waiver 5103', type: :request do
           end
 
           context 'when claim id is not found' do
-            it 'returns our error, rather than a Java error' do
-              with_okta_user(scopes) do |_auth_header|
+            it 'creates a new ews record' do
+              with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('bgs/benefit_claim/find_bnft_claim_500') do
                   allow(JWT).to receive(:decode).and_return(nil)
                   allow(Token).to receive(:new).and_return(ccg_token)
                   allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
 
-                  post error_sub_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
+                  post error_sub_path, headers: auth_header
 
                   expect(response.status).to eq(404)
                 end
