@@ -15,7 +15,7 @@ module TravelClaim
     attr_reader :settings, :check_in
 
     def_delegators :settings, :auth_url, :tenant_id, :client_id, :client_secret, :scope, :claims_url, :client_number,
-                   :service_name
+                   :subscription_key, :service_name
 
     ##
     # Builds a Client instance
@@ -100,7 +100,8 @@ module TravelClaim
 
     def claims_default_header
       {
-        'Content-Type' => 'application/json'
+        'Content-Type' => 'application/json',
+        'OCP-APIM-Subscription-Key' => subscription_key
       }
     end
 
