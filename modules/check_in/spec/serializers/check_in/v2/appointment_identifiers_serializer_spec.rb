@@ -75,24 +75,54 @@ RSpec.describe CheckIn::V2::AppointmentIdentifiersSerializer do
   end
 
   describe '#serializable_hash' do
-    let(:serialized_hash_response) do
-      {
-        data: {
-          id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
-          type: :appointment_identifier,
-          attributes: {
-            patientDFN: '888',
-            stationNo: '5625'
+    context 'when icn does not exist' do
+      let(:serialized_hash_response) do
+        {
+          data: {
+            id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+            type: :appointment_identifier,
+            attributes: {
+              patientDFN: '888',
+              stationNo: '5625',
+              icn: nil
+            }
           }
         }
-      }
+      end
+
+      it 'returns a serialized hash with icn nil' do
+        appt_struct = OpenStruct.new(appointment_data)
+        appt_serializer = CheckIn::V2::AppointmentIdentifiersSerializer.new(appt_struct)
+
+        expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)
+      end
     end
 
-    it 'returns a serialized hash' do
-      appt_struct = OpenStruct.new(appointment_data)
-      appt_serializer = CheckIn::V2::AppointmentIdentifiersSerializer.new(appt_struct)
+    context 'when icn exists' do
+      let(:appointment_data_icn) do
+        appointment_data[:payload][:demographics].merge!(icn: '12340V123456')
+        appointment_data
+      end
+      let(:serialized_hash_response) do
+        {
+          data: {
+            id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+            type: :appointment_identifier,
+            attributes: {
+              patientDFN: '888',
+              stationNo: '5625',
+              icn: '12340V123456'
+            }
+          }
+        }
+      end
 
-      expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)
+      it 'returns a serialized hash with icn' do
+        appt_struct = OpenStruct.new(appointment_data_icn)
+        appt_serializer = CheckIn::V2::AppointmentIdentifiersSerializer.new(appt_struct)
+
+        expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)
+      end
     end
   end
 end

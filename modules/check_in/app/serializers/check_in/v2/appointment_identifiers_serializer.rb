@@ -15,6 +15,10 @@ module CheckIn
       attribute :stationNo do |object|
         object.payload[:appointments].first[:stationNo]
       end
+
+      attribute :icn do |object|
+        object.payload.dig(:demographics, :icn)
+      end
     end
   end
 end
