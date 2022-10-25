@@ -60,7 +60,8 @@ module VBADocuments
         process_response(response)
         log_submission(@upload, metadata)
       rescue Common::Exceptions::GatewayTimeout, Faraday::TimeoutError => e
-        Rails.logger.warn("Exception in download_and_process for guid #{@upload.guid}.", e)
+        message = "Exception in download_and_process for guid #{@upload.guid}, size: #{@upload.metadata['size']} bytes."
+        Rails.logger.warn(message, e)
         VBADocuments::UploadSubmission.refresh_statuses!([@upload])
       rescue VBADocuments::UploadError => e
         Rails.logger.warn("UploadError download_and_process for guid #{@upload.guid}.", e)
