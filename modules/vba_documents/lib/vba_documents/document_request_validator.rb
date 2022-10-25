@@ -19,7 +19,6 @@ module VBADocuments
       @request = request
       @errors = []
       @result = nil
-      @log_trace_id = SecureRandom.uuid
     end
 
     def validate
@@ -102,7 +101,7 @@ module VBADocuments
     end
 
     def log_prefix
-      "#{self.class} (#{@log_trace_id})"
+      self.class
     end
   end
 end
