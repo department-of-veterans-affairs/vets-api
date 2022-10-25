@@ -6,7 +6,7 @@
     "suffix": "Jr."
   },
   "mothersMaidenName": "Maiden",
-  "veteranSocialSecurityNumber": "111-11-1234",
+  "veteranSocialSecurityNumber": "111111234",
   "gender": "F",
   "cityOfBirth": "Springfield",
   "stateOfBirth": "AK",
@@ -48,7 +48,7 @@
         "suffix": "Jr."
       },
       "dependentRelation": "Stepson",
-      "socialSecurityNumber": "111-22-9876",
+      "socialSecurityNumber": "111229876",
       "becameDependent": "1992-04-07",
       "dateOfBirth": "1982-05-05",
       "disabledBefore18": true,

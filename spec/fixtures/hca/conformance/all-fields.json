@@ -6,7 +6,7 @@
 		"suffix": "Sr."
 	},
 	"mothersMaidenName": "MaidenN",
-	"veteranSocialSecurityNumber": "111-11-5115",
+	"veteranSocialSecurityNumber": "111115115",
 	"gender": "M",
 	"cityOfBirth": "Milwaukee",
 	"stateOfBirth": "Other",
@@ -44,7 +44,7 @@
 		"last": "Namer",
 		"suffix": "Sr."
 	},
-	"spouseSocialSecurityNumber": "111-22-3333",
+	"spouseSocialSecurityNumber": "111223333",
 	"spouseDateOfBirth": "1980-04-08",
 	"dateOfMarriage": "2016-06-01",
 	"sameAddress": false,
@@ -66,7 +66,7 @@
 			"suffix": "Jr."
 		},
 		"dependentRelation": "Son",
-		"socialSecurityNumber": "222-44-6666",
+		"socialSecurityNumber": "222446666",
 		"becameDependent": "2006-11-14",
 		"dateOfBirth": "2006-11-14",
 		"disabledBefore18": true,

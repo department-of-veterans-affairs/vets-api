@@ -6,7 +6,7 @@
     "suffix": "Jr."
   },
   "mothersMaidenName": "Maiden",
-  "veteranSocialSecurityNumber": "111-11-1234",
+  "veteranSocialSecurityNumber": "111111234",
   "gender": "F",
   "cityOfBirth": "Springfield",
   "stateOfBirth": "AK",
@@ -43,7 +43,7 @@
     "last": "LastSpouse",
     "suffix": "Sr."
   },
-  "spouseSocialSecurityNumber": "111-22-1234",
+  "spouseSocialSecurityNumber": "111221234",
   "spouseDateOfBirth": "1980-04-06",
   "dateOfMarriage": "1983-05-10",
   "sameAddress": true,
