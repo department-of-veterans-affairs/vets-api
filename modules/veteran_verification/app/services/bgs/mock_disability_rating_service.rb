@@ -12,7 +12,16 @@ module BGS
         endpoint: "#{Settings.vet_verification.mock_bgs_url}/RatingServiceBean/RatingService"
       }
       @client ||= Savon.client(options)
-      response = request(:find_rating_data, fileNumber: current_user.ssn)
+      response = nil
+      begin
+        response = request(:find_rating_data, fileNumber: current_user.ssn)
+      rescue => e
+        if e.message.include? 'PERSON_NOT_FOUND'
+          handle_not_found_error!
+        else
+          throw e
+        end
+      end
       response.body[:find_rating_data_response][:return]
     end
 
@@ -45,6 +54,11 @@ module BGS
     # Proxy to call a method on our web service.
     def request(method, message = nil)
       @client.call(method, message: message)
+    end
+
+    # Handle BGS Person not found error
+    def handle_not_found_error!
+      raise Common::Exceptions::UnprocessableEntity.new(detail: 'Person Not Found')
     end
   end
 end
