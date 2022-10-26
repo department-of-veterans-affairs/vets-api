@@ -31,8 +31,10 @@ module ClaimStatusTool
       verify_letter_in_folder(document_id)
 
       if !Rails.env.development? && !Rails.env.test?
-        f = @client.send_request(VBMS::Requests::GetDocumentContent.new(document_id))
-        yield f.read, 'application/pdf', 'attachment', 'ClaimLetter.pdf'
+        req = VBMS::Requests::GetDocumentContent.new(document_id)
+        res = @client.send_request(req)
+
+        yield res.content, 'application/pdf', 'attachment', 'ClaimLetter.pdf'
       else
         File.open(ClaimLetterTestData::TEST_FILE_PATH, 'r') do |f|
           yield f.read, 'application/pdf', 'attachment', 'ClaimLetter.pdf'
