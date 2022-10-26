@@ -13,8 +13,13 @@ module VAProfile
       CONTACT_INFO_CHANGE_TEMPLATE = Settings.vanotify.services.va_gov.template_id.contact_info_change
       EMAIL_PERSONALISATIONS = {
         address: 'Address',
+        residence_address: 'Home address',
+        correspondence_address: 'Mailing address',
         email: 'Email address',
-        phone: 'Phone number'
+        phone: 'Phone number',
+        home_phone: 'Home phone number',
+        mobile_phone: 'Mobile phone number',
+        work_phone: 'Work phone number'
       }.freeze
 
       include Common::Client::Concerns::Monitoring
@@ -111,7 +116,8 @@ module VAProfile
         route = "#{@user.vet360_id}/addresses/status/#{transaction_id}"
         transaction_status = get_transaction_status(route, AddressTransactionResponse)
 
-        send_contact_change_notification(transaction_status, :address)
+        changes = specify_changes? ? transaction_status.changed_field : :address
+        send_contact_change_notification(transaction_status, changes)
 
         transaction_status
       end
@@ -175,7 +181,9 @@ module VAProfile
       def get_telephone_transaction_status(transaction_id)
         route = "#{@user.vet360_id}/telephones/status/#{transaction_id}"
         transaction_status = get_transaction_status(route, TelephoneTransactionResponse)
-        send_contact_change_notification(transaction_status, :phone)
+
+        changes = specify_changes? ? transaction_status.changed_field : :phone
+        send_contact_change_notification(transaction_status, changes)
 
         transaction_status
       end
@@ -221,6 +229,10 @@ module VAProfile
       end
 
       private
+
+      def specify_changes?
+        Flipper.enabled?(:profile_email_specify_change, @user)
+      end
 
       def update_model(model, attr, method_name)
         contact_info = VAProfileRedis::ContactInformation.for_user(@user)

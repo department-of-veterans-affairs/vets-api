@@ -37,12 +37,30 @@ module VAProfile
     end
 
     class AddressTransactionResponse < TransactionResponse
+      attribute :response_body, String
+
       def self.from(*args)
         return_val = super
 
         log_error
 
+        return_val.response_body = @response_body
         return_val
+      end
+
+      def changed_field
+        return :address unless response_body['tx_output']
+
+        address_pou = response_body['tx_output'][0]['address_pou']
+
+        case address_pou
+        when VAProfile::Models::BaseAddress::RESIDENCE
+          :residence_address
+        when VAProfile::Models::BaseAddress::CORRESPONDENCE
+          :correspondence_address
+        else
+          :address
+        end
       end
 
       def self.log_error
@@ -120,7 +138,34 @@ module VAProfile
       end
     end
 
-    class TelephoneTransactionResponse < TransactionResponse; end
+    class TelephoneTransactionResponse < TransactionResponse
+      attribute :response_body, String
+
+      def self.from(*args)
+        return_val = super
+
+        return_val.response_body = @response_body
+        return_val
+      end
+
+      def changed_field
+        return :phone unless response_body['tx_output']
+
+        phone_type = response_body['tx_output'][0]['phone_type']
+
+        case phone_type
+        when 'MOBILE'
+          :mobile_phone
+        when 'HOME'
+          :home_phone
+        when 'WORK'
+          :work_phone
+        else
+          :phone
+        end
+      end
+    end
+
     class PermissionTransactionResponse < TransactionResponse; end
   end
 end
