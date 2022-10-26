@@ -218,9 +218,9 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
         'debtType' => 'COPAY'
       }]
       service = described_class.new(user)
-      valid_form_data['personalData']['veteranFullName']['first'] = '^Greg|'
+      valid_form_data['personalData']['veteranFullName']['first'] = "^Gr\neg|"
       parsed_form_string = service.send(:remove_form_delimiters, valid_form_data).to_s
-      expect(['^', '|'].any? { |i| parsed_form_string.include? i }).to be false
+      expect(['^', '|', "\n"].any? { |i| parsed_form_string.include? i }).to be false
     end
 
     it 'calls VBS multiple times for multiple stations' do

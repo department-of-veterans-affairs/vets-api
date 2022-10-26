@@ -82,6 +82,7 @@ module DebtManagementCenter
     end
 
     def submit_vba_fsr(form)
+      Rails.logger.info('5655 Form Submitting to VBA')
       vba_form = form.deep_dup
       vba_form.delete('selectedDebtsAndCopays')
       response = perform(:post, 'financial-status-report/formtopdf', vba_form)
@@ -220,7 +221,7 @@ module DebtManagementCenter
     end
 
     def remove_form_delimiters(form)
-      JSON.parse(form.to_s.gsub(/[\^|]/, '').gsub('=>', ':'))
+      JSON.parse(form.to_s.gsub(/[\^|\n]/, '').gsub('=>', ':'))
     end
 
     def vbs_settings
