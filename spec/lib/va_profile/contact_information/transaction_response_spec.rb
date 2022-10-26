@@ -9,6 +9,86 @@ describe VAProfile::ContactInformation::TransactionResponse do
 
     let(:raw_response) { OpenStruct.new(body: body) }
 
+    describe VAProfile::ContactInformation::AddressTransactionResponse do
+      let(:body) do
+        {
+          'tx_audit_id' => 'a2af8cd1-472c-4e6f-bd5a-f95e31e351b7',
+          'status' => 'COMPLETED_SUCCESS',
+          'tx_status' => 'COMPLETED_SUCCESS',
+          'tx_output' => [
+            {
+              'address_pou' => ''
+            }
+          ]
+        }
+      end
+
+      context 'with a residence address change' do
+        before do
+          body['tx_output'][0]['address_pou'] = VAProfile::Models::BaseAddress::RESIDENCE
+        end
+
+        it 'has the correct changed field' do
+          expect(subject.changed_field).to eq(:residence_address)
+        end
+      end
+
+      context 'with a correspondence address change' do
+        before do
+          body['tx_output'][0]['address_pou'] = VAProfile::Models::BaseAddress::CORRESPONDENCE
+        end
+
+        it 'has the correct changed field' do
+          expect(subject.changed_field).to eq(:correspondence_address)
+        end
+      end
+    end
+
+    describe VAProfile::ContactInformation::TelephoneTransactionResponse do
+      let(:body) do
+        {
+          'tx_audit_id' => 'a2af8cd1-472c-4e6f-bd5a-f95e31e351b7',
+          'status' => 'COMPLETED_SUCCESS',
+          'tx_status' => 'COMPLETED_SUCCESS',
+          'tx_output' => [
+            {
+              'phone_type' => ''
+            }
+          ]
+        }
+      end
+
+      context 'with a mobile phone change' do
+        before do
+          body['tx_output'][0]['phone_type'] = 'MOBILE'
+        end
+
+        it 'has the correct changed field' do
+          expect(subject.changed_field).to eq(:mobile_phone)
+        end
+      end
+
+      context 'with a home phone change' do
+        before do
+          body['tx_output'][0]['phone_type'] = 'HOME'
+        end
+
+        it 'has the correct changed field' do
+          expect(subject.changed_field).to eq(:home_phone)
+        end
+      end
+
+      context 'with a work phone change' do
+        before do
+          body['tx_output'][0]['phone_type'] = 'WORK'
+        end
+
+        it 'has the correct changed field' do
+          expect(subject.changed_field).to eq(:work_phone)
+        end
+      end
+    end
+
     describe VAProfile::ContactInformation::EmailTransactionResponse do
       let(:body) do
         { 'tx_audit_id' => 'cb99a754-9fa9-4f3c-be93-ede12c14b68e',
