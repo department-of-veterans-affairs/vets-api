@@ -21,7 +21,7 @@ module ClaimsApi
         raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claims not found')
       end
 
-      def show
+      def show # rubocop:disable Metrics/MethodLength
         claim = ClaimsApi::AutoEstablishedClaim.find_by(id: params[:id])
 
         if claim && claim.status == 'errored'
@@ -39,9 +39,11 @@ module ClaimsApi
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
         end
       rescue => e
-        log_message_to_sentry('Error in claims show',
-                              :warning,
-                              body: e.message)
+        unless e.is_a?(::Common::Exceptions::ResourceNotFound)
+          log_message_to_sentry('Error in claims show',
+                                :warning,
+                                body: e.message)
+        end
         raise if e.is_a?(::Common::Exceptions::UnprocessableEntity)
 
         raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
