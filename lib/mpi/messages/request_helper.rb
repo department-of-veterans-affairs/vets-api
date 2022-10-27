@@ -120,6 +120,10 @@ module MPI
           name_value << text_element('family', family_name)
         end
 
+        def build_telecom(type:, value:)
+          element('telecom', use: type, value: value)
+        end
+
         def build_patient_person_birth_date(birth_date:)
           element('birthTime', value: Date.parse(birth_date)&.strftime('%Y%m%d'))
         end

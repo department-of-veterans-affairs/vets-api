@@ -10,6 +10,7 @@ describe MPI::Messages::AddPersonImplicitSearchMessage do
                         birth_date: birth_date,
                         idme_uuid: idme_uuid,
                         logingov_uuid: logingov_uuid,
+                        email: email,
                         first_name: first_name)
   end
 
@@ -18,6 +19,8 @@ describe MPI::Messages::AddPersonImplicitSearchMessage do
   let(:birth_date) { Formatters::DateFormatter.format_date('10-10-2021') }
   let(:idme_uuid) { 'some-idme-uuid' }
   let(:logingov_uuid) { 'some-logingov-uuid' }
+  let(:email) { 'some-email' }
+  let(:telecom_type) { 'H' }
   let(:first_name) { 'some-first-name' }
   let(:csp_uuid) { idme_uuid }
   let(:csp_type) { MPI::Constants::IDME_IDENTIFIER }
@@ -96,6 +99,12 @@ describe MPI::Messages::AddPersonImplicitSearchMessage do
         expect(subject).to eq_at_path(
           "#{subject_path}/registrationEvent/subject1/patient/patientPerson/birthTime/@value",
           Date.parse(birth_date).strftime('%Y%m%d')
+        )
+        expect(subject).to eq_at_path(
+          "#{subject_path}/registrationEvent/subject1/patient/patientPerson/telecom/@use", telecom_type
+        )
+        expect(subject).to eq_at_path(
+          "#{subject_path}/registrationEvent/subject1/patient/patientPerson/telecom/@value", email
         )
         expect(subject).to eq_at_path(
           "#{subject_path}/registrationEvent/subject1/patient/patientPerson/asOtherIDs/id/@extension", ssn

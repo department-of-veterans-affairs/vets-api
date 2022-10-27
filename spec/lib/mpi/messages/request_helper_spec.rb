@@ -455,6 +455,23 @@ describe MPI::Messages::RequestHelper do
     end
   end
 
+  describe '.build_telecom' do
+    subject { described_class.build_telecom(type: type, value: email) }
+
+    let(:email) { 'some-email' }
+    let(:type) { 'EMAIL' }
+    let(:expected_element) do
+      element = Ox::Element.new('telecom')
+      element[:use] = type
+      element[:value] = email
+      element
+    end
+
+    it 'builds an Ox element with email attribute' do
+      expect(subject).to eq(expected_element)
+    end
+  end
+
   describe '.build_patient_person_birth_date' do
     subject { described_class.build_patient_person_birth_date(birth_date: birth_date) }
 
