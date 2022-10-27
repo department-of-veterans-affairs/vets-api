@@ -1,0 +1,213 @@
+appName: ""
+target_env: ""
+image:
+  value: ""
+  tag: ""
+  pullPolicy: Always
+vsp_environment: ""
+affitnityWeight: ""
+mockData:
+  enabled: false
+
+
+matchExpressions:
+  key: app
+  operator: In
+topologyKey: kubernetes.io/hostname
+annotations:
+  ad.datadoghq.com/vets-api-web.checks: {}
+#Web configuration
+web:
+  fullName: ""
+  strategyType: RollingUpdate
+  maxSurge: ""
+  maxUnavailable: ""
+  securityContext: ""
+  images:
+  autoscaling:
+    enabled: false
+    minReplicas: ""
+    maxReplicas: ""
+    targetAverageUtilization: ""
+  affinity:
+    weight: ""
+  containers:
+    ports:
+      - containerPort: ""
+        name: web
+      - containerPort: ""
+        name: ""
+  healthCheck:
+    requestPath: ""
+    port: ""
+    initialDelaySeconds: ""
+    periodSeconds: ""
+    readinessPath: ""
+    readinessPort: ""
+  socatProxyEnabled: false
+
+  resources:
+    requests:
+      cpu: ""
+      memory: ""
+    limits:
+      cpu: ""
+      memory: ""
+  serviceAccount:
+    enabled: false
+    role_arn: ""
+    name: ""
+  ssoeEnabled: false
+  ssoeConfigs:
+    - name: ""
+      key: ""
+      value: {}
+
+  ingress:
+    enabled: false
+    entryPoints: web
+    routes:
+      - kind: Rule
+        match: ""
+        priority: ""
+        services:
+          - name: ""
+            port: ""
+        middlewares:
+          - name: ""
+      - kind: Rule
+        match: ""
+        priority: ""
+        services:
+          - name: ""
+            port: ""
+        middlewares:
+          - name: ""
+      - kind: Rule
+        match: ""
+        priority: ""
+        services:
+          - name: ""
+            port: ""
+        middlewares:
+          - name: ""
+      - kind: Rule
+        match: ""
+        priority: ""
+        services:
+          - name: ""
+            port: ""
+        middlewares:
+          - name: ""
+
+  service:
+    enabled: false
+    annotations:
+      traefik.backend.loadbalancer.sticky: "true"
+    ports:
+    # port is what this service should serve on, and targetPort is the port in the container.
+    - port: ""
+      name: ""
+      targetPort: web
+      protocol: TCP
+    - port: ""
+      name: healthcheck
+      targetPort: stats
+      protocol: TCP
+    type: ClusterIP
+
+  hpa:
+    apiVersion: apps/v1
+    kind: Deployment
+
+  externalDns:
+    dnsName: ""
+    recordTTL: 180
+    targets: ""
+
+  dbMigrate:
+    enabled: false
+    fullName: db-migrate
+    annotations:
+      argocd.argoproj.io/hook: PreSync
+      argocd.argoproj.io/hook-delete-policy: HookSucceeded
+    command: []
+    args:  []
+    backoffLimit: ""
+    restartPolicy: Never
+
+#Worker Configuration
+worker:
+  fullName: ""
+  strategyType: RollingUpdate
+  maxSurge: ""
+  maxUnavailable: ""
+  securityContext: ""
+  metadata:
+    name: ""
+
+  serviceAccount:
+    enabled: false
+    role_arn: ""
+    name: ""
+
+  containers:
+    command: []
+    args: []
+
+  autoscaling:
+    enabled: false
+    minReplicas: ""
+    maxReplicas: ""
+    targetAverageUtilization: ""
+
+  healthCheck:
+    requestPath: ""
+    port: ""
+    initialDelaySeconds: ""
+    periodSeconds: ""
+    readinessPath: ""
+    readinessPort: ""
+    timeoutSeconds: ""
+    command: []
+
+  terminationGracePeriodSeconds: ""
+
+  socatProxyEnabled: false
+
+  resources:
+      requests:
+        cpu: ""
+        memory: ""
+      limits:
+        cpu: ""
+        memory: ""
+  service:
+    enabled: false
+
+  dbMigrate:
+    enabled: false
+    fullName: ""
+    annotations:
+      argocd.argoproj.io/hook: PreSync
+      argocd.argoproj.io/hook-delete-policy: HookSucceeded
+    command: []
+    args:  []
+    backoffLimit: ""
+    restartPolicy: Never
+
+# Common configuration
+common:
+  socatProxy: {}
+  volumeMounts: {}
+
+  volumes: {}
+  initContainers: {}
+  envSecrets: {}
+  secrets:
+    settingsLocal: {}
+
+  configMap:
+    name: ""
+    fileName: ""
+    data: {}

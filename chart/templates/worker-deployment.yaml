@@ -1,0 +1,89 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Values.appName }}-sidekiq
+  name: {{ .Values.appName }}-sidekiq
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.appName }}-sidekiq
+  strategy:
+    type: {{ .Values.worker.strategyType }}
+    rollingUpdate:
+      maxSurge: {{ .Values.worker.maxSurge }}
+      maxUnavailable: {{ .Values.worker.maxUnavailable }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.appName }}-sidekiq
+      annotations:
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: {{ .Values.affitnityWeight }}
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: {{ .Values.matchExpressions.key }}
+                      operator: {{ .Values.matchExpressions.operator }}
+                      values:
+                        - {{ .Values.appName }}-sidekiq
+                topologyKey: {{ .Values.topologyKey }}
+      securityContext:
+        fsGroup:  {{ .Values.worker.securityContexts }}
+      volumes:
+{{ toYaml .Values.common.volumes | indent 8 }}
+      {{- if .Values.mockData.enabled }}
+      initContainers:
+{{ toYaml .Values.common.initContainers | indent 8 }}
+      {{- end }}
+      containers:
+        - image: "{{ .Values.image.value }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          name: {{ .Values.appName }}-sidekiq
+          securityContext:
+            runAsUser: 0
+          ## TODO: Be sure that this is the correct way to start sidekiq
+          command: {{ .Values.worker.containers.command }}
+          args: {{ .Values.worker.containers.args }}
+          # source and destination files
+          livenessProbe: #ensure app is serving requests properly and know when to restart a container
+            httpGet:
+              path: {{ .Values.worker.healthCheck.requestPath }}
+              port: {{ .Values.worker.healthCheck.port }}
+            initialDelaySeconds: {{ .Values.worker.healthCheck.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.worker.healthCheck.timeoutSeconds }}
+          readinessProbe: #ensure container is ready to start accepting traffic
+            httpGet:
+              path: {{ .Values.worker.healthCheck.readinessPath }}
+              port: {{ .Values.worker.healthCheck.readinessPort }}
+            initialDelaySeconds: {{ .Values.worker.healthCheck.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.worker.healthCheck.timeoutSeconds }}
+          lifecycle:
+            preStop:
+              exec:
+                # SIGTERM triggers a quick exit; gracefully terminate instead
+                command: {{ .Values.worker.healthCheck.command }}
+          resources:
+{{ toYaml .Values.worker.resources | indent 12 }}
+          volumeMounts:
+{{ toYaml .Values.common.volumeMounts | indent 12 }}
+          env:
+          {{- range $keys, $key := .Values.common.secrets }}
+          {{- range $secrets, $secret := $key }}
+            - name: {{ $secret.env_var }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $keys }}
+                  key:  {{ $secret.name }}
+          {{- end }}
+          {{- end }}
+        {{- if .Values.worker.socatProxyEnabled }}
+{{ toYaml .Values.common.socatProxy | indent 8 }}
+        {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.worker.terminationGracePeriodSeconds }} # put your longest Job time here plus security time.
+      serviceAccountName: {{ .Values.appName }}-sidekiq

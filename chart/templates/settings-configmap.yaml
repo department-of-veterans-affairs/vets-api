@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Release.Namespace }}
+  creationTimestamp: null
+  name: {{ .Values.common.configMap.name }}
+data:
+  {{ .Values.common.configMap.fileName }}: |
+{{ tpl .Values.common.configMap.data . | indent 4 }}

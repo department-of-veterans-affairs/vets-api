@@ -1,0 +1,29 @@
+{{- if .Values.web.serviceAccount.enabled }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    eks.amazonaws.com/role-arn: {{ .Values.web.serviceAccount.role_arn }}
+  labels:
+    app.kubernetes.io/component: {{ .Values.web.serviceAccount.name }}
+    app.kubernetes.io/name: {{ .Values.web.serviceAccount.name }}
+    app.kubernetes.io/part-of: {{ .Values.web.serviceAccount.name }}
+  name: {{ .Values.appName }}
+  namespace: {{ .Release.Namespace }}
+{{- end }}
+
+---
+{{- if .Values.worker.serviceAccount.enabled }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    eks.amazonaws.com/role-arn: {{ .Values.worker.serviceAccount.role_arn }}
+  labels:
+    app.kubernetes.io/component: {{ .Values.worker.serviceAccount.name }}
+    app.kubernetes.io/name: {{ .Values.worker.serviceAccount.name }}
+    app.kubernetes.io/part-of: {{ .Values.worker.serviceAccount.name }}
+  name: {{ .Values.appName }}
+  namespace: {{ .Release.Namespace }}
+{{- end }}

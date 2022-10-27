@@ -1,0 +1,14 @@
+{{- if .Values.web.ssoeEnabled }}
+{{- $namespace := .Release.Namespace }}
+{{- range $keys, $key := .Values.web.ssoeConfigs }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $key.name }}
+  namespace: ${namespace}
+data:
+{{ $key.key | indent 2  }}:
+{{ $key.value | indent 4 }}
+{{- end }}
+{{- end }}

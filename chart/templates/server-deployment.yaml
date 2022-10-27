@@ -1,0 +1,83 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Values.appName }}-web
+  name: {{ .Values.appName }}-web
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.appName }}-web
+  strategy:
+    type: {{ .Values.web.strategyType }}
+    rollingUpdate:
+      maxSurge: {{ .Values.web.maxSurge }}
+      maxUnavailable: {{ .Values.web.maxUnavailable }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.appName }}-web
+      annotations:
+{{ toYaml .Values.annotations | indent 8 }}
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: {{ .Values.affitnityWeight }}
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: {{ .Values.matchExpressions.key }}
+                      operator: {{ .Values.matchExpressions.operator }}
+                      values:
+                        - {{ .Values.appName }}-web
+                topologyKey:  {{ .Values.topologyKey }}
+      securityContext:
+        fsGroup: {{ .Values.web.securityContexts }}
+      volumes:
+{{ toYaml .Values.common.volumes | indent 8 }}
+      {{- if .Values.mockData.enabled }}
+      initContainers:
+{{ toYaml .Values.common.initContainers | indent 8 }}
+      {{- end }}
+      containers:
+        - image: "{{ .Values.image.value }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          name: {{ .Values.appName }}-web
+          ports:
+            {{- range $key := .Values.web.containers.ports }}
+            - containerPort: {{ $key.containerPort }}
+              name: {{ $key.name }}
+            {{- end }}
+          livenessProbe: #ensure app is serving requests properly and know when to restart a container
+            httpGet:
+              path: {{ .Values.web.healthCheck.requestPath }}
+              port: {{ .Values.web.healthCheck.port }}
+            initialDelaySeconds: {{ .Values.web.healthCheck.initialDelaySeconds }}
+            periodSeconds: {{ .Values.web.healthCheck.periodSeconds }}
+          readinessProbe: #ensure container is ready to start accepting traffic
+            httpGet:
+              path: {{ .Values.web.healthCheck.readinessPath }}
+              port: {{ .Values.web.healthCheck.readinessPort }}
+            initialDelaySeconds: {{ .Values.web.healthCheck.initialDelaySeconds }}
+            periodSeconds: {{ .Values.web.healthCheck.periodSeconds }}
+          resources:
+{{ toYaml .Values.web.resources | indent 12 }}
+          volumeMounts:
+{{ toYaml .Values.common.volumeMounts | indent 12 }}
+          env:
+          {{- range $keys, $key := .Values.common.secrets }}
+          {{- range $secrets, $secret := $key }}
+            - name: {{ $secret.env_var }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $keys }}
+                  key:  {{ $secret.name }}
+          {{- end }}
+          {{- end }}
+        {{- if .Values.web.socatProxyEnabled }}
+{{ toYaml .Values.common.socatProxy | indent 8 }}
+        {{- end }}
+      serviceAccountName: {{ .Values.web.serviceAccount.name }}

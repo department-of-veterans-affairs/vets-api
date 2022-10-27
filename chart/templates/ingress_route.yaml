@@ -1,0 +1,27 @@
+{{- if .Values.web.ingress.enabled }}
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Values.appName }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  entryPoints:
+    - web
+  routes:
+    {{- range .Values.web.ingress.routes }} # Iterating over a Complex Structure
+    - {{ . | toYaml | nindent 6 -}}
+    {{- end }}
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-real-ip
+  namespace: {{ .Release.Namespace }}
+spec:
+  plugin:
+    traefik-real-ip:
+      excludednets:
+        - "1.1.1.1/24"
+{{- end }}

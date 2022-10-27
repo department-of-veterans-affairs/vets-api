@@ -1,0 +1,14 @@
+---
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: {{ .Values.appName }}-web
+  namespace: {{ .Release.Namespace }}
+spec:
+  endpoints:
+  - dnsName: {{ .Values.web.externalDns.dnsName }}
+    recordTTL: {{ .Values.web.externalDns.recordTTL }}
+    recordType: CNAME
+    targets:
+    - {{ .Values.web.externalDns.targets }}
+
