@@ -58,6 +58,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
   end
 
   before do
+    allow_any_instance_of(described_class).to receive(:cancelled?).and_return(false)
     objstore = instance_double(VBADocuments::ObjectStore)
     version = instance_double(Aws::S3::ObjectVersion)
     bucket = instance_double(Aws::S3::Bucket)
