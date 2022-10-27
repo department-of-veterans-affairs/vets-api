@@ -2,7 +2,7 @@
 
 module CentralMail
   class Configuration < Common::Client::Configuration::REST
-    self.read_timeout = 55
+    self.read_timeout = 120
 
     def base_path
       "https://#{Settings.central_mail.upload.host}/VADocument"
@@ -13,7 +13,7 @@ module CentralMail
     end
 
     def connection
-      Faraday.new(base_path) do |faraday|
+      Faraday.new(base_path, request: request_options) do |faraday|
         faraday.use     :breakers
 
         faraday.request :multipart
