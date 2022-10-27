@@ -7,13 +7,14 @@ require 'formatters/date_formatter'
 module MPI
   module Messages
     class UpdateProfileMessage
-      attr_reader :first_name, :last_name, :ssn, :birth_date, :idme_uuid, :logingov_uuid, :icn, :edipi
+      attr_reader :first_name, :last_name, :ssn, :birth_date, :idme_uuid, :logingov_uuid, :icn, :edipi, :email
 
       # rubocop:disable Metrics/ParameterLists
       def initialize(first_name:,
                      last_name:,
                      ssn:,
                      icn:,
+                     email:,
                      birth_date:,
                      idme_uuid: nil,
                      logingov_uuid: nil,
@@ -23,6 +24,7 @@ module MPI
         @last_name = last_name
         @ssn = ssn
         @icn = icn
+        @email = email
         @birth_date = birth_date
         @idme_uuid = idme_uuid
         @logingov_uuid = logingov_uuid
@@ -45,6 +47,7 @@ module MPI
         missing_values << :first_name if first_name.blank?
         missing_values << :last_name if last_name.blank?
         missing_values << :ssn if ssn.blank?
+        missing_values << :email if email.blank?
         missing_values << :birth_date if birth_date.blank?
         missing_values << :icn if icn.blank?
         missing_values << :uuid if logingov_uuid.blank? && edipi.blank? && idme_uuid.blank?
@@ -92,6 +95,7 @@ module MPI
         element << RequestHelper.build_patient_person_name(given_names: [first_name], family_name: last_name)
         element << RequestHelper.build_patient_person_birth_date(birth_date: birth_date)
         element << RequestHelper.build_identifier(identifier: identifier, root: identifier_root)
+        element << RequestHelper.build_telecom(type: email_type, value: email)
         element << RequestHelper.build_patient_identifier(identifier: ssn, root: ssn_root, class_code: ssn_class_code)
         element << RequestHelper.build_patient_identifier(identifier: identifier,
                                                           root: identifier_root,
@@ -135,6 +139,10 @@ module MPI
 
       def identifier_class_code
         'PAT'
+      end
+
+      def email_type
+        'H'
       end
 
       def identifier_root

@@ -9,6 +9,7 @@ describe MPI::Messages::UpdateProfileMessage do
                         ssn: ssn,
                         icn: icn,
                         birth_date: birth_date,
+                        email: email,
                         idme_uuid: idme_uuid,
                         logingov_uuid: logingov_uuid,
                         edipi: edipi,
@@ -23,6 +24,8 @@ describe MPI::Messages::UpdateProfileMessage do
   let(:idme_uuid) { 'some-idme-uuid' }
   let(:logingov_uuid) { 'some-logingov-uuid' }
   let(:first_name) { 'some-first-name' }
+  let(:email) { 'some-email' }
+  let(:telecom_type) { 'H' }
   let(:edipi) { 'some-edipi' }
   let(:csp_uuid) { 'some-csp-uuid' }
   let(:csp_identifier) { 'some-csp-identifier' }
@@ -59,6 +62,13 @@ describe MPI::Messages::UpdateProfileMessage do
     context 'when ssn is not defined' do
       let(:ssn) { nil }
       let(:missing_keys) { :ssn }
+
+      it_behaves_like 'error response'
+    end
+
+    context 'when email is not defined' do
+      let(:email) { nil }
+      let(:missing_keys) { :email }
 
       it_behaves_like 'error response'
     end
@@ -110,9 +120,14 @@ describe MPI::Messages::UpdateProfileMessage do
           Date.parse(birth_date).strftime('%Y%m%d')
         )
         expect(subject).to eq_at_path(
+          "#{subject_path}/registrationEvent/subject1/patient/patientPerson/telecom/@use", telecom_type
+        )
+        expect(subject).to eq_at_path(
+          "#{subject_path}/registrationEvent/subject1/patient/patientPerson/telecom/@value", email
+        )
+        expect(subject).to eq_at_path(
           "#{subject_path}/registrationEvent/subject1/patient/patientPerson/asOtherIDs/id/@extension", ssn
         )
-
         expect(subject).to eq_at_path(
           "#{subject_path}/registrationEvent/subject1/patient/id/@extension", icn_with_aaid
         )

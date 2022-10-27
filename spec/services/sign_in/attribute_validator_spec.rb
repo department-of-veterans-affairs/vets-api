@@ -28,6 +28,7 @@ RSpec.describe SignIn::AttributeValidator do
           birth_date: birth_date,
           first_name: first_name,
           last_name: last_name,
+          csp_email: email,
           sign_in: sign_in,
           auto_uplevel: auto_uplevel,
           mhv_icn: mhv_icn,
@@ -43,6 +44,7 @@ RSpec.describe SignIn::AttributeValidator do
       let(:current_loa) { LOA::THREE }
       let(:ssn) { nil }
       let(:birth_date) { nil }
+      let(:email) { nil }
       let(:first_name) { nil }
       let(:last_name) { nil }
       let(:mhv_icn) { nil }
@@ -321,6 +323,7 @@ RSpec.describe SignIn::AttributeValidator do
         let(:mhv_icn) { 'some-icn' }
         let(:idme_uuid) { 'some-idme-uuid' }
         let(:mhv_correlation_id) { 'some-mhv-correlation-id' }
+        let(:email) { 'some-email' }
 
         context 'and mpi record does not exist for user' do
           let(:find_profile_response) { nil }
@@ -398,6 +401,7 @@ RSpec.describe SignIn::AttributeValidator do
         let(:last_name) { 'some-last-name' }
         let(:ssn) { '444444758' }
         let(:birth_date) { '1930-01-01' }
+        let(:email) { 'some-email' }
 
         it_behaves_like 'credential mpi verification'
       end
@@ -410,6 +414,7 @@ RSpec.describe SignIn::AttributeValidator do
         let(:last_name) { 'some-last-name' }
         let(:ssn) { '444444758' }
         let(:birth_date) { '1930-01-01' }
+        let(:email) { 'some-email' }
 
         it_behaves_like 'credential mpi verification'
       end
@@ -421,6 +426,7 @@ RSpec.describe SignIn::AttributeValidator do
         let(:last_name) { 'some-last-name' }
         let(:ssn) { '444444758' }
         let(:birth_date) { '1930-01-01' }
+        let(:email) { 'some-email' }
 
         it_behaves_like 'credential mpi verification'
       end
