@@ -210,4 +210,4 @@ common:
   configMap:
     name: ""
     fileName: ""
-    data: {}
+    data: ""
