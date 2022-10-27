@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.0",
+  "openapi": "3.1.0",
   "info": {
     "title": "Notice of Disagreements",
     "version": "v2",
@@ -536,57 +536,7 @@
                     "attributes": {
                       "status": "pending",
                       "updatedAt": "2020-01-02T03:04:05.067Z",
-                      "createdAt": "2020-01-02T03:04:05.067Z",
-                      "formData": {
-                        "data": {
-                          "type": "noticeOfDisagreement",
-                          "attributes": {
-                            "veteran": {
-                              "homeless": false,
-                              "address": {
-                                "addressLine1": "123 Main St",
-                                "city": "North Pole",
-                                "countryCodeISO2": "CA",
-                                "zipCode5": "00000"
-                              },
-                              "phone": {
-                                "areaCode": "555",
-                                "phoneNumber": "8001111"
-                              },
-                              "email": "clause@north.com",
-                              "timezone": "America/Chicago"
-                            },
-                            "representative": {
-                              "name": "Tony Danza"
-                            },
-                            "boardReviewOption": "evidence_submission",
-                            "requestingExtension": false,
-                            "appealingVhaDenial": false
-                          }
-                        },
-                        "included": [
-                          {
-                            "type": "contestableIssue",
-                            "attributes": {
-                              "issue": "tinnitus",
-                              "decisionDate": "1900-01-01",
-                              "decisionIssueId": 1,
-                              "ratingIssueReferenceId": "2",
-                              "ratingDecisionReferenceId": "3",
-                              "disagreementArea": "Effective Date"
-                            }
-                          },
-                          {
-                            "type": "contestableIssue",
-                            "attributes": {
-                              "issue": "left knee",
-                              "decisionDate": "1900-01-02",
-                              "decisionIssueId": 4,
-                              "ratingIssueReferenceId": "5"
-                            }
-                          }
-                        ]
-                      }
+                      "createdAt": "2020-01-02T03:04:05.067Z"
                     }
                   }
                 },
@@ -690,202 +640,226 @@
                     "value": {
                       "$schema": "http://json-schema.org/draft-07/schema#",
                       "description": "JSON Schema for VA Form 10182",
-                      "$ref": "#/definitions/nodCreate",
-                      "definitions": {
-                        "nodCreate": {
+                      "properties": {
+                        "data": {
                           "type": "object",
                           "properties": {
-                            "data": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "noticeOfDisagreement"
+                              ]
+                            },
+                            "attributes": {
                               "type": "object",
                               "properties": {
-                                "type": {
-                                  "type": "string",
-                                  "enum": [
-                                    "noticeOfDisagreement"
-                                  ]
-                                },
-                                "attributes": {
+                                "veteran": {
                                   "type": "object",
                                   "properties": {
-                                    "veteran": {
-                                      "type": "object",
-                                      "properties": {
-                                        "homeless": {
-                                          "type": "boolean"
-                                        },
-                                        "address": {
-                                          "$ref": "address.json"
-                                        },
-                                        "phone": {
-                                          "allOf": [
-                                            {
-                                              "$ref": "phone.json"
-                                            },
-                                            {
-                                            }
-                                          ]
-                                        },
-                                        "email": {
-                                          "type": "string",
-                                          "format": "email",
-                                          "minLength": 6,
-                                          "maxLength": 255
-                                        },
-                                        "timezone": {
-                                          "allOf": [
-                                            {
-                                              "description": "Veteran's timezone. Used for adding the current date to the signature according to the veteran's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date)."
-                                            },
-                                            {
-                                              "$ref": "timezone.json"
-                                            }
-                                          ]
-                                        }
-                                      },
-                                      "required": [
-                                        "homeless",
-                                        "phone",
-                                        "email"
-                                      ],
-                                      "if": {
-                                        "properties": {
-                                          "homeless": {
-                                            "const": false
-                                          }
-                                        }
-                                      },
-                                      "then": {
-                                        "required": [
-                                          "address"
-                                        ]
-                                      }
+                                    "homeless": {
+                                      "type": "boolean"
                                     },
-                                    "representative": {
-                                      "type": "object",
-                                      "properties": {
-                                        "name": {
-                                          "type": "string",
-                                          "minLength": 1,
-                                          "maxLength": 120
-                                        }
-                                      }
+                                    "address": {
+                                      "$ref": "address.json"
                                     },
-                                    "boardReviewOption": {
+                                    "phone": {
+                                      "$ref": "phone.json"
+                                    },
+                                    "email": {
                                       "type": "string",
-                                      "enum": [
-                                        "direct_review",
-                                        "evidence_submission",
-                                        "hearing"
-                                      ]
+                                      "format": "email",
+                                      "minLength": 6,
+                                      "maxLength": 255
                                     },
-                                    "hearingTypePreference": {
-                                      "type": "string",
-                                      "enum": [
-                                        "virtual_hearing",
-                                        "video_conference",
-                                        "central_office"
-                                      ]
-                                    },
-                                    "requestingExtension": {
-                                      "type": "boolean",
-                                      "description": "Set to true to request a filing extension. An extensionReason must be provided if true."
-                                    },
-                                    "extensionReason": {
-                                      "type": "string",
-                                      "minLength": 1,
-                                      "maxLength": 2300,
-                                      "description": "Explanation why you believe there is good cause for the extension. If an extensionReason is provided, requestingExtension must be true."
-                                    },
-                                    "appealingVhaDenial": {
-                                      "type": "boolean",
-                                      "description": "Set to true if you are appealing a denial of benefits by the Veterans Health Administration (VHA)."
+                                    "timezone": {
+                                      "description": "Veteran's timezone. Used for adding the current date to the signature according to the veteran's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date).",
+                                      "$ref": "timezone.json"
                                     }
                                   },
                                   "required": [
-                                    "boardReviewOption"
+                                    "homeless",
+                                    "phone",
+                                    "email"
                                   ],
                                   "if": {
                                     "properties": {
-                                      "requestingExtension": {
-                                        "const": true
+                                      "homeless": {
+                                        "const": false
                                       }
                                     }
                                   },
                                   "then": {
                                     "required": [
-                                      "extensionReason"
-                                    ]
-                                  }
-                                }
-                              },
-                              "required": [
-                                "type",
-                                "attributes"
-                              ]
-                            },
-                            "included": {
-                              "type": "array",
-                              "items": {
-                                "type": "object",
-                                "properties": {
-                                  "type": {
-                                    "type": "string",
-                                    "enum": [
-                                      "contestableIssue"
-                                    ]
-                                  },
-                                  "attributes": {
-                                    "type": "object",
-                                    "properties": {
-                                      "issue": {
-                                        "type": "string",
-                                        "minLength": 1,
-                                        "maxLength": 180
-                                      },
-                                      "decisionDate": {
-                                        "type": "string",
-                                        "format": "date"
-                                      },
-                                      "decisionIssueId": {
-                                        "type": "integer"
-                                      },
-                                      "ratingIssueReferenceId": {
-                                        "type": "string",
-                                        "minLength": 1,
-                                        "maxLength": 255
-                                      },
-                                      "ratingDecisionReferenceId": {
-                                        "type": "string",
-                                        "minLength": 1,
-                                        "maxLength": 255
-                                      },
-                                      "disagreementArea": {
-                                        "type": "string",
-                                        "maxLength": 90
-                                      }
-                                    },
-                                    "required": [
-                                      "issue",
-                                      "decisionDate"
+                                      "address"
                                     ]
                                   }
                                 },
-                                "required": [
-                                  "type",
-                                  "attributes"
-                                ]
+                                "claimant": {
+                                  "type": "object",
+                                  "description": "If the claimant is a non-Veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
+                                  "properties": {
+                                    "homeless": {
+                                      "type": "boolean"
+                                    },
+                                    "address": {
+                                      "$ref": "address.json"
+                                    },
+                                    "phone": {
+                                      "$ref": "phone.json"
+                                    },
+                                    "email": {
+                                      "type": "string",
+                                      "format": "email",
+                                      "minLength": 6,
+                                      "maxLength": 255
+                                    },
+                                    "timezone": {
+                                      "description": "Veteran's timezone. Used for adding the current date to the signature according to the veteran's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date).",
+                                      "$ref": "timezone.json"
+                                    }
+                                  },
+                                  "required": [
+                                    "homeless",
+                                    "phone",
+                                    "email"
+                                  ],
+                                  "if": {
+                                    "properties": {
+                                      "homeless": {
+                                        "const": false
+                                      }
+                                    }
+                                  },
+                                  "then": {
+                                    "required": [
+                                      "address"
+                                    ]
+                                  }
+                                },
+                                "representative": {
+                                  "type": "object",
+                                  "properties": {
+                                    "name": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 120
+                                    }
+                                  }
+                                },
+                                "boardReviewOption": {
+                                  "type": "string",
+                                  "enum": [
+                                    "direct_review",
+                                    "evidence_submission",
+                                    "hearing"
+                                  ]
+                                },
+                                "hearingTypePreference": {
+                                  "type": "string",
+                                  "enum": [
+                                    "virtual_hearing",
+                                    "video_conference",
+                                    "central_office"
+                                  ]
+                                },
+                                "requestingExtension": {
+                                  "type": "boolean",
+                                  "description": "Set to true to request a filing extension. An extensionReason must be provided if true."
+                                },
+                                "extensionReason": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 2300,
+                                  "description": "Explanation why you believe there is good cause for the extension. If an extensionReason is provided, requestingExtension must be true."
+                                },
+                                "appealingVhaDenial": {
+                                  "type": "boolean",
+                                  "description": "Set to true if you are appealing a denial of benefits by the Veterans Health Administration (VHA)."
+                                }
                               },
-                              "minItems": 1,
-                              "maxItems": 100,
-                              "uniqueItems": true
+                              "required": [
+                                "boardReviewOption"
+                              ],
+                              "if": {
+                                "properties": {
+                                  "requestingExtension": {
+                                    "const": true
+                                  }
+                                }
+                              },
+                              "then": {
+                                "required": [
+                                  "extensionReason"
+                                ]
+                              }
                             }
                           },
                           "required": [
-                            "data",
-                            "included"
+                            "type",
+                            "attributes"
                           ]
+                        },
+                        "included": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "contestableIssue"
+                                ]
+                              },
+                              "attributes": {
+                                "type": "object",
+                                "properties": {
+                                  "issue": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 180
+                                  },
+                                  "decisionDate": {
+                                    "type": "string",
+                                    "format": "date"
+                                  },
+                                  "decisionIssueId": {
+                                    "type": "integer"
+                                  },
+                                  "ratingIssueReferenceId": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 255
+                                  },
+                                  "ratingDecisionReferenceId": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 255
+                                  },
+                                  "disagreementArea": {
+                                    "type": "string",
+                                    "maxLength": 90
+                                  }
+                                },
+                                "required": [
+                                  "issue",
+                                  "decisionDate"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "attributes"
+                            ]
+                          },
+                          "minItems": 1,
+                          "maxItems": 100,
+                          "uniqueItems": true
                         }
-                      }
+                      },
+                      "required": [
+                        "data",
+                        "included"
+                      ]
                     }
                   },
                   "address": {
@@ -2607,7 +2581,6 @@
       }
     }
   },
-  "basePath": "/services/appeals/notice_of_disagreements/v2",
   "components": {
     "securitySchemes": {
       "apikey": {
@@ -2975,6 +2948,9 @@
                   "properties": {
                     "missing_fields": {
                       "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
                       "description": "List of missing fields"
                     }
                   }
@@ -3000,6 +2976,7 @@
       },
       "nodCreate": {
         "type": "object",
+        "description": "JSON Schema for VA Form 10182",
         "properties": {
           "data": {
             "type": "object",
@@ -3023,14 +3000,8 @@
                         "$ref": "#/components/schemas/address"
                       },
                       "phone": {
-                        "allOf": [
-                          {
-                            "$ref": "#/components/schemas/phone"
-                          },
-                          {
-                            "$comment": "the phone fields must not exceed 20 chars, when concatenated"
-                          }
-                        ]
+                        "$ref": "#/components/schemas/phone",
+                        "$comment": "the phone fields must not exceed 20 chars, when concatenated"
                       },
                       "email": {
                         "type": "string",
@@ -3039,14 +3010,8 @@
                         "maxLength": 255
                       },
                       "timezone": {
-                        "allOf": [
-                          {
-                            "description": "Veteran's timezone. Used for adding the current date to the signature according to the veteran's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date)."
-                          },
-                          {
-                            "$ref": "#/components/schemas/timezone"
-                          }
-                        ]
+                        "description": "Veteran's timezone. Used for adding the current date to the signature according to the veteran's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date).",
+                        "$ref": "#/components/schemas/timezone"
                       }
                     },
                     "required": [
@@ -3078,14 +3043,8 @@
                         "$ref": "#/components/schemas/address"
                       },
                       "phone": {
-                        "allOf": [
-                          {
-                            "$ref": "#/components/schemas/phone"
-                          },
-                          {
-                            "$comment": "the phone fields must not exceed 20 chars, when concatenated"
-                          }
-                        ]
+                        "$ref": "#/components/schemas/phone",
+                        "$comment": "the phone fields must not exceed 20 chars, when concatenated"
                       },
                       "email": {
                         "type": "string",
@@ -3094,14 +3053,8 @@
                         "maxLength": 255
                       },
                       "timezone": {
-                        "allOf": [
-                          {
-                            "description": "Claimant's timezone. Used for adding the current date to the signature according to the claimant's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date)."
-                          },
-                          {
-                            "$ref": "#/components/schemas/timezone"
-                          }
-                        ]
+                        "description": "Veteran's timezone. Used for adding the current date to the signature according to the veteran's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date).",
+                        "$ref": "#/components/schemas/timezone"
                       }
                     },
                     "required": [
@@ -4268,48 +4221,6 @@
         "type": "string",
         "format": "date"
       },
-      "X-VA-NonVeteranClaimant-Birth-Date": {
-        "description": "Claimant's birth date",
-        "type": "string",
-        "format": "date"
-      },
-      "X-VA-NonVeteranClaimant-First-Name": {
-        "allOf": [
-          {
-            "description": "first name"
-          },
-          {
-            "$ref": "#/components/schemas/non_blank_string"
-          }
-        ]
-      },
-      "X-VA-NonVeteranClaimant-Last-Name": {
-        "allOf": [
-          {
-            "description": "last name"
-          },
-          {
-            "$ref": "#/components/schemas/non_blank_string"
-          }
-        ]
-      },
-      "X-VA-NonVeteranClaimant-Middle-Initial": {
-        "allOf": [
-          {
-            "description": "middle initial"
-          },
-          {
-            "$ref": "#/components/schemas/non_blank_string"
-          }
-        ]
-      },
-      "X-VA-NonVeteranClaimant-SSN": {
-        "description": "social security number",
-        "type": "string",
-        "minLength": 9,
-        "maxLength": 9,
-        "pattern": "^[0-9]{9}$"
-      },
       "X-VA-File-Number": {
         "allOf": [
           {
@@ -4344,6 +4255,41 @@
         ]
       },
       "X-VA-Middle-Initial": {
+        "allOf": [
+          {
+            "description": "middle initial"
+          },
+          {
+            "$ref": "#/components/schemas/non_blank_string"
+          }
+        ]
+      },
+      "X-VA-NonVeteranClaimant-Birth-Date": {
+        "description": "Non-veteran claimant's birth date",
+        "type": "string",
+        "format": "date"
+      },
+      "X-VA-NonVeteranClaimant-First-Name": {
+        "allOf": [
+          {
+            "description": "first name"
+          },
+          {
+            "$ref": "#/components/schemas/non_blank_string"
+          }
+        ]
+      },
+      "X-VA-NonVeteranClaimant-Last-Name": {
+        "allOf": [
+          {
+            "description": "last name"
+          },
+          {
+            "$ref": "#/components/schemas/non_blank_string"
+          }
+        ]
+      },
+      "X-VA-NonVeteranClaimant-Middle-Initial": {
         "allOf": [
           {
             "description": "middle initial"

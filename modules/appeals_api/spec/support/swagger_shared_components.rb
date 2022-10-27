@@ -113,6 +113,27 @@ class AppealsApi::SwaggerSharedComponents
         required: false,
         description: 'Non-Veteran claimant\'s Birth Date'
       },
+      alternate_signer_first_name_header: {
+        in: :header,
+        type: :string,
+        name: 'X-Alternate-Signer-First-Name',
+        required: false,
+        description: 'Alternate signer\'s first name'
+      },
+      alternate_signer_middle_initial_header: {
+        in: :header,
+        type: :string,
+        name: 'X-Alternate-Signer-Middle-Initial',
+        required: false,
+        description: 'Alternate signer\'s middle initial'
+      },
+      alternate_signer_last_name_header: {
+        in: :header,
+        type: :string,
+        name: 'X-Alternate-Signer-Last-Name',
+        required: false,
+        description: 'Alternate signer\'s last name'
+      },
       consumer_username_header: {
         in: :header,
         type: :string,

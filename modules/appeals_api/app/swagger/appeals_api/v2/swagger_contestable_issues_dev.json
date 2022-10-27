@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.0",
+  "openapi": "3.1.0",
   "info": {
     "title": "Contestable Issues",
     "version": "v2",
@@ -190,8 +190,9 @@
                       "detail": "A veteran with that SSN was not found in our systems."
                     }
                   ],
-                  "code": 404,
-                  "source": "Appeals Caseflow"
+                  "code": "404",
+                  "detail": "Veteran not found",
+                  "source": "A veteran with that SSN was not found in our systems."
                 },
                 "schema": {
                   "schema": {
@@ -237,7 +238,7 @@
                       ]
                     }
                   },
-                  "Bad receipt date for  HLR": {
+                  "Bad receipt date for HLR": {
                     "value": {
                       "errors": [
                         {
@@ -247,8 +248,9 @@
                           "detail": "\"2019-02-18\" is before AMA Activation Date (2019-02-19)."
                         }
                       ],
-                      "code": 422,
-                      "source": "Appeals Caseflow"
+                      "code": "invalid_receipt_date",
+                      "detail": "Invalid Receipt Date",
+                      "source": "\"2019-02-18\" is before AMA Activation Date (2019-02-19)."
                     }
                   }
                 },
@@ -268,7 +270,7 @@
                       "title": "Bad Gateway",
                       "detail": "Received a 500 response from the upstream server",
                       "code": "CASEFLOWSTATUS500",
-                      "source": "Appeals Caseflow",
+                      "source": "No method error",
                       "status": "502"
                     }
                   ]
@@ -280,7 +282,6 @@
       }
     }
   },
-  "basePath": "/services/appeals/contestable_issues/v2",
   "components": {
     "securitySchemes": {
       "apikey": {
@@ -478,6 +479,9 @@
                   "properties": {
                     "missing_fields": {
                       "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
                       "description": "List of missing fields"
                     }
                   }

@@ -16,6 +16,11 @@ def generate_swagger_doc(dev: false, section: nil)
     ENV['WIP_DOCS_ENABLED'] = Settings.modules_appeals_api.documentation.wip_docs&.join(',') || ''
   end
   Rake::Task['rswag:specs:swaggerize'].invoke
+
+  # Do rswag-to-oas conversion on output files
+  glob = dev ? '_dev' : ''
+  glob = section.present? ? "_#{section}#{glob}" : glob
+  rswag_to_oas!("modules/appeals_api/app/swagger/appeals_api/v2/swagger#{glob}.json")
 end
 
 namespace :rswag do
@@ -86,4 +91,17 @@ def strip_swagger_base_path(version)
   end
 
   FileUtils.mv(temp_path, swagger_file_path.to_s)
+end
+
+# Does file manipulation to make an rswag-output json file compatible to OAS v3
+# Rwag still generates `basePath`, which is invalid in OAS v3 (https://github.com/rswag/rswag/issues/318)
+def rswag_to_oas!(filepath)
+  temp_path = "/tmp/#{SecureRandom.urlsafe_base64}.json"
+  File.open(temp_path, 'w') do |outfile|
+    File.foreach(filepath) do |line|
+      outfile.puts line unless line.include?('basePath')
+    end
+  end
+
+  FileUtils.mv(temp_path, filepath)
 end
