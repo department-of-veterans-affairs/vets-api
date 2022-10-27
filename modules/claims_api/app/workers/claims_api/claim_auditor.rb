@@ -17,7 +17,7 @@ module ClaimsApi
       return unless claims.any?
 
       client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
-                                       channel: '#api-benefits-claims',
+                                       channel: '#api-benefits-claims-alerts',
                                        username: 'ClaimAuditor')
       environment_name = Settings.claims_api.claims_error_reporting.environment_name
       message = "#{claims.count} claim#{claims.count == 1 ? '' : 's'} in #{environment_name} "\
