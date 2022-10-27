@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.0",
+  "openapi": "3.1.0",
   "info": {
     "title": "Legacy Appeals",
     "version": "v2",
@@ -89,8 +89,9 @@
                       "title": "Veteran Not Found"
                     }
                   ],
-                  "code": 404,
-                  "source": "Appeals Caseflow"
+                  "code": "veteran_not_found",
+                  "detail": "Veteran Not Found",
+                  "source": null
                 },
                 "schema": {
                   "schema": {
@@ -232,7 +233,6 @@
       }
     }
   },
-  "basePath": "/services/appeals/legacy_appeals/v2",
   "components": {
     "securitySchemes": {
       "apikey": {
@@ -291,6 +291,9 @@
                   "properties": {
                     "missing_fields": {
                       "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
                       "description": "List of missing fields"
                     }
                   }

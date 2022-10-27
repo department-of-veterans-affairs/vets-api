@@ -116,8 +116,11 @@ module DocHelpers
   end
 
   def self.doc_basepath(version = nil)
-    path_template = DOC_SECTION_PATHS.fetch(ENV['RSWAG_SECTION_SLUG']&.to_sym,
-                                            '/services/appeals/{version}/decision_reviews')
+    path_template = '/services/appeals/{version}/decision_reviews'
+    if wip_doc_enabled?(:segmented_apis)
+      path_template = DOC_SECTION_PATHS.fetch(ENV['RSWAG_SECTION_SLUG']&.to_sym, path_template)
+    end
+
     return path_template if version.nil?
 
     path_template.gsub('{version}', version)

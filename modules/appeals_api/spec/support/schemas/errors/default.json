@@ -40,6 +40,9 @@
             "properties": {
               "missing_fields": {
                 "type": "array",
+                "items": {
+                  "type": "string"
+                },
                 "description": "List of missing fields"
               }
             }

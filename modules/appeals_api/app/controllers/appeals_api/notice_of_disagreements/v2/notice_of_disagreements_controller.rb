@@ -9,16 +9,12 @@ class AppealsApi::NoticeOfDisagreements::V2::NoticeOfDisagreementsController < A
   SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
 
   def schema
-    # TODO: Return full schema after we've validated all Non-Veteran Claimant functionality
     response = AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
       AppealsApi::FormSchemas.new(
         SCHEMA_ERROR_TYPE,
         schema_version: 'v2'
       ).schema(self.class::FORM_NUMBER)
     )
-    response.tap do |s|
-      s.dig(*%w[definitions nodCreate properties data properties attributes properties]).delete('claimant')
-    end
 
     render json: response
   end

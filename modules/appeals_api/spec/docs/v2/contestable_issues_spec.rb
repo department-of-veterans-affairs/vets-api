@@ -128,7 +128,7 @@ describe 'Contestable Issues', swagger_doc: "modules/appeals_api/app/swagger/app
           end
         end
 
-        context 'Bad receipt date for  HLR' do
+        context 'Bad receipt date for HLR' do
           schema '$ref' => '#/components/schemas/errorModel'
 
           let(:benefit_type) { 'compensation' }

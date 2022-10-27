@@ -9,7 +9,7 @@ class AppealsApi::RswagConfig
   def config
     {
       "modules/appeals_api/app/swagger/appeals_api/v2/swagger#{DocHelpers.doc_suffix}.json" => {
-        openapi: '3.0.0',
+        openapi: DocHelpers.wip_doc_enabled?(:segmented_apis) ? '3.1.0' : '3.0.0',
         info: {
           title: DocHelpers.doc_title,
           version: 'v2',
@@ -18,6 +18,7 @@ class AppealsApi::RswagConfig
         },
         tags: DocHelpers.doc_tags,
         paths: {},
+        # basePath helps with rswag runs, but is not valid OAS v3. rswag.rake removes it from the output file.
         basePath: DocHelpers.doc_basepath('v2'),
         components: {
           securitySchemes: {
@@ -63,6 +64,15 @@ class AppealsApi::RswagConfig
       a << hlr_v2_response_schemas('#/components/schemas')
       a << contestable_issues_schema('#/components/schemas')
       a << generic_schemas('#/components/schemas')
+      a << {
+        'X-VA-NonVeteranClaimant-SSN': {
+          'description': 'social security number',
+          'type': 'string',
+          'minLength': 9,
+          'maxLength': 9,
+          'pattern': '^[0-9]{9}$'
+        }
+      }
       a << shared_schemas
     when 'nod'
       a << nod_v2_create_schemas
@@ -171,13 +181,6 @@ class AppealsApi::RswagConfig
         'type': 'string',
         'format': 'date'
       },
-      'X-VA-NonVeteranClaimant-SSN': {
-        'description': 'social security number',
-        'type': 'string',
-        'minLength': 9,
-        'maxLength': 9,
-        'pattern': '^[0-9]{9}$'
-      },
       'X-VA-File-Number': {
         'allOf': [
           { 'description': 'VA file number (c-file / css)' },
@@ -232,8 +235,14 @@ class AppealsApi::RswagConfig
   end
 
   def hlr_v2_create_schemas
-    file = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '200996_with_shared_refs.json' : '200996.json'
-    parse_create_schema('v2', file)
+    if DocHelpers.wip_doc_enabled?(:segmented_apis)
+      hlr_schema = parse_create_schema('v2', '200996_with_shared_refs.json', return_raw: true)
+      {
+        hlrCreate: { type: 'object' }.merge!(hlr_schema.slice(*%w[description properties required]))
+      }
+    else
+      parse_create_schema 'v2', '200996.json'
+    end
   end
 
   def hlr_v2_response_schemas(ref_root)
@@ -422,8 +431,14 @@ class AppealsApi::RswagConfig
   end
 
   def nod_v2_create_schemas
-    file = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '10182_with_shared_refs.json' : '10182.json'
-    parse_create_schema('v2', file)
+    if DocHelpers.wip_doc_enabled?(:segmented_apis)
+      nod_schema = parse_create_schema('v2', '10182_with_shared_refs.json', return_raw: true)
+      {
+        nodCreate: { type: 'object' }.merge!(nod_schema.slice(*%w[description properties required]))
+      }
+    else
+      parse_create_schema 'v2', '10182.json'
+    end
   end
 
   def nod_v2_response_schemas(ref_root)
@@ -587,7 +602,14 @@ class AppealsApi::RswagConfig
   end
 
   def sc_create_schemas
-    parse_create_schema('v2', '200995.json')
+    if DocHelpers.wip_doc_enabled?(:segmented_apis)
+      sc_schema = parse_create_schema('v2', '200995_with_shared_refs.json', return_raw: true)
+      {
+        scCreate: { type: 'object' }.merge!(sc_schema.slice(*%w[description properties required]))
+      }
+    else
+      parse_create_schema 'v2', '200995.json'
+    end
   end
 
   def sc_response_schemas(ref_root)
@@ -727,6 +749,7 @@ class AppealsApi::RswagConfig
   end
 
   def shared_schemas
+    # Keys are strings to override older, non-shared-schema definitions
     {
       'address': JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'address.json')))['properties']['address'],
       'non_blank_string': JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'non_blank_string.json')))['properties']['nonBlankString'],
@@ -735,7 +758,7 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def parse_create_schema(version, schema_file)
+  def parse_create_schema(version, schema_file, return_raw: false)
     file = File.read(AppealsApi::Engine.root.join('config', 'schemas', version, schema_file))
     file.gsub! '#/definitions/', '#/components/schemas/'
     schema = JSON.parse file
@@ -748,7 +771,7 @@ class AppealsApi::RswagConfig
       end
     end
 
-    schema['definitions']
+    return_raw ? schema : schema['definitions']
   end
 end
 # rubocop:enable Metrics/MethodLength, Layout/LineLength, Metrics/ClassLength
