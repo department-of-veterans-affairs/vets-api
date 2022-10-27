@@ -377,9 +377,6 @@ features:
     actor_type: user
     description: Enables secure messaging
     enable_in_development: true
-  hlr_v2:
-    actor_type: user
-    description: Enable showing Higher-Level Review v2
   in_progress_form_custom_expiration:
     actor_type: user
     description: Enable/disable custom expiration dates for forms
@@ -691,6 +688,10 @@ features:
   subform_8940_4192:
     actor_type: user
     description: Form 526 subforms for unemployability & connected employment information
+    enable_in_development: true
+  supplemental_claim:
+    actor_type: user
+    description: Enable showing Supplemental Claim form 0995
     enable_in_development: true
   va_global_downtime_notification:
     actor_type: user
