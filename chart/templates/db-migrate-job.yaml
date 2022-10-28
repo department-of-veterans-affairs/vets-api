@@ -14,7 +14,7 @@ spec:
       containers:
         - name: {{ .Values.web.dbMigrate.fullName }}
           image: '{{ .Values.image.value }}:{{ .Values.image.tag }}'
-          imagePullPolicy: {{ .Values.image.value }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: {{ .Values.web.dbMigrate.command }}
           args: {{ .Values.web.dbMigrate.args }}
           volumeMounts:
