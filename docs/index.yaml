@@ -3,22 +3,12 @@ entries:
   vets-api:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2022-10-28T10:19:12.937447-05:00"
+    created: "2022-10-28T11:43:56.330025-05:00"
     description: A Helm chart for Kubernetes
-    digest: b6ef5329f2fba42f60686fd69caa1a21abe34466504dfb1cf51b0c08ceb14437
-    name: vets-api
-    type: application
-    urls:
-    - https://department-of-veterans-affairs.github.io/vets-api/vets-api-0.1.1.tgz
-    version: 0.1.1
-  - apiVersion: v2
-    appVersion: 1.0.0
-    created: "2022-10-28T10:19:12.93699-05:00"
-    description: A Helm chart for Kubernetes
-    digest: 549f5fa79d320d3283238a995dfdca5c4fe6597d01f8aa8b9febf995fc86ff50
+    digest: ea9316e3681d8532d3fbdaebcf5ff221b41086e92e8de647af118f55d7a93811
     name: vets-api
     type: application
     urls:
     - https://department-of-veterans-affairs.github.io/vets-api/vets-api-0.1.0.tgz
     version: 0.1.0
-generated: "2022-10-28T10:19:12.935747-05:00"
+generated: "2022-10-28T11:43:56.329357-05:00"
