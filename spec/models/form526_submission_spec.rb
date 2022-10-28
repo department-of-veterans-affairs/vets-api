@@ -936,4 +936,44 @@ RSpec.describe Form526Submission do
       end
     end
   end
+
+  describe '#disabilities_not_service_connected?' do
+    subject { form_526_submission.disabilities_not_service_connected? }
+
+    let(:form_526_submission) do
+      Form526Submission.create(
+        user_uuid: user.uuid,
+        saved_claim_id: saved_claim.id,
+        auth_headers_json: auth_headers.to_json,
+        form_json: File.read("spec/support/disability_compensation_form/submissions/#{form_json_filename}")
+      )
+    end
+
+    before { VCR.insert_cassette('evss/disability_compensation_form/rated_disabilities_with_non_service_connected') }
+    after { VCR.eject_cassette('evss/disability_compensation_form/rated_disabilities_with_non_service_connected') }
+
+    context 'when all corresponding rated disabilities are not service-connected' do
+      let(:form_json_filename) { 'only_526_asthma.json' }
+
+      it 'returns true' do
+        expect(subject).to be_truthy
+      end
+    end
+
+    context 'when some but not all corresponding rated disabilities are not service-connected' do
+      let(:form_json_filename) { 'only_526_two_rated_disabilities.json' }
+
+      it 'returns false' do
+        expect(subject).to be_falsey
+      end
+    end
+
+    context 'when some disabilities do not have a ratedDisabilityId yet' do
+      let(:form_json_filename) { 'only_526_mixed_action_disabilities.json' }
+
+      it 'returns false' do
+        expect(subject).to be_falsey
+      end
+    end
+  end
 end
