@@ -7,7 +7,7 @@ require 'formatters/date_formatter'
 module MPI
   module Messages
     class UpdateProfileMessage
-      attr_reader :first_name, :last_name, :ssn, :birth_date, :idme_uuid, :logingov_uuid, :icn, :edipi, :email
+      attr_reader :first_name, :last_name, :ssn, :birth_date, :idme_uuid, :logingov_uuid, :icn, :edipi, :email, :address
 
       # rubocop:disable Metrics/ParameterLists
       def initialize(first_name:,
@@ -16,6 +16,7 @@ module MPI
                      icn:,
                      email:,
                      birth_date:,
+                     address: nil,
                      idme_uuid: nil,
                      logingov_uuid: nil,
                      edipi: nil)
@@ -26,6 +27,7 @@ module MPI
         @icn = icn
         @email = email
         @birth_date = birth_date
+        @address = address
         @idme_uuid = idme_uuid
         @logingov_uuid = logingov_uuid
         @edipi = edipi
@@ -94,6 +96,13 @@ module MPI
         element = RequestHelper.build_patient_person_element
         element << RequestHelper.build_patient_person_name(given_names: [first_name], family_name: last_name)
         element << RequestHelper.build_patient_person_birth_date(birth_date: birth_date)
+        if address.present?
+          element << RequestHelper.build_patient_person_address(street: combined_street,
+                                                                state: address[:state],
+                                                                city: address[:city],
+                                                                postal_code: address[:postal_code],
+                                                                country: address[:country])
+        end
         element << RequestHelper.build_identifier(identifier: identifier, root: identifier_root)
         element << RequestHelper.build_telecom(type: email_type, value: email)
         element << RequestHelper.build_patient_identifier(identifier: ssn, root: ssn_root, class_code: ssn_class_code)
@@ -101,6 +110,10 @@ module MPI
                                                           root: identifier_root,
                                                           class_code: identifier_class_code)
         element
+      end
+
+      def combined_street
+        [address[:street], address[:street2]].compact.join(' ')
       end
 
       def identifier

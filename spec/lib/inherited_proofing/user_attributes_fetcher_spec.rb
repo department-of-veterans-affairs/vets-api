@@ -64,7 +64,7 @@ RSpec.describe InheritedProofing::UserAttributesFetcher do
             city: address[:city],
             state: address[:state],
             country: address[:country],
-            zip: address[:postal_code]
+            postal_code: address[:postal_code]
           }
         end
         let(:expected_mhv_data) { mhv_identity_data.data }

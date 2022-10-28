@@ -29,6 +29,7 @@ RSpec.describe SignIn::AttributeValidator do
           first_name: first_name,
           last_name: last_name,
           csp_email: email,
+          address: address,
           sign_in: sign_in,
           auto_uplevel: auto_uplevel,
           mhv_icn: mhv_icn,
@@ -47,6 +48,22 @@ RSpec.describe SignIn::AttributeValidator do
       let(:email) { nil }
       let(:first_name) { nil }
       let(:last_name) { nil }
+      let(:address) do
+        {
+          street: street,
+          street2: street2,
+          postal_code: postal_code,
+          state: state,
+          city: city,
+          country: country
+        }
+      end
+      let(:street) { nil }
+      let(:street2) { nil }
+      let(:state) { nil }
+      let(:postal_code) { nil }
+      let(:city) { nil }
+      let(:country) { nil }
       let(:mhv_icn) { nil }
       let(:sign_in) { { service_name: service_name } }
       let(:auto_uplevel) { false }
@@ -156,12 +173,9 @@ RSpec.describe SignIn::AttributeValidator do
                          family_name: mpi_last_name))
         end
 
-        context 'and attribute mismatch is first_name' do
-          let(:mpi_first_name) { 'some-mpi-first-name' }
+        shared_examples 'attribute mismatch behavior' do
           let(:expected_error) { SignIn::Errors::AttributeMismatchError }
-          let(:expected_error_message) do
-            'Attribute mismatch, first_name in credential does not match MPI attribute'
-          end
+          let(:expected_error_message) { "Attribute mismatch, #{attribute} in credential does not match MPI attribute" }
 
           it 'makes a log to rails logger' do
             expect_any_instance_of(SignIn::Logger).to receive(:info).with('user creator error',
@@ -173,42 +187,27 @@ RSpec.describe SignIn::AttributeValidator do
             expect_any_instance_of(MPI::Service).to receive(:update_profile)
             subject
           end
+        end
+
+        context 'and attribute mismatch is first_name' do
+          let(:mpi_first_name) { 'some-mpi-first-name' }
+          let(:attribute) { 'first_name' }
+
+          it_behaves_like 'attribute mismatch behavior'
         end
 
         context 'and attribute mismatch is last name' do
           let(:mpi_last_name) { 'some-mpi-last-name' }
-          let(:expected_error) { SignIn::Errors::AttributeMismatchError }
-          let(:expected_error_message) do
-            'Attribute mismatch, last_name in credential does not match MPI attribute'
-          end
+          let(:attribute) { 'last_name' }
 
-          it 'makes a log to rails logger' do
-            expect_any_instance_of(SignIn::Logger).to receive(:info).with('user creator error',
-                                                                          { errors: expected_error_message })
-            subject
-          end
-
-          it 'makes an mpi call to update correlation record' do
-            expect_any_instance_of(MPI::Service).to receive(:update_profile)
-            subject
-          end
+          it_behaves_like 'attribute mismatch behavior'
         end
 
         context 'and attribute mismatch is birth date' do
           let(:mpi_birth_date) { '1970-01-01' }
-          let(:expected_error) { SignIn::Errors::AttributeMismatchError }
-          let(:expected_error_message) { 'Attribute mismatch, birth_date in credential does not match MPI attribute' }
+          let(:attribute) { 'birth_date' }
 
-          it 'makes a log to rails logger' do
-            expect_any_instance_of(SignIn::Logger).to receive(:info).with('user creator error',
-                                                                          { errors: expected_error_message })
-            subject
-          end
-
-          it 'makes an mpi call to update correlation record' do
-            expect_any_instance_of(MPI::Service).to receive(:update_profile)
-            subject
-          end
+          it_behaves_like 'attribute mismatch behavior'
         end
 
         context 'and attribute mismatch is ssn' do
@@ -400,6 +399,12 @@ RSpec.describe SignIn::AttributeValidator do
         let(:first_name) { 'some-first-name' }
         let(:last_name) { 'some-last-name' }
         let(:ssn) { '444444758' }
+        let(:street) { 'some-street' }
+        let(:street2) { 'some-street-2' }
+        let(:postal_code) { 'some-postal-code' }
+        let(:state) { 'some-state' }
+        let(:city) { 'some-city' }
+        let(:country) { 'USA' }
         let(:birth_date) { '1930-01-01' }
         let(:email) { 'some-email' }
 
@@ -410,6 +415,7 @@ RSpec.describe SignIn::AttributeValidator do
         let(:service_name) { SAML::User::DSLOGON_CSID }
         let(:edipi) { 'some-edipi' }
         let(:idme_uuid) { 'some-idme-uuid' }
+        let(:address) { nil }
         let(:first_name) { 'some-first-name' }
         let(:last_name) { 'some-last-name' }
         let(:ssn) { '444444758' }
@@ -425,6 +431,12 @@ RSpec.describe SignIn::AttributeValidator do
         let(:first_name) { 'some-first-name' }
         let(:last_name) { 'some-last-name' }
         let(:ssn) { '444444758' }
+        let(:street) { 'some-street' }
+        let(:street2) { nil }
+        let(:state) { 'some-state' }
+        let(:postal_code) { 'some-postal-code' }
+        let(:city) { 'some-city' }
+        let(:country) { 'USA' }
         let(:birth_date) { '1930-01-01' }
         let(:email) { 'some-email' }
 

@@ -456,7 +456,7 @@ RSpec.describe User, type: :model do
           expect(user.address[:street]).to be(user.identity.address[:street])
           expect(user.address[:street2]).to be(user.identity.address[:street2])
           expect(user.address[:city]).to be(user.identity.address[:city])
-          expect(user.address[:zip]).to be(user.identity.address[:postal_code])
+          expect(user.address[:postal_code]).to be(user.identity.address[:postal_code])
           expect(user.address[:country]).to be(user.identity.address[:country])
         end
 
@@ -653,7 +653,7 @@ RSpec.describe User, type: :model do
           expect(user.address[:street]).to eq(mvi_profile.address.street)
           expect(user.address[:street2]).to be(mvi_profile.address[:street2])
           expect(user.address[:city]).to be(mvi_profile.address[:city])
-          expect(user.address[:zip]).to be(mvi_profile.address[:postal_code])
+          expect(user.address[:postal_code]).to be(mvi_profile.address[:postal_code])
           expect(user.address[:country]).to be(mvi_profile.address[:country])
         end
 

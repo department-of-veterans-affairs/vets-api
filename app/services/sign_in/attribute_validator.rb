@@ -12,6 +12,7 @@ module SignIn
                 :last_name,
                 :birth_date,
                 :credential_email,
+                :address,
                 :ssn,
                 :mhv_icn,
                 :edipi,
@@ -28,6 +29,7 @@ module SignIn
       @last_name = user_attributes[:last_name]
       @birth_date = user_attributes[:birth_date]
       @credential_email = user_attributes[:csp_email]
+      @address = user_attributes[:address]
       @ssn = user_attributes[:ssn]
       @mhv_icn = user_attributes[:mhv_icn]
       @edipi = user_attributes[:edipi]
@@ -125,6 +127,7 @@ module SignIn
                                                             last_name: last_name,
                                                             birth_date: birth_date,
                                                             email: credential_email,
+                                                            address: address,
                                                             ssn: ssn,
                                                             edipi: edipi,
                                                             icn: mhv_icn,

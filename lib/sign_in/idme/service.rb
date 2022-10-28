@@ -100,7 +100,8 @@ module SignIn
           ssn: user_info.social&.tr('-', ''),
           birth_date: user_info.birth_date,
           first_name: user_info.fname,
-          last_name: user_info.lname
+          last_name: user_info.lname,
+          address: normalize_address(user_info)
         }
       end
 
@@ -121,6 +122,20 @@ module SignIn
           mhv_icn: user_info.mhv_icn,
           mhv_assurance: user_info.mhv_assurance
         }
+      end
+
+      def normalize_address(user_info)
+        {
+          street: user_info.street,
+          postal_code: user_info.zip,
+          state: user_info.state,
+          city: user_info.city,
+          country: united_states_country_code
+        }
+      end
+
+      def united_states_country_code
+        'USA'
       end
 
       def ial_to_loa(ial)
