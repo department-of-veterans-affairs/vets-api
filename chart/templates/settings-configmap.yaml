@@ -6,5 +6,6 @@ metadata:
   creationTimestamp: null
   name: {{ .Values.common.configMap.name }}
 data:
-  {{ .Values.common.configMap.fileName }}: |
-{{ tpl .Values.common.configMap.data . | indent 4 }}
+{{ toYaml .Values.common.configMap.data | indent 2  }}
+
+
