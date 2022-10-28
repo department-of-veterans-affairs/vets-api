@@ -199,6 +199,9 @@ worker:
 # Common configuration
 common:
   socatProxy: {}
+  lighthousePreConfigs:
+    name: ""
+    data: ""
   volumeMounts: {}
 
   volumes: {}

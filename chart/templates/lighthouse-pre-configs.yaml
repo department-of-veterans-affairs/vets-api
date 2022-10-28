@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ .Values.common.lighthousePreConfigs.name }}
+data:
+{{ toYaml .Values.common.lighthousePreConfigs.data | indent 2  }}
