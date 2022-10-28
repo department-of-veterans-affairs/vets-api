@@ -31,10 +31,7 @@ module Login
     end
 
     def evss_create_account
-      if current_user.authorize(:evss, :access?)
-        auth_headers = EVSS::AuthHeaders.new(current_user).to_h
-        EVSS::CreateUserAccountJob.perform_async(auth_headers)
-      end
+      EVSS::CreateUserAccountJob.perform_async(current_user.uuid) if current_user.authorize(:evss, :access?)
     end
   end
 end

@@ -162,8 +162,7 @@ module IAMSSOeOAuth
     end
 
     def create_evss_account(user)
-      auth_headers = EVSS::AuthHeaders.new(user).to_h
-      EVSS::CreateUserAccountJob.perform_async(auth_headers)
+      EVSS::CreateUserAccountJob.perform_async(user.uuid)
       Rails.logger.info('user EVSS account created', user.uuid)
     end
   end
