@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/component: {{ .Values.web.serviceAccount.name }}
     app.kubernetes.io/name: {{ .Values.web.serviceAccount.name }}
     app.kubernetes.io/part-of: {{ .Values.web.serviceAccount.name }}
-  name: {{ .Values.appName }}
+  name: {{ .Values.web.serviceAccount.name }}
   namespace: {{ .Release.Namespace }}
 {{- end }}
 
@@ -24,6 +24,6 @@ metadata:
     app.kubernetes.io/component: {{ .Values.worker.serviceAccount.name }}
     app.kubernetes.io/name: {{ .Values.worker.serviceAccount.name }}
     app.kubernetes.io/part-of: {{ .Values.worker.serviceAccount.name }}
-  name: {{ .Values.appName }}
+  name: {{ .Values.worker.serviceAccount.name }}
   namespace: {{ .Release.Namespace }}
 {{- end }}
