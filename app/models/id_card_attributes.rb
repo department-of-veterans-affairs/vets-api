@@ -18,7 +18,7 @@ class IdCardAttributes
       'address' => @user.address[:street] || '',
       'city' => @user.address[:city] || '',
       'state' => @user.address[:state] || '',
-      'zip' => @user.address[:zip] || '',
+      'zip' => @user.address[:postal_code] || '',
       'email' => @user.email || '',
       'phone' => @user.home_phone || '',
       'title38status' => title38_status_code,

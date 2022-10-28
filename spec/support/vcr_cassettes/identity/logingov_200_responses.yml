@@ -101,7 +101,8 @@ http_interactions:
       encoding: UTF-8
       string: '{ "sub" : "12345678-0990-10a1-f038-2839ab281f90", "iss" : "https://idp.int.identitysandbox.gov/",
                  "email" : "user@test.com", "email_verified" : true, "given_name" : "Bob", "family_name" : "User",
-                 "birthdate" : "1993-01-01", "social_security_number" : "999-11-9999", "verified_at" : 1635465286 }'
+                 "birthdate" : "1993-01-01", "social_security_number" : "999-11-9999", "address" : { "formatted" : "1 Microsoft Way\nApt 3\nBayside, NY 11364",
+                 "street_address" : "1 Microsoft Way\nApt 3", "locality" : "Bayside", "region" : "NY", "postal_code" : "11364" }, "verified_at" : 1635465286 }'
     http_version: 
   recorded_at: Thu, 23 Dec 2021 16:09:22 GMT
 recorded_with: VCR 5.0.0

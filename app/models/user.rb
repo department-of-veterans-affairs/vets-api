@@ -181,7 +181,7 @@ class User < Common::RedisStore
       city: address[:city],
       state: address[:state],
       country: address[:country],
-      zip: address[:postal_code]
+      postal_code: address[:postal_code]
     }
   end
 

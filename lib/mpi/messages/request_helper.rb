@@ -128,6 +128,16 @@ module MPI
           element('birthTime', value: Date.parse(birth_date)&.strftime('%Y%m%d'))
         end
 
+        def build_patient_person_address(street:, state:, city:, postal_code:, country:)
+          address_element = element('addr', use: 'HP')
+          address_element << text_element('streetAddressLine', street)
+          address_element << text_element('city', city)
+          address_element << text_element('state', state)
+          address_element << text_element('postalCode', postal_code)
+          address_element << text_element('country', country)
+          address_element
+        end
+
         def build_patient_identifier(identifier:, root:, class_code:)
           ssn_element = element('asOtherIDs', classCode: class_code)
           ssn_element << build_identifier(identifier: identifier, root: root)
