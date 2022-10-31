@@ -13,7 +13,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :controller do
     context 'with a date and timezone' do
       it 'adds the timezone offset to the date' do
         date_with_offset = subject.send(:add_timezone_offset, desired_date, 'America/New_York')
-        expect(date_with_offset.to_s).to eq('2022-09-20T20:00:00-04:00')
+        expect(date_with_offset.to_s).to eq('2022-09-21T00:00:00-04:00')
       end
     end
 
@@ -37,7 +37,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :controller do
     context 'with a request body and facility timezone' do
       it 'updates the direct scheduled appt desired date with facilities time zone offset' do
         subject.send(:modify_desired_date, va_booked_request_body, 'America/Denver')
-        expect(va_booked_request_body[:extension][:desired_date].to_s).to eq('2022-11-29T17:00:00-07:00')
+        expect(va_booked_request_body[:extension][:desired_date].to_s).to eq('2022-11-30T00:00:00-07:00')
       end
     end
   end
