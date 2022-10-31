@@ -20,6 +20,7 @@ spec:
           volumeMounts:
 {{ toYaml .Values.common.volumeMounts | indent 12 }}
           env:
+{{ toYaml .Values.common.envSecrets | indent 12 }}
           {{- range $keys, $key := .Values.common.secrets }}
           {{- range $secrets, $secret := $key }}
             - name: {{ $secret.env_var }}
