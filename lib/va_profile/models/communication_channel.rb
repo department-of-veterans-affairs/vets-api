@@ -6,7 +6,7 @@ require_relative 'communication_permission'
 module VAProfile
   module Models
     class CommunicationChannel < CommunicationBase
-      attr_accessor :id, :name, :description
+      attr_accessor :id, :name, :description, :default_send_indicator
       attr_reader :communication_permission
 
       validates :id, :communication_permission, presence: true
@@ -17,7 +17,8 @@ module VAProfile
         communication_channel_model = new(
           id: communication_channel_data['communication_channel_id'],
           name: communication_channel_data['name'],
-          description: communication_channel_data['description']
+          description: communication_channel_data['description'],
+          default_send_indicator: communication_channel_data['default_send_indicator']
         )
 
         permission = permission_res['bios']&.find do |permission_data|

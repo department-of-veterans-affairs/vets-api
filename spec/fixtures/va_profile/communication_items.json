@@ -34,6 +34,7 @@
             "communication_channel_id": 1,
             "name": "Text",
             "description": "SMS Notification",
+            "default_send_indicator": false,
             "effective_start_date": "2020-10-07T00:00:00Z"
           }
         }
@@ -95,6 +96,7 @@
             "communication_channel_id": 1,
             "name": "Text",
             "description": "SMS Notification",
+            "default_send_indicator": false,
             "effective_start_date": "2020-10-07T00:00:00Z"
           }
         }
@@ -156,6 +158,7 @@
             "communication_channel_id": 1,
             "name": "Text",
             "description": "SMS Notification",
+            "default_send_indicator": false,
             "effective_start_date": "2020-10-07T00:00:00Z"
           }
         }
@@ -217,6 +220,7 @@
             "communication_channel_id": 1,
             "name": "Text",
             "description": "SMS Notification",
+            "default_send_indicator": false,
             "effective_start_date": "2020-10-07T00:00:00Z"
           }
         },
@@ -240,6 +244,7 @@
             "communication_channel_id": 2,
             "name": "Email",
             "description": "Email Notification",
+            "default_send_indicator": false,
             "effective_start_date": "2020-10-07T00:00:00Z"
           }
         }
@@ -301,6 +306,7 @@
             "communication_channel_id": 2,
             "name": "Email",
             "description": "Email Notification",
+            "default_send_indicator": false,
             "effective_start_date": "2020-10-07T00:00:00Z"
           }
         }
@@ -362,6 +368,7 @@
             "communication_channel_id": 2,
             "name": "Email",
             "description": "Email Notification",
+            "default_send_indicator": false,
             "effective_start_date": "2020-10-07T00:00:00Z"
           }
         }
@@ -423,6 +430,7 @@
             "communication_channel_id": 1,
             "name": "Text",
             "description": "SMS Notification",
+            "default_send_indicator": false,
             "effective_start_date": "2020-10-07T00:00:00Z"
           }
         },
@@ -446,6 +454,7 @@
             "communication_channel_id": 2,
             "name": "Email",
             "description": "Email Notification",
+            "default_send_indicator": false,
             "effective_start_date": "2020-10-07T00:00:00Z"
           }
         }
@@ -507,6 +516,7 @@
             "communication_channel_id": 2,
             "name": "Email",
             "description": "Email Notification",
+            "default_send_indicator": false,
             "effective_start_date": "2020-10-07T00:00:00Z"
           }
         }
@@ -568,6 +578,7 @@
             "communication_channel_id": 2,
             "name": "Email",
             "description": "Email Notification",
+            "default_send_indicator": false,
             "effective_start_date": "2020-10-07T00:00:00Z"
           }
         }
@@ -629,6 +640,7 @@
             "communication_channel_id": 2,
             "name": "Email",
             "description": "Email Notification",
+            "default_send_indicator": false,
             "effective_start_date": "2020-10-07T00:00:00Z"
           }
         }
@@ -690,6 +702,7 @@
             "communication_channel_id": 2,
             "name": "Email",
             "description": "Email Notification",
+            "default_send_indicator": false,
             "effective_start_date": "2020-10-07T00:00:00Z"
           }
         }
@@ -751,6 +764,7 @@
             "communication_channel_id": 2,
             "name": "Email",
             "description": "Email Notification",
+            "default_send_indicator": false,
             "effective_start_date": "2020-10-07T00:00:00Z"
           }
         }
