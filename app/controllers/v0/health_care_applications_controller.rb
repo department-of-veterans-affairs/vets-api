@@ -16,7 +16,11 @@ module V0
       @health_care_application.google_analytics_client_id = params[:ga_client_id]
       @health_care_application.user = current_user
 
-      result = @health_care_application.process!
+      begin
+        result = @health_care_application.process!
+      rescue HCA::SOAPParser::ValidationError
+        raise Common::Exceptions::BackendServiceException.new('HCA422', status: 422)
+      end
 
       clear_saved_form(FORM_ID)
 
