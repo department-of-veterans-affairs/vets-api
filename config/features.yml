@@ -467,7 +467,7 @@ features:
     actor_type: user
     description: >
       When enabled, if a user changes a phone number, the notification email will specify whether the home or mobile
-      phone was changed.  For an address change, the notification email will specify whether the residential or correspondence 
+      phone was changed.  For an address change, the notification email will specify whether the residential or correspondence
       address was changed.
     enable_in_development: true
   profile_user_claims:
@@ -504,6 +504,9 @@ features:
   profile_show_payments_notification_setting:
     actor_type: user
     description: Show/Hide the payments section of notifications in profile
+  profile_show_appeal_status_notification_setting':
+    actor_type: user
+    description: Show/Hide the appeal status change notification setting in profile
   profile_show_pronouns_and_sexual_orientation:
     actor_type: user
     description: Show/hide Pronouns and Sexual Orientation fields on profile page
