@@ -1,4 +1,4 @@
-Accepts document metadata, document binary, and attachment binaries.Full URL, including
+Accepts document metadata, document binary, and attachment binaries. Full URL, including
 query parameters, provided from POST `/document_uploads`.
 
 ## Example Payload
