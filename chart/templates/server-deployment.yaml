@@ -35,7 +35,7 @@ spec:
                         - {{ .Values.appName }}-web
                 topologyKey:  {{ .Values.topologyKey }}
       securityContext:
-        fsGroup: {{ .Values.web.securityContexts }}
+        fsGroup: {{ .Values.web.securityContext }}
       volumes:
 {{ toYaml .Values.common.volumes | indent 8 }}
       {{- if .Values.mockData.enabled }}
