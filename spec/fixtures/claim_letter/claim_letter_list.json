@@ -7,12 +7,12 @@
     "type_id": "184",
     "doc_type": "184",
     "subject": null,
-    "received_at": "Fri, 23 Sep 2022",
+    "received_at": "2022-09-22",
     "source": "VBMS",
     "mime_type": "application/pdf",
     "alt_doc_types": "",
     "restricted": false,
-    "upload_date": "Thu, 22 Sep 2022"
+    "upload_date": "2022-09-23"
   },
   {
     "document_id": "{87B6DE5D-CD79-4D15-B6DC-A5F9A324DC3E}",
@@ -22,12 +22,12 @@
     "type_id": "184",
     "doc_type": "184",
     "subject": null,
-    "received_at": "Fri, 23 Sep 2022",
+    "received_at": "2022-09-22",
     "source": "VBMS",
     "mime_type": "application/pdf",
     "alt_doc_types": "",
     "restricted": false,
-    "upload_date": "Thu, 22 Sep 2022"
+    "upload_date": "2022-09-23"
   },
   {
     "document_id": "{99DA7758-A10A-43F4-A056-C961C76A2DDF}",
@@ -37,12 +37,12 @@
     "type_id": "184",
     "doc_type": "184",
     "subject": null,
-    "received_at": "Thu, 01 Sep 2022",
+    "received_at": "2022-08-31",
     "source": "VBMS",
     "mime_type": "application/pdf",
     "alt_doc_types": "",
     "restricted": false,
-    "upload_date": "Wed, 31 Aug 2022"
+    "upload_date": "2022-09-01"
   },
   {
     "document_id": "{4688C825-7309-42DA-8133-15E71278D64D}",
@@ -51,27 +51,42 @@
     "type_description": "Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)",
     "type_id": "184",
     "doc_type": "184",
-    "subject": null,
-    "received_at": "Tue, 12 Apr 2022",
+    "subject": "Intent to File",
+    "received_at": "2022-04-11",
     "source": "VBMS",
     "mime_type": "application/pdf",
     "alt_doc_types": "",
     "restricted": false,
-    "upload_date": "Mon, 11 Apr 2022"
+    "upload_date": "2022-04-12"
   },
   {
     "document_id": "{B686D3C3-8720-41B5-8640-4F5CECD1A1BC}",
-    "series_id": "{BDE11169-689C-4614-A55C-E6E3E4A8B3F3}",
+    "series_id": "{BDE11169-689C-4614-A55C-E6E3E4A8B3F5}",
     "version": "1",
     "type_description": "Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)",
     "type_id": "184",
     "doc_type": "184",
     "subject": null,
-    "received_at": "Fri, 08 May 2020",
+    "received_at": "2009-05-12",
     "source": "VBMS",
     "mime_type": "application/pdf",
     "alt_doc_types": "",
     "restricted": false,
-    "upload_date": "Thu, 07 May 2020"
+    "upload_date": "2020-05-08"
+  },
+  {
+    "document_id": "{B686D3C3-8720-41B5-8640-4F5CECD1A1BD}",
+    "series_id": "{BDE11169-689C-4614-A55C-E6E3E4A8B3F4}",
+    "version": "1",
+    "type_description": "Decision Rating Letter",
+    "type_id": "339",
+    "doc_type": "339",
+    "subject": null,
+    "received_at": "2009-05-12",
+    "source": "VBMS",
+    "mime_type": "application/pdf",
+    "alt_doc_types": "",
+    "restricted": false,
+    "upload_date": "2020-05-10"
   }
 ]
