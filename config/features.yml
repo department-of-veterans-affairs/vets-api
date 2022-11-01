@@ -774,6 +774,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for homepage status improvement
+  va_online_scheduling_status_improvement_canceled:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to display canceled booked appointments
   va_online_scheduling_vaos_v2_next:
     actor_type: user
     enable_in_development: true
