@@ -14,6 +14,7 @@ module ClaimsApi
         @claims_consumers = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to).pluck(:cid).uniq
         @poa_consumers = ClaimsApi::PowerOfAttorney.where(created_at: @from..@to).pluck(:cid).uniq
         @itf_consumers = ClaimsApi::IntentToFile.where(created_at: @from..@to).pluck(:cid).uniq
+        @ews_consumers = ClaimsApi::EvidenceWaiverSubmission.where(created_at: @from..@to).pluck(:cid).uniq
 
         ClaimsApi::UnsuccessfulReportMailer.build(
           @from,
@@ -22,7 +23,9 @@ module ClaimsApi
           unsuccessful_claims_submissions: unsuccessful_claims_submissions,
           poa_totals: poa_totals,
           unsuccessful_poa_submissions: unsuccessful_poa_submissions,
-          itf_totals: itf_totals
+          itf_totals: itf_totals,
+          ews_totals: ews_totals,
+          unsuccessful_evidence_waiver_submissions: unsuccessful_evidence_waiver_submissions
         ).deliver_now
       end
     end
@@ -115,6 +118,34 @@ module ClaimsApi
           }
         end
       end
+    end
+
+    def ews_totals
+      @ews_consumers.map do |cid|
+        counts = ClaimsApi::EvidenceWaiverSubmission.where(created_at: @from..@to, cid: cid).group(:status).count
+        totals = counts.sum { |_k, v| v }
+
+        if totals.positive?
+          consumer_name = ClaimsApi::CidMapper.new(cid: cid).name
+          {
+            consumer_name => counts.merge(totals: totals)
+                                   .deep_symbolize_keys
+          }
+        end
+      end
+    end
+
+    def unsuccessful_evidence_waiver_submissions
+      errored_ews.pluck(:cid, :created_at, :id).map do |cid, created_at, id|
+        { id: id, created_at: created_at, cid: cid }
+      end
+    end
+
+    def errored_ews
+      ClaimsApi::EvidenceWaiverSubmission.where(
+        created_at: @from..@to,
+        status: %w[errored]
+      ).order(:cid, :status)
     end
   end
 end

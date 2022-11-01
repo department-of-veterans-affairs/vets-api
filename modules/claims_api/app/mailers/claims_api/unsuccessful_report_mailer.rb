@@ -25,6 +25,8 @@ module ClaimsApi
       @poa_totals = data[:poa_totals]
       @unsuccessful_poa_submissions = data[:unsuccessful_poa_submissions]
       @itf_totals = data[:itf_totals]
+      @ews_totals = data[:ews_totals]
+      @unsuccessful_evidence_waiver_submissions = data[:unsuccessful_evidence_waiver_submissions]
 
       template = File.read(path)
       body = ERB.new(template).result(binding)
