@@ -5,7 +5,7 @@ require 'claim_letters/claim_letter_downloader'
 module V0
   class ClaimLettersController < ApplicationController
     def index
-      docs = service.list_letters
+      docs = service.get_letters
 
       render json: docs
     end
