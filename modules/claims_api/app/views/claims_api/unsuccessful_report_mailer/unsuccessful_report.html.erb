@@ -73,6 +73,19 @@
     <%= render partial: 'poa_errors_table', locals: { poa_errors: @unsuccessful_poa_submissions } unless @unsuccessful_poa_submissions.count.zero? %>
 
     <hr>
+    <h2>Evidence Waiver Submissions</h2>
+
+    <h3><span class="title">Per Consumer Status Counts</span></h3>
+    <%= render partial: 'ews_status_table', locals: { ews_consumers: @ews_totals } unless @ews_totals.blank? %>
+
+    <h3>
+      <%= @unsuccessful_evidence_waiver_submissions.count %>
+      <span class="title">EWS Errored Submissions</span>
+    </h3>
+    <%= render partial: 'ews_errors_table', locals: { ews_errors: @unsuccessful_evidence_waiver_submissions } unless @unsuccessful_evidence_waiver_submissions.count.zero? %>
+
+    <hr>
+
     <h2>Intent To File Submissions</h2>
 
     <% if @itf_totals.blank? %>
@@ -84,5 +97,7 @@
       <h3><span class="title">Per Consumer Status Counts</span></h3>
       <%= render partial: 'itf_status_table', locals: { itf_consumers: @itf_totals } unless @itf_totals.blank? %>
     <% end %>
+    <hr>
+
   </body>
 </html>

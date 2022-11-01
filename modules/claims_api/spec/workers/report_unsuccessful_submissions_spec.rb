@@ -52,6 +52,28 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
                                  ))
     errored_poa_submissions.push(FactoryBot.create(:power_of_attorney_without_doc, cid: '0oa9uf05lgXYk6ZXn297'))
   end
+  let(:evidence_waiver_submissions) do
+    evidence_waiver_submissions = []
+    evidence_waiver_submissions.push(FactoryBot.create(:claims_api_evidence_waiver_submission,
+                                                       cid: '0oa9uf05lgXYk6ZXn297'))
+    evidence_waiver_submissions.push(FactoryBot.create(:claims_api_evidence_waiver_submission,
+                                                       cid: '0oa9uf05lgXYk6ZXn297'))
+    evidence_waiver_submissions.push(FactoryBot.create(:claims_api_evidence_waiver_submission,
+                                                       cid: '0oa9uf05lgXYk6ZXn297'))
+  end
+  let(:errored_evidence_waiver_submissions) do
+    errored_evidence_waiver_submissions = []
+    errored_evidence_waiver_submissions.push(FactoryBot.create(:claims_api_evidence_waiver_submission, :errored,
+                                                               cid: '0oa9uf05lgXYk6ZXn297'))
+    errored_evidence_waiver_submissions.push(FactoryBot.create(
+                                               :claims_api_evidence_waiver_submission,
+                                               :errored,
+                                               vbms_error_message: 'File could not be retrieved from AWS',
+                                               cid: '0oa9uf05lgXYk6ZXn297'
+                                             ))
+    errored_evidence_waiver_submissions.push(FactoryBot.create(:claims_api_evidence_waiver_submission,
+                                                               cid: '0oa9uf05lgXYk6ZXn297'))
+  end
 
   describe '#perform' do
     let(:from) { 1.day.ago }
@@ -80,6 +102,8 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
                                                                       .pluck(:cid, :status, :id),
           poa_totals: [],
           unsuccessful_poa_submissions: [],
+          ews_totals: [],
+          unsuccessful_evidence_waiver_submissions: [],
           itf_totals: []
         ).and_return(double.tap do |mailer|
                        expect(mailer).to receive(:deliver_now).once
@@ -125,6 +149,23 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
         expect(poa_totals[0]['VA TurboClaim'][:totals]).to eq(6)
         expect(unsuccessful_poa_submissions.count).to eq(2)
         expect(unsuccessful_poa_submissions[0][:cid]).to eq('0oa9uf05lgXYk6ZXn297')
+      end
+    end
+
+    it 'includes ews metrics' do
+      with_settings(Settings.claims_api,
+                    report_enabled: true) do
+        evidence_waiver_submissions
+        errored_evidence_waiver_submissions
+
+        job = described_class.new
+        job.perform
+        ews_totals = job.ews_totals
+        unsuccessful_evidence_waiver_submissions = job.unsuccessful_evidence_waiver_submissions
+
+        expect(ews_totals[0]['VA TurboClaim'][:totals]).to eq(6)
+        expect(unsuccessful_evidence_waiver_submissions.count).to eq(2)
+        expect(unsuccessful_evidence_waiver_submissions[0][:cid]).to eq('0oa9uf05lgXYk6ZXn297')
       end
     end
 
