@@ -45,6 +45,8 @@ web:
     readinessPath: ""
     readinessPort: ""
   socatProxyEnabled: false
+  envSecrets: {}
+
 
   resources:
     requests:
@@ -174,7 +176,7 @@ worker:
   terminationGracePeriodSeconds: ""
 
   socatProxyEnabled: false
-
+  envSecrets: {}
   resources:
       requests:
         cpu: ""
@@ -206,7 +208,6 @@ common:
 
   volumes: {}
   initContainers: {}
-  envSecrets: {}
   secrets:
     settingsLocal: {}
 
