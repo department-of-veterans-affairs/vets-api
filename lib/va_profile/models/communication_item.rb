@@ -23,6 +23,7 @@ module VAProfile
             VAProfile::Models::CommunicationChannel.create_from_api(
               communication_channel,
               communication_res['communication_item_id'],
+              communication_item_channel['default_send_indicator'],
               permission_res
             )
           end
