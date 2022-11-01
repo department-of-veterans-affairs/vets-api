@@ -127,7 +127,7 @@ web:
     targets: ""
 
   dbMigrate:
-    enabled: false
+    enabled: true
     fullName: db-migrate
     annotations:
       argocd.argoproj.io/hook: PreSync
@@ -136,6 +136,7 @@ web:
     args:  []
     backoffLimit: ""
     restartPolicy: Never
+    envSecrets: {}
 
 #Worker Configuration
 worker:
