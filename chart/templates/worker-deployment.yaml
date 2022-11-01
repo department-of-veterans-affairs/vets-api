@@ -48,8 +48,10 @@ spec:
           securityContext:
             runAsUser: 0
           ## TODO: Be sure that this is the correct way to start sidekiq
-          command: {{ .Values.worker.containers.command }}
-          args: {{ .Values.worker.containers.args }}
+          command:
+{{ toYaml .Values.worker.containers.command | indent 12 }}
+          args:
+{{ toYaml .Values.worker.containers.args | indent 12 }}
           # source and destination files
           livenessProbe: #ensure app is serving requests properly and know when to restart a container
             httpGet:
@@ -87,4 +89,4 @@ spec:
 {{ toYaml .Values.common.socatProxy | indent 8 }}
         {{- end }}
       terminationGracePeriodSeconds: {{ .Values.worker.terminationGracePeriodSeconds }} # put your longest Job time here plus security time.
-      serviceAccountName: {{ .Values.appName }}-sidekiq
+      serviceAccountName: {{ .Values.web.serviceAccount.name }}

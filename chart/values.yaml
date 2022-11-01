@@ -18,7 +18,6 @@ annotations:
   ad.datadoghq.com/vets-api-web.checks: {}
 #Web configuration
 web:
-  fullName: ""
   strategyType: RollingUpdate
   maxSurge: ""
   maxUnavailable: ""
@@ -140,7 +139,6 @@ web:
 
 #Worker Configuration
 worker:
-  fullName: ""
   strategyType: RollingUpdate
   maxSurge: ""
   maxUnavailable: ""
