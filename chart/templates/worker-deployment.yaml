@@ -34,7 +34,7 @@ spec:
                         - {{ .Values.appName }}-sidekiq
                 topologyKey: {{ .Values.topologyKey }}
       securityContext:
-        fsGroup:  {{ .Values.worker.securityContext }}
+        fsGroup: 1000
       volumes:
 {{ toYaml .Values.common.volumes | indent 8 }}
       {{- if .Values.mockData.enabled }}
