@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'claims_api/bgs_claim_status_mapper'
+require 'claims_api/v2/mock_documents_service'
 
 module ClaimsApi
   module V2
@@ -330,7 +331,11 @@ module ClaimsApi
         def build_supporting_docs(bgs_claim)
           return [] if bgs_claim.nil?
 
-          docs = evss_docs_service.get_claim_documents(bgs_claim[:benefit_claim_details_dto][:benefit_claim_id]).body
+          docs = if sandbox?
+                   { documents: ClaimsApi::V2::MockDocumentsService.new.generate_documents }.with_indifferent_access
+                 else
+                   evss_docs_service.get_claim_documents(bgs_claim[:benefit_claim_details_dto][:benefit_claim_id]).body
+                 end
           return [] if docs.nil? || docs['documents'].blank?
 
           docs['documents'].map do |doc|
@@ -362,6 +367,10 @@ module ClaimsApi
               phase_change_date: format_bgs_phase_chng_dates(bgs_claim)
             }
           end
+        end
+
+        def sandbox?
+          Settings.claims_api.claims_error_reporting.environment_name&.downcase.eql? 'sandbox'
         end
       end
     end
