@@ -4,19 +4,20 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   namespace: {{ .Release.Namespace }}
-  name: {{ .Values.web.dbMigrate.fullName }}
+  name: db-migrate
   annotations:
-{{ toYaml .Values.web.dbMigrate.annotations | indent 4 }}
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
 spec:
   template:
     spec:
       serviceAccountName: {{ .Values.web.serviceAccount.name }}
       containers:
-        - name: {{ .Values.web.dbMigrate.fullName }}
+        - name: db-migrate
           image: '{{ .Values.image.value }}:{{ .Values.image.tag }}'
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: {{ .Values.web.dbMigrate.command }}
-          args: {{ .Values.web.dbMigrate.args }}
+          command: ["bundle"]
+          args:  ["exec", "rails", "db:migrate"]
           volumeMounts:
 {{ toYaml .Values.common.volumeMounts | indent 12 }}
           env:
@@ -30,10 +31,10 @@ spec:
                   key:  {{ $secret.name }}
           {{- end }}
           {{- end }}
-      restartPolicy:  {{ .Values.web.dbMigrate.restartPolicy }}
+      restartPolicy: Never
       securityContext:
         fsGroup: 1000
       volumes:
 {{ toYaml .Values.common.volumes | indent 8 }}
-  backoffLimit: {{ .Values.web.dbMigrate.backoffLimit }}
+  backoffLimit: 1
 {{- end }}
