@@ -992,7 +992,8 @@ RSpec.describe V0::SignInController, type: :controller do
                 credential_ial: credential_ial,
                 mhv_uuid: '123456789',
                 mhv_icn: mhv_icn,
-                mhv_assurance: mhv_assurance
+                mhv_assurance: mhv_assurance,
+                email: 'some-email'
               )
             end
             let(:mhv_icn) { '987654321V123456' }

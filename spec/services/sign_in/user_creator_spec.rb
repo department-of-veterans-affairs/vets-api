@@ -10,11 +10,11 @@ RSpec.describe SignIn::UserCreator do
 
     let(:user_attributes) do
       {
-        uuid: csp_id,
-        logingov_uuid: csp_id,
+        logingov_uuid: logingov_uuid,
         loa: loa,
         csp_email: csp_email,
-        sign_in: sign_in,
+        current_ial: current_ial,
+        max_ial: max_ial,
         multifactor: multifactor,
         authn_context: authn_context
       }
@@ -29,16 +29,19 @@ RSpec.describe SignIn::UserCreator do
     let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
     let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
     let(:code_challenge) { 'some-code-challenge' }
-    let(:type) { SignIn::Constants::Auth::REDIRECT_URLS.first }
-    let(:csp_id) { SecureRandom.hex }
+    let(:type) { service_name }
+    let(:current_ial) { IAL::TWO }
+    let(:max_ial) { IAL::TWO }
+    let(:logingov_uuid) { SecureRandom.hex }
     let(:icn) { 'some-icn' }
     let(:loa) { { current: LOA::THREE, highest: LOA::THREE } }
     let(:csp_email) { 'some-csp-email' }
     let(:service_name) { SAML::User::LOGINGOV_CSID }
-    let!(:user_verification) { create(:logingov_user_verification, logingov_uuid: csp_id) }
+    let(:auth_broker) { SignIn::Constants::Auth::BROKER_CODE }
+    let!(:user_verification) { create(:logingov_user_verification, logingov_uuid: logingov_uuid) }
     let(:user_uuid) { user_verification.backing_credential_identifier }
     let(:multifactor) { true }
-    let(:sign_in) { { service_name: service_name } }
+    let(:sign_in) { { service_name: service_name, auth_broker: auth_broker, client_id: client_id } }
     let(:authn_context) { service_name }
     let(:login_code) { 'some-login-code' }
     let(:expected_last_signed_in) { Time.zone.now }
@@ -53,7 +56,7 @@ RSpec.describe SignIn::UserCreator do
     it 'creates a user with expected attributes' do
       subject
       user = User.find(user_uuid)
-      expect(user.logingov_uuid).to eq(csp_id)
+      expect(user.logingov_uuid).to eq(logingov_uuid)
       expect(user.last_signed_in).to eq(expected_last_signed_in)
       expect(user.loa).to eq(loa)
       expect(user.icn).to eq(icn)

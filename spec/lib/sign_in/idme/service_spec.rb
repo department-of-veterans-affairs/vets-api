@@ -227,10 +227,10 @@ describe SignIn::Idme::Service do
     let(:client_id) { SignIn::Constants::ClientConfig::COOKIE_AUTH }
     let(:expected_standard_attributes) do
       {
-        uuid: user_uuid,
         idme_uuid: user_uuid,
-        loa: { current: LOA::THREE, highest: LOA::THREE },
-        sign_in: { service_name: service_name, auth_broker: auth_broker, client_id: client_id },
+        current_ial: IAL::TWO,
+        max_ial: IAL::TWO,
+        service_name: service_name,
         csp_email: email,
         multifactor: multifactor,
         authn_context: authn_context,
@@ -293,9 +293,7 @@ describe SignIn::Idme::Service do
       end
 
       it 'returns expected idme attributes' do
-        expect(subject.normalized_attributes(user_info,
-                                             credential_level,
-                                             client_id)).to eq(expected_attributes)
+        expect(subject.normalized_attributes(user_info, credential_level)).to eq(expected_attributes)
       end
     end
 
@@ -340,9 +338,7 @@ describe SignIn::Idme::Service do
       end
 
       it 'returns expected dslogon attributes' do
-        expect(subject.normalized_attributes(user_info,
-                                             credential_level,
-                                             client_id)).to eq(expected_attributes)
+        expect(subject.normalized_attributes(user_info, credential_level)).to eq(expected_attributes)
       end
     end
 
@@ -382,9 +378,7 @@ describe SignIn::Idme::Service do
       end
 
       it 'returns expected mhv attributes' do
-        expect(subject.normalized_attributes(user_info,
-                                             credential_level,
-                                             client_id)).to eq(expected_attributes)
+        expect(subject.normalized_attributes(user_info, credential_level)).to eq(expected_attributes)
       end
     end
   end

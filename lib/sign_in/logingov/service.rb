@@ -52,13 +52,11 @@ module SignIn
         raise_client_error(e, 'UserInfo')
       end
 
-      def normalized_attributes(user_info, credential_level, client_id)
-        loa_current = ial_to_loa(credential_level.current_ial)
-        loa_highest = ial_to_loa(credential_level.max_ial)
+      def normalized_attributes(user_info, credential_level)
         {
-          uuid: user_info.sub,
           logingov_uuid: user_info.sub,
-          loa: { current: loa_current, highest: loa_highest },
+          current_ial: credential_level.current_ial,
+          max_ial: credential_level.max_ial,
           ssn: user_info.social_security_number&.tr('-', ''),
           birth_date: user_info.birthdate,
           first_name: user_info.given_name,
@@ -66,8 +64,7 @@ module SignIn
           address: normalize_address(user_info.address),
           csp_email: user_info.email,
           multifactor: true,
-          sign_in: { service_name: config.service_name, auth_broker: Constants::Auth::BROKER_CODE,
-                     client_id: client_id },
+          service_name: config.service_name,
           authn_context: get_authn_context(credential_level.current_ial),
           auto_uplevel: credential_level.auto_uplevel
         }
@@ -102,10 +99,6 @@ module SignIn
 
       def get_authn_context(current_ial)
         current_ial == IAL::TWO ? IAL::LOGIN_GOV_IAL2 : IAL::LOGIN_GOV_IAL1
-      end
-
-      def ial_to_loa(ial)
-        ial == IAL::TWO ? LOA::THREE : LOA::ONE
       end
 
       def auth_url

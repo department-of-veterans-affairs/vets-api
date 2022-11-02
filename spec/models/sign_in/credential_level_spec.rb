@@ -65,7 +65,20 @@ RSpec.describe SignIn::CredentialLevel, type: :model do
       context 'when max_ial is an arbitrary value' do
         let(:max_ial) { 'some-max-ial' }
         let(:expected_error) { ActiveModel::ValidationError }
-        let(:expected_error_message) { 'Validation failed: Max ial is not included in the list' }
+        let(:expected_error_message) do
+          'Validation failed: Max ial is not included in the list, Max ial cannot be less than Current ial'
+        end
+
+        it 'raises validation error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+
+      context 'when max_ial is less than current_ial' do
+        let(:max_ial) { IAL::ONE }
+        let(:current_ial) { IAL::TWO }
+        let(:expected_error) { ActiveModel::ValidationError }
+        let(:expected_error_message) { 'Validation failed: Max ial cannot be less than Current ial' }
 
         it 'raises validation error' do
           expect { subject }.to raise_error(expected_error, expected_error_message)

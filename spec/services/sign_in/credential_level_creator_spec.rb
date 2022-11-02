@@ -34,8 +34,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
 
     before { allow(Settings.sign_in).to receive(:auto_uplevel).and_return(auto_uplevel) }
 
-    context 'when requested_acr is arbitrary' do
-      let(:requested_acr) { 'some-requested-acr' }
+    shared_examples 'invalid credential level error' do
       let(:expected_error) { SignIn::Errors::InvalidCredentialLevelError }
       let(:expected_error_message) { 'Unsupported credential authorization levels' }
 
@@ -44,14 +43,16 @@ RSpec.describe SignIn::CredentialLevelCreator do
       end
     end
 
+    context 'when requested_acr is arbitrary' do
+      let(:requested_acr) { 'some-requested-acr' }
+
+      it_behaves_like 'invalid credential level error'
+    end
+
     context 'when type is arbitrary' do
       let(:type) { 'some-type' }
-      let(:expected_error) { SignIn::Errors::InvalidCredentialLevelError }
-      let(:expected_error_message) { 'Unsupported credential authorization levels' }
 
-      it 'raises an invalid credential level error' do
-        expect { subject }.to raise_error(expected_error, expected_error_message)
-      end
+      it_behaves_like 'invalid credential level error'
     end
 
     shared_examples 'a created credential level' do
@@ -65,7 +66,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
       end
     end
 
-    context 'and type is logingov' do
+    context 'when type is logingov' do
       let(:type) { SAML::User::LOGINGOV_CSID }
 
       context 'and user info has verified_at trait' do
@@ -142,7 +143,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
           let(:id_token_payload) { { acr: IAL::LOGIN_GOV_IAL2 } }
           let(:expected_current_ial) { IAL::TWO }
 
-          it_behaves_like 'a created credential level'
+          it_behaves_like 'invalid credential level error'
         end
 
         context 'and id token acr is not defined as IAL 2' do
@@ -154,7 +155,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
       end
     end
 
-    context 'and type is mhv' do
+    context 'when type is mhv' do
       let(:type) { SAML::User::MHV_ORIGINAL_CSID }
 
       context 'and mhv assurance is set to premium' do
@@ -192,7 +193,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
       end
     end
 
-    context 'and type is dslogon' do
+    context 'when type is dslogon' do
       let(:type) { SAML::User::DSLOGON_CSID }
       let(:expected_rails_log) { "[CredentialLevelCreator] DSLogon level of assurance #{dslogon_assurance}" }
 
@@ -262,7 +263,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
       end
     end
 
-    context 'and type is some other supported value' do
+    context 'when type is some other supported value' do
       let(:type) { SAML::User::IDME_CSID }
 
       context 'and user info level of assurance equals idme classic loa3' do
@@ -339,7 +340,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
           let(:credential_ial) { LOA::IDME_CLASSIC_LOA3 }
           let(:expected_current_ial) { IAL::TWO }
 
-          it_behaves_like 'a created credential level'
+          it_behaves_like 'invalid credential level error'
         end
 
         context 'and user info credential ial does not equal idme classic loa3' do
