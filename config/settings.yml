@@ -189,7 +189,7 @@ central_mail:
   upload:
     enabled: true
     host: "test2.domaonline.com/EmmsAPI"
-    token: "<PENSIONS_TOKEN>"
+    token: "<CENTRAL_MAIL_TOKEN>"
 
 # Settings for BIP Services
 bip:
