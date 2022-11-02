@@ -395,6 +395,23 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
 
       expect(name).to eq('string with spaces')
     end
+
+    it 'combines address lines' do
+      temp_form_data = pending_record.form_data
+      temp_form_data['veteran']['currentMailingAddress']['addressLine1'] = '1234 Long address line 1'
+      temp_form_data['veteran']['currentMailingAddress']['addressLine2'] = 'Suite 1'
+      temp_form_data['veteran']['currentMailingAddress']['addressLine3'] = 'Appt 5'
+
+      pending_record.form_data = temp_form_data
+      payload = JSON.parse(pending_record.to_internal)
+      ln1 = payload['form526']['veteran']['currentMailingAddress']['addressLine1']
+      ln2 = payload['form526']['veteran']['currentMailingAddress']['addressLine2']
+      ln3 = payload['form526']['veteran']['currentMailingAddress']['addressLine3']
+
+      expect(ln1).to eq('1234 Long address')
+      expect(ln2).to eq('line 1')
+      expect(ln3).to eq('Suite 1 Appt 5')
+    end
   end
 
   describe 'evss_id_by_token' do
