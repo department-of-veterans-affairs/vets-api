@@ -16,13 +16,13 @@ module HCA
     }.freeze
 
     SIGI_CODES = {
-      'M' => 'Male',
-      'F' => 'Female',
-      'TF' => 'Transgender Female',
-      'TM' => 'Transgender Male',
-      'O' => 'Other',
-      'NA' => 'Does not wish to disclose',
-      'NB' => 'Non-Binary'
+      'M' => 'M',
+      'F' => 'F',
+      'TF' => 'TF',
+      'TM' => 'TM',
+      'O' => 'O',
+      'NA' => 'N',
+      'NB' => 'B'
     }.freeze
 
     FORM_TEMPLATE = IceNine.deep_freeze(

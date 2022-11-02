@@ -94,7 +94,7 @@ describe HCA::Service do
     end
 
     context 'submitting sigi field' do
-      it 'works', run_at: 'Thu, 06 Oct 2022 04:40:11 GMT' do
+      it 'works', run_at: 'Tue, 01 Nov 2022 15:07:20 GMT' do
         VCR.use_cassette(
           'hca/sigi',
           VCR::MATCH_EVERYTHING.merge(erb: true)
