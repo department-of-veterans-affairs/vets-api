@@ -12,7 +12,7 @@ module TravelClaim
   # @!attribute [r] redis_client
   #   @return [RedisClient]
   class Service
-    attr_reader :check_in, :client, :redis_client
+    attr_reader :check_in, :client, :redis_client, :response
 
     ##
     # Builds a Service instance
@@ -28,8 +28,10 @@ module TravelClaim
 
     def initialize(opts = {})
       @check_in = opts[:check_in]
+      @appointment_date = opts[:appointment_date]
       @client = Client.build(check_in: check_in)
       @redis_client = RedisClient.build
+      @response = Response
     end
 
     # Get the auth token. If the token does not already exist in Redis, a call is made to VEIS token
@@ -50,6 +52,20 @@ module TravelClaim
           redis_client.save(token: access_token)
         end
       end
+    end
+
+    # Submit claim for the given patient_icn and appointment time.
+    #
+    # @see TravelClaim::Client#submit_claim
+    #
+    # @return [Response] claimNumber
+    def submit_claim(icn:, appt_time:)
+      resp = if token.present?
+               client.submit_claim(token: token, patient_icn: icn, appointment_time: appt_time)
+             else
+               Faraday::Response.new(body: { message: 'No access token' }, status: 401)
+             end
+      response.build(response: resp).handle
     end
   end
 end
