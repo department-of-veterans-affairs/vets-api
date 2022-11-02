@@ -29,7 +29,7 @@ module SignIn
                         format: :html)
       end
 
-      def normalized_attributes(user_info, credential_level, client_id)
+      def normalized_attributes(user_info, credential_level)
         attributes = case type
                      when 'idme'
                        idme_attributes(user_info)
@@ -38,7 +38,7 @@ module SignIn
                      when 'mhv'
                        mhv_attributes(user_info)
                      end
-        attributes.merge(standard_attributes(user_info, credential_level, client_id))
+        attributes.merge(standard_attributes(user_info, credential_level))
       end
 
       def token(code)
@@ -68,15 +68,12 @@ module SignIn
                             "status: #{status}, description: #{description}"
       end
 
-      def standard_attributes(user_info, credential_level, client_id)
-        loa_current = ial_to_loa(credential_level.current_ial)
-        loa_highest = ial_to_loa(credential_level.max_ial)
+      def standard_attributes(user_info, credential_level)
         {
-          uuid: user_info.sub,
           idme_uuid: user_info.sub,
-          loa: { current: loa_current, highest: loa_highest },
-          sign_in: { service_name: type, auth_broker: Constants::Auth::BROKER_CODE,
-                     client_id: client_id },
+          current_ial: credential_level.current_ial,
+          max_ial: credential_level.max_ial,
+          service_name: type,
           csp_email: user_info.email,
           multifactor: user_info.multifactor,
           authn_context: get_authn_context(credential_level.current_ial),
@@ -136,10 +133,6 @@ module SignIn
 
       def united_states_country_code
         'USA'
-      end
-
-      def ial_to_loa(ial)
-        ial == IAL::TWO ? LOA::THREE : LOA::ONE
       end
 
       def scope

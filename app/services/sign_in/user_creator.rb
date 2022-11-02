@@ -6,9 +6,8 @@ module SignIn
                 :idme_uuid,
                 :logingov_uuid,
                 :authn_context,
-                :loa,
-                :credential_uuid,
-                :sign_in,
+                :current_ial,
+                :max_ial,
                 :credential_email,
                 :multifactor,
                 :verified_icn,
@@ -20,9 +19,8 @@ module SignIn
       @idme_uuid = user_attributes[:idme_uuid]
       @logingov_uuid = user_attributes[:logingov_uuid]
       @authn_context = user_attributes[:authn_context]
-      @loa = user_attributes[:loa]
-      @credential_uuid = user_attributes[:uuid]
-      @sign_in = user_attributes[:sign_in]
+      @current_ial = user_attributes[:current_ial]
+      @max_ial = user_attributes[:max_ial]
       @credential_email = user_attributes[:csp_email]
       @multifactor = user_attributes[:multifactor]
       @edipi = user_attributes[:edipi]
@@ -84,6 +82,22 @@ module SignIn
 
     def user_verification
       @user_verification ||= Login::UserVerifier.new(user_verifier_object).perform
+    end
+
+    def sign_in
+      @sign_in ||= {
+        service_name: state_payload.type,
+        auth_broker: Constants::Auth::BROKER_CODE,
+        client_id: state_payload.client_id
+      }
+    end
+
+    def loa
+      @loa ||= { current: ial_to_loa(current_ial), highest: ial_to_loa(max_ial) }
+    end
+
+    def ial_to_loa(ial)
+      ial == IAL::TWO ? LOA::THREE : LOA::ONE
     end
 
     def user_uuid

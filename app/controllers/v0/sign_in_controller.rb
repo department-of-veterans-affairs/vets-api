@@ -274,8 +274,7 @@ module V0
     end
 
     def create_login_code(state_payload, user_info, credential_level)
-      user_attributes = auth_service(state_payload.type).normalized_attributes(user_info, credential_level,
-                                                                               state_payload.client_id)
+      user_attributes = auth_service(state_payload.type).normalized_attributes(user_info, credential_level)
       verified_icn = SignIn::AttributeValidator.new(user_attributes: user_attributes).perform
       user_code_map = SignIn::UserCreator.new(user_attributes: user_attributes,
                                               state_payload: state_payload,
