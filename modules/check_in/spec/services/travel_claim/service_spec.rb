@@ -55,4 +55,39 @@ describe TravelClaim::Service do
       end
     end
   end
+
+  describe '#submit_claim' do
+    context 'when token does not exist in redis and endpoint fails' do
+      let(:response) { { data: { error: true, message: 'No access token' }, status: 401 } }
+
+      before do
+        allow_any_instance_of(TravelClaim::RedisClient).to receive(:get).and_return(nil)
+        allow_any_instance_of(TravelClaim::Service).to receive(:token).and_return(nil)
+      end
+
+      it 'returns 401 error response' do
+        expect(subject.build.submit_claim(icn: 'test-icn', appt_time: '2020-10-16')).to eq(response)
+      end
+    end
+
+    context 'when valid token exists' do
+      let(:access_token) { 'test-token-123' }
+      let(:claims_json) do
+        { value: { claimNumber: 'TC202207000011666' }, formatters: [], contentTypes: [],
+          declaredType: [], statusCode: 200 }
+      end
+      let(:faraday_response) { Faraday::Response.new(body: claims_json, status: 200) }
+
+      let(:submit_claim_response) { { data: claims_json, status: 200 } }
+
+      before do
+        allow_any_instance_of(TravelClaim::RedisClient).to receive(:get).and_return(access_token)
+        allow_any_instance_of(TravelClaim::Client).to receive(:submit_claim).and_return(faraday_response)
+      end
+
+      it 'returns response from claim api' do
+        expect(subject.build.submit_claim(icn: 'test-icn', appt_time: '2020-10-16')).to eq(submit_claim_response)
+      end
+    end
+  end
 end
