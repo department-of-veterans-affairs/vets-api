@@ -14,23 +14,6 @@ module VANotify
       '1010ez' => 'Application for Health Benefits'
     }.freeze
 
-    def self.veteran_data(in_progress_form)
-      data = case in_progress_form.form_id
-             when '686C-674'
-               InProgressForm686c.new(in_progress_form.form_data)
-             when '1010ez'
-               InProgressForm1010ez.new(in_progress_form.form_data)
-             else
-               raise UnsupportedForm,
-                     "Unsupported form: #{in_progress_form.form_id} - InProgressForm: #{in_progress_form.id}"
-             end
-
-      VANotify::Veteran.new(
-        first_name: data.first_name,
-        user_uuid: in_progress_form.user_uuid
-      )
-    end
-
     def self.form_age(in_progress_form)
       case in_progress_form.updated_at
       when 7.days.ago.beginning_of_day..7.days.ago.end_of_day

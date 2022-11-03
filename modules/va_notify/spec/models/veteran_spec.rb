@@ -3,62 +3,50 @@
 require 'rails_helper'
 
 RSpec.describe VANotify::Veteran, type: :model do
-  describe 'icn lookup' do
-    let(:user_uuid_with_hyphens) do
-      '11111111-2222-3333-4444-555555555555'
+  let(:user_account) { create(:user_account, icn: icn) }
+  let(:icn) { nil }
+  let(:in_progress_form) { create(:in_progress_686c_form, user_account: user_account) }
+  let(:subject) { VANotify::Veteran.new(in_progress_form) }
+
+  describe '#first_name' do
+    context '686c' do
+      it 'returns the first_name from form data' do
+        expect(subject.first_name).to eq('first_name')
+      end
     end
 
-    let(:user_uuid_without_hyphens) do
-      user_uuid_with_hyphens.gsub('-', '')
+    context '1010ez' do
+      let(:in_progress_form) { create(:in_progress_1010ez_form, user_account: user_account) }
+
+      it 'returns the first_name from form data' do
+        expect(subject.first_name).to eq('first_name')
+      end
+    end
+  end
+
+  describe '#icn' do
+    context 'with icn' do
+      let(:icn) { 'icn' }
+
+      it 'returns the icn associated to the user account associated to the in_progress_form if it exists' do
+        expect(subject.icn).to eq('icn')
+      end
     end
 
-    it 'checks with plain uuid first' do
-      account = double('Account')
-      allow(Account).to receive(:lookup_by_user_uuid).and_return(account)
-      allow(account).to receive(:icn).and_return('icn')
+    context 'without associated account' do
+      let(:user_account) { nil }
 
-      subject = VANotify::Veteran.new(
-        first_name: 'Melvin',
-        user_uuid: user_uuid_without_hyphens
-      )
-
-      expect(subject.first_name).to eq('Melvin')
-      expect(subject.icn).to eq('icn')
-
-      expect(Account).to have_received(:lookup_by_user_uuid).with(user_uuid_without_hyphens)
-      expect(Account).not_to have_received(:lookup_by_user_uuid).with(user_uuid_with_hyphens)
+      it 'returns nil if no matching account is found' do
+        expect(subject.icn).to eq(nil)
+      end
     end
 
-    it 'checks with hyphens if the first lookup returns nil' do
-      account = double('Account')
-      allow(Account).to receive(:lookup_by_user_uuid).and_return(nil, account)
-      allow(account).to receive(:icn).and_return('icn')
+    context 'without icn' do
+      let(:icn) { nil }
 
-      subject = VANotify::Veteran.new(
-        first_name: 'Melvin',
-        user_uuid: user_uuid_without_hyphens
-      )
-
-      expect(subject.first_name).to eq('Melvin')
-      expect(subject.icn).to eq('icn')
-
-      expect(Account).to have_received(:lookup_by_user_uuid).with(user_uuid_without_hyphens)
-      expect(Account).to have_received(:lookup_by_user_uuid).with(user_uuid_with_hyphens)
-    end
-
-    it 'returns nil if no matching account is found' do
-      allow(Account).to receive(:lookup_by_user_uuid).and_return(nil, nil)
-
-      subject = VANotify::Veteran.new(
-        first_name: 'Melvin',
-        user_uuid: user_uuid_without_hyphens
-      )
-
-      expect(subject.first_name).to eq('Melvin')
-      expect(subject.icn).to be nil
-
-      expect(Account).to have_received(:lookup_by_user_uuid).with(user_uuid_without_hyphens)
-      expect(Account).to have_received(:lookup_by_user_uuid).with(user_uuid_with_hyphens)
+      it 'returns nil if no icn is found' do
+        expect(subject.icn).to eq(nil)
+      end
     end
   end
 end

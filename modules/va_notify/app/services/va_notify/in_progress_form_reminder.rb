@@ -14,7 +14,7 @@ module VANotify
       @in_progress_form = InProgressForm.find(form_id)
       return unless enabled?
 
-      @veteran = VANotify::InProgressFormHelper.veteran_data(in_progress_form)
+      @veteran = VANotify::Veteran.new(in_progress_form)
       return if veteran.first_name.blank?
 
       raise MissingICN, "ICN not found for InProgressForm: #{in_progress_form.id}" if veteran.icn.blank?
