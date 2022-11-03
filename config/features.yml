@@ -302,10 +302,6 @@ features:
   facilities_ppms_suppress_pharmacies:
     actor_type: user
     description: Front End Flag to suppress the ability to search for pharmacies
-  facility_locator_covid_vaccine_walk_in_availability_text_frontend:
-    actor_type: user
-    description: Enable covid vaccine walk-in availability text within covid vaccine related search results
-    enable_in_development: true
   facility_locator_lat_long_only:
     actor_type: user
     description: Send only lat/long values (no bounding box or address) to the API when querying for facilities.
