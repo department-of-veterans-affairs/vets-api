@@ -30,7 +30,7 @@ COPY config/clamd.conf /etc/clamav/clamd.conf
 COPY config/ca-trust/*.crt /usr/local/share/ca-certificates/
 
 # Download VA Certs
-RUN wget -q -r -np -nH -nd -a .cer -P /usr/local/share/ca-certificates http://aia.pki.va.gov/PKI/AIA/VA/ \
+RUN wget -q -r -np -nH -nd -AVA-Internal-S2-*.cer -P /usr/local/share/ca-certificates http://aia.pki.va.gov/PKI/AIA/VA/ \
   && for f in /usr/local/share/ca-certificates/*.cer; do openssl x509 -inform der -in $f -out $f.crt; done \
   && update-ca-certificates \
   && rm .cer
