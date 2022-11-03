@@ -295,6 +295,14 @@ describe SignIn::Idme::Service do
       it 'returns expected idme attributes' do
         expect(subject.normalized_attributes(user_info, credential_level)).to eq(expected_attributes)
       end
+
+      context 'and at least one field in address is not defined' do
+        let(:street) { nil }
+
+        it 'does not return an address object' do
+          expect(subject.normalized_attributes(user_info, credential_level)[:address]).to eq(nil)
+        end
+      end
     end
 
     context 'when type is dslogon' do
