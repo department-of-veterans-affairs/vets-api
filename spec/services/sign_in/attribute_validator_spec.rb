@@ -464,14 +464,100 @@ RSpec.describe SignIn::AttributeValidator do
           let(:first_name) { nil }
           let(:attribute) { 'first_name' }
 
-          it_behaves_like 'missing credential attribute'
+          context 'and credential has been auto-uplevelled' do
+            let(:auto_uplevel) { true }
+            let(:find_profile_response) do
+              MPI::Responses::FindProfileResponse.new(
+                status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+                profile: mpi_profile
+              )
+            end
+            let(:mpi_profile) do
+              build(:mvi_profile,
+                    id_theft_flag: id_theft_flag,
+                    deceased_date: deceased_date,
+                    ssn: ssn,
+                    icn: icn,
+                    edipis: edipis,
+                    edipi: edipis.first,
+                    mhv_ien: mhv_iens.first,
+                    mhv_iens: mhv_iens,
+                    birls_id: birls_ids.first,
+                    birls_ids: birls_ids,
+                    participant_id: participant_ids.first,
+                    participant_ids: participant_ids,
+                    birth_date: birth_date,
+                    given_names: [first_name],
+                    family_name: last_name)
+            end
+            let(:id_theft_flag) { false }
+            let(:deceased_date) { nil }
+            let(:icn) { 'some-icn' }
+            let(:edipis) { ['some-edipi'] }
+            let(:mhv_iens) { ['some-mhv-ien'] }
+            let(:participant_ids) { ['some-participant-id'] }
+            let(:birls_ids) { ['some-birls-id'] }
+
+            it 'does not raise an error' do
+              expect { subject }.not_to raise_error
+            end
+          end
+
+          context 'and credential is a verified non-auto-uplevelled credential' do
+            let(:auto_uplevel) { false }
+
+            it_behaves_like 'missing credential attribute'
+          end
         end
 
         context 'and credential is missing last_name' do
           let(:last_name) { nil }
           let(:attribute) { 'last_name' }
 
-          it_behaves_like 'missing credential attribute'
+          context 'and credential has been auto-uplevelled' do
+            let(:auto_uplevel) { true }
+            let(:find_profile_response) do
+              MPI::Responses::FindProfileResponse.new(
+                status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+                profile: mpi_profile
+              )
+            end
+            let(:mpi_profile) do
+              build(:mvi_profile,
+                    id_theft_flag: id_theft_flag,
+                    deceased_date: deceased_date,
+                    ssn: ssn,
+                    icn: icn,
+                    edipis: edipis,
+                    edipi: edipis.first,
+                    mhv_ien: mhv_iens.first,
+                    mhv_iens: mhv_iens,
+                    birls_id: birls_ids.first,
+                    birls_ids: birls_ids,
+                    participant_id: participant_ids.first,
+                    participant_ids: participant_ids,
+                    birth_date: birth_date,
+                    given_names: [first_name],
+                    family_name: last_name)
+            end
+            let(:id_theft_flag) { false }
+            let(:deceased_date) { nil }
+            let(:icn) { 'some-icn' }
+            let(:edipis) { ['some-edipi'] }
+            let(:mhv_iens) { ['some-mhv-ien'] }
+            let(:participant_ids) { ['some-participant-id'] }
+            let(:birls_ids) { ['some-birls-id'] }
+
+            it 'does not raise an error' do
+              expect { subject }.not_to raise_error
+            end
+          end
+
+          context 'and credential is a verified non-auto-uplevelled credential' do
+            let(:auto_uplevel) { false }
+
+            it_behaves_like 'missing credential attribute'
+          end
         end
 
         context 'and credential is missing birth_date' do

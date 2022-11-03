@@ -95,8 +95,8 @@ module SignIn
         credential_attribute_check(:mhv_uuid, mhv_correlation_id)
       else
         credential_attribute_check(:dslogon_uuid, edipi) if dslogon_auth?
-        credential_attribute_check(:first_name, first_name)
-        credential_attribute_check(:last_name, last_name)
+        credential_attribute_check(:first_name, first_name) unless auto_uplevel
+        credential_attribute_check(:last_name, last_name) unless auto_uplevel
         credential_attribute_check(:birth_date, birth_date) unless auto_uplevel
         credential_attribute_check(:ssn, ssn) unless auto_uplevel
       end
