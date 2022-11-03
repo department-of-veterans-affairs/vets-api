@@ -122,6 +122,8 @@ module SignIn
       end
 
       def normalize_address(user_info)
+        return unless address_defined?(user_info)
+
         {
           street: user_info.street,
           postal_code: user_info.zip,
@@ -129,6 +131,10 @@ module SignIn
           city: user_info.city,
           country: united_states_country_code
         }
+      end
+
+      def address_defined?(user_info)
+        user_info.street && user_info.zip && user_info.state && user_info.city
       end
 
       def united_states_country_code
