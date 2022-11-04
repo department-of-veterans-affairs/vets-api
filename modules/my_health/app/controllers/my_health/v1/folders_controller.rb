@@ -4,7 +4,7 @@ module MyHealth
   module V1
     class FoldersController < SMController
       def index
-        resource = client.get_folders(@current_user.uuid, use_cache? || true)
+        resource = client.get_folders(@current_user.uuid, use_cache?)
         resource = resource.paginate(pagination_params)
 
         render json: resource.data,
