@@ -141,23 +141,22 @@ AppealsApi::Engine.routes.draw do
 
   namespace :supplemental_claims, defaults: { format: 'json' } do
     namespace :v2 do
-      cpath = '/appeals_api/v2/decision_reviews/supplemental_claims'
-      sc_schema_cpath = '/appeals_api/supplemental_claims/v2/supplemental_claims'
+      oauth_cpath = '/appeals_api/supplemental_claims/v2/supplemental_claims'
 
       get 'healthcheck', to: '/appeals_api/metadata#healthcheck'
       get 'upstream_healthcheck', to: '/appeals_api/metadata#mail_status_upstream_healthcheck'
 
       namespace :forms do
-        resources '200995', only: %i[create show], controller: cpath do
+        resources '200995', only: %i[create show], controller: oauth_cpath do
           collection do
             post 'validate'
           end
         end
       end
 
-      resources :evidence_submissions, only: %i[create show], controller: "#{cpath}/evidence_submissions"
+      resources :evidence_submissions, only: %i[create show], controller: "#{oauth_cpath}/evidence_submissions"
 
-      namespace :schemas, controller: sc_schema_cpath do
+      namespace :schemas, controller: oauth_cpath do
         get '200995', action: :schema
       end
 

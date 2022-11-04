@@ -2,20 +2,15 @@
 
 require 'appeals_api/form_schemas'
 
-class AppealsApi::SupplementalClaims::V2::SupplementalClaimsController < AppealsApi::ApplicationController
-  skip_before_action :authenticate
+# rubocop:disable Layout/LineLength
+class AppealsApi::SupplementalClaims::V2::SupplementalClaimsController < AppealsApi::V2::DecisionReviews::SupplementalClaimsController
+  # rubocop:enable Layout/LineLength
+  include AppealsApi::OpenidAuth
 
   FORM_NUMBER = '200995_WITH_SHARED_REFS'
-  SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
-
-  def schema
-    response = AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
-      AppealsApi::FormSchemas.new(
-        SCHEMA_ERROR_TYPE,
-        schema_version: 'v2'
-      ).schema(self.class::FORM_NUMBER)
+  HEADERS = JSON.parse(
+    File.read(
+      AppealsApi::Engine.root.join('config/schemas/v2/200995_with_shared_refs_headers.json')
     )
-
-    render json: response
-  end
+  )['definitions']['scCreateParameters']['properties'].keys
 end
