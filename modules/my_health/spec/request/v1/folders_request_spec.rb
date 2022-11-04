@@ -124,6 +124,23 @@ RSpec.describe 'Folders Integration', type: :request do
       end
     end
 
+    describe '#update' do
+      context 'with valid folder id' do
+        let(:id) { 7_207_029 }
+        let(:params) { { folder: { name: 'Test222' } } }
+
+        it 'responds to RENAME #update' do
+          VCR.use_cassette('sm_client/folders/renames_a_folder') do
+            put "/my_health/v1/messaging/folders/#{id}", params: params
+          end
+
+          expect(response).to be_successful
+          expect(response).to have_http_status(:created)
+          expect(response).to match_response_schema('folder')
+        end
+      end
+    end
+
     describe '#destroy' do
       context 'with valid folder id' do
         let(:id) { 674_886 }
