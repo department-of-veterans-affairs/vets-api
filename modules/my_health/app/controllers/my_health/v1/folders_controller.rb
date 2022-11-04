@@ -40,10 +40,24 @@ module MyHealth
         head :no_content
       end
 
+      def search
+        message_search = MessageSearch.new(search_params)
+        resource = client.post_search_folder(params[:id], params[:page], params[:per_page], message_search)
+
+        render json: resource.data,
+               serializer: CollectionSerializer,
+               each_serializer: MessagesSerializer,
+               meta: resource.metadata
+      end
+
       private
 
       def create_folder_params
         params.require(:folder).permit(:name)
+      end
+
+      def search_params
+        params.permit(:exact_match, :sender, :subject, :category, :recipient, :from_date, :to_date, :message_id)
       end
     end
   end
