@@ -61,6 +61,37 @@ paths:
       summary: /v1/messaging/folders/{id}
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
+    put:
+      description: Rename an existing folder
+      operationId: post_rename_folder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              example:
+                name: New Name for Folder
+              type: object
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/SecureMessagingFolder.yml
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/folders/{id}
   /v1/messaging/folders/{id}/messages:
     get:
       description: |

@@ -112,6 +112,18 @@ module SM
     end
 
     ##
+    # Rename a Folder
+    #
+    # @param folder_id [Fixnum] id of the Folder
+    # @param name [String] new name for the folder
+    # @return [Folder]
+    #
+    def post_rename_folder(folder_id, name)
+      json = perform(:post, "folder/#{folder_id}/rename", { 'folderName' => name }, token_headers).body
+      Folder.new(json)
+    end
+
+    ##
     # Delete a Folder
     #
     # @param id [Fixnum] id of the Folder

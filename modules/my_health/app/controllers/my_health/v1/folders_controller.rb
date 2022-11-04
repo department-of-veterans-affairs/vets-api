@@ -35,6 +35,18 @@ module MyHealth
                status: :created
       end
 
+      def update
+        folder = Folder.new(create_folder_params)
+        raise Common::Exceptions::ValidationErrors, folder unless folder.valid?
+
+        resource = client.post_rename_folder(params[:id], folder.name)
+
+        render json: resource,
+               serializer: MyHealth::V1::FolderSerializer,
+               meta: resource.metadata,
+               status: :created
+      end
+
       def destroy
         client.delete_folder(params[:id])
         head :no_content
