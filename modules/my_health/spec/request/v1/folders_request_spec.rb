@@ -139,6 +139,22 @@ RSpec.describe 'Folders Integration', type: :request do
       end
     end
 
+    describe '#search' do
+      context 'with valid search criteria' do
+        let(:id) { 0 }
+
+        it 'responds to POST #search' do
+          VCR.use_cassette('sm_client/folders/searches_a_folder') do
+            post "/my_health/v1/messaging/folders/#{id}/search", params: { subject: 'test' }
+          end
+
+          expect(response).to be_successful
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('folder_search')
+        end
+      end
+    end
+
     describe 'nested resources' do
       it 'gets messages#index' do
         VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
