@@ -21,7 +21,7 @@ module AppealsApi
           ssn: veteran.ssn,
           first_name: veteran.first_name,
           last_name: veteran.last_name,
-          birth_date: veteran.birth_date.iso8601
+          birth_date: veteran.birth_date&.iso8601
         )
 
         mpi_veteran

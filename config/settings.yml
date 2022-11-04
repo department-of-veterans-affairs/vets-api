@@ -266,6 +266,8 @@ dhp:
 
 # Settings for modules/appeals_api
 modules_appeals_api:
+  token_validation:
+    api_key: ''
   slack:
     api_token: ''
     appeals_channel_id: ''
