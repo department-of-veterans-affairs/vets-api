@@ -126,7 +126,9 @@ module MPI
       end
 
       def build_relationship_mvi_profile(relationship)
-        relationship_identity_hash = create_mvi_profile_identity(relationship, RELATIONSHIP_PREFIX)
+        relationship_identity_hash = create_mvi_profile_identity(relationship,
+                                                                 RELATIONSHIP_PREFIX,
+                                                                 optional_params: true)
         relationship_ids_hash = create_mvi_profile_ids(locate_element(relationship, RELATIONSHIP_PREFIX))
 
         MPI::Models::MviProfileRelationship.new(relationship_identity_hash.merge(relationship_ids_hash))
@@ -137,10 +139,10 @@ module MPI
         code == ID_THEFT_INDICATOR
       end
 
-      def create_mvi_profile_identity(person, person_prefix)
+      def create_mvi_profile_identity(person, person_prefix, optional_params: false)
         person_component = locate_element(person, person_prefix)
         person_types = parse_person_type(person)
-        name = parse_name(locate_elements(person_component, NAME_XPATH))
+        name = parse_name(locate_elements(person_component, NAME_XPATH), optional_params)
         {
           given_names: name[:given],
           family_name: name[:family],
@@ -148,7 +150,7 @@ module MPI
           gender: locate_element(person_component, GENDER_XPATH),
           birth_date: locate_element(person_component, DOB_XPATH),
           deceased_date: locate_element(person_component, DECEASED_XPATH),
-          ssn: parse_ssn(locate_element(person_component, SSN_XPATH)),
+          ssn: parse_ssn(locate_element(person_component, SSN_XPATH), optional_params),
           address: parse_address(person_component),
           home_phone: parse_phone(person, person_prefix),
           person_types: person_types
@@ -220,14 +222,16 @@ module MPI
         end
       end
 
-      def parse_name(name)
+      def parse_name(name, optional_params)
         name_element = parse_legal_name(name)
+        return { given: nil, family: nil } if optional_params && name_element.blank?
+
         given = [*name_element.locate('given')].map { |el| el.nodes.first.capitalize }
         family = name_element.locate('family').first.nodes.first.capitalize
         suffix = name_element.locate('suffix')&.first&.nodes&.first&.capitalize
         { given: given, family: family, suffix: suffix }
-      rescue => e
-        Rails.logger.warn "MPI::Response.parse_name failed: #{e.message}"
+      rescue
+        Rails.logger.warn 'MPI::Response.parse_name failed'
         { given: nil, family: nil }
       end
 
@@ -236,14 +240,16 @@ module MPI
       end
 
       # other_ids can be hash or array of hashes
-      def parse_ssn(other_ids)
+      def parse_ssn(other_ids, optional_params)
+        return nil if optional_params && other_ids.blank?
+
         other_ids = [other_ids] unless other_ids.is_a? Array
         ssn_element = select_ssn_element(other_ids)
         return nil unless ssn_element
 
         ssn_element.attributes[:extension]
-      rescue => e
-        Rails.logger.warn "MPI::Response.parse_ssn failed: #{e.message}"
+      rescue
+        Rails.logger.warn 'MPI::Response.parse_ssn failed'
         nil
       end
 
