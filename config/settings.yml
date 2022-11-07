@@ -849,6 +849,7 @@ search_click_tracking:
   url: https://api.gsa.gov/technology/searchgov/v2
 
 flipper:
+  mute_logs: false
   admin_user_emails:
     - aditya.sharma@thoughtworks.com # Virtual Agent
     - adrian.rollett@agile6.com # Adrian Rollett (Agile6), Engineer/Product Manager Health Care Experience/Check-In
