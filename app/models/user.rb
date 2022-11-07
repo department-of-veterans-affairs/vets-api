@@ -37,6 +37,7 @@ class User < Common::RedisStore
   attribute :account_id, Integer
   attribute :user_account_uuid, String
   attribute :user_verification_id, Integer
+  attribute :fingerprint, String
 
   delegate :email, to: :identity, allow_nil: true
   delegate :loa3?, to: :identity, allow_nil: true

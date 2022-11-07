@@ -2,10 +2,11 @@
 
 module SignIn
   class UserLoader
-    attr_reader :access_token
+    attr_reader :access_token, :request_ip
 
-    def initialize(access_token:)
+    def initialize(access_token:, request_ip:)
       @access_token = access_token
+      @request_ip = request_ip
     end
 
     def perform
@@ -23,6 +24,7 @@ module SignIn
       user_identity.uuid = access_token.user_uuid
       current_user.uuid = access_token.user_uuid
       current_user.last_signed_in = session.created_at
+      current_user.fingerprint = request_ip
       current_user.save && user_identity.save
       current_user
     end

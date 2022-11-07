@@ -1118,6 +1118,24 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '#fingerprint' do
+    let(:fingerprint) { '196.168.0.0' }
+    let(:user) { create :user, fingerprint: fingerprint }
+
+    it 'returns expected user fingerprint' do
+      expect(user.fingerprint).to eq(fingerprint)
+    end
+
+    context 'fingerprint mismatch' do
+      let(:new_fingerprint) { '0.0.0.0' }
+
+      it 'can update the user fingerprint value' do
+        user.fingerprint = new_fingerprint
+        expect(user.fingerprint).to eq(new_fingerprint)
+      end
+    end
+  end
+
   describe '#user_verification' do
     let(:user) do
       described_class.new(build(:user,

@@ -5,7 +5,10 @@ require 'rails_helper'
 RSpec.describe SignIn::UserCreator do
   describe '#perform' do
     subject do
-      SignIn::UserCreator.new(user_attributes: user_attributes, state_payload: state_payload, verified_icn: icn).perform
+      SignIn::UserCreator.new(user_attributes: user_attributes,
+                              state_payload: state_payload,
+                              verified_icn: icn,
+                              request_ip: request_ip).perform
     end
 
     let(:user_attributes) do
@@ -45,6 +48,7 @@ RSpec.describe SignIn::UserCreator do
     let(:authn_context) { service_name }
     let(:login_code) { 'some-login-code' }
     let(:expected_last_signed_in) { Time.zone.now }
+    let(:request_ip) { '123.456.78.90' }
 
     before do
       allow(SecureRandom).to receive(:uuid).and_return(login_code)
@@ -64,6 +68,7 @@ RSpec.describe SignIn::UserCreator do
       expect(user.identity_sign_in).to eq(sign_in)
       expect(user.authn_context).to eq(authn_context)
       expect(user.multifactor).to eq(multifactor)
+      expect(user.fingerprint).to eq(request_ip)
     end
 
     it 'returns a user code map with expected attributes' do

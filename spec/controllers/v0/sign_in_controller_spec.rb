@@ -675,7 +675,8 @@ RSpec.describe V0::SignInController, type: :controller do
                     ssn: user_info.social_security_number,
                     birth_date: Formatters::DateFormatter.format_date(user_info.birthdate),
                     first_name: user_info.given_name,
-                    last_name: user_info.family_name
+                    last_name: user_info.family_name,
+                    fingerprint: request.ip
                   }
                 end
                 let(:mpi_profile) do
@@ -1406,7 +1407,9 @@ RSpec.describe V0::SignInController, type: :controller do
 
     context 'when session has been created with a client id that is anti csrf enabled' do
       let(:client_id) { SignIn::Constants::ClientConfig::ANTI_CSRF_ENABLED.first }
-      let(:session_container) { SignIn::SessionCreator.new(validated_credential: validated_credential).perform }
+      let(:session_container) do
+        SignIn::SessionCreator.new(validated_credential: validated_credential).perform
+      end
       let(:refresh_token) do
         SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
       end
@@ -1437,7 +1440,9 @@ RSpec.describe V0::SignInController, type: :controller do
     end
 
     context 'when refresh_token is the proper encrypted refresh token format' do
-      let(:session_container) { SignIn::SessionCreator.new(validated_credential: validated_credential).perform }
+      let(:session_container) do
+        SignIn::SessionCreator.new(validated_credential: validated_credential).perform
+      end
       let(:refresh_token) do
         SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
       end
@@ -1677,7 +1682,9 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:client_id_value) { user.identity.sign_in[:client_id] }
       let(:loa) { user.identity.loa[:current] }
       let(:client_id) { SignIn::Constants::ClientConfig::ANTI_CSRF_ENABLED.first }
-      let(:session_container) { SignIn::SessionCreator.new(validated_credential: validated_credential).perform }
+      let(:session_container) do
+        SignIn::SessionCreator.new(validated_credential: validated_credential).perform
+      end
       let(:refresh_token) do
         SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
       end
@@ -1710,7 +1717,9 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:type) { user.identity.sign_in[:service_name] }
       let(:client_id_value) { user.identity.sign_in[:client_id] }
       let(:loa) { user.identity.loa[:current] }
-      let(:session_container) { SignIn::SessionCreator.new(validated_credential: validated_credential).perform }
+      let(:session_container) do
+        SignIn::SessionCreator.new(validated_credential: validated_credential).perform
+      end
       let(:refresh_token) do
         SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
       end

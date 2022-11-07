@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe SignIn::UserLoader do
   describe '#perform' do
-    subject { SignIn::UserLoader.new(access_token: access_token).perform }
+    subject { SignIn::UserLoader.new(access_token: access_token, request_ip: request_ip).perform }
 
     let(:access_token) { create(:access_token, user_uuid: user.uuid, session_handle: session_handle) }
     let(:user) { create(:user, :loa3, uuid: user_uuid, loa: user_loa, icn: user_icn) }
@@ -15,6 +15,7 @@ RSpec.describe SignIn::UserLoader do
     let(:user_icn) { user_account.icn }
     let(:session) { create(:oauth_session, user_account: user_account, user_verification: user_verification) }
     let(:session_handle) { session.handle }
+    let(:request_ip) { '123.456.78.90' }
 
     context 'when user record already exists in redis' do
       let(:user_uuid) { user_account.id }
@@ -70,6 +71,7 @@ RSpec.describe SignIn::UserLoader do
           expect(reloaded_user.authn_context).to eq(authn_context)
           expect(reloaded_user.identity_sign_in).to eq(sign_in)
           expect(reloaded_user.multifactor).to eq(multifactor)
+          expect(reloaded_user.fingerprint).to eq(request_ip)
         end
 
         it 'reloads user object so that MPI can be called for additional attributes' do

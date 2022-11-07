@@ -87,7 +87,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       describe 'POST v0/sign_in/refresh' do
         let(:user_verification) { create(:user_verification) }
         let(:validated_credential) { create(:validated_credential, user_verification: user_verification) }
-        let(:session_container) { SignIn::SessionCreator.new(validated_credential: validated_credential).perform }
+        let(:session_container) do
+          SignIn::SessionCreator.new(validated_credential: validated_credential).perform
+        end
         let(:refresh_token) do
           CGI.escape(SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform)
         end
@@ -123,7 +125,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       describe 'POST v0/sign_in/revoke' do
         let(:user_verification) { create(:user_verification) }
         let(:validated_credential) { create(:validated_credential, user_verification: user_verification) }
-        let(:session_container) { SignIn::SessionCreator.new(validated_credential: validated_credential).perform }
+        let(:session_container) do
+          SignIn::SessionCreator.new(validated_credential: validated_credential).perform
+        end
         let(:refresh_token) do
           CGI.escape(SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform)
         end
@@ -142,7 +146,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       describe 'GET v0/sign_in/revoke_all_sessions' do
         let(:user_verification) { create(:user_verification) }
         let(:validated_credential) { create(:validated_credential, user_verification: user_verification) }
-        let(:session_container) { SignIn::SessionCreator.new(validated_credential: validated_credential).perform }
+        let(:session_container) do
+          SignIn::SessionCreator.new(validated_credential: validated_credential).perform
+        end
         let(:access_token_object) { session_container.access_token }
         let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid, middle_name: 'leo') }
         let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
