@@ -2,18 +2,15 @@
 
 require 'appeals_api/form_schemas'
 
-class AppealsApi::HigherLevelReviews::V2::HigherLevelReviewsController < AppealsApi::ApplicationController
-  skip_before_action :authenticate
+module AppealsApi::HigherLevelReviews::V2
+  class HigherLevelReviewsController < AppealsApi::V2::DecisionReviews::HigherLevelReviewsController
+    include AppealsApi::OpenidAuth
 
-  FORM_NUMBER = '200996_WITH_SHARED_REFS'
-  SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
-
-  def schema
-    render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
-      AppealsApi::FormSchemas.new(
-        SCHEMA_ERROR_TYPE,
-        schema_version: 'v2'
-      ).schema(self.class::FORM_NUMBER)
-    )
+    FORM_NUMBER = '200996_WITH_SHARED_REFS'
+    HEADERS = JSON.parse(
+      File.read(
+        AppealsApi::Engine.root.join('config/schemas/v2/200996_with_shared_refs_headers.json')
+      )
+    )['definitions']['hlrCreateParameters']['properties'].keys
   end
 end
