@@ -63,30 +63,6 @@ module VANotify
     end
 
     def personalisation_details_multiple
-      if Flipper.enabled?(:in_progress_generic_multiple_template)
-        details_generic_multiple
-      else
-        # To be remove once we have verified the new logic behind the in_progress_generic_multiple_template flag
-        details_hardcoded_multiple
-      end
-    end
-
-    def details_hardcoded_multiple
-      in_progress_forms = InProgressForm.where(form_id: FindInProgressForms::RELEVANT_FORMS,
-                                               user_uuid: in_progress_form.user_uuid).order(:expires_at)
-      personalisation = in_progress_forms.flat_map.with_index(1) do |form, i|
-        friendly_form_name = VANotify::InProgressFormHelper::FRIENDLY_FORM_SUMMARY.fetch(form.form_id)
-        [
-          ["form_#{i}_number", form.form_id],
-          ["form_#{i}_name", friendly_form_name],
-          ["form_#{i}_date", form.expires_at.strftime('%B %d, %Y')]
-        ]
-      end.to_h
-      personalisation['first_name'] = veteran.first_name.upcase
-      personalisation
-    end
-
-    def details_generic_multiple
       in_progress_forms = InProgressForm.where(form_id: FindInProgressForms::RELEVANT_FORMS,
                                                user_uuid: in_progress_form.user_uuid).order(:expires_at)
       personalisation = {}

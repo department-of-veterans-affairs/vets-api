@@ -2,8 +2,6 @@
 
 module VANotify
   class InProgressFormHelper
-    class UnsupportedForm < StandardError; end
-
     TEMPLATE_ID = {
       '686C-674' => Settings.vanotify.services.va_gov.template_id.form686c_reminder_email,
       '1010ez' => Settings.vanotify.services.va_gov.template_id.form1010ez_reminder_email
