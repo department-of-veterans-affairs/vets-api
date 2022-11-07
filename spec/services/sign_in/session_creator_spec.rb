@@ -3,7 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe SignIn::SessionCreator do
-  let(:session_creator) { SignIn::SessionCreator.new(validated_credential: validated_credential) }
+  let(:session_creator) do
+    SignIn::SessionCreator.new(validated_credential: validated_credential)
+  end
 
   describe '#perform' do
     subject { session_creator.perform }
