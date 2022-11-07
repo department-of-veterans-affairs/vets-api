@@ -38,24 +38,31 @@ module V0
 
         response = http.request(request)
         JSON.parse(response.read_body)['access_token']
+      rescue => e
+        raise StandardError, "Errored retreiving dataverse token with error: #{e}"
       end
 
       def send_to_cxdw(dataverse_uri, icn, conversation_id, token)
         cxdw_table_prefix = Settings.virtual_agent.cxdw_table_prefix
-        Net::HTTP.post URI("#{dataverse_uri}/api/data/v9.2//#{cxdw_table_prefix}claimsqueries"),
-                       {
-                         "#{cxdw_table_prefix}id" => "#{conversation_id} - #{Time.current}",
-                         "#{cxdw_table_prefix}icn" => icn,
-                         "#{cxdw_table_prefix}conversationid" => conversation_id,
-                         "#{cxdw_table_prefix}requestedtimestamp" => Time.current.to_s
-                       }.to_json,
-                       {
-                         'Content-Type' => 'application/json; charset=utf-8',
-                         'OData-MaxVersion' => '4.0',
-                         'OData-Version' => '4.0',
-                         'If-None-Match' => 'null',
-                         'Authorization' => "Bearer #{token}"
-                       }
+        response = Net::HTTP.post URI("#{dataverse_uri}/api/data/v9.2//#{cxdw_table_prefix}claimsqueries"),
+                                  {
+                                    "#{cxdw_table_prefix}id" => "#{conversation_id} - #{Time.current}",
+                                    "#{cxdw_table_prefix}icn" => icn,
+                                    "#{cxdw_table_prefix}conversationid" => conversation_id,
+                                    "#{cxdw_table_prefix}requestedtimestamp" => Time.current.to_s
+                                  }.to_json,
+                                  {
+                                    'Content-Type' => 'application/json; charset=utf-8',
+                                    'OData-MaxVersion' => '4.0',
+                                    'OData-Version' => '4.0',
+                                    'If-None-Match' => 'null',
+                                    'Authorization' => "Bearer #{token}"
+                                  }
+        if response.code != '204'
+          raise StandardError, "Errored posting to dataverse with response code #{response.code}"
+        else
+          response
+        end
       end
     end
   end
