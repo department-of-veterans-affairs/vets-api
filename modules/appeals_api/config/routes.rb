@@ -117,21 +117,20 @@ AppealsApi::Engine.routes.draw do
 
   namespace :higher_level_reviews, defaults: { format: 'json' } do
     namespace :v2 do
-      cpath = '/appeals_api/v2/decision_reviews/higher_level_reviews'
-      hlr_schema_cpath = '/appeals_api/higher_level_reviews/v2/higher_level_reviews'
+      oauth_cpath = '/appeals_api/higher_level_reviews/v2/higher_level_reviews'
 
       get 'healthcheck', to: '/appeals_api/metadata#healthcheck'
       get 'upstream_healthcheck', to: '/appeals_api/metadata#mail_status_upstream_healthcheck'
 
       namespace :forms do
-        resources '200996', only: %i[create show], controller: cpath do
+        resources '200996', only: %i[create show], controller: oauth_cpath do
           collection do
             post 'validate'
           end
         end
       end
 
-      namespace :schemas, controller: hlr_schema_cpath do
+      namespace :schemas, controller: oauth_cpath do
         get '200996', action: :schema
       end
 
