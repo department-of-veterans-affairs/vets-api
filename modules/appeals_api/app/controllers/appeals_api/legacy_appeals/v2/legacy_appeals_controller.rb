@@ -2,18 +2,24 @@
 
 require 'appeals_api/form_schemas'
 
-class AppealsApi::LegacyAppeals::V2::LegacyAppealsController < AppealsApi::ApplicationController
-  skip_before_action :authenticate
+module AppealsApi::LegacyAppeals::V2
+  class LegacyAppealsController < AppealsApi::V2::DecisionReviews::LegacyAppealsController
+    include AppealsApi::OpenidAuth
 
-  FORM_NUMBER = 'LEGACY_APPEALS_HEADERS'
-  SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
+    FORM_NUMBER = 'LEGACY_APPEALS_HEADERS_WITH_SHARED_REFS'
+    HEADERS = JSON.parse(
+      File.read(
+        AppealsApi::Engine.root.join('config/schemas/v2/legacy_appeals_headers_with_shared_refs.json')
+      )
+    )['definitions']['legacyAppealsIndexParameters']['properties'].keys
 
-  def schema
-    render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
-      AppealsApi::FormSchemas.new(
-        SCHEMA_ERROR_TYPE,
-        schema_version: 'v2'
-      ).schema(self.class::FORM_NUMBER)
-    )
+    def schema
+      render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
+        AppealsApi::FormSchemas.new(
+          SCHEMA_ERROR_TYPE,
+          schema_version: 'v2'
+        ).schema(self.class::FORM_NUMBER)
+      )
+    end
   end
 end
