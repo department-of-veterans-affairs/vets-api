@@ -39,6 +39,11 @@ RSpec.describe 'Appeals Documentation Endpoints', type: :request do
 
   describe 'Appeals Status' do
     it_behaves_like 'an openapi endpoint', api_version: 'v0', doc_path: 'api', server_path: '{version}'
+
+    it_behaves_like 'an openapi endpoint', api_version: 'v1', doc_path: 'appeals',
+                                           server_path: '{version}',
+                                           openapi_version_sandbox: '3.1.0',
+                                           openapi_version_production: '3.1.0'
   end
 
   describe 'Decision Reviews' do
