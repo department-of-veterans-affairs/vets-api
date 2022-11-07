@@ -2,20 +2,30 @@
 
 require 'appeals_api/form_schemas'
 
-class AppealsApi::NoticeOfDisagreements::V2::NoticeOfDisagreementsController < AppealsApi::ApplicationController
-  skip_before_action :authenticate
+module AppealsApi::NoticeOfDisagreements::V2
+  class NoticeOfDisagreementsController < AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController
+    include AppealsApi::OpenidAuth
 
-  FORM_NUMBER = '10182_WITH_SHARED_REFS'
-  SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
+    FORM_NUMBER = '10182_WITH_SHARED_REFS'
+    HEADERS = JSON.parse(
+      File.read(
+        AppealsApi::Engine.root.join('config/schemas/v2/10182_with_shared_refs_headers.json')
+      )
+    )['definitions']['nodCreateParameters']['properties'].keys
 
-  def schema
-    response = AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
-      AppealsApi::FormSchemas.new(
-        SCHEMA_ERROR_TYPE,
-        schema_version: 'v2'
-      ).schema(self.class::FORM_NUMBER)
-    )
+    def schema
+      response = AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
+        AppealsApi::FormSchemas.new(
+          SCHEMA_ERROR_TYPE,
+          schema_version: 'v2'
+        ).schema(self.class::FORM_NUMBER)
+      )
 
-    render json: response
+      response.tap do |s|
+        s.dig(*%w[properties data properties attributes properties]).delete('claimant')
+      end
+
+      render json: response
+    end
   end
 end

@@ -91,23 +91,22 @@ AppealsApi::Engine.routes.draw do
   # For now, alias our new routes to their existing controller
   namespace :notice_of_disagreements, defaults: { format: 'json' } do
     namespace :v2 do
-      cpath = '/appeals_api/v2/decision_reviews/notice_of_disagreements'
-      nod_schema_cpath = '/appeals_api/notice_of_disagreements/v2/notice_of_disagreements'
+      oauth_cpath = '/appeals_api/notice_of_disagreements/v2/notice_of_disagreements'
 
       get 'healthcheck', to: '/appeals_api/metadata#healthcheck'
       get 'upstream_healthcheck', to: '/appeals_api/metadata#mail_status_upstream_healthcheck'
 
       namespace :forms do
-        resources '10182', only: %i[create show], controller: cpath do
+        resources '10182', only: %i[create show], controller: oauth_cpath do
           collection do
             post 'validate'
           end
         end
       end
 
-      resources :evidence_submissions, only: %i[create show], controller: "#{cpath}/evidence_submissions"
+      resources :evidence_submissions, only: %i[create show], controller: "#{oauth_cpath}/evidence_submissions"
 
-      namespace :schemas, controller: nod_schema_cpath do
+      namespace :schemas, controller: oauth_cpath do
         get '10182', action: :schema
       end
 
