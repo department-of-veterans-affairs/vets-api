@@ -78,8 +78,11 @@ RSpec.describe SignIn::AttributeValidator do
       shared_examples 'error response' do
         let(:expected_error_log) { 'attribute validator error' }
         it 'raises the expected error' do
-          expect_any_instance_of(SignIn::Logger).to receive(:info).with(expected_error_log,
-                                                                        { errors: expected_error_message })
+          expect_any_instance_of(SignIn::Logger).to receive(:info)
+            .with(expected_error_log,
+                  { errors: expected_error_message,
+                    credential_uuid: csp_id,
+                    type: service_name })
 
           expect { subject }.to raise_error(expected_error, expected_error_message)
         end
@@ -179,7 +182,9 @@ RSpec.describe SignIn::AttributeValidator do
 
           it 'makes a log to rails logger' do
             expect_any_instance_of(SignIn::Logger).to receive(:info).with(expected_error_log,
-                                                                          { errors: expected_error_message })
+                                                                          { errors: expected_error_message,
+                                                                            credential_uuid: csp_id,
+                                                                            type: service_name })
             subject
           end
 
@@ -215,6 +220,11 @@ RSpec.describe SignIn::AttributeValidator do
           let(:expected_error) { SignIn::Errors::AttributeMismatchError }
           let(:expected_error_message) { 'Attribute mismatch, ssn in credential does not match MPI attribute' }
           let(:expected_error_code) { SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE }
+          let(:expected_error_context) do
+            { csp_uuid: csp_id,
+              icn: icn,
+              type: user_attributes[:sign_in][:service_name] }
+          end
 
           it_behaves_like 'error response'
         end
@@ -329,6 +339,7 @@ RSpec.describe SignIn::AttributeValidator do
         let(:service_name) { SAML::User::MHV_ORIGINAL_CSID }
         let(:mhv_icn) { 'some-icn' }
         let(:idme_uuid) { 'some-idme-uuid' }
+        let(:csp_id) { idme_uuid }
         let(:mhv_correlation_id) { 'some-mhv-correlation-id' }
         let(:email) { 'some-email' }
 
@@ -434,6 +445,7 @@ RSpec.describe SignIn::AttributeValidator do
       context 'and authentication is with logingov' do
         let(:service_name) { SAML::User::LOGINGOV_CSID }
         let(:logingov_uuid) { 'some-logingov-uuid' }
+        let(:csp_id) { logingov_uuid }
         let(:first_name) { 'some-first-name' }
         let(:last_name) { 'some-last-name' }
         let(:ssn) { '444444758' }
@@ -669,6 +681,7 @@ RSpec.describe SignIn::AttributeValidator do
         let(:service_name) { SAML::User::DSLOGON_CSID }
         let(:edipi) { 'some-edipi' }
         let(:idme_uuid) { 'some-idme-uuid' }
+        let(:csp_id) { idme_uuid }
         let(:address) { nil }
         let(:first_name) { 'some-first-name' }
         let(:last_name) { 'some-last-name' }
@@ -733,6 +746,7 @@ RSpec.describe SignIn::AttributeValidator do
       context 'and authentication is with idme' do
         let(:service_name) { SAML::User::IDME_CSID }
         let(:idme_uuid) { 'some-idme-uuid' }
+        let(:csp_id) { idme_uuid }
         let(:first_name) { 'some-first-name' }
         let(:last_name) { 'some-last-name' }
         let(:ssn) { '444444758' }
