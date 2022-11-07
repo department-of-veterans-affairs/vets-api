@@ -110,22 +110,14 @@ describe VANotify::InProgressFormReminder, type: :worker do
           described_class.new.perform(in_progress_form_1.id)
         end
 
+        # rubocop:disable Layout/LineLength
         expect(VANotify::IcnJob).to have_received(:perform_async).with('icn', 'fake_template_id',
                                                                        {
                                                                          'first_name' => 'FIRST_NAME',
 
-                                                                         'form_1_number' => '686C-674',
-                                                                         'form_1_name' => '686c something',
-                                                                         'form_1_date' => form_1_date,
-
-                                                                         'form_2_number' => 'form_3_id',
-                                                                         'form_2_name' => 'form_3 something',
-                                                                         'form_2_date' => form_3_date,
-
-                                                                         'form_3_number' => 'form_2_id',
-                                                                         'form_3_name' => 'form_2 something',
-                                                                         'form_3_date' => form_2_date
+                                                                         'formatted_form_data' => "\n^ FORM 686C-674\n^\n^__686c something__\n^\n^_Application expires on:_ #{form_1_date}\n\n\n^---\n\n^ FORM form_3_id\n^\n^__form_3 something__\n^\n^_Application expires on:_ #{form_3_date}\n\n\n^---\n\n^ FORM form_2_id\n^\n^__form_2 something__\n^\n^_Application expires on:_ #{form_2_date}\n\n"
                                                                        })
+        # rubocop:enable Layout/LineLength
       end
     end
   end
