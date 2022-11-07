@@ -141,17 +141,6 @@ module SignIn
         'USA'
       end
 
-      def scope
-        case type
-        when 'idme'
-          config.idme_scope
-        when 'dslogon'
-          config.dslogon_scope
-        when 'mhv'
-          config.mhv_scope
-        end
-      end
-
       def jwe_decrypt(encrypted_jwe)
         JWE.decrypt(encrypted_jwe, config.ssl_key)
       rescue JWE::DecodeError
