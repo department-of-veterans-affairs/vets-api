@@ -18,7 +18,7 @@ describe AppealsApi::V2::DecisionReviews::ContestableIssuesController, type: :re
 
     it_behaves_like('an endpoint with OpenID auth', %w[claim.read]) do
       let(:path) do
-        '/services/appeals/contestable_issues/v2/contestable_issues/higher_level_reviews?benefit_type=compensation'
+        '/services/appeals/contestable_issues/v0/contestable_issues/higher_level_reviews?benefit_type=compensation'
       end
       let(:headers) { { 'X-VA-SSN': '872958715', 'X-VA-Receipt-Date': '2019-12-01' } }
 

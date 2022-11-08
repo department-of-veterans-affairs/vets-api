@@ -5,7 +5,7 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe AppealsApi::NoticeOfDisagreements::V2::NoticeOfDisagreementsController, type: :request do
   describe '#schema' do
-    let(:path) { '/services/appeals/notice_of_disagreements/v2/schemas/10182' }
+    let(:path) { '/services/appeals/notice_of_disagreements/v0/schemas/10182' }
 
     it 'renders the json schema with shared refs' do
       with_openid_auth(%w[claim.read]) do |auth_header|

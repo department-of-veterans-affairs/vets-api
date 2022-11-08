@@ -5,7 +5,7 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe AppealsApi::LegacyAppeals::V2::LegacyAppealsController, type: :request do
   describe('#schema') do
-    let(:path) { '/services/appeals/legacy_appeals/v2/schemas/headers' }
+    let(:path) { '/services/appeals/legacy_appeals/v0/schemas/headers' }
 
     it 'renders the json schema for request headers with shared refs' do
       with_openid_auth(%w[claim.read]) do |auth_header|

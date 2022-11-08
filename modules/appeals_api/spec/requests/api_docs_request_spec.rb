@@ -54,19 +54,19 @@ RSpec.describe 'Appeals Documentation Endpoints', type: :request do
   end
 
   describe 'Segmented APIs' do
-    it_behaves_like 'an openapi endpoint', api_version: 'v2', doc_path: 'hlr',
+    it_behaves_like 'an openapi endpoint', api_version: 'v0', doc_path: 'hlr',
                                            server_path: 'higher_level_reviews/{version}',
                                            openapi_version_sandbox: '3.1.0'
-    it_behaves_like 'an openapi endpoint', api_version: 'v2', doc_path: 'nod',
+    it_behaves_like 'an openapi endpoint', api_version: 'v0', doc_path: 'nod',
                                            server_path: 'notice_of_disagreements/{version}',
                                            openapi_version_sandbox: '3.1.0'
-    it_behaves_like 'an openapi endpoint', api_version: 'v2', doc_path: 'sc',
+    it_behaves_like 'an openapi endpoint', api_version: 'v0', doc_path: 'sc',
                                            server_path: 'supplemental_claims/{version}',
                                            openapi_version_sandbox: '3.1.0'
-    it_behaves_like 'an openapi endpoint', api_version: 'v2', doc_path: 'ci',
+    it_behaves_like 'an openapi endpoint', api_version: 'v0', doc_path: 'ci',
                                            server_path: 'contestable_issues/{version}',
                                            openapi_version_sandbox: '3.1.0'
-    it_behaves_like 'an openapi endpoint', api_version: 'v2', doc_path: 'la',
+    it_behaves_like 'an openapi endpoint', api_version: 'v0', doc_path: 'la',
                                            server_path: 'legacy_appeals/{version}',
                                            openapi_version_sandbox: '3.1.0'
   end
