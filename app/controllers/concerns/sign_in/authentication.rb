@@ -18,6 +18,7 @@ module SignIn
       @access_token = authenticate_access_token
       @current_user = load_user_object
       validate_request_ip
+      @current_user.present?
     rescue Errors::AccessTokenExpiredError => e
       render json: { errors: e }, status: :forbidden
     rescue Errors::StandardError => e
@@ -28,6 +29,7 @@ module SignIn
       @access_token = authenticate_access_token
       @current_user = load_user_object
       validate_request_ip
+      @current_user.present?
     rescue Errors::AccessTokenExpiredError => e
       render json: { errors: e }, status: :forbidden unless skip_expiration_check
     rescue Errors::StandardError
