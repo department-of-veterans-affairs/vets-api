@@ -34,6 +34,7 @@
             "in": "path",
             "required": true,
             "description": "Scoping of appeal type for associated issues",
+            "example": "higher_level_reviews",
             "schema": {
               "type": "string",
               "enum": [
@@ -47,6 +48,7 @@
             "name": "benefit_type",
             "in": "query",
             "description": "Required if decision review type is Higher Level Review or Supplemental Claims.",
+            "example": "compensation",
             "schema": {
               "type": "string",
               "enum": [
@@ -67,6 +69,7 @@
             "name": "X-VA-SSN",
             "required": true,
             "description": "Veteran's SSN",
+            "example": "706547821",
             "schema": {
               "type": "string"
             }
@@ -76,6 +79,7 @@
             "name": "X-VA-Receipt-Date",
             "required": true,
             "description": "(yyyy-mm-dd) In order to determine contestability of issues, the receipt date of a hypothetical Decision Review must be specified.",
+            "example": "2022-01-01",
             "schema": {
               "type": "string"
             }

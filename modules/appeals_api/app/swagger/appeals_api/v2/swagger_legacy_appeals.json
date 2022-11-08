@@ -34,6 +34,7 @@
             "name": "X-VA-SSN",
             "required": false,
             "description": "Either X-VA-SSN or X-VA-File-Number is required. Example X-VA-SSN: 123456789",
+            "example": "706982856",
             "schema": {
               "type": "string"
             }

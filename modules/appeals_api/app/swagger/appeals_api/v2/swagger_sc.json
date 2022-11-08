@@ -34,6 +34,7 @@
             "name": "X-VA-SSN",
             "required": true,
             "description": "Veteran's SSN",
+            "example": "706547821",
             "schema": {
               "type": "string"
             }
@@ -43,6 +44,7 @@
             "name": "X-VA-First-Name",
             "required": true,
             "description": "Veteran's first name",
+            "example": "Cara",
             "schema": {
               "type": "string"
             }
@@ -61,6 +63,7 @@
             "name": "X-VA-Last-Name",
             "required": true,
             "description": "Veteran's last name",
+            "example": "Bartlett",
             "schema": {
               "type": "string"
             }
@@ -70,6 +73,8 @@
             "name": "X-VA-Birth-Date",
             "required": true,
             "description": "Veteran's birth date",
+            "example": "1975-02-14",
+
             "schema": {
               "type": "string"
             }
@@ -741,6 +746,7 @@
             "in": "path",
             "description": "Supplemental Claim UUID",
             "required": true,
+            "example": "7efd87fc-fac1-4851-a4dd-b9aa2533f57f",
             "schema": {
               "type": "string"
             }
@@ -2154,6 +2160,7 @@
             "name": "X-VA-SSN",
             "required": true,
             "description": "Veteran's SSN",
+            "example": "706547821",
             "schema": {
               "type": "string"
             }
@@ -2163,6 +2170,7 @@
             "name": "X-VA-First-Name",
             "required": true,
             "description": "Veteran's first name",
+            "example": "Cara",
             "schema": {
               "type": "string"
             }
@@ -2181,6 +2189,7 @@
             "name": "X-VA-Last-Name",
             "required": true,
             "description": "Veteran's last name",
+            "example": "Bartlett",
             "schema": {
               "type": "string"
             }
@@ -2190,6 +2199,7 @@
             "name": "X-VA-Birth-Date",
             "required": true,
             "description": "Veteran's birth date",
+            "example": "1975-02-14",
             "schema": {
               "type": "string"
             }
@@ -2607,6 +2617,7 @@
             "in": "query",
             "required": true,
             "description": "Associated Supplemental Claim UUID",
+            "example": "7efd87fc-fac1-4851-a4dd-b9aa2533f57f",
             "schema": {
               "type": "string"
             }
@@ -2616,6 +2627,7 @@
             "name": "X-VA-SSN",
             "required": true,
             "description": "Veteran's SSN",
+            "example": "706547821",
             "schema": {
               "type": "string"
             }

@@ -34,6 +34,7 @@
             "name": "X-VA-File-Number",
             "required": true,
             "description": "Veteran's file number",
+            "example": "706547821",
             "schema": {
               "type": "string"
             }
@@ -43,6 +44,7 @@
             "name": "X-VA-First-Name",
             "required": true,
             "description": "Veteran's first name",
+            "example": "Cara",
             "schema": {
               "type": "string"
             }
@@ -61,6 +63,7 @@
             "name": "X-VA-Last-Name",
             "required": true,
             "description": "Veteran's last name",
+            "example": "Bartlett",
             "schema": {
               "type": "string"
             }
@@ -70,6 +73,7 @@
             "name": "X-VA-Birth-Date",
             "required": true,
             "description": "Veteran's birth date",
+            "example": "1975-02-14",
             "schema": {
               "type": "string"
             }
@@ -519,6 +523,7 @@
             "in": "path",
             "description": "Notice of Disagreement UUID",
             "required": true,
+            "example": "02bbbe56-443c-42fa-aaf2-ef6200a6eddd",
             "schema": {
               "type": "string"
             }
@@ -1870,6 +1875,7 @@
             "name": "X-VA-File-Number",
             "required": false,
             "description": "Veteran's file number",
+            "example": "706547821",
             "schema": {
               "type": "string"
             }
@@ -1879,6 +1885,7 @@
             "name": "X-VA-First-Name",
             "required": true,
             "description": "Veteran's first name",
+            "example": "Cara",
             "schema": {
               "type": "string"
             }
@@ -1897,6 +1904,7 @@
             "name": "X-VA-Last-Name",
             "required": true,
             "description": "Veteran's last name",
+            "example": "Bartlett",
             "schema": {
               "type": "string"
             }
@@ -1906,6 +1914,7 @@
             "name": "X-VA-Birth-Date",
             "required": true,
             "description": "Veteran's birth date",
+            "example": "1975-02-14",
             "schema": {
               "type": "string"
             }
@@ -2243,6 +2252,7 @@
             "in": "query",
             "required": true,
             "description": "Associated Notice of Disagreement UUID",
+            "example": "9dbc8f83-a778-417e-9f8b-a9a36d710f70",
             "schema": {
               "type": "string"
             }
@@ -2504,6 +2514,7 @@
             "in": "path",
             "description": "Notice of Disagreement UUID Evidence Submission",
             "required": true,
+            "example": "b77404cf-ef08-45e4-8201-d5b7622f63df",
             "schema": {
               "type": "string"
             }
