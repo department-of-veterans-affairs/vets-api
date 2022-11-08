@@ -1170,8 +1170,21 @@ RSpec.describe User, type: :model do
       context 'and there is not an mhv_correlation_id' do
         let(:mhv_correlation_id) { nil }
 
-        it 'returns user verification with a matching idme_uuid' do
-          expect(user.user_verification.idme_uuid).to eq(idme_uuid)
+        context 'and user has an idme_uuid' do
+          let(:idme_uuid) { 'some-idme-uuid' }
+
+          it 'returns user verification with a matching idme_uuid' do
+            expect(user.user_verification.idme_uuid).to eq(idme_uuid)
+          end
+        end
+
+        context 'and user does not have an idme_uuid' do
+          let(:idme_uuid) { nil }
+          let(:user_verification) { nil }
+
+          it 'returns nil' do
+            expect(user.user_verification).to be nil
+          end
         end
       end
     end
@@ -1190,8 +1203,21 @@ RSpec.describe User, type: :model do
       context 'and there is not an edipi' do
         let(:edipi) { nil }
 
-        it 'returns user verification with a matching idme_uuid' do
-          expect(user.user_verification.idme_uuid).to eq(idme_uuid)
+        context 'and user has an idme_uuid' do
+          let(:idme_uuid) { 'some-idme-uuid' }
+
+          it 'returns user verification with a matching idme_uuid' do
+            expect(user.user_verification.idme_uuid).to eq(idme_uuid)
+          end
+        end
+
+        context 'and user does not have an idme_uuid' do
+          let(:idme_uuid) { nil }
+          let(:user_verification) { nil }
+
+          it 'returns nil' do
+            expect(user.user_verification).to be nil
+          end
         end
       end
     end
@@ -1207,10 +1233,22 @@ RSpec.describe User, type: :model do
 
     context 'when user is logged in with idme' do
       let(:authn_context) { LOA::IDME_LOA1_VETS }
-      let(:idme_uuid) { 'some-idme-uuid' }
 
-      it 'returns user verification with a matching idme_uuid' do
-        expect(user.user_verification.idme_uuid).to eq(idme_uuid)
+      context 'and user has an idme_uuid' do
+        let(:idme_uuid) { 'some-idme-uuid' }
+
+        it 'returns user verification with a matching idme_uuid' do
+          expect(user.user_verification.idme_uuid).to eq(idme_uuid)
+        end
+      end
+
+      context 'and user does not have an idme_uuid' do
+        let(:idme_uuid) { nil }
+        let(:user_verification) { nil }
+
+        it 'returns nil' do
+          expect(user.user_verification).to be nil
+        end
       end
     end
   end
