@@ -55,15 +55,14 @@ module EducationForm
     #   by EducationForm::CreateDailySpoolFiles
     # Otherwise check submission data and EVSS data to see if submission can be marked as PROCESSED
     def process_user_submissions(user_submissions)
-      user_submissions.each do |user_uuid, submissions|
+      user_submissions.each do |_, submissions|
         auth_headers = submissions.last.education_stem_automated_decision.auth_headers
-        account = Account.lookup_by_user_uuid(user_uuid)
 
         claim_ids = submissions.map(&:id).join(', ')
         log_info "EDIPI available for process STEM claim ids=#{claim_ids}: #{auth_headers&.key?('va_eauth_dodedipnid')}"
 
         # only check EVSS if poa wasn't set on submit
-        poa = submissions.last.education_stem_automated_decision.poa || get_user_poa_status(account, auth_headers)
+        poa = submissions.last.education_stem_automated_decision.poa || get_user_poa_status(auth_headers)
 
         if submissions.count > 1
           check_previous_submissions(submissions, poa)
@@ -74,7 +73,7 @@ module EducationForm
     end
 
     # Retrieve poa status fromEVSS VSOSearch for a user
-    def get_user_poa_status(account, auth_headers)
+    def get_user_poa_status(auth_headers)
       # stem_automated_decision feature disables EVSS call  for POA which will be removed in a future PR
       return nil if Flipper.enabled?(:stem_automated_decision)
 
@@ -85,7 +84,7 @@ module EducationForm
         return nil
       end
 
-      vsosearch_service = EVSS::VSOSearch::Service.new(nil, auth_headers, account)
+      vsosearch_service = EVSS::VSOSearch::Service.new(nil, auth_headers)
       vsosearch_service.get_current_info(auth_headers)['userPoaInfoAvailable']
     rescue => e
       log_exception_to_sentry(
