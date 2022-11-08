@@ -99,6 +99,7 @@ jobs:
           done
           git diff
 
+      # For test app - this will be removed
       - name: Update vets-api parent helm deployment
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
