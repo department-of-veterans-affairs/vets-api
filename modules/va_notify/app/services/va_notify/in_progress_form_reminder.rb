@@ -23,7 +23,7 @@ module VANotify
         template_id = VANotify::InProgressFormHelper::TEMPLATE_ID.fetch(in_progress_form.form_id)
         IcnJob.perform_async(veteran.icn, template_id, personalisation_details_single)
       elsif oldest_in_progress_form?
-        template_id = Settings.vanotify.services.va_gov.template_id.in_progress_reminder_email_generic
+        template_id = VANotify::InProgressFormHelper::TEMPLATE_ID.fetch('generic')
         IcnJob.perform_async(veteran.icn, template_id, personalisation_details_multiple)
       end
     end
@@ -38,6 +38,8 @@ module VANotify
         true
       when '1010ez'
         Flipper.enabled?(:in_progress_form_reminder_1010ez)
+      when '21-526EZ'
+        Flipper.enabled?(:in_progress_form_reminder_526ez)
       else
         false
       end

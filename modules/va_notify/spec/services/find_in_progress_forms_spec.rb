@@ -9,7 +9,7 @@ describe VANotify::FindInProgressForms do
   end
 
   it 'verify correct form ids' do
-    expect(described_class::RELEVANT_FORMS).to eq(%w[686C-674 1010ez])
+    expect(described_class::RELEVANT_FORMS).to eq(%w[686C-674 1010ez 21-526EZ])
   end
 
   describe '#to_notify' do
