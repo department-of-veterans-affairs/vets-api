@@ -5,8 +5,7 @@ require 'evss/vso_search/service'
 
 describe EVSS::VSOSearch::Service do
   let(:user) { create(:evss_user) }
-  let(:account) { user.account }
-  let(:service) { described_class.new(user, nil, account) }
+  let(:service) { described_class.new(user, nil) }
   let(:response) { OpenStruct.new(body: get_fixture('json/evss_with_poa')) }
 
   def it_returns_valid_payload(method, form = nil)

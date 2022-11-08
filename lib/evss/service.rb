@@ -10,9 +10,8 @@ module EVSS
     include Common::Client::Concerns::Monitoring
     STATSD_KEY_PREFIX = 'api.evss'
 
-    def initialize(user = nil, auth_headers = nil, account = nil)
+    def initialize(user = nil, auth_headers = nil)
       @user = user
-      @account = account
       if auth_headers.nil?
         @headers = EVSS::AuthHeaders.new(user)
         @transaction_id = @headers.transaction_id
