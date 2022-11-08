@@ -49,13 +49,27 @@ module Mobile
 
         # Only a subset of types of service that requires human readable conversion
         SERVICE_TYPES = {
-          outpatientMentalHealth: 'Mental Health',
-          moveProgram: 'Move Program',
-          foodAndNutrition: 'Nutrition and Food',
-          clinicalPharmacyPrimaryCare: 'Clinical Pharmacy Primary Care',
-          primaryCare: 'Primary Care',
-          homeSleepTesting: 'Home Sleep Testing',
-          socialWork: 'Social Work'
+          'amputation' => 'Amputation care',
+          'audiology' => 'Audiology and speech (including hearing aid support)',
+          'audiology-routine exam' => 'Routine hearing exam',
+          'CCAUDRTNE' => 'Routine hearing exam',
+          'audiology-hearing aid support' => 'Hearing aid support',
+          'CCAUDHEAR' => 'Hearing aid support',
+          'clinicalPharmacyPrimaryCare' => 'Pharmacy',
+          'covid' => 'COVID-19 vaccine',
+          'cpap' => 'Continuous Positive Airway Pressure (CPAP)',
+          'foodAndNutrition' => 'Nutrition and Food',
+          'moveProgram' => 'MOVE! weight management program',
+          'ophthalmology' => 'Ophthalmology',
+          'podiatry' => 'Podiatry',
+          'CCPOD' => 'Podiatry',
+          'optometry' => 'Optometry',
+          'CCOPT' => 'Optometry',
+          'outpatientMentalHealth' => 'Mental Health',
+          'primaryCare' => 'Primary Care',
+          'CCPRMYRTNE' => 'Primary Care',
+          'homeSleepTesting' => 'Sleep medicine and home sleep testing',
+          'socialWork' => 'Social Work'
         }.freeze
 
         # Takes a result set of VAOS v2 appointments from the appointments web service
@@ -164,9 +178,7 @@ module Mobile
         def type_of_care(service_type)
           return nil if service_type.nil?
 
-          service_type = SERVICE_TYPES[service_type.to_sym] || service_type
-
-          service_type.titleize
+          SERVICE_TYPES[service_type] || service_type.titleize
         end
 
         def cancellation_reason(cancellation_reason)
