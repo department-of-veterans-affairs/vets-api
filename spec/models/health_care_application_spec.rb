@@ -10,10 +10,12 @@ RSpec.describe HealthCareApplication, type: :model do
   describe '#prefill_compensation_type' do
     before do
       health_care_application.user = FactoryBot.build(:evss_user)
+      allow(Raven).to receive(:extra_context)
     end
 
     it 'prefills compensation type' do
       VCR.use_cassette('evss/disability_compensation_form/rating_info_with_disability') do
+        expect(Raven).to receive(:extra_context).with(disability_rating: 100)
         health_care_application.send(:prefill_compensation_type)
         expect(health_care_application.parsed_form['vaCompensationType']).to eq('highDisability')
       end
@@ -22,6 +24,7 @@ RSpec.describe HealthCareApplication, type: :model do
     context 'with an error' do
       it 'logs to sentry and doesnt raise the error' do
         expect(health_care_application).to receive(:log_exception_to_sentry)
+        expect(Raven).to receive(:extra_context).with(disability_rating: 'error')
 
         health_care_application.send(:prefill_compensation_type)
         expect(health_care_application.parsed_form['vaCompensationType']).to eq(nil)
