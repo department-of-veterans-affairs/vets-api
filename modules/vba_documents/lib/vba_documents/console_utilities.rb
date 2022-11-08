@@ -48,20 +48,6 @@ module VBADocuments
       invalid_guids
     end
 
-    def monthly_success_csv
-      d = 1.month.ago.end_of_month.day / 2
-      dt = 1.month.ago.end_of_month - d.days
-
-      # ["57a1b2be-e229-45a2-be6f-5c49438b7cc1|2020-08-27 15:44:13 UTC|success|VetPro",..]
-      statuses = VBADocuments::UploadSubmission::IN_FLIGHT_STATUSES.to_a.map { |e| e } << 'uploaded'
-      VBADocuments::UploadSubmission
-        .where(status: statuses)
-        .where('created_at < ?', dt)
-        .not_final_success
-        .order(created_at: :asc)
-        .pluck(:guid, :created_at, :status, :consumer_name).map { |data| data.join('|') }
-    end
-
     private
 
     def manual_status_change(guid, from, to, error)
