@@ -6,6 +6,14 @@ require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'military_information', type: :request do
   include JsonSchemaMatchers
+
+  before(:all) do
+    @original_cassette_dir = VCR.configure(&:cassette_library_dir)
+    VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
+  end
+
+  after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
+
   describe 'GET /mobile/v0/military-service-history' do
     context 'with a user who has a cached iam session' do
       before { iam_sign_in }
@@ -19,18 +27,25 @@ RSpec.describe 'military_information', type: :request do
               'serviceHistory' =>
                     [
                       {
-                        'branchOfService' => 'United States Air Force',
-                        'beginDate' => '2007-04-01',
-                        'endDate' => '2016-06-01',
-                        'formattedBeginDate' => 'April 01, 2007',
-                        'formattedEndDate' => 'June 01, 2016'
+                        'branchOfService' => 'United States Army',
+                        'beginDate' => '2002-02-02',
+                        'endDate' => '2008-12-01',
+                        'formattedBeginDate' => 'February 02, 2002',
+                        'formattedEndDate' => 'December 01, 2008'
                       },
                       {
-                        'branchOfService' => 'United States Air Force',
-                        'beginDate' => '2000-02-01',
-                        'endDate' => '2004-06-14',
-                        'formattedBeginDate' => 'February 01, 2000',
-                        'formattedEndDate' => 'June 14, 2004'
+                        'branchOfService' => 'United States Navy',
+                        'beginDate' => '2009-03-01',
+                        'endDate' => '2012-12-31',
+                        'formattedBeginDate' => 'March 01, 2009',
+                        'formattedEndDate' => 'December 31, 2012'
+                      },
+                      {
+                        'branchOfService' => 'United States Army',
+                        'beginDate' => '2012-03-02',
+                        'endDate' => '2018-10-31',
+                        'formattedBeginDate' => 'March 02, 2012',
+                        'formattedEndDate' => 'October 31, 2018'
                       }
                     ]
             }
@@ -47,11 +62,11 @@ RSpec.describe 'military_information', type: :request do
               'serviceHistory' =>
                     [
                       {
-                        'branchOfService' => 'United States Air Force',
-                        'beginDate' => '2007-04-01',
-                        'endDate' => '2016-06-01',
-                        'formattedBeginDate' => 'April 01, 2007',
-                        'formattedEndDate' => 'June 01, 2016'
+                        'branchOfService' => 'United States Army',
+                        'beginDate' => '2002-02-02',
+                        'endDate' => '2008-12-01',
+                        'formattedBeginDate' => 'February 02, 2002',
+                        'formattedEndDate' => 'December 01, 2008'
                       }
                     ]
             }
@@ -69,17 +84,24 @@ RSpec.describe 'military_information', type: :request do
                     [
                       {
                         'branchOfService' => 'United States Army',
-                        'beginDate' => '1990-11-02',
+                        'beginDate' => '2002-02-02',
                         'endDate' => nil,
-                        'formattedBeginDate' => 'November 02, 1990',
+                        'formattedBeginDate' => 'February 02, 2002',
                         'formattedEndDate' => nil
                       },
                       {
+                        'branchOfService' => 'United States Navy',
+                        'beginDate' => '2009-03-01',
+                        'endDate' => '2012-12-31',
+                        'formattedBeginDate' => 'March 01, 2009',
+                        'formattedEndDate' => 'December 31, 2012'
+                      },
+                      {
                         'branchOfService' => 'United States Army',
-                        'beginDate' => '1983-02-23',
-                        'endDate' => '1988-10-04',
-                        'formattedBeginDate' => 'February 23, 1983',
-                        'formattedEndDate' => 'October 04, 1988'
+                        'beginDate' => '2012-03-02',
+                        'endDate' => '2018-10-31',
+                        'formattedBeginDate' => 'March 02, 2012',
+                        'formattedEndDate' => 'October 31, 2018'
                       }
                     ]
             }
@@ -101,7 +123,7 @@ RSpec.describe 'military_information', type: :request do
 
       context 'with multiple military service episodes' do
         it 'matches the mobile service history schema' do
-          VCR.use_cassette('emis/get_military_service_episodes/valid_multiple_episodes') do
+          VCR.use_cassette('va_profile/post_read_service_histories_200') do
             get '/mobile/v0/military-service-history', headers: iam_headers
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(expected_body_multi)
@@ -112,7 +134,7 @@ RSpec.describe 'military_information', type: :request do
 
       context 'with one military service episode' do
         it 'matches the mobile service history schema' do
-          VCR.use_cassette('emis/get_military_service_episodes/valid') do
+          VCR.use_cassette('va_profile/post_read_service_history_200') do
             get '/mobile/v0/military-service-history', headers: iam_headers
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(expected_body_single)
@@ -123,7 +145,7 @@ RSpec.describe 'military_information', type: :request do
 
       context 'military service episode with no end date' do
         it 'matches the mobile service history schema' do
-          VCR.use_cassette('emis/get_military_service_episodes/valid_no_end_date') do
+          VCR.use_cassette('va_profile/post_read_service_histories_200_no_end_date') do
             get '/mobile/v0/military-service-history', headers: iam_headers
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(expected_body_no_end_date)
@@ -134,7 +156,7 @@ RSpec.describe 'military_information', type: :request do
 
       context 'with an empty military service episode' do
         it 'matches the mobile service history schema' do
-          VCR.use_cassette('emis/get_military_service_episodes/empty') do
+          VCR.use_cassette('va_profile/post_read_service_history_200_empty') do
             get '/mobile/v0/military-service-history', headers: iam_headers
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(expected_body_empty)
