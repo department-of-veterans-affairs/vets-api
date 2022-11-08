@@ -77,7 +77,6 @@ jobs:
           ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
         run: |
           cd vsp-infra-application-manifests/apps/${{inputs.manifests_directory}}
-          # Update ecr image
           envs=( ${{ needs.prepare-values.outputs.environments }} )
           for env in ${envs[*]};
           do
@@ -91,7 +90,6 @@ jobs:
           ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
         run: |
           cd vsp-infra-application-manifests/apps/sidekiq
-          # Update ecr image
           envs=( ${{ needs.prepare-values.outputs.environments }} )
           for env in ${envs[*]};
           do
