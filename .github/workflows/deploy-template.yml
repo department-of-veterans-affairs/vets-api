@@ -105,7 +105,7 @@ jobs:
           ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
         run: |
           cd vsp-infra-application-manifests/apps/vets-api-helm101
-          yq e -i '(.image_tag) |= "${{ github.sha }}"' dev/values.yaml
+          yq e -i '(.vets-api.image.tag) |= "${{ github.sha }}"' dev/values.yaml
           git diff
 
       - name: Add and Commit file
