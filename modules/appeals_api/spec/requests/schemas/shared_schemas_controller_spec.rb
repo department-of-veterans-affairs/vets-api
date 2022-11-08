@@ -7,7 +7,7 @@ describe AppealsApi::Schemas::SharedSchemasController, type: :request do
   include FixtureHelpers
 
   def base_path(appeal_type, schema_type)
-    "/services/appeals/#{appeal_type}/v2/schemas/#{schema_type}"
+    "/services/appeals/#{appeal_type}/v0/schemas/#{schema_type}"
   end
 
   shared_examples 'successful schema request' do |schema_type, response_body_content|

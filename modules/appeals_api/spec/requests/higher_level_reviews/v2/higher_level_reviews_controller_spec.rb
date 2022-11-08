@@ -5,7 +5,7 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe AppealsApi::HigherLevelReviews::V2::HigherLevelReviewsController, type: :request do
   describe '#schema' do
-    let(:path) { '/services/appeals/higher_level_reviews/v2/schemas/200996' }
+    let(:path) { '/services/appeals/higher_level_reviews/v0/schemas/200996' }
 
     it 'renders the json schema with shared refs' do
       with_openid_auth(%w[claim.read]) do |auth_header|

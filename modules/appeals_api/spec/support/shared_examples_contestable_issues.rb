@@ -146,7 +146,7 @@ RSpec.shared_examples 'contestable issues index requests' do |options|
     if options[:version] == 'v2'
       (
         if options[:use_versioned_namespace_route]
-          '/services/appeals/contestable_issues/v2/contestable_issues'
+          '/services/appeals/contestable_issues/v0/contestable_issues'
         else
           '/services/appeals/v2/decision_reviews/contestable_issues'
         end

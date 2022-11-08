@@ -5,7 +5,7 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe AppealsApi::SupplementalClaims::V2::SupplementalClaimsController, type: :request do
   describe '#schema' do
-    let(:path) { '/services/appeals/supplemental_claims/v2/schemas/200995' }
+    let(:path) { '/services/appeals/supplemental_claims/v0/schemas/200995' }
 
     it 'renders the json schema with shared refs' do
       with_openid_auth(%w[claim.read]) do |auth_header|
