@@ -34,6 +34,7 @@
             "name": "X-VA-SSN",
             "required": true,
             "description": "Veteran's SSN",
+            "example": "706547821",
             "schema": {
               "type": "string"
             }
@@ -43,6 +44,7 @@
             "name": "X-VA-First-Name",
             "required": true,
             "description": "Veteran's first name",
+            "example": "Cara",
             "schema": {
               "type": "string"
             }
@@ -61,6 +63,7 @@
             "name": "X-VA-Last-Name",
             "required": true,
             "description": "Veteran's last name",
+            "example": "Bartlett",
             "schema": {
               "type": "string"
             }
@@ -70,6 +73,7 @@
             "name": "X-VA-Birth-Date",
             "required": true,
             "description": "Veteran's birth date",
+            "example": "1975-02-14",
             "schema": {
               "type": "string"
             }
@@ -696,6 +700,7 @@
             "in": "path",
             "description": "Higher-Level Review UUID",
             "required": true,
+            "example": "44e08764-6008-46e8-a95e-eb21951a5b68",
             "schema": {
               "type": "string"
             }
@@ -3220,6 +3225,7 @@
             "name": "X-VA-SSN",
             "required": true,
             "description": "Veteran's SSN",
+            "example": "706547821",
             "schema": {
               "type": "string"
             }
@@ -3229,6 +3235,7 @@
             "name": "X-VA-First-Name",
             "required": true,
             "description": "Veteran's first name",
+            "example": "Cara",
             "schema": {
               "type": "string"
             }
@@ -3247,6 +3254,7 @@
             "name": "X-VA-Last-Name",
             "required": true,
             "description": "Veteran's last name",
+            "example": "Bartlett",
             "schema": {
               "type": "string"
             }
@@ -3256,6 +3264,7 @@
             "name": "X-VA-Birth-Date",
             "required": true,
             "description": "Veteran's birth date",
+            "example": "1975-02-14",
             "schema": {
               "type": "string"
             }
