@@ -89,30 +89,23 @@ RSpec.describe UserSessionForm, type: :model do
         build(:ssoe_inbound_mhv_premium, va_eauth_gcIds: [''])
       end
       let(:icn) { saml_attributes[:va_eauth_icn] }
-      let(:expected_log_message) { "[UserSessionForm] Multiple matching accounts for icn:#{icn}" }
-      let!(:account) { create(:account, icn: icn) }
+      let(:user_account) { user_verification.user_account }
+      let!(:user_verification) { create(:idme_user_verification) }
 
-      context 'and there are no existing account mappings for the user' do
-        let(:account) { nil }
+      context 'and there are no existing user account mappings for the user' do
+        let(:user_account) { nil }
+        let(:user_verification) { nil }
         let(:expected_error) { SAML::UserAttributeError }
 
         it 'raises a saml user attribute error' do
-          expect { UserSessionForm.new(saml_response) }.to raise_error(SAML::UserAttributeError)
-        end
-      end
-
-      context 'when multiple account mappings exist' do
-        let!(:second_account) { create(:account, icn: icn) }
-
-        it 'raises a validation error ands logs a message' do
-          expect(Rails.logger).to receive(:info).with(expected_log_message)
-
-          expect { UserSessionForm.new(saml_response) }.to raise_error(SAML::UserAttributeError)
+          expect { UserSessionForm.new(saml_response) }.to raise_error(expected_error)
         end
       end
 
       context 'when credential identifier can be found on existing account' do
-        let!(:account) { create(:account, icn: saml_attributes[:va_eauth_icn]) }
+        let(:user_account) { create(:user_account, icn: saml_attributes[:va_eauth_icn]) }
+        let!(:user_verification) { create(:idme_user_verification, user_account: user_account) }
+        let(:idme_uuid) { user_verification.idme_uuid }
         let(:add_person_response) do
           MPI::Responses::AddPersonResponse.new(status: status, mvi_codes: mvi_codes, error: nil)
         end
@@ -126,8 +119,8 @@ RSpec.describe UserSessionForm, type: :model do
         it 'uses the injected identifier as the user key' do
           subject = UserSessionForm.new(saml_response)
           subject.persist
-          expect(User.find(account.idme_uuid)).to be_truthy
-          expect(UserIdentity.find(account.idme_uuid)).to be_truthy
+          expect(User.find(idme_uuid)).to be_truthy
+          expect(UserIdentity.find(idme_uuid)).to be_truthy
         end
 
         it 'adds the identifier to an existing mpi record' do
@@ -137,9 +130,7 @@ RSpec.describe UserSessionForm, type: :model do
 
         context 'when failure occurs during adding identifier to existing mpi record' do
           let(:status) { 'some-not-successful-status' }
-          let(:idme_uuid) { account.idme_uuid }
-          let(:logingov_uuid) { account.logingov_uuid }
-          let(:sentry_log) { "Failed Add CSP ID to MPI FAILED, idme: #{idme_uuid}, logingov: #{logingov_uuid}" }
+          let(:sentry_log) { "Failed Add CSP ID to MPI FAILED, idme: #{idme_uuid}" }
           let(:sentry_level) { :warn }
 
           it 'logs a message to sentry' do
