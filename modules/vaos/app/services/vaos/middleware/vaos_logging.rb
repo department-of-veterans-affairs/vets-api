@@ -27,6 +27,9 @@ module VAOS
         @app.call(env).on_complete do |response_env|
           if response_env.status.between?(200, 299)
             log(:info, 'VAOS service call succeeded!', log_tags(env, start_time, response_env))
+          elsif response_env.status == 400 # 400 error resp at times contain PII/PHI so we don't want the err msg logged
+            statsd_increment("#{STATSD_KEY_PREFIX}.fail", env)
+            log(:warn, 'VAOS service call failed!', log_tags(env, start_time, response_env))
           else
             statsd_increment("#{STATSD_KEY_PREFIX}.fail", env)
             log(:warn, 'VAOS service call failed!', log_error_tags(env, start_time, response_env))
