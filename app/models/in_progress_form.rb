@@ -41,7 +41,18 @@ class InProgressForm < ApplicationRecord
   after_save :log_hca_email_diff
 
   def self.form_for_user(form_id, user)
-    InProgressForm.find_by(form_id: form_id, user_uuid: user.uuid)
+    user_uuid_form = InProgressForm.find_by(form_id: form_id, user_uuid: user.uuid)
+    user_account_form = InProgressForm.find_by(form_id: form_id, user_account: user.user_account) if user.user_account
+    user_uuid_form || user_account_form
+  end
+
+  def self.for_user(user)
+    user_uuid_forms = InProgressForm.where(user_uuid: user.uuid)
+    if user.user_account
+      user_uuid_forms.or(InProgressForm.where(user_account: user.user_account))
+    else
+      user_uuid_forms
+    end
   end
 
   def data_and_metadata

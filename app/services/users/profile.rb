@@ -151,7 +151,7 @@ module Users
     end
 
     def in_progress_forms
-      user.in_progress_forms.map do |form|
+      InProgressForm.for_user(user).map do |form|
         {
           form: form.form_id,
           metadata: form.metadata,

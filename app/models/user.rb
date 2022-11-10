@@ -377,7 +377,7 @@ class User < Common::RedisStore
   end
 
   def in_progress_forms
-    InProgressForm.where(user_uuid: uuid)
+    InProgressForm.for_user(self)
   end
 
   # Re-caches the MPI response. Use in response to any local changes that

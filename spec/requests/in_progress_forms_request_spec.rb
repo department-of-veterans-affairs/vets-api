@@ -31,9 +31,9 @@ RSpec.describe V0::InProgressFormsController do
 
       let(:user) { loa3_user }
       let!(:in_progress_form_edu) do
-        FactoryBot.create(:in_progress_form, :with_nested_metadata, form_id: '22-1990', user_uuid: user.uuid)
+        create(:in_progress_form, :with_nested_metadata, form_id: '22-1990', user_uuid: user.uuid)
       end
-      let!(:in_progress_form_hca) { FactoryBot.create(:in_progress_form, form_id: '1010ez', user_uuid: user.uuid) }
+      let!(:in_progress_form_hca) { create(:in_progress_form, form_id: '1010ez', user_uuid: user.uuid) }
 
       context 'when the user is not loa3' do
         let(:user) { loa1_user }
@@ -135,7 +135,7 @@ RSpec.describe V0::InProgressFormsController do
 
     describe '#show' do
       let(:user) { build(:user, :loa3, :mvi_profile_street_and_suffix) }
-      let!(:in_progress_form) { FactoryBot.create(:in_progress_form, :with_nested_metadata, user_uuid: user.uuid) }
+      let!(:in_progress_form) { create(:in_progress_form, :with_nested_metadata, user_uuid: user.uuid) }
 
       context 'when the user is not loa3' do
         let(:user) { loa1_user }
@@ -267,7 +267,7 @@ RSpec.describe V0::InProgressFormsController do
       let(:user) { loa3_user }
 
       context 'with a new form' do
-        let(:new_form) { FactoryBot.build(:in_progress_form, user_uuid: user.uuid) }
+        let(:new_form) { create(:in_progress_form, user_uuid: user.uuid) }
 
         context 'when the user is not loa3' do
           let(:user) { loa1_user }
@@ -354,20 +354,20 @@ RSpec.describe V0::InProgressFormsController do
       context 'with an existing form' do
         let!(:other_existing_form) { create(:in_progress_form, form_id: 'jksdfjk') }
         let(:existing_form) { create(:in_progress_form, user_uuid: user.uuid) }
-        let(:update_form) { build(:in_progress_update_form, user_uuid: user.uuid) }
+        let(:form_data) { { some_form_data: 'form-data' }.to_json }
 
         it 'updates the right form' do
-          put v0_in_progress_form_url(existing_form.form_id), params: { form_data: update_form.form_data }
+          put v0_in_progress_form_url(existing_form.form_id), params: { form_data: form_data }
           expect(response).to have_http_status(:ok)
 
-          expect(existing_form.reload.form_data).to eq(update_form.form_data)
+          expect(existing_form.reload.form_data).to eq(form_data)
         end
       end
     end
 
     describe '#destroy' do
       let(:user) { loa3_user }
-      let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid) }
+      let!(:in_progress_form) { create(:in_progress_form, user_uuid: user.uuid) }
 
       context 'when the user is not loa3' do
         let(:user) { loa1_user }
@@ -406,7 +406,7 @@ RSpec.describe V0::InProgressFormsController do
 
   context 'without a user' do
     describe '#show' do
-      let(:in_progress_form) { FactoryBot.create(:in_progress_form) }
+      let(:in_progress_form) { create(:in_progress_form) }
 
       it 'returns a 401' do
         get v0_in_progress_form_url(in_progress_form.form_id), params: nil
