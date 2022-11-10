@@ -94,10 +94,6 @@ features:
     actor_type: user
     description: Enables the health care check-in experiences to show the pre-check-in experience.
     enable_in_development: true
-  check_in_experience_day_of_demographics_flags_enabled:
-    actor_type: user
-    description: Enables the capture of user responses to demographics up-to-date questions
-    enable_in_development: true
   check_in_experience_synthetic_metric_name:
     actor_type: user
     description: Enables updating the StatsD metric name for Synthetic check traffic
