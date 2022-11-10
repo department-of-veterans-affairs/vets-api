@@ -14,11 +14,13 @@ module MebApi
           configuration MebApi::DGI::Submission::Configuration
           STATSD_KEY_PREFIX = 'api.dgi.submission'
 
-          def submit_claim(params, form_type = 'toe')
+          def submit_claim(params, response_data, form_type = 'toe')
+            unmasked_params = update_dd_params(params, response_data)
+
             with_monitoring do
               headers = request_headers
               options = { timeout: 60 }
-              response = perform(:post, end_point(form_type), format_params(params['form']), headers, options)
+              response = perform(:post, end_point(form_type), format_params(unmasked_params['form']), headers, options)
 
               MebApi::DGI::Forms::Submission::Response.new(response.status, response)
             end
@@ -44,6 +46,16 @@ module MebApi
 
             camelized_keys['toeClaimant'] = modified_keys
             camelized_keys
+          end
+
+          def update_dd_params(params, dd_params)
+            check_masking = params.dig(:form, :direct_deposit, :direct_deposit_account_number).include?('*')
+
+            if check_masking
+              params[:form][:direct_deposit][:direct_deposit_account_number] = dd_params[:dposit_acnt_nbr]
+              params[:form][:direct_deposit][:direct_deposit_routing_number] = dd_params[:routng_trnsit_nbr]
+            end
+            params
           end
 
           def camelize_keys_for_java_service(params)
