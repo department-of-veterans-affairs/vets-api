@@ -15,6 +15,10 @@ VBADocuments::Engine.routes.draw do
     namespace :v0 do
       resources :upload_complete, only: [:create]
     end
+
+    namespace :v1 do
+      resources :upload_complete, only: [:create]
+    end
   end
 
   if Settings.vba_documents.v2_enabled
