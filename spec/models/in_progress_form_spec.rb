@@ -148,4 +148,44 @@ RSpec.describe InProgressForm, type: :model do
       end
     end
   end
+
+  describe '.form_for_user' do
+    subject { InProgressForm.form_for_user(form_id, user) }
+
+    let(:form_id) { in_progress_form.form_id }
+    let(:user) { create(:user) }
+    let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
+
+    context 'and in progress form exists associated with user uuid' do
+      let!(:in_progress_form_user_uuid) { create(:in_progress_form, user_uuid: user.uuid) }
+
+      it 'returns InProgressForms for user with given form id' do
+        expect(subject).to eq(in_progress_form_user_uuid)
+      end
+    end
+
+    context 'and in progress form does not exist associated with user uuid' do
+      context 'and in progress form exists associated with user account on user' do
+        let!(:in_progress_form_user_account) { create(:in_progress_form, user_account: user.user_account) }
+
+        it 'returns InProgressForms for user with given form id' do
+          expect(subject).to eq(in_progress_form_user_account)
+        end
+      end
+    end
+  end
+
+  describe '.for_user' do
+    subject { InProgressForm.for_user(user) }
+
+    let(:user) { create(:user) }
+    let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
+    let!(:in_progress_form_user_uuid) { create(:in_progress_form, user_uuid: user.uuid) }
+    let!(:in_progress_form_user_account) { create(:in_progress_form, user_account: user.user_account) }
+    let(:expected_in_progress_forms_id) { [in_progress_form_user_uuid.id, in_progress_form_user_account.id] }
+
+    it 'returns in progress forms associated with user uuid and user account' do
+      expect(subject.map(&:id)).to match_array(expected_in_progress_forms_id)
+    end
+  end
 end
