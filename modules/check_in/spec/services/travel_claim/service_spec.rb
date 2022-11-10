@@ -36,7 +36,7 @@ describe TravelClaim::Service do
 
     context 'when it exists in redis' do
       before do
-        allow_any_instance_of(TravelClaim::RedisClient).to receive(:get).and_return(access_token)
+        allow_any_instance_of(TravelClaim::RedisClient).to receive(:token).and_return(access_token)
       end
 
       it 'returns token from redis' do
@@ -61,12 +61,12 @@ describe TravelClaim::Service do
       let(:response) { { data: { error: true, message: 'No access token' }, status: 401 } }
 
       before do
-        allow_any_instance_of(TravelClaim::RedisClient).to receive(:get).and_return(nil)
+        allow_any_instance_of(TravelClaim::RedisClient).to receive(:token).and_return(nil)
         allow_any_instance_of(TravelClaim::Service).to receive(:token).and_return(nil)
       end
 
       it 'returns 401 error response' do
-        expect(subject.build.submit_claim(icn: 'test-icn', appt_time: '2020-10-16')).to eq(response)
+        expect(subject.build.submit_claim).to eq(response)
       end
     end
 
@@ -76,17 +76,33 @@ describe TravelClaim::Service do
         { value: { claimNumber: 'TC202207000011666' }, formatters: [], contentTypes: [],
           declaredType: [], statusCode: 200 }
       end
+      let(:appointment_identifiers) do
+        {
+          data: {
+            id: uuid,
+            type: :appointment_identifier,
+            attributes: { patientDFN: '123', stationNo: 888, icn: '7892357463V984537' }
+          }
+        }
+      end
       let(:faraday_response) { Faraday::Response.new(body: claims_json, status: 200) }
 
       let(:submit_claim_response) { { data: claims_json, status: 200 } }
 
       before do
-        allow_any_instance_of(TravelClaim::RedisClient).to receive(:get).and_return(access_token)
+        Rails.cache.write(
+          "check_in_lorota_v2_appointment_identifiers_#{uuid}",
+          appointment_identifiers.to_json,
+          namespace: 'check-in-lorota-v2-cache'
+        )
+
+        allow_any_instance_of(TravelClaim::RedisClient).to receive(:token).and_return(access_token)
         allow_any_instance_of(TravelClaim::Client).to receive(:submit_claim).and_return(faraday_response)
       end
 
       it 'returns response from claim api' do
-        expect(subject.build.submit_claim(icn: 'test-icn', appt_time: '2020-10-16')).to eq(submit_claim_response)
+        expect(subject.build(check_in: check_in,
+                             params: { appointment_date: '2020-10-16' }).submit_claim).to eq(submit_claim_response)
       end
     end
   end

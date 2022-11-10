@@ -40,7 +40,7 @@ module TravelClaim
     # @return [Faraday::Response]
     #
     def token
-      connection.post("/#{tenant_id}/oauth2/v2.0/token") do |req|
+      connection(server_url: auth_url).post("/#{tenant_id}/oauth2/v2.0/token") do |req|
         req.headers = default_headers
         req.body = URI.encode_www_form(auth_params)
       end
@@ -56,11 +56,11 @@ module TravelClaim
     #
     # @return [Faraday::Response]
     #
-    def submit_claim(token:, patient_icn:, appointment_time:)
-      connection.post("/#{claims_url}/ClaimIngest/submitclaim") do |req|
+    def submit_claim(token:, patient_icn:, appointment_date:)
+      connection(server_url: claims_url).post('/ClaimIngest/submitclaim') do |req|
         req.headers = claims_default_header.merge('Authorization' => "Bearer #{token}")
         req.body = claims_data.merge({ ClaimantID: patient_icn, Appointment:
-          { AppointmentDateTime: appointment_time } })
+          { AppointmentDateTime: appointment_date } }).to_json
       end
     rescue => e
       log_message_to_sentry(e.original_body, :error,
@@ -77,8 +77,8 @@ module TravelClaim
     #
     # @return [Faraday::Connection]
     #
-    def connection
-      Faraday.new(url: auth_url) do |conn|
+    def connection(server_url:)
+      Faraday.new(url: server_url) do |conn|
         conn.use :breakers
         conn.response :raise_error, error_prefix: service_name
         conn.response :betamocks if mock_enabled?
