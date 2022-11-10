@@ -54,11 +54,20 @@ RSpec.describe MebApi::DGI::Forms::Submission::Service do
           disagree_with_service_period: false
         },
         direct_deposit: {
-          account_number: '123123123123',
+          direct_deposit_account_number: '**3123123123',
           account_type: 'savings',
-          routing_number: '123123123'
+          direct_deposit_routing_number: '123123123'
         }
       } }
+    end
+
+    let(:dd_params) do
+      {
+        dposit_acnt_nbr: '9876543211234',
+        dposit_acnt_type_nm: 'Checking',
+        financial_institution_name: 'Comerica',
+        routng_trnsit_nbr: '042102115'
+      }
     end
 
     describe '#submit_toe_claim' do
@@ -72,6 +81,7 @@ RSpec.describe MebApi::DGI::Forms::Submission::Service do
         it 'returns a status of 200' do
           VCR.use_cassette('dgi/forms/submit_toe_claim') do
             response = service.submit_claim(ActionController::Parameters.new(claimant_params),
+                                            ActionController::Parameters.new(dd_params),
                                             'toe')
             expect(response.status).to eq(200)
           end
