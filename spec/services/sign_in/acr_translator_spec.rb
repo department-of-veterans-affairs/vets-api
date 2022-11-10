@@ -176,7 +176,7 @@ RSpec.describe SignIn::AcrTranslator do
 
       context 'and acr is loa3' do
         let(:acr) { 'loa3' }
-        let(:expected_translated_acr) { LOA::IDME_MHV_LOA1 }
+        let(:expected_translated_acr) { LOA::IDME_MHV_LOA3 }
 
         it 'returns expected translated acr value' do
           expect(subject).to be(expected_translated_acr)
