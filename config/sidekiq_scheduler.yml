@@ -169,10 +169,9 @@ FailedClaimsReport:
   class: EVSS::FailedClaimsReport
   description: "Notify developers about EVSS claims which could not be uploaded"
 
-FeatureRemoverJob:
+FeatureCleanerJob:
   cron: "0 0 * * * America/New_York"
   description: Remove features from database that aren't listed in config/features.yml
-  enabled: false
 
 Form1010cg::DeleteOldUploadsJob:
   cron: "0 0 * * * America/New_York"
