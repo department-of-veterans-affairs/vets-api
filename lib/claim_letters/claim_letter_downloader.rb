@@ -43,8 +43,8 @@ module ClaimStatusTool
 
     # 184: Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)
     # 339: Rating Decision Letter
-    def doc_types
-      %w[184 339].freeze
+    def doc_type_allowlist
+      %w[184].freeze
     end
 
     def file_number
@@ -56,7 +56,7 @@ module ClaimStatusTool
     end
 
     def filter_letters(document)
-      return nil unless doc_types.include?(document[:doc_type])
+      return nil unless doc_type_allowlist.include?(document[:doc_type])
 
       document.marshal_dump
     end
