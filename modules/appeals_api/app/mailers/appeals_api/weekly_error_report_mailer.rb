@@ -18,7 +18,7 @@ module AppealsApi
         to: recipients,
         subject: "#{@friendly_duration} Error Decision Review API report (#{@friendly_env})",
         content_type: 'text',
-        body: body
+        body: body.join("\n")
       )
     end
 
