@@ -29,10 +29,20 @@ module SignIn
     end
 
     def can_uplevel_credential?
-      requested_acr == 'min' && current_ial < max_ial
+      min_ial_less_than_max? || loa3_mhv_unverified?
     end
 
     private
+
+    def min_ial_less_than_max?
+      requested_acr == SignIn::Constants::Auth::MIN && current_ial < max_ial
+    end
+
+    def loa3_mhv_unverified?
+      requested_acr == SignIn::Constants::Auth::LOA3 &&
+        credential_type == SignIn::Constants::Auth::MHV &&
+        max_ial < IAL::TWO
+    end
 
     def persisted?
       false
