@@ -711,6 +711,24 @@
         :uid_location: url
         :uid_locator: '\/data\/(.+)'
 
+#Travel Claim VEIS Auth (BTSSS)
+- :name: "Travel Claim VEIS Auth Service"
+  :base_uri: <%= "#{URI(Settings.check_in.travel_reimbursement_api.auth_url).host}:#{URI(Settings.check_in.travel_reimbursement_api.auth_url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: <%= "/#{Settings.check_in.travel_reimbursement_api.tenant_id}/oauth2/v2.0/token" %>
+      :file_path: "/travel_claim/token/default"
+      :response_delay: 0.3
+
+#Travel Claim Ingest Service (BTSSS)
+- :name: "Travel Claim Ingest Service"
+  :base_uri: <%= "#{URI(Settings.check_in.travel_reimbursement_api.claims_url).host}:#{URI(Settings.check_in.travel_reimbursement_api.claims_url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: <%= "/ClaimIngest/submitclaim" %>
+      :file_path: "/travel_claim/submitclaim/default"
+      :response_delay: 15
+
 #CHIP
 - :name: "CHIP"
   :base_uri: <%= "#{URI(Settings.check_in.chip_api_v2.url).host}:#{URI(Settings.check_in.chip_api_v2.url).port}" %>
