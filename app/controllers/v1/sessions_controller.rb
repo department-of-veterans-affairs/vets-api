@@ -186,7 +186,7 @@ module V1
       when 'dslogon_verified'
         url_service.login_url('dslogon', 'dslogon_loa3', AuthnContext::DSLOGON)
       when 'idme'
-        url_service.login_url('idme', LOA::IDME_LOA1_VETS, AuthnContext::ID_ME, AuthnContext::EXACT)
+        url_service.login_url('idme', LOA::IDME_LOA1_VETS, AuthnContext::ID_ME, AuthnContext::MINIMUM)
       when 'idme_verified'
         url_service.login_url('idme', LOA::IDME_LOA3, AuthnContext::ID_ME, AuthnContext::MINIMUM)
       when 'idme_signup'
