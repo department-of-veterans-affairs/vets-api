@@ -481,10 +481,6 @@ features:
     actor_type: user
     description: Hides disability comp and pen section of the Profile - Direct Deposit page during a service outage
     enable_in_development: false
-  profile_notification_settings:
-    actor_type: user
-    description: Turns on the Notification Settings section of the VA.gov Profile
-    enable_in_development: true
   profile_schema_forms:
     actor_type: user
     description: Enables SchemaForm-based contact info edit forms on the VA.gov Veteran profile page
@@ -510,10 +506,6 @@ features:
   profile_show_pronouns_and_sexual_orientation:
     actor_type: user
     description: Show/hide Pronouns and Sexual Orientation fields on profile page
-  profile_show_receive_text_notifications:
-    actor_type: user
-    description: https://www.va.gov/profile/ show Receive Text Notifications
-    enable_in_development: true
   profile_use_vaos_v2_api:
     description: "Use the new VAOS v2 API endpoints"
     enable_in_development: true
