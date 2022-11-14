@@ -1316,6 +1316,9 @@ github_cvu:
 
 check_in:
   travel_reimbursement_api:
+    auth_url: https://login.microsoftonline.us
+    tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
+    claims_url: https://dev.integration.d365.va.gov/EC/ClaimIngestSvc/api
     redis_token_expiry: 3540 # 59 minutes
     service_name: BTSSS-API
   authentication:
