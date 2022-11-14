@@ -70,7 +70,7 @@ module Mobile
         query_strings = []
 
         optional_params.each_pair do |key, value|
-          next if value.blank?
+          next if value.to_s.blank?
 
           camelized = key.to_s.camelize(:lower)
           case value
