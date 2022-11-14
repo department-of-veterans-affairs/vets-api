@@ -41,7 +41,7 @@ module SAML
     end
 
     def should_verify?
-      @type == 'mhv_verified' && user.loa[:current] < user.loa[:highest]
+      @type == 'mhv_verified' && user.loa[:current] == LOA::ONE
     end
 
     def login_redirect_url(auth: 'success', code: nil, request_id: nil)
