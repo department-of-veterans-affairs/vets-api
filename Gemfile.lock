@@ -730,7 +730,7 @@ GEM
       loofah (~> 2.3)
     rails-session_cookie (0.3.0)
       rails (>= 4.0)
-    rails_semantic_logger (4.10.0)
+    rails_semantic_logger (4.11.0)
       rack
       railties (>= 5.1)
       semantic_logger (~> 4.9)
@@ -856,7 +856,7 @@ GEM
     script_utils (0.0.4)
     seedbank (0.5.0)
       rake (>= 10.0)
-    semantic_logger (4.10.0)
+    semantic_logger (4.12.0)
       concurrent-ruby (~> 1.0)
     sentry-raven (2.13.0)
       faraday (>= 0.7.6, < 1.0)
@@ -984,7 +984,7 @@ GEM
       nokogiri (~> 1.5)
     yard (0.9.28)
       webrick (~> 1.7.0)
-    zeitwerk (2.6.3)
+    zeitwerk (2.6.6)
 
 PLATFORMS
   ruby
