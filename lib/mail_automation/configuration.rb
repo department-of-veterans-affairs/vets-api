@@ -5,6 +5,9 @@ require 'common/client/middleware/response/raise_error'
 
 module MailAutomation
   class Configuration < Common::Client::Configuration::REST
+    self.open_timeout = Settings.mail_automation&.open_timeout || 15
+    self.read_timeout = Settings.mail_automation&.read_timeout || 75
+
     def base_path
       Settings.mail_automation.url
     end
