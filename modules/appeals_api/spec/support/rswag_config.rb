@@ -12,7 +12,7 @@ class AppealsApi::RswagConfig
         openapi: DocHelpers.wip_doc_enabled?(:segmented_apis) ? '3.1.0' : '3.0.0',
         info: {
           title: DocHelpers.doc_title,
-          version: 'v2',
+          version: DocHelpers.api_version,
           termsOfService: 'https://developer.va.gov/terms-of-service',
           description: File.read(AppealsApi::Engine.root.join('app', 'swagger', 'appeals_api', 'v2', "api_description#{DocHelpers.doc_suffix}.md"))
         },
@@ -36,7 +36,7 @@ class AppealsApi::RswagConfig
             description: 'VA.gov API sandbox environment',
             variables: {
               version: {
-                default: 'v2'
+                default: DocHelpers.api_version
               }
             }
           },
@@ -45,7 +45,7 @@ class AppealsApi::RswagConfig
             description: 'VA.gov API production environment',
             variables: {
               version: {
-                default: 'v2'
+                default: DocHelpers.api_version
               }
             }
           }

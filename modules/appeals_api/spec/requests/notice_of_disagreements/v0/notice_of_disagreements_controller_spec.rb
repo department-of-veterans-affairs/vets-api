@@ -3,9 +3,9 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::HigherLevelReviews::V2::HigherLevelReviewsController, type: :request do
+describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController, type: :request do
   describe '#schema' do
-    let(:path) { '/services/appeals/higher_level_reviews/v0/schemas/200996' }
+    let(:path) { '/services/appeals/notice_of_disagreements/v0/schemas/10182' }
 
     it 'renders the json schema with shared refs' do
       with_openid_auth(%w[claim.read]) do |auth_header|
@@ -13,8 +13,7 @@ describe AppealsApi::HigherLevelReviews::V2::HigherLevelReviewsController, type:
       end
 
       expect(response.status).to eq(200)
-      expect(JSON.parse(response.body)['description']).to eq('JSON Schema for VA Form 20-0996')
-      expect(response.body).to include('{"$ref":"non_blank_string.json"}')
+      expect(JSON.parse(response.body)['description']).to eq('JSON Schema for VA Form 10182')
       expect(response.body).to include('{"$ref":"address.json"}')
       expect(response.body).to include('{"$ref":"phone.json"}')
     end

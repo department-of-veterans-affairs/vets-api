@@ -2,7 +2,7 @@
 
 require 'appeals_api/form_schemas'
 
-module AppealsApi::HigherLevelReviews::V2
+module AppealsApi::HigherLevelReviews::V0
   class HigherLevelReviewsController < AppealsApi::V2::DecisionReviews::HigherLevelReviewsController
     include AppealsApi::OpenidAuth
 
