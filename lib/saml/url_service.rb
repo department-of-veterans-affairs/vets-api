@@ -122,7 +122,7 @@ module SAML
           "#{@user.identity.sign_in[:service_name]}_loa3"
         end
 
-      build_sso_url(link_authn_context)
+      build_sso_url(link_authn_context, AuthnContext::EXACT)
     end
 
     def callback_verify_url
@@ -130,7 +130,7 @@ module SAML
         case type
         when 'logingov'
           build_authn_context([IAL::LOGIN_GOV_IAL2, AAL::LOGIN_GOV_AAL2], AuthnContext::LOGIN_GOV)
-        when 'mhv'
+        when 'mhv', 'mhv_verified'
           build_authn_context('myhealthevet_loa3', AuthnContext::MHV)
         when 'dslogon'
           build_authn_context('dslogon_loa3', AuthnContext::DSLOGON)
