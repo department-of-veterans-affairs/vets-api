@@ -2,7 +2,7 @@
 
 ClaimsApi::Engine.routes.draw do
   get '/metadata', to: 'metadata#index'
-  get '/v1/upstream_healthcheck', to: 'upstream_healthcheck#index', defaults: { format: 'json' }
+  get '/:version/upstream_healthcheck', to: 'upstream_healthcheck#index', defaults: { format: 'json' }
   match '/v1/*path', to: 'application#cors_preflight', via: [:options]
 
   namespace :v1, defaults: { format: 'json' } do
