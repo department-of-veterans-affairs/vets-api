@@ -251,10 +251,6 @@ VANotify::InProgressForms:
   class: VANotify::InProgressForms
   description: "In progress form reminder emails (sent via VaNotify)"
 
-VBADocuments::DeploymentsNotifier:
-  at: "<%=0.seconds.from_now%>"
-  description: Does a slack notification of the new code merged into this release for benefits intake
-
 VBADocuments::ReportMonthlySubmissions:
   cron: "4 3 2 1 * * America/New_York"
   class: VBADocuments::ReportMonthlySubmissions
