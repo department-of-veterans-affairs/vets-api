@@ -2,7 +2,7 @@
 
 require 'appeals_api/form_schemas'
 
-module AppealsApi::LegacyAppeals::V2
+module AppealsApi::LegacyAppeals::V0
   class LegacyAppealsController < AppealsApi::V2::DecisionReviews::LegacyAppealsController
     include AppealsApi::OpenidAuth
 

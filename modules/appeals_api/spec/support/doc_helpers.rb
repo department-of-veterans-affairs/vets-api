@@ -125,4 +125,10 @@ module DocHelpers
 
     path_template.gsub('{version}', version)
   end
+
+  def self.api_version
+    return 'v0' unless ENV['RSWAG_SECTION_SLUG']&.nil?
+
+    'v2'
+  end
 end

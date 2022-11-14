@@ -2,7 +2,7 @@
 
 require 'appeals_api/form_schemas'
 
-module AppealsApi::NoticeOfDisagreements::V2
+module AppealsApi::NoticeOfDisagreements::V0
   class NoticeOfDisagreementsController < AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController
     include AppealsApi::OpenidAuth
 

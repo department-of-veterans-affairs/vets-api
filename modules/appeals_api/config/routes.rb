@@ -94,10 +94,9 @@ AppealsApi::Engine.routes.draw do
     end
   end
 
-  # For now, alias our new routes to their existing controller
   namespace :notice_of_disagreements, defaults: { format: 'json' } do
     namespace :v0 do
-      oauth_cpath = '/appeals_api/notice_of_disagreements/v2/notice_of_disagreements'
+      oauth_cpath = '/appeals_api/notice_of_disagreements/v0/notice_of_disagreements'
 
       get 'healthcheck', to: '/appeals_api/metadata#healthcheck'
       get 'upstream_healthcheck', to: '/appeals_api/metadata#mail_status_upstream_healthcheck'
@@ -122,7 +121,7 @@ AppealsApi::Engine.routes.draw do
 
   namespace :higher_level_reviews, defaults: { format: 'json' } do
     namespace :v0 do
-      oauth_cpath = '/appeals_api/higher_level_reviews/v2/higher_level_reviews'
+      oauth_cpath = '/appeals_api/higher_level_reviews/v0/higher_level_reviews'
 
       get 'healthcheck', to: '/appeals_api/metadata#healthcheck'
       get 'upstream_healthcheck', to: '/appeals_api/metadata#mail_status_upstream_healthcheck'
@@ -145,7 +144,7 @@ AppealsApi::Engine.routes.draw do
 
   namespace :supplemental_claims, defaults: { format: 'json' } do
     namespace :v0 do
-      oauth_cpath = '/appeals_api/supplemental_claims/v2/supplemental_claims'
+      oauth_cpath = '/appeals_api/supplemental_claims/v0/supplemental_claims'
 
       get 'healthcheck', to: '/appeals_api/metadata#healthcheck'
       get 'upstream_healthcheck', to: '/appeals_api/metadata#mail_status_upstream_healthcheck'
@@ -170,7 +169,7 @@ AppealsApi::Engine.routes.draw do
 
   namespace :contestable_issues, defaults: { format: 'json' } do
     namespace :v0 do
-      oauth_cpath = '/appeals_api/contestable_issues/v2/contestable_issues'
+      oauth_cpath = '/appeals_api/contestable_issues/v0/contestable_issues'
 
       get 'contestable_issues/:decision_review_type', to: "#{oauth_cpath}#index"
       get 'healthcheck', to: '/appeals_api/metadata#healthcheck'
@@ -186,7 +185,7 @@ AppealsApi::Engine.routes.draw do
 
   namespace :legacy_appeals, defaults: { format: 'json' } do
     namespace :v0 do
-      oauth_cpath = '/appeals_api/legacy_appeals/v2/legacy_appeals'
+      oauth_cpath = '/appeals_api/legacy_appeals/v0/legacy_appeals'
 
       get 'legacy_appeals', to: "#{oauth_cpath}#index"
       get 'healthcheck', to: '/appeals_api/metadata#healthcheck'

@@ -3,7 +3,7 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::SupplementalClaims::V2::SupplementalClaimsController, type: :request do
+describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type: :request do
   describe '#schema' do
     let(:path) { '/services/appeals/supplemental_claims/v0/schemas/200995' }
 

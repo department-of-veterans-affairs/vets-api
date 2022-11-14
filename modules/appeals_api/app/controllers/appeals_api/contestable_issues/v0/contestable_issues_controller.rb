@@ -2,7 +2,7 @@
 
 require 'appeals_api/form_schemas'
 
-module AppealsApi::ContestableIssues::V2
+module AppealsApi::ContestableIssues::V0
   class ContestableIssuesController < AppealsApi::V2::DecisionReviews::ContestableIssuesController
     include AppealsApi::OpenidAuth
 
