@@ -63,12 +63,10 @@ module DebtManagementCenter
     def submit_combined_fsr(form)
       Rails.logger.info('Submitting Combined FSR')
 
-      vba_status = submit_vba_fsr(form) if selected_vba_debts(form['selectedDebtsAndCopays']).present?
-      vha_status = submit_vha_fsr(form) if selected_vha_copays(form['selectedDebtsAndCopays']).present?
+      create_vba_fsr(form) if selected_vba_debts(form['selectedDebtsAndCopays']).present?
+      create_vha_fsr(form) if selected_vha_copays(form['selectedDebtsAndCopays']).present?
 
       {
-        vba_status: vba_status,
-        vha_status: vha_status,
         content: Base64.encode64(
           File.read(
             PdfFill::Filler.fill_ancillary_form(
@@ -81,66 +79,65 @@ module DebtManagementCenter
       }
     end
 
+    def create_vba_fsr(form)
+      debts = selected_vba_debts(form['selectedDebtsAndCopays'])
+      form['personalIdentification']['fsrReason'] = debts.map { |debt| debt['resolutionOption'] }.uniq.join(', ')
+      submission = persist_form_submission(form, debts)
+      submission.submit_to_vba
+    end
+
+    def create_vha_fsr(form)
+      facility_copays = selected_vha_copays(form['selectedDebtsAndCopays']).group_by do |copay|
+        copay['station']['facilitYNum']
+      end
+      facility_copays.each do |facility_num, copays|
+        fsr_reason = copays.map { |copay| copay['resolutionOption'] }.uniq.join(', ')
+        facility_form = form.deep_dup
+        facility_form['personalIdentification']['fsrReason'] = fsr_reason
+        facility_form['facilityNum'] = facility_num
+        facility_form.delete('selectedDebtsAndCopays')
+        facility_form = remove_form_delimiters(facility_form)
+
+        submission = persist_form_submission(facility_form, copays)
+        submission.submit_to_vha
+      end
+    end
+
     def submit_vba_fsr(form)
       Rails.logger.info('5655 Form Submitting to VBA')
-      vba_form = form.deep_dup
-      vba_form.delete('selectedDebtsAndCopays')
-      response = perform(:post, 'financial-status-report/formtopdf', vba_form)
+      response = perform(:post, 'financial-status-report/formtopdf', form)
       fsr_response = DebtManagementCenter::FinancialStatusReportResponse.new(response.body)
 
       send_confirmation_email(VBA_CONFIRMATION_TEMPLATE) if response.success?
 
       update_filenet_id(fsr_response)
+
       { status: fsr_response.status }
     end
 
-    def submit_vha_fsr(form)
-      vha_forms = parse_vha_form(form)
+    def submit_vha_fsr(form_submission)
+      vha_form = form_submission.form
+
       vbs_request = DebtManagementCenter::VBS::Request.build
       sharepoint_request = DebtManagementCenter::Sharepoint::Request.new
-      vbs_responses = []
-      vha_forms.each do |vha_form|
-        Rails.logger.info('5655 Form Submitting to VHA', submission_id: vha_form['transactionId'])
-        sharepoint_request.upload(
-          form_contents: vha_form,
-          form_submission: Form5655Submission.find(vha_form['transactionId']),
-          station_id: vha_form['facilityNum']
-        )
-        vbs_response = vbs_request.post("#{vbs_settings.base_path}/UploadFSRJsonDocument",
-                                        { jsonDocument: vha_form.to_json })
-        vbs_responses << vbs_response
-      end
+      Rails.logger.info('5655 Form Submitting to VHA', submission_id: form_submission.id)
+      sharepoint_request.upload(
+        form_contents: vha_form,
+        form_submission: form_submission,
+        station_id: vha_form['facilityNum']
+      )
+      vbs_response = vbs_request.post("#{vbs_settings.base_path}/UploadFSRJsonDocument",
+                                      { jsonDocument: vha_form.to_json })
 
-      send_confirmation_email(VHA_CONFIRMATION_TEMPLATE) if vbs_responses.all?(&:success?)
+      send_confirmation_email(VHA_CONFIRMATION_TEMPLATE) if vbs_response.success?
 
-      { status: vbs_responses.collect(&:status) }
+      { status: vbs_response.status }
     end
 
     private
 
     def raise_client_error
       raise Common::Client::Errors::ClientError.new('malformed request', 400)
-    end
-
-    def parse_vha_form(form)
-      facility_forms = []
-      facility_copays = selected_vha_copays(form['selectedDebtsAndCopays']).group_by do |copay|
-        copay['station']['facilitYNum']
-      end
-      facility_copays.each do |facility_num, copays|
-        fsr_reason = copays.map { |copay| copay['resolutionOption'] }.uniq.join(', ')
-        submission = persist_form_submission(form, copays)
-        facility_form = form.deep_dup
-        facility_form['personalIdentification']['fsrReason'] = fsr_reason
-        facility_form['personalIdentification']['fileNumber'] = @user.ssn
-        facility_form['facilityNum'] = facility_num
-        facility_form['transactionId'] = submission.id
-        facility_form['timestamp'] = submission.created_at.strftime('%Y%m%dT%H%M%S')
-        facility_form.delete('selectedDebtsAndCopays')
-        facility_forms << remove_form_delimiters(facility_form)
-      end
-
-      facility_forms
     end
 
     def persist_form_submission(form, debts)
