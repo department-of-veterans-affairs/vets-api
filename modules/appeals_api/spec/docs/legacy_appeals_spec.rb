@@ -6,8 +6,8 @@ require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-# rubocop:disable RSpec/VariableName, RSpec/ScatteredSetup, RSpec/RepeatedExample, Layout/LineLength
-describe 'Legacy Appeals', swagger_doc: "modules/appeals_api/app/swagger/appeals_api/v2/swagger#{DocHelpers.doc_suffix}.json", type: :request do
+# rubocop:disable RSpec/VariableName, RSpec/ScatteredSetup, RSpec/RepeatedExample
+describe 'Legacy Appeals', swagger_doc: DocHelpers.output_json_path, type: :request do
   include DocHelpers
   let(:apikey) { 'apikey' }
 
@@ -177,4 +177,4 @@ describe 'Legacy Appeals', swagger_doc: "modules/appeals_api/app/swagger/appeals
     end
   end
 end
-# rubocop:enable RSpec/VariableName, RSpec/ScatteredSetup, RSpec/RepeatedExample, Layout/LineLength
+# rubocop:enable RSpec/VariableName, RSpec/ScatteredSetup, RSpec/RepeatedExample

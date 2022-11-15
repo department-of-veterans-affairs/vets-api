@@ -7,11 +7,11 @@ require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 # rubocop:disable RSpec/VariableName, RSpec/ScatteredSetup, RSpec/RepeatedExample, Layout/LineLength
-describe 'Notice of Disagreements', swagger_doc: "modules/appeals_api/app/swagger/appeals_api/v2/swagger#{DocHelpers.doc_suffix}.json", type: :request do
+describe 'Notice of Disagreements', swagger_doc: DocHelpers.output_json_path, type: :request do
   include DocHelpers
   let(:apikey) { 'apikey' }
 
-  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/forms/10182' : '/notice_of_disagreements'
+  p = DocHelpers.decision_reviews? ? '/notice_of_disagreements' : '/forms/10182'
   path p do
     post 'Creates a new Notice of Disagreement' do
       tags 'Notice of Disagreements'
@@ -121,7 +121,7 @@ describe 'Notice of Disagreements', swagger_doc: "modules/appeals_api/app/swagge
     end
   end
 
-  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/forms/10182/{uuid}' : '/notice_of_disagreements/{uuid}'
+  p = DocHelpers.decision_reviews? ? '/notice_of_disagreements/{uuid}' : '/forms/10182/{uuid}'
   path p do
     get 'Shows a specific Notice of Disagreement. (a.k.a. the Show endpoint)' do
       tags 'Notice of Disagreements'
@@ -153,7 +153,23 @@ describe 'Notice of Disagreements', swagger_doc: "modules/appeals_api/app/swagge
     end
   end
 
-  if DocHelpers.wip_doc_enabled?(:segmented_apis, true)
+  if DocHelpers.decision_reviews?
+    path '/notice_of_disagreements/schema' do
+      get 'Gets the Notice of Disagreement JSON Schema.' do
+        tags 'Notice of Disagreements'
+        operationId 'nodSchema'
+        description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /notice_of_disagreements` endpoint.'
+        security [
+          { apikey: [] }
+        ]
+        produces 'application/json'
+
+        response '200', 'the JSON Schema for POST /notice_of_disagreements' do
+          it_behaves_like 'rswag example', desc: 'returns a 200 response'
+        end
+      end
+    end
+  else
     path '/schemas/{schema_type}' do
       get 'Gets the Notice of Disagreement JSON Schema.' do
         tags 'Notice of Disagreements'
@@ -192,28 +208,12 @@ describe 'Notice of Disagreements', swagger_doc: "modules/appeals_api/app/swagge
         end
       end
     end
-  else
-    path '/notice_of_disagreements/schema' do
-      get 'Gets the Notice of Disagreement JSON Schema.' do
-        tags 'Notice of Disagreements'
-        operationId 'nodSchema'
-        description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /notice_of_disagreements` endpoint.'
-        security [
-          { apikey: [] }
-        ]
-        produces 'application/json'
-
-        response '200', 'the JSON Schema for POST /notice_of_disagreements' do
-          it_behaves_like 'rswag example', desc: 'returns a 200 response'
-        end
-      end
-    end
   end
 
-  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/forms/10182/validate' : '/notice_of_disagreements/validate'
+  p = DocHelpers.decision_reviews? ? '/notice_of_disagreements/validate' : '/forms/10182/validate'
   path p do
     post 'Validates a POST request body against the JSON schema.' do
-      desc_path = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/forms/10182' : '/notice_of_disagreements'
+      desc_path = DocHelpers.decision_reviews? ? '/notice_of_disagreements' : '/forms/10182'
 
       tags 'Notice of Disagreements'
       operationId 'nodValidate'
@@ -296,7 +296,7 @@ describe 'Notice of Disagreements', swagger_doc: "modules/appeals_api/app/swagge
     end
   end
 
-  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/evidence_submissions' : '/notice_of_disagreements/evidence_submissions'
+  p = DocHelpers.decision_reviews? ? '/notice_of_disagreements/evidence_submissions' : '/evidence_submissions'
   path p do
     post 'Get a location for subsequent evidence submission document upload PUT request' do
       tags 'Notice of Disagreements'
@@ -437,7 +437,7 @@ describe 'Notice of Disagreements', swagger_doc: "modules/appeals_api/app/swagge
     put 'Accepts Notice of Disagreement Evidence Submission document upload.' do
       tags 'Notice of Disagreements'
       operationId 'putNoticeOfDisagreementEvidenceSubmission'
-      description File.read(AppealsApi::Engine.root.join('app', 'swagger', 'appeals_api', 'v2', 'put_description.md'))
+      description File.read(DocHelpers.output_directory_file_path('put_description.md'))
 
       parameter name: :'Content-MD5', in: :header, type: :string, description: 'Base64-encoded 128-bit MD5 digest of the message. Use for integrity control.'
       let(:'Content-MD5') { nil }
@@ -477,7 +477,7 @@ describe 'Notice of Disagreements', swagger_doc: "modules/appeals_api/app/swagge
     end
   end
 
-  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/evidence_submissions/{uuid}' : '/notice_of_disagreements/evidence_submissions/{uuid}'
+  p = DocHelpers.decision_reviews? ? '/notice_of_disagreements/evidence_submissions/{uuid}' : '/evidence_submissions/{uuid}'
   path p do
     get 'Returns all of the data associated with a specific Notice of Disagreement Evidence Submission.' do
       tags 'Notice of Disagreements'
