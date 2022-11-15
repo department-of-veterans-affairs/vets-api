@@ -25,9 +25,10 @@ web:
   images:
   autoscaling:
     enabled: false
+    scaling_metric: ""
     minReplicas: ""
     maxReplicas: ""
-    targetAverageUtilization: ""
+    targetAverageValue: ""
   affinity:
     weight: ""
   containers:
@@ -188,8 +189,7 @@ common:
 
   volumes: {}
   initContainers: {}
-  secrets:
-    settingsLocal: {}
+  secrets: {}
 
   configMap:
     name: ""

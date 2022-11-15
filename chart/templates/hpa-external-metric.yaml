@@ -1,0 +1,9 @@
+{{- if .Values.web.autoscaling.enabled }}
+apiVersion: datadoghq.com/v1alpha1
+kind: DatadogMetric
+metadata:
+  name: puma-backlog
+  namespace: {{ .Release.Namespace }}
+spec:
+  query: {{ .Values.web.autoscaling.scaling_metric }}
+{{- end }}
