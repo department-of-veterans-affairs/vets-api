@@ -175,7 +175,7 @@ class User < Common::RedisStore
   end
 
   def address
-    address = identity&.address || mpi_profile&.address
+    address = identity&.address || mpi_profile&.address || {}
     {
       street: address[:street],
       street2: address[:street2],

@@ -1280,4 +1280,36 @@ RSpec.describe User, type: :model do
       end
     end
   end
+
+  describe '#address' do
+    let(:user) { build(:user, :loa3, :mvi_profile_street_and_suffix) }
+    let(:mvi_profile) { build(:mvi_profile, suffix: 'Jr.') }
+
+    before do
+      stub_mpi(mvi_profile)
+    end
+
+    context 'user has an address' do
+      it 'returns address as hash, with user_identity record\'s address preferred over mpi_profile\'s address' do
+        expect(user.address).to eq(user.identity.address)
+        user.identity.address = nil
+        expect(user.address).to eq(user.send(:mpi_profile).address.to_h)
+      end
+    end
+
+    context 'user does not have an address' do
+      it 'returns a hash where all values are nil' do
+        user.identity.address = nil
+        user.send(:mpi_profile).address = nil
+        expect(user.address).to eq({
+                                     street: nil,
+                                     street2: nil,
+                                     city: nil,
+                                     state: nil,
+                                     country: nil,
+                                     postal_code: nil
+                                   })
+      end
+    end
+  end
 end
