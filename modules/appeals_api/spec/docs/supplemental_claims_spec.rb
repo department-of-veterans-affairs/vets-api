@@ -7,11 +7,11 @@ require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 # rubocop:disable RSpec/VariableName, RSpec/ScatteredSetup, RSpec/RepeatedExample, Layout/LineLength
-describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/appeals_api/v2/swagger#{DocHelpers.doc_suffix}.json", type: :request do
+describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: :request do
   include DocHelpers
   let(:apikey) { 'apikey' }
 
-  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/forms/200995' : '/supplemental_claims'
+  p = DocHelpers.decision_reviews? ? '/supplemental_claims' : '/forms/200995'
   path p do
     post 'Creates a new Supplemental Claim' do
       tags 'Supplemental Claims'
@@ -113,7 +113,7 @@ describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/ap
     end
   end
 
-  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/forms/200995/{uuid}' : '/supplemental_claims/{uuid}'
+  p = DocHelpers.decision_reviews? ? '/supplemental_claims/{uuid}' : '/forms/200995/{uuid}'
   path p do
     get 'Shows a specific Supplemental Claim. (a.k.a. the Show endpoint)' do
       tags 'Supplemental Claims'
@@ -143,7 +143,23 @@ describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/ap
     end
   end
 
-  if DocHelpers.wip_doc_enabled?(:segmented_apis, true)
+  if DocHelpers.decision_reviews?
+    path '/supplemental_claims/schema' do
+      get 'Gets the Supplemental Claims JSON Schema.' do
+        tags 'Supplemental Claims'
+        operationId 'scSchema'
+        description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /supplemental_claims` endpoint.'
+        security [
+          { apikey: [] }
+        ]
+        produces 'application/json'
+
+        response '200', 'the JSON Schema for POST /supplemental_claims' do
+          it_behaves_like 'rswag example', desc: 'returns a 200 response'
+        end
+      end
+    end
+  else
     path '/schemas/{schema_type}' do
       get 'Gets the Supplemental Claims JSON Schema.' do
         tags 'Supplemental Claims'
@@ -182,25 +198,9 @@ describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/ap
         end
       end
     end
-  else
-    path '/supplemental_claims/schema' do
-      get 'Gets the Supplemental Claims JSON Schema.' do
-        tags 'Supplemental Claims'
-        operationId 'scSchema'
-        description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /supplemental_claims` endpoint.'
-        security [
-          { apikey: [] }
-        ]
-        produces 'application/json'
-
-        response '200', 'the JSON Schema for POST /supplemental_claims' do
-          it_behaves_like 'rswag example', desc: 'returns a 200 response'
-        end
-      end
-    end
   end
 
-  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/forms/200995/validate' : '/supplemental_claims/validate'
+  p = DocHelpers.decision_reviews? ? '/supplemental_claims/validate' : '/forms/200995/validate'
   path p do
     post 'Validates a POST request body against the JSON schema.' do
       tags 'Supplemental Claims'
@@ -287,7 +287,7 @@ describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/ap
     end
   end
 
-  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/evidence_submissions' : '/supplemental_claims/evidence_submissions'
+  p = DocHelpers.decision_reviews? ? '/supplemental_claims/evidence_submissions' : '/evidence_submissions'
   path p do
     post 'Get a location for subsequent evidence submission document upload PUT request' do
       tags 'Supplemental Claims'
@@ -412,7 +412,7 @@ describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/ap
       tags 'Supplemental Claims'
       operationId 'putSupplementalClaimEvidenceSubmission'
 
-      description File.read(AppealsApi::Engine.root.join('app', 'swagger', 'appeals_api', 'v2', 'put_description.md')).gsub('/notice_of_disagreements/evidence_submissions', '/supplemental_claims/evidence_submissions')
+      description File.read(DocHelpers.output_directory_file_path('put_description.md'))
 
       parameter name: :'Content-MD5', in: :header, type: :string, description: 'Base64-encoded 128-bit MD5 digest of the message. Use for integrity control.'
 
@@ -453,7 +453,7 @@ describe 'Supplemental Claims', swagger_doc: "modules/appeals_api/app/swagger/ap
     end
   end
 
-  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/evidence_submissions/{uuid}' : '/supplemental_claims/evidence_submissions/{uuid}'
+  p = DocHelpers.decision_reviews? ? '/supplemental_claims/evidence_submissions/{uuid}' : '/evidence_submissions/{uuid}'
   path p do
     get 'Returns all of the data associated with a specific Supplemental Claim Evidence Submission.' do
       tags 'Supplemental Claims'

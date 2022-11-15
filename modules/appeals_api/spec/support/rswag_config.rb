@@ -8,18 +8,18 @@ class AppealsApi::RswagConfig
 
   def config
     {
-      "modules/appeals_api/app/swagger/appeals_api/v2/swagger#{DocHelpers.doc_suffix}.json" => {
-        openapi: DocHelpers.wip_doc_enabled?(:segmented_apis) ? '3.1.0' : '3.0.0',
+      DocHelpers.output_json_path => {
+        openapi: DocHelpers.openapi_version,
         info: {
-          title: DocHelpers.doc_title,
+          title: DocHelpers.api_title,
           version: DocHelpers.api_version,
           termsOfService: 'https://developer.va.gov/terms-of-service',
-          description: File.read(AppealsApi::Engine.root.join('app', 'swagger', 'appeals_api', 'v2', "api_description#{DocHelpers.doc_suffix}.md"))
+          description: File.read(DocHelpers.api_description_file_path)
         },
-        tags: DocHelpers.doc_tags,
+        tags: DocHelpers.api_tags,
         paths: {},
         # basePath helps with rswag runs, but is not valid OAS v3. rswag.rake removes it from the output file.
-        basePath: DocHelpers.doc_basepath('v2'),
+        basePath: DocHelpers.api_base_path,
         components: {
           securitySchemes: {
             apikey: {
@@ -28,11 +28,11 @@ class AppealsApi::RswagConfig
               in: :header
             }
           },
-          schemas: schemas
+          schemas: schemas(DocHelpers.api_name)
         },
         servers: [
           {
-            url: "https://sandbox-api.va.gov#{DocHelpers.doc_basepath}",
+            url: "https://sandbox-api.va.gov#{DocHelpers.api_base_path_template}",
             description: 'VA.gov API sandbox environment',
             variables: {
               version: {
@@ -41,7 +41,7 @@ class AppealsApi::RswagConfig
             }
           },
           {
-            url: "https://api.va.gov#{DocHelpers.doc_basepath}",
+            url: "https://api.va.gov#{DocHelpers.api_base_path_template}",
             description: 'VA.gov API production environment',
             variables: {
               version: {
@@ -56,10 +56,10 @@ class AppealsApi::RswagConfig
 
   private
 
-  def schemas
+  def schemas(api_name = nil)
     a = []
-    case ENV['RSWAG_SECTION_SLUG']
-    when 'hlr'
+    case api_name
+    when 'higher_level_reviews'
       a << hlr_v2_create_schemas
       a << hlr_v2_response_schemas('#/components/schemas')
       a << contestable_issues_schema('#/components/schemas')
@@ -74,13 +74,13 @@ class AppealsApi::RswagConfig
         }
       }
       a << shared_schemas
-    when 'nod'
+    when 'notice_of_disagreements'
       a << nod_v2_create_schemas
       a << nod_v2_response_schemas('#/components/schemas')
       a << contestable_issues_schema('#/components/schemas')
       a << generic_schemas('#/components/schemas')
       a << shared_schemas
-    when 'sc'
+    when 'supplemental_claims'
       a << sc_create_schemas
       a << sc_response_schemas('#/components/schemas')
       a << contestable_issues_schema('#/components/schemas')
@@ -94,7 +94,7 @@ class AppealsApi::RswagConfig
       a << legacy_appeals_schema('#/components/schemas')
       a << generic_schemas('#/components/schemas').slice(*%i[errorModel errorWithTitleAndDetail X-VA-SSN X-VA-File-Number])
       a << shared_schemas.slice(*%i[non_blank_string])
-    else
+    when nil
       a << hlr_v2_create_schemas
       a << hlr_v2_response_schemas('#/components/schemas')
       a << nod_v2_create_schemas
@@ -104,6 +104,8 @@ class AppealsApi::RswagConfig
       a << contestable_issues_schema('#/components/schemas')
       a << legacy_appeals_schema('#/components/schemas')
       a << generic_schemas('#/components/schemas')
+    else
+      raise "Don't know how to build schemas for '#{api_name}'"
     end
 
     a.reduce(&:merge).sort_by { |k, _| k.to_s.downcase }.to_h

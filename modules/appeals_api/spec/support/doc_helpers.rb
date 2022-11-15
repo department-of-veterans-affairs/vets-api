@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ModuleLength
 module DocHelpers
   # Makes UUIDs and timestamps constant, to reduce cognitive overhead when working with rswag output files
   def normalize_appeal_response(response)
@@ -76,59 +77,88 @@ module DocHelpers
     DocHelpers.wip_doc_enabled?(sym)
   end
 
-  def self.doc_suffix
-    section = ENV['RSWAG_SECTION_SLUG']
-    env = ENV['RSWAG_ENV']
-
-    parts = []
-    parts << section unless section.nil?
-    parts << env unless env.nil?
-
-    parts.empty? ? '' : "_#{parts.join('_')}"
-  end
-
-  DOC_SECTION_TITLES = {
-    hlr: 'Higher-Level Reviews',
-    nod: 'Notice of Disagreements',
-    sc: 'Supplemental Claims',
+  DOC_TITLES = {
+    higher_level_reviews: 'Higher-Level Reviews',
+    notice_of_disagreements: 'Notice of Disagreements',
+    supplemental_claims: 'Supplemental Claims',
     contestable_issues: 'Contestable Issues',
     legacy_appeals: 'Legacy Appeals'
   }.freeze
 
-  DOC_SECTION_PATHS = {
-    hlr: '/services/appeals/higher_level_reviews/{version}',
-    nod: '/services/appeals/notice_of_disagreements/{version}',
-    sc: '/services/appeals/supplemental_claims/{version}',
-    contestable_issues: '/services/appeals/contestable_issues/{version}',
-    legacy_appeals: '/services/appeals/legacy_appeals/{version}'
-  }.freeze
-
-  def self.doc_title
-    DOC_SECTION_TITLES[ENV.fetch('RSWAG_SECTION_SLUG', '').to_sym] || 'Decision Reviews'
+  def self.api_name
+    ENV['API_NAME']
   end
 
-  def self.doc_tags
-    if (section_slug = ENV['RSWAG_SECTION_SLUG'])
-      [{ name: DOC_SECTION_TITLES[section_slug.to_sym], description: '' }]
-    else
-      DOC_SECTION_TITLES.values.collect { |title| { name: title, description: '' } }
-    end
+  # Note that if ENV['API_NAME'] is unset, we're assuming that we're building Decision Reviews V2 docs
+  # (as opposed to docs for one of the individual segmented APIs)
+  def self.decision_reviews?
+    DocHelpers.api_name.nil?
   end
 
-  def self.doc_basepath(version = nil)
-    path_template = '/services/appeals/{version}/decision_reviews'
-    if wip_doc_enabled?(:segmented_apis)
-      path_template = DOC_SECTION_PATHS.fetch(ENV['RSWAG_SECTION_SLUG']&.to_sym, path_template)
-    end
-
-    return path_template if version.nil?
-
-    path_template.gsub('{version}', version)
+  def self.use_shared_schemas?
+    !DocHelpers.decision_reviews?
   end
 
   def self.api_version
-    return 'v0' unless ENV['RSWAG_SECTION_SLUG']&.nil?
+    DocHelpers.decision_reviews? ? 'v2' : 'v0'
+  end
 
-    'v2'
+  def self.api_title
+    return 'Decision Reviews' if DocHelpers.decision_reviews?
+
+    DOC_TITLES[DocHelpers.api_name&.to_sym]
+  end
+
+  def self.api_tags
+    if DocHelpers.decision_reviews?
+      DOC_TITLES.values.collect { |title| { name: title, description: '' } }
+    else
+      [{ name: DOC_TITLES[DocHelpers.api_name.to_sym], description: '' }]
+    end
+  end
+
+  def self.api_base_path_template
+    if DocHelpers.decision_reviews?
+      '/services/appeals/{version}/decision_reviews'
+    else
+      "/services/appeals/#{DocHelpers.api_name}/{version}"
+    end
+  end
+
+  def self.api_base_path
+    DocHelpers.api_base_path_template.gsub('{version}', DocHelpers.api_version)
+  end
+
+  def self.doc_suffix
+    ENV['RSWAG_ENV'] == 'dev' ? '_dev' : ''
+  end
+
+  def self.output_directory_file_path(file_name)
+    file_path = if DocHelpers.decision_reviews?
+                  "app/swagger/appeals_api/#{DocHelpers.api_version}/#{file_name}"
+                else
+                  "app/swagger/#{DocHelpers.api_name}/#{DocHelpers.api_version}/#{file_name}"
+                end
+    AppealsApi::Engine.root.join(file_path).to_s
+  end
+
+  def self.api_description_file_path
+    DocHelpers.output_directory_file_path("api_description#{DocHelpers.doc_suffix}.md")
+  end
+
+  def self.output_json_path
+    # Note that rswag expects this path to be relative to the working directory when running the specs
+    # rubocop:disable Layout/LineLength
+    if DocHelpers.decision_reviews?
+      "modules/appeals_api/app/swagger/appeals_api/#{DocHelpers.api_version}/swagger#{DocHelpers.doc_suffix}.json"
+    else
+      "modules/appeals_api/app/swagger/#{DocHelpers.api_name}/#{DocHelpers.api_version}/swagger#{DocHelpers.doc_suffix}.json"
+    end
+    # rubocop:enable Layout/LineLength
+  end
+
+  def self.openapi_version
+    DocHelpers.decision_reviews? ? '3.0.0' : '3.1.0'
   end
 end
+# rubocop:enable Metrics/ModuleLength

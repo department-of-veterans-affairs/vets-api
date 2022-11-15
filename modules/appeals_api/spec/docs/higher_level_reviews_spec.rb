@@ -7,11 +7,11 @@ require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 # rubocop:disable RSpec/VariableName, RSpec/ScatteredSetup, RSpec/RepeatedExample, RSpec/RepeatedDescription, Layout/LineLength
-describe 'Higher-Level Reviews', swagger_doc: "modules/appeals_api/app/swagger/appeals_api/v2/swagger#{DocHelpers.doc_suffix}.json", type: :request do
+describe 'Higher-Level Reviews', swagger_doc: DocHelpers.output_json_path, type: :request do
   include DocHelpers
   let(:apikey) { 'apikey' }
 
-  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/forms/200996' : '/higher_level_reviews'
+  p = DocHelpers.decision_reviews? ? '/higher_level_reviews' : '/forms/200996'
   path p do
     post 'Creates a new Higher-Level Review' do
       description 'Submits an appeal of type Higher Level Review. ' \
@@ -153,7 +153,7 @@ describe 'Higher-Level Reviews', swagger_doc: "modules/appeals_api/app/swagger/a
     end
   end
 
-  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/forms/200996/{uuid}' : '/higher_level_reviews/{uuid}'
+  p = DocHelpers.decision_reviews? ? '/higher_level_reviews/{uuid}' : '/forms/200996/{uuid}'
   path p do
     get 'Shows a specific Higher-Level Review. (a.k.a. the Show endpoint)' do
       description 'Returns all of the data associated with a specific Higher-Level Review.'
@@ -212,7 +212,7 @@ describe 'Higher-Level Reviews', swagger_doc: "modules/appeals_api/app/swagger/a
     end
   end
 
-  unless DocHelpers.wip_doc_enabled?(:segmented_apis, true)
+  if DocHelpers.decision_reviews?
     path '/higher_level_reviews/contestable_issues/{benefit_type}' do
       get 'Returns all contestable issues for a specific veteran.' do
         tags 'Higher-Level Reviews'
@@ -343,7 +343,23 @@ describe 'Higher-Level Reviews', swagger_doc: "modules/appeals_api/app/swagger/a
     end
   end
 
-  if DocHelpers.wip_doc_enabled?(:segmented_apis, true)
+  if DocHelpers.decision_reviews?
+    path '/higher_level_reviews/schema' do
+      get 'Gets the Higher-Level Review JSON Schema.' do
+        tags 'Higher-Level Reviews'
+        operationId 'hlrSchema'
+        description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /higher_level_reviews` endpoint.'
+        security [
+          { apikey: [] }
+        ]
+        produces 'application/json'
+
+        response '200', 'the JSON Schema for POST /higher_level_reviews' do
+          it_behaves_like 'rswag example', desc: 'returns a 200 response'
+        end
+      end
+    end
+  else
     path '/schemas/{schema_type}' do
       get 'Gets JSON schema related to Higher-Level Review.' do
         tags 'Higher-Level Reviews'
@@ -380,25 +396,9 @@ describe 'Higher-Level Reviews', swagger_doc: "modules/appeals_api/app/swagger/a
         end
       end
     end
-  else
-    path '/higher_level_reviews/schema' do
-      get 'Gets the Higher-Level Review JSON Schema.' do
-        tags 'Higher-Level Reviews'
-        operationId 'hlrSchema'
-        description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /higher_level_reviews` endpoint.'
-        security [
-          { apikey: [] }
-        ]
-        produces 'application/json'
-
-        response '200', 'the JSON Schema for POST /higher_level_reviews' do
-          it_behaves_like 'rswag example', desc: 'returns a 200 response'
-        end
-      end
-    end
   end
 
-  p = DocHelpers.wip_doc_enabled?(:segmented_apis, true) ? '/forms/200996/validate' : '/higher_level_reviews/validate'
+  p = DocHelpers.decision_reviews? ? '/higher_level_reviews/validate' : '/forms/200996/validate'
   path p do
     post 'Validates a POST request body against the JSON schema.' do
       tags 'Higher-Level Reviews'
