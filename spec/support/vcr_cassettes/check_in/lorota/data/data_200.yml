@@ -123,6 +123,7 @@ http_interactions:
               "homePhone": "323-743-2569",
               "mobilePhone": "323-896-8512",
               "workPhone": "909-992-3911",
+              "icn": "12340V123456",
               "homeAddress": {
                 "street1": "3899 Southside Lane",
                 "street2": "",

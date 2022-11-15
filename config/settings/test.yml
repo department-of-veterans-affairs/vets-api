@@ -213,6 +213,7 @@ check_in:
     claims_url: https://dev.integration.d365.va.gov/EC/ClaimIngestSvc/api
     subscription_key: sJqrAiMns1vgAopGa7U4wuOmT83YADkK
     client_number: CLI-00001002
+    redis_token_expiry: 3540 # 59 minutes
     service_name: BTSSS-API
   authentication:
     max_auth_retry_limit: 3

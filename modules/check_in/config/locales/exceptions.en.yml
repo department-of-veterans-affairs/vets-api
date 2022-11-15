@@ -44,3 +44,9 @@ en:
         code: 'CHIP-API_500'
         detail: 'Internal Server Error'
         status: 500
+      BTSSS-API_400:
+        <<: *external_defaults
+        title: 'Bad Request'
+        code: 'BTSSS-API_400'
+        detail: 'Bad Request'
+        status: 400
