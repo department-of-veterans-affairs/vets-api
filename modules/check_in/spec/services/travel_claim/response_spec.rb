@@ -37,7 +37,7 @@ describe TravelClaim::Response do
           message: error_message
         }
         resp = Faraday::Response.new(body: claims_api_400_response, status: 400)
-        hsh = { data: { error: true, message: error_message }, status: resp.status }
+        hsh = { data: { error: true, code: 'CLM_002_CLAIM_EXISTS', message: error_message }, status: resp.status }
 
         expect(subject.build(response: resp).handle).to eq(hsh)
       end
@@ -51,7 +51,37 @@ describe TravelClaim::Response do
           message: error_message
         }
         resp = Faraday::Response.new(body: claims_api_400_response, status: 400)
-        hsh = { data: { error: true, message: error_message }, status: resp.status }
+        hsh = { data: { error: true, code: 'CLM_001_MULTIPLE_APPTS', message: error_message }, status: resp.status }
+
+        expect(subject.build(response: resp).handle).to eq(hsh)
+      end
+    end
+
+    context 'when status 400 for unknown error' do
+      it 'returns a formatted response' do
+        error_message = '10/16/2020 : appointments not available'
+        claims_api_400_response = {
+          currentDate: '[10/16/2020 03:28:48 PM]',
+          message: error_message
+        }
+        resp = Faraday::Response.new(body: claims_api_400_response, status: 400)
+        hsh = { data: { error: true, code: 'CLM_010_CLAIM_SUBMISSION_ERROR', message: error_message },
+                status: resp.status }
+
+        expect(subject.build(response: resp).handle).to eq(hsh)
+      end
+    end
+
+    context 'when status 401 for token error' do
+      it 'returns a formatted response' do
+        error_message = 'Unauthorized'
+        claims_api_401_response = {
+          currentDate: '[10/16/2020 03:28:48 PM]',
+          message: error_message
+        }
+        resp = Faraday::Response.new(body: claims_api_401_response, status: 401)
+        hsh = { data: { error: true, code: 'CLM_020_INVALID_AUTH', message: error_message },
+                status: resp.status }
 
         expect(subject.build(response: resp).handle).to eq(hsh)
       end
@@ -60,7 +90,10 @@ describe TravelClaim::Response do
     context 'when status 500' do
       it 'returns a formatted response' do
         resp = Faraday::Response.new(body: 'Something went wrong', status: 500)
-        hsh = { data: { error: true, message: 'Claim submission failed' }, status: resp.status }
+        hsh = {
+          data: { error: true, code: 'CLM_030_UNKNOWN_SERVER_ERROR',
+                  message: 'Internal server error' }, status: resp.status
+        }
 
         expect(subject.build(response: resp).handle).to eq(hsh)
       end
