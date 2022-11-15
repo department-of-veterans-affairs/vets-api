@@ -102,6 +102,12 @@ describe VANotify::InProgressFormReminder, type: :worker do
                      'form_3_id' => 'form_3 something'
                    })
 
+        stub_const('VANotify::InProgressFormHelper::FRIENDLY_FORM_ID', {
+                     '686C-674' => '686C-674',
+                     'form_2_id' => 'form_2_example_id',
+                     'form_3_id' => 'form_3_example_id'
+                   })
+
         form_1_date = in_progress_form_1.expires_at.strftime('%B %d, %Y')
         form_2_date = in_progress_form_2.expires_at.strftime('%B %d, %Y')
         form_3_date = in_progress_form_3.expires_at.strftime('%B %d, %Y')
@@ -115,7 +121,7 @@ describe VANotify::InProgressFormReminder, type: :worker do
                                                                        {
                                                                          'first_name' => 'FIRST_NAME',
 
-                                                                         'formatted_form_data' => "\n^ FORM 686C-674\n^\n^__686c something__\n^\n^_Application expires on:_ #{form_1_date}\n\n\n^---\n\n^ FORM form_3_id\n^\n^__form_3 something__\n^\n^_Application expires on:_ #{form_3_date}\n\n\n^---\n\n^ FORM form_2_id\n^\n^__form_2 something__\n^\n^_Application expires on:_ #{form_2_date}\n\n"
+                                                                         'formatted_form_data' => "\n^ FORM 686C-674\n^\n^__686c something__\n^\n^_Application expires on:_ #{form_1_date}\n\n\n^---\n\n^ FORM form_3_example_id\n^\n^__form_3 something__\n^\n^_Application expires on:_ #{form_3_date}\n\n\n^---\n\n^ FORM form_2_example_id\n^\n^__form_2 something__\n^\n^_Application expires on:_ #{form_2_date}\n\n"
                                                                        })
         # rubocop:enable Layout/LineLength
       end

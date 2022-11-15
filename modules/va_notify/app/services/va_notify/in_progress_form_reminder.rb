@@ -70,9 +70,10 @@ module VANotify
       personalisation = {}
       personalisation['formatted_form_data'] = in_progress_forms.map do |form|
         friendly_form_name = VANotify::InProgressFormHelper::FRIENDLY_FORM_SUMMARY.fetch(form.form_id)
+        friendly_form_id = VANotify::InProgressFormHelper::FRIENDLY_FORM_ID.fetch(form.form_id)
         <<~FORM_DATA
 
-          ^ FORM #{form.form_id}
+          ^ FORM #{friendly_form_id}
           ^
           ^__#{friendly_form_name}__
           ^

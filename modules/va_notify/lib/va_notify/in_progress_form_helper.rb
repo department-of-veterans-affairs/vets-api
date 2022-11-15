@@ -15,6 +15,12 @@ module VANotify
       '21-526EZ' => 'Application for Disability Compensation and Related Compensation Benefits'
     }.freeze
 
+    FRIENDLY_FORM_ID = {
+      '686C-674' => '686C-674',
+      '1010ez' => '10-10EZ',
+      '21-526EZ' => '21-526EZ'
+    }.freeze
+
     def self.form_age(in_progress_form)
       case in_progress_form.updated_at
       when 7.days.ago.beginning_of_day..7.days.ago.end_of_day
