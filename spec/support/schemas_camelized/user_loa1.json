@@ -191,7 +191,9 @@
                     "militaryHistory": { "type": "boolean" },
                     "paymentHistory": { "type": "boolean" },
                     "personalInformation": { "type": "boolean" },
-                    "ratingInfo": { "type": "boolean" }
+                    "ratingInfo": { "type": "boolean" },
+                    "appeals": { "type": "boolean" },
+                    "medicalCopays": { "type": "boolean" }
                   }
                 }
               }
