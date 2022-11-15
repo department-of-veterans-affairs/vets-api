@@ -163,7 +163,7 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
   end
 
   describe '#submit_vha_fsr' do
-    let(:valid_form_data) { get_fixture('dmc/fsr_submission') }
+    let(:form_submission) { build(:form5655_submission) }
     let(:user) { build(:user, :loa3) }
 
     before do
@@ -171,31 +171,16 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
       {
         message: 'Success'
       })
-      valid_form_data.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
       allow_any_instance_of(DebtManagementCenter::VBS::Request).to receive(:post).and_return(response)
       mock_sharepoint_upload
     end
 
     it 'submits to the VBS endpoint' do
-      valid_form_data['selectedDebtsAndCopays'] = [{
-        'station' => {
-          'facilitYNum' => '123'
-        },
-        'resolutionOption' => 'waiver',
-        'debtType' => 'COPAY'
-      }]
       service = described_class.new(user)
-      expect(service.submit_vha_fsr(valid_form_data)).to eq({ status: [200] })
+      expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
     end
 
     it 'sends a confirmation email' do
-      valid_form_data['selectedDebtsAndCopays'] = [{
-        'station' => {
-          'facilitYNum' => '123'
-        },
-        'resolutionOption' => 'waiver',
-        'debtType' => 'COPAY'
-      }]
       service = described_class.new(user)
       expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(
         user.email.downcase,
@@ -206,50 +191,14 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
           'date' => Time.zone.now.strftime('%m/%d/%Y')
         }
       )
-      service.submit_vha_fsr(valid_form_data)
+      service.submit_vha_fsr(form_submission)
     end
 
     it 'parses out delimiter characters' do
-      valid_form_data['selectedDebtsAndCopays'] = [{
-        'station' => {
-          'facilitYNum' => '123'
-        },
-        'resolutionOption' => 'waiver',
-        'debtType' => 'COPAY'
-      }]
       service = described_class.new(user)
-      valid_form_data['personalData']['veteranFullName']['first'] = "^Gr\neg|"
-      parsed_form_string = service.send(:remove_form_delimiters, valid_form_data).to_s
+      delimitered_json = { 'name' => "^Gr\neg|" }
+      parsed_form_string = service.send(:remove_form_delimiters, delimitered_json).to_s
       expect(['^', '|', "\n"].any? { |i| parsed_form_string.include? i }).to be false
-    end
-
-    it 'calls VBS multiple times for multiple stations' do
-      valid_form_data['selectedDebtsAndCopays'] = [
-        {
-          'station' => {
-            'facilitYNum' => '123'
-          },
-          'resolutionOption' => 'waiver',
-          'debtType' => 'COPAY'
-        },
-        {
-          'station' => {
-            'facilitYNum' => '123'
-          },
-          'resolutionOption' => 'compromise',
-          'debtType' => 'COPAY'
-        },
-        {
-          'station' => {
-            'facilitYNum' => '456'
-          },
-          'resolutionOption' => 'waiver',
-          'debtType' => 'COPAY'
-        }
-      ]
-      service = described_class.new(user)
-      expect_any_instance_of(DebtManagementCenter::VBS::Request).to receive(:post).twice
-      service.submit_vha_fsr(valid_form_data)
     end
   end
 
@@ -267,18 +216,21 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
       mock_sharepoint_upload
     end
 
-    it 'submits to vba if specified' do
+    it 'enqueues a VBA submission job' do
       valid_form_data['selectedDebtsAndCopays'] = [{ 'foo' => 'bar', 'debtType' => 'DEBT' }]
+      valid_form_data['personalIdentification'] = {}
       VCR.use_cassette('dmc/submit_fsr') do
         VCR.use_cassette('bgs/people_service/person_data') do
           service = described_class.new(user)
-          expect(service).to receive(:submit_vba_fsr).with(valid_form_data)
-          service.submit_combined_fsr(valid_form_data)
+          expect { service.submit_combined_fsr(valid_form_data) }
+            .to change { Form5655::VBASubmissionJob.jobs.size }
+            .from(0)
+            .to(1)
         end
       end
     end
 
-    it 'submits to vha if specified' do
+    it 'enqueues a VHA submission job' do
       valid_form_data['selectedDebtsAndCopays'] = [{
         'station' => {
           'facilitYNum' => '123'
@@ -286,9 +238,12 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
         'resolutionOption' => 'waiver',
         'debtType' => 'COPAY'
       }]
+      valid_form_data['personalIdentification'] = {}
       service = described_class.new(user)
-      expect(service).to receive(:submit_vha_fsr)
-      service.submit_combined_fsr(valid_form_data)
+      expect { service.submit_combined_fsr(valid_form_data) }
+        .to change { Form5655::VHASubmissionJob.jobs.size }
+        .from(0)
+        .to(1)
     end
 
     it 'creates a form 5655 submission record' do
