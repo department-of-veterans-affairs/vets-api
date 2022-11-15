@@ -10,7 +10,8 @@ module CheckIn
           render json: check_in_session.unauthorized_message, status: :unauthorized and return
         end
 
-        head :not_implemented
+        claims_resp = TravelClaim::Service.build(check_in: check_in_session, params: permitted_params).submit_claim
+        render json: claims_resp
       end
 
       def permitted_params

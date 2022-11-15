@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://login.microsoftonline.us/f7c49e36-971b-42c7-b244-a88eed6c0bf6/oauth2/v2.0/token
+    uri: https://login.microsoftonline.us/6d4d703a-2d9a-4c2a-ac90-976e52eacb52/oauth2/v2.0/token
   response:
     status:
       code: 200
