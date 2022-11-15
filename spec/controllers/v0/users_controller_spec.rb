@@ -45,6 +45,8 @@ RSpec.describe V0::UsersController, type: :controller do
         expect(claims['payment_history']).to be(false)
         expect(claims['personal_information']).to be(true)
         expect(claims['rating_info']).to be(false)
+        expect(claims['appeals']).to be(false)
+        expect(claims['medical_copays']).to be(false)
       end
     end
   end
@@ -94,6 +96,8 @@ RSpec.describe V0::UsersController, type: :controller do
         expect(claims['payment_history']).to be(true)
         expect(claims['personal_information']).to be(true)
         expect(claims['rating_info']).to be(true)
+        expect(claims['appeals']).to be(true)
+        expect(claims['medical_copays']).to be(true)
       end
     end
   end
