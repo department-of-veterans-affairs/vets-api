@@ -63,7 +63,7 @@ module TravelClaim
       resp = if token.present?
                client.submit_claim(token: token, patient_icn: patient_icn, appointment_date: appointment_date)
              else
-               Faraday::Response.new(body: { message: 'No access token' }, status: 401)
+               Faraday::Response.new(body: { message: 'Unauthorized' }, status: 401)
              end
       response.build(response: resp).handle
     end

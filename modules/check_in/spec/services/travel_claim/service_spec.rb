@@ -58,7 +58,9 @@ describe TravelClaim::Service do
 
   describe '#submit_claim' do
     context 'when token does not exist in redis and endpoint fails' do
-      let(:response) { { data: { error: true, message: 'No access token' }, status: 401 } }
+      let(:response) do
+        { data: { error: true, code: 'CLM_020_INVALID_AUTH', message: 'Unauthorized' }, status: 401 }
+      end
 
       before do
         allow_any_instance_of(TravelClaim::RedisClient).to receive(:token).and_return(nil)
