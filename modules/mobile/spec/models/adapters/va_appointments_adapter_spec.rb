@@ -230,8 +230,8 @@ describe Mobile::V0::Adapters::VAAppointments do
             number: nil,
             extension: nil
           },
-          url: 'https://care2.evn.va.gov/vvc-app/?name=OG%2Ctesting+adhoc+video+visit&join=1&media=1&escalate=1&conference=VVC2520583@care2.evn.va.gov&pin=5364921#',
-          code: '5364921#'
+          url: 'https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC2520583@care2.evn.va.gov&pin=6792040429#',
+          code: '6792040429#'
         }
       )
     end
@@ -366,8 +366,8 @@ describe Mobile::V0::Adapters::VAAppointments do
             number: nil,
             extension: nil
           },
-          url: 'https://care2.evn.va.gov/vvc-app/?name=Reddy%2CVilasini&join=1&media=1&escalate=1&conference=VVC1012210@care2.evn.va.gov&pin=3527890#',
-          code: '3527890#'
+          url: 'https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC1012210@care2.evn.va.gov&pin=4790493668#',
+          code: '4790493668#'
         }
       )
     end
