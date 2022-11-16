@@ -102,7 +102,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
         run: |
-          cd vsp-infra-application-manifests/apps/vets-api-helm101/dev
+          cd vsp-infra-application-manifests/apps/vets-api/dev
           yq e -i '(.vets-api.image.tag) |= "${{ github.sha }}"' values.yaml
           git diff
 
