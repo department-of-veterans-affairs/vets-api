@@ -10,6 +10,7 @@ module SignIn
       MULTIPLE_EDIPI = '102'
       MULTIPLE_CORP_ID = '106'
       MPI_LOCKED_ACCOUNT = '107'
+      MHV_UNVERIFIED_BLOCKED = '108'
       INVALID_REQUEST = '400'
     end
   end

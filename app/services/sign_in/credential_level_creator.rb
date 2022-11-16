@@ -25,10 +25,28 @@ module SignIn
     end
 
     def perform
+      check_required_verification_level
       create_credential_level
     end
 
     private
+
+    def check_required_verification_level
+      if unverified_account_with_forced_verification?
+        case type
+        when SAML::User::MHV_ORIGINAL_CSID
+          raise_unverified_credential_blocked_error(code: Constants::ErrorCode::MHV_UNVERIFIED_BLOCKED)
+        else
+          raise_unverified_credential_blocked_error(code: Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE)
+        end
+      end
+    end
+
+    def raise_unverified_credential_blocked_error(code:)
+      raise Errors::UnverifiedCredentialBlockedError,
+            message: 'Unverified credential for authorization requiring verified credential',
+            code: code
+    end
 
     def create_credential_level
       CredentialLevel.new(requested_acr: requested_acr,
@@ -74,6 +92,10 @@ module SignIn
 
     def requested_verified_account?
       [Constants::Auth::IAL2, Constants::Auth::LOA3, Constants::Auth::MIN].include?(requested_acr)
+    end
+
+    def unverified_account_with_forced_verification?
+      [Constants::Auth::IAL2, Constants::Auth::LOA3].include?(requested_acr) && current_ial < IAL::TWO
     end
 
     def previously_verified?(identifier_type)

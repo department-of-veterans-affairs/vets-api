@@ -902,7 +902,7 @@ RSpec.describe V0::SignInController, type: :controller do
             context 'and code is given that matches expected code for auth service' do
               let(:response) { OpenStruct.new(access_token: token) }
               let(:level_of_assurance) { LOA::THREE }
-              let(:acr) { 'loa3' }
+              let(:acr) { SignIn::Constants::Auth::MIN }
               let(:ial) { 2 }
               let(:credential_ial) { LOA::IDME_CLASSIC_LOA3 }
               let(:client_code) { 'some-client-code' }
@@ -950,7 +950,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
               context 'and dslogon account is not premium' do
                 let(:dslogon_assurance) { 'some-dslogon-assurance' }
-                let(:ial) { 1 }
+                let(:ial) { IAL::ONE }
                 let(:expected_user_attributes) do
                   {
                     ssn: nil,
@@ -967,7 +967,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
               context 'and dslogon account is premium' do
                 let(:dslogon_assurance) { LOA::DSLOGON_ASSURANCE_THREE }
-                let(:ial) { 2 }
+                let(:ial) { IAL::TWO }
                 let(:expected_user_attributes) do
                   {
                     ssn: user_info.dslogon_idvalue,
@@ -985,7 +985,7 @@ RSpec.describe V0::SignInController, type: :controller do
           end
 
           context 'when type in state JWT is mhv' do
-            let(:type) { 'mhv' }
+            let(:type) { SignIn::Constants::Auth::MHV }
             let(:user_info) do
               OpenStruct.new(
                 sub: 'some-sub',
@@ -1024,109 +1024,79 @@ RSpec.describe V0::SignInController, type: :controller do
             end
 
             context 'and code is given that matches expected code for auth service' do
-              context 'and credential should be uplevelled' do
-                let(:acr) { SignIn::Constants::Auth::LOA3 }
-                let(:credential_ial) { LOA::ONE }
-                let(:expected_redirect_uri) { Settings.idme.redirect_uri }
+              let(:response) { OpenStruct.new(access_token: token) }
+              let(:level_of_assurance) { LOA::THREE }
+              let(:acr) { SignIn::Constants::Auth::MIN }
+              let(:ial) { IAL::TWO }
+              let(:credential_ial) { LOA::IDME_CLASSIC_LOA3 }
+              let(:client_code) { 'some-client-code' }
+              let(:mobile_redirect_uris) { Settings.sign_in.client_redirect_uris.mobile }
+              let(:expected_url) do
+                "#{mobile_redirect_uris}?code=#{client_code}&state=#{client_state}&type=#{type}"
+              end
+              let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
+              let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
+              let(:expected_logger_context) do
+                {
+                  type: type,
+                  client_id: client_id,
+                  ial: ial,
+                  acr: acr
+                }
+              end
 
-                before do
-                  allow_any_instance_of(SignIn::StatePayloadJwtEncoder).to receive(:perform)
-                    .and_return(uplevel_state_value)
+              before do
+                allow(SecureRandom).to receive(:uuid).and_return(client_code)
+              end
+
+              shared_context 'mhv successful callback' do
+                it 'returns found status' do
+                  expect(subject).to have_http_status(:found)
                 end
 
-                it 'returns ok status' do
-                  expect(subject).to have_http_status(:ok)
+                it 'redirects to expected url' do
+                  expect(subject).to redirect_to(expected_url)
                 end
 
-                it 'renders expected redirect_uri in template' do
-                  expect(subject.body).to match(expected_redirect_uri)
+                it 'logs the successful callback' do
+                  expect(Rails.logger).to receive(:info).with(expected_log, expected_logger_context)
+                  expect { subject }.to trigger_statsd_increment(statsd_callback_success, tags: statsd_tags)
                 end
 
-                it 'generates a new state payload with a new StateCode' do
-                  expect_any_instance_of(SignIn::StatePayloadJwtEncoder).to receive(:perform)
+                it 'creates a user with expected attributes' do
                   subject
-                end
 
-                it 'renders a new state' do
-                  expect(subject.body).to match(uplevel_state_value)
+                  user_uuid = UserVerification.last.backing_credential_identifier
+                  user = User.find(user_uuid)
+
+                  expect(user).to have_attributes(expected_user_attributes)
                 end
               end
 
-              context 'and credential should not be uplevelled' do
-                let(:response) { OpenStruct.new(access_token: token) }
-                let(:level_of_assurance) { LOA::THREE }
-                let(:acr) { SignIn::Constants::Auth::MIN }
-                let(:ial) { 2 }
-                let(:credential_ial) { LOA::IDME_CLASSIC_LOA3 }
-                let(:client_code) { 'some-client-code' }
-                let(:mobile_redirect_uris) { Settings.sign_in.client_redirect_uris.mobile }
-                let(:expected_url) do
-                  "#{mobile_redirect_uris}?code=#{client_code}&state=#{client_state}&type=#{type}"
-                end
-                let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
-                let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
-                let(:expected_logger_context) do
+              context 'and mhv account is not premium' do
+                let(:mhv_assurance) { 'some-mhv-assurance' }
+                let(:ial) { IAL::ONE }
+                let(:expected_user_attributes) do
                   {
-                    type: type,
-                    client_id: client_id,
-                    ial: ial,
-                    acr: acr
+                    mhv_correlation_id: nil,
+                    icn: nil
                   }
                 end
 
-                before do
-                  allow(SecureRandom).to receive(:uuid).and_return(client_code)
+                it_behaves_like 'mhv successful callback'
+              end
+
+              context 'and mhv account is premium' do
+                let(:mhv_assurance) { 'Premium' }
+                let(:ial) { IAL::TWO }
+                let(:expected_user_attributes) do
+                  {
+                    mhv_correlation_id: user_info.mhv_uuid,
+                    icn: user_info.mhv_icn
+                  }
                 end
 
-                shared_context 'mhv successful callback' do
-                  it 'returns found status' do
-                    expect(subject).to have_http_status(:found)
-                  end
-
-                  it 'redirects to expected url' do
-                    expect(subject).to redirect_to(expected_url)
-                  end
-
-                  it 'logs the successful callback' do
-                    expect(Rails.logger).to receive(:info).with(expected_log, expected_logger_context)
-                    expect { subject }.to trigger_statsd_increment(statsd_callback_success, tags: statsd_tags)
-                  end
-
-                  it 'creates a user with expected attributes' do
-                    subject
-
-                    user_uuid = UserVerification.last.backing_credential_identifier
-                    user = User.find(user_uuid)
-
-                    expect(user).to have_attributes(expected_user_attributes)
-                  end
-                end
-
-                context 'and mhv account is not premium' do
-                  let(:mhv_assurance) { 'some-mhv-assurance' }
-                  let(:ial) { 1 }
-                  let(:expected_user_attributes) do
-                    {
-                      mhv_correlation_id: nil,
-                      icn: nil
-                    }
-                  end
-
-                  it_behaves_like 'mhv successful callback'
-                end
-
-                context 'and mhv account is premium' do
-                  let(:mhv_assurance) { 'Premium' }
-                  let(:ial) { 2 }
-                  let(:expected_user_attributes) do
-                    {
-                      mhv_correlation_id: user_info.mhv_uuid,
-                      icn: user_info.mhv_icn
-                    }
-                  end
-
-                  it_behaves_like 'mhv successful callback'
-                end
+                it_behaves_like 'mhv successful callback'
               end
             end
           end
