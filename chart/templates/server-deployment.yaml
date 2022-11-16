@@ -68,6 +68,8 @@ spec:
           volumeMounts:
 {{ toYaml .Values.common.volumeMounts | indent 12 }}
           env:
+            - name: GIT_REVISION
+              value: {{ .Values.image.tag}}
 {{ toYaml .Values.web.envSecrets | indent 12 }}
           {{- range $keys, $key := .Values.common.secrets }}
           {{- range $secrets, $secret := $key }}

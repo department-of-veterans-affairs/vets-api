@@ -21,6 +21,8 @@ spec:
           volumeMounts:
 {{ toYaml .Values.common.volumeMounts | indent 12 }}
           env:
+            - name: GIT_REVISION
+              value: {{ .Values.image.tag}}
 {{ toYaml .Values.web.dbMigrate.envSecrets | indent 12 }}
           {{- range $keys, $key := .Values.common.secrets }}
           {{- range $secrets, $secret := $key }}
@@ -31,6 +33,7 @@ spec:
                   key:  {{ $secret.name }}
           {{- end }}
           {{- end }}
+
       restartPolicy: Never
       securityContext:
         fsGroup: 1000

@@ -25,10 +25,9 @@ web:
   images:
   autoscaling:
     enabled: false
-    scaling_metric: ""
     minReplicas: ""
     maxReplicas: ""
-    targetAverageValue: ""
+    targetCPUUtilizationPercentage: ""
   affinity:
     weight: ""
   containers:
@@ -45,7 +44,9 @@ web:
     readinessPath: ""
     readinessPort: ""
   socatProxyEnabled: false
-  envSecrets: {}
+  envSecrets:
+    - name: DD_APM_ENABLED
+      value: false
 
 
   resources:
@@ -129,8 +130,9 @@ web:
 
   dbMigrate:
     enabled: true
-    envSecrets: {}
-
+    envSecrets:
+      - name: DD_APM_ENABLED
+        value: false
 #Worker Configuration
 worker:
   strategyType: RollingUpdate
@@ -153,7 +155,7 @@ worker:
     enabled: false
     minReplicas: ""
     maxReplicas: ""
-    targetAverageUtilization: ""
+    targetCPUUtilizationPercentage: ""
 
   healthCheck:
     requestPath: ""
@@ -168,7 +170,9 @@ worker:
   terminationGracePeriodSeconds: ""
 
   socatProxyEnabled: false
-  envSecrets: {}
+  envSecrets:
+    - name: DD_APM_ENABLED
+      value: false
   resources:
       requests:
         cpu: ""
