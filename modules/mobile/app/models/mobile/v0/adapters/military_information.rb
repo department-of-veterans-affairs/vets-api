@@ -31,7 +31,7 @@ module Mobile
             begin_date: service_period[:begin_date],
             end_date: service_period[:end_date].presence,
             formatted_begin_date: service_period[:begin_date].to_datetime.strftime('%B %d, %Y'),
-            formatted_end_date: service_period[:end_date].to_datetime&.strftime('%B %d, %Y').presence
+            formatted_end_date: service_period[:end_date]&.to_datetime&.strftime('%B %d, %Y').presence
           )
         end
       end

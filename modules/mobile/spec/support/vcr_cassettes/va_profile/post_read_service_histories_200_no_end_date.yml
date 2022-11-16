@@ -90,7 +90,6 @@ http_interactions:
                           "episodeSequenceNumber": 1,
                           "periodOfServiceTypeCode": "N",
                           "periodOfServiceBeginDate": "2002-02-02",
-                          "periodOfServiceEndDate": "",
                           "terminationReasonText":"",
                           "terminationReasonCode":"",                          
                           "guardReserves": [],
