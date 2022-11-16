@@ -158,6 +158,7 @@ worker:
     minReplicas: ""
     maxReplicas: ""
     targetAverageValue: ""
+    targetAverageUtilization: ""
 
   healthCheck:
     requestPath: ""
