@@ -217,11 +217,11 @@ module Mobile
         end
 
         def location_home(details, location)
-          provider = details.dig(:providers, :provider)
-          return location unless provider
+          patient = details.dig(:patients, :patient)
+          return location unless patient
 
-          location[:url] = provider.first.dig(:virtual_meeting_room, :url)
-          location[:code] = provider.first.dig(:virtual_meeting_room, :pin)
+          location[:url] = patient.first.dig(:virtual_meeting_room, :url)
+          location[:code] = patient.first.dig(:virtual_meeting_room, :pin)
           location
         end
 
@@ -239,7 +239,7 @@ module Mobile
         end
 
         def location_gfe(details, location)
-          meeting_room = details[:providers].first[:virtual_meeting_room]
+          meeting_room = details[:patients].first[:virtual_meeting_room]
           location[:url] = meeting_room[:url]
           location[:code] = meeting_room[:pin]
           location
