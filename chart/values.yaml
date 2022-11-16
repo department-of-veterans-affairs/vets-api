@@ -25,9 +25,10 @@ web:
   images:
   autoscaling:
     enabled: false
+    scaling_metric: ""
     minReplicas: ""
     maxReplicas: ""
-    targetCPUUtilizationPercentage: ""
+    targetAverageValue: ""
   affinity:
     weight: ""
   containers:
@@ -153,9 +154,10 @@ worker:
 
   autoscaling:
     enabled: false
+    scaling_metric: ""
     minReplicas: ""
     maxReplicas: ""
-    targetCPUUtilizationPercentage: ""
+    targetAverageValue: ""
 
   healthCheck:
     requestPath: ""
