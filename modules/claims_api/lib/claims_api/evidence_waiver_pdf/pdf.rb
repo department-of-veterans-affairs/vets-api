@@ -6,9 +6,11 @@ module ClaimsApi
     #
     # waiver = ClaimsApi::EvidenceWaiver.new(target_veteran: target_veteran)
     # pdf = waiver.construct(response: params[:response])
-    def initialize(target_veteran:)
+    def initialize(auth_headers:)
       @page1_path = nil
-      @target_veteran = target_veteran
+      @first_name = auth_headers['va_eauth_firstName']
+      @last_name = auth_headers['va_eauth_lastName']
+      @middle_name = auth_headers['va_eauth_middleName']
     end
 
     def construct(response: true)
@@ -23,7 +25,7 @@ module ClaimsApi
     end
 
     def signature
-      name = [@target_veteran.first_name, @target_veteran.middle_name, @target_veteran.last_name].compact.join(' ')
+      name = [@first_name, @middle_name, @last_name].compact.join(' ')
       "#{name[0...27]} - signed via api.va.gov"
     end
 
@@ -52,6 +54,7 @@ module ClaimsApi
         page1_options(response),
         flatten: true
       )
+
       @page1_path = temp_path
     end
   end
