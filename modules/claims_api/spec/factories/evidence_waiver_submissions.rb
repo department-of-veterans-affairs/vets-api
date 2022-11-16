@@ -23,9 +23,10 @@ FactoryBot.define do
     auth_headers {
       {
         'va_eauth_pnid' => '600043201',
+        'va_eauth_pid' => '600043201',
         'va_eauth_birthdate' => '1967-06-19',
-        'va_eauth_firstName' => 'TAMARA',
-        'va_eauth_lastName' => 'ELLIS'
+        'va_eauth_firstName' => 'Tamara',
+        'va_eauth_lastName' => 'Ellis'
       }
     }
   end
