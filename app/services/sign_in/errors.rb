@@ -48,6 +48,7 @@ module SignIn
     class AccessDeniedError < StandardError; end
     class CredentialProviderError < StandardError; end
     class MHVMissingMPIRecordError < StandardError; end
+    class UnverifiedCredentialBlockedError < StandardError; end
     class CredentialMissingAttributeError < StandardError; end
   end
 end
