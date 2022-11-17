@@ -3759,6 +3759,14 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         )
       end
     end
+
+    describe 'claim letters' do
+      it 'retrieves a list of claim letters metadata' do
+        # Response comes from fixture: spec/fixtures/claim_letter/claim_letter_list.json
+        expect(subject).to validate(:get, '/v0/claim_letters', 200, headers)
+        expect(subject).to validate(:get, '/v0/claim_letters', 401)
+      end
+    end
   end
 
   context 'and' do
@@ -3768,6 +3776,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       subject.untested_mappings.delete('/v0/financial_status_reports/download_pdf')
       subject.untested_mappings.delete('/v0/form1095_bs/download_pdf/{tax_year}')
       subject.untested_mappings.delete('/v0/form1095_bs/download_txt/{tax_year}')
+      subject.untested_mappings.delete('/v0/claim_letters/{document_id}')
       # SiS methods that involve forms & redirects
       subject.untested_mappings.delete('/v0/sign_in/authorize')
       subject.untested_mappings.delete('/v0/sign_in/callback')
