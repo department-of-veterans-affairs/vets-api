@@ -192,7 +192,7 @@ module V1
       when 'idme'
         url_service.login_url('idme', LOA::IDME_LOA1_VETS, AuthnContext::ID_ME, AuthnContext::MINIMUM)
       when 'idme_verified'
-        url_service.login_url('idme_verified', LOA::IDME_LOA3, AuthnContext::ID_ME, AuthnContext::MINIMUM)
+        url_service.login_url('idme', LOA::IDME_LOA3, AuthnContext::ID_ME, AuthnContext::MINIMUM)
       when 'idme_signup'
         url_service.idme_signup_url(LOA::IDME_LOA1_VETS)
       when 'idme_signup_verified'
