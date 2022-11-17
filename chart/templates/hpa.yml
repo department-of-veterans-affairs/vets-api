@@ -1,6 +1,6 @@
 {{- if .Values.web.autoscaling.enabled }}
 ---
-apiVersion: autoscaling/v1
+apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ .Values.appName }}-web
