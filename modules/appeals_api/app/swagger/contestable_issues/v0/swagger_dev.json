@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Contestable Issues",
-    "version": "v2",
+    "version": "v0",
     "termsOfService": "https://developer.va.gov/terms-of-service",
     "description": "The Contestable Issues API lets internal VA teams retrieve a list of a claimant’s contestable issues and any chains of preceding issues. Contestable issues are issues from claims about which VA has made a decision that may be eligible for appeal. Not all contestable issues are guaranteed to be eligible for appeal; for example, claimants may have another appeal in progress for an issue.\n\nTo check the status of all decision reviews and appeals for a specified individual, use the [Appeals Status API](https://developer.va.gov/explore/appeals/docs/appeals?version=current).\n\nTo file an appeal or decision review, use one of these APIs: \n* `Higher-Level Reviews API`\n* `Notice of Disagreements API`\n* `Supplemental Claims API`\n\n## Technical overview\nThe Contestable Issues API pulls data from Caseflow, a case management system. It provides decision review and appeal data that can be used for submitting a Higher Level Review, Notice of Disagreement, or Supplemental Claim.\n\n### Authorization and Access\nTo gain access to the Higher-Level Reviews API you must [request an API Key](https://developer.va.gov/apply). API requests are authorized through a symmetric API token which is provided in an HTTP header named `apikey`.\n\nBecause this application is designed to let third-parties request information on behalf of a claimant, we are not using VA Authentication Federation Infrastructure (VAAFI) headers or Single Sign On External (SSOe)."
   },
@@ -26,6 +26,21 @@
             "apikey": [
 
             ]
+          },
+          {
+            "productionOauth": [
+              "claim.read"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
           }
         ],
         "parameters": [
@@ -34,7 +49,6 @@
             "in": "path",
             "required": true,
             "description": "Scoping of appeal type for associated issues",
-            "example": "higher_level_reviews",
             "schema": {
               "type": "string",
               "enum": [
@@ -42,13 +56,13 @@
                 "notice_of_disagreements",
                 "supplemental_claims"
               ]
-            }
+            },
+            "example": "higher_level_reviews"
           },
           {
             "name": "benefit_type",
             "in": "query",
             "description": "Required if decision review type is Higher Level Review or Supplemental Claims.",
-            "example": "compensation",
             "schema": {
               "type": "string",
               "enum": [
@@ -62,7 +76,8 @@
                 "education",
                 "nationalCemeteryAdministration"
               ]
-            }
+            },
+            "example": "compensation"
           },
           {
             "in": "header",
@@ -292,6 +307,39 @@
         "type": "apiKey",
         "name": "apikey",
         "in": "header"
+      },
+      "bearer_token": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "productionOauth": {
+        "type": "oauth2",
+        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://api.va.gov/oauth2/authorization",
+            "tokenUrl": "https://api.va.gov/oauth2/token",
+            "scopes": {
+              "claim.read": "Retrieve claim data",
+              "claim.write": "Submit claim data"
+            }
+          }
+        }
+      },
+      "sandboxOauth": {
+        "type": "oauth2",
+        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
+            "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
+            "scopes": {
+              "claim.read": "Retrieve claim data",
+              "claim.write": "Submit claim data"
+            }
+          }
+        }
       }
     },
     "schemas": {
@@ -541,7 +589,7 @@
       "description": "VA.gov API sandbox environment",
       "variables": {
         "version": {
-          "default": "v2"
+          "default": "v0"
         }
       }
     },
@@ -550,7 +598,7 @@
       "description": "VA.gov API production environment",
       "variables": {
         "version": {
-          "default": "v2"
+          "default": "v0"
         }
       }
     }

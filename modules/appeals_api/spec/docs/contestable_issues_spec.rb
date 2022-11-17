@@ -10,32 +10,34 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :request do
   include DocHelpers
   let(:apikey) { 'apikey' }
+  let(:Authorization) { 'Bearer TEST_TOKEN' }
 
   path '/contestable_issues/{decision_review_type}' do
     get 'Returns all contestable issues for a specific veteran.' do
+      scopes = %w[claim.read]
       tags 'Contestable Issues'
       operationId 'getContestableIssues'
 
       description 'Returns all issues associated with a Veteran that have been decided ' \
                   'as of the `receiptDate`. Not all issues returned are guaranteed to be eligible for appeal.' \
 
-      security [
-        { apikey: [] }
-      ]
+      security DocHelpers.security_config(scopes)
       consumes 'application/json'
       produces 'application/json'
 
       parameter name: :decision_review_type,
                 in: :path, required: true,
                 description: 'Scoping of appeal type for associated issues',
-                schema: { 'type': 'string', 'enum': %w[higher_level_reviews notice_of_disagreements supplemental_claims] }
+                schema: { 'type': 'string', 'enum': %w[higher_level_reviews notice_of_disagreements supplemental_claims] },
+                example: 'higher_level_reviews'
 
       let(:decision_review_type) { 'notice_of_disagreements' }
 
       parameter name: :benefit_type,
                 in: :query,
                 description: 'Required if decision review type is Higher Level Review or Supplemental Claims.',
-                schema: { 'type': 'string', 'enum': %w[compensation pensionSurvivorsBenefits fiduciary lifeInsurance veteransHealthAdministration veteranReadinessAndEmployment loanGuaranty education nationalCemeteryAdministration] }
+                schema: { 'type': 'string', 'enum': %w[compensation pensionSurvivorsBenefits fiduciary lifeInsurance veteransHealthAdministration veteranReadinessAndEmployment loanGuaranty education nationalCemeteryAdministration] },
+                example: 'compensation'
 
       let(:benefit_type) { '' }
 
@@ -54,7 +56,9 @@ describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :
 
         before do |example|
           VCR.use_cassette('caseflow/notice_of_disagreements/contestable_issues') do
-            submit_request(example.metadata)
+            with_rswag_auth(scopes) do
+              submit_request(example.metadata)
+            end
           end
         end
 
@@ -81,7 +85,9 @@ describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :
 
         before do |example|
           VCR.use_cassette('caseflow/higher_level_reviews/not_found') do
-            submit_request(example.metadata)
+            with_rswag_auth(scopes) do
+              submit_request(example.metadata)
+            end
           end
         end
 
@@ -108,7 +114,9 @@ describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :
           let(:decision_review_type) { 'invalid' }
 
           before do |example|
-            submit_request(example.metadata)
+            with_rswag_auth(scopes) do
+              submit_request(example.metadata)
+            end
           end
 
           after do |example|
@@ -138,7 +146,9 @@ describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :
 
           before do |example|
             VCR.use_cassette('caseflow/higher_level_reviews/bad_date') do
-              submit_request(example.metadata)
+              with_rswag_auth(scopes) do
+                submit_request(example.metadata)
+              end
             end
           end
 
@@ -171,7 +181,9 @@ describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :
 
         before do |example|
           VCR.use_cassette('caseflow/higher_level_reviews/server_error') do
-            submit_request(example.metadata)
+            with_rswag_auth(scopes) do
+              submit_request(example.metadata)
+            end
           end
         end
 

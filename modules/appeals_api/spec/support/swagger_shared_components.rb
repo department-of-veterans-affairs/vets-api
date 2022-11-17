@@ -34,14 +34,16 @@ class AppealsApi::SwaggerSharedComponents
         type: :string,
         name: 'X-VA-SSN',
         required: true,
-        description: 'Veteran\'s SSN'
+        description: 'Veteran\'s SSN',
+        example: '706547821'
       },
       veteran_first_name_header: {
         in: :header,
         type: :string,
         name: 'X-VA-First-Name',
         required: true,
-        description: 'Veteran\'s first name'
+        description: 'Veteran\'s first name',
+        example: 'Cara'
       },
       veteran_middle_initial_header: {
         in: :header,
@@ -55,14 +57,16 @@ class AppealsApi::SwaggerSharedComponents
         type: :string,
         name: 'X-VA-Last-Name',
         required: true,
-        description: 'Veteran\'s last name'
+        description: 'Veteran\'s last name',
+        example: 'Bartlett'
       },
       veteran_birth_date_header: {
         in: :header,
         type: :string,
         name: 'X-VA-Birth-Date',
         required: true,
-        description: 'Veteran\'s birth date'
+        description: 'Veteran\'s birth date',
+        example: '1975-02-14'
       },
       veteran_file_number_header: {
         in: :header,
@@ -153,7 +157,8 @@ class AppealsApi::SwaggerSharedComponents
         type: :string,
         name: 'X-VA-Receipt-Date',
         required: true,
-        description: '(yyyy-mm-dd) In order to determine contestability of issues, the receipt date of a hypothetical Decision Review must be specified.'
+        description: '(yyyy-mm-dd) In order to determine contestability of issues, the receipt date of a hypothetical Decision Review must be specified.',
+        example: '2022-01-01'
       }
     }
   end

@@ -2,9 +2,9 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Higher-Level Reviews",
-    "version": "v2",
+    "version": "v0",
     "termsOfService": "https://developer.va.gov/terms-of-service",
-    "description": "\nThe Higher-Level Reviews API lets internal VA teams create and manage Higher-Level Reviews. Higher-Level Reviews can be requested after receiving an initial claim or a Supplemental Claims decision. [Learn more about VA Higher-Level Reviews](https://www.va.gov/decision-reviews/higher-level-review/).  \n\nTo check the status of all decision reviews and appeals for a specified individual, use the [Appeals Status API](https://developer.va.gov/explore/appeals/docs/appeals?version=current).\n\n## Technical overview\nThe Higher-Level Reviews API pulls data from Caseflow, a case management system. It provides decision review and appeal data that can be used for submitting a Higher-Level Review.\n\n### Authorization and Access\nTo gain access to the Higher-Level Reviews API you must [request an API Key](https://developer.va.gov/apply). API requests are authorized through a symmetric API token which is provided in an HTTP header named `apikey`.\n\nBecause this application is designed to let third-parties request information on behalf of a claimant, we are not using VA Authentication Federation Infrastructure (VAAFI) headers or Single Sign On External (SSOe).\n\n### Submission Statuses\nUse the correct GET endpoint to check the status of a Higher-Level Review submission. \n\nThese endpoints return the status of the submission in Caseflow but not the status of the submission in VBMS, which is the status visible to claimants. Therefore, VBMS statuses are different from the statuses this API returns. \n\nTo check the status of an appeal as it will appear to a claimant, use the [Appeals Status API](https://developer.va.gov/explore/appeals/docs/appeals?version=current).\n\n| Status      | What it means |\n| ---        |     ---     |\n| pending      | Submission successfully received by the API but has not yet started processing. |\n| submitting   | Data is transferring to upstream systems but is not yet complete. |\n| submitted   | A submitted status means the data was successfully transferred to the central mail portal.<br /><br />A submitted status is confirmation from the central mail portal that they have received the PDF, but the data is not yet being processed. The Date of Receipt is set when this status is achieved.<br /><br />Submitted is the final status in the sandbox environment.<p> |\n| processing   | Indicates intake has begun, the Intake, Conversion and Mail Handling Services (ICMHS) group is processing the appeal data. |\n| success   | The centralized mail portal, Digital Mail Handling System (DHMS), has received the data. |\n| complete   | Final status. Indicates the document package has been successfully associated with the Veteran and has been received in the correct business area for processing. Claim is now established in VBMS. |\n| error   | An error occurred. See the error code and message for further information. |\n\n#### Status simulation in sandbox and staging\n\nTest submissions do not progress through the same statuses as the production environment. In sandbox and staging, the final status of a submission is `submitted`; however, we allow passing a `Status-Simulation` header on the show endpoints so that you can simulate all production statuses.\n\n#### Status Caching\nDue to system limitations, status attribute data for the GET `/forms/200996/{uuid}` endpoint is cached for 1 hour. The updated_at field indicates the last time the status for a given GUID was updated.\n\n### [Terms of service](https://developer.va.gov/terms-of-service)\n"
+    "description": "The Higher-Level Reviews API lets internal VA teams create and manage Higher-Level Reviews. Higher-Level Reviews can be requested after receiving an initial claim or a Supplemental Claims decision. [Learn more about VA Higher-Level Reviews](https://www.va.gov/decision-reviews/higher-level-review/).  \n\nTo check the status of all decision reviews and appeals for a specified individual, use the [Appeals Status API](https://developer.va.gov/explore/appeals/docs/appeals?version=current).\n\n## Technical overview\nThe Higher-Level Reviews API pulls data from Caseflow, a case management system. It provides decision review and appeal data that can be used for submitting a Higher-Level Review.\n\n### Authorization and Access\nTo gain access to the Higher-Level Reviews API you must [request an API Key](https://developer.va.gov/apply). API requests are authorized through a symmetric API token which is provided in an HTTP header named `apikey`.\n\nBecause this application is designed to let third-parties request information on behalf of a claimant, we are not using VA Authentication Federation Infrastructure (VAAFI) headers or Single Sign On External (SSOe).\n\n### Submission Statuses\nUse the correct GET endpoint to check the status of a Higher-Level Review submission. \n\nThese endpoints return the status of the submission in Caseflow but not the status of the submission in VBMS, which is the status visible to claimants. Therefore, VBMS statuses are different from the statuses this API returns. \n\nTo check the status of an appeal as it will appear to a claimant, use the [Appeals Status API](https://developer.va.gov/explore/appeals/docs/appeals?version=current).\n\n| Status      | What it means |\n| ---        |     ---     |\n| pending      | Submission successfully received by the API but has not yet started processing. |\n| submitting   | Data is transferring to upstream systems but is not yet complete. |\n| submitted   | A submitted status means the data was successfully transferred to the central mail portal.<br /><br />A submitted status is confirmation from the central mail portal that they have received the PDF, but the data is not yet being processed. The Date of Receipt is set when this status is achieved.<br /><br />Submitted is the final status in the sandbox environment.<p> |\n| processing   | Indicates intake has begun, the Intake, Conversion and Mail Handling Services (ICMHS) group is processing the appeal data. |\n| success   | The centralized mail portal, Digital Mail Handling System (DHMS), has received the data. |\n| complete   | Final status. Indicates the document package has been successfully associated with the Veteran and has been received in the correct business area for processing. Claim is now established in VBMS. |\n| error   | An error occurred. See the error code and message for further information. |\n\n#### Status simulation in sandbox and staging\n\nTest submissions do not progress through the same statuses as the production environment. In sandbox and staging, the final status of a submission is `submitted`; however, we allow passing a `Status-Simulation` header on the show endpoints so that you can simulate all production statuses.\n\n#### Status Caching\nDue to system limitations, status attribute data for the GET `/forms/200996/{uuid}` endpoint is cached for 1 hour. The updated_at field indicates the last time the status for a given GUID was updated.\n\n### [Terms of service](https://developer.va.gov/terms-of-service)\n"
   },
   "tags": [
     {
@@ -24,6 +24,21 @@
         "security": [
           {
             "apikey": [
+
+            ]
+          },
+          {
+            "productionOauth": [
+              "claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
 
             ]
           }
@@ -692,6 +707,21 @@
             "apikey": [
 
             ]
+          },
+          {
+            "productionOauth": [
+              "claim.read"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
           }
         ],
         "parameters": [
@@ -699,8 +729,8 @@
             "name": "uuid",
             "in": "path",
             "description": "Higher-Level Review UUID",
-            "required": true,
             "example": "44e08764-6008-46e8-a95e-eb21951a5b68",
+            "required": true,
             "schema": {
               "type": "string"
             }
@@ -780,6 +810,21 @@
         "security": [
           {
             "apikey": [
+
+            ]
+          },
+          {
+            "productionOauth": [
+              "claim.read"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read"
+            ]
+          },
+          {
+            "bearer_token": [
 
             ]
           }
@@ -2056,6 +2101,21 @@
             "apikey": [
 
             ]
+          },
+          {
+            "productionOauth": [
+              "claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
           }
         ],
         "parameters": [
@@ -2572,6 +2632,39 @@
         "type": "apiKey",
         "name": "apikey",
         "in": "header"
+      },
+      "bearer_token": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "productionOauth": {
+        "type": "oauth2",
+        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://api.va.gov/oauth2/authorization",
+            "tokenUrl": "https://api.va.gov/oauth2/token",
+            "scopes": {
+              "claim.read": "Retrieve claim data",
+              "claim.write": "Submit claim data"
+            }
+          }
+        }
+      },
+      "sandboxOauth": {
+        "type": "oauth2",
+        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
+            "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
+            "scopes": {
+              "claim.read": "Retrieve claim data",
+              "claim.write": "Submit claim data"
+            }
+          }
+        }
       }
     },
     "schemas": {
@@ -2827,6 +2920,60 @@
             "items": {
               "$ref": "#/components/schemas/contestableIssue"
             }
+          }
+        }
+      },
+      "documentUploadMetadata": {
+        "type": "object",
+        "description": "Identifying properties about the document payload being submitted",
+        "required": [
+          "veteranFirstName",
+          "veteranLastName",
+          "fileNumber",
+          "zipCode",
+          "source"
+        ],
+        "properties": {
+          "veteranFirstName": {
+            "type": "string",
+            "description": "Veteran first name. Cannot be missing or empty or longer than 50 characters. Only upper/lower case letters, hyphens(-), spaces and forward-slash(/) allowed.",
+            "pattern": "^[a-zA-Z\\-\\/\\s]{1,50}$",
+            "example": "Jane"
+          },
+          "veteranLastName": {
+            "type": "string",
+            "description": "Veteran last name. Cannot be missing or empty or longer than 50 characters. Only upper/lower case letters, hyphens(-), spaces and forward-slash(/) allowed.",
+            "pattern": "^[a-zA-Z\\-\\/\\s]{1,50}$",
+            "example": "Doe-Smith"
+          },
+          "fileNumber": {
+            "description": "The Veteran's file number is exactly 9 digits with no alpha characters, hyphens, spaces or punctuation. In most cases, this is the Veteran's SSN but may also be an 8 digit BIRL number. If no file number has been established or if it is unknown, the application should use the Veteran's SSN and the file number will be associated with the submission later in the process. Incorrect file numbers can cause delays.",
+            "pattern": "^\\d{8,9}$",
+            "example": "999887777",
+            "type": "string"
+          },
+          "zipCode": {
+            "type": "string",
+            "example": "94402",
+            "description": "Veteran zip code. Either five digits (XXXXX) or five digits then four digits separated by a hyphen (XXXXX-XXXX). Use '00000' for Veterans with non-US addresses."
+          },
+          "source": {
+            "type": "string",
+            "example": "Vets.gov",
+            "description": "System, installation, or entity submitting the document"
+          },
+          "docType": {
+            "type": "string",
+            "example": "316",
+            "description": "VBA form number of the document"
+          },
+          "businessLine": {
+            "type": "string",
+            "example": "BVA",
+            "enum": [
+              "BVA"
+            ],
+            "description": "BVA - Board of Veteran Appeals"
           }
         }
       },
@@ -4114,7 +4261,7 @@
       "description": "VA.gov API sandbox environment",
       "variables": {
         "version": {
-          "default": "v2"
+          "default": "v0"
         }
       }
     },
@@ -4123,7 +4270,7 @@
       "description": "VA.gov API production environment",
       "variables": {
         "version": {
-          "default": "v2"
+          "default": "v0"
         }
       }
     }
