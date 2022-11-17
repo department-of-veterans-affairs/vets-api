@@ -40,10 +40,6 @@ module SAML
       Raven.user_context(session: session, user: user)
     end
 
-    def should_verify?
-      @type == 'mhv_verified' && user.loa[:current] == LOA::ONE
-    end
-
     def login_redirect_url(auth: 'success', code: nil, request_id: nil)
       if auth == 'success'
         application = @tracker.payload_attr(:application)
