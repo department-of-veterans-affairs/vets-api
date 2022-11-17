@@ -11,6 +11,7 @@ module SAML
     MHV_ICN_MISMATCH_CODE = '103'
     UUID_MISSING_CODE = '104'
     MULTPLE_CORP_IDS_CODE = '106'
+    MHV_UNVERIFIED_BLOCKED_CODE = '108'
 
     ERRORS = {
       multiple_mhv_ids: { code: MULTIPLE_MHV_IDS_CODE,
@@ -27,7 +28,10 @@ module SAML
                       message: 'User attributes is missing an ID.me and Login.gov UUID' }.freeze,
       multiple_corp_ids: { code: MULTPLE_CORP_IDS_CODE,
                            tag: :multiple_corp_ids,
-                           message: 'User attributes contain multiple distinct CORP ID values' }.freeze
+                           message: 'User attributes contain multiple distinct CORP ID values' }.freeze,
+      mhv_unverified_blocked: { code: MHV_UNVERIFIED_BLOCKED_CODE,
+                                tag: :mhv_unverified_blocked,
+                                message: 'MHV account is unverified for context requiring verified account' }.freeze
     }.freeze
 
     attr_reader :identifier

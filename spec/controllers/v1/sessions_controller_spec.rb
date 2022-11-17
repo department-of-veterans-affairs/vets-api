@@ -357,6 +357,35 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
       end
 
+      context 'when authenticated type is mhv_verified' do
+        let(:type_param) { { type: type } }
+        let(:type) { 'mhv_verified' }
+
+        context 'and authenticated user is loa three' do
+          let(:saml_user_attributes) { loa3_user.attributes.merge(loa3_user.identity.attributes) }
+
+          it 'makes a call to AfterLoginActions' do
+            allow(SAML::User).to receive(:new).and_return(saml_user)
+            expect_any_instance_of(Login::AfterLoginActions).to receive(:perform)
+            post :saml_callback, params: { RelayState: type_param.to_json }
+          end
+        end
+
+        context 'and authenticated user is loa one' do
+          let(:saml_user_attributes) { loa1_user.attributes.merge(loa1_user.identity.attributes) }
+          let(:error_code) { SAML::UserAttributeError::MHV_UNVERIFIED_BLOCKED_CODE }
+          let(:expected_redirect_params) do
+            { auth: 'fail', code: error_code, request_id: request_id, type: type }.to_query
+          end
+
+          it 'redirects to an auth failure page' do
+            expect(controller).to receive(:log_message_to_sentry)
+            expect(post(:saml_callback, params: { RelayState: type_param.to_json })).to redirect_to(expected_redirect)
+            expect(response).to have_http_status(:found)
+          end
+        end
+      end
+
       it 'redirect user to home page when no SAMLRequestTracker exists' do
         allow(SAML::User).to receive(:new).and_return(saml_user)
         expect(post(:saml_callback)).to redirect_to(expected_redirect_url)
