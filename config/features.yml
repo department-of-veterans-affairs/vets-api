@@ -785,18 +785,6 @@ features:
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
-  virtual_agent_bot_a:
-    actor_type: user
-    description: Points to Bot A
-    enable_in_development: true
-  virtual_agent_token:
-    actor_type: user
-    description: Enables connection to webchat
-    enable_in_development: true
-  virtual_agent_auth:
-    actor_type: user
-    description: Enables auth lock in order to access bot
-    enable_in_development: true
   virtual_agent_user_access_records:
     actor_type: user
     description: Enables collection of user data for VBA
