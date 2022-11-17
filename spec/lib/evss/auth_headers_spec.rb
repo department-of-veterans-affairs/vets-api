@@ -92,7 +92,7 @@ describe EVSS::AuthHeaders do
       end
 
       context 'when user is a dependent' do
-        let(:current_user) { FactoryBot.build(:user_with_relationship, :loa3, :dependent) }
+        let(:current_user) { FactoryBot.build(:dependent_user_with_relationship, :loa3) }
         let(:head_of_family) { authorization_response['headOfFamily'] }
         let(:expected_status) { 'DEPENDENT' }
 

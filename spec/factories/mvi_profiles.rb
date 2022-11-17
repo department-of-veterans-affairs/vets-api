@@ -127,6 +127,7 @@ FactoryBot.define do
       vet360_id { '123456789' }
       sec_id { '0001234567' }
       search_token { 'WSDOC2002071538432741110027956' }
+      person_types { ['PAT'] }
 
       trait :with_nil_address do
         address { nil }
