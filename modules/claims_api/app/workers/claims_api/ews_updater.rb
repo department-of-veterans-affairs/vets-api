@@ -18,27 +18,35 @@ module ClaimsApi
       else
         bgs_claim[:bnft_claim_dto][:filed5103_waiver_ind] = FILE_5103
 
-        response = bgs_service(ews).benefit_claims.update_bnft_claim(claim: bgs_claim)
-        if response[:bnft_claim_dto].nil?
-          ews.status = ClaimsApi::EvidenceWaiverSubmission::ERRORED
-          ews.bgs_error_message = "BGS Error: update_record failed with code #{response[:return_code]}"
-          ClaimsApi::Logger.log(ews_id: ews.id, claim_id: ews.claim_id,
-                                detail: 'Waiver update Failed', error: response[:return_code])
-        else
-          ews.status = ClaimsApi::EvidenceWaiverSubmission::UPDATED
-          # Clear out the error message if there were previous failures
-          ews.bgs_error_message = nil if ews.bgs_error_message.present?
-          ClaimsApi::Logger.log(ews_id: ews.id, claim_id: ews.claim_id, detail: 'Waiver Success')
-        end
+        update_bgs_claim(ews, bgs_claim)
 
       end
       ews.save
       ews
     end
 
+    private
+
     def bgs_service(ews)
       BGS::Services.new(external_uid: ews.auth_headers['va_eauth_pnid'],
                         external_key: ews.auth_headers['va_eauth_pnid'])
+    end
+
+    def update_bgs_claim(ews, bgs_claim)
+      response = bgs_service(ews).benefit_claims.update_bnft_claim(claim: bgs_claim)
+      if response[:bnft_claim_dto].nil?
+        ews.status = ClaimsApi::EvidenceWaiverSubmission::ERRORED
+        ews.bgs_error_message = "BGS Error: update_record failed with code #{response[:return_code]}"
+        ews.bgs_upload_failure_count = ews.bgs_upload_failure_count + 1
+        ClaimsApi::Logger.log(ews_id: ews.id, claim_id: ews.claim_id,
+                              detail: 'Waiver update Failed', error: response[:return_code],
+                              failure_count: ews.bgs_upload_failure_count)
+      else
+        ews.status = ClaimsApi::EvidenceWaiverSubmission::UPDATED
+        # Clear out the error message if there were previous failures
+        ews.bgs_error_message = nil if ews.bgs_error_message.present?
+        ClaimsApi::Logger.log(ews_id: ews.id, claim_id: ews.claim_id, detail: 'Waiver Success')
+      end
     end
   end
 end
