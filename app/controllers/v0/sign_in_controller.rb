@@ -9,12 +9,12 @@ module V0
     skip_before_action :authenticate, only: %i[authorize callback token refresh revoke logout]
 
     def authorize # rubocop:disable Metrics/MethodLength
-      type = params[:type]
-      client_state = params[:state]
-      code_challenge = params[:code_challenge]
-      code_challenge_method = params[:code_challenge_method]
-      client_id = params[:client_id]
-      acr = params[:acr]
+      type = params[:type].presence
+      client_state = params[:state].presence
+      code_challenge = params[:code_challenge].presence
+      code_challenge_method = params[:code_challenge_method].presence
+      client_id = params[:client_id].presence
+      acr = params[:acr].presence
 
       validate_authorize_params(type, client_id, code_challenge, code_challenge_method, acr)
 
@@ -43,9 +43,9 @@ module V0
     end
 
     def callback # rubocop:disable Metrics/MethodLength
-      code = params[:code]
-      state = params[:state]
-      error = params[:error]
+      code = params[:code].presence
+      state = params[:state].presence
+      error = params[:error].presence
 
       validate_callback_params(code, state, error)
 
@@ -81,9 +81,9 @@ module V0
     end
 
     def token
-      code = params[:code]
-      code_verifier = params[:code_verifier]
-      grant_type = params[:grant_type]
+      code = params[:code].presence
+      code_verifier = params[:code_verifier].presence
+      grant_type = params[:grant_type].presence
 
       validate_token_params(code, code_verifier, grant_type)
 
@@ -105,8 +105,8 @@ module V0
     end
 
     def refresh
-      refresh_token = params[:refresh_token] || token_cookies[SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME]
-      anti_csrf_token = params[:anti_csrf_token] || token_cookies[SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME]
+      refresh_token = refresh_token_param.presence
+      anti_csrf_token = anti_csrf_token_param.presence
 
       raise SignIn::Errors::MalformedParamsError, message: 'Refresh token is not defined' unless refresh_token
 
@@ -131,8 +131,8 @@ module V0
     end
 
     def revoke
-      refresh_token = params[:refresh_token]
-      anti_csrf_token = params[:anti_csrf_token]
+      refresh_token = params[:refresh_token].presence
+      anti_csrf_token = params[:anti_csrf_token].presence
 
       raise SignIn::Errors::MalformedParamsError, message: 'Refresh token is not defined' unless refresh_token
 
@@ -169,7 +169,7 @@ module V0
     end
 
     def logout
-      anti_csrf_token = params[:anti_csrf_token] || token_cookies[SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME]
+      anti_csrf_token = anti_csrf_token_param.presence
 
       unless load_user(skip_expiration_check: true)
         raise SignIn::Errors::LogoutAuthorizationError, message: 'Unable to Authorize User'
@@ -294,6 +294,14 @@ module V0
                               "acr:#{context[:acr]}"])
 
       redirect_to SignIn::LoginRedirectUrlGenerator.new(user_code_map: user_code_map).perform
+    end
+
+    def refresh_token_param
+      params[:refresh_token] || token_cookies[SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME]
+    end
+
+    def anti_csrf_token_param
+      params[:anti_csrf_token] || token_cookies[SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME]
     end
 
     def token_cookies
