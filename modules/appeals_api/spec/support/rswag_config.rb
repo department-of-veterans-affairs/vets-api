@@ -21,13 +21,7 @@ class AppealsApi::RswagConfig
         # basePath helps with rswag runs, but is not valid OAS v3. rswag.rake removes it from the output file.
         basePath: DocHelpers.api_base_path,
         components: {
-          securitySchemes: {
-            apikey: {
-              type: :apiKey,
-              name: :apikey,
-              in: :header
-            }
-          },
+          securitySchemes: security_schemes,
           schemas: schemas(DocHelpers.api_name)
         },
         servers: [
@@ -55,6 +49,56 @@ class AppealsApi::RswagConfig
   end
 
   private
+
+  def security_schemes
+    schemes = {
+      apikey: {
+        type: :apiKey,
+        name: :apikey,
+        in: :header
+      }
+    }
+
+    return schemes if DocHelpers.decision_reviews?
+
+    schemes.merge(
+      {
+        bearer_token: {
+          type: :http,
+          scheme: :bearer,
+          bearerFormat: :JWT
+        },
+        productionOauth: {
+          type: :oauth2,
+          description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)',
+          flows: {
+            authorizationCode: {
+              authorizationUrl: 'https://api.va.gov/oauth2/authorization',
+              tokenUrl: 'https://api.va.gov/oauth2/token',
+              scopes: {
+                'claim.read': 'Retrieve claim data',
+                'claim.write': 'Submit claim data'
+              }
+            }
+          }
+        },
+        sandboxOauth: {
+          type: :oauth2,
+          description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)',
+          flows: {
+            authorizationCode: {
+              authorizationUrl: 'https://sandbox-api.va.gov/oauth2/authorization',
+              tokenUrl: 'https://sandbox-api.va.gov/oauth2/token',
+              scopes: {
+                'claim.read': 'Retrieve claim data',
+                'claim.write': 'Submit claim data'
+              }
+            }
+          }
+        }
+      }
+    )
+  end
 
   def schemas(api_name = nil)
     a = []

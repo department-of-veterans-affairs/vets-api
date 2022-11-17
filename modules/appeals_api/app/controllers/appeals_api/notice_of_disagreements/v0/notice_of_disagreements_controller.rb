@@ -21,10 +21,6 @@ module AppealsApi::NoticeOfDisagreements::V0
         ).schema(self.class::FORM_NUMBER)
       )
 
-      response.tap do |s|
-        s.dig(*%w[properties data properties attributes properties]).delete('claimant')
-      end
-
       render json: response
     end
   end

@@ -2,7 +2,7 @@
 
 require 'appeals_api/token_validation_client'
 
-def with_openid_auth(scopes, valid: true, &block)
+def with_openid_auth(scopes = %w[], valid: true, &block)
   auth_token = 'TEST_TOKEN'
 
   allow_any_instance_of(AppealsApi::TokenValidationClient)
