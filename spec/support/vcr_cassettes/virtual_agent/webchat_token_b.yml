@@ -16,7 +16,7 @@ http_interactions:
       Host:
       - directline.botframework.com
       Authorization:
-      - Bearer fake_secret_a
+      - Bearer fake_secret_b
   response:
     status:
       code: 200
@@ -46,8 +46,8 @@ http_interactions:
       - Fri, 12 Mar 2021 21:21:12 GMT
     body:
       encoding: ASCII-8BIT
-      string: "{\r\n  \"conversationId\": \"fake.conversation.id\",\r\n  \"token\":
-        \"fake.token.bota\",\r\n
+      string: "{\r\n  \"conversationId\": \"7Oj0Ao2vmliLfqDVQdjN0M-6\",\r\n  \"token\":
+        \"fake.token.botb\",\r\n
         \ \"expires_in\": 3600\r\n}"
   recorded_at: Fri, 12 Mar 2021 21:21:12 GMT
 recorded_with: VCR 6.0.0

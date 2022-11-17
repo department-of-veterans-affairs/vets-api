@@ -10,10 +10,14 @@ module V0
     rescue_from Net::HTTPError, with: :service_exception_handler
 
     def create
-      directline_response = fetch_connector_values
-      render json: { token: directline_response[:token],
-                     conversationId: directline_response[:conversationId],
-                     apiSession: ERB::Util.url_encode(cookies[:api_session]) }
+      if !Flipper.enabled?(:virtual_agent_token)
+        render status: :not_found
+      else
+        directline_response = fetch_connector_values
+        render json: { token: directline_response[:token],
+                       conversationId: directline_response[:conversationId],
+                       apiSession: ERB::Util.url_encode(cookies[:api_session]) }
+      end
     end
 
     private
@@ -48,7 +52,11 @@ module V0
     end
 
     def bearer_token
-      secret = Settings.virtual_agent.webchat_secret
+      secret = if Flipper.enabled?(:virtual_agent_bot_a)
+                 Settings.virtual_agent.webchat_secret_a
+               else
+                 Settings.virtual_agent.webchat_secret_b
+               end
       @bearer_token ||= "Bearer #{secret}"
     end
 
