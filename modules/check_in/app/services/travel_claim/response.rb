@@ -15,7 +15,7 @@ module TravelClaim
 
     def handle
       response_body = begin
-        Oj.load(body)
+        Oj.load(body).with_indifferent_access
       rescue
         body
       end

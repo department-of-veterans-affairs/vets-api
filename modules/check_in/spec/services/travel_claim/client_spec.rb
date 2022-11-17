@@ -123,11 +123,12 @@ describe TravelClaim::Client do
         allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(exception)
       end
 
-      it 'logs message and raises exception' do
+      it 'logs message and returns original error' do
         expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
-        expect do
-          subject.submit_claim(token: access_token, patient_icn: icn, appointment_date: appt_date)
-        end.to raise_exception(exception)
+
+        response = subject.submit_claim(token: access_token, patient_icn: icn, appointment_date: appt_date)
+        expect(response.status).to eq(resp.status)
+        expect(response.body).to eq(resp.body)
       end
     end
 
@@ -144,11 +145,12 @@ describe TravelClaim::Client do
         allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(exception)
       end
 
-      it 'logs message and raises exception' do
+      it 'logs message and returns original error' do
         expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
-        expect do
-          subject.submit_claim(token: access_token, patient_icn: icn, appointment_date: appt_date)
-        end.to raise_exception(exception)
+
+        response = subject.submit_claim(token: access_token, patient_icn: icn, appointment_date: appt_date)
+        expect(response.status).to eq(resp.status)
+        expect(response.body).to eq(resp.body)
       end
     end
 
@@ -160,11 +162,12 @@ describe TravelClaim::Client do
         allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(exception)
       end
 
-      it 'logs message and raises exception' do
+      it 'logs message and returns original error' do
         expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
-        expect do
-          subject.submit_claim(token: access_token, patient_icn: icn, appointment_date: appt_date)
-        end.to raise_exception(exception)
+
+        response = subject.submit_claim(token: access_token, patient_icn: icn, appointment_date: appt_date)
+        expect(response.status).to eq(resp.status)
+        expect(response.body).to eq(resp.body)
       end
     end
 
@@ -178,9 +181,10 @@ describe TravelClaim::Client do
 
       it 'logs message and raises exception' do
         expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
-        expect do
-          subject.submit_claim(token: access_token, patient_icn: icn, appointment_date: appt_date)
-        end.to raise_exception(exception)
+
+        response = subject.submit_claim(token: access_token, patient_icn: icn, appointment_date: appt_date)
+        expect(response.status).to eq(resp.status)
+        expect(response.body).to eq(resp.body)
       end
     end
   end

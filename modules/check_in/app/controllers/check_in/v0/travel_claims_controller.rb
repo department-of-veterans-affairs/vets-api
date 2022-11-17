@@ -11,7 +11,7 @@ module CheckIn
         end
 
         claims_resp = TravelClaim::Service.build(check_in: check_in_session, params: permitted_params).submit_claim
-        render json: claims_resp
+        render json: claims_resp, status: claims_resp[:status]
       end
 
       def permitted_params

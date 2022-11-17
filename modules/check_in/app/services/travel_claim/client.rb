@@ -66,7 +66,7 @@ module TravelClaim
       log_message_to_sentry(e.original_body, :error,
                             { uuid: check_in.uuid },
                             { external_service: service_name, team: 'check-in' })
-      raise e
+      Faraday::Response.new(body: e.original_body, status: e.original_status)
     end
 
     private
