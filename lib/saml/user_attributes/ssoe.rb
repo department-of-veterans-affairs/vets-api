@@ -13,7 +13,7 @@ module SAML
                                    gender ssn birth_date uuid idme_uuid logingov_uuid verified_at sec_id
                                    mhv_icn mhv_correlation_id mhv_account_type cerner_id cerner_facility_ids
                                    edipi loa sign_in multifactor participant_id birls_id icn
-                                   person_types vha_facility_ids vha_facility_hash].freeze
+                                   vha_facility_ids vha_facility_hash].freeze
       INBOUND_AUTHN_CONTEXT = 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
 
       attr_reader :attributes, :authn_context, :tracker_uuid, :warnings
@@ -99,11 +99,6 @@ module SAML
 
       def phone
         safe_attr('va_eauth_phone')
-      end
-
-      # Returns an array because a person can have multipe types.
-      def person_types
-        safe_attr('va_eauth_persontype')&.split('|') || []
       end
 
       ### Identifiers

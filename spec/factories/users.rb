@@ -82,7 +82,6 @@ FactoryBot.define do
                              icn: t.icn,
                              mhv_icn: t.mhv_icn,
                              loa: t.loa,
-                             person_types: t.person_types,
                              multifactor: t.multifactor,
                              mhv_correlation_id: t.mhv_correlation_id,
                              mhv_account_type: t.mhv_account_type,
@@ -274,8 +273,20 @@ FactoryBot.define do
       end
     end
 
-    factory :user_with_relationship, traits: [:loa3] do
+    factory :dependent_user_with_relationship, traits: %i[loa3 dependent] do
       after(:build) do
+        stub_mpi(
+          build(
+            :mpi_profile_response,
+            :with_relationship,
+            person_types: ['DEP']
+          )
+        )
+      end
+    end
+
+    factory :user_with_relationship, traits: [:loa3] do
+      after(:build) do |_t|
         stub_mpi(
           build(
             :mpi_profile_response,
