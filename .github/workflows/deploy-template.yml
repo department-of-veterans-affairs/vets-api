@@ -97,12 +97,21 @@ jobs:
           done
           git diff
 
-      - name: Update test vets-api app image name in Manifest repo
+      - name: Update test vets-api app image name in Manifest repo for helm charts
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
         run: |
           cd vsp-infra-application-manifests/apps/vets-api/dev
+          yq e -i '(.vets-api.image.tag) |= "${{ github.sha }}"' values.yaml
+          git diff
+
+      - name: Update test vets-api app image name in Manifest repo test app
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
+        run: |
+          cd vsp-infra-application-manifests/apps/vets-api-helm101/dev
           yq e -i '(.vets-api.image.tag) |= "${{ github.sha }}"' values.yaml
           git diff
 
@@ -114,4 +123,4 @@ jobs:
           cwd: vsp-infra-application-manifests/apps
           author_name: va-vsp-bot
           author_email: devops@va.gov
-          message: "Release ${{ needs.prepare-values.outputs.environments }} for ${{inputs.ecr_repository}}."
+          message: "Release ${{ needs.prepare-values.outputs.environments }} and dev for ${{inputs.ecr_repository}}."
