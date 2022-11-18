@@ -134,8 +134,14 @@ web:
     envSecrets:
       - name: DD_APM_ENABLED
         value: false
+
+  pumaBacklog:
+    enabled: false
+
+
 #Worker Configuration
 worker:
+  enabled: false
   strategyType: RollingUpdate
   maxSurge: ""
   maxUnavailable: ""
@@ -154,11 +160,9 @@ worker:
 
   autoscaling:
     enabled: false
-    scaling_metric: ""
     minReplicas: ""
     maxReplicas: ""
     targetAverageValue: ""
-    targetAverageUtilization: ""
 
   healthCheck:
     requestPath: ""

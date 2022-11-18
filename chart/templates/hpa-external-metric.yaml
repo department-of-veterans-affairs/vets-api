@@ -1,4 +1,5 @@
-{{- if .Values.web.autoscaling.enabled }}
+{{- if .Values.web.pumaBacklog.enabled }}
+---
 apiVersion: datadoghq.com/v1alpha1
 kind: DatadogMetric
 metadata:

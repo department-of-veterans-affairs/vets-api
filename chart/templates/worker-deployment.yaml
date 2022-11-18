@@ -1,3 +1,4 @@
+{{- if .Values.worker.enabled }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -92,3 +93,4 @@ spec:
         {{- end }}
       terminationGracePeriodSeconds: {{ .Values.worker.terminationGracePeriodSeconds }} # put your longest Job time here plus security time.
       serviceAccountName: {{ .Values.web.serviceAccount.name }}
+{{- end }}
