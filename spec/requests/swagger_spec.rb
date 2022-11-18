@@ -1281,18 +1281,20 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     describe 'decision review evidence upload' do
       it 'supports uploading a file' do
-        expect(subject).to validate(
-          :post,
-          '/v0/decision_review_evidence',
-          200,
-          headers.update(
-            '_data' => {
-              'decision_review_evidence_attachment' => {
-                'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+        VCR.use_cassette('decision_review/200_pdf_validation') do
+          expect(subject).to validate(
+            :post,
+            '/v0/decision_review_evidence',
+            200,
+            headers.update(
+              '_data' => {
+                'decision_review_evidence_attachment' => {
+                  'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+                }
               }
-            }
+            )
           )
-        )
+        end
       end
 
       it 'returns a 400 if no attachment data is given' do
