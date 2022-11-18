@@ -38,8 +38,10 @@ Rails.application.reloader.to_prepare do
       chain.add SidekiqStatsInstrumentation::ClientMiddleware
     end
 
-    config.periodic do |mgr|
-      mgr.register('0 5 * * 1', 'AppealsApi::WeeklyErrorReport')
+    if defined?(Sidekiq::Enterprise)
+      config.periodic do |mgr|
+        mgr.register('0 5 * * 1', 'AppealsApi::WeeklyErrorReport')
+      end
     end
   end
 
