@@ -250,7 +250,7 @@ module AppealsApi
             statusable_id: id,
             code: code,
             detail: detail
-          }
+          }.stringify_keys
         )
       end
 
@@ -266,7 +266,7 @@ module AppealsApi
             guid: id,
             claimant_email: claimant.email,
             claimant_first_name: claimant.first_name
-          }
+          }.stringify_keys
         )
       end
     end
