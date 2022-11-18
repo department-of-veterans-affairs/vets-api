@@ -240,6 +240,9 @@ decision_review:
   url: https://sandbox-api.va.gov/services/appeals/v1/decision_reviews
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
+  pdf_validation:
+    enabled: true
+    url: https://sandbox-api.va.gov/services/vba_documents/v1
   s3:
     aws_access_key_id: ~
     aws_secret_access_key: ~
