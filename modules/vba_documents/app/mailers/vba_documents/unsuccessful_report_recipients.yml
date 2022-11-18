@@ -4,6 +4,7 @@ common:
   - 'viterna_mark@bah.com'
   - 'kristen.brown@adhocteam.us'
   - 'drew.fisher@adhocteam.us'
+  - 'michael.hobson@adhocteam.us'
 dev:
 staging:
 sandbox:
