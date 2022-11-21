@@ -35,13 +35,14 @@ module MyHealth
         message = Message.new(message_params.merge(upload_params))
         raise Common::Exceptions::ValidationErrors, message unless message.valid?
 
-        message_params[:id] = message_params.delete(:draft_id) if message_params[:draft_id].present?
-        create_message_params = { message: message_params.to_h }.merge(upload_params)
+        message_params_h = message_params.to_h
+        message_params_h[:id] = message_params_h.delete(:draft_id) if message_params_h[:draft_id].present?
+        create_message_params = { message: message_params_h }.merge(upload_params)
 
         client_response = if message.uploads.present?
                             client.post_create_message_with_attachment(create_message_params)
                           else
-                            client.post_create_message(message_params.to_h)
+                            client.post_create_message(message_params_h)
                           end
 
         render json: client_response,
@@ -70,13 +71,14 @@ module MyHealth
         message = Message.new(message_params.merge(upload_params)).as_reply
         raise Common::Exceptions::ValidationErrors, message unless message.valid?
 
-        message_params[:id] = message_params.delete(:draft_id) if message_params[:draft_id].present?
-        create_message_params = { message: message_params.to_h }.merge(upload_params)
+        message_params_h = message_params.to_h
+        message_params_h[:id] = message_params_h.delete(:draft_id) if message_params_h[:draft_id].present?
+        create_message_params = { message: message_params_h }.merge(upload_params)
 
         client_response = if message.uploads.present?
                             client.post_create_message_reply_with_attachment(params[:id], create_message_params)
                           else
-                            client.post_create_message_reply(params[:id], message_params.to_h)
+                            client.post_create_message_reply(params[:id], message_params_h)
                           end
 
         render json: client_response,
@@ -101,7 +103,10 @@ module MyHealth
       private
 
       def message_params
-        @message_params ||= params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject)
+        @message_params ||= begin
+          params[:message] = JSON.parse(params[:message]) if params[:message].is_a?(String)
+          params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject)
+        end
       end
 
       def upload_params
