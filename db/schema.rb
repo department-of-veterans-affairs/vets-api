@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_11_18_232353) do
+ActiveRecord::Schema.define(version: 2022_11_21_200033) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -232,14 +232,6 @@ ActiveRecord::Schema.define(version: 2022_11_18_232353) do
     t.index ["location"], name: "index_base_facilities_on_location", using: :gist
     t.index ["name"], name: "index_base_facilities_on_name", opclass: :gin_trgm_ops, using: :gin
     t.index ["unique_id", "facility_type"], name: "index_base_facilities_on_unique_id_and_facility_type", unique: true
-  end
-
-  create_table "beta_registrations", id: :serial, force: :cascade do |t|
-    t.string "user_uuid", null: false
-    t.string "feature", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["user_uuid", "feature"], name: "index_beta_registrations_on_user_uuid_and_feature", unique: true
   end
 
   create_table "central_mail_submissions", id: :serial, force: :cascade do |t|
