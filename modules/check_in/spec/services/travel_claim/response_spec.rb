@@ -87,6 +87,21 @@ describe TravelClaim::Response do
       end
     end
 
+    context 'when status 404' do
+      it 'returns a formatted response' do
+        error_message = 'Appointment not found.'
+        claims_api_response = {
+          currentDate: '[10/16/2020 03:28:48 PM]',
+          message: error_message
+        }
+        resp = Faraday::Response.new(body: claims_api_response, status: 404)
+        hsh = { data: { error: true, code: 'CLM_003_APPOINTMENT_NOT_FOUND', message: error_message },
+                status: resp.status }
+
+        expect(subject.build(response: resp).handle).to eq(hsh)
+      end
+    end
+
     context 'when status 500' do
       it 'returns a formatted response' do
         resp = Faraday::Response.new(body: 'Something went wrong', status: 500)
