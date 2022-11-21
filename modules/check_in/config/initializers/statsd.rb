@@ -32,6 +32,10 @@ unless Rails.env.test?
     CheckIn::V2::DemographicsController.statsd_measure :update, 'api.check_in.v2.demographics.update.measure'
     CheckIn::V2::DemographicsController.statsd_count_success :update, 'api.check_in.v2.demographics.update.count'
 
+    CheckIn::V0::TravelClaimsController.extend(StatsD::Instrument)
+    CheckIn::V0::TravelClaimsController.statsd_measure :create, 'api.check_in.v0.travel_claims.create.measure'
+    CheckIn::V0::TravelClaimsController.statsd_count_success :create, 'api.check_in.v0.travel_claims.create.count'
+
     # Measure the count/duration of GET/POST calls for services
     V2::Lorota::Client.extend(StatsD::Instrument)
     %i[token data].each do |method|
@@ -47,9 +51,9 @@ unless Rails.env.test?
     end
 
     TravelClaim::Client.extend(StatsD::Instrument)
-    %i[token].each do |method|
-      TravelClaim::Client.statsd_count_success method, "api.check_in.v2.travelclaim.#{method}.count"
-      TravelClaim::Client.statsd_measure method, "api.check_in.v2.travelclaim.#{method}.measure"
+    %i[token submit_claim].each do |method|
+      TravelClaim::Client.statsd_count_success method, "api.check_in.v0.travel_claim.#{method}.count"
+      TravelClaim::Client.statsd_measure method, "api.check_in.v0.travel_claim.#{method}.measure"
     end
   end
 
