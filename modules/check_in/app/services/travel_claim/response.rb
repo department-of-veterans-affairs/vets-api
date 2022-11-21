@@ -23,7 +23,7 @@ module TravelClaim
       case status
       when 200
         { data: response_body, status: status }
-      when 400, 401
+      when 400, 401, 404
         { data: error_data(message: response_body[:message]), status: status }
       else
         { data: unknown_error_data, status: status }
@@ -42,6 +42,8 @@ module TravelClaim
                      'CLM_001_MULTIPLE_APPTS'
                    when /already has a claim/i
                      'CLM_002_CLAIM_EXISTS'
+                   when /appointment not found/i
+                     'CLM_003_APPOINTMENT_NOT_FOUND'
                    when /unauthorized/i
                      'CLM_020_INVALID_AUTH'
                    else

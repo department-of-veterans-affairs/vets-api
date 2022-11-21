@@ -142,6 +142,30 @@ RSpec.describe 'V0::TravelClaims', type: :request do
         end
       end
 
+      context 'and service returns "appointment not found"' do
+        let(:response_body) do
+          {
+            data: {
+              error: true,
+              code: 'CLM_003_APPOINTMENT_NOT_FOUND',
+              message: 'Appointment not found.'
+            },
+            status: 404
+          }
+        end
+        let(:resp) { Faraday::Response.new(body: response_body, status: 404) }
+
+        it 'returns a failure response' do
+          VCR.use_cassette('check_in/btsss/submit_claim/submit_claim_404', match_requests_on: [:host]) do
+            VCR.use_cassette 'check_in/btsss/token/token_200' do
+              post '/check_in/v0/travel_claims', params: post_params
+            end
+          end
+          expect(response.status).to eq(resp.status)
+          expect(response.body).to eq(resp.body.to_json)
+        end
+      end
+
       context 'and service returns "unauthorized"' do
         let(:response_body) do
           {
