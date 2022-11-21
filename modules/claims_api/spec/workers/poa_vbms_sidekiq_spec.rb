@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'claims_api/vbms_sidekiq'
+require 'claims_api/poa_vbms_sidekiq'
 
-RSpec.describe ClaimsApi::VBMSSidekiq do
-  let(:dummy_class) { Class.new { extend ClaimsApi::VBMSSidekiq } }
+RSpec.describe ClaimsApi::PoaVbmsSidekiq do
+  let(:dummy_class) { Class.new { extend ClaimsApi::PoaVbmsSidekiq } }
 
   describe 'upload_to_vbms' do
     let(:power_of_attorney) { create(:power_of_attorney) }

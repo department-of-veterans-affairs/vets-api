@@ -2,12 +2,12 @@
 
 require 'sidekiq'
 require 'claims_api/vbms_uploader'
-require 'claims_api/vbms_sidekiq'
+require 'claims_api/poa_vbms_sidekiq'
 
 module ClaimsApi
-  class VBMSUploadJob
+  class PoaVBMSUploadJob
     include Sidekiq::Worker
-    include ClaimsApi::VBMSSidekiq
+    include ClaimsApi::PoaVbmsSidekiq
 
     # Uploads a 21-22 or 21-22a form for a given POA request to VBMS.
     # If successfully uploaded, it queues a job to update the POA code in BGS, as well.

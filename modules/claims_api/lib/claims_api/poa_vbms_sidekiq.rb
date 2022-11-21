@@ -3,7 +3,7 @@
 require 'claims_api/vbms_uploader'
 
 module ClaimsApi
-  module VBMSSidekiq
+  module PoaVbmsSidekiq
     include SentryLogging
 
     def upload_to_vbms(power_of_attorney, path)
