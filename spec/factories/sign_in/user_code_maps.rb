@@ -5,7 +5,7 @@ FactoryBot.define do
     skip_create
 
     login_code { SecureRandom.uuid }
-    type { SignIn::Constants::Auth::REDIRECT_URLS.first }
+    type { SignIn::Constants::Auth::CSP_TYPES.first }
     client_state { SecureRandom.hex }
     client_id { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
 

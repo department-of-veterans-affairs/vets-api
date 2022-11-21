@@ -31,11 +31,11 @@ module SignIn
 
       def normalized_attributes(user_info, credential_level)
         attributes = case type
-                     when 'idme'
+                     when Constants::Auth::IDME
                        idme_attributes(user_info)
-                     when 'dslogon'
+                     when Constants::Auth::DSLOGON
                        dslogon_attributes(user_info)
-                     when 'mhv'
+                     when Constants::Auth::MHV
                        mhv_attributes(user_info)
                      end
         attributes.merge(standard_attributes(user_info, credential_level))
@@ -83,11 +83,11 @@ module SignIn
 
       def get_authn_context(current_ial)
         case type
-        when 'idme'
+        when Constants::Auth::IDME
           current_ial == IAL::TWO ? LOA::IDME_LOA3 : LOA::IDME_LOA1_VETS
-        when 'dslogon'
+        when Constants::Auth::DSLOGON
           current_ial == IAL::TWO ? LOA::IDME_DSLOGON_LOA3 : LOA::IDME_DSLOGON_LOA1
-        when 'mhv'
+        when Constants::Auth::MHV
           current_ial == IAL::TWO ? LOA::IDME_MHV_LOA3 : LOA::IDME_MHV_LOA1
         end
       end

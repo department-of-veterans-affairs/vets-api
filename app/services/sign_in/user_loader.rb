@@ -59,13 +59,13 @@ module SignIn
 
     def authn_context
       case user_verification.credential_type
-      when 'idme'
+      when Constants::Auth::IDME
         user_is_verified? ? LOA::IDME_LOA3 : LOA::IDME_LOA1_VETS
-      when 'dslogon'
+      when Constants::Auth::DSLOGON
         user_is_verified? ? LOA::IDME_DSLOGON_LOA3 : LOA::IDME_DSLOGON_LOA1
-      when 'mhv'
+      when Constants::Auth::MHV
         user_is_verified? ? LOA::IDME_MHV_LOA3 : LOA::IDME_MHV_LOA1
-      when 'logingov'
+      when Constants::Auth::LOGINGOV
         user_is_verified? ? IAL::LOGIN_GOV_IAL2 : IAL::LOGIN_GOV_IAL1
       end
     end
@@ -75,7 +75,7 @@ module SignIn
     end
 
     def idme_or_logingov_service
-      sign_in[:service_name] == 'idme' || sign_in[:service_name] == 'logingov'
+      sign_in[:service_name] == Constants::Auth::IDME || sign_in[:service_name] == Constants::Auth::LOGINGOV
     end
 
     def user_is_verified?

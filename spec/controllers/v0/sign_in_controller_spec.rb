@@ -136,7 +136,7 @@ RSpec.describe V0::SignInController, type: :controller do
         it_behaves_like 'error response'
       end
 
-      context 'when type param is given but not in REDIRECT_URLS' do
+      context 'when type param is given but not in CSP_TYPES' do
         let(:type_value) { 'some-undefined-type' }
         let(:type) { { type: type_value } }
         let(:expected_error) { 'Type is not valid' }
@@ -145,7 +145,7 @@ RSpec.describe V0::SignInController, type: :controller do
       end
 
       context 'when type param is logingov' do
-        let(:type_value) { 'logingov' }
+        let(:type_value) { SignIn::Constants::Auth::LOGINGOV }
 
         context 'and acr param is not given' do
           let(:acr) { {} }
@@ -398,22 +398,22 @@ RSpec.describe V0::SignInController, type: :controller do
       end
 
       context 'when type param is idme' do
-        let(:type_value) { 'idme' }
-        let(:expected_type_value) { 'idme' }
+        let(:type_value) { SignIn::Constants::Auth::IDME }
+        let(:expected_type_value) { SignIn::Constants::Auth::IDME }
 
         it_behaves_like 'an idme authentication service interface'
       end
 
       context 'when type param is dslogon' do
-        let(:type_value) { 'dslogon' }
-        let(:expected_type_value) { 'dslogon' }
+        let(:type_value) { SignIn::Constants::Auth::DSLOGON }
+        let(:expected_type_value) { SignIn::Constants::Auth::DSLOGON }
 
         it_behaves_like 'an idme authentication service interface'
       end
 
       context 'when type param is mhv' do
-        let(:type_value) { 'mhv' }
-        let(:expected_type_value) { 'mhv' }
+        let(:type_value) { SignIn::Constants::Auth::MHV }
+        let(:expected_type_value) { SignIn::Constants::Auth::MHV }
 
         it_behaves_like 'an idme authentication service interface'
       end
@@ -581,12 +581,12 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:code_challenge_method) { SignIn::Constants::Auth::CODE_CHALLENGE_METHOD }
         let(:acr) { SignIn::Constants::Auth::ACR_VALUES.first }
         let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
-        let(:type) { SignIn::Constants::Auth::REDIRECT_URLS.first }
+        let(:type) { SignIn::Constants::Auth::CSP_TYPES.first }
         let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
 
         context 'and code in state payload matches an existing state code' do
           context 'when type in state JWT is logingov' do
-            let(:type) { 'logingov' }
+            let(:type) { SignIn::Constants::Auth::LOGINGOV }
             let(:response) { OpenStruct.new(access_token: token) }
             let(:token) { 'some-token' }
             let(:logingov_uuid) { 'some-logingov_uuid' }
@@ -718,7 +718,7 @@ RSpec.describe V0::SignInController, type: :controller do
           end
 
           context 'when type in state JWT is idme' do
-            let(:type) { 'idme' }
+            let(:type) { SignIn::Constants::Auth::IDME }
             let(:user_info) do
               OpenStruct.new(
                 sub: 'some-sub',
@@ -846,7 +846,7 @@ RSpec.describe V0::SignInController, type: :controller do
           end
 
           context 'when type in state JWT is dslogon' do
-            let(:type) { 'dslogon' }
+            let(:type) { SignIn::Constants::Auth::DSLOGON }
             let(:user_info) do
               OpenStruct.new(
                 sub: 'some-sub',
@@ -1126,7 +1126,7 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:code_challenge_method) { SignIn::Constants::Auth::CODE_CHALLENGE_METHOD }
       let(:acr) { SignIn::Constants::Auth::ACR_VALUES.first }
       let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
-      let(:type) { SignIn::Constants::Auth::REDIRECT_URLS.first }
+      let(:type) { SignIn::Constants::Auth::CSP_TYPES.first }
       let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
 
       context 'and error is access denied value' do

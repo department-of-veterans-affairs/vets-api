@@ -357,7 +357,7 @@ RSpec.describe Login::UserVerifier do
     end
 
     context 'when user credential is mhv' do
-      let(:login_value) { 'mhv' }
+      let(:login_value) { SignIn::Constants::Auth::MHV }
       let(:authn_identifier) { user_identity.mhv_correlation_id }
       let(:authn_identifier_type) { :mhv_uuid }
       let(:backing_idme_uuid) { idme_uuid_identifier }
@@ -367,7 +367,7 @@ RSpec.describe Login::UserVerifier do
     end
 
     context 'when user credential is idme' do
-      let(:login_value) { 'idme' }
+      let(:login_value) { SignIn::Constants::Auth::IDME }
       let(:authn_identifier) { user_identity.idme_uuid }
       let(:authn_identifier_type) { :idme_uuid }
       let(:backing_idme_uuid) { nil }
@@ -391,7 +391,7 @@ RSpec.describe Login::UserVerifier do
     end
 
     context 'when user credential is dslogon' do
-      let(:login_value) { 'dslogon' }
+      let(:login_value) { SignIn::Constants::Auth::DSLOGON }
       let(:authn_identifier) { user_identity.edipi }
       let(:authn_identifier_type) { :dslogon_uuid }
       let(:backing_idme_uuid) { idme_uuid_identifier }
@@ -401,7 +401,7 @@ RSpec.describe Login::UserVerifier do
     end
 
     context 'when user credential is logingov' do
-      let(:login_value) { 'logingov' }
+      let(:login_value) { SignIn::Constants::Auth::LOGINGOV }
       let(:authn_identifier) { user_identity.logingov_uuid }
       let(:authn_identifier_type) { :logingov_uuid }
       let(:backing_idme_uuid) { nil }

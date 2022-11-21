@@ -13,7 +13,7 @@ module SignIn
     )
 
     validates(:requested_acr, inclusion: { in: Constants::Auth::ACR_VALUES })
-    validates(:credential_type, inclusion: { in: Constants::Auth::REDIRECT_URLS })
+    validates(:credential_type, inclusion: { in: Constants::Auth::CSP_TYPES })
     validates(:current_ial, inclusion: { in: [IAL::ONE, IAL::TWO] })
     validates(:max_ial, inclusion: { in: [IAL::ONE, IAL::TWO] })
     validate(:max_ial_greater_than_or_equal_to_current_ial)

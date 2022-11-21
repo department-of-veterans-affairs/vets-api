@@ -18,13 +18,13 @@ module SignIn
 
     def translate_acr
       case type
-      when 'idme'
+      when Constants::Auth::IDME
         translate_idme_values
-      when 'logingov'
+      when Constants::Auth::LOGINGOV
         translate_logingov_values
-      when 'dslogon'
+      when Constants::Auth::DSLOGON
         translate_dslogon_values
-      when 'mhv'
+      when Constants::Auth::MHV
         translate_mhv_values
       else
         raise Errors::InvalidTypeError, message: 'Invalid Type value'

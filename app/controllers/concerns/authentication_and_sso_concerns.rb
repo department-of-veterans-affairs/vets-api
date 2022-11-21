@@ -28,7 +28,7 @@ module AuthenticationAndSSOConcerns
 
   def validate_inbound_login_params
     csp_type = params[:csp_type] ||= ''
-    if csp_type == 'logingov'
+    if csp_type == SAML::User::LOGINGOV_CSID
       ial = params[:ial]
       raise Common::Exceptions::ParameterMissing, 'ial' if ial.blank?
       raise Common::Exceptions::InvalidFieldValue.new('ial', ial) if %w[1 2].exclude?(ial)

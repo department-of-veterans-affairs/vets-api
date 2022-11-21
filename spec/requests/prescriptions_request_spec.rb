@@ -11,7 +11,10 @@ RSpec.describe 'prescriptions' do
 
   let(:va_patient) { true }
   let(:current_user) do
-    build(:user, :mhv, authn_context: LOA::IDME_LOA3_VETS, va_patient: va_patient, mhv_account_type: mhv_account_type, sign_in: { service_name: 'idme' })
+    build(:user, :mhv, authn_context: LOA::IDME_LOA3_VETS,
+                       va_patient: va_patient,
+                       mhv_account_type: mhv_account_type,
+                       sign_in: { service_name: SignIn::Constants::Auth::IDME })
   end
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
@@ -44,7 +47,7 @@ RSpec.describe 'prescriptions' do
                 authn_context: LOA::IDME_LOA3_VETS,
                 va_patient: va_patient,
                 mhv_account_type: mhv_account_type,
-                sign_in: { service_name: 'idme' })
+                sign_in: { service_name: SignIn::Constants::Auth::IDME })
         end
 
         include_examples 'for non va patient user', authorized: false, message: 'You do not have access to prescriptions'

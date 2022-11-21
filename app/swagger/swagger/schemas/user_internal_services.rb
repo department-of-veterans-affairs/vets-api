@@ -58,7 +58,7 @@ module Swagger
               property :sign_in, type: :object do
                 property :service_name,
                          type: :string,
-                         enum: %w[mhv dslogon idme],
+                         enum: %w[mhv dslogon idme logingov],
                          example: 'mhv',
                          description: 'The name of the service that the user used for the beginning of the
                                        authentication process (username + password)'

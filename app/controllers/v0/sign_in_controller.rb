@@ -199,7 +199,7 @@ module V0
       unless SignIn::Constants::ClientConfig::CLIENT_IDS.include?(client_id)
         raise SignIn::Errors::MalformedParamsError, message: 'Client id is not valid'
       end
-      unless SignIn::Constants::Auth::REDIRECT_URLS.include?(type)
+      unless SignIn::Constants::Auth::CSP_TYPES.include?(type)
         raise SignIn::Errors::AuthorizeInvalidType, message: 'Type is not valid'
       end
       unless SignIn::Constants::Auth::ACR_VALUES.include?(acr)

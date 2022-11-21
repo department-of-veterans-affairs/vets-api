@@ -16,7 +16,7 @@ module SignIn
     validates :code_challenge, :code, presence: true
     validates :acr, inclusion: Constants::Auth::ACR_VALUES
     validates :client_id, inclusion: Constants::ClientConfig::CLIENT_IDS
-    validates :type, inclusion: Constants::Auth::REDIRECT_URLS
+    validates :type, inclusion: Constants::Auth::CSP_TYPES
     validates :client_state, length: { minimum: Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH }, allow_blank: true
 
     # rubocop:disable Metrics/ParameterLists

@@ -83,7 +83,8 @@ RSpec.describe Users::Profile do
         end
 
         it 'includes sign_in' do
-          expect(profile[:sign_in]).to eq(service_name: 'idme', auth_broker: SAML::URLService::BROKER_CODE,
+          expect(profile[:sign_in]).to eq(service_name: SAML::User::IDME_CSID,
+                                          auth_broker: SAML::URLService::BROKER_CODE,
                                           client_id: 'web')
         end
 
@@ -95,7 +96,7 @@ RSpec.describe Users::Profile do
           end
 
           it 'includes sign_in.service_name' do
-            expect(profile[:sign_in][:service_name]).to eq('idme')
+            expect(profile[:sign_in][:service_name]).to eq(SAML::User::IDME_CSID)
           end
         end
       end
@@ -104,7 +105,7 @@ RSpec.describe Users::Profile do
         let(:user) { create(:user, :mhv) }
 
         it 'includes sign_in' do
-          expect(profile[:sign_in]).to eq(service_name: 'mhv',
+          expect(profile[:sign_in]).to eq(service_name: SAML::User::MHV_ORIGINAL_CSID,
                                           auth_broker: SAML::URLService::BROKER_CODE,
                                           client_id: 'web')
         end
@@ -113,7 +114,7 @@ RSpec.describe Users::Profile do
           let(:user) { create(:user, :loa1, authn_context: 'myhealthevet_multifactor') }
 
           it 'includes sign_in.service_name' do
-            expect(profile[:sign_in][:service_name]).to eq('mhv')
+            expect(profile[:sign_in][:service_name]).to eq(SAML::User::MHV_ORIGINAL_CSID)
           end
         end
 
@@ -121,7 +122,7 @@ RSpec.describe Users::Profile do
           let(:user) { create(:user, :loa1, authn_context: 'myhealthevet_loa3') }
 
           it 'includes sign_in.service_name' do
-            expect(profile[:sign_in][:service_name]).to eq('mhv')
+            expect(profile[:sign_in][:service_name]).to eq(SAML::User::MHV_ORIGINAL_CSID)
           end
         end
       end
@@ -130,7 +131,8 @@ RSpec.describe Users::Profile do
         let(:user) { create(:user, :dslogon) }
 
         it 'includes sign_in' do
-          expect(profile[:sign_in]).to eq(service_name: 'dslogon', auth_broker: SAML::URLService::BROKER_CODE,
+          expect(profile[:sign_in]).to eq(service_name: SAML::User::DSLOGON_CSID,
+                                          auth_broker: SAML::URLService::BROKER_CODE,
                                           client_id: 'web')
         end
 
@@ -138,7 +140,7 @@ RSpec.describe Users::Profile do
           let(:user) { create(:user, :loa1, authn_context: 'dslogon_multifactor') }
 
           it 'includes sign_in.service_name' do
-            expect(profile[:sign_in][:service_name]).to eq('dslogon')
+            expect(profile[:sign_in][:service_name]).to eq(SAML::User::DSLOGON_CSID)
           end
         end
 
@@ -146,7 +148,7 @@ RSpec.describe Users::Profile do
           let(:user) { create(:user, :loa1, authn_context: 'dslogon_loa3') }
 
           it 'includes sign_in.service_name' do
-            expect(profile[:sign_in][:service_name]).to eq('dslogon')
+            expect(profile[:sign_in][:service_name]).to eq(SAML::User::DSLOGON_CSID)
           end
         end
       end

@@ -237,16 +237,16 @@ describe SignIn::Idme::Service do
         auto_uplevel: auto_uplevel
       }
     end
-    let(:service_name) { 'idme' }
+    let(:service_name) { SignIn::Constants::Auth::IDME }
     let(:auto_uplevel) { false }
     let(:authn_context) { LOA::IDME_LOA3 }
     let(:auth_broker) { SignIn::Constants::Auth::BROKER_CODE }
     let(:credential_level) { create(:credential_level, current_ial: IAL::TWO, max_ial: IAL::TWO) }
 
     context 'when type is idme' do
-      let(:type) { 'idme' }
+      let(:type) { SignIn::Constants::Auth::IDME }
       let(:authn_context) { LOA::IDME_LOA3 }
-      let(:service_name) { 'idme' }
+      let(:service_name) { SignIn::Constants::Auth::IDME }
       let(:user_info) do
         OpenStruct.new(
           {
@@ -306,9 +306,9 @@ describe SignIn::Idme::Service do
     end
 
     context 'when type is dslogon' do
-      let(:type) { 'dslogon' }
+      let(:type) { SignIn::Constants::Auth::DSLOGON }
       let(:authn_context) { LOA::IDME_DSLOGON_LOA3 }
-      let(:service_name) { 'dslogon' }
+      let(:service_name) { SignIn::Constants::Auth::DSLOGON }
       let(:user_info) do
         OpenStruct.new(
           {
@@ -351,9 +351,9 @@ describe SignIn::Idme::Service do
     end
 
     context 'when type is mhv' do
-      let(:type) { 'mhv' }
+      let(:type) { SignIn::Constants::Auth::MHV }
       let(:authn_context) { LOA::IDME_MHV_LOA3 }
-      let(:service_name) { 'mhv' }
+      let(:service_name) { SignIn::Constants::Auth::MHV }
       let(:user_info) do
         OpenStruct.new(
           {

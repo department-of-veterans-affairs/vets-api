@@ -81,7 +81,7 @@ Rails.application.reloader.to_prepare do
   StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_FAILURE, 0)
   StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE, 0)
   SignIn::Constants::ClientConfig::CLIENT_IDS.each do |client_id|
-    SignIn::Constants::Auth::REDIRECT_URLS.each do |type|
+    SignIn::Constants::Auth::CSP_TYPES.each do |type|
       SignIn::Constants::Auth::ACR_VALUES.each do |acr|
         StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_SUCCESS, 0,
                          tags: ["type:#{type}", "client_id:#{client_id}", "acr:#{acr}"])
