@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_11_18_215335) do
+ActiveRecord::Schema.define(version: 2022_11_18_223800) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -848,6 +848,8 @@ ActiveRecord::Schema.define(version: 2022_11_18_215335) do
     t.integer "terms_and_conditions_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.uuid "user_account_id"
+    t.index ["user_account_id"], name: "index_terms_and_conditions_acceptances_on_user_account_id"
     t.index ["user_uuid"], name: "index_terms_and_conditions_acceptances_on_user_uuid"
   end
 
@@ -1091,6 +1093,7 @@ ActiveRecord::Schema.define(version: 2022_11_18_215335) do
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
+  add_foreign_key "terms_and_conditions_acceptances", "user_accounts"
   add_foreign_key "user_verifications", "user_accounts"
   add_foreign_key "veteran_device_records", "devices"
 end
