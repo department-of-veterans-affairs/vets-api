@@ -5,7 +5,7 @@ require 'bgs'
 require 'claims_api/claim_logger'
 
 module ClaimsApi
-  class VBMSUpdater
+  class PoaVBMSUpdater
     include Sidekiq::Worker
 
     def perform(power_of_attorney_id) # rubocop:disable Metrics/MethodLength

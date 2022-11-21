@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative '../support/fake_vbms'
 
-RSpec.describe ClaimsApi::VBMSUploadJob, type: :job do
+RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
   subject { described_class }
 
   before do
@@ -65,7 +65,7 @@ RSpec.describe ClaimsApi::VBMSUploadJob, type: :job do
       }.with_indifferent_access)
       allow_any_instance_of(BGS::PersonWebService)
         .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
-      allow_any_instance_of(ClaimsApi::VBMSUploadJob).to receive(:fetch_file_path).and_return('/tmp/path.pdf')
+      allow_any_instance_of(ClaimsApi::PoaVBMSUploadJob).to receive(:fetch_file_path).and_return('/tmp/path.pdf')
 
       allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:fetch_upload_token).and_return(token_response)
       allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:upload_document).and_return(document_response)
