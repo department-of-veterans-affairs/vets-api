@@ -13,7 +13,7 @@ RSpec.describe SignIn::AcrTranslator do
     let(:uplevel) { false }
 
     context 'when type is idme' do
-      let(:type) { 'idme' }
+      let(:type) { SignIn::Constants::Auth::IDME }
 
       context 'and acr is loa1' do
         let(:acr) { 'loa1' }
@@ -67,7 +67,7 @@ RSpec.describe SignIn::AcrTranslator do
     end
 
     context 'when type is logingov' do
-      let(:type) { 'logingov' }
+      let(:type) { SignIn::Constants::Auth::LOGINGOV }
 
       context 'and acr is ial1' do
         let(:acr) { 'ial1' }
@@ -121,7 +121,7 @@ RSpec.describe SignIn::AcrTranslator do
     end
 
     context 'when type is dslogon' do
-      let(:type) { 'dslogon' }
+      let(:type) { SignIn::Constants::Auth::DSLOGON }
 
       context 'and acr is loa1' do
         let(:acr) { 'loa1' }
@@ -163,7 +163,7 @@ RSpec.describe SignIn::AcrTranslator do
     end
 
     context 'when type is mhv' do
-      let(:type) { 'mhv' }
+      let(:type) { SignIn::Constants::Auth::MHV }
 
       context 'and acr is loa1' do
         let(:acr) { 'loa1' }

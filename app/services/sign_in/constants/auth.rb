@@ -7,7 +7,7 @@ module SignIn
       CODE_CHALLENGE_METHOD = 'S256'
       JWT_ENCODE_ALGORITHM = 'RS256'
       GRANT_TYPE = 'authorization_code'
-      REDIRECT_URLS = [IDME = 'idme', LOGINGOV = 'logingov', DSLOGON = 'dslogon', MHV = 'mhv'].freeze
+      CSP_TYPES = [IDME = 'idme', LOGINGOV = 'logingov', DSLOGON = 'dslogon', MHV = 'mhv'].freeze
       CLIENT_STATE_MINIMUM_LENGTH = 22
       ACCESS_TOKEN_COOKIE_NAME = 'vagov_access_token'
       REFRESH_TOKEN_COOKIE_NAME = 'vagov_refresh_token'

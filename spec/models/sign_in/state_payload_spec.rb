@@ -14,7 +14,7 @@ RSpec.describe SignIn::StatePayload, type: :model do
   end
 
   let(:code_challenge) { Base64.urlsafe_encode64(SecureRandom.hex) }
-  let(:type) { SignIn::Constants::Auth::REDIRECT_URLS.first }
+  let(:type) { SignIn::Constants::Auth::CSP_TYPES.first }
   let(:acr) { SignIn::Constants::Auth::ACR_VALUES.first }
   let(:code) { SecureRandom.hex }
   let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }

@@ -31,7 +31,7 @@ RSpec.describe Sentry::Processor::FilterRequestBody do
         {
           'tags' => {
             'controller_name' => 'ppiu',
-            'sign_in_method' => { 'service_name' => 'idme', 'acct_type' => nil }
+            'sign_in_method' => { 'service_name' => SignIn::Constants::Auth::IDME, 'acct_type' => nil }
           },
           'request' => {}
         }
@@ -47,7 +47,7 @@ RSpec.describe Sentry::Processor::FilterRequestBody do
     {
       'tags' => {
         'controller_name' => controller,
-        'sign_in_method' => { 'service_name' => 'idme', 'acct_type' => nil }
+        'sign_in_method' => { 'service_name' => SignIn::Constants::Auth::IDME, 'acct_type' => nil }
       },
       'request' => {
         'data' => "{\n  \"account_type\": \"Checking\"}"

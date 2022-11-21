@@ -6,7 +6,7 @@ FactoryBot.define do
 
     acr { SignIn::Constants::Auth::ACR_VALUES.first }
     client_id { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
-    type { SignIn::Constants::Auth::REDIRECT_URLS.first }
+    type { SignIn::Constants::Auth::CSP_TYPES.first }
     code_challenge { Base64.urlsafe_encode64(SecureRandom.hex) }
     client_state { SecureRandom.hex }
     code { SecureRandom.hex }

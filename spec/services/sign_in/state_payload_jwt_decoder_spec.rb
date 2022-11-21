@@ -20,7 +20,7 @@ RSpec.describe SignIn::StatePayloadJwtDecoder do
     let(:code_challenge_method) { SignIn::Constants::Auth::CODE_CHALLENGE_METHOD }
     let(:client_state) { SecureRandom.alphanumeric(client_state_minimum_length + 1) }
     let(:acr) { SignIn::Constants::Auth::ACR_VALUES.first }
-    let(:type) { SignIn::Constants::Auth::REDIRECT_URLS.first }
+    let(:type) { SignIn::Constants::Auth::CSP_TYPES.first }
     let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
     let(:client_state_minimum_length) { SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH }
 

@@ -14,7 +14,8 @@ describe Ch33DdPolicy do
 
     context 'with a login.gov user' do
       before do
-        allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: 'logingov')
+        allow_any_instance_of(UserIdentity).to receive(:sign_in)
+          .and_return(service_name: SignIn::Constants::Auth::LOGINGOV)
       end
 
       it 'allows access' do

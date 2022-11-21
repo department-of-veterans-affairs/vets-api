@@ -12,7 +12,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
     end
 
     let(:requested_acr) { SignIn::Constants::Auth::ACR_VALUES.first }
-    let(:type) { SignIn::Constants::Auth::REDIRECT_URLS.first }
+    let(:type) { SignIn::Constants::Auth::CSP_TYPES.first }
     let(:id_token) { JWT.encode(id_token_payload, OpenSSL::PKey::RSA.new(2048), 'RS256') }
     let(:id_token_payload) { 'some-id-token' }
     let(:verified_at) { Time.zone.now }

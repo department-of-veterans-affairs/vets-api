@@ -14,7 +14,7 @@ RSpec.describe SignIn::CredentialLevel, type: :model do
   let(:requested_acr) { SignIn::Constants::Auth::ACR_VALUES.first }
   let(:current_ial) { IAL::ONE }
   let(:max_ial) { IAL::ONE }
-  let(:credential_type) { SignIn::Constants::Auth::REDIRECT_URLS.first }
+  let(:credential_type) { SignIn::Constants::Auth::CSP_TYPES.first }
 
   describe 'validations' do
     describe '#requested_acr' do
