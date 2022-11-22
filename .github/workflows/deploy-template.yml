@@ -71,7 +71,7 @@ jobs:
           fetch-depth: 1
           path: vsp-infra-application-manifests
 
-      - name: Update vets-api image name in Manifest repo
+      - name: Update vets-api image name in Manifest repo for parent helm
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
@@ -80,30 +80,17 @@ jobs:
           envs=( ${{ needs.prepare-values.outputs.environments }} )
           for env in ${envs[*]};
           do
-            yq e -i '(.image_tag) |= "${{ github.sha }}"' $env/values.yaml
+            yq e -i '(.vets-api.image.tag) |= "${{ github.sha }}"' values.yaml
           done
           git diff
 
-      - name: Update sidekiq image name in Manifest repo
+      - name: Update test vets-api app image name for prod (non helm)
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
         run: |
-          cd vsp-infra-application-manifests/apps/sidekiq
-          envs=( ${{ needs.prepare-values.outputs.environments }} )
-          for env in ${envs[*]};
-          do
-            yq e -i '(.image_tag) |= "${{ github.sha }}"' $env/values.yaml
-          done
-          git diff
-
-      - name: Update test vets-api app image name in Manifest repo for helm charts
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
-        run: |
-          cd vsp-infra-application-manifests/apps/vets-api/dev
-          yq e -i '(.vets-api.image.tag) |= "${{ github.sha }}"' values.yaml
+          cd vsp-infra-application-manifests/apps/vets-api-server/prod
+          yq e -i '(.image_tag) |= "${{ github.sha }}"' $env/values.yaml
           git diff
 
       - name: Update test vets-api app image name in Manifest repo test app
