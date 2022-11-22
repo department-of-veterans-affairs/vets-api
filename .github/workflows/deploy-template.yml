@@ -89,8 +89,8 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
         run: |
-          cd vsp-infra-application-manifests/apps/vets-api-server/prod
-          yq e -i '(.image_tag) |= "${{ github.sha }}"' $env/values.yaml
+          cd vsp-infra-application-manifests/apps/vets-api-server/prod/
+          yq e -i '(.image_tag) |= "${{ github.sha }}"' values.yaml
           git diff
 
       - name: Update test vets-api app image name in Manifest repo test app
