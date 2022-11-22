@@ -45,6 +45,7 @@ module V0
 
       resource = TermsAndConditionsAcceptance.new(
         user_uuid: current_user.uuid,
+        user_account: current_user.user_account,
         terms_and_conditions: terms
       )
       if resource.save
