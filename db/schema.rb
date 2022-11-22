@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_11_22_003745) do
+ActiveRecord::Schema.define(version: 2022_11_22_004008) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -620,6 +620,8 @@ ActiveRecord::Schema.define(version: 2022_11_22_003745) do
     t.text "user_demographics_data_ciphertext"
     t.text "encrypted_kms_key"
     t.date "verified_decryptable_at"
+    t.uuid "user_account_id"
+    t.index ["user_account_id"], name: "index_health_quest_questionnaire_responses_on_user_account_id"
     t.index ["user_uuid", "questionnaire_response_id"], name: "find_by_user_qr", unique: true
   end
 
@@ -1094,6 +1096,7 @@ ActiveRecord::Schema.define(version: 2022_11_22_003745) do
   add_foreign_key "async_transactions", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_verifications"
+  add_foreign_key "health_quest_questionnaire_responses", "user_accounts"
   add_foreign_key "form5655_submissions", "user_accounts"
   add_foreign_key "form526_submissions", "user_accounts"
   add_foreign_key "evss_claims", "user_accounts"
