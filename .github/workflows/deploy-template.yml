@@ -98,8 +98,12 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
         run: |
-          cd vsp-infra-application-manifests/apps/vets-api-helm101/dev
-          yq e -i '(.vets-api.image.tag) |= "${{ github.sha }}"' values.yaml
+          cd vsp-infra-application-manifests/apps/vets-api-helm101
+          envs="dev staging prod"
+          for env in ${envs[*]};
+          do
+            yq e -i '(.vets-api.image.tag) |= "${{ github.sha }}"' $env/values.yaml
+          done
           git diff
 
       - name: Add and Commit file
