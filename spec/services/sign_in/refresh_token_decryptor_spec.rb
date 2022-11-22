@@ -51,8 +51,10 @@ RSpec.describe SignIn::RefreshTokenDecryptor do
       end
       let(:expected_error) { SignIn::Errors::RefreshTokenDecryptionError }
       let(:expected_error_message) { 'Refresh token cannot be decrypted' }
+      let(:expected_log) { "[RefreshTokenDecryptor] Token cannot be decrypted, refresh_token: #{token_to_decrypt}" }
 
       it 'returns an invalid message error' do
+        expect(Rails.logger).to receive(:info).with(expected_log)
         expect { subject }.to raise_error(expected_error, expected_error_message)
       end
     end
