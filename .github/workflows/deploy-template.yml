@@ -12,6 +12,9 @@ on:
       auto_deploy_envs:
         required: true
         type: string
+      auto_deploy_parent_helm_envs:
+        required: true
+        type: string
     secrets:
       aws_access_key_id: #${{ secrets.AWS_ACCESS_KEY_ID }}
         required: true
@@ -23,15 +26,18 @@ jobs:
     runs-on: ubuntu-20.04
     outputs:
       environments: ${{ steps.set-environments.outputs.environments }}
+      helm_environments: ${{ steps.set-environments.outputs.helm_environments }}
     steps:
       - name: Set to auto deploy environments on push to k8s
         run: |
           echo "triggered via schedule"
           echo "environments=${{inputs.auto_deploy_envs}}" >> $GITHUB_ENV
+          echo "helm_environments=${{inputs.auto_deploy_parent_helm_envs}}" >> $GITHUB_ENV
       - name: Set output
         id: set-environments
         run: |
           echo "::set-output name=environments::${{ env.environments }}"
+          echo "::set-output name=helm_environments::${{ env.helm_environments }}"
   release:
     needs: [prepare-values]
     if: github.ref == 'refs/heads/k8s'
@@ -84,6 +90,19 @@ jobs:
           done
           git diff
 
+      - name: Update vets-api image name in Manifest repo for parent helm charts
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
+        run: |
+          cd vsp-infra-application-manifests/apps/${{inputs.manifests_directory}}
+          envs=( ${{ needs.prepare-values.outputs.helm_environments }} )
+          for env in ${envs[*]};
+          do
+            yq e -i '(.vets-api.image.tag) |= "${{ github.sha }}"' $env/values.yaml
+          done
+          git diff
+
       - name: Update sidekiq image name in Manifest repo
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -97,21 +116,12 @@ jobs:
           done
           git diff
 
-      - name: Update test vets-api app image name in Manifest repo for helm charts
+      - name: Update test vets-api app image name in Manifest repo test prod app
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
         run: |
-          cd vsp-infra-application-manifests/apps/vets-api/dev
-          yq e -i '(.vets-api.image.tag) |= "${{ github.sha }}"' values.yaml
-          git diff
-
-      - name: Update test vets-api app image name in Manifest repo test app
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
-        run: |
-          cd vsp-infra-application-manifests/apps/vets-api-helm101/dev
+          cd vsp-infra-application-manifests/apps/vets-api-helm101/prod
           yq e -i '(.vets-api.image.tag) |= "${{ github.sha }}"' values.yaml
           git diff
 
