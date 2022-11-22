@@ -32,7 +32,7 @@ jobs:
         run: |
           echo "triggered via schedule"
           echo "environments=${{inputs.auto_deploy_envs}}" >> $GITHUB_ENV
-          echo "helm_environments=${{inputs.auto_deploy_parent_helm_envs}}" >> $GITHUB_ENV
+          echo "helm_environments=${{inputs.auto_deploy_parent_helm_envs}}" >> $HELM_GITHUB_ENV
       - name: Set output
         id: set-environments
         run: |
@@ -95,7 +95,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
         run: |
-          cd vsp-infra-application-manifests/apps/${{inputs.manifests_directory}}
+          cd vsp-infra-application-manifests/apps/vets-api
           envs=( ${{ needs.prepare-values.outputs.helm_environments }} )
           for env in ${envs[*]};
           do
