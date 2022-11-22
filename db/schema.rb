@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_11_22_002132) do
+ActiveRecord::Schema.define(version: 2022_11_22_002707) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -199,11 +199,13 @@ ActiveRecord::Schema.define(version: 2022_11_22_002132) do
     t.text "metadata_ciphertext"
     t.text "encrypted_kms_key"
     t.date "verified_decryptable_at"
+    t.uuid "user_account_id"
     t.index ["created_at"], name: "index_async_transactions_on_created_at"
     t.index ["id", "type"], name: "index_async_transactions_on_id_and_type"
     t.index ["source_id"], name: "index_async_transactions_on_source_id"
     t.index ["transaction_id", "source"], name: "index_async_transactions_on_transaction_id_and_source", unique: true
     t.index ["transaction_id"], name: "index_async_transactions_on_transaction_id"
+    t.index ["user_account_id"], name: "index_async_transactions_on_user_account_id"
     t.index ["user_uuid"], name: "index_async_transactions_on_user_uuid"
   end
 
@@ -1083,6 +1085,7 @@ ActiveRecord::Schema.define(version: 2022_11_22_002132) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "appeal_submissions", "user_accounts"
+  add_foreign_key "async_transactions", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_verifications"
   add_foreign_key "education_stem_automated_decisions", "user_accounts"
