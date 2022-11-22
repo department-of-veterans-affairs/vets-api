@@ -22,6 +22,27 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     claim
   end
 
+  let(:claim_no_ids) do
+    claim = create(:auto_established_claim)
+    bad_auth_headers = auth_headers
+    bad_auth_headers['va_eauth_pid'] = ''
+    bad_auth_headers['va_eauth_birlsfilenumber'] = ''
+    claim.auth_headers = bad_auth_headers
+    claim.save
+    claim
+  end
+
+  let(:bad_claim) do
+    claim = create(:auto_established_claim)
+    bad_auth_headers = auth_headers
+    bad_auth_headers['va_eauth_pid'] = ''
+    bad_auth_headers['va_eauth_birlsfilenumber'] = ''
+    bad_auth_headers['va_eauth_authorization'] = '{}'
+    claim.auth_headers = bad_auth_headers
+    claim.save
+    claim
+  end
+
   it 'submits successfully' do
     expect do
       subject.perform_async(claim.id)
@@ -73,6 +94,30 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     expect do
       subject.new.perform(claim.id)
     end.to raise_error(ActiveRecord::RecordInvalid)
+  end
+
+  it 'retries fetching mpi if missing IDs (MPI success)' do
+    evss_service_stub = instance_double('EVSS::DisabilityCompensationForm::Service')
+    allow(EVSS::DisabilityCompensationForm::Service).to receive(:new) { evss_service_stub }
+    allow(evss_service_stub).to receive(:submit_form526) { OpenStruct.new(claim_id: 1337) }
+
+    subject.new.perform(claim_no_ids.id)
+    claim_no_ids.reload
+    expect(claim_no_ids.auth_headers['va_eauth_pid']).not_to eq('')
+    expect(claim_no_ids.auth_headers['va_eauth_birlsfilenumber']).to eq('123412345')
+  end
+
+  it 'retries fetching mpi if missing IDs (failing MPI)' do
+    evss_service_stub = instance_double('EVSS::DisabilityCompensationForm::Service')
+    allow(EVSS::DisabilityCompensationForm::Service).to receive(:new) { evss_service_stub }
+    allow(evss_service_stub).to receive(:submit_form526) { OpenStruct.new(claim_id: 1337) }
+
+    expect do
+      subject.new.perform(bad_claim.id)
+    end.to raise_error(ClaimsApi::Error::MissingIdException)
+    bad_claim.reload
+    expect(bad_claim.auth_headers['va_eauth_pid']).to eq('')
+    expect(bad_claim.auth_headers['va_eauth_birlsfilenumber']).to eq('')
   end
 
   it 'preserves original data upon BackendServiceException' do
