@@ -32,7 +32,6 @@ jobs:
         run: |
           echo "triggered via schedule"
           echo "environments=${{inputs.auto_deploy_envs}}" >> $GITHUB_ENV
-          echo "helm_environments=${{inputs.auto_deploy_parent_helm_envs}}" >> $HELM_GITHUB_ENV
       - name: Set output
         id: set-environments
         run: |
