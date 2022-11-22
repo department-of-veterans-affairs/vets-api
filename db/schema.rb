@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_11_22_003213) do
+ActiveRecord::Schema.define(version: 2022_11_22_003512) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -558,8 +558,10 @@ ActiveRecord::Schema.define(version: 2022_11_22_003213) do
     t.text "birls_ids_tried_ciphertext"
     t.text "encrypted_kms_key"
     t.date "verified_decryptable_at"
+    t.uuid "user_account_id"
     t.index ["saved_claim_id"], name: "index_form526_submissions_on_saved_claim_id", unique: true
     t.index ["submitted_claim_id"], name: "index_form526_submissions_on_submitted_claim_id", unique: true
+    t.index ["user_account_id"], name: "index_form526_submissions_on_user_account_id"
     t.index ["user_uuid"], name: "index_form526_submissions_on_user_uuid"
   end
 
@@ -1090,6 +1092,7 @@ ActiveRecord::Schema.define(version: 2022_11_22_003213) do
   add_foreign_key "async_transactions", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_verifications"
+  add_foreign_key "form526_submissions", "user_accounts"
   add_foreign_key "evss_claims", "user_accounts"
   add_foreign_key "education_stem_automated_decisions", "user_accounts"
   add_foreign_key "in_progress_forms", "user_accounts"
