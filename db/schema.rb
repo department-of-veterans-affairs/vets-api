@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_11_22_003512) do
+ActiveRecord::Schema.define(version: 2022_11_22_003745) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -572,6 +572,8 @@ ActiveRecord::Schema.define(version: 2022_11_22_003512) do
     t.text "encrypted_kms_key"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.uuid "user_account_id"
+    t.index ["user_account_id"], name: "index_form5655_submissions_on_user_account_id"
     t.index ["user_uuid"], name: "index_form5655_submissions_on_user_uuid"
   end
 
@@ -1092,6 +1094,7 @@ ActiveRecord::Schema.define(version: 2022_11_22_003512) do
   add_foreign_key "async_transactions", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_verifications"
+  add_foreign_key "form5655_submissions", "user_accounts"
   add_foreign_key "form526_submissions", "user_accounts"
   add_foreign_key "evss_claims", "user_accounts"
   add_foreign_key "education_stem_automated_decisions", "user_accounts"
