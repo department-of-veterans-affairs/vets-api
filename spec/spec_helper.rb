@@ -7,6 +7,7 @@ require 'support/spool_helpers'
 require 'support/fixture_helpers'
 require 'support/silence_stream'
 require 'sidekiq-pro' if Gem.loaded_specs.key?('sidekiq-pro')
+require 'support/rswag/text_helpers'
 require 'support/sidekiq/batch'
 require 'support/stub_emis'
 require 'support/okta_users_helpers'

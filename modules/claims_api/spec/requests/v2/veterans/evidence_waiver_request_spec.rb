@@ -3,7 +3,8 @@
 require 'rails_helper'
 require 'token_validation/v2/client'
 
-RSpec.describe 'Evidence Waiver 5103', type: :request do
+RSpec.describe 'Evidence Waiver 5103', type: :request,
+                                       swagger_doc: Rswag::TextHelpers.new.claims_api_docs, production: false do
   let(:veteran_id) { '1012667145V762142' }
   let(:claim_id) { '600131328' }
   let(:sub_path) { "/services/claims/v2/veterans/#{veteran_id}/claims/#{claim_id}/5103" }
