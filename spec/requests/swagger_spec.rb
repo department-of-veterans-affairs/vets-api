@@ -3769,6 +3769,60 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         expect(subject).to validate(:get, '/v0/claim_letters', 401)
       end
     end
+
+    describe 'coe' do
+      # The vcr_cassettes used in spec/requests/v0/lgy_coe_request_spec.rb
+      # rely on this specific user's edipi and icn, and we are using those
+      # cassettes below.
+      let(:mhv_user) { create(:evss_user, :loa3) }
+
+      describe 'GET /v0/coe/status' do
+        it 'validates the route' do
+          VCR.use_cassette 'lgy/determination_eligible' do
+            VCR.use_cassette 'lgy/application_not_found' do
+              expect(subject).to validate(:get, '/v0/coe/status', 200, headers)
+            end
+          end
+        end
+      end
+
+      describe '/v0/coe/documents' do
+        it 'validates the route' do
+          allow_any_instance_of(User).to receive(:icn).and_return('1012830245V504544')
+          allow_any_instance_of(User).to receive(:edipi).and_return('1007451748')
+          VCR.use_cassette 'lgy/documents_list' do
+            expect(subject).to validate(:get, '/v0/coe/documents', 200, headers)
+          end
+        end
+      end
+
+      describe '/v0/coe/submit_coe_claim' do
+        it 'validates the route' do
+          VCR.use_cassette 'lgy/application_put' do
+            # rubocop:disable Layout/LineLength
+            params = { lgy_coe_claim: { form: '{"files":[{"name":"Example.pdf","size":60217, "confirmationCode":"a7b6004e-9a61-4e94-b126-518ec9ec9ad0", "isEncrypted":false,"attachmentType":"Discharge or separation papers (DD214)"}],"relevantPriorLoans": [{"dateRange": {"from":"2002-05-01T00:00:00.000Z","to":"2003-01-01T00:00:00. 000Z"},"propertyAddress":{"propertyAddress1":"123 Faker St", "propertyAddress2":"2","propertyCity":"Fake City", "propertyState":"AL","propertyZip":"11111"}, "vaLoanNumber":"111222333444","propertyOwned":true, "willRefinance":true}],"intent":"ONETIMERESTORATION", "vaLoanIndicator":true,"periodsOfService": [{"serviceBranch":"Air National Guard","dateRange": {"from":"2001-01-01T00:00:00.000Z","to":"2002-02-02T00:00:00. 000Z"}}],"identity":"ADSM","contactPhone":"2222222222", "contactEmail":"veteran@example.com","applicantAddress": {"country":"USA","street":"140 FAKER ST","street2":"2", "city":"FAKE CITY","state":"MT","postalCode":"80129"}, "fullName":{"first":"Alexander","middle":"Guy", "last":"Cook","suffix":"Jr."},"dateOfBirth":"1950-01-01","privacyAgreementAccepted":true}' } }
+            # rubocop:enable Layout/LineLength
+            expect(subject).to validate(:post, '/v0/coe/submit_coe_claim', 200, headers.merge({ '_data' => params }))
+          end
+        end
+      end
+
+      describe '/v0/coe/document_upload' do
+        it 'validates the route' do
+          VCR.use_cassette 'lgy/document_upload' do
+            params = {
+              'files' => [{
+                'file' => Base64.encode64(File.read('spec/fixtures/files/lgy_file.pdf')),
+                'document_type' => 'VA home loan documents',
+                'file_type' => 'pdf',
+                'file_name' => 'lgy_file.pdf'
+              }]
+            }
+            expect(subject).to validate(:post, '/v0/coe/document_upload', 200, headers.merge({ '_data' => params }))
+          end
+        end
+      end
+    end
   end
 
   context 'and' do
@@ -3779,6 +3833,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       subject.untested_mappings.delete('/v0/form1095_bs/download_pdf/{tax_year}')
       subject.untested_mappings.delete('/v0/form1095_bs/download_txt/{tax_year}')
       subject.untested_mappings.delete('/v0/claim_letters/{document_id}')
+      subject.untested_mappings.delete('/v0/coe/download_coe')
+      subject.untested_mappings.delete('/v0/coe/document_download/{id}')
+
       # SiS methods that involve forms & redirects
       subject.untested_mappings.delete('/v0/sign_in/authorize')
       subject.untested_mappings.delete('/v0/sign_in/callback')
