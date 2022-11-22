@@ -9,10 +9,6 @@ module MebApi
     class BaseController < ::ApplicationController
       protected
 
-      def check_flipper
-        routing_error unless Flipper.enabled?(:show_meb_mock_endpoints)
-      end
-
       def check_forms_flipper
         routing_error unless Flipper.enabled?(:show_forms_app)
       end
