@@ -3,6 +3,7 @@
 class AppealSubmission < ApplicationRecord
   APPEAL_TYPES = %w[HLR NOD SC].freeze
   validates :user_uuid, :submitted_appeal_uuid, presence: true
+  belongs_to :user_account, dependent: nil, optional: true
   validates :type_of_appeal, inclusion: APPEAL_TYPES
 
   has_kms_key
@@ -13,6 +14,7 @@ class AppealSubmission < ApplicationRecord
   def self.submit_nod(request_body_hash:, current_user:)
     appeal_submission = new(type_of_appeal: 'NOD',
                             user_uuid: current_user.uuid,
+                            user_account: current_user.user_account,
                             board_review_option: request_body_hash['data']['attributes']['boardReviewOption'],
                             upload_metadata: DecisionReview::Service.file_upload_metadata(current_user))
 

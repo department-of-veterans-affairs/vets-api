@@ -17,6 +17,7 @@ module V0
                           .body
       submitted_appeal_uuid = hlr_response_body.dig('data', 'id')
       AppealSubmission.create!(user_uuid: @current_user.uuid,
+                               user_account: @current_user.user_account,
                                type_of_appeal: 'HLR',
                                submitted_appeal_uuid: submitted_appeal_uuid)
       render json: hlr_response_body
