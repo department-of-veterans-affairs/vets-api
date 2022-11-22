@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_11_22_004008) do
+ActiveRecord::Schema.define(version: 2022_11_22_004441) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -683,7 +683,9 @@ ActiveRecord::Schema.define(version: 2022_11_22_004008) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "mhv_correlation_id"
+    t.uuid "user_account_id"
     t.index ["mhv_correlation_id"], name: "index_mhv_accounts_on_mhv_correlation_id"
+    t.index ["user_account_id"], name: "index_mhv_accounts_on_user_account_id"
     t.index ["user_uuid", "mhv_correlation_id"], name: "index_mhv_accounts_on_user_uuid_and_mhv_correlation_id", unique: true
   end
 
@@ -1103,6 +1105,7 @@ ActiveRecord::Schema.define(version: 2022_11_22_004008) do
   add_foreign_key "education_stem_automated_decisions", "user_accounts"
   add_foreign_key "in_progress_forms", "user_accounts"
   add_foreign_key "inherited_proof_verified_user_accounts", "user_accounts"
+  add_foreign_key "mhv_accounts", "user_accounts"
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
