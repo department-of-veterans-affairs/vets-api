@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_11_21_200033) do
+ActiveRecord::Schema.define(version: 2022_11_22_002132) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -461,7 +461,9 @@ ActiveRecord::Schema.define(version: 2022_11_21_200033) do
     t.text "auth_headers_json_ciphertext"
     t.text "encrypted_kms_key"
     t.date "verified_decryptable_at"
+    t.uuid "user_account_id"
     t.index ["education_benefits_claim_id"], name: "index_education_stem_automated_decisions_on_claim_id"
+    t.index ["user_account_id"], name: "index_education_stem_automated_decisions_on_user_account_id"
     t.index ["user_uuid"], name: "index_education_stem_automated_decisions_on_user_uuid"
   end
 
@@ -1083,6 +1085,7 @@ ActiveRecord::Schema.define(version: 2022_11_21_200033) do
   add_foreign_key "appeal_submissions", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_verifications"
+  add_foreign_key "education_stem_automated_decisions", "user_accounts"
   add_foreign_key "in_progress_forms", "user_accounts"
   add_foreign_key "inherited_proof_verified_user_accounts", "user_accounts"
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
