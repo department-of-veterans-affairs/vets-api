@@ -90,7 +90,7 @@ class ClaimsApi::RswagConfig
           }
         ]
       },
-      'modules/claims_api/app/swagger/claims_api/v2/swagger.json' => {
+      Rswag::TextHelpers.new.claims_api_docs => {
         openapi: '3.0.1',
         info: {
           title: 'Benefits Claims',

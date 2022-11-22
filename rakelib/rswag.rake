@@ -25,6 +25,19 @@ namespace :rswag do
 
       %w[v1 v2].each { |version| strip_swagger_base_path(version) }
     end
+
+    desc 'Generate rswag docs by environment for the claims_api'
+    task build: :environment do
+      ENV['PATTERN'] = 'modules/claims_api/spec/requests/**/*_spec.rb'
+      ENV['RAILS_MODULE'] = 'claims_api'
+      ENV['SWAGGER_DRY_RUN'] = '0'
+      %w[dev production].each do |environment|
+        ENV['DOCUMENTATION_ENVIRONMENT'] = environment
+        Rake::Task['rswag:specs:swaggerize'].invoke
+        %w[v1 v2].each { |version| strip_swagger_base_path(version, (version.eql?('v2') ? environment : nil)) }
+        Rake::Task['rswag:specs:swaggerize'].reenable
+      end
+    end
   end
 
   namespace :appeals_api do
@@ -70,10 +83,12 @@ namespace :rswag do
   end
 end
 
-def strip_swagger_base_path(version)
+def strip_swagger_base_path(version, env = nil)
   # Rwag still generates `basePath`, which is invalid in OAS v3 (https://github.com/rswag/rswag/issues/318)
   # This removes the basePath value from the generated JSON file(s)
-  swagger_file_path = ClaimsApi::Engine.root.join("app/swagger/claims_api/#{version}/swagger.json")
+  path = "app/swagger/claims_api/#{version}/swagger.json"
+  path = "app/swagger/claims_api/#{version}/#{env}/swagger.json" if version.eql?('v2')
+  swagger_file_path = ClaimsApi::Engine.root.join(path)
   temp_path = swagger_file_path.sub('swagger.json', 'temp.json').to_s
 
   File.open(temp_path, 'w') do |output_file|

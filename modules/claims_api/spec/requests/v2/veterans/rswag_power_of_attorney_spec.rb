@@ -6,7 +6,8 @@ require 'rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 
 # doc generation for V2 ITFs temporarily disabled by API-13879
-describe 'PowerOfAttorney', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v2/swagger.json', document: false do
+describe 'PowerOfAttorney',
+         swagger_doc: Rswag::TextHelpers.new.claims_api_docs, document: false do
   path '/veterans/{veteranId}/power-of-attorney' do
     get 'Find current Power of Attorney for a Veteran.' do
       tags 'Power of Attorney'

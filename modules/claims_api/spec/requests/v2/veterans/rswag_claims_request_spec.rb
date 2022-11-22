@@ -3,7 +3,8 @@
 require 'swagger_helper'
 require 'rails_helper'
 
-describe 'Claims', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v2/swagger.json' do
+describe 'Claims',
+         swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
   path '/veterans/{veteranId}/claims' do
     get 'Find all benefits claims for a Veteran.' do
       tags 'Claims'

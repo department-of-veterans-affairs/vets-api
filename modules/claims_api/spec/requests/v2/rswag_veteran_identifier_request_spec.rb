@@ -5,7 +5,7 @@ require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
 require_relative '../../support/swagger_shared_components/v2'
 
-describe 'Veteran Identifier', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v2/swagger.json' do # rubocop:disable RSpec/DescribeClass
+describe 'Veteran Identifier', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do # rubocop:disable RSpec/DescribeClass
   path '/veteran-id:find' do
     post 'Retrieve Veteran ID.' do
       tags 'Veteran Identifier'

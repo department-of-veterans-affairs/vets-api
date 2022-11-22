@@ -3,7 +3,8 @@
 require 'rails_helper'
 require 'token_validation/v2/client'
 
-RSpec.describe 'Veteran Identifier Endpoint', type: :request do
+RSpec.describe 'Veteran Identifier Endpoint', type: :request,
+                                              swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
   let(:path) { '/services/claims/v2/veteran-id:find' }
   let(:data) do
     {
