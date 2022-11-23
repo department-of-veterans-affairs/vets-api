@@ -7,6 +7,9 @@ module VirtualRegionalOffice
   class Configuration < Common::Client::Configuration::REST
     API_VERSION = 'v1'
 
+    self.open_timeout = Settings.virtual_regional_office&.open_timeout || 15
+    self.read_timeout = Settings.virtual_regional_office&.read_timeout || 60
+
     def base_path
       "#{Settings.virtual_regional_office.url}/#{API_VERSION}"
     end
