@@ -19,6 +19,7 @@ module BGS
       claim_data = valid_claim_data(saved_claim_id, vet_info)
 
       BGS::Form674.new(user).submit(claim_data)
+      send_confirmation_email(user)
       in_progress_form&.destroy
     rescue => e
       log_message_to_sentry(e, :error, {}, { team: 'vfs-ebenefits' })
@@ -40,6 +41,18 @@ module BGS
       raise Invalid674Claim unless claim.valid?(:run_686_form_jobs)
 
       claim.formatted_674_data(vet_info)
+    end
+
+    def send_confirmation_email(user)
+      return unless Flipper.enabled?(:form674_confirmation_email)
+      return if user.va_profile_email.blank?
+
+      VANotify::ConfirmationEmail.send(
+        email_address: user.va_profile_email,
+        template_id: Settings.vanotify.services.va_gov.template_id.form686c_confirmation_email,
+        first_name: user&.first_name&.upcase,
+        user_uuid_and_form_id: "#{user.uuid}_#{FORM_ID}"
+      )
     end
   end
 end

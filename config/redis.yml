@@ -166,6 +166,9 @@ development: &defaults
   transaction_notification:
     namespace: transaction_notification
     each_ttl: 2592000
+  vanotify_confirmation_email_store:
+    namespace: confirmation_email
+    each_ttl: 600 # 10 minutes
 test:
   <<: *defaults
   redis:
