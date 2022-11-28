@@ -4,13 +4,13 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: vets-api-web-bgs-evss
-  name: vets-api-web-bgs-evss
+    app: {{ .Values.web.bgsEvss.name }}
+  name: {{ .Values.web.bgsEvss.name }}
   namespace: {{ .Release.Namespace }}
 spec:
   selector:
     matchLabels:
-      app: vets-api-web-bgs-evss
+      app: {{ .Values.web.bgsEvss.name }}
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -19,7 +19,7 @@ spec:
   template:
     metadata:
       labels:
-        app: vets-api-web-bgs-evss
+        app: {{ .Values.web.bgsEvss.name }}
       annotations:
         ad.datadoghq.com/vets-api-web.checks: |-
           {
@@ -35,14 +35,14 @@ spec:
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
+            - weight:  {{ .Values.affitnityWeight }}
               podAffinityTerm:
                 labelSelector:
                   matchExpressions:
                     - key: app
                       operator: In
                       values:
-                        - vets-api-web-bgs-evss
+                        - {{ .Values.web.bgsEvss.name }}
                 topologyKey: kubernetes.io/hostname
       securityContext:
         fsGroup: 1000
@@ -53,26 +53,26 @@ spec:
 {{ toYaml .Values.common.initContainers | indent 8 }}
       {{- end }}
       containers:
-        - image: "{{ .Values.image }}:{{ .Values.image_tag }}"
-          imagePullPolicy: Always
-          name: vets-api-web
+        - image: "{{ .Values.image.value }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          name: {{ .Values.appName }}-web
           ports:
-            - containerPort: 3000
-              name: web
-            - containerPort: 9293
-              name: stats
+            {{- range $key := .Values.web.containers.ports }}
+            - containerPort: {{ $key.containerPort }}
+              name: {{ $key.name }}
+            {{- end }}
           livenessProbe: #ensure app is serving requests properly and know when to restart a container
             httpGet:
-              path: /stats
-              port: stats
-            initialDelaySeconds: 30
-            periodSeconds: 5
+              path: {{ .Values.web.healthCheck.requestPath }}
+              port: {{ .Values.web.healthCheck.port }}
+            initialDelaySeconds: {{ .Values.web.healthCheck.initialDelaySeconds }}
+            periodSeconds: {{ .Values.web.healthCheck.periodSeconds }}
           readinessProbe: #ensure container is ready to start accepting traffic
             httpGet:
-              path: /
-              port: web
-            initialDelaySeconds: 30
-            periodSeconds: 5
+              path: {{ .Values.web.healthCheck.readinessPath }}
+              port: {{ .Values.web.healthCheck.readinessPort }}
+            initialDelaySeconds: {{ .Values.web.healthCheck.initialDelaySeconds }}
+            periodSeconds: {{ .Values.web.healthCheck.periodSeconds }}
           resources:
 {{ toYaml .Values.web.resources | indent 12 }}
           volumeMounts:
@@ -93,5 +93,5 @@ spec:
    {{- if .Values.web.socatProxyEnabled }}
 {{ toYaml .Values.common.socatProxy | indent 8 }}
         {{- end }}
-      serviceAccountName: vets-api-web-bgs-evss
+      serviceAccountName: {{ .Values.web.bgsEvss.name }}
 {{- end }}
