@@ -37,6 +37,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
 
     education_benefits_claim.build_education_stem_automated_decision(
       user_uuid: @user.uuid,
+      user_account: @user.user_account,
       auth_headers_json: EVSS::AuthHeaders.new(@user).to_h.to_json,
       poa: get_user_poa,
       remaining_entitlement: remaining_entitlement
