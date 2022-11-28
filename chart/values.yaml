@@ -138,6 +138,8 @@ web:
   pumaBacklog:
     enabled: false
 
+  bgsEvss:
+    enabled: false
 
 #Worker Configuration
 worker:
@@ -189,6 +191,7 @@ worker:
         memory: ""
   service:
     enabled: false
+
 
 # Common configuration
 common:
