@@ -71,7 +71,13 @@ class EVSSClaimService
   end
 
   def create_or_update_claim(raw_claim)
-    claim = claims_scope.where(evss_id: raw_claim['id']).first_or_initialize(data: {})
+    claim = claims_scope.where(evss_id: raw_claim['id']).first
+    if claim.blank?
+      claim = EVSSClaim.new(user_uuid: @user.uuid,
+                            user_account: @user.user_account,
+                            evss_id: raw_claim['id'],
+                            data: {})
+    end
     claim.update(list_data: raw_claim)
     claim
   end
