@@ -353,10 +353,6 @@ features:
     actor_type: user
     description: Form 10182 Notice of Disagreement - Request a board appeal
     enable_in_development: true
-  form686c_confirmation_email:
-    actor_type: user
-    description: Form 686c - Email submission confirmation
-    enable_in_development: true
   form674_confirmation_email:
     actor_type: user
     description: Form 674 - Email submission confirmation
