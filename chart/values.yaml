@@ -139,7 +139,7 @@ web:
     enabled: false
 
   bgsEvss:
-      enabled: true
+      enabled: false
       name: ""
 
 #Worker Configuration

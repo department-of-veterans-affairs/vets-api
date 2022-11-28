@@ -76,7 +76,7 @@ spec:
           resources:
 {{ toYaml .Values.web.resources | indent 12 }}
           volumeMounts:
- {{ toYaml .Values.common.volumeMounts | indent 12 }}
+{{ toYaml .Values.common.volumeMounts | indent 12 }}
           env:
             - name: GIT_REVISION
               value: {{ .Values.image.tag}}
