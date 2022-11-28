@@ -25,7 +25,6 @@ module VAProfile
       attribute :source_system_user, String
       attribute :source_date, Common::ISO8601Time
 
-      skip_callback :validate, :past_date?
       validates :code, presence: true
       validates_inclusion_of :code, in: OPTIONS, message: 'invalid code', if: -> { @code.present? }
 
