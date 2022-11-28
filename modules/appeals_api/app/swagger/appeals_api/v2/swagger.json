@@ -1023,34 +1023,15 @@
                 "example": {
                   "errors": [
                     {
-                      "status": 404,
-                      "detail": "HigherLevelReview with uuid \"invalid\" not found."
+                      "code": "404",
+                      "detail": "HigherLevelReview with uuid invalid not found",
+                      "status": "404",
+                      "title": "Record not found"
                     }
                   ]
                 },
                 "schema": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "errors": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "status": {
-                              "type": "integer",
-                              "enum": [
-                                404
-                              ]
-                            },
-                            "detail": {
-                              "type": "string"
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/errorModel"
                 }
               }
             }
@@ -1367,38 +1348,15 @@
                 "example": {
                   "errors": [
                     {
-                      "status": "404",
-                      "title": "Veteran not found",
-                      "detail": "A veteran with that SSN was not found in our systems."
+                      "title": "Not found",
+                      "detail": "Appeals data for a veteran with that SSN was not found",
+                      "code": "CASEFLOWSTATUS404",
+                      "status": "404"
                     }
-                  ],
-                  "code": "404",
-                  "detail": "Veteran not found",
-                  "source": "A veteran with that SSN was not found in our systems."
+                  ]
                 },
                 "schema": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "errors": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "status": {
-                              "type": "integer",
-                              "enum": [
-                                404
-                              ]
-                            },
-                            "detail": {
-                              "type": "string"
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/errorModel"
                 }
               }
             }
@@ -3643,27 +3601,25 @@
                   }
                 },
                 "schema": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "data": {
-                        "type": "object",
-                        "properties": {
-                          "type": {
-                            "type": "string",
-                            "enum": [
-                              "higherLevelReviewValidation"
-                            ]
-                          },
-                          "attributes": {
-                            "type": "object",
-                            "properties": {
-                              "status": {
-                                "type": "string",
-                                "enum": [
-                                  "valid"
-                                ]
-                              }
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "higherLevelReviewValidation"
+                          ]
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "valid"
+                              ]
                             }
                           }
                         }
@@ -3703,54 +3659,17 @@
                     "value": {
                       "errors": [
                         {
-                          "status": 422,
+                          "code": "109",
                           "detail": "The request body isn't a JSON object",
-                          "source": null
+                          "status": "422",
+                          "title": "Validation error"
                         }
                       ]
                     }
                   }
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/errorModel",
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "detail",
-                          "source",
-                          "status"
-                        ],
-                        "properties": {
-                          "detail": {
-                            "type": "string",
-                            "description": "HTTP error detail",
-                            "enum": [
-                              "The request body isn't a JSON object"
-                            ]
-                          },
-                          "source": {
-                            "type": "null",
-                            "enum": [
-                              null
-                            ]
-                          },
-                          "status": {
-                            "enum": [
-                              422
-                            ],
-                            "type": "integer",
-                            "description": "HTTP error code"
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/errorModel"
                 }
               }
             }
@@ -4754,34 +4673,15 @@
                 "example": {
                   "errors": [
                     {
-                      "status": 404,
-                      "detail": "NoticeOfDisagreement with uuid invalid not found"
+                      "code": "404",
+                      "detail": "NoticeOfDisagreement with uuid invalid not found",
+                      "status": "404",
+                      "title": "Record not found"
                     }
                   ]
                 },
                 "schema": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "errors": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "status": {
-                              "type": "integer",
-                              "enum": [
-                                404
-                              ]
-                            },
-                            "detail": {
-                              "type": "string"
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/errorModel"
                 }
               }
             }
@@ -6083,54 +5983,17 @@
                     "value": {
                       "errors": [
                         {
-                          "status": 422,
+                          "code": "109",
                           "detail": "The request body isn't a JSON object",
-                          "source": null
+                          "status": "422",
+                          "title": "Validation error"
                         }
                       ]
                     }
                   }
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/errorModel",
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "detail",
-                          "source",
-                          "status"
-                        ],
-                        "properties": {
-                          "detail": {
-                            "type": "string",
-                            "description": "HTTP error detail",
-                            "enum": [
-                              "The request body isn't a JSON object"
-                            ]
-                          },
-                          "source": {
-                            "type": "null",
-                            "enum": [
-                              null
-                            ]
-                          },
-                          "status": {
-                            "enum": [
-                              422
-                            ],
-                            "type": "integer",
-                            "description": "HTTP error code"
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/errorModel"
                 }
               }
             }
@@ -6365,8 +6228,10 @@
                 "example": {
                   "errors": [
                     {
-                      "title": "bad_request",
-                      "detail": "Must supply a corresponding NOD id in order to submit evidence"
+                      "code": "400",
+                      "detail": "Must supply a corresponding NOD id in order to submit evidence",
+                      "status": "400",
+                      "title": "bad_request"
                     }
                   ]
                 },
@@ -7442,34 +7307,15 @@
                 "example": {
                   "errors": [
                     {
-                      "status": 404,
-                      "detail": "SupplementalClaim with uuid \"invalid\" not found."
+                      "code": "404",
+                      "detail": "SupplementalClaim with uuid invalid not found",
+                      "status": "404",
+                      "title": "Record not found"
                     }
                   ]
                 },
                 "schema": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "errors": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "status": {
-                              "type": "integer",
-                              "enum": [
-                                404
-                              ]
-                            },
-                            "detail": {
-                              "type": "string"
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/errorModel"
                 }
               }
             }
@@ -9581,28 +9427,7 @@
                   ]
                 },
                 "schema": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "errors": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "status": {
-                              "type": "integer",
-                              "enum": [
-                                404
-                              ]
-                            },
-                            "detail": {
-                              "type": "string"
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/errorModel"
                 }
               }
             }

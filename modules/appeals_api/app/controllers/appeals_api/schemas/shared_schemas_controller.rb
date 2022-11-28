@@ -57,7 +57,10 @@ class AppealsApi::Schemas::SharedSchemasController < AppealsApi::ApplicationCont
   end
 
   def check_schema_type
-    render json: invalid_schema_type_error, status: :not_found unless schema_type.in?(ACCEPTED_SCHEMA_TYPES)
+    unless schema_type.in?(ACCEPTED_SCHEMA_TYPES)
+      render json: { errors: [invalid_schema_type_error] },
+             status: :not_found
+    end
   end
 
   def invalid_schema_type_error
@@ -67,7 +70,7 @@ class AppealsApi::Schemas::SharedSchemasController < AppealsApi::ApplicationCont
       code: 'InvalidSchemaType',
       status: '404',
       source: { parameter: schema_type },
-      meta: [schema_form] + ACCEPTED_SCHEMA_TYPES
+      meta: { 'available_options': [schema_form] + ACCEPTED_SCHEMA_TYPES }
     }
   end
 end

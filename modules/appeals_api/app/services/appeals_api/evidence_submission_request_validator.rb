@@ -58,7 +58,12 @@ module AppealsApi
     end
 
     def record_not_found_error
-      { title: 'not_found', detail: I18n.t('appeals_api.errors.not_found', id: appeal_uuid, type: appeal_type) }
+      {
+        title: 'not_found',
+        detail: I18n.t('appeals_api.errors.not_found', id: appeal_uuid, type: appeal_type),
+        code: '404',
+        status: '404'
+      }
     end
 
     def invalid_review_option_error

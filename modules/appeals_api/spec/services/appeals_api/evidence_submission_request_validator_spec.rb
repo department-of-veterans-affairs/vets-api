@@ -14,7 +14,10 @@ module AppealsApi
 
           expect(result).to eq([
                                  :error,
-                                 { title: 'not_found', detail: 'NoticeOfDisagreement with uuid fake_id not found' }
+                                 { title: 'not_found',
+                                   detail: 'NoticeOfDisagreement with uuid fake_id not found',
+                                   code: '404',
+                                   status: '404' }
                                ])
         end
 
@@ -133,7 +136,10 @@ module AppealsApi
 
           expect(result).to eq([
                                  :error,
-                                 { title: 'not_found', detail: 'SupplementalClaim with uuid fake_id not found' }
+                                 { title: 'not_found',
+                                   detail: 'SupplementalClaim with uuid fake_id not found',
+                                   code: '404',
+                                   status: '404' }
                                ])
         end
 

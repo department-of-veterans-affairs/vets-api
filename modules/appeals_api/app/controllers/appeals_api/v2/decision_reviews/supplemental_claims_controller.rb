@@ -120,7 +120,12 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
       status: :not_found,
       json: {
         errors: [
-          { status: 404, detail: "SupplementalClaim with uuid #{id.inspect} not found." }
+          {
+            code: '404',
+            detail: I18n.t('appeals_api.errors.not_found', type: 'SupplementalClaim', id: id),
+            status: '404',
+            title: 'Record not found'
+          }
         ]
       }
     )

@@ -6,7 +6,7 @@ require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-# rubocop:disable RSpec/VariableName, RSpec/ScatteredSetup, RSpec/RepeatedExample, Layout/LineLength
+# rubocop:disable RSpec/VariableName, RSpec/RepeatedExample, Layout/LineLength
 describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: :request do
   include DocHelpers
   let(:apikey) { 'apikey' }
@@ -114,6 +114,8 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
 
         it_behaves_like 'rswag example', desc: 'returns a 422 response', scopes: scopes
       end
+
+      it_behaves_like 'rswag 500 response'
     end
   end
 
@@ -145,12 +147,14 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
       end
 
       response '404', 'Supplemental Claim not found' do
-        schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', '404.json')))
+        schema '$ref' => '#/components/schemas/errorModel'
 
         let(:uuid) { 'invalid' }
 
         it_behaves_like 'rswag example', desc: 'returns a 404 response', scopes: scopes
       end
+
+      it_behaves_like 'rswag 500 response'
     end
   end
 
@@ -166,6 +170,8 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
         response '200', 'the JSON Schema for POST /supplemental_claims' do
           it_behaves_like 'rswag example', desc: 'returns a 200 response'
         end
+
+        it_behaves_like 'rswag 500 response'
       end
     end
   else
@@ -173,6 +179,7 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
       get 'Gets the Supplemental Claims JSON Schema.' do
         scopes = %w[claim.read]
         tags 'Supplemental Claims'
+        operationId 'scSchema'
         description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /forms/200995` endpoint.'
         security DocHelpers.security_config(scopes)
         produces 'application/json'
@@ -200,10 +207,12 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
         end
 
         response '404', '`schema_type` not found' do
-          schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', '404.json')))
+          schema '$ref' => '#/components/schemas/errorModel'
           let(:schema_type) { 'invalid_schema_type' }
           it_behaves_like 'rswag example', desc: 'schema type not found', scopes: scopes
         end
+
+        it_behaves_like 'rswag 500 response'
       end
     end
   end
@@ -291,6 +300,8 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
 
         it_behaves_like 'rswag example', desc: 'returns a 422 response', scopes: scopes
       end
+
+      it_behaves_like 'rswag 500 response'
     end
   end
 
@@ -343,13 +354,21 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
                    type: :array,
                    items: {
                      properties: {
-                       status: {
-                         type: 'integer',
-                         example: 400
+                       title: {
+                         type: 'string',
+                         example: 'Bad request'
                        },
                        detail: {
                          type: 'string',
                          example: 'Must supply a corresponding SC id in order to submit evidence'
+                       },
+                       code: {
+                         type: 'string',
+                         example: '400'
+                       },
+                       status: {
+                         type: 'string',
+                         example: '400'
                        }
                      }
                    }
@@ -361,9 +380,7 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
 
       response '404', 'Associated Supplemental Claim not found' do
         let(:sc_uuid) { nil }
-
-        schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', '404.json')))
-
+        schema '$ref' => '#/components/schemas/errorModel'
         it_behaves_like 'rswag example', desc: 'returns a 404 response', scopes: scopes
       end
 
@@ -376,50 +393,7 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
         it_behaves_like 'rswag example', desc: 'returns a 422 response', scopes: scopes
       end
 
-      response '500', 'Unknown Error' do
-        let(:sc_uuid) { nil }
-
-        schema type: :object,
-               properties: {
-                 errors: {
-                   type: :array,
-                   items: {
-                     properties: {
-                       status: {
-                         type: 'integer',
-                         example: 500
-                       },
-                       detail: {
-                         type: 'string',
-                         example: 'An unknown error has occurred.'
-                       },
-                       code: {
-                         type: 'string',
-                         example: '151'
-                       },
-                       title: {
-                         type: 'string',
-                         example: 'Internal Server Error'
-                       }
-                     }
-                   }
-                 },
-                 status: {
-                   type: 'integer',
-                   example: 500
-                 }
-               }
-
-        before do |example|
-          with_rswag_auth do
-            submit_request(example.metadata)
-          end
-        end
-
-        it 'returns a 500 response' do |example|
-          # NOOP
-        end
-      end
+      it_behaves_like 'rswag 500 response'
     end
   end
 
@@ -466,6 +440,8 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
           # noop
         end
       end
+
+      it_behaves_like 'rswag 500 response'
     end
   end
 
@@ -493,13 +469,15 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
       end
 
       response '404', 'Supplemental Claim Evidence Submission not found' do
-        schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', '404.json')))
+        schema '$ref' => '#/components/schemas/errorModel'
 
         let(:uuid) { 'invalid' }
 
         it_behaves_like 'rswag example', desc: 'returns a 404 response', scopes: scopes
       end
+
+      it_behaves_like 'rswag 500 response'
     end
   end
 end
-# rubocop:enable RSpec/VariableName, RSpec/ScatteredSetup, RSpec/RepeatedExample, Layout/LineLength
+# rubocop:enable RSpec/VariableName, RSpec/RepeatedExample, Layout/LineLength

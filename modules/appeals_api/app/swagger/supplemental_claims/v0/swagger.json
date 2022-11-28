@@ -837,34 +837,15 @@
                 "example": {
                   "errors": [
                     {
-                      "status": 404,
-                      "detail": "SupplementalClaim with uuid \"invalid\" not found."
+                      "code": "404",
+                      "detail": "SupplementalClaim with uuid invalid not found",
+                      "status": "404",
+                      "title": "Record not found"
                     }
                   ]
                 },
                 "schema": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "errors": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "status": {
-                              "type": "integer",
-                              "enum": [
-                                404
-                              ]
-                            },
-                            "detail": {
-                              "type": "string"
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/errorModel"
                 }
               }
             }
@@ -3120,28 +3101,7 @@
                   ]
                 },
                 "schema": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "errors": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "status": {
-                              "type": "integer",
-                              "enum": [
-                                404
-                              ]
-                            },
-                            "detail": {
-                              "type": "string"
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/errorModel"
                 }
               }
             }
@@ -3436,71 +3396,6 @@
           }
         }
       },
-      "contestableIssues": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/contestableIssue"
-            }
-          }
-        }
-      },
-      "documentUploadMetadata": {
-        "type": "object",
-        "description": "Identifying properties about the document payload being submitted",
-        "required": [
-          "veteranFirstName",
-          "veteranLastName",
-          "fileNumber",
-          "zipCode",
-          "source"
-        ],
-        "properties": {
-          "veteranFirstName": {
-            "type": "string",
-            "description": "Veteran first name. Cannot be missing or empty or longer than 50 characters. Only upper/lower case letters, hyphens(-), spaces and forward-slash(/) allowed.",
-            "pattern": "^[a-zA-Z\\-\\/\\s]{1,50}$",
-            "example": "Jane"
-          },
-          "veteranLastName": {
-            "type": "string",
-            "description": "Veteran last name. Cannot be missing or empty or longer than 50 characters. Only upper/lower case letters, hyphens(-), spaces and forward-slash(/) allowed.",
-            "pattern": "^[a-zA-Z\\-\\/\\s]{1,50}$",
-            "example": "Doe-Smith"
-          },
-          "fileNumber": {
-            "description": "The Veteran's file number is exactly 9 digits with no alpha characters, hyphens, spaces or punctuation. In most cases, this is the Veteran's SSN but may also be an 8 digit BIRL number. If no file number has been established or if it is unknown, the application should use the Veteran's SSN and the file number will be associated with the submission later in the process. Incorrect file numbers can cause delays.",
-            "pattern": "^\\d{8,9}$",
-            "example": "999887777",
-            "type": "string"
-          },
-          "zipCode": {
-            "type": "string",
-            "example": "94402",
-            "description": "Veteran zip code. Either five digits (XXXXX) or five digits then four digits separated by a hyphen (XXXXX-XXXX). Use '00000' for Veterans with non-US addresses."
-          },
-          "source": {
-            "type": "string",
-            "example": "Vets.gov",
-            "description": "System, installation, or entity submitting the document"
-          },
-          "docType": {
-            "type": "string",
-            "example": "316",
-            "description": "VBA form number of the document"
-          },
-          "businessLine": {
-            "type": "string",
-            "example": "BVA",
-            "enum": [
-              "BVA"
-            ],
-            "description": "BVA - Board of Veteran Appeals"
-          }
-        }
-      },
       "errorModel": {
         "required": [
           "errors"
@@ -3561,24 +3456,6 @@
             }
           }
         }
-      },
-      "errorWithTitleAndDetail": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "title": {
-              "type": "string"
-            },
-            "detail": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "non_blank_string": {
-        "type": "string",
-        "pattern": "[^ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]"
       },
       "phone": {
         "type": "object",
@@ -4094,10 +3971,6 @@
         "required": [
           "data"
         ]
-      },
-      "timeStamp": {
-        "type": "string",
-        "pattern": "\\d{4}(-\\d{2}){2}T\\d{2}(:\\d{2}){2}\\.\\d{3}Z"
       },
       "timezone": {
         "type": "string",
@@ -4846,120 +4719,6 @@
           "Zulu",
           "Zurich"
         ]
-      },
-      "uuid": {
-        "type": "string",
-        "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
-      },
-      "X-Consumer-ID": {
-        "allOf": [
-          {
-            "description": "Consumer GUID"
-          },
-          {
-            "$ref": "#/components/schemas/non_blank_string"
-          }
-        ]
-      },
-      "X-Consumer-Username": {
-        "allOf": [
-          {
-            "description": "Consumer Username (passed from Kong)"
-          },
-          {
-            "$ref": "#/components/schemas/non_blank_string"
-          }
-        ]
-      },
-      "X-VA-Birth-Date": {
-        "description": "Veteran's birth date",
-        "type": "string",
-        "format": "date"
-      },
-      "X-VA-File-Number": {
-        "allOf": [
-          {
-            "description": "VA file number (c-file / css)"
-          },
-          {
-            "maxLength": 9
-          },
-          {
-            "$ref": "#/components/schemas/non_blank_string"
-          }
-        ]
-      },
-      "X-VA-First-Name": {
-        "allOf": [
-          {
-            "description": "first name"
-          },
-          {
-            "type": "string"
-          }
-        ]
-      },
-      "X-VA-Last-Name": {
-        "allOf": [
-          {
-            "description": "last name"
-          },
-          {
-            "$ref": "#/components/schemas/non_blank_string"
-          }
-        ]
-      },
-      "X-VA-Middle-Initial": {
-        "allOf": [
-          {
-            "description": "middle initial"
-          },
-          {
-            "$ref": "#/components/schemas/non_blank_string"
-          }
-        ]
-      },
-      "X-VA-NonVeteranClaimant-Birth-Date": {
-        "description": "Non-veteran claimant's birth date",
-        "type": "string",
-        "format": "date"
-      },
-      "X-VA-NonVeteranClaimant-First-Name": {
-        "allOf": [
-          {
-            "description": "first name"
-          },
-          {
-            "$ref": "#/components/schemas/non_blank_string"
-          }
-        ]
-      },
-      "X-VA-NonVeteranClaimant-Last-Name": {
-        "allOf": [
-          {
-            "description": "last name"
-          },
-          {
-            "$ref": "#/components/schemas/non_blank_string"
-          }
-        ]
-      },
-      "X-VA-NonVeteranClaimant-Middle-Initial": {
-        "allOf": [
-          {
-            "description": "middle initial"
-          },
-          {
-            "$ref": "#/components/schemas/non_blank_string"
-          }
-        ]
-      },
-      "X-VA-SSN": {
-        "description": "social security number",
-        "type": "string",
-        "minLength": 9,
-        "maxLength": 9,
-        "pattern": "^[0-9]{9}$"
       }
     }
   },

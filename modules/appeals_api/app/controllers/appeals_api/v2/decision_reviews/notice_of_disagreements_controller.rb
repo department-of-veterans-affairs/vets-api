@@ -137,7 +137,12 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
       status: :not_found,
       json: {
         errors: [
-          { status: 404, detail: I18n.t('appeals_api.errors.not_found', type: 'NoticeOfDisagreement', id: @id) }
+          {
+            code: '404',
+            detail: I18n.t('appeals_api.errors.not_found', type: 'NoticeOfDisagreement', id: @id),
+            status: '404',
+            title: 'Record not found'
+          }
         ]
       }
     )

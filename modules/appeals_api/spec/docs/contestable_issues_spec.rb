@@ -76,7 +76,7 @@ describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :
       end
 
       response '404', 'Veteran not found' do
-        schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', '404.json')))
+        schema '$ref' => '#/components/schemas/errorModel'
 
         let(:benefit_type) { 'compensation' }
         let(:'X-VA-SSN') { '000000000' }
@@ -169,6 +169,8 @@ describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :
           end
         end
       end
+
+      it_behaves_like 'rswag 500 response'
 
       response '502', 'Unknown error' do
         # schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', 'default.json')))

@@ -25,9 +25,10 @@ module AppealsApi
       def render_body_is_not_a_hash_error(_)
         status = 422
         error = {
-          status: status,
+          code: '109',
           detail: "The request body isn't a JSON object",
-          source: nil
+          status: status.to_s,
+          title: 'Validation error'
         }
         render status: status, json: { errors: [error] }
       end

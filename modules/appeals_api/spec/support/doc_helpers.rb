@@ -79,6 +79,25 @@ module DocHelpers
     end
   end
 
+  shared_examples 'rswag 500 response' do
+    response '500', 'Internal Server Error' do
+      schema '$ref' => '#/components/schemas/errorModel'
+
+      after do |example|
+        example.metadata[:response][:content] = {
+          'application/json' => { example: { errors: [{ title: 'Internal server error',
+                                                        detail: 'Internal server error',
+                                                        code: '500',
+                                                        status: '500' }] } }
+        }
+      end
+
+      it 'returns a 500 response' do
+        # No-Op
+      end
+    end
+  end
+
   def self.wip_doc_enabled?(sym, require_env_slug = false) # rubocop:disable Style/OptionalBooleanParameter
     # Only block doc generation if we still flag it as a WIP
     return true unless Settings.modules_appeals_api.documentation.wip_docs&.include?(sym.to_s)

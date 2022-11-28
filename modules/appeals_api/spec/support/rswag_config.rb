@@ -13,6 +13,7 @@ class AppealsApi::RswagConfig
         info: {
           title: DocHelpers.api_title,
           version: DocHelpers.api_version,
+          contact: { name: 'developer.va.gov' },
           termsOfService: 'https://developer.va.gov/terms-of-service',
           description: File.read(DocHelpers.api_description_file_path)
         },
@@ -106,38 +107,26 @@ class AppealsApi::RswagConfig
     when 'higher_level_reviews'
       a << hlr_v2_create_schemas
       a << hlr_v2_response_schemas('#/components/schemas')
-      a << contestable_issues_schema('#/components/schemas')
-      a << generic_schemas('#/components/schemas')
-      a << {
-        'X-VA-NonVeteranClaimant-SSN': {
-          'description': 'social security number',
-          'type': 'string',
-          'minLength': 9,
-          'maxLength': 9,
-          'pattern': '^[0-9]{9}$'
-        }
-      }
+      a << generic_schemas('#/components/schemas').slice(*%i[errorModel uuid])
       a << shared_schemas
     when 'notice_of_disagreements'
       a << nod_v2_create_schemas
       a << nod_v2_response_schemas('#/components/schemas')
-      a << contestable_issues_schema('#/components/schemas')
-      a << generic_schemas('#/components/schemas')
-      a << shared_schemas
+      a << contestable_issues_schema('#/components/schemas').slice(*%i[contestableIssue])
+      a << generic_schemas('#/components/schemas').slice(*%i[errorModel uuid])
+      a << shared_schemas.slice(*%i[address phone timezone])
     when 'supplemental_claims'
       a << sc_create_schemas
       a << sc_response_schemas('#/components/schemas')
-      a << contestable_issues_schema('#/components/schemas')
-      a << generic_schemas('#/components/schemas')
-      a << shared_schemas
+      a << contestable_issues_schema('#/components/schemas').slice(*%i[contestableIssue])
+      a << generic_schemas('#/components/schemas').slice(*%i[errorModel])
+      a << shared_schemas.slice(*%i[address phone timezone])
     when 'contestable_issues'
       a << contestable_issues_schema('#/components/schemas')
-      a << generic_schemas('#/components/schemas').slice(*%i[errorModel errorWithTitleAndDetail X-VA-SSN X-VA-File-Number])
-      a << shared_schemas.slice(*%i[non_blank_string])
+      a << generic_schemas('#/components/schemas').slice(*%i[errorModel])
     when 'legacy_appeals'
       a << legacy_appeals_schema('#/components/schemas')
-      a << generic_schemas('#/components/schemas').slice(*%i[errorModel errorWithTitleAndDetail X-VA-SSN X-VA-File-Number])
-      a << shared_schemas.slice(*%i[non_blank_string])
+      a << generic_schemas('#/components/schemas').slice(*%i[errorModel])
     when nil
       a << hlr_v2_create_schemas
       a << hlr_v2_response_schemas('#/components/schemas')
@@ -615,14 +604,15 @@ class AppealsApi::RswagConfig
                   },
                   'appealId': {
                     'description': 'GUID of associated appeal',
-                    'type': 'uuid',
+                    'type': 'string',
+                    'format': 'uuid',
                     'example': '2926ad2a-9372-48cf-8ec1-69e08e4799ef'
                   },
                   'location': {
                     'type': %i[string null],
                     'description': 'Location to which to PUT document Payload',
                     'format': 'uri',
-                    'example': 'https://sandbox-api.va.gov/example_path_here/{idpath}'
+                    'example': 'https://sandbox-api.va.gov/example_path_here/6d8433c1-cd55-4c24-affd-f592287a7572'
                   },
                   'updatedAt': {
                     'description': 'The last time the submission was updated',
@@ -745,14 +735,15 @@ class AppealsApi::RswagConfig
                   },
                   'appealId': {
                     'description': 'GUID of associated appeal',
-                    'type': 'uuid',
+                    'type': 'string',
+                    'format': 'uuid',
                     'example': '2926ad2a-9372-48cf-8ec1-69e08e4799ef'
                   },
                   'location': {
                     'type': %i[string null],
                     'description': 'Location to which to PUT document Payload',
                     'format': 'uri',
-                    'example': 'https://sandbox-api.va.gov/example_path_here/{idpath}'
+                    'example': 'https://sandbox-api.va.gov/example_path_here/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
                   },
                   'updatedAt': {
                     'description': 'The last time the submission was updated',
