@@ -58,8 +58,12 @@ module AppealsApi::V2
         end
 
         def uuid_missing_error
-          error = { title: 'bad_request',
-                    detail: I18n.t('appeals_api.errors.missing_uuid', appeal_type: 'Supplemental Claim') }
+          error = {
+            code: '400',
+            detail: I18n.t('appeals_api.errors.missing_uuid', appeal_type: 'Supplemental Claim'),
+            status: '400',
+            title: 'bad_request'
+          }
           log_error(error)
 
           render json: { errors: [error] }, status: :bad_request

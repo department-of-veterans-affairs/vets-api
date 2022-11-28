@@ -138,7 +138,12 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
       status: :not_found,
       json: {
         errors: [
-          { status: 404, detail: "HigherLevelReview with uuid #{@id.inspect} not found." }
+          {
+            code: '404',
+            detail: I18n.t('appeals_api.errors.not_found', type: 'HigherLevelReview', id: @id),
+            status: '404',
+            title: 'Record not found'
+          }
         ]
       }
     )

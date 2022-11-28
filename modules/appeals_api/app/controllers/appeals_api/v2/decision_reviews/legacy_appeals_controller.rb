@@ -73,9 +73,13 @@ class AppealsApi::V2::DecisionReviews::LegacyAppealsController < AppealsApi::App
   end
 
   def caseflow_exception
+    # Something in the BackendServiceException chain adds more fields than necessary to the caseflow response body,
+    # so filter it only to "errors" when possible.
+    body = caseflow_exception_response.original_body
+    filtered_body = body.slice('errors').presence || body
     Struct.new(:status, :body).new(
       caseflow_exception_response.original_status,
-      caseflow_exception_response.original_body
+      filtered_body.deep_transform_values(&:to_s)
     )
   end
 

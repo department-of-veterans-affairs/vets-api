@@ -51,13 +51,13 @@ describe AppealsApi::Schemas::SharedSchemasController, type: :request do
         it 'raises an error with form number in meta' do
           get base_path appeal_type, :bananas
 
-          error = JSON.parse(response.body)
+          error = JSON.parse(response.body)['errors'].first
 
           expect(response.status).to eq(404)
           expect(error['detail']).to include 'request parameter is invalid'
           expect(error['source']['parameter']).to include 'bananas'
-          expect(error['meta']).to be_a Array
-          expect(error['meta']).to include appeal_forms[i]
+          expect(error['meta']).to be_a Hash
+          expect(error['meta']['available_options']).to include appeal_forms[i]
         end
       end
     end
