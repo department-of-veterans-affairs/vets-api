@@ -26,6 +26,8 @@ class MHVAccount < ApplicationRecord
   scope :historic, -> { where(mhv_correlation_id: nil) }
   scope :active, -> { where.not(mhv_correlation_id: nil) }
 
+  belongs_to :user_account, dependent: nil, optional: true
+
   STATSD_ACCOUNT_INELIGIBLE_KEY = 'mhv.account.ineligible'
   TERMS_AND_CONDITIONS_NAME = 'mhvac'
   UPGRADABLE_ACCOUNT_LEVELS = [nil, 'Basic', 'Advanced'].freeze
