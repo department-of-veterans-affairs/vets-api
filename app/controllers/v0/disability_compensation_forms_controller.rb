@@ -68,6 +68,7 @@ module V0
       )
       submission = Form526Submission.new(
         user_uuid: @current_user.uuid,
+        user_account: @current_user.user_account,
         saved_claim_id: saved_claim.id,
         auth_headers_json: auth_headers.to_json,
         form_json: saved_claim.to_submission_data(@current_user)
