@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicalService=audiology
+    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicalService=audiology&pageSize=0
     body:
       encoding: US-ASCII
       string: ''
@@ -74,7 +74,7 @@ http_interactions:
   recorded_at: Fri, 08 Oct 2021 17:16:25 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=570
+    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=570&pageSize=0
     body:
       encoding: US-ASCII
       string: ''
@@ -132,7 +132,7 @@ http_interactions:
   recorded_at: Fri, 08 Oct 2021 18:39:57 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=570,945
+    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=570,945&pageSize=0
     body:
       encoding: US-ASCII
       string: ''
