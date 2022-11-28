@@ -25,6 +25,7 @@ module HealthQuest
     has_encrypted :questionnaire_response_data, :user_demographics_data, key: :kms_key, **lockbox_options
 
     validates :questionnaire_response_data, presence: true
+    belongs_to :user_account, dependent: nil, optional: true
 
     before_save :set_user_demographics
 
