@@ -514,6 +514,10 @@ features:
     description: "Use VA Forms System Core for forms instead of schema based forms"
     actor_type: user
     enable_in_development: true
+  profile_block_for_fiduciary_deceased_or_incompetent:
+    description: "Blocks profile access when a user has 1 of 3 user criteria, fiduciary, deceased, or incompetent flag"
+    actor_type: user
+    enable_in_development: true
   pw_ehr_cta_drupal_source_of_truth:
     actor_type: user
     description: Enabling Public Websites-managed EHR CTAs to use Drupal EHR data, including for Cerner cutovers
