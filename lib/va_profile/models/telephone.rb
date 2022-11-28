@@ -2,11 +2,14 @@
 
 require_relative 'base'
 require 'common/models/attribute_types/iso8601_time'
+require 'va_profile/concerns/defaultable'
+require 'va_profile/concerns/expirable'
 
 module VAProfile
   module Models
     class Telephone < Base
       include VAProfile::Concerns::Defaultable
+      include VAProfile::Concerns::Expirable
 
       VALID_AREA_CODE_REGEX = /[0-9]+/.freeze
       VALID_PHONE_NUMBER_REGEX = /[^a-zA-Z]+/.freeze

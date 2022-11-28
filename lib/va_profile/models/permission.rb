@@ -3,11 +3,13 @@
 require_relative 'base'
 require 'common/models/attribute_types/iso8601_time'
 require 'va_profile/concerns/defaultable'
+require 'va_profile/concerns/expirable'
 
 module VAProfile
   module Models
     class Permission < Base
       include VAProfile::Concerns::Defaultable
+      include VAProfile::Concerns::Expirable
 
       TEXT = 'TextPermission'
       PERMISSION_TYPES = [TEXT].freeze

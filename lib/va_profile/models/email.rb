@@ -4,11 +4,13 @@ require_relative 'base'
 require 'common/models/attribute_types/iso8601_time'
 require 'evss/pciu/email_address'
 require 'va_profile/concerns/defaultable'
+require 'va_profile/concerns/expirable'
 
 module VAProfile
   module Models
     class Email < Base
       include VAProfile::Concerns::Defaultable
+      include VAProfile::Concerns::Expirable
 
       attribute :created_at, Common::ISO8601Time
       attribute :email_address, String
