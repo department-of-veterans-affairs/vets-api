@@ -9,6 +9,7 @@ module VAOS
                                page_size: nil,
                                page_number: nil)
         with_monitoring do
+          page_size = 0 if page_size.nil? # 0 is the default for the VAOS service which means return all clinics
           url = "/vaos/v1/locations/#{location_id}/clinics"
           url_params = {
             'patientIcn' => get_icn(clinical_service),
