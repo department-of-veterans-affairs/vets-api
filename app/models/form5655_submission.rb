@@ -2,6 +2,7 @@
 
 class Form5655Submission < ApplicationRecord
   validates :user_uuid, presence: true
+  belongs_to :user_account, dependent: nil, optional: true
   has_kms_key
   has_encrypted :form_json, :metadata, key: :kms_key, **lockbox_options
   after_create :add_form_properties

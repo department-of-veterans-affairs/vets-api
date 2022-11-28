@@ -152,7 +152,8 @@ module DebtManagementCenter
       Form5655Submission.create(
         form_json: form_json.to_json,
         metadata: metadata,
-        user_uuid: @user.uuid
+        user_uuid: @user.uuid,
+        user_account: @user.user_account
       )
     end
 
