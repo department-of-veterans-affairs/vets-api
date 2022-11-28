@@ -9,7 +9,7 @@ module SAML
     class SSOe
       include SentryLogging
       include Identity::Parsers::GCIds
-      SERIALIZABLE_ATTRIBUTES = %i[email phone first_name middle_name last_name common_name suffix address zip
+      SERIALIZABLE_ATTRIBUTES = %i[email phone first_name middle_name last_name common_name suffix address postal_code
                                    gender ssn birth_date uuid idme_uuid logingov_uuid verified_at sec_id
                                    mhv_icn mhv_correlation_id mhv_account_type cerner_id cerner_facility_ids
                                    edipi loa sign_in multifactor participant_id birls_id icn
@@ -65,11 +65,11 @@ module SAML
           city: safe_attr('va_eauth_city'),
           state: safe_attr('va_eauth_state'),
           country: safe_attr('va_eauth_country'),
-          postal_code: zip
+          postal_code: postal_code
         }
       end
 
-      def zip
+      def postal_code
         safe_attr('va_eauth_postalcode')
       end
 

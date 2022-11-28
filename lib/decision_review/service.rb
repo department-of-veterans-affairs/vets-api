@@ -205,7 +205,7 @@ module DecisionReview
       {
         'veteranFirstName' => transliterate_name(user.first_name),
         'veteranLastName' => transliterate_name(user.last_name),
-        'zipCode' => user.zip || NO_ZIP_PLACEHOLDER,
+        'zipCode' => user.postal_code || NO_ZIP_PLACEHOLDER,
         'fileNumber' => user.ssn.to_s.strip,
         'source' => 'Vets.gov',
         'businessLine' => 'BVA'

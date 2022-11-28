@@ -27,7 +27,7 @@ describe HealthQuest::QuestionnaireResponse do
         street2: nil,
         city: 'London',
         country: 'UK',
-        zip: '12345'
+        postal_code: '12345'
       }
     )
   end
@@ -109,7 +109,7 @@ describe HealthQuest::QuestionnaireResponse do
           'street2' => nil,
           'city' => 'London',
           'country' => 'UK',
-          'zip' => '12345'
+          'postal_code' => '12345'
         },
         'mailing_address' => '123 abc',
         'home_address' => '123 abc',

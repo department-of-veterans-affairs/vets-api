@@ -13,7 +13,7 @@ FactoryBot.define do
       last_name { 'lincoln' }
       gender { 'M' }
       birth_date { '1809-02-12' }
-      zip { '17325' }
+      postal_code { '17325' }
       ssn { '796111863' }
       idme_uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
       logingov_uuid { nil }
@@ -71,7 +71,7 @@ FactoryBot.define do
                              last_name: t.last_name,
                              gender: t.gender,
                              birth_date: t.birth_date,
-                             zip: t.zip,
+                             postal_code: t.postal_code,
                              ssn: t.ssn,
                              idme_uuid: t.idme_uuid,
                              logingov_uuid: t.logingov_uuid,
@@ -108,7 +108,7 @@ FactoryBot.define do
       first_name { nil }
       last_name { nil }
       gender { nil }
-      zip { nil }
+      postal_code { nil }
       birth_date { nil }
       ssn { nil }
       multifactor { nil }
@@ -520,7 +520,7 @@ FactoryBot.define do
       last_name { nil }
       gender { nil }
       birth_date { nil }
-      zip { nil }
+      postal_code { nil }
       ssn { nil }
       mhv_icn { '12345' }
       multifactor { false }
@@ -537,7 +537,7 @@ FactoryBot.define do
       last_name { Faker::Name.last_name }
       icn { nil }
       gender { 'M' }
-      zip { Faker::Address.postcode }
+      postal_code { Faker::Address.postcode }
       birth_date { Faker::Time.between(from: 40.years.ago, to: 10.years.ago) }
       ssn { '796111864' }
       multifactor { true }
@@ -590,7 +590,7 @@ FactoryBot.define do
       first_name { Faker::Name.first_name }
       last_name { Faker::Name.last_name }
       gender { 'M' }
-      zip { Faker::Address.postcode }
+      postal_code { Faker::Address.postcode }
       birth_date { Faker::Time.between(from: 40.years.ago, to: 10.years.ago) }
       ssn { '796111864' }
       multifactor { true }

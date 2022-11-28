@@ -164,8 +164,8 @@ class User < Common::RedisStore
     ssn&.gsub(/[^\d]/, '')
   end
 
-  def zip
-    identity&.zip || mpi&.profile&.address&.postal_code
+  def postal_code
+    identity&.postal_code || mpi&.profile&.address&.postal_code
   end
 
   # MPI getter methods

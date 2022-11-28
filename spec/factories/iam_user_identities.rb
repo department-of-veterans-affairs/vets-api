@@ -9,7 +9,7 @@ FactoryBot.define do
     last_name { 'ANDERSON' }
     gender { 'M' }
     birth_date { '1970-08-12' }
-    zip { '78665' }
+    postal_code { '78665' }
     ssn { '796121200' }
     iam_sec_id { '0000028114' }
     icn { '1008596379V859838' }

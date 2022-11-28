@@ -71,7 +71,7 @@ module Users
         last_name: user.last_name,
         birth_date: user.birth_date,
         gender: user.gender,
-        zip: user.zip,
+        zip: user.postal_code,
         last_signed_in: user.last_signed_in,
         loa: user.loa,
         multifactor: user.multifactor,

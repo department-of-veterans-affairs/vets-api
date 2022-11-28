@@ -401,8 +401,8 @@ RSpec.describe User, type: :model do
           expect(user.birth_date).to eq(Date.parse(user.identity.birth_date).iso8601)
         end
 
-        it 'fetches zip from IDENTITY' do
-          expect(user.zip).to be(user.identity.zip)
+        it 'fetches postal_code from IDENTITY' do
+          expect(user.postal_code).to be(user.identity.postal_code)
         end
 
         it 'fetches ssn from IDENTITY' do
@@ -614,8 +614,8 @@ RSpec.describe User, type: :model do
           expect(user.address[:country]).to be(mvi_profile.address[:country])
         end
 
-        it 'fetches zip from MPI' do
-          expect(user.zip).to be(mvi_profile.address.postal_code)
+        it 'fetches postal_code from MPI' do
+          expect(user.postal_code).to be(mvi_profile.address.postal_code)
         end
 
         it 'fetches ssn from MPI' do
@@ -649,8 +649,8 @@ RSpec.describe User, type: :model do
           expect(user.birth_date).to be_nil
         end
 
-        it 'fetches zip from IDENTITY' do
-          expect(user.zip).to be_nil
+        it 'fetches postal_code from IDENTITY' do
+          expect(user.postal_code).to be_nil
         end
 
         it 'fetches ssn from IDENTITY' do
@@ -684,8 +684,8 @@ RSpec.describe User, type: :model do
           expect(user.birth_date).to eq(Date.parse(user.identity.birth_date).iso8601)
         end
 
-        it 'fetches zip from IDENTITY' do
-          expect(user.zip).to be(user.identity.zip)
+        it 'fetches postal_code from IDENTITY' do
+          expect(user.postal_code).to be(user.identity.postal_code)
         end
 
         it 'fetches ssn from IDENTITY' do

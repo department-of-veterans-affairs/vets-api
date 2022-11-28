@@ -362,7 +362,7 @@ module DecisionReviewV1
       {
         'veteranFirstName' => transliterate_name(user.first_name),
         'veteranLastName' => transliterate_name(user.last_name),
-        'zipCode' => user.zip,
+        'zipCode' => user.postal_code,
         'fileNumber' => user.ssn.to_s.strip,
         'source' => 'Vets.gov',
         'businessLine' => 'BVA'
