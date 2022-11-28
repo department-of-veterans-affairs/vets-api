@@ -178,7 +178,7 @@ RSpec.describe Users::Profile do
       end
 
       it 'includes zip' do
-        expect(profile[:zip]).to eq(user.zip)
+        expect(profile[:zip]).to eq(user.postal_code)
       end
 
       it 'includes last_signed_in' do

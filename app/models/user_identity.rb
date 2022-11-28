@@ -26,7 +26,7 @@ class UserIdentity < Common::RedisStore
   attribute :icn
   attribute :address
   attribute :phone
-  attribute :zip
+  attribute :postal_code
   attribute :ssn
   attribute :loa
   attribute :multifactor, Boolean # used by F/E to decision on whether or not to prompt user to add MFA

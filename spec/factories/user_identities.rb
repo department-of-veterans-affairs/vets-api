@@ -9,7 +9,7 @@ FactoryBot.define do
     last_name { 'lincoln' }
     gender { 'M' }
     birth_date { '1809-02-12' }
-    zip { '17325' }
+    postal_code { '17325' }
     ssn { '796111863' }
     mhv_icn { nil }
     mhv_account_type { nil }
@@ -43,7 +43,7 @@ FactoryBot.define do
     last_name { nil }
     gender { nil }
     birth_date { nil }
-    zip { nil }
+    postal_code { nil }
     ssn { nil }
     mhv_icn { nil }
     mhv_account_type { 'Basic' }
@@ -72,7 +72,7 @@ FactoryBot.define do
     last_name { nil }
     gender { nil }
     birth_date { nil }
-    zip { nil }
+    postal_code { nil }
     ssn { nil }
     mhv_icn { nil }
     mhv_account_type { nil }
