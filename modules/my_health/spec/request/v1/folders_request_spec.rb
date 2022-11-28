@@ -218,6 +218,16 @@ RSpec.describe 'Folders Integration', type: :request do
         expect(pagination['total_entries']).to eq(10)
       end
 
+      it 'does not paginate if per_page pagination parameter is -1' do
+        VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
+          get "/my_health/v1/messaging/folders/#{inbox_id}/messages", params: { per_page: -1 }
+        end
+
+        payload = JSON.parse(response.body)
+        pagination = payload['meta']['pagination']
+        expect(pagination).to be_nil
+      end
+
       it 'generates a 4xx error for out of bounds pagination' do
         VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
           get "/my_health/v1/messaging/folders/#{inbox_id}/messages", params: { page: 3, per_page: 10 }
