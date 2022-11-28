@@ -141,6 +141,7 @@ module HealthQuest
           if resp.response[:code] == SUCCESS_STATUS
             questionnaire_response.tap do |qr|
               qr.user_uuid = user.uuid
+              qr.user_account = user.user_account
               qr.appointment_id = attrs.dig(:appointment, :id)
               qr.questionnaire_response_id = resp.resource.id
               qr.user = user
