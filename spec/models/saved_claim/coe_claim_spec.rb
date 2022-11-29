@@ -105,5 +105,54 @@ RSpec.describe SavedClaim::CoeClaim do
         .and_return({})
       coe_claim.send_to_lgy(edipi: '1222333222', icn: '1112227772V019333')
     end
+
+    context 'no loan information' do
+      it 'sends the right data to LGY' do
+        # rubocop:disable Layout/LineLength
+        coe_claim = create(:coe_claim, form: '{"intent":"REFI","vaLoanIndicator":true,"periodsOfService":[{"serviceBranch":"Air Force","dateRange":{"from":"2000-01-01T00:00:00.000Z","to":"2010-01-16T00:00:00.000Z"}}],"identity":"ADSM","contactPhone":"2223334444","contactEmail":"vet@example.com","fullName":{"first":"Eddie","middle":"Joseph","last":"Caldwell"},"dateOfBirth":"1933-10-27","applicantAddress":{"country":"USA","street":"123 ANY ST","city":"ANYTOWN","state":"AL","postalCode":"54321"},"privacyAgreementAccepted":true}')
+        # rubocop:enable Layout/LineLength
+        expected_prepared_form_data = {
+          'status' => 'SUBMITTED',
+          'veteran' => {
+            'firstName' => 'Eddie',
+            'middleName' => 'Joseph',
+            'lastName' => 'Caldwell',
+            'suffixName' => '',
+            'dateOfBirth' => '1933-10-27',
+            'vetAddress1' => '123 ANY ST',
+            'vetAddress2' => '',
+            'vetCity' => 'ANYTOWN',
+            'vetState' => 'AL',
+            'vetZip' => '54321',
+            'vetZipSuffix' => nil,
+            'mailingAddress1' => '123 ANY ST',
+            'mailingAddress2' => '',
+            'mailingCity' => 'ANYTOWN',
+            'mailingState' => 'AL',
+            'mailingZip' => '54321',
+            'mailingZipSuffix' => '',
+            'contactPhone' => '2223334444',
+            'contactEmail' => 'vet@example.com',
+            'vaLoanIndicator' => true,
+            'vaHomeOwnIndicator' => false,
+            'activeDutyIndicator' => true,
+            'disabilityIndicator' => false
+          },
+          'relevantPriorLoans' => [],
+          'periodsOfService' => [{
+            'enteredOnDuty' => '2000-01-01T00:00:00.000Z',
+            'releasedActiveDuty' => '2010-01-16T00:00:00.000Z',
+            'militaryBranch' => 'AIR_FORCE',
+            'serviceType' => 'ACTIVE_DUTY',
+            'disabilityIndicator' => false
+          }]
+        }
+        expect_any_instance_of(LGY::Service)
+          .to receive(:put_application)
+          .with(payload: expected_prepared_form_data)
+          .and_return({})
+        coe_claim.send_to_lgy(edipi: '1222333222', icn: '1112227772V019333')
+      end
+    end
   end
 end
