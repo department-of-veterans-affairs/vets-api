@@ -236,6 +236,7 @@ mdot:
 
 # Settings for Decision Reviews
 decision_review:
+  benchmark_performance: true
   prefill: true
   url: https://sandbox-api.va.gov/services/appeals/v1/decision_reviews
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
