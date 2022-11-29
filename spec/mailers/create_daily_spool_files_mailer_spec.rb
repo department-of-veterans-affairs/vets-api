@@ -40,7 +40,7 @@ RSpec.describe CreateDailySpoolFilesMailer, type: %i[mailer aws_helpers] do
             PIERRE.BROWN@va.gov
             VAVBAHIN/TIMS@vba.va.gov
             EDUAPPMGMT.VBACO@VA.GOV
-            abelardo.blanco@va.gov
+            vfep_support_team@va.gov
             eugenia.gina.ronat@accenturefederal.com
             morgan.whaley@accenturefederal.com
             m.c.shah@accenturefederal.com
