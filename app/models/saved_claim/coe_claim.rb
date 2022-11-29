@@ -63,7 +63,7 @@ class SavedClaim::CoeClaim < SavedClaim
         'contactPhone' => parsed_form['contactPhone'],
         'contactEmail' => parsed_form['contactEmail'],
         'vaLoanIndicator' => parsed_form['vaLoanIndicator'],
-        'vaHomeOwnIndicator' => parsed_form['relevantPriorLoans'].any? { |obj| obj['propertyOwned'] },
+        'vaHomeOwnIndicator' => (parsed_form['relevantPriorLoans'] || []).any? { |obj| obj['propertyOwned'] },
         # 'identity' => 'VETERAN' # enum: ['VETERAN', 'ADSM', 'NADNA', 'DNANA', 'DRNA']
         'activeDutyIndicator' => parsed_form['identity'] == 'ADSM',
         'disabilityIndicator' => false
