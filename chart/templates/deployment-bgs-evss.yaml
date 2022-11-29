@@ -93,5 +93,5 @@ spec:
    {{- if .Values.web.socatProxyEnabled }}
 {{ toYaml .Values.common.socatProxy | indent 8 }}
         {{- end }}
-      serviceAccountName: {{ .Values.web.bgsEvss.name }}
+      serviceAccountName: {{ .Values.web.serviceAccount.name }}
 {{- end }}
