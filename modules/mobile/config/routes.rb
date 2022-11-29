@@ -48,6 +48,8 @@ Mobile::Engine.routes.draw do
     post '/user/emails', to: 'emails#create'
     put '/user/emails', to: 'emails#update'
     delete '/user/emails', to: 'emails#destroy'
+    get '/user/gender_identity/edit', to: 'gender_identity#edit'
+    put '/user/gender_identity', to: 'gender_identity#update'
     post '/user/phones', to: 'phones#create'
     put '/user/phones', to: 'phones#update'
     delete '/user/phones', to: 'phones#destroy'
