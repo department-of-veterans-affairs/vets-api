@@ -75,7 +75,13 @@
           "items": {
             "type": "object",
             "properties": {
-              "id": { "type": ["integer", "string"], "nullable": true, "example": null },
+              "id": {
+                "oneOf": [
+                  { "type": "string", "nullable": true },
+                  { "type": "integer" }
+                ],
+                "example": null
+              },
               "approxDecisionDate": {
                 "type": "string",
                 "nullable": true,

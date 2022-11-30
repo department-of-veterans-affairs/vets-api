@@ -53,7 +53,7 @@
             "required": true,
             "description": "Veteran's file number",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-File-Number"
             }
           },
           {
@@ -63,7 +63,7 @@
             "description": "Veteran's first name",
             "example": "Cara",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-First-Name"
             }
           },
           {
@@ -72,7 +72,7 @@
             "required": false,
             "description": "Veteran's middle initial",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-Middle-Initial"
             }
           },
           {
@@ -82,7 +82,7 @@
             "description": "Veteran's last name",
             "example": "Bartlett",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-Last-Name"
             }
           },
           {
@@ -92,7 +92,7 @@
             "description": "Veteran's birth date",
             "example": "1975-02-14",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-Birth-Date"
             }
           },
           {
@@ -101,7 +101,7 @@
             "required": false,
             "description": "Non-Veteran claimant's first name",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-First-Name"
             }
           },
           {
@@ -110,7 +110,7 @@
             "required": false,
             "description": "Non-Veteran claimant's middle initial",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Middle-Initial"
             }
           },
           {
@@ -119,7 +119,7 @@
             "required": false,
             "description": "Non-Veteran claimant's last name",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Last-Name"
             }
           },
           {
@@ -128,25 +128,7 @@
             "required": false,
             "description": "Non-Veteran claimant's Birth Date",
             "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-Consumer-Username",
-            "required": false,
-            "description": "Consumer User Name (passed from Kong)",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-Consumer-ID",
-            "required": false,
-            "description": "Consumer GUID",
-            "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Birth-Date"
             }
           }
         ],
@@ -1965,7 +1947,7 @@
             "required": false,
             "description": "Veteran's file number",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-File-Number"
             }
           },
           {
@@ -1975,7 +1957,7 @@
             "description": "Veteran's first name",
             "example": "Cara",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-First-Name"
             }
           },
           {
@@ -1984,7 +1966,7 @@
             "required": false,
             "description": "Veteran's middle initial",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-Middle-Initial"
             }
           },
           {
@@ -1994,7 +1976,7 @@
             "description": "Veteran's last name",
             "example": "Bartlett",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-Last-Name"
             }
           },
           {
@@ -2004,25 +1986,7 @@
             "description": "Veteran's birth date",
             "example": "1975-02-14",
             "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-Consumer-Username",
-            "required": false,
-            "description": "Consumer User Name (passed from Kong)",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-Consumer-ID",
-            "required": false,
-            "description": "Consumer GUID",
-            "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-Birth-Date"
             }
           }
         ],
@@ -2054,27 +2018,25 @@
                   }
                 },
                 "schema": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "data": {
-                        "type": "object",
-                        "properties": {
-                          "type": {
-                            "type": "string",
-                            "enum": [
-                              "noticeOfDisagreementValidation"
-                            ]
-                          },
-                          "attributes": {
-                            "type": "object",
-                            "properties": {
-                              "status": {
-                                "type": "string",
-                                "enum": [
-                                  "valid"
-                                ]
-                              }
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "noticeOfDisagreementValidation"
+                          ]
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "valid"
+                              ]
                             }
                           }
                         }
@@ -2334,7 +2296,7 @@
             "required": false,
             "description": "Veteran's file number",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-File-Number"
             }
           }
         ],
@@ -2478,6 +2440,28 @@
         ],
         "operationId": "putNoticeOfDisagreementEvidenceSubmission",
         "description": "Accepts document metadata, document binary, and attachment binaries. Full URL, including\nquery parameters, provided from POST `/*/evidence_submissions`.\nPlease see the `documentUploadMetadata` schema for the required payload schema.\n\n## Example Payload\n\nThe following demonstrates a (redacted) multipart payload suitable for submitting to the PUT\nendpoint. Most programming languages should have provisions for assembling a multipart\npayload like this without having to do so manually.\n\n```\n--17de1ed8f01442b2a2d7a93506314b76\nContent-Disposition: form-data; name=\"metadata\"\nContent-Type: application/json\n\n{\"veteranFirstName\": \"Jane\",\n\"veteranLastName\": \"Doe\",\n\"fileNumber\": \"012345678\",\n\"zipCode\": \"94402\",\n\"source\": \"Vets.gov\",\n\"docType\": \"316\"\n\"businessLine\": \"BVA\"}\n--17de1ed8f01442b2a2d7a93506314b76\nContent-Disposition: form-data; name=\"content\"\nContent-Type: application/pdf\n\n<Binary PDF contents>\n--17de1ed8f01442b2a2d7a93506314b76\nContent-Disposition: form-data; name=\"attachment1\"\nContent-Type: application/pdf\n\n<Binary PDF attachment contents>\n--17de1ed8f01442b2a2d7a93506314b76--\n```\n\nThis PUT request would have an overall HTTP Content-Type header:\n\n```\nContent-Type: multipart/form-data; boundary=17de1ed8f01442b2a2d7a93506314b76\n```\n\nNote that the Content-Disposition parameter \"name\" in each part must be the expected values\n\"metadata\", \"content\", \"attachment1\"...\"attachmentN\"\n",
+        "security": [
+          {
+            "apikey": [
+
+            ]
+          },
+          {
+            "productionOauth": [
+              "claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
         "parameters": [
           {
             "name": "Content-MD5",
@@ -2914,11 +2898,15 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": [
-                        "integer",
-                        "string"
+                      "oneOf": [
+                        {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        {
+                          "type": "integer"
+                        }
                       ],
-                      "nullable": true,
                       "example": null
                     },
                     "approxDecisionDate": {
@@ -2948,6 +2936,60 @@
                 "example": true
               }
             }
+          }
+        }
+      },
+      "documentUploadMetadata": {
+        "type": "object",
+        "description": "Identifying properties about the document payload being submitted",
+        "required": [
+          "veteranFirstName",
+          "veteranLastName",
+          "fileNumber",
+          "zipCode",
+          "source"
+        ],
+        "properties": {
+          "veteranFirstName": {
+            "type": "string",
+            "description": "Veteran first name. Cannot be missing or empty or longer than 50 characters. Only upper/lower case letters, hyphens(-), spaces and forward-slash(/) allowed.",
+            "pattern": "^[a-zA-Z\\-\\/\\s]{1,50}$",
+            "example": "Jane"
+          },
+          "veteranLastName": {
+            "type": "string",
+            "description": "Veteran last name. Cannot be missing or empty or longer than 50 characters. Only upper/lower case letters, hyphens(-), spaces and forward-slash(/) allowed.",
+            "pattern": "^[a-zA-Z\\-\\/\\s]{1,50}$",
+            "example": "Doe-Smith"
+          },
+          "fileNumber": {
+            "description": "The Veteran's file number is exactly 9 digits with no alpha characters, hyphens, spaces or punctuation. In most cases, this is the Veteran's SSN but may also be an 8 digit BIRL number. If no file number has been established or if it is unknown, the application should use the Veteran's SSN and the file number will be associated with the submission later in the process. Incorrect file numbers can cause delays.",
+            "pattern": "^\\d{8,9}$",
+            "example": "999887777",
+            "type": "string"
+          },
+          "zipCode": {
+            "type": "string",
+            "example": "94402",
+            "description": "Veteran zip code. Either five digits (XXXXX) or five digits then four digits separated by a hyphen (XXXXX-XXXX). Use '00000' for Veterans with non-US addresses."
+          },
+          "source": {
+            "type": "string",
+            "example": "Vets.gov",
+            "description": "System, installation, or entity submitting the document"
+          },
+          "docType": {
+            "type": "string",
+            "example": "316",
+            "description": "VBA form number of the document"
+          },
+          "businessLine": {
+            "type": "string",
+            "example": "BVA",
+            "enum": [
+              "BVA"
+            ],
+            "description": "BVA - Board of Veteran Appeals"
           }
         }
       },
@@ -3334,16 +3376,12 @@
                     ]
                   },
                   "code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
+                    "type": "string",
+                    "nullable": true
                   },
                   "detail": {
-                    "type": [
-                      "string",
-                      "null"
-                    ],
+                    "type": "string",
+                    "nullable": true,
                     "description": "Human readable error detail. Only present if status = \"error\""
                   },
                   "appealType": {
@@ -3358,10 +3396,8 @@
                     "example": "2926ad2a-9372-48cf-8ec1-69e08e4799ef"
                   },
                   "location": {
-                    "type": [
-                      "string",
-                      "null"
-                    ],
+                    "type": "string",
+                    "nullable": true,
                     "description": "Location to which to PUT document Payload",
                     "format": "uri",
                     "example": "https://sandbox-api.va.gov/example_path_here/6d8433c1-cd55-4c24-affd-f592287a7572"
@@ -3446,6 +3482,10 @@
         "required": [
           "data"
         ]
+      },
+      "non_blank_string": {
+        "type": "string",
+        "pattern": "[^ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]"
       },
       "phone": {
         "type": "object",
@@ -4231,6 +4271,89 @@
       "uuid": {
         "type": "string",
         "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+      },
+      "X-VA-Birth-Date": {
+        "description": "Veteran's birth date",
+        "type": "string",
+        "format": "date"
+      },
+      "X-VA-File-Number": {
+        "allOf": [
+          {
+            "description": "VA file number (c-file / css)"
+          },
+          {
+            "maxLength": 9
+          },
+          {
+            "$ref": "#/components/schemas/non_blank_string"
+          }
+        ]
+      },
+      "X-VA-First-Name": {
+        "allOf": [
+          {
+            "description": "first name"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "X-VA-Last-Name": {
+        "allOf": [
+          {
+            "description": "last name"
+          },
+          {
+            "$ref": "#/components/schemas/non_blank_string"
+          }
+        ]
+      },
+      "X-VA-Middle-Initial": {
+        "allOf": [
+          {
+            "description": "middle initial"
+          },
+          {
+            "$ref": "#/components/schemas/non_blank_string"
+          }
+        ]
+      },
+      "X-VA-NonVeteranClaimant-Birth-Date": {
+        "description": "Non-veteran claimant's birth date",
+        "type": "string",
+        "format": "date"
+      },
+      "X-VA-NonVeteranClaimant-First-Name": {
+        "allOf": [
+          {
+            "description": "first name"
+          },
+          {
+            "$ref": "#/components/schemas/non_blank_string"
+          }
+        ]
+      },
+      "X-VA-NonVeteranClaimant-Last-Name": {
+        "allOf": [
+          {
+            "description": "last name"
+          },
+          {
+            "$ref": "#/components/schemas/non_blank_string"
+          }
+        ]
+      },
+      "X-VA-NonVeteranClaimant-Middle-Initial": {
+        "allOf": [
+          {
+            "description": "middle initial"
+          },
+          {
+            "$ref": "#/components/schemas/non_blank_string"
+          }
+        ]
       }
     }
   },

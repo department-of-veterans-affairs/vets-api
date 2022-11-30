@@ -31,113 +31,114 @@ class AppealsApi::SwaggerSharedComponents
     {
       veteran_ssn_header: {
         in: :header,
-        type: :string,
         name: 'X-VA-SSN',
         required: true,
         description: 'Veteran\'s SSN',
-        example: '706547821'
+        example: '706547821',
+        schema: { '$ref' => '#/components/schemas/X-VA-SSN' }
       },
       veteran_first_name_header: {
         in: :header,
-        type: :string,
         name: 'X-VA-First-Name',
         required: true,
         description: 'Veteran\'s first name',
-        example: 'Cara'
+        example: 'Cara',
+        schema: { '$ref' => '#/components/schemas/X-VA-First-Name' }
       },
       veteran_middle_initial_header: {
         in: :header,
-        type: :string,
         name: 'X-VA-Middle-Initial',
         required: false,
-        description: 'Veteran\'s middle initial'
+        description: 'Veteran\'s middle initial',
+        schema: { '$ref' => '#/components/schemas/X-VA-Middle-Initial' }
       },
       veteran_last_name_header: {
         in: :header,
-        type: :string,
         name: 'X-VA-Last-Name',
         required: true,
         description: 'Veteran\'s last name',
-        example: 'Bartlett'
+        example: 'Bartlett',
+        schema: { '$ref' => '#/components/schemas/X-VA-Last-Name' }
       },
       veteran_birth_date_header: {
         in: :header,
-        type: :string,
         name: 'X-VA-Birth-Date',
         required: true,
         description: 'Veteran\'s birth date',
-        example: '1975-02-14'
+        example: '1975-02-14',
+        schema: { '$ref' => '#/components/schemas/X-VA-Birth-Date' }
       },
       veteran_file_number_header: {
         in: :header,
-        type: :string,
         name: 'X-VA-File-Number',
         required: false,
-        description: 'Veteran\'s file number'
+        description: 'Veteran\'s file number',
+        schema: { '$ref' => '#/components/schemas/X-VA-File-Number' }
       },
       veteran_insurance_policy_number_header: {
         in: :header,
-        type: :string,
         name: 'X-VA-Insurance-Policy-Number',
         required: false,
-        description: 'Veteran\'s insurance policy number'
+        description: 'Veteran\'s insurance policy number',
+        schema: { '$ref' => '#/components/schemas/X-VA-Insurance-Policy-Number' }
       },
       claimant_ssn_header: {
         in: :header,
-        type: :string,
         name: 'X-VA-NonVeteranClaimant-SSN',
         required: false,
-        description: 'Non-Veteran claimant\'s SSN'
+        description: 'Non-Veteran claimant\'s SSN',
+        schema: { '$ref' => '#/components/schemas/X-VA-NonVeteranClaimant-SSN' }
       },
       claimant_first_name_header: {
         in: :header,
-        type: :string,
         name: 'X-VA-NonVeteranClaimant-First-Name',
         required: false,
-        description: 'Non-Veteran claimant\'s first name'
+        description: 'Non-Veteran claimant\'s first name',
+        schema: { '$ref' => '#/components/schemas/X-VA-NonVeteranClaimant-First-Name' }
       },
       claimant_middle_initial_header: {
         in: :header,
-        type: :string,
         name: 'X-VA-NonVeteranClaimant-Middle-Initial',
         required: false,
-        description: 'Non-Veteran claimant\'s middle initial'
+        description: 'Non-Veteran claimant\'s middle initial',
+        schema: { '$ref' => '#/components/schemas/X-VA-NonVeteranClaimant-Middle-Initial' }
       },
       claimant_last_name_header: {
         in: :header,
-        type: :string,
         name: 'X-VA-NonVeteranClaimant-Last-Name',
         required: false,
-        description: 'Non-Veteran claimant\'s last name'
+        description: 'Non-Veteran claimant\'s last name',
+        schema: { '$ref' => '#/components/schemas/X-VA-NonVeteranClaimant-Last-Name' }
       },
       claimant_birth_date_header: {
         in: :header,
-        type: :string,
         name: 'X-VA-NonVeteranClaimant-Birth-Date',
         required: false,
-        description: 'Non-Veteran claimant\'s Birth Date'
+        description: 'Non-Veteran claimant\'s Birth Date',
+        schema: { '$ref' => '#/components/schemas/X-VA-NonVeteranClaimant-Birth-Date' }
       },
       alternate_signer_first_name_header: {
         in: :header,
-        type: :string,
         name: 'X-Alternate-Signer-First-Name',
         required: false,
-        description: 'Alternate signer\'s first name'
+        description: 'Alternate signer\'s first name',
+        schema: { '$ref' => '#/components/schemas/X-Alternate-Signer-First-Name' }
       },
       alternate_signer_middle_initial_header: {
         in: :header,
-        type: :string,
         name: 'X-Alternate-Signer-Middle-Initial',
         required: false,
-        description: 'Alternate signer\'s middle initial'
+        description: 'Alternate signer\'s middle initial',
+        schema: { '$ref' => '#/components/schemas/X-Alternate-Signer-Middle-Initial' }
       },
       alternate_signer_last_name_header: {
         in: :header,
-        type: :string,
         name: 'X-Alternate-Signer-Last-Name',
         required: false,
-        description: 'Alternate signer\'s last name'
+        description: 'Alternate signer\'s last name',
+        schema: { '$ref' => '#/components/schemas/X-Alternate-Signer-Last-Name' }
       },
+      # Deprecated. Only used in decision_reviews endpoint docs
       consumer_username_header: {
         in: :header,
         type: :string,
@@ -145,6 +146,7 @@ class AppealsApi::SwaggerSharedComponents
         required: false,
         description: 'Consumer User Name (passed from Kong)'
       },
+      # Deprecated. Only used in decision_reviews endpoint docs
       consumer_id_header: {
         in: :header,
         type: :string,
@@ -154,11 +156,11 @@ class AppealsApi::SwaggerSharedComponents
       },
       va_receipt_date: {
         in: :header,
-        type: :string,
         name: 'X-VA-Receipt-Date',
         required: true,
         description: '(yyyy-mm-dd) In order to determine contestability of issues, the receipt date of a hypothetical Decision Review must be specified.',
-        example: '2022-01-01'
+        example: '2022-01-01',
+        schema: { '$ref' => '#/components/schemas/X-VA-Receipt-Date' }
       }
     }
   end

@@ -108,7 +108,7 @@ module DocHelpers
     return false if enabled_docs.blank?
 
     if require_env_slug
-      enabled_docs.include?(sym) && ENV.key?('RSWAG_SECTION_SLUG')
+      enabled_docs.include?(sym) && ENV.key?('API_NAME')
     else
       enabled_docs.include?(sym)
     end
