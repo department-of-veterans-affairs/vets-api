@@ -1402,16 +1402,23 @@ test_user_dashboard:
     client_id:
     client_secret:
 
-lighthouse_health_immunization:
+mobile_lighthouse:
   client_id: '0oad0xggirKLf2ger2p7'
-  audience_claim_url: 'https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7/v1/token'
-  key_path: ~
-  access_token_url: 'https://sandbox-api.va.gov/oauth2/health/system/v1/token'
-  api_url: 'https://sandbox-api.va.gov/services/fhir/v0/r4'
-  scopes:
-    - "launch launch/patient"
-    - "patient/Immunization.read"
-    - "patient/Location.read"
+  key_path: /srv/vets-api/secret/mobile_lh_health_api.key
+  health:
+    aud_claim_url: 'https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7/v1/token'
+    access_token_url: 'https://sandbox-api.va.gov/oauth2/health/system/v1/token'
+    api_url: 'https://sandbox-api.va.gov/services/fhir/v0/r4'
+    api_scopes:
+      - "launch launch/patient"
+      - "patient/Immunization.read"
+      - "patient/Location.read"
+  letters:
+    aud_claim_url: "https://deptva-eval.okta.com/oauth2/ausftw7zk6eHr7gMN2p7/v1/token"
+    access_token_url: 'https://sandbox-api.va.gov/oauth2/va-letter-generator/system/v1/token'
+    api_url: 'https://sandbox-api.va.gov/services/va-letter-generator/v1/'
+    api_scopes:
+      - "letters.read"
 
 token_validation:
   url: https://dev-api.va.gov/internal/auth
