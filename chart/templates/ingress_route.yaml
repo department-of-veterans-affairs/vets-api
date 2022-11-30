@@ -24,4 +24,26 @@ spec:
     traefik-real-ip:
       excludednets:
         - "1.1.1.1/24"
+
+---
+{{- $root := . -}}
+{{- range $name, $service := $root.Values.web.externalservice.service }}
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ $name }}
+  namespace: {{ $root.Release.Namespace }}
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: {{ $root.Values.web.externalservice.default.kind }}
+      match: PathPrefix(`{{ $service.route }}`) && HostRegexp(`{{ $root.Values.web.externalservice.default.host }}`)
+      priority: {{ $service.priority | default "10" }}
+      services:
+        - name: {{ $name }}
+          port: {{ $service.port | default $root.Values.web.externalservice.default.port }}
+      middleware:
+        - name: {{ $root.Values.web.externalservice.default.middleware.name }}
+{{- end }}
 {{- end }}
