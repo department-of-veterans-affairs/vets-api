@@ -59,8 +59,10 @@ describe 'Notice of Disagreements', swagger_doc: DocHelpers.output_json_path, ty
       parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_last_name_header]
       parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_birth_date_header]
 
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_username_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_id_header]
+      if DocHelpers.decision_reviews?
+        parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_username_header]
+        parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_id_header]
+      end
 
       response '200', 'Info about a single Notice of Disagreement' do
         let(:nod_body) do
@@ -262,8 +264,10 @@ describe 'Notice of Disagreements', swagger_doc: DocHelpers.output_json_path, ty
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_birth_date_header]
       let(:'X-VA-Birth-Date') { '1900-01-01' }
 
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_username_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_id_header]
+      if DocHelpers.decision_reviews?
+        parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_username_header]
+        parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_id_header]
+      end
 
       response '200', 'Valid' do
         let(:nod_body) do
@@ -374,9 +378,11 @@ describe 'Notice of Disagreements', swagger_doc: DocHelpers.output_json_path, ty
 
   path '/nod_upload_path' do
     put 'Accepts Notice of Disagreement Evidence Submission document upload.' do
+      scopes = %w[claim.write]
       tags 'Notice of Disagreements'
       operationId 'putNoticeOfDisagreementEvidenceSubmission'
       description File.read(DocHelpers.output_directory_file_path('put_description.md'))
+      security DocHelpers.security_config(scopes)
 
       parameter name: :'Content-MD5', in: :header, type: :string, description: 'Base64-encoded 128-bit MD5 digest of the message. Use for integrity control.'
       let(:'Content-MD5') { nil }

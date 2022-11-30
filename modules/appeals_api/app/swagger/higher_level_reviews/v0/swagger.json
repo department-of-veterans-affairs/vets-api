@@ -3,6 +3,9 @@
   "info": {
     "title": "Higher-Level Reviews",
     "version": "v0",
+    "contact": {
+      "name": "developer.va.gov"
+    },
     "termsOfService": "https://developer.va.gov/terms-of-service",
     "description": "The Higher-Level Reviews API lets internal VA teams create and manage Higher-Level Reviews. Higher-Level Reviews can be requested after receiving an initial claim or a Supplemental Claims decision. [Learn more about VA Higher-Level Reviews](https://www.va.gov/decision-reviews/higher-level-review/).  \n\nTo check the status of all decision reviews and appeals for a specified individual, use the [Appeals Status API](https://developer.va.gov/explore/appeals/docs/appeals?version=current).\n\n## Technical overview\nThe Higher-Level Reviews API pulls data from Caseflow, a case management system. It provides decision review and appeal data that can be used for submitting a Higher-Level Review.\n\n### Authorization and Access\nTo gain access to the Higher-Level Reviews API you must [request an API Key](https://developer.va.gov/apply). API requests are authorized through a symmetric API token which is provided in an HTTP header named `apikey`.\n\nBecause this application is designed to let third-parties request information on behalf of a claimant, we are not using VA Authentication Federation Infrastructure (VAAFI) headers or Single Sign On External (SSOe).\n\n### Submission Statuses\nUse the correct GET endpoint to check the status of a Higher-Level Review submission. \n\nThese endpoints return the status of the submission in Caseflow but not the status of the submission in VBMS, which is the status visible to claimants. Therefore, VBMS statuses are different from the statuses this API returns. \n\nTo check the status of an appeal as it will appear to a claimant, use the [Appeals Status API](https://developer.va.gov/explore/appeals/docs/appeals?version=current).\n\n| Status      | What it means |\n| ---        |     ---     |\n| pending      | Submission successfully received by the API but has not yet started processing. |\n| submitting   | Data is transferring to upstream systems but is not yet complete. |\n| submitted   | A submitted status means the data was successfully transferred to the central mail portal.<br /><br />A submitted status is confirmation from the central mail portal that they have received the PDF, but the data is not yet being processed. The Date of Receipt is set when this status is achieved.<br /><br />Submitted is the final status in the sandbox environment.<p> |\n| processing   | Indicates intake has begun, the Intake, Conversion and Mail Handling Services (ICMHS) group is processing the appeal data. |\n| success   | The centralized mail portal, Digital Mail Handling System (DHMS), has received the data. |\n| complete   | Final status. Indicates the document package has been successfully associated with the Veteran and has been received in the correct business area for processing. Claim is now established in VBMS. |\n| error   | An error occurred. See the error code and message for further information. |\n\n#### Status simulation in sandbox and staging\n\nTest submissions do not progress through the same statuses as the production environment. In sandbox and staging, the final status of a submission is `submitted`; however, we allow passing a `Status-Simulation` header on the show endpoints so that you can simulate all production statuses.\n\n#### Status Caching\nDue to system limitations, status attribute data for the GET `/forms/200996/{uuid}` endpoint is cached for 1 hour. The updated_at field indicates the last time the status for a given GUID was updated.\n\n### [Terms of service](https://developer.va.gov/terms-of-service)\n\n"
   },
@@ -51,7 +54,7 @@
             "description": "Veteran's SSN",
             "example": "706547821",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-SSN"
             }
           },
           {
@@ -61,7 +64,7 @@
             "description": "Veteran's first name",
             "example": "Cara",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-First-Name"
             }
           },
           {
@@ -70,7 +73,7 @@
             "required": false,
             "description": "Veteran's middle initial",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-Middle-Initial"
             }
           },
           {
@@ -80,7 +83,7 @@
             "description": "Veteran's last name",
             "example": "Bartlett",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-Last-Name"
             }
           },
           {
@@ -90,7 +93,7 @@
             "description": "Veteran's birth date",
             "example": "1975-02-14",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-Birth-Date"
             }
           },
           {
@@ -99,7 +102,7 @@
             "required": false,
             "description": "Veteran's file number",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-File-Number"
             }
           },
           {
@@ -108,7 +111,7 @@
             "required": false,
             "description": "Veteran's insurance policy number",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-Insurance-Policy-Number"
             }
           },
           {
@@ -117,7 +120,7 @@
             "required": false,
             "description": "Non-Veteran claimant's first name",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-First-Name"
             }
           },
           {
@@ -126,7 +129,7 @@
             "required": false,
             "description": "Non-Veteran claimant's middle initial",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Middle-Initial"
             }
           },
           {
@@ -135,7 +138,7 @@
             "required": false,
             "description": "Non-Veteran claimant's last name",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Last-Name"
             }
           },
           {
@@ -144,7 +147,7 @@
             "required": false,
             "description": "Non-Veteran claimant's SSN",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-SSN"
             }
           },
           {
@@ -153,25 +156,7 @@
             "required": false,
             "description": "Non-Veteran claimant's Birth Date",
             "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-Consumer-Username",
-            "required": false,
-            "description": "Consumer User Name (passed from Kong)",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-Consumer-ID",
-            "required": false,
-            "description": "Consumer GUID",
-            "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Birth-Date"
             }
           }
         ],
@@ -450,6 +435,26 @@
                           "informalConference"
                         ]
                       }
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Internal server error",
+                      "detail": "Internal server error",
+                      "code": "500",
+                      "status": "500"
                     }
                   ]
                 },
@@ -777,6 +782,26 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Internal server error",
+                      "detail": "Internal server error",
+                      "code": "500",
+                      "status": "500"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
           }
         }
       }
@@ -787,6 +812,7 @@
         "tags": [
           "Higher-Level Reviews"
         ],
+        "operationId": "hlrSchema",
         "description": "Returns the [JSON Schema](https://json-schema.org) related to the `POST /forms/200996` endpoint",
         "security": [
           {
@@ -2024,44 +2050,49 @@
             "content": {
               "application/json": {
                 "example": {
-                  "title": "not_found",
-                  "detail": "The 'invalid_schema_type' request parameter is invalid",
-                  "code": "InvalidSchemaType",
-                  "status": "404",
-                  "source": {
-                    "parameter": "invalid_schema_type"
-                  },
-                  "meta": [
-                    "200996",
-                    "address",
-                    "non_blank_string",
-                    "phone",
-                    "timezone"
+                  "errors": [
+                    {
+                      "title": "not_found",
+                      "detail": "The 'invalid_schema_type' request parameter is invalid",
+                      "code": "InvalidSchemaType",
+                      "status": "404",
+                      "source": {
+                        "parameter": "invalid_schema_type"
+                      },
+                      "meta": {
+                        "available_options": [
+                          "200996",
+                          "address",
+                          "non_blank_string",
+                          "phone",
+                          "timezone"
+                        ]
+                      }
+                    }
                   ]
                 },
                 "schema": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "errors": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "status": {
-                              "type": "integer",
-                              "enum": [
-                                404
-                              ]
-                            },
-                            "detail": {
-                              "type": "string"
-                            }
-                          }
-                        }
-                      }
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Internal server error",
+                      "detail": "Internal server error",
+                      "code": "500",
+                      "status": "500"
                     }
-                  }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
                 }
               }
             }
@@ -2107,7 +2138,7 @@
             "description": "Veteran's SSN",
             "example": "706547821",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-SSN"
             }
           },
           {
@@ -2117,7 +2148,7 @@
             "description": "Veteran's first name",
             "example": "Cara",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-First-Name"
             }
           },
           {
@@ -2126,7 +2157,7 @@
             "required": false,
             "description": "Veteran's middle initial",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-Middle-Initial"
             }
           },
           {
@@ -2136,7 +2167,7 @@
             "description": "Veteran's last name",
             "example": "Bartlett",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-Last-Name"
             }
           },
           {
@@ -2146,7 +2177,7 @@
             "description": "Veteran's birth date",
             "example": "1975-02-14",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-Birth-Date"
             }
           },
           {
@@ -2155,7 +2186,7 @@
             "required": false,
             "description": "Veteran's file number",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-File-Number"
             }
           },
           {
@@ -2164,7 +2195,7 @@
             "required": false,
             "description": "Veteran's insurance policy number",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-Insurance-Policy-Number"
             }
           },
           {
@@ -2173,7 +2204,7 @@
             "required": false,
             "description": "Non-Veteran claimant's first name",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-First-Name"
             }
           },
           {
@@ -2182,7 +2213,7 @@
             "required": false,
             "description": "Non-Veteran claimant's middle initial",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Middle-Initial"
             }
           },
           {
@@ -2191,7 +2222,7 @@
             "required": false,
             "description": "Non-Veteran claimant's last name",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Last-Name"
             }
           },
           {
@@ -2200,7 +2231,7 @@
             "required": false,
             "description": "Non-Veteran claimant's SSN",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-SSN"
             }
           },
           {
@@ -2209,25 +2240,7 @@
             "required": false,
             "description": "Non-Veteran claimant's Birth Date",
             "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-Consumer-Username",
-            "required": false,
-            "description": "Consumer User Name (passed from Kong)",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-Consumer-ID",
-            "required": false,
-            "description": "Consumer GUID",
-            "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Birth-Date"
             }
           }
         ],
@@ -2325,6 +2338,26 @@
                       ]
                     }
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Internal server error",
+                      "detail": "Internal server error",
+                      "code": "500",
+                      "status": "500"
+                    }
+                  ]
                 },
                 "schema": {
                   "$ref": "#/components/schemas/errorModel"
@@ -2736,10 +2769,7 @@
             "items": {
               "additionalProperties": false,
               "required": [
-                "title",
-                "detail",
-                "code",
-                "status"
+                "title"
               ],
               "properties": {
                 "title": {
@@ -2762,6 +2792,14 @@
                     "pointer": {
                       "type": "string",
                       "description": "Pointer to source of error"
+                    },
+                    "parameter": {
+                      "type": "string",
+                      "description": "Invalid request parameter"
+                    },
+                    "header": {
+                      "type": "string",
+                      "description": "Invalid header"
                     }
                   }
                 },
@@ -3866,6 +3904,112 @@
       "uuid": {
         "type": "string",
         "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+      },
+      "X-VA-Birth-Date": {
+        "description": "Veteran's birth date",
+        "type": "string",
+        "format": "date"
+      },
+      "X-VA-File-Number": {
+        "allOf": [
+          {
+            "description": "VA file number (c-file / css)"
+          },
+          {
+            "maxLength": 9
+          },
+          {
+            "$ref": "#/components/schemas/non_blank_string"
+          }
+        ]
+      },
+      "X-VA-First-Name": {
+        "allOf": [
+          {
+            "description": "first name"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "X-VA-Insurance-Policy-Number": {
+        "allOf": [
+          {
+            "description": "Veteran's insurance policy number",
+            "maxLength": 18
+          },
+          {
+            "$ref": "#/components/schemas/non_blank_string"
+          }
+        ]
+      },
+      "X-VA-Last-Name": {
+        "allOf": [
+          {
+            "description": "last name"
+          },
+          {
+            "$ref": "#/components/schemas/non_blank_string"
+          }
+        ]
+      },
+      "X-VA-Middle-Initial": {
+        "allOf": [
+          {
+            "description": "middle initial"
+          },
+          {
+            "$ref": "#/components/schemas/non_blank_string"
+          }
+        ]
+      },
+      "X-VA-NonVeteranClaimant-Birth-Date": {
+        "description": "Non-veteran claimant's birth date",
+        "type": "string",
+        "format": "date"
+      },
+      "X-VA-NonVeteranClaimant-First-Name": {
+        "allOf": [
+          {
+            "description": "first name"
+          },
+          {
+            "$ref": "#/components/schemas/non_blank_string"
+          }
+        ]
+      },
+      "X-VA-NonVeteranClaimant-Last-Name": {
+        "allOf": [
+          {
+            "description": "last name"
+          },
+          {
+            "$ref": "#/components/schemas/non_blank_string"
+          }
+        ]
+      },
+      "X-VA-NonVeteranClaimant-Middle-Initial": {
+        "allOf": [
+          {
+            "description": "middle initial"
+          },
+          {
+            "$ref": "#/components/schemas/non_blank_string"
+          }
+        ]
+      },
+      "X-VA-NonVeteranClaimant-SSN": {
+        "type": "string",
+        "description": "Non-Veteran claimants's SSN",
+        "pattern": "^[0-9]{9}$"
+      },
+      "X-VA-SSN": {
+        "description": "social security number",
+        "type": "string",
+        "minLength": 9,
+        "maxLength": 9,
+        "pattern": "^[0-9]{9}$"
       }
     }
   },

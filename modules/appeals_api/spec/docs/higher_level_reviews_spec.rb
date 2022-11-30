@@ -60,8 +60,10 @@ describe 'Higher-Level Reviews', swagger_doc: DocHelpers.output_json_path, type:
       parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_ssn_header]
       parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_birth_date_header]
 
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_username_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_id_header]
+      if DocHelpers.decision_reviews?
+        parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_username_header]
+        parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_id_header]
+      end
 
       response '200', 'Info about a single Higher-Level Review' do
         let(:hlr_body) do
@@ -443,8 +445,10 @@ describe 'Higher-Level Reviews', swagger_doc: DocHelpers.output_json_path, type:
       parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_ssn_header]
       parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_birth_date_header]
 
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_username_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_id_header]
+      if DocHelpers.decision_reviews?
+        parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_username_header]
+        parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_id_header]
+      end
 
       response '200', 'Valid' do
         let(:hlr_body) do

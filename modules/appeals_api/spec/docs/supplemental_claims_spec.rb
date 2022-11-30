@@ -65,8 +65,10 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_middle_initial_header]
       parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_last_name_header]
 
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_username_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_id_header]
+      if DocHelpers.decision_reviews?
+        parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_username_header]
+        parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_id_header]
+      end
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:alternate_signer_first_name_header]
       parameter AppealsApi::SwaggerSharedComponents.header_params[:alternate_signer_middle_initial_header]
@@ -259,8 +261,10 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_first_name_header]
       parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_last_name_header]
 
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_username_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_id_header]
+      if DocHelpers.decision_reviews?
+        parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_username_header]
+        parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_id_header]
+      end
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:alternate_signer_first_name_header]
       parameter AppealsApi::SwaggerSharedComponents.header_params[:alternate_signer_middle_initial_header]
@@ -399,10 +403,12 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
 
   path '/sc_upload_path' do
     put 'Accepts Supplemental Claim Evidence Submission document upload.' do
+      scopes = %w[claim.write]
       tags 'Supplemental Claims'
       operationId 'putSupplementalClaimEvidenceSubmission'
 
       description File.read(DocHelpers.output_directory_file_path('put_description.md'))
+      security DocHelpers.security_config(scopes)
 
       parameter name: :'Content-MD5', in: :header, type: :string, description: 'Base64-encoded 128-bit MD5 digest of the message. Use for integrity control.'
 
