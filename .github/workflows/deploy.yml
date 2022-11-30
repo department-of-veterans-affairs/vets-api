@@ -16,7 +16,7 @@ jobs:
     with:
       ecr_repository: "vets-api"
       manifests_directory: "vets-api"
-      auto_deploy_envs: "dev staging"
+      auto_deploy_envs: "dev staging prod"
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
