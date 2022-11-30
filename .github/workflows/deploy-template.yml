@@ -90,7 +90,7 @@ jobs:
           ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
         run: |
           cd vsp-infra-application-manifests/apps/vets-api-helm101
-          envs="dev staging prod"
+          envs="dev staging prod sandbox"
           for env in ${envs[*]};
           do
             yq e -i '(.vets-api.image.tag) |= "${{ github.sha }}"' $env/values.yaml
