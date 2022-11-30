@@ -11,16 +11,44 @@ module V0
         @form = ::Preneeds::BurialForm.new(burial_form_params)
         validate!(Common::HashHelpers.deep_transform_parameters!(burial_form_params) { |k| k.camelize(:lower) })
 
-        resource = client.receive_pre_need_application(@form)
+        @resource = client.receive_pre_need_application(@form)
         ::Preneeds::PreneedSubmission.create!(
-          tracking_number: resource.tracking_number,
-          application_uuid: resource.application_uuid,
-          return_description: resource.return_description,
-          return_code: resource.return_code
+          tracking_number: @resource.tracking_number,
+          application_uuid: @resource.application_uuid,
+          return_description: @resource.return_description,
+          return_code: @resource.return_code
         )
 
+        send_confirmation_email
+
         clear_saved_form(FORM)
-        render json: resource, serializer: ReceiveApplicationSerializer
+        render json: @resource, serializer: ReceiveApplicationSerializer
+      end
+
+      def send_confirmation_email
+        return unless Flipper.enabled?(:preneeds_burial_form_confirmation_email)
+
+        email = @form.claimant.email
+        claimant = @form.applicant.name.first
+        first_name = @form.applicant.name.first
+        last_initial = @form.applicant.name.last.first
+
+        if @form.applicant.applicant_relationship_to_claimant != 'Self'
+          first_name = @form.claimant.name.first
+          last_initial = @form.claimant.name.last.first
+        end
+
+        VANotify::EmailJob.perform_async(
+          email,
+          Settings.vanotify.services.va_gov.template_id.preneeds_burial_form_email,
+          {
+            'form_name' => 'Burial Pre-Need (Form 40-10007)',
+            'first_name' => claimant&.upcase.presence,
+            'applicant_1_first_name_last_initial' => "#{first_name} #{last_initial}",
+            'confirmation_number' => @resource.application_uuid,
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y')
+          }
+        )
       end
 
       private

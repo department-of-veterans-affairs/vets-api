@@ -453,6 +453,10 @@ features:
     actor_type: user
     description: This determines the visibility of the OmniChannel link in the claim status tool
     enable_in_development: true
+  preneeds_burial_form_confirmation_email:
+    actor_type: user
+    description: Enables preneeds burial form email submission confirmation
+    enable_in_development: true
   pdf_warning_banner:
     description: "When enabled, will allow display of PDF cert warnings in find-a-form"
     actor_type: user
