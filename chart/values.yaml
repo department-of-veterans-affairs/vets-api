@@ -139,8 +139,19 @@ web:
     enabled: false
 
   bgsEvss:
-      enabled: false
-      name: ""
+    enabled: false
+    name: ""
+
+  externalservice:
+    default:
+      port: 3004
+      kind: Rule
+      middleware:
+        name: ""
+      host: ""
+    service:
+      address:
+        route: ""
 
 #Worker Configuration
 worker:
