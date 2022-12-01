@@ -858,7 +858,6 @@ describe MPI::Service do
             first_name: 'RFIRST',
             last_name: 'RLAST',
             birth_date: '19790812',
-            gender: 'M',
             ssn: '768598574'
           }
         end
@@ -873,29 +872,6 @@ describe MPI::Service do
               %w[1008692852V724999 1008787550V443247 1008787485V229771 1008795715V162680
                  1008795714V030791 1008795629V076564 1008795718V643356]
             )
-          end
-        end
-      end
-
-      context 'without gender' do
-        let(:user_hash) do
-          {
-            first_name: 'Mitchell',
-            last_name: 'Jenkins',
-            middle_name: 'G',
-            birth_date: '1949-03-04',
-            ssn: '796122306',
-            gender: nil
-          }
-        end
-        let(:transaction_id) { '4bae058f5d66d28b011bf351' }
-
-        it 'calls the find_profile endpoint with a find candidate message' do
-          VCR.use_cassette('mpi/find_candidate/valid_no_gender') do
-            profile = mvi_profile
-            profile['search_token'] = 'WSDOC1908281514193450364096012'
-            response = subject.find_profile(user)
-            expect(response.profile).to have_deep_attributes(profile)
           end
         end
       end
@@ -992,7 +968,6 @@ describe MPI::Service do
             first_name: 'sdf',
             last_name: 'sdgsdf',
             birth_date: '19800812',
-            gender: 'M',
             ssn: '111222333'
           }
         end
