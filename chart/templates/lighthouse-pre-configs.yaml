@@ -3,5 +3,8 @@ kind: ConfigMap
 metadata:
   namespace: {{ .Release.Namespace }}
   name: {{ .Values.common.lighthousePreConfigs.name }}
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/sync-wave: "-2"
 data:
 {{ toYaml .Values.common.lighthousePreConfigs.data | indent 2  }}

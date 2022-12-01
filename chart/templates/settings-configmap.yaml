@@ -5,5 +5,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
   creationTimestamp: null
   name: {{ .Values.common.configMap.name }}
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+    argocd.argoproj.io/sync-wave: "-2"
 data:
 {{ toYaml .Values.common.configMap.data | indent 2  }}

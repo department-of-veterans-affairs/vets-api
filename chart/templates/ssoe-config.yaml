@@ -5,6 +5,9 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ $key.name }}
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/sync-wave: "-2"
 data:
 {{ $key.key | indent 2  }}:
 {{ $key.value | indent 4 }}
