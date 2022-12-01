@@ -7,6 +7,7 @@ metadata:
   name: {{ .Values.appName }}-web
   namespace: {{ .Release.Namespace }}
 spec:
+  revisionHistoryLimit: 1
   selector:
     matchLabels:
       app: {{ .Values.appName }}-web
@@ -20,7 +21,6 @@ spec:
       labels:
         app: {{ .Values.appName }}-web
       annotations:
-        argocd.argoproj.io/sync-options: Replace=true
 {{ toYaml .Values.annotations | indent 8 }}
     spec:
       affinity:

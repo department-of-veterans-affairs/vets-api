@@ -8,6 +8,7 @@ metadata:
   name: {{ .Values.web.bgsEvss.name }}
   namespace: {{ .Release.Namespace }}
 spec:
+  revisionHistoryLimit: 1
   selector:
     matchLabels:
       app: {{ .Values.web.bgsEvss.name }}
