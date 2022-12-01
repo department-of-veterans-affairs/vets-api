@@ -4,8 +4,6 @@ on:
   pull_request:
     branches:
       - parent-helm-charts
-    types: [opened, reopened]
-
 jobs:
   settings-sync-comment:
     runs-on: ubuntu-latest
