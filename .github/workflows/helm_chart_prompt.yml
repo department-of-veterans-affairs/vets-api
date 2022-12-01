@@ -1,4 +1,4 @@
-name: "Prompt the user to confirm templates can be locally rendered and to add new values to chart/values.yaml"
+name: Helm Chart Prompt
 
 on:
   pull_request:
