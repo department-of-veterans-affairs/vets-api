@@ -50,6 +50,29 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
       expect(json_data['data']['features']).to include({ 'name' => @feature_name_camel, 'value' => true })
       expect(json_data['data']['features']).to include({ 'name' => @feature_name, 'value' => true })
     end
+
+    context 'when flipper.mute_logs settings is true' do
+      before do
+        allow(ActiveRecord::Base.logger).to receive(:silence)
+        Settings.flipper.mute_logs = true
+      end
+
+      it 'sets ActiveRecord logger to silence' do
+        expect(ActiveRecord::Base.logger).to receive(:silence)
+
+        get :index
+      end
+    end
+
+    context 'when flipper.mute_logs settings is false' do
+      before { Settings.flipper.mute_logs = false }
+
+      it 'does not set ActiveRecord logger to silence' do
+        expect(ActiveRecord::Base.logger).not_to receive(:silence)
+
+        get :index
+      end
+    end
   end
 
   describe 'GET #index with params' do

@@ -25,6 +25,8 @@ module DecisionReview
     HLR_GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200'
     REQUIRED_CREATE_HEADERS = %w[X-VA-First-Name X-VA-Last-Name X-VA-SSN X-VA-Birth-Date].freeze
 
+    NO_ZIP_PLACEHOLDER = '00000'
+
     ##
     # Create a Higher-Level Review
     #
@@ -203,7 +205,7 @@ module DecisionReview
       {
         'veteranFirstName' => transliterate_name(user.first_name),
         'veteranLastName' => transliterate_name(user.last_name),
-        'zipCode' => user.zip,
+        'zipCode' => user.postal_code || NO_ZIP_PLACEHOLDER,
         'fileNumber' => user.ssn.to_s.strip,
         'source' => 'Vets.gov',
         'businessLine' => 'BVA'

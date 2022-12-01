@@ -243,7 +243,9 @@ RSpec.describe InheritedProofingController, type: :controller do
       end
 
       context 'and user has not already verified in the past' do
-        let(:expected_redirect_url) { url_for(controller: 'v1/sessions', action: :new, type: 'logingov') }
+        let(:expected_redirect_url) do
+          url_for(controller: 'v1/sessions', action: :new, type: SAML::User::LOGINGOV_CSID)
+        end
 
         it 'saves an inherited proofing verification attached to the expected user account' do
           expect { subject }.to change(InheritedProofVerifiedUserAccount, :count).from(0).to(1)

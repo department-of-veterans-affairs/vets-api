@@ -1010,14 +1010,14 @@
                                   "description": "Additional Address Information Veteran resides in.",
                                   "type": "string",
                                   "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                  "maxLength": 30,
+                                  "maxLength": 10,
                                   "example": "Apt. 22"
                                 },
                                 "addressLine3": {
                                   "description": "Additional Address Information Veteran resides in.",
                                   "type": "string",
                                   "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                  "maxLength": 30,
+                                  "maxLength": 10,
                                   "example": "Box 123"
                                 },
                                 "city": {
@@ -2871,14 +2871,14 @@
                                     "description": "Additional Address Information Veteran resides in.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 30,
+                                    "maxLength": 10,
                                     "example": "Apt. 22"
                                   },
                                   "addressLine3": {
                                     "description": "Additional Address Information Veteran resides in.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 30,
+                                    "maxLength": 10,
                                     "example": "Box 123"
                                   },
                                   "city": {
@@ -5126,14 +5126,14 @@
                                     "description": "Additional Address Information Veteran resides in.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 30,
+                                    "maxLength": 10,
                                     "example": "Apt. 22"
                                   },
                                   "addressLine3": {
                                     "description": "Additional Address Information Veteran resides in.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 30,
+                                    "maxLength": 10,
                                     "example": "Box 123"
                                   },
                                   "city": {

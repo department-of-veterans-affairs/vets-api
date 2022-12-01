@@ -9,26 +9,42 @@ module V0
     def index
       if params[:features].present?
         features_params = params[:features].split(',')
-
-        features = features_params.collect do |feature_name|
-          underscored_feature_name = feature_name.underscore
-          actor_type = FLIPPER_FEATURE_CONFIG['features'].dig(feature_name, 'actor_type')
-
-          { name: feature_name, value: Flipper.enabled?(underscored_feature_name, actor(actor_type)) }
-        end
+        features = get_features(features_params)
       else
-        features = []
-
-        # returning both camel and snakecase for uniformity on FE
-        FLIPPER_FEATURE_CONFIG['features'].collect do |feature_name, values|
-          flipper_enabled = Flipper.enabled?(feature_name, actor(values['actor_type']))
-          features << { name: feature_name.camelize(:lower),
-                        value: flipper_enabled }
-          features << { name: feature_name, value: flipper_enabled }
-        end
+        features = get_all_features
       end
 
       render json: { data: { type: 'feature_toggles', features: features } }
+    end
+
+    private
+
+    def get_features(features_params)
+      features_params.collect do |feature_name|
+        underscored_feature_name = feature_name.underscore
+        actor_type = FLIPPER_FEATURE_CONFIG['features'].dig(feature_name, 'actor_type')
+
+        { name: feature_name, value: Flipper.enabled?(underscored_feature_name, actor(actor_type)) }
+      end
+    end
+
+    def get_all_features
+      features = []
+
+      FLIPPER_FEATURE_CONFIG['features'].collect do |feature_name, values|
+        flipper_enabled = if Settings.flipper.mute_logs
+                            ActiveRecord::Base.logger.silence do
+                              Flipper.enabled?(feature_name, actor(values['actor_type']))
+                            end
+                          else
+                            Flipper.enabled?(feature_name, actor(values['actor_type']))
+                          end
+        # returning both camel and snakecase for uniformity on FE
+        features << { name: feature_name.camelize(:lower), value: flipper_enabled }
+        features << { name: feature_name, value: flipper_enabled }
+      end
+
+      features
     end
 
     def actor(actor_type)

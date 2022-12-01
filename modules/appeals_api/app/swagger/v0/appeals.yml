@@ -55,12 +55,14 @@ paths:
         - in: header
           name: X-VA-SSN
           required: true
+          example: '796130115'
           schema:
             type: string
           description: SSN of Veteran to retrieve appeals statuses for
         - in: header
           name: X-VA-User
           required: true
+          example: 'va.api.user+idme.001@gmail.com'
           schema:
             type: string
           description: VA username of the person making the request

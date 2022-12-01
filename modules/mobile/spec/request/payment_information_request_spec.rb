@@ -7,7 +7,7 @@ require_relative '../support/matchers/json_schema_matcher'
 RSpec.describe 'payment_information', type: :request do
   include JsonSchemaMatchers
   before do
-    allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: 'idme')
+    allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: SAML::User::IDME_CSID)
     iam_sign_in
     Flipper.disable(:direct_deposit_vanotify)
   end

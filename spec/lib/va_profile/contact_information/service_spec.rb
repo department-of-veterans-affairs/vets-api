@@ -82,6 +82,16 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
         end
       end
     end
+
+    context 'when person response has no body data' do
+      it 'returns 200' do
+        VCR.use_cassette('va_profile/contact_information/person_without_data', VCR::MATCH_EVERYTHING) do
+          response = subject.get_person
+          expect(response).to be_ok
+          expect(response.person).to be_a(VAProfile::Models::Person)
+        end
+      end
+    end
   end
 
   describe '#post_email' do

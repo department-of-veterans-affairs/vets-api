@@ -87,7 +87,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       describe 'POST v0/sign_in/refresh' do
         let(:user_verification) { create(:user_verification) }
         let(:validated_credential) { create(:validated_credential, user_verification: user_verification) }
-        let(:session_container) { SignIn::SessionCreator.new(validated_credential: validated_credential).perform }
+        let(:session_container) do
+          SignIn::SessionCreator.new(validated_credential: validated_credential).perform
+        end
         let(:refresh_token) do
           CGI.escape(SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform)
         end
@@ -123,7 +125,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       describe 'POST v0/sign_in/revoke' do
         let(:user_verification) { create(:user_verification) }
         let(:validated_credential) { create(:validated_credential, user_verification: user_verification) }
-        let(:session_container) { SignIn::SessionCreator.new(validated_credential: validated_credential).perform }
+        let(:session_container) do
+          SignIn::SessionCreator.new(validated_credential: validated_credential).perform
+        end
         let(:refresh_token) do
           CGI.escape(SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform)
         end
@@ -142,7 +146,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       describe 'GET v0/sign_in/revoke_all_sessions' do
         let(:user_verification) { create(:user_verification) }
         let(:validated_credential) { create(:validated_credential, user_verification: user_verification) }
-        let(:session_container) { SignIn::SessionCreator.new(validated_credential: validated_credential).perform }
+        let(:session_container) do
+          SignIn::SessionCreator.new(validated_credential: validated_credential).perform
+        end
         let(:access_token_object) { session_container.access_token }
         let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid, middle_name: 'leo') }
         let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
@@ -1275,18 +1281,20 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     describe 'decision review evidence upload' do
       it 'supports uploading a file' do
-        expect(subject).to validate(
-          :post,
-          '/v0/decision_review_evidence',
-          200,
-          headers.update(
-            '_data' => {
-              'decision_review_evidence_attachment' => {
-                'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+        VCR.use_cassette('decision_review/200_pdf_validation') do
+          expect(subject).to validate(
+            :post,
+            '/v0/decision_review_evidence',
+            200,
+            headers.update(
+              '_data' => {
+                'decision_review_evidence_attachment' => {
+                  'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+                }
               }
-            }
+            )
           )
-        )
+        end
       end
 
       it 'returns a 400 if no attachment data is given' do
@@ -3579,7 +3587,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'virtual agent' do
       describe 'POST v0/virtual_agent_token' do
         it 'returns webchat token' do
-          VCR.use_cassette('virtual_agent/webchat_token_a') do
+          VCR.use_cassette('virtual_agent/webchat_token_success') do
             expect(subject).to validate(:post, '/v0/virtual_agent_token', 200)
           end
         end
@@ -3753,6 +3761,68 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         )
       end
     end
+
+    describe 'claim letters' do
+      it 'retrieves a list of claim letters metadata' do
+        # Response comes from fixture: spec/fixtures/claim_letter/claim_letter_list.json
+        expect(subject).to validate(:get, '/v0/claim_letters', 200, headers)
+        expect(subject).to validate(:get, '/v0/claim_letters', 401)
+      end
+    end
+
+    describe 'coe' do
+      # The vcr_cassettes used in spec/requests/v0/lgy_coe_request_spec.rb
+      # rely on this specific user's edipi and icn, and we are using those
+      # cassettes below.
+      let(:mhv_user) { create(:evss_user, :loa3) }
+
+      describe 'GET /v0/coe/status' do
+        it 'validates the route' do
+          VCR.use_cassette 'lgy/determination_eligible' do
+            VCR.use_cassette 'lgy/application_not_found' do
+              expect(subject).to validate(:get, '/v0/coe/status', 200, headers)
+            end
+          end
+        end
+      end
+
+      describe '/v0/coe/documents' do
+        it 'validates the route' do
+          allow_any_instance_of(User).to receive(:icn).and_return('1012830245V504544')
+          allow_any_instance_of(User).to receive(:edipi).and_return('1007451748')
+          VCR.use_cassette 'lgy/documents_list' do
+            expect(subject).to validate(:get, '/v0/coe/documents', 200, headers)
+          end
+        end
+      end
+
+      describe '/v0/coe/submit_coe_claim' do
+        it 'validates the route' do
+          VCR.use_cassette 'lgy/application_put' do
+            # rubocop:disable Layout/LineLength
+            params = { lgy_coe_claim: { form: '{"files":[{"name":"Example.pdf","size":60217, "confirmationCode":"a7b6004e-9a61-4e94-b126-518ec9ec9ad0", "isEncrypted":false,"attachmentType":"Discharge or separation papers (DD214)"}],"relevantPriorLoans": [{"dateRange": {"from":"2002-05-01T00:00:00.000Z","to":"2003-01-01T00:00:00. 000Z"},"propertyAddress":{"propertyAddress1":"123 Faker St", "propertyAddress2":"2","propertyCity":"Fake City", "propertyState":"AL","propertyZip":"11111"}, "vaLoanNumber":"111222333444","propertyOwned":true, "willRefinance":true}],"intent":"ONETIMERESTORATION", "vaLoanIndicator":true,"periodsOfService": [{"serviceBranch":"Air National Guard","dateRange": {"from":"2001-01-01T00:00:00.000Z","to":"2002-02-02T00:00:00. 000Z"}}],"identity":"ADSM","contactPhone":"2222222222", "contactEmail":"veteran@example.com","applicantAddress": {"country":"USA","street":"140 FAKER ST","street2":"2", "city":"FAKE CITY","state":"MT","postalCode":"80129"}, "fullName":{"first":"Alexander","middle":"Guy", "last":"Cook","suffix":"Jr."},"dateOfBirth":"1950-01-01","privacyAgreementAccepted":true}' } }
+            # rubocop:enable Layout/LineLength
+            expect(subject).to validate(:post, '/v0/coe/submit_coe_claim', 200, headers.merge({ '_data' => params }))
+          end
+        end
+      end
+
+      describe '/v0/coe/document_upload' do
+        it 'validates the route' do
+          VCR.use_cassette 'lgy/document_upload' do
+            params = {
+              'files' => [{
+                'file' => Base64.encode64(File.read('spec/fixtures/files/lgy_file.pdf')),
+                'document_type' => 'VA home loan documents',
+                'file_type' => 'pdf',
+                'file_name' => 'lgy_file.pdf'
+              }]
+            }
+            expect(subject).to validate(:post, '/v0/coe/document_upload', 200, headers.merge({ '_data' => params }))
+          end
+        end
+      end
+    end
   end
 
   context 'and' do
@@ -3762,6 +3832,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       subject.untested_mappings.delete('/v0/financial_status_reports/download_pdf')
       subject.untested_mappings.delete('/v0/form1095_bs/download_pdf/{tax_year}')
       subject.untested_mappings.delete('/v0/form1095_bs/download_txt/{tax_year}')
+      subject.untested_mappings.delete('/v0/claim_letters/{document_id}')
+      subject.untested_mappings.delete('/v0/coe/download_coe')
+      subject.untested_mappings.delete('/v0/coe/document_download/{id}')
+
       # SiS methods that involve forms & redirects
       subject.untested_mappings.delete('/v0/sign_in/authorize')
       subject.untested_mappings.delete('/v0/sign_in/callback')

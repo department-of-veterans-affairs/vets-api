@@ -36,7 +36,7 @@ namespace :login do
     )
 
     validate(
-      user.identity&.sign_in&.dig(:service_name) == 'idme',
+      user.identity&.sign_in&.dig(:service_name) == SAML::User::IDME_CSID,
       'User is logged in with ID.me',
       'User is not logged in with ID.me'
     )

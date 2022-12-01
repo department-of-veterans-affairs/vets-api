@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
+
 RSpec.shared_examples 'contestable issues index requests' do |options|
   describe '#index' do
     context 'when using SSN header as veteran identifier' do
@@ -127,29 +129,44 @@ RSpec.shared_examples 'contestable issues index requests' do |options|
 
   private
 
-  def get_issues(options:, ssn: '872958715', file_number: nil, receipt_date: '2019-12-01')
+  def get_headers(ssn: '872958715', file_number: nil, receipt_date: '2019-12-01')
     headers = {}
 
-    headers['X-VA-Receipt-Date'] = receipt_date unless receipt_date.nil?
+    headers['X-VA-Receipt-Date'] = receipt_date if receipt_date.present?
     if file_number.present?
       headers['X-VA-File-Number'] = file_number
     elsif ssn.present?
       headers['X-VA-SSN'] = ssn
     end
 
-    path = if options[:version] == 'v2'
-             (
-               if options[:use_versioned_namespace_route]
-                 '/services/appeals/contestable_issues/v2/contestable_issues'
-               else
-                 '/services/appeals/v2/decision_reviews/contestable_issues'
-               end
-             ) + "/#{options[:decision_review_type]}?benefit_type=#{options[:benefit_type]}"
-           else
-             "/services/appeals/v1/decision_reviews/#{options[:decision_review_type]}/" \
-               "contestable_issues/#{options[:benefit_type]}"
-           end
+    headers
+  end
 
-    get(path, headers: headers)
+  def get_path(options)
+    if options[:version] == 'v2'
+      (
+        if options[:use_versioned_namespace_route]
+          '/services/appeals/contestable_issues/v0/contestable_issues'
+        else
+          '/services/appeals/v2/decision_reviews/contestable_issues'
+        end
+      ) + "/#{options[:decision_review_type]}?benefit_type=#{options[:benefit_type]}"
+    else
+      "/services/appeals/v1/decision_reviews/#{options[:decision_review_type]}/" \
+        "contestable_issues/#{options[:benefit_type]}"
+    end
+  end
+
+  def get_issues(options:, **headers_kwargs)
+    headers = get_headers(**headers_kwargs)
+    path = get_path(options)
+
+    if options[:use_versioned_namespace_route]
+      with_openid_auth(%w[claim.read]) do |auth_header|
+        get(path, headers: headers.merge(auth_header))
+      end
+    else
+      get(path, headers: headers)
+    end
   end
 end

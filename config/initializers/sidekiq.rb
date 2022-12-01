@@ -37,6 +37,12 @@ Rails.application.reloader.to_prepare do
     config.client_middleware do |chain|
       chain.add SidekiqStatsInstrumentation::ClientMiddleware
     end
+
+    if defined?(Sidekiq::Enterprise)
+      config.periodic do |mgr|
+        mgr.register('0 5 * * 1', 'AppealsApi::WeeklyErrorReport')
+      end
+    end
   end
 
   Sidekiq.configure_client do |config|

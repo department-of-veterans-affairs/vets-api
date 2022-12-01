@@ -42,6 +42,14 @@ RSpec.describe 'Preneeds Burial Form Integration' do
         post_burial_forms
       end
     end
+
+    it 'sends confirmation email' do
+      expect_any_instance_of(V0::Preneeds::BurialFormsController).to receive(:send_confirmation_email)
+
+      VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
+        post_burial_forms
+      end
+    end
   end
 
   context 'with invalid input' do
@@ -118,6 +126,49 @@ RSpec.describe 'Preneeds Burial Form Integration' do
         expect(response_json['return_code']).to eq(submission_record.return_code)
         expect(response_json['return_description']).to eq(submission_record.return_description)
       end
+    end
+  end
+
+  describe '#send_confirmation_email' do
+    subject { V0::Preneeds::BurialFormsController.new }
+
+    let(:submission_record) { OpenStruct.new(application_uuid: 'UUID') }
+    let(:form) do
+      ::Preneeds::BurialForm.new(params).tap do |f|
+        f.claimant = ::Preneeds::Claimant.new(
+          email: 'foo@foo.com',
+          name: ::Preneeds::FullName.new(
+            first: 'Derrick',
+            last: 'Last'
+          )
+        )
+        f.applicant = ::Preneeds::Applicant.new(
+          applicant_relationship_to_claimant: 'Self',
+          applicant_email: 'bar@bar.com',
+          name: ::Preneeds::FullName.new(
+            first: 'Applicant',
+            last: 'Last'
+          )
+        )
+      end
+    end
+
+    it 'calls the send email job with the correct parameters' do
+      expect(VANotify::EmailJob).to receive(:perform_async).with(
+        'foo@foo.com',
+        'preneeds_burial_form_email_template_id',
+        {
+          'form_name' => 'Burial Pre-Need (Form 40-10007)',
+          'applicant_1_first_name_last_initial' => 'Applicant L',
+          'confirmation_number' => 'UUID',
+          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+          'first_name' => 'APPLICANT'
+        }
+      )
+
+      subject.instance_variable_set(:@form, form)
+      subject.instance_variable_set(:@resource, submission_record)
+      subject.send_confirmation_email
     end
   end
 end

@@ -5,12 +5,15 @@ require 'claim_letters/claim_letter_downloader'
 module V0
   class ClaimLettersController < ApplicationController
     def index
-      docs = service.list_letters
+      docs = service.get_letters
+
       render json: docs
     end
 
     def show
-      service.get_letter(params[:document_id]) do |data, mime_type, disposition, filename|
+      document_id = CGI.unescape(params[:document_id])
+
+      service.get_letter(document_id) do |data, mime_type, disposition, filename|
         send_data(data, type: mime_type, disposition: disposition, filename: filename)
       end
     end

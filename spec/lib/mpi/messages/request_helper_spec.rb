@@ -455,6 +455,23 @@ describe MPI::Messages::RequestHelper do
     end
   end
 
+  describe '.build_telecom' do
+    subject { described_class.build_telecom(type: type, value: email) }
+
+    let(:email) { 'some-email' }
+    let(:type) { 'EMAIL' }
+    let(:expected_element) do
+      element = Ox::Element.new('telecom')
+      element[:use] = type
+      element[:value] = email
+      element
+    end
+
+    it 'builds an Ox element with email attribute' do
+      expect(subject).to eq(expected_element)
+    end
+  end
+
   describe '.build_patient_person_birth_date' do
     subject { described_class.build_patient_person_birth_date(birth_date: birth_date) }
 
@@ -466,6 +483,68 @@ describe MPI::Messages::RequestHelper do
     end
 
     it 'builds an Ox element with birth date attribute' do
+      expect(subject).to eq(expected_element)
+    end
+  end
+
+  describe '.build_patient_person_address' do
+    subject do
+      described_class.build_patient_person_address(street: street,
+                                                   state: state,
+                                                   city: city,
+                                                   postal_code: postal_code,
+                                                   country: country)
+    end
+
+    let(:street) { 'some-street' }
+    let(:state) { 'some-state' }
+    let(:city) { 'some-city' }
+    let(:postal_code) { 'some-postal-code' }
+    let(:country) { 'some-country' }
+
+    let(:expected_scoping_id) do
+      element = Ox::Element.new('id')
+      element[:root] = root
+      element
+    end
+
+    let(:expected_city) do
+      element = Ox::Element.new('city')
+      element.replace_text(city)
+      element
+    end
+    let(:expected_state) do
+      element = Ox::Element.new('state')
+      element.replace_text(state)
+      element
+    end
+    let(:expected_postal_code) do
+      element = Ox::Element.new('postalCode')
+      element.replace_text(postal_code)
+      element
+    end
+    let(:expected_street) do
+      element = Ox::Element.new('streetAddressLine')
+      element.replace_text(street)
+      element
+    end
+    let(:expected_country) do
+      element = Ox::Element.new('country')
+      element.replace_text(country)
+      element
+    end
+    let(:expected_element) do
+      element = Ox::Element.new('addr')
+      element[:use] = 'HP'
+      element << expected_street
+      element << expected_city
+      element << expected_state
+      element << expected_postal_code
+      element << expected_country
+      element
+    end
+
+    it 'builds an Ox element with patient address attribute' do
       expect(subject).to eq(expected_element)
     end
   end

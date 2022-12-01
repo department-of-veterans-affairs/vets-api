@@ -93,12 +93,17 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           end
         end
 
-        it 'includes a proper classification code for EVSS submission' do
-          subject.perform_async(submission.id)
-          described_class.drain
-          mas_submission = Form526Submission.find(Form526JobStatus.last.form526_submission_id)
-          expect(mas_submission.form.dig('form526', 'form526',
-                                         'disabilities').first['classificationCode']).to eq '9012'
+        context 'when not all claims are handed off to MAS' do
+          before { Flipper.disable(:rrd_mas_all_claims_notification) }
+          after { Flipper.enable(:rrd_mas_all_claims_notification) }
+
+          it 'includes a proper classification code for EVSS submission' do
+            subject.perform_async(submission.id)
+            described_class.drain
+            mas_submission = Form526Submission.find(Form526JobStatus.last.form526_submission_id)
+            expect(mas_submission.form.dig('form526', 'form526',
+                                           'disabilities').first['classificationCode']).to eq '9012'
+          end
         end
 
         context 'MAS-related claim that already includes classification code' do
@@ -143,12 +148,25 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
                  saved_claim_id: saved_claim.id)
         end
 
-        context 'when all claims tracking is enabled' do
+        context 'when tracking but not APCAS notification is enabled for all claims' do
           it 'sends only one email' do
             Flipper.enable(:rrd_mas_all_claims_tracking)
+            Flipper.disable(:rrd_mas_all_claims_notification)
             subject.perform_async(submission.id)
             described_class.drain
             expect(ActionMailer::Base.deliveries.length).to eq 1
+          end
+        end
+
+        context 'when tracking and APCAS notification are enabled for all claims' do
+          it 'calls APCAS and sends two emails' do
+            Flipper.enable(:rrd_mas_all_claims_tracking)
+            Flipper.enable(:rrd_mas_all_claims_notification)
+            VCR.use_cassette('mail_automation/mas_initiate_apcas_request') do
+              subject.perform_async(submission.id)
+            end
+            described_class.drain
+            expect(ActionMailer::Base.deliveries.length).to eq 2
           end
         end
 

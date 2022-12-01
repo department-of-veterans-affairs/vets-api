@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe AppealsApi::V2::DecisionReviews::LegacyAppealsController, type: :request do
+  let(:headers) { {} }
   let(:ssn) { nil }
   let(:file_number) { nil }
 
@@ -132,6 +134,7 @@ describe AppealsApi::V2::DecisionReviews::LegacyAppealsController, type: :reques
 
     context 'using the versioned namespace route' do
       let(:ssn) { '502628285' }
+      let(:oauth_path) { '/services/appeals/legacy_appeals/v0/legacy_appeals/' }
 
       it 'behaves the same as when using the original route' do
         original_response = nil
@@ -141,9 +144,21 @@ describe AppealsApi::V2::DecisionReviews::LegacyAppealsController, type: :reques
           original_response = JSON.parse(response.body)
         end
         VCR.use_cassette('caseflow/legacy_appeals_get_by_ssn') do
-          get_legacy_appeals('/services/appeals/legacy_appeals/v2/legacy_appeals/')
+          with_openid_auth(%w[claim.read]) do |auth_header|
+            get_legacy_appeals(oauth_path, auth_header)
+          end
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq(original_response)
+        end
+      end
+
+      context 'with oauth' do
+        it_behaves_like('an endpoint with OpenID auth', %w[claim.read]) do
+          def make_request(auth_header)
+            VCR.use_cassette('caseflow/legacy_appeals_get_by_ssn') do
+              get_legacy_appeals(oauth_path, auth_header)
+            end
+          end
         end
       end
     end
@@ -151,8 +166,8 @@ describe AppealsApi::V2::DecisionReviews::LegacyAppealsController, type: :reques
 
   private
 
-  def get_legacy_appeals(path = '/services/appeals/v2/decision_reviews/legacy_appeals/')
-    headers = {}
+  def get_legacy_appeals(path = '/services/appeals/v2/decision_reviews/legacy_appeals/', extra_headers = {})
+    headers = extra_headers || {}
 
     if file_number.present?
       headers['X-VA-File-Number'] = file_number

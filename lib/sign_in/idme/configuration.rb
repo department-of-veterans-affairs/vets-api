@@ -34,14 +34,6 @@ module SignIn
         'idme'
       end
 
-      def dslogon_scope
-        'dslogon_loa3'
-      end
-
-      def mhv_scope
-        'myhealthevet_loa3'
-      end
-
       def idme_scope
         LOA::IDME_LOA3
       end

@@ -99,6 +99,7 @@ module Swagger
                               property :id, type: :integer
                               property :name, type: :string
                               property :description, type: :string
+                              property :default_send_indicator, type: :boolean
 
                               property :communication_permission do
                                 key :type, :object

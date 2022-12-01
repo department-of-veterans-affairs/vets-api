@@ -3,14 +3,16 @@
 require 'rails_helper'
 
 RSpec.describe SignIn::SessionCreator do
-  let(:session_creator) { SignIn::SessionCreator.new(validated_credential: validated_credential) }
+  let(:session_creator) do
+    SignIn::SessionCreator.new(validated_credential: validated_credential)
+  end
 
   describe '#perform' do
     subject { session_creator.perform }
 
     context 'when input object is a ValidatedCredential' do
       let(:validated_credential) { create(:validated_credential, client_id: client_id) }
-      let(:user_uuid) { validated_credential.user_verification.credential_identifier }
+      let(:user_uuid) { validated_credential.user_verification.backing_credential_identifier }
       let(:client_id) { SignIn::Constants::ClientConfig::WEB_CLIENT }
       let(:refresh_expiration_time) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES.minutes }
 

@@ -18,6 +18,9 @@ Rails.application.reloader.to_prepare do
   # failure rate for authentication
   StatsD.increment('mobile.authentication.success', 0)
   StatsD.increment('mobile.authentication.failure', 0)
+  # capture IAM attempts and successes
+  StatsD.increment('iam_ssoe_oauth.auth.total', 0)
+  StatsD.increment('iam_ssoe_oauth.auth.success', 0)
 
   # Appointments #---------------------------------------------------------------
 

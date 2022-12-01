@@ -11,7 +11,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
   end
 
   def new_base_path(path)
-    "/services/appeals/notice_of_disagreements/v2/#{path}"
+    "/services/appeals/notice_of_disagreements/v0/#{path}"
   end
 
   before do
@@ -79,20 +79,6 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
         expect(nod.veteran_icn).to eq('1013062086V794840')
         expect(parsed['data']['type']).to eq('noticeOfDisagreement')
         expect(parsed['data']['attributes']['status']).to eq('pending')
-      end
-
-      it 'behaves the same on new path' do
-        Timecop.freeze(Time.current) do
-          post(path, params: @max_data, headers: @max_headers)
-          orig_path_response = JSON.parse(response.body)
-          orig_path_response['data']['id'] = 'ignored'
-
-          post(new_base_path('forms/10182'), params: @max_data, headers: @max_headers)
-          new_path_response = JSON.parse(response.body)
-          new_path_response['data']['id'] = 'ignored'
-
-          expect(new_path_response).to match_array orig_path_response
-        end
       end
     end
 
@@ -194,6 +180,35 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
         expect(nod.board_review_option).to eq('hearing')
       end
     end
+
+    context 'with oauth' do
+      let(:oauth_path) { new_base_path 'forms/10182' }
+
+      it_behaves_like('an endpoint with OpenID auth', %w[claim.write]) do
+        def make_request(auth_header)
+          post(oauth_path, params: @max_data, headers: @max_headers.merge(auth_header))
+        end
+      end
+
+      it 'behaves the same as the equivalent decision reviews route' do
+        Timecop.freeze(Time.current) do
+          post(path, params: @max_data, headers: @max_headers)
+          orig_status = response.status
+          orig_body = JSON.parse(response.body)
+          orig_body['data']['id'] = 'ignored'
+
+          with_openid_auth(%w[claim.write]) do |auth_header|
+            post(oauth_path, params: @max_data, headers: @max_headers.merge(auth_header))
+          end
+          oauth_status = response.status
+          oauth_body = JSON.parse(response.body)
+          oauth_body['data']['id'] = 'ignored'
+
+          expect(oauth_status).to eq(orig_status)
+          expect(oauth_body).to eq(orig_body)
+        end
+      end
+    end
   end
 
   describe '#show' do
@@ -202,13 +217,6 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
     it 'returns a notice_of_disagreement with all of its data' do
       uuid = create(:notice_of_disagreement_v2).id
       get("#{path}#{uuid}")
-      expect(response.status).to eq(200)
-      expect(parsed['data']['attributes'].key?('form_data')).to be false
-    end
-
-    it 'behaves the same on new path' do
-      uuid = create(:notice_of_disagreement_v2).id
-      get("#{new_base_path 'forms/10182'}/#{uuid}")
       expect(response.status).to eq(200)
       expect(parsed['data']['attributes'].key?('form_data')).to be false
     end
@@ -232,6 +240,33 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
       expect(parsed['errors']).to be_an Array
       expect(parsed['errors']).not_to be_empty
     end
+
+    context 'with oauth' do
+      let(:uuid) { create(:notice_of_disagreement_v2).id }
+      let(:orig_path) { "#{path}#{uuid}" }
+      let(:oauth_path) { new_base_path "forms/10182/#{uuid}" }
+
+      it_behaves_like('an endpoint with OpenID auth', %w[claim.read]) do
+        def make_request(auth_header)
+          get(oauth_path, headers: auth_header)
+        end
+      end
+
+      it 'behaves the same as the equivalent decision reviews route' do
+        get(orig_path)
+        orig_status = response.status
+        orig_body = JSON.parse(response.body)
+
+        with_openid_auth(%w[claim.read]) do |auth_header|
+          get(oauth_path, headers: auth_header)
+        end
+        oauth_status = response.status
+        oauth_body = JSON.parse(response.body)
+
+        expect(oauth_status).to eq(orig_status)
+        expect(oauth_body).to eq(orig_body)
+      end
+    end
   end
 
   describe '#validate' do
@@ -240,12 +275,6 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
     context 'when validation passes' do
       it 'returns a valid response' do
         post(path, params: @max_data, headers: @max_headers)
-        expect(parsed['data']['attributes']['status']).to eq('valid')
-        expect(parsed['data']['type']).to eq('noticeOfDisagreementValidation')
-      end
-
-      it 'behaves the same on the new path' do
-        post(new_base_path('forms/10182/validate'), params: @max_data, headers: @max_headers)
         expect(parsed['data']['attributes']['status']).to eq('valid')
         expect(parsed['data']['type']).to eq('noticeOfDisagreementValidation')
       end
@@ -299,6 +328,31 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
         end
       end
     end
+
+    context 'with oauth' do
+      let(:oauth_path) { new_base_path 'forms/10182/validate' }
+
+      it_behaves_like('an endpoint with OpenID auth', %w[claim.write]) do
+        def make_request(auth_header)
+          post(oauth_path, params: @max_data, headers: @max_headers.merge(auth_header))
+        end
+      end
+
+      it 'behaves the same as the equivalent decision reviews route' do
+        post(path, params: @max_data, headers: @max_headers)
+        orig_status = response.status
+        orig_body = JSON.parse(response.body)
+
+        with_openid_auth(%w[claim.write]) do |auth_header|
+          post(oauth_path, params: @minimum_data, headers: @headers.merge(auth_header))
+        end
+        oauth_status = response.status
+        oauth_body = JSON.parse(response.body)
+
+        expect(oauth_status).to eq(orig_status)
+        expect(oauth_body).to eq(orig_body)
+      end
+    end
   end
 
   describe '#schema' do
@@ -307,11 +361,6 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
     it 'renders the json schema' do
       get path
       expect(response.status).to eq(200)
-    end
-
-    it 'behaves the same for new path' do
-      get new_base_path('schemas/10182')
-      expect(response.status).to eq 200
     end
   end
 

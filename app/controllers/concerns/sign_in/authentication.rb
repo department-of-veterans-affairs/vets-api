@@ -17,6 +17,8 @@ module SignIn
     def authenticate
       @access_token = authenticate_access_token
       @current_user = load_user_object
+      validate_request_ip
+      @current_user.present?
     rescue Errors::AccessTokenExpiredError => e
       render json: { errors: e }, status: :forbidden
     rescue Errors::StandardError => e
@@ -26,6 +28,8 @@ module SignIn
     def load_user(skip_expiration_check: false)
       @access_token = authenticate_access_token
       @current_user = load_user_object
+      validate_request_ip
+      @current_user.present?
     rescue Errors::AccessTokenExpiredError => e
       render json: { errors: e }, status: :forbidden unless skip_expiration_check
     rescue Errors::StandardError
@@ -51,7 +55,7 @@ module SignIn
     end
 
     def load_user_object
-      UserLoader.new(access_token: @access_token).perform
+      UserLoader.new(access_token: @access_token, request_ip: request.remote_ip).perform
     end
 
     def handle_authenticate_error(error)
@@ -62,6 +66,15 @@ module SignIn
 
       log_message_to_sentry(error.message, :error, context)
       render json: { errors: error }, status: :unauthorized
+    end
+
+    def validate_request_ip
+      return if @current_user.fingerprint == request.ip
+
+      log_context = { request_ip: request.ip, fingerprint: @current_user.fingerprint }
+      Rails.logger.warn('[SignIn][Authentication] fingerprint mismatch', log_context)
+      @current_user.fingerprint = request.ip
+      @current_user.save
     end
   end
 end

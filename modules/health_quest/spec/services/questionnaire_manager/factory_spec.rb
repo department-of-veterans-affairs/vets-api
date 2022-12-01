@@ -7,7 +7,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
 
   subject { described_class }
 
-  let(:user) { double('User', icn: '1008596379V859838', account_uuid: 'abc123', uuid: '789defg') }
+  let(:user) { create(:user) }
   let(:session_store) { double('SessionStore', token: '123abc') }
   let(:session_service) do
     double('HealthQuest::Lighthouse::Session', user: user, api: 'pgd_api', retrieve: session_store)

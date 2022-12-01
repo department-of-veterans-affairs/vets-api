@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'claims_api/vbms_sidekiq'
+require 'claims_api/poa_vbms_sidekiq'
 require 'claims_api/poa_pdf_constructor/organization'
 require 'claims_api/poa_pdf_constructor/individual'
 require_dependency 'claims_api/stamp_signature_error'
@@ -9,7 +9,7 @@ require_dependency 'claims_api/stamp_signature_error'
 module ClaimsApi
   class PoaFormBuilderJob
     include Sidekiq::Worker
-    include ClaimsApi::VBMSSidekiq
+    include ClaimsApi::PoaVbmsSidekiq
 
     # Generate a 21-22 or 21-22a form for a given POA request.
     # Uploads the generated form to VBMS. If successfully uploaded,

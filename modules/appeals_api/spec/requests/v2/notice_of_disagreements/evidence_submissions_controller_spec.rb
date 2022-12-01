@@ -9,7 +9,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
   let(:headers) { fixture_as_json 'valid_10182_headers.json', version: 'v2' }
   let(:evidence_submissions) { create_list(:evidence_submission, 3, supportable: notice_of_disagreement) }
   let(:path) { '/services/appeals/v2/decision_reviews/notice_of_disagreements/evidence_submissions/' }
-  let(:new_path) { '/services/appeals/notice_of_disagreements/v2/evidence_submissions/' }
+  let(:oauth_path) { '/services/appeals/notice_of_disagreements/v0/evidence_submissions/' }
 
   let(:parsed) { JSON.parse(response.body) }
 
@@ -23,13 +23,6 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
         stub_upload_location
         post path, params: { nod_uuid: 1979 }, headers: headers
 
-        expect(response.status).to eq 404
-        expect(response.body).to include 'NoticeOfDisagreement with uuid 1979 not found'
-      end
-
-      it 'behaves the same on the new path' do
-        stub_upload_location
-        post new_path, params: { nod_uuid: 1979 }, headers: headers
         expect(response.status).to eq 404
         expect(response.body).to include 'NoticeOfDisagreement with uuid 1979 not found'
       end
@@ -50,14 +43,6 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
           notice_of_disagreement.update(board_review_option: 'evidence_submission')
           post path, params: { nod_uuid: notice_of_disagreement.id }, headers: headers
 
-          expect(response.status).to eq 202
-          expect(response.body).to include notice_of_disagreement.id
-        end
-
-        it 'behaves the same on the new path' do
-          stub_upload_location
-          notice_of_disagreement.update(board_review_option: 'evidence_submission')
-          post new_path, params: { nod_uuid: notice_of_disagreement.id }, headers: headers
           expect(response.status).to eq 202
           expect(response.body).to include notice_of_disagreement.id
         end
@@ -118,16 +103,42 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
       record = AppealsApi::EvidenceSubmission.find_by(guid: data['id'])
       expect(record.source).to eq headers['X-Consumer-Username']
     end
+
+    context 'with oauth' do
+      let(:params) { { nod_uuid: notice_of_disagreement.id } }
+
+      before do
+        stub_upload_location
+        notice_of_disagreement.update(board_review_option: 'evidence_submission')
+      end
+
+      it_behaves_like('an endpoint with OpenID auth', %w[claim.write], :accepted) do
+        def make_request(auth_header)
+          post(oauth_path, params: params, headers: headers.merge(auth_header))
+        end
+      end
+
+      it 'behaves the same as the equivalent decision reviews route' do
+        Timecop.freeze(Time.current) do
+          post(path, params: params, headers: headers)
+          orig_body = JSON.parse(response.body)
+          orig_body['data']['id'] = 'ignored'
+
+          with_openid_auth(%w[claim.write]) do |auth_header|
+            post(oauth_path, params: params, headers: headers.merge(auth_header))
+          end
+          oauth_body = JSON.parse(response.body)
+          oauth_body['data']['id'] = 'ignored'
+
+          expect(oauth_body).to eq(orig_body)
+        end
+      end
+    end
   end
 
   describe '#show' do
     it 'successfully requests the evidence submission' do
       get "#{path}#{evidence_submissions.sample.guid}"
-      expect(response).to have_http_status(:ok)
-    end
-
-    it 'behaves the same on new path' do
-      get "#{new_path}#{evidence_submissions.sample.guid}"
       expect(response).to have_http_status(:ok)
     end
 
@@ -160,6 +171,18 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
       get "#{path}/bueller"
       expect(response.status).to eq 404
       expect(response.body).to include 'Record not found'
+    end
+
+    context 'with oauth' do
+      before do
+        stub_upload_location
+      end
+
+      it_behaves_like('an endpoint with OpenID auth', %w[claim.read]) do
+        def make_request(auth_header)
+          get("#{oauth_path}#{evidence_submissions.sample.guid}", headers: auth_header)
+        end
+      end
     end
   end
 end

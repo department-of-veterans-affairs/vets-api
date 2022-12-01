@@ -160,6 +160,19 @@ RSpec.describe Mobile::PaginationHelper, type: :model, aggregate_failures: true 
                                      last: 'http://example.com?page[size]=10&page[number]=2&serviceType=optometry'
                                    })
       end
+
+      it 'adds params with false values' do
+        params = Mobile::V0::Contracts::Appointments.new.call({ use_cache: false, reverse_sort: false })
+        _resources, meta = described_class.paginate(list: list, validated_params: params, url: url)
+
+        expect(meta[:links]).to eq({
+                                     self: 'http://example.com?page[size]=10&page[number]=1&useCache=false&reverseSort=false',
+                                     first: 'http://example.com?page[size]=10&page[number]=1&useCache=false&reverseSort=false',
+                                     prev: nil,
+                                     next: 'http://example.com?page[size]=10&page[number]=2&useCache=false&reverseSort=false',
+                                     last: 'http://example.com?page[size]=10&page[number]=2&useCache=false&reverseSort=false'
+                                   })
+      end
     end
   end
 end

@@ -141,6 +141,7 @@ Lint/MissingSuper:
     - 'lib/vic/id_card_attribute_error.rb'
     - 'lib/vre/ch31_form.rb'
     - 'modules/appeals_api/lib/appeals_api/form_schemas.rb'
+    - 'modules/appeals_api/lib/appeals_api/token_validation_client.rb'
     - 'modules/apps_api/lib/apps_api/notification_service.rb'
     - 'modules/claims_api/app/services/claims_api/bgs_to_lighthouse_claims_mapper_service.rb'
     - 'modules/claims_api/config/initializers/okcomputer.rb'

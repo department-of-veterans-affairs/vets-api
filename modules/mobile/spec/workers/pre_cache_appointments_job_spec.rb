@@ -155,7 +155,7 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
                 long: nil,
                 phone: nil,
                 url: 'https://care2.evn.va.gov',
-                code: '5364921#' }
+                code: '6792040429#' }
             )
           end
         end

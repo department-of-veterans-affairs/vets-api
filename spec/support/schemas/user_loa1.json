@@ -96,7 +96,9 @@
                     "military_history": { "type": "boolean" },
                     "payment_history": { "type": "boolean" },
                     "personal_information": { "type": "boolean" },
-                    "rating_info": { "type": "boolean" }        
+                    "rating_info": { "type": "boolean" },
+                    "appeals": { "type": "boolean" },
+                    "medical_copays": { "type": "boolean" }    
                   }
                 }
               }

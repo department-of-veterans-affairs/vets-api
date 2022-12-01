@@ -4,7 +4,9 @@ require 'rails_helper'
 
 RSpec.describe Users::Profile do
   let(:user) { build(:user, :accountable) }
-  let!(:in_progress_form) { create(:in_progress_form, user_uuid: user.uuid) }
+  let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
+  let!(:in_progress_form_user_uuid) { create(:in_progress_form, user_uuid: user.uuid) }
+  let!(:in_progress_form_user_account) { create(:in_progress_form, user_account: user.user_account) }
 
   describe '.initialize' do
     let(:users_profile) { Users::Profile.new(user) }
@@ -48,8 +50,22 @@ RSpec.describe Users::Profile do
     end
 
     describe '#in_progress_forms' do
+      let(:expected_forms_metadata) { [in_progress_form_user_uuid.metadata, in_progress_form_user_account.metadata] }
+      let(:expected_forms_id) { [in_progress_form_user_uuid.form_id, in_progress_form_user_account.form_id] }
+      let(:expected_forms_updated_at) do
+        [in_progress_form_user_uuid.updated_at.to_i, in_progress_form_user_account.updated_at.to_i]
+      end
+
+      it 'includes form id' do
+        expect(subject.in_progress_forms.map { |form| form[:form] }).to match_array(expected_forms_id)
+      end
+
+      it 'includes last updated' do
+        expect(subject.in_progress_forms.map { |form| form[:lastUpdated] }).to match_array(expected_forms_updated_at)
+      end
+
       it 'includes metadata' do
-        expect(subject.in_progress_forms[0][:metadata]).to eq(in_progress_form.metadata)
+        expect(subject.in_progress_forms.map { |form| form[:metadata] }).to match_array(expected_forms_metadata)
       end
     end
 
@@ -67,7 +83,8 @@ RSpec.describe Users::Profile do
         end
 
         it 'includes sign_in' do
-          expect(profile[:sign_in]).to eq(service_name: 'idme', auth_broker: SAML::URLService::BROKER_CODE,
+          expect(profile[:sign_in]).to eq(service_name: SAML::User::IDME_CSID,
+                                          auth_broker: SAML::URLService::BROKER_CODE,
                                           client_id: 'web')
         end
 
@@ -79,7 +96,7 @@ RSpec.describe Users::Profile do
           end
 
           it 'includes sign_in.service_name' do
-            expect(profile[:sign_in][:service_name]).to eq('idme')
+            expect(profile[:sign_in][:service_name]).to eq(SAML::User::IDME_CSID)
           end
         end
       end
@@ -88,7 +105,7 @@ RSpec.describe Users::Profile do
         let(:user) { create(:user, :mhv) }
 
         it 'includes sign_in' do
-          expect(profile[:sign_in]).to eq(service_name: 'mhv',
+          expect(profile[:sign_in]).to eq(service_name: SAML::User::MHV_ORIGINAL_CSID,
                                           auth_broker: SAML::URLService::BROKER_CODE,
                                           client_id: 'web')
         end
@@ -97,7 +114,7 @@ RSpec.describe Users::Profile do
           let(:user) { create(:user, :loa1, authn_context: 'myhealthevet_multifactor') }
 
           it 'includes sign_in.service_name' do
-            expect(profile[:sign_in][:service_name]).to eq('mhv')
+            expect(profile[:sign_in][:service_name]).to eq(SAML::User::MHV_ORIGINAL_CSID)
           end
         end
 
@@ -105,7 +122,7 @@ RSpec.describe Users::Profile do
           let(:user) { create(:user, :loa1, authn_context: 'myhealthevet_loa3') }
 
           it 'includes sign_in.service_name' do
-            expect(profile[:sign_in][:service_name]).to eq('mhv')
+            expect(profile[:sign_in][:service_name]).to eq(SAML::User::MHV_ORIGINAL_CSID)
           end
         end
       end
@@ -114,7 +131,8 @@ RSpec.describe Users::Profile do
         let(:user) { create(:user, :dslogon) }
 
         it 'includes sign_in' do
-          expect(profile[:sign_in]).to eq(service_name: 'dslogon', auth_broker: SAML::URLService::BROKER_CODE,
+          expect(profile[:sign_in]).to eq(service_name: SAML::User::DSLOGON_CSID,
+                                          auth_broker: SAML::URLService::BROKER_CODE,
                                           client_id: 'web')
         end
 
@@ -122,7 +140,7 @@ RSpec.describe Users::Profile do
           let(:user) { create(:user, :loa1, authn_context: 'dslogon_multifactor') }
 
           it 'includes sign_in.service_name' do
-            expect(profile[:sign_in][:service_name]).to eq('dslogon')
+            expect(profile[:sign_in][:service_name]).to eq(SAML::User::DSLOGON_CSID)
           end
         end
 
@@ -130,7 +148,7 @@ RSpec.describe Users::Profile do
           let(:user) { create(:user, :loa1, authn_context: 'dslogon_loa3') }
 
           it 'includes sign_in.service_name' do
-            expect(profile[:sign_in][:service_name]).to eq('dslogon')
+            expect(profile[:sign_in][:service_name]).to eq(SAML::User::DSLOGON_CSID)
           end
         end
       end
@@ -160,7 +178,7 @@ RSpec.describe Users::Profile do
       end
 
       it 'includes zip' do
-        expect(profile[:zip]).to eq(user.zip)
+        expect(profile[:zip]).to eq(user.postal_code)
       end
 
       it 'includes last_signed_in' do

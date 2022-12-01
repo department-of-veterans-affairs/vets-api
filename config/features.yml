@@ -40,10 +40,6 @@ features:
     actor_type: user
     description: Enables American Indian SIGI question page.
     enable_in_development: true
-  hca_medicare_claim_number_enabled:
-    actor_type: user
-    description: Enables a form field for Medicare Claim Number.
-    enable_in_development: true
   hca_short_form_enabled:
     actor_type: user
     description: Enables Short Form for users with or self discloser of high disability.
@@ -94,10 +90,6 @@ features:
     actor_type: user
     description: Enables the health care check-in experiences to show the pre-check-in experience.
     enable_in_development: true
-  check_in_experience_day_of_demographics_flags_enabled:
-    actor_type: user
-    description: Enables the capture of user responses to demographics up-to-date questions
-    enable_in_development: true
   check_in_experience_synthetic_metric_name:
     actor_type: user
     description: Enables updating the StatsD metric name for Synthetic check traffic
@@ -105,6 +97,10 @@ features:
   check_in_experience_translation_disclaimer_spanish_enabled:
     actor_type: user
     description: Enables disclaimer for possible untranslated content on spanish pages
+    enable_in_development: true
+  check_in_experience_translation_disclaimer_tagalog_enabled:
+    actor_type: user
+    description: Enables disclaimer for possible untranslated content on tagalog pages
     enable_in_development: true
   check_in_experience_lorota_security_updates_enabled:
     actor_type: cookie_id
@@ -241,6 +237,10 @@ features:
     actor_type: user
     description: Enables the ICN lookup job
     enable_in_development: true
+  decision_review_weekly_error_report_enabled:
+    actor_type: user
+    description: Enables the weekly decision review text error report
+    enable_in_development: true
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -298,10 +298,6 @@ features:
   facilities_ppms_suppress_pharmacies:
     actor_type: user
     description: Front End Flag to suppress the ability to search for pharmacies
-  facility_locator_covid_vaccine_walk_in_availability_text_frontend:
-    actor_type: user
-    description: Enable covid vaccine walk-in availability text within covid vaccine related search results
-    enable_in_development: true
   facility_locator_lat_long_only:
     actor_type: user
     description: Send only lat/long values (no bounding box or address) to the API when querying for facilities.
@@ -310,10 +306,6 @@ features:
     actor_type: user
     description: enable covid search/display
     enable_in_development: true
-  facilities_locator_mobile_covid_online_scheduling:
-    actor_type: user
-    enable_in_development: true
-    description: get covid online scheduling availability from the mobile api
   facility_locator_ppms_forced_unique_id:
     actor_type: user
     description: Use an hexdigest for the ID on PPMS Place of Service Calls
@@ -361,9 +353,9 @@ features:
     actor_type: user
     description: Form 10182 Notice of Disagreement - Request a board appeal
     enable_in_development: true
-  form686c_confirmation_email:
+  form674_confirmation_email:
     actor_type: user
-    description: Form 686c - Email submission confirmation
+    description: Form 674 - Email submission confirmation
     enable_in_development: true
   fsr_confirmation_email:
     actor_type: user
@@ -377,9 +369,6 @@ features:
     actor_type: user
     description: Enables secure messaging
     enable_in_development: true
-  hlr_v2:
-    actor_type: user
-    description: Enable showing Higher-Level Review v2
   in_progress_form_custom_expiration:
     actor_type: user
     description: Enable/disable custom expiration dates for forms
@@ -395,6 +384,10 @@ features:
   in_progress_form_reminder_1010ez:
     actor_type: user
     description: Enable/disable 1010ez in progress form reminders (sent via VaNotify)
+    enable_in_development: true
+  in_progress_form_reminder_526ez:
+    actor_type: user
+    description: Enable/disable 526ez in progress form reminders (sent via VaNotify)
     enable_in_development: true
   loop_pages:
     actor_type: user
@@ -460,12 +453,27 @@ features:
     actor_type: user
     description: This determines the visibility of the OmniChannel link in the claim status tool
     enable_in_development: true
+  preneeds_burial_form_confirmation_email:
+    actor_type: user
+    description: Enables preneeds burial form email submission confirmation
+    enable_in_development: true
+  pdf_warning_banner:
+    description: "When enabled, will allow display of PDF cert warnings in find-a-form"
+    actor_type: user
+    enable_in_development: true
   pre_entry_covid19_screener:
     actor_type: user
     description: >
       Toggle for the entire pre-entry covid 19 self-screener available at /covid19screener and to be used by visitors
       to VHA facilities in lieu of manual screening with a VHA employee.
       This toggle is owned by Patrick B. and the rest of the CTO Health Products team.
+  profile_email_specify_change:
+    actor_type: user
+    description: >
+      When enabled, if a user changes a phone number, the notification email will specify whether the home or mobile
+      phone was changed.  For an address change, the notification email will specify whether the residential or correspondence
+      address was changed.
+    enable_in_development: true
   profile_user_claims:
     actor_type: user
     description: When enabled, /v0/user will return user profile claims for accessing service endpoints.
@@ -477,10 +485,6 @@ features:
     actor_type: user
     description: Hides disability comp and pen section of the Profile - Direct Deposit page during a service outage
     enable_in_development: false
-  profile_notification_settings:
-    actor_type: user
-    description: Turns on the Notification Settings section of the VA.gov Profile
-    enable_in_development: true
   profile_schema_forms:
     actor_type: user
     description: Enables SchemaForm-based contact info edit forms on the VA.gov Veteran profile page
@@ -500,19 +504,22 @@ features:
   profile_show_payments_notification_setting:
     actor_type: user
     description: Show/Hide the payments section of notifications in profile
+  profile_show_appeal_status_notification_setting':
+    actor_type: user
+    description: Show/Hide the appeal status change notification setting in profile
   profile_show_pronouns_and_sexual_orientation:
     actor_type: user
     description: Show/hide Pronouns and Sexual Orientation fields on profile page
-  profile_show_receive_text_notifications:
-    actor_type: user
-    description: https://www.va.gov/profile/ show Receive Text Notifications
-    enable_in_development: true
   profile_use_vaos_v2_api:
     description: "Use the new VAOS v2 API endpoints"
     enable_in_development: true
     actor_type: user
   profile_use_vafsc:
     description: "Use VA Forms System Core for forms instead of schema based forms"
+    actor_type: user
+    enable_in_development: true
+  profile_block_for_fiduciary_deceased_or_incompetent:
+    description: "Blocks profile access when a user has 1 of 3 user criteria, fiduciary, deceased, or incompetent flag"
     actor_type: user
     enable_in_development: true
   pw_ehr_cta_drupal_source_of_truth:
@@ -553,6 +560,10 @@ features:
   rrd_mas_notification:
     actor_type: user
     description: Notifies MAS service that a MAS-relevant claim has come through
+    enable_in_development: true
+  rrd_mas_all_claims_notification:
+    actor_type: user
+    description: Notifies MAS service of all MAS-eligible claims that have come through
     enable_in_development: true
   rrd_hypertension_mas_notification:
     actor_type: user
@@ -625,10 +636,6 @@ features:
     action_type: user
     description: Enables the new header
     enable_in_development: true
-  show_meb_mock_endpoints:
-    actor_type: user
-    description: Allows for frontend to have progressivley enhanced backend endpoints to consume in staging.
-    enable_in_development: true
   show_meb_unverified_user_alert:
     actor_type: user
     description: Display an alert to unauthenticated users on the MEB introduction page.
@@ -684,6 +691,10 @@ features:
   subform_8940_4192:
     actor_type: user
     description: Form 526 subforms for unemployability & connected employment information
+    enable_in_development: true
+  supplemental_claim:
+    actor_type: user
+    description: Enable showing Supplemental Claim form 0995
     enable_in_development: true
   va_global_downtime_notification:
     actor_type: user
@@ -755,6 +766,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for homepage status improvement
+  va_online_scheduling_status_improvement_canceled:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to display canceled booked appointments
   va_online_scheduling_vaos_v2_next:
     actor_type: user
     enable_in_development: true
@@ -771,21 +786,13 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for the Acheron service changes
+  va_online_scheduling_use_dsot:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for querying Drupal Source of Truth for Acheron flag
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
-  virtual_agent_bot_a:
-    actor_type: user
-    description: Points to Bot A
-    enable_in_development: true
-  virtual_agent_token:
-    actor_type: user
-    description: Enables connection to webchat
-    enable_in_development: true
-  virtual_agent_auth:
-    actor_type: user
-    description: Enables auth lock in order to access bot
-    enable_in_development: true
   virtual_agent_user_access_records:
     actor_type: user
     description: Enables collection of user data for VBA
@@ -832,3 +839,9 @@ features:
     actor_type: user
     description: Enables the UI integration with the meb dgi
     enable_in_development: true
+  move_form_back_button:
+    actor_type: user
+    description: Test moving form back button to the top of the page
+  mobile_lighthouse_letters:
+    actor_type: user
+    description: For mobile app, use Lighthouse instead of EVSS for our letters endpoints upstream service

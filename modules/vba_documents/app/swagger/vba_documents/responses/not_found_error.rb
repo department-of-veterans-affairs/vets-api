@@ -19,7 +19,7 @@ module VBADocuments
               property :detail do
                 key :description, 'Human readable error detail. Only present if status = "error"'
                 key :type, :string
-                key :example, 'The record identified by {{ind}} could not be found'
+                key :example, 'The record identified by {{id}} could not be found'
               end
               property :code do
                 key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'document_upload', 'status_code_description.md'))

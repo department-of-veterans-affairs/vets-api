@@ -51,7 +51,8 @@ module MebApi
       end
 
       def submit_claim
-        response = submission_service.submit_claim(params, 'toe')
+        dd_response = payment_service.get_ch33_dd_eft_info
+        response = submission_service.submit_claim(params, dd_response, 'toe')
 
         clear_saved_form(params[:form_id]) if params[:form_id]
 
@@ -78,6 +79,10 @@ module MebApi
 
       def submission_service
         MebApi::DGI::Forms::Submission::Service.new(@current_user)
+      end
+
+      def payment_service
+        BGS::Service.new(@current_user)
       end
     end
   end

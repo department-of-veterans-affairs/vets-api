@@ -5,12 +5,13 @@ module SignIn
     attr_reader :idme_uuid,
                 :logingov_uuid,
                 :auto_uplevel,
-                :loa,
-                :credential_uuid,
-                :sign_in,
+                :current_ial,
+                :service_name,
                 :first_name,
                 :last_name,
                 :birth_date,
+                :credential_email,
+                :address,
                 :ssn,
                 :mhv_icn,
                 :edipi,
@@ -20,12 +21,13 @@ module SignIn
       @idme_uuid = user_attributes[:idme_uuid]
       @logingov_uuid = user_attributes[:logingov_uuid]
       @auto_uplevel = user_attributes[:auto_uplevel]
-      @loa = user_attributes[:loa]
-      @credential_uuid = user_attributes[:uuid]
-      @sign_in = user_attributes[:sign_in]
+      @current_ial = user_attributes[:current_ial]
+      @service_name = user_attributes[:service_name]
       @first_name = user_attributes[:first_name]
       @last_name = user_attributes[:last_name]
       @birth_date = user_attributes[:birth_date]
+      @credential_email = user_attributes[:csp_email]
+      @address = user_attributes[:address]
       @ssn = user_attributes[:ssn]
       @mhv_icn = user_attributes[:mhv_icn]
       @edipi = user_attributes[:edipi]
@@ -34,6 +36,8 @@ module SignIn
 
     def perform
       return unless verified_credential?
+
+      validate_credential_attributes
 
       if mhv_auth?
         mhv_set_user_attributes_from_mpi
@@ -74,15 +78,42 @@ module SignIn
     def update_mpi_correlation_record
       return if auto_uplevel
 
+      user_attribute_mismatch_checks
+      update_profile_response = mpi_service.update_profile(user_identity_from_attributes)
+      unless update_profile_response&.ok?
+        handle_error('User MPI record cannot be updated', Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE)
+      end
+    end
+
+    def user_attribute_mismatch_checks
       user_identity_from_attributes.icn ||= mpi_response_profile.icn
       attribute_mismatch_check(:first_name, first_name, mpi_response_profile.given_names.first)
       attribute_mismatch_check(:last_name, last_name, mpi_response_profile.family_name)
       attribute_mismatch_check(:birth_date, birth_date, mpi_response_profile.birth_date)
       attribute_mismatch_check(:ssn, ssn, mpi_response_profile.ssn, prevent_auth: true)
-      update_profile_response = mpi_service.update_profile(user_identity_from_attributes)
-      unless update_profile_response&.ok?
-        handle_error('User MPI record cannot be updated', Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE)
+    end
+
+    def validate_credential_attributes
+      if mhv_auth?
+        credential_attribute_check(:icn, mhv_icn)
+        credential_attribute_check(:mhv_uuid, mhv_correlation_id)
+      else
+        credential_attribute_check(:dslogon_uuid, edipi) if dslogon_auth?
+        credential_attribute_check(:first_name, first_name) unless auto_uplevel
+        credential_attribute_check(:last_name, last_name) unless auto_uplevel
+        credential_attribute_check(:birth_date, birth_date) unless auto_uplevel
+        credential_attribute_check(:ssn, ssn) unless auto_uplevel
       end
+      credential_attribute_check(:uuid, logingov_uuid || idme_uuid)
+      credential_attribute_check(:email, credential_email)
+    end
+
+    def credential_attribute_check(type, credential_attribute)
+      return if credential_attribute.present?
+
+      handle_error("Missing attribute in credential: #{type}",
+                   Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
+                   error: Errors::CredentialMissingAttributeError)
     end
 
     def attribute_mismatch_check(type, credential_attribute, mpi_attribute, prevent_auth: false)
@@ -118,10 +149,11 @@ module SignIn
       @user_identity_from_attributes ||= UserIdentity.new({ idme_uuid: idme_uuid,
                                                             logingov_uuid: logingov_uuid,
                                                             loa: loa,
-                                                            sign_in: sign_in,
                                                             first_name: first_name,
                                                             last_name: last_name,
                                                             birth_date: birth_date,
+                                                            email: credential_email,
+                                                            address: address,
                                                             ssn: ssn,
                                                             edipi: edipi,
                                                             icn: mhv_icn,
@@ -143,7 +175,9 @@ module SignIn
     end
 
     def handle_error(error_message, error_code, error: nil)
-      sign_in_logger.info('user creator error', { errors: error_message })
+      sign_in_logger.info('attribute validator error', { errors: error_message,
+                                                         credential_uuid: credential_uuid,
+                                                         type: service_name })
       raise error, message: error_message, code: error_code if error
     end
 
@@ -163,6 +197,10 @@ module SignIn
       @verified_icn ||= mpi_response_profile.icn
     end
 
+    def credential_uuid
+      @credential_uuid ||= idme_uuid || logingov_uuid
+    end
+
     def mpi_record_exists?
       mpi_response_profile.present?
     end
@@ -171,12 +209,20 @@ module SignIn
       @mpi_service ||= MPI::Service.new
     end
 
+    def loa
+      @loa ||= { current: LOA::THREE, highest: LOA::THREE }
+    end
+
     def mhv_auth?
-      sign_in[:service_name] == SAML::User::MHV_ORIGINAL_CSID
+      service_name == SAML::User::MHV_ORIGINAL_CSID
+    end
+
+    def dslogon_auth?
+      service_name == SAML::User::DSLOGON_CSID
     end
 
     def verified_credential?
-      loa[:current] == LOA::THREE
+      current_ial == IAL::TWO
     end
 
     def sign_in_logger

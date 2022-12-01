@@ -11,7 +11,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
   end
 
   def new_base_path(path)
-    "/services/appeals/supplemental_claims/v2/#{path}"
+    "/services/appeals/supplemental_claims/v0/#{path}"
   end
 
   let(:minimum_data) { fixture_to_s 'valid_200995.json', version: 'v2' }
@@ -69,20 +69,6 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         expect(parsed['data']['type']).to eq('supplementalClaim')
         expect(parsed['data']['attributes']['status']).to eq('pending')
         expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
-      end
-
-      it 'behaves the same on new path' do
-        Timecop.freeze(Time.current) do
-          post(path, params: data, headers: headers)
-          orig_path_response = JSON.parse(response.body)
-          orig_path_response['data']['id'] = 'ignored'
-
-          post(new_base_path('forms/200995'), params: data, headers: headers)
-          new_path_response = JSON.parse(response.body)
-          new_path_response['data']['id'] = 'ignored'
-
-          expect(new_path_response).to match_array orig_path_response
-        end
       end
     end
 
@@ -323,6 +309,35 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         expect(sc.status).to eq('submitted')
       end
     end
+
+    context 'with oauth' do
+      let(:oauth_path) { new_base_path 'forms/200995' }
+
+      it_behaves_like('an endpoint with OpenID auth', %w[claim.write]) do
+        def make_request(auth_header)
+          post(oauth_path, params: data, headers: headers.merge(auth_header))
+        end
+      end
+
+      it 'behaves the same as the equivalent decision reviews route' do
+        Timecop.freeze(Time.current) do
+          post(path, params: data, headers: headers)
+          orig_status = response.status
+          orig_body = JSON.parse(response.body)
+          orig_body['data']['id'] = 'ignored'
+
+          with_openid_auth(%w[claim.write]) do |auth_header|
+            post(oauth_path, params: data, headers: headers.merge(auth_header))
+          end
+          oauth_status = response.status
+          oauth_body = JSON.parse(response.body)
+          oauth_body['data']['id'] = 'ignored'
+
+          expect(oauth_status).to eq(orig_status)
+          expect(oauth_body).to eq(orig_body)
+        end
+      end
+    end
   end
 
   describe '#validate' do
@@ -332,12 +347,6 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
     context 'when validation passes' do
       it 'returns a valid response' do
         post(path, params: extra_data, headers: extra_headers)
-        expect(parsed['data']['attributes']['status']).to eq('valid')
-        expect(parsed['data']['type']).to eq('supplementalClaimValidation')
-      end
-
-      it 'behaves the same on the new path' do
-        post(new_base_path('forms/200995/validate'), params: data, headers: headers)
         expect(parsed['data']['attributes']['status']).to eq('valid')
         expect(parsed['data']['type']).to eq('supplementalClaimValidation')
       end
@@ -393,6 +402,31 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         end
       end
     end
+
+    context 'with oauth' do
+      let(:oauth_path) { new_base_path 'forms/200995/validate' }
+
+      it_behaves_like('an endpoint with OpenID auth', %w[claim.write]) do
+        def make_request(auth_header)
+          post(oauth_path, params: data, headers: headers.merge(auth_header))
+        end
+      end
+
+      it 'behaves the same as the equivalent decision reviews route' do
+        post(path, params: data, headers: headers)
+        orig_status = response.status
+        orig_body = JSON.parse(response.body)
+
+        with_openid_auth(%w[claim.write]) do |auth_header|
+          post(oauth_path, params: data, headers: headers.merge(auth_header))
+        end
+        oauth_status = response.status
+        oauth_body = JSON.parse(response.body)
+
+        expect(oauth_status).to eq(orig_status)
+        expect(oauth_body).to eq(orig_body)
+      end
+    end
   end
 
   describe '#schema' do
@@ -402,11 +436,6 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       get path
       expect(response.status).to eq(200)
     end
-
-    it 'behaves the same for new path' do
-      get new_base_path('schemas/200995')
-      expect(response.status).to eq 200
-    end
   end
 
   describe '#show' do
@@ -415,13 +444,6 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
     it 'returns a supplemental_claims with all of its data' do
       uuid = create(:supplemental_claim).id
       get("#{path}#{uuid}")
-      expect(response.status).to eq(200)
-      expect(parsed['data']['attributes'].key?('form_data')).to be false
-    end
-
-    it 'behaves the same on new path' do
-      uuid = create(:supplemental_claim).id
-      get("#{new_base_path 'forms/200995'}/#{uuid}")
       expect(response.status).to eq(200)
       expect(parsed['data']['attributes'].key?('form_data')).to be false
     end
@@ -444,6 +466,33 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       expect(response.status).to eq(404)
       expect(parsed['errors']).to be_an Array
       expect(parsed['errors']).not_to be_empty
+    end
+
+    context 'with oauth' do
+      let(:uuid) { create(:supplemental_claim).id }
+      let(:orig_path) { "#{path}#{uuid}" }
+      let(:oauth_path) { new_base_path("forms/200995/#{uuid}") }
+
+      it_behaves_like('an endpoint with OpenID auth', %w[claim.read]) do
+        def make_request(auth_header)
+          get(oauth_path, headers: auth_header)
+        end
+      end
+
+      it 'behaves the same as the equivalent decision reviews route' do
+        get(orig_path)
+        orig_status = response.status
+        orig_body = JSON.parse(response.body)
+
+        with_openid_auth(%w[claim.read]) do |auth_header|
+          get(oauth_path, headers: auth_header)
+        end
+        oauth_status = response.status
+        oauth_body = JSON.parse(response.body)
+
+        expect(oauth_status).to eq(orig_status)
+        expect(oauth_body).to eq(orig_body)
+      end
     end
   end
 end

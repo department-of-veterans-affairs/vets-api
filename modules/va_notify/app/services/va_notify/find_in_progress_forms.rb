@@ -5,6 +5,7 @@ module VANotify
     RELEVANT_FORMS = %w[
       686C-674
       1010ez
+      21-526EZ
     ].freeze
 
     def to_notify

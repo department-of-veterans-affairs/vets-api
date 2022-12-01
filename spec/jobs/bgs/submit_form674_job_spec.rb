@@ -27,6 +27,23 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
     described_class.new.perform(user.uuid, dependency_claim.id, vet_info)
   end
 
+  it 'sends confirmation email' do
+    client_stub = instance_double('BGS::Form674')
+    allow(BGS::Form674).to receive(:new).with(an_instance_of(User)) { client_stub }
+    expect(client_stub).to receive(:submit).once
+
+    expect(VANotify::EmailJob).to receive(:perform_async).with(
+      user.va_profile_email,
+      'fake_template_id',
+      {
+        'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
+        'first_name' => 'WESLEY'
+      }
+    )
+
+    described_class.new.perform(user.uuid, dependency_claim.id, vet_info)
+  end
+
   context 'error' do
     before do
       InProgressForm.create!(form_id: '686C-674', user_uuid: user.uuid, form_data: all_flows_payload)

@@ -127,7 +127,6 @@ describe MPIData, skip_mvi: true do
               gender: gender,
               ssn: ssn,
               phone: phone,
-              person_types: person_types,
               idme_uuid: user.idme_uuid)
       end
 

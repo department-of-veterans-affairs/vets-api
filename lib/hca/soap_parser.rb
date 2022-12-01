@@ -4,10 +4,7 @@ module HCA
   class SOAPParser < Common::Client::Middleware::Response::SOAPParser
     include SentryLogging
 
-    class ValidationError < Common::Exceptions::BackendServiceException
-      def initialize
-        super('HCA422', status: 422)
-      end
+    class ValidationError < StandardError
     end
 
     VALIDATION_FAIL_KEY = 'api.hca.validation_fail'

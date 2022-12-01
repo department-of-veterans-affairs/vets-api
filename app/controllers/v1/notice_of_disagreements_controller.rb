@@ -17,6 +17,7 @@ module V1
                           .body
       submitted_appeal_uuid = nod_response_body.dig('data', 'id')
       AppealSubmission.create!(user_uuid: @current_user.uuid,
+                               user_account: @current_user.user_account,
                                type_of_appeal: 'NOD',
                                submitted_appeal_uuid: submitted_appeal_uuid)
       render json: nod_response_body

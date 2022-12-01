@@ -37,7 +37,7 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
             Lucas.Tickner@va.gov
             Ricardo.DaSilva@va.gov
             tammy.hurley1@va.gov
-            abelardo.blanco@va.gov
+            vfep_support_team@va.gov
             eugenia.gina.ronat@accenturefederal.com
             morgan.whaley@accenturefederal.com
             m.c.shah@accenturefederal.com

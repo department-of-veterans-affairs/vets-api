@@ -9,6 +9,8 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
                                                       unsuccessful_claims_submissions: [],
                                                       poa_totals: [],
                                                       unsuccessful_poa_submissions: [],
+                                                      ews_totals: [],
+                                                      unsuccessful_evidence_waiver_submissions: [],
                                                       itf_totals: []).deliver_now
     end
 

@@ -90,9 +90,13 @@ module AppealsApi::V2
       end
 
       def caseflow_response_from_backend_service_exception
+        # Something in the BackendServiceException chain adds more fields than necessary to the caseflow response body,
+        # so filter it only to "errors" when possible.
+        body = backend_service_exception.original_body
+        filtered_body = body.slice('errors').presence || body
         Struct.new(:status, :body).new(
           backend_service_exception.original_status,
-          backend_service_exception.original_body
+          filtered_body.deep_transform_values(&:to_s)
         )
       end
 

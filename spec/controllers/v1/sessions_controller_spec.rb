@@ -102,7 +102,7 @@ RSpec.describe V1::SessionsController, type: :controller do
               when 'mhv'
                 ['myhealthevet', AuthnContext::MHV]
               when 'mhv_verified'
-                ['myhealthevet_loa3', AuthnContext::MHV]
+                ['myhealthevet', AuthnContext::MHV]
               when 'idme'
                 [LOA::IDME_LOA1_VETS, AuthnContext::ID_ME]
               when 'idme_verified'
@@ -130,10 +130,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                              tags: ["context:#{type}", 'version:v1'], **once)
                 .and trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY, **once)
-
               expect(response).to have_http_status(:ok)
-              expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
-                                    'originating_request_id' => nil, 'type' => type.gsub('_verified', ''))
               expect(SAMLRequestTracker.keys.length).to eq(1)
               payload = SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload
               expect(payload)
@@ -360,6 +357,35 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
       end
 
+      context 'when authenticated type is mhv_verified' do
+        let(:type_param) { { type: type } }
+        let(:type) { 'mhv_verified' }
+
+        context 'and authenticated user is loa three' do
+          let(:saml_user_attributes) { loa3_user.attributes.merge(loa3_user.identity.attributes) }
+
+          it 'makes a call to AfterLoginActions' do
+            allow(SAML::User).to receive(:new).and_return(saml_user)
+            expect_any_instance_of(Login::AfterLoginActions).to receive(:perform)
+            post :saml_callback, params: { RelayState: type_param.to_json }
+          end
+        end
+
+        context 'and authenticated user is loa one' do
+          let(:saml_user_attributes) { loa1_user.attributes.merge(loa1_user.identity.attributes) }
+          let(:error_code) { SAML::UserAttributeError::MHV_UNVERIFIED_BLOCKED_CODE }
+          let(:expected_redirect_params) do
+            { auth: 'fail', code: error_code, request_id: request_id, type: type }.to_query
+          end
+
+          it 'redirects to an auth failure page' do
+            expect(controller).to receive(:log_message_to_sentry)
+            expect(post(:saml_callback, params: { RelayState: type_param.to_json })).to redirect_to(expected_redirect)
+            expect(response).to have_http_status(:found)
+          end
+        end
+      end
+
       it 'redirect user to home page when no SAMLRequestTracker exists' do
         allow(SAML::User).to receive(:new).and_return(saml_user)
         expect(post(:saml_callback)).to redirect_to(expected_redirect_url)
@@ -569,41 +595,6 @@ RSpec.describe V1::SessionsController, type: :controller do
               post(:saml_callback, params: { RelayState: '{"type": "mfa"}' })
             end
           end
-        end
-      end
-
-      context 'when user has IAL current 1 and verified_at attribute' do
-        let(:saml_user_attributes) do
-          ial1_user.attributes.merge(ial1_user.identity.attributes).merge(
-            loa: { current: IAL::ONE, highest: IAL::ONE },
-            verified_at: Time.current
-          )
-        end
-
-        it 'responds with form for Login.gov for up-level' do
-          expect(post(:saml_callback)).to have_http_status(:ok)
-        end
-
-        it 'counts the triggered SAML request' do
-          expect { post(:saml_callback) }
-            .to trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY, **once)
-        end
-
-        it 'redirects to identity proof URL', :aggregate_failures do
-          Timecop.freeze(Time.current)
-          expect_any_instance_of(SAML::PostURLService).to receive(:should_uplevel?).once.and_return(true)
-          expect_any_instance_of(SAML::PostURLService).to receive(:verify_url).and_return(['http://uplevel', {}])
-
-          post :saml_callback
-          Timecop.return
-        end
-
-        it 'sends STATSD callback metrics' do
-          expect { post(:saml_callback) }
-            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY,
-                                         tags: ['status:success', "context:#{LOA::IDME_LOA1_VETS}", 'version:v1'],
-                                         **once)
-            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
         end
       end
 

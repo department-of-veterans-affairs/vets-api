@@ -2,10 +2,10 @@
 
 module SignIn
   class RefreshTokenDecryptor
-    attr_reader :split_token_array
+    attr_reader :encrypted_refresh_token
 
     def initialize(encrypted_refresh_token:)
-      @split_token_array = split_encrypted_refresh_token(encrypted_refresh_token)
+      @encrypted_refresh_token = encrypted_refresh_token
     end
 
     def perform
@@ -47,18 +47,19 @@ module SignIn
       split_token_array[Constants::RefreshToken::VERSION_POSITION]
     end
 
-    def split_encrypted_refresh_token(encrypted_refresh_token)
-      encrypted_refresh_token.split('.', Constants::RefreshToken::ENCRYPTED_ARRAY.length)
-    end
-
     def decrypt_refresh_token(encrypted_part)
       message_encryptor.decrypt(encrypted_part)
     rescue KmsEncrypted::DecryptionError
+      Rails.logger.info("[RefreshTokenDecryptor] Token cannot be decrypted, refresh_token: #{encrypted_refresh_token}")
       raise Errors::RefreshTokenDecryptionError, message: 'Refresh token cannot be decrypted'
     end
 
     def deserialize_token(decrypted_string)
       JSON.parse(decrypted_string, object_class: OpenStruct)
+    end
+
+    def split_token_array
+      @split_token_array ||= encrypted_refresh_token.split('.', Constants::RefreshToken::ENCRYPTED_ARRAY.length)
     end
 
     def message_encryptor

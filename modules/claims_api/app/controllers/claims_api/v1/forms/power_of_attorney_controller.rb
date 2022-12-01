@@ -78,7 +78,7 @@ module ClaimsApi
           @power_of_attorney.reload
 
           # If upload is successful, then the PoaUpater job is also called to update the code in BGS.
-          ClaimsApi::VBMSUploadJob.perform_async(@power_of_attorney.id)
+          ClaimsApi::PoaVBMSUploadJob.perform_async(@power_of_attorney.id)
 
           render json: @power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end

@@ -58,7 +58,7 @@ RSpec.describe 'transactions' do
     end
 
     context 'when the transaction has messages' do
-      it 'messages are serialiezd in the metadata property', :aggregate_failures do
+      it 'messages are serialized in the metadata property', :aggregate_failures do
         transaction = create(
           :email_transaction,
           user_uuid: user.uuid,

@@ -71,7 +71,7 @@ module Users
         last_name: user.last_name,
         birth_date: user.birth_date,
         gender: user.gender,
-        zip: user.zip,
+        zip: user.postal_code,
         last_signed_in: user.last_signed_in,
         loa: user.loa,
         multifactor: user.multifactor,
@@ -93,7 +93,9 @@ module Users
           military_history: Vet360Policy.new(user).military_access?,
           payment_history: BGSPolicy.new(user).access?(log_stats: false),
           personal_information: MPIPolicy.new(user).queryable?,
-          rating_info: EVSSPolicy.new(user).access?
+          rating_info: EVSSPolicy.new(user).access?,
+          appeals: AppealsPolicy.new(user).access?,
+          medical_copays: MedicalCopaysPolicy.new(user).access?
         }
       end
     end
@@ -151,7 +153,7 @@ module Users
     end
 
     def in_progress_forms
-      user.in_progress_forms.map do |form|
+      InProgressForm.for_user(user).map do |form|
         {
           form: form.form_id,
           metadata: form.metadata,

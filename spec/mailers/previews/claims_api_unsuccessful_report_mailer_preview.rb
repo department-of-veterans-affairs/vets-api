@@ -12,6 +12,8 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
       unsuccessful_claims_submissions: unsuccessful_claims_submissions,
       poa_totals: poa_totals,
       unsuccessful_poa_submissions: unsuccessful_poa_submissions,
+      ews_totals: ews_totals,
+      unsuccessful_evidence_waiver_submissions: unsuccessful_evidence_waiver_submissions,
       itf_totals: itf_totals
     )
   end
@@ -51,6 +53,24 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
   end
 
   def unsuccessful_poa_submissions
+    [
+      { id: '61f6d6c9-b6ac-49c7-b1df-bccd065dbf9c', created_at: 1.day.ago.to_s },
+      { id: '2753f720-d0a9-4b93-9721-eb3dd67fab9b', created_at: 1.day.ago.to_s }
+    ]
+  end
+
+  def ews_totals
+    [
+      {
+        'consumer 1' => { totals: 10, updated: 5, errored: 2, pending: 1, uploaded: 2 }
+      },
+      {
+        'consumer 2' => { totals: 8, updated: 3, errored: 2, pending: 1, uploaded: 2 }
+      }
+    ]
+  end
+
+  def unsuccessful_evidence_waiver_submissions
     [
       { id: '61f6d6c9-b6ac-49c7-b1df-bccd065dbf9c', created_at: 1.day.ago.to_s },
       { id: '2753f720-d0a9-4b93-9721-eb3dd67fab9b', created_at: 1.day.ago.to_s }

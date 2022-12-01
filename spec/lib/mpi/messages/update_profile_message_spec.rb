@@ -9,9 +9,11 @@ describe MPI::Messages::UpdateProfileMessage do
                         ssn: ssn,
                         icn: icn,
                         birth_date: birth_date,
+                        email: email,
                         idme_uuid: idme_uuid,
                         logingov_uuid: logingov_uuid,
                         edipi: edipi,
+                        address: address,
                         first_name: first_name)
   end
 
@@ -23,6 +25,9 @@ describe MPI::Messages::UpdateProfileMessage do
   let(:idme_uuid) { 'some-idme-uuid' }
   let(:logingov_uuid) { 'some-logingov-uuid' }
   let(:first_name) { 'some-first-name' }
+  let(:email) { 'some-email' }
+  let(:telecom_type) { 'H' }
+  let(:address) { nil }
   let(:edipi) { 'some-edipi' }
   let(:csp_uuid) { 'some-csp-uuid' }
   let(:csp_identifier) { 'some-csp-identifier' }
@@ -59,6 +64,13 @@ describe MPI::Messages::UpdateProfileMessage do
     context 'when ssn is not defined' do
       let(:ssn) { nil }
       let(:missing_keys) { :ssn }
+
+      it_behaves_like 'error response'
+    end
+
+    context 'when email is not defined' do
+      let(:email) { nil }
+      let(:missing_keys) { :email }
 
       it_behaves_like 'error response'
     end
@@ -110,9 +122,14 @@ describe MPI::Messages::UpdateProfileMessage do
           Date.parse(birth_date).strftime('%Y%m%d')
         )
         expect(subject).to eq_at_path(
+          "#{subject_path}/registrationEvent/subject1/patient/patientPerson/telecom/@use", telecom_type
+        )
+        expect(subject).to eq_at_path(
+          "#{subject_path}/registrationEvent/subject1/patient/patientPerson/telecom/@value", email
+        )
+        expect(subject).to eq_at_path(
           "#{subject_path}/registrationEvent/subject1/patient/patientPerson/asOtherIDs/id/@extension", ssn
         )
-
         expect(subject).to eq_at_path(
           "#{subject_path}/registrationEvent/subject1/patient/id/@extension", icn_with_aaid
         )
@@ -165,6 +182,59 @@ describe MPI::Messages::UpdateProfileMessage do
       let(:root) { MPI::Constants::DOD_ROOT_OID }
 
       it_behaves_like 'successfully built message'
+    end
+
+    context 'when address is defined' do
+      let(:address) do
+        {
+          street: street,
+          street2: street2,
+          state: state,
+          city: city,
+          postal_code: postal_code,
+          country: country
+        }
+      end
+      let(:street) { 'some-street' }
+      let(:street2) { 'some-street-2' }
+      let(:state) { 'some-state' }
+      let(:city) { 'some-city' }
+      let(:postal_code) { 'some-postal-code' }
+      let(:country) { 'some-country' }
+      let(:idm_path) { 'env:Envelope/env:Body/idm:PRPA_IN201302UV02' }
+      let(:data_enterer_path) { "#{idm_path}/controlActProcess/dataEnterer" }
+      let(:subject_path) { "#{idm_path}/controlActProcess/subject" }
+
+      it 'creates a message with a street in address' do
+        expect(subject).to eq_text_at_path(
+          "#{subject_path}/registrationEvent/subject1/patient/patientPerson/addr/streetAddressLine",
+          "#{street} #{street2}"
+        )
+      end
+
+      it 'creates a message with a city in address' do
+        expect(subject).to eq_text_at_path(
+          "#{subject_path}/registrationEvent/subject1/patient/patientPerson/addr/city", city
+        )
+      end
+
+      it 'creates a message with a state in address' do
+        expect(subject).to eq_text_at_path(
+          "#{subject_path}/registrationEvent/subject1/patient/patientPerson/addr/state", state
+        )
+      end
+
+      it 'creates a message with a postal code in address' do
+        expect(subject).to eq_text_at_path(
+          "#{subject_path}/registrationEvent/subject1/patient/patientPerson/addr/postalCode", postal_code
+        )
+      end
+
+      it 'creates a message with a country in address' do
+        expect(subject).to eq_text_at_path(
+          "#{subject_path}/registrationEvent/subject1/patient/patientPerson/addr/country", country
+        )
+      end
     end
   end
 end

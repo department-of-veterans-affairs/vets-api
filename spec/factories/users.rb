@@ -4,6 +4,7 @@ FactoryBot.define do
   factory :user, class: 'User' do
     uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
     last_signed_in { Time.now.utc }
+    fingerprint { '111.111.1.1' }
     transient do
       authn_context { LOA::IDME_LOA1_VETS }
       email { 'abraham.lincoln@vets.gov' }
@@ -12,7 +13,7 @@ FactoryBot.define do
       last_name { 'lincoln' }
       gender { 'M' }
       birth_date { '1809-02-12' }
-      zip { '17325' }
+      postal_code { '17325' }
       ssn { '796111863' }
       idme_uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
       logingov_uuid { nil }
@@ -70,7 +71,7 @@ FactoryBot.define do
                              last_name: t.last_name,
                              gender: t.gender,
                              birth_date: t.birth_date,
-                             zip: t.zip,
+                             postal_code: t.postal_code,
                              ssn: t.ssn,
                              idme_uuid: t.idme_uuid,
                              logingov_uuid: t.logingov_uuid,
@@ -81,7 +82,6 @@ FactoryBot.define do
                              icn: t.icn,
                              mhv_icn: t.mhv_icn,
                              loa: t.loa,
-                             person_types: t.person_types,
                              multifactor: t.multifactor,
                              mhv_correlation_id: t.mhv_correlation_id,
                              mhv_account_type: t.mhv_account_type,
@@ -108,7 +108,7 @@ FactoryBot.define do
       first_name { nil }
       last_name { nil }
       gender { nil }
-      zip { nil }
+      postal_code { nil }
       birth_date { nil }
       ssn { nil }
       multifactor { nil }
@@ -273,8 +273,20 @@ FactoryBot.define do
       end
     end
 
-    factory :user_with_relationship, traits: [:loa3] do
+    factory :dependent_user_with_relationship, traits: %i[loa3 dependent] do
       after(:build) do
+        stub_mpi(
+          build(
+            :mpi_profile_response,
+            :with_relationship,
+            person_types: ['DEP']
+          )
+        )
+      end
+    end
+
+    factory :user_with_relationship, traits: [:loa3] do
+      after(:build) do |_t|
         stub_mpi(
           build(
             :mpi_profile_response,
@@ -508,7 +520,7 @@ FactoryBot.define do
       last_name { nil }
       gender { nil }
       birth_date { nil }
-      zip { nil }
+      postal_code { nil }
       ssn { nil }
       mhv_icn { '12345' }
       multifactor { false }
@@ -525,7 +537,7 @@ FactoryBot.define do
       last_name { Faker::Name.last_name }
       icn { nil }
       gender { 'M' }
-      zip { Faker::Address.postcode }
+      postal_code { Faker::Address.postcode }
       birth_date { Faker::Time.between(from: 40.years.ago, to: 10.years.ago) }
       ssn { '796111864' }
       multifactor { true }
@@ -538,7 +550,7 @@ FactoryBot.define do
 
       sign_in do
         {
-          service_name: 'mhv',
+          service_name: SAML::User::MHV_ORIGINAL_CSID,
           auth_broker: SAML::URLService::BROKER_CODE,
           client_id: SignIn::Constants::ClientConfig::COOKIE_AUTH.first
         }
@@ -578,7 +590,7 @@ FactoryBot.define do
       first_name { Faker::Name.first_name }
       last_name { Faker::Name.last_name }
       gender { 'M' }
-      zip { Faker::Address.postcode }
+      postal_code { Faker::Address.postcode }
       birth_date { Faker::Time.between(from: 40.years.ago, to: 10.years.ago) }
       ssn { '796111864' }
       multifactor { true }
@@ -587,7 +599,7 @@ FactoryBot.define do
 
       sign_in do
         {
-          service_name: 'dslogon',
+          service_name: SAML::User::DSLOGON_CSID,
           auth_broker: SAML::URLService::BROKER_CODE,
           client_id: SignIn::Constants::ClientConfig::COOKIE_AUTH.first
         }

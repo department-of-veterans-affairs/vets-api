@@ -52,27 +52,43 @@ module SignIn
         raise_client_error(e, 'UserInfo')
       end
 
-      def normalized_attributes(user_info, credential_level, client_id)
-        loa_current = ial_to_loa(credential_level.current_ial)
-        loa_highest = ial_to_loa(credential_level.max_ial)
+      def normalized_attributes(user_info, credential_level)
         {
-          uuid: user_info.sub,
           logingov_uuid: user_info.sub,
-          loa: { current: loa_current, highest: loa_highest },
+          current_ial: credential_level.current_ial,
+          max_ial: credential_level.max_ial,
           ssn: user_info.social_security_number&.tr('-', ''),
           birth_date: user_info.birthdate,
           first_name: user_info.given_name,
           last_name: user_info.family_name,
+          address: normalize_address(user_info.address),
           csp_email: user_info.email,
           multifactor: true,
-          sign_in: { service_name: config.service_name, auth_broker: Constants::Auth::BROKER_CODE,
-                     client_id: client_id },
+          service_name: config.service_name,
           authn_context: get_authn_context(credential_level.current_ial),
           auto_uplevel: credential_level.auto_uplevel
         }
       end
 
       private
+
+      def normalize_address(address)
+        return unless address
+
+        street_array = address[:street_address].split("\n")
+        {
+          street: street_array[0],
+          street2: street_array[1],
+          postal_code: address[:postal_code],
+          state: address[:region],
+          city: address[:locality],
+          country: united_states_country_code
+        }
+      end
+
+      def united_states_country_code
+        'USA'
+      end
 
       def raise_client_error(client_error, function_name)
         status = client_error.status
@@ -83,10 +99,6 @@ module SignIn
 
       def get_authn_context(current_ial)
         current_ial == IAL::TWO ? IAL::LOGIN_GOV_IAL2 : IAL::LOGIN_GOV_IAL1
-      end
-
-      def ial_to_loa(ial)
-        ial == IAL::TWO ? LOA::THREE : LOA::ONE
       end
 
       def auth_url

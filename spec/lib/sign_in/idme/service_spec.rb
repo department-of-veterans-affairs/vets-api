@@ -28,6 +28,11 @@ describe SignIn::Idme::Service do
         credential_ial_highest: 'classic_loa3',
         birth_date: birth_date,
         email: email,
+        street: street,
+        zip: zip,
+        state: address_state,
+        city: city,
+        phone: phone,
         fname: first_name,
         social: ssn,
         lname: last_name,
@@ -39,19 +44,25 @@ describe SignIn::Idme::Service do
       }
     )
   end
-  let(:expiration_time) { 1_664_830_422 }
-  let(:current_time) { 1_664_812_422 }
+
+  let(:street) { '145 N Hayden Bay Dr Apt 2350' }
+  let(:zip) { '97217' }
+  let(:address_state) { 'OR' }
+  let(:city) { 'Portland' }
+  let(:expiration_time) { 1_666_827_002 }
+  let(:current_time) { 1_666_809_002 }
   let(:idme_originating_url) { 'https://api.idmelabs.com/oidc' }
   let(:state) { 'some-state' }
   let(:acr) { 'some-acr' }
   let(:idme_client_id) { 'ef7f1237ed3c396e4b4a2b04b608a7b1' }
-  let(:user_uuid) { '6400bbf301eb4e6e95ccea7693eced6f' }
-  let(:birth_date) { '1950-10-04' }
+  let(:user_uuid) { '7e9bdcc2c79247fda1e4973e24c9dcaf' }
+  let(:birth_date) { '1970-10-10' }
+  let(:phone) { '12069827345' }
   let(:multifactor) { true }
-  let(:first_name) { 'MARK' }
-  let(:last_name) { 'WEBB' }
-  let(:ssn) { '796104437' }
-  let(:email) { 'vets.gov.user+228@gmail.com' }
+  let(:first_name) { 'Gary' }
+  let(:last_name) { 'Twinkle' }
+  let(:ssn) { '666798234' }
+  let(:email) { 'tumults-vicious-0q@icloud.com' }
 
   before do
     Timecop.freeze(Time.zone.at(current_time))
@@ -216,26 +227,26 @@ describe SignIn::Idme::Service do
     let(:client_id) { SignIn::Constants::ClientConfig::COOKIE_AUTH }
     let(:expected_standard_attributes) do
       {
-        uuid: user_uuid,
         idme_uuid: user_uuid,
-        loa: { current: LOA::THREE, highest: LOA::THREE },
-        sign_in: { service_name: service_name, auth_broker: auth_broker, client_id: client_id },
+        current_ial: IAL::TWO,
+        max_ial: IAL::TWO,
+        service_name: service_name,
         csp_email: email,
         multifactor: multifactor,
         authn_context: authn_context,
         auto_uplevel: auto_uplevel
       }
     end
-    let(:service_name) { 'idme' }
+    let(:service_name) { SignIn::Constants::Auth::IDME }
     let(:auto_uplevel) { false }
     let(:authn_context) { LOA::IDME_LOA3 }
     let(:auth_broker) { SignIn::Constants::Auth::BROKER_CODE }
     let(:credential_level) { create(:credential_level, current_ial: IAL::TWO, max_ial: IAL::TWO) }
 
     context 'when type is idme' do
-      let(:type) { 'idme' }
+      let(:type) { SignIn::Constants::Auth::IDME }
       let(:authn_context) { LOA::IDME_LOA3 }
-      let(:service_name) { 'idme' }
+      let(:service_name) { SignIn::Constants::Auth::IDME }
       let(:user_info) do
         OpenStruct.new(
           {
@@ -251,6 +262,10 @@ describe SignIn::Idme::Service do
             fname: first_name,
             social: ssn,
             lname: last_name,
+            street: street,
+            zip: zip,
+            state: address_state,
+            city: city,
             level_of_assurance: 3,
             multifactor: multifactor,
             credential_aal: 2,
@@ -259,24 +274,41 @@ describe SignIn::Idme::Service do
           }
         )
       end
+      let(:expected_address) do
+        {
+          street: street,
+          postal_code: zip,
+          state: address_state,
+          city: city,
+          country: country
+        }
+      end
+      let(:country) { 'USA' }
       let(:expected_attributes) do
         expected_standard_attributes.merge({ ssn: ssn,
                                              birth_date: birth_date,
                                              first_name: first_name,
-                                             last_name: last_name })
+                                             last_name: last_name,
+                                             address: expected_address })
       end
 
       it 'returns expected idme attributes' do
-        expect(subject.normalized_attributes(user_info,
-                                             credential_level,
-                                             client_id)).to eq(expected_attributes)
+        expect(subject.normalized_attributes(user_info, credential_level)).to eq(expected_attributes)
+      end
+
+      context 'and at least one field in address is not defined' do
+        let(:street) { nil }
+
+        it 'does not return an address object' do
+          expect(subject.normalized_attributes(user_info, credential_level)[:address]).to eq(nil)
+        end
       end
     end
 
     context 'when type is dslogon' do
-      let(:type) { 'dslogon' }
+      let(:type) { SignIn::Constants::Auth::DSLOGON }
       let(:authn_context) { LOA::IDME_DSLOGON_LOA3 }
-      let(:service_name) { 'dslogon' }
+      let(:service_name) { SignIn::Constants::Auth::DSLOGON }
       let(:user_info) do
         OpenStruct.new(
           {
@@ -314,16 +346,14 @@ describe SignIn::Idme::Service do
       end
 
       it 'returns expected dslogon attributes' do
-        expect(subject.normalized_attributes(user_info,
-                                             credential_level,
-                                             client_id)).to eq(expected_attributes)
+        expect(subject.normalized_attributes(user_info, credential_level)).to eq(expected_attributes)
       end
     end
 
     context 'when type is mhv' do
-      let(:type) { 'mhv' }
+      let(:type) { SignIn::Constants::Auth::MHV }
       let(:authn_context) { LOA::IDME_MHV_LOA3 }
-      let(:service_name) { 'mhv' }
+      let(:service_name) { SignIn::Constants::Auth::MHV }
       let(:user_info) do
         OpenStruct.new(
           {
@@ -356,9 +386,7 @@ describe SignIn::Idme::Service do
       end
 
       it 'returns expected mhv attributes' do
-        expect(subject.normalized_attributes(user_info,
-                                             credential_level,
-                                             client_id)).to eq(expected_attributes)
+        expect(subject.normalized_attributes(user_info, credential_level)).to eq(expected_attributes)
       end
     end
   end

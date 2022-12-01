@@ -3,9 +3,16 @@
 require 'json_marshal/marshaller'
 
 class ClaimsApi::EvidenceWaiverSubmission < ApplicationRecord
-  validates :cid, :auth_headers_ciphertext, presence: true
+  validates :cid, presence: true
   serialize :auth_headers, JsonMarshal::Marshaller
 
   has_kms_key
   has_encrypted :auth_headers, key: :kms_key, **lockbox_options
+
+  PENDING = 'pending'
+  UPLOADED = 'uploaded'
+  UPDATED = 'updated'
+  ERRORED = 'errored'
+
+  ALL_STATUSES = [PENDING, UPLOADED, UPDATED, ERRORED].freeze
 end

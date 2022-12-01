@@ -40,12 +40,6 @@ module SAML
       Raven.user_context(session: session, user: user)
     end
 
-    def should_uplevel?
-      # handles uplevel checks for Login.gov 'two-trip' logins
-      # verified_at is a Login.gov atttribute indicating the presence of IAL2 status
-      user.verified_at.present? && user.loa[:current] < LOA::THREE
-    end
-
     def login_redirect_url(auth: 'success', code: nil, request_id: nil)
       if auth == 'success'
         application = @tracker.payload_attr(:application)

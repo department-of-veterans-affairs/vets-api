@@ -13,7 +13,7 @@
     "country": "USA"
   },
   "emailAddress": "test@test.com",
-  "dayTimePhone": "5551234567",
+  "mobilePhone": "5551234567",
   "applicantGender": "F",
   "dateOfBirth": "1970-01-01",
   "appliedForVaEducationBenefits": true,

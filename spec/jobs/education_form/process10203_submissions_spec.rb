@@ -9,7 +9,6 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
   let(:evss_user2) { create(:evss_user, uuid: '87ebe3da-36a3-4c92-9a73-61e9d700f6ea') }
   let(:no_edipi_evss_user) { create(:unauthorized_evss_user) }
   let(:evss_response_with_poa) { OpenStruct.new(body: get_fixture('json/evss_with_poa')) }
-  let!(:account) { create(:account, uuid: evss_user.account_uuid) }
 
   context 'scheduling' do
     before do

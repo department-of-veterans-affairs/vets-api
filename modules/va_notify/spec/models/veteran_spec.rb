@@ -3,62 +3,134 @@
 require 'rails_helper'
 
 RSpec.describe VANotify::Veteran, type: :model do
-  describe 'icn lookup' do
-    let(:user_uuid_with_hyphens) do
-      '11111111-2222-3333-4444-555555555555'
+  let(:user_account) { create(:user_account, icn: icn) }
+  let(:icn) { nil }
+  let(:in_progress_form) { create(:in_progress_686c_form, user_account: user_account) }
+  let(:subject) { VANotify::Veteran.new(in_progress_form) }
+
+  describe '#first_name' do
+    context 'unsupported form id' do
+      let(:in_progress_form) { create(:in_progress_1010ez_form, user_account: user_account, form_id: 'something') }
+
+      it 'raises error with unsupported form id' do
+        expect { subject.first_name }.to raise_error(VANotify::Veteran::UnsupportedForm)
+      end
     end
 
-    let(:user_uuid_without_hyphens) do
-      user_uuid_with_hyphens.gsub('-', '')
+    context '686c' do
+      it 'returns the first_name from form data' do
+        expect(subject.first_name).to eq('first_name')
+      end
     end
 
-    it 'checks with plain uuid first' do
-      account = double('Account')
-      allow(Account).to receive(:lookup_by_user_uuid).and_return(account)
-      allow(account).to receive(:icn).and_return('icn')
+    context '1010ez' do
+      let(:in_progress_form) { create(:in_progress_1010ez_form, user_account: user_account) }
 
-      subject = VANotify::Veteran.new(
-        first_name: 'Melvin',
-        user_uuid: user_uuid_without_hyphens
-      )
-
-      expect(subject.first_name).to eq('Melvin')
-      expect(subject.icn).to eq('icn')
-
-      expect(Account).to have_received(:lookup_by_user_uuid).with(user_uuid_without_hyphens)
-      expect(Account).not_to have_received(:lookup_by_user_uuid).with(user_uuid_with_hyphens)
+      it 'returns the first_name from form data' do
+        expect(subject.first_name).to eq('first_name')
+      end
     end
 
-    it 'checks with hyphens if the first lookup returns nil' do
-      account = double('Account')
-      allow(Account).to receive(:lookup_by_user_uuid).and_return(nil, account)
-      allow(account).to receive(:icn).and_return('icn')
+    context '526ez' do
+      let(:icn) { 'icn' }
+      let(:in_progress_form) { create(:in_progress_526_form, user_account: user_account) }
 
-      subject = VANotify::Veteran.new(
-        first_name: 'Melvin',
-        user_uuid: user_uuid_without_hyphens
-      )
+      it 'returns the first_name from mpi' do
+        mpi_double = double('MPI::Service')
+        allow(MPI::Service).to receive(:new).and_return(mpi_double)
+        mpi_response_double = double('MPI::Responses::FindProfileResponse', ok?: true)
+        allow(mpi_double).to receive(:find_profile).with(subject).and_return(mpi_response_double)
 
-      expect(subject.first_name).to eq('Melvin')
-      expect(subject.icn).to eq('icn')
+        mpi_profile = build(:mvi_profile, given_names: ['first_name'])
+        allow(mpi_response_double).to receive(:profile).and_return(mpi_profile)
 
-      expect(Account).to have_received(:lookup_by_user_uuid).with(user_uuid_without_hyphens)
-      expect(Account).to have_received(:lookup_by_user_uuid).with(user_uuid_with_hyphens)
+        expect(subject.first_name).to eq('first_name')
+      end
+
+      it 'raises an error if MPI returns a not #ok? response' do
+        mpi_double = double('MPI::Service')
+        allow(MPI::Service).to receive(:new).and_return(mpi_double)
+        mpi_response_double = double('MPI::Responses::FindProfileResponse', ok?: false)
+        allow(mpi_double).to receive(:find_profile).with(subject).and_return(mpi_response_double)
+
+        expect { subject.first_name }.to raise_error(VANotify::Veteran::MPIError)
+      end
+
+      it 'raises an error if MPI profile given name is empty' do
+        mpi_double = double('MPI::Service')
+        allow(MPI::Service).to receive(:new).and_return(mpi_double)
+        mpi_response_double = double('MPI::Responses::FindProfileResponse', ok?: true)
+        allow(mpi_double).to receive(:find_profile).with(subject).and_return(mpi_response_double)
+
+        mpi_profile = build(:mvi_profile, given_names: nil)
+        allow(mpi_response_double).to receive(:profile).and_return(mpi_profile)
+
+        expect { subject.first_name }.to raise_error(VANotify::Veteran::MPINameError)
+      end
+    end
+  end
+
+  it '#user_uuid, #uuid' do
+    expect(subject.user_uuid).to eq(in_progress_form.user_uuid)
+    expect(subject.uuid).to eq(in_progress_form.user_uuid)
+  end
+
+  describe '#verified, loa3?' do
+    context 'with icn' do
+      let(:icn) { 'icn' }
+
+      it 'returns the icn associated to the user account associated to the in_progress_form if it exists' do
+        expect(subject.verified?).to be(true)
+        expect(subject.loa3?).to be(true)
+      end
     end
 
-    it 'returns nil if no matching account is found' do
-      allow(Account).to receive(:lookup_by_user_uuid).and_return(nil, nil)
+    context 'without associated account' do
+      let(:user_account) { nil }
 
-      subject = VANotify::Veteran.new(
-        first_name: 'Melvin',
-        user_uuid: user_uuid_without_hyphens
-      )
-
-      expect(subject.first_name).to eq('Melvin')
-      expect(subject.icn).to be nil
-
-      expect(Account).to have_received(:lookup_by_user_uuid).with(user_uuid_without_hyphens)
-      expect(Account).to have_received(:lookup_by_user_uuid).with(user_uuid_with_hyphens)
+      it 'returns nil if no matching account is found' do
+        expect(subject.verified?).to be(false)
+        expect(subject.loa3?).to be(false)
+      end
     end
+
+    context 'without icn' do
+      let(:icn) { nil }
+
+      it 'returns nil if no icn is found' do
+        expect(subject.verified?).to be(false)
+        expect(subject.loa3?).to be(false)
+      end
+    end
+  end
+
+  describe '#icn' do
+    context 'with icn' do
+      let(:icn) { 'icn' }
+
+      it 'returns the icn associated to the user account associated to the in_progress_form if it exists' do
+        expect(subject.icn).to eq('icn')
+      end
+    end
+
+    context 'without associated account' do
+      let(:user_account) { nil }
+
+      it 'returns nil if no matching account is found' do
+        expect(subject.icn).to eq(nil)
+      end
+    end
+
+    context 'without icn' do
+      let(:icn) { nil }
+
+      it 'returns nil if no icn is found' do
+        expect(subject.icn).to eq(nil)
+      end
+    end
+  end
+
+  it '#authn_context' do
+    expect(subject.authn_context).to eq('va_notify_lookup')
   end
 end

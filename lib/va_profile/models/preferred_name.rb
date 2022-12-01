@@ -13,7 +13,6 @@ module VAProfile
       attribute :source_system_user, String
       attribute :source_date, Common::ISO8601Time
 
-      skip_callback :validate, :past_date?
       validates :text, presence: true
       validates :text, length: { maximum: 25 }
 

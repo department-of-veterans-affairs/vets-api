@@ -73,7 +73,7 @@ module MDOT
         VA_VETERAN_FIRST_NAME: @user.first_name,
         VA_VETERAN_MIDDLE_NAME: @user.middle_name,
         VA_VETERAN_LAST_NAME: @user.last_name,
-        VA_VETERAN_ID: @user.ssn.last(4),
+        VA_VETERAN_ID: @user.ssn.to_s.last(4),
         VA_VETERAN_BIRTH_DATE: @user.birth_date,
         VA_ICN: @user.icn
       }

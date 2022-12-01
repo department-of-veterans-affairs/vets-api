@@ -52,7 +52,7 @@ RSpec.describe SignIn::StatePayloadJwtEncoder do
         let(:code) { 'some-state-code-value' }
         let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
         let(:acr) { SignIn::Constants::Auth::ACR_VALUES.first }
-        let(:type) { SignIn::Constants::Auth::REDIRECT_URLS.first }
+        let(:type) { SignIn::Constants::Auth::CSP_TYPES.first }
         let(:client_state) { SecureRandom.alphanumeric(client_state_minimum_length + 1) }
 
         before do
@@ -118,7 +118,7 @@ RSpec.describe SignIn::StatePayloadJwtEncoder do
         end
 
         context 'and given type is within accepted type values list' do
-          let(:type) { SignIn::Constants::Auth::REDIRECT_URLS.first }
+          let(:type) { SignIn::Constants::Auth::CSP_TYPES.first }
 
           it_behaves_like 'properly encoded state payload jwt'
         end

@@ -53,30 +53,25 @@ class UserSessionForm
   def normalize_saml(saml_user)
     saml_user.validate!
     saml_user_attributes = saml_user.to_hash
-    if saml_user.needs_csp_id_mpi_update?
-      add_csp_id_to_mpi(saml_user_attributes, saml_user_attributes[:idme_uuid], saml_user_attributes[:logingov_uuid])
-    end
+    add_csp_id_to_mpi(saml_user_attributes, saml_user_attributes[:idme_uuid]) if saml_user.needs_csp_id_mpi_update?
     saml_user_attributes
   rescue SAML::UserAttributeError => e
     raise unless e.code == SAML::UserAttributeError::UUID_MISSING_CODE
 
-    idme_uuid, logingov_uuid = uuid_from_account(e&.identifier)
-    raise if idme_uuid.blank? && logingov_uuid.blank?
+    idme_uuid = uuid_from_account(e&.identifier)
+    raise if idme_uuid.blank?
 
     Rails.logger.info('Account UUID injected into user SAML attributes')
     saml_user_attributes = saml_user.to_hash
-    add_csp_id_to_mpi(saml_user_attributes, idme_uuid, logingov_uuid)
-    saml_user_attributes.merge({ uuid: idme_uuid || logingov_uuid,
-                                 idme_uuid: idme_uuid,
-                                 logingov_uuid: logingov_uuid })
+    add_csp_id_to_mpi(saml_user_attributes, idme_uuid)
+    saml_user_attributes.merge({ uuid: idme_uuid, idme_uuid: idme_uuid })
   end
 
-  def add_csp_id_to_mpi(saml_user_attributes, idme_uuid, logingov_uuid)
+  def add_csp_id_to_mpi(saml_user_attributes, idme_uuid)
     return unless saml_user_attributes[:loa][:current] == LOA::THREE
 
-    Rails.logger.info("[UserSessionForm] Adding CSP ID to MPI, idme: #{idme_uuid}, logingov: #{logingov_uuid}")
+    Rails.logger.info("[UserSessionForm] Adding CSP ID to MPI, idme: #{idme_uuid}")
     add_csp_id_user_identity = UserIdentity.new({ idme_uuid: idme_uuid,
-                                                  logingov_uuid: logingov_uuid,
                                                   loa: saml_user_attributes[:loa],
                                                   sign_in: saml_user_attributes[:sign_in],
                                                   first_name: saml_user_attributes[:first_name],
@@ -86,24 +81,21 @@ class UserSessionForm
                                                   edipi: saml_user_attributes[:edipi],
                                                   icn: saml_user_attributes[:mhv_icn],
                                                   mhv_icn: saml_user_attributes[:mhv_icn],
-                                                  uuid: idme_uuid || logingov_uuid })
+                                                  uuid: idme_uuid })
     mpi_response = MPI::Service.new.add_person_implicit_search(add_csp_id_user_identity)
-    unless mpi_response.ok?
-      log_message_to_sentry("Failed Add CSP ID to MPI FAILED, idme: #{idme_uuid}, logingov: #{logingov_uuid}", :warn)
-    end
+    log_message_to_sentry("Failed Add CSP ID to MPI FAILED, idme: #{idme_uuid}", :warn) unless mpi_response.ok?
   end
 
   def uuid_from_account(identifier)
     return if identifier.blank?
 
-    matching_accounts = Account.where(icn: identifier)
+    user_account = UserAccount.find_by(icn: identifier)
+    return unless user_account
 
-    if matching_accounts.count > 1
-      Rails.logger.info("[UserSessionForm] Multiple matching accounts for icn:#{identifier}")
-    end
-    return unless matching_accounts.count == 1
+    idme_uuid_array = user_account.user_verification.map(&:idme_uuid) +
+                      user_account.user_verification.map(&:backing_idme_uuid)
 
-    [matching_accounts.first&.idme_uuid, matching_accounts.first&.logingov_uuid]
+    idme_uuid_array.compact.first
   end
 
   def valid?

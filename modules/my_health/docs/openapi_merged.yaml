@@ -4,9 +4,8 @@ info:
   title: VA My Health APIs
   license:
     name: CC0 1.0 Universal
-  description: >
-    The Department of Veterans Affairs My Health APIs. All paths are relative to
-    https://api.va.gov/my_health.
+  description: |
+    The Department of Veterans Affairs My Health APIs. All paths are relative to https://api.va.gov/my_health.
 servers:
   - url: https://api.va.gov/my_health
 paths:
@@ -62,18 +61,44 @@ paths:
       summary: /v1/messaging/folders/{id}
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
+    put:
+      description: Rename an existing folder
+      operationId: post_rename_folder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              example:
+                name: New Name for Folder
+              type: object
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecureMessagingFolder'
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/folders/{id}
   /v1/messaging/folders/{id}/messages:
     get:
-      description: >
+      description: |
         List messages in a secure messaging folder.
 
-
-        When listing messages, the response for each message will include most
-        but not all of the message attributes.
-
-        Specifically, the message body and attachment information is not
-        included. Those attributes can be obtained by
-
+        When listing messages, the response for each message will include most but not all of the message attributes.
+        Specifically, the message body and attachment information is not included. Those attributes can be obtained by
         getting the specific message resource.
       operationId: get_folder_messages
       responses:
@@ -98,6 +123,58 @@ paths:
       summary: /v1/messaging/folders/{id}/messages
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
+  /v1/messaging/folders/{id}/search:
+    post:
+      description: |
+        Search messages in a secure messaging folder. If multiple search criteria are specified, each returned search
+        result will match ALL criteria. Pagination is supported and is handled by the upstream MHV server.
+
+        When listing messages, the response for each message will include most but not all of the message attributes.
+        Specifically, the message body and attachment information is not included. Those attributes can be obtained by
+        getting the specific message resource.
+      operationId: search_folder
+      parameters:
+        - description: The page of results to be returned (passed through to MHV API)
+          in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - description: The number of results per page (passed through to MHV API)
+          in: query
+          name: per_page,
+          required: false
+          schema:
+            type: integer
+            default: 250
+        - $ref: '#/components/parameters/InflectionHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecureMessageSearchRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecureMessageSearch'
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/folders/{id}/search
   /v1/messaging/message_drafts:
     post:
       description: Save a new draft message
@@ -259,31 +336,18 @@ paths:
             schema:
               properties:
                 message:
-                  description: >-
-                    Stringified JSON with same parameters as if this was an
-                    application/json request (e.g.
-                    '{"category":"OTHER","recipient_id":1763526,"body":"test
-                    message"}')
+                  description: Stringified JSON with same parameters as if this was an application/json request (e.g. '{"category":"OTHER","recipient_id":1763526,"body":"test message"}')
                   type: string
                 uploads[]:
-                  description: >
+                  description: |
                     One or more message attachments.
 
-
                     <strong>NOTES:</strong>
-
                     <ul>
-
-                    <li>A single message may have a maximum of 4
-                    attachments.</li>
-
+                    <li>A single message may have a maximum of 4 attachments.</li>
                     <li>A single attachment cannot exceed 3 MB</li>
-
                     <li>All attachments combined cannot exceed 6 MB</li>
-
-                    <li>Supported file types/extensions: doc, docx, gif, jpg,
-                    pdf, png, rtf, txt, xls, xlsx.</li>
-
+                    <li>Supported file types/extensions: doc, docx, gif, jpg, pdf, png, rtf, txt, xls, xlsx.</li>
                     </ul>
                   items:
                     format: binary
@@ -505,10 +569,8 @@ paths:
       summary: /v1/messaging/messages/{id}/move
   /v1/messaging/messages/{id}/attachments/{attachment_id}:
     get:
-      description: >
-        Get a secure message attachment content as a direct binary download.
-        Secure messaging supports the following file types/extensions: doc,
-        docx, gif, jpg, pdf, png, rtf, txt, xls, xlsx.
+      description: |
+        Get a secure message attachment content as a direct binary download. Secure messaging supports the following file types/extensions: doc, docx, gif, jpg, pdf, png, rtf, txt, xls, xlsx.
       operationId: get_attachment
       parameters:
         - description: ID of the message that we are retrieving attachments of
@@ -528,10 +590,8 @@ paths:
           description: OK
           headers:
             Content-Disposition:
-              description: >
-                This header will have the value of "attachment", and a
-                "filename" parameter containing the original filename of the
-                attached content.
+              description: |
+                This header will have the value of "attachment", and a "filename" parameter containing the original filename of the attached content.
               schema:
                 type: string
         '401':
@@ -549,16 +609,12 @@ paths:
       summary: /v1/messaging/messages/{id}/attachments/{attachment_id}
   /v1/messaging/messages/{id}/reply:
     post:
-      description: >
+      description: |
         Send reply to a secure message
 
-
-        <strong>NOTE:</strong> If including file attachments, this request must
-        be sent as <i>multipart/form-data</i>
-
+        <strong>NOTE:</strong> If including file attachments, this request must be sent as <i>multipart/form-data</i>
 
         File attachment restrictions (as imposed by MHV):
-
         <ul>
           <li>User may attach up to 4 files</li>
           <li>Accepted formats: doc, docx, jpg, pdf, png, rtf, txt, xls, xlsx</li>
@@ -583,30 +639,18 @@ paths:
             schema:
               properties:
                 message:
-                  description: >-
-                    Stringified JSON with same parameters as if this was an
-                    application/json request (e.g. '{"body":"test body with
-                    attachment"}')
+                  description: Stringified JSON with same parameters as if this was an application/json request (e.g. '{"body":"test body with attachment"}')
                   type: string
                 uploads[]:
-                  description: >
+                  description: |
                     One or more message attachments.
 
-
                     <strong>NOTES:</strong>
-
                     <ul>
-
-                    <li>A single message may have a maximum of 4
-                    attachments.</li>
-
+                    <li>A single message may have a maximum of 4 attachments.</li>
                     <li>A single attachment cannot exceed 3 MB</li>
-
                     <li>All attachments combined cannot exceed 6 MB</li>
-
-                    <li>Supported file types/extensions: doc, docx, gif, jpg,
-                    pdf, png, rtf, txt, xls, xlsx.</li>
-
+                    <li>Supported file types/extensions: doc, docx, gif, jpg, pdf, png, rtf, txt, xls, xlsx.</li>
                     </ul>
                   items:
                     format: binary
@@ -637,10 +681,8 @@ paths:
       summary: /v1/messaging/messages/{id}/reply
   /v1/messaging/messages/{id}/thread:
     get:
-      description: >
-        Gets a list of message summaries that are related to the message of the
-        passed id.
-
+      description: |
+        Gets a list of message summaries that are related to the message of the passed id.
         Does <strong>not</strong> include the message of the passed id itself.
       operationId: get_message_history
       responses:
@@ -697,11 +739,7 @@ components:
       type: apiKey
       name: api_session
       in: cookie
-      description: >-
-        An authenticated session is established using the Sessions Controller to
-        initiate federated authentication with an external credential provider,
-        after which an API session token is established in the api_session
-        cookie.
+      description: An authenticated session is established using the Sessions Controller to initiate federated authentication with an external credential provider, after which an API session token is established in the api_session cookie.
   parameters:
     InflectionHeader:
       in: header
@@ -740,9 +778,8 @@ components:
             folderId:
               type: integer
               example: 0
-              description: >
-                Unique folder identifier. Note that folder IDs may be negative
-                integers.
+              description: |
+                Unique folder identifier. Note that folder IDs may be negative integers.
             name:
               type: string
               example: Inbox
@@ -758,9 +795,8 @@ components:
             systemFolder:
               type: boolean
               example: true
-              description: >
-                Indicates whether the folder is one of the fixed,
-                system-generated folders, or a custom user-created folder.
+              description: |
+                Indicates whether the folder is one of the fixed, system-generated folders, or a custom user-created folder.
         links:
           type: object
           required:
@@ -785,26 +821,21 @@ components:
           properties:
             self:
               type: string
-              example: >-
-                https://api.va.gov/my_health/v1/messaging/folders?page=2&per_page=10
+              example: https://api.va.gov/my_health/v1/messaging/folders?page=2&per_page=10
             first:
               type: string
-              example: >-
-                https://api.va.gov/my_health/v1/messaging/folders?page=1&per_page=10
+              example: https://api.va.gov/my_health/v1/messaging/folders?page=1&per_page=10
             prev:
               type: string
               nullable: true
-              example: >-
-                https://api.va.gov/my_health/v1/messaging/folders?page=1&per_page=10
+              example: https://api.va.gov/my_health/v1/messaging/folders?page=1&per_page=10
             next:
               type: string
               nullable: true
-              example: >-
-                https://api.va.gov/my_health/v1/messaging/folders?page=3&per_page=10
+              example: https://api.va.gov/my_health/v1/messaging/folders?page=3&per_page=10
             last:
               type: string
-              example: >-
-                https://api.va.gov/my_health/v1/messaging/folders?page=3&per_page=10
+              example: https://api.va.gov/my_health/v1/messaging/folders?page=3&per_page=10
         meta:
           type: object
           required:
@@ -974,26 +1005,21 @@ components:
           properties:
             self:
               type: string
-              example: >-
-                https://api.va.gov/my_health/v1/messaging/folders/0/messages?page=2&per_page=10
+              example: https://api.va.gov/my_health/v1/messaging/folders/0/messages?page=2&per_page=10
             first:
               type: string
-              example: >-
-                https://api.va.gov/my_health/v1/messaging/folders/0/messages?page=1&per_page=10
+              example: https://api.va.gov/my_health/v1/messaging/folders/0/messages?page=1&per_page=10
             prev:
               type: string
               nullable: true
-              example: >-
-                https://api.va.gov/my_health/v1/messaging/folders/0/messages?page=1&per_page=10
+              example: https://api.va.gov/my_health/v1/messaging/folders/0/messages?page=1&per_page=10
             next:
               type: string
               nullable: true
-              example: >-
-                https://api.va.gov/my_health/v1/messaging/folders/0/messages?page=3&per_page=10
+              example: https://api.va.gov/my_health/v1/messaging/folders/0/messages?page=3&per_page=10
             last:
               type: string
-              example: >-
-                https://api.va.gov/my_health/v1/messaging/folders/0/messages?page=3&per_page=10
+              example: https://api.va.gov/my_health/v1/messaging/folders/0/messages?page=3&per_page=10
         meta:
           type: object
           required:
@@ -1029,6 +1055,46 @@ components:
                 totalEntries:
                   type: integer
                   example: 15
+    SecureMessageSearchRequest:
+      type: object
+      properties:
+        message_id:
+          type: integer
+          example: 1112233
+        sender:
+          type: string
+          example: Alice
+        recipient:
+          type: string
+          example: Bob
+        category:
+          type: string
+          example: COVID
+        subject:
+          type: string
+          example: My Test Results
+        from_date:
+          type: string
+          description: Search for messages sent after this date
+          example: '2022-01-01'
+        to_date:
+          type: string
+          description: Search for messages sent before this date
+          example: '2022-12-31'
+        exact_match:
+          type: boolean
+          description: |
+            If true, search exact strings for subject, sender, and recipient fields; otherwise search for the string as a
+            substring within those fields
+    SecureMessageSearch:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SecureMessageSummary'
     SecureMessageNewMessageRequest:
       type: object
       required:
@@ -1038,12 +1104,9 @@ components:
       properties:
         recipient_id:
           type: integer
-          description: >
-            The message recipient. This must be a valid recipient id that is
-            assigned to the user. The list of valid
-
-            recipients for a user can be obtained from the
-            <pre>/v1/messaging/recipients</pre> endpoint.
+          description: |
+            The message recipient. This must be a valid recipient id that is assigned to the user. The list of valid
+            recipients for a user can be obtained from the <pre>/v1/messaging/recipients</pre> endpoint.
           example: 1763526
         category:
           type: string
@@ -1053,19 +1116,14 @@ components:
           example: OTHER
         body:
           type: string
-          example: >-
-            What is the proper dosage and how long should I take this
-            medication?
+          example: What is the proper dosage and how long should I take this medication?
         subject:
           type: string
           example: Question about my medication
         draft_id:
           type: integer
-          description: >
-            Specifies draft message ID to send.  Draft message is deleted once
-            sent. Note that the recipient_id, category, body, and subject
-            included with this post will overwrite any of original values of the
-            draft.
+          description: |
+            Specifies draft message ID to send.  Draft message is deleted once sent. Note that the recipient_id, category, body, and subject included with this post will overwrite any of original values of the draft.
     SecureMessageAttachment:
       type: object
       required:
@@ -1104,8 +1162,7 @@ components:
             download:
               type: string
               format: url
-              example: >-
-                https://api.va.gov/my_health/v1/messaging/messages/123789/attachments/7775443
+              example: https://api.va.gov/my_health/v1/messaging/messages/123789/attachments/7775443
     SecureMessageDetail:
       type: object
       required:
@@ -1304,10 +1361,8 @@ components:
           example: Dear provider, please clarify my test results. Thank you.
         draft_id:
           type: integer
-          description: >
-            Specifies draft message ID to send.  Draft message is deleted once
-            sent. Note that body included with this post will overwrite any of
-            original values of the draft.
+          description: |
+            Specifies draft message ID to send.  Draft message is deleted once sent. Note that body included with this post will overwrite any of original values of the draft.
     SecureMessagingRecipients:
       type: object
       required:

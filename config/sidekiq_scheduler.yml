@@ -169,10 +169,9 @@ FailedClaimsReport:
   class: EVSS::FailedClaimsReport
   description: "Notify developers about EVSS claims which could not be uploaded"
 
-FeatureRemoverJob:
+FeatureCleanerJob:
   cron: "0 0 * * * America/New_York"
   description: Remove features from database that aren't listed in config/features.yml
-  enabled: false
 
 Form1010cg::DeleteOldUploadsJob:
   cron: "0 0 * * * America/New_York"
@@ -251,10 +250,6 @@ VANotify::InProgressForms:
   cron: "0 16 * * * America/New_York"
   class: VANotify::InProgressForms
   description: "In progress form reminder emails (sent via VaNotify)"
-
-VBADocuments::DeploymentsNotifier:
-  at: "<%=0.seconds.from_now%>"
-  description: Does a slack notification of the new code merged into this release for benefits intake
 
 VBADocuments::ReportMonthlySubmissions:
   cron: "4 3 2 1 * * America/New_York"

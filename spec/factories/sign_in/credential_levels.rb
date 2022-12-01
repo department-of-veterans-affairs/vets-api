@@ -7,7 +7,7 @@ FactoryBot.define do
     requested_acr { SignIn::Constants::Auth::ACR_VALUES.first }
     current_ial { IAL::ONE }
     max_ial { IAL::ONE }
-    credential_type { SignIn::Constants::Auth::REDIRECT_URLS.first }
+    credential_type { SignIn::Constants::Auth::CSP_TYPES.first }
     auto_uplevel { false }
 
     initialize_with do

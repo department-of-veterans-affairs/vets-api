@@ -10,15 +10,15 @@ class AppealsApi::Docs::V2::DocsController < ApplicationController
   end
 
   def hlr
-    render json: JSON.parse(swagger_file('hlr'))
+    render json: JSON.parse(swagger_file('higher_level_reviews'))
   end
 
   def nod
-    render json: JSON.parse(swagger_file('nod'))
+    render json: JSON.parse(swagger_file('notice_of_disagreements'))
   end
 
   def sc
-    render json: JSON.parse(swagger_file('sc'))
+    render json: JSON.parse(swagger_file('supplemental_claims'))
   end
 
   def ci
@@ -31,8 +31,8 @@ class AppealsApi::Docs::V2::DocsController < ApplicationController
 
   private
 
-  def swagger_file(stub, version: 'v2')
-    filename = Settings.vsp_environment == 'production' ? "swagger_#{stub}.json" : "swagger_#{stub}_dev.json"
-    File.read AppealsApi::Engine.root.join("app/swagger/appeals_api/#{version}/#{filename}")
+  def swagger_file(api_name, version: 'v0')
+    filename = Settings.vsp_environment == 'production' ? 'swagger.json' : 'swagger_dev.json'
+    File.read AppealsApi::Engine.root.join("app/swagger/#{api_name}/#{version}/#{filename}")
   end
 end

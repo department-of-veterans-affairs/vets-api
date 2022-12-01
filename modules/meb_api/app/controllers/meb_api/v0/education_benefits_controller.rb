@@ -8,8 +8,6 @@ require 'dgi/enrollment/service'
 module MebApi
   module V0
     class EducationBenefitsController < MebApi::V0::BaseController
-      before_action :check_flipper, only: %i[eligibility claimant_info claim_status claim_letter submit_claim]
-
       def claimant_info
         response = automation_service.get_claimant_info('Chapter33')
 

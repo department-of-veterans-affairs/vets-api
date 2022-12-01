@@ -9,12 +9,25 @@ describe AppealsApi::V2::DecisionReviews::ContestableIssuesController, type: :re
                    benefit_type: 'compensation',
                    version: 'v2'
 
-  describe 'using versioned namespace route' do
+  describe 'using versioned namespace route with oauth' do
     include_examples 'contestable issues index requests',
                      decision_review_type: 'higher_level_reviews',
                      benefit_type: 'compensation',
                      use_versioned_namespace_route: true,
                      version: 'v2'
+
+    it_behaves_like('an endpoint with OpenID auth', %w[claim.read]) do
+      let(:path) do
+        '/services/appeals/contestable_issues/v0/contestable_issues/higher_level_reviews?benefit_type=compensation'
+      end
+      let(:headers) { { 'X-VA-SSN': '872958715', 'X-VA-Receipt-Date': '2019-12-01' } }
+
+      def make_request(auth_header)
+        VCR.use_cassette('caseflow/higher_level_reviews/contestable_issues') do
+          get(path, headers: headers.merge(auth_header))
+        end
+      end
+    end
   end
 
   it 'errors are in  JsonAPI ErrorObject format' do

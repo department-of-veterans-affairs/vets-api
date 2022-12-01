@@ -11,16 +11,6 @@ module VAProfile
       include Virtus.model(nullify_blank: true)
 
       SOURCE_SYSTEM = 'VETSGOV'
-
-      validate :past_date?
-
-      private
-
-      def past_date?
-        if effective_end_date.present? && (effective_end_date > Time.zone.now)
-          errors.add(:effective_end_date, 'must be in the past')
-        end
-      end
     end
   end
 end

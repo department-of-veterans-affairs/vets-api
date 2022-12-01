@@ -9,7 +9,7 @@ FactoryBot.define do
     last_name { 'lincoln' }
     gender { 'M' }
     birth_date { '1809-02-12' }
-    zip { '17325' }
+    postal_code { '17325' }
     ssn { '796111863' }
     mhv_icn { nil }
     mhv_account_type { nil }
@@ -21,7 +21,7 @@ FactoryBot.define do
 
     sign_in do
       {
-        service_name: 'idme',
+        service_name: SAML::User::IDME_CSID,
         auth_broker: SAML::URLService::BROKER_CODE,
         client_id: SignIn::Constants::ClientConfig::WEB_CLIENT
       }
@@ -43,14 +43,14 @@ FactoryBot.define do
     last_name { nil }
     gender { nil }
     birth_date { nil }
-    zip { nil }
+    postal_code { nil }
     ssn { nil }
     mhv_icn { nil }
     mhv_account_type { 'Basic' }
 
     sign_in do
       {
-        service_name: 'mhv',
+        service_name: SAML::User::MHV_ORIGINAL_CSID,
         auth_broker: SAML::URLService::BROKER_CODE,
         client_id: SignIn::Constants::ClientConfig::WEB_CLIENT
       }
@@ -72,14 +72,14 @@ FactoryBot.define do
     last_name { nil }
     gender { nil }
     birth_date { nil }
-    zip { nil }
+    postal_code { nil }
     ssn { nil }
     mhv_icn { nil }
     mhv_account_type { nil }
 
     sign_in do
       {
-        service_name: 'dslogon',
+        service_name: SAML::User::DSLOGON_CSID,
         auth_broker: SAML::URLService::BROKER_CODE,
         client_id: SignIn::Constants::ClientConfig::WEB_CLIENT
       }
@@ -98,7 +98,7 @@ FactoryBot.define do
 
     sign_in do
       {
-        service_name: 'idme',
+        service_name: SAML::User::IDME_CSID,
         auth_broker: SAML::URLService::BROKER_CODE,
         client_id: SignIn::Constants::ClientConfig::WEB_CLIENT
       }

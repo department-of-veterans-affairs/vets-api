@@ -71,6 +71,7 @@ module ClaimsApi
       resolve_special_issue_mappings!
       resolve_homelessness_situation_type_mappings!
       resolve_homelessness_risk_situation_type_mappings!
+      transform_address_lines_length!
 
       {
         form526: form_data
@@ -412,6 +413,24 @@ module ClaimsApi
       change_of_address['addressChangeType'] = change_of_address_type.upcase
 
       change_of_address
+    end
+
+    def transform_address_lines_length!
+      ln1 = form_data.dig('veteran', 'currentMailingAddress', 'addressLine1')
+      return if ln1.nil? || (ln1.length <= 20)
+
+      addr = form_data['veteran']['currentMailingAddress']
+
+      ln2 = form_data.dig('veteran', 'currentMailingAddress', 'addressLine2')
+      ln3 = form_data.dig('veteran', 'currentMailingAddress', 'addressLine3')
+      addr['addressLine3'] = "#{ln2} #{ln3}".strip
+
+      addr['addressLine1'] = ln1.truncate(20, omission: '', separator: /\s/)
+      overflow = ln1.sub(addr['addressLine1'], '').strip
+
+      addr['addressLine2'] = overflow
+
+      form_data['veteran']['currentMailingAddress'] = addr
     end
   end
 end

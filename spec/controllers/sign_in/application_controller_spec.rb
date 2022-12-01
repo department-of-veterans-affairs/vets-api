@@ -63,6 +63,31 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       end
     end
 
+    shared_context 'user fingerprint validation' do
+      context 'user.fingerprint matches request IP' do
+        it 'passes fingerprint validation and does not create a log' do
+          expect_any_instance_of(SentryLogging).not_to receive(:log_message_to_sentry).with(:warn)
+          expect(subject.request.ip).to eq(user.fingerprint)
+        end
+      end
+
+      context 'user.fingerprint does not match request IP' do
+        let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid) }
+        let(:expected_error) { '[SignIn][Authentication] fingerprint mismatch' }
+        let(:log_context) { { request_ip: request.ip, fingerprint: user.fingerprint } }
+
+        it 'fails fingerprint validation and creates a log' do
+          expect(Rails.logger).to receive(:warn).with(expected_error, log_context)
+
+          expect(subject.request.ip).not_to eq(user.fingerprint)
+        end
+
+        it 'does not prevent authentication' do
+          expect(subject).to have_http_status(:ok)
+        end
+      end
+    end
+
     context 'when authorization header does not exist' do
       let(:access_token) { nil }
 
@@ -107,9 +132,13 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
           let(:access_token_object) { create(:access_token) }
           let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
           let(:expected_error) { SignIn::Errors::AccessTokenMalformedJWTError.to_s }
-          let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid) }
+          let!(:user) do
+            create(:user, :loa3, uuid: access_token_object.user_uuid, fingerprint: request.ip)
+          end
           let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
           let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
+
+          it_behaves_like 'user fingerprint validation'
 
           it 'returns ok status' do
             expect(subject).to have_http_status(:ok)
@@ -155,9 +184,13 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         let(:access_token_object) { create(:access_token) }
         let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
         let(:expected_error) { SignIn::Errors::AccessTokenMalformedJWTError.to_s }
-        let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid) }
+        let!(:user) do
+          create(:user, :loa3, uuid: access_token_object.user_uuid, fingerprint: request.ip)
+        end
         let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
         let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
+
+        it_behaves_like 'user fingerprint validation'
 
         it 'returns ok status' do
           expect(subject).to have_http_status(:ok)
@@ -172,6 +205,30 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     shared_context 'error response' do
       it 'returns ok status' do
         expect(subject).to have_http_status(:ok)
+      end
+    end
+
+    shared_context 'user fingerprint validation' do
+      context 'user.fingerprint matches request IP' do
+        it 'passes fingerprint validation and does not create a log' do
+          expect_any_instance_of(SentryLogging).not_to receive(:log_message_to_sentry).with(:warn)
+          expect(subject.request.ip).to eq(user.fingerprint)
+        end
+      end
+
+      context 'user.fingerprint does not match request IP' do
+        let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid) }
+        let(:expected_error) { '[SignIn][Authentication] fingerprint mismatch' }
+        let(:log_context) { { request_ip: request.ip, fingerprint: user.fingerprint } }
+
+        it 'fails fingerprint validation and creates a log' do
+          expect(Rails.logger).to receive(:warn).with(expected_error, log_context)
+          expect(subject.request.ip).not_to eq(user.fingerprint)
+        end
+
+        it 'does not prevent authentication' do
+          expect(subject).to have_http_status(:ok)
+        end
       end
     end
 
@@ -218,9 +275,13 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
           let(:access_token_object) { create(:access_token) }
           let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
           let(:expected_error) { SignIn::Errors::AccessTokenMalformedJWTError.to_s }
-          let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid) }
+          let!(:user) do
+            create(:user, :loa3, uuid: access_token_object.user_uuid, fingerprint: request.ip)
+          end
           let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
           let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
+
+          it_behaves_like 'user fingerprint validation'
 
           it 'returns ok status' do
             expect(subject).to have_http_status(:ok)
@@ -270,9 +331,13 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         let(:access_token_object) { create(:access_token) }
         let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
         let(:expected_error) { SignIn::Errors::AccessTokenMalformedJWTError.to_s }
-        let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid) }
+        let!(:user) do
+          create(:user, :loa3, uuid: access_token_object.user_uuid, fingerprint: request.ip)
+        end
         let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
         let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
+
+        it_behaves_like 'user fingerprint validation'
 
         it 'returns ok status' do
           expect(subject).to have_http_status(:ok)
@@ -333,6 +398,13 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     let(:loa) { { current: 3, highest: 3 } }
     let(:user_context) do
       { id: access_token_object.user_uuid, authn_context: authn_context, loa: loa, mhv_icn: user_account.icn }
+    end
+    let!(:user) do
+      create(:user, uuid: access_token_object.user_uuid,
+                    loa: loa,
+                    authn_context: authn_context,
+                    mhv_icn: user_account.icn,
+                    fingerprint: request.ip)
     end
     let(:expected_error) { 'Service unavailable' }
 

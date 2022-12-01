@@ -130,7 +130,8 @@ module VAOS
         create_params[:extension][:desired_date] = add_timezone_offset(desired_date, timezone)
       end
 
-      # Returns a [DateTime] object with the timezone offset added.
+      # Returns a [DateTime] object with the timezone offset added. Given a desired date of 2019-12-31T00:00:00-00:00
+      # and a timezone of America/New_York, the returned date will be 2019-12-31T00:00:00-05:00.
       #
       # @param [DateTime] date - the date to be modified,  required
       # @param [String] tz - the timezone id, if nil, the offset is not added
@@ -140,8 +141,8 @@ module VAOS
         raise Common::Exceptions::ParameterMissing, 'date' if date.nil?
 
         utc_date = date.to_time.utc
-        date_w_tz = utc_date.in_time_zone(tz).iso8601
-        date_w_tz.to_datetime
+        timezone_offset = utc_date.in_time_zone(tz).formatted_offset
+        utc_date.change(offset: timezone_offset).to_datetime
       end
 
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)

@@ -6,6 +6,7 @@ require 'lib/saved_claims_spec_helper'
 RSpec.describe SavedClaim::EducationBenefits::VA10203 do
   let(:instance) { build(:va10203, education_benefits_claim: create(:education_benefits_claim)) }
   let(:user) { create(:evss_user) }
+  let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
 
   it_behaves_like 'saved_claim'
 
@@ -36,6 +37,8 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
         expect(instance.education_benefits_claim.education_stem_automated_decision).not_to be_nil
         expect(instance.education_benefits_claim.education_stem_automated_decision.user_uuid)
           .to eq(user.uuid)
+        expect(instance.education_benefits_claim.education_stem_automated_decision.user_account_id)
+          .to eq(user.user_account.id)
         expect(instance.education_benefits_claim.education_stem_automated_decision.auth_headers).not_to be_nil
       end
 

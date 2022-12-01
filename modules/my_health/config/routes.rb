@@ -5,8 +5,9 @@ MyHealth::Engine.routes.draw do
     scope :messaging do
       resources :triage_teams, only: [:index], defaults: { format: :json }, path: 'recipients'
 
-      resources :folders, only: %i[index show create destroy], defaults: { format: :json } do
+      resources :folders, only: %i[index show create update destroy], defaults: { format: :json } do
         resources :messages, only: [:index], defaults: { format: :json }
+        post :search, on: :member
       end
 
       resources :messages, only: %i[show create destroy], defaults: { format: :json } do

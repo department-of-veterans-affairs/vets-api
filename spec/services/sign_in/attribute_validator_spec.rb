@@ -6,11 +6,11 @@ RSpec.describe SignIn::AttributeValidator do
   describe '#perform' do
     subject { SignIn::AttributeValidator.new(user_attributes: user_attributes).perform }
 
-    let(:user_attributes) { { loa: loa } }
-    let(:loa) { { current: current_loa, highest: LOA::THREE } }
+    let(:user_attributes) { { current_ial: current_ial } }
+    let(:current_ial) { IAL::ONE }
 
     context 'when credential is not verified' do
-      let(:current_loa) { LOA::ONE }
+      let(:current_ial) { IAL::ONE }
 
       it 'returns nil' do
         expect(subject).to be nil
@@ -20,31 +20,48 @@ RSpec.describe SignIn::AttributeValidator do
     context 'when credential is verified' do
       let(:user_attributes) do
         {
-          uuid: csp_id,
           logingov_uuid: logingov_uuid,
           idme_uuid: idme_uuid,
-          loa: loa,
+          current_ial: current_ial,
           ssn: ssn,
           birth_date: birth_date,
           first_name: first_name,
           last_name: last_name,
-          sign_in: sign_in,
+          csp_email: email,
+          address: address,
+          service_name: service_name,
           auto_uplevel: auto_uplevel,
           mhv_icn: mhv_icn,
           mhv_correlation_id: mhv_correlation_id,
           edipi: edipi
         }
       end
-      let(:csp_id) { SecureRandom.hex }
       let(:logingov_uuid) { nil }
       let(:idme_uuid) { nil }
       let(:mhv_correlation_id) { nil }
       let(:edipi) { nil }
-      let(:current_loa) { LOA::THREE }
+      let(:current_ial) { IAL::TWO }
       let(:ssn) { nil }
       let(:birth_date) { nil }
+      let(:email) { nil }
       let(:first_name) { nil }
       let(:last_name) { nil }
+      let(:address) do
+        {
+          street: street,
+          street2: street2,
+          postal_code: postal_code,
+          state: state,
+          city: city,
+          country: country
+        }
+      end
+      let(:street) { nil }
+      let(:street2) { nil }
+      let(:state) { nil }
+      let(:postal_code) { nil }
+      let(:city) { nil }
+      let(:country) { nil }
       let(:mhv_icn) { nil }
       let(:sign_in) { { service_name: service_name } }
       let(:auto_uplevel) { false }
@@ -59,9 +76,13 @@ RSpec.describe SignIn::AttributeValidator do
       end
 
       shared_examples 'error response' do
+        let(:expected_error_log) { 'attribute validator error' }
         it 'raises the expected error' do
-          expect_any_instance_of(SignIn::Logger).to receive(:info).with('user creator error',
-                                                                        { errors: expected_error_message })
+          expect_any_instance_of(SignIn::Logger).to receive(:info)
+            .with(expected_error_log,
+                  { errors: expected_error_message,
+                    credential_uuid: csp_id,
+                    type: service_name })
 
           expect { subject }.to raise_error(expected_error, expected_error_message)
         end
@@ -154,16 +175,16 @@ RSpec.describe SignIn::AttributeValidator do
                          family_name: mpi_last_name))
         end
 
-        context 'and attribute mismatch is first_name' do
-          let(:mpi_first_name) { 'some-mpi-first-name' }
+        shared_examples 'attribute mismatch behavior' do
           let(:expected_error) { SignIn::Errors::AttributeMismatchError }
-          let(:expected_error_message) do
-            'Attribute mismatch, first_name in credential does not match MPI attribute'
-          end
+          let(:expected_error_message) { "Attribute mismatch, #{attribute} in credential does not match MPI attribute" }
+          let(:expected_error_log) { 'attribute validator error' }
 
           it 'makes a log to rails logger' do
-            expect_any_instance_of(SignIn::Logger).to receive(:info).with('user creator error',
-                                                                          { errors: expected_error_message })
+            expect_any_instance_of(SignIn::Logger).to receive(:info).with(expected_error_log,
+                                                                          { errors: expected_error_message,
+                                                                            credential_uuid: csp_id,
+                                                                            type: service_name })
             subject
           end
 
@@ -171,42 +192,27 @@ RSpec.describe SignIn::AttributeValidator do
             expect_any_instance_of(MPI::Service).to receive(:update_profile)
             subject
           end
+        end
+
+        context 'and attribute mismatch is first_name' do
+          let(:mpi_first_name) { 'some-mpi-first-name' }
+          let(:attribute) { 'first_name' }
+
+          it_behaves_like 'attribute mismatch behavior'
         end
 
         context 'and attribute mismatch is last name' do
           let(:mpi_last_name) { 'some-mpi-last-name' }
-          let(:expected_error) { SignIn::Errors::AttributeMismatchError }
-          let(:expected_error_message) do
-            'Attribute mismatch, last_name in credential does not match MPI attribute'
-          end
+          let(:attribute) { 'last_name' }
 
-          it 'makes a log to rails logger' do
-            expect_any_instance_of(SignIn::Logger).to receive(:info).with('user creator error',
-                                                                          { errors: expected_error_message })
-            subject
-          end
-
-          it 'makes an mpi call to update correlation record' do
-            expect_any_instance_of(MPI::Service).to receive(:update_profile)
-            subject
-          end
+          it_behaves_like 'attribute mismatch behavior'
         end
 
         context 'and attribute mismatch is birth date' do
           let(:mpi_birth_date) { '1970-01-01' }
-          let(:expected_error) { SignIn::Errors::AttributeMismatchError }
-          let(:expected_error_message) { 'Attribute mismatch, birth_date in credential does not match MPI attribute' }
+          let(:attribute) { 'birth_date' }
 
-          it 'makes a log to rails logger' do
-            expect_any_instance_of(SignIn::Logger).to receive(:info).with('user creator error',
-                                                                          { errors: expected_error_message })
-            subject
-          end
-
-          it 'makes an mpi call to update correlation record' do
-            expect_any_instance_of(MPI::Service).to receive(:update_profile)
-            subject
-          end
+          it_behaves_like 'attribute mismatch behavior'
         end
 
         context 'and attribute mismatch is ssn' do
@@ -214,9 +220,22 @@ RSpec.describe SignIn::AttributeValidator do
           let(:expected_error) { SignIn::Errors::AttributeMismatchError }
           let(:expected_error_message) { 'Attribute mismatch, ssn in credential does not match MPI attribute' }
           let(:expected_error_code) { SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE }
+          let(:expected_error_context) do
+            { csp_uuid: csp_id,
+              icn: icn,
+              type: user_attributes[:sign_in][:service_name] }
+          end
 
           it_behaves_like 'error response'
         end
+      end
+
+      shared_examples 'missing credential attribute' do
+        let(:expected_error) { SignIn::Errors::CredentialMissingAttributeError }
+        let(:expected_error_message) { "Missing attribute in credential: #{attribute}" }
+        let(:expected_error_code) { SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE }
+
+        it_behaves_like 'error response'
       end
 
       shared_examples 'credential mpi verification' do
@@ -320,73 +339,105 @@ RSpec.describe SignIn::AttributeValidator do
         let(:service_name) { SAML::User::MHV_ORIGINAL_CSID }
         let(:mhv_icn) { 'some-icn' }
         let(:idme_uuid) { 'some-idme-uuid' }
+        let(:csp_id) { idme_uuid }
         let(:mhv_correlation_id) { 'some-mhv-correlation-id' }
+        let(:email) { 'some-email' }
 
-        context 'and mpi record does not exist for user' do
-          let(:find_profile_response) { nil }
-          let(:expected_error) { SignIn::Errors::MHVMissingMPIRecordError }
-          let(:expected_error_message) { 'No MPI Record for MHV Account' }
-          let(:expected_error_code) { SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE }
+        context 'and credential is missing mhv icn' do
+          let(:mhv_icn) { nil }
+          let(:attribute) { 'icn' }
 
-          it_behaves_like 'error response'
+          it_behaves_like 'missing credential attribute'
         end
 
-        context 'and mpi record exists for user' do
-          let(:add_person_response) do
-            MPI::Responses::AddPersonResponse.new(status: status, mvi_codes: mvi_codes, error: nil)
-          end
-          let(:status) { 'OK' }
-          let(:icn) { mhv_icn }
-          let(:mvi_codes) { { icn: icn } }
-          let(:find_profile_response) do
-            MPI::Responses::FindProfileResponse.new(
-              status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
-              profile: mpi_profile
-            )
-          end
-          let(:mpi_profile) do
-            build(:mvi_profile,
-                  id_theft_flag: id_theft_flag,
-                  deceased_date: deceased_date,
-                  ssn: ssn,
-                  icn: icn,
-                  edipis: edipis,
-                  edipi: edipis.first,
-                  mhv_ien: mhv_iens.first,
-                  mhv_iens: mhv_iens,
-                  birls_id: birls_ids.first,
-                  birls_ids: birls_ids,
-                  participant_id: participant_ids.first,
-                  participant_ids: participant_ids,
-                  birth_date: birth_date,
-                  given_names: [first_name],
-                  family_name: last_name)
-          end
-          let(:id_theft_flag) { false }
-          let(:deceased_date) { nil }
-          let(:edipis) { ['some-edipi'] }
-          let(:mhv_iens) { ['some-mhv-ien'] }
-          let(:participant_ids) { ['some-participant-id'] }
-          let(:birls_ids) { ['some-birls-id'] }
+        context 'and credential is missing mhv correlation id' do
+          let(:mhv_correlation_id) { nil }
+          let(:attribute) { 'mhv_uuid' }
 
-          it 'makes an mpi call to create a new record' do
-            expect_any_instance_of(MPI::Service).to receive(:add_person_implicit_search)
-            subject
-          end
+          it_behaves_like 'missing credential attribute'
+        end
 
-          context 'and mpi add person call is not successful' do
-            let(:status) { 'NOT-OK' }
-            let(:expected_error) { SignIn::Errors::MPIUserCreationFailedError }
-            let(:expected_error_message) { 'User MPI record cannot be created' }
+        context 'and credential is missing idme uuid' do
+          let(:idme_uuid) { nil }
+          let(:attribute) { 'uuid' }
+
+          it_behaves_like 'missing credential attribute'
+        end
+
+        context 'and credential is missing email' do
+          let(:email) { nil }
+          let(:attribute) { 'email' }
+
+          it_behaves_like 'missing credential attribute'
+        end
+
+        context 'and credential is not missing any required attributes' do
+          context 'and mpi record does not exist for user' do
+            let(:find_profile_response) { nil }
+            let(:expected_error) { SignIn::Errors::MHVMissingMPIRecordError }
+            let(:expected_error_message) { 'No MPI Record for MHV Account' }
             let(:expected_error_code) { SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE }
 
             it_behaves_like 'error response'
           end
 
-          context 'and mpi add person call is successful' do
+          context 'and mpi record exists for user' do
+            let(:add_person_response) do
+              MPI::Responses::AddPersonResponse.new(status: status, mvi_codes: mvi_codes, error: nil)
+            end
             let(:status) { 'OK' }
+            let(:icn) { mhv_icn }
+            let(:mvi_codes) { { icn: icn } }
+            let(:find_profile_response) do
+              MPI::Responses::FindProfileResponse.new(
+                status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+                profile: mpi_profile
+              )
+            end
+            let(:mpi_profile) do
+              build(:mvi_profile,
+                    id_theft_flag: id_theft_flag,
+                    deceased_date: deceased_date,
+                    ssn: ssn,
+                    icn: icn,
+                    edipis: edipis,
+                    edipi: edipis.first,
+                    mhv_ien: mhv_iens.first,
+                    mhv_iens: mhv_iens,
+                    birls_id: birls_ids.first,
+                    birls_ids: birls_ids,
+                    participant_id: participant_ids.first,
+                    participant_ids: participant_ids,
+                    birth_date: birth_date,
+                    given_names: [first_name],
+                    family_name: last_name)
+            end
+            let(:id_theft_flag) { false }
+            let(:deceased_date) { nil }
+            let(:edipis) { ['some-edipi'] }
+            let(:mhv_iens) { ['some-mhv-ien'] }
+            let(:participant_ids) { ['some-participant-id'] }
+            let(:birls_ids) { ['some-birls-id'] }
 
-            it_behaves_like 'mpi attribute validations'
+            it 'makes an mpi call to create a new record' do
+              expect_any_instance_of(MPI::Service).to receive(:add_person_implicit_search)
+              subject
+            end
+
+            context 'and mpi add person call is not successful' do
+              let(:status) { 'NOT-OK' }
+              let(:expected_error) { SignIn::Errors::MPIUserCreationFailedError }
+              let(:expected_error_message) { 'User MPI record cannot be created' }
+              let(:expected_error_code) { SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE }
+
+              it_behaves_like 'error response'
+            end
+
+            context 'and mpi add person call is successful' do
+              let(:status) { 'OK' }
+
+              it_behaves_like 'mpi attribute validations'
+            end
           end
         end
       end
@@ -394,35 +445,365 @@ RSpec.describe SignIn::AttributeValidator do
       context 'and authentication is with logingov' do
         let(:service_name) { SAML::User::LOGINGOV_CSID }
         let(:logingov_uuid) { 'some-logingov-uuid' }
+        let(:csp_id) { logingov_uuid }
         let(:first_name) { 'some-first-name' }
         let(:last_name) { 'some-last-name' }
         let(:ssn) { '444444758' }
+        let(:street) { 'some-street' }
+        let(:street2) { 'some-street-2' }
+        let(:postal_code) { 'some-postal-code' }
+        let(:state) { 'some-state' }
+        let(:city) { 'some-city' }
+        let(:country) { 'USA' }
         let(:birth_date) { '1930-01-01' }
+        let(:email) { 'some-email' }
 
-        it_behaves_like 'credential mpi verification'
+        context 'and credential is missing email' do
+          let(:email) { nil }
+          let(:attribute) { 'email' }
+
+          it_behaves_like 'missing credential attribute'
+        end
+
+        context 'and credential is missing logingov uuid' do
+          let(:logingov_uuid) { nil }
+          let(:attribute) { 'uuid' }
+
+          it_behaves_like 'missing credential attribute'
+        end
+
+        context 'and credential is missing first_name' do
+          let(:first_name) { nil }
+          let(:attribute) { 'first_name' }
+
+          context 'and credential has been auto-uplevelled' do
+            let(:auto_uplevel) { true }
+            let(:find_profile_response) do
+              MPI::Responses::FindProfileResponse.new(
+                status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+                profile: mpi_profile
+              )
+            end
+            let(:mpi_profile) do
+              build(:mvi_profile,
+                    id_theft_flag: id_theft_flag,
+                    deceased_date: deceased_date,
+                    ssn: ssn,
+                    icn: icn,
+                    edipis: edipis,
+                    edipi: edipis.first,
+                    mhv_ien: mhv_iens.first,
+                    mhv_iens: mhv_iens,
+                    birls_id: birls_ids.first,
+                    birls_ids: birls_ids,
+                    participant_id: participant_ids.first,
+                    participant_ids: participant_ids,
+                    birth_date: birth_date,
+                    given_names: [first_name],
+                    family_name: last_name)
+            end
+            let(:id_theft_flag) { false }
+            let(:deceased_date) { nil }
+            let(:icn) { 'some-icn' }
+            let(:edipis) { ['some-edipi'] }
+            let(:mhv_iens) { ['some-mhv-ien'] }
+            let(:participant_ids) { ['some-participant-id'] }
+            let(:birls_ids) { ['some-birls-id'] }
+
+            it 'does not raise an error' do
+              expect { subject }.not_to raise_error
+            end
+          end
+
+          context 'and credential is a verified non-auto-uplevelled credential' do
+            let(:auto_uplevel) { false }
+
+            it_behaves_like 'missing credential attribute'
+          end
+        end
+
+        context 'and credential is missing last_name' do
+          let(:last_name) { nil }
+          let(:attribute) { 'last_name' }
+
+          context 'and credential has been auto-uplevelled' do
+            let(:auto_uplevel) { true }
+            let(:find_profile_response) do
+              MPI::Responses::FindProfileResponse.new(
+                status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+                profile: mpi_profile
+              )
+            end
+            let(:mpi_profile) do
+              build(:mvi_profile,
+                    id_theft_flag: id_theft_flag,
+                    deceased_date: deceased_date,
+                    ssn: ssn,
+                    icn: icn,
+                    edipis: edipis,
+                    edipi: edipis.first,
+                    mhv_ien: mhv_iens.first,
+                    mhv_iens: mhv_iens,
+                    birls_id: birls_ids.first,
+                    birls_ids: birls_ids,
+                    participant_id: participant_ids.first,
+                    participant_ids: participant_ids,
+                    birth_date: birth_date,
+                    given_names: [first_name],
+                    family_name: last_name)
+            end
+            let(:id_theft_flag) { false }
+            let(:deceased_date) { nil }
+            let(:icn) { 'some-icn' }
+            let(:edipis) { ['some-edipi'] }
+            let(:mhv_iens) { ['some-mhv-ien'] }
+            let(:participant_ids) { ['some-participant-id'] }
+            let(:birls_ids) { ['some-birls-id'] }
+
+            it 'does not raise an error' do
+              expect { subject }.not_to raise_error
+            end
+          end
+
+          context 'and credential is a verified non-auto-uplevelled credential' do
+            let(:auto_uplevel) { false }
+
+            it_behaves_like 'missing credential attribute'
+          end
+        end
+
+        context 'and credential is missing birth_date' do
+          let(:birth_date) { nil }
+          let(:attribute) { 'birth_date' }
+
+          context 'and credential has been auto-uplevelled' do
+            let(:auto_uplevel) { true }
+            let(:find_profile_response) do
+              MPI::Responses::FindProfileResponse.new(
+                status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+                profile: mpi_profile
+              )
+            end
+            let(:mpi_profile) do
+              build(:mvi_profile,
+                    id_theft_flag: id_theft_flag,
+                    deceased_date: deceased_date,
+                    ssn: ssn,
+                    icn: icn,
+                    edipis: edipis,
+                    edipi: edipis.first,
+                    mhv_ien: mhv_iens.first,
+                    mhv_iens: mhv_iens,
+                    birls_id: birls_ids.first,
+                    birls_ids: birls_ids,
+                    participant_id: participant_ids.first,
+                    participant_ids: participant_ids,
+                    birth_date: birth_date,
+                    given_names: [first_name],
+                    family_name: last_name)
+            end
+            let(:id_theft_flag) { false }
+            let(:deceased_date) { nil }
+            let(:icn) { 'some-icn' }
+            let(:edipis) { ['some-edipi'] }
+            let(:mhv_iens) { ['some-mhv-ien'] }
+            let(:participant_ids) { ['some-participant-id'] }
+            let(:birls_ids) { ['some-birls-id'] }
+
+            it 'does not raise an error' do
+              expect { subject }.not_to raise_error
+            end
+          end
+
+          context 'and credential is a verified non-auto-uplevelled credential' do
+            let(:auto_uplevel) { false }
+
+            it_behaves_like 'missing credential attribute'
+          end
+        end
+
+        context 'and credential is missing ssn' do
+          let(:ssn) { nil }
+          let(:attribute) { 'ssn' }
+
+          context 'and credential has been auto-uplevelled' do
+            let(:auto_uplevel) { true }
+            let(:find_profile_response) do
+              MPI::Responses::FindProfileResponse.new(
+                status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+                profile: mpi_profile
+              )
+            end
+            let(:mpi_profile) do
+              build(:mvi_profile,
+                    id_theft_flag: id_theft_flag,
+                    deceased_date: deceased_date,
+                    ssn: ssn,
+                    icn: icn,
+                    edipis: edipis,
+                    edipi: edipis.first,
+                    mhv_ien: mhv_iens.first,
+                    mhv_iens: mhv_iens,
+                    birls_id: birls_ids.first,
+                    birls_ids: birls_ids,
+                    participant_id: participant_ids.first,
+                    participant_ids: participant_ids,
+                    birth_date: birth_date,
+                    given_names: [first_name],
+                    family_name: last_name)
+            end
+            let(:id_theft_flag) { false }
+            let(:deceased_date) { nil }
+            let(:icn) { 'some-icn' }
+            let(:edipis) { ['some-edipi'] }
+            let(:mhv_iens) { ['some-mhv-ien'] }
+            let(:participant_ids) { ['some-participant-id'] }
+            let(:birls_ids) { ['some-birls-id'] }
+
+            it 'does not raise an error' do
+              expect { subject }.not_to raise_error
+            end
+          end
+
+          context 'and credential is a verified non-auto-uplevelled credential' do
+            let(:auto_uplevel) { false }
+
+            it_behaves_like 'missing credential attribute'
+          end
+        end
+
+        context 'and credential is not missing any required attributes' do
+          it_behaves_like 'credential mpi verification'
+        end
       end
 
       context 'and authentication is with dslogon' do
         let(:service_name) { SAML::User::DSLOGON_CSID }
         let(:edipi) { 'some-edipi' }
         let(:idme_uuid) { 'some-idme-uuid' }
+        let(:csp_id) { idme_uuid }
+        let(:address) { nil }
         let(:first_name) { 'some-first-name' }
         let(:last_name) { 'some-last-name' }
         let(:ssn) { '444444758' }
         let(:birth_date) { '1930-01-01' }
+        let(:email) { 'some-email' }
 
-        it_behaves_like 'credential mpi verification'
+        context 'and credential is missing email' do
+          let(:email) { nil }
+          let(:attribute) { 'email' }
+
+          it_behaves_like 'missing credential attribute'
+        end
+
+        context 'and credential is missing idme uuid' do
+          let(:idme_uuid) { nil }
+          let(:attribute) { 'uuid' }
+
+          it_behaves_like 'missing credential attribute'
+        end
+
+        context 'and credential is missing edipi' do
+          let(:edipi) { nil }
+          let(:attribute) { 'dslogon_uuid' }
+
+          it_behaves_like 'missing credential attribute'
+        end
+
+        context 'and credential is missing first_name' do
+          let(:first_name) { nil }
+          let(:attribute) { 'first_name' }
+
+          it_behaves_like 'missing credential attribute'
+        end
+
+        context 'and credential is missing last_name' do
+          let(:last_name) { nil }
+          let(:attribute) { 'last_name' }
+
+          it_behaves_like 'missing credential attribute'
+        end
+
+        context 'and credential is missing birth_date' do
+          let(:birth_date) { nil }
+          let(:attribute) { 'birth_date' }
+
+          it_behaves_like 'missing credential attribute'
+        end
+
+        context 'and credential is missing ssn' do
+          let(:ssn) { nil }
+          let(:attribute) { 'ssn' }
+
+          it_behaves_like 'missing credential attribute'
+        end
+
+        context 'and credential is not missing any required attributes' do
+          it_behaves_like 'credential mpi verification'
+        end
       end
 
       context 'and authentication is with idme' do
         let(:service_name) { SAML::User::IDME_CSID }
         let(:idme_uuid) { 'some-idme-uuid' }
+        let(:csp_id) { idme_uuid }
         let(:first_name) { 'some-first-name' }
         let(:last_name) { 'some-last-name' }
         let(:ssn) { '444444758' }
+        let(:street) { 'some-street' }
+        let(:street2) { nil }
+        let(:state) { 'some-state' }
+        let(:postal_code) { 'some-postal-code' }
+        let(:city) { 'some-city' }
+        let(:country) { 'USA' }
         let(:birth_date) { '1930-01-01' }
+        let(:email) { 'some-email' }
 
-        it_behaves_like 'credential mpi verification'
+        context 'and credential is missing email' do
+          let(:email) { nil }
+          let(:attribute) { 'email' }
+
+          it_behaves_like 'missing credential attribute'
+        end
+
+        context 'and credential is missing idme uuid' do
+          let(:idme_uuid) { nil }
+          let(:attribute) { 'uuid' }
+
+          it_behaves_like 'missing credential attribute'
+        end
+
+        context 'and credential is missing first_name' do
+          let(:first_name) { nil }
+          let(:attribute) { 'first_name' }
+
+          it_behaves_like 'missing credential attribute'
+        end
+
+        context 'and credential is missing last_name' do
+          let(:last_name) { nil }
+          let(:attribute) { 'last_name' }
+
+          it_behaves_like 'missing credential attribute'
+        end
+
+        context 'and credential is missing birth_date' do
+          let(:birth_date) { nil }
+          let(:attribute) { 'birth_date' }
+
+          it_behaves_like 'missing credential attribute'
+        end
+
+        context 'and credential is missing ssn' do
+          let(:ssn) { nil }
+          let(:attribute) { 'ssn' }
+
+          it_behaves_like 'missing credential attribute'
+        end
+
+        context 'and credential is not missing any required attributes' do
+          it_behaves_like 'credential mpi verification'
+        end
       end
     end
   end

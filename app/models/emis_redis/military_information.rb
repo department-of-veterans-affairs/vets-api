@@ -85,15 +85,43 @@ module EMISRedis
       YEM
     ].freeze
 
-    EVSS_SERVICE_BRANCHES = VetsJsonSchema::SCHEMAS.dig('21-526EZ-ALLCLAIMS',
-                                                        'properties',
-                                                        'serviceInformation',
-                                                        'properties',
-                                                        'servicePeriods',
-                                                        'items',
-                                                        'properties',
-                                                        'serviceBranch',
-                                                        'enum')
+    # In https://github.com/department-of-veterans-affairs/va.gov-team/issues/41046
+    # we updated the military service branches to use an updated list from
+    # Lighthouse BRD. The list below combines the branches from the former list
+    # that was in the previous vets_json_schema, and the new list, from BRD. In
+    # the future, we may consider udpating this constant to a dynamic value
+    # populated by a call to Lighthouse BRD, but that is not necessary now.
+    EVSS_COMBINED_SERVICE_BRANCHES = [
+      'Army Air Corps or Army Air Force',
+      'Air Force Academy',
+      'Air Force',
+      'Air Force Reserve',
+      'Air Force Reserves',
+      'Air National Guard',
+      'Army Reserve',
+      'Army Reserves',
+      'Army',
+      'Army National Guard',
+      'Coast Guard Academy',
+      'Coast Guard',
+      'Coast Guard Reserve',
+      'Coast Guard Reserves',
+      'Marine Corps',
+      'Marine Corps Reserve',
+      'Marine Corps Reserves',
+      'Merchant Marine',
+      'Naval Academy',
+      'Navy',
+      'National Oceanic & Atmospheric Administration',
+      'NOAA',
+      'Navy Reserve',
+      'Navy Reserves',
+      'Other',
+      'Public Health Service',
+      'Space Force',
+      'US Military Academy',
+      "Women's Army Corps"
+    ].freeze
 
     # Vietnam ISO country code
     VIETNAM = 'VNM'
@@ -156,7 +184,7 @@ module EMISRedis
 
       service_name = "#{military_service_episode.branch_of_service} #{category}".strip
       service_name.gsub!('Air Force National Guard', 'Air National Guard')
-      service_name if EVSS_SERVICE_BRANCHES.include? service_name
+      service_name if EVSS_COMBINED_SERVICE_BRANCHES.include? service_name
     end
 
     # @return [Array<Hash>] Data about the veteran's service periods

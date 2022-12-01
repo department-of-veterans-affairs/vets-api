@@ -19,6 +19,8 @@ module VBADocuments
     sidekiq_options unique_for: 30.days
 
     def perform(guid, caller_data, retries = 0)
+      return if cancelled?
+
       # @retries variable used via the CentralMail::Utilities which is included via VBADocuments::UploadValidations
       @retries = retries
       @cause = caller_data.nil? ? { caller: 'unknown' } : caller_data['caller']
@@ -34,6 +36,20 @@ module VBADocuments
         end
       end
       response&.success? ? true : false
+    end
+
+    def cancelled?
+      Sidekiq.redis do |c|
+        if c.respond_to? :exists?
+          c.exists?("cancelled-#{jid}")
+        else
+          c.exists("cancelled-#{jid}")
+        end
+      end
+    end
+
+    def self.cancel!(jid)
+      Sidekiq.redis { |c| c.setex("cancelled-#{jid}", 86_400, 1) }
     end
 
     private
@@ -60,7 +76,8 @@ module VBADocuments
         process_response(response)
         log_submission(@upload, metadata)
       rescue Common::Exceptions::GatewayTimeout, Faraday::TimeoutError => e
-        Rails.logger.warn("Exception in download_and_process for guid #{@upload.guid}.", e)
+        message = "Exception in download_and_process for guid #{@upload.guid}, size: #{@upload.metadata['size']} bytes."
+        Rails.logger.warn(message, e)
         VBADocuments::UploadSubmission.refresh_statuses!([@upload])
       rescue VBADocuments::UploadError => e
         Rails.logger.warn("UploadError download_and_process for guid #{@upload.guid}.", e)

@@ -10,6 +10,8 @@ describe MPI::Messages::AddPersonImplicitSearchMessage do
                         birth_date: birth_date,
                         idme_uuid: idme_uuid,
                         logingov_uuid: logingov_uuid,
+                        email: email,
+                        address: address,
                         first_name: first_name)
   end
 
@@ -18,7 +20,10 @@ describe MPI::Messages::AddPersonImplicitSearchMessage do
   let(:birth_date) { Formatters::DateFormatter.format_date('10-10-2021') }
   let(:idme_uuid) { 'some-idme-uuid' }
   let(:logingov_uuid) { 'some-logingov-uuid' }
+  let(:email) { 'some-email' }
+  let(:telecom_type) { 'H' }
   let(:first_name) { 'some-first-name' }
+  let(:address) { nil }
   let(:csp_uuid) { idme_uuid }
   let(:csp_type) { MPI::Constants::IDME_IDENTIFIER }
   let(:csp_id) { "#{csp_uuid}^PN^#{csp_type}^USDVA^A" }
@@ -98,6 +103,12 @@ describe MPI::Messages::AddPersonImplicitSearchMessage do
           Date.parse(birth_date).strftime('%Y%m%d')
         )
         expect(subject).to eq_at_path(
+          "#{subject_path}/registrationEvent/subject1/patient/patientPerson/telecom/@use", telecom_type
+        )
+        expect(subject).to eq_at_path(
+          "#{subject_path}/registrationEvent/subject1/patient/patientPerson/telecom/@value", email
+        )
+        expect(subject).to eq_at_path(
           "#{subject_path}/registrationEvent/subject1/patient/patientPerson/asOtherIDs/id/@extension", ssn
         )
         expect(subject).to eq_at_path(
@@ -140,6 +151,59 @@ describe MPI::Messages::AddPersonImplicitSearchMessage do
         let(:logingov_uuid) { nil }
 
         it_behaves_like 'successfully built message'
+      end
+    end
+
+    context 'when address is defined' do
+      let(:address) do
+        {
+          street: street,
+          street2: street2,
+          state: state,
+          city: city,
+          postal_code: postal_code,
+          country: country
+        }
+      end
+      let(:street) { 'some-street' }
+      let(:street2) { 'some-street-2' }
+      let(:state) { 'some-state' }
+      let(:city) { 'some-city' }
+      let(:postal_code) { 'some-postal-code' }
+      let(:country) { 'some-country' }
+      let(:idm_path) { 'env:Envelope/env:Body/idm:PRPA_IN201301UV02' }
+      let(:data_enterer_path) { "#{idm_path}/controlActProcess/dataEnterer" }
+      let(:subject_path) { "#{idm_path}/controlActProcess/subject" }
+
+      it 'creates a message with a street in address' do
+        expect(subject).to eq_text_at_path(
+          "#{subject_path}/registrationEvent/subject1/patient/patientPerson/addr/streetAddressLine",
+          "#{street} #{street2}"
+        )
+      end
+
+      it 'creates a message with a city in address' do
+        expect(subject).to eq_text_at_path(
+          "#{subject_path}/registrationEvent/subject1/patient/patientPerson/addr/city", city
+        )
+      end
+
+      it 'creates a message with a state in address' do
+        expect(subject).to eq_text_at_path(
+          "#{subject_path}/registrationEvent/subject1/patient/patientPerson/addr/state", state
+        )
+      end
+
+      it 'creates a message with a postal code in address' do
+        expect(subject).to eq_text_at_path(
+          "#{subject_path}/registrationEvent/subject1/patient/patientPerson/addr/postalCode", postal_code
+        )
+      end
+
+      it 'creates a message with a country in address' do
+        expect(subject).to eq_text_at_path(
+          "#{subject_path}/registrationEvent/subject1/patient/patientPerson/addr/country", country
+        )
       end
     end
   end

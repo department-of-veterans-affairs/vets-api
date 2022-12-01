@@ -15,7 +15,7 @@ module TravelClaim
     attr_reader :settings, :check_in
 
     def_delegators :settings, :auth_url, :tenant_id, :client_id, :client_secret, :scope, :claims_url, :client_number,
-                   :service_name
+                   :subscription_key, :service_name
 
     ##
     # Builds a Client instance
@@ -40,7 +40,7 @@ module TravelClaim
     # @return [Faraday::Response]
     #
     def token
-      connection.post("/#{tenant_id}/oauth2/v2.0/token") do |req|
+      connection(server_url: auth_url).post("/#{tenant_id}/oauth2/v2.0/token") do |req|
         req.headers = default_headers
         req.body = URI.encode_www_form(auth_params)
       end
@@ -56,17 +56,17 @@ module TravelClaim
     #
     # @return [Faraday::Response]
     #
-    def submit_claim(token:, patient_icn:, appointment_time:)
-      connection.post("/#{claims_url}/ClaimIngest/submitclaim") do |req|
+    def submit_claim(token:, patient_icn:, appointment_date:)
+      connection(server_url: claims_url).post('/ClaimIngest/submitclaim') do |req|
         req.headers = claims_default_header.merge('Authorization' => "Bearer #{token}")
         req.body = claims_data.merge({ ClaimantID: patient_icn, Appointment:
-          { AppointmentDateTime: appointment_time } })
+          { AppointmentDateTime: appointment_date } }).to_json
       end
     rescue => e
       log_message_to_sentry(e.original_body, :error,
                             { uuid: check_in.uuid },
                             { external_service: service_name, team: 'check-in' })
-      raise e
+      Faraday::Response.new(body: e.original_body, status: e.original_status)
     end
 
     private
@@ -77,8 +77,8 @@ module TravelClaim
     #
     # @return [Faraday::Connection]
     #
-    def connection
-      Faraday.new(url: auth_url) do |conn|
+    def connection(server_url:)
+      Faraday.new(url: server_url) do |conn|
         conn.use :breakers
         conn.response :raise_error, error_prefix: service_name
         conn.response :betamocks if mock_enabled?
@@ -100,7 +100,8 @@ module TravelClaim
 
     def claims_default_header
       {
-        'Content-Type' => 'application/json'
+        'Content-Type' => 'application/json',
+        'OCP-APIM-Subscription-Key' => subscription_key
       }
     end
 

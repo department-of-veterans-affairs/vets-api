@@ -19,12 +19,12 @@ module V0
           render json: { data: nil, meta: { sync_status: synchronized } }
         when 'FAILED'
           error = EVSS::ErrorMiddleware::EVSSError.new('Could not retrieve claims')
-          cxdw_reporting_service.report_to_cxdw(current_user.icn, conversation_id)
+          report_or_error(cxdw_reporting_service, conversation_id)
           call_virtual_agent_store_user_info if Flipper.enabled?(:virtual_agent_user_access_records)
           service_exception_handler(error)
         else
           data_for_three_most_recent_open_comp_claims(claims)
-          cxdw_reporting_service.report_to_cxdw(current_user.icn, conversation_id)
+          report_or_error(cxdw_reporting_service, conversation_id)
           call_virtual_agent_store_user_info if Flipper.enabled?(:virtual_agent_user_access_records)
           render json: {
             data: data_for_three_most_recent_open_comp_claims(claims),
@@ -53,6 +53,12 @@ module V0
       end
 
       private
+
+      def report_or_error(cxdw_reporting_service, conversation_id)
+        cxdw_reporting_service.report_to_cxdw(current_user.icn, conversation_id)
+      rescue => e
+        report_exception_handler(e)
+      end
 
       def data_for_three_most_recent_open_comp_claims(claims)
         comp_claims = three_most_recent_open_comp_claims claims
@@ -113,6 +119,11 @@ module V0
         context = 'An error occurred while attempting to retrieve the claim(s).'
         log_exception_to_sentry(exception, 'context' => context)
         render nothing: true, status: :service_unavailable
+      end
+
+      def report_exception_handler(exception)
+        context = 'An error occurred while attempting to report the claim(s).'
+        log_exception_to_sentry(exception, 'context' => context)
       end
 
       class ServiceException < RuntimeError; end

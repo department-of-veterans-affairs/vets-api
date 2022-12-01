@@ -112,6 +112,18 @@ module SM
     end
 
     ##
+    # Rename a Folder
+    #
+    # @param folder_id [Fixnum] id of the Folder
+    # @param name [String] new name for the folder
+    # @return [Folder]
+    #
+    def post_rename_folder(folder_id, name)
+      json = perform(:post, "folder/#{folder_id}/rename", { 'folderName' => name }, token_headers).body
+      Folder.new(json)
+    end
+
+    ##
     # Delete a Folder
     #
     # @param id [Fixnum] id of the Folder
@@ -146,6 +158,26 @@ module SM
         Message.set_cached(cache_key, messages)
         messages
       end
+    end
+
+    ##
+    # Run a search of messages in the given folder
+    #
+    # @param folder_id [Fixnum] id of the folder to search
+    # @param page_num [Fixnum] page number of results to return
+    # @param page_size [Fixnum] number of messages per page
+    # @param args [Hash] arguments for the message search
+    # @return [Common::Collection]
+    #
+    def post_search_folder(folder_id, page_num, page_size, args = {})
+      page_num ||= 1
+      page_size ||= MHV_MAXIMUM_PER_PAGE
+
+      json_data = perform(:post,
+                          "folder/#{folder_id}/searchMessage/page/#{page_num}/pageSize/#{page_size}",
+                          args.to_h,
+                          token_headers).body
+      Common::Collection.new(Message, json_data)
     end
     # @!endgroup
 

@@ -2,34 +2,24 @@
 
 module VANotify
   class InProgressFormHelper
-    class UnsupportedForm < StandardError; end
-
     TEMPLATE_ID = {
+      'generic' => Settings.vanotify.services.va_gov.template_id.in_progress_reminder_email_generic,
       '686C-674' => Settings.vanotify.services.va_gov.template_id.form686c_reminder_email,
-      '1010ez' => Settings.vanotify.services.va_gov.template_id.form1010ez_reminder_email
+      '1010ez' => Settings.vanotify.services.va_gov.template_id.form1010ez_reminder_email,
+      '21-526EZ' => Settings.vanotify.services.va_gov.template_id.form526ez_reminder_email
     }.freeze
 
     FRIENDLY_FORM_SUMMARY = {
       '686C-674' => 'Application Request to Add or Remove Dependents',
-      '1010ez' => 'Application for Health Benefits'
+      '1010ez' => 'Application for Health Benefits',
+      '21-526EZ' => 'Application for Disability Compensation and Related Compensation Benefits'
     }.freeze
 
-    def self.veteran_data(in_progress_form)
-      data = case in_progress_form.form_id
-             when '686C-674'
-               InProgressForm686c.new(in_progress_form.form_data)
-             when '1010ez'
-               InProgressForm1010ez.new(in_progress_form.form_data)
-             else
-               raise UnsupportedForm,
-                     "Unsupported form: #{in_progress_form.form_id} - InProgressForm: #{in_progress_form.id}"
-             end
-
-      VANotify::Veteran.new(
-        first_name: data.first_name,
-        user_uuid: in_progress_form.user_uuid
-      )
-    end
+    FRIENDLY_FORM_ID = {
+      '686C-674' => '686C-674',
+      '1010ez' => '10-10EZ',
+      '21-526EZ' => '21-526EZ'
+    }.freeze
 
     def self.form_age(in_progress_form)
       case in_progress_form.updated_at

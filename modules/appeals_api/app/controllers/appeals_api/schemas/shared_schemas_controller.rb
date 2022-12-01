@@ -14,12 +14,12 @@ class AppealsApi::Schemas::SharedSchemasController < AppealsApi::ApplicationCont
   ].freeze
 
   SCHEMA_METADATA = {
-    'contestable_issues_v2' => { shared_schema_version: 'v1', form: 'headers' },
-    'legacy_appeals_v2' => { shared_schema_version: 'v1', form: 'headers' },
+    'contestable_issues_v0' => { shared_schema_version: 'v1', form: 'headers' },
+    'legacy_appeals_v0' => { shared_schema_version: 'v1', form: 'headers' },
     'notice_of_disagreements_v1' => { shared_schema_version: 'v1', form: '10182' },
-    'notice_of_disagreements_v2' => { shared_schema_version: 'v1', form: '10182' },
-    'higher_level_reviews_v2' => { shared_schema_version: 'v1', form: '200996' },
-    'supplemental_claims_v2' => { shared_schema_version: 'v1', form: '200995' }
+    'notice_of_disagreements_v0' => { shared_schema_version: 'v1', form: '10182' },
+    'higher_level_reviews_v0' => { shared_schema_version: 'v1', form: '200996' },
+    'supplemental_claims_v0' => { shared_schema_version: 'v1', form: '200995' }
   }.freeze
 
   def show
@@ -57,7 +57,10 @@ class AppealsApi::Schemas::SharedSchemasController < AppealsApi::ApplicationCont
   end
 
   def check_schema_type
-    render json: invalid_schema_type_error, status: :not_found unless schema_type.in?(ACCEPTED_SCHEMA_TYPES)
+    unless schema_type.in?(ACCEPTED_SCHEMA_TYPES)
+      render json: { errors: [invalid_schema_type_error] },
+             status: :not_found
+    end
   end
 
   def invalid_schema_type_error
@@ -67,7 +70,7 @@ class AppealsApi::Schemas::SharedSchemasController < AppealsApi::ApplicationCont
       code: 'InvalidSchemaType',
       status: '404',
       source: { parameter: schema_type },
-      meta: [schema_form] + ACCEPTED_SCHEMA_TYPES
+      meta: { 'available_options': [schema_form] + ACCEPTED_SCHEMA_TYPES }
     }
   end
 end

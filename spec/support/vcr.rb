@@ -23,7 +23,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<MPI_URL>') { Settings.mvi.url }
   c.filter_sensitive_data('<OKTA_TOKEN>') { Settings.oidc.base_api_token }
   c.filter_sensitive_data('<PD_TOKEN>') { Settings.maintenance.pagerduty_api_token }
-  c.filter_sensitive_data('<PENSIONS_TOKEN>') { Settings.central_mail.upload.token }
+  c.filter_sensitive_data('<CENTRAL_MAIL_TOKEN>') { Settings.central_mail.upload.token }
   c.filter_sensitive_data('<PPMS_API_KEY>') { Settings.ppms.api_keys }
   c.filter_sensitive_data('<PRENEEDS_HOST>') { Settings.preneeds.host }
   c.filter_sensitive_data('<MULESOFT_SECRET>') { Settings.form_10_10cg.carma.mulesoft.client_secret }

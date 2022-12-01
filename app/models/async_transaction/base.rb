@@ -20,6 +20,7 @@ module AsyncTransaction
     has_encrypted :metadata, key: :kms_key, **lockbox_options
 
     before_save :serialize_metadata
+    belongs_to :user_account, dependent: nil, optional: true
 
     def serialize_metadata
       self.metadata = metadata.to_json unless metadata.is_a?(String)

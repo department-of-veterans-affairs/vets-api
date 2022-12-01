@@ -207,6 +207,65 @@ module VBADocuments
           end
         end
       end
+
+      swagger_path '/uploads/validate_document' do
+        operation :post, tags: VBA_TAG do
+          extend VBADocuments::Responses::UnauthorizedError
+          extend VBADocuments::Responses::TooManyRequestsError
+          extend VBADocuments::Responses::ForbiddenError
+          extend VBADocuments::Responses::UnexpectedError
+          extend VBADocuments::Responses::InternalServerError
+          key :tags, [
+            VBA_TAG
+          ]
+
+          key :summary, 'Validate an individual document against system file requirements'
+          key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'document_upload', 'validate_document_description.md'))
+          key :operationId, 'postBenefitsDocumentUploadValidateDocument'
+
+          response 200 do
+            key :description, 'Document passed system requirements'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                property :data do
+                  property :type do
+                    key :type, :string
+                    key :example, 'documentValidation'
+                    key :description, 'schema type'
+                  end
+
+                  property :attributes do
+                    key :type, :object
+
+                    property :status do
+                      key :type, :string
+                      key :example, 'valid'
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          response 422 do
+            key :description, 'Document did NOT pass system requirements'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :$ref, :DocumentValidationErrorModel
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
     end
   end
 end

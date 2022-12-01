@@ -23,6 +23,7 @@
           "source_system_user": "DATA_SEED",
           "communication_item_channel_id": 1,
           "communication_channel_id": 1,
+          "default_send_indicator": false,
           "effective_start_date": "2020-10-07T00:00:00Z",
           "communication_channel": {
             "create_date": "2020-10-07T00:00:00Z",
@@ -84,6 +85,7 @@
           "source_system_user": "DATA_SEED",
           "communication_item_channel_id": 2,
           "communication_channel_id": 1,
+          "default_send_indicator": false,
           "effective_start_date": "2020-10-07T00:00:00Z",
           "communication_channel": {
             "create_date": "2020-10-07T00:00:00Z",
@@ -145,6 +147,7 @@
           "source_system_user": "DATA_SEED",
           "communication_item_channel_id": 3,
           "communication_channel_id": 1,
+          "default_send_indicator": false,
           "effective_start_date": "2020-10-07T00:00:00Z",
           "communication_channel": {
             "create_date": "2020-10-07T00:00:00Z",
@@ -206,6 +209,7 @@
           "source_system_user": "DATA_SEED",
           "communication_item_channel_id": 4,
           "communication_channel_id": 1,
+          "default_send_indicator": false,
           "effective_start_date": "2020-10-07T00:00:00Z",
           "communication_channel": {
             "create_date": "2020-10-07T00:00:00Z",
@@ -229,6 +233,7 @@
           "source_system_user": "DATA_SEED",
           "communication_item_channel_id": 5,
           "communication_channel_id": 2,
+          "default_send_indicator": false,
           "effective_start_date": "2020-10-07T00:00:00Z",
           "communication_channel": {
             "create_date": "2020-10-07T00:00:00Z",
@@ -290,6 +295,7 @@
           "source_system_user": "DATA_SEED",
           "communication_item_channel_id": 6,
           "communication_channel_id": 2,
+          "default_send_indicator": false,
           "effective_start_date": "2020-10-07T00:00:00Z",
           "communication_channel": {
             "create_date": "2020-10-07T00:00:00Z",
@@ -351,6 +357,7 @@
           "source_system_user": "DATA_SEED",
           "communication_item_channel_id": 7,
           "communication_channel_id": 2,
+          "default_send_indicator": false,
           "effective_start_date": "2020-10-07T00:00:00Z",
           "communication_channel": {
             "create_date": "2020-10-07T00:00:00Z",
@@ -412,6 +419,7 @@
           "source_system_user": "DATA_SEED",
           "communication_item_channel_id": 8,
           "communication_channel_id": 1,
+          "default_send_indicator": false,
           "effective_start_date": "2020-10-07T00:00:00Z",
           "communication_channel": {
             "create_date": "2020-10-07T00:00:00Z",
@@ -435,6 +443,7 @@
           "source_system_user": "DATA_SEED",
           "communication_item_channel_id": 9,
           "communication_channel_id": 2,
+          "default_send_indicator": false,
           "effective_start_date": "2020-10-07T00:00:00Z",
           "communication_channel": {
             "create_date": "2020-10-07T00:00:00Z",
@@ -496,6 +505,7 @@
           "source_system_user": "DATA_SEED",
           "communication_item_channel_id": 10,
           "communication_channel_id": 2,
+          "default_send_indicator": false,
           "effective_start_date": "2020-10-07T00:00:00Z",
           "communication_channel": {
             "create_date": "2020-10-07T00:00:00Z",
@@ -557,6 +567,7 @@
           "source_system_user": "DATA_SEED",
           "communication_item_channel_id": 11,
           "communication_channel_id": 2,
+          "default_send_indicator": false,
           "effective_start_date": "2020-10-07T00:00:00Z",
           "communication_channel": {
             "create_date": "2020-10-07T00:00:00Z",
@@ -618,6 +629,7 @@
           "source_system_user": "DATA_SEED",
           "communication_item_channel_id": 12,
           "communication_channel_id": 2,
+          "default_send_indicator": false,
           "effective_start_date": "2020-10-07T00:00:00Z",
           "communication_channel": {
             "create_date": "2020-10-07T00:00:00Z",
@@ -679,6 +691,7 @@
           "source_system_user": "DATA_SEED",
           "communication_item_channel_id": 13,
           "communication_channel_id": 2,
+          "default_send_indicator": false,
           "effective_start_date": "2020-10-07T00:00:00Z",
           "communication_channel": {
             "create_date": "2020-10-07T00:00:00Z",
@@ -740,6 +753,7 @@
           "source_system_user": "DATA_SEED",
           "communication_item_channel_id": 14,
           "communication_channel_id": 2,
+          "default_send_indicator": false,
           "effective_start_date": "2020-10-07T00:00:00Z",
           "communication_channel": {
             "create_date": "2020-10-07T00:00:00Z",

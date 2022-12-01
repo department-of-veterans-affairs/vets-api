@@ -61,6 +61,37 @@ paths:
       summary: /v1/messaging/folders/{id}
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
+    put:
+      description: Rename an existing folder
+      operationId: post_rename_folder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              example:
+                name: New Name for Folder
+              type: object
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/SecureMessagingFolder.yml
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/folders/{id}
   /v1/messaging/folders/{id}/messages:
     get:
       description: |
@@ -92,6 +123,58 @@ paths:
       summary: /v1/messaging/folders/{id}/messages
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
+  /v1/messaging/folders/{id}/search:
+    post:
+      description: |
+        Search messages in a secure messaging folder. If multiple search criteria are specified, each returned search
+        result will match ALL criteria. Pagination is supported and is handled by the upstream MHV server.
+
+        When listing messages, the response for each message will include most but not all of the message attributes.
+        Specifically, the message body and attachment information is not included. Those attributes can be obtained by
+        getting the specific message resource.
+      operationId: search_folder
+      parameters:
+        - description: The page of results to be returned (passed through to MHV API)
+          in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - description: The number of results per page (passed through to MHV API)
+          in: query
+          name: per_page,
+          required: false
+          schema:
+            type: integer
+            default: 250
+        - $ref: "#/components/parameters/InflectionHeader"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/SecureMessageSearchRequest.yml
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/SecureMessageSearch.yml
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/folders/{id}/search
   /v1/messaging/message_drafts:
     post:
       description: Save a new draft message

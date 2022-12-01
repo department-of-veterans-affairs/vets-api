@@ -35,7 +35,7 @@ class InheritedProofingController < ApplicationController
   def callback
     save_inherited_proofing_verification
     reset_session
-    redirect_to controller: 'v1/sessions', action: :new, type: 'logingov'
+    redirect_to controller: 'v1/sessions', action: :new, type: SAML::User::LOGINGOV_CSID
   rescue => e
     render json: { errors: e }, status: :bad_request
   end

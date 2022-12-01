@@ -7,6 +7,7 @@ CheckIn::Engine.routes.draw do
 
   namespace :v0, defaults: { format: :json } do
     resources :patient_check_ins, only: %i[show create]
+    resources :travel_claims, only: %i[create]
   end
 
   namespace :v1, defaults: { format: :json } do

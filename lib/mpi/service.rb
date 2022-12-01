@@ -227,6 +227,8 @@ module MPI
       MPI::Messages::AddPersonImplicitSearchMessage.new(last_name: user_identity.last_name,
                                                         ssn: user_identity.ssn,
                                                         birth_date: user_identity.birth_date,
+                                                        email: user_identity.email,
+                                                        address: user_identity.address,
                                                         idme_uuid: user_identity.idme_uuid,
                                                         logingov_uuid: user_identity.logingov_uuid,
                                                         first_name: user_identity.first_name).perform
@@ -252,6 +254,8 @@ module MPI
                                               ssn: user_identity.ssn,
                                               birth_date: user_identity.birth_date,
                                               icn: user_identity.icn,
+                                              email: user_identity.email,
+                                              address: user_identity.address,
                                               idme_uuid: user_identity.idme_uuid,
                                               logingov_uuid: user_identity.logingov_uuid,
                                               edipi: user_identity.edipi,

@@ -21,7 +21,7 @@ RSpec.describe V1::SupplementalClaimsController do
            headers: headers
     end
 
-    it 'creates an supplemental claim' do
+    it 'creates a supplemental claim' do
       VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-200_V1') do
         previous_appeal_submission_ids = AppealSubmission.all.pluck :submitted_appeal_uuid
         subject
@@ -47,6 +47,34 @@ RSpec.describe V1::SupplementalClaimsController do
         %w[message backtrace key response_values original_status original_body]
           .each { |key| expect(pil.data['error'][key]).to be_truthy }
         expect(pil.data['additional_data']['request']['body']).not_to be_empty
+      end
+    end
+  end
+
+  describe '#create with 4142' do
+    def personal_information_logs
+      PersonalInformationLog.where 'error_class like ?',
+                                   'V1::SupplementalClaimsController#create exception % (SC_V1)'
+    end
+
+    subject do
+      post '/v1/supplemental_claims',
+           params: VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-WITH-4142_V1').to_json,
+           headers: headers
+    end
+
+    it 'creates a supplemental claim and sends a 4142 form when 4142 info is provided' do
+      VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-WITH-4142-200_V1') do
+        VCR.use_cassette('central_mail/submit_4142') do
+          previous_appeal_submission_ids = AppealSubmission.all.pluck :submitted_appeal_uuid
+          subject
+          expect(response).to be_successful
+          parsed_response = JSON.parse(response.body)
+          id = parsed_response['data']['id']
+          expect(previous_appeal_submission_ids).not_to include id
+          appeal_submission = AppealSubmission.find_by(submitted_appeal_uuid: id)
+          expect(appeal_submission.type_of_appeal).to eq('SC')
+        end
       end
     end
   end

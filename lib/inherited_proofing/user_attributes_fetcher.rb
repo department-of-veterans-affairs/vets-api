@@ -40,7 +40,7 @@ module InheritedProofing
     end
 
     def address_present?
-      user.address[:street] && user.address[:zip]
+      user.address[:street] && user.address[:postal_code]
     end
 
     def user_attributes

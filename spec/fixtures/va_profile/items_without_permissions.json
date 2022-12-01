@@ -11,7 +11,8 @@
           {
             "id": 1,
             "name": "Text",
-            "description": "SMS Notification"
+            "description": "SMS Notification",
+            "default_send_indicator": false
           }
         ]
       },
@@ -22,7 +23,8 @@
           {
             "id": 1,
             "name": "Text",
-            "description": "SMS Notification"
+            "description": "SMS Notification",
+            "default_send_indicator": false
           }
         ]
       },
@@ -33,7 +35,8 @@
           {
             "id": 1,
             "name": "Text",
-            "description": "SMS Notification"
+            "description": "SMS Notification",
+            "default_send_indicator": false
           }
         ]
       }
@@ -51,12 +54,14 @@
           {
             "id": 1,
             "name": "Text",
-            "description": "SMS Notification"
+            "description": "SMS Notification",
+            "default_send_indicator": false
           },
           {
             "id": 2,
             "name": "Email",
-            "description": "Email Notification"
+            "description": "Email Notification",
+            "default_send_indicator": false
           }
         ]
       }
@@ -74,7 +79,8 @@
           {
             "id": 2,
             "name": "Email",
-            "description": "Email Notification"
+            "description": "Email Notification",
+            "default_send_indicator": false
           }
         ]
       },
@@ -85,7 +91,8 @@
           {
             "id": 2,
             "name": "Email",
-            "description": "Email Notification"
+            "description": "Email Notification",
+            "default_send_indicator": false
           }
         ]
       },
@@ -96,12 +103,14 @@
           {
             "id": 1,
             "name": "Text",
-            "description": "SMS Notification"
+            "description": "SMS Notification",
+            "default_send_indicator": false
           },
           {
             "id": 2,
             "name": "Email",
-            "description": "Email Notification"
+            "description": "Email Notification",
+            "default_send_indicator": false
           }
         ]
       }
@@ -119,7 +128,8 @@
           {
             "id": 2,
             "name": "Email",
-            "description": "Email Notification"
+            "description": "Email Notification",
+            "default_send_indicator": false
           }
         ]
       }
@@ -137,7 +147,8 @@
           {
             "id": 2,
             "name": "Email",
-            "description": "Email Notification"
+            "description": "Email Notification",
+            "default_send_indicator": false
           }
         ]
       }
@@ -155,7 +166,8 @@
           {
             "id": 2,
             "name": "Email",
-            "description": "Email Notification"
+            "description": "Email Notification",
+            "default_send_indicator": false
           }
         ]
       },
@@ -166,7 +178,8 @@
           {
             "id": 2,
             "name": "Email",
-            "description": "Email Notification"
+            "description": "Email Notification",
+            "default_send_indicator": false
           }
         ]
       }
@@ -184,7 +197,8 @@
           {
             "id": 2,
             "name": "Email",
-            "description": "Email Notification"
+            "description": "Email Notification",
+            "default_send_indicator": false
           }
         ]
       }

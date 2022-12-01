@@ -13,7 +13,7 @@ RSpec.describe SignIn::AcrTranslator do
     let(:uplevel) { false }
 
     context 'when type is idme' do
-      let(:type) { 'idme' }
+      let(:type) { SignIn::Constants::Auth::IDME }
 
       context 'and acr is loa1' do
         let(:acr) { 'loa1' }
@@ -67,7 +67,7 @@ RSpec.describe SignIn::AcrTranslator do
     end
 
     context 'when type is logingov' do
-      let(:type) { 'logingov' }
+      let(:type) { SignIn::Constants::Auth::LOGINGOV }
 
       context 'and acr is ial1' do
         let(:acr) { 'ial1' }
@@ -121,7 +121,7 @@ RSpec.describe SignIn::AcrTranslator do
     end
 
     context 'when type is dslogon' do
-      let(:type) { 'dslogon' }
+      let(:type) { SignIn::Constants::Auth::DSLOGON }
 
       context 'and acr is loa1' do
         let(:acr) { 'loa1' }
@@ -134,7 +134,7 @@ RSpec.describe SignIn::AcrTranslator do
 
       context 'and acr is loa3' do
         let(:acr) { 'loa3' }
-        let(:expected_translated_acr) { LOA::IDME_DSLOGON_LOA3 }
+        let(:expected_translated_acr) { LOA::IDME_DSLOGON_LOA1 }
 
         it 'returns expected translated acr value' do
           expect(subject).to be(expected_translated_acr)
@@ -144,22 +144,10 @@ RSpec.describe SignIn::AcrTranslator do
       context 'and acr is min' do
         let(:acr) { 'min' }
 
-        context 'and uplevel is false' do
-          let(:uplevel) { false }
-          let(:expected_translated_acr) { LOA::IDME_DSLOGON_LOA1 }
+        let(:expected_translated_acr) { LOA::IDME_DSLOGON_LOA1 }
 
-          it 'returns expected translated acr value' do
-            expect(subject).to be(expected_translated_acr)
-          end
-        end
-
-        context 'and uplevel is true' do
-          let(:uplevel) { true }
-          let(:expected_translated_acr) { LOA::IDME_DSLOGON_LOA3 }
-
-          it 'returns expected translated acr value' do
-            expect(subject).to be(expected_translated_acr)
-          end
+        it 'returns expected translated acr value' do
+          expect(subject).to be(expected_translated_acr)
         end
       end
 
@@ -175,7 +163,7 @@ RSpec.describe SignIn::AcrTranslator do
     end
 
     context 'when type is mhv' do
-      let(:type) { 'mhv' }
+      let(:type) { SignIn::Constants::Auth::MHV }
 
       context 'and acr is loa1' do
         let(:acr) { 'loa1' }

@@ -25,6 +25,15 @@ describe HCA::Service do
   let(:current_user) { FactoryBot.build(:user, :loa3, icn: nil) }
 
   describe '#submit_form' do
+    it 'doesnt convert validation error to another error' do
+      error = HCA::SOAPParser::ValidationError
+      expect(service.send(:connection)).to receive(:post).and_raise(error)
+
+      expect do
+        service.submit_form(build(:health_care_application).parsed_form)
+      end.to raise_error(error)
+    end
+
     it 'increments statsd' do
       expect(StatsD).to receive(:increment).with('api.1010ez.submit_form.fail',
                                                  tags: ['error:VCRErrorsUnhandledHTTPRequestError'])
@@ -85,7 +94,7 @@ describe HCA::Service do
     end
 
     context 'submitting sigi field' do
-      it 'works', run_at: 'Thu, 06 Oct 2022 04:40:11 GMT' do
+      it 'works', run_at: 'Tue, 01 Nov 2022 15:07:20 GMT' do
         VCR.use_cassette(
           'hca/sigi',
           VCR::MATCH_EVERYTHING.merge(erb: true)

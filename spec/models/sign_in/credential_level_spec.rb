@@ -14,7 +14,7 @@ RSpec.describe SignIn::CredentialLevel, type: :model do
   let(:requested_acr) { SignIn::Constants::Auth::ACR_VALUES.first }
   let(:current_ial) { IAL::ONE }
   let(:max_ial) { IAL::ONE }
-  let(:credential_type) { SignIn::Constants::Auth::REDIRECT_URLS.first }
+  let(:credential_type) { SignIn::Constants::Auth::CSP_TYPES.first }
 
   describe 'validations' do
     describe '#requested_acr' do
@@ -65,7 +65,20 @@ RSpec.describe SignIn::CredentialLevel, type: :model do
       context 'when max_ial is an arbitrary value' do
         let(:max_ial) { 'some-max-ial' }
         let(:expected_error) { ActiveModel::ValidationError }
-        let(:expected_error_message) { 'Validation failed: Max ial is not included in the list' }
+        let(:expected_error_message) do
+          'Validation failed: Max ial is not included in the list, Max ial cannot be less than Current ial'
+        end
+
+        it 'raises validation error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+
+      context 'when max_ial is less than current_ial' do
+        let(:max_ial) { IAL::ONE }
+        let(:current_ial) { IAL::TWO }
+        let(:expected_error) { ActiveModel::ValidationError }
+        let(:expected_error_message) { 'Validation failed: Max ial cannot be less than Current ial' }
 
         it 'raises validation error' do
           expect { subject }.to raise_error(expected_error, expected_error_message)
@@ -78,7 +91,7 @@ RSpec.describe SignIn::CredentialLevel, type: :model do
     subject { credential_level.can_uplevel_credential? }
 
     context 'when requested acr is min' do
-      let(:requested_acr) { 'min' }
+      let(:requested_acr) { SignIn::Constants::Auth::MIN }
 
       context 'and current_ial is less than max_ial' do
         let(:current_ial) { IAL::ONE }
@@ -99,7 +112,7 @@ RSpec.describe SignIn::CredentialLevel, type: :model do
       end
     end
 
-    context 'when requested acr is not min' do
+    context 'when requested acr is some other value' do
       let(:requested_acr) { SignIn::Constants::Auth::ACR_VALUES.first }
 
       it 'returns false' do

@@ -129,15 +129,19 @@ module V1
     def user_login(saml_response)
       user_session_form = UserSessionForm.new(saml_response)
       raise_saml_error(user_session_form) unless user_session_form.valid?
+      mhv_unverified_validation(user_session_form)
 
       @current_user, @session_object = user_session_form.persist
       set_cookies
       after_login_actions
-      if url_service.should_uplevel?
-        render_login('verify')
-      else
-        redirect_to url_service.login_redirect_url
-        login_stats(:success)
+      redirect_to url_service.login_redirect_url
+      login_stats(:success)
+    end
+
+    def mhv_unverified_validation(user_session_form)
+      if html_escaped_relay_state['type'] == 'mhv_verified' && user_session_form.user.loa[:current] < LOA::THREE
+        Rails.logger.warn('SessionsController version:v1 mhv basic account blocked for mhv_verified type')
+        raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:mhv_unverified_blocked]
       end
     end
 
@@ -180,7 +184,7 @@ module V1
       when 'mhv'
         url_service.login_url('mhv', 'myhealthevet', AuthnContext::MHV)
       when 'mhv_verified'
-        url_service.login_url('mhv', 'myhealthevet_loa3', AuthnContext::MHV)
+        url_service.login_url('mhv_verified', 'myhealthevet', AuthnContext::MHV)
       when 'dslogon'
         url_service.login_url('dslogon', 'dslogon', AuthnContext::DSLOGON)
       when 'dslogon_verified'

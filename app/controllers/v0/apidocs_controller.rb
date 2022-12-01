@@ -132,6 +132,8 @@ module V0
       Swagger::Requests::BurialClaims,
       Swagger::Requests::BenefitsReferenceData,
       Swagger::Requests::ClaimStatus,
+      Swagger::Requests::ClaimLetters,
+      Swagger::Requests::Coe,
       Swagger::Requests::Debts,
       Swagger::Requests::DebtLetters,
       Swagger::Requests::DecisionReviewEvidence,

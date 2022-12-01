@@ -2,29 +2,59 @@
 
 module VANotify
   class Veteran
-    attr_reader :first_name, :user_uuid
+    class UnsupportedForm < StandardError; end
+    class MPIError < StandardError; end
+    class MPINameError < StandardError; end
 
-    def initialize(first_name:, user_uuid:)
-      @first_name = first_name
-      @user_uuid = user_uuid
+    def initialize(in_progress_form)
+      @in_progress_form = in_progress_form
     end
 
     def icn
-      @icn ||= lookup_icn(user_uuid)
+      @icn ||= in_progress_form&.user_account&.icn
     end
+    alias mhv_icn icn
+
+    def first_name
+      @first_name ||= case in_progress_form.form_id
+                      when '686C-674'
+                        JSON.parse(in_progress_form.form_data).dig('veteran_information', 'full_name', 'first')
+                      when '1010ez'
+                        JSON.parse(in_progress_form.form_data).dig('veteran_full_name', 'first')
+                      when '21-526EZ'
+                        lookup_first_name_by_icn
+                      else
+                        raise UnsupportedForm,
+                              "Unsupported form: #{in_progress_form.form_id} - InProgressForm: #{in_progress_form.id}"
+                      end
+    end
+
+    def authn_context
+      'va_notify_lookup'
+    end
+
+    def user_uuid
+      @user_uuid ||= in_progress_form.user_uuid
+    end
+    alias uuid user_uuid
+
+    def verified?
+      icn.present?
+    end
+    alias loa3? verified?
 
     private
 
-    def lookup_icn(user_uuid)
-      account = Account.lookup_by_user_uuid(user_uuid) || Account.lookup_by_user_uuid(hyphenate_uuid(user_uuid))
-      account&.icn
-    end
+    attr_reader :in_progress_form
 
-    # ID.me uuids don’t have hyphens
-    # logingov_uuids do have hyphens
-    # so we have to check both
-    def hyphenate_uuid(user_uuid)
-      "#{user_uuid[0, 8]}-#{user_uuid[8, 4]}-#{user_uuid[12, 4]}-#{user_uuid[16, 4]}-#{user_uuid[20, 12]}"
+    def lookup_first_name_by_icn
+      mpi_profile = MPI::Service.new.find_profile(self)
+      raise MPIError unless mpi_profile.ok?
+
+      given_names = mpi_profile.profile.given_names
+      raise MPINameError if given_names.blank?
+
+      given_names.first
     end
   end
 end

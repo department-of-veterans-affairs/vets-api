@@ -125,45 +125,6 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe '#person_types' do
-    let(:user) { build(:user, person_types: identity_person_types) }
-    let(:mpi_profile) { build(:mvi_profile, person_types: mpi_person_types) }
-    let(:identity_person_types) { ['some_identity_person_types'] }
-    let(:mpi_person_types) { 'some_mpi_person_types' }
-
-    before do
-      allow(user).to receive(:mpi).and_return(mpi_profile)
-    end
-
-    context 'when person_types on User Identity exists' do
-      let(:identity_person_types) { ['some_identity_person_types'] }
-
-      it 'returns person_types off the User Identity' do
-        expect(user.person_types).to eq(identity_person_types)
-      end
-    end
-
-    context 'when person_types on identity does not exist' do
-      let(:identity_person_types) { nil }
-
-      context 'and person_types on MPI Data exists' do
-        let(:mpi_person_types) { 'some_mpi_person_types' }
-
-        it 'returns person_types from the MPI Data' do
-          expect(user.person_types).to eq([mpi_person_types])
-        end
-      end
-
-      context 'and person_types on MPI Data does not exist' do
-        let(:mpi_person_types) { nil }
-
-        it 'returns an empty array' do
-          expect(user.person_types).to eq([])
-        end
-      end
-    end
-  end
-
   describe '#all_emails' do
     let(:user) { build(:user, :loa3) }
     let(:vet360_email) { user.vet360_contact_info.email.email_address }
@@ -436,16 +397,12 @@ RSpec.describe User, type: :model do
           expect(user.gender).to be(user.identity.gender)
         end
 
-        it 'fetches person_types from IDENTITY' do
-          expect(user.identity_person_types).to be(user.identity.person_types)
-        end
-
         it 'fetches properly parsed birth_date from IDENTITY' do
           expect(user.birth_date).to eq(Date.parse(user.identity.birth_date).iso8601)
         end
 
-        it 'fetches zip from IDENTITY' do
-          expect(user.zip).to be(user.identity.zip)
+        it 'fetches postal_code from IDENTITY' do
+          expect(user.postal_code).to be(user.identity.postal_code)
         end
 
         it 'fetches ssn from IDENTITY' do
@@ -456,7 +413,7 @@ RSpec.describe User, type: :model do
           expect(user.address[:street]).to be(user.identity.address[:street])
           expect(user.address[:street2]).to be(user.identity.address[:street2])
           expect(user.address[:city]).to be(user.identity.address[:city])
-          expect(user.address[:zip]).to be(user.identity.address[:postal_code])
+          expect(user.address[:postal_code]).to be(user.identity.address[:postal_code])
           expect(user.address[:country]).to be(user.identity.address[:country])
         end
 
@@ -542,7 +499,7 @@ RSpec.describe User, type: :model do
         end
 
         it 'fetches person_types from MPI' do
-          expect(user.mpi_person_types).to be(mvi_profile.person_types)
+          expect(user.person_types).to be(mvi_profile.person_types)
         end
 
         it 'fetches gender from MPI' do
@@ -653,12 +610,12 @@ RSpec.describe User, type: :model do
           expect(user.address[:street]).to eq(mvi_profile.address.street)
           expect(user.address[:street2]).to be(mvi_profile.address[:street2])
           expect(user.address[:city]).to be(mvi_profile.address[:city])
-          expect(user.address[:zip]).to be(mvi_profile.address[:postal_code])
+          expect(user.address[:postal_code]).to be(mvi_profile.address[:postal_code])
           expect(user.address[:country]).to be(mvi_profile.address[:country])
         end
 
-        it 'fetches zip from MPI' do
-          expect(user.zip).to be(mvi_profile.address.postal_code)
+        it 'fetches postal_code from MPI' do
+          expect(user.postal_code).to be(mvi_profile.address.postal_code)
         end
 
         it 'fetches ssn from MPI' do
@@ -692,8 +649,8 @@ RSpec.describe User, type: :model do
           expect(user.birth_date).to be_nil
         end
 
-        it 'fetches zip from IDENTITY' do
-          expect(user.zip).to be_nil
+        it 'fetches postal_code from IDENTITY' do
+          expect(user.postal_code).to be_nil
         end
 
         it 'fetches ssn from IDENTITY' do
@@ -727,8 +684,8 @@ RSpec.describe User, type: :model do
           expect(user.birth_date).to eq(Date.parse(user.identity.birth_date).iso8601)
         end
 
-        it 'fetches zip from IDENTITY' do
-          expect(user.zip).to be(user.identity.zip)
+        it 'fetches postal_code from IDENTITY' do
+          expect(user.postal_code).to be(user.identity.postal_code)
         end
 
         it 'fetches ssn from IDENTITY' do
@@ -1118,6 +1075,24 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '#fingerprint' do
+    let(:fingerprint) { '196.168.0.0' }
+    let(:user) { create :user, fingerprint: fingerprint }
+
+    it 'returns expected user fingerprint' do
+      expect(user.fingerprint).to eq(fingerprint)
+    end
+
+    context 'fingerprint mismatch' do
+      let(:new_fingerprint) { '0.0.0.0' }
+
+      it 'can update the user fingerprint value' do
+        user.fingerprint = new_fingerprint
+        expect(user.fingerprint).to eq(new_fingerprint)
+      end
+    end
+  end
+
   describe '#user_verification' do
     let(:user) do
       described_class.new(build(:user,
@@ -1152,8 +1127,21 @@ RSpec.describe User, type: :model do
       context 'and there is not an mhv_correlation_id' do
         let(:mhv_correlation_id) { nil }
 
-        it 'returns user verification with a matching idme_uuid' do
-          expect(user.user_verification.idme_uuid).to eq(idme_uuid)
+        context 'and user has an idme_uuid' do
+          let(:idme_uuid) { 'some-idme-uuid' }
+
+          it 'returns user verification with a matching idme_uuid' do
+            expect(user.user_verification.idme_uuid).to eq(idme_uuid)
+          end
+        end
+
+        context 'and user does not have an idme_uuid' do
+          let(:idme_uuid) { nil }
+          let(:user_verification) { nil }
+
+          it 'returns nil' do
+            expect(user.user_verification).to be nil
+          end
         end
       end
     end
@@ -1172,8 +1160,21 @@ RSpec.describe User, type: :model do
       context 'and there is not an edipi' do
         let(:edipi) { nil }
 
-        it 'returns user verification with a matching idme_uuid' do
-          expect(user.user_verification.idme_uuid).to eq(idme_uuid)
+        context 'and user has an idme_uuid' do
+          let(:idme_uuid) { 'some-idme-uuid' }
+
+          it 'returns user verification with a matching idme_uuid' do
+            expect(user.user_verification.idme_uuid).to eq(idme_uuid)
+          end
+        end
+
+        context 'and user does not have an idme_uuid' do
+          let(:idme_uuid) { nil }
+          let(:user_verification) { nil }
+
+          it 'returns nil' do
+            expect(user.user_verification).to be nil
+          end
         end
       end
     end
@@ -1189,10 +1190,22 @@ RSpec.describe User, type: :model do
 
     context 'when user is logged in with idme' do
       let(:authn_context) { LOA::IDME_LOA1_VETS }
-      let(:idme_uuid) { 'some-idme-uuid' }
 
-      it 'returns user verification with a matching idme_uuid' do
-        expect(user.user_verification.idme_uuid).to eq(idme_uuid)
+      context 'and user has an idme_uuid' do
+        let(:idme_uuid) { 'some-idme-uuid' }
+
+        it 'returns user verification with a matching idme_uuid' do
+          expect(user.user_verification.idme_uuid).to eq(idme_uuid)
+        end
+      end
+
+      context 'and user does not have an idme_uuid' do
+        let(:idme_uuid) { nil }
+        let(:user_verification) { nil }
+
+        it 'returns nil' do
+          expect(user.user_verification).to be nil
+        end
       end
     end
   end
@@ -1225,58 +1238,34 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe '#mpi_add_person_implicit_search' do
-    subject { user.mpi_add_person_implicit_search }
-
-    let(:user) { create(:user, :loa3) }
-
-    before do
-      allow_any_instance_of(MPI::Service).to receive(:add_person_implicit_search)
-    end
-
-    context 'when loa3? is true' do
-      before { stub_mpi_not_found }
-
-      it 'makes a call to MPI to create a new user' do
-        expect_any_instance_of(MPI::Service).to receive(:add_person_implicit_search)
-        subject
-      end
-    end
-
-    context 'when loa3? is false' do
-      let(:user) { create(:user) }
-
-      it 'does not make a call to MPI to create a new user' do
-        expect_any_instance_of(MPI::Service).not_to receive(:add_person_implicit_search)
-        subject
-      end
-    end
-  end
-
-  describe '#mpi_update_profile' do
-    subject { user.mpi_update_profile }
-
-    let(:user) { create(:user, :loa3) }
+  describe '#address' do
+    let(:user) { build(:user, :loa3, :mvi_profile_street_and_suffix) }
+    let(:mvi_profile) { build(:mvi_profile, suffix: 'Jr.') }
 
     before do
-      allow_any_instance_of(MPI::Service).to receive(:update_profile)
+      stub_mpi(mvi_profile)
     end
 
-    context 'when loa3? is true' do
-      before { stub_mpi_not_found }
-
-      it 'makes a call to MPI to update a user correlation profile' do
-        expect_any_instance_of(MPI::Service).to receive(:update_profile)
-        subject
+    context 'user has an address' do
+      it 'returns address as hash, with user_identity record\'s address preferred over mpi_profile\'s address' do
+        expect(user.address).to eq(user.identity.address)
+        user.identity.address = nil
+        expect(user.address).to eq(user.send(:mpi_profile).address.to_h)
       end
     end
 
-    context 'when loa3? is false' do
-      let(:user) { create(:user) }
-
-      it 'does not make a call to MPI to update a user correlation profile' do
-        expect_any_instance_of(MPI::Service).not_to receive(:update_profile)
-        subject
+    context 'user does not have an address' do
+      it 'returns a hash where all values are nil' do
+        user.identity.address = nil
+        user.send(:mpi_profile).address = nil
+        expect(user.address).to eq({
+                                     street: nil,
+                                     street2: nil,
+                                     city: nil,
+                                     state: nil,
+                                     country: nil,
+                                     postal_code: nil
+                                   })
       end
     end
   end

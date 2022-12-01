@@ -279,6 +279,43 @@ RSpec.describe 'VirtualAgentClaims', type: :request do
         expect(@mock_cxdw_reporting_service).to have_received(:report_to_cxdw).with(user.icn, '123')
       end
     end
+
+    context 'when reporting fails' do
+      it 'returns claims when claims retrieval successful' do
+        sign_in_as(user)
+        error = StandardError.new
+        error_message = { 'context' => 'An error occurred while attempting to report the claim(s).' }
+        allow(@mock_cxdw_reporting_service).to receive(:report_to_cxdw).and_raise(error)
+
+        VCR.use_cassette('evss/claims/claims_multiple_open_compensation_claims') do
+          EVSS::RetrieveClaimsFromRemoteJob.new.perform(user.uuid)
+
+          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(error, error_message)
+          get '/v0/virtual_agent/claim?conversation_id=123'
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)['meta']['sync_status']).to eq 'SUCCESS'
+          expect(@mock_cxdw_reporting_service).to have_received(:report_to_cxdw).with(user.icn, '123')
+        end
+      end
+
+      it 'returns service unavailable when claims retrieval fails' do
+        sign_in_as(user)
+        allow(@mock_cxdw_reporting_service).to receive(:report_to_cxdw).and_raise('message')
+
+        VCR.use_cassette('evss/claims/claims_with_errors') do
+          EVSS::RetrieveClaimsFromRemoteJob.new.perform(user.uuid)
+          error = StandardError.new
+          error_message = { 'context' => 'An error occurred while attempting to retrieve the claim(s).' }
+          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(error, error_message)
+        rescue
+
+          get '/v0/virtual_agent/claim?conversation_id=123'
+
+          expect(response).to have_http_status(:service_unavailable)
+          expect(@mock_cxdw_reporting_service).to have_received(:report_to_cxdw).with(user.icn, '123')
+        end
+      end
+    end
   end
 
   describe 'VirtualAgentStoreUserInfoJob' do

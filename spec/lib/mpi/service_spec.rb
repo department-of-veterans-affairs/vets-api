@@ -241,13 +241,25 @@ describe MPI::Service do
               ssn: ssn,
               first_name: first_name,
               last_name: last_name,
+              address: address,
               birth_date: birth_date,
+              email: email,
               idme_uuid: idme_uuid)
       end
       let(:ssn) { 796_111_863 }
       let(:first_name) { 'abraham' }
       let(:last_name) { 'lincoln' }
+      let(:address) do
+        {
+          street: '1600 Pennsylvania Ave',
+          city: 'Washington',
+          state: 'DC',
+          country: 'USA',
+          postal_code: '20500'
+        }
+      end
       let(:birth_date) { '18090212' }
+      let(:email) { 'some-email' }
       let(:idme_uuid) { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
       let(:expected_icn) { '1013677101V363970' }
       let(:transaction_id) { '4bae058f5e3cb2c800274633' }
@@ -349,6 +361,7 @@ describe MPI::Service do
               first_name: first_name,
               last_name: last_name,
               birth_date: birth_date,
+              address: address,
               icn: icn,
               idme_uuid: idme_uuid)
       end
@@ -357,6 +370,15 @@ describe MPI::Service do
       let(:last_name) { 'lincoln' }
       let(:birth_date) { '18090212' }
       let(:icn) { '1013677101V363970' }
+      let(:address) do
+        {
+          street: '1600 Pennsylvania Ave',
+          city: 'Washington',
+          state: 'DC',
+          country: 'USA',
+          postal_code: '20500'
+        }
+      end
       let(:idme_uuid) { 'b2fab2b56af045e1a9e2394347af91ef' }
       let(:expected_response_codes) { { idme_uuid: idme_uuid } }
       let(:missing_keys) { [:first_name] }
@@ -383,6 +405,7 @@ describe MPI::Service do
               ssn: ssn,
               first_name: first_name,
               last_name: last_name,
+              email: email,
               birth_date: birth_date,
               icn: icn,
               idme_uuid: idme_uuid)
@@ -392,6 +415,7 @@ describe MPI::Service do
       let(:last_name) { 'lincoln' }
       let(:birth_date) { '18090212' }
       let(:icn) { '1013677101V363970' }
+      let(:email) { 'some-email' }
       let(:idme_uuid) { 'b2fab2b56af045e1a9e2394347af91ef' }
       let(:transaction_id) { nil }
       let(:expected_response_codes) { { idme_uuid: idme_uuid, transaction_id: transaction_id } }

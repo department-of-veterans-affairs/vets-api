@@ -22,17 +22,26 @@ module VBADocuments
     end
 
     def validate
+      Rails.logger.info("#{log_prefix} starting")
+
       @errors = []
       @result = nil
 
       validate_headers
       if @errors.present?
+        Rails.logger.info("#{log_prefix} found error in request header: #{@errors.join(',')}")
         @result = validation_error
         return @result
       end
 
       validate_body
-      @result = @errors.present? ? validation_error : validation_success
+      if @errors.present?
+        Rails.logger.info("#{log_prefix} found error in request body: #{@errors.join(',')}")
+        @result = validation_error
+      else
+        Rails.logger.info("#{log_prefix} returned success")
+        @result = validation_success
+      end
     end
 
     private
@@ -41,6 +50,8 @@ module VBADocuments
       content_type = @request.headers['Content-Type']
       content_length = @request.headers['Content-Length']
       content_length = @request.body.size.to_s if content_length.nil?
+
+      Rails.logger.info("#{log_prefix} validating document with Content-Length of #{content_length} bytes")
 
       if content_length.to_i.zero?
         @errors << DOCUMENT_NOT_PROVIDED_MSG
@@ -87,6 +98,10 @@ module VBADocuments
           }
         }
       }
+    end
+
+    def log_prefix
+      self.class
     end
   end
 end
