@@ -1,79 +1,78 @@
 ---
-{{- $root := . -}}
-{{- range $name, $service := $root.Values.web.externalservice.service }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: {{ $name }}
-  name: {{ $name }}
-  namespace: {{ $root.Release.Namespace }}
+    app: {{ .Values.appName }}-web
+  name: {{ .Values.appName }}-web
+  namespace: {{ .Release.Namespace }}
 spec:
   selector:
     matchLabels:
-      app: {{ $name }}
+      app: {{ .Values.appName }}-web
   strategy:
-    type: {{ $root.Values.web.strategyType }}
+    type: {{ .Values.web.strategyType }}
     rollingUpdate:
-      maxSurge: {{ $root.Values.web.maxSurge }}
-      maxUnavailable: {{ $root.Values.web.maxUnavailable }}
+      maxSurge: {{ .Values.web.maxSurge }}
+      maxUnavailable: {{ .Values.web.maxUnavailable }}
   template:
     metadata:
       labels:
-        app: {{ $name }}
+        app: {{ .Values.appName }}-web
       annotations:
-{{ toYaml $root.Values.annotations | indent 8 }}
+        argocd.argoproj.io/sync-options: Replace=true
+{{ toYaml .Values.annotations | indent 8 }}
     spec:
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: {{ $root.Values.affitnityWeight }}
+            - weight: {{ .Values.affitnityWeight }}
               podAffinityTerm:
                 labelSelector:
                   matchExpressions:
-                    - key: {{ $root.Values.matchExpressions.key }}
-                      operator: {{ $root.Values.matchExpressions.operator }}
+                    - key: {{ .Values.matchExpressions.key }}
+                      operator: {{ .Values.matchExpressions.operator }}
                       values:
-                        - {{ $name }}
-                topologyKey:  {{ $root.Values.topologyKey }}
+                        - {{ .Values.appName }}-web
+                topologyKey:  {{ .Values.topologyKey }}
       securityContext:
         fsGroup: 1000
       volumes:
-{{ toYaml $root.Values.common.volumes | indent 8 }}
-      {{- if $root.Values.mockData.enabled }}
+{{ toYaml .Values.common.volumes | indent 8 }}
+      {{- if .Values.mockData.enabled }}
       initContainers:
-{{ toYaml $root.Values.common.initContainers | indent 8 }}
+{{ toYaml .Values.common.initContainers | indent 8 }}
       {{- end }}
       containers:
-        - image: "{{ $root.Values.image.value }}:{{ $root.Values.image.tag }}"
-          imagePullPolicy: {{ $root.Values.image.pullPolicy }}
-          name: {{ $name }}
+        - image: "{{ .Values.image.value }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          name: {{ .Values.appName }}-web
           ports:
-            {{- range $key := $root.Values.web.containers.ports }}
+            {{- range $key := .Values.web.containers.ports }}
             - containerPort: {{ $key.containerPort }}
               name: {{ $key.name }}
             {{- end }}
           livenessProbe: #ensure app is serving requests properly and know when to restart a container
             httpGet:
-              path: {{ $root.Values.web.healthCheck.requestPath }}
-              port: {{ $root.Values.web.healthCheck.port }}
-            initialDelaySeconds: {{ $root.Values.web.healthCheck.initialDelaySeconds }}
-            periodSeconds: {{ $root.Values.web.healthCheck.periodSeconds }}
+              path: {{ .Values.web.healthCheck.requestPath }}
+              port: {{ .Values.web.healthCheck.port }}
+            initialDelaySeconds: {{ .Values.web.healthCheck.initialDelaySeconds }}
+            periodSeconds: {{ .Values.web.healthCheck.periodSeconds }}
           readinessProbe: #ensure container is ready to start accepting traffic
             httpGet:
-              path: {{ $root.Values.web.healthCheck.readinessPath }}
-              port: {{ $root.Values.web.healthCheck.readinessPort }}
-            initialDelaySeconds: {{ $root.Values.web.healthCheck.initialDelaySeconds }}
-            periodSeconds: {{ $root.Values.web.healthCheck.periodSeconds }}
+              path: {{ .Values.web.healthCheck.readinessPath }}
+              port: {{ .Values.web.healthCheck.readinessPort }}
+            initialDelaySeconds: {{ .Values.web.healthCheck.initialDelaySeconds }}
+            periodSeconds: {{ .Values.web.healthCheck.periodSeconds }}
           resources:
-{{ toYaml $root.Values.web.resources | indent 12 }}
+{{ toYaml .Values.web.resources | indent 12 }}
           volumeMounts:
-{{ toYaml $root.Values.common.volumeMounts | indent 12 }}
+{{ toYaml .Values.common.volumeMounts | indent 12 }}
           env:
             - name: GIT_REVISION
-              value: {{ $root.Values.image.tag}}
-{{ toYaml $root.Values.web.envSecrets | indent 12 }}
-          {{- range $keys, $key := $root.Values.common.secrets }}
+              value: {{ .Values.image.tag}}
+{{ toYaml .Values.web.envSecrets | indent 12 }}
+          {{- range $keys, $key := .Values.common.secrets }}
           {{- range $secrets, $secret := $key }}
             - name: {{ $secret.env_var }}
               valueFrom:
@@ -82,8 +81,7 @@ spec:
                   key:  {{ $secret.name }}
           {{- end }}
           {{- end }}
-        {{- if $root.Values.web.socatProxyEnabled }}
-{{ toYaml $root.Values.common.socatProxy | indent 8 }}
+        {{- if .Values.web.socatProxyEnabled }}
+{{ toYaml .Values.common.socatProxy | indent 8 }}
         {{- end }}
-      serviceAccountName: {{ $root.Values.web.serviceAccount.name }}
-{{- end }}
+      serviceAccountName: {{ .Values.web.serviceAccount.name }}
