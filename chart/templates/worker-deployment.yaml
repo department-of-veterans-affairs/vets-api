@@ -93,5 +93,5 @@ spec:
 {{ toYaml .Values.common.socatProxy | indent 8 }}
         {{- end }}
       terminationGracePeriodSeconds: {{ .Values.worker.terminationGracePeriodSeconds }} # put your longest Job time here plus security time.
-      serviceAccountName: {{ .Values.web.serviceAccount.name }}
+      serviceAccountName: {{ .Values.serviceAccount.name }}
 {{- end }}

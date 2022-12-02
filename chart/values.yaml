@@ -8,14 +8,17 @@ vsp_environment: ""
 affitnityWeight: ""
 mockData:
   enabled: false
-
-
 matchExpressions:
   key: app
   operator: In
 topologyKey: kubernetes.io/hostname
 annotations:
   ad.datadoghq.com/vets-api-web.checks: {}
+serviceAccount:
+  enabled: true
+  role_arn: ""
+  name: ""
+
 #Web configuration
 web:
   strategyType: RollingUpdate
@@ -48,8 +51,6 @@ web:
   envSecrets:
     - name: DD_APM_ENABLED
       value: false
-
-
   resources:
     requests:
       cpu: ""
@@ -57,16 +58,11 @@ web:
     limits:
       cpu: ""
       memory: ""
-  serviceAccount:
-    enabled: false
-    role_arn: ""
-    name: ""
   ssoeEnabled: false
   ssoeConfigs:
     - name: ""
       key: ""
       value: {}
-
   ingress:
     enabled: false
     entryPoints: web
@@ -103,7 +99,6 @@ web:
             port: ""
         middlewares:
           - name: ""
-
   service:
     enabled: false
     annotations:
@@ -119,29 +114,23 @@ web:
       targetPort: stats
       protocol: TCP
     type: ClusterIP
-
   hpa:
     apiVersion: apps/v1
     kind: Deployment
-
   externalDns:
     dnsName: ""
     recordTTL: 180
     targets: ""
-
   dbMigrate:
     enabled: true
     envSecrets:
       - name: DD_APM_ENABLED
         value: false
-
   pumaBacklog:
     enabled: false
-
   bgsEvss:
     enabled: false
     name: ""
-
   externalservice:
     default:
       port: 3004
@@ -162,22 +151,14 @@ worker:
   securityContext: ""
   metadata:
     name: ""
-
-  serviceAccount:
-    enabled: false
-    role_arn: ""
-    name: ""
-
   containers:
     command: []
     args: []
-
   autoscaling:
     enabled: false
     minReplicas: ""
     maxReplicas: ""
     targetAverageValue: ""
-
   healthCheck:
     requestPath: ""
     port: ""
@@ -187,9 +168,7 @@ worker:
     readinessPort: ""
     timeoutSeconds: ""
     command: []
-
   terminationGracePeriodSeconds: ""
-
   socatProxyEnabled: false
   envSecrets:
     - name: DD_APM_ENABLED

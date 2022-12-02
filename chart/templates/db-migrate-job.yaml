@@ -11,7 +11,7 @@ metadata:
 spec:
   template:
     spec:
-      serviceAccountName: {{ .Values.web.serviceAccount.name }}
+      serviceAccountName: {{ .Values.serviceAccount.name }}
       containers:
         - name: db-migrate
           image: '{{ .Values.image.value }}:{{ .Values.image.tag }}'

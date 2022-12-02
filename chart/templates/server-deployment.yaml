@@ -84,4 +84,4 @@ spec:
         {{- if .Values.web.socatProxyEnabled }}
 {{ toYaml .Values.common.socatProxy | indent 8 }}
         {{- end }}
-      serviceAccountName: {{ .Values.web.serviceAccount.name }}
+      serviceAccountName: {{ .Values.serviceAccount.name }}
