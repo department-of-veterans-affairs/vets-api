@@ -92,7 +92,6 @@ PATH
     dhp_connected_devices (0.1.0)
     facilities_api (0.1.0)
     health_quest (0.1.0)
-    identity (0.1.0)
     meb_api (0.1.0)
     mobile (0.1.0)
       dry-validation
@@ -1064,7 +1063,6 @@ DEPENDENCIES
   holidays
   httpclient
   ice_nine
-  identity!
   iso_country_codes
   json
   json-schema
