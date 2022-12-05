@@ -343,7 +343,7 @@ modules_appeals_api:
     weekly_error:
       recipients:
         - drew.fisher@adhocteam.us
-        - cassey.williams@adhocteam.us
+        - casey.williams@adhocteam.us
         - michel.mcdonald@adhocteam.us
 
   schema_dir: config/schemas

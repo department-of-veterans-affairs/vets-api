@@ -27,6 +27,10 @@ module AppealsApi
       where('updated_at < ? AND status IN (?)', 7.days.ago, COMPLETE_STATUSES)
     }
 
+    scope :stuck_unsubmitted, lambda {
+      where('created_at < ? AND status IN (?)', 2.hours.ago, %w[pending submitting])
+    }
+
     serialize :auth_headers, JsonMarshal::Marshaller
     serialize :form_data, JsonMarshal::Marshaller
     has_kms_key
