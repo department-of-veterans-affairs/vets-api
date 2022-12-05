@@ -25,7 +25,7 @@ module RapidReadyForDecision
       @claim_context.add_metadata(pdf_created: true)
       upload_pdf(pdf_body)
 
-      set_special_issue if Flipper.enabled?(:rrd_add_special_issue) && release_pdf?
+      set_special_issue
 
       @claim_context.save_metadata
     end
@@ -59,17 +59,9 @@ module RapidReadyForDecision
       vro_client.download_summary.body
     end
 
-    # Override this method to prevent the submission from getting the PDF and special issue
-    def release_pdf?
-      flipper_symbol = "rrd_#{@claim_context.disability_struct[:flipper_name].downcase}_release_pdf".to_sym
-      return true unless Flipper.exist?(flipper_symbol)
-
-      Flipper.enabled?(flipper_symbol)
-    end
-
     def upload_pdf(pdf)
       RapidReadyForDecision::FastTrackPdfUploadManager.new(@claim_context)
-                                                      .handle_attachment(pdf, add_to_submission: release_pdf?)
+                                                      .handle_attachment(pdf, add_to_submission: true)
     end
 
     def set_special_issue

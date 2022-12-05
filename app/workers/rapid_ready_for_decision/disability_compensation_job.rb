@@ -98,9 +98,7 @@ module RapidReadyForDecision
 
     def upload_pdf_and_attach_special_issue(claim_context, pdf)
       RapidReadyForDecision::FastTrackPdfUploadManager.new(claim_context).handle_attachment(pdf.render)
-      if Flipper.enabled?(:rrd_add_special_issue)
-        RapidReadyForDecision::RrdSpecialIssueManager.new(claim_context).add_special_issue
-      end
+      RapidReadyForDecision::RrdSpecialIssueManager.new(claim_context).add_special_issue
     end
 
     def pdf(patient_info, bpreadings, medications)

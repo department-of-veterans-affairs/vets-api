@@ -65,18 +65,4 @@ RSpec.describe RapidReadyForDecision::AsthmaProcessor do
       expect(assessed_meds.take(3).all? { |med| med[:flagged] }).to eq true
     end
   end
-
-  describe '#release_pdf?' do
-    subject { processor.release_pdf? }
-
-    it 'returns false when Flipper symbol is disabled' do
-      Flipper.disable(:rrd_asthma_release_pdf)
-      expect(subject).to eq false
-    end
-
-    it 'returns true when Flipper symbol is enabled' do
-      Flipper.enable(:rrd_asthma_release_pdf)
-      expect(subject).to eq true
-    end
-  end
 end
