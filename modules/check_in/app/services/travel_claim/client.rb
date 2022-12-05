@@ -14,8 +14,8 @@ module TravelClaim
 
     attr_reader :settings, :check_in
 
-    def_delegators :settings, :auth_url, :tenant_id, :client_id, :client_secret, :scope, :claims_url, :client_number,
-                   :subscription_key, :service_name
+    def_delegators :settings, :auth_url, :tenant_id, :client_id, :client_secret, :scope, :claims_url, :claims_base_path,
+                   :client_number, :subscription_key, :service_name
 
     ##
     # Builds a Client instance
@@ -57,7 +57,7 @@ module TravelClaim
     # @return [Faraday::Response]
     #
     def submit_claim(token:, patient_icn:, appointment_date:)
-      connection(server_url: claims_url).post('/ClaimIngest/submitclaim') do |req|
+      connection(server_url: claims_url).post("/#{claims_base_path}/api/ClaimIngest/submitclaim") do |req|
         req.headers = claims_default_header.merge('Authorization' => "Bearer #{token}")
         req.body = claims_data.merge({ ClaimantID: patient_icn, Appointment:
           { AppointmentDateTime: appointment_date } }).to_json
