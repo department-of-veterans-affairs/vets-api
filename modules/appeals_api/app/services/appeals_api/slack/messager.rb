@@ -7,7 +7,7 @@ module AppealsApi
     class Messager
       API_PATH = 'https://slack.com/api/chat.postMessage'
 
-      REGISTERED_NOTIFICATIONS = %i[error_retry].freeze
+      REGISTERED_NOTIFICATIONS = %i[error_retry stuck_record].freeze
       ENVIRONMENT_EMOJIS = { production: 'rotating_light', sandbox: 'rocket', staging: 'construction',
                              development: 'brain' }.freeze
 

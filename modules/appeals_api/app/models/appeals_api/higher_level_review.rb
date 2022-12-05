@@ -31,6 +31,10 @@ module AppealsApi
       where(api_version: 'V2')
     }
 
+    scope :stuck_unsubmitted, lambda {
+      where('created_at < ? AND status IN (?)', 2.hours.ago, %w[pending submitting])
+    }
+
     def self.past?(date)
       date < Time.zone.today
     end
