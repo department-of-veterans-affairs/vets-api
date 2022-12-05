@@ -834,3 +834,6 @@ features:
   move_form_back_button:
     actor_type: user
     description: Test moving form back button to the top of the page
+  myva_cerner_from_drupal:
+    actor_type: user
+    description: Enables cerner updates from drupal
