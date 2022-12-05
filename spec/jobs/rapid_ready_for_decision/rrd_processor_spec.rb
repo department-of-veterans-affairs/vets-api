@@ -55,15 +55,6 @@ RSpec.describe RapidReadyForDecision::RrdProcessor do
     end
   end
 
-  describe '#release_pdf?' do
-    subject { rrd_processor.release_pdf? }
-
-    it 'returns true when Flipper symbol does not exist' do
-      Flipper.remove(:rrd_hypertension_release_pdf)
-      expect(subject).to eq true
-    end
-  end
-
   context 'when run in a Sidekiq job', :vcr do
     around do |example|
       VCR.use_cassette('evss/claims/claims_without_open_compensation_claims') do
@@ -72,12 +63,10 @@ RSpec.describe RapidReadyForDecision::RrdProcessor do
     end
 
     before do
-      Flipper.enable(:rrd_asthma_release_pdf)
       Flipper.disable(:rrd_call_vro_service)
     end
 
     after do
-      Flipper.disable(:rrd_asthma_release_pdf)
       Flipper.enable(:rrd_call_vro_service)
     end
 
