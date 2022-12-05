@@ -24,12 +24,18 @@ module ClaimsApi
           validate_json_schema
 
           poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
+          ClaimsApi::Logger.log('poa', poa_id: poa_code, detail: 'Request started')
           validate_poa_code!(poa_code)
+          ClaimsApi::Logger.log('poa', poa_id: poa_code, detail: 'POA code validated')
           validate_poa_code_for_current_user!(poa_code) if header_request? && !token.client_credentials_token?
+          ClaimsApi::Logger.log('poa', poa_id: poa_code, detail: 'Is valid POA')
+          ClaimsApi::Logger.log('poa', poa_id: poa_code, detail: 'Starting file number check')
           check_file_number_exists!
+          ClaimsApi::Logger.log('poa', poa_id: poa_code, detail: 'File number check completed.')
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
                                                                                           source_name: source_name)
+          ClaimsApi::Logger.log('poa', poa_id: power_of_attorney&.id, detail: 'Located PoA in vets-api')
           unless power_of_attorney&.status&.in?(%w[submitted pending])
             attributes = {
               status: ClaimsApi::PowerOfAttorney::PENDING,
