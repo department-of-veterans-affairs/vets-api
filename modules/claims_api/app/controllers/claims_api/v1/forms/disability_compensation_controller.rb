@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'evss/disability_compensation_form/service'
+require 'evss/disability_compensation_form/dvp/service'
 require 'evss/disability_compensation_form/service_exception'
 require 'evss/error_middleware'
 require 'evss/reference_data/service'
@@ -139,7 +140,13 @@ module ClaimsApi
           validate_veteran_identifiers(require_birls: true)
           validate_initial_claim
 
-          service = EVSS::DisabilityCompensationForm::Service.new(auth_headers)
+          service =
+            if Flipper.enabled? :form526_legacy
+              EVSS::DisabilityCompensationForm::Service.new(auth_headers)
+            else
+              EVSS::DisabilityCompensationForm::Dvp::Service.new(auth_headers)
+            end
+
           auto_claim = ClaimsApi::AutoEstablishedClaim.new(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers: auth_headers,
