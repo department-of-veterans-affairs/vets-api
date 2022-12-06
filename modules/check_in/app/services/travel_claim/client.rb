@@ -15,7 +15,7 @@ module TravelClaim
     attr_reader :settings, :check_in
 
     def_delegators :settings, :auth_url, :tenant_id, :client_id, :client_secret, :scope, :claims_url, :claims_base_path,
-                   :client_number, :subscription_key, :service_name
+                   :client_number, :subscription_key, :e_subscription_key, :s_subscription_key, :service_name
 
     ##
     # Builds a Client instance
@@ -99,10 +99,18 @@ module TravelClaim
     end
 
     def claims_default_header
-      {
-        'Content-Type' => 'application/json',
-        'OCP-APIM-Subscription-Key' => subscription_key
-      }
+      if Settings.vsp_environment == 'production'
+        {
+          'Content-Type' => 'application/json',
+          'OCP-APIM-Subscription-Key-E' => e_subscription_key,
+          'OCP-APIM-Subscription-Key-S' => s_subscription_key
+        }
+      else
+        {
+          'Content-Type' => 'application/json',
+          'OCP-APIM-Subscription-Key' => subscription_key
+        }
+      end
     end
 
     def auth_params
