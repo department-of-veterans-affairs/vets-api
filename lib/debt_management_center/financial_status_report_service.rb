@@ -95,6 +95,7 @@ module DebtManagementCenter
         facility_form = form.deep_dup
         facility_form['personalIdentification']['fsrReason'] = fsr_reason
         facility_form['facilityNum'] = facility_num
+        facility_form['personalIdentification']['fileNumber'] = @user.ssn
         facility_form.delete('selectedDebtsAndCopays')
         facility_form = remove_form_delimiters(facility_form)
 
@@ -117,6 +118,8 @@ module DebtManagementCenter
 
     def submit_vha_fsr(form_submission)
       vha_form = form_submission.form
+      vha_form['transactionId'] = form_submission.id
+      vha_form['timestamp'] = DateTime.now.strftime('%Y%m%dT%H%M%S')
 
       vbs_request = DebtManagementCenter::VBS::Request.build
       sharepoint_request = DebtManagementCenter::Sharepoint::Request.new
