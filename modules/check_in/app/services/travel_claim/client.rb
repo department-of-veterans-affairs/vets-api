@@ -118,10 +118,8 @@ module TravelClaim
       {
         ClientNumber: :client_number,
         ClaimantIDType: CLAIMANT_ID_TYPE,
-        Appointment: {
-          MileageExpense: {
-            TripType: TRIP_TYPE
-          }
+        MileageExpense: {
+          TripType: TRIP_TYPE
         }
       }
     end
