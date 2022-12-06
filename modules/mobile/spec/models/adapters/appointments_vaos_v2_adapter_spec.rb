@@ -3,11 +3,20 @@
 require 'rails_helper'
 
 describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
+  # while hashes will work for these tests, this better reflects the data returned from the VAOS service
+  def appointment_data(index = nil)
+    parsed = JSON.parse(appointment_fixtures, symbolize_names: true)
+    appts = index ? parsed[index] : parsed
+    Array.wrap(appts).map { |appt| OpenStruct.new(appt) }
+  end
+
   let(:appointment_fixtures) do
     File.read(Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'VAOS_v2_appointments.json'))
   end
-
-  let(:adapted_appointments) { subject.parse(JSON.parse(appointment_fixtures, symbolize_names: true)) }
+  let(:adapted_appointment) { ->(index) { subject.parse(appointment_data(index)).first } }
+  let(:adapted_appointments) do
+    subject.parse(appointment_data)
+  end
 
   before do
     Timecop.freeze(Time.zone.parse('2022-08-25T19:25:00Z'))
@@ -17,12 +26,16 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
     Timecop.return
   end
 
+  it 'returns an empty array when provided nil' do
+    expect(subject.parse(nil)).to eq([])
+  end
+
   it 'returns a list of appointments at the expected size' do
-    expect(adapted_appointments.size).to eq(12)
+    expect(adapted_appointments.size).to eq(13)
   end
 
   context 'with a cancelled VA appointment' do
-    let(:cancelled_va) { adapted_appointments[0] }
+    let(:cancelled_va) { adapted_appointment[0] }
 
     it 'has expected fields' do
       expect(cancelled_va[:status_detail]).to eq('CANCELLED BY PATIENT')
@@ -77,7 +90,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
   end
 
   context 'with a booked VA appointment' do
-    let(:booked_va) { adapted_appointments[1] }
+    let(:booked_va) { adapted_appointment[1] }
 
     it 'has expected fields' do
       expect(booked_va[:status]).to eq('BOOKED')
@@ -132,7 +145,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
   end
 
   context 'with a booked CC appointment' do
-    let(:booked_cc) { adapted_appointments[2] }
+    let(:booked_cc) { adapted_appointment[2] }
 
     it 'has expected fields' do
       expect(booked_cc[:status]).to eq('BOOKED')
@@ -191,7 +204,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
   end
 
   context 'with a proposed CC appointment' do
-    let(:proposed_cc) { adapted_appointments[3] }
+    let(:proposed_cc) { adapted_appointment[3] }
 
     it 'has expected fields' do
       expect(proposed_cc[:is_pending]).to eq(true)
@@ -256,7 +269,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
   end
 
   context 'with a proposed VA appointment' do
-    let(:proposed_va) { adapted_appointments[4] }
+    let(:proposed_va) { adapted_appointment[4] }
 
     it 'has expected fields' do
       expect(proposed_va[:is_pending]).to eq(true)
@@ -319,7 +332,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
   end
 
   context 'with a phone VA appointment' do
-    let(:phone_va) { adapted_appointments[5] }
+    let(:phone_va) { adapted_appointment[5] }
 
     it 'has expected fields' do
       expect(phone_va[:appointment_type]).to eq('VA')
@@ -378,7 +391,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
   end
 
   context 'with a telehealth Home appointment' do
-    let(:home_va) { adapted_appointments[6] }
+    let(:home_va) { adapted_appointment[6] }
 
     it 'has expected fields' do
       expect(home_va[:appointment_type]).to eq('VA_VIDEO_CONNECT_HOME')
@@ -425,7 +438,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
   end
 
   context 'with a telehealth Atlas appointment' do
-    let(:atlas_va) { adapted_appointments[7] }
+    let(:atlas_va) { adapted_appointment[7] }
 
     it 'has expected fields' do
       expect(atlas_va[:appointment_type]).to eq('VA_VIDEO_CONNECT_ATLAS')
@@ -480,7 +493,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
   end
 
   context 'with a GFE appointment' do
-    let(:gfe_va) { adapted_appointments[8] }
+    let(:gfe_va) { adapted_appointment[8] }
 
     it 'has expected fields' do
       expect(gfe_va[:appointment_type]).to eq('VA_VIDEO_CONNECT_GFE')
@@ -526,7 +539,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
   end
 
   context 'with a cancelled requested VA appointment' do
-    let(:cancelled_requested_va_appt) { adapted_appointments[11] }
+    let(:cancelled_requested_va_appt) { adapted_appointment[11] }
 
     it 'has expected fields' do
       expect(cancelled_requested_va_appt[:appointment_type]).to eq('VA')
@@ -589,7 +602,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
   end
 
   context 'request periods that are in the future' do
-    let(:future_request_date_appt) { adapted_appointments[9] }
+    let(:future_request_date_appt) { adapted_appointment[9] }
 
     it 'sets start date to earliest date in the future' do
       expect(future_request_date_appt[:start_date_local]).to eq('2022-08-27T12:00:00Z')
@@ -600,7 +613,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
   end
 
   context 'request periods that are in the past' do
-    let(:past_request_date_appt) { adapted_appointments[10] }
+    let(:past_request_date_appt) { adapted_appointment[10] }
 
     it 'sets start date to earliest date' do
       expect(past_request_date_appt[:start_date_local]).to eq('2021-08-20T12:00:00Z')
@@ -686,6 +699,82 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
 
     it 'does not change phone number with correct format' do
       expect(no_parentheses_phone_num_appt.first[:patient_phone_number]).to eq('480-293-1922')
+    end
+  end
+
+  describe 'embedded acheron values' do
+    let(:acheron_appointment) { adapted_appointment[12] }
+
+    # these tests are duplicative of the full body test but are meant to highlight the relevant data
+    it 'parses values out of the reason code' do
+      expect(acheron_appointment.patient_email).to eq('melissa.gra@va.gov')
+      expect(acheron_appointment.patient_phone_number).to eq('317-448-5062')
+      expect(acheron_appointment.proposed_times).to eq([{ date: '12/13/2022', time: 'PM' },
+                                                        { date: '12/21/2022', time: 'AM' }])
+      expect(acheron_appointment.comment).to eq('My leg!')
+      expect(acheron_appointment.reason).to eq('Routine Follow-up')
+    end
+
+    it 'parses all fields predictably' do
+      expect(acheron_appointment.as_json).to eq(
+        {
+          'id' => '145078',
+          'appointment_type' => 'VA',
+          'cancel_id' => '145078',
+          'comment' => 'My leg!',
+          'facility_id' => '552',
+          'sta6aid' => '552',
+          'healthcare_provider' => nil,
+          'healthcare_service' => nil,
+          'location' => {
+            'id' => '984',
+            'name' => 'Dayton VA Medical Center',
+            'address' => {
+              'street' => '4100 West Third Street',
+              'city' => 'Dayton',
+              'state' => 'OH',
+              'zip_code' => '45428-9000'
+            },
+            'lat' => 39.74935,
+            'long' => -84.2532,
+            'phone' => { 'area_code' => '937', 'number' => '268-6511',
+                         'extension' => nil },
+            'url' => nil,
+            'code' => nil
+          },
+          'minutes_duration' => nil,
+          'phone_only' => false,
+          'start_date_local' => '2022-12-12T19:00:00.000-05:00',
+          'start_date_utc' => '2022-12-13T00:00:00.000+00:00',
+          'status' => 'SUBMITTED',
+          'status_detail' => nil,
+          'time_zone' => 'America/New_York',
+          'vetext_id' => nil,
+          'reason' => 'Routine Follow-up',
+          'is_covid_vaccine' => false,
+          'is_pending' => true,
+          'proposed_times' => [{ 'date' => '12/13/2022', 'time' => 'PM' },
+                               { 'date' => '12/21/2022', 'time' => 'AM' }],
+          'type_of_care' => 'Amputation care',
+          'patient_phone_number' => '317-448-5062',
+          'patient_email' => 'melissa.gra@va.gov',
+          'best_time_to_call' => nil,
+          'friendly_location_name' => 'Dayton VA Medical Center'
+        }
+      )
+    end
+
+    # while all of these fields should always be set, modality is the most certain
+    it 'handles empty fields safely' do
+      appointment = appointment_data[12]
+      appointment[:reason_code][:text] = "preferred modality: clinic|phone number: |email:|\
+preferred dates:|reason code:|comments:"
+      result = subject.parse([appointment]).first
+      expect(result.patient_email).to be_nil
+      expect(result.patient_phone_number).to be_nil
+      expect(result.proposed_times).to be_nil
+      expect(result.comment).to be_nil
+      expect(result.reason).to be_nil
     end
   end
 end
