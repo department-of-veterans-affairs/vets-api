@@ -171,7 +171,6 @@ module V0
       Swagger::Requests::Post911GIBillStatuses,
       Swagger::Requests::PPIU,
       Swagger::Requests::PreneedsClaims,
-      Swagger::Requests::PreferredFacilities,
       Swagger::Requests::Prescriptions::Prescriptions,
       Swagger::Requests::Prescriptions::Trackings,
       Swagger::Requests::Profile,

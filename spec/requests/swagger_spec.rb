@@ -753,65 +753,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
-    context 'preferred facilities' do
-      let(:user) { build(:user, :loa3) }
-      let(:headers) do
-        { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
-      end
-      let!(:preferred_facility) { create(:preferred_facility, user: user) }
-
-      it 'validates unauthorized routes' do
-        expect(subject).to validate(:get, '/v0/preferred_facilities', 401)
-        expect(subject).to validate(:delete, '/v0/preferred_facilities/{id}', 401, 'id' => 1)
-        expect(subject).to validate(:post, '/v0/preferred_facilities', 401)
-      end
-
-      context 'preferred facilities index' do
-        it 'validates the route' do
-          expect(subject).to validate(
-            :get,
-            '/v0/preferred_facilities',
-            200,
-            headers
-          )
-        end
-      end
-
-      context 'preferred_facilities destroy' do
-        it 'validates the route' do
-          expect(subject).to validate(
-            :delete,
-            '/v0/preferred_facilities/{id}',
-            200,
-            headers.merge(
-              'id' => preferred_facility.id
-            )
-          )
-        end
-      end
-
-      context 'preferred_facilities create' do
-        it 'validates the route' do
-          allow_any_instance_of(User).to receive(:va_treatment_facility_ids).and_return(
-            %w[983 688]
-          )
-
-          expect(subject).to validate(
-            :post,
-            '/v0/preferred_facilities',
-            200,
-            headers.merge(
-              '_data' => {
-                preferred_facility: {
-                  facility_code: '688'
-                }
-              }
-            )
-          )
-        end
-      end
-    end
-
     context 'HCA tests' do
       let(:login_required) { Notification::LOGIN_REQUIRED }
       let(:test_veteran) do

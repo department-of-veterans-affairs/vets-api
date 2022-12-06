@@ -8,7 +8,6 @@
 #
 class Account < ApplicationRecord
   has_many :notifications, dependent: :destroy
-  has_many :preferred_facilities, dependent: :destroy, inverse_of: :account
   has_one  :login_stats,
            class_name: 'AccountLoginStat',
            dependent: :destroy,
