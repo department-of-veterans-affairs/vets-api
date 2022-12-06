@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_11_22_004441) do
+ActiveRecord::Schema.define(version: 2022_12_06_191853) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -790,14 +790,6 @@ ActiveRecord::Schema.define(version: 2022_11_22_004441) do
     t.bigint "size"
     t.datetime "captured_at"
     t.index ["database", "captured_at"], name: "index_pghero_space_stats_on_database_and_captured_at"
-  end
-
-  create_table "preferred_facilities", force: :cascade do |t|
-    t.string "facility_code", null: false
-    t.integer "account_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["facility_code", "account_id"], name: "index_preferred_facilities_on_facility_code_and_account_id", unique: true
   end
 
   create_table "preneed_submissions", id: :serial, force: :cascade do |t|
