@@ -9,8 +9,6 @@ Ch33DdPolicy = Struct.new(:user, :ch33_dd) do
   end
 
   def access?
-    user.loa3? && allowed_providers.include?(user.identity.sign_in[:service_name]) && Flipper.enabled?(
-      :direct_deposit_edu, user
-    )
+    user.loa3? && allowed_providers.include?(user.identity.sign_in[:service_name])
   end
 end
