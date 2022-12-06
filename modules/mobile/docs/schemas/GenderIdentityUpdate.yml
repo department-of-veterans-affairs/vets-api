@@ -1,0 +1,7 @@
+type: object
+required:
+  - code
+properties:
+  code:
+    type: string
+    example: "B"
