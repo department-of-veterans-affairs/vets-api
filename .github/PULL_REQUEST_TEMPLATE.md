@@ -1,19 +1,45 @@
-<!-- Please read our guidelines before submitting your first PR https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/platform/engineering/code_review_guidelines.md -->
+**Note**: Delete the description statements, complete each step. **None are optional**, but can be justified as to why they cannot be completed as written. Provide known gaps to testing that may raise the risk of merging to production.
 
-## Description of change
-<!-- Please include a description of the change and context. What would a code reviewer, or a future dev, need to know about this PR in order to understand why this PR is necessary? This could include dependencies introduced, changes in behavior, pointers to more detailed documentation. The description should be more than a link to an issue.  -->
 
-## Original issue(s)
-department-of-veterans-affairs/va.gov-team#0000
+## Summary
 
-## Things to know about this PR
-<!--
-* Are there additions to a `settings.yml` file? Do they vary by environment?
-* Is there a feature flag? What is it?
-* Is there some Sentry logging that was added? What alerts are relevant?
-* Are there any Prometheus metrics being collected? What Grafana dashboard were they added do?
-* Are there Swagger docs that were updated?
-* Is there any PII concerns or questions?
--->
+- *(Summarize the changes that have been made to the platform)*
+- *(If bug, how to reproduce)*
+- *(What is the solution, why is this the solution)*
+- *(Which team do you work for, does your team own the maintainence of this component?)*
+- *(If using a flipper, what is the end date of the flipper being required/success criteria being targeted)*
 
-<!-- Please describe testing done to verify the changes or any testing planned. -->
+## Related issue(s)
+- department-of-veterans-affairs/va.gov-team#0000
+- *Link to ticket created in va.gov-team repo*
+- *Link to previous change of the code/bug (if applicable)*
+- *Link to epic if not included in ticket*
+
+
+## Testing done
+
+- *Describe what the old behavior was prior to the change*
+- *Describe the steps required to verify your changes are working as expected*
+- *Describe the tests completed and the results*
+
+## Screenshots
+_Note: Optional_
+
+
+## What areas of the site does it impact?
+*(Describe what parts of the site are impacted and*if*code touched other areas)*
+
+## Acceptance criteria
+
+- [ ]  I fixed|updated|added unit tests and integration tests for each feature (if applicable).
+- [ ]  No error nor warning in the console.
+- [ ]  Events are being sent to the appropriate logging solution
+- [ ]  Documentation has been updated (link to documentation)
+- [ ]  No sensitive information (i.e. PII/credentials/internal URLs/etc.) is captured in logging, hardcoded, or specs
+- [ ]  Feature/bug has a monitor built into Datadog or Grafana (if applicable)
+- [ ]  If app impacted requires authentication, did you login to a local build and verify all authenticated routes work as expected
+- [ ]  I added a screenshot of the developed feature
+
+## Requested Feedback
+
+(OPTIONAL)_What should the reviewers know in addition to the above. Is there anything specific you wish the reviewer to assist with. Do you have any concerns with this PR, why?_
