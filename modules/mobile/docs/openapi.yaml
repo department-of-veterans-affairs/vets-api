@@ -4166,6 +4166,64 @@ paths:
       security:
         - Bearer: []
       summary: /v0/user/emails
+  /v0/user/gender_identity:
+    put:
+      description: Updates a user's gender identity
+      operationId: user.updateGenderIdentity
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: camel
+            type: string
+      requestBody:
+        content:
+          application/json:
+            example:
+              code: "B"
+            schema:
+              $ref: ./schemas/GenderIdentityUpdate.yml
+        description: The new gender identity key
+        required: true
+      responses:
+        '204':
+          description: No Content
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Received a bad request response from the upstream server.
+      security:
+        - Bearer: [ ]
+      summary: /v0/user/gender_identity
+  /v0/user/gender_identity/edit:
+    get:
+      description: Retrieves a list of valid gender identity keys
+      operationId: user.editGenderIdentity
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: camel
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/GenderIdentityEdit.yml
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Received a bad request response from the upstream server.
+      security:
+        - Bearer: [ ]
+      summary: /v0/user/gender_identity/edit
   /v0/user/logout:
     get:
       description: |
@@ -4227,6 +4285,38 @@ paths:
       security:
         - Bearer: []
       summary: /v0/user/logout
+  /v0/user/preferred_name:
+    put:
+      description: Updates a user's preferred name
+      operationId: user.updatePreferredName
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: camel
+            type: string
+      requestBody:
+        content:
+          application/json:
+            example:
+              text: New Preferred Name
+            schema:
+              $ref: ./schemas/PreferredNameUpdate.yml
+        description: The new preferred name
+        required: true
+      responses:
+        '204':
+          description: No Content
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Received a bad request response from the upstream server.
+      security:
+        - Bearer: [ ]
+      summary: /v0/user/preferred_name
   /v0/user/phones:
     delete:
       description: Deletes one of a user's phone numbers
