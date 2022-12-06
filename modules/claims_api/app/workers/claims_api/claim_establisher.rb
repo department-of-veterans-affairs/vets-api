@@ -11,9 +11,18 @@ module ClaimsApi
   class ClaimEstablisher
     include Sidekiq::Worker
     include SentryLogging
+    include Sidekiq::MonitoredWorker
     sidekiq_options retry: 10
 
-    def perform(auto_claim_id) # rubocop:disable Metrics/MethodLength
+    def retry_limits_for_notification
+      [10]
+    end
+
+    def notify(params)
+      perform(params.dig('args', 0), failed: true)
+    end
+
+    def perform(auto_claim_id, failed: false) # rubocop:disable Metrics/MethodLength
       auto_claim = ClaimsApi::AutoEstablishedClaim.find(auto_claim_id)
 
       orig_form_data = auto_claim.form_data
@@ -52,17 +61,17 @@ module ClaimsApi
       queue_flash_updater(auth_headers, auto_claim.flashes, auto_claim_id)
       queue_special_issues_updater(auth_headers, auto_claim.special_issues, auto_claim)
     rescue ::EVSS::DisabilityCompensationForm::ServiceException => e
-      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED if failed
       auto_claim.evss_response = e.messages
       auto_claim.form_data = orig_form_data
       auto_claim.save
-      log_exception_to_sentry(e)
+      log_exception_to_sentry(e) if failed
     rescue ::Common::Exceptions::BackendServiceException => e
-      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED if failed
       auto_claim.evss_response = [{ 'key' => e.status_code, 'severity' => 'FATAL', 'text' => e.original_body }]
       auto_claim.form_data = orig_form_data
       auto_claim.save
-      log_exception_to_sentry(e)
+      log_exception_to_sentry(e) if failed
     end
 
     private
