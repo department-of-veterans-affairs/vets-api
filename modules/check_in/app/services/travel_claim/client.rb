@@ -124,7 +124,7 @@ module TravelClaim
 
     def claims_data
       {
-        ClientNumber: :client_number,
+        ClientNumber: client_number,
         ClaimantIDType: CLAIMANT_ID_TYPE,
         MileageExpense: {
           TripType: TRIP_TYPE
