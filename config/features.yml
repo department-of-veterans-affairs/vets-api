@@ -493,14 +493,6 @@ features:
     actor_type: user
     description: Shows a modal that allows addresses to be duplicated from home to mailing and vice versa
     enable_in_development: true
-  profile_show_bad_address_indicator:
-    actor_type: user
-    description: Show/Hide the "Bad Address" indicator in the profile page.
-    enable_in_development: true
-  profile_force_bad_address_indicator:
-    actor_type: user
-    description: Allows to force the BAI experience for UAT testing
-    enable_in_development: false
   profile_show_payments_notification_setting:
     actor_type: user
     description: Show/Hide the payments section of notifications in profile
