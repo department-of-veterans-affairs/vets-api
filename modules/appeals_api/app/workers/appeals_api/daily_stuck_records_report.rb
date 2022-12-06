@@ -23,7 +23,7 @@ class AppealsApi::DailyStuckRecordsReport
   end
 
   def enabled?
-    Flipper.enabled? :decision_reviews_daily_stuck_records_report
+    Flipper.enabled? :decision_review_daily_stuck_records_report_enabled
   end
 
   def retry_limits_for_notification
