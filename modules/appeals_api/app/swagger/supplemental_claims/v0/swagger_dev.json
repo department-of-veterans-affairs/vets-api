@@ -2264,26 +2264,6 @@
                 }
               }
             }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Internal server error",
-                      "detail": "Internal server error",
-                      "code": "500",
-                      "status": "500"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/errorModel"
-                }
-              }
-            }
           }
         }
       }
