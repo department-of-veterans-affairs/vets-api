@@ -5,7 +5,14 @@ require 'rails_helper'
 RSpec.describe AppealsApi::DailyErrorReportMailer, type: [:mailer] do
   describe '#build' do
     subject do
-      described_class.build.deliver_now
+      recipients = %w[
+        drew.fisher@adhocteam.us
+        jack.schuss@oddball.io
+        kelly@adhocteam.us
+        laura.trager@adhocteam.us
+        nathan.wright@oddball.io
+      ]
+      described_class.build(recipients: recipients).deliver_now
     end
 
     it 'sends the email' do

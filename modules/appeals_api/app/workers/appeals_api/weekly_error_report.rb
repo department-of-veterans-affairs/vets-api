@@ -8,11 +8,12 @@ module AppealsApi
     # Only retry for ~48 hours since the job is run weekly
     sidekiq_options retry: 16, unique_for: 48.hours
 
+    RECIPIENTS = ReportRecipientsReader.load_recipients(:error_report_weekly).freeze
+
     def perform(to: Time.zone.now, from: 1.week.ago.beginning_of_day)
-      recipients = Settings.modules_appeals_api.reports.weekly_error.recipients
       if enabled?
         WeeklyErrorReportMailer.build(date_from: from, date_to: to, friendly_duration: 'Weekly',
-                                      recipients: recipients).deliver_now
+                                      recipients: RECIPIENTS).deliver_now
       end
     end
 
