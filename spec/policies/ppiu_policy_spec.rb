@@ -52,22 +52,8 @@ describe PPIUPolicy do
     end
 
     context 'with a user with the feature enabled' do
-      before do
-        expect(Flipper).to receive(:enabled?).with(:direct_deposit_cnp, instance_of(User)).and_return(true)
-      end
-
       it 'allows access' do
         expect(described_class).to permit(user, :ppiu)
-      end
-    end
-
-    context 'with a user with the feature disabled' do
-      before do
-        expect(Flipper).to receive(:enabled?).with(:direct_deposit_cnp, instance_of(User)).and_return(false)
-      end
-
-      it 'disallows access' do
-        expect(described_class).not_to permit(user, :ppiu)
       end
     end
   end
