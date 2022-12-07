@@ -8,8 +8,10 @@ module AppealsApi
     # Only retry for ~8 hours since the job is run daily
     sidekiq_options retry: 11, unique_for: 8.hours
 
+    RECIPIENTS = ReportRecipientsReader.load_recipients(:error_report_daily).freeze
+
     def perform
-      DailyErrorReportMailer.build.deliver_now if enabled?
+      DailyErrorReportMailer.build(recipients: RECIPIENTS).deliver_now if enabled?
     end
 
     private
