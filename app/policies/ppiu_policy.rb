@@ -14,8 +14,7 @@ PPIUPolicy = Struct.new(:user, :ppiu) do
 
   def access?
     user.loa3? &&
-      allowed_providers.include?(user.identity.sign_in[:service_name]) &&
-      Flipper.enabled?(:direct_deposit_cnp, user)
+      allowed_providers.include?(user.identity.sign_in[:service_name])
   end
 
   def access_update?
