@@ -46,10 +46,13 @@ module ClaimsApi
               cid: token.payload['cid']
             }
             attributes.merge!({ source_data: source_data }) unless token.client_credentials_token?
+            ClaimsApi::Logger.log('poa', poa_id: power_of_attorney&.id, detail: 'Attributes merged')
 
             power_of_attorney = ClaimsApi::PowerOfAttorney.create(attributes)
+            ClaimsApi::Logger.log('poa', poa_id: power_of_attorney&.id, detail: 'Power of Attorney created')
             unless power_of_attorney.persisted?
               power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(md5: power_of_attorney.md5)
+              ClaimsApi::Logger.log('poa', poa_id: power_of_attorney&.id, detail: 'Find_by md5 successful.')
             end
 
             power_of_attorney.save!
