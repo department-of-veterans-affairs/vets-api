@@ -35,16 +35,6 @@ module Form1010cg
       [claim_pdf_path, poa_attachment_path]
     end
 
-    def self.submit_attachments!(carma_case_id, veteran_name, claim_pdf_path, poa_attachment_path = nil)
-      raise 'invalid veteran_name' if veteran_name.try(:[], 'first').nil? || veteran_name.try(:[], 'last').nil?
-
-      carma_attachments = CARMA::Models::Attachments.new(carma_case_id, veteran_name['first'], veteran_name['last'])
-
-      carma_attachments.add('10-10CG', claim_pdf_path)
-      carma_attachments.add('POA', poa_attachment_path) if poa_attachment_path
-      carma_attachments.submit!(carma_client)
-    end
-
     def_delegator self, :carma_client # make accessible as instance method
 
     def self.carma_client
@@ -86,35 +76,6 @@ module Form1010cg
       [claim_pdf_path, poa_attachment_path].each { |p| File.delete(p) if p.present? }
 
       CARMA::Client::MuleSoftClient.new.create_submission_v2(payload)
-    end
-
-    # Will submit the claim to CARMA.
-    #
-    # @return [Form1010cg::Submission]
-    def process_claim!
-      raise 'submission already present' if submission.present?
-
-      assert_veteran_status
-
-      carma_submission = CARMA::Models::Submission.from_claim(claim, build_metadata)
-                                                  .submit!(carma_client)
-
-      @submission = Form1010cg::Submission.new(
-        carma_case_id: carma_submission.carma_case_id,
-        accepted_at: carma_submission.submitted_at,
-        metadata: carma_submission.request_body['metadata']
-      )
-
-      submit_attachment_async
-      submission
-    end
-
-    def submit_attachment_async
-      submission.claim = claim
-      submission.save
-      submission.attachments_job_id = Form1010cg::DeliverAttachmentsJob.perform_async(submission.claim_guid)
-    rescue => e
-      Rails.logger.error(e)
     end
 
     # Will raise an error unless the veteran specified on the claim's data can be found in MVI

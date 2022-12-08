@@ -14,56 +14,6 @@ RSpec.describe 'Caregivers Assistance Claims' do
   let(:build_valid_form_submission) { -> { VetsJsonSchema::EXAMPLES['10-10CG'].clone } }
   let(:get_schema) { -> { VetsJsonSchema::SCHEMAS['10-10CG'].clone } }
 
-  describe 'POST /v0/caregivers_assistance_claims' do
-    subject do
-      post endpoint, params: body, headers: headers
-    end
-
-    let(:endpoint) { "#{uri}/v0/caregivers_assistance_claims" }
-    let(:body) do
-      form_data = build_valid_form_submission.call
-
-      { caregivers_assistance_claim: { form: form_data.to_json } }.to_json
-    end
-    let(:vcr_options) do
-      {
-        record: :none,
-        allow_unused_http_interactions: false,
-        match_requests_on: %i[method uri host path]
-      }
-    end
-
-    timestamp = DateTime.parse('2020-03-09T06:48:59-04:00')
-
-    context 'submitting to salesforce' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:caregiver_mulesoft).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:caregiver_async, nil).and_return(false)
-      end
-
-      it 'can submit a valid submission', run_at: timestamp.iso8601 do
-        VCR.use_cassette 'mpi/find_candidate/valid', vcr_options do
-          VCR.use_cassette 'carma/auth/token/200', vcr_options do
-            VCR.use_cassette 'carma/submissions/create/201', vcr_options do
-              subject
-            end
-          end
-        end
-
-        expect(response.code).to eq('200')
-
-        res_body = JSON.parse(response.body)
-
-        expect(res_body['data']).to be_present
-        expect(res_body['data']['type']).to eq 'form1010cg_submissions'
-        expect(DateTime.parse(res_body['data']['attributes']['submittedAt'])).to eq timestamp
-        expect(res_body['data']['attributes']['confirmationNumber']).to eq 'aB935000000F3VnCAK'
-
-        expect(Form1010cg::DeliverAttachmentsJob.jobs.size).to eq(1)
-      end
-    end
-  end
-
   describe 'POST /v0/caregivers_assistance_claims/download_pdf' do
     let(:endpoint) { '/v0/caregivers_assistance_claims/download_pdf' }
     let(:response_pdf) { Rails.root.join 'tmp', 'pdfs', '10-10CG_from_response.pdf' }
