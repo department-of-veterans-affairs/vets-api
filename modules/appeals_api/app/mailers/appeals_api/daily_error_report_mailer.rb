@@ -4,7 +4,7 @@ require 'appeals_api/decision_review_report'
 
 module AppealsApi
   class DailyErrorReportMailer < ApplicationMailer
-    def build(recipients:)
+    def build
       @report = DecisionReviewReport.new
       @friendly_env = (Settings.vsp_environment || Rails.env).titleize
 
@@ -14,7 +14,7 @@ module AppealsApi
       body = ERB.new(template).result(binding)
 
       mail(
-        to: recipients,
+        to: Settings.modules_appeals_api.reports.daily_error.recipients,
         subject: "Daily Error Decision Review API report (#{@friendly_env})",
         content_type: 'text/html',
         body: body
