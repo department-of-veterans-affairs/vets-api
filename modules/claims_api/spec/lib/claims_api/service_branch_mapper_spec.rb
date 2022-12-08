@@ -25,6 +25,7 @@ SERVICE_BRANCH_VALUE_MAPPINGS = {
   'Marine Corps Reserves' => 'Marine Corps Reserves',
   'Merchant Marine' => 'Merchant Marine',
   'National Oceanic and Atmospheric Administration' => 'National Oceanic & Atmospheric Administration',
+  'National Oceanic &amp; Atmospheric Administration' => 'National Oceanic & Atmospheric Administration',
   'Naval Academy' => 'Naval Academy',
   'Navy' => 'Navy',
   'Navy Reserves' => 'Navy Reserves',

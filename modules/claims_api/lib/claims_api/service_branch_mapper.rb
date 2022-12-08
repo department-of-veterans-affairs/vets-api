@@ -10,6 +10,7 @@ module ClaimsApi
       'Guerrilla Combination Service',
       'Marine',
       'National Oceanic and Atmospheric Administration',
+      'National Oceanic &amp; Atmospheric Administration',
       'Regular Philippine Scout',
       'Regular Scout Service',
       'Special Philippine Scout',
@@ -41,7 +42,8 @@ module ClaimsApi
     ].freeze
 
     MAPS_TO_NOAA_WITH_AMPERSAND = [
-      'National Oceanic and Atmospheric Administration'
+      'National Oceanic and Atmospheric Administration',
+      'National Oceanic &amp; Atmospheric Administration'
     ].freeze
 
     def initialize(service_branch)
