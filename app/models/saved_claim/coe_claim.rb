@@ -168,10 +168,20 @@ class SavedClaim::CoeClaim < SavedClaim
         file_path = "#{file_path}#{file_extension}"
 
         document_data = {
+          # This is one of the options in the "Document Type" dropdown on the
+          # "Your supporting documents" step of the COE form. E.g. "Discharge or
+          # separation papers (DD214)"
           'documentType' => claim_file_data['attachmentType'],
-          'description' => claim_file_data['attachmentDescription'],
+          # This is the vet's own description of a document, after selecting
+          # "other" as the `attachmentType`. We add an "[ATTACHMENT]" prefix to
+          # help us distinguish between vet-uploaded supporting documents and
+          # notification letters, on the COE status page.
+          'description' => "[ATTACHMENT] #{claim_file_data['attachmentDescription']}",
           'contentsBase64' => Base64.encode64(File.read(file_path)),
-          'fileName' => attachment.file.metadata['filename']
+          # We add an "[ATTACHMENT]" prefix to help us distinguish between
+          # vet-uploaded supporting documents and notification letters, on the
+          # COE status page.
+          'fileName' => "[ATTACHMENT] #{attachment.file.metadata['filename']}"
         }
 
         lgy_service.post_document(payload: document_data)
