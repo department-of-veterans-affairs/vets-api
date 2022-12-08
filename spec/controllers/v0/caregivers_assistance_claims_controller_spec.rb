@@ -3,10 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
-  before do
-    Flipper.disable(:caregiver_async)
-  end
-
   describe '::auditor' do
     it 'is an instance of Form1010cg::Auditor' do
       expect(described_class::AUDITOR).to be_an_instance_of(Form1010cg::Auditor)
@@ -23,7 +19,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
 
   shared_examples '10-10CG request with missing param: caregivers_assistance_claim' do |controller_action|
     before do
-      expect_any_instance_of(Form1010cg::Service).not_to receive(:process_claim!)
+      expect(Form1010cg::SubmissionJob).not_to receive(:perform_async)
     end
 
     it 'requires "caregivers_assistance_claim" param' do
@@ -47,7 +43,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
 
   shared_examples '10-10CG request with missing param: form' do |controller_action|
     before do
-      expect_any_instance_of(Form1010cg::Service).not_to receive(:process_claim!)
+      expect(Form1010cg::SubmissionJob).not_to receive(:perform_async)
     end
 
     it 'requires "caregivers_assistance_claim.form" param' do
@@ -74,7 +70,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
     let(:claim) { build(:caregivers_assistance_claim, form: form_data) }
 
     before do
-      expect_any_instance_of(Form1010cg::Service).not_to receive(:process_claim!)
+      expect(Form1010cg::SubmissionJob).not_to receive(:perform_async)
     end
 
     it 'builds a claim and raises its errors' do
@@ -172,162 +168,12 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       post :create, params: params
     end
 
-    context 'with caregiver_async on' do
-      let(:user) { build(:user, :loa3) }
+    it 'submits to background job' do
+      expect_any_instance_of(Form1010cg::Service).to receive(:assert_veteran_status)
+      expect(Form1010cg::SubmissionJob).to receive(:perform_async)
+      post :create, params: { caregivers_assistance_claim: { form: claim.form } }
 
-      before do
-        sign_in_as(user)
-        Flipper.enable(:caregiver_async, user)
-      end
-
-      it 'submits to background job' do
-        expect_any_instance_of(Form1010cg::Service).to receive(:assert_veteran_status)
-        expect(Form1010cg::SubmissionJob).to receive(:perform_async)
-        post :create, params: { caregivers_assistance_claim: { form: claim.form } }
-
-        expect(JSON.parse(response.body)['data']['id']).to eq(SavedClaim::CaregiversAssistanceClaim.last.id.to_s)
-      end
-    end
-
-    it 'submits claim using Form1010cg::Service' do
-      form_data = claim.form
-      params = { caregivers_assistance_claim: { form: form_data } }
-      service = double
-      submission = double(
-        carma_case_id: 'A_123',
-        accepted_at: DateTime.now.iso8601,
-        metadata: :metadata_submitted,
-        attachments: :attachments_uploaded,
-        attachments_job_id: '1234abcdef'
-      )
-
-      expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-        form: form_data
-      ).and_return(
-        claim
-      )
-
-      expect(Raven).to receive(:tags_context).once.with(claim_guid: claim.guid)
-      allow(Raven).to receive(:tags_context).with(any_args).and_call_original
-
-      expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
-      expect(service).to receive(:process_claim!).and_return(submission)
-
-      expect(described_class::AUDITOR).to receive(:record).with(:submission_attempt)
-      expect(described_class::AUDITOR).to receive(:record).with(
-        :submission_success,
-        claim_guid: claim.guid,
-        carma_case_id: submission.carma_case_id,
-        metadata: submission.metadata,
-        attachments: submission.attachments,
-        attachments_job_id: submission.attachments_job_id
-      )
-
-      post :create, params: params
-
-      expect(response).to have_http_status(:ok)
-
-      res_body = JSON.parse(response.body)
-
-      expect(res_body['data']).to be_present
-      expect(res_body['data']['id']).to eq('')
-      expect(res_body['data']['attributes']).to be_present
-      expect(res_body['data']['attributes']['confirmation_number']).to eq(submission.carma_case_id)
-      expect(res_body['data']['attributes']['submitted_at']).to eq(submission.accepted_at)
-    end
-
-    context 'when Form1010cg::Service raises InvalidVeteranStatus' do
-      it 'renders backend service outage' do
-        form_data     = claim.form
-        params        = { caregivers_assistance_claim: { form: form_data } }
-        service       = double
-
-        expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-          form: form_data
-        ).and_return(
-          claim
-        )
-
-        expect(Raven).to receive(:tags_context).once.with(claim_guid: claim.guid)
-        allow(Raven).to receive(:tags_context).with(any_args).and_call_original
-
-        expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
-        expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
-
-        expect(described_class::AUDITOR).to receive(:record).with(:submission_attempt)
-        expect(described_class::AUDITOR).to receive(:record).with(
-          :submission_failure_client_qualification,
-          claim_guid: claim.guid
-        )
-
-        post :create, params: params
-
-        expect(response.status).to eq(503)
-        expect(
-          JSON.parse(
-            response.body
-          )
-        ).to eq(
-          'errors' => [
-            {
-              'title' => 'Service unavailable',
-              'detail' => 'Backend Service Outage',
-              'code' => '503',
-              'status' => '503'
-            }
-          ]
-        )
-      end
-
-      it 'matches the response of a Common::Client::Errors::ClientError' do
-        form_data = claim.form
-        params = { caregivers_assistance_claim: { form: form_data } }
-        service = double
-
-        ## Backend Client Error Scenario
-
-        expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-          form: form_data
-        ).and_return(
-          claim
-        )
-
-        # called in #create and again when error is raised
-        expect(Raven).to receive(:tags_context).twice.with(claim_guid: claim.guid)
-        allow(Raven).to receive(:tags_context).with(any_args).and_call_original
-
-        expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
-        expect(service).to receive(:process_claim!).and_raise(Common::Client::Errors::ClientError)
-
-        backend_client_error_response = post :create, params: params
-
-        ## Invalid Veteran Status Scenario
-
-        expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-          form: form_data
-        ).and_return(
-          claim
-        )
-
-        expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
-        expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
-
-        expect(described_class::AUDITOR).to receive(:record).with(:submission_attempt)
-        expect(described_class::AUDITOR).to receive(:record).with(
-          :submission_failure_client_qualification,
-          claim_guid: claim.guid
-        )
-
-        invalid_veteran_status_response = post :create, params: params
-
-        %w[status body headers].each do |response_attr|
-          expect(
-            invalid_veteran_status_response.send(response_attr)
-          ).to eq(
-            backend_client_error_response.send(response_attr)
-          )
-        end
-      end
+      expect(JSON.parse(response.body)['data']['id']).to eq(SavedClaim::CaregiversAssistanceClaim.last.id.to_s)
     end
   end
 

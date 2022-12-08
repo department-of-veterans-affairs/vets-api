@@ -28,10 +28,6 @@ features:
     actor_type: user
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
     enable_in_development: true
-  caregiver_async:
-    actor_type: user
-    description: Submit 1010cg applications using a background job
-    enable_in_development: false
   career_counseling_confirmation_email:
     actor_type: user
     description: Enables Career Counseling claim email confirmation upon submission
