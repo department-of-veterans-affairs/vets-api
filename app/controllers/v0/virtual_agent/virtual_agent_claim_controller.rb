@@ -8,7 +8,7 @@ module V0
     class VirtualAgentClaimController < ApplicationController
       include IgnoreNotFound
       rescue_from 'EVSS::ErrorMiddleware::EVSSError', with: :service_exception_handler
-      before_action { authorize :evss, :access? }
+      before_action { authorize :evss, :access? } if Settings.vsp_environment.present?
 
       def index
         claims, synchronized = service.all
