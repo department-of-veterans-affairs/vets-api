@@ -67,6 +67,7 @@ module ClaimsApi
       form_data['disabilites'] = remove_special_issues_from_secondary_disabilities
       form_data['treatments'] = transform_treatment_dates if treatments?
       form_data['serviceInformation'] = transform_service_branch
+      transform_service_pay_service_branch
 
       resolve_special_issue_mappings!
       resolve_homelessness_situation_type_mappings!
@@ -244,6 +245,10 @@ module ClaimsApi
       form_data['treatments'].present?
     end
 
+    def pay_type_service_branch?(category)
+      form_data.dig('servicePay', category, 'payment', 'serviceBranch').present?
+    end
+
     def transform_treatment_dates
       treatments = form_data['treatments']
 
@@ -382,6 +387,24 @@ module ClaimsApi
 
       form_data['serviceInformation']['servicePeriods'] = transformed_service_periods
       form_data['serviceInformation']
+    end
+
+    # Legacy claimsApi code previously allowed servicePay-related service branch
+    # values (servicePay.militaryRetiredPay.payment.serviceBranch, servicePay.separationPay.payment.serviceBranch)
+    # that are not accepted by EVSS.
+    # Rather than refuse those invalid values, this maps them to an equivalent value that EVSS will accept.
+    # Note transform_service_branch above only handles cases found in 'serviceInformation.servicePeriod'.
+    def transform_service_pay_service_branch
+      %w[militaryRetiredPay separationPay].each do |pay_type|
+        if pay_type_service_branch?(pay_type)
+          branch = form_data['servicePay'][pay_type]['payment']['serviceBranch']
+          ClaimsApi::Logger.log('526',
+                                detail: "#{pay_type} 'serviceBranch' value received is :: #{branch}")
+
+          form_data['servicePay'][pay_type]['payment']['serviceBranch'] =
+            ClaimsApi::ServiceBranchMapper.new(branch).value
+        end
+      end
     end
 
     # The legacy ClaimsApi code has always allowed 'secondaryDisabilities' to have 'specialIssues'.
