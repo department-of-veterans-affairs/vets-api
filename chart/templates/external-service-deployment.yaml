@@ -1,6 +1,6 @@
-{{- if .Values.web.externalservice.enabled }}
+{{- if .Values.web.externalService.enabled }}
 {{- $root := . -}}
-{{- range $name, $service := $root.Values.web.externalservice.service }}
+{{- range $name, $service := $root.Values.web.externalService.service }}
 ---
 apiVersion: apps/v1
 kind: Deployment

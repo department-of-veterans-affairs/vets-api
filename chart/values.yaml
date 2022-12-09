@@ -131,7 +131,7 @@ web:
   bgsEvss:
     enabled: false
     name: ""
-  externalservice:
+  externalService:
     enabled: false
     default:
       port: 3004

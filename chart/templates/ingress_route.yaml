@@ -31,7 +31,7 @@ spec:
 
 {{- if .Values.web.externalService.enabled }}
 {{- $root := . -}}
-{{- range $name, $service := $root.Values.web.externalservice.service }}
+{{- range $name, $service := $root.Values.web.externalService.service }}
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
@@ -42,14 +42,14 @@ spec:
   entryPoints:
     - web
   routes:
-    - kind: {{ $root.Values.web.externalservice.default.kind }}
-      match: PathPrefix(`{{ $service.route }}`) && HostRegexp(`{{ $root.Values.web.externalservice.default.host }}`)
+    - kind: {{ $root.Values.web.externalService.default.kind }}
+      match: PathPrefix(`{{ $service.route }}`) && HostRegexp(`{{ $root.Values.web.externalService.default.host }}`)
       priority: {{ $service.priority | default "10" }}
       services:
         - name: {{ $name }}
-          port: {{ $service.port | default $root.Values.web.externalservice.default.port }}
+          port: {{ $service.port | default $root.Values.web.externalService.default.port }}
       middleware:
-        - name: {{ $root.Values.web.externalservice.default.middleware.name }}
+        - name: {{ $root.Values.web.externalService.default.middleware.name }}
 {{- end }}
 {{- end }}
 {{- end }}
