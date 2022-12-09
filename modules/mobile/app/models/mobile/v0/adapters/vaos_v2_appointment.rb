@@ -409,23 +409,20 @@ module Mobile
 
         def embedded_data
           @embedded_data ||= {
-            modality: embedded_data_matches&.[](1)&.strip.presence,
-            phone: embedded_data_matches&.[](2)&.strip.presence,
-            email: embedded_data_matches&.[](3)&.strip.presence,
-            preferred_dates: embedded_data_matches&.[](4)&.strip.presence,
-            reason_code: embedded_data_matches&.[](5)&.strip.presence,
-            comment: embedded_data_matches&.[](6)&.strip.presence
+            phone: embedded_data_match('phone number'),
+            email: embedded_data_match('email'),
+            preferred_dates: embedded_data_match('preferred dates'),
+            reason_code: embedded_data_match('reason code'),
+            comment: embedded_data_match('comments')
           }
         end
 
-        # rubocop:disable Layout/LineLength
-        def embedded_data_matches
-          # preferred modality is equivalent to "kind" which is returned separately, so it's not used
-          @embedded_data_matches ||= appointment.dig(:reason_code, :text)&.match(
-            /preferred modality:?(.*?)\|phone number:?(.*?)\|email:?(.*?)\|preferred dates:?(.*?)\|reason code:?(.*?)\|comments:?(.*)/
-          )
+        def embedded_data_match(key)
+          match = appointment.dig(:reason_code, :text)&.match(/(^|\|)#{key}:?(.*?)(\||$)/)
+          return nil unless match
+
+          match[2].strip.presence
         end
-        # rubocop:enable Layout/LineLength
       end
     end
   end
