@@ -1888,19 +1888,23 @@ paths:
       security:
         - Bearer: [ ]
       summary: /v0/health/rx/prescriptions
-  /v0/health/rx/prescriptions/{id}/refill:
+  /v0/health/rx/prescriptions/refill:
     put:
-      description: Requests refill for prescription.
+      description: Requests refill for prescriptions.
       parameters:
-        - description: prescription id to request refill
-          example: 13650545
-          in: path
-          name: id
+        - description: array of prescription ids to request refill
+          example: ["7417954", "6970769", "8398465"]
+          in: query
+          name: ids[]
           schema:
-            type: integer
+            type: array
       responses:
-        '204':
-          description: No Content
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/PrescriptionsRefill.yml
+          description: OK
         '404':
           content:
             application/json:

@@ -76,6 +76,19 @@ module Rx
     end
 
     ##
+    # Post a list of Prescription refills
+    #
+    # @param ids [Array] an array of Rx ids
+    # @return [Faraday::Env]
+    #
+    def post_refill_rxs(ids)
+      if (result = perform(:post, 'prescription/rxrefill', ids, token_headers))
+        Common::Collection.bust([cache_key('getactiverx'), cache_key('gethistoryrx')])
+      end
+      result
+    end
+
+    ##
     # Post a Prescription refill
     #
     # @param id [Fixnum] an Rx id

@@ -2,10 +2,10 @@
 http_interactions:
 - request:
     method: post
-    uri: "<MHV_HOST>/mhv-api/patient/v1/prescription/rxrefill/13650545"
+    uri: "<MHV_HOST>/mhv-api/patient/v1/prescription/rxrefill"
     body:
       encoding: UTF-8
-      string: "{}"
+      string: '{ "rxIds": "21530889", "rxIds": "21539942" }'
     headers:
       Accept:
       - application/json
@@ -31,7 +31,7 @@ http_interactions:
       - Thu, 02 Feb 2017 17:53:25 GMT
     body:
       encoding: UTF-8
-      string: '{"status":"success" }'
+      string: '{"failed_station_list":"","successful_station_list":"DAYT29, DAYT29","last_updated_time":"Thu, 08 Dec 2022 12:11:33 EST","prescription_list":null, "errors":[], "info_messages":[] }'
     http_version: 
   recorded_at: Thu, 02 Feb 2017 17:53:25 GMT
 recorded_with: VCR 3.0.3
