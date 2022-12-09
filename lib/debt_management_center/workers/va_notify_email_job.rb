@@ -16,18 +16,14 @@ module DebtManagementCenter
           personalisation: personalisation
         }.compact
       )
-    rescue Common::Exceptions::BackendServiceException => e
-      if e.status_code == 400
-        log_exception_to_sentry(
-          e,
-          {
-            args: { email: email, template_id: template_id, personalisation: personalisation }
-          },
-          { error: :dmc_va_notify_email_job }
-        )
-      else
-        raise e
-      end
+    rescue => e
+      log_exception_to_sentry(
+        e,
+        {
+          args: { template_id: template_id }
+        },
+        { error: :dmc_va_notify_email_job }
+      )
     end
   end
 end
