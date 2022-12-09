@@ -9,7 +9,7 @@ module Mobile
       before_action { authorize :ppiu, :access? }
       before_action :validate_pay_info, only: :update
       before_action(only: :update) { authorize(:ppiu, :access_update?) }
-      after_action(only: :update) { proxy.send_confirmation_email(params[:ga_client_id]) }
+      after_action(only: :update) { proxy.send_confirmation_email }
 
       def index
         payment_information = proxy.get_payment_information

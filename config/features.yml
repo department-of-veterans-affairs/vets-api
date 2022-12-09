@@ -260,9 +260,6 @@ features:
     actor_type: user
     description: Manage dependent removal from view dependent page
     enable_in_development: true
-  direct_deposit_vanotify:
-    actor_type: user
-    description: Send direct deposit emails using VaNotify service
   disability_compensation_flashes:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.

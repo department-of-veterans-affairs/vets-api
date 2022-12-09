@@ -9,7 +9,6 @@ RSpec.describe 'payment_information', type: :request do
   before do
     allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: SAML::User::IDME_CSID)
     iam_sign_in
-    Flipper.disable(:direct_deposit_vanotify)
   end
 
   let(:user) { create(:user, :mhv) }
@@ -192,26 +191,12 @@ RSpec.describe 'payment_information', type: :request do
           end
         end
 
-        context 'with the va notify email flag on' do
-          it 'calls VA Notify background job to send an email' do
-            Flipper.enable(:direct_deposit_vanotify)
-
-            user.all_emails do |email|
-              expect(VANotifyDdEmailJob).to receive(:perform_async).with(email, nil)
-            end
-
-            subject
+        it 'calls VA Notify background job to send an email' do
+          user.all_emails do |email|
+            expect(VANotifyDdEmailJob).to receive(:perform_async).with(email, nil)
           end
 
-          it 'calls direct deposit background job to send an email' do
-            Flipper.disable(:direct_deposit_vanotify)
-
-            user.all_emails do |email|
-              expect(DirectDepositEmailJob).to receive(:perform_async).with(email, nil)
-            end
-
-            subject
-          end
+          subject
         end
 
         context 'when user does not have an associated email address' do

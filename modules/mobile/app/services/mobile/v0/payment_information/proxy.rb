@@ -18,12 +18,8 @@ module Mobile
           service.update_payment_information(pay_info).responses[0]
         end
 
-        def send_confirmation_email(ga_client_id)
-          if Flipper.enabled?(:direct_deposit_vanotify, @user)
-            VANotifyDdEmailJob.send_to_emails(@user.all_emails, :comp_pen)
-          else
-            DirectDepositEmailJob.send_to_emails(@user.all_emails, ga_client_id, :comp_pen)
-          end
+        def send_confirmation_email
+          VANotifyDdEmailJob.send_to_emails(@user.all_emails, :comp_pen)
         end
 
         private
