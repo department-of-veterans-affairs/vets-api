@@ -12,7 +12,7 @@ spec:
     matchLabels:
       app: {{ .Values.appName }}-web
   strategy:
-    type: {{ .Values.web.strategyType }}
+    type: RollingUpdate
     rollingUpdate:
       maxSurge: {{ .Values.web.maxSurge }}
       maxUnavailable: {{ .Values.web.maxUnavailable }}

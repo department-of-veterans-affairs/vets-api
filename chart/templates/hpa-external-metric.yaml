@@ -5,6 +5,9 @@ kind: DatadogMetric
 metadata:
   name: puma-backlog
   namespace: {{ .Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+
 spec:
   query: {{ .Values.web.autoscaling.scaling_metric }}
 {{- end }}

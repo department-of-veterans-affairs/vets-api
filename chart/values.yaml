@@ -132,15 +132,14 @@ web:
     enabled: false
     name: ""
   externalservice:
+    enabled: false
     default:
       port: 3004
       kind: Rule
       middleware:
         name: ""
       host: ""
-    service:
-      address:
-        route: ""
+    service: {}
 
 #Worker Configuration
 worker:
