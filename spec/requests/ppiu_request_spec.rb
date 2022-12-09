@@ -127,24 +127,10 @@ RSpec.describe 'PPIU' do
           end
         end
 
-        context 'with the va notify email flag on' do
-          it 'sends an email through va notify' do
-            Flipper.enable(:direct_deposit_vanotify)
-
-            expect(VANotifyDdEmailJob).to receive(:send_to_emails).with(
-              user.all_emails, :comp_pen
-            )
-
-            subject
-          end
-        end
-
-        it 'calls a background job to send an email' do
-          Flipper.disable(:direct_deposit_vanotify)
-
-          user.all_emails do |email|
-            expect(DirectDepositEmailJob).to receive(:perform_async).with(email, nil)
-          end
+        it 'sends an email through va notify' do
+          expect(VANotifyDdEmailJob).to receive(:send_to_emails).with(
+            user.all_emails, :comp_pen
+          )
 
           subject
         end
