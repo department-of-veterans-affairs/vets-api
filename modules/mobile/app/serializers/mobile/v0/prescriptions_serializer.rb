@@ -23,6 +23,7 @@ module Mobile
                  :is_trackable
 
       attribute :instructions, &:sig
+      attribute :facility_phone_number, &:cmop_division_phone
     end
   end
 end

@@ -17,8 +17,9 @@ module Mobile
       end
 
       def refill
-        client.post_refill_rx(params[:id])
-        head :no_content
+        params_list = { rxIds: params[:ids].map(&:to_i) }
+        resource = client.post_refill_rxs(params_list)
+        render json: Mobile::V0::PrescriptionsRefillsSerializer.new(@current_user.uuid, resource.body)
       end
 
       def tracking

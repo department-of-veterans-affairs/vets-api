@@ -38,7 +38,8 @@
               "prescriptionName",
               "instructions",
               "dispensedDate",
-              "stationNumber"
+              "stationNumber",
+              "facilityPhoneNumber"
             ],
             "properties": {
               "refillStatus": {
@@ -126,6 +127,12 @@
                 ]
               },
               "stationNumber": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "facilityPhoneNumber": {
                 "type": [
                   "string",
                   "null"
