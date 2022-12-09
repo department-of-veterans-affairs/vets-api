@@ -117,6 +117,7 @@ module MPI
           id_theft_flag: parse_id_theft_flag(patient),
           transaction_id: @transaction_id
         }
+        mpi_attribute_validations(profile_identity_hash, profile_ids_hash)
 
         MPI::Models::MviProfile.new(profile_identity_hash.merge(profile_ids_hash).merge(misc_hash))
       end
@@ -160,7 +161,6 @@ module MPI
       def create_mvi_profile_ids(patient, historical_icns = nil)
         full_mvi_ids = get_extensions(patient.locate('id'))
         parsed_mvi_ids = parse_xml_gcids(patient.locate('id'))
-        log_inactive_mhv_ids(parsed_mvi_ids[:mhv_ids].to_a, parsed_mvi_ids[:active_mhv_ids].to_a)
         create_ids_obj(full_mvi_ids, parsed_mvi_ids, historical_icns)
       end
 
@@ -205,6 +205,11 @@ module MPI
         end
       end
 
+      def mpi_attribute_validations(identity_hash, ids_hash)
+        log_inactive_mhv_ids(ids_hash[:mhv_ids].to_a, ids_hash[:active_mhv_ids].to_a)
+        validate_dob(identity_hash[:birth_date], ids_hash[:icn])
+      end
+
       def log_inactive_mhv_ids(mhv_ids, active_mhv_ids)
         return if mhv_ids.blank?
 
@@ -220,6 +225,12 @@ module MPI
           log_message_to_sentry('Multiple active MHV correlation IDs present', :info,
                                 ids: active_mhv_ids)
         end
+      end
+
+      def validate_dob(dob, icn)
+        Date.iso8601(dob)
+      rescue Date::Error
+        Rails.logger.warn 'MPI::Response.parse_dob failed', { dob: dob, icn: icn }
       end
 
       def parse_name(name, optional_params)
