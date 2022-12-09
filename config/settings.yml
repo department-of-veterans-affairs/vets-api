@@ -343,7 +343,7 @@ modules_appeals_api:
     weekly_error:
       recipients:
         - drew.fisher@adhocteam.us
-        - cassey.williams@adhocteam.us
+        - casey.williams@adhocteam.us
         - michel.mcdonald@adhocteam.us
 
   schema_dir: config/schemas
@@ -864,6 +864,7 @@ flipper:
     - alexander.schmidt.garcia@gmail.com # Alexander Garcia (Clarity), Identity, Frontend Engineer
     - afia.caruso@oddball.io # Afia Caruso (Oddball), Identity, Frontend Engineer
     - alastair@adhocteam.us
+    - alex.wilson@oddball.io # Alex Wilson - Oddball
     - andrew.herzberg@adhocteam.us
     - bill.ryan@adhocteam.us
     - bradley.gross@b3groupinc.com
@@ -891,6 +892,7 @@ flipper:
     - ggupta@kindsys.us # Gaurav Gupta (Kindsys), BE Engineer Health Care Experience/Check-In
     - gescobar@governmentcio.com
     - grodriguez@governmentcio.com
+    - holden.hinkle@oddball.io # Holden (Emmerson) Hinkle (Oddball), Rails Engineer
     - ian.hundere@oddball.io # Ian Hundere (Oddball), Identity, DevOps Engineer
     - jacob.gacek@thoughtworks.com # Virtual Agent
     - james.childers@gcio.com
@@ -923,6 +925,7 @@ flipper:
     - lindsey.hattamer@oddball.io
     - lisa.zapson@adhocteam.us
     - lance.sanchez@gcio.com
+    - lucian.snare@adhocteam.us # Lucian Snare - Ad Hoc LLC
     - mattgardner@navapbc.com
     - mark.dewey@va.gov
     - metrowebz@gmail.com
@@ -1003,6 +1006,7 @@ flipper:
     - jerek.shoemaker@adhocteam.us # Jerek Shoemaker - Benefits Team #1
     - sam.cormier@coforma.io # Sam Cormier - Benefits Team #1
     - scott.meyers@coforma.io # Scott Meyers - Benefits Team #1
+    - kyle.soskin@adhocteam.us # Kyle Soskin - Benefits Team #1
     - johncater@gmail.com # John Cater - FE Engineer Auth Exp
 
 bgs:
@@ -1321,7 +1325,8 @@ check_in:
   travel_reimbursement_api:
     auth_url: https://login.microsoftonline.us
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
-    claims_url: https://dev.integration.d365.va.gov/EC/ClaimIngestSvc/api
+    claims_url: https://dev.integration.d365.va.gov
+    claims_base_path: EC/ClaimIngestSvc
     redis_token_expiry: 3540 # 59 minutes
     service_name: BTSSS-API
   authentication:
@@ -1403,23 +1408,16 @@ test_user_dashboard:
     client_id:
     client_secret:
 
-mobile_lighthouse:
+lighthouse_health_immunization:
   client_id: '0oad0xggirKLf2ger2p7'
-  key_path: /srv/vets-api/secret/mobile_lh_health_api.key
-  health:
-    aud_claim_url: 'https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7/v1/token'
-    access_token_url: 'https://sandbox-api.va.gov/oauth2/health/system/v1/token'
-    api_url: 'https://sandbox-api.va.gov/services/fhir/v0/r4'
-    api_scopes:
-      - "launch launch/patient"
-      - "patient/Immunization.read"
-      - "patient/Location.read"
-  letters:
-    aud_claim_url: "https://deptva-eval.okta.com/oauth2/ausftw7zk6eHr7gMN2p7/v1/token"
-    access_token_url: 'https://sandbox-api.va.gov/oauth2/va-letter-generator/system/v1/token'
-    api_url: 'https://sandbox-api.va.gov/services/va-letter-generator/v1/'
-    api_scopes:
-      - "letters.read"
+  audience_claim_url: 'https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7/v1/token'
+  key_path: ~
+  access_token_url: 'https://sandbox-api.va.gov/oauth2/health/system/v1/token'
+  api_url: 'https://sandbox-api.va.gov/services/fhir/v0/r4'
+  scopes:
+    - "launch launch/patient"
+    - "patient/Immunization.read"
+    - "patient/Location.read"
 
 token_validation:
   url: https://dev-api.va.gov/internal/auth

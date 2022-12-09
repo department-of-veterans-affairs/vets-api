@@ -65,7 +65,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     allow_any_instance_of(EVSS::DisabilityCompensationForm::Service).to(
       receive(:submit_form526).and_raise(EVSS::DisabilityCompensationForm::ServiceException.new(body))
     )
-    subject.new.perform(claim.id)
+    subject.new.perform(claim.id, failed: true)
     claim.reload
     expect(claim.evss_id).to be_nil
     expect(claim.evss_response).to eq(body['messages'])
@@ -77,7 +77,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     allow_any_instance_of(EVSS::DisabilityCompensationForm::Service).to(
       receive(:submit_form526).and_raise(Common::Exceptions::BackendServiceException.new)
     )
-    subject.new.perform(claim.id)
+    subject.new.perform(claim.id, failed: true)
     claim.reload
     expect(claim.evss_id).to be_nil
     expect(claim.evss_response).to eq(body)
@@ -126,7 +126,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     allow_any_instance_of(EVSS::DisabilityCompensationForm::Service).to(
       receive(:submit_form526).and_raise(Common::Exceptions::BackendServiceException.new)
     )
-    subject.new.perform(claim.id)
+    subject.new.perform(claim.id, failed: true)
     claim.reload
     expect(claim.evss_id).to be_nil
     expect(claim.evss_response).to eq(body)
@@ -140,11 +140,25 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     allow_any_instance_of(EVSS::DisabilityCompensationForm::Service).to(
       receive(:submit_form526).and_raise(::EVSS::DisabilityCompensationForm::ServiceException.new(body))
     )
-    subject.new.perform(claim.id)
+    subject.new.perform(claim.id, failed: true)
     claim.reload
     expect(claim.evss_id).to be_nil
     expect(claim.evss_response).to eq(body['messages'])
     expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
+    expect(claim.form_data).to eq(orig_data)
+  end
+
+  it 'remains pending on first failures' do
+    orig_data = claim.form_data
+    body = [{ 'key' => 400, 'severity' => 'FATAL', 'text' => nil }]
+    allow_any_instance_of(EVSS::DisabilityCompensationForm::Service).to(
+      receive(:submit_form526).and_raise(Common::Exceptions::BackendServiceException.new)
+    )
+    subject.new.perform(claim.id)
+    claim.reload
+    expect(claim.evss_id).to be_nil
+    expect(claim.evss_response).to eq(body)
+    expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::PENDING)
     expect(claim.form_data).to eq(orig_data)
   end
 

@@ -28,10 +28,6 @@ features:
     actor_type: user
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
     enable_in_development: true
-  caregiver_async:
-    actor_type: user
-    description: Submit 1010cg applications using a background job
-    enable_in_development: false
   career_counseling_confirmation_email:
     actor_type: user
     description: Enables Career Counseling claim email confirmation upon submission
@@ -142,6 +138,10 @@ features:
     actor_type: user
     description: Enables users to access the claim letters page
     enable_in_development: true
+  cst_use_lighthouse:
+    actor_type: user
+    description: When enabled, claims status tool uses the Lighthouse API instead of EVSS
+    enable_in_development: true
   coe_access:
     actor_type: user
     description: Feature gates the certificate of eligibility application
@@ -241,6 +241,9 @@ features:
     actor_type: user
     description: Enables the weekly decision review text error report
     enable_in_development: true
+  decision_review_daily_stuck_records_report_enabled:
+    actor_type: user
+    description: Enables the daily decision review stuck records Slack report
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -257,15 +260,6 @@ features:
     actor_type: user
     description: Manage dependent removal from view dependent page
     enable_in_development: true
-  direct_deposit_cnp:
-    actor_type: user
-    description: Allow users to access direct deposit comp and pen APIs
-  direct_deposit_edu:
-    actor_type: user
-    description: Allow users to access direct deposit education benefits APIs
-  direct_deposit_vanotify:
-    actor_type: user
-    description: Send direct deposit emails using VaNotify service
   disability_compensation_flashes:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
@@ -349,6 +343,10 @@ features:
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
+  form526_legacy:
+    actor_type: user
+    description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
+    enable_in_development: true
   form10182_nod:
     actor_type: user
     description: Form 10182 Notice of Disagreement - Request a board appeal
@@ -493,18 +491,10 @@ features:
     actor_type: user
     description: Shows a modal that allows addresses to be duplicated from home to mailing and vice versa
     enable_in_development: true
-  profile_show_bad_address_indicator:
-    actor_type: user
-    description: Show/Hide the "Bad Address" indicator in the profile page.
-    enable_in_development: true
-  profile_force_bad_address_indicator:
-    actor_type: user
-    description: Allows to force the BAI experience for UAT testing
-    enable_in_development: false
   profile_show_payments_notification_setting:
     actor_type: user
     description: Show/Hide the payments section of notifications in profile
-  profile_show_appeal_status_notification_setting':
+  profile_show_appeal_status_notification_setting:
     actor_type: user
     description: Show/Hide the appeal status change notification setting in profile
   profile_show_pronouns_and_sexual_orientation:
@@ -533,10 +523,6 @@ features:
     actor_type: user
     description: Fast tracks 526 disability compensation asthma claims by submitting additional health data
     enable_in_development: true
-  rrd_asthma_release_pdf:
-    actor_type: user
-    description: For 526 disability compensation asthma claims, add RRD PDF and set RRD special issue to route to RVSRs
-    enable_in_development: true
   my_va_redirect:
     actor_type: user
     description: After authentication redirects a user to the My VA page if they are on the homepage
@@ -544,10 +530,6 @@ features:
   rrd_hypertension_compensation:
     actor_type: user
     description: Fast tracks 526 disability compensation hypertension claims by submitting additional health data
-    enable_in_development: true
-  rrd_add_special_issue:
-    actor_type: user
-    description: Fast tracks 526 disability compensation claims by adding the RRD special issue to the claim.
     enable_in_development: true
   rrd_mas_disability_tracking:
     actor_type: user
@@ -842,6 +824,6 @@ features:
   move_form_back_button:
     actor_type: user
     description: Test moving form back button to the top of the page
-  mobile_lighthouse_letters:
+  myva_cerner_from_drupal:
     actor_type: user
-    description: For mobile app, use Lighthouse instead of EVSS for our letters endpoints upstream service
+    description: Enables cerner updates from drupal

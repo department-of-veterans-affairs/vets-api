@@ -1,0 +1,42 @@
+type: object
+required:
+  - id
+  - type
+  - attributes
+properties:
+  id:
+    type: string
+    example: "3097e489-ad75-5746-ab1a-e0aabc1b426a"
+  type:
+    type: string
+    example: "PrescriptionRefills"
+  attributes:
+    type: object
+    required:
+      - failedStationList
+      - successfulStationList
+      - lastUpdatedTime
+      - prescriptionList
+      - errors
+      - infoMessages
+    properties:
+      failedStationList:
+        type: string, null
+        example: "DAYT29, DAYT29"
+      successfulStationList:
+        type: string, null
+        example: "SLC4, VAMCSLC-OUTPTRX"
+      lastUpdatedTime:
+        type: string, null
+        example: "Thu, 08 Dec 2022 12:11:33 EST"
+      prescriptionList:
+        type: string, null
+        example: null
+      errors:
+        type: array
+        example: [{ "errorCode": 139,
+                    "developerMessage": 'Prescription not refillable for id : 8398465',
+                    "message": 'Prescription is not Refillable' }]
+      infoMessages:
+        type: array
+        example: []

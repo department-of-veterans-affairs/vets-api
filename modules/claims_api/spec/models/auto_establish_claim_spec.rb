@@ -207,7 +207,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
                 'received' => true,
                 'receivedDate' => '2018-03-02',
                 'payment' => {
-                  'serviceBranch' => 'Air Force',
+                  'serviceBranch' => 'National Oceanic and Atmospheric Administration',
                   'amount' => 100
                 }
               }
@@ -221,6 +221,84 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
           'year' => '2018',
           'month' => '3',
           'day' => '2'
+        )
+      end
+    end
+
+    describe 'handles &amp in service branch for separation pay' do
+      it ' and retrieves payment' do
+        temp_form_data = pending_record.form_data
+        temp_form_data.merge!(
+          {
+            'servicePay' => {
+              'separationPay' => {
+                'received' => true,
+                'receivedDate' => '2022-03-02',
+                'payment' => {
+                  'serviceBranch' => 'National Oceanic &amp; Atmospheric Administration',
+                  'amount' => 150
+                }
+              }
+            }
+          }
+        )
+        pending_record.form_data = temp_form_data
+
+        payload = JSON.parse(pending_record.to_internal)
+        expect(payload['form526']['servicePay']['separationPay']['payment']['serviceBranch']).to include(
+          'National Oceanic & Atmospheric Administration'
+        )
+      end
+    end
+
+    describe 'handles &amp in service branch for militaryRetiredPay' do
+      it ' and retrieves payment' do
+        temp_form_data = pending_record.form_data
+        temp_form_data.merge!(
+          {
+            'servicePay' => {
+              'militaryRetiredPay' => {
+                'received' => true,
+                'receivedDate' => '2022-03-02',
+                'payment' => {
+                  'serviceBranch' => 'National Oceanic &amp; Atmospheric Administration',
+                  'amount' => 150
+                }
+              }
+            }
+          }
+        )
+        pending_record.form_data = temp_form_data
+
+        payload = JSON.parse(pending_record.to_internal)
+        expect(payload['form526']['servicePay']['militaryRetiredPay']['payment']['serviceBranch']).to include(
+          'National Oceanic & Atmospheric Administration'
+        )
+      end
+    end
+
+    describe 'handles & in service branch for militaryRetiredPay' do
+      it ' and retrieves payment' do
+        temp_form_data = pending_record.form_data
+        temp_form_data.merge!(
+          {
+            'servicePay' => {
+              'militaryRetiredPay' => {
+                'received' => true,
+                'receivedDate' => '2022-03-02',
+                'payment' => {
+                  'serviceBranch' => 'National Oceanic & Atmospheric Administration',
+                  'amount' => 150
+                }
+              }
+            }
+          }
+        )
+        pending_record.form_data = temp_form_data
+
+        payload = JSON.parse(pending_record.to_internal)
+        expect(payload['form526']['servicePay']['militaryRetiredPay']['payment']['serviceBranch']).to include(
+          'National Oceanic & Atmospheric Administration'
         )
       end
     end

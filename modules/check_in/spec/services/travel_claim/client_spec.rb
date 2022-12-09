@@ -188,4 +188,42 @@ describe TravelClaim::Client do
       end
     end
   end
+
+  describe '#claims_default_header' do
+    context 'when environment is non-prod' do
+      let(:resp_headers) do
+        {
+          'Content-Type' => 'application/json',
+          'OCP-APIM-Subscription-Key' => 'subscription_key'
+        }
+      end
+
+      it 'returns single subscription key in headers' do
+        with_settings(Settings, vsp_environment: 'staging') do
+          with_settings(Settings.check_in.travel_reimbursement_api, subscription_key: 'subscription_key') do
+            expect(subject.send(:claims_default_header)).to eq(resp_headers)
+          end
+        end
+      end
+    end
+
+    context 'when environment is prod' do
+      let(:resp_headers) do
+        {
+          'Content-Type' => 'application/json',
+          'OCP-APIM-Subscription-Key-E' => 'e_key',
+          'OCP-APIM-Subscription-Key-S' => 's_key'
+        }
+      end
+
+      it 'returns both subscription keys in headers' do
+        with_settings(Settings, vsp_environment: 'production') do
+          with_settings(Settings.check_in.travel_reimbursement_api,
+                        { e_subscription_key: 'e_key', s_subscription_key: 's_key' }) do
+            expect(subject.send(:claims_default_header)).to eq(resp_headers)
+          end
+        end
+      end
+    end
+  end
 end

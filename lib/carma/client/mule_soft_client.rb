@@ -22,22 +22,6 @@ module CARMA
         end
       end
 
-      # @param payload [String] JSON payload to submit
-      # @return [Faraday::Env]
-      def create_submission(payload)
-        with_monitoring do
-          do_post('v1/application/1010CG/submit', payload)
-        end
-      end
-
-      # @param payload [String] JSON payload to submit
-      # @return [Faraday::Env]
-      def upload_attachments(payload)
-        with_monitoring do
-          do_post('v1/application/1010CG/addDocument', payload, config.settings.async_timeout)
-        end
-      end
-
       private
 
       # @param resource [String] REST-ful path component

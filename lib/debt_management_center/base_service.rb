@@ -8,7 +8,7 @@ module DebtManagementCenter
 
     def initialize(user)
       @user = user
-      @file_number = init_file_number
+      @file_number = init_file_number if @user.present?
     end
 
     private

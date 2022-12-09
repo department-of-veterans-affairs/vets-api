@@ -58,7 +58,7 @@ jobs:
 
       - name: Setup Docker
         run: |
-          docker volume create --name=test_bundle_v2_7_6
+          docker volume create --name=test_bundle_v2_7_6-cache-v2
           cp /etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem config/ca-trust/
 
       - name: Build Docker Image

@@ -53,8 +53,9 @@ Mobile::Engine.routes.draw do
     post '/user/phones', to: 'phones#create'
     put '/user/phones', to: 'phones#update'
     delete '/user/phones', to: 'phones#destroy'
+    put '/user/preferred_name', to: 'preferred_names#update'
     get '/health/rx/prescriptions', to: 'prescriptions#index'
-    put '/health/rx/prescriptions/:id/refill', to: 'prescriptions#refill'
+    put '/health/rx/prescriptions/refill', to: 'prescriptions#refill'
     get '/health/rx/prescriptions/:id/tracking', to: 'prescriptions#tracking'
 
     scope :messaging do

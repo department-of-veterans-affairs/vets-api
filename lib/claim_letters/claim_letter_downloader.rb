@@ -22,6 +22,8 @@ module ClaimStatusTool
 
         format_letter_data(res)
       end
+    rescue VBMS::FilenumberDoesNotExist
+      []
     end
 
     def get_letter(document_id)
@@ -52,7 +54,7 @@ module ClaimStatusTool
       return @user.ssn if @user.participant_id.blank?
 
       bgs_file_number = BGS::People::Request.new.find_person_by_participant_id(user: @user).file_number
-      bgs_file_number.empty? ? @user.ssn : bgs_file_number
+      (bgs_file_number.presence || @user.ssn)
     end
 
     def filter_letters(document)

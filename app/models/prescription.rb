@@ -55,6 +55,7 @@ class Prescription < Common::Base
   attribute :station_number, String
   attribute :is_refillable, Boolean, filterable: %w[eq not_eq]
   attribute :is_trackable, Boolean, filterable: %w[eq not_eq]
+  attribute :cmop_division_phone, String
 
   alias refillable? is_refillable
   alias trackable? is_trackable

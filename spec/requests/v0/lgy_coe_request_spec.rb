@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'lgy/service'
 
 describe 'LGY API' do
   context 'when user is signed in' do
@@ -85,6 +86,32 @@ describe 'LGY API' do
           end
         end
       end
+
+      it 'adds an attachment tag to the document\'s description' do
+        attachments = {
+          'files' => [{
+            'file' => Base64.encode64(File.read('spec/fixtures/files/lgy_file.pdf')),
+            'document_type' => 'VA home loan documents',
+            'file_type' => 'pdf',
+            'file_name' => 'lgy_file.pdf'
+          }]
+        }
+        expected_payload = {
+          'documentType' => 'pdf',
+          # We add an "[ATTACHMENT]" prefix to help us distinguish between
+          # vet-uploaded supporting documents and notification letters, on the
+          # COE status page.
+          'description' => '[ATTACHMENT] VA home loan documents',
+          'contentsBase64' => Base64.encode64(File.read('spec/fixtures/files/lgy_file.pdf')),
+          'fileName' => 'lgy_file.pdf'
+        }
+
+        expected_response = double(:fake_response, status: 200)
+        expect_any_instance_of(LGY::Service).to receive(:post_document).with(payload: expected_payload)
+                                                                       .and_return(expected_response)
+        post('/v0/coe/document_upload', params: attachments)
+        expect(response.status).to eq(200)
+      end
     end
 
     describe 'GET v0/coe/document_download' do
@@ -111,6 +138,39 @@ describe 'LGY API' do
           get '/v0/coe/document_download/123456789'
           expect(response.body).to eq @res.body
         end
+      end
+    end
+
+    describe 'GET v0/coe/documents' do
+      it 'returns notification letters only' do
+        lgy_documents_response_body = [{
+          'id' => 23_929_115,
+          'document_type' => '252',
+          'create_date' => 1_670_530_715_000,
+          'description' => '[ATTACHMENT]',
+          'mime_type' => '[ATTACHMENT] example.png'
+        }, {
+          'id' => 10_101_010,
+          'document_type' => '705',
+          'create_date' => 1_670_530_714_000,
+          'description' => nil,
+          'mime_type' => 'COE Application First Returned.pdf'
+        }]
+        lgy_documents_response = double(:lgy_documents_response, body: lgy_documents_response_body)
+        expect_any_instance_of(LGY::Service).to receive(:get_coe_documents).and_return(lgy_documents_response)
+        get '/v0/coe/documents'
+        expected_response_body = {
+          'data' => {
+            'attributes' => [{
+              'id' => 10_101_010,
+              'document_type' => '705',
+              'create_date' => 1_670_530_714_000,
+              'description' => nil,
+              'mime_type' => 'COE Application First Returned.pdf'
+            }]
+          }
+        }.to_json
+        expect(response.body).to eq(expected_response_body)
       end
     end
   end

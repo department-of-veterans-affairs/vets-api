@@ -27,6 +27,7 @@ properties:
       - prescriptionName
       - instructions
       - stationNumber
+      - facilityPhoneNumber
     properties:
       refillStatus:
         type: string, null
@@ -90,4 +91,7 @@ properties:
       stationNumber:
         type: string, null
         example: "989"
+      facilityPhoneNumber:
+        type: string, null
+        example: "(217) 636-6712"
 

@@ -10,7 +10,7 @@ module ClaimsApi
       uploader = VBMSUploader.new(
         filepath: path,
         file_number: retrieve_veteran_file_number(evidence_waiver_submission: evidence_waiver_submission),
-        doc_type: '295'
+        doc_type: '705'
       )
       uploader.upload!
       evidence_waiver_submission.update(

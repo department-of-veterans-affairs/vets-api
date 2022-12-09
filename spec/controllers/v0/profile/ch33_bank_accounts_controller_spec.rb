@@ -83,23 +83,9 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
     end
 
     context 'with a successful update' do
-      context 'if direct_deposit_vanotify flag is enabled' do
-        it 'sends confirmation emails to the vanotify job' do
-          Flipper.enable(:direct_deposit_vanotify)
-
-          expect(VANotifyDdEmailJob).to receive(:send_to_emails).with(
-            user.all_emails, :ch33
-          )
-
-          send_successful_update
-        end
-      end
-
-      it 'sends confirmation emails' do
-        Flipper.disable(:direct_deposit_vanotify)
-
-        expect(DirectDepositEmailJob).to receive(:send_to_emails).with(
-          user.all_emails, nil, :ch33
+      it 'sends confirmation emails to the vanotify job' do
+        expect(VANotifyDdEmailJob).to receive(:send_to_emails).with(
+          user.all_emails, :ch33
         )
 
         send_successful_update

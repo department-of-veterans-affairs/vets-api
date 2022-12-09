@@ -32,8 +32,6 @@ module Swagger
               key :required, [:data]
 
               property :data, type: :object do
-                key :required, [:attributes]
-
                 property :id do
                   key :description, 'Number of pages contained in the form'
                   key :type, :string
@@ -44,20 +42,6 @@ module Swagger
                   key :description, 'This is always "form1010cg_submissions"'
                   key :type, :string
                   key :example, 'form1010cg_submissions'
-                end
-
-                property :attributes, type: :object do
-                  key :required, %i[submitted_at confirmation_number]
-
-                  property :submitted_at do
-                    key :type, :string
-                    key :example, '1973-01-01T05:00:00.000+00:00'
-                  end
-
-                  property :confirmation_number do
-                    key :type, :string
-                    key :example, 294_824
-                  end
                 end
               end
             end

@@ -16,7 +16,6 @@ path 'modules' do
   gem 'dhp_connected_devices'
   gem 'facilities_api'
   gem 'health_quest'
-  gem 'identity'
   gem 'meb_api'
   gem 'mobile'
   gem 'my_health'

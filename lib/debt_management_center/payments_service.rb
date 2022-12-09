@@ -16,7 +16,7 @@ module DebtManagementCenter
         begin
           BGS::People::Request.new.find_person_by_participant_id(user: current_user)
         rescue => e
-          report_error(e, current_user)
+          report_error(e)
           {}
         end
 
@@ -24,7 +24,7 @@ module DebtManagementCenter
         begin
           BGS::PaymentService.new(current_user).payment_history(@person)[:payments][:payment].presence || []
         rescue => e
-          report_error(e, current_user)
+          report_error(e)
           []
         end
     end
@@ -76,12 +76,10 @@ module DebtManagementCenter
       end
     end
 
-    def report_error(error, user)
+    def report_error(error)
       log_exception_to_sentry(
         error,
-        {
-          icn: user.icn
-        },
+        {},
         { team: 'vfs-debt' }
       )
     end

@@ -51,6 +51,40 @@ describe MPI::Responses::ProfileParser do
         expect(parser.parse).to have_deep_attributes(mvi_profile)
       end
 
+      context 'when candidate has incomplete birth_date' do
+        let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_incomplete_dob_response.xml')) }
+        let(:icn) { '1000123456V123456' }
+        let(:mvi_profile) do
+          build(
+            :mpi_profile_response,
+            :address_austin,
+            icn: icn,
+            suffix: nil,
+            birth_date: nil,
+            birls_id: nil,
+            birls_ids: [],
+            mhv_ien: nil,
+            mhv_iens: [],
+            sec_id: nil,
+            historical_icns: nil,
+            search_token: 'WSDOC1609131753362231779394902',
+            id_theft_flag: false,
+            transaction_id: transaction_id
+          )
+        end
+        let(:expected_log_message) { 'MPI::Response.parse_dob failed' }
+        let(:expected_log_values) { { dob: '198003', icn: icn } }
+
+        it 'sets the birth_date to nil' do
+          expect(parser.parse).to have_deep_attributes(mvi_profile)
+        end
+
+        it 'logs the birth_date & icn' do
+          expect(Rails.logger).to receive(:warn).with(expected_log_message, expected_log_values)
+          parser.parse
+        end
+      end
+
       context 'when candidate is missing name' do
         let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_missing_name_response.xml')) }
         let(:mvi_profile) do

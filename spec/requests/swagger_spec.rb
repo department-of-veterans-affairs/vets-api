@@ -301,33 +301,21 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       expect(subject).to validate(:get, '/v0/education_benefits_claims/stem_claim_status', 200)
     end
 
-    describe 'using salesforce' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:caregiver_mulesoft).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:caregiver_async, nil).and_return(false)
-      end
-
+    describe 'using mulesoft' do
       it 'supports adding an caregiver\'s assistance claim' do
-        VCR.use_cassette 'mpi/find_candidate/valid' do
-          VCR.use_cassette 'emis/get_veteran_status/valid' do
-            VCR.use_cassette 'carma/auth/token/200' do
-              VCR.use_cassette 'carma/submissions/create/201' do
-                VCR.use_cassette 'carma/attachments/upload/201' do
-                  expect(subject).to validate(
-                    :post,
-                    '/v0/caregivers_assistance_claims',
-                    200,
-                    '_data' => {
-                      'caregivers_assistance_claim' => {
-                        'form' => build(:caregivers_assistance_claim).form
-                      }
-                    }
-                  )
-                end
-              end
-            end
-          end
-        end
+        expect_any_instance_of(Form1010cg::Service).to receive(:assert_veteran_status)
+        expect(Form1010cg::SubmissionJob).to receive(:perform_async)
+
+        expect(subject).to validate(
+          :post,
+          '/v0/caregivers_assistance_claims',
+          200,
+          '_data' => {
+            'caregivers_assistance_claim' => {
+              'form' => build(:caregivers_assistance_claim).form
+            }
+          }
+        )
 
         expect(subject).to validate(
           :post,
@@ -749,65 +737,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
               )
             end
           end
-        end
-      end
-    end
-
-    context 'preferred facilities' do
-      let(:user) { build(:user, :loa3) }
-      let(:headers) do
-        { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
-      end
-      let!(:preferred_facility) { create(:preferred_facility, user: user) }
-
-      it 'validates unauthorized routes' do
-        expect(subject).to validate(:get, '/v0/preferred_facilities', 401)
-        expect(subject).to validate(:delete, '/v0/preferred_facilities/{id}', 401, 'id' => 1)
-        expect(subject).to validate(:post, '/v0/preferred_facilities', 401)
-      end
-
-      context 'preferred facilities index' do
-        it 'validates the route' do
-          expect(subject).to validate(
-            :get,
-            '/v0/preferred_facilities',
-            200,
-            headers
-          )
-        end
-      end
-
-      context 'preferred_facilities destroy' do
-        it 'validates the route' do
-          expect(subject).to validate(
-            :delete,
-            '/v0/preferred_facilities/{id}',
-            200,
-            headers.merge(
-              'id' => preferred_facility.id
-            )
-          )
-        end
-      end
-
-      context 'preferred_facilities create' do
-        it 'validates the route' do
-          allow_any_instance_of(User).to receive(:va_treatment_facility_ids).and_return(
-            %w[983 688]
-          )
-
-          expect(subject).to validate(
-            :post,
-            '/v0/preferred_facilities',
-            200,
-            headers.merge(
-              '_data' => {
-                preferred_facility: {
-                  facility_code: '688'
-                }
-              }
-            )
-          )
         end
       end
     end

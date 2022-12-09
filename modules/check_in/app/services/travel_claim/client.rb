@@ -14,8 +14,8 @@ module TravelClaim
 
     attr_reader :settings, :check_in
 
-    def_delegators :settings, :auth_url, :tenant_id, :client_id, :client_secret, :scope, :claims_url, :client_number,
-                   :subscription_key, :service_name
+    def_delegators :settings, :auth_url, :tenant_id, :client_id, :client_secret, :scope, :claims_url, :claims_base_path,
+                   :client_number, :subscription_key, :e_subscription_key, :s_subscription_key, :service_name
 
     ##
     # Builds a Client instance
@@ -57,7 +57,7 @@ module TravelClaim
     # @return [Faraday::Response]
     #
     def submit_claim(token:, patient_icn:, appointment_date:)
-      connection(server_url: claims_url).post('/ClaimIngest/submitclaim') do |req|
+      connection(server_url: claims_url).post("/#{claims_base_path}/api/ClaimIngest/submitclaim") do |req|
         req.headers = claims_default_header.merge('Authorization' => "Bearer #{token}")
         req.body = claims_data.merge({ ClaimantID: patient_icn, Appointment:
           { AppointmentDateTime: appointment_date } }).to_json
@@ -99,10 +99,18 @@ module TravelClaim
     end
 
     def claims_default_header
-      {
-        'Content-Type' => 'application/json',
-        'OCP-APIM-Subscription-Key' => subscription_key
-      }
+      if Settings.vsp_environment == 'production'
+        {
+          'Content-Type' => 'application/json',
+          'OCP-APIM-Subscription-Key-E' => e_subscription_key,
+          'OCP-APIM-Subscription-Key-S' => s_subscription_key
+        }
+      else
+        {
+          'Content-Type' => 'application/json',
+          'OCP-APIM-Subscription-Key' => subscription_key
+        }
+      end
     end
 
     def auth_params
@@ -116,12 +124,10 @@ module TravelClaim
 
     def claims_data
       {
-        ClientNumber: :client_number,
+        ClientNumber: client_number,
         ClaimantIDType: CLAIMANT_ID_TYPE,
-        Appointment: {
-          MileageExpense: {
-            TripType: TRIP_TYPE
-          }
+        MileageExpense: {
+          TripType: TRIP_TYPE
         }
       }
     end

@@ -32,12 +32,15 @@ module V0
     end
 
     def documents
-      documents = lgy_service.get_coe_documents
-
+      documents = lgy_service.get_coe_documents.body
+      # We _only_ want to display notification letters, and _not_ vet-uploaded
+      # supporting documents. We make this distinction at the time of upload,
+      # by prefixing the description with an '[ATTACHMENT]' tag. We are checking
+      # for that tag here.
+      notification_letters = documents.reject { |doc| doc['description']&.include?('[ATTACHMENT]') }
       # Documents should be sorted from most to least recent
-      sorted = documents.body.sort_by { |doc| doc['create_date'] }.reverse
-
-      render json: { data: { attributes: sorted } }, status: :ok
+      sorted_notification_letters = notification_letters.sort_by { |doc| doc['create_date'] }.reverse
+      render json: { data: { attributes: sorted_notification_letters } }, status: :ok
     end
 
     def document_upload
@@ -91,7 +94,10 @@ module V0
 
       {
         'documentType' => attachment['file_type'],
-        'description' => attachment['document_type'],
+        # We add an "[ATTACHMENT]" prefix to help us distinguish between
+        # vet-uploaded supporting documents and notification letters, on the
+        # COE status page.
+        'description' => ['[ATTACHMENT]', attachment['document_type']].compact.join(' '),
         'contentsBase64' => file_data,
         'fileName' => attachment['file_name']
       }

@@ -45,7 +45,7 @@ module AppealsApi
         it 'raises if an unknown message type is provided' do
           expect { AppealsApi::Slack::Messager.new(params, notification_type: :unknown).notify! }
             .to(raise_error(AppealsApi::Slack::UnregisteredNotificationType,
-                            'registered notifications: [:error_retry]'))
+                            'registered notifications: [:error_retry, :stuck_record]'))
         end
       end
     end
