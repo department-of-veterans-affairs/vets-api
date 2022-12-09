@@ -175,13 +175,12 @@ class SavedClaim::CoeClaim < SavedClaim
           # This is the vet's own description of a document, after selecting
           # "other" as the `attachmentType`. We add an "[ATTACHMENT]" prefix to
           # help us distinguish between vet-uploaded supporting documents and
-          # notification letters, on the COE status page.
-          'description' => "[ATTACHMENT] #{claim_file_data['attachmentDescription']}",
+          # notification letters, on the COE status page. For more context, see
+          # https://github.com/department-of-veterans-affairs/vets-api/pull/11335.
+          # We are doing the same thing in CoeController#document_data.
+          'description' => ['[ATTACHMENT]', claim_file_data['attachmentDescription']].compact.join(' '),
           'contentsBase64' => Base64.encode64(File.read(file_path)),
-          # We add an "[ATTACHMENT]" prefix to help us distinguish between
-          # vet-uploaded supporting documents and notification letters, on the
-          # COE status page.
-          'fileName' => "[ATTACHMENT] #{attachment.file.metadata['filename']}"
+          'fileName' => attachment.file.metadata['filename']
         }
 
         lgy_service.post_document(payload: document_data)
