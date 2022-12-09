@@ -9,6 +9,9 @@ metadata:
     app: {{ $name }}
   name: {{ $name }}
   namespace: {{ $root.Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+
 spec:
   selector:
     matchLabels:
