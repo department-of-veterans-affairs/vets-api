@@ -27,7 +27,7 @@ features:
   caregiver_use_facilities_API:
     actor_type: user
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
-    enable_in_development: true
+    enable_in_development: false
   career_counseling_confirmation_email:
     actor_type: user
     description: Enables Career Counseling claim email confirmation upon submission
@@ -36,6 +36,10 @@ features:
     actor_type: user
     description: Enables American Indian SIGI question page.
     enable_in_development: true
+  hca_browser_monitoring_enabled:
+    actor_type: user
+    description: Enables browser monitoring for the health care application.
+    enable_in_development: false
   hca_short_form_enabled:
     actor_type: user
     description: Enables Short Form for users with or self discloser of high disability.
@@ -47,7 +51,7 @@ features:
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
-    enable_in_development: true
+    enable_in_development: false
   cerner_allow_partial_facilities:
     actor_type: user
     description: This will allow cerner facilities to be set to partially cerner or all cerner.
