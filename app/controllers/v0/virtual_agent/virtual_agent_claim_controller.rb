@@ -8,8 +8,9 @@ module V0
     class VirtualAgentClaimController < ApplicationController
       include IgnoreNotFound
       rescue_from 'EVSS::ErrorMiddleware::EVSSError', with: :service_exception_handler
-      before_action { authorize :evss, :access? } if Settings.vsp_environment.present?
-
+      if Settings.vsp_environment.present? && Settings.vsp_environment.downcase != 'development'
+        before_action { authorize :evss, :access? }
+      end
       def index
         claims, synchronized = service.all
         cxdw_reporting_service = V0::VirtualAgent::ReportToCxdw.new
