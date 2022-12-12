@@ -62,6 +62,25 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
         expect { claim.destroy }.to change(PersistentAttachment, :count).by(-2)
       end
     end
+
+    it '#send_confirmation_email' do
+      allow(VANotify::EmailJob).to receive(:perform_async)
+
+      instance.send_confirmation_email
+
+      expect(VANotify::EmailJob).to have_received(:perform_async).with(
+        'foo@foo.com',
+        'form527ez_confirmation_email_template_id',
+        {
+          'confirmation_number' => instance.guid,
+          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+          'first_name' => 'TEST',
+          'last_initial' => 'U',
+          'pmc_name' => 'St. Paul Pension Center',
+          'regional_office' => "Attention:  St. Paul Pension Center\nP.O. Box 5365\nJanesville, WI 53547-5365"
+        }
+      )
+    end
   end
 
   describe '#email' do

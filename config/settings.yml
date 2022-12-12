@@ -1173,6 +1173,7 @@ vanotify:
         ch31_vbms_form_confirmation_email: ch31_vbms_fake_template_id
         ch31_central_mail_form_confirmation_email: ch31_central_mail_fake_template_id
         career_counseling_confirmation_email: career_counseling_confirmation_email_template_id
+        form527ez_confirmation_email: form527ez_confirmation_email_template_id
         preneeds_burial_form_email: preneeds_burial_form_email_template_id
         contact_info_change: fake_template_id
         form526_confirmation_email: fake_template_id
