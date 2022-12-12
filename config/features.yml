@@ -689,9 +689,9 @@ features:
   va_global_downtime_notification:
     actor_type: user
     description: Enables global downtime notification- do not use in production
-  va_home_preview:
+  va_home_preview_modal:
     actor_type: user
-    description: Allows user testing for Homepage redesign - do not use in production
+    description: Allows user testing for Homepage redesign soft launch modal
   va_online_filter36_vats:
     actor_type: user
     description: Update the filtering logic from 24 months to 36 months for a given clinic in the direct appointment schedule flow
