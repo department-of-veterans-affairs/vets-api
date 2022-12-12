@@ -121,7 +121,8 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
   end
 
   describe '#show /v2/uploads/{id}' do
-    let(:upload) { FactoryBot.create(:upload_submission) }
+    let(:upload) { FactoryBot.create(:upload_submission, status: 'pending') }
+    let(:upload_in_flight) { FactoryBot.create(:upload_submission, status: 'processing') }
     let(:upload_large_detail) { FactoryBot.create(:upload_submission_large_detail) }
 
     it 'returns status of an upload submission' do
@@ -141,6 +142,49 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       expect(json['errors'].size).to eq(1)
       status = json['errors'][0]
       expect(status['detail']).to include('non_existent_guid')
+    end
+
+    context 'when status refresh raises a Common::Exceptions::GatewayTimeout exception' do
+      before do
+        allow(CentralMail::Service).to receive(:new).and_return(client_stub)
+        allow(client_stub).to receive(:status).and_raise(Common::Exceptions::GatewayTimeout)
+      end
+
+      it 'returns the cached status' do
+        get "/services/vba_documents/v1/uploads/#{upload_in_flight.guid}"
+        expect(response).to have_http_status(:ok)
+        json_attributes = JSON.parse(response.body)['data']['attributes']
+        expect(json_attributes['guid']).to eq(upload_in_flight.guid)
+        expect(json_attributes['status']).to eq('processing')
+      end
+
+      it 'logs a message to rails logger with log_level :warn' do
+        expected_log = "Status refresh failed for submission on uploads#show, GUID: #{upload_in_flight.guid}"
+        expect(Rails.logger).to receive(:warn).with(expected_log, Common::Exceptions::GatewayTimeout)
+        get "/services/vba_documents/v1/uploads/#{upload_in_flight.guid}"
+      end
+    end
+
+    context 'when status refresh raises a Common::Exceptions::BadGateway exception' do
+      before do
+        allow_any_instance_of(VBADocuments::UploadSubmission)
+          .to receive(:refresh_status!).and_raise(Common::Exceptions::BadGateway)
+        allow(Rails.logger).to receive(:warn)
+      end
+
+      it 'returns the cached status' do
+        get "/services/vba_documents/v1/uploads/#{upload_in_flight.guid}"
+        expect(response).to have_http_status(:ok)
+        json_attributes = JSON.parse(response.body)['data']['attributes']
+        expect(json_attributes['guid']).to eq(upload_in_flight.guid)
+        expect(json_attributes['status']).to eq('processing')
+      end
+
+      it 'logs a message to rails logger with log_level :warn' do
+        expected_log = "Status refresh failed for submission on uploads#show, GUID: #{upload_in_flight.guid}"
+        expect(Rails.logger).to receive(:warn).with(expected_log, Common::Exceptions::BadGateway)
+        get "/services/vba_documents/v1/uploads/#{upload_in_flight.guid}"
+      end
     end
 
     it 'keeps the displayed detail to 200 characters or less' do
