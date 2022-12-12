@@ -351,6 +351,10 @@ features:
     actor_type: user
     description: Form 10182 Notice of Disagreement - Request a board appeal
     enable_in_development: true
+  form527ez_confirmation_email:
+    actor_type: user
+    description: Enables pension benefits form (527ez) email submission confirmation (VaNotify)
+    enable_in_development: true
   form674_confirmation_email:
     actor_type: user
     description: Form 674 - Email submission confirmation
