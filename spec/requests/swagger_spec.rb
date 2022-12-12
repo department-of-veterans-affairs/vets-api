@@ -2311,6 +2311,13 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    describe 'mhv accounts' do
+      it 'supports getting mhv account data' do
+        expect(subject).to validate(:get, '/v0/mhv_account', 401)
+        expect(subject).to validate(:get, '/v0/mhv_account', 200, headers)
+      end
+    end
+
     describe 'profiles' do
       it 'supports getting email address data' do
         expect(subject).to validate(:get, '/v0/profile/email', 401)
