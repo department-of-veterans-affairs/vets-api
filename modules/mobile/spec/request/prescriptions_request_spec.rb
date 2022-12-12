@@ -39,7 +39,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
   describe 'GET /mobile/v0/health/rx/prescriptions/refill', :aggregate_failures do
     it 'returns all successful refills' do
       VCR.use_cassette('rx_refill/prescriptions/refills_prescriptions') do
-        put '/mobile/v0/health/rx/prescriptions/refill', params: { ids: [21_530_889, 21_539_942] }, headers: iam_headers
+        put '/mobile/v0/health/rx/prescriptions/refill', params: { ids: %w[21530889 21539942] }, headers: iam_headers
       end
       expect(response).to have_http_status(:ok)
       attributes = response.parsed_body.dig('data', 'attributes')
@@ -54,7 +54,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
     context 'refill multiple prescription, one of which is non-refillable' do
       it 'returns error and successful refills' do
         VCR.use_cassette('rx_refill/prescriptions/refills_prescriptions_with_error') do
-          put '/mobile/v0/health/rx/prescriptions/refill', params: { ids: [7_417_954, 6_970_769, 8_398_465] },
+          put '/mobile/v0/health/rx/prescriptions/refill', params: { ids: %w[7417954 6970769 8398465] },
                                                            headers: iam_headers
         end
         expect(response).to have_http_status(:ok)
@@ -71,10 +71,23 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       end
     end
 
+    context 'attempt to refill with non array of ids' do
+      it 'returns Invalid Field Value 400 error' do
+        put '/mobile/v0/health/rx/prescriptions/refill', params: { ids: '8398465' }, headers: iam_headers
+        expect(response).to have_http_status(:bad_request)
+        errors = response.parsed_body['errors']
+        expect(errors).to eq([{ 'title' => 'Invalid field value',
+                                'detail' =>
+                                        '"8398465" is not a valid value for "ids"',
+                                'code' => '103',
+                                'status' => '400' }])
+      end
+    end
+
     context 'refill multiple prescription, one of which does not exist' do
       it 'returns error and successful refills' do
         VCR.use_cassette('rx_refill/prescriptions/refills_prescriptions_not_found') do
-          put '/mobile/v0/health/rx/prescriptions/refill', params: { ids: [21_530_889, 21_539_942, 123_456] },
+          put '/mobile/v0/health/rx/prescriptions/refill', params: { ids: %w[21530889 21539942 123456] },
                                                            headers: iam_headers
         end
         expect(response).to have_http_status(:ok)
@@ -96,7 +109,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         set_cache
 
         VCR.use_cassette('rx_refill/prescriptions/refills_prescriptions') do
-          put '/mobile/v0/health/rx/prescriptions/refill', params: { ids: [21_530_889, 21_539_942] },
+          put '/mobile/v0/health/rx/prescriptions/refill', params: { ids: %w[21530889 21539942] },
                                                            headers: iam_headers
         end
 
