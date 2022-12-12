@@ -5,7 +5,7 @@ http_interactions:
     uri: "<MHV_HOST>/mhv-api/patient/v1/prescription/rxrefill"
     body:
       encoding: UTF-8
-      string: '{ "rxIds": "7417954", "rxIds": "6970769", "rxIds": "8398465" }'
+      string: '[7417954, 6970769, 8398465]'
     headers:
       Accept:
       - application/json
