@@ -21,15 +21,18 @@ class SavedClaim::Pension < CentralMailClaim
     return unless Flipper.enabled?(:form527ez_confirmation_email)
     return if email.blank?
 
+    (regional_office_line_1, regional_office_line_2, regional_office_line_3) = regional_office
+
     VANotify::EmailJob.perform_async(
       email,
       Settings.vanotify.services.va_gov.template_id.form527ez_confirmation_email,
       {
         'confirmation_number' => guid,
         'pmc_name' => regional_office.first.sub('Attention:', '').strip,
-        'regional_office' => regional_office.join("\n").strip,
+        'regional_office_line_1' => regional_office_line_1,
+        'regional_office_line_2' => regional_office_line_2,
+        'regional_office_line_3' => regional_office_line_3,
         'first_name' => parsed_form.dig('veteranFullName', 'first')&.upcase.presence,
-        'last_initial' => parsed_form.dig('veteranFullName', 'last')&.first&.upcase.presence,
         'date_submitted' => Time.zone.today.strftime('%B %d, %Y')
       }
     )
