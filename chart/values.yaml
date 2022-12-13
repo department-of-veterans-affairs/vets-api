@@ -66,15 +66,14 @@ web:
   ingress:
     enabled: false
     entryPoints: web
-    routes:
-      - kind: Rule
-        match: ""
-        priority: ""
-        services:
-          - name: ""
-            port: ""
-        middlewares:
-          - name: ""
+  webServices:
+    default:
+      kind: ""
+      middleware: ""
+      host: ""
+      port: ""
+      priority: ""
+    service: {}
   service:
     enabled: false
     annotations:
@@ -104,16 +103,6 @@ web:
         value: false
   pumaBacklog:
     enabled: false
-  externalService:
-    enabled: false
-    default:
-      port: 3004
-      kind: Rule
-      middleware:
-        name: ""
-      host: ""
-    service: {}
-
 #Worker Configuration
 worker:
   enabled: false

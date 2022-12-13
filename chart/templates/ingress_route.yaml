@@ -14,24 +14,18 @@ spec:
     - web
   routes:
     # Iterating over a Complex Structure
-    {{- range .Values.web.ingress.routes }}
-    - {{ . | toYaml | nindent 6 -}}
-    {{- end }}
-    {{- if .Values.web.externalService.enabled }}
-    {{- range $name, $service := $root.Values.web.externalService.service }}
+    {{- range $name, $service := $root.Values.web.webServices.service }}
     {{- range $key, $key := $service }}
-    - kind: {{ $root.Values.web.externalService.default.kind }}
-      match: Host(`{{ $root.Values.web.externalService.default.host }}`) && Path(`{{ $key }}`)
-      priority: {{ $root.Values.web.externalService.default.priority }}
+    - kind: {{ $root.Values.web.webServices.default.kind }}
+      match: Host(`{{ $key.host | default $root.Values.web.webServices.default.host }}`) && Path(`{{ $key.path }}`)
+      priority: {{ $key.priority | default $root.Values.web.webServices.default.priority  }}
       services:
         - name: {{ $name }}
-          port: {{ $root.Values.web.externalService.default.port }}
+          port: {{ $key.port | default $root.Values.web.webServices.default.port }}
       middlewares:
-        - name: {{ $root.Values.web.externalService.default.middleware.name }}
+        - name: {{ $root.Values.web.webServices.default.middleware }}
     {{- end }}
     {{- end }}
-    {{- end }}
-
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
