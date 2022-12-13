@@ -1,8 +1,8 @@
 # NOTE:
 # *.va.gov = through revproxy
 # *.vfs.va.gov = straight to EKS (no revproxy)
-
 {{- if .Values.web.ingress.enabled }}
+{{- $root := . -}}
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
@@ -13,8 +13,21 @@ spec:
   entryPoints:
     - web
   routes:
-    {{- range .Values.web.ingress.routes }} # Iterating over a Complex Structure
+    # Iterating over a Complex Structure
+    {{- range .Values.web.ingress.routes }}
     - {{ . | toYaml | nindent 6 -}}
+    {{- end }}
+    {{- if .Values.web.externalService.enabled }}
+    {{- range $service := $root.Values.web.externalService.service }}
+    - kind: {{ $root.Values.web.externalService.default.kind }}
+      match: Host(`{{ $root.Values.web.externalService.default.host }}`) && Path(`{{ $service.route }}`)
+      priority: {{ $root.Values.web.externalService.default.priority }}
+      services:
+        - name: {{ $service.name }}
+          port: {{ $root.Values.web.externalService.default.port }}
+      middlewares:
+        - name: {{ $root.Values.web.externalService.default.middleware.name }}
+    {{- end }}
     {{- end }}
 
 ---

@@ -128,9 +128,6 @@ web:
         value: false
   pumaBacklog:
     enabled: false
-  bgsEvss:
-    enabled: false
-    name: ""
   externalService:
     enabled: false
     default:
