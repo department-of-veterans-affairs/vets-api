@@ -75,9 +75,10 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
           'confirmation_number' => instance.guid,
           'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
           'first_name' => 'TEST',
-          'last_initial' => 'U',
           'pmc_name' => 'St. Paul Pension Center',
-          'regional_office' => "Attention:  St. Paul Pension Center\nP.O. Box 5365\nJanesville, WI 53547-5365"
+          'regional_office_line_1' => 'Attention:  St. Paul Pension Center',
+          'regional_office_line_2' => 'P.O. Box 5365',
+          'regional_office_line_3' => 'Janesville, WI 53547-5365'
         }
       )
     end
