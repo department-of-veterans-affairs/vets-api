@@ -117,6 +117,17 @@ RSpec.describe VBADocuments::MultipartParser do
           expect(result).to have_key('content')
           expect(result['content']).to be_a(Tempfile)
         end
+
+        it "logs base64 decoding progress when handling a base64 payload #{file_or_stringio}" do
+          log_prefix = described_class.name
+
+          expect(Rails.logger).to receive(:info).with("#{log_prefix} starting to decode Base64 submission contents")
+          expect(Rails.logger).to receive(:info).with("#{log_prefix} finished decoding Base64 submission contents")
+          expect(Rails.logger).to receive(:info).with("#{log_prefix} finished writing Base64-decoded file")
+
+          valid_doc = FixtureHelper.fetch(get_fixture('base_64'), file_or_stringio)
+          described_class.parse(valid_doc)
+        end
       end
     end
   end
