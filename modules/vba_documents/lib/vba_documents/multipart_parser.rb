@@ -53,6 +53,8 @@ module VBADocuments
     end
 
     def self.create_file_from_base64(infile)
+      Rails.logger.info("#{self} starting to decode Base64 submission contents")
+
       if infile.is_a? String
         contents = `sed -r 's/data:multipart\\/.{3,},//g' #{infile.shellescape}`
       else
@@ -64,9 +66,13 @@ module VBADocuments
 
       decoded_data = Base64.decode64(contents)
 
+      Rails.logger.info("#{self} finished decoding Base64 submission contents")
+
       decoded_file = Tempfile.new('vba_doc_base64_decoded', binmode: true)
       decoded_file.write(decoded_data)
       decoded_file.rewind
+
+      Rails.logger.info("#{self} finished writing Base64-decoded file")
 
       parse(decoded_file)
     end

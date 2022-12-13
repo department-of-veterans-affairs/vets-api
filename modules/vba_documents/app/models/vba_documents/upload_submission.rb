@@ -121,6 +121,11 @@ module VBADocuments
       /appeals_api/.match?(consumer_name)
     end
 
+    # base64_encoded metadata field was added in late 2022; recommend only using for records submitted 2023 or later
+    def base64_encoded?
+      metadata['base64_encoded'] || false
+    end
+
     # data structure
     # [{"status"=>"vbms", "min_secs"=>816, "max_secs"=>816, "avg_secs"=>816, "rowcount"=>1},
     # {"status"=>"pending", "min_secs"=>0, "max_secs"=>23, "avg_secs"=>9, "rowcount"=>7},

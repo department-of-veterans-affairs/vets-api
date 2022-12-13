@@ -465,4 +465,24 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(upload.appeals_consumer?).to eq(false)
     end
   end
+
+  describe '#base64_encoded?' do
+    it 'returns true if metadata["base64_encoded"] is true' do
+      upload = FactoryBot.create(:upload_submission, metadata: { 'base64_encoded' => true })
+
+      expect(upload.base64_encoded?).to eq(true)
+    end
+
+    it 'returns false if metadata["base64_encoded"] is false' do
+      upload = FactoryBot.create(:upload_submission, metadata: { 'base64_encoded' => false })
+
+      expect(upload.base64_encoded?).to eq(false)
+    end
+
+    it 'returns false if metadata["base64_encoded"] is nil' do
+      upload = FactoryBot.create(:upload_submission)
+
+      expect(upload.base64_encoded?).to eq(false)
+    end
+  end
 end

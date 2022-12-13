@@ -59,7 +59,8 @@ module VBADocuments
       tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)
       response = nil
       begin
-        @upload.update(metadata: @upload.metadata.merge({ 'size' => tempfile.size }))
+        additional_metadata = { 'size' => tempfile.size, 'base64_encoded' => base64_encoded?(tempfile) }
+        @upload.update(metadata: @upload.metadata.merge(additional_metadata))
 
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
         inspector = VBADocuments::PDFInspector.new(pdf: parts)
@@ -89,6 +90,10 @@ module VBADocuments
       response
     end
     # rubocop:enable Metrics/MethodLength
+
+    def base64_encoded?(tempfile)
+      VBADocuments::MultipartParser.base64_encoded?(tempfile.path)
+    end
 
     def close_part_files(parts)
       parts[DOC_PART_NAME]&.close if parts[DOC_PART_NAME].respond_to? :close

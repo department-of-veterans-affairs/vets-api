@@ -434,13 +434,37 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.code).to eq('DOC103')
     end
 
-    it 'sets document size' do
+    it 'sets document size metadata' do
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'content' => valid_doc }
       }
       described_class.new.perform(upload.guid, test_caller)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.metadata['size'].class).to be == Integer
+    end
+
+    context 'document is base64 encoded' do
+      it 'sets document base64_encoded metadata to true' do
+        allow(VBADocuments::MultipartParser).to receive(:base64_encoded?).and_return(true)
+        allow(VBADocuments::MultipartParser).to receive(:parse) {
+          { 'content' => valid_doc }
+        }
+        described_class.new.perform(upload.guid, test_caller)
+        updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+        expect(updated.metadata['base64_encoded']).to be(true)
+      end
+    end
+
+    context 'document is not base64 encoded' do
+      it 'sets document base64_encoded metadata to false' do
+        allow(VBADocuments::MultipartParser).to receive(:base64_encoded?).and_return(false)
+        allow(VBADocuments::MultipartParser).to receive(:parse) {
+          { 'content' => valid_doc }
+        }
+        described_class.new.perform(upload.guid, test_caller)
+        updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+        expect(updated.metadata['base64_encoded']).to be(false)
+      end
     end
 
     context 'with invalid sizes' do
