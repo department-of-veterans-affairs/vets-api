@@ -75,30 +75,6 @@ web:
             port: ""
         middlewares:
           - name: ""
-      - kind: Rule
-        match: ""
-        priority: ""
-        services:
-          - name: ""
-            port: ""
-        middlewares:
-          - name: ""
-      - kind: Rule
-        match: ""
-        priority: ""
-        services:
-          - name: ""
-            port: ""
-        middlewares:
-          - name: ""
-      - kind: Rule
-        match: ""
-        priority: ""
-        services:
-          - name: ""
-            port: ""
-        middlewares:
-          - name: ""
   service:
     enabled: false
     annotations:

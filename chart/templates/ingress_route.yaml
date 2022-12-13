@@ -18,15 +18,17 @@ spec:
     - {{ . | toYaml | nindent 6 -}}
     {{- end }}
     {{- if .Values.web.externalService.enabled }}
-    {{- range $service := $root.Values.web.externalService.service }}
+    {{- range $name, $service := $root.Values.web.externalService.service }}
+    {{- range $key, $key := $service }}
     - kind: {{ $root.Values.web.externalService.default.kind }}
-      match: Host(`{{ $root.Values.web.externalService.default.host }}`) && Path(`{{ $service.route }}`)
+      match: Host(`{{ $root.Values.web.externalService.default.host }}`) && Path(`{{ $key }}`)
       priority: {{ $root.Values.web.externalService.default.priority }}
       services:
-        - name: {{ $service.name }}
+        - name: {{ $name }}
           port: {{ $root.Values.web.externalService.default.port }}
       middlewares:
         - name: {{ $root.Values.web.externalService.default.middleware.name }}
+    {{- end }}
     {{- end }}
     {{- end }}
 

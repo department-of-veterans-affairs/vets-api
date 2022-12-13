@@ -1,19 +1,19 @@
 {{- if .Values.web.externalService.enabled }}
 {{- $root := . -}}
-{{- range $service := $root.Values.web.externalService.service }}
+{{- range $name, $service := $root.Values.web.externalService.service }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: {{ $service.name }}
-  name: {{ $service.name }}
+    app: {{ $name }}
+  name: {{ $name }}
   namespace: {{ $root.Release.Namespace }}
 spec:
   revisionHistoryLimit: 1
   selector:
     matchLabels:
-      app: {{ $service.name }}
+      app: {{ $name }}
   strategy:
     type: {{ $root.Values.web.strategyType }}
     rollingUpdate:
@@ -22,7 +22,7 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ $service.name }}
+        app: {{ $name }}
       annotations:
 {{ toYaml $root.Values.annotations | indent 8 }}
     spec:
@@ -36,7 +36,7 @@ spec:
                     - key: {{ $root.Values.matchExpressions.key }}
                       operator: {{ $root.Values.matchExpressions.operator }}
                       values:
-                        - {{ $service.name }}
+                        - {{ $name }}
                 topologyKey:  {{ $root.Values.topologyKey }}
       securityContext:
         fsGroup: 1000
