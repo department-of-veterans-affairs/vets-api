@@ -21,14 +21,19 @@ properties:
         type: object
         required:
           - firstName
+          - preferredName
           - middleName
           - lastName
           - email
           - birthDate
+          - genderIdentity
           - addresses
           - signinService
         properties:
           firstName:
+            type: string
+            example: "Johnny"
+          preferredName:
             type: string
             example: "John"
           middleName:
@@ -42,6 +47,9 @@ properties:
           signinEmail:
             type: string
             example: "john.a.smith@domain.com"
+          genderIdentity:
+            type: string
+            example: "M"
           residentialAddress:
             $ref: "../Address.yml"
           mailingAddress:

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'fast_jsonapi'
+require 'va_profile/demographics/service'
 
 module Mobile
   module V0
@@ -56,7 +57,7 @@ module Mobile
       set_type :user
       attributes :profile, :authorized_services, :health
 
-      attr_reader :user, :facility_names, :contact_info
+      attr_reader :user, :facility_names, :contact_info, :user_demographics
 
       # Serializes user data after first fetching user's facility and contact information
       #
@@ -131,7 +132,9 @@ module Mobile
       end
 
       def fetch_additional_resources
-        @facility_names, @contact_info = Parallel.map([fetch_locations, fetch_contact_info], in_threads: 2, &:call)
+        @facility_names, @contact_info, @user_demographics = Parallel.map(
+          [fetch_locations, fetch_contact_info, fetch_demographics], in_threads: 3, &:call
+        )
       end
 
       # fetches MPI, either from external source or cache, then makes an external call for facility data
@@ -147,8 +150,13 @@ module Mobile
           user.vet360_contact_info
         }
       end
-    end
 
+      def fetch_demographics
+        lambda {
+          VAProfile::Demographics::Service.new(user).get_demographics
+        }
+      end
+    end
     UserStruct = Struct.new(:id, :profile, :authorized_services, :health)
   end
 end
