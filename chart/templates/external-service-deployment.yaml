@@ -10,8 +10,7 @@ metadata:
   name: {{ $name }}
   namespace: {{ $root.Release.Namespace }}
   annotations:
-    argocd.argoproj.io/hook: PostSync
-
+{{ toYaml .Values.annotations | indent 8 }}
 spec:
   selector:
     matchLabels:
