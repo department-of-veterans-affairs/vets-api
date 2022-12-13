@@ -10,7 +10,7 @@ metadata:
   name: {{ $name }}
   namespace: {{ $root.Release.Namespace }}
   annotations:
-{{ toYaml .Values.annotations | indent 8 }}
+{{ toYaml $root.Values.annotations | indent 8 }}
 spec:
   selector:
     matchLabels:
