@@ -6,7 +6,7 @@ RSpec.describe Mobile::V0::LighthouseParamsFactory, type: :model do
   describe '#params' do
     context 'with an iam user' do
       let(:user) { FactoryBot.build(:iam_user) }
-      let(:factory) { Mobile::V0::LighthouseParamsFactory.new(user.icn) }
+      let(:factory) { Mobile::V0::LighthouseParamsFactory.new(user.icn, :health) }
 
       before do
         allow_any_instance_of(Mobile::V0::LighthouseAssertion).to receive(:token).and_return('abc123')

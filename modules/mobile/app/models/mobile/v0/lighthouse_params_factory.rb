@@ -8,8 +8,9 @@ module Mobile
     class LighthouseParamsFactory
       # @param icn String a veteran's ICN
       #
-      def initialize(icn)
+      def initialize(icn, api)
         @icn = icn
+        @api = api
       end
 
       # Builds a form encoded parameter set that includes the assertion token, scopes, and
@@ -21,8 +22,8 @@ module Mobile
         hash = {
           grant_type: 'client_credentials',
           client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
-          client_assertion: token,
-          scope: scopes,
+          client_assertion: token(@api),
+          scope: scopes[@api],
           launch: launch
         }
 
@@ -31,12 +32,15 @@ module Mobile
 
       private
 
-      def token
-        LighthouseAssertion.new.token
+      def token(api)
+        LighthouseAssertion.new(api).token
       end
 
       def scopes
-        Settings.lighthouse_health_immunization.scopes.join(' ')
+        {
+          health: Settings.lighthouse_health_immunization.scopes.join(' '),
+          letters: Settings.mobile_lighthouse_letters.api_scopes.join(' ')
+        }
       end
 
       def launch

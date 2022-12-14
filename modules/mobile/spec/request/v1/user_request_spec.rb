@@ -237,8 +237,9 @@ RSpec.describe 'user', type: :request do
         end
       end
 
-      context 'with a user who does not have access to evss' do
+      context 'with a user who does not have access to evss and is not using Lighthouse Letters service' do
         before do
+          Flipper.disable(:mobile_lighthouse_letters)
           iam_sign_in(FactoryBot.build(:iam_user, :no_edipi_id))
           VCR.use_cassette('payment_information/payment_information') do
             VCR.use_cassette('user/get_facilities_no_ids', match_requests_on: %i[method uri]) do
@@ -325,6 +326,7 @@ RSpec.describe 'user', type: :request do
 
       context 'with a user who does not have access to bgs' do
         before do
+          Flipper.disable(:mobile_lighthouse_letters)
           iam_sign_in(FactoryBot.build(:iam_user, :no_participant_id))
           VCR.use_cassette('payment_information/payment_information') do
             VCR.use_cassette('user/get_facilities_no_ids', match_requests_on: %i[method uri]) do

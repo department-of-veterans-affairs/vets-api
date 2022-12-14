@@ -100,6 +100,9 @@ module Mobile
         if auth_services.include?(:directDepositBenefits) && direct_deposit_update_access?
           auth_services.push(:directDepositBenefitsUpdate)
         end
+        if Flipper.enabled?(:mobile_lighthouse_letters, @user) && auth_services.exclude?(:lettersAndDocuments)
+          auth_services.push(:lettersAndDocuments)
+        end
         auth_services
       end
 
