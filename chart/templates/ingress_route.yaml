@@ -17,7 +17,7 @@ spec:
     {{- range $name, $service := $root.Values.web.webServices.service }}
     {{- range $key, $key := $service }}
     - kind: {{ $root.Values.web.webServices.default.kind }}
-      match: Host(`{{ $key.host | default $root.Values.web.webServices.default.host }}`) && Path(`{{ $key.path }}`)
+      match: Host(`{{ $key.host | default $root.Values.web.webServices.default.host }}`) && {{ $key.path }}
       priority: {{ $key.priority | default $root.Values.web.webServices.default.priority  }}
       services:
         - name: {{ $name }}
