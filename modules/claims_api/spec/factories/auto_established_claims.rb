@@ -68,4 +68,42 @@ FactoryBot.define do
       evss_response { 'something' }
     end
   end
+
+  factory :bgs_response, class: OpenStruct do
+    bnft_claim_dto { (association :bnft_claim_dto).to_h }
+  end
+
+  factory :bnft_claim_dto, class: OpenStruct do
+    bnft_claim_id { Faker::Number.number(digits: 9) }
+    bnft_claim_type_cd { Faker::Alphanumeric.alpha(number: 9) }
+    bnft_claim_type_label { 'Compensation' }
+    bnft_claim_type_nm { 'Claim for Increase' }
+    bnft_claim_user_display { 'YES' }
+    claim_jrsdtn_lctn_id { Faker::Number.number(digits: 6) }
+    claim_rcvd_dt { Faker::Date.backward(days: 90) }
+    cp_claim_end_prdct_type_cd { Faker::Number.number(digits: 3) }
+    jrn_dt { Faker::Time.backward(days: 5, period: :morning) }
+    jrn_lctn_id { Faker::Number.number(digits: 3) }
+    jrn_obj_id { 'cd_clm_lc_status_pkg.do_create' }
+    jrn_status_type_cd { 'U' }
+    jrn_user_id { 'VBMSSYSACCT' }
+    payee_type_cd { Faker::Number.number(digits: 2) }
+    payee_type_nm { 'Veteran' }
+    pgm_type_cd { 'CPL' }
+    pgm_type_nm { 'Compensation-Pension Live' }
+    ptcpnt_clmant_id { Faker::Number.number(digits: 9) }
+    ptcpnt_clmant_nm { Faker::Name.name }
+    ptcpnt_mail_addrs_id { Faker::Number.number(digits: 8) }
+    ptcpnt_pymt_addrs_id { Faker::Number.number(digits: 8) }
+    ptcpnt_vet_id { Faker::Number.number(digits: 9) }
+    ptcpnt_vsr_id { Faker::Number.number(digits: 9) }
+    station_of_jurisdiction { Faker::Number.number(digits: 3) }
+    status_type_cd { 'RFD' }
+    status_type_nm { 'Ready for Decision' }
+    submtr_applcn_type_cd { 'VBMS' }
+    submtr_role_type_cd { 'VBA' }
+    svc_type_cd { 'CP' }
+    termnl_digit_nbr { Faker::Number.number(digits: 2) }
+    filed5103_waiver_ind { 'Y' }
+  end
 end
