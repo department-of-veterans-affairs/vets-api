@@ -37,7 +37,6 @@ RSpec.describe VANotify::EmailJob, type: :worker do
             instance_of(Common::Exceptions::BackendServiceException),
             {
               args: {
-                email: email,
                 template_id: template_id,
                 personalisation: nil
               }
