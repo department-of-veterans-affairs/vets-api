@@ -836,6 +836,9 @@ features:
   move_form_back_button:
     actor_type: user
     description: Test moving form back button to the top of the page
+  mobile_lighthouse_letters:
+    actor_type: user
+    description: For mobile app, use Lighthouse instead of EVSS for our letters endpoints upstream service
   myva_cerner_from_drupal:
     actor_type: user
     description: Enables cerner updates from drupal

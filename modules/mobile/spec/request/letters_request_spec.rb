@@ -6,7 +6,10 @@ require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'letters', type: :request do
   include JsonSchemaMatchers
-  before { iam_sign_in }
+  before do
+    Flipper.disable(:mobile_lighthouse_letters)
+    iam_sign_in
+  end
 
   let(:letters_body) do
     {
