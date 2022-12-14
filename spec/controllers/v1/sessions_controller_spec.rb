@@ -128,7 +128,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .with(force_authn: expected_force_authn)
               expect { get(:new, params: { type: type, clientId: '123123' }) }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                             tags: ["context:#{type}", 'version:v1'], **once)
+                                             tags: ["context:#{type}", 'version:v1', 'client_id:vaweb'], **once)
                 .and trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY, **once)
               expect(response).to have_http_status(:ok)
               expect(SAMLRequestTracker.keys.length).to eq(1)
@@ -139,6 +139,14 @@ RSpec.describe V1::SessionsController, type: :controller do
                          authn_context: authn,
                          transaction_id: payload[:transaction_id]
                        })
+            end
+
+            context 'USiP user' do
+              it 'logs the USiP client application' do
+                expect { get(:new, params: { type: type, clientId: '123123', application: 'vamobile' }) }
+                  .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                               tags: ["context:#{type}", 'version:v1', 'client_id:vamobile'], **once)
+              end
             end
           end
         end
@@ -159,7 +167,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                     })
               end
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                             tags: ['context:custom', 'version:v1'], **once)
+                                             tags: ['context:custom', 'version:v1', 'client_id:vaweb'], **once)
 
               expect(response).to have_http_status(:ok)
               expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
@@ -177,7 +185,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             it 'raises exception when missing ial parameter' do
               expect { get(:new, params: { type: :custom, csp_type: 'logingov', ial: '', client_id: '123123' }) }
                 .not_to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                                 tags: ['context:custom', 'version:v1'], **once)
+                                                 tags: ['context:custom', 'version:v1', 'client_id:vaweb'], **once)
               expect(response).to have_http_status(:bad_request)
               expect(JSON.parse(response.body))
                 .to eq({
@@ -193,7 +201,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             it 'raises exception when ial parameter is not 1 or 2' do
               expect { get(:new, params: { type: :custom, csp_type: 'logingov', ial: '3', client_id: '123123' }) }
                 .not_to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                                 tags: ['context:custom', 'version:v1'], **once)
+                                                 tags: ['context:custom', 'version:v1', 'client_id:vaweb'], **once)
               expect(response).to have_http_status(:bad_request)
               expect(JSON.parse(response.body))
                 .to eq({
@@ -215,7 +223,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
               expect { get(:new, params: { type: 'custom', authn: 'myhealthevet', clientId: '123123' }) }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                             tags: ['context:custom', 'version:v1'], **once)
+                                             tags: ['context:custom', 'version:v1', 'client_id:vaweb'], **once)
 
               expect(response).to have_http_status(:ok)
               expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
@@ -233,7 +241,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             it 'raises exception when missing authn parameter' do
               expect { get(:new, params: { type: :custom, authn: '', client_id: '123123' }) }
                 .not_to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                                 tags: ['context:custom', 'version:v1'], **once)
+                                                 tags: ['context:custom', 'version:v1', 'client_id:vaweb'], **once)
               expect(response).to have_http_status(:bad_request)
               expect(JSON.parse(response.body))
                 .to eq({
@@ -249,7 +257,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             it 'raises exception when authn parameter is not in list of AUTHN_CONTEXTS' do
               expect { get(:new, params: { type: :custom, authn: 'qwerty', client_id: '123123' }) }
                 .not_to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                                 tags: ['context:custom', 'version:v1'], **once)
+                                                 tags: ['context:custom', 'version:v1', 'client_id:vaweb'], **once)
               expect(response).to have_http_status(:bad_request)
               expect(JSON.parse(response.body))
                 .to eq({
@@ -268,7 +276,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           it 'redirects' do
             expect { get(:new, params: { type: :idme_signup, client_id: '123123' }) }
               .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                           tags: ['context:idme_signup', 'version:v1'], **once)
+                                           tags: ['context:idme_signup', 'version:v1', 'client_id:vaweb'], **once)
             expect(response).to have_http_status(:ok)
             expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
                                   'originating_request_id' => nil, 'type' => 'signup')
@@ -279,7 +287,9 @@ RSpec.describe V1::SessionsController, type: :controller do
           it 'redirects' do
             expect { get(:new, params: { type: :idme_signup_verified, client_id: '123123' }) }
               .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                           tags: ['context:idme_signup_verified', 'version:v1'], **once)
+                                           tags: ['context:idme_signup_verified',
+                                                  'version:v1',
+                                                  'client_id:vaweb'], **once)
             expect(response).to have_http_status(:ok)
             expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
                                   'originating_request_id' => nil, 'type' => 'signup')
@@ -290,7 +300,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           it 'redirects' do
             expect { get(:new, params: { type: :logingov_signup, client_id: '123123' }) }
               .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                           tags: ['context:logingov_signup', 'version:v1'], **once)
+                                           tags: ['context:logingov_signup', 'version:v1', 'client_id:vaweb'], **once)
             expect(response).to have_http_status(:ok)
             expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
                                   'originating_request_id' => nil, 'type' => 'signup')
@@ -301,7 +311,9 @@ RSpec.describe V1::SessionsController, type: :controller do
           it 'redirects' do
             expect { get(:new, params: { type: :logingov_signup_verified, client_id: '123123' }) }
               .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                           tags: ['context:logingov_signup_verified', 'version:v1'], **once)
+                                           tags: ['context:logingov_signup_verified',
+                                                  'version:v1',
+                                                  'client_id:vaweb'], **once)
             expect(response).to have_http_status(:ok)
             expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
                                   'originating_request_id' => nil, 'type' => 'signup')
@@ -424,11 +436,21 @@ RSpec.describe V1::SessionsController, type: :controller do
                                                 'context:http://idmanagement.gov/ns/assurance/loa/1/vets',
                                                 'version:v1'])
             .and trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE,
-                                          tags: ['context:idme', 'version:v1', 'error:102'])
+                                          tags: ['context:idme', 'version:v1', 'client_id:', 'error:102'])
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY,
                                           tags: ['error:multiple_edipis', 'version:v1'])
 
           expect(response).to have_http_status(:found)
+        end
+
+        context 'USiP user' do
+          it 'logs the USiP client application' do
+            SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: 'vamobile' })
+            login_failed_tags = ['context:idme', 'version:v1', 'client_id:vamobile', 'error:102']
+
+            expect { post(:saml_callback, params: { RelayState: '{"type": "idme"}' }) }
+              .to trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE, tags: login_failed_tags)
+          end
         end
       end
     end
@@ -451,7 +473,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             it 'responds' do
               expect { get(:new, params: { type: type }) }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                             tags: ["context:#{type}", 'version:v1'], **once)
+                                             tags: ["context:#{type}", 'version:v1', 'client_id:vaweb'], **once)
               expect(response).to have_http_status(:ok)
               expect(cookies['vagov_saml_request_localhost']).not_to be_nil
             end
@@ -464,7 +486,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           it 'redirects' do
             expect { get(:new, params: { type: 'slo' }) }
               .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                           tags: ['context:slo', 'version:v1'], **once)
+                                           tags: ['context:slo', 'version:v1', 'client_id:vaweb'], **once)
             expect(response).to have_http_status(:found)
           end
         end
@@ -553,6 +575,16 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(new_user.multifactor).to be_falsey
           expect(new_user.last_signed_in).not_to eq(existing_user.last_signed_in)
           Timecop.return
+        end
+
+        context 'USiP user' do
+          it 'logs the USiP client application' do
+            SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: 'vamobile' })
+            callback_tags = ['context:idme', 'version:v1', 'client_id:vamobile']
+
+            expect { post(:saml_callback, params: { RelayState: '{"type": "idme"}' }) }
+              .to trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_SUCCESS, tags: callback_tags, **once)
+          end
         end
       end
 
@@ -818,7 +850,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           )
           callback_tags = ['status:failure', 'context:unknown', 'version:v1']
           callback_failed_tags = ['error:clicked_deny', 'version:v1']
-          login_failed_tags = ['context:idme', 'version:v1', 'error:001']
+          login_failed_tags = ['context:idme', 'version:v1', 'client_id:', 'error:001']
 
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
@@ -827,6 +859,16 @@ RSpec.describe V1::SessionsController, type: :controller do
             )
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
             .and trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE, tags: login_failed_tags)
+        end
+
+        context 'USiP user' do
+          it 'logs the USiP client application' do
+            SAMLRequestTracker.create(uuid: multi_error_uuid, payload: { type: 'idme', application: 'vamobile' })
+            login_failed_tags = ['context:idme', 'version:v1', 'client_id:vamobile', 'error:001']
+
+            expect { post(:saml_callback) }
+              .to trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE, tags: login_failed_tags)
+          end
         end
       end
 

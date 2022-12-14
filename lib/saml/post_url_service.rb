@@ -14,8 +14,6 @@ module SAML
   class PostURLService < URLService
     include SentryLogging
 
-    STATSD_SSO_UNIFIED_CALLBACK_KEY = 'api.auth.unified_callback'
-
     def initialize(saml_settings, session: nil, user: nil, params: {}, loa3_context: LOA::IDME_LOA3_VETS)
       unless %w[new saml_callback saml_logout_callback ssoe_slo_callback].include?(params[:action])
         raise Common::Exceptions::RoutingError, params[:path]
@@ -41,14 +39,7 @@ module SAML
     end
 
     def login_redirect_url(auth: 'success', code: nil, request_id: nil)
-      if auth == 'success'
-        application = @tracker.payload_attr(:application)
-        if %w[mhv myvahealth ebenefits vamobile vaoccmobile].include?(application)
-          StatsD.increment(STATSD_SSO_UNIFIED_CALLBACK_KEY, tags: ["client:#{application}"])
-        end
-
-        return client_redirect_target if @tracker.payload_attr(:redirect).present?
-      end
+      return client_redirect_target if auth == 'success' && @tracker.payload_attr(:redirect).present?
 
       # if the original auth request was an inbound ssoe autologin (type custom)
       # and authentication failed, set 'force-needed' so the FE can silently fail
