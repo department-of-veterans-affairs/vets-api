@@ -33,19 +33,17 @@ Rails.application.reloader.to_prepare do
     StatsD.increment(V1::SessionsController::STATSD_LOGIN_NEW_USER_KEY, 0,
                      tags: ["version:#{v}"])
     V1::SessionsController::REDIRECT_URLS.each do |t|
-      StatsD.increment(V1::SessionsController::STATSD_SSO_NEW_KEY, 0,
-                       tags: ["version:#{v}", "context:#{t}"])
-      StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_SUCCESS, 0,
-                       tags: ["version:#{v}", "context:#{t}"])
+      SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.each do |client_id|
+        StatsD.increment(V1::SessionsController::STATSD_SSO_NEW_KEY, 0,
+                         tags: ["version:#{v}", "context:#{t}", "client_id:#{client_id}"])
+        StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_SUCCESS, 0,
+                         tags: ["version:#{v}", "context:#{t}", "client_id:#{client_id}"])
 
-      LOGIN_ERRORS.each do |err|
-        StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_FAILURE, 0,
-                         tags: ["version:#{v}", "context:#{t}", "error:#{err[:code]}"])
+        LOGIN_ERRORS.each do |err|
+          StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_FAILURE, 0,
+                           tags: ["version:#{v}", "context:#{t}", "error:#{err[:code]}", "client_id:#{client_id}"])
+        end
       end
-    end
-    %w[mhv myvahealth ebenefits vamobile vaoccmobile].each do |client|
-      StatsD.increment(SAML::PostURLService::STATSD_SSO_UNIFIED_NEW_KEY, tags: ["client:#{client}"])
-      StatsD.increment(SAML::PostURLService::STATSD_SSO_UNIFIED_CALLBACK_KEY, tags: ["client:#{client}"])
     end
     %w[success failure].each do |s|
       (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
