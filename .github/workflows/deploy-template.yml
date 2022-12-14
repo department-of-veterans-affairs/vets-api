@@ -31,7 +31,7 @@ jobs:
       - name: Set output
         id: set-environments
         run: |
-          echo "environments=${{ env.environments }}" >> $GITHUB_DEPLOY_ENVS
+          echo "environments=${{ env.environments }}" >> $GITHUB_OUTPUT
   release:
     needs: [prepare-values]
     if: github.ref == 'refs/heads/k8s'
