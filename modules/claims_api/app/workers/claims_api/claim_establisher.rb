@@ -5,49 +5,19 @@ require 'evss/disability_compensation_form/service_exception'
 require 'evss/disability_compensation_form/service'
 require 'sentry_logging'
 require 'claims_api/claim_logger'
-require 'claims_api/common/exceptions/missing_id_exception'
 
 module ClaimsApi
   class ClaimEstablisher
     include Sidekiq::Worker
     include SentryLogging
     include Sidekiq::MonitoredWorker
-    sidekiq_options retry: 10
 
-    def retry_limits_for_notification
-      [10]
-    end
-
-    def notify(params)
-      perform(params.dig('args', 0), failed: true)
-    end
-
-    def perform(auto_claim_id, failed: false) # rubocop:disable Metrics/MethodLength
+    def perform(auto_claim_id) # rubocop:disable Metrics/MethodLength
       auto_claim = ClaimsApi::AutoEstablishedClaim.find(auto_claim_id)
 
       orig_form_data = auto_claim.form_data
       form_data = auto_claim.to_internal
       auth_headers = auto_claim.auth_headers
-
-      if auth_headers['va_eauth_pid'].blank? || auth_headers['va_eauth_birlsfilenumber'].blank?
-        # call MPI to get missing values
-        mpi = veteran_from_headers(auth_headers)&.mpi
-        auth_headers['va_eauth_pid'] = mpi&.mvi_response&.profile&.participant_id
-        auth_headers['va_eauth_birlsfilenumber'] = mpi&.mvi_response&.profile&.birls_id
-
-        if auth_headers['va_eauth_pid'].blank? || auth_headers['va_eauth_birlsfilenumber'].blank?
-          # Save original data and retry
-          auto_claim.form_data = orig_form_data
-          auto_claim.save
-
-          # Raise error to trigger a retry
-          raise ClaimsApi::Error::MissingIdException, auto_claim_id
-        else
-          # Save IDs
-          auto_claim.auth_headers = auth_headers
-          auto_claim.save
-        end
-      end
 
       response = service(auth_headers).submit_form526(form_data)
       ClaimsApi::Logger.log('526',
@@ -61,17 +31,17 @@ module ClaimsApi
       queue_flash_updater(auth_headers, auto_claim.flashes, auto_claim_id)
       queue_special_issues_updater(auth_headers, auto_claim.special_issues, auto_claim)
     rescue ::EVSS::DisabilityCompensationForm::ServiceException => e
-      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED if failed
+      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
       auto_claim.evss_response = e.messages
       auto_claim.form_data = orig_form_data
       auto_claim.save
-      log_exception_to_sentry(e) if failed
+      log_exception_to_sentry(e)
     rescue ::Common::Exceptions::BackendServiceException => e
-      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED if failed
+      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
       auto_claim.evss_response = [{ 'key' => e.status_code, 'severity' => 'FATAL', 'text' => e.original_body }]
       auto_claim.form_data = orig_form_data
       auto_claim.save
-      log_exception_to_sentry(e) if failed
+      log_exception_to_sentry(e)
     end
 
     private
