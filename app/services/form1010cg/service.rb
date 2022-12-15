@@ -38,7 +38,7 @@ module Form1010cg
     def_delegator self, :carma_client # make accessible as instance method
 
     def self.carma_client
-      client = Flipper.enabled?(:caregiver_mulesoft) ? CARMA::Client::MuleSoftClient.new : CARMA::Client::Client.new
+      client = CARMA::Client::MuleSoftClient.new
       Rails.logger.info "[10-10CG] Using #{client.class} for submissions"
       client
     end

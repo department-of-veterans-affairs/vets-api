@@ -72,30 +72,13 @@ RSpec.describe Form1010cg::Service do
 
       expect(service.claim).to eq(claim)
     end
+  end
 
-    describe 'flipper toggle for mulesoft' do
-      let(:claim) { build(:caregivers_assistance_claim) }
-      let(:service) { described_class.new(claim) }
+  describe '#carma_client' do
+    it 'gets a mulesoft client' do
+      service = described_class.new(build(:caregivers_assistance_claim))
 
-      before do
-        allow(Flipper).to receive(:enabled?).with(:caregiver_mulesoft).and_return(cfg_val)
-      end
-
-      context 'is true' do
-        let(:cfg_val) { true }
-
-        it 'gets a mulesoft client' do
-          expect(service.send(:carma_client)).to be_an_instance_of(CARMA::Client::MuleSoftClient)
-        end
-      end
-
-      context 'is false' do
-        let(:cfg_val) { false }
-
-        it 'gets a salesforce client' do
-          expect(service.send(:carma_client)).to be_an_instance_of(CARMA::Client::Client)
-        end
-      end
+      expect(service.send(:carma_client)).to be_an_instance_of(CARMA::Client::MuleSoftClient)
     end
   end
 
