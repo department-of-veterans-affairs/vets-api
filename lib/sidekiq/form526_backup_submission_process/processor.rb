@@ -197,7 +197,7 @@ module Sidekiq
 
       def get_form526_pdf
         headers = submission.auth_headers
-        form_json = submission.form_json
+        form_json = JSON.parse(submission.form_json)[FORM_526].to_json
         resp = EVSS::DisabilityCompensationForm::Service.new(headers).get_form526(form_json)
         b64_enc_body = resp.body['pdf']
         content = Base64.decode64(b64_enc_body)
