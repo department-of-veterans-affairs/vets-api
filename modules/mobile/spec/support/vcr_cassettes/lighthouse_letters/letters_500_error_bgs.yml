@@ -15,8 +15,8 @@ http_interactions:
           - "*/*"
     response:
       status:
-        code: 200
-        message: OK
+        code: 500
+        message: Internal Server Error
       headers:
         Date:
           - Wed, 20 Oct 2021 15:59:16 GMT
@@ -77,8 +77,8 @@ http_interactions:
           - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"272111863","edi":"9294277224","firstName":"abraham","lastName":"lincoln"}}'
     response:
       status:
-        code: 200
-        message: OK
+        code: 500
+        message: 'Internal Server Error'
       headers:
         Date:
           - Wed, 07 Jun 2017 23:26:34 GMT
@@ -97,81 +97,14 @@ http_interactions:
       body:
         encoding: UTF-8
         string: |-
-          {
-             "messages":[
-          
-             ],
-             "letters":[
-                {
-                   "letter_name":"Commissary Letter",
-                   "letter_type":"COMMISSARY"
-                },
-                {
-                   "letter_name":"Proof of Service Letter",
-                   "letter_type":"PROOF_OF_SERVICE"
-                },
-                {
-                   "letter_name":"Proof of Creditable Prescription Drug Coverage Letter",
-                   "letter_type":"MEDICARE_PARTD"
-                },
-                {
-                   "letter_name":"Proof of Minimum Essential Coverage Letter",
-                   "letter_type":"MINIMUM_ESSENTIAL_COVERAGE"
-                },
-                {
-                   "letter_name":"Service Verification Letter",
-                   "letter_type":"SERVICE_VERIFICATION"
-                },
-                {
-                   "letter_name":"Civil Service Preference Letter",
-                   "letter_type":"CIVIL_SERVICE"
-                },
-                {
-                   "letter_name":"Benefit Summary Letter",
-                   "letter_type":"BENEFIT_SUMMARY"
-                },
-                {
-                   "letter_name":"Benefit Verification Letter",
-                   "letter_type":"BENEFIT_VERIFICATION"
-                }
-             ],
-            "letterDestination": {
-              "country": "USA",
-              "addressLine1": "2476 MAIN STREET",
-              "addressLine2": "STE # 12",
-              "addressLine3": "West",
-              "city": "RESTON",
-              "state": "VA",
-              "zipCode": "12345",
-              "fullName": "John A Smith"
-            },
-            "militaryServices": [
               {
-                "branch": "Army",
-                "characterOfService": "HONORABLE",
-                "releasedDateTime": "2016-02-04T17:51:56Z",
-                "enteredDateTime": "2016-02-04T17:51:56Z"
+                  "type": "https://api.va.gov/services/va-letter-generator/errors/required-connection-exception",
+                  "title": "Required Backend Connection Error",
+                  "status": 500,
+                  "detail": "Backend Service Error BGS",
+                  "instance": "11dcf8e5-d0c8-4a59-848c-8df0e2b6dcbd",
+                  "debuggingPayload": "wjww382ndsnxzkjef832j"
               }
-            ],
-            "benefitInformation": {
-              "serviceConnectedPercentage": 2,
-              "awardEffectiveDateTime": "2016-02-04T17:51:56Z",
-              "monthlyAwardAmount": {
-                "value": 2673,
-                "currency": "USD"
-              },
-              "serviceConnectedDisabilities": true,
-              "nonServiceConnectedPension": false,
-              "individualUnemployabilityGranted": false,
-              "chapter35Eligibility": true,
-              "specialMonthlyCompensation": false,
-              "adaptedHousing": false,
-              "chapter35EligibilityDateTime": "2016-02-04T17:51:56Z",
-              "hasDeathResultOfDisability": false,
-              "hasSurvivorsIndemnityCompensationAward": false,
-              "hasSurvivorsPensionAward": false
-            }
-          }
       http_version:
     recorded_at: Wed, 23 Nov 2022 23:26:33 GMT
 recorded_with: VCR 3.0.3

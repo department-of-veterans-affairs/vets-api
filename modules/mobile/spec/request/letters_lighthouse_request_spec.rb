@@ -76,6 +76,8 @@ RSpec.describe 'letters', type: :request do
           get '/mobile/v0/letters', headers: iam_headers
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq(letters_body)
+
+          # match_json_schema also uses the read method of File objects so we need to revert the stub being done above
           allow(File).to receive(:read).and_call_original
           expect(response.body).to match_json_schema('letters')
         end
@@ -83,8 +85,21 @@ RSpec.describe 'letters', type: :request do
     end
   end
 
+  describe 'GET /mobile/v0/letters/beneficiary' do
+    context 'with a valid lighthouse response' do
+      it 'matches the letters beneficiary schema' do
+        VCR.use_cassette('lighthouse_letters/letters_200', match_requests_on: %i[method uri]) do
+          get '/mobile/v0/letters/beneficiary', headers: iam_headers
+          expect(response).to have_http_status(:ok)
+          allow(File).to receive(:read).and_call_original
+          expect(response.body).to match_json_schema('letter_beneficiary')
+        end
+      end
+    end
+  end
+
   describe 'Error Handling' do
-    context 'with service error' do
+    context 'with general service error' do
       it 'returns a not found response' do
         VCR.use_cassette('lighthouse_letters/letters_503', match_requests_on: %i[method uri]) do
           get '/mobile/v0/letters', headers: iam_headers
@@ -94,6 +109,20 @@ RSpec.describe 'letters', type: :request do
                                                     'detail' => 'Backend Service Outage',
                                                     'code' => '503',
                                                     'status' => '503' }] })
+        end
+      end
+    end
+
+    context 'with upstream service error' do
+      it 'returns a not found response' do
+        VCR.use_cassette('lighthouse_letters/letters_500_error_bgs', match_requests_on: %i[method uri]) do
+          get '/mobile/v0/letters/beneficiary', headers: iam_headers
+          expect(response).to have_http_status(:bad_gateway)
+          error = response.parsed_body['errors']
+          expect(error).to eq([{ 'title' => 'Bad Gateway',
+                                 'detail' => 'Received an an invalid response from the upstream server',
+                                 'code' => 'MOBL_502_upstream_error',
+                                 'status' => '502' }])
         end
       end
     end
