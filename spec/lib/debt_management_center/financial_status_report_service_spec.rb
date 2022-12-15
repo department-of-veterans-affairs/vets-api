@@ -230,6 +230,20 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
       end
     end
 
+    it 'enqueues a VBA submission job if no selected debts present' do
+      valid_form_data['selectedDebtsAndCopays'] = []
+      valid_form_data['personalIdentification'] = {}
+      VCR.use_cassette('dmc/submit_fsr') do
+        VCR.use_cassette('bgs/people_service/person_data') do
+          service = described_class.new(user)
+          expect { service.submit_combined_fsr(valid_form_data) }
+            .to change { Form5655::VBASubmissionJob.jobs.size }
+            .from(0)
+            .to(1)
+        end
+      end
+    end
+
     it 'enqueues a VHA submission job' do
       valid_form_data['selectedDebtsAndCopays'] = [{
         'station' => {

@@ -63,7 +63,10 @@ module DebtManagementCenter
     def submit_combined_fsr(form)
       Rails.logger.info('Submitting Combined FSR')
 
-      create_vba_fsr(form) if selected_vba_debts(form['selectedDebtsAndCopays']).present?
+      # Edge case for old flow (pre-combined) that didn't include this field
+      if form['selectedDebtsAndCopays'].blank? || selected_vba_debts(form['selectedDebtsAndCopays']).present?
+        create_vba_fsr(form)
+      end
       create_vha_fsr(form) if selected_vha_copays(form['selectedDebtsAndCopays']).present?
 
       {
@@ -81,7 +84,11 @@ module DebtManagementCenter
 
     def create_vba_fsr(form)
       debts = selected_vba_debts(form['selectedDebtsAndCopays'])
-      form['personalIdentification']['fsrReason'] = debts.map { |debt| debt['resolutionOption'] }.uniq.join(', ')
+      if debts.present?
+        form['personalIdentification']['fsrReason'] = debts.map do |debt|
+          debt['resolutionOption']
+        end.uniq.join(', ')
+      end
       submission = persist_form_submission(form, debts)
       submission.submit_to_vba
     end
