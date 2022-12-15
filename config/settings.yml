@@ -1364,7 +1364,7 @@ check_in:
     host: vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
     base_path: dev
     api_id: 22t00c6f97
-    api_key: Xc7k35oE2H9aDeUEpeGa38PzAHyLT9jb5HiKeBfs
+    api_key: fake_key
     service_name: LoROTA-API
     mock: false
     key_path: fake_api_path
