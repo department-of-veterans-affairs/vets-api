@@ -842,3 +842,6 @@ features:
   myva_cerner_from_drupal:
     actor_type: user
     description: Enables cerner updates from drupal
+  form526_backup_submission_temp_killswitch:
+    actor_type: user
+    description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry

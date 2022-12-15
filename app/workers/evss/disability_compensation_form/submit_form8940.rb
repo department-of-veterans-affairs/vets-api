@@ -21,6 +21,11 @@ module EVSS
         Metrics.new(STATSD_KEY_PREFIX, msg['jid']).increment_exhausted
       end
 
+      def get_docs(submission_id)
+        @submission_id = submission_id
+        { type: '21-8940', file: EVSS::DisabilityCompensationForm::Form8940Document.new(submission) }
+      end
+
       # Performs an asynchronous job for generating and submitting 8940 PDF documents to VBMS
       #
       # @param submission_id [Integer] The {Form526Submission} id

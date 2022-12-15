@@ -31,6 +31,31 @@ module EVSS
         Metrics.new(STATSD_KEY_PREFIX, msg['jid']).increment_exhausted
       end
 
+      # This method generates the PDF documents but does NOT send them anywhere.
+      # It just generates them to the filesystem and returns the path to them to be used by other methods.
+      #
+      # @param submission_id [Integer] The {Form526Submission} id
+      # @param uuid [String] The Central Mail UUID, not actually used,
+      # but is passed along as the existing process_0781 function requires something here
+      # @return [Hash] Returns a hash with the keys
+      # `type` (to discern between if it is a 0781 or 0781a form) and
+      # `file`, which is the generated file location
+      def get_docs(submission_id, uuid)
+        @submission_id = submission_id
+        parsed_forms = JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))
+        file_type_and_file_objs = []
+        { 'form0781' => FORM_ID_0781, 'form0781a' => FORM_ID_0781A }.each do |form_type_key, actual_form_types|
+          if parsed_forms[form_type_key].present?
+            file_type_and_file_objs << {
+              type: actual_form_types,
+              file: process_0781(submission.auth_headers, uuid, FORM_ID_0781, parsed_forms[form_type_key],
+                                 upload: false)
+            }
+          end
+        end
+        file_type_and_file_objs
+      end
+
       # Performs an asynchronous job for generating and submitting 0781 + 0781A PDF documents to VBMS
       #
       # @param submission_id [Integer] The {Form526Submission} id
@@ -61,10 +86,10 @@ module EVSS
 
       private
 
-      def process_0781(auth_headers, evss_claim_id, form_id, form_content)
+      def process_0781(auth_headers, evss_claim_id, form_id, form_content, upload: true)
         # generate and stamp PDF file
         pdf_path0781 = generate_stamp_pdf(form_content, evss_claim_id, form_id)
-        upload_to_vbms(auth_headers, evss_claim_id, pdf_path0781, form_id)
+        upload ? upload_to_vbms(auth_headers, evss_claim_id, pdf_path0781, form_id) : pdf_path0781
       end
 
       # Invokes Filler ancillary form method to generate PDF document
