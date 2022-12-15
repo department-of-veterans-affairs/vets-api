@@ -9,7 +9,7 @@ class AppealsApi::RswagConfig
   def config
     {
       DocHelpers.output_json_path => {
-        openapi: DocHelpers.openapi_version,
+        openapi: '3.1.0',
         info: {
           title: DocHelpers.api_title,
           version: DocHelpers.api_version,
@@ -151,9 +151,12 @@ class AppealsApi::RswagConfig
       a << nod_v2_response_schemas('#/components/schemas')
       a << sc_create_schemas
       a << sc_response_schemas('#/components/schemas')
+      a << sc_alternate_signer_schemas('#/components/schemas')
       a << contestable_issues_schema('#/components/schemas')
       a << legacy_appeals_schema('#/components/schemas')
       a << generic_schemas('#/components/schemas')
+      tmp = shared_schemas.tap { |h| h['nonBlankString'] = h.delete('non_blank_string') }
+      a << tmp
     else
       raise "Don't know how to build schemas for '#{api_name}'"
     end
@@ -303,13 +306,13 @@ class AppealsApi::RswagConfig
   end
 
   def hlr_v2_create_schemas
-    if DocHelpers.wip_doc_enabled?(:segmented_apis)
+    if DocHelpers.decision_reviews?
+      parse_create_schema 'v2', '200996.json'
+    else
       hlr_schema = parse_create_schema('v2', '200996_with_shared_refs.json', return_raw: true)
       {
         hlrCreate: { type: 'object' }.merge!(hlr_schema.slice(*%w[description properties required]))
       }
-    else
-      parse_create_schema 'v2', '200996.json'
     end
   end
 
@@ -410,7 +413,7 @@ class AppealsApi::RswagConfig
                     'type': 'integer',
                     'nullable': true,
                     'description': 'DecisionIssue ID',
-                    'example': 'null'
+                    'example': nil
                   },
                   'approxDecisionDate': {
                     'type': 'string',
@@ -856,10 +859,10 @@ class AppealsApi::RswagConfig
   def shared_schemas
     # Keys are strings to override older, non-shared-schema definitions
     {
-      'address': JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'address.json')))['properties']['address'],
-      'non_blank_string': JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'non_blank_string.json')))['properties']['nonBlankString'],
-      'phone': JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'phone.json')))['properties']['phone'],
-      'timezone': JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'timezone.json')))['properties']['timezone']
+      'address' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'address.json')))['properties']['address'],
+      'non_blank_string' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'non_blank_string.json')))['properties']['nonBlankString'],
+      'phone' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'phone.json')))['properties']['phone'],
+      'timezone' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'timezone.json')))['properties']['timezone']
     }
   end
 

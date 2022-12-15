@@ -24,6 +24,11 @@ module DocHelpers
     data
   end
 
+  def raw_body(response)
+    data = JSON.parse(response.body, symbolize_names: true)
+    JSON.dump(data)
+  end
+
   # NOTE: you must set `let(:Authorization) { 'Bearer <any-value-here>' }` in combination with this helper
   def with_rswag_auth(scopes = %w[], valid: true, &block)
     if DocHelpers.decision_reviews?

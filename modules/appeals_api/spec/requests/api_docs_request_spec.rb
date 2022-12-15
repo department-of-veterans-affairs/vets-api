@@ -50,7 +50,9 @@ RSpec.describe 'Appeals Documentation Endpoints', type: :request do
     it_behaves_like 'an openapi endpoint', api_version: 'v1', doc_path: 'decision_reviews',
                                            server_path: '{version}/decision_reviews'
     it_behaves_like 'an openapi endpoint', api_version: 'v2', doc_path: 'decision_reviews',
-                                           server_path: '{version}/decision_reviews'
+                                           server_path: '{version}/decision_reviews',
+                                           openapi_version_sandbox: '3.1.0',
+                                           openapi_version_production: '3.1.0'
   end
 
   describe 'Segmented APIs' do
