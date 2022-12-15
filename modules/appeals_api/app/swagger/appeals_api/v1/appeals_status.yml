@@ -47,7 +47,8 @@ paths:
     get:
       tags:
         - appeals_status
-      summary: Retrieve appeals status for the Veteran with the supplied ssn
+      summary: Retrieve appeals status for the Veteran with the supplied SSN
+      description: Returns a list of all known appeal records for the given veteran. Includes details of each appeal's current status, priority, and history of updates.
       operationId: getAppealStatus
       security:
         - apikey: []
@@ -85,6 +86,8 @@ paths:
           description: No appeals found for supplied SSN
         '422':
           description: invalid SSN
+        '500':
+          description: Internal server error
 components:
   securitySchemes:
     apikey:
@@ -161,7 +164,7 @@ components:
               - multiple
             description:
               type: string
-              description:
+              description: Description of the appeal
               example: Service connection, tinnitus, and 3 others
             type:
               type: string
@@ -189,7 +192,7 @@ components:
               properties:
                 type:
                   type: string
-                  description:
+                  description: Indicates the current position in the appeal process
                   enum:
                   - scheduled_hearing
                   - pending_hearing_scheduling
@@ -259,9 +262,9 @@ components:
                       description: the range of months it typically takes to either create an SSOC (supplemental statement of case), field grant, or return to the Board a remand
                     socTimeliness:
                       type: array
+                      example: [ 10,16 ]
                       items:
                         type: integer
-                        example: [ 10,16 ]
                       description: the range of months it typically takes to create an SOC (statement of case) or field grant
                     remandSsocTimeliness:
                       type: array
