@@ -32,7 +32,9 @@ describe AppealsApi::DailyStuckRecordsReport, type: :job do
 
       it 'does not send a message when no stuck records are found' do
         expect(AppealsApi::Slack::Messager).not_to receive(:new)
-        described_class.new.perform
+        with_settings(Settings, vsp_environment: 'staging') do
+          described_class.new.perform
+        end
       end
 
       it 'selects only stuck records which have a "pending" or "submitting" status and are older than 2 hours' do
@@ -56,7 +58,9 @@ describe AppealsApi::DailyStuckRecordsReport, type: :job do
           allow(AppealsApi::Slack::StuckRecordNotification).to receive(:new).and_call_original
           allow(Faraday).to receive(:post)
 
-          described_class.new.perform
+          with_settings(Settings, vsp_environment: 'staging') do
+            described_class.new.perform
+          end
 
           expect(AppealsApi::Slack::StuckRecordNotification)
             .to have_received(:new).with(contain_exactly(*expected_data))
