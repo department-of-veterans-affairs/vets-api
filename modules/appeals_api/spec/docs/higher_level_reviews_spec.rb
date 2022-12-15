@@ -351,7 +351,7 @@ describe 'Higher-Level Reviews', swagger_doc: DocHelpers.output_json_path, type:
         produces 'application/json'
 
         response '200', 'the JSON Schema for POST /higher_level_reviews' do
-          it_behaves_like 'rswag example', desc: 'returns a 200 response'
+          it_behaves_like 'rswag example', desc: 'returns a 200 response', response_wrapper: :raw_body
         end
 
         it_behaves_like 'rswag 500 response'
