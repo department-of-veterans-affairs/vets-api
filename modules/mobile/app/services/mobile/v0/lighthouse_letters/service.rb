@@ -17,6 +17,7 @@ module Mobile
           response = perform(:get, 'eligible-letters', params, headers)
           body = response.body
           raise Common::Exceptions::RecordNotFound, "ICN: #{@user.icn}" if response[:status] == 404
+          raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error' if response[:status] == 500
 
           body
         end

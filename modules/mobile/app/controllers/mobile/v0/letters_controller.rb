@@ -22,8 +22,12 @@ module Mobile
 
       # returns options and info needed to create user form required for benefit letter download
       def beneficiary
-        render json: Mobile::V0::LettersBeneficiarySerializer.new(@current_user.uuid,
-                                                                  evss_service.get_letter_beneficiary)
+        response = if Flipper.enabled?(:mobile_lighthouse_letters, @current_user)
+                     letter_info_adapter.parse(lighthouse_service.get_letters)
+                   else
+                     evss_service.get_letter_beneficiary
+                   end
+        render json: Mobile::V0::LettersBeneficiarySerializer.new(@current_user, response)
       end
 
       # returns a pdf of the requested letter type given the user has that letter type available
