@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_12_06_191853) do
+ActiveRecord::Schema.define(version: 2022_12_14_161602) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -559,6 +559,7 @@ ActiveRecord::Schema.define(version: 2022_12_06_191853) do
     t.text "encrypted_kms_key"
     t.date "verified_decryptable_at"
     t.uuid "user_account_id"
+    t.string "backup_submitted_claim_id", comment: "*After* a SubmitForm526 Job has exhausted all attempts, a paper submission is generated and sent to Central Mail Portal.This column will be nil for all submissions where a backup submission is not generated.It will have the central mail id for submissions where a backup submission is submitted."
     t.index ["saved_claim_id"], name: "index_form526_submissions_on_saved_claim_id", unique: true
     t.index ["submitted_claim_id"], name: "index_form526_submissions_on_submitted_claim_id", unique: true
     t.index ["user_account_id"], name: "index_form526_submissions_on_user_account_id"
@@ -1090,11 +1091,11 @@ ActiveRecord::Schema.define(version: 2022_12_06_191853) do
   add_foreign_key "async_transactions", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_verifications"
-  add_foreign_key "health_quest_questionnaire_responses", "user_accounts"
-  add_foreign_key "form5655_submissions", "user_accounts"
-  add_foreign_key "form526_submissions", "user_accounts"
-  add_foreign_key "evss_claims", "user_accounts"
   add_foreign_key "education_stem_automated_decisions", "user_accounts"
+  add_foreign_key "evss_claims", "user_accounts"
+  add_foreign_key "form526_submissions", "user_accounts"
+  add_foreign_key "form5655_submissions", "user_accounts"
+  add_foreign_key "health_quest_questionnaire_responses", "user_accounts"
   add_foreign_key "in_progress_forms", "user_accounts"
   add_foreign_key "inherited_proof_verified_user_accounts", "user_accounts"
   add_foreign_key "mhv_accounts", "user_accounts"
