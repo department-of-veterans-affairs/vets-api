@@ -140,6 +140,22 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           end
         end
 
+        it 'has access and returns a va appointments with no location id' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_no_location_id',
+                           match_requests_on: %i[method path query], allow_playback_repeats: true) do
+            # unstub the get_clinic method for this test 500 error was being returned
+            allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_clinic).and_call_original
+            get '/vaos/v2/appointments?_include=clinics', params: params, headers: inflection_header
+            data = JSON.parse(response.body)['data']
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(data.size).to eq(1)
+            expect(data[0]['attributes']['serviceName']).to eq(nil)
+            expect(data[0]['attributes']['location']).to eq(nil)
+            expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+          end
+        end
+
         it 'has access and returns va appointments when systems service fails' do
           allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_clinic).and_call_original
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_system_service_500',
