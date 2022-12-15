@@ -26,7 +26,7 @@ module VAOS
 
       def show
         appointment
-        unless appointment[:clinic].nil?
+        unless appointment[:clinic].nil? || appointment[:location_id].nil?
           clinic = get_clinic(appointment[:location_id], appointment[:clinic])
           appointment[:service_name] = clinic&.[](:service_name)
           appointment[:physical_location] = clinic&.[](:physical_location) if clinic&.[](:physical_location)
@@ -46,7 +46,7 @@ module VAOS
 
       def create
         new_appointment
-        unless new_appointment[:clinic].nil?
+        unless new_appointment[:clinic].nil? || new_appointment[:location_id].nil?
           clinic = get_clinic(new_appointment[:location_id], new_appointment[:clinic])
           new_appointment[:service_name] = clinic&.[](:service_name)
           new_appointment[:physical_location] = clinic&.[](:physical_location) if clinic&.[](:physical_location)
@@ -63,7 +63,7 @@ module VAOS
 
       def update
         updated_appointment
-        unless updated_appointment[:clinic].nil?
+        unless updated_appointment[:clinic].nil? || updated_appointment[:location_id].nil?
           clinic = get_clinic(updated_appointment[:location_id], updated_appointment[:clinic])
           updated_appointment[:service_name] = clinic&.[](:service_name)
           updated_appointment[:physical_location] = clinic&.[](:physical_location) if clinic&.[](:physical_location)
@@ -157,7 +157,7 @@ module VAOS
       def merge_clinics(appointments)
         cached_clinics = {}
         appointments.each do |appt|
-          unless appt[:clinic].nil?
+          unless appt[:clinic].nil? || appt[:location_id].nil?
             unless cached_clinics[appt[:clinic]]
               clinic = get_clinic(appt[:location_id], appt[:clinic])
               cached_clinics[appt[:clinic]] = clinic
