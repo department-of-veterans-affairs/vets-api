@@ -17,6 +17,12 @@ FactoryBot.define do
     end
   end
 
+  trait :with_everything do
+    form_json do
+      File.read("#{submissions_path}/with_everything.json")
+    end
+  end
+
   trait :with_uploads do
     form_json do
       File.read("#{submissions_path}/with_uploads.json")

@@ -1450,6 +1450,13 @@ lgy:
   api_key: ~
   mock_coe: true
 
+form526_backup:
+  enabled: false
+  # Can be single or multi, to send 1 payload or many, to central mail
+  submission_method: 'single'
+  api_key: ~
+  url: https://sandbox-api.va.gov/services/vba_documents/v1/
+
 form1095_b:
   s3:
     aws_access_key_id: ~

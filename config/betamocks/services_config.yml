@@ -299,6 +299,12 @@
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
   - :method: :post
+    :path: <%= "/#{Settings.evss.alternate_service_name}/rest/form526/v2/getPDF" %>
+    :file_path: "evss/disability_form/getPDF"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+  - :method: :post
     :path: <%= "/wss-common-services-web-#{Settings.evss.versions.common}/rest/ratingInfoService/#{Settings.evss.versions.common}/findRatingInfoPID" %>
     :file_path: "evss/disability_form/rating_info"
     :cache_multiple_responses:

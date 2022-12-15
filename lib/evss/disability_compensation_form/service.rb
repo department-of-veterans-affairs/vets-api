@@ -63,6 +63,14 @@ module EVSS
         end
       end
 
+      def get_form526(form_content)
+        with_monitoring_and_error_handling do
+          headers = { 'Content-Type' => 'application/json' }
+          options = { timeout: Settings.evss.disability_compensation_form.submit_timeout || 355 }
+          perform(:post, 'getPDF', form_content, headers, options)
+        end
+      end
+
       def validate_form526(form_content)
         with_monitoring_and_error_handling do
           headers = { 'Content-Type' => 'application/json' }
