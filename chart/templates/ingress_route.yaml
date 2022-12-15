@@ -8,7 +8,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   name: {{ .Values.appName }}
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Release.Namespace }}-{{ .Values.target_env }}
 spec:
   entryPoints:
     - web
@@ -31,7 +31,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   name: traefik-real-ip
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Release.Namespace }}-{{ .Values.target_env }}
 spec:
   plugin:
     traefik-real-ip:

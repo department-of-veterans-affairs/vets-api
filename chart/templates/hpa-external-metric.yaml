@@ -4,7 +4,7 @@ apiVersion: datadoghq.com/v1alpha1
 kind: DatadogMetric
 metadata:
   name: puma-backlog
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Release.Namespace }}-{{ .Values.target_env }}
   annotations:
     argocd.argoproj.io/hook: PreSync
     argocd.argoproj.io/sync-wave: "-1"

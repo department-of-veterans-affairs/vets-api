@@ -8,7 +8,7 @@ metadata:
   labels:
     app: {{ $name }}
   name: {{ $name }}
-  namespace: {{ $root.Release.Namespace }}
+  namespace: {{ $root.Release.Namespace }}-{{ $root.Values.target_env }}
 spec:
   revisionHistoryLimit: 1
   selector:
