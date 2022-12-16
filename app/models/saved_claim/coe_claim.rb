@@ -93,14 +93,14 @@ class SavedClaim::CoeClaim < SavedClaim
         'paidOffDate' => loan_info['dateRange']['to'],
         'loanAmount' => loan_info['loanAmount'],
         'loanEntitlementCharged' => loan_info['loanEntitlementCharged'],
+        # propertyOwned also maps to the the stillOwn indicator on the LGY side
         'propertyOwned' => loan_info['propertyOwned'] || false,
         'oneTimeRestorationRequested' => parsed_form['intent'] == 'ONETIMERESTORATION',
         'irrrlRequested' => parsed_form['intent'] == 'IRRRL',
         'cashoutRefinaceRequested' => parsed_form['intent'] == 'REFI',
         'noRestorationEntitlementIndicator' => parsed_form['intent'] == 'INQUIRY' ||
                                                parsed_form['intent'] == 'ONETIMERESTORATION',
-        # propertyOwned also maps to the the stillOwn indicator on the LGY side
-        'homeSellIndicator' => !loan_info['propertyOwned'] || false,
+        'homeSellIndicator' => nil,
         'propertyAddress1' => loan_info['propertyAddress']['propertyAddress1'],
         'propertyAddress2' => loan_info['propertyAddress']['propertyAddress2'] || '',
         'propertyCity' => loan_info['propertyAddress']['propertyCity'],
