@@ -189,7 +189,7 @@ module V1
       when 'dslogon'
         url_service.login_url('dslogon', 'dslogon', AuthnContext::DSLOGON)
       when 'dslogon_verified'
-        url_service.login_url('dslogon', 'dslogon_loa3', AuthnContext::DSLOGON)
+        url_service.login_url('dslogon', 'dslogon', AuthnContext::DSLOGON)
       when 'idme'
         url_service.login_url('idme', LOA::IDME_LOA1_VETS, AuthnContext::ID_ME, AuthnContext::MINIMUM)
       when 'idme_verified'
