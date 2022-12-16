@@ -47,19 +47,23 @@ module Form526BackupSubmission
       json_tmpfile
     end
 
+    def check_exists_and_not_bdd(file)
+      File.exist?(file) && !file.include?('bdd_instructions.pdf')
+    end
+
     def upload_deletion_logic(file_with_full_path:, attachments:)
       if Rails.env.production?
-        File.delete(file_with_full_path) if File.exist?(file_with_full_path)
+        File.delete(file_with_full_path) if check_exists_and_not_bdd(file_with_full_path)
         attachments.each do |evidence_file|
           to_del = get_file_path_from_objs(evidence_file)
           # dont delete the instructions pdf we keep on the fs and send along for bdd claims
-          File.delete(to_del) if File.exist?(to_del) && (!to_del =~ /bdd.pdf/)
+          File.delete(to_del) if check_exists_and_not_bdd(to_del)
         end
       else
         Rails.logger.info("Would have deleted file #{file_with_full_path} if in production env.")
         attachments.each do |evidence_file|
           to_del = get_file_path_from_objs(evidence_file)
-          if File.exist?(to_del) && !to_del.include?('bdd_instructions.pdf')
+          if check_exists_and_not_bdd(to_del)
             Rails.logger.info("Would have deleted file #{to_del} if in production env.")
           end
         end
