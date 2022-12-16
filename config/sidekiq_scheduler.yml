@@ -12,7 +12,7 @@ AppealsApi::DailyErrorReport:
   description: "Daily report of appeals errors"
 
 AppealsApi::DailyStuckRecordsReport:
-  cron: '0 8 * * * MON-FRI America/New_York'
+  cron: '0 0 8 * * MON-FRI America/New_York'
   class: AppealsApi::DailyStuckRecordsReport
   description: "Daily report of all stuck appeals submissions"
 
