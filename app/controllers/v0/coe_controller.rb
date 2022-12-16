@@ -12,7 +12,7 @@ module V0
     def download_coe
       res = lgy_service.get_coe_file
 
-      send_data(res.body, type: 'application/pdf', disposition: 'inline')
+      send_data(res.body, type: 'application/pdf', disposition: 'attachment')
     end
 
     def submit_coe_claim
@@ -66,7 +66,7 @@ module V0
     def document_download
       res = lgy_service.get_document(params[:id])
 
-      send_data(res.body, type: 'application/pdf', disposition: 'inline')
+      send_data(res.body, type: 'application/pdf', disposition: 'attachment')
     end
 
     private
