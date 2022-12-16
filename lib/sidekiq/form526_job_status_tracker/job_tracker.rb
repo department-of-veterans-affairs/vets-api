@@ -150,8 +150,6 @@ module Sidekiq
 
       private
 
-      def queue_backup_job(form526_submission_id); end
-
       def upsert_job_status(status, error = nil)
         timestamp = Time.now.utc
 
