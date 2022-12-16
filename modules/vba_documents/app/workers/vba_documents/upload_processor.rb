@@ -76,10 +76,8 @@ module VBADocuments
 
         process_response(response)
         log_submission(@upload, metadata)
-      rescue Common::Exceptions::GatewayTimeout, Faraday::TimeoutError => e
-        message = "Exception in download_and_process for guid #{@upload.guid}, size: #{@upload.metadata['size']} bytes."
-        Rails.logger.warn(message, e)
-        VBADocuments::UploadSubmission.refresh_statuses!([@upload])
+      rescue Common::Exceptions::GatewayTimeout => e
+        handle_gateway_timeout(e)
       rescue VBADocuments::UploadError => e
         Rails.logger.warn("UploadError download_and_process for guid #{@upload.guid}.", e)
         retry_errors(e, @upload)
@@ -93,6 +91,19 @@ module VBADocuments
 
     def base64_encoded?(tempfile)
       VBADocuments::MultipartParser.base64_encoded?(tempfile.path)
+    end
+
+    def handle_gateway_timeout(error)
+      message = "Exception in download_and_process for guid #{@upload.guid}, size: #{@upload.metadata['size']} bytes."
+      Rails.logger.warn(message, error)
+
+      @upload.track_upload_timeout_error
+
+      if @upload.hit_upload_timeout_limit?
+        @upload.update(status: 'error', code: 'DOC104', detail: 'Request timed out uploading to upstream system')
+      end
+
+      VBADocuments::UploadSubmission.refresh_statuses!([@upload])
     end
 
     def close_part_files(parts)

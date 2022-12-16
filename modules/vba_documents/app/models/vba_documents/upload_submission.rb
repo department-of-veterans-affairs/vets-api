@@ -32,6 +32,10 @@ module VBADocuments
     ALL_STATUSES = IN_FLIGHT_STATUSES + %w[pending uploaded vbms error expired].freeze
     RPT_STATUSES = %w[pending uploaded] + IN_FLIGHT_STATUSES + %w[vbms error expired].freeze
 
+    # For the rare UploadSubmission, the Central Mail API takes too long to respond, resulting in a recurring timeout
+    # Central Mail is working to improve upload endpoint performance, so this should be revisited at a later date
+    UPLOAD_TIMEOUT_RETRY_LIMIT = 3
+
     scope :in_flight, -> { where(status: IN_FLIGHT_STATUSES).not_final_success }
     scope :not_final_success, lambda {
       where("metadata -> '#{FINAL_SUCCESS_STATUS_KEY}' IS NULL AND created_at >= '#{VBMS_STATUS_DEPLOYMENT_DATE}'")
@@ -163,6 +167,16 @@ module VBADocuments
       metadata['uuid_already_in_cache_count'] ||= 0
       metadata['uuid_already_in_cache_count'] += 1
       save!
+    end
+
+    def track_upload_timeout_error
+      metadata['upload_timeout_error_count'] ||= 0
+      metadata['upload_timeout_error_count'] += 1
+      save!
+    end
+
+    def hit_upload_timeout_limit?
+      metadata['upload_timeout_error_count'] > UPLOAD_TIMEOUT_RETRY_LIMIT
     end
 
     private

@@ -664,26 +664,50 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       end
     end
 
-    it 'checks for updated status for Gateway timeout error' do
-      allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
-      allow(CentralMail::Service).to receive(:new) { client_stub }
-      expect(client_stub).to receive(:upload)
-        .and_raise(Common::Exceptions::GatewayTimeout.new)
-      expect do
-        described_class.new.perform(upload.guid, test_caller)
-      end.not_to raise_error(Common::Exceptions::GatewayTimeout)
-      upload.reload
-      expect(upload.status).to eq('uploaded')
-    end
+    context 'when a Common::Exceptions::GatewayTimeout occurs' do
+      before do
+        allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
+        allow(CentralMail::Service).to receive(:new).and_return(client_stub)
+        allow(client_stub).to receive(:upload).and_raise(Common::Exceptions::GatewayTimeout)
+        allow_any_instance_of(VBADocuments::UploadSubmission).to receive(:hit_upload_timeout_limit?).and_return(false)
+        allow(VBADocuments::UploadSubmission).to receive(:refresh_statuses!)
+      end
 
-    it 'checks for updated status for Faraday timeout error' do
-      allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
-      allow(CentralMail::Service).to receive(:new) { client_stub }
-      expect(client_stub).to receive(:upload)
-        .and_raise(Faraday::TimeoutError.new)
-      expect { described_class.new.perform(upload.guid, test_caller) }.not_to raise_error(Faraday::TimeoutError)
-      upload.reload
-      expect(upload.status).to eq('uploaded')
+      it 'calls "track_upload_timeout_error" on the upload' do
+        expect_any_instance_of(VBADocuments::UploadSubmission).to receive(:track_upload_timeout_error)
+        described_class.new.perform(upload.guid, test_caller)
+      end
+
+      context 'when the upload timeout limit has been hit' do
+        before do
+          allow_any_instance_of(VBADocuments::UploadSubmission).to receive(:hit_upload_timeout_limit?).and_return(true)
+          described_class.new.perform(upload.guid, test_caller)
+          upload.reload
+        end
+
+        it 'updates the upload\'s status to a timeout-specific error' do
+          expect(upload.status).to eql('error')
+          expect(upload.code).to eql('DOC104')
+          expect(upload.detail).to eql('Request timed out uploading to upstream system')
+        end
+      end
+
+      context 'when the upload timeout limit has not been hit' do
+        before do
+          allow_any_instance_of(VBADocuments::UploadSubmission).to receive(:hit_upload_timeout_limit?).and_return(false)
+        end
+
+        it 'does not update the upload\'s status' do
+          expect(upload.status).to eql('uploaded')
+          expect(upload.code).to be(nil)
+          expect(upload.detail).to be(nil)
+        end
+      end
+
+      it 'refreshes the upload\'s status' do
+        expect(VBADocuments::UploadSubmission).to receive(:refresh_statuses!).with([upload])
+        described_class.new.perform(upload.guid, test_caller)
+      end
     end
   end
 end
