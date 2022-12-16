@@ -72,13 +72,9 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
         'foo@foo.com',
         'form527ez_confirmation_email_template_id',
         {
-          'confirmation_number' => instance.guid,
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
           'first_name' => 'TEST',
-          'pmc_name' => 'St. Paul Pension Center',
-          'regional_office_line_1' => 'Attention:  St. Paul Pension Center',
-          'regional_office_line_2' => 'P.O. Box 5365',
-          'regional_office_line_3' => 'Janesville, WI 53547-5365'
+          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+          'confirmation_number' => instance.guid
         }
       )
     end
