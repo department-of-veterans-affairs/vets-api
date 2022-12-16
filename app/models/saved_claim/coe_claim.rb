@@ -130,7 +130,8 @@ class SavedClaim::CoeClaim < SavedClaim
 
         index = military_branch.index('_NATIONAL_GUARD') || military_branch.index('_RESERVE')
         military_branch = military_branch[0, index]
-        military_branch = 'AIR_FORCE' if military_branch == 'AIR' # Air National Guard is the only one that needs this
+        military_branch = 'AIR_FORCE' if military_branch == 'AIR' # Air National Guard
+        military_branch = 'MARINES' if military_branch == 'MARINE_CORPS' # Marine Corps Reserve
         service_type = 'RESERVE_NATIONAL_GUARD'
       end
 
