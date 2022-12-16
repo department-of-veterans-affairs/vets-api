@@ -17,6 +17,7 @@ properties:
       - successfulStationList
       - lastUpdatedTime
       - prescriptionList
+      - failedPrescriptionIds
       - errors
       - infoMessages
     properties:
@@ -32,6 +33,9 @@ properties:
       prescriptionList:
         type: string, null
         example: null
+      failedPrescriptionIds:
+        type: array
+        example: ['8398465','8398466','8398467']
       errors:
         type: array
         example: [{ "errorCode": 139,
