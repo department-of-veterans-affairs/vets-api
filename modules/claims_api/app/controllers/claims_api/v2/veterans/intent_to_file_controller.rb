@@ -5,7 +5,7 @@ require 'claims_api/v2/params_validation/intent_to_file'
 module ClaimsApi
   module V2
     module Veterans
-      class IntentToFilesController < ClaimsApi::V2::ApplicationController
+      class IntentToFileController < ClaimsApi::V2::ApplicationController
         before_action :verify_access!
 
         ITF_TYPES = %w[compensation pension burial].freeze
@@ -49,6 +49,18 @@ module ClaimsApi
           lighthouse_itf = bgs_itf_to_lighthouse_itf(bgs_itf: bgs_response)
 
           render json: ClaimsApi::V2::Blueprints::IntentToFileBlueprint.render(lighthouse_itf)
+        end
+
+        def validate
+          validate_request!(ClaimsApi::V2::ParamsValidation::IntentToFile)
+          render json: {
+            data: {
+              type: 'intentToFileValidation',
+              attributes: {
+                status: 'valid'
+              }
+            }
+          }
         end
 
         private

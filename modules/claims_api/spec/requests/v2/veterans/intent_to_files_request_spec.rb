@@ -16,7 +16,7 @@ RSpec.describe 'IntentToFiles', type: :request do
       end
 
       let(:type) { 'compensation' }
-      let(:itf_type_path) { "/services/claims/v2/veterans/#{veteran_id}/intent-to-files/#{type}" }
+      let(:itf_type_path) { "/services/claims/v2/veterans/#{veteran_id}/intent-to-file/#{type}" }
       let(:scopes) { %w[claim.read] }
 
       describe 'auth header' do
@@ -297,7 +297,7 @@ RSpec.describe 'IntentToFiles', type: :request do
         )
       end
 
-      let(:itf_submit_path) { "/services/claims/v2/veterans/#{veteran_id}/intent-to-files" }
+      let(:itf_submit_path) { "/services/claims/v2/veterans/#{veteran_id}/intent-to-file" }
       let(:scopes) { %w[claim.write] }
       let(:data) do
         {
@@ -448,6 +448,172 @@ RSpec.describe 'IntentToFiles', type: :request do
               allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(false)
 
               post itf_submit_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
+
+              expect(response.status).to eq(403)
+            end
+          end
+        end
+      end
+    end
+
+    describe 'validate' do
+      before do
+        allow_any_instance_of(BGS::IntentToFileWebService).to receive(:insert_intent_to_file).and_return(
+          stub_response
+        )
+      end
+
+      let(:itf_validate_path) { "/services/claims/v2/veterans/#{veteran_id}/intent-to-file/validate" }
+      let(:scopes) { %w[claim.write] }
+      let(:data) do
+        {
+          type: 'compensation'
+        }
+      end
+      let(:stub_response) do
+        {
+          intent_to_file_id: '1',
+          create_dt: Time.zone.now.to_date,
+          exprtn_dt: Time.zone.now.to_date + 1.year,
+          itf_status_type_cd: 'Active',
+          itf_type_cd: 'compensation'
+        }
+      end
+
+      describe 'auth header' do
+        context 'when provided' do
+          it 'returns a 200' do
+            with_okta_user(scopes) do |auth_header|
+              post itf_validate_path, params: data, headers: auth_header
+              expect(response.status).to eq(200)
+            end
+          end
+        end
+
+        context 'when not provided' do
+          it 'returns a 401 error code' do
+            with_okta_user(scopes) do
+              post itf_validate_path, params: data
+              expect(response.status).to eq(401)
+            end
+          end
+        end
+      end
+
+      describe 'submitting a payload' do
+        context 'when payload is valid' do
+          it 'returns a 200' do
+            with_okta_user(scopes) do |auth_header|
+              post itf_validate_path, params: data, headers: auth_header
+              expect(response.status).to eq(200)
+            end
+          end
+        end
+
+        context 'when payload is invalid' do
+          context "when 'type' is invalid" do
+            context "when 'type' is blank" do
+              it 'returns a 400' do
+                with_okta_user(scopes) do |auth_header|
+                  invalid_data = data
+                  invalid_data[:type] = ''
+
+                  post itf_validate_path, params: invalid_data, headers: auth_header
+                  expect(response.status).to eq(400)
+                end
+              end
+            end
+
+            context "when 'type' is nil" do
+              it 'returns a 400' do
+                with_okta_user(scopes) do |auth_header|
+                  invalid_data = data
+                  invalid_data[:type] = nil
+
+                  post itf_validate_path, params: invalid_data, headers: auth_header
+                  expect(response.status).to eq(400)
+                end
+              end
+            end
+
+            context "when 'type' is not an accepted value" do
+              it 'returns a 400' do
+                with_okta_user(scopes) do |auth_header|
+                  invalid_data = data
+                  invalid_data[:type] = 'foo'
+
+                  post itf_validate_path, params: invalid_data, headers: auth_header
+                  expect(response.status).to eq(400)
+                end
+              end
+            end
+          end
+
+          context "when optional 'participant_claimant_id' is invalid" do
+            context "when optional 'participant_claimant_id' is blank" do
+              it 'returns a 400' do
+                with_okta_user(scopes) do |auth_header|
+                  invalid_data = data
+                  invalid_data[:participant_claimant_id] = ''
+
+                  post itf_validate_path, params: invalid_data, headers: auth_header
+                  expect(response.status).to eq(400)
+                end
+              end
+            end
+          end
+
+          context "when optional 'participant_vet_id' is invalid" do
+            context "when optional 'participant_vet_id' is blank" do
+              it 'returns a 400' do
+                with_okta_user(scopes) do |auth_header|
+                  invalid_data = data
+                  invalid_data[:participant_vet_id] = ''
+
+                  post itf_validate_path, params: invalid_data, headers: auth_header
+                  expect(response.status).to eq(400)
+                end
+              end
+            end
+          end
+        end
+
+        context "when 'type' is mixed-case" do
+          it 'returns a 200' do
+            with_okta_user(scopes) do |auth_header|
+              valid_data = data
+              valid_data[:type] = 'CoMpEnSaTiOn'
+
+              post itf_validate_path, params: valid_data, headers: auth_header
+              expect(response.status).to eq(200)
+            end
+          end
+        end
+      end
+
+      context 'CCG (Client Credentials Grant) flow' do
+        let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: { 'scp' => [] }) }
+
+        context 'when provided' do
+          context 'when valid' do
+            it 'returns a 200' do
+              allow(JWT).to receive(:decode).and_return(nil)
+              allow(Token).to receive(:new).and_return(ccg_token)
+              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
+
+              post itf_validate_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
+
+              expect(response.status).to eq(200)
+            end
+          end
+
+          context 'when not valid' do
+            it 'returns a 403' do
+              allow(JWT).to receive(:decode).and_return(nil)
+              allow(Token).to receive(:new).and_return(ccg_token)
+              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(false)
+
+              post itf_validate_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
 
               expect(response.status).to eq(403)
             end
