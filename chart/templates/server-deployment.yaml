@@ -28,7 +28,7 @@ spec:
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: {{ $root.Values.affitnityWeight }}
+            - weight: {{ $root.Values.affinityWeight }}
               podAffinityTerm:
                 labelSelector:
                   matchExpressions:

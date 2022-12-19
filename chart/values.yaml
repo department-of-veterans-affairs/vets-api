@@ -5,7 +5,7 @@ image:
   tag: ""
   pullPolicy: Always
 vsp_environment: ""
-affitnityWeight: ""
+affinityWeight: ""
 mockData:
   enabled: false
 matchExpressions:
