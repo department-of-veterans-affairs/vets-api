@@ -1,13 +1,16 @@
-{{- if .Values.web.pumaBacklog.enabled }}
+{{- $root := . -}}
+{{- range $name, $service := $root.Values.web.webServices }}
+{{- if $service.autoscaling.enabled }}
 ---
 apiVersion: datadoghq.com/v1alpha1
 kind: DatadogMetric
 metadata:
   name: puma-backlog
-  namespace: {{ .Values.target_env }}
+  namespace: {{ $root.Release.Namespace }}
   annotations:
     argocd.argoproj.io/hook: PreSync
     argocd.argoproj.io/sync-wave: "-1"
 spec:
-  query: {{ .Values.web.autoscaling.scaling_metric }}
+  query: sum:puma.backlog{kube_cluster_name:{{ $root.Values.target_env }},kube_deployment:{{ $name }}} by {kube_cluster_name}
+{{- end }}
 {{- end }}

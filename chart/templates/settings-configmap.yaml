@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  namespace: {{ .Values.target_env }}
+  namespace: {{ .Release.Namespace }}
   creationTimestamp: null
   name: {{ .Values.common.configMap.name }}
   annotations:

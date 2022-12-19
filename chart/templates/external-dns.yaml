@@ -3,7 +3,7 @@ apiVersion: externaldns.k8s.io/v1alpha1
 kind: DNSEndpoint
 metadata:
   name: {{ .Values.appName }}-web
-  namespace: {{ .Values.target_env }}
+  namespace: {{ .Release.Namespace }}
 spec:
   endpoints:
   - dnsName: {{ .Values.web.externalDns.dnsName }}

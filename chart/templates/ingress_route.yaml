@@ -8,22 +8,22 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   name: {{ .Values.appName }}
-  namespace: {{ .Values.target_env }}
+  namespace: {{ .Release.Namespace }}
 spec:
   entryPoints:
     - web
   routes:
     # Iterating over a Complex Structure
-    {{- range $name, $service := $root.Values.web.webServices.service }}
-    {{- range $key, $key := $service }}
-    - kind: {{ $root.Values.web.webServices.default.kind }}
-      match: Host(`{{ $key.host | default $root.Values.web.webServices.default.host }}`) && {{ $key.path }}
-      priority: {{ $key.priority | default $root.Values.web.webServices.default.priority  }}
+    {{- range $name, $service := .Values.web.webServices }}
+    {{- range $service.routes }}
+    - kind: {{ .kind | default $root.Values.web.ingress.default.kind }}
+      match:  Host(`{{ .host | default $root.Values.web.ingress.default.host }}`) && {{ .path }}
+      priority: {{ .priority | default $root.Values.web.ingress.default.priority }}
       services:
         - name: {{ $name }}
-          port: {{ $key.port | default $root.Values.web.webServices.default.port }}
+          port:  {{ .port | default $root.Values.web.ingress.default.port }}
       middlewares:
-        - name: {{ $root.Values.web.webServices.default.middleware }}
+        - name: {{ $root.Values.web.ingress.default.middleware }}
     {{- end }}
     {{- end }}
 ---
@@ -31,10 +31,11 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   name: traefik-real-ip
-  namespace: {{ .Values.target_env }}
+  namespace: {{ .Release.Namespace }}
 spec:
   plugin:
     traefik-real-ip:
       excludednets:
         - "1.1.1.1/24"
 {{- end }}
+

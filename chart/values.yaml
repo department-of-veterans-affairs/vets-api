@@ -18,22 +18,12 @@ serviceAccount:
   enabled: false
   role_arn: ""
   name: ""
-
 #Web configuration
+
 web:
   strategyType: RollingUpdate
   maxSurge: ""
   maxUnavailable: ""
-  securityContext: ""
-  images:
-  autoscaling:
-    enabled: false
-    scaling_metric: ""
-    minReplicas: ""
-    maxReplicas: ""
-    targetAverageValue: ""
-  affinity:
-    weight: ""
   containers:
     ports:
       - containerPort: ""
@@ -47,6 +37,7 @@ web:
     periodSeconds: ""
     readinessPath: ""
     readinessPort: ""
+    successThreshold: ""
   socatProxyEnabled: false
   envSecrets:
     - name: DD_APM_ENABLED
@@ -59,59 +50,44 @@ web:
       cpu: ""
       memory: ""
   ssoeEnabled: false
-  ssoeConfigs:
-    - name: ""
-      key: ""
-      value: {}
+  ssoeConfigs: {}
   ingress:
     enabled: false
-    entryPoints: web
-  webServices:
+    entryPoints: ""
     default:
+      port: ""
       kind: ""
       middleware: ""
       host: ""
-      port: ""
       priority: ""
-    service: {}
+  webServices: {}
+  autoscaling:
+    minReplicas: ""
+    maxReplicas: ""
+    targetAverageValue: ""
   service:
     enabled: false
     annotations:
       traefik.backend.loadbalancer.sticky: "true"
-    ports:
-    # port is what this service should serve on, and targetPort is the port in the container.
-    - port: ""
-      name: ""
-      targetPort: web
-      protocol: TCP
-    - port: ""
-      name: healthcheck
-      targetPort: stats
-      protocol: TCP
+    ports: ""
     type: ClusterIP
-  hpa:
-    apiVersion: apps/v1
-    kind: Deployment
   externalDns:
     dnsName: ""
-    recordTTL: 180
+    recordTTL: ""
     targets: ""
   dbMigrate:
-    enabled: true
+    enabled: false
     envSecrets:
       - name: DD_APM_ENABLED
         value: false
-  pumaBacklog:
-    enabled: false
+
+
 #Worker Configuration
 worker:
   enabled: false
   strategyType: RollingUpdate
   maxSurge: ""
   maxUnavailable: ""
-  securityContext: ""
-  metadata:
-    name: ""
   containers:
     command: []
     args: []
@@ -119,7 +95,7 @@ worker:
     enabled: false
     minReplicas: ""
     maxReplicas: ""
-    targetAverageValue: ""
+    targetAverageUtilization: ""
   healthCheck:
     requestPath: ""
     port: ""
@@ -128,7 +104,7 @@ worker:
     readinessPath: ""
     readinessPort: ""
     timeoutSeconds: ""
-    successThreshold: 1
+    successThreshold: ""
     command: []
   terminationGracePeriodSeconds: ""
   socatProxyEnabled: false
@@ -136,12 +112,12 @@ worker:
     - name: DD_APM_ENABLED
       value: false
   resources:
-      requests:
-        cpu: ""
-        memory: ""
-      limits:
-        cpu: ""
-        memory: ""
+    requests:
+      cpu: ""
+      memory: ""
+    limits:
+      cpu: ""
+      memory: ""
   service:
     enabled: false
 
@@ -153,12 +129,10 @@ common:
     name: ""
     data: ""
   volumeMounts: {}
-
   volumes: {}
   initContainers: {}
   secrets: {}
-
   configMap:
     name: ""
-    fileName: ""
     data: ""
+

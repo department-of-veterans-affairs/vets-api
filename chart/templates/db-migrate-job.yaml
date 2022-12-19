@@ -3,7 +3,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  namespace: {{ .Values.target_env }}
+  namespace: {{ .Release.Namespace }}
   name: db-migrate
   annotations:
     argocd.argoproj.io/hook: PreSync

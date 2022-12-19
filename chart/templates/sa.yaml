@@ -12,5 +12,5 @@ metadata:
     app.kubernetes.io/name: {{ .Values.serviceAccount.name }}
     app.kubernetes.io/part-of: {{ .Values.serviceAccount.name }}
   name: {{ .Values.serviceAccount.name }}
-  namespace: {{ .Values.target_env }}
+  namespace: {{ .Release.Namespace }}
 {{- end }}

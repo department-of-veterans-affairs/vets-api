@@ -6,7 +6,7 @@ metadata:
   labels:
     app: {{ .Values.appName }}-sidekiq
   name: {{ .Values.appName }}-sidekiq
-  namespace: {{ .Values.target_env }}
+  namespace: {{ .Release.Namespace }}
 spec:
   revisionHistoryLimit: 1
   selector:
