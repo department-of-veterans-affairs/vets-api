@@ -42,7 +42,7 @@ module SwaggerSharedComponents
             'schemas',
             'v2',
             'request_bodies',
-            'intent_to_files',
+            'intent_to_file',
             'request.json'
           )
         )
@@ -57,7 +57,7 @@ module SwaggerSharedComponents
             'schemas',
             'v2',
             'request_bodies',
-            'intent_to_files',
+            'intent_to_file',
             'example.json'
           )
         )
