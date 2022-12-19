@@ -5,7 +5,7 @@
 apiVersion: datadoghq.com/v1alpha1
 kind: DatadogMetric
 metadata:
-  name: puma-backlog
+  name: puma-backlog-{{ $name }}
   namespace: {{ $root.Release.Namespace }}
   annotations:
     argocd.argoproj.io/hook: PreSync
