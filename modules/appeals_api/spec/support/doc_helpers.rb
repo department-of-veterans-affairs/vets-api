@@ -202,9 +202,5 @@ module DocHelpers
     end
     # rubocop:enable Layout/LineLength
   end
-
-  def self.openapi_version
-    DocHelpers.decision_reviews? ? '3.0.0' : '3.1.0'
-  end
 end
 # rubocop:enable Metrics/ModuleLength

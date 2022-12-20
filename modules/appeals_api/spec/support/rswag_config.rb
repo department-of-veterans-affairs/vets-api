@@ -9,7 +9,9 @@ class AppealsApi::RswagConfig
   def config
     {
       DocHelpers.output_json_path => {
-        openapi: '3.1.0',
+        # FIXME: The Lighthouse docs UI code does not yet support openapi versions above 3.0.z
+        # This version should be updated to 3.1.0+ once that changes.
+        openapi: '3.0.0',
         info: {
           title: DocHelpers.api_title,
           version: DocHelpers.api_version,
