@@ -10,7 +10,7 @@ describe MPIData, skip_mvi: true do
   end
   let(:mvi) { MPIData.for_user(user.identity) }
   let(:mvi_profile) { build(:mvi_profile) }
-  let(:mvi_codes) do
+  let(:parsed_codes) do
     {
       birls_id: '111985523',
       participant_id: '32397028'
@@ -26,11 +26,11 @@ describe MPIData, skip_mvi: true do
   let(:profile_response_not_found) { MPI::Responses::FindProfileResponse.with_not_found(not_found_exception) }
   let(:add_response) do
     MPI::Responses::AddPersonResponse.new(
-      status: MPI::Responses::AddPersonResponse::RESPONSE_STATUS[:ok],
-      mvi_codes: mvi_codes
+      status: :ok,
+      parsed_codes: parsed_codes
     )
   end
-  let(:add_response_error) { MPI::Responses::AddPersonResponse.with_server_error(server_error_exception) }
+  let(:add_response_error) { MPI::Responses::AddPersonResponse.new(status: :server_error) }
   let(:default_ttl) { REDIS_CONFIG[MPIData::REDIS_CONFIG_KEY.to_s]['each_ttl'] }
   let(:failure_ttl) { REDIS_CONFIG[MPIData::REDIS_CONFIG_KEY.to_s]['failure_ttl'] }
 
@@ -146,16 +146,15 @@ describe MPIData, skip_mvi: true do
         expect_any_instance_of(MPIData).to receive(:add_ids).once.and_call_original
         expect_any_instance_of(MPIData).to receive(:cache).once.and_call_original
         response = mvi.add_person_proxy
-        expect(response.status).to eq('OK')
+        expect(response.status).to eq(:ok)
       end
     end
 
     context 'with a failed search' do
-      it 'returns the failed search response' do
+      it 'returns the response from the failed search' do
         allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response_error)
-        response = mvi.add_person_proxy
         expect_any_instance_of(MPI::Service).not_to receive(:add_person_proxy)
-        expect(response.status).to eq('SERVER_ERROR')
+        expect(mvi.add_person_proxy).to eq(profile_response_error)
       end
     end
 
@@ -166,7 +165,7 @@ describe MPIData, skip_mvi: true do
         expect_any_instance_of(MPIData).not_to receive(:add_ids)
         expect_any_instance_of(MPIData).not_to receive(:cache)
         response = mvi.add_person_proxy
-        expect(response.status).to eq('SERVER_ERROR')
+        expect(response.status).to eq(:server_error)
       end
     end
   end
@@ -352,8 +351,8 @@ describe MPIData, skip_mvi: true do
     let(:mvi) { MPIData.for_user(user.identity) }
     let(:response) do
       MPI::Responses::AddPersonResponse.new(
-        status: 'OK',
-        mvi_codes: {
+        status: :ok,
+        parsed_codes: {
           birls_id: '1234567890',
           participant_id: '0987654321'
         }

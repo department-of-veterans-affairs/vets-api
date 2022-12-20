@@ -2,11 +2,7 @@
 
 module MPI
   module Errors
-    class Base < StandardError; end
-    class RecordNotFound < MPI::Errors::Base; end
-    class ArgumentError < MPI::Errors::Base; end
-
-    class ServiceError < MPI::Errors::Base
+    class ServiceError < StandardError
       attr_reader :body
 
       def initialize(body = nil)
@@ -15,8 +11,13 @@ module MPI
       end
     end
 
-    class FailedRequestError < MPI::Errors::ServiceError; end
-    class InvalidRequestError < MPI::Errors::ServiceError; end
-    class DuplicateRecords < MPI::Errors::RecordNotFound; end
+    class Response < ServiceError; end
+    class InvalidResponseParamsError < StandardError; end
+    class RecordNotFound < MPI::Errors::Response; end
+    class ArgumentError < MPI::Errors::Response; end
+    class DuplicateRecords < MPI::Errors::Response; end
+    class Request < ServiceError; end
+    class FailedRequestError < MPI::Errors::Request; end
+    class InvalidRequestError < MPI::Errors::Request; end
   end
 end

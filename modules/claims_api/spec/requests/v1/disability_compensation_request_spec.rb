@@ -1065,7 +1065,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
 
       context 'when consumer is Veteran' do
-        let(:mvi_codes) do
+        let(:parsed_codes) do
           {
             birls_id: '111985523',
             participant_id: '32397028'
@@ -1074,14 +1074,14 @@ RSpec.describe 'Disability Claims ', type: :request do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:mvi_profile_response) do
           MPI::Responses::FindProfileResponse.new(
-            status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+            status: 'OK',
             profile: mvi_profile
           )
         end
         let(:add_response) do
           MPI::Responses::AddPersonResponse.new(
-            status: MPI::Responses::AddPersonResponse::RESPONSE_STATUS[:ok],
-            mvi_codes: mvi_codes
+            status: :ok,
+            parsed_codes: parsed_codes
           )
         end
 

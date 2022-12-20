@@ -433,9 +433,9 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:type) {}
     let(:acr) { nil }
     let(:client_id) { nil }
-    let(:mpi_update_profile_response) { MPI::Responses::AddPersonResponse.new(status: 'OK') }
+    let(:mpi_update_profile_response) { MPI::Responses::AddPersonResponse.new(status: :ok) }
     let(:mpi_add_person_response) do
-      MPI::Responses::AddPersonResponse.new(status: 'OK', mvi_codes: { icn: add_person_icn })
+      MPI::Responses::AddPersonResponse.new(status: :ok, parsed_codes: { icn: add_person_icn })
     end
     let(:add_person_icn) { nil }
     let(:find_profile) do

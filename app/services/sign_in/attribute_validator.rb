@@ -65,9 +65,16 @@ module SignIn
     end
 
     def add_mpi_user
-      add_person_response = mpi_service.add_person_implicit_search(user_identity_from_attributes)
+      add_person_response = mpi_service.add_person_implicit_search(first_name: first_name,
+                                                                   last_name: last_name,
+                                                                   ssn: ssn,
+                                                                   birth_date: birth_date,
+                                                                   email: credential_email,
+                                                                   address: address,
+                                                                   idme_uuid: idme_uuid,
+                                                                   logingov_uuid: logingov_uuid)
       if add_person_response.ok?
-        user_identity_from_attributes.icn = add_person_response.mvi_codes[:icn]
+        user_identity_from_attributes.icn = add_person_response.parsed_codes[:icn]
       else
         handle_error('User MPI record cannot be created',
                      Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
