@@ -36,6 +36,11 @@ AppealsApi::HigherLevelReviewUploadStatusBatch:
   class: AppealsApi::HigherLevelReviewUploadStatusBatch
   description: "Update HigherLevelReview statuses with their Central Mail status"
 
+AppealsApi::MonthlyStatsReport:
+  cron: "0 0 1 * *"
+  class: AppealsApi::MonthlyStatsReport
+  description: "Email a decision reviews stats report for the past month to configured recipients"
+
 AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii:
   every: ['24h', {first_in: '45m'}]
   class: AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii
