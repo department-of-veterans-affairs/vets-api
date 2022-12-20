@@ -170,8 +170,6 @@ class MPIData < Common::RedisStore
   # The status of the MPI Add Person Proxy Add call. An Orchestrated MVI Search needs to be made before an
   # MPI add person proxy addcall is made. The response is recached afterwards so the new ids can be accessed
   # on the next call.
-  #
-  # @return [MPI::Responses::AddPersonResponse] the response returned from MPI Add Person Proxy call
   def add_person_proxy
     search_response = MPI::Service.new.find_profile(user_identity, orch_search: true)
     if search_response.ok?
@@ -179,20 +177,10 @@ class MPIData < Common::RedisStore
       update_user_identity_with_orch_search(search_response.profile)
       add_response = mpi_service.add_person_proxy(user_identity)
       add_ids(add_response) if add_response.ok?
+      add_response
     else
-      add_response = MPI::Responses::AddPersonResponse.with_failed_orch_search(
-        search_response.status, search_response.error
-      )
+      search_response
     end
-    add_response
-  end
-
-  # Make a call for MPI Add Person that implicitly searches for a user with the existing attributes and
-  # either returns an ICN for an existing user, or creates a new MPI record and correlates it to a new ICN
-  #
-  # @return [MPI::Responses::AddPersonResponse] the response returned from MPI Add Person Implicit Search call
-  def add_person_implicit_search
-    mpi_service.add_person_implicit_search(user_identity)
   end
 
   # Make a call for MPI Update Profile to revise an existing MPI record. This will add attributes to a correlation
@@ -235,8 +223,8 @@ class MPIData < Common::RedisStore
 
   def add_ids(response)
     # set new ids in the profile and recache the response
-    profile.birls_id = response.mvi_codes[:birls_id].presence
-    profile.participant_id = response.mvi_codes[:participant_id].presence
+    profile.birls_id = response.parsed_codes[:birls_id].presence
+    profile.participant_id = response.parsed_codes[:participant_id].presence
 
     cache(user_identity.uuid, mvi_response) if mvi_response.cache?
   end

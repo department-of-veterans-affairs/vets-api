@@ -30,5 +30,9 @@ module MPI
     VA_ROOT_OID = '2.16.840.1.113883.4.349'
 
     FIND_PROFILE_CONTROL_ACT_PROCESS = 'PRPA_TE201305UV02'
+
+    ADD_PERSON_PROXY_TYPE = 'add_person_proxy'
+    ADD_PERSON_IMPLICIT_TYPE = 'add_person_implicit'
+    UPDATE_PROFILE_TYPE = 'update_profile'
   end
 end

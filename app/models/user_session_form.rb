@@ -71,18 +71,11 @@ class UserSessionForm
     return unless saml_user_attributes[:loa][:current] == LOA::THREE
 
     Rails.logger.info("[UserSessionForm] Adding CSP ID to MPI, idme: #{idme_uuid}")
-    add_csp_id_user_identity = UserIdentity.new({ idme_uuid: idme_uuid,
-                                                  loa: saml_user_attributes[:loa],
-                                                  sign_in: saml_user_attributes[:sign_in],
-                                                  first_name: saml_user_attributes[:first_name],
-                                                  last_name: saml_user_attributes[:last_name],
-                                                  birth_date: saml_user_attributes[:birth_date],
-                                                  ssn: saml_user_attributes[:ssn],
-                                                  edipi: saml_user_attributes[:edipi],
-                                                  icn: saml_user_attributes[:mhv_icn],
-                                                  mhv_icn: saml_user_attributes[:mhv_icn],
-                                                  uuid: idme_uuid })
-    mpi_response = MPI::Service.new.add_person_implicit_search(add_csp_id_user_identity)
+    mpi_response = MPI::Service.new.add_person_implicit_search(first_name: saml_user_attributes[:first_name],
+                                                               last_name: saml_user_attributes[:last_name],
+                                                               ssn: saml_user_attributes[:ssn],
+                                                               birth_date: saml_user_attributes[:birth_date],
+                                                               idme_uuid: idme_uuid)
     log_message_to_sentry("Failed Add CSP ID to MPI FAILED, idme: #{idme_uuid}", :warn) unless mpi_response.ok?
   end
 
