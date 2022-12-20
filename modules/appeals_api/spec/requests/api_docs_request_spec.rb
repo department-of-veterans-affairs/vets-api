@@ -40,41 +40,26 @@ RSpec.describe 'Appeals Documentation Endpoints', type: :request do
   describe 'Appeals Status' do
     it_behaves_like 'an openapi endpoint', api_version: 'v0', doc_path: 'api', server_path: '{version}'
 
-    it_behaves_like 'an openapi endpoint', api_version: 'v1', doc_path: 'appeals',
-                                           server_path: '{version}',
-                                           openapi_version_sandbox: '3.1.0',
-                                           openapi_version_production: '3.1.0'
+    it_behaves_like 'an openapi endpoint', api_version: 'v1', doc_path: 'appeals', server_path: '{version}'
   end
 
   describe 'Decision Reviews' do
     it_behaves_like 'an openapi endpoint', api_version: 'v1', doc_path: 'decision_reviews',
                                            server_path: '{version}/decision_reviews'
     it_behaves_like 'an openapi endpoint', api_version: 'v2', doc_path: 'decision_reviews',
-                                           server_path: '{version}/decision_reviews',
-                                           openapi_version_sandbox: '3.1.0',
-                                           openapi_version_production: '3.1.0'
+                                           server_path: '{version}/decision_reviews'
   end
 
   describe 'Segmented APIs' do
     it_behaves_like 'an openapi endpoint', api_version: 'v0', doc_path: 'hlr',
-                                           server_path: 'higher_level_reviews/{version}',
-                                           openapi_version_sandbox: '3.1.0',
-                                           openapi_version_production: '3.1.0'
+                                           server_path: 'higher_level_reviews/{version}'
     it_behaves_like 'an openapi endpoint', api_version: 'v0', doc_path: 'nod',
-                                           server_path: 'notice_of_disagreements/{version}',
-                                           openapi_version_sandbox: '3.1.0',
-                                           openapi_version_production: '3.1.0'
+                                           server_path: 'notice_of_disagreements/{version}'
     it_behaves_like 'an openapi endpoint', api_version: 'v0', doc_path: 'sc',
-                                           server_path: 'supplemental_claims/{version}',
-                                           openapi_version_sandbox: '3.1.0',
-                                           openapi_version_production: '3.1.0'
+                                           server_path: 'supplemental_claims/{version}'
     it_behaves_like 'an openapi endpoint', api_version: 'v0', doc_path: 'ci',
-                                           server_path: 'contestable_issues/{version}',
-                                           openapi_version_sandbox: '3.1.0',
-                                           openapi_version_production: '3.1.0'
+                                           server_path: 'contestable_issues/{version}'
     it_behaves_like 'an openapi endpoint', api_version: 'v0', doc_path: 'la',
-                                           server_path: 'legacy_appeals/{version}',
-                                           openapi_version_sandbox: '3.1.0',
-                                           openapi_version_production: '3.1.0'
+                                           server_path: 'legacy_appeals/{version}'
   end
 end
