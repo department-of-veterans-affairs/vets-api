@@ -5,18 +5,18 @@ require 'rails_helper'
 describe AppealsApi::DecisionReviewReportWeekly, type: :job do
   describe '#perform' do
     it 'sends mail' do
+      recipients = %w[
+        drew.fisher@adhocteam.us
+        jack.schuss@oddball.io
+        kelly@adhocteam.us
+        nathan.wright@oddball.io
+      ]
       with_settings(Settings.modules_appeals_api.reports.weekly_decision_review, enabled: true) do
         Timecop.freeze
         date_to = Time.zone.now
         date_from = 1.week.ago.beginning_of_day
-        recipients = %w[
-          drew.fisher@adhocteam.us
-          jack.schuss@oddball.io
-          kelly@adhocteam.us
-          laura.trager@adhocteam.us
-          nathan.wright@oddball.io
-        ]
-
+        allow(YAML).to receive(:load_file).and_return({ 'common' => recipients,
+                                                        'production' => ['laura.trager@adhocteam.us'] })
         expect(AppealsApi::DecisionReviewMailer).to receive(:build).once.with(
           date_from: date_from,
           date_to: date_to,
@@ -29,6 +29,18 @@ describe AppealsApi::DecisionReviewReportWeekly, type: :job do
         described_class.new.perform
 
         Timecop.return
+      end
+    end
+
+    it 'does not send email when no recipients are received' do
+      messager_instance = instance_double('AppealsApi::Slack::Messager')
+      with_settings(Settings.modules_appeals_api.reports.weekly_decision_review, enabled: true) do
+        allow(YAML).to receive(:load_file).and_return({})
+        allow(AppealsApi::Slack::Messager).to receive(:new).and_return(messager_instance)
+        expect(messager_instance).to receive(:notify!)
+        expect(AppealsApi::DecisionReviewMailer).not_to receive(:build)
+
+        described_class.new.perform
       end
     end
   end
