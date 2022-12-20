@@ -4,12 +4,16 @@ require 'sidekiq'
 
 module AppealsApi
   class DailyErrorReport
+    include ReportRecipientsReader
     include Sidekiq::Worker
     # Only retry for ~8 hours since the job is run daily
     sidekiq_options retry: 11, unique_for: 8.hours
 
     def perform
-      DailyErrorReportMailer.build.deliver_now if enabled?
+      if enabled?
+        recipients = load_recipients(:error_report_daily)
+        DailyErrorReportMailer.build(recipients: recipients).deliver_now if recipients.present?
+      end
     end
 
     private
