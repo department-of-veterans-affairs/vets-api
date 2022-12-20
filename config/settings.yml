@@ -340,6 +340,11 @@ modules_appeals_api:
         - kelly@adhocteam.us
         - laura.trager@adhocteam.us
         - nathan.wright@oddball.io
+    monthly_stats:
+      recipients:
+        - drew.fisher@adhocteam.us
+        - casey.williams@adhocteam.us
+        - michel.mcdonald@adhocteam.us
     weekly_error:
       recipients:
         - drew.fisher@adhocteam.us

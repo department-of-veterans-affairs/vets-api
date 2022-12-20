@@ -244,6 +244,9 @@ features:
   decision_review_daily_stuck_records_report_enabled:
     actor_type: user
     description: Enables the daily decision review stuck records Slack report
+  decision_review_monthly_stats_report_enabled:
+    actor_type: user
+    description: Enables the monthly decision review stats report email
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
