@@ -144,12 +144,11 @@ module SignIn
                      Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
                      error: Errors::MHVMissingMPIRecordError)
       end
-      user_identity_from_attributes.first_name = mpi_response_profile.given_names.first
-      user_identity_from_attributes.last_name = mpi_response_profile.family_name
-      user_identity_from_attributes.birth_date = mpi_response_profile.birth_date
-      user_identity_from_attributes.ssn = mpi_response_profile.ssn
-      user_identity_from_attributes.icn = mpi_response_profile.icn
-      user_identity_from_attributes.mhv_icn = mpi_response_profile.icn
+      @first_name = mpi_response_profile.given_names.first
+      @last_name = mpi_response_profile.family_name
+      @birth_date = mpi_response_profile.birth_date
+      @ssn = mpi_response_profile.ssn
+      @mhv_icn = mpi_response_profile.icn
     end
 
     def user_identity_from_attributes

@@ -340,6 +340,7 @@ RSpec.describe SignIn::AttributeValidator do
         let(:mhv_icn) { 'some-icn' }
         let(:idme_uuid) { 'some-idme-uuid' }
         let(:csp_id) { idme_uuid }
+        let(:address) { nil }
         let(:mhv_correlation_id) { 'some-mhv-correlation-id' }
         let(:email) { 'some-email' }
 
@@ -412,6 +413,10 @@ RSpec.describe SignIn::AttributeValidator do
                     given_names: [first_name],
                     family_name: last_name)
             end
+            let(:first_name) { 'some-first-name' }
+            let(:last_name) { 'some-last-name' }
+            let(:ssn) { 'some-ssn' }
+            let(:birth_date) { '19700101' }
             let(:id_theft_flag) { false }
             let(:deceased_date) { nil }
             let(:edipis) { ['some-edipi'] }
