@@ -28,7 +28,7 @@ RSpec.describe MebApi::DGI::Status::Service do
       context 'when successful' do
         it 'returns a status of 200' do
           VCR.use_cassette('dgi/get_claim_status') do
-            response = service.get_claim_status(claimant_id)
+            response = service.get_claim_status({}, claimant_id)
             expect(response.status).to eq(200)
           end
         end
@@ -46,7 +46,7 @@ RSpec.describe MebApi::DGI::Status::Service do
       context 'when successful' do
         it 'returns a status of 200' do
           VCR.use_cassette('dgi/get_toe_claim_status') do
-            response = service.get_claim_status(claimant_id, 'toe')
+            response = service.get_claim_status({}, claimant_id, 'toe')
             expect(response.status).to eq(200)
           end
         end

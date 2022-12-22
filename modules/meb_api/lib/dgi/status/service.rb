@@ -13,11 +13,11 @@ module MebApi
         configuration MebApi::DGI::Status::Configuration
         STATSD_KEY_PREFIX = 'api.dgi.status'
 
-        def get_claim_status(claimant_id, type = 'Chapter33')
+        def get_claim_status(params, claimant_id, type = 'Chapter33')
           with_monitoring do
             headers = request_headers
             options = { timeout: 60 }
-            raw_response = perform(:get, end_point(claimant_id, type), nil, headers, options)
+            raw_response = perform(:get, end_point(params[:latest], claimant_id, type), nil, headers, options)
 
             MebApi::DGI::Status::StatusResponse.new(raw_response.status, raw_response)
           end
@@ -25,8 +25,9 @@ module MebApi
 
         private
 
-        def end_point(claimant_id, type)
-          "claimant/#{claimant_id}/claimType/#{type}/claimstatus"
+        def end_point(latest, claimant_id, type)
+          latest = latest.nil? ? 'false' : latest
+          "claimant/#{claimant_id}/claimType/#{type}/claimstatus?latest=#{latest}"
         end
 
         def request_headers
