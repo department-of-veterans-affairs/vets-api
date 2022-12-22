@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_for_monitored_worker.rb')
 
 describe AppealsApi::WeeklyErrorReport, type: :job do
+  it_behaves_like 'a monitored worker'
+
   describe '#perform' do
     it 'sends mail' do
       Flipper.enable(:decision_review_weekly_error_report_enabled)
