@@ -174,8 +174,13 @@ class MPIData < Common::RedisStore
     search_response = MPI::Service.new.find_profile(user_identity, orch_search: true)
     if search_response.ok?
       @mvi_response = search_response
-      update_user_identity_with_orch_search(search_response.profile)
-      add_response = mpi_service.add_person_proxy(user_identity)
+      add_response = mpi_service.add_person_proxy(last_name: search_response.profile.family_name,
+                                                  ssn: search_response.profile.ssn,
+                                                  birth_date: search_response.profile.birth_date,
+                                                  icn: search_response.profile.icn,
+                                                  edipi: search_response.profile.edipi,
+                                                  search_token: search_response.profile.search_token,
+                                                  first_name: search_response.profile.given_names.first)
       add_ids(add_response) if add_response.ok?
       add_response
     else
@@ -205,20 +210,6 @@ class MPIData < Common::RedisStore
     else
       user_identity.uuid
     end
-  end
-
-  def update_user_identity_with_orch_search(search_response_profile)
-    user_identity.icn_with_aaid = search_response_profile.icn_with_aaid
-    user_identity.edipi = search_response_profile.edipi
-    user_identity.search_token = search_response_profile.search_token
-
-    first_name, *middle_name = search_response_profile.given_names
-    user_identity.first_name = first_name
-    user_identity.middle_name = middle_name&.join(' ').presence
-    user_identity.last_name = search_response_profile.family_name
-    user_identity.gender = search_response_profile.gender
-    user_identity.ssn = search_response_profile.ssn
-    user_identity.birth_date = search_response_profile.birth_date
   end
 
   def add_ids(response)

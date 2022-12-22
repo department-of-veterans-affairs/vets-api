@@ -12,10 +12,12 @@ describe MPIData, skip_mvi: true do
   let(:mvi_profile) { build(:mvi_profile) }
   let(:parsed_codes) do
     {
-      birls_id: '111985523',
-      participant_id: '32397028'
+      birls_id: birls_id,
+      participant_id: participant_id
     }
   end
+  let(:birls_id) { '111985523' }
+  let(:participant_id) { '32397028' }
   let(:profile_response) do
     MPI::Responses::FindProfileResponse.new(
       status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
@@ -79,8 +81,12 @@ describe MPIData, skip_mvi: true do
   end
 
   describe '#add_person_proxy' do
+    subject { mpi_data.add_person_proxy }
+
+    let(:mpi_data) { MPIData.for_user(user.identity) }
+
     context 'with a successful add' do
-      let(:given_names) { %w[kitty puppy] }
+      let(:given_names) { %w[kitty] }
       let(:family_name) { 'banana' }
       let(:suffix) { 'Jr' }
       let(:birth_date) { '19801010' }
@@ -93,7 +99,7 @@ describe MPIData, skip_mvi: true do
           postal_code: '20500'
         }
       end
-      let(:icn_with_aaid) { 'some-icn-with-aaid' }
+      let(:icn) { 'some-icn' }
       let(:edipi) { 'some-edipi' }
       let(:search_token) { 'some-search_token' }
       let(:gender) { 'M' }
@@ -105,66 +111,58 @@ describe MPIData, skip_mvi: true do
               given_names: given_names,
               family_name: family_name,
               birth_date: birth_date,
-              icn_with_aaid: icn_with_aaid,
+              icn: icn,
               edipi: edipi,
               search_token: search_token,
               ssn: ssn,
               person_types: person_types,
               gender: gender)
       end
-      let(:expected_user_identity) do
-        build(:user_identity,
-              :loa3,
-              first_name: given_names.first,
-              middle_name: given_names.last,
-              last_name: family_name,
-              suffix: suffix,
-              birth_date: birth_date,
-              address: address,
-              icn_with_aaid: icn_with_aaid,
-              edipi: edipi,
-              search_token: search_token,
-              gender: gender,
-              ssn: ssn,
-              phone: phone,
-              idme_uuid: user.idme_uuid)
+
+      before do
+        allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response)
+        allow_any_instance_of(MPI::Service).to receive(:add_person_proxy).and_return(add_response)
+      end
+
+      it 'creates a birls_id from add_person_proxy and adds it to existing mpi data object' do
+        expect { subject }.to change(mpi_data, :birls_id).from(mvi_profile.birls_id).to(birls_id)
+      end
+
+      it 'creates a participant_id from add_person_proxy and adds it to existing mpi data object' do
+        expect { subject }.to change(mpi_data, :participant_id).from(mvi_profile.participant_id).to(participant_id)
       end
 
       it 'copies relevant results from orchestration search to fields for add person call' do
-        allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response)
-        allow_any_instance_of(MPI::Service).to receive(:add_person_proxy).and_return(add_response)
+        subject
 
-        expect_any_instance_of(MPI::Service).to receive(:find_profile)
-          .with(instance_of(UserIdentity), orch_search: true)
-        mvi.add_person_proxy
-        expect(mvi.user_identity.to_h).to include(expected_user_identity.to_h)
+        expect(mpi_data.birls_id).to eq(birls_id)
+        expect(mpi_data.participant_id).to eq(participant_id)
       end
 
       it 'returns the successful response' do
-        allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response)
-        allow_any_instance_of(MPI::Service).to receive(:add_person_proxy).and_return(add_response)
-        expect_any_instance_of(MPIData).to receive(:add_ids).once.and_call_original
-        expect_any_instance_of(MPIData).to receive(:cache).once.and_call_original
-        response = mvi.add_person_proxy
-        expect(response.status).to eq(:ok)
+        expect(subject.status).to eq(:ok)
       end
     end
 
     context 'with a failed search' do
+      before { allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response_error) }
+
       it 'returns the response from the failed search' do
-        allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response_error)
         expect_any_instance_of(MPI::Service).not_to receive(:add_person_proxy)
-        expect(mvi.add_person_proxy).to eq(profile_response_error)
+        expect(subject).to eq(profile_response_error)
       end
     end
 
     context 'with a failed add' do
-      it 'returns the failed add response' do
+      before do
         allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response)
         allow_any_instance_of(MPI::Service).to receive(:add_person_proxy).and_return(add_response_error)
+      end
+
+      it 'returns the failed add response' do
         expect_any_instance_of(MPIData).not_to receive(:add_ids)
         expect_any_instance_of(MPIData).not_to receive(:cache)
-        response = mvi.add_person_proxy
+        response = subject
         expect(response.status).to eq(:server_error)
       end
     end
