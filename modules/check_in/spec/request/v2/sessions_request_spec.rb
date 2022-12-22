@@ -11,6 +11,8 @@ RSpec.describe 'V2::SessionsController', type: :request do
     allow(Flipper).to receive(:enabled?)
       .with('check_in_experience_enabled').and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
+    allow(Flipper).to receive(:enabled?).with('check_in_experience_chip_500_error_mapping_enabled')
+                                        .and_return(false)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_deletion_enabled')
                                         .and_return(false)
 
@@ -151,26 +153,51 @@ RSpec.describe 'V2::SessionsController', type: :request do
       end
 
       context 'refresh_precheckin returns 500' do
-        let(:error_resp) do
-          {
-            'errors' => [
-              {
-                'title' => 'Internal Server Error',
-                'detail' => 'Internal Server Error',
-                'code' => 'CHIP-API_500',
-                'status' => '500'
-              }
-            ]
-          }
+        context 'error mapping feature flag is off' do
+          before do
+            allow(Flipper).to receive(:enabled?).with('check_in_experience_chip_500_error_mapping_enabled')
+                                                .and_return(false)
+          end
+
+          it 'returns a valid unauthorized response ' do
+            VCR.use_cassette('check_in/chip/refresh_pre_check_in/refresh_pre_check_in_500', erb: { uuid: uuid }) do
+              VCR.use_cassette 'check_in/chip/token/token_200' do
+                get "/check_in/v2/sessions/#{uuid}?checkInType=preCheckIn"
+
+                expect(response.status).to eq(200)
+                expect(JSON.parse(response.body)).to eq(resp)
+              end
+            end
+          end
         end
 
-        it 'throws an error' do
-          VCR.use_cassette('check_in/chip/refresh_pre_check_in/refresh_pre_check_in_500', erb: { uuid: uuid }) do
-            VCR.use_cassette 'check_in/chip/token/token_200' do
-              get "/check_in/v2/sessions/#{uuid}?checkInType=preCheckIn"
+        context 'error mapping feature flag is on' do
+          let(:error_resp) do
+            {
+              'errors' => [
+                {
+                  'title' => 'Internal Server Error',
+                  'detail' => 'Internal Server Error',
+                  'code' => 'CHIP-MAPPED-API_500',
+                  'status' => '500'
+                }
+              ]
+            }
+          end
 
-              expect(response.status).to eq(500)
-              expect(JSON.parse(response.body)).to eq(error_resp)
+          before do
+            allow(Flipper).to receive(:enabled?).with('check_in_experience_chip_500_error_mapping_enabled')
+                                                .and_return(true)
+          end
+
+          it 'throws an error' do
+            VCR.use_cassette('check_in/chip/refresh_pre_check_in/refresh_pre_check_in_500', erb: { uuid: uuid }) do
+              VCR.use_cassette 'check_in/chip/token/token_200' do
+                get "/check_in/v2/sessions/#{uuid}?checkInType=preCheckIn"
+
+                expect(response.status).to eq(500)
+                expect(JSON.parse(response.body)).to eq(error_resp)
+              end
             end
           end
         end
