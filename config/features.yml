@@ -126,6 +126,10 @@ features:
     actor_type: user
     description: Enables browser monitoring for check-in applications.
     enable_in_development: false
+  check_in_experience_updated_appt_presentation:
+    actor_type: user
+    description: Enables updated appointment details presentation.
+    enable_in_development: true
   ch31_vbms_form_confirmation_email:
     actor_type: user
     description: Enables Ch31 form email submission confirmation after central mail
