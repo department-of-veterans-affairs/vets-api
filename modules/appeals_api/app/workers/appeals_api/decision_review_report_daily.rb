@@ -6,6 +6,8 @@ module AppealsApi
   class DecisionReviewReportDaily
     include ReportRecipientsReader
     include Sidekiq::Worker
+    include Sidekiq::MonitoredWorker
+
     # Only retry for ~8 hours since the job is run daily
     sidekiq_options retry: 11, unique_for: 8.hours
 
@@ -17,6 +19,14 @@ module AppealsApi
                                      recipients: recipients).deliver_now
         end
       end
+    end
+
+    def retry_limits_for_notification
+      [11]
+    end
+
+    def notify(retry_params)
+      AppealsApi::Slack::Messager.new(retry_params, notification_type: :error_retry).notify!
     end
 
     private

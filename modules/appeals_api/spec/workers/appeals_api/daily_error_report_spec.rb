@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_for_monitored_worker.rb')
 
 describe AppealsApi::DailyErrorReport, type: :job do
+  it_behaves_like 'a monitored worker'
+
   describe '#perform' do
     it 'sends mail' do
       recipients = %w[
