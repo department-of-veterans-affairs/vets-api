@@ -6,13 +6,6 @@ require 'formatters/date_formatter'
 
 module MPI
   module Messages
-    # Builds an MPI SOAP XML message for adding an external system for an existing user.
-    #
-    # Call with a user object and use `.to_xml` method to create the XML message
-    #
-    # Example:
-    #  message = MPI::Messages::AddPersonProxyAddMessage.new(user).to_xml
-    #
     class AddPersonProxyAddMessage
       attr_reader :first_name, :last_name, :ssn, :birth_date, :icn, :edipi, :search_token
 

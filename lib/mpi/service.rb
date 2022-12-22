@@ -33,11 +33,18 @@ module MPI
                          Breakers::OutageException].freeze
     SERVER_ERROR = 'server_error'
 
-    def add_person_proxy(user_identity)
+    # rubocop:disable Metrics/ParameterLists
+    def add_person_proxy(last_name:, ssn:, birth_date:, icn:, edipi:, search_token:, first_name:)
       with_monitoring do
         raw_response = perform(
           :post, '',
-          create_add_person_proxy_message(user_identity),
+          MPI::Messages::AddPersonProxyAddMessage.new(last_name: last_name,
+                                                      ssn: ssn,
+                                                      birth_date: birth_date,
+                                                      icn: icn,
+                                                      edipi: edipi,
+                                                      search_token: search_token,
+                                                      first_name: first_name).perform,
           soapaction: Constants::ADD_PERSON
         )
         MPI::Services::AddPersonResponseCreator.new(type: Constants::ADD_PERSON_PROXY_TYPE,
@@ -46,6 +53,7 @@ module MPI
     rescue *CONNECTION_ERRORS => e
       MPI::Services::AddPersonResponseCreator.new(type: Constants::ADD_PERSON_PROXY_TYPE, error: e).perform
     end
+    # rubocop:enable Metrics/ParameterLists
 
     # rubocop:disable Metrics/ParameterLists
     def add_person_implicit_search(first_name:,
@@ -163,19 +171,6 @@ module MPI
       when MPI::Errors::FailedRequestError
         log_exception_to_sentry(error, context)
       end
-    end
-
-    def create_add_person_proxy_message(user_identity)
-      raise Common::Exceptions::ValidationErrors, user_identity unless user_identity.valid?
-      return if user_identity.icn_with_aaid.blank?
-
-      MPI::Messages::AddPersonProxyAddMessage.new(last_name: user_identity.last_name,
-                                                  ssn: user_identity.ssn,
-                                                  birth_date: user_identity.birth_date,
-                                                  icn: user_identity.icn,
-                                                  edipi: user_identity.edipi,
-                                                  search_token: user_identity.search_token,
-                                                  first_name: user_identity.first_name).perform
     end
 
     def create_update_profile_message(user_identity)

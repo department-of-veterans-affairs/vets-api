@@ -115,9 +115,24 @@ describe MPI::Service do
   end
 
   describe '.add_person_proxy' do
-    subject { mpi_service.add_person_proxy(user) }
+    subject do
+      mpi_service.add_person_proxy(last_name: last_name,
+                                   ssn: ssn,
+                                   birth_date: birth_date,
+                                   icn: icn,
+                                   edipi: edipi,
+                                   search_token: search_token,
+                                   first_name: first_name)
+    end
 
     let(:statsd_caller) { 'add_person_proxy' }
+    let(:ssn) { 796_111_863 }
+    let(:first_name) { 'abraham' }
+    let(:last_name) { 'lincoln' }
+    let(:birth_date) { '18090212' }
+    let(:edipi) { 'some-edipi' }
+    let(:search_token) { 'WSDOC2002071538432741110027956' }
+    let(:icn) { '1013062086V794840' }
 
     context 'valid requests' do
       context 'when current user has neither birls_id or participant_id' do
