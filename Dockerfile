@@ -23,8 +23,7 @@ RUN apt-get install -y build-essential libpq-dev git imagemagick curl wget pdftk
 # Relax ImageMagick PDF security. See https://stackoverflow.com/a/59193253.
 RUN sed -i '/rights="none" pattern="PDF"/d' /etc/ImageMagick-6/policy.xml
 
-COPY config/clamd.conf /etc/clamav/clamd.conf
-RUN /etc/clamav/clamd.conf
+
 # Install fwdproxy.crt into trust store
 # Relies on update-ca-certificates being run in following step
 COPY config/ca-trust/*.crt /usr/local/share/ca-certificates/
@@ -32,6 +31,8 @@ COPY config/ca-trust/*.crt /usr/local/share/ca-certificates/
 # Download VA Certs
 COPY ./import-va-certs.sh .
 RUN ./import-va-certs.sh
+
+COPY config/clamd.conf /etc/clamav/clamd.conf
 
 ENV LANG=C.UTF-8 \
    BUNDLE_JOBS=4 \
