@@ -24,7 +24,7 @@ RUN apt-get install -y build-essential libpq-dev git imagemagick curl wget pdftk
 RUN sed -i '/rights="none" pattern="PDF"/d' /etc/ImageMagick-6/policy.xml
 
 COPY config/clamd.conf /etc/clamav/clamd.conf
-COPY --chown==nonroot:nonroot config/clamd.conf /etc/clamav/clamd.conf ./
+RUN chown -R nonroot config/clamd.conf /etc/clamav/clamd.conf ./
 
 # Install fwdproxy.crt into trust store
 # Relies on update-ca-certificates being run in following step
