@@ -70,7 +70,7 @@ binaries:
   # you can specify a full path in settings.local.yml if necessary
   pdfinfo: pdfinfo
   pdftk: pdftk
-  clamdscan: /app/config/clamd.conf
+  clamdscan: /etc/clamdav/clamd.conf
 
 db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb
 
