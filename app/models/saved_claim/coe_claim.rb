@@ -95,11 +95,19 @@ class SavedClaim::CoeClaim < SavedClaim
         'loanEntitlementCharged' => loan_info['loanEntitlementCharged'],
         # propertyOwned also maps to the the stillOwn indicator on the LGY side
         'propertyOwned' => loan_info['propertyOwned'] || false,
+        # In UI: "A one-time restoration of entitlement"
+        # In LGY: "One Time Resto"
         'oneTimeRestorationRequested' => parsed_form['intent'] == 'ONETIMERESTORATION',
+        # In UI: "An Interest Rate Reduction Refinance Loan (IRRRL) to refinance the balance of a current VA home loan"
+        # In LGY: "IRRRL Ind"
         'irrrlRequested' => parsed_form['intent'] == 'IRRRL',
+        # In UI: "A regular cash-out refinance of a current VA home loan"
+        # In LGY: "Cash Out Refi"
         'cashoutRefinaceRequested' => parsed_form['intent'] == 'REFI',
-        'noRestorationEntitlementIndicator' => parsed_form['intent'] == 'INQUIRY' ||
-                                               parsed_form['intent'] == 'ONETIMERESTORATION',
+        # In UI: "An entitlement inquiry only"
+        # In LGY: "Entitlement Inquiry Only"
+        'noRestorationEntitlementIndicator' => parsed_form['intent'] == 'INQUIRY',
+        # LGY has requested `homeSellIndicator` always be null
         'homeSellIndicator' => nil,
         'propertyAddress1' => loan_info['propertyAddress']['propertyAddress1'],
         'propertyAddress2' => loan_info['propertyAddress']['propertyAddress2'] || '',
