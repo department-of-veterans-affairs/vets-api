@@ -11,8 +11,6 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
     allow(Flipper).to receive(:enabled?).with('check_in_experience_enabled').and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_pre_check_in_enabled').and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
-    allow(Flipper).to receive(:enabled?).with('check_in_experience_chip_500_error_mapping_enabled')
-                                        .and_return(false)
 
     Rails.cache.clear
   end
@@ -439,76 +437,33 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
         }
       end
 
-      context 'and 500 error mapping feature flag enabled' do
-        let(:error_body) do
-          {
-            'errors' => [
-              {
-                'title' => 'Internal Server Error',
-                'detail' => 'Internal Server Error',
-                'code' => 'CHIP-MAPPED-API_500',
-                'status' => '500'
-              }
-            ]
-          }
-        end
-        let(:error_resp) { Faraday::Response.new(body: error_body, status: 500) }
-
-        before do
-          allow(Flipper).to receive(:enabled?).with('check_in_experience_chip_500_error_mapping_enabled')
-                                              .and_return(true)
-        end
-
-        it 'returns 500 error response' do
-          VCR.use_cassette 'check_in/lorota/token/token_200' do
-            post '/check_in/v2/sessions', session_params
-            expect(response.status).to eq(200)
-          end
-
-          VCR.use_cassette('check_in/chip/pre_check_in/pre_check_in_500', match_requests_on: [:host]) do
-            VCR.use_cassette 'check_in/chip/token/token_200' do
-              post '/check_in/v2/pre_check_ins', params: post_params
-            end
-          end
-          expect(response.status).to eq(error_resp.status)
-          expect(response.body).to eq(error_resp.body.to_json)
-        end
+      let(:error_body) do
+        {
+          'errors' => [
+            {
+              'title' => 'Internal Server Error',
+              'detail' => 'Internal Server Error',
+              'code' => 'CHIP-API_500',
+              'status' => '500'
+            }
+          ]
+        }
       end
+      let(:error_resp) { Faraday::Response.new(body: error_body, status: 500) }
 
-      context 'and 500 error mapping feature flag disabled' do
-        let(:timeout_body) do
-          {
-            'errors' => [
-              {
-                'title' => 'Operation failed',
-                'detail' => 'Operation failed',
-                'code' => 'VA900',
-                'status' => '400'
-              }
-            ]
-          }
-        end
-        let(:timeout_resp) { Faraday::Response.new(body: timeout_body, status: 400) }
-
-        before do
-          allow(Flipper).to receive(:enabled?).with('check_in_experience_chip_500_error_mapping_enabled')
-                                              .and_return(false)
+      it 'returns 500 error response' do
+        VCR.use_cassette 'check_in/lorota/token/token_200' do
+          post '/check_in/v2/sessions', session_params
+          expect(response.status).to eq(200)
         end
 
-        it 'returns 400' do
-          VCR.use_cassette 'check_in/lorota/token/token_200' do
-            post '/check_in/v2/sessions', session_params
-            expect(response.status).to eq(200)
+        VCR.use_cassette('check_in/chip/pre_check_in/pre_check_in_500', match_requests_on: [:host]) do
+          VCR.use_cassette 'check_in/chip/token/token_200' do
+            post '/check_in/v2/pre_check_ins', params: post_params
           end
-
-          VCR.use_cassette('check_in/chip/pre_check_in/pre_check_in_504', match_requests_on: [:host]) do
-            VCR.use_cassette 'check_in/chip/token/token_200' do
-              post '/check_in/v2/pre_check_ins', params: post_params
-            end
-          end
-          expect(response.status).to eq(timeout_resp.status)
-          expect(response.body).to eq(timeout_resp.body.to_json)
         end
+        expect(response.status).to eq(error_resp.status)
+        expect(response.body).to eq(error_resp.body.to_json)
       end
     end
 
