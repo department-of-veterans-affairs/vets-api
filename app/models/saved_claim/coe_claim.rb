@@ -133,13 +133,19 @@ class SavedClaim::CoeClaim < SavedClaim
       military_branch = service_info['serviceBranch'].parameterize.underscore.upcase
       service_type = 'ACTIVE_DUTY'
 
+      # "Marine Corps" must be converted to "Marines" here, so that the `.any`
+      # block below can convert "Marine Corps" and "Marine Corps Reserve" to
+      # "MARINES", to meet LGY's requirements.
+      military_branch = military_branch.gsub('MARINE_CORPS', 'MARINES')
+
       %w[RESERVE NATIONAL_GUARD].any? do |service_branch|
         next unless military_branch.include?(service_branch)
 
         index = military_branch.index('_NATIONAL_GUARD') || military_branch.index('_RESERVE')
         military_branch = military_branch[0, index]
-        military_branch = 'AIR_FORCE' if military_branch == 'AIR' # Air National Guard
-        military_branch = 'MARINES' if military_branch == 'MARINE_CORPS' # Marine Corps Reserve
+        # "Air National Guard", unlike "Air Force Reserve", needs to be manually
+        # transformed to AIR_FORCE here, to meet LGY's requirements.
+        military_branch = 'AIR_FORCE' if military_branch == 'AIR'
         service_type = 'RESERVE_NATIONAL_GUARD'
       end
 
