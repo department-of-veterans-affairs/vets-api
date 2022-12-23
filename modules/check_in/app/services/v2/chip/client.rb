@@ -149,11 +149,7 @@ module V2
         log_message_to_sentry(e.original_body, :error,
                               { uuid: check_in_session.uuid },
                               { external_service: service_name, team: 'check-in' })
-        if Flipper.enabled?('check_in_experience_chip_500_error_mapping_enabled')
-          raise e
-        else
-          Faraday::Response.new(body: e.original_body, status: e.original_status)
-        end
+        raise e
       end
 
       ##
@@ -189,11 +185,7 @@ module V2
       def connection
         Faraday.new(url: url) do |conn|
           conn.use :breakers
-          if Flipper.enabled?('check_in_experience_chip_500_error_mapping_enabled')
-            conn.response :raise_error, error_prefix: 'CHIP-MAPPED-API'
-          else
-            conn.response :raise_error, error_prefix: service_name
-          end
+          conn.response :raise_error, error_prefix: service_name
           conn.response :betamocks if mock_enabled?
 
           conn.adapter Faraday.default_adapter
