@@ -67,7 +67,7 @@ module V2
           jwt: jwt_token
         }
       rescue Common::Exceptions::BackendServiceException => e
-        if e.original_status == 401 && Flipper.enabled?('check_in_experience_lorota_deletion_enabled')
+        if e.original_status == 401
           error_message_handler(e)
         else
           raise e
