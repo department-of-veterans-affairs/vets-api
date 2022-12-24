@@ -113,6 +113,7 @@ def rswag_to_oas!(filepath)
   FileUtils.mv(temp_path, filepath)
 end
 
+# rubocop:disable Metrics/MethodLength
 def generate_appeals_doc(api_name = nil, dev: false)
   ENV['RAILS_MODULE'] = 'appeals_api'
   ENV['SWAGGER_DRY_RUN'] = '0'
@@ -120,7 +121,11 @@ def generate_appeals_doc(api_name = nil, dev: false)
     ENV['RSWAG_ENV'] = 'dev'
     ENV['WIP_DOCS_ENABLED'] = Settings.modules_appeals_api.documentation.wip_docs&.join(',') || ''
   end
-  ENV['API_NAME'] = api_name if api_name
+  if api_name
+    ENV['API_NAME'] = api_name
+  else
+    ENV.delete('API_NAME')
+  end
   ENV['PATTERN'] = api_name ? "#{APPEALS_API_DOCS_DIR}/#{api_name}_spec.rb" : APPEALS_API_DOCS_DIR
   Rake::Task['rswag:specs:swaggerize'].invoke
 
@@ -134,3 +139,4 @@ def generate_appeals_doc(api_name = nil, dev: false)
     end
   )
 end
+# rubocop:enable Metrics/MethodLength
