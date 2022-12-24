@@ -125,7 +125,7 @@ class AppealsApi::RswagConfig
           X-VA-NonVeteranClaimant-SSN X-VA-SSN
         ]
       )
-      a << shared_schemas.slice(*%I[address phone timezone #{nbs_key}])
+      a << shared_schemas.slice(*%W[address phone timezone #{nbs_key}])
     when 'supplemental_claims'
       a << sc_create_schemas
       a << sc_response_schemas('#/components/schemas')
@@ -137,15 +137,15 @@ class AppealsApi::RswagConfig
           X-VA-NonVeteranClaimant-Birth-Date
         ]
       )
-      a << shared_schemas.slice(*%I[address phone timezone #{nbs_key}])
+      a << shared_schemas.slice(*%W[address phone timezone #{nbs_key}])
     when 'contestable_issues'
       a << contestable_issues_schema('#/components/schemas')
       a << generic_schemas('#/components/schemas').slice(*%i[errorModel X-VA-SSN X-VA-File-Number])
-      a << shared_schemas.slice(*%I[#{nbs_key}])
+      a << shared_schemas.slice(*%W[#{nbs_key}])
     when 'legacy_appeals'
       a << legacy_appeals_schema('#/components/schemas')
       a << generic_schemas('#/components/schemas').slice(*%i[errorModel X-VA-SSN X-VA-File-Number])
-      a << shared_schemas.slice(*%I[#{nbs_key}])
+      a << shared_schemas.slice(*%W[#{nbs_key}])
     when nil
       a << hlr_v2_create_schemas
       a << hlr_v2_response_schemas('#/components/schemas')
@@ -362,7 +362,7 @@ class AppealsApi::RswagConfig
     }
 
     # ContestableIssuesShow is not part of the segmented HLR api, so skip it when we're generating segmented docs
-    return schemas if DocHelpers.wip_doc_enabled?(:segmented_apis, true)
+    return schemas unless DocHelpers.decision_reviews?
 
     schemas['hlrContestableIssuesShow'] = {
       'type': 'object',
@@ -505,13 +505,13 @@ class AppealsApi::RswagConfig
   end
 
   def nod_v2_create_schemas
-    if DocHelpers.wip_doc_enabled?(:segmented_apis)
+    if DocHelpers.decision_reviews?
+      parse_create_schema 'v2', '10182.json'
+    else
       nod_schema = parse_create_schema('v2', '10182_with_shared_refs.json', return_raw: true)
       {
         nodCreate: { type: 'object' }.merge!(nod_schema.slice(*%w[description properties required]))
       }
-    else
-      parse_create_schema 'v2', '10182.json'
     end
   end
 
@@ -680,13 +680,13 @@ class AppealsApi::RswagConfig
   end
 
   def sc_create_schemas
-    if DocHelpers.wip_doc_enabled?(:segmented_apis)
+    if DocHelpers.decision_reviews?
+      parse_create_schema 'v2', '200995.json'
+    else
       sc_schema = parse_create_schema('v2', '200995_with_shared_refs.json', return_raw: true)
       {
         scCreate: { type: 'object' }.merge!(sc_schema.slice(*%w[description properties required]))
       }
-    else
-      parse_create_schema 'v2', '200995.json'
     end
   end
 

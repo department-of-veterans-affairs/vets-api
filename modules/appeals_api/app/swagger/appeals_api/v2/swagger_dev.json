@@ -7976,7 +7976,6 @@
       },
       "nodCreate": {
         "type": "object",
-        "description": "JSON Schema for VA Form 10182",
         "properties": {
           "data": {
             "type": "object",
@@ -8000,8 +7999,14 @@
                         "$ref": "#/components/schemas/address"
                       },
                       "phone": {
-                        "$ref": "#/components/schemas/phone",
-                        "$comment": "the phone fields must not exceed 20 chars, when concatenated"
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/phone"
+                          },
+                          {
+                            "$comment": "the phone fields must not exceed 20 chars, when concatenated"
+                          }
+                        ]
                       },
                       "email": {
                         "type": "string",
@@ -8010,8 +8015,14 @@
                         "maxLength": 255
                       },
                       "timezone": {
-                        "description": "Veteran's timezone. Used for adding the current date to the signature according to the veteran's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date).",
-                        "$ref": "#/components/schemas/timezone"
+                        "allOf": [
+                          {
+                            "description": "Veteran's timezone. Used for adding the current date to the signature according to the veteran's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date)."
+                          },
+                          {
+                            "$ref": "#/components/schemas/timezone"
+                          }
+                        ]
                       }
                     },
                     "required": [
@@ -8043,8 +8054,14 @@
                         "$ref": "#/components/schemas/address"
                       },
                       "phone": {
-                        "$ref": "#/components/schemas/phone",
-                        "$comment": "the phone fields must not exceed 20 chars, when concatenated"
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/phone"
+                          },
+                          {
+                            "$comment": "the phone fields must not exceed 20 chars, when concatenated"
+                          }
+                        ]
                       },
                       "email": {
                         "type": "string",
@@ -8053,8 +8070,14 @@
                         "maxLength": 255
                       },
                       "timezone": {
-                        "description": "Veteran's timezone. Used for adding the current date to the signature according to the veteran's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date).",
-                        "$ref": "#/components/schemas/timezone"
+                        "allOf": [
+                          {
+                            "description": "Claimant's timezone. Used for adding the current date to the signature according to the claimant's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date)."
+                          },
+                          {
+                            "$ref": "#/components/schemas/timezone"
+                          }
+                        ]
                       }
                     },
                     "required": [
@@ -8437,7 +8460,6 @@
       },
       "scCreate": {
         "type": "object",
-        "description": "JSON Schema for VA Form 20-0995",
         "properties": {
           "data": {
             "type": "object",
@@ -8488,8 +8510,14 @@
                         "$ref": "#/components/schemas/address"
                       },
                       "phone": {
-                        "$ref": "#/components/schemas/phone",
-                        "$comment": "the phone fields must not exceed 20 chars, when concatenated"
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/phone"
+                          },
+                          {
+                            "$comment": "the phone fields must not exceed 20 chars, when concatenated"
+                          }
+                        ]
                       },
                       "email": {
                         "type": "string",
@@ -8498,8 +8526,14 @@
                         "maxLength": 255
                       },
                       "timezone": {
-                        "description": "Veteran's timezone. Used for adding the current date to the signature according to the veteran's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date).",
-                        "$ref": "#/components/schemas/timezone"
+                        "allOf": [
+                          {
+                            "description": "Veteran's timezone. Used for adding the current date to the signature according to the veteran's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date)."
+                          },
+                          {
+                            "$ref": "#/components/schemas/timezone"
+                          }
+                        ]
                       }
                     },
                     "required": [
@@ -8516,8 +8550,14 @@
                         "$ref": "#/components/schemas/address"
                       },
                       "phone": {
-                        "$ref": "#/components/schemas/phone",
-                        "$comment": "the phone fields must not exceed 20 chars, when concatenated"
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/phone"
+                          },
+                          {
+                            "$comment": "the phone fields must not exceed 20 chars, when concatenated"
+                          }
+                        ]
                       },
                       "email": {
                         "type": "string",
@@ -8526,8 +8566,14 @@
                         "maxLength": 255
                       },
                       "timezone": {
-                        "description": "Veteran's timezone. Used for adding the current date to the signature according to the veteran's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date).",
-                        "$ref": "#/components/schemas/timezone"
+                        "allOf": [
+                          {
+                            "description": "Claimant's timezone. Used for adding the current date to the signature according to the claimant's local time. If not specified, the current UTC date will be used for the signature (which may be ahead or behind the local date)."
+                          },
+                          {
+                            "$ref": "#/components/schemas/timezone"
+                          }
+                        ]
                       }
                     },
                     "required": [
