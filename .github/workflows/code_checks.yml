@@ -72,6 +72,7 @@ jobs:
           push: false
           load: true
           tags: vets-api:${{ env.DOCKER_IMAGE }}
+          no-cache: true
 
       - name: Setup Database
         run: |
