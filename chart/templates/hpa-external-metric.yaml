@@ -1,3 +1,4 @@
+#sum:puma.backlog{kube_cluster_name:dsva-vagov-{{ $root.Values.target_env }}-cluster,kube_deployment:{{ $name }}}.rollup(sum, 1)
 {{- $root := . -}}
 {{- range $name, $service := $root.Values.web.webServices }}
 {{- if $service.autoscaling.enabled }}
@@ -11,6 +12,6 @@ metadata:
     argocd.argoproj.io/hook: PreSync
     argocd.argoproj.io/sync-wave: "-1"
 spec:
-  query: sum:puma.backlog{kube_cluster_name:dsva-vagov-{{ $root.Values.target_env }}-cluster,kube_deployment:{{ $name }}}.rollup(sum, 1)
+  query: sum:puma.backlog{deployment_env:vagov-prod} by {autoscaling_group}.rollup(sum)
 {{- end }}
 {{- end }}
