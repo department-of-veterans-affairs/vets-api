@@ -23,7 +23,7 @@ module SAML
             '/p:Response/p:Status/p:StatusDetail',
             { 'p' => PROTOCOL }
           )
-          node.nil? ? nil : node.each_element_with_text.join(', ')
+          node&.each_element_with_text&.join(', ')
         end
       end
     end
