@@ -196,7 +196,7 @@ describe Common::Exceptions::DetailedSchemaErrors do
   end
 
   context 'extra data' do
-    before { data[:not_in_schema] = Faker::Lorem.sentence }
+    before { data['not_in_schema'] = Faker::Lorem.sentence }
 
     it 'points to problem source' do
       expect(pointer).to eq '/not_in_schema'
