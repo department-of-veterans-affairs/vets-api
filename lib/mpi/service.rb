@@ -118,11 +118,30 @@ module MPI
     end
     # rubocop:enable Metrics/MethodLength
 
-    def update_profile(user_identity)
+    # rubocop:disable Metrics/ParameterLists
+    def update_profile(last_name:,
+                       ssn:,
+                       birth_date:,
+                       icn:,
+                       email:,
+                       address:,
+                       idme_uuid:,
+                       logingov_uuid:,
+                       edipi:,
+                       first_name:)
       with_monitoring do
         raw_response = perform(
           :post, '',
-          create_update_profile_message(user_identity),
+          MPI::Messages::UpdateProfileMessage.new(last_name: last_name,
+                                                  ssn: ssn,
+                                                  birth_date: birth_date,
+                                                  icn: icn,
+                                                  email: email,
+                                                  address: address,
+                                                  idme_uuid: idme_uuid,
+                                                  logingov_uuid: logingov_uuid,
+                                                  edipi: edipi,
+                                                  first_name: first_name).perform,
           soapaction: Constants::UPDATE_PROFILE
         )
         MPI::Services::AddPersonResponseCreator.new(type: Constants::UPDATE_PROFILE_TYPE,
@@ -131,6 +150,7 @@ module MPI
     rescue *CONNECTION_ERRORS => e
       MPI::Services::AddPersonResponseCreator.new(type: Constants::UPDATE_PROFILE_TYPE, error: e).perform
     end
+    # rubocop:enable Metrics/ParameterLists
 
     def self.service_is_up?
       last_mvi_outage = Breakers::Outage.find_latest(service: MPI::Configuration.instance.breakers_service)
@@ -171,21 +191,6 @@ module MPI
       when MPI::Errors::FailedRequestError
         log_exception_to_sentry(error, context)
       end
-    end
-
-    def create_update_profile_message(user_identity)
-      raise Common::Exceptions::ValidationErrors, user_identity unless user_identity.valid?
-
-      MPI::Messages::UpdateProfileMessage.new(last_name: user_identity.last_name,
-                                              ssn: user_identity.ssn,
-                                              birth_date: user_identity.birth_date,
-                                              icn: user_identity.icn,
-                                              email: user_identity.email,
-                                              address: user_identity.address,
-                                              idme_uuid: user_identity.idme_uuid,
-                                              logingov_uuid: user_identity.logingov_uuid,
-                                              edipi: user_identity.edipi,
-                                              first_name: user_identity.first_name).perform
     end
 
     def create_profile_message(user_identity,
