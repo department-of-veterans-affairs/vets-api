@@ -18,7 +18,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
   end
 
   describe '.perform_async, disabled' do
-    # TODO: add tests for this, just make sure it doesnt do anything if flipper disabled
+    # Make sure it doesnt do anything if flipper disabled
     before do
       Settings.form526_backup.enabled = false
     end
@@ -41,8 +41,8 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
         Settings.form526_backup.enabled = true
       end
 
-      let!(:upload_data) { submission.form[Form526Submission::FORM_526_UPLOADS] }
       let!(:submission) { create :form526_submission, :with_everything }
+      let!(:upload_data) { submission.form[Form526Submission::FORM_526_UPLOADS] }
 
       context 'successfully' do
         before do
@@ -116,6 +116,51 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
           error = job_status.bgjob_errors
           expect(error.first.last['error_class']).to eq('StandardError')
           expect(error.first.last['error_message']).to eq('foo')
+        end
+      end
+    end
+  end
+
+  describe '.perform_async, enabled, and converts non-pdf evidence to pdf' do
+    before do
+      Settings.form526_backup.submission_method = 'single'
+      Settings.form526_backup.enabled = true
+    end
+
+    let!(:submission) { create :form526_submission, :with_non_pdf_uploads }
+    let!(:upload_data) { submission.form[Form526Submission::FORM_526_UPLOADS] }
+
+    context 'converts non-pdf files to pdf' do
+      before do
+        upload_data.each do |ud|
+          filename = ud['name']
+          file = Rack::Test::UploadedFile.new("spec/fixtures/files/#{filename}",
+                                              "application/#{File.basename(filename)}")
+          sea = SupportingEvidenceAttachment.find_or_create_by(guid: ud['confirmationCode'])
+          sea.set_file_data!(file)
+          sea.save!
+        end
+      end
+
+      it 'converts and submits' do
+        VCR.use_cassette('form526_backup/200_lighthouse_intake_upload_location') do
+          VCR.use_cassette('form526_backup/200_evss_get_pdf') do
+            VCR.use_cassette('form526_backup/200_lighthouse_intake_upload') do
+              jid = subject.perform_async(submission.id)
+              last = subject.jobs.last
+              jid_from_jobs = last['jid']
+              expect(jid).to eq(jid_from_jobs)
+              described_class.drain
+              expect(jid).not_to be_empty
+              job_status = Form526JobStatus.last
+              expect(job_status.form526_submission_id).to eq(submission.id)
+              expect(job_status.job_class).to eq('BackupSubmission')
+              expect(job_status.job_id).to eq(jid)
+              expect(job_status.status).to eq('success')
+              submission = Form526Submission.last
+              expect(submission.backup_submitted_claim_id).not_to be(nil)
+            end
+          end
         end
       end
     end

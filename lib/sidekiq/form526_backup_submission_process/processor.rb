@@ -7,6 +7,7 @@ require 'evss/disability_compensation_auth_headers'
 require 'evss/disability_compensation_form/form4142'
 require 'evss/disability_compensation_form/service'
 require 'form526_backup_submission/service'
+require 'form526_backup_submission/utilities/convert_to_pdf'
 require 'decision_review_v1/utilities/form_4142_processor'
 require 'central_mail/datestamp_pdf'
 require 'pdf_fill/filler'
@@ -121,9 +122,12 @@ module Sidekiq
       end
 
       def generate_attachments(evidence_files, other_payloads)
-        evidence_files.concat(other_payloads.map do |op|
-                                { file: op[:file], file_name: "#{op[:metadata][:docType]}.pdf" }
-                              end)
+        return evidence_files if other_payloads.nil?
+
+        other_payloads.each do |op|
+          evidence_files << { file: op[:file], file_name: "#{op[:metadata][:docType]}.pdf" }
+        end
+        evidence_files
       end
 
       def submit_as_one(initial_payload, other_payloads = nil)
@@ -135,7 +139,7 @@ module Sidekiq
             { file: doc[:file], file_name: "evidence_#{i + 1}.pdf" }
           end
         end
-        attachments = other_payloads.nil? ? [] : generate_attachments(evidence_files, other_payloads)
+        attachments = generate_attachments(evidence_files, other_payloads)
         log_info(message: 'Uploading single fallback payload to Lighthouse', upload_type: FORM_526_DOC_TYPE,
                  uuid: initial_upload_uuid)
         lighthouse_service.upload_doc(
@@ -223,7 +227,6 @@ module Sidekiq
         uploads.each do |upload|
           guid = upload['confirmationCode']
           sea = SupportingEvidenceAttachment.find_by(guid: guid)
-          # file_body = sea&.get_file&.read
           file = sea&.get_file
           raise ArgumentError, "supporting evidence attachment with guid #{guid} has no file data" if file.nil?
 
@@ -260,6 +263,20 @@ module Sidekiq
         }
       end
 
+      def convert_docs_to_pdf
+        klass = Form526BackupSubmission::Utilities::ConvertToPdf
+        docs.each do |doc|
+          actual_path_to_file = @lighthouse_service.get_file_path_from_objs(doc[:file])
+          file_type_extension = File.extname(actual_path_to_file).downcase
+          if klass::CAN_CONVERT.include?(file_type_extension)
+            doc[:file] = klass.new(actual_path_to_file).converted_filename
+            # delete old pulled down file after converted (in prod, dont delete spec/test files),
+            # dont care about it anymore, the converted file gets deleted later after successful submission
+            Common::FileHelpers.delete_file_if_exists(actual_path_to_file) if ::Rails.env.production?
+          end
+        end
+      end
+
       def gather_docs!
         get_form526_pdf # 21-526EZ
         get_uploads      if submission.form[FORM_526_UPLOADS]
@@ -267,8 +284,8 @@ module Sidekiq
         get_form0781_pdf if submission.form[FORM_0781]
         get_form8940_pdf if submission.form[FORM_8940]
         get_bdd_pdf      if bdd?
-        # Not going to support flashes since this JOB could have already worked and be successful
-        # Plus if the error is in BGS it wont work anyway
+
+        convert_docs_to_pdf
       end
     end
   end
