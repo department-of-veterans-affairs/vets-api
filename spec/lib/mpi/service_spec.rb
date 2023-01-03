@@ -445,46 +445,44 @@ describe MPI::Service do
   end
 
   describe '.update_profile' do
-    subject { mpi_service.update_profile(user) }
+    subject do
+      mpi_service.update_profile(last_name: last_name,
+                                 ssn: ssn,
+                                 birth_date: birth_date,
+                                 icn: icn,
+                                 email: email,
+                                 address: address,
+                                 idme_uuid: idme_uuid,
+                                 logingov_uuid: logingov_uuid,
+                                 edipi: edipi,
+                                 first_name: first_name)
+    end
 
     let(:statsd_caller) { 'update_profile' }
+    let(:last_name) { 'some-last-name' }
+    let(:ssn) { 'some-ssn' }
+    let(:birth_date) { '19800202' }
+    let(:icn) { 'some-icn' }
+    let(:email) { 'some-email' }
+    let(:address) do
+      {
+        street: 'some-street',
+        state: 'some-state',
+        city: 'some-city',
+        postal_code: 'some-postal-code',
+        country: 'some-country'
+      }
+    end
+    let(:idme_uuid) { 'some-idme-uuid' }
+    let(:logingov_uuid) { 'some-logingov-uuid' }
+    let(:edipi) { 'some-edipi' }
+    let(:first_name) { 'some-first-name' }
 
     context 'malformed request' do
-      let(:user) do
-        build(:user,
-              :loa3,
-              ssn: ssn,
-              first_name: first_name,
-              last_name: last_name,
-              birth_date: birth_date,
-              address: address,
-              icn: icn,
-              idme_uuid: idme_uuid)
-      end
-      let(:ssn) { 796_111_863 }
       let(:first_name) { nil }
-      let(:last_name) { 'lincoln' }
-      let(:birth_date) { '18090212' }
-      let(:icn) { '1013677101V363970' }
-      let(:address) do
-        {
-          street: '1600 Pennsylvania Ave',
-          city: 'Washington',
-          state: 'DC',
-          country: 'USA',
-          postal_code: '20500'
-        }
-      end
-      let(:idme_uuid) { 'b2fab2b56af045e1a9e2394347af91ef' }
-      let(:expected_response_codes) { { idme_uuid: idme_uuid } }
       let(:missing_keys) { [:first_name] }
-      let(:expected_sentry_warning) do
-        "MVI update_profile request error: Required values missing: #{missing_keys}"
-      end
       let(:expected_error) { MPI::Errors::ArgumentError }
       let(:expected_error_message) { "Required values missing: #{missing_keys}" }
-
-      before { stub_mpi(build(:mvi_profile, given_names: [first_name])) }
 
       it 'raises a required values missing error' do
         expect { subject }.to raise_error(expected_error, expected_error_message)
@@ -492,25 +490,8 @@ describe MPI::Service do
     end
 
     context 'valid request' do
-      let(:user) do
-        build(:user,
-              :loa3,
-              ssn: ssn,
-              first_name: first_name,
-              last_name: last_name,
-              email: email,
-              birth_date: birth_date,
-              icn: icn,
-              idme_uuid: idme_uuid)
-      end
-      let(:ssn) { 796_111_863 }
-      let(:first_name) { 'abraham' }
-      let(:last_name) { 'lincoln' }
-      let(:birth_date) { '18090212' }
-      let(:icn) { '1013677101V363970' }
-      let(:email) { 'some-email' }
-      let(:idme_uuid) { 'b2fab2b56af045e1a9e2394347af91ef' }
       let(:transaction_id) { nil }
+      let(:idme_uuid) { 'b2fab2b56af045e1a9e2394347af91ef' }
       let(:parsed_response) { { idme_uuid: idme_uuid, transaction_id: transaction_id } }
 
       before { VCR.insert_cassette('mpi/update_profile/update_profile_success') }

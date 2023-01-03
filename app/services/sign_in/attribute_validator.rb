@@ -86,7 +86,16 @@ module SignIn
       return if auto_uplevel
 
       user_attribute_mismatch_checks
-      update_profile_response = mpi_service.update_profile(user_identity_from_attributes)
+      update_profile_response = mpi_service.update_profile(last_name: last_name,
+                                                           ssn: ssn,
+                                                           birth_date: birth_date,
+                                                           icn: mhv_icn,
+                                                           email: credential_email,
+                                                           address: address,
+                                                           idme_uuid: idme_uuid,
+                                                           logingov_uuid: logingov_uuid,
+                                                           edipi: edipi,
+                                                           first_name: first_name)
       unless update_profile_response&.ok?
         handle_error('User MPI record cannot be updated', Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE)
       end
