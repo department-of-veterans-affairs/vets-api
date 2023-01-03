@@ -7,9 +7,10 @@ module AppealsApi
     def build(date_from:, date_to:, recipients:, subject:)
       report = AppealsApi::StatsReport.new(date_from, date_to)
       mail(
+        content_type: 'text/html',
         to: recipients,
         subject: subject,
-        body: report.text
+        body: report.text.lines.join('<br>')
       )
     end
   end

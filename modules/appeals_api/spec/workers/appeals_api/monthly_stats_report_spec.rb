@@ -20,25 +20,26 @@ describe AppealsApi::MonthlyStatsReport do
       end
 
       it 'does not build a report without recipients' do
-        with_settings(Settings.modules_appeals_api.reports.monthly_stats, recipients: []) do
-          expect(AppealsApi::StatsReportMailer).not_to receive(:build)
+        allow(YAML).to receive(:load_file).and_return({ 'common' => %w[] })
+        messager = instance_double('AppealsApi::Slack::Messager')
+        allow(AppealsApi::Slack::Messager).to receive(:new).and_return(messager)
+        expect(messager).to receive(:notify!)
+        expect(AppealsApi::StatsReportMailer).not_to receive(:build)
 
-          described_class.new.perform
-        end
+        described_class.new.perform
       end
 
       it 'sends a stats report for the past month to the recipients by default' do
+        allow(YAML).to receive(:load_file).and_return({ 'common' => recipients })
         Timecop.freeze(end_date) do
-          with_settings(Settings.modules_appeals_api.reports.monthly_stats, recipients: recipients) do
-            expect(AppealsApi::StatsReportMailer).to receive(:build).with(
-              date_from: (end_date - 1.month).beginning_of_day,
-              date_to: end_date.beginning_of_day,
-              recipients: recipients,
-              subject: 'Lighthouse appeals stats report for month starting 2021-12-02'
-            ).and_call_original
+          expect(AppealsApi::StatsReportMailer).to receive(:build).with(
+            date_from: (end_date - 1.month).beginning_of_day,
+            date_to: end_date.beginning_of_day,
+            recipients: recipients,
+            subject: 'Lighthouse appeals stats report for month starting 2021-12-02'
+          ).and_call_original
 
-            described_class.new.perform
-          end
+          described_class.new.perform
         end
       end
     end

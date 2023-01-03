@@ -3,13 +3,14 @@
 class AppealsApi::MonthlyStatsReport
   include Sidekiq::Worker
   include Sidekiq::MonitoredWorker
+  include AppealsApi::ReportRecipientsReader
 
   sidekiq_options retry: 20, unique_for: 3.weeks
 
   def perform(end_date = Time.now.iso8601)
     return unless enabled?
 
-    recipients = Settings.modules_appeals_api.reports.monthly_stats&.recipients || []
+    recipients = load_recipients(:stats_report_monthly)
     return if recipients.empty?
 
     date_to = Time.zone.parse(end_date).beginning_of_day
