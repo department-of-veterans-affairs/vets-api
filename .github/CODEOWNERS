@@ -100,12 +100,15 @@ spec/fixtures/medical_copays @department-of-veterans-affairs/vsa-debt-resolution
 spec/support/vcr_cassettes/debts @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 
 # Benefits Intake API product
-modules/vba_documents @department-of-veterans-affairs/lighthouse-caracal @department-of-veterans-affairs/backend-review-group
+modules/vba_documents @department-of-veterans-affairs/lighthouse-caracal @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/backend-review-group
 
 # Benefits APIs shared services and utilities
-lib/central_mail @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-caracal
-lib/pdf_info.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-caracal
-lib/pdf_utilities/pdf_validator.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-caracal
-spec/lib/central_mail @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-caracal
-spec/lib/pdf_info @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-caracal
-spec/lib/pdf_utilities/pdf_validator @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-caracal
+lib/central_mail @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-caracal @department-of-veterans-affairs/lighthouse-banana-peels
+lib/pdf_info.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-caracal @department-of-veterans-affairs/lighthouse-banana-peels
+lib/pdf_utilities/pdf_validator.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-caracal @department-of-veterans-affairs/lighthouse-banana-peels
+spec/lib/central_mail @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-caracal @department-of-veterans-affairs/lighthouse-banana-peels
+spec/lib/pdf_info @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-caracal @department-of-veterans-affairs/lighthouse-banana-peels
+spec/lib/pdf_utilities/pdf_validator @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-caracal @department-of-veterans-affairs/lighthouse-banana-peels
+
+# Decision Reviews (Appeals) API product
+modules/appeals_api @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-banana-peels
