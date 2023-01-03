@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# rubocop:disable RSpec/ExampleWording
+
 require 'rails_helper'
 require 'hca/service'
 
@@ -223,3 +225,5 @@ describe HCA::Service do
     end
   end
 end
+
+# rubocop:enable RSpec/ExampleWording
