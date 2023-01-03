@@ -22,7 +22,7 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:code_challenge) { { code_challenge: 'some-code-challenge' } }
     let(:code_challenge_method) { { code_challenge_method: 'some-code-challenge-method' } }
     let(:client_id) { { client_id: client_id_value } }
-    let(:client_id_value) { 'some-client-id' }
+    let(:client_id_value) { SignIn::Constants::Auth::WEB_CLIENT }
     let(:client_state) { {} }
     let(:client_state_minimum_length) { SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH }
     let(:type) { { type: type_value } }
@@ -68,7 +68,7 @@ RSpec.describe V0::SignInController, type: :controller do
       end
 
       context 'and client_id is a web based setting' do
-        let(:client_id_value) { SignIn::Constants::ClientConfig::COOKIE_AUTH.first }
+        let(:client_id_value) { SignIn::Constants::Auth::WEB_CLIENT }
         let(:expected_error_status) { :redirect }
         let(:expected_redirect_params) do
           { auth: 'fail', code: SignIn::Constants::ErrorCode::INVALID_REQUEST, request_id: request_id }.to_query
@@ -98,7 +98,7 @@ RSpec.describe V0::SignInController, type: :controller do
       end
 
       context 'and client_id is an api based setting' do
-        let(:client_id_value) { SignIn::Constants::ClientConfig::API_AUTH.first }
+        let(:client_id_value) { SignIn::Constants::Auth::MOBILE_CLIENT }
 
         it_behaves_like 'api based error response'
       end
@@ -126,7 +126,7 @@ RSpec.describe V0::SignInController, type: :controller do
     end
 
     context 'when client_id is in CLIENT_IDS' do
-      let(:client_id_value) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
+      let(:client_id_value) { SignIn::Constants::Auth::MOBILE_CLIENT }
 
       context 'when type param is not given' do
         let(:type) { {} }
@@ -487,7 +487,7 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:statsd_callback_failure) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE }
 
       context 'and client_id is a web based setting' do
-        let(:client_id) { SignIn::Constants::ClientConfig::COOKIE_AUTH.first }
+        let(:client_id) { SignIn::Constants::Auth::WEB_CLIENT }
         let(:expected_error_status) { :redirect }
         let(:expected_redirect_params) do
           { auth: 'fail', code: error_code, request_id: request_id }.to_query
@@ -521,7 +521,7 @@ RSpec.describe V0::SignInController, type: :controller do
       end
 
       context 'and client_id is an api based setting' do
-        let(:client_id) { SignIn::Constants::ClientConfig::API_AUTH.first }
+        let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
 
         it_behaves_like 'api based error response'
       end
@@ -580,7 +580,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:code_challenge) { Base64.urlsafe_encode64('some-code-challenge') }
         let(:code_challenge_method) { SignIn::Constants::Auth::CODE_CHALLENGE_METHOD }
         let(:acr) { SignIn::Constants::Auth::ACR_VALUES.first }
-        let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
+        let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
         let(:type) { SignIn::Constants::Auth::CSP_TYPES.first }
         let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
 
@@ -1125,7 +1125,7 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:code_challenge) { Base64.urlsafe_encode64('some-code-challenge') }
       let(:code_challenge_method) { SignIn::Constants::Auth::CODE_CHALLENGE_METHOD }
       let(:acr) { SignIn::Constants::Auth::ACR_VALUES.first }
-      let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
+      let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
       let(:type) { SignIn::Constants::Auth::CSP_TYPES.first }
       let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
 
@@ -1241,7 +1241,7 @@ RSpec.describe V0::SignInController, type: :controller do
                  client_id: client_id,
                  user_verification_id: user_verification_id)
         end
-        let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
+        let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
         let(:code_challenge) { 'some-code-challenge' }
 
         context 'and code_verifier does not match expected code_challenge value' do
@@ -1270,7 +1270,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
             context 'and code_container matched with code does match a user account' do
               let(:type) { user.identity.sign_in[:service_name] }
-              let(:client_id) { SignIn::Constants::ClientConfig::COOKIE_AUTH.first }
+              let(:client_id) { SignIn::Constants::Auth::WEB_CLIENT }
               let(:client_id_value) { client_id }
               let(:loa) { user.identity.loa[:current] }
               let(:user_verification_id) { user_verification.id }
@@ -1290,7 +1290,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
               context 'and authentication is for a session with client id that is api auth' do
                 let!(:user) { create(:user, :api_auth, uuid: user_uuid) }
-                let(:client_id) { SignIn::Constants::ClientConfig::API_AUTH.first }
+                let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
 
                 it 'returns expected body with access token' do
                   expect(JSON.parse(subject.body)['data']).to have_key('access_token')
@@ -1378,7 +1378,7 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:validated_credential) do
       create(:validated_credential, user_verification: user_verification, client_id: client_id)
     end
-    let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
+    let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
 
     before { allow(Rails.logger).to receive(:info) }
 
@@ -1407,7 +1407,7 @@ RSpec.describe V0::SignInController, type: :controller do
     end
 
     context 'when session has been created with a client id that is anti csrf enabled' do
-      let(:client_id) { SignIn::Constants::ClientConfig::ANTI_CSRF_ENABLED.first }
+      let(:client_id) { SignIn::Constants::Auth::WEB_CLIENT }
       let(:session_container) do
         SignIn::SessionCreator.new(validated_credential: validated_credential).perform
       end
@@ -1552,7 +1552,7 @@ RSpec.describe V0::SignInController, type: :controller do
         end
 
         context 'and refresh token is for a session with client id that is api auth' do
-          let(:client_id) { SignIn::Constants::ClientConfig::API_AUTH.first }
+          let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
           let!(:user) { create(:user, :api_auth, uuid: user_uuid) }
 
           it 'returns expected body with access token' do
@@ -1579,7 +1579,7 @@ RSpec.describe V0::SignInController, type: :controller do
         end
 
         context 'and refresh token is for a session with client id that is cookie auth' do
-          let(:client_id) { SignIn::Constants::ClientConfig::COOKIE_AUTH.first }
+          let(:client_id) { SignIn::Constants::Auth::WEB_CLIENT }
           let(:access_token_cookie_name) { SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME }
           let(:refresh_token_cookie_name) { SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME }
 
@@ -1650,7 +1650,7 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:validated_credential) do
       create(:validated_credential, user_verification: user_verification, client_id: client_id)
     end
-    let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
+    let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
 
     shared_examples 'error response' do
       let(:expected_error_json) { { 'errors' => expected_error } }
@@ -1682,7 +1682,7 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:type) { user.identity.sign_in[:service_name] }
       let(:client_id_value) { user.identity.sign_in[:client_id] }
       let(:loa) { user.identity.loa[:current] }
-      let(:client_id) { SignIn::Constants::ClientConfig::ANTI_CSRF_ENABLED.first }
+      let(:client_id) { SignIn::Constants::Auth::WEB_CLIENT }
       let(:session_container) do
         SignIn::SessionCreator.new(validated_credential: validated_credential).perform
       end
@@ -1882,7 +1882,7 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:access_token_object) do
         create(:access_token, session_handle: oauth_session.handle)
       end
-      let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid, logingov_uuid: logingov_uuid) }
+      let!(:user) { create(:user, :loa3, :api_auth, uuid: access_token_object.user_uuid, logingov_uuid: logingov_uuid) }
       let(:statsd_success) { SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_SUCCESS }
       let(:logingov_uuid) { 'some-logingov-uuid' }
       let(:expected_log) { '[SignInService] [V0::SignInController] logout' }

@@ -19,13 +19,14 @@ RSpec.describe SignIn::AccessToken, type: :model do
 
   let(:session_handle) { create(:oauth_session).handle }
   let(:user_uuid) { create(:user_account).id }
-  let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
+  let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
   let(:refresh_token_hash) { SecureRandom.hex }
   let(:parent_refresh_token_hash) { SecureRandom.hex }
   let(:anti_csrf_token) { SecureRandom.hex }
   let(:last_regeneration_time) { Time.zone.now }
   let(:version) { SignIn::Constants::AccessToken::CURRENT_VERSION }
-  let(:expiration_time) { Time.zone.now + SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES.minutes }
+  let(:validity_length) { SignIn::ClientConfig.new(client_id: client_id).access_token_duration }
+  let(:expiration_time) { Time.zone.now + validity_length }
   let(:created_time) { Time.zone.now }
 
   describe 'validations' do
@@ -48,6 +49,7 @@ RSpec.describe SignIn::AccessToken, type: :model do
 
       context 'when client_id is nil' do
         let(:client_id) { nil }
+        let(:validity_length) { 5.minutes }
         let(:expected_error_message) { "Validation failed: Client can't be blank, Client is not included in the list" }
         let(:expected_error) { ActiveModel::ValidationError }
 
@@ -58,6 +60,7 @@ RSpec.describe SignIn::AccessToken, type: :model do
 
       context 'when client_id is arbitrary' do
         let(:client_id) { 'some-arbitrary-client-id' }
+        let(:validity_length) { 5.minutes }
         let(:expected_error_message) { 'Validation failed: Client is not included in the list' }
         let(:expected_error) { ActiveModel::ValidationError }
 
@@ -158,7 +161,7 @@ RSpec.describe SignIn::AccessToken, type: :model do
         let(:expected_expiration_time) { Time.zone.now + validity_length }
 
         context 'and client_id is in a short token expiration defined config' do
-          let(:client_id) { SignIn::Constants::ClientConfig::SHORT_TOKEN_EXPIRATION.first }
+          let(:client_id) { SignIn::Constants::Auth::WEB_CLIENT }
           let(:validity_length) { SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES.minutes }
 
           it 'sets expired time to VALIDITY_LENGTH_SHORT_MINUTES from now' do
@@ -167,7 +170,7 @@ RSpec.describe SignIn::AccessToken, type: :model do
         end
 
         context 'and client_id is in a long token expiration defined config' do
-          let(:client_id) { SignIn::Constants::ClientConfig::LONG_TOKEN_EXPIRATION.first }
+          let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
           let(:validity_length) { SignIn::Constants::AccessToken::VALIDITY_LENGTH_LONG_MINUTES.minutes }
 
           it 'sets expired time to VALIDITY_LENGTH_LONG_MINUTES from now' do

@@ -5,7 +5,7 @@ FactoryBot.define do
     skip_create
 
     session_handle { create(:oauth_session).handle }
-    client_id { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
+    client_id { SignIn::Constants::Auth::MOBILE_CLIENT }
     user_uuid { create(:user_account).id }
     refresh_token_hash { SecureRandom.hex }
     parent_refresh_token_hash { SecureRandom.hex }

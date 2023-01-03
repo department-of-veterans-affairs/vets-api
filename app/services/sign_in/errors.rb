@@ -36,7 +36,6 @@ module SignIn
     class CodeVerifierMalformedError < StandardError; end
     class UserAccountNotFoundError < StandardError; end
     class SessionNotFoundError < StandardError; end
-    class InvalidClientIdError < StandardError; end
     class InvalidAcrError < StandardError; end
     class InvalidTypeError < StandardError; end
     class InvalidCredentialLevelError < StandardError; end

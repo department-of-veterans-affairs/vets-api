@@ -30,7 +30,7 @@ RSpec.describe SignIn::UserCreator do
              type: type)
     end
     let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
-    let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
+    let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
     let(:code_challenge) { 'some-code-challenge' }
     let(:type) { service_name }
     let(:current_ial) { IAL::TWO }

@@ -9,7 +9,7 @@ module SignIn
     validates :hashed_refresh_token, uniqueness: true, presence: true
     validates :refresh_expiration, presence: true
     validates :refresh_creation, presence: true
-    validates :client_id, inclusion: { in: Constants::ClientConfig::CLIENT_IDS, allow_nil: false }
+    validates :client_id, inclusion: { in: Constants::Auth::CLIENT_IDS, allow_nil: false }
 
     def active?
       refresh_valid? && session_max_valid?

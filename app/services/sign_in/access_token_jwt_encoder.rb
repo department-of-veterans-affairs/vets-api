@@ -41,14 +41,7 @@ module SignIn
     end
 
     def audience
-      case access_token.client_id
-      when Constants::ClientConfig::MOBILE_CLIENT
-        Constants::ClientConfig::MOBILE_AUDIENCE
-      when Constants::ClientConfig::MOBILE_TEST_CLIENT
-        Constants::ClientConfig::MOBILE_TEST_AUDIENCE
-      when Constants::ClientConfig::WEB_CLIENT
-        Constants::ClientConfig::WEB_AUDIENCE
-      end
+      SignIn::ClientConfig.new(client_id: access_token.client_id).access_token_audience
     end
   end
 end

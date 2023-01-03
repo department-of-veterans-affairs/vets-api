@@ -16,8 +16,6 @@ module SignIn
         {}
       elsif api_authentication_client?
         token_json_response
-      else
-        raise Errors::InvalidClientIdError, message: 'Client id is not valid'
       end
     end
 
@@ -78,15 +76,15 @@ module SignIn
     end
 
     def cookie_authentication_client?
-      Constants::ClientConfig::COOKIE_AUTH.include?(client_id)
+      client_config.cookie_auth?
     end
 
     def api_authentication_client?
-      Constants::ClientConfig::API_AUTH.include?(client_id)
+      client_config.api_auth?
     end
 
     def anti_csrf_enabled_client?
-      Constants::ClientConfig::ANTI_CSRF_ENABLED.include?(client_id)
+      client_config.anti_csrf?
     end
 
     def session_expiration
@@ -112,6 +110,10 @@ module SignIn
 
     def client_id
       @client_id ||= session_container.client_id
+    end
+
+    def client_config
+      @client_config ||= SignIn::ClientConfig.new(client_id: client_id)
     end
   end
 end
