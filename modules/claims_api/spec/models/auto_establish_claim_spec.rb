@@ -533,7 +533,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
   describe '#set_file_data!' do
     it 'stores the file_data and give me a full evss document' do
       file = Rack::Test::UploadedFile.new(
-        "#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"
+        ::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
       )
 
       auto_form.set_file_data!(file, 'docType')
@@ -749,7 +749,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
         it "does not erase the 'file_data' attribute" do
           auto_form = build(:auto_established_claim, :status_established, auth_headers: { some: 'data' })
           file = Rack::Test::UploadedFile.new(
-            "#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"
+            ::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
           )
 
           auto_form.set_file_data!(file, 'docType')

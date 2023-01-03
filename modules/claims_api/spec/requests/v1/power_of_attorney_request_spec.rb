@@ -158,7 +158,9 @@ RSpec.describe 'Power of Attorney ', type: :request do
                 allow_any_instance_of(BGS::PersonWebService)
                   .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
                 params = JSON.parse data
-                base64_signature = File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/signature_b64.txt")
+                base64_signature = File.read(::Rails.root.join(
+                  *'/modules/claims_api/spec/fixtures/signature_b64.txt'.split('/')
+                ).to_s)
                 signatures = { veteran: base64_signature, representative: base64_signature }
                 params['data']['attributes']['signatures'] = signatures
 
@@ -305,10 +307,12 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
       let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
       let(:binary_params) do
-        { attachment: Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
+        { attachment: Rack::Test::UploadedFile.new(::Rails.root.join(
+          *'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')
+        ).to_s) }
       end
       let(:base64_params) do
-        { attachment: File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf") }
+        { attachment: File.read(::Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s) }
       end
 
       it 'submit binary and change the document status' do

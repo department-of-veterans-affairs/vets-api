@@ -246,7 +246,8 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
           let(:scopes) { %w[claim.read claim.write] }
           let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
           let(:attachment) do
-            Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf")
+            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                     .to_s)
           end
           let(:id) { power_of_attorney.id }
 
@@ -284,7 +285,8 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
           let(:scopes) { %w[claim.read claim.write] }
           let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
           let(:attachment) do
-            Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf")
+            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                     .to_s)
           end
           let(:id) { power_of_attorney.id }
           let(:Authorization) { nil }
@@ -320,7 +322,8 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
 
           let(:scopes) { %w[claim.read claim.write] }
           let(:attachment) do
-            Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf")
+            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                     .to_s)
           end
           let(:id) { 999_999_999 }
 
@@ -356,7 +359,8 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
           let(:scopes) { %w[claim.read claim.write] }
           let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
           let(:attachment) do
-            Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf")
+            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                     .to_s)
           end
           let(:id) { power_of_attorney.id }
 
@@ -393,7 +397,8 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
           let(:scopes) { %w[claim.read claim.write] }
           let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
           let(:attachment) do
-            Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf")
+            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                     .to_s)
           end
           let(:id) { power_of_attorney.id }
 

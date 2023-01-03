@@ -298,7 +298,8 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
           let(:scopes) { %w[claim.write] }
           let(:auto_claim) { create(:auto_established_claim) }
           let(:attachment) do
-            Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf")
+            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                     .to_s)
           end
           let(:id) { auto_claim.id }
 
@@ -363,7 +364,8 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
 
           let(:scopes) { %w[claim.write] }
           let(:attachment) do
-            Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf")
+            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                     .to_s)
           end
           let(:id) { 999_999_999 }
 
@@ -399,7 +401,8 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
           let(:scopes) { %w[claim.write] }
           let(:auto_claim) { create(:auto_established_claim) }
           let(:attachment) do
-            Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf")
+            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                     .to_s)
           end
           let(:id) { auto_claim.id }
           let(:Authorization) { nil }
@@ -436,7 +439,8 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
           let(:scopes) { %w[claim.write] }
           let(:auto_claim) { create(:auto_established_claim, :autoCestPDFGeneration_disabled) }
           let(:attachment) do
-            Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf")
+            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                     .to_s)
           end
           let(:id) { auto_claim.id }
 
@@ -684,10 +688,12 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
           let(:scopes) { %w[claim.write] }
           let(:auto_claim) { create(:auto_established_claim) }
           let(:attachment1) do
-            Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf")
+            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                     .to_s)
           end
           let(:attachment2) do
-            Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf")
+            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                     .to_s)
           end
           let(:id) { auto_claim.id }
 
@@ -723,10 +729,12 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
           let(:scopes) { %w[claim.write] }
           let(:auto_claim) { create(:auto_established_claim) }
           let(:attachment1) do
-            Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf")
+            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                     .to_s)
           end
           let(:attachment2) do
-            Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf")
+            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                     .to_s)
           end
           let(:id) { auto_claim.id }
           let(:Authorization) { nil }
@@ -762,10 +770,12 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
 
           let(:scopes) { %w[claim.write] }
           let(:attachment1) do
-            Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf")
+            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                     .to_s)
           end
           let(:attachment2) do
-            Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf")
+            Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                     .to_s)
           end
           let(:id) { 999_999_999 }
 

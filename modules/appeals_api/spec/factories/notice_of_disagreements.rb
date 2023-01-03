@@ -5,10 +5,12 @@ FactoryBot.define do
     id { SecureRandom.uuid }
     api_version { 'V1' }
     auth_headers do
-      JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/v1/valid_10182_headers.json"
+      JSON.parse(File
+        .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v1/valid_10182_headers.json'.split('/')).to_s))
     end
     form_data do
-      JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/v1/valid_10182.json"
+      JSON.parse(File
+        .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v1/valid_10182.json'.split('/')).to_s))
     end
     board_review_option { 'hearing' } # set manually in the controller
     trait :status_error do
@@ -23,10 +25,13 @@ FactoryBot.define do
     id { SecureRandom.uuid }
     api_version { 'V1' }
     auth_headers do
-      JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/v1/valid_10182_headers_minimum.json"
+      JSON.parse(File
+        .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v1/valid_10182_headers_minimum.json'.split('/'))
+                          .to_s))
     end
     form_data do
-      JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/v1/valid_10182_minimum.json"
+      JSON.parse(File
+        .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v1/valid_10182_minimum.json'.split('/')).to_s))
     end
     board_review_option { 'evidence_submission' } # set manually in the controller
   end
@@ -35,12 +40,13 @@ FactoryBot.define do
     id { SecureRandom.uuid }
     api_version { 'V2' }
     auth_headers do
-      JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/v2/valid_10182_headers.json"
+      JSON.parse(File
+        .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v2/valid_10182_headers.json'.split('/')).to_s))
     end
     form_data do
-      JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/v2/valid_10182.json"
+      JSON.parse(File
+        .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v2/valid_10182.json'.split('/')).to_s))
     end
-
     trait :board_review_hearing do
       board_review_option { 'hearing' }
     end
@@ -56,10 +62,13 @@ FactoryBot.define do
     id { SecureRandom.uuid }
     api_version { 'V2' }
     auth_headers do
-      JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/v2/valid_10182_headers_extra.json"
+      JSON.parse(File
+        .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v2/valid_10182_headers_extra.json'.split('/'))
+        .to_s))
     end
     form_data do
-      JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/v2/valid_10182_extra.json"
+      JSON.parse(File
+        .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v2/valid_10182_extra.json'.split('/')).to_s))
     end
 
     trait :board_review_hearing do
@@ -77,12 +86,13 @@ FactoryBot.define do
     id { SecureRandom.uuid }
     api_version { 'V2' }
     auth_headers do
-      JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/v2/valid_10182_headers.json"
+      JSON.parse(File
+        .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v2/valid_10182_headers.json'.split('/')).to_s))
     end
     form_data do
-      JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/v2/valid_10182_minimum.json"
+      JSON.parse(File
+        .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v2/valid_10182_minimum.json'.split('/')).to_s))
     end
-
     trait :board_review_hearing do
       board_review_option { 'hearing' }
     end

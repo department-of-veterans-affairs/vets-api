@@ -189,7 +189,7 @@ RSpec.describe 'claims document upload', type: :request do
   context 'with a PDF pretending to be text' do
     let(:tempfile) do
       f = Tempfile.new(['test', '.txt'], encoding: 'utf-16be')
-      pdf = File.open("#{::Rails.root}/spec/fixtures/files/doctors-note.pdf", 'rb')
+      pdf = File.open(::Rails.root.join(*'/spec/fixtures/files/doctors-note.pdf'.split('/')).to_s, 'rb')
       FileUtils.copy_stream(pdf, f)
       pdf.close
       f.rewind

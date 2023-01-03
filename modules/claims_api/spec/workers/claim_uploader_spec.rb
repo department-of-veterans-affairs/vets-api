@@ -19,7 +19,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     supporting_document = claim.supporting_documents[0]
     supporting_document.set_file_data!(
       Rack::Test::UploadedFile.new(
-        "#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"
+        ::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
       ),
       'docType',
       'description'
@@ -32,7 +32,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     supporting_document = create(:supporting_document)
     supporting_document.set_file_data!(
       Rack::Test::UploadedFile.new(
-        "#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"
+        ::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
       ),
       'docType',
       'description'
@@ -45,7 +45,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     claim = create(:auto_established_claim, evss_id: '12345')
     claim.set_file_data!(
       Rack::Test::UploadedFile.new(
-        "#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"
+        ::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
       ),
       'docType',
       'description'
