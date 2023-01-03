@@ -41,31 +41,26 @@ module Form526BackupSubmission
     end
 
     def generate_tmp_metadata(metadata)
-      json_tmpfile = Tempfile.new('metadata.json', encoding: 'utf-8')
-      json_tmpfile.write(metadata.to_s)
-      json_tmpfile.rewind
-      json_tmpfile
+      Common::FileHelpers.generate_temp_file(metadata.to_s, "#{SecureRandom.hex}.Form526Backup.metadata.json")
     end
 
-    def check_exists_and_not_bdd(file)
-      File.exist?(file) && !file.include?('bdd_instructions.pdf')
+    def bdd_file?(file)
+      file.include?('bdd_instructions.pdf')
     end
 
     def upload_deletion_logic(file_with_full_path:, attachments:)
       if Rails.env.production?
-        File.delete(file_with_full_path) if check_exists_and_not_bdd(file_with_full_path)
+        Common::FileHelpers.delete_file_if_exists(file_with_full_path) unless bdd_file?(file_with_full_path)
         attachments.each do |evidence_file|
           to_del = get_file_path_from_objs(evidence_file)
           # dont delete the instructions pdf we keep on the fs and send along for bdd claims
-          File.delete(to_del) if check_exists_and_not_bdd(to_del)
+          Common::FileHelpers.delete_file_if_exists(to_del) unless bdd_file?(to_del)
         end
       else
         Rails.logger.info("Would have deleted file #{file_with_full_path} if in production env.")
         attachments.each do |evidence_file|
           to_del = get_file_path_from_objs(evidence_file)
-          if check_exists_and_not_bdd(to_del)
-            Rails.logger.info("Would have deleted file #{to_del} if in production env.")
-          end
+          Rails.logger.info("Would have deleted file #{to_del} if in production env.") unless bdd_file?(to_del)
         end
       end
     end
@@ -74,7 +69,7 @@ module Form526BackupSubmission
       json_tmpfile = generate_tmp_metadata(metadata)
       file_with_full_path = get_file_path_from_objs(file)
       file_name = File.basename(file_with_full_path)
-      params = { metadata: Faraday::UploadIO.new(json_tmpfile.path, Mime[:json].to_s, 'metadata.json'),
+      params = { metadata: Faraday::UploadIO.new(json_tmpfile, Mime[:json].to_s, 'metadata.json'),
                  content: Faraday::UploadIO.new(file, Mime[:pdf].to_s, file_name) }
       attachments.each.with_index do |attachment, i|
         file_path = get_file_path_from_objs(attachment[:file])
@@ -90,8 +85,7 @@ module Form526BackupSubmission
 
       response
     ensure
-      json_tmpfile.close
-      json_tmpfile.unlink
+      Common::FileHelpers.delete_file_if_exists(json_tmpfile)
     end
   end
 end

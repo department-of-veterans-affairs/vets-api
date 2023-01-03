@@ -29,6 +29,12 @@ FactoryBot.define do
     end
   end
 
+  trait :with_non_pdf_uploads do
+    form_json do
+      File.read("#{submissions_path}/with_non_pdf_uploads.json")
+    end
+  end
+
   trait :hypertension_claim_for_increase do
     user { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
     form_json do
