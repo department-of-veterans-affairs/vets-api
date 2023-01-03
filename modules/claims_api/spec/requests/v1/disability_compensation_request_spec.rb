@@ -2779,12 +2779,15 @@ RSpec.describe 'Disability Claims ', type: :request do
     let(:auto_claim) { create(:auto_established_claim) }
     let(:non_auto_claim) { create(:auto_established_claim, :autoCestPDFGeneration_disabled) }
     let(:binary_params) do
-      { attachment1: Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"),
-        attachment2: Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
+      { attachment1: Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+                                                                     .split('/')).to_s),
+        attachment2: Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+                                                                     .split('/')).to_s) }
     end
+
     let(:base64_params) do
-      { attachment1: File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf"),
-        attachment2: File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf") }
+      { attachment1: File.read(::Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s),
+        attachment2: File.read(::Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s) }
     end
 
     context 'when no attachment is provided to the PUT endpoint' do

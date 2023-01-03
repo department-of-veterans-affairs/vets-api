@@ -10,7 +10,8 @@ FactoryBot.define do
     evss_id { nil }
     auth_headers { { test: ('a'..'z').to_a.shuffle.join } }
     form_data do
-      json = JSON.parse(File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/form_526_json_api.json"))
+      json = JSON.parse(File
+             .read(::Rails.root.join(*'/modules/claims_api/spec/fixtures/form_526_json_api.json'.split('/')).to_s))
       json['data']['attributes']
     end
     flashes { form_data.dig('veteran', 'flashes') }
@@ -37,7 +38,9 @@ FactoryBot.define do
 
     trait :autoCestPDFGeneration_disabled do
       form_data do
-        json = JSON.parse(File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/form_526_json_api.json"))
+        json = JSON.parse(File
+               .read(::Rails.root.join(*'/modules/claims_api/spec/fixtures/form_526_json_api.json'.split('/'))
+               .to_s))
         json['data']['attributes']['autoCestPDFGenerationDisabled'] = false
         json['data']['attributes']
       end
@@ -58,7 +61,8 @@ FactoryBot.define do
     auth_headers { { test: ('a'..'z').to_a.shuffle.join } }
     form_data do
       # rubocop:disable Layout/LineLength
-      json = JSON.parse(File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/form_526_no_flashes_no_special_issues.json"))
+      json = JSON.parse(File
+             .read(::Rails.root.join(*'/modules/claims_api/spec/fixtures/form_526_no_flashes_no_special_issues.json'.split('/')).to_s))
       json['data']['attributes']
     end
     # rubocop:enable Layout/LineLength
