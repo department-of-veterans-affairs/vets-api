@@ -131,7 +131,7 @@ module SM
     #
     def delete_folder(id)
       response = perform(:delete, "folder/#{id}", nil, token_headers)
-      response.nil? ? nil : response.status
+      response&.status
     end
 
     ##
@@ -328,7 +328,7 @@ module SM
       custom_headers = token_headers.merge('Content-Type' => 'application/json')
       response = perform(:post, "message/#{id}/move/tofolder/#{folder_id}", nil, custom_headers)
 
-      response.nil? ? nil : response.status
+      response&.status
     end
 
     ##
@@ -341,7 +341,7 @@ module SM
       custom_headers = token_headers.merge('Content-Type' => 'application/json')
       response = perform(:post, "message/#{id}", nil, custom_headers)
 
-      response.nil? ? nil : response.status
+      response&.status
     end
 
     ##
