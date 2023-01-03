@@ -89,7 +89,7 @@ module SignIn
       update_profile_response = mpi_service.update_profile(last_name: last_name,
                                                            ssn: ssn,
                                                            birth_date: birth_date,
-                                                           icn: mhv_icn,
+                                                           icn: mhv_icn || user_identity_from_attributes.icn,
                                                            email: credential_email,
                                                            address: address,
                                                            idme_uuid: idme_uuid,
