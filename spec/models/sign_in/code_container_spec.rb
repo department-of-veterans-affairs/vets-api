@@ -13,7 +13,7 @@ RSpec.describe SignIn::CodeContainer, type: :model do
 
   let(:code_challenge) { Base64.urlsafe_encode64(SecureRandom.hex) }
   let(:code) { SecureRandom.hex }
-  let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
+  let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
   let(:user_verification_id) { create(:user_verification).id }
 
   describe 'validations' do

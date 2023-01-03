@@ -23,7 +23,7 @@ FactoryBot.define do
       {
         service_name: SAML::User::IDME_CSID,
         auth_broker: SAML::URLService::BROKER_CODE,
-        client_id: SignIn::Constants::ClientConfig::WEB_CLIENT
+        client_id: SignIn::Constants::Auth::WEB_CLIENT
       }
     end
 
@@ -52,7 +52,7 @@ FactoryBot.define do
       {
         service_name: SAML::User::MHV_ORIGINAL_CSID,
         auth_broker: SAML::URLService::BROKER_CODE,
-        client_id: SignIn::Constants::ClientConfig::WEB_CLIENT
+        client_id: SignIn::Constants::Auth::WEB_CLIENT
       }
     end
 
@@ -81,7 +81,7 @@ FactoryBot.define do
       {
         service_name: SAML::User::DSLOGON_CSID,
         auth_broker: SAML::URLService::BROKER_CODE,
-        client_id: SignIn::Constants::ClientConfig::WEB_CLIENT
+        client_id: SignIn::Constants::Auth::WEB_CLIENT
       }
     end
 
@@ -100,7 +100,7 @@ FactoryBot.define do
       {
         service_name: SAML::User::IDME_CSID,
         auth_broker: SAML::URLService::BROKER_CODE,
-        client_id: SignIn::Constants::ClientConfig::WEB_CLIENT
+        client_id: SignIn::Constants::Auth::WEB_CLIENT
       }
     end
 

@@ -115,11 +115,7 @@ module SignIn
     end
 
     def validity_length
-      if Constants::ClientConfig::SHORT_TOKEN_EXPIRATION.include?(client_id)
-        Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES.minutes
-      elsif Constants::ClientConfig::LONG_TOKEN_EXPIRATION.include?(client_id)
-        Constants::RefreshToken::VALIDITY_LENGTH_LONG_DAYS.days
-      end
+      SignIn::ClientConfig.new(client_id: client_id).refresh_token_duration
     end
   end
 end

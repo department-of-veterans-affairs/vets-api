@@ -196,7 +196,7 @@ module V0
     private
 
     def validate_authorize_params(type, client_id, code_challenge, code_challenge_method, acr)
-      unless SignIn::Constants::ClientConfig::CLIENT_IDS.include?(client_id)
+      unless SignIn::Constants::Auth::CLIENT_IDS.include?(client_id)
         raise SignIn::Errors::MalformedParamsError, message: 'Client id is not valid'
       end
       unless SignIn::Constants::Auth::CSP_TYPES.include?(type)
@@ -232,7 +232,7 @@ module V0
     end
 
     def handle_pre_login_error(error, client_id)
-      if SignIn::Constants::ClientConfig::COOKIE_AUTH.include?(client_id)
+      if SignIn::Constants::Auth::CLIENT_IDS.include?(client_id) && client_config(client_id).cookie_auth?
         error_code = error.try(:code) || SignIn::Constants::ErrorCode::INVALID_REQUEST
         redirect_to failed_auth_url({ auth: 'fail', code: error_code, request_id: request.request_id })
       else
@@ -322,6 +322,10 @@ module V0
       else
         idme_auth_service(type)
       end
+    end
+
+    def client_config(client_id)
+      @client_config ||= SignIn::ClientConfig.new(client_id: client_id)
     end
 
     def idme_auth_service(type)

@@ -18,7 +18,7 @@ RSpec.describe SignIn::OAuthSession, type: :model do
   let(:hashed_refresh_token) { SecureRandom.hex }
   let(:refresh_expiration) { Time.zone.now + 1000 }
   let(:refresh_creation) { Time.zone.now }
-  let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
+  let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
 
   describe 'validations' do
     describe '#user_verification' do

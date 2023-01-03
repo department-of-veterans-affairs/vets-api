@@ -6,7 +6,7 @@ FactoryBot.define do
 
     user_verification { create(:user_verification) }
     credential_email { Faker::Internet.email }
-    client_id { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
+    client_id { SignIn::Constants::Auth::MOBILE_CLIENT }
 
     initialize_with do
       new(user_verification: user_verification,

@@ -33,7 +33,7 @@ module SignIn
     )
 
     validates :version, inclusion: Constants::AccessToken::VERSION_LIST
-    validates :client_id, inclusion: Constants::ClientConfig::CLIENT_IDS
+    validates :client_id, inclusion: Constants::Auth::CLIENT_IDS
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(session_handle:,
@@ -82,11 +82,7 @@ module SignIn
     end
 
     def validity_length
-      if Constants::ClientConfig::SHORT_TOKEN_EXPIRATION.include?(client_id)
-        Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES.minutes
-      elsif Constants::ClientConfig::LONG_TOKEN_EXPIRATION.include?(client_id)
-        Constants::AccessToken::VALIDITY_LENGTH_LONG_MINUTES.minutes
-      end
+      ClientConfig.new(client_id: client_id).access_token_duration
     end
   end
 end

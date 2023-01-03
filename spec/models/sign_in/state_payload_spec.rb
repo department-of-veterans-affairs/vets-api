@@ -17,7 +17,7 @@ RSpec.describe SignIn::StatePayload, type: :model do
   let(:type) { SignIn::Constants::Auth::CSP_TYPES.first }
   let(:acr) { SignIn::Constants::Auth::ACR_VALUES.first }
   let(:code) { SecureRandom.hex }
-  let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
+  let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
   let(:client_state) { SecureRandom.hex }
 
   describe 'validations' do

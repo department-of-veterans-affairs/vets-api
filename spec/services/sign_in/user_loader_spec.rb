@@ -52,7 +52,7 @@ RSpec.describe SignIn::UserLoader do
         let(:sign_in) do
           { service_name: credential_service_name,
             auth_broker: SignIn::Constants::Auth::BROKER_CODE,
-            client_id: SignIn::Constants::ClientConfig::API_AUTH.first }
+            client_id: SignIn::Constants::Auth::MOBILE_CLIENT }
         end
 
         before do
