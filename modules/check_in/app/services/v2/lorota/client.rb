@@ -94,13 +94,10 @@ module V2
       end
 
       def auth_params
-        auth_hsh = { lastName: check_in.last_name }
-        if check_in.dob.present?
-          auth_hsh[:dob] = check_in.dob
-        else
-          auth_hsh[:SSN4] = check_in.last4
-        end
-        auth_hsh
+        {
+          lastName: check_in.last_name,
+          dob: check_in.dob
+        }
       end
 
       def mock_enabled?

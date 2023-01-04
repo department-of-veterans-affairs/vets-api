@@ -100,9 +100,11 @@ RSpec.describe CheckIn::V2::Session do
 
       it 'returns false for invalid year in dob' do
         params_hsh = {
-          uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
-          dob: '02-20-70',
-          last_name: 'Johnson'
+          data: {
+            uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+            dob: '02-20-70',
+            last_name: 'Johnson'
+          }
         }
 
         expect(subject.build(params_hsh).valid?).to be(false)
@@ -110,9 +112,11 @@ RSpec.describe CheckIn::V2::Session do
 
       it 'returns false for invalid month in dob' do
         params_hsh = {
-          uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
-          dob: '1970-42-02',
-          last_name: 'Johnson'
+          data: {
+            uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+            dob: '1970-42-02',
+            last_name: 'Johnson'
+          }
         }
 
         expect(subject.build(params_hsh).valid?).to be(false)
@@ -120,19 +124,11 @@ RSpec.describe CheckIn::V2::Session do
 
       it 'returns false for invalid day in dob' do
         params_hsh = {
-          uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
-          dob: '1970-10-36',
-          last_name: 'Johnson'
-        }
-
-        expect(subject.build(params_hsh).valid?).to be(false)
-      end
-
-      it 'returns false for ssn instead of dob' do
-        params_hsh = {
-          uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
-          ssn: '5555',
-          last_name: 'Johnson'
+          data: {
+            uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+            dob: '1970-10-36',
+            last_name: 'Johnson'
+          }
         }
 
         expect(subject.build(params_hsh).valid?).to be(false)

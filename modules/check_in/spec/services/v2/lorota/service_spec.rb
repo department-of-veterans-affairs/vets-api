@@ -10,7 +10,7 @@ describe V2::Lorota::Service do
     {
       data: {
         uuid: id,
-        last4: '1234',
+        dob: '1970-02-20',
         last_name: 'Johnson'
       }
     }
@@ -320,8 +320,7 @@ describe V2::Lorota::Service do
       let(:last_name_mismatch) do
         '{ "error" : "lastName does not match with current record" }'
       end
-      let(:ssn_mismatch) { '{ "error" : "SSN4 does not match with current record" }' }
-      let(:ssn_mismatch_with_whitespace) { '{ "error" : "  SSN4 does not match with current record   " }' }
+      let(:dob_mismatch_with_whitespace) { '{ "error" : "  dob does not match with current record   " }' }
       let(:dob_mismatch) { '{ "error" : "dob does not match with current record" }' }
       let(:last_name_dob_mismatch) { '{ "error" : "lastName or dob does not match with current record" }' }
       let(:uuid_not_found) { '{ "error" : "UUID not found" }' }
@@ -376,61 +375,6 @@ describe V2::Lorota::Service do
           context 'if redis retry_attempt >= max_auth_retry_limit' do
             let(:data_gone_exception) do
               { status: '410', detail: [last_name_mismatch], code: 'CIE-VETS-API_410' }
-            end
-
-            before do
-              Rails.cache.write(
-                "authentication_retry_limit_#{id}",
-                retry_count + 3,
-                namespace: 'check-in-lorota-v2-cache',
-                expires_in: 604_800
-              )
-            end
-
-            it 'throws exception with 410 status code' do
-              expect do
-                subject.build(check_in: valid_check_in).token
-              end.to raise_error(CheckIn::V2::CheckinServiceException,
-                                 "BackendServiceException: #{data_gone_exception}")
-            end
-          end
-        end
-
-        context 'when status code is 401 with SSN4 does not match error message for second retry' do
-          before do
-            allow_any_instance_of(V2::Lorota::Client).to receive(:token)
-              .and_raise(Common::Exceptions::BackendServiceException.new('LOROTA-API_401',
-                                                                         auth_exception_response_values,
-                                                                         401, ssn_mismatch))
-          end
-
-          context 'if redis retry_attempt < max_auth_retry_limit' do
-            before do
-              Rails.cache.write(
-                "authentication_retry_limit_#{id}",
-                retry_count,
-                namespace: 'check-in-lorota-v2-cache',
-                expires_in: 604_800
-              )
-            end
-
-            it 'increments retry_attempt_count and returns authentication error' do
-              expect do
-                subject.build(check_in: valid_check_in).token
-              end.to raise_error(Common::Exceptions::BackendServiceException,
-                                 "BackendServiceException: #{auth_exception_response_values}")
-
-              retry_attempt_count = Rails.cache.read(
-                "authentication_retry_limit_#{id}",
-                namespace: 'check-in-lorota-v2-cache'
-              )
-              expect(retry_attempt_count).to eq(retry_count + 1)
-            end
-          end
-
-          context 'if redis retry_attempt >= max_auth_retry_limit' do
-            let(:data_gone_exception) do
-              { status: '410', detail: [ssn_mismatch], code: 'CIE-VETS-API_410' }
             end
 
             before do
@@ -568,7 +512,7 @@ describe V2::Lorota::Service do
             allow_any_instance_of(V2::Lorota::Client).to receive(:token)
               .and_raise(Common::Exceptions::BackendServiceException.new('LOROTA-API_401',
                                                                          auth_exception_response_values,
-                                                                         401, ssn_mismatch_with_whitespace))
+                                                                         401, dob_mismatch_with_whitespace))
           end
 
           context 'if redis retry_attempt < max_auth_retry_limit' do
