@@ -225,12 +225,12 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def submit_async(has_email)
-    submission_job = 'SubmissionJob'
+    submission_job = 'EncryptedSubmissionJob'
     submission_job = "Anon#{submission_job}" unless has_email
 
     "HCA::#{submission_job}".constantize.perform_async(
       self.class.get_user_identifier(user),
-      parsed_form,
+      KmsEncrypted::Box.new.encrypt(parsed_form.to_json),
       id,
       google_analytics_client_id
     )

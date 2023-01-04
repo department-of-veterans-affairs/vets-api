@@ -400,10 +400,17 @@ RSpec.describe HealthCareApplication, type: :model do
 
     def self.expect_job_submission(job)
       it "submits using the #{job}" do
-        expect(job).to receive(:perform_async)
+        allow_any_instance_of(HealthCareApplication).to receive(:id).and_return(1)
+        expect_any_instance_of(HealthCareApplication).to receive(:save!)
+
+        expect(job).to receive(:perform_async).with(
+          nil,
+          KmsEncrypted::Box.new.encrypt(health_care_application.parsed_form.to_json),
+          1,
+          nil
+        )
 
         expect(health_care_application.process!).to eq(health_care_application)
-        expect(health_care_application.id.present?).to eq(true)
       end
     end
 
@@ -454,12 +461,12 @@ RSpec.describe HealthCareApplication, type: :model do
       context 'with async_compatible set' do
         before { health_care_application.async_compatible = true }
 
-        expect_job_submission(HCA::AnonSubmissionJob)
+        expect_job_submission(HCA::AnonEncryptedSubmissionJob)
       end
     end
 
     context 'with an email' do
-      expect_job_submission(HCA::SubmissionJob)
+      expect_job_submission(HCA::EncryptedSubmissionJob)
     end
   end
 
