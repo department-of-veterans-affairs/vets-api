@@ -22,7 +22,7 @@ module ClaimsApi
           ews = create_ews(params[:id])
           ClaimsApi::EvidenceWaiverBuilderJob.perform_async(ews.id)
 
-          render json: { success: true, status: 200 }
+          render json: { success: true }
         end
 
         private
