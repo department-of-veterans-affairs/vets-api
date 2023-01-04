@@ -270,7 +270,7 @@ GEM
     content_disposition (1.0.0)
     cork (0.3.0)
       colored2 (~> 3.1)
-    coverband (5.2.4)
+    coverband (5.2.5)
       redis (>= 3.0)
     crack (0.4.5)
       rexml
