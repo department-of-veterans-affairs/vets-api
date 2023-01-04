@@ -50,30 +50,6 @@ describe V2::Lorota::Client do
       subject.token
     end
 
-    context 'when called ssn in session model' do
-      let(:auth_param_with_ssn) do
-        { lastName: 'last', SSN4: '1234' }
-      end
-
-      let(:check_in) do
-        CheckIn::V2::Session.build(data: { uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
-                                           last4: '1234', last_name: 'last' })
-      end
-
-      before do
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
-      end
-
-      it 'uses ssn4 in auth_params to call lorota endpoint' do
-        expect_any_instance_of(Faraday::Connection).to receive(:post).with(anything) do |&block|
-          result = block.call(Faraday::Request.new)
-          expect(result).to eq(auth_param_with_ssn.to_json)
-        end
-
-        subject.token
-      end
-    end
-
     context 'when called dob in session model' do
       let(:auth_param_with_dob) do
         { lastName: 'last', dob: '1970-02-20' }
