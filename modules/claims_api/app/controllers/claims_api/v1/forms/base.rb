@@ -85,10 +85,12 @@ module ClaimsApi
         end
 
         def bgs_service
-          BGS::Services.new(
+          bgs = BGS::Services.new(
             external_uid: target_veteran.participant_id,
             external_key: target_veteran.participant_id
           )
+          ClaimsApi::Logger.log('poa', detail: 'bgs-ext service built')
+          bgs
         end
 
         def received_date
