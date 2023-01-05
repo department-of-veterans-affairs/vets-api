@@ -3,8 +3,29 @@
 require 'fileutils'
 
 APPEALS_API_DOCS_DIR = 'modules/appeals_api/spec/docs'
-APPEALS_API_NAMES = Dir["#{APPEALS_API_DOCS_DIR}/*.rb"]
-                    .map { |file_name| File.basename(file_name, '_spec.rb') }
+SEGMENTED_DECISION_REVIEWS_API_NAMES = Dir["#{APPEALS_API_DOCS_DIR}/decision_reviews/*.rb"]
+                                       .map { |file_name| File.basename(file_name, '_spec.rb') }
+APPEALS_API_DOCS = [
+  {
+    name: 'decision_reviews',
+    version: 'v2',
+    pattern: "#{APPEALS_API_DOCS_DIR}/decision_reviews"
+  }
+  # To be added in API-21523:
+  # {
+  #   name: 'appeals_status',
+  #   version: 'v1',
+  #   pattern: "#{APPEALS_API_DOCS_DIR}/appeals_status_spec.rb"
+  # },
+] + SEGMENTED_DECISION_REVIEWS_API_NAMES.map do |api_name|
+  {
+    name: api_name,
+    version: 'v0',
+    pattern: "#{APPEALS_API_DOCS_DIR}/decision_reviews/#{api_name}_spec.rb"
+  }
+end.freeze
+
+APPEALS_API_NAMES = APPEALS_API_DOCS.pluck(:name).freeze
 
 def run_tasks_in_parallel(task_names)
   Parallel.each(task_names) { |task_name| Rake::Task[task_name].invoke }
@@ -41,44 +62,32 @@ namespace :rswag do
   end
 
   namespace :appeals_api do
-    desc 'Generate docs for appeals_api decision reviews'
-    task run: %i[prod]
-
-    task prod: :environment do
-      generate_appeals_doc
-    end
-
-    desc 'Generate docs for appeals_api decision reviews (dev)'
-    task dev: :environment do
-      generate_appeals_doc(dev: true)
-    end
-
-    APPEALS_API_NAMES.each do |api_name|
-      namespace abbreviate_snake_case_name(api_name) do
-        desc "Generate docs for appeals_api #{api_name}"
-        task run: %i[prod]
-
-        task prod: :environment do
-          generate_appeals_doc(api_name)
+    APPEALS_API_DOCS.each do |config|
+      namespace abbreviate_snake_case_name(config[:name]).to_sym do
+        desc "Generate all docs for the #{config[:name]} appeals API"
+        task all: :environment do
+          run_tasks_in_parallel(%w[dev prod].map do |env|
+            "rswag:appeals_api:#{abbreviate_snake_case_name(config[:name])}:#{env}"
+          end)
         end
 
-        desc "Generate docs for appeals_api #{api_name} (dev)"
+        desc "Generate production docs for the #{config[:name]} appeals API"
+        task prod: :environment do
+          generate_appeals_doc(config[:pattern], config[:name], config[:version])
+        end
+
+        desc "Generate development docs for the #{config[:name]} appeals API"
         task dev: :environment do
-          generate_appeals_doc(api_name, dev: true)
+          generate_appeals_doc(config[:pattern], config[:name], config[:version], dev: true)
         end
       end
     end
 
-    desc 'Generate rswag docs for all sections of the appeals_api'
+    desc 'Generate rswag docs for all appeals APIs'
     task all: :environment do
-      run_tasks_in_parallel(['rswag:appeals_api:run'] +
-        APPEALS_API_NAMES.map { |api_name| "rswag:appeals_api:#{abbreviate_snake_case_name(api_name)}:run" })
-    end
-
-    desc 'Generate rswag docs for all sections of the appeals_api (dev)'
-    task all_dev: :environment do
-      run_tasks_in_parallel(['rswag:appeals_api:dev'] +
-        APPEALS_API_NAMES.map { |api_name| "rswag:appeals_api:#{abbreviate_snake_case_name(api_name)}:dev" })
+      run_tasks_in_parallel(APPEALS_API_NAMES.map do |api_name|
+        "rswag:appeals_api:#{abbreviate_snake_case_name(api_name)}:all"
+      end)
     end
   end
 end
@@ -113,30 +122,27 @@ def rswag_to_oas!(filepath)
   FileUtils.mv(temp_path, filepath)
 end
 
-# rubocop:disable Metrics/MethodLength
-def generate_appeals_doc(api_name = nil, dev: false)
+def generate_appeals_doc(spec_files_pattern, api_name, api_version, dev: false)
   ENV['RAILS_MODULE'] = 'appeals_api'
   ENV['SWAGGER_DRY_RUN'] = '0'
+  ENV['PATTERN'] = spec_files_pattern
+  ENV['API_NAME'] = api_name
+  ENV['API_VERSION'] = api_version
+
   if dev
     ENV['RSWAG_ENV'] = 'dev'
     ENV['WIP_DOCS_ENABLED'] = Settings.modules_appeals_api.documentation.wip_docs&.join(',') || ''
   end
-  if api_name
-    ENV['API_NAME'] = api_name
-  else
-    ENV.delete('API_NAME')
-  end
-  ENV['PATTERN'] = api_name ? "#{APPEALS_API_DOCS_DIR}/#{api_name}_spec.rb" : APPEALS_API_DOCS_DIR
-  Rake::Task['rswag:specs:swaggerize'].invoke
 
-  # Correct formatting on rswag output so that it matches the expected OAS format
+  begin
+    Rake::Task['rswag:specs:swaggerize'].invoke
+  rescue => e
+    warn "Rswag doc generation for #{api_name} #{api_version} #{dev ? '(dev) ' : ''}failed:"
+    puts e.full_message(highlight: true, order: :top)
+    exit 1
+  end
+
   suffix = dev ? '_dev' : ''
-  rswag_to_oas!(
-    if api_name.nil?
-      "modules/appeals_api/app/swagger/appeals_api/v2/swagger#{suffix}.json"
-    else
-      "modules/appeals_api/app/swagger/#{api_name}/v0/swagger#{suffix}.json"
-    end
-  )
+  # Correct formatting on rswag output so that it matches the expected OAS format
+  rswag_to_oas!("modules/appeals_api/app/swagger/#{api_name}/#{api_version}/swagger#{suffix}.json")
 end
-# rubocop:enable Metrics/MethodLength

@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+# These default values are used when running docs specs alongside other kinds of specs via rspec.
+# When generating docs via rake tasks instead, we get these values from the environment set up in the rake task.
+DEFAULT_CONFIG_VALUES = { api_name: 'decision_reviews', api_version: 'v2' }.freeze
+
 # rubocop:disable Metrics/ModuleLength
 module DocHelpers
   # Makes UUIDs and timestamps constant, to reduce cognitive overhead when working with rswag output files
@@ -103,7 +107,7 @@ module DocHelpers
     end
   end
 
-  def self.wip_doc_enabled?(sym, require_env_slug = false) # rubocop:disable Style/OptionalBooleanParameter
+  def self.wip_doc_enabled?(sym)
     # Only block doc generation if we still flag it as a WIP
     return true unless Settings.modules_appeals_api.documentation.wip_docs&.include?(sym.to_s)
 
@@ -112,18 +116,14 @@ module DocHelpers
     enabled_docs = ENV['WIP_DOCS_ENABLED'].split(',').map(&:to_sym)
     return false if enabled_docs.blank?
 
-    if require_env_slug
-      enabled_docs.include?(sym) && ENV.key?('API_NAME')
-    else
-      enabled_docs.include?(sym)
-    end
+    enabled_docs.include?(sym)
   end
 
   def wip_doc_enabled?(sym)
     DocHelpers.wip_doc_enabled?(sym)
   end
 
-  DOC_TITLES = {
+  DECISION_REVIEWS_DOC_TITLES = {
     higher_level_reviews: 'Higher-Level Reviews',
     notice_of_disagreements: 'Notice of Disagreements',
     supplemental_claims: 'Supplemental Claims',
@@ -131,14 +131,18 @@ module DocHelpers
     legacy_appeals: 'Legacy Appeals'
   }.freeze
 
+  ALL_DOC_TITLES = DECISION_REVIEWS_DOC_TITLES.merge({
+                                                       # To be added in API-21523:
+                                                       # appeals_status: 'Appeals Status',
+                                                       decision_reviews: 'Decision Reviews'
+                                                     }).freeze
+
   def self.api_name
-    ENV['API_NAME']
+    ENV['RAILS_ENV'] == 'test' ? DEFAULT_CONFIG_VALUES[:api_name] : ENV['API_NAME']
   end
 
-  # Note that if ENV['API_NAME'] is unset, we're assuming that we're building Decision Reviews V2 docs
-  # (as opposed to docs for one of the individual segmented APIs)
   def self.decision_reviews?
-    DocHelpers.api_name.nil?
+    DocHelpers.api_name == 'decision_reviews'
   end
 
   def self.use_shared_schemas?
@@ -146,20 +150,18 @@ module DocHelpers
   end
 
   def self.api_version
-    DocHelpers.decision_reviews? ? 'v2' : 'v0'
+    ENV['RAILS_ENV'] == 'test' ? DEFAULT_CONFIG_VALUES[:api_version] : ENV['API_VERSION']
   end
 
   def self.api_title
-    return 'Decision Reviews' if DocHelpers.decision_reviews?
-
-    DOC_TITLES[DocHelpers.api_name&.to_sym]
+    ALL_DOC_TITLES[DocHelpers.api_name&.to_sym]
   end
 
   def self.api_tags
     if DocHelpers.decision_reviews?
-      DOC_TITLES.values.collect { |title| { name: title, description: '' } }
+      DECISION_REVIEWS_DOC_TITLES.values.collect { |title| { name: title, description: '' } }
     else
-      [{ name: DOC_TITLES[DocHelpers.api_name.to_sym], description: '' }]
+      [{ name: ALL_DOC_TITLES[DocHelpers.api_name.to_sym], description: '' }]
     end
   end
 
@@ -180,12 +182,9 @@ module DocHelpers
   end
 
   def self.output_directory_file_path(file_name)
-    file_path = if DocHelpers.decision_reviews?
-                  "app/swagger/appeals_api/#{DocHelpers.api_version}/#{file_name}"
-                else
-                  "app/swagger/#{DocHelpers.api_name}/#{DocHelpers.api_version}/#{file_name}"
-                end
-    AppealsApi::Engine.root.join(file_path).to_s
+    AppealsApi::Engine.root.join(
+      "app/swagger/#{DocHelpers.api_name}/#{DocHelpers.api_version}/#{file_name}"
+    ).to_s
   end
 
   def self.api_description_file_path
@@ -195,11 +194,7 @@ module DocHelpers
   def self.output_json_path
     # Note that rswag expects this path to be relative to the working directory when running the specs
     # rubocop:disable Layout/LineLength
-    if DocHelpers.decision_reviews?
-      "modules/appeals_api/app/swagger/appeals_api/#{DocHelpers.api_version}/swagger#{DocHelpers.doc_suffix}.json"
-    else
-      "modules/appeals_api/app/swagger/#{DocHelpers.api_name}/#{DocHelpers.api_version}/swagger#{DocHelpers.doc_suffix}.json"
-    end
+    "modules/appeals_api/app/swagger/#{DocHelpers.api_name}/#{DocHelpers.api_version}/swagger#{DocHelpers.doc_suffix}.json"
     # rubocop:enable Layout/LineLength
   end
 end

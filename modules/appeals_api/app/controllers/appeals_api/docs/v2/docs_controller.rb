@@ -4,9 +4,7 @@ class AppealsApi::Docs::V2::DocsController < ApplicationController
   skip_before_action(:authenticate)
 
   def decision_reviews
-    filename = Settings.vsp_environment == 'production' ? 'swagger.json' : 'swagger_dev.json'
-    file = File.read AppealsApi::Engine.root.join("app/swagger/appeals_api/v2/#{filename}")
-    render json: JSON.parse(file)
+    render json: JSON.parse(swagger_file('decision_reviews', version: 'v2'))
   end
 
   def hlr
