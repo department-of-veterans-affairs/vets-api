@@ -80,5 +80,96 @@ describe Mobile::ListFilter, aggregate_failures: true do
       expect(results.errors).to eq(errors)
       expect(results.metadata).to eq(expected_metadata)
     end
+
+    describe 'data validation and error handling' do
+      before do
+        Settings.sentry.dsn = 'asdf'
+      end
+
+      after do
+        Settings.sentry.dsn = nil
+      end
+
+      it 'logs an error and returns original collection when collection is not a Common::Collection' do
+        params = paramiterize({})
+
+        expect(Raven).to receive(:capture_exception).once.with(Mobile::ListFilter::FilterError, { level: 'error' })
+        expect(Raven).to receive(:extra_context).with({ filters: params.to_unsafe_hash })
+        result = Mobile::ListFilter.matches([], params)
+        expect(result).to eq([])
+      end
+
+      it 'logs an error and returns original collection when filters are not an ActionController::Params object' do
+        expect(Raven).to receive(:capture_exception).once.with(Mobile::ListFilter::FilterError, { level: 'error' })
+        expect(Raven).to receive(:extra_context).with({ collection_models: ['Pet'] })
+        result = Mobile::ListFilter.matches(list, {})
+        expect(result.data).to eq(list.data)
+        expect(result.errors).to eq({ filter_error: 'filters must be an ActionController::Parameters' })
+      end
+
+      it 'logs an error and returns original collection when collection contains mixed models' do
+        params = paramiterize({})
+        mixed_list = Common::Collection.new(data: [dog, 'string'])
+
+        expect(Raven).to receive(:capture_exception).once.with(Mobile::ListFilter::FilterError, { level: 'error' })
+        expect(Raven).to receive(:extra_context).with(
+          { filters: params.to_unsafe_hash, collection_models: %w[Pet String] }
+        )
+        result = Mobile::ListFilter.matches(mixed_list, params)
+        expect(result.data).to eq(mixed_list.data)
+        expect(result.errors).to eq({ filter_error: 'collection contains multiple models' })
+      end
+
+      it 'logs an error and returns original collection when the model does contain the requested filter attribute' do
+        params = paramiterize({ genus: { eq: 'dog' } })
+
+        expect(Raven).to receive(:capture_exception).once.with(Mobile::ListFilter::FilterError, { level: 'error' })
+        expect(Raven).to receive(:extra_context).with({ filters: params.to_unsafe_hash, collection_models: ['Pet'] })
+        result = Mobile::ListFilter.matches(list, params)
+        expect(result.data).to eq(list.data)
+        expect(result.errors).to eq({ filter_error: 'invalid attribute' })
+      end
+
+      it 'logs an error and returns original collection when the filter is not a hash' do
+        params = paramiterize({ genus: 'dog' })
+
+        expect(Raven).to receive(:capture_exception).once.with(Mobile::ListFilter::FilterError, { level: 'error' })
+        expect(Raven).to receive(:extra_context).with({ filters: params.to_unsafe_hash, collection_models: ['Pet'] })
+        result = Mobile::ListFilter.matches(list, params)
+        expect(result.data).to eq(list.data)
+        expect(result.errors).to eq({ filter_error: 'invalid filter structure' })
+      end
+
+      it 'logs an error and returns original collection when the filter contains multiple operations' do
+        params = paramiterize({ genus: { eq: 'dog', notEq: 'cat' } })
+
+        expect(Raven).to receive(:capture_exception).once.with(Mobile::ListFilter::FilterError, { level: 'error' })
+        expect(Raven).to receive(:extra_context).with({ filters: params.to_unsafe_hash, collection_models: ['Pet'] })
+        result = Mobile::ListFilter.matches(list, params)
+        expect(result.data).to eq(list.data)
+        expect(result.errors).to eq({ filter_error: 'invalid filter structure' })
+      end
+
+      it 'logs an error and returns original collection when the requested filter operation is not supported' do
+        params = paramiterize({ species: { fuzzyEq: 'dog' } })
+
+        expect(Raven).to receive(:capture_exception).once.with(Mobile::ListFilter::FilterError, { level: 'error' })
+        expect(Raven).to receive(:extra_context).with({ filters: params.to_unsafe_hash, collection_models: ['Pet'] })
+        result = Mobile::ListFilter.matches(list, params)
+        expect(result.data).to eq(list.data)
+        expect(result.errors).to eq({ filter_error: 'invalid operation' })
+      end
+
+      it 'logs an error and returns collection when an unexpected error occurs' do
+        params = paramiterize({})
+        allow_any_instance_of(Mobile::ListFilter).to receive(:matches).and_raise(StandardError)
+
+        expect(Raven).to receive(:capture_exception).once.with(StandardError, { level: 'error' })
+        expect(Raven).to receive(:extra_context).with({ filters: params.to_unsafe_hash, collection_models: ['Pet'] })
+        result = Mobile::ListFilter.matches(list, params)
+        expect(result.data).to eq(list.data)
+        expect(result.errors).to eq({ filter_error: 'unknown filter error' })
+      end
+    end
   end
 end
