@@ -6,6 +6,10 @@ module InheritedProofing
     class AccessTokenExpiredError < StandardError; end
     class AccessTokenMalformedJWTError < StandardError; end
     class AccessTokenMissingRequiredAttributesError < StandardError; end
+    class AuthCodeInvalidError < StandardError; end
+    class AuthCodeMissingError < StandardError; end
+    class InvalidCSPError < StandardError; end
+    class InvalidUserError < StandardError; end
     class UserNotFoundError < StandardError; end
     class MHVIdentityDataNotFoundError < StandardError; end
     class UserMissingAttributesError < StandardError; end
