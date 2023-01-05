@@ -71,6 +71,28 @@ RSpec.describe 'IntentToFiles', type: :request do
           end
         end
 
+        context "when given a mixed case 'type' path param" do
+          let(:type) { 'CoMpEnSaTiOn' }
+
+          it 'returns a 200' do
+            with_okta_user(scopes) do |auth_header|
+              get itf_type_path, headers: auth_header
+              expect(response.status).to eq(200)
+            end
+          end
+        end
+
+        context "when given an all caps 'type' path param" do
+          let(:type) { 'COMPENSATION' }
+
+          it 'returns a 200' do
+            with_okta_user(scopes) do |auth_header|
+              get itf_type_path, headers: auth_header
+              expect(response.status).to eq(200)
+            end
+          end
+        end
+
         context "when given a valid 'type' path param" do
           context "when given the value 'compensation'" do
             let(:type) { 'compensation' }
@@ -94,8 +116,8 @@ RSpec.describe 'IntentToFiles', type: :request do
             end
           end
 
-          context "when given the value 'burial'" do
-            let(:type) { 'burial' }
+          context "when given the value 'survivor'" do
+            let(:type) { 'survivor' }
 
             it 'returns a 200' do
               with_okta_user(scopes) do |auth_header|

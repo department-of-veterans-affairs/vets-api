@@ -44,11 +44,7 @@ ClaimsApi::Engine.routes.draw do
                                                                 constraints: { 'appoint-organization': /:appoint-organization/ } # rubocop:disable Layout/LineLength
       put '/:veteranId/power-of-attorney:appoint-individual', to: 'power_of_attorney#appoint_individual',
                                                               constraints: { 'appoint-individual': /:appoint-individual/ } # rubocop:disable Layout/LineLength
-      get '/:veteranId/intent-to-file/:type',
-          to: 'intent_to_file#type',
-          constraints: (lambda do |request|
-            ClaimsApi::V2::Veterans::IntentToFileController::ITF_TYPES.include?(request.path_parameters[:type])
-          end)
+      get '/:veteranId/intent-to-file/:type', to: 'intent_to_file#type'
       post '/:veteranId/intent-to-file', to: 'intent_to_file#submit'
       post '/:veteranId/intent-to-file/validate', to: 'intent_to_file#validate'
     end
