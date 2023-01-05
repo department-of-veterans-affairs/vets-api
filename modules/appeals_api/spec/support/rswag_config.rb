@@ -146,7 +146,7 @@ class AppealsApi::RswagConfig
       a << legacy_appeals_schema('#/components/schemas')
       a << generic_schemas('#/components/schemas').slice(*%i[errorModel X-VA-SSN X-VA-File-Number])
       a << shared_schemas.slice(*%W[#{nbs_key}])
-    when nil
+    when 'decision_reviews'
       a << hlr_v2_create_schemas
       a << hlr_v2_response_schemas('#/components/schemas')
       a << nod_v2_create_schemas
