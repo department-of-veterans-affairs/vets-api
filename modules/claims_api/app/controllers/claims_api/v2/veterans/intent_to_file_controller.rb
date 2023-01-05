@@ -8,12 +8,18 @@ module ClaimsApi
       class IntentToFileController < ClaimsApi::V2::ApplicationController
         before_action :verify_access!
 
-        ITF_TYPES = %w[compensation pension burial].freeze
-
+        # GET to fetch active intent to file by type
+        #
+        # @return [JSON] ITF record
         def type
+          type = params[:type].downcase
+          unless itf_types.keys.include?(type)
+            message = "Invalid type parameter: '#{type}'"
+            raise ::Common::Exceptions::ResourceNotFound.new(detail: message)
+          end
           response = bgs_service.intent_to_file.find_intent_to_file_by_ptcpnt_id_itf_type_cd(
             target_veteran.participant_id,
-            ClaimsApi::IntentToFile::ITF_TYPES_TO_BGS_TYPES[params[:type]]
+            itf_types[type]
           )
 
           response = [response] unless response.is_a?(Array)
@@ -64,6 +70,10 @@ module ClaimsApi
         end
 
         private
+
+        def itf_types
+          ClaimsApi::V2::IntentToFile::ITF_TYPES_TO_BGS_TYPES
+        end
 
         def bgs_service
           BGS::Services.new(external_uid: target_veteran.participant_id,
