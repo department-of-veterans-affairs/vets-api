@@ -844,7 +844,7 @@ GEM
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.33.0, < 2.0)
-    rubocop-rspec (2.15.0)
+    rubocop-rspec (2.16.0)
       rubocop (~> 1.33)
     rubocop-thread_safety (0.4.4)
       rubocop (>= 0.53.0)
@@ -954,7 +954,7 @@ GEM
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.8)
-    unicode-display_width (2.4.0)
+    unicode-display_width (2.4.2)
     uri_template (0.7.0)
     utf8-cleaner (1.0.0)
       activesupport
