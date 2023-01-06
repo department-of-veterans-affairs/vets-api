@@ -42,6 +42,8 @@ describe Preneeds::Service do
 
             match_with_switched_mimeparts(v[0], request_2.headers[k][0], old_mimepart, new_mimepart)
           end
+
+          match_with_switched_mimeparts(request_1.body, request_2.body, old_mimepart, new_mimepart)
         end
 
         expect(SecureRandom).to receive(:hex).twice.and_return(
