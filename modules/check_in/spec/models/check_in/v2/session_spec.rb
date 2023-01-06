@@ -17,10 +17,6 @@ RSpec.describe CheckIn::V2::Session do
       expect(subject::UUID_REGEX).to eq(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
     end
 
-    it 'has a LAST_FOUR_REGEX regex' do
-      expect(subject::LAST_FOUR_REGEX).to eq(/^[0-9]{4}$/)
-    end
-
     it 'has a LAST_NAME_REGEX regex' do
       expect(subject::LAST_NAME_REGEX).to eq(/^.{1,600}$/)
     end
@@ -35,10 +31,6 @@ RSpec.describe CheckIn::V2::Session do
   describe 'attributes' do
     it 'responds to uuid' do
       expect(subject.build({}).respond_to?(:uuid)).to be(true)
-    end
-
-    it 'responds to last4' do
-      expect(subject.build({}).respond_to?(:last4)).to be(true)
     end
 
     it 'responds to last_name' do
@@ -59,80 +51,65 @@ RSpec.describe CheckIn::V2::Session do
   end
 
   describe '#valid?' do
-    context 'when called with last4' do
-      it 'returns true for valid params' do
-        params_hsh = {
-          data: {
-            uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
-            last4: '5555',
-            last_name: 'Johnson',
-            check_in_type: 'preCheckIn'
-          }
+    it 'returns true for valid params' do
+      params_hsh = {
+        data: {
+          uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+          dob: '1970-02-20',
+          last_name: 'Johnson',
+          check_in_type: 'preCheckIn'
         }
+      }
 
-        expect(subject.build(params_hsh).valid?).to be(true)
-      end
-
-      it 'returns false for invalid uuid' do
-        params_hsh = {
-          uuid: 'd602d9eb',
-          last4: '5555',
-          last_name: 'Johnson'
-        }
-
-        expect(subject.build(params_hsh).valid?).to be(false)
-      end
+      expect(subject.build(params_hsh).valid?).to be(true)
     end
 
-    context 'when called with dob' do
-      it 'returns true for valid params' do
-        params_hsh = {
-          data: {
-            uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
-            dob: '1970-02-20',
-            last_name: 'Johnson',
-            check_in_type: 'preCheckIn'
-          }
+    it 'returns false for invalid year in dob' do
+      params_hsh = {
+        data: {
+          uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+          dob: '02-20-70',
+          last_name: 'Johnson'
         }
+      }
 
-        expect(subject.build(params_hsh).valid?).to be(true)
-      end
+      expect(subject.build(params_hsh).valid?).to be(false)
+    end
 
-      it 'returns false for invalid year in dob' do
-        params_hsh = {
-          data: {
-            uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
-            dob: '02-20-70',
-            last_name: 'Johnson'
-          }
+    it 'returns false for invalid month in dob' do
+      params_hsh = {
+        data: {
+          uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+          dob: '1970-42-02',
+          last_name: 'Johnson'
         }
+      }
 
-        expect(subject.build(params_hsh).valid?).to be(false)
-      end
+      expect(subject.build(params_hsh).valid?).to be(false)
+    end
 
-      it 'returns false for invalid month in dob' do
-        params_hsh = {
-          data: {
-            uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
-            dob: '1970-42-02',
-            last_name: 'Johnson'
-          }
+    it 'returns false for invalid day in dob' do
+      params_hsh = {
+        data: {
+          uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+          dob: '1970-10-36',
+          last_name: 'Johnson'
         }
+      }
 
-        expect(subject.build(params_hsh).valid?).to be(false)
-      end
+      expect(subject.build(params_hsh).valid?).to be(false)
+    end
 
-      it 'returns false for invalid day in dob' do
-        params_hsh = {
-          data: {
-            uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
-            dob: '1970-10-36',
-            last_name: 'Johnson'
-          }
+    it 'returns false for ssn instead of dob' do
+      params_hsh = {
+        data: {
+          uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+          ssn: '5555',
+          last_name: 'Johnson'
         }
+      }
 
-        expect(subject.build(params_hsh).valid?).to be(false)
-      end
+      expect(subject.build(params_hsh).valid?).to be(false)
     end
   end
 
@@ -228,20 +205,6 @@ RSpec.describe CheckIn::V2::Session do
   end
 
   describe '#client_error' do
-    context 'when called with invalid last4' do
-      it 'has a response' do
-        hsh = { error: true, message: 'Invalid last4 or last name!' }
-        params_hsh = {
-          id: 'd602d9eb',
-          last4: '5555',
-          last_name: 'Johnson'
-        }
-        error = subject.build(params_hsh).client_error
-
-        expect(error).to eq(hsh)
-      end
-    end
-
     context 'when called with invalid dob' do
       it 'has a response' do
         hsh = { error: true, message: 'Invalid dob or last name!' }
