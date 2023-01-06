@@ -8,8 +8,6 @@ module CheckIn
     #
     # @!attribute uuid
     #   @return [String] uuid of the session
-    # @!attribute last4
-    #   @return [String] last4 of the user for Low Risk Auth
     # @!attribute last_name
     #   @return [String] last name of the user for Low Risk Auth
     # @!attribute settings
@@ -24,11 +22,10 @@ module CheckIn
       extend Forwardable
 
       UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.freeze
-      LAST_FOUR_REGEX = /^[0-9]{4}$/.freeze
       DOB_REGEX = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.freeze
       LAST_NAME_REGEX = /^.{1,600}$/.freeze
 
-      attr_reader :uuid, :last4, :dob, :last_name, :settings, :jwt, :check_in_type
+      attr_reader :uuid, :dob, :last_name, :settings, :jwt, :check_in_type
 
       def_delegators :settings, :redis_session_prefix
 
@@ -46,7 +43,6 @@ module CheckIn
         @jwt = opts[:jwt]
         @uuid = opts.dig(:data, :uuid)
         @dob = opts.dig(:data, :dob)
-        @last4 = opts.dig(:data, :last4)
         @last_name = opts.dig(:data, :last_name)
         @check_in_type = opts.dig(:data, :check_in_type)
       end
@@ -78,11 +74,7 @@ module CheckIn
       # @return [Boolean]
       #
       def valid?
-        if dob.present?
-          UUID_REGEX.match?(uuid) && DOB_REGEX.match?(dob) && LAST_NAME_REGEX.match?(last_name)
-        else
-          UUID_REGEX.match?(uuid) && LAST_FOUR_REGEX.match?(last4) && LAST_NAME_REGEX.match?(last_name)
-        end
+        UUID_REGEX.match?(uuid) && DOB_REGEX.match?(dob) && LAST_NAME_REGEX.match?(last_name)
       end
 
       #
@@ -113,22 +105,18 @@ module CheckIn
       end
 
       #
-      # Returns the Faraday::Response when client side data is invalid
+      # Returns the message when client side data is invalid
       #
-      # @return [Faraday::Response]
+      # @return [Hash]
       #
       def client_error
-        if dob.present?
-          { error: true, message: 'Invalid dob or last name!' }
-        else
-          { error: true, message: 'Invalid last4 or last name!' }
-        end
+        { error: true, message: 'Invalid dob or last name!' }
       end
 
       #
-      # Returns the Faraday::Response for invalid request from client
+      # Returns the message for invalid request from client
       #
-      # @return [Faraday::Response]
+      # @return [Hash]
       #
       def invalid_request
         { error: true, message: 'Invalid parameter request' }
