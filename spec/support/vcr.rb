@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# shared betw rails_helper and pact_helper
 VCR.configure do |c|
   c.cassette_library_dir = 'spec/support/vcr_cassettes'
   c.hook_into :webmock
