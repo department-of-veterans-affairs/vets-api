@@ -1,8 +1,0 @@
-Description:
-    Creates a provider states file for pact contract testing setup.
-
-Example:
-    rails pact new search
-
-    This will create:
-        spec/service_consumers/provider_states_for/search.rb

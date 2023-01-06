@@ -164,8 +164,6 @@ end
 group :test do
   gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', branch: 'master'
   gem 'fakeredis'
-  gem 'pact', require: false
-  gem 'pact-mock_service', require: false
   gem 'pdf-inspector'
   gem 'rspec_junit_formatter'
   gem 'rspec-retry'
