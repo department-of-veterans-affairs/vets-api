@@ -1257,8 +1257,7 @@
             "content": {
               "application/json": {
                 "example": {
-                  "success": true,
-                  "status": 200
+                  "success": true
                 },
                 "schema": {
                   "type": "object",
