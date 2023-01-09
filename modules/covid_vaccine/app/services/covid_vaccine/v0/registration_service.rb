@@ -77,14 +77,11 @@ module CovidVaccine
       end
 
       def attributes_from_mpi(form_data)
-        ui = OpenStruct.new(first_name: form_data['first_name'],
-                            last_name: form_data['last_name'],
-                            birth_date: form_data['birth_date'],
-                            ssn: form_data['ssn'],
-                            gender: form_data['gender'],
-                            valid?: true)
-        response = MPI::Service.new.find_profile(ui)
-        if response.status == 'OK'
+        response = MPI::Service.new.find_profile_by_attributes(first_name: form_data['first_name'],
+                                                               last_name: form_data['last_name'],
+                                                               birth_date: form_data['birth_date'],
+                                                               ssn: form_data['ssn'])
+        if response.ok?
           {
             first_name: response.profile&.given_names&.first,
             last_name: response.profile&.family_name,

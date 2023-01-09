@@ -17,19 +17,19 @@ describe VAOS::V2::AppointmentsService do
 
   describe '#post_appointment' do
     let(:va_proposed_clinic_request_body) do
-      FactoryBot.build(:appointment_form_v2, :va_proposed_clinic).attributes
+      FactoryBot.build(:appointment_form_v2, :va_proposed_clinic, user: user).attributes
     end
 
     let(:va_proposed_phone_request_body) do
-      FactoryBot.build(:appointment_form_v2, :va_proposed_phone).attributes
+      FactoryBot.build(:appointment_form_v2, :va_proposed_phone, user: user).attributes
     end
 
     let(:va_booked_request_body) do
-      FactoryBot.build(:appointment_form_v2, :va_booked).attributes
+      FactoryBot.build(:appointment_form_v2, :va_booked, user: user).attributes
     end
 
     let(:community_cares_request_body) do
-      FactoryBot.build(:appointment_form_v2, :community_cares).attributes
+      FactoryBot.build(:appointment_form_v2, :community_cares, user: user).attributes
     end
 
     context 'when va appointment create request is valid' do
@@ -50,14 +50,6 @@ describe VAOS::V2::AppointmentsService do
           expect(response[:id]).to eq('70065')
         end
       end
-
-      # it 'returns the created appointment-va-proposed-phone' do
-      #   VCR.use_cassette('vaos/v2/appointments/post_appointments_va_proposed_phone_200',
-      #                    record: :new_episodes) do
-      #     response = subject.post_appointment(va_proposed_phone_request_body)
-      #     expect(response[:id]).to eq('70065')
-      #   end
-      # end
     end
 
     # TODO: Verify CC request details

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'mpi/models/mvi_profile'
 require 'mpi/responses/find_profile_response'
 
 def stub_mpi(profile = nil)
@@ -9,10 +10,7 @@ def stub_mpi(profile = nil)
   # (avoids WARNING: rspec-mocks was unable to restore the original... message)
   allow_any_instance_of(MPIData).to receive(:freeze) { self }
   allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
-    MPI::Responses::FindProfileResponse.new(
-      status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
-      profile: profile
-    )
+    build(:find_profile_response, profile: profile)
   )
 end
 
@@ -22,17 +20,14 @@ def stub_mpi_historical_icns(profile = nil)
   # response_from_redis_or_service can always be reset
   # (avoids WARNING: rspec-mocks was unable to restore the original... message)
   allow_any_instance_of(MPIData).to receive(:freeze) { self }
-  allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(
-    MPI::Responses::FindProfileResponse.new(
-      status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
-      profile: profile
-    )
+  allow_any_instance_of(MPIData).to receive(:get_person_historical_icns).and_return(
+    profile.historical_icns
   )
 end
 
 def stub_mpi_not_found
   allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
-    MPI::Responses::FindProfileResponse.with_not_found(not_found_exception)
+    build(:find_profile_not_found_response)
   )
 end
 

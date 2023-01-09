@@ -222,7 +222,7 @@ RSpec.describe Users::Profile do
         end
 
         it 'includes status' do
-          expect(va_profile[:status]).to eq('OK')
+          expect(va_profile[:status]).to eq(Common::Client::Concerns::ServiceStatus::RESPONSE_STATUS[:ok])
         end
 
         it 'sets the status to 200' do
@@ -260,7 +260,6 @@ RSpec.describe Users::Profile do
 
         it 'populates the #errors array with the serialized error', :aggregate_failures do
           error = subject.errors.first
-
           expect(error[:external_service]).to eq 'MVI'
           expect(error[:start_time]).to be_present
           expect(error[:description]).to include 'Record not found'
@@ -280,7 +279,7 @@ RSpec.describe Users::Profile do
         end
 
         it 'includes status' do
-          expect(veteran_status[:status]).to eq('OK')
+          expect(veteran_status[:status]).to eq(Common::Client::Concerns::ServiceStatus::RESPONSE_STATUS[:ok])
         end
 
         it 'includes served_in_military' do

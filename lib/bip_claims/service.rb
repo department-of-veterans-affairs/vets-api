@@ -4,7 +4,6 @@ require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'mpi/service'
 require_relative 'configuration'
-require_relative 'veteran'
 
 module BipClaims
   class Service < Common::Client::Base
@@ -25,17 +24,20 @@ module BipClaims
         raise ArgumentError, "Unsupported form id: #{claim.form_id}"
       end
 
-      BipClaims::Veteran.new(
-        ssn: ssn,
+      {
+        ssn: ssn&.gsub(/\D/, ''),
         first_name: full_name['first'],
-        middle_name: full_name['middle'],
         last_name: full_name['last'],
         birth_date: bday
-      )
+      }
     end
 
     def lookup_veteran_from_mpi(claim)
-      veteran = MPI::Service.new.find_profile(veteran_attributes(claim))
+      attributes_hash = veteran_attributes(claim)
+      veteran = MPI::Service.new.find_profile_by_attributes(first_name: attributes_hash[:first_name],
+                                                            last_name: attributes_hash[:last_name],
+                                                            birth_date: attributes_hash[:birth_date],
+                                                            ssn: attributes_hash[:ssn])
       if veteran.profile&.participant_id
         StatsD.increment("#{STATSD_KEY_PREFIX}.mvi_lookup_hit")
         veteran.profile

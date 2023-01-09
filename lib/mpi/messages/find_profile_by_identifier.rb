@@ -7,15 +7,17 @@ require 'mpi/constants'
 module MPI
   module Messages
     class FindProfileByIdentifier
-      attr_reader :identifier, :search_type
+      attr_reader :identifier, :identifier_type, :search_type
 
-      def initialize(identifier:, search_type: MPI::Constants::CORRELATION_WITH_RELATIONSHIP_DATA)
+      def initialize(identifier:, identifier_type:, search_type: Constants::CORRELATION_WITH_RELATIONSHIP_DATA)
         @identifier = identifier
+        @identifier_type = identifier_type
         @search_type = search_type
       end
 
       def perform
-        MPI::Messages::RequestBuilder.new(extension: MPI::Constants::FIND_PROFILE, body: build_body).perform
+        validate_types
+        Messages::RequestBuilder.new(extension: Constants::FIND_PROFILE, body: build_body).perform
       rescue => e
         Rails.logger.error "[FindProfileByIdentifier] Failed to build request: #{e.message}"
         raise e
@@ -23,9 +25,26 @@ module MPI
 
       private
 
+      def validate_types
+        unless Constants::QUERY_IDENTIFIERS.include?(identifier_type)
+          raise Errors::ArgumentError, "Identifier type is not supported, identifier_type=#{identifier_type}"
+        end
+      end
+
+      def correlation_identifier
+        case identifier_type
+        when Constants::ICN
+          identifier
+        when Constants::IDME_UUID
+          "#{identifier}^#{Constants::IDME_FULL_IDENTIFIER}"
+        when Constants::LOGINGOV_UUID
+          "#{identifier}^#{Constants::LOGINGOV_FULL_IDENTIFIER}"
+        end
+      end
+
       def build_body
         body = RequestHelper.build_control_act_process_element
-        body << RequestHelper.build_code(code: MPI::Constants::FIND_PROFILE_CONTROL_ACT_PROCESS)
+        body << RequestHelper.build_code(code: Constants::FIND_PROFILE_CONTROL_ACT_PROCESS)
         body << query_by_parameter
         body
       end
@@ -37,11 +56,11 @@ module MPI
 
       def build_parameter_list
         el = RequestHelper.build_parameter_list_element
-        el << RequestHelper.build_identifier(identifier: identifier, root: root)
+        el << RequestHelper.build_identifier(identifier: correlation_identifier, root: root)
       end
 
       def root
-        MPI::Constants::VA_ROOT_OID
+        Constants::VA_ROOT_OID
       end
     end
   end

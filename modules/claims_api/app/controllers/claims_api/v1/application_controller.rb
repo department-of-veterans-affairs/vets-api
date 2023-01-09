@@ -48,19 +48,15 @@ module ClaimsApi
                               header_request: header_request?,
                               ptcpnt_id: target_veteran.participant_id.present?,
                               birls_id: target_veteran.birls_id.present?)
-
         mpi_add_response = target_veteran.mpi.add_person_proxy
 
         raise mpi_add_response.error unless mpi_add_response.ok?
-
-        # Delay to allow MPI caching to propegate
-        sleep 10
 
         ClaimsApi::Logger.log('validate_identifiers',
                               rid: request.request_id, mpi_res_ok: mpi_add_response.ok?,
                               ptcpnt_id: target_veteran.participant_id.present?,
                               birls_id: target_veteran.birls_id.present?)
-      rescue ::Common::Exceptions::UnprocessableEntity
+      rescue ::Common::Exceptions::UnprocessableEntity, MPI::Errors::ArgumentError
         raise ::Common::Exceptions::UnprocessableEntity.new(detail:
           "Unable to locate Veteran's Participant ID in Master Person Index (MPI)." \
           'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')

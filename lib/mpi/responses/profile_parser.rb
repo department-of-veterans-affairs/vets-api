@@ -3,6 +3,7 @@
 require 'sentry_logging'
 require 'identity/parsers/gc_ids'
 require_relative 'parser_base'
+require 'mpi/models/mvi_profile'
 
 module MPI
   module Responses
@@ -79,10 +80,10 @@ module MPI
       # @return [MviProfile] the profile from the parsed response
       def parse
         subject = locate_element(@original_body, SUBJECT_XPATH)
-        return nil unless subject
+        return MPI::Models::MviProfile.new({ transaction_id: @transaction_id }) unless subject
 
         patient = locate_element(subject, PATIENT_XPATH)
-        return nil unless patient
+        return MPI::Models::MviProfile.new({ transaction_id: @transaction_id }) unless patient
 
         build_mvi_profile(patient)
       end
@@ -91,6 +92,7 @@ module MPI
         error_details = {
           ack_detail_code: @code,
           id_extension: locate_element(@original_body, ACKNOWLEDGEMENT_TARGET_MESSAGE_ID_EXTENSION_XPATH),
+          transaction_id: @transaction_id,
           error_texts: []
         }
         error_text_nodes = locate_elements(@original_body, ACKNOWLEDGEMENT_DETAIL_XPATH)

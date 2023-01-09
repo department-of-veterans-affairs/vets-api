@@ -9,7 +9,7 @@ describe MPI::Responses::AddPersonResponse do
   let(:parsed_codes) { 'some-parsed-codes' }
   let(:error) { 'some-error' }
 
-  describe '.ok?' do
+  describe '#ok?' do
     subject { add_person_response.ok? }
 
     context 'when status is :ok' do
@@ -29,7 +29,7 @@ describe MPI::Responses::AddPersonResponse do
     end
   end
 
-  describe '.server_error?' do
+  describe '#server_error?' do
     subject { add_person_response.server_error? }
 
     context 'when status is :server_error' do

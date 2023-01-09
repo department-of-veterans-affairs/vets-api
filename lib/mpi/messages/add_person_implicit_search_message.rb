@@ -111,7 +111,7 @@ module MPI
       end
 
       def identifier
-        "#{csp_uuid}^#{csp_identifier}^A"
+        "#{csp_uuid}^#{csp_identifier}"
       end
 
       def csp_identifier

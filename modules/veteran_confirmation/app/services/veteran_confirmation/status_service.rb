@@ -9,8 +9,10 @@ module VeteranConfirmation
     NOT_CONFIRMED = 'not confirmed'
 
     def get_by_attributes(user_attributes)
-      attrs = UserIdentity.new(user_attributes.merge(uuid: SecureRandom.uuid, loa: { current: 3, highest: 3 }))
-      mvi_resp = MPI::Service.new.find_profile(attrs)
+      mvi_resp = MPI::Service.new.find_profile_by_attributes(ssn: user_attributes[:ssn],
+                                                             first_name: user_attributes[:first_name],
+                                                             last_name: user_attributes[:last_name],
+                                                             birth_date: user_attributes[:birth_date])
       return NOT_CONFIRMED if mvi_resp.not_found?
       raise mvi_resp.error unless mvi_resp.ok?
 

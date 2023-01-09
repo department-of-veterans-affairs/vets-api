@@ -433,24 +433,17 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:type) {}
     let(:acr) { nil }
     let(:client_id) { nil }
-    let(:mpi_update_profile_response) { MPI::Responses::AddPersonResponse.new(status: :ok) }
-    let(:mpi_add_person_response) do
-      MPI::Responses::AddPersonResponse.new(status: :ok, parsed_codes: { icn: add_person_icn })
-    end
+    let(:mpi_update_profile_response) { create(:add_person_response) }
+    let(:mpi_add_person_response) { create(:add_person_response, parsed_codes: { icn: add_person_icn }) }
     let(:add_person_icn) { nil }
-    let(:find_profile) do
-      MPI::Responses::FindProfileResponse.new(
-        status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
-        profile: mpi_profile
-      )
-    end
+    let(:find_profile) { create(:find_profile_response, profile: mpi_profile) }
     let(:mpi_profile) { nil }
 
     before do
       allow(Rails.logger).to receive(:info)
       allow_any_instance_of(MPI::Service).to receive(:update_profile).and_return(mpi_update_profile_response)
       allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(find_profile)
-      allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(find_profile)
+      allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(find_profile)
       allow_any_instance_of(MPI::Service).to receive(:add_person_implicit_search).and_return(mpi_add_person_response)
     end
 

@@ -1,71 +1,16 @@
 # frozen_string_literal: true
 
-require_relative 'profile_parser'
-require 'common/models/redis_store'
-require 'common/client/concerns/service_status'
-require 'mpi/models/mvi_profile'
-
 module MPI
   module Responses
-    # Cacheable response from MVI's find profile endpoint (prpa_in201306_uv02).
     class FindProfileResponse
-      include Virtus.model(nullify_blank: true)
-      include Common::Client::Concerns::ServiceStatus
+      attr_reader :status, :profile, :error
 
-      # @return [String] The status of the response
-      attribute :status, String
+      STATUS = [OK = :ok, NOT_FOUND = :not_found, SERVER_ERROR = :server_error].freeze
 
-      # @return [MPI::Models::MviProfile] The parsed MVI profile
-      attribute :profile, MPI::Models::MviProfile
-
-      # @return [Common::Exceptions::BackendServiceException] The rescued exception
-      attribute :error, Common::Exceptions::BackendServiceException
-
-      # Builds a response with a server error status and a nil profile
-      #
-      # @return [MPI::Responses::FindProfileResponse] the response
-      def self.with_server_error(exception = nil)
-        FindProfileResponse.new(
-          status: FindProfileResponse::RESPONSE_STATUS[:server_error],
-          profile: nil,
-          error: exception
-        )
-      end
-
-      # Builds a response with a not found status and a nil profile
-      #
-      # @return [MPI::Responses::FindProfileResponse] the response
-      def self.with_not_found(exception = nil)
-        FindProfileResponse.new(
-          status: FindProfileResponse::RESPONSE_STATUS[:not_found],
-          profile: nil,
-          error: exception
-        )
-      end
-
-      # Builds a response with a ok status and a parsed response
-      #
-      # @param response [Ox::Element] ox element returned from the soap service middleware
-      # @return [MPI::Responses::FindProfileResponse] response with a parsed MviProfile
-      def self.with_parsed_response(response)
-        profile_parser = ProfileParser.new(response)
-        profile = profile_parser.parse
-        raise MPI::Errors::DuplicateRecords, profile_parser.error_details if profile_parser.multiple_match?
-        raise MPI::Errors::FailedRequestError, profile_parser.error_details if profile_parser.failed_request?
-
-        if profile_parser.invalid_request? || profile.nil?
-          if response.present?
-            Raven.extra_context(mpi_transaction_id: response.response_headers&.dig('x-global-transaction-id'))
-          end
-          raise MPI::Errors::RecordNotFound
-        end
-
-        Rails.logger.info("[MPI][Responses][FindProfileResponse] icn=#{profile.icn}, " \
-                          "transaction_id=#{profile.transaction_id}")
-        FindProfileResponse.new(
-          status: RESPONSE_STATUS[:ok],
-          profile: profile
-        )
+      def initialize(status:, profile: nil, error: nil)
+        @status = status
+        @profile = profile
+        @error = error
       end
 
       def cache?
@@ -73,20 +18,15 @@ module MPI
       end
 
       def ok?
-        @status == RESPONSE_STATUS[:ok]
+        @status == OK
       end
 
       def not_found?
-        @status == RESPONSE_STATUS[:not_found]
+        @status == NOT_FOUND
       end
 
       def server_error?
-        @status == RESPONSE_STATUS[:server_error]
-      end
-
-      def cache_for_user(user)
-        @uuid = user.uuid
-        save
+        @status == SERVER_ERROR
       end
     end
   end

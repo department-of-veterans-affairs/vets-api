@@ -1072,18 +1072,8 @@ RSpec.describe 'Disability Claims ', type: :request do
           }
         end
         let(:mvi_profile) { build(:mvi_profile) }
-        let(:mvi_profile_response) do
-          MPI::Responses::FindProfileResponse.new(
-            status: 'OK',
-            profile: mvi_profile
-          )
-        end
-        let(:add_response) do
-          MPI::Responses::AddPersonResponse.new(
-            status: :ok,
-            parsed_codes: parsed_codes
-          )
-        end
+        let(:mvi_profile_response) { build(:find_profile_response, profile: mvi_profile) }
+        let(:add_response) { build(:add_person_response, parsed_codes: parsed_codes) }
 
         it 'adds person to MPI' do
           with_okta_user(scopes) do |auth_header|
@@ -1093,7 +1083,10 @@ RSpec.describe 'Disability Claims ', type: :request do
                   VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes') do
                     expect_any_instance_of(MPIData).to receive(:add_person_proxy).once.and_call_original
                     expect_any_instance_of(MPI::Service).to receive(:add_person_proxy).and_return(add_response)
-                    allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(mvi_profile_response)
+                    allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier)
+                      .and_return(mvi_profile_response)
+                    allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes_with_orch_search)
+                      .and_return(mvi_profile_response)
 
                     post path, params: data, headers: auth_header
                     expect(response.status).to eq(200)

@@ -215,7 +215,7 @@ class User < Common::RedisStore
   end
 
   def historical_icns
-    @mpi_historical_icn ||= MPIData.historical_icn_for_user(self)
+    @mpi_historical_icn ||= mpi.get_person_historical_icns
   end
 
   def home_phone
@@ -255,16 +255,6 @@ class User < Common::RedisStore
   end
 
   # MPI setter methods
-
-  def mpi_add_person_proxy
-    add_person_identity = identity
-    add_person_identity.edipi = edipi
-    add_person_identity.ssn = ssn
-    add_person_identity.icn = icn
-    add_person_identity.search_token = search_token
-    mpi.user_identity = add_person_identity
-    mpi.add_person_proxy
-  end
 
   def set_mhv_ids(mhv_id)
     mpi_profile.mhv_ids = [mhv_id] + mhv_ids

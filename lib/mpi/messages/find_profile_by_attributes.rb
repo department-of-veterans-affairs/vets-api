@@ -7,17 +7,24 @@ require 'mpi/constants'
 module MPI
   module Messages
     class FindProfileByAttributes
-      attr_reader :given_names, :last_name, :birth_date, :gender, :ssn, :search_type, :orch_search, :edipi
+      attr_reader :first_name, :middle_name, :last_name, :birth_date, :gender, :ssn, :search_type, :orch_search, :edipi
 
-      def initialize(profile:,
+      # rubocop:disable Metrics/ParameterLists
+      def initialize(first_name:,
+                     last_name:,
+                     birth_date:,
+                     ssn:,
+                     middle_name: nil,
+                     gender: nil,
                      orch_search: false,
                      edipi: nil,
                      search_type: MPI::Constants::CORRELATION_WITH_RELATIONSHIP_DATA)
-        @given_names = profile[:given_names]
-        @last_name = profile[:last_name]
-        @birth_date = profile[:birth_date]
-        @gender = profile[:gender]
-        @ssn = profile[:ssn]
+        @first_name = first_name
+        @middle_name = middle_name
+        @last_name = last_name
+        @birth_date = birth_date
+        @gender = gender
+        @ssn = ssn
         @orch_search = orch_search
         @edipi = edipi
         @search_type = search_type
@@ -30,8 +37,13 @@ module MPI
         Rails.logger.error "[FindProfileByAttributes] Failed to build request: #{e.message}"
         raise e
       end
+      # rubocop:enable Metrics/ParameterLists
 
       private
+
+      def given_names
+        @given_names ||= [first_name, middle_name].compact
+      end
 
       def build_body
         body = build_control_act_process
@@ -41,7 +53,7 @@ module MPI
 
       def validate_required_fields
         missing_values = []
-        missing_values << :given_names if given_names.blank?
+        missing_values << :first_name if first_name.blank?
         missing_values << :last_name if last_name.blank?
         missing_values << :birth_date if birth_date.blank?
         missing_values << :ssn if ssn.blank?

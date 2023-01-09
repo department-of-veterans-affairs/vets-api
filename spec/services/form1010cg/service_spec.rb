@@ -170,33 +170,8 @@ RSpec.describe Form1010cg::Service do
         )
       )
 
-      veteran_data = subject.claim.veteran_data
-
-      expected_mvi_search_params = {
-        first_name: veteran_data['fullName']['first'],
-        middle_name: veteran_data['fullName']['middle'],
-        last_name: veteran_data['fullName']['last'],
-        birth_date: veteran_data['dateOfBirth'],
-        gender: veteran_data['gender'],
-        ssn: veteran_data['ssnOrTin'],
-        email: default_email_on_mvi_search,
-        uuid: be_an_instance_of(String),
-        loa: {
-          current: LOA::THREE,
-          highest: LOA::THREE
-        }
-      }
-
-      expect(UserIdentity).to receive(:new).with(
-        expected_mvi_search_params
-      ).and_return(
-        :user_identity
-      )
-
-      expect_any_instance_of(MPI::Service).to receive(:find_profile).with(
-        :user_identity
-      ).and_return(
-        double(status: 'OK', profile: double(icn: :ICN_123))
+      expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).and_return(
+        create(:find_profile_response, profile: double(icn: :ICN_123))
       )
 
       result = subject.icn_for('veteran')
@@ -215,33 +190,8 @@ RSpec.describe Form1010cg::Service do
         )
       )
 
-      veteran_data = subject.claim.veteran_data
-
-      expected_mvi_search_params = {
-        first_name: veteran_data['fullName']['first'],
-        middle_name: veteran_data['fullName']['middle'],
-        last_name: veteran_data['fullName']['last'],
-        birth_date: veteran_data['dateOfBirth'],
-        gender: veteran_data['gender'],
-        ssn: veteran_data['ssnOrTin'],
-        email: default_email_on_mvi_search,
-        uuid: be_an_instance_of(String),
-        loa: {
-          current: LOA::THREE,
-          highest: LOA::THREE
-        }
-      }
-
-      expect(UserIdentity).to receive(:new).with(
-        expected_mvi_search_params
-      ).and_return(
-        :user_identity
-      )
-
-      expect_any_instance_of(MPI::Service).to receive(:find_profile).with(
-        :user_identity
-      ).and_return(
-        double(status: 'NOT_FOUND', error: double)
+      expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).and_return(
+        create(:find_profile_not_found_response, error: double(message: 'some-message'))
       )
 
       result = subject.icn_for('veteran')
@@ -260,9 +210,7 @@ RSpec.describe Form1010cg::Service do
         )
       )
 
-      # This should skip the MPI search and not build a UserIdentity
-      expect(UserIdentity).not_to receive(:new)
-      expect_any_instance_of(MPI::Service).not_to receive(:find_profile)
+      expect_any_instance_of(MPI::Service).not_to receive(:find_profile_by_attributes)
 
       result = subject.icn_for('primaryCaregiver')
 
@@ -284,59 +232,22 @@ RSpec.describe Form1010cg::Service do
       veteran_data = subject.claim.veteran_data
       pc_data = subject.claim.primary_caregiver_data
 
-      expected_mvi_search_params = {
-        veteran: {
-          first_name: veteran_data['fullName']['first'],
-          middle_name: veteran_data['fullName']['middle'],
-          last_name: veteran_data['fullName']['last'],
-          birth_date: veteran_data['dateOfBirth'],
-          gender: veteran_data['gender'],
-          ssn: veteran_data['ssnOrTin'],
-          email: default_email_on_mvi_search,
-          uuid: be_an_instance_of(String),
-          loa: {
-            current: LOA::THREE,
-            highest: LOA::THREE
-          }
-        },
-        primaryCaregiver: {
-          first_name: pc_data['fullName']['first'],
-          middle_name: pc_data['fullName']['middle'],
-          last_name: pc_data['fullName']['last'],
-          birth_date: pc_data['dateOfBirth'],
-          gender: pc_data['gender'],
-          ssn: pc_data['ssnOrTin'],
-          email: default_email_on_mvi_search,
-          uuid: be_an_instance_of(String),
-          loa: {
-            current: LOA::THREE,
-            highest: LOA::THREE
-          }
-        }
-      }
-
-      expect(UserIdentity).to receive(:new).with(
-        expected_mvi_search_params[:veteran]
+      expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).with(
+        first_name: veteran_data['fullName']['first'],
+        last_name: veteran_data['fullName']['last'],
+        birth_date: veteran_data['dateOfBirth'],
+        ssn: veteran_data['ssnOrTin']
       ).and_return(
-        :veteran_user_identity
+        create(:find_profile_response, profile: double(icn: :CACHED_VALUE))
       )
 
-      expect_any_instance_of(MPI::Service).to receive(:find_profile).with(
-        :veteran_user_identity
+      expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).with(
+        first_name: pc_data['fullName']['first'],
+        last_name: pc_data['fullName']['last'],
+        birth_date: pc_data['dateOfBirth'],
+        ssn: pc_data['ssnOrTin']
       ).and_return(
-        double(status: 'OK', profile: double(icn: :CACHED_VALUE))
-      )
-
-      expect(UserIdentity).to receive(:new).with(
-        expected_mvi_search_params[:primaryCaregiver]
-      ).and_return(
-        :pc_user_identity
-      )
-
-      expect_any_instance_of(MPI::Service).to receive(:find_profile).with(
-        :pc_user_identity
-      ).and_return(
-        double(status: 'NOT_FOUND', error: double)
+        create(:find_profile_not_found_response, error: double(message: 'some-message'))
       )
 
       3.times do
@@ -369,32 +280,12 @@ RSpec.describe Form1010cg::Service do
           )
         )
 
-        expected_mvi_search_params = {
+        expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).with(
           first_name: veteran_data['fullName']['first'],
-          middle_name: veteran_data['fullName']['middle'],
           last_name: veteran_data['fullName']['last'],
           birth_date: veteran_data['dateOfBirth'],
-          gender: veteran_data['gender'],
-          ssn: veteran_data['ssnOrTin'],
-          email: veteran_email,
-          uuid: be_an_instance_of(String),
-          loa: {
-            current: LOA::THREE,
-            highest: LOA::THREE
-          }
-        }
-
-        expect(UserIdentity).to receive(:new).with(
-          expected_mvi_search_params
-        ).and_return(
-          :user_identity
-        )
-
-        expect_any_instance_of(MPI::Service).to receive(:find_profile).with(
-          :user_identity
-        ).and_return(
-          double(status: 'OK', profile: double(icn: :ICN_123))
-        )
+          ssn: veteran_data['ssnOrTin']
+        ).and_return(create(:find_profile_response, profile: double(icn: :ICN_123)))
 
         result = subject.icn_for('veteran')
 
@@ -419,8 +310,8 @@ RSpec.describe Form1010cg::Service do
 
       it 'will log the result of a successful search' do
         %w[veteran primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo].each do |form_subject|
-          expect_any_instance_of(MPI::Service).to receive(:find_profile).and_return(
-            double(status: 'OK', profile: double(icn: :ICN_123))
+          expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).and_return(
+            create(:find_profile_response, profile: double(icn: :ICN_123))
           )
 
           expect(described_class::AUDITOR).to receive(:log_mpi_search_result).with(
@@ -435,8 +326,8 @@ RSpec.describe Form1010cg::Service do
 
       it 'will log the result of a unsuccessful search' do
         %w[veteran primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo].each do |form_subject|
-          expect_any_instance_of(MPI::Service).to receive(:find_profile).and_return(
-            double(status: 'NOT_FOUND', error: double)
+          expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).and_return(
+            create(:find_profile_not_found_response, error: double(message: 'some-message'))
           )
 
           expect(described_class::AUDITOR).to receive(:log_mpi_search_result).with(
@@ -476,8 +367,8 @@ RSpec.describe Form1010cg::Service do
       end
 
       it 'will not log the search result when reading from cache' do
-        expect_any_instance_of(MPI::Service).to receive(:find_profile).and_return(
-          double(status: 'OK', profile: double(icn: :ICN_123))
+        expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).and_return(
+          create(:find_profile_response, profile: double(icn: :ICN_123))
         )
 
         # Exception would be raised if this is called more (or less than) than one time

@@ -241,7 +241,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
           end
 
           it 'returns an unprocessible entity status' do
-            allow_any_instance_of(MPI::Service).to receive(:find_profile).and_raise(ArgumentError)
+            allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes_with_orch_search)
+              .and_raise(ArgumentError)
             with_okta_user(scopes) do |auth_header|
               post path, params: data, headers: headers.merge(auth_header)
               expect(response.status).to eq(422)

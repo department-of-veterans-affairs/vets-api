@@ -71,7 +71,8 @@ namespace :mvi do
             user = User.new(uuid: user_identity.uuid)
             user.instance_variable_set(:@identity, user_identity)
             mpi = MPIData.for_user(user)
-            response = mpi.send(:mpi_service).find_profile(user_identity)
+            response = mpi.send(:mpi_service).find_profile_by_identifier(identifier: user_identity.mhv_icn,
+                                                                         identifier_type: MPI::Constants::ICN)
 
             appended_headers.each do |column_name|
               case column_name

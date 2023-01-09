@@ -15,7 +15,8 @@ module SignIn
                 :ssn,
                 :mhv_icn,
                 :edipi,
-                :mhv_correlation_id
+                :mhv_correlation_id,
+                :add_person_icn
 
     def initialize(user_attributes:)
       @idme_uuid = user_attributes[:idme_uuid]
@@ -74,7 +75,7 @@ module SignIn
                                                                    idme_uuid: idme_uuid,
                                                                    logingov_uuid: logingov_uuid)
       if add_person_response.ok?
-        user_identity_from_attributes.icn = add_person_response.parsed_codes[:icn]
+        @add_person_icn = add_person_response.parsed_codes[:icn]
       else
         handle_error('User MPI record cannot be created',
                      Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
@@ -89,7 +90,7 @@ module SignIn
       update_profile_response = mpi_service.update_profile(last_name: last_name,
                                                            ssn: ssn,
                                                            birth_date: birth_date,
-                                                           icn: mhv_icn || user_identity_from_attributes.icn,
+                                                           icn: verified_icn,
                                                            email: credential_email,
                                                            address: address,
                                                            idme_uuid: idme_uuid,
@@ -102,7 +103,6 @@ module SignIn
     end
 
     def user_attribute_mismatch_checks
-      user_identity_from_attributes.icn ||= mpi_response_profile.icn
       attribute_mismatch_check(:first_name, first_name, mpi_response_profile.given_names.first)
       attribute_mismatch_check(:last_name, last_name, mpi_response_profile.family_name)
       attribute_mismatch_check(:birth_date, birth_date, mpi_response_profile.birth_date)
@@ -160,23 +160,6 @@ module SignIn
       @mhv_icn = mpi_response_profile.icn
     end
 
-    def user_identity_from_attributes
-      @user_identity_from_attributes ||= UserIdentity.new({ idme_uuid: idme_uuid,
-                                                            logingov_uuid: logingov_uuid,
-                                                            loa: loa,
-                                                            first_name: first_name,
-                                                            last_name: last_name,
-                                                            birth_date: birth_date,
-                                                            email: credential_email,
-                                                            address: address,
-                                                            ssn: ssn,
-                                                            edipi: edipi,
-                                                            icn: mhv_icn,
-                                                            mhv_icn: mhv_icn,
-                                                            mhv_correlation_id: mhv_correlation_id,
-                                                            uuid: credential_uuid })
-    end
-
     def check_lock_flag(attribute, attribute_description, code)
       handle_error("#{attribute_description} Detected", code, error: Errors::MPILockedAccountError) if attribute
     end
@@ -197,15 +180,16 @@ module SignIn
     end
 
     def mpi_response_profile
-      @mpi_response_profile ||= mpi_service.find_profile(user_identity_for_mpi_query)&.profile
-    end
-
-    def user_identity_for_mpi_query
-      @user_identity_for_mpi_query ||= UserIdentity.new({ idme_uuid: idme_uuid,
-                                                          logingov_uuid: logingov_uuid,
-                                                          loa: loa,
-                                                          mhv_icn: mhv_icn,
-                                                          uuid: credential_uuid })
+      @mpi_response_profile ||=
+        if mhv_icn || add_person_icn
+          mpi_service.find_profile_by_identifier(identifier: mhv_icn, identifier_type: MPI::Constants::ICN)&.profile
+        elsif idme_uuid
+          mpi_service.find_profile_by_identifier(identifier: idme_uuid,
+                                                 identifier_type: MPI::Constants::IDME_UUID)&.profile
+        elsif logingov_uuid
+          mpi_service.find_profile_by_identifier(identifier: logingov_uuid,
+                                                 identifier_type: MPI::Constants::LOGINGOV_UUID)&.profile
+        end
     end
 
     def verified_icn

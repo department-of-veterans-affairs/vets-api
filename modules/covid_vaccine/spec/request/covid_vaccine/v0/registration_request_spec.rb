@@ -31,10 +31,7 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
   end
   let(:mvi_profile) { build(:mvi_profile) }
   let(:mvi_profile_response) do
-    MPI::Responses::FindProfileResponse.new(
-      status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
-      profile: mvi_profile
-    )
+    create(:find_profile_response, profile: mvi_profile)
   end
 
   describe 'registration#create' do
