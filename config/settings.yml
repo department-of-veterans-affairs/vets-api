@@ -1093,6 +1093,17 @@ hqva_mobile:
 # settings va.gov uses related to lighthouse api's
 lighthouse:
   api_key: fake_key
+  benefits_claims:
+    host: https://sandbox-api.va.gov
+    path: services/claims/v2/veterans
+    access_token:
+      aud_claim_url: https://deptva-eval.okta.com/oauth2/ausdg7guis2TYDlFe2p7/v1/token
+      api_scopes:
+        - claim.read
+        - claim.write
+      client_id: ~
+      rsa_key: ~
+    use_mocks: false
   benefits_reference_data:
     url: https://sandbox-api.va.gov
     path: services/benefits-reference-data
