@@ -884,7 +884,7 @@ GEM
     ssrf_filter (1.1.1)
     staccato (0.5.3)
     statsd-instrument (3.5.2)
-    strong_migrations (1.4.0)
+    strong_migrations (1.4.1)
       activerecord (>= 5.2)
     super_diff (0.9.0)
       attr_extras (>= 6.2.4)
