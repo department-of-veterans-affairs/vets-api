@@ -53,10 +53,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
     before do
       # vet360_id appears in the API request URI so we need it to match the cassette
       allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
-        MPI::Responses::FindProfileResponse.new(
-          status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
-          profile: build(:mvi_profile, vet360_id: '1')
-        )
+        create(:find_profile_response, profile: build(:mvi_profile, vet360_id: '1'))
       )
     end
 
@@ -249,10 +246,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
     before do
       # vet360_id appears in the API request URI so we need it to match the cassette
       allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
-        MPI::Responses::FindProfileResponse.new(
-          status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
-          profile: build(:mvi_profile, vet360_id: '1')
-        )
+        create(:find_profile_response, profile: build(:mvi_profile, vet360_id: '1'))
       )
     end
 

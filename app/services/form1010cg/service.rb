@@ -132,14 +132,15 @@ module Form1010cg
         return @cache[:icns][form_subject] = NOT_FOUND
       end
 
-      response = mpi_service.find_profile(build_user_identity_for(form_subject_data))
+      response = mpi_service_find_profile_by_attributes(form_subject_data)
 
-      if response.status == 'OK'
+      if response.ok?
         log_mpi_search_result form_subject, :found
         return @cache[:icns][form_subject] = response.profile.icn
       end
 
-      if response.status == 'NOT_FOUND'
+      if response.not_found?
+        Raven.extra_context(mpi_transaction_id: response.error&.message)
         log_mpi_search_result form_subject, :not_found
         return @cache[:icns][form_subject] = NOT_FOUND
       end
@@ -195,6 +196,13 @@ module Form1010cg
       end.compact
     end
 
+    def mpi_service_find_profile_by_attributes(form_subject_data)
+      mpi_service.find_profile_by_attributes(first_name: form_subject_data['fullName']['first'],
+                                             last_name: form_subject_data['fullName']['last'],
+                                             birth_date: form_subject_data['dateOfBirth'],
+                                             ssn: form_subject_data['ssnOrTin'])
+    end
+
     def mpi_service
       @mpi_service ||= MPI::Service.new
     end
@@ -208,28 +216,6 @@ module Form1010cg
         claim_guid: claim.guid,
         form_subject: form_subject,
         result: result
-      )
-    end
-
-    # MPI::Service requires a valid UserIdentity to run a search, but only reads the user's attributes.
-    # This method will build a valid UserIdentity, so MPI::Service can pluck the name, ssn, dob, and gender.
-    #
-    # @param form_subject_data [Hash] The data of a specific form subject (ex: claim.parsed_form['veteran'])
-    # @return [UserIdentity] A valid UserIdentity for the given form_subject
-    def build_user_identity_for(form_subject_data)
-      UserIdentity.new(
-        first_name: form_subject_data['fullName']['first'],
-        middle_name: form_subject_data['fullName']['middle'],
-        last_name: form_subject_data['fullName']['last'],
-        birth_date: form_subject_data['dateOfBirth'],
-        gender: form_subject_data['gender'],
-        ssn: form_subject_data['ssnOrTin'],
-        email: form_subject_data['email'] || 'no-email@example.com',
-        uuid: SecureRandom.uuid,
-        loa: {
-          current: LOA::THREE,
-          highest: LOA::THREE
-        }
       )
     end
   end

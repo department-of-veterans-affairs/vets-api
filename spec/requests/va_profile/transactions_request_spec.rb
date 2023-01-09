@@ -9,10 +9,7 @@ RSpec.describe 'transactions' do
   before do
     # vet360_id appears in the API request URI so we need it to match the cassette
     allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
-      MPI::Responses::FindProfileResponse.new(
-        status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
-        profile: build(:mvi_profile, vet360_id: '1')
-      )
+      build(:find_profile_response, profile: build(:mvi_profile, vet360_id: '1'))
     )
     allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
     user.vet360_contact_info

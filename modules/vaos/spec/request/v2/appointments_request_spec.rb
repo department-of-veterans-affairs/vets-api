@@ -36,7 +36,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
     describe 'CREATE cc appointment' do
       let(:community_cares_request_body) do
-        FactoryBot.build(:appointment_form_v2, :community_cares).attributes
+        FactoryBot.build(:appointment_form_v2, :community_cares, user: current_user).attributes
       end
 
       it 'creates the cc appointment' do
@@ -62,11 +62,11 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
     describe 'CREATE va appointment' do
       let(:va_booked_request_body) do
-        FactoryBot.build(:appointment_form_v2, :va_booked).attributes
+        FactoryBot.build(:appointment_form_v2, :va_booked, user: current_user).attributes
       end
 
       let(:va_proposed_request_body) do
-        FactoryBot.build(:appointment_form_v2, :va_proposed_clinic).attributes
+        FactoryBot.build(:appointment_form_v2, :va_proposed_clinic, user: current_user).attributes
       end
 
       it 'creates the va appointment - proposed' do

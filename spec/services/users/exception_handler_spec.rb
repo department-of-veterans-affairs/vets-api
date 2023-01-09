@@ -90,6 +90,45 @@ RSpec.describe Users::ExceptionHandler do
       end
     end
 
+    context 'with a MPI::Errors::RecordNotFound' do
+      let(:error) { MPI::Errors::RecordNotFound.new('Record Not Found') }
+      let(:results) { Users::ExceptionHandler.new(error, service).serialize_error }
+
+      it 'returns a serialized version of the error' do
+        expect(results[:description]).to include 'Record Not Found', 'MPI::Errors::RecordNotFound'
+      end
+
+      it 'returns a status' do
+        expect(results[:status]).to eq 404
+      end
+    end
+
+    context 'with a MPI::Errors::FailedRequestError' do
+      let(:error) { MPI::Errors::FailedRequestError.new('Failed Request') }
+      let(:results) { Users::ExceptionHandler.new(error, service).serialize_error }
+
+      it 'returns a serialized version of the error' do
+        expect(results[:description]).to include 'Failed Request', 'MPI::Errors::FailedRequestError'
+      end
+
+      it 'returns a status' do
+        expect(results[:status]).to eq 503
+      end
+    end
+
+    context 'with a MPI::Errors::DuplicateRecords' do
+      let(:error) { MPI::Errors::DuplicateRecords.new('Duplicate Record') }
+      let(:results) { Users::ExceptionHandler.new(error, service).serialize_error }
+
+      it 'returns a serialized version of the error' do
+        expect(results[:description]).to include 'Duplicate Record', 'MPI::Errors::DuplicateRecords'
+      end
+
+      it 'returns a status' do
+        expect(results[:status]).to eq 404
+      end
+    end
+
     context 'with a StandardError' do
       let(:error) { StandardError.new(message) }
       let(:results) { Users::ExceptionHandler.new(error, service).serialize_error }

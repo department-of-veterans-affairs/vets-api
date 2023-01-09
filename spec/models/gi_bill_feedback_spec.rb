@@ -39,7 +39,7 @@ RSpec.describe GIBillFeedback, type: :model do
 
   describe '#transform_form' do
     before do
-      gi_bill_feedback.user = create(:user, icn: nil, sec_id: nil)
+      gi_bill_feedback.user = user
     end
 
     context 'with no user' do

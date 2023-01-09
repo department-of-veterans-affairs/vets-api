@@ -6,19 +6,20 @@ require 'bip_claims/service'
 RSpec.describe BipClaims::Service do
   let(:service) { described_class.new }
   let(:claim) { build(:burial_claim) }
-  let(:mvi_service) { instance_double(MPI::Service) }
 
   describe '#veteran_attributes' do
-    it 'creates valid Veteran object from form data' do
-      veteran = service.veteran_attributes(claim)
-      expected_result = BipClaims::Veteran.new(
+    let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+    let(:mpi_profile) { OpenStruct.new(participant_id: 123) }
+
+    before do
+      allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).with(
         ssn: '796043735',
         first_name: 'WESLEY',
         last_name: 'FORD',
         birth_date: '1986-05-06'
+      ).and_return(
+        find_profile_response
       )
-
-      expect(veteran.attributes).to eq(expected_result.attributes)
     end
 
     it 'raises error when passed an unsupported form ID' do
@@ -26,15 +27,9 @@ RSpec.describe BipClaims::Service do
         .to raise_error(ArgumentError)
     end
 
-    it 'calls MPI::Service for veteran lookup' do
-      allow(MPI::Service).to receive(:new).and_return(mvi_service)
-      allow(mvi_service).to receive(:find_profile).and_return(
-        OpenStruct.new(profile:
-          OpenStruct.new(participant_id: 123))
-      )
-      expect(mvi_service).to receive(:find_profile)
-
-      service.lookup_veteran_from_mpi(claim)
+    it 'returns expected MPI profile' do
+      profile = service.lookup_veteran_from_mpi(claim)
+      expect(profile).to eq(mpi_profile)
     end
   end
 end

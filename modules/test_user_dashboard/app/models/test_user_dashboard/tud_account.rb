@@ -33,7 +33,10 @@ module TestUserDashboard
     end
 
     def mpi_profile
-      MPI::Service.new.find_profile(user_identity).profile
+      MPI::Service.new.find_profile_by_attributes(first_name: user_identity.first_name,
+                                                  last_name: user_identity.last_name,
+                                                  ssn: user_identity.ssn,
+                                                  birth_date: user_identity.birth_date).profile
     end
 
     def profile

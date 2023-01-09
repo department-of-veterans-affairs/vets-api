@@ -24,7 +24,7 @@ module V0
       end
 
       # Make request to MVI to gather and update user ids
-      add_response = @current_user.mpi_add_person_proxy
+      add_response = MPIData.for_user(@current_user.identity).add_person_proxy
       raise add_response.error unless add_response.ok?
 
       render json: { message: 'Success' }

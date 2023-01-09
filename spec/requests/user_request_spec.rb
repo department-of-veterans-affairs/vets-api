@@ -247,7 +247,7 @@ RSpec.describe 'Fetching user data' do
       expect(response.status).to eq 296
       expect(error['external_service']).to eq 'MVI'
       expect(error['description']).to be_present
-      expect(error['status']).to eq 504
+      expect(error['status']).to eq 500
     end
 
     it 'MVI RecordNotFound should only make a request to MVI one time per request!', :aggregate_failures do
@@ -338,7 +338,7 @@ RSpec.describe 'Fetching user data' do
   end
 
   def new_user(type = :loa3)
-    user = build(:user, type, edipi: SecureRandom.uuid, uuid: rand(1000..100_000))
+    user = build(:user, type, icn: SecureRandom.uuid, uuid: rand(1000..100_000))
     create(:account, idme_uuid: user.uuid)
     user
   end

@@ -26,16 +26,10 @@ describe CovidVaccine::V0::RegistrationService do
 
   let(:mvi_profile) { build(:mvi_profile) }
   let(:mvi_profile_response) do
-    MPI::Responses::FindProfileResponse.new(
-      status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
-      profile: mvi_profile
-    )
+    create(:find_profile_response, profile: mvi_profile)
   end
   let(:mvi_profile_not_found) do
-    MPI::Responses::FindProfileResponse.new(
-      status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:not_found],
-      profile: nil
-    )
+    create(:find_profile_not_found_response)
   end
 
   vcr_options = { cassette_name: 'covid_vaccine/registration_facilities',
@@ -60,7 +54,7 @@ describe CovidVaccine::V0::RegistrationService do
                                :sta3n,
                                :authenticated))
           .and_return({ sid: SecureRandom.uuid })
-        expect_any_instance_of(MPI::Service).to receive(:find_profile)
+        expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
           .and_return(mvi_profile_response)
 
         expect { subject.register(submission, 'unauthenticated') }
@@ -71,7 +65,7 @@ describe CovidVaccine::V0::RegistrationService do
         expect_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
           .with(hash_including(authenticated: false))
           .and_return({ sid: SecureRandom.uuid })
-        expect_any_instance_of(MPI::Service).to receive(:find_profile)
+        expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
           .and_return(mvi_profile_response)
         expect { subject.register(submission, 'unauthenticated') }
           .to change(CovidVaccine::RegistrationEmailJob.jobs, :size).by(1)
@@ -81,7 +75,7 @@ describe CovidVaccine::V0::RegistrationService do
         sid = SecureRandom.uuid
         expect_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
           .and_return({ sid: sid })
-        expect_any_instance_of(MPI::Service).to receive(:find_profile)
+        expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
           .and_return(mvi_profile_response)
 
         expect { subject.register(submission, 'unauthenticated') }
@@ -91,7 +85,7 @@ describe CovidVaccine::V0::RegistrationService do
 
       context 'with sufficient traits' do
         it 'injects user traits from MPI when found' do
-          expect_any_instance_of(MPI::Service).to receive(:find_profile)
+          expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
             .and_return(mvi_profile_response)
           expect_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
             .with(hash_including(first_name: mvi_profile.given_names&.first))
@@ -101,7 +95,7 @@ describe CovidVaccine::V0::RegistrationService do
         end
 
         it 'proceeds without traits from MPI when not found' do
-          expect_any_instance_of(MPI::Service).to receive(:find_profile)
+          expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
             .and_return(mvi_profile_not_found)
           expect_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
             .with(hash_including(first_name: submission.raw_form_data['first_name']))
@@ -115,7 +109,7 @@ describe CovidVaccine::V0::RegistrationService do
         it 'omits MPI query' do
           expect_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
             .and_return({ sid: SecureRandom.uuid })
-          expect_any_instance_of(MPI::Service).not_to receive(:find_profile)
+          expect_any_instance_of(MPI::Service).not_to receive(:find_profile_by_attributes)
           expect { subject.register(insufficient_submission, 'unauthenticated') }
             .to change(CovidVaccine::RegistrationEmailJob.jobs, :size).by(1)
         end
@@ -131,7 +125,7 @@ describe CovidVaccine::V0::RegistrationService do
         it 'omits MPI query' do
           expect_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
             .and_return({ sid: SecureRandom.uuid })
-          expect_any_instance_of(MPI::Service).not_to receive(:find_profile)
+          expect_any_instance_of(MPI::Service).not_to receive(:find_profile_by_attributes)
           expect { subject.register(bad_date_submission, 'unauthenticated') }
             .to change(CovidVaccine::RegistrationEmailJob.jobs, :size).by(1)
         end
@@ -150,7 +144,7 @@ describe CovidVaccine::V0::RegistrationService do
       end
 
       it 'omits MPI query' do
-        expect_any_instance_of(MPI::Service).not_to receive(:find_profile)
+        expect_any_instance_of(MPI::Service).not_to receive(:find_profile_by_attributes)
         expect_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
           .and_return({ sid: SecureRandom.uuid })
         expect { subject.register(loa3_submission, 'loa3') }
@@ -158,7 +152,7 @@ describe CovidVaccine::V0::RegistrationService do
       end
 
       it 'passes authenticated attribute as true' do
-        expect_any_instance_of(MPI::Service).not_to receive(:find_profile)
+        expect_any_instance_of(MPI::Service).not_to receive(:find_profile_by_attributes)
         expect_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
           .with(hash_including(authenticated: true))
           .and_return({ sid: SecureRandom.uuid })
@@ -172,7 +166,7 @@ describe CovidVaccine::V0::RegistrationService do
 
       context 'with sufficient traits' do
         it 'injects user traits from MPI when found' do
-          expect_any_instance_of(MPI::Service).to receive(:find_profile)
+          expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
             .and_return(mvi_profile_response)
           expect_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
             .with(hash_including(first_name: mvi_profile.given_names&.first))
@@ -186,7 +180,7 @@ describe CovidVaccine::V0::RegistrationService do
         expect_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
           .with(hash_including(authenticated: false))
           .and_return({ sid: SecureRandom.uuid })
-        expect_any_instance_of(MPI::Service).to receive(:find_profile)
+        expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
           .and_return(mvi_profile_response)
         expect { subject.register(submission, 'loa1') }
           .to change(CovidVaccine::RegistrationEmailJob.jobs, :size).by(1)

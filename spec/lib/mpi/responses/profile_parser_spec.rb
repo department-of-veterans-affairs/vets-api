@@ -10,6 +10,7 @@ describe MPI::Responses::ProfileParser do
   let(:error_details) do
     { error_details: { ack_detail_code: ack_detail_code,
                        id_extension: id_extension,
+                       transaction_id: transaction_id,
                        error_texts: error_texts } }
   end
   let(:headers) { { 'x-global-transaction-id' => transaction_id } }
@@ -315,10 +316,11 @@ describe MPI::Responses::ProfileParser do
   context 'with no subject element' do
     let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_no_subject_response.xml')) }
     let(:mvi_profile) { build(:mpi_profile_response, :missing_attrs) }
+    let(:expected_mvi_profile) { MPI::Models::MviProfile.new({ transaction_id: transaction_id }) }
 
     describe '#parse' do
-      it 'return nil if the response includes no suject element' do
-        expect(parser.parse).to be_nil
+      it 'return empty mvi profile if the response includes no suject element' do
+        expect(parser.parse).to have_deep_attributes(expected_mvi_profile)
       end
     end
   end

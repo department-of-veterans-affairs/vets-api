@@ -48,13 +48,13 @@ module VANotify
     attr_reader :in_progress_form
 
     def lookup_first_name_by_icn
-      mpi_profile = MPI::Service.new.find_profile(self)
+      mpi_profile = MPI::Service.new.find_profile_by_identifier(identifier: icn, identifier_type: MPI::Constants::ICN)
       raise MPIError unless mpi_profile.ok?
 
-      given_names = mpi_profile.profile.given_names
-      raise MPINameError if given_names.blank?
+      first_name = mpi_profile.profile.given_names&.first
+      raise MPINameError unless first_name
 
-      given_names.first
+      first_name
     end
   end
 end

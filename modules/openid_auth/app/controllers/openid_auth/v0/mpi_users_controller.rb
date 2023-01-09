@@ -28,8 +28,7 @@ module OpenidAuth
       private
 
       def process_identity(user_identity)
-        service = MPI::Service.new
-        mvi_response = service.find_profile(user_identity)
+        mvi_response = MPIData.for_user(user_identity).mvi_response
         raise mvi_response.error if mvi_response.error
 
         render json: mvi_response, serializer: MPILookupSerializer

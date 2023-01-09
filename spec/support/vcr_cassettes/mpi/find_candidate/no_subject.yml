@@ -142,7 +142,7 @@ http_interactions:
                 </device>
               </sender>
               <acknowledgement>
-                <typeCode code="AA"/>
+                <typeCode code="AE"/>
                 <targetMessage>
                   <id extension="200VGOV-0a403f78-64e3-4b2e-947d-7dd2dfbc0717" root="1.2.840.114350.1.13.0.1.7.1.1"/>
                 </targetMessage>

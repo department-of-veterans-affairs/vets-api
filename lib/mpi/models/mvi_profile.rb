@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/models/attribute_types/date_time_string'
 require_relative 'mvi_profile_address'
 require_relative 'mvi_profile_identity'
 require_relative 'mvi_profile_ids'

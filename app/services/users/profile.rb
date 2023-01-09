@@ -122,10 +122,9 @@ module Users
 
     def mpi_profile
       status = user.mpi_status
-
-      if status == RESPONSE_STATUS[:ok]
+      if status == :ok
         {
-          status: status,
+          status: RESPONSE_STATUS[:ok],
           birth_date: user.birth_date_mpi,
           family_name: user.last_name_mpi,
           gender: user.gender_mpi,

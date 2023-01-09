@@ -35,6 +35,10 @@ module MPI
         EXTERNAL_RESPONSE_CODES[:invalid_request] == @code
       end
 
+      def unknown_error?
+        @code.nil?
+      end
+
       def locate_element(el, path)
         locate_elements(el, path)&.first
       end

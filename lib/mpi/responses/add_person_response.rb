@@ -5,6 +5,8 @@ module MPI
     class AddPersonResponse
       attr_reader :status, :parsed_codes, :error
 
+      STATUS = [OK = :ok, SERVER_ERROR = :server_error].freeze
+
       def initialize(status:, parsed_codes: nil, error: nil)
         @status = status
         @parsed_codes = parsed_codes
@@ -12,11 +14,11 @@ module MPI
       end
 
       def ok?
-        status == :ok
+        status == OK
       end
 
       def server_error?
-        status == :server_error
+        status == SERVER_ERROR
       end
     end
   end
