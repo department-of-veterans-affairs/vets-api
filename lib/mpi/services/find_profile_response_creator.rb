@@ -58,11 +58,11 @@ module MPI
           if error
             error
           elsif profile_parser.multiple_match?
-            Errors::DuplicateRecords.new(error_details)
+            MPI::Errors::DuplicateRecords.new(error_details)
           elsif profile_parser.failed_request?
-            Errors::FailedRequestError.new(error_details)
+            MPI::Errors::FailedRequestError.new(error_details)
           elsif profile_parser.invalid_request? || profile_parser.unknown_error?
-            Errors::RecordNotFound.new(error_details)
+            MPI::Errors::RecordNotFound.new(error_details)
           end
       end
 

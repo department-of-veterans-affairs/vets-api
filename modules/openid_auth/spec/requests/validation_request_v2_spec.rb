@@ -459,7 +459,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     end
 
     it 'v2 POST returns a not found when mpi profile returns not found', :aggregate_failures do
-      allow_any_instance_of(OpenidUser).to receive(:mpi_status).and_return('NOT_FOUND')
+      allow_any_instance_of(OpenidUser).to receive(:mpi_status).and_return(:not_found)
       with_okta_configured do
         post '/internal/auth/v2/validation', params: nil, headers: auth_header
 
@@ -469,7 +469,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     end
 
     it 'v2 POST returns a server error when mpi profile returns server error', :aggregate_failures do
-      allow_any_instance_of(OpenidUser).to receive(:mpi_status).and_return('SERVER_ERROR')
+      allow_any_instance_of(OpenidUser).to receive(:mpi_status).and_return(:server_error)
       with_okta_configured do
         post '/internal/auth/v2/validation', params: nil, headers: auth_header
 

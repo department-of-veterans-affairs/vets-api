@@ -122,7 +122,7 @@ module Users
 
     def mpi_profile
       status = user.mpi_status
-      if status == :ok
+      if [:ok, 'OK'].include? status # TB TODO: remove 'OK' check after MPI caches have cycled
         {
           status: RESPONSE_STATUS[:ok],
           birth_date: user.birth_date_mpi,
