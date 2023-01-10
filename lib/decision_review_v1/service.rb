@@ -5,9 +5,10 @@ require 'common/client/concerns/monitoring'
 require 'common/client/errors'
 require 'common/exceptions/forbidden'
 require 'common/exceptions/schema_validation_errors'
+require 'decision_review_v1/utilities/constants'
 require 'decision_review_v1/configuration'
 require 'decision_review_v1/service_exception'
-require 'decision_review_v1/appeals/supplemental_claims'
+require 'decision_review_v1/appeals/supplemental_claim_services'
 
 module DecisionReviewV1
   ##
@@ -16,24 +17,11 @@ module DecisionReviewV1
   class Service < Common::Client::Base
     include SentryLogging
     include Common::Client::Concerns::Monitoring
-
-    configuration DecisionReviewV1::Configuration
+    include DecisionReviewV1::Appeals::SupplementalClaimServices
 
     STATSD_KEY_PREFIX = 'api.decision_review'
 
-    HLR_REQUIRED_CREATE_HEADERS = %w[X-VA-First-Name X-VA-Last-Name X-VA-SSN X-VA-Birth-Date].freeze
-    NOD_REQUIRED_CREATE_HEADERS = %w[X-VA-File-Number X-VA-First-Name X-VA-Last-Name X-VA-Birth-Date].freeze
-
-    HLR_CREATE_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-CREATE-RESPONSE-200_V1'
-    HLR_SHOW_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-SHOW-RESPONSE-200_V1'
-    # TODO: rename the imported schema as its shared with Supplemental Claims
-    GET_LEGACY_APPEALS_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-GET-LEGACY-APPEALS-RESPONSE-200'
-
-    NOD_CREATE_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'NOD-CREATE-RESPONSE-200_V1'
-    NOD_SHOW_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'NOD-SHOW-RESPONSE-200_V1'
-
-    GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA =
-      VetsJsonSchema::SCHEMAS.fetch 'DECISION-REVIEW-GET-CONTESTABLE-ISSUES-RESPONSE-200_V1'
+    configuration DecisionReviewV1::Configuration
 
     ##
     # Create a Higher-Level Review

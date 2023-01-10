@@ -11,7 +11,7 @@ FactoryBot.define do
     board_review_option { 'evidence_submission' }
     upload_metadata do
       user = User.find(user_uuid)
-      DecisionReview::Service.file_upload_metadata(user)
+      DecisionReviewV1::Service.file_upload_metadata(user)
     end
   end
 
