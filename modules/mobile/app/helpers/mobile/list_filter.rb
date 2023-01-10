@@ -55,12 +55,18 @@ module Mobile
 
     def record_matches_filters?(record)
       filters.all? do |match_attribute, operations_and_values|
+        match_attribute = match_attribute.to_sym
+        model_attribute = model_attributes.find { |att| att.name == match_attribute }
+        coercer = model_attribute.coercer
+
         operations_and_values.each_pair.all? do |operation, value|
+          coerced_value = coercer.call(value)
+
           case operation.to_sym
           when :eq
-            record[match_attribute.to_sym] == value
+            record[match_attribute] == coerced_value
           when :notEq
-            record[match_attribute.to_sym] != value
+            record[match_attribute] != coerced_value
           end
         end
       end
@@ -96,8 +102,7 @@ module Mobile
     end
 
     def valid_filter_attributes?
-      model_attributes = filterable_model.attribute_set.map(&:name)
-      filter_attributes.all? { |key| key.to_sym.in? model_attributes }
+      filter_attributes.all? { |key| key.to_sym.in? model_attributes.map(&:name) }
     end
 
     def valid_filter_operations?
@@ -110,6 +115,10 @@ module Mobile
 
     def filterable_models
       @filterable_model ||= @collection.data.map(&:class).uniq
+    end
+
+    def model_attributes
+      filterable_model.attribute_set
     end
 
     # to_unsafe_hash is only unsafe in the context of mass assignment as part of the strong params pattern
