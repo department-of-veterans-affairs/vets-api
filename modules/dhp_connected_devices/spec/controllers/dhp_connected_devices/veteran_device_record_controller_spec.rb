@@ -4,6 +4,7 @@ require 'rails_helper'
 
 Rspec.describe DhpConnectedDevices::VeteranDeviceRecordsController, type: :request do
   let(:current_user) { build(:user, :loa1) }
+  let(:user_without_icn) { build(:user, :loa1, icn: '') }
 
   describe 'veteran_device_record#record' do
     context 'unauthenticated user' do
@@ -15,7 +16,20 @@ Rspec.describe DhpConnectedDevices::VeteranDeviceRecordsController, type: :reque
       end
     end
 
-    context 'authenticated user' do
+    context 'authenticated user without icn' do
+      before do
+        sign_in_as(user_without_icn)
+      end
+
+      it 'returns veteran device record' do
+        get '/dhp_connected_devices/veteran-device-records'
+        json = JSON.parse(response.body)
+        expect(json['connectionAvailable']).to eq(false)
+        expect(json['devices']).to eq(nil)
+      end
+    end
+
+    context 'authenticated user with icn' do
       before do
         devices = [create(:device, :fitbit), create(:device, :abbott)]
         sign_in_as(current_user)
@@ -31,6 +45,7 @@ Rspec.describe DhpConnectedDevices::VeteranDeviceRecordsController, type: :reque
       it 'returns veteran device record' do
         get '/dhp_connected_devices/veteran-device-records'
         json = JSON.parse(response.body)
+        expect(json['connectionAvailable']).to eq(true)
         expect(json['devices'].length).to eq(2)
         expect(json['devices'][0]['connected']).to eq(true)
       end
