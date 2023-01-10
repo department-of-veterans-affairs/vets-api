@@ -5,23 +5,28 @@ require 'rails_helper'
 class Pet < Common::Base
   attribute :species, String
   attribute :age, Integer
+  attribute :fully_vaccinated, Boolean
 end
 
 describe Mobile::ListFilter, aggregate_failures: true do
   let(:dog) do
-    Pet.new(species: 'dog', age: 5)
+    Pet.new(species: 'dog', age: 5, fully_vaccinated: true)
   end
   let(:puppy) do
-    Pet.new(species: 'dog', age: 1)
+    Pet.new(species: 'dog', age: 1, fully_vaccinated: false)
   end
   let(:cat) do
-    Pet.new(species: 'cat', age: 12)
+    Pet.new(species: 'cat', age: 12, fully_vaccinated: true)
   end
   let(:list) do
     Common::Collection.new(data: [dog, puppy, cat])
   end
 
   def paramiterize(params)
+    # ensuring param values are strings because they will always be strings when coming from controllers
+    params.each_pair do |key, operation_value_pair|
+      operation_value_pair.each { |operation, value| params[key][operation] = value.to_s }
+    end
     ActionController::Parameters.new(params)
   end
 
@@ -44,6 +49,14 @@ describe Mobile::ListFilter, aggregate_failures: true do
 
     it 'handles multiple filters' do
       filters = { species: { eq: 'dog' }, age: { notEq: 5 } }
+      params = paramiterize(filters)
+
+      results = Mobile::ListFilter.matches(list, params)
+      expect(results.data).to eq([puppy])
+    end
+
+    it 'matches non-string attributes' do
+      filters = { age: { eq: 1 }, fully_vaccinated: { eq: false } }
       params = paramiterize(filters)
 
       results = Mobile::ListFilter.matches(list, params)
@@ -131,7 +144,7 @@ describe Mobile::ListFilter, aggregate_failures: true do
       end
 
       it 'logs an error and returns original collection when the filter is not a hash' do
-        params = paramiterize({ genus: 'dog' })
+        params = ActionController::Parameters.new({ genus: 'dog' })
 
         expect(Raven).to receive(:capture_exception).once.with(Mobile::ListFilter::FilterError, { level: 'error' })
         expect(Raven).to receive(:extra_context).with({ filters: params.to_unsafe_hash, collection_models: ['Pet'] })
