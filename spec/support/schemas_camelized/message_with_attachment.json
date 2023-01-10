@@ -79,6 +79,18 @@
                 "null",
                 "string"
               ]
+            },
+            "triageGroupName": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "proxySenderName": {
+              "type": [
+                "null",
+                "string"
+              ]
             }
           }
         },

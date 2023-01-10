@@ -1,9 +1,9 @@
 {
-  "$schema" : "http://json-schema.org/draft-04/schema#",
-  "type" : "object",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
   "required": ["data", "meta"],
   "properties": {
-    "data" : {
+    "data": {
       "type": "array",
       "minItems": 0,
       "uniqueItems": true,
@@ -38,12 +38,14 @@
               "sender_name": { "type": "string" },
               "recipient_id": { "type": "integer" },
               "recipient_name": { "type": "string" },
-              "read_receipt": { "type": ["null", "string"] }
+              "read_receipt": { "type": ["null", "string"] },
+              "triage_group_name": { "type": ["null", "string"] },
+              "proxy_sender_name": { "type": ["null", "string"] }
             }
           },
           "links": {
             "type": "object",
-            "required": [ "self" ],
+            "required": ["self"],
             "properties": {
               "self": { "type": "string" }
             }
@@ -70,7 +72,12 @@
           "properties": {
             "pagination": {
               "type": "object",
-              "required": ["current_page", "per_page", "total_pages", "total_entries"],
+              "required": [
+                "current_page",
+                "per_page",
+                "total_pages",
+                "total_entries"
+              ],
               "properties": {
                 "current_page": { "type": "integer" },
                 "per_page": { "type": "integer" },
@@ -89,7 +96,12 @@
             },
             "pagination": {
               "type": "object",
-              "required": ["current_page", "per_page", "total_pages", "total_entries"],
+              "required": [
+                "current_page",
+                "per_page",
+                "total_pages",
+                "total_entries"
+              ],
               "properties": {
                 "current_page": { "type": "integer" },
                 "per_page": { "type": "integer" },
