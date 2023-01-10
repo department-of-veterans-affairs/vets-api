@@ -3,8 +3,17 @@
 module DhpConnectedDevices
   class VeteranDeviceRecordsController < ApplicationController
     def index
-      device_records = Device.veteran_device_records(@current_user)
-      render json: VeteranDeviceRecordSerializer.serialize(device_records[:active], device_records[:inactive])
+      if @current_user&.icn.blank?
+        render json: { connectionAvailable: false }
+      else
+        device_records = Device.veteran_device_records(@current_user)
+        device_records_json = VeteranDeviceRecordSerializer.serialize(
+          device_records[:active],
+          device_records[:inactive]
+        )
+        device_records_json[:connectionAvailable] = true
+        render json: device_records_json
+      end
     end
   end
 end

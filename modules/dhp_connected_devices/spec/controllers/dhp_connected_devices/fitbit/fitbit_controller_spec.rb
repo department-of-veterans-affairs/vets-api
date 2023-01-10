@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe DhpConnectedDevices::Fitbit::FitbitController, type: :request do
   let(:current_user) { build(:user, :loa1) }
+  let(:user_without_icn) { build(:user, :loa1, icn: '') }
 
   def expected_error_logged(error_class, current_user)
     expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
@@ -22,6 +23,17 @@ RSpec.describe DhpConnectedDevices::Fitbit::FitbitController, type: :request do
 
       it 'returns unauthenticated' do
         expect(fitbit_connect).to be 401
+      end
+    end
+
+    context 'fitbit feature enabled and un-verified user' do
+      before do
+        Flipper.enable(:dhp_connected_devices_fitbit)
+        sign_in_as(user_without_icn)
+      end
+
+      it 'returns forbidden' do
+        expect(fitbit_connect).to be 403
       end
     end
 
@@ -67,6 +79,17 @@ RSpec.describe DhpConnectedDevices::Fitbit::FitbitController, type: :request do
       it 'navigating to /fitbit-callback returns error' do
         Flipper.disable(:dhp_connected_devices_fitbit)
         expect(fitbit_callback).to be 401
+      end
+    end
+
+    context 'fitbit feature enabled and user unverified' do
+      before do
+        Flipper.enable(:dhp_connected_devices_fitbit)
+        sign_in_as(user_without_icn)
+      end
+
+      it 'returns forbidden' do
+        expect(fitbit_callback).to be 403
       end
     end
 
@@ -232,6 +255,17 @@ RSpec.describe DhpConnectedDevices::Fitbit::FitbitController, type: :request do
       it 'navigating to /fitbit/disconnect returns error' do
         Flipper.enable(:dhp_connected_devices_fitbit)
         expect(fitbit_disconnect).to be 401
+      end
+    end
+
+    context 'fitbit feature enabled and user unverified' do
+      before do
+        Flipper.enable(:dhp_connected_devices_fitbit)
+        sign_in_as(user_without_icn)
+      end
+
+      it 'returns forbidden' do
+        expect(fitbit_disconnect).to be 403
       end
     end
   end

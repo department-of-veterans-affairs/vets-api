@@ -7,6 +7,7 @@ module DhpConnectedDevices
     class FitbitController < ApplicationController
       include SentryLogging
       before_action :feature_enabled
+      before_action :user_verified
 
       def connect
         auth_url = fitbit_api.auth_url_with_pkce
@@ -61,6 +62,19 @@ module DhpConnectedDevices
 
       def feature_enabled
         routing_error unless Flipper.enabled?(:dhp_connected_devices_fitbit, @current_user)
+      end
+
+      def user_verified
+        connection_unavailable_error if @current_user&.icn.blank?
+      end
+
+      def connection_unavailable_error
+        Rails.logger.warn('Device connection unavailable for Veterans without an ICN')
+        log_message_to_sentry('User with an invalid ICN value attempted to connect their Fitbit', 'warn')
+        raise Common::Exceptions::Forbidden.new(
+          detail: 'User with an invalid ICN value attempted to connect their Fitbit',
+          source: 'FitbitController'
+        )
       end
 
       def redirect_with_status(status)
