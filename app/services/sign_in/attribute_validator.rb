@@ -15,8 +15,7 @@ module SignIn
                 :ssn,
                 :mhv_icn,
                 :edipi,
-                :mhv_correlation_id,
-                :add_person_icn
+                :mhv_correlation_id
 
     def initialize(user_attributes:)
       @idme_uuid = user_attributes[:idme_uuid]
@@ -74,9 +73,7 @@ module SignIn
                                                                    address: address,
                                                                    idme_uuid: idme_uuid,
                                                                    logingov_uuid: logingov_uuid)
-      if add_person_response.ok?
-        @add_person_icn = add_person_response.parsed_codes[:icn]
-      else
+      unless add_person_response.ok?
         handle_error('User MPI record cannot be created',
                      Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
                      error: Errors::MPIUserCreationFailedError)
@@ -181,14 +178,14 @@ module SignIn
 
     def mpi_response_profile
       @mpi_response_profile ||=
-        if mhv_icn || add_person_icn
-          mpi_service.find_profile_by_identifier(identifier: mhv_icn, identifier_type: MPI::Constants::ICN)&.profile
-        elsif idme_uuid
+        if idme_uuid
           mpi_service.find_profile_by_identifier(identifier: idme_uuid,
                                                  identifier_type: MPI::Constants::IDME_UUID)&.profile
         elsif logingov_uuid
           mpi_service.find_profile_by_identifier(identifier: logingov_uuid,
                                                  identifier_type: MPI::Constants::LOGINGOV_UUID)&.profile
+        elsif mhv_icn
+          mpi_service.find_profile_by_identifier(identifier: mhv_icn, identifier_type: MPI::Constants::ICN)&.profile
         end
     end
 
