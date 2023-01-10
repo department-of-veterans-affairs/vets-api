@@ -2,6 +2,7 @@
 
 require 'mpi/responses/profile_parser'
 require 'sentry_logging'
+require 'mpi/errors/errors'
 
 module MPI
   module Services
@@ -58,11 +59,11 @@ module MPI
           if error
             error
           elsif profile_parser.multiple_match?
-            MPI::Errors::DuplicateRecords.new(error_details)
+            Errors::DuplicateRecords.new(error_details)
           elsif profile_parser.failed_request?
-            MPI::Errors::FailedRequestError.new(error_details)
+            Errors::FailedRequestError.new(error_details)
           elsif profile_parser.invalid_request? || profile_parser.unknown_error?
-            MPI::Errors::RecordNotFound.new(error_details)
+            Errors::RecordNotFound.new(error_details)
           end
       end
 

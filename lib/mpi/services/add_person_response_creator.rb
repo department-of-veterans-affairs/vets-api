@@ -50,9 +50,9 @@ module MPI
           if error
             error
           elsif add_parser.invalid_request?
-            MPI::Errors::InvalidRequestError.new(error_details)
+            Errors::InvalidRequestError.new(error_details)
           elsif add_parser.failed_request?
-            MPI::Errors::FailedRequestError.new(error_details)
+            Errors::FailedRequestError.new(error_details)
           end
       end
 

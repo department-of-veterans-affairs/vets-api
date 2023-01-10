@@ -4,6 +4,7 @@ require 'evss/error_middleware'
 require 'bgs/power_of_attorney_verifier'
 require 'token_validation/v2/client'
 require 'claims_api/claim_logger'
+require 'mpi/errors/errors'
 
 module ClaimsApi
   module V1
