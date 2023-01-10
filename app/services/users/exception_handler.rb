@@ -2,6 +2,7 @@
 
 require 'common/exceptions'
 require 'common/client/concerns/service_status'
+require 'mpi/errors/errors'
 
 module Users
   class ExceptionHandler

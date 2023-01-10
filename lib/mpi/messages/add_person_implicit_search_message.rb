@@ -3,6 +3,7 @@
 require_relative 'request_helper'
 require_relative 'request_builder'
 require 'formatters/date_formatter'
+require 'mpi/errors/errors'
 
 module MPI
   module Messages
