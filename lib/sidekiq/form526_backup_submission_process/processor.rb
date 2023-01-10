@@ -293,7 +293,6 @@ module Sidekiq
         get_form0781_pdf if submission.form[FORM_0781]
         get_form8940_pdf if submission.form[FORM_8940]
         get_bdd_pdf      if bdd?
-
         convert_docs_to_pdf
       end
     end

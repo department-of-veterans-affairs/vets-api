@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'decision_review_v1/utilities/constants'
+
 module DecisionReviewV1
   module Processor
     class Form4142Processor
@@ -8,9 +10,6 @@ module DecisionReviewV1
 
       # @return [Hash] the generated request body
       attr_reader :request_body
-
-      FORM_ID = '21-4142'
-      FOREIGN_POSTALCODE = '00000'
 
       def initialize(form_data:, response:)
         @form = form_data

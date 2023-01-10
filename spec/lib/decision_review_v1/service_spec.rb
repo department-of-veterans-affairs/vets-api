@@ -563,7 +563,7 @@ describe DecisionReviewV1::Service do
 
   describe '#get_supplemental_claim_upload_url' do
     subject do
-      described_class.new.get_supplemental_claim_upload_url(sc_uuid: uuid, ssn: ssn_with_mockdata)
+      described_class.new.get_supplemental_claim_upload_url(sc_uuid: uuid, file_number: ssn_with_mockdata)
     end
 
     context '200 response' do

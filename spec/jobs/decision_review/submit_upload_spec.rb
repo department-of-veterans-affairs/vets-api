@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'decision_review_v1/service'
 
 RSpec.describe DecisionReview::SubmitUpload, type: :job do
   subject { described_class }
@@ -27,24 +28,21 @@ RSpec.describe DecisionReview::SubmitUpload, type: :job do
         end
       end
 
-      it 'calls the documents service api with file body and document data' do
-        VCR.use_cassette('/decision_review/NOD-GET-UPLOAD-URL-200') do
+      it 'calls the documents service api with file body and document data (for NOD)' do
+        VCR.use_cassette('decision_review/NOD-GET-UPLOAD-URL-200_V1') do
           VCR.use_cassette('decision_review/NOD-PUT-UPLOAD-200') do
             VCR.use_cassette('decision_review/200_pdf_validation') do
-              subject.perform_async(appeal_submission_upload.id)
-              expect_any_instance_of(DecisionReview::Service).to receive(:put_notice_of_disagreement_upload)
-
               expect do
+                subject.perform_async(appeal_submission_upload.id)
                 described_class.drain
-              end.to trigger_statsd_increment('api.decision_review.get_notice_of_disagreement_upload_url.total',
+              end.to trigger_statsd_increment('shared.sidekiq.default.DecisionReview_SubmitUpload.enqueue', times: 1)
+                .and trigger_statsd_increment('api.decision_review.get_notice_of_disagreement_upload_url.total',
                                               times: 1)
+                .and trigger_statsd_increment('api.decision_review.get_notice_of_disagreement_upload_url.total',
+                                              times: 1)
+                .and trigger_statsd_increment('api.decision_review.put_notice_of_disagreement_upload.total', times: 1)
                 .and trigger_statsd_increment('worker.decision_review.submit_upload.success', times: 1)
-                .and trigger_statsd_increment(
-                  'api.external_http_request.DecisionReview.success',
-                  times: 1,
-                  tags: ['endpoint:/services/appeals/v1/decision_reviews/notice_of_disagreements/evidence_submissions',
-                         'method:post']
-                )
+                .and trigger_statsd_increment('shared.sidekiq.default.DecisionReview_SubmitUpload.dequeue', times: 1)
               expect(AppealSubmissionUpload.first.lighthouse_upload_id).to eq('59cdb98f-f94b-4aaa-8952-4d1e59b6e40a')
             end
           end

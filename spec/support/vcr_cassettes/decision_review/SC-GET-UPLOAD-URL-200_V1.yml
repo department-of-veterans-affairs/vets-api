@@ -89,7 +89,7 @@ http_interactions:
             "detail": null,
             "appealType": "supplemental_claims",
             "appealId": "00000000-1111-2222-3333-444444444444",
-            "location": "http://some.fakesite.com/path/uuid",
+            "location": "https://sandbox-api.va.gov/services_user_content/vba_documents/832a96ca-4dbd-4138-b7a4-6a991ff76faf?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQD72FDTFWPUWR5OZ/20210521/us-gov-west-1/s3/aws4_request&X-Amz-Date=20210521T193313Z&X-Amz-Expires=900&X-Amz-Signature=5d64a8a7fd749b1fb301a43226d45cc865fb68e6397026bdf047737c05fa4927&X-Amz-SignedHeaders=host",
             "createdAt": "2020-01-02T03:04:05.067Z",
             "updatedAt": "2020-01-02T03:04:05.067Z"
           }

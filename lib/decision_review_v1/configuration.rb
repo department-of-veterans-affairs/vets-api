@@ -21,7 +21,7 @@ module DecisionReviewV1
     # @return [String] Service name to use in breakers and metrics.
     #
     def service_name
-      'DecisionReview_v1'
+      'DecisionReviewV1'
     end
 
     ##
