@@ -41,6 +41,7 @@ module ClaimsApi
         msg.append("ITF: #{params[:detail]}") if params[:detail].present?
       when 'validate_identifiers'
         msg.append("RID: #{params[:rid]}") if params[:rid].present?
+        msg.append("ICN: #{params[:icn]}") if params[:icn].present?
         msg.append("BIRLS Required: #{params[:require_birls]}") if params[:require_birls].present?
         msg.append("Header Request: #{params[:header_request]}") if params[:header_request].present?
         msg.append("has ptcpnt_id: #{params[:ptcpnt_id]}") if params[:ptcpnt_id].present?
