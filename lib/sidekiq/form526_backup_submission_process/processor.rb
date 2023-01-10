@@ -199,23 +199,32 @@ module Sidekiq
         submission.form.dig('form526', 'form526', 'bddQualified') || false
       end
 
+      # The Tempfile class deletes the file when the proc using it is done.
+      # In production this is desired. In testing/development I want the file to
+      # Stick around incase I want to look at it.
+      def write_to_tmp_file_or_local_file_depending_on_env(content)
+        if ::Rails.env.production?
+          content_tmpfile = Tempfile.new(TMP_FILE_PREFIX, binmode: true)
+          content_tmpfile.write(content)
+          content_tmpfile.path
+        else
+          fname = "/tmp/#{Random.uuid}.pdf"
+          File.open(fname, 'wb') do |f|
+            f.write(content)
+          end
+          fname
+        end
+      end
+
       def get_form526_pdf
         headers = submission.auth_headers
-        form_json = JSON.parse(submission.form_json)[FORM_526].to_json
-        resp = EVSS::DisabilityCompensationForm::Service.new(headers).get_form526(form_json)
+        submission_create_date = submission.created_at.iso8601
+        form_json = JSON.parse(submission.form_json)[FORM_526]
+        form_json[FORM_526]['claimDate'] ||= submission_create_date
+        resp = EVSS::DisabilityCompensationForm::Service.new(headers).get_form526(form_json.to_json)
         b64_enc_body = resp.body['pdf']
         content = Base64.decode64(b64_enc_body)
-        file = if ::Rails.env.production?
-                 content_tmpfile = Tempfile.new(TMP_FILE_PREFIX, binmode: true)
-                 content_tmpfile.write(content)
-                 content_tmpfile.path
-               else
-                 fname = "/tmp/#{Random.uuid}.pdf"
-                 File.open(fname, 'wb') do |f|
-                   f.write(content)
-                 end
-                 fname
-               end
+        file = write_to_tmp_file_or_local_file_depending_on_env(content)
         docs << {
           type: FORM_526_DOC_TYPE,
           file: file
