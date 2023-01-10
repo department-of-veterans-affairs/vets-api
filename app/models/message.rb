@@ -27,6 +27,10 @@ require 'common/models/base'
 #   @return [String]
 # @!attribute read_receipt
 #   @return [String]
+# @!attribute triage_group_name
+#   @return [String]
+# @!attribute proxy_sender_name
+#   @return [String]
 # @!attribute attachments
 #   @return [Array[Attachment]] an array of Attachments
 #
@@ -64,6 +68,8 @@ class Message < Common::Base
   attribute :recipient_id, Integer
   attribute :recipient_name, String, filterable: %w[eq not_eq match], sortable: { order: 'ASC' }
   attribute :read_receipt, String
+  attribute :triage_group_name, String
+  attribute :proxy_sender_name, String
   attribute :attachments, Array[Attachment]
 
   # This is only used for validating uploaded files, never rendered

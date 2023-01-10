@@ -31,7 +31,7 @@ properties:
         example: 123789
       category:
         type: string
-        enum: [ OTHER, COVID, APPOINTMENTS, MEDICATIONS, TEST_RESULTS, EDUCATION ]
+        enum: [OTHER, COVID, APPOINTMENTS, MEDICATIONS, TEST_RESULTS, EDUCATION]
         example: MEDICATIONS
       subject:
         type: string
@@ -61,7 +61,15 @@ properties:
       readReceipt:
         type: string
         nullable: true
-        enum: [ READ, null ]
+        enum: [READ, null]
+      triageGroupName:
+        type: string
+        nullable: true
+        example: "Triage_Group_5"
+      proxySenderName:
+        type: string
+        nullable: true
+        example: "SMITH, JOHN"
   links:
     type: object
     required:
