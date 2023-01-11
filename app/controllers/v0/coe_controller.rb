@@ -65,7 +65,6 @@ module V0
 
     def document_download
       res = lgy_service.get_document(params[:id])
-
       send_data(res.body, type: 'application/pdf', disposition: 'attachment')
     end
 

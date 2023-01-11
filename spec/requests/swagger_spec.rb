@@ -3723,8 +3723,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       describe '/v0/coe/documents' do
         it 'validates the route' do
-          allow_any_instance_of(User).to receive(:icn).and_return('1012830245V504544')
-          allow_any_instance_of(User).to receive(:edipi).and_return('1007451748')
+          allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
+          allow_any_instance_of(User).to receive(:edipi).and_return('1007697216')
           VCR.use_cassette 'lgy/documents_list' do
             expect(subject).to validate(:get, '/v0/coe/documents', 200, headers)
           end

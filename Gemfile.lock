@@ -301,6 +301,7 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.5.0)
     docile (1.4.0)
+    dogstatsd-ruby (5.5.0)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
     down (5.2.2)
@@ -990,6 +991,7 @@ DEPENDENCIES
   ddtrace
   debts_api!
   dhp_connected_devices!
+  dogstatsd-ruby
   dry-struct
   dry-types
   ethon (>= 0.13.0)

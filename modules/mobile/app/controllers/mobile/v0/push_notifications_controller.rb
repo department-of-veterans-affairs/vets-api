@@ -47,7 +47,14 @@ module Mobile
       end
 
       def get_app_name(params)
-        "#{params[:app_name]}#{params[:debug] ? '_debug' : ''}"
+        if Rails.env.production?
+          if params[:debug]
+            Rails.logger.info('Mobile Push PROD DEBUG TRUE?', flag: params[:debug], app_name: params[:app_name])
+          end
+          params[:app_name]
+        else
+          "#{params[:app_name]}#{params[:debug] ? '_debug' : ''}"
+        end
       end
     end
   end
