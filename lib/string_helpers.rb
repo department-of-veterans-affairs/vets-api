@@ -61,6 +61,7 @@ module StringHelpers
   def filter_misc_endpoints(rslt)
     # for endpoints of type '/cce/v1/patients/xxx/eligibility/<specialty>' replace <specialty> with zzz and
     # for endpoints of type '/facilities/v2/facilities/<id>' replace <id> with xxx
+    # for endpoints of type '/vaos/v1/locations/<id>/clinics' replace <id> with xxx
     # for partial error responses, replace the trace ids with common label <id>
     # to provide better grouping in grafana
     case rslt
@@ -70,6 +71,8 @@ module StringHelpers
       "#{$LAST_MATCH_INFO}xxx"
     when /Could not get appointments from VistA Scheduling Service /
       "#{$LAST_MATCH_INFO}<id>"
+    when %r{/vaos/v1/locations/[0-9A-Z]+/clinics$}
+      '/vaos/v1/locations/xxx/clinics'
     else
       rslt
     end

@@ -87,5 +87,11 @@ describe StringHelpers do
       vamf_partial_filtered = 'Could not get appointments from VistA Scheduling Service <id>'
       expect(described_class.filtered_endpoint_tag(vamf_partial_error)).to eq(vamf_partial_filtered)
     end
+
+    it 'group labels locations v1 clinics endpoints' do
+      location_v1_clinics = '/vaos/v1/locations/512A5/clinics'
+      location_v1_clinics_filtered = '/vaos/v1/locations/xxx/clinics'
+      expect(described_class.filtered_endpoint_tag(location_v1_clinics)).to eq(location_v1_clinics_filtered)
+    end
   end
 end
