@@ -8,6 +8,7 @@ require 'sidekiq/semantic_logging'
 require 'sidekiq/set_request_id'
 require 'sidekiq/set_request_attributes'
 require 'sidekiq/downtime_checker_middleware'
+require 'datadog/statsd' # gem 'dogstatsd-ruby'
 
 Rails.application.reloader.to_prepare do
   Sidekiq::Enterprise.unique! if Rails.env.production?
@@ -32,6 +33,10 @@ Rails.application.reloader.to_prepare do
       chain.add SidekiqStatsInstrumentation::ServerMiddleware
       chain.add Sidekiq::RetryMonitoring
       chain.add Sidekiq::ErrorTag
+      if Settings.vsp_enviroment == 'development'
+        require 'sidekiq/middleware/server/statsd'
+        chain.add Sidekiq::Middleware::Server::Statsd
+      end
     end
 
     config.client_middleware do |chain|
