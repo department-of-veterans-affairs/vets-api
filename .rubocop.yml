@@ -64,9 +64,6 @@ Style/GuardClause:
 Style/Next:
   Enabled: false
 
-Naming/VariableNumber:
-  Enabled: false
-
 # This forces you to replace things like: `[1, 2, 3].length == 0` with `[1,2,3].empty?`. The problem is that
 # not all things that implement length also implement empty? so you will get errors that cannot be resolved,
 # and the cop will encourage you to do things that are incorrect.
@@ -138,23 +135,6 @@ Naming/FileName:
 # We should try to use StandardError, but some errors like timeout inherit from Exception (beware)
 Style/RescueStandardError:
   EnforcedStyle: implicit
-
-# All kinds of issues with this cop right now.
-Style/FormatStringToken:
-  Exclude:
-    - "rakelib/mvi.rake"
-
-Lint/BooleanSymbol:
-  Exclude:
-    - "app/swagger/swagger/schemas/gibct/institutions.rb" #Swagger blocks defines keys as :true, need to keep as is
-
-# Use `Time` when dealing with current dates and times; it has support for timezones (system/local and utc), whereas `DateTime` only supports offsets from UTC.
-# However, if you need to deal with dates and times in a historical context you'll want to use DateTime to avoid making the same mistakes as UNESCO.
-# See: https://www.rubydoc.info/gems/rubocop/RuboCop/Cop/Style/DateTime
-Style/DateTime:
-  Exclude:
-    - "rakelib/evss.rake"
-    - "lib/evss/auth_headers.rb" #DateTime is needed for date formatting here
 
 # Skipping for now, should revisit:
 Rails/HasManyOrHasOneDependent:
@@ -353,10 +333,6 @@ Rails/FilePath:
 # factories and pact provider states — which need a tear_down block regardless
 Lint/EmptyBlock:
   Enabled: false
-
-Lint/NoReturnInBeginEndBlocks:
-  Exclude:
-    - 'app/services/form1010cg/service.rb'
 
 Layout/EmptyLineBetweenDefs:
   AllowAdjacentOneLineDefs: true
