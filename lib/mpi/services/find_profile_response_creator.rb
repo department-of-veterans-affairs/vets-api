@@ -19,7 +19,7 @@ module MPI
 
       def perform
         validations
-        if failed_response?
+        if error_status
           create_error_response
         else
           create_successful_response
@@ -45,7 +45,7 @@ module MPI
       def log_error_response
         if error || profile_parser.multiple_match? || profile_parser.failed_request?
           log_message_to_sentry("MPI #{type} response error", :warn, { error_message: detailed_error&.message })
-        elsif profile_parser.invalid_request? || profile_parser.unknown_error?
+        elsif profile_parser.invalid_request? || profile_parser.no_match? || profile_parser.unknown_error?
           info_log("Record Not Found, transaction_id=#{parsed_profile.transaction_id}")
         end
       end
@@ -69,18 +69,14 @@ module MPI
 
       def error_status
         @error_status ||=
-          if error || profile_parser.failed_request?
+          if error.present? || profile_parser.failed_request?
             :server_error
-          elsif profile_parser.multiple_match? || profile_parser.invalid_request? || profile_parser.unknown_error?
+          elsif profile_parser.multiple_match? ||
+                profile_parser.invalid_request? ||
+                profile_parser.no_match? ||
+                profile_parser.unknown_error?
             :not_found
           end
-      end
-
-      def failed_response?
-        error.present? ||
-          profile_parser.multiple_match? ||
-          profile_parser.failed_or_invalid? ||
-          profile_parser.unknown_error?
       end
 
       def error_details

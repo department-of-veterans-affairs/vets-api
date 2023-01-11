@@ -126,6 +126,17 @@ describe MPI::Services::FindProfileResponseCreator do
         it_behaves_like 'error response'
       end
 
+      context 'when response is given in params with no match status' do
+        let(:response_file) { File.read('spec/support/mpi/find_candidate_no_match_response.xml') }
+        let(:id_extension) { nil }
+        let(:error_texts) { [] }
+        let(:ack_detail_code) { nil }
+        let(:expected_error) { MPI::Errors::RecordNotFound.new(error_details) }
+        let(:expected_status) { :not_found }
+
+        it_behaves_like 'record not found error response'
+      end
+
       context 'and response is given in params with unknown error' do
         let(:response_file) { File.read('spec/support/mpi/find_candidate_soap_fault.xml') }
         let(:id_extension) { nil }
