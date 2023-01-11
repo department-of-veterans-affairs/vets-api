@@ -249,6 +249,18 @@ paths:
           name: sort
           schema:
             type: string
+        - description: Field to include pending appointments. Currently only supports value `pending`. Redundant with field `included[]` for backwards compability but `include` is the correct one to use when following conventions.
+          example: pending
+          in: query
+          name: include[]
+          schema:
+            type: array of strings
+        - description: Field to include pending appointments. Currently only supports value `pending`. Redundant with field `include[]` for backwards compability but `include` is the correct one to use when following conventions.
+          example: pending
+          in: query
+          name: included[]
+          schema:
+            type: array of strings
       responses:
         '200':
           content:
