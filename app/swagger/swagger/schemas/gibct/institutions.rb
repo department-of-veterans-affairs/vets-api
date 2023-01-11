@@ -243,8 +243,10 @@ module Swagger
           key :type, :object
           key :required, %i[true false]
 
+          # rubocop:disable Lint/BooleanSymbol
           property :true, type: %i[null integer]
           property :false, type: %i[null integer]
+          # rubocop:enable Lint/BooleanSymbol
         end
       end
     end
