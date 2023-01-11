@@ -130,20 +130,24 @@ module LGY
       end
     end
 
+    # It is necessary to fetch a list of the user's documents and check
+    # whether the requested document is within that list, to ensure that a
+    # vet cannot access documents belonging to other vets. LGY does not have
+    # a similar validation on their end.
     def get_document(id)
       with_monitoring do
-        perform(
-          :get,
-          "#{end_point}/document/#{id}/file",
-          { 'edipi' => @edipi, 'icn' => @icn },
-          request_headers.merge(pdf_headers)
-        )
+        document_ids = get_coe_documents.body.map { |doc| doc['id'].to_s }
+        if document_ids.include?(id)
+          perform(
+            :get,
+            "#{end_point}/document/#{id}/file",
+            { 'edipi' => @edipi, 'icn' => @icn },
+            request_headers.merge(pdf_headers)
+          )
+        else
+          raise Common::Exceptions::RecordNotFound, id
+        end
       end
-    rescue Common::Client::Errors::ClientError => e
-      # a 404 is expected if no Document is available
-      return e if e.status == 404
-
-      raise e
     end
 
     def request_headers
