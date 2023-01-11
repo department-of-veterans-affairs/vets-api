@@ -82,11 +82,6 @@ module Form526RapidReadyForDecisionConcern
 
     save_metadata(forward_to_mas_all_claims: true) if Flipper.enabled?(:rrd_mas_all_claims_tracking) &&
                                                       !single_issue_hypertension_cfi?
-
-    if Flipper.enabled?(:rrd_mas_disability_tracking) && single_disability_eligible_for_mas?
-      save_metadata(forward_to_mas: true)
-      insert_classification_codes unless Flipper.enabled?(:rrd_mas_all_claims_notification)
-    end
   end
 
   def send_post_evss_notifications!
@@ -125,20 +120,6 @@ module Form526RapidReadyForDecisionConcern
                               .find { |rated| rated_id == rated.rated_disability_id }
                               &.decision_code == 'NOTSVCCON')
     end
-  end
-
-  def insert_classification_codes
-    submission_data = JSON.parse(form_json)
-    disabilities = submission_data.dig('form526', 'form526', 'disabilities')
-    disabilities.each do |disability|
-      mas_classification_code = RapidReadyForDecision::Constants::MAS_RELATED_CONTENTIONS[disability['diagnosticCode']]
-
-      unless mas_classification_code.nil? || disability['classificationCode']
-        disability['classificationCode'] = mas_classification_code
-      end
-    end
-    update!(form_json: JSON.dump(submission_data))
-    invalidate_form_hash
   end
 
   private
@@ -180,12 +161,8 @@ module Form526RapidReadyForDecisionConcern
 
   def conditionally_notify_mas
     notify_mas_all_claims_tracking if read_metadata(:forward_to_mas_all_claims)
-    notify_mas_tracking if read_metadata(:forward_to_mas)
 
-    return unless Flipper.enabled?(:rrd_mas_notification)
-
-    if read_metadata(:forward_to_mas) ||
-       (Flipper.enabled?(:rrd_mas_all_claims_notification) && read_metadata(:forward_to_mas_all_claims))
+    if Flipper.enabled?(:rrd_mas_all_claims_notification) && read_metadata(:forward_to_mas_all_claims)
       client = MailAutomation::Client.new({
                                             file_number: birls_id,
                                             claim_id: submitted_claim_id,

@@ -534,17 +534,9 @@ features:
     actor_type: user
     description: Fast tracks 526 disability compensation hypertension claims by submitting additional health data
     enable_in_development: true
-  rrd_mas_disability_tracking:
-    actor_type: user
-    description: Enables Slack notifications for MAS-specific disabilities
-    enable_in_development: true
   rrd_mas_all_claims_tracking:
     actor_type: user
     description: Enables Slack and other email notifications for all MAS-eligible claims
-    enable_in_development: true
-  rrd_mas_notification:
-    actor_type: user
-    description: Notifies MAS service that a MAS-relevant claim has come through
     enable_in_development: true
   rrd_mas_all_claims_notification:
     actor_type: user
