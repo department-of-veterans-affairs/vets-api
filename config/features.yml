@@ -778,10 +778,6 @@ features:
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
-  virtual_agent_user_access_records:
-    actor_type: user
-    description: Enables collection of user data for VBA
-    enable_in_development: true
   yellow_ribbon_mvp_enhancement:
     actor_type: user
     description: Enhances Yellow Ribbon MVP.
