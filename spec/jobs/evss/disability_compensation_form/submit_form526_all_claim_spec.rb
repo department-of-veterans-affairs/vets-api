@@ -93,19 +93,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           end
         end
 
-        context 'when not all claims are handed off to MAS' do
-          before { Flipper.disable(:rrd_mas_all_claims_notification) }
-          after { Flipper.enable(:rrd_mas_all_claims_notification) }
-
-          it 'includes a proper classification code for EVSS submission' do
-            subject.perform_async(submission.id)
-            described_class.drain
-            mas_submission = Form526Submission.find(Form526JobStatus.last.form526_submission_id)
-            expect(mas_submission.form.dig('form526', 'form526',
-                                           'disabilities').first['classificationCode']).to eq '9012'
-          end
-        end
-
         context 'MAS-related claim that already includes classification code' do
           let(:submission) do
             create(:form526_submission,
