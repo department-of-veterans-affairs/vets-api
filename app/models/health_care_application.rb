@@ -108,9 +108,9 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def self.determine_non_military(primary_eligibility, veteran, parsed_status)
-    if parsed_status == Notification::ACTIVEDUTY &&
+    if parsed_status == HCA::EnrollmentEligibility::Constants::ACTIVEDUTY &&
        !determine_active_duty(primary_eligibility, veteran)
-      Notification::NON_MILITARY
+      HCA::EnrollmentEligibility::Constants::NON_MILITARY
     else
       parsed_status
     end
@@ -133,10 +133,11 @@ class HealthCareApplication < ApplicationRecord
         :primary_eligibility
       ).merge(parsed_status: parsed_status)
     else
-      {
-        parsed_status:
-          ee_data[:enrollment_status].present? ? Notification::LOGIN_REQUIRED : Notification::NONE_OF_THE_ABOVE
-      }
+      { parsed_status: if ee_data[:enrollment_status].present?
+                         HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED
+                       else
+                         HCA::EnrollmentEligibility::Constants::NONE_OF_THE_ABOVE
+                       end }
     end
   end
 

@@ -12,20 +12,20 @@ describe HCA::EnrollmentEligibility::StatusMatcher do
     let(:ineligibility_reason) { nil }
 
     [
-      ['Verified', Notification::ENROLLED],
-      ['Not Eligible; Refused to Pay Copay', Notification::INELIG_REFUSEDCOPAY],
-      ['Rejected', Notification::REJECTED_RIGHTENTRY],
-      ['Rejected;Initial Application by VAMC', Notification::REJECTED_RIGHTENTRY],
-      ['Not Applicable', Notification::ACTIVEDUTY],
-      ['Deceased', Notification::DECEASED],
-      ['Closed Application', Notification::CLOSED],
-      ['Pending; Means Test Required', Notification::PENDING_MT],
-      ['Pending; Eligibility Status is Unverified', Notification::PENDING_UNVERIFIED],
-      ['Pending; Other', Notification::PENDING_OTHER],
-      ['Pending; Purple Heart Unconfirmed', Notification::PENDING_PURPLEHEART],
-      ['Cancelled/Declined', Notification::CANCELED_DECLINED],
-      [nil, Notification::NONE_OF_THE_ABOVE],
-      ['Unverified', Notification::NONE_OF_THE_ABOVE]
+      ['Verified', HCA::EnrollmentEligibility::Constants::ENROLLED],
+      ['Not Eligible; Refused to Pay Copay', HCA::EnrollmentEligibility::Constants::INELIG_REFUSEDCOPAY],
+      ['Rejected', HCA::EnrollmentEligibility::Constants::REJECTED_RIGHTENTRY],
+      ['Rejected;Initial Application by VAMC', HCA::EnrollmentEligibility::Constants::REJECTED_RIGHTENTRY],
+      ['Not Applicable', HCA::EnrollmentEligibility::Constants::ACTIVEDUTY],
+      ['Deceased', HCA::EnrollmentEligibility::Constants::DECEASED],
+      ['Closed Application', HCA::EnrollmentEligibility::Constants::CLOSED],
+      ['Pending; Means Test Required', HCA::EnrollmentEligibility::Constants::PENDING_MT],
+      ['Pending; Eligibility Status is Unverified', HCA::EnrollmentEligibility::Constants::PENDING_UNVERIFIED],
+      ['Pending; Other', HCA::EnrollmentEligibility::Constants::PENDING_OTHER],
+      ['Pending; Purple Heart Unconfirmed', HCA::EnrollmentEligibility::Constants::PENDING_PURPLEHEART],
+      ['Cancelled/Declined', HCA::EnrollmentEligibility::Constants::CANCELED_DECLINED],
+      [nil, HCA::EnrollmentEligibility::Constants::NONE_OF_THE_ABOVE],
+      ['Unverified', HCA::EnrollmentEligibility::Constants::NONE_OF_THE_ABOVE]
     ].each do |test_data|
       context "when enrollment status is #{test_data[0]}" do
         let(:enrollment_status) { test_data[0] }
@@ -44,22 +44,22 @@ describe HCA::EnrollmentEligibility::StatusMatcher do
         let(:enrollment_status) { enrollment_status }
 
         [
-          ['24 Months', Notification::INELIG_NOT_ENOUGH_TIME],
-          ['training only', Notification::INELIG_TRAINING_ONLY],
-          ['ACDUTRA', Notification::INELIG_TRAINING_ONLY],
-          ['ACDUTRa', Notification::INELIG_OTHER],
-          ['Other than honorable', Notification::INELIG_CHARACTER_OF_DISCHARGE],
-          ['OTH', Notification::INELIG_CHARACTER_OF_DISCHARGE],
-          ['non vet', Notification::INELIG_NOT_VERIFIED],
-          ['Guard', Notification::INELIG_GUARD_RESERVE],
-          ['champva', Notification::INELIG_CHAMPVA],
-          ['felon', Notification::INELIG_FUGITIVEFELON],
-          ['medicare', Notification::INELIG_MEDICARE],
-          ['over 65', Notification::INELIG_OVER65],
-          ['citizen', Notification::INELIG_CITIZENS],
-          ['filipino', Notification::INELIG_FILIPINOSCOUTS],
-          ['disability', Notification::REJECTED_SC_WRONGENTRY],
-          ['income', Notification::REJECTED_INC_WRONGENTRY]
+          ['24 Months', HCA::EnrollmentEligibility::Constants::INELIG_NOT_ENOUGH_TIME],
+          ['training only', HCA::EnrollmentEligibility::Constants::INELIG_TRAINING_ONLY],
+          ['ACDUTRA', HCA::EnrollmentEligibility::Constants::INELIG_TRAINING_ONLY],
+          ['ACDUTRa', HCA::EnrollmentEligibility::Constants::INELIG_OTHER],
+          ['Other than honorable', HCA::EnrollmentEligibility::Constants::INELIG_CHARACTER_OF_DISCHARGE],
+          ['OTH', HCA::EnrollmentEligibility::Constants::INELIG_CHARACTER_OF_DISCHARGE],
+          ['non vet', HCA::EnrollmentEligibility::Constants::INELIG_NOT_VERIFIED],
+          ['Guard', HCA::EnrollmentEligibility::Constants::INELIG_GUARD_RESERVE],
+          ['champva', HCA::EnrollmentEligibility::Constants::INELIG_CHAMPVA],
+          ['felon', HCA::EnrollmentEligibility::Constants::INELIG_FUGITIVEFELON],
+          ['medicare', HCA::EnrollmentEligibility::Constants::INELIG_MEDICARE],
+          ['over 65', HCA::EnrollmentEligibility::Constants::INELIG_OVER65],
+          ['citizen', HCA::EnrollmentEligibility::Constants::INELIG_CITIZENS],
+          ['filipino', HCA::EnrollmentEligibility::Constants::INELIG_FILIPINOSCOUTS],
+          ['disability', HCA::EnrollmentEligibility::Constants::REJECTED_SC_WRONGENTRY],
+          ['income', HCA::EnrollmentEligibility::Constants::REJECTED_INC_WRONGENTRY]
         ].each do |test_data|
           context "when text includes #{test_data[0]}" do
             let(:ineligibility_reason) { "abc #{test_data[0]}." }

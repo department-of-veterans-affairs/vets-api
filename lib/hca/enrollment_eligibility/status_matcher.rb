@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'hca/enrollment_eligibility/constants'
+
 # rubocop:disable Metrics/ModuleLength
 module HCA
   module EnrollmentEligibility
@@ -12,66 +14,66 @@ module HCA
       # /app/models/notification#status enum values hash.
       #
       ELIGIBLE_STATUS_CATEGORIES = [
-        Notification::ACTIVEDUTY,
-        Notification::CANCELED_DECLINED,
-        Notification::CLOSED,
-        Notification::DECEASED,
-        Notification::ENROLLED,
-        Notification::INELIG_CHAMPVA,
-        Notification::INELIG_CHARACTER_OF_DISCHARGE,
-        Notification::INELIG_CITIZENS,
-        Notification::INELIG_FILIPINOSCOUTS,
-        Notification::INELIG_FUGITIVEFELON,
-        Notification::INELIG_GUARD_RESERVE,
-        Notification::INELIG_MEDICARE,
-        Notification::INELIG_NOT_ENOUGH_TIME,
-        Notification::INELIG_NOT_VERIFIED,
-        Notification::INELIG_OTHER,
-        Notification::INELIG_OVER65,
-        Notification::INELIG_REFUSEDCOPAY,
-        Notification::INELIG_TRAINING_ONLY,
-        Notification::LOGIN_REQUIRED,
-        Notification::NONE_OF_THE_ABOVE,
-        Notification::PENDING_MT,
-        Notification::PENDING_OTHER,
-        Notification::PENDING_PURPLEHEART,
-        Notification::PENDING_UNVERIFIED,
-        Notification::REJECTED_INC_WRONGENTRY,
-        Notification::REJECTED_RIGHTENTRY,
-        Notification::REJECTED_SC_WRONGENTRY,
-        Notification::NON_MILITARY
+        HCA::EnrollmentEligibility::Constants::ACTIVEDUTY,
+        HCA::EnrollmentEligibility::Constants::CANCELED_DECLINED,
+        HCA::EnrollmentEligibility::Constants::CLOSED,
+        HCA::EnrollmentEligibility::Constants::DECEASED,
+        HCA::EnrollmentEligibility::Constants::ENROLLED,
+        HCA::EnrollmentEligibility::Constants::INELIG_CHAMPVA,
+        HCA::EnrollmentEligibility::Constants::INELIG_CHARACTER_OF_DISCHARGE,
+        HCA::EnrollmentEligibility::Constants::INELIG_CITIZENS,
+        HCA::EnrollmentEligibility::Constants::INELIG_FILIPINOSCOUTS,
+        HCA::EnrollmentEligibility::Constants::INELIG_FUGITIVEFELON,
+        HCA::EnrollmentEligibility::Constants::INELIG_GUARD_RESERVE,
+        HCA::EnrollmentEligibility::Constants::INELIG_MEDICARE,
+        HCA::EnrollmentEligibility::Constants::INELIG_NOT_ENOUGH_TIME,
+        HCA::EnrollmentEligibility::Constants::INELIG_NOT_VERIFIED,
+        HCA::EnrollmentEligibility::Constants::INELIG_OTHER,
+        HCA::EnrollmentEligibility::Constants::INELIG_OVER65,
+        HCA::EnrollmentEligibility::Constants::INELIG_REFUSEDCOPAY,
+        HCA::EnrollmentEligibility::Constants::INELIG_TRAINING_ONLY,
+        HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED,
+        HCA::EnrollmentEligibility::Constants::NONE_OF_THE_ABOVE,
+        HCA::EnrollmentEligibility::Constants::PENDING_MT,
+        HCA::EnrollmentEligibility::Constants::PENDING_OTHER,
+        HCA::EnrollmentEligibility::Constants::PENDING_PURPLEHEART,
+        HCA::EnrollmentEligibility::Constants::PENDING_UNVERIFIED,
+        HCA::EnrollmentEligibility::Constants::REJECTED_INC_WRONGENTRY,
+        HCA::EnrollmentEligibility::Constants::REJECTED_RIGHTENTRY,
+        HCA::EnrollmentEligibility::Constants::REJECTED_SC_WRONGENTRY,
+        HCA::EnrollmentEligibility::Constants::NON_MILITARY
       ].freeze
 
       CATCHALL_CATEGORIES = [
         {
           enrollment_status: 'rejected',
-          category: Notification::REJECTED_RIGHTENTRY
+          category: HCA::EnrollmentEligibility::Constants::REJECTED_RIGHTENTRY
         },
         {
           enrollment_status: 'not eligible',
-          category: Notification::INELIG_OTHER
+          category: HCA::EnrollmentEligibility::Constants::INELIG_OTHER
         }
       ].freeze
 
       CATEGORIES = [
         {
           enrollment_status: 'verified',
-          category: Notification::ENROLLED
+          category: HCA::EnrollmentEligibility::Constants::ENROLLED
         },
         {
           enrollment_status: ['not eligible', 'not eligible; ineligible date'],
           text_matches: [
             {
-              category: Notification::INELIG_NOT_ENOUGH_TIME,
+              category: HCA::EnrollmentEligibility::Constants::INELIG_NOT_ENOUGH_TIME,
               strings: ['24 months', 'less than', '24 mos', '24months', 'two years']
             },
             {
-              category: Notification::INELIG_TRAINING_ONLY,
+              category: HCA::EnrollmentEligibility::Constants::INELIG_TRAINING_ONLY,
               strings: ['training only', 'trng only'],
               acronyms: %w[ADT ACDUTRA ADUTRA]
             },
             {
-              category: Notification::INELIG_CHARACTER_OF_DISCHARGE,
+              category: HCA::EnrollmentEligibility::Constants::INELIG_CHARACTER_OF_DISCHARGE,
               strings: [
                 'other than honorable', 'dishonorable',
                 'bad conduct', 'dis for va pur'
@@ -79,82 +81,82 @@ module HCA
               acronyms: %w[OTH DVA]
             },
             {
-              category: Notification::INELIG_NOT_VERIFIED,
+              category: HCA::EnrollmentEligibility::Constants::INELIG_NOT_VERIFIED,
               strings: ['no proof', 'no record', 'non-vet', 'non vet', 'unable to verify', 'not a veteran', '214']
             },
             {
-              category: Notification::INELIG_GUARD_RESERVE,
+              category: HCA::EnrollmentEligibility::Constants::INELIG_GUARD_RESERVE,
               strings: %w[guard reserve reservist]
             },
             {
-              category: Notification::INELIG_CHAMPVA,
+              category: HCA::EnrollmentEligibility::Constants::INELIG_CHAMPVA,
               strings: ['champva']
             },
             {
-              category: Notification::INELIG_FUGITIVEFELON,
+              category: HCA::EnrollmentEligibility::Constants::INELIG_FUGITIVEFELON,
               strings: ['felon']
             },
             {
-              category: Notification::INELIG_MEDICARE,
+              category: HCA::EnrollmentEligibility::Constants::INELIG_MEDICARE,
               strings: ['medicare']
             },
             {
-              category: Notification::INELIG_OVER65,
+              category: HCA::EnrollmentEligibility::Constants::INELIG_OVER65,
               strings: ['over 65']
             },
             {
-              category: Notification::INELIG_CITIZENS,
+              category: HCA::EnrollmentEligibility::Constants::INELIG_CITIZENS,
               strings: ['citizen']
             },
             {
-              category: Notification::INELIG_FILIPINOSCOUTS,
+              category: HCA::EnrollmentEligibility::Constants::INELIG_FILIPINOSCOUTS,
               strings: ['filipino']
             },
             {
-              category: Notification::REJECTED_SC_WRONGENTRY,
+              category: HCA::EnrollmentEligibility::Constants::REJECTED_SC_WRONGENTRY,
               strings: ['disability']
             },
             {
-              category: Notification::REJECTED_INC_WRONGENTRY,
+              category: HCA::EnrollmentEligibility::Constants::REJECTED_INC_WRONGENTRY,
               strings: ['income']
             }
           ]
         },
         {
           enrollment_status: 'not applicable',
-          category: Notification::ACTIVEDUTY
+          category: HCA::EnrollmentEligibility::Constants::ACTIVEDUTY
         },
         {
           enrollment_status: 'deceased',
-          category: Notification::DECEASED
+          category: HCA::EnrollmentEligibility::Constants::DECEASED
         },
         {
           enrollment_status: 'closed application',
-          category: Notification::CLOSED
+          category: HCA::EnrollmentEligibility::Constants::CLOSED
         },
         {
           enrollment_status: 'not eligible; refused to pay copay',
-          category: Notification::INELIG_REFUSEDCOPAY
+          category: HCA::EnrollmentEligibility::Constants::INELIG_REFUSEDCOPAY
         },
         {
           enrollment_status: 'pending; means test required',
-          category: Notification::PENDING_MT
+          category: HCA::EnrollmentEligibility::Constants::PENDING_MT
         },
         {
           enrollment_status: 'pending; eligibility status is unverified',
-          category: Notification::PENDING_UNVERIFIED
+          category: HCA::EnrollmentEligibility::Constants::PENDING_UNVERIFIED
         },
         {
           enrollment_status: 'pending; other',
-          category: Notification::PENDING_OTHER
+          category: HCA::EnrollmentEligibility::Constants::PENDING_OTHER
         },
         {
           enrollment_status: 'pending; purple heart unconfirmed',
-          category: Notification::PENDING_PURPLEHEART
+          category: HCA::EnrollmentEligibility::Constants::PENDING_PURPLEHEART
         },
         {
           enrollment_status: 'cancelled/declined',
-          category: Notification::CANCELED_DECLINED
+          category: HCA::EnrollmentEligibility::Constants::CANCELED_DECLINED
         }
       ].freeze
 
@@ -193,7 +195,7 @@ module HCA
       end
 
       def parse(enrollment_status, ineligibility_reason = '')
-        return Notification::NONE_OF_THE_ABOVE if enrollment_status.blank?
+        return HCA::EnrollmentEligibility::Constants::NONE_OF_THE_ABOVE if enrollment_status.blank?
 
         enrollment_status = enrollment_status.downcase.strip
 
@@ -211,7 +213,7 @@ module HCA
 
         parse_catchall_categories(enrollment_status).tap { |c| return c if c.present? }
 
-        Notification::NONE_OF_THE_ABOVE
+        HCA::EnrollmentEligibility::Constants::NONE_OF_THE_ABOVE
       end
     end
   end
