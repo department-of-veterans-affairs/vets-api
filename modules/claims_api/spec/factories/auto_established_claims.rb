@@ -74,10 +74,10 @@ FactoryBot.define do
   end
 
   factory :bgs_response, class: OpenStruct do
-    bnft_claim_dto { (association :bnft_claim_dto).to_h }
+    bnft_claim_dto { (association :benefit_claim_details_dto).to_h }
   end
 
-  factory :bnft_claim_dto, class: OpenStruct do
+  factory :benefit_claim_details_dto, class: OpenStruct do
     bnft_claim_id { Faker::Number.number(digits: 9) }
     bnft_claim_type_cd { Faker::Alphanumeric.alpha(number: 9) }
     bnft_claim_type_label { 'Compensation' }
@@ -109,5 +109,70 @@ FactoryBot.define do
     svc_type_cd { 'CP' }
     termnl_digit_nbr { Faker::Number.number(digits: 2) }
     filed5103_waiver_ind { 'Y' }
+  end
+  factory :bgs_response_with_one_lc_status, class: OpenStruct do
+    benefit_claim_details_dto { (association :bgs_claim_details_dto_with_one_lc_status).to_h }
+  end
+  factory :bgs_response_with_lc_status, class: OpenStruct do
+    benefit_claim_details_dto { (association :bgs_claim_details_dto_with_lc_status).to_h }
+  end
+  factory :bgs_claim_details_dto_with_one_lc_status, class: OpenStruct do
+    benefit_claim_id { '111111111' }
+    phase_chngd_dt { Faker::Time.backward(days: 5, period: :morning) }
+    phase_type { 'Pending Decision Approval' }
+    ptcpnt_clmant_id { Faker::Number.number(digits: 17) }
+    ptcpnt_vet_id { Faker::Number.number(digits: 17) }
+    phase_type_change_ind { '76' }
+    claim_status_type { 'Compensation' }
+    bnft_claim_lc_status { [(association :bnft_claim_lc_status_one).to_h] }
+  end
+  factory :bgs_claim_details_dto_with_lc_status, class: OpenStruct do
+    benefit_claim_id { '111111111' }
+    phase_chngd_dt { Faker::Time.backward(days: 5, period: :morning) }
+    phase_type { 'Pending Decision Approval' }
+    ptcpnt_clmant_id { Faker::Number.number(digits: 17) }
+    ptcpnt_vet_id { Faker::Number.number(digits: 17) }
+    phase_type_change_ind { '76' }
+    claim_status_type { 'Compensation' }
+    bnft_claim_lc_status {
+      [(association :bnft_claim_lc_status_one).to_h, (association :bnft_claim_lc_status_two).to_h,
+       (association :bnft_claim_lc_status_three).to_h,
+       (association :bnft_claim_lc_status_four).to_h, (association :bnft_claim_lc_status_five).to_h]
+    }
+  end
+  factory :bnft_claim_lc_status_one, class: OpenStruct do
+    max_est_claim_complete_dt { Faker::Time.backward(days: 5, period: :morning) }
+    min_est_claim_complete_dt { Faker::Time.backward(days: 7, period: :morning) }
+    phase_chngd_dt { Faker::Time.backward(days: 6, period: :morning) }
+    phase_type { 'Claim Received' }
+    phase_type_change_ind { 'N' }
+  end
+  factory :bnft_claim_lc_status_two, class: OpenStruct do
+    max_est_claim_complete_dt { Faker::Time.backward(days: 5, period: :morning) }
+    min_est_claim_complete_dt { Faker::Time.backward(days: 7, period: :morning) }
+    phase_chngd_dt { Faker::Time.backward(days: 6, period: :morning) }
+    phase_type { 'Under Review' }
+    phase_type_change_ind { '12' }
+  end
+  factory :bnft_claim_lc_status_three, class: OpenStruct do
+    max_est_claim_complete_dt { Faker::Time.backward(days: 5, period: :morning) }
+    min_est_claim_complete_dt { Faker::Time.backward(days: 7, period: :morning) }
+    phase_chngd_dt { Faker::Time.backward(days: 6, period: :morning) }
+    phase_type { 'Gathering of Evidence' }
+    phase_type_change_ind { '23' }
+  end
+  factory :bnft_claim_lc_status_four, class: OpenStruct do
+    max_est_claim_complete_dt { Faker::Time.backward(days: 5, period: :morning) }
+    min_est_claim_complete_dt { Faker::Time.backward(days: 7, period: :morning) }
+    phase_chngd_dt { Faker::Time.backward(days: 6, period: :morning) }
+    phase_type { 'Review of Evidence' }
+    phase_type_change_ind { '34' }
+  end
+  factory :bnft_claim_lc_status_five, class: OpenStruct do
+    max_est_claim_complete_dt { Faker::Time.backward(days: 5, period: :morning) }
+    min_est_claim_complete_dt { Faker::Time.backward(days: 7, period: :morning) }
+    phase_chngd_dt { Faker::Time.backward(days: 6, period: :morning) }
+    phase_type { 'Preparation for Decision' }
+    phase_type_change_ind { '45' }
   end
 end
