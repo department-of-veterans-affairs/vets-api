@@ -10,13 +10,14 @@ module SignIn
     end
 
     def perform
-      find_user || reload_user
+      find_valid_user || reload_user
     end
 
     private
 
-    def find_user
-      User.find(access_token.user_uuid)
+    def find_valid_user
+      user = User.find(access_token.user_uuid)
+      user&.identity ? user : nil
     end
 
     def reload_user

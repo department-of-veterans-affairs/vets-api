@@ -7,7 +7,7 @@ RSpec.describe SignIn::UserLoader do
     subject { SignIn::UserLoader.new(access_token: access_token, request_ip: request_ip).perform }
 
     let(:access_token) { create(:access_token, user_uuid: user.uuid, session_handle: session_handle) }
-    let(:user) { create(:user, :loa3, uuid: user_uuid, loa: user_loa, icn: user_icn) }
+    let!(:user) { create(:user, :loa3, uuid: user_uuid, loa: user_loa, icn: user_icn) }
     let(:user_uuid) { user_account.id }
     let(:user_account) { create(:user_account) }
     let(:user_verification) { create(:idme_user_verification, user_account: user_account) }
@@ -17,19 +17,7 @@ RSpec.describe SignIn::UserLoader do
     let(:session_handle) { session.handle }
     let(:request_ip) { '123.456.78.90' }
 
-    context 'when user record already exists in redis' do
-      let(:user_uuid) { user_account.id }
-
-      it 'returns existing user redis record' do
-        expect(subject.uuid).to eq(user_uuid)
-      end
-    end
-
-    context 'when user record no longer exists in redis' do
-      before do
-        user.destroy
-      end
-
+    shared_examples 'reloaded user' do
       context 'and associated session cannot be found' do
         let(:session) { nil }
         let(:session_handle) { 'some-not-found-session-handle' }
@@ -78,6 +66,30 @@ RSpec.describe SignIn::UserLoader do
           expect(subject.edipi).to be edipi
         end
       end
+    end
+
+    context 'when user record already exists in redis' do
+      let(:user_uuid) { user_account.id }
+
+      context 'and user identity record exists in redis' do
+        it 'returns existing user redis record' do
+          expect(subject.uuid).to eq(user_uuid)
+        end
+      end
+
+      context 'and user identity record does not exist in redis' do
+        before { UserIdentity.find(user_uuid).destroy }
+
+        it_behaves_like 'reloaded user'
+      end
+    end
+
+    context 'when user record no longer exists in redis' do
+      before do
+        user.destroy
+      end
+
+      it_behaves_like 'reloaded user'
     end
   end
 end
