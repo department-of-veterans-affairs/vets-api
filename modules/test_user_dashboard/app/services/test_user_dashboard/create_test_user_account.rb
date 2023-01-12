@@ -11,15 +11,7 @@ module TestUserDashboard
     def call
       return unless row['idme_uuid'] || row['logingov_uuid']
 
-      account = if row['idme_uuid'] && row['logingov_uuid']
-                  Account.find_or_create_by(idme_uuid: row['idme_uuid'], logingov_uuid: row['logingov_uuid'])
-                elsif row['idme_uuid']
-                  Account.find_or_create_by(idme_uuid: row['idme_uuid'])
-                else
-                  Account.find_or_create_by(logingov_uuid: row['logingov_uuid'])
-                end
-
-      account_details = row.merge(account_uuid: account.uuid,
+      account_details = row.merge(account_uuid: id_uuid,
                                   id_types: id_types,
                                   birth_date: birth_date,
                                   services: services).compact
@@ -29,6 +21,10 @@ module TestUserDashboard
     end
 
     private
+
+    def id_uuid
+      SecureRandom.uuid
+    end
 
     def id_types
       return unless row.key?('id_types')
