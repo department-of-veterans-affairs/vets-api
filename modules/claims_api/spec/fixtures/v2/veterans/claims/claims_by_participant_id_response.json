@@ -10,7 +10,7 @@
         "claim_close_dt": "2017-10-18",
         "claim_complete_dt": "2017-10-18",
         "claim_dt": "2017-05-02",
-        "claim_status": "CAN",
+        "claim_status": "Pending",
         "claim_status_type": "Compensation",
         "decision_notification_sent": "No",
         "development_letter_sent": "No",

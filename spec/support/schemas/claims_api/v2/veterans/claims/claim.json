@@ -47,6 +47,11 @@
           "type": "date",
           "nullable": true,
           "description": "The date that the claim changed to its current phase"
+        },
+        "previousPhases": {
+          "phase1CompleteDate": "date",
+          "nullable": true,
+          "description": "Completed date of previous phases."
         }
       } 
     },

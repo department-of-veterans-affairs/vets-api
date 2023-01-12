@@ -421,7 +421,7 @@
                     "endProductCode": "404",
                     "evidenceWaiverSubmitted5103": false,
                     "lighthouseId": null,
-                    "status": "COMPLETE"
+                    "status": "PENDING"
                   }
                 ],
                 "schema": {
@@ -686,7 +686,8 @@
                   "claimPhaseDates": {
                     "phaseChangeDate": null,
                     "currentPhaseBack": false,
-                    "latestPhaseType": null
+                    "latestPhaseType": "Complete",
+                    "previousPhases": null
                   },
                   "claimType": "Compensation",
                   "claimTypeCode": "400PREDSCHRG",
@@ -812,6 +813,11 @@
                           "type": "date",
                           "nullable": true,
                           "description": "The date that the claim changed to its current phase"
+                        },
+                        "previousPhases": {
+                          "phase1CompleteDate": "date",
+                          "nullable": true,
+                          "description": "Completed date of previous phases."
                         }
                       }
                     },
