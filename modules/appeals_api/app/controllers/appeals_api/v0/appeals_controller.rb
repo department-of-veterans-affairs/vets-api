@@ -55,7 +55,7 @@ module AppealsApi
 
       def header(key)
         value = request.headers[key]
-        raise Common::Exceptions::ParameterMissing, key unless value
+        raise Common::Exceptions::ParameterMissing, key if value.blank?
 
         value
       end
