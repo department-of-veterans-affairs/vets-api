@@ -73,7 +73,7 @@ module Form526BackupSubmission
                  content: Faraday::UploadIO.new(file, Mime[:pdf].to_s, file_name) }
       attachments.each.with_index do |attachment, i|
         file_path = get_file_path_from_objs(attachment[:file])
-        file_name = attachment[:file_name]
+        file_name = attachment[:file_name] || attachment['name']
         params["attachment#{i + 1}".to_sym] = Faraday::UploadIO.new(file_path, Mime[:pdf].to_s, file_name)
       end
 
