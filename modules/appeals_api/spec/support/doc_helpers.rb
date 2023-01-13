@@ -131,14 +131,15 @@ module DocHelpers
     legacy_appeals: 'Legacy Appeals'
   }.freeze
 
-  ALL_DOC_TITLES = DECISION_REVIEWS_DOC_TITLES.merge({
-                                                       # To be added in API-21523:
-                                                       # appeals_status: 'Appeals Status',
-                                                       decision_reviews: 'Decision Reviews'
-                                                     }).freeze
+  ALL_DOC_TITLES = DECISION_REVIEWS_DOC_TITLES.merge(
+    {
+      appeals_status: 'Appeals Status',
+      decision_reviews: 'Decision Reviews'
+    }
+  ).freeze
 
   def self.api_name
-    ENV['RAILS_ENV'] == 'test' ? DEFAULT_CONFIG_VALUES[:api_name] : ENV['API_NAME']
+    DocHelpers.running_rake_task? ? ENV['API_NAME'].presence : DEFAULT_CONFIG_VALUES[:api_name]
   end
 
   def self.decision_reviews?
@@ -149,8 +150,14 @@ module DocHelpers
     !DocHelpers.decision_reviews?
   end
 
+  def self.running_rake_task?
+    # SWAGGER_DRY_RUN is set in the appeals rake tasks: if it's not set, it means the spec is running as part of
+    # a normal rspec suite instead.
+    ENV['SWAGGER_DRY_RUN'].present?
+  end
+
   def self.api_version
-    ENV['RAILS_ENV'] == 'test' ? DEFAULT_CONFIG_VALUES[:api_version] : ENV['API_VERSION']
+    DocHelpers.running_rake_task? ? ENV['API_VERSION'].presence : DEFAULT_CONFIG_VALUES[:api_version]
   end
 
   def self.api_title
@@ -168,6 +175,8 @@ module DocHelpers
   def self.api_base_path_template
     if DocHelpers.decision_reviews?
       '/services/appeals/{version}/decision_reviews'
+    elsif DocHelpers.api_name == 'appeals_status'
+      '/services/appeals/{version}'
     else
       "/services/appeals/#{DocHelpers.api_name}/{version}"
     end
