@@ -318,29 +318,12 @@ modules_appeals_api:
   reports:
     daily_decision_review:
       enabled: false
-      recipients:
-        - drew.fisher@adhocteam.us
-        - jack.schuss@oddball.io
-        - kelly@adhocteam.us
-        - laura.trager@adhocteam.us
-        - nathan.wright@oddball.io
     weekly_decision_review:
       enabled: false
-      recipients:
-        - drew.fisher@adhocteam.us
-        - jack.schuss@oddball.io
-        - kelly@adhocteam.us
-        - laura.trager@adhocteam.us
-        - nathan.wright@oddball.io
     daily_error:
       enabled: false
-      recipients:
-        - drew.fisher@adhocteam.us
-        - jack.schuss@oddball.io
-        - kelly@adhocteam.us
-        - laura.trager@adhocteam.us
-        - nathan.wright@oddball.io
     weekly_error:
+      # See features.yml for enablement
       recipients:
         - drew.fisher@adhocteam.us
         - casey.williams@adhocteam.us
