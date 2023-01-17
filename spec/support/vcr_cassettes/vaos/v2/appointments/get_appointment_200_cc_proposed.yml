@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/vaos/v1/patients/1012846043V576341/appointments/72105
+    uri: https://veteran.apps.va.gov/vaos/v1/patients/1012846043V576341/appointments/81063
     body:
       encoding: US-ASCII
       string: ''
@@ -56,6 +56,6 @@ http_interactions:
       - max-age=63072000; includeSubDomains; preload
     body:
       encoding: UTF-8
-      string: '{"data":{"id":"72105","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/hsrm/id","value":"11812"}],"kind":"cc","status":"proposed","serviceType":"primaryCare","patientIcn":"1012846043V576341","locationId":"984","practitioners":[],"created":"2022-01-10T20:49:00Z","requestedPeriods":[{"start":"2022-01-26T00:00:00Z"}],"contact":{"telecom":[{"type":"phone","value":"2566832029"},{"type":"email","value":"Aarathi.poldass@va.gov"}]},"preferredTimesForPhoneCall":["Morning"],"preferredLocation":{"city":"Juneau","state":"AK"},"cancellationReason":{"code":"other"},"comment":"","preferredLanguage":"French","cancellable":true,"extension":{"ccLocation":{"address":{}}}}}'
+      string: '{"data":{"id":"81063","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/hsrm/id","value":"11992"}],"kind":"cc","status":"proposed","serviceType":"podiatry","serviceTypes":[{"text":"podiatry"}],"reasonCode":{"text":"test"},"patientIcn":"1012846043V576341","locationId":"983","practitioners":[{"identifier":[{"system":"http://hl7.org/fhir/sid/us-npi","value":"1407938061"}]}],"created":"2022-02-22T21:46:00Z","requestedPeriods":[{"start":"2021-06-15T12:00:00Z"}],"contact":{"telecom":[{"type":"phone","value":"2125688887"},{"type":"email","value":"judymorisooooooooooooon@gmail.com"}]},"preferredTimesForPhoneCall":["Morning"],"preferredLocation":{"city":"Helena","state":"MT"},"preferredLanguage":"English","cancellable":true,"extension":{"ccLocation":{"address":{}},"ccRequestedCancellation":false,"hsrmTaskId":"11992"}}}'
   recorded_at: Tue, 11 Jan 2022 18:32:13 GMT
 recorded_with: VCR 6.0.0
