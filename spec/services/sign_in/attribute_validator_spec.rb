@@ -63,7 +63,6 @@ RSpec.describe SignIn::AttributeValidator do
       let(:city) { nil }
       let(:country) { nil }
       let(:mhv_icn) { nil }
-      let(:sign_in) { { service_name: service_name } }
       let(:auto_uplevel) { false }
       let(:add_person_response) { 'some-add-person-response' }
       let(:find_profile_response) { 'some-find-profile-response' }
@@ -180,6 +179,20 @@ RSpec.describe SignIn::AttributeValidator do
           let(:expected_error) { SignIn::Errors::AttributeMismatchError }
           let(:expected_error_message) { "Attribute mismatch, #{attribute} in credential does not match MPI attribute" }
           let(:expected_error_log) { 'attribute validator error' }
+          let(:expected_params) do
+            {
+              last_name: last_name,
+              ssn: ssn,
+              birth_date: birth_date,
+              icn: icn,
+              email: email,
+              address: address,
+              idme_uuid: idme_uuid,
+              logingov_uuid: logingov_uuid,
+              edipi: edipi,
+              first_name: first_name
+            }
+          end
 
           it 'makes a log to rails logger' do
             expect_any_instance_of(SignIn::Logger).to receive(:info).with(expected_error_log,
@@ -190,7 +203,7 @@ RSpec.describe SignIn::AttributeValidator do
           end
 
           it 'makes an mpi call to update correlation record' do
-            expect_any_instance_of(MPI::Service).to receive(:update_profile)
+            expect_any_instance_of(MPI::Service).to receive(:update_profile).with(expected_params)
             subject
           end
         end
@@ -300,13 +313,26 @@ RSpec.describe SignIn::AttributeValidator do
           let(:status) { :ok }
           let(:icn) { 'some-icn' }
           let(:parsed_codes) { { icn: icn } }
+          let(:expected_params) do
+            {
+              first_name: first_name,
+              last_name: last_name,
+              ssn: ssn,
+              birth_date: birth_date,
+              email: email,
+              address: address,
+              idme_uuid: idme_uuid,
+              logingov_uuid: logingov_uuid
+            }
+          end
 
           before { allow_any_instance_of(SignIn::AttributeValidator).to receive(:mpi_record_exists?).and_return(false) }
 
           it_behaves_like 'mpi attribute validations'
 
           it 'makes an mpi call to create a new record' do
-            expect_any_instance_of(MPI::Service).to receive(:add_person_implicit_search)
+            expect_any_instance_of(MPI::Service).to receive(:add_person_implicit_search).with(expected_params)
+
             subject
           end
 
@@ -408,9 +434,21 @@ RSpec.describe SignIn::AttributeValidator do
             let(:mhv_iens) { ['some-mhv-ien'] }
             let(:participant_ids) { ['some-participant-id'] }
             let(:birls_ids) { ['some-birls-id'] }
+            let(:expected_params) do
+              {
+                first_name: first_name,
+                last_name: last_name,
+                ssn: ssn,
+                birth_date: birth_date,
+                email: email,
+                address: address,
+                idme_uuid: idme_uuid,
+                logingov_uuid: logingov_uuid
+              }
+            end
 
             it 'makes an mpi call to create a new record' do
-              expect_any_instance_of(MPI::Service).to receive(:add_person_implicit_search)
+              expect_any_instance_of(MPI::Service).to receive(:add_person_implicit_search).with(expected_params)
               subject
             end
 
