@@ -55,7 +55,6 @@ module IAMSSOeOAuth
       user = build_user(user_identity)
       handle_nil_user(user_identity) if user.nil?
       validate_user(user)
-      create_evss_account(user) if user.authorize(:evss, :access?)
       log_session_info(iam_profile, user_identity, @access_token)
       user = persist(session, user)
       StatsD.increment('iam_ssoe_oauth.user_session_creation_done')
@@ -159,11 +158,6 @@ module IAMSSOeOAuth
       Rails.logger.error('IAMSSOeOAuth::SessionManager built a nil user',
                          sign_in_method: user_identity&.sign_in, user_identity_icn: user_identity&.icn)
       raise Common::Exceptions::Unauthorized, detail: 'User is nil'
-    end
-
-    def create_evss_account(user)
-      EVSS::CreateUserAccountJob.perform_async(user.uuid)
-      Rails.logger.info('user EVSS account created', user.uuid)
     end
   end
 end
