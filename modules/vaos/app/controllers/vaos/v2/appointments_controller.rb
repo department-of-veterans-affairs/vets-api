@@ -6,8 +6,20 @@ module VAOS
   module V2
     class AppointmentsController < VAOS::V0::BaseController
       STATSD_KEY = 'api.vaos.va_mobile.response.partial'
+
+      # cache utilized by the controller to store key/value pairs of provider name and npi
+      # in order to prevent duplicate service call lookups during index/show/create
+      @@provider_cache = {} # rubocop:disable Style/ClassVars
+
       def index
         appointments
+
+        appointments[:data].each do |appt|
+          find_and_merge_provider_name(appt) if appt[:kind] == 'cc' && appt[:status] == 'proposed'
+        end
+
+        # clear provider cache after processing appointments
+        clear_provider_cache
 
         _include&.include?('clinics') && merge_clinics(appointments[:data])
         _include&.include?('facilities') && merge_facilities(appointments[:data])
@@ -26,6 +38,10 @@ module VAOS
 
       def show
         appointment
+
+        find_and_merge_provider_name(appointment) if appointment[:kind] == 'cc' && appointment[:status] == 'proposed'
+        clear_provider_cache
+
         unless appointment[:clinic].nil? || appointment[:location_id].nil?
           clinic = get_clinic(appointment[:location_id], appointment[:clinic])
           appointment[:service_name] = clinic&.[](:service_name)
@@ -46,6 +62,10 @@ module VAOS
 
       def create
         new_appointment
+
+        find_and_merge_provider_name(new_appointment) if new_appointment[:kind] == 'cc'
+        clear_provider_cache
+
         unless new_appointment[:clinic].nil? || new_appointment[:location_id].nil?
           clinic = get_clinic(new_appointment[:location_id], new_appointment[:clinic])
           new_appointment[:service_name] = clinic&.[](:service_name)
@@ -86,9 +106,19 @@ module VAOS
           VAOS::V2::AppointmentsService.new(current_user)
       end
 
+      def systems_service
+        @systems_service ||=
+          VAOS::V2::SystemsService.new(current_user)
+      end
+
       def mobile_facility_service
         @mobile_facility_service ||=
           VAOS::V2::MobileFacilityService.new(current_user)
+      end
+
+      def mobile_ppms_service
+        @mobile_ppms_service ||=
+          VAOS::V2::MobilePPMSService.new(current_user)
       end
 
       def appointments
@@ -108,6 +138,56 @@ module VAOS
       def updated_appointment
         @updated_appointment ||=
           appointments_service.update_appointment(update_appt_id, status_update)
+      end
+
+      # uses find_npi helper method to extract npi from appointment response,
+      # then uses the npi to look up the provider name via mobile_ppms_service
+      #
+      # will cache the key value pair of npi and provider name to avoid
+      # duplicate get_provider_name calls
+
+      NPI_NOT_FOUND_MSG = "We're sorry, we can't display your provider's information right now."
+
+      def find_and_merge_provider_name(appt)
+        found_npi = find_npi(appt)
+        if found_npi
+          if !read_provider_cache(found_npi)
+            begin
+              provider_response = mobile_ppms_service.get_provider(found_npi)
+              appt[:preferred_provider_name] = provider_response[:name]
+            rescue Common::Exceptions::BackendServiceException => e
+              appt[:preferred_provider_name] = NPI_NOT_FOUND_MSG
+              Rails.logger.warn(
+                "Error fetching provider name for npi #{found_npi}",
+                npi: found_npi,
+                vamf_msg: e.original_body
+              )
+            end
+            write_provider_cache(found_npi, appt[:preferred_provider_name])
+          else
+            appt[:preferred_provider_name] = read_provider_cache(found_npi)
+          end
+        end
+      end
+
+      def find_npi(appt)
+        appt[:practitioners]&.each do |a|
+          a[:identifier]&.each do |i|
+            return i[:value] if i[:system].include? 'us-npi'
+          end
+        end
+      end
+
+      def clear_provider_cache
+        @@provider_cache = {} # rubocop:disable Style/ClassVars
+      end
+
+      def read_provider_cache(key)
+        @@provider_cache[key]
+      end
+
+      def write_provider_cache(key, value)
+        @@provider_cache[key] = value
       end
 
       # Makes a call to the VAOS service to create a new appointment.

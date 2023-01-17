@@ -13,7 +13,7 @@ FactoryBot.define do
       status { 'proposed' }
       location_id { '983' }
       service_type { 'podiatry' } # transforms on the front-end need to change
-      comment { 'test' }
+      comment {}
       practitioners do
         [
           {
@@ -65,6 +65,87 @@ FactoryBot.define do
         {
           'city': 'Helena',
           'state': 'MT'
+        }
+      end
+      reason_code do
+        {
+          'coding' => [
+            {
+              'code': 'Routine Follow-up'
+            }
+          ],
+          'text': 'string'
+        }
+      end
+    end
+
+    trait :community_cares2 do
+      kind { 'cc' }
+      status { 'proposed' }
+      location_id { '983' }
+      service_type { 'podiatry' } # transforms on the front-end need to change
+      comment {}
+      practitioners do
+        [
+          {
+            identifier: [
+              {
+                'system': 'http://hl7.org/fhir/sid/us-npi',
+                'value': '1174506877'
+              }
+            ],
+            address: {
+              'type': 'postal',
+              'line': [
+                '590 MALABAR RD SE STE 5'
+              ],
+              'city': 'PALM BAY',
+              'state': 'FL',
+              'postal_code': '32907-3108',
+              'country': 'USA',
+              'text': 'test'
+            }
+          }
+        ]
+      end
+      contact do
+        {
+          'telecom' => [
+            {
+              'type': 'phone',
+              'value': '2762740095'
+            },
+            {
+              'type': 'email',
+              'value': 'jacqueline.morgan@id.me'
+            }
+          ]
+        }
+      end
+      requested_periods do
+        [
+          {
+            'start' => DateTime.new(2023, 0o1, 17, 0o7, 0o0, 0).iso8601(3),
+            'end' => DateTime.new(2023, 0o1, 17, 18, 59, 0).iso8601(3)
+          }
+        ]
+      end
+      preferred_times_for_phone_call { ['Morning'] }
+      preferred_language { 'English' }
+      preferred_location do
+        {
+          'city': 'Palm Bay',
+          'state': 'FL'
+        }
+      end
+      reason_code do
+        {
+          'coding' => [
+            {
+              'code': 'Routine Follow-up'
+            }
+          ],
+          'text': 'string'
         }
       end
     end
