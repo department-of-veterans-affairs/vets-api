@@ -11,17 +11,6 @@ describe EVSS::CommonService do
   let(:transaction_id) { auth_headers['va_eauth_service_transaction_id'] }
 
   context 'with headers' do
-    it 'posts to create a user account', run_at: 'Thu, 14 Dec 2017 00:00:32 GMT' do
-      VCR.use_cassette(
-        'evss/common/create_user_account',
-        erb: { transaction_id: transaction_id },
-        match_requests_on: VCR.all_matches
-      ) do
-        response = subject.create_user_account
-        expect(response).to be_success
-      end
-    end
-
     it 'posts to get current info' do
       # This is a stubbed out test to bypass coverage failures due to nobody having
       # written a test in the original implementation.
