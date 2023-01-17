@@ -321,12 +321,6 @@ Rails.application.routes.draw do
       post :upgrade
     end
 
-    resources :notifications, only: %i[create show update], param: :subject
-
-    namespace :notifications do
-      resources :dismissed_statuses, only: %i[show create update], param: :subject
-    end
-
     get 'feature_toggles', to: 'feature_toggles#index'
 
     resource :mhv_opt_in_flags, only: %i[show create]

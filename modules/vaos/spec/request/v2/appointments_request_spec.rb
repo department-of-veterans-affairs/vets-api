@@ -31,6 +31,18 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
+  let(:provider_response) do
+    OpenStruct.new({ 'providerIdentifier' => '1407938061', 'name' => 'DEHGHAN, AMIR' })
+  end
+
+  let(:provider_response2) do
+    OpenStruct.new({ 'providerIdentifier' => '1528231610', 'name' => 'CARLTON, ROBERT A  ' })
+  end
+
+  let(:provider_response3) do
+    OpenStruct.new({ 'providerIdentifier' => '1174506877', 'name' => 'BRIANT G MOYLES' })
+  end
+
   context 'with jacqueline morgan' do
     let(:current_user) { build(:user, :jac) }
 
@@ -39,11 +51,19 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         FactoryBot.build(:appointment_form_v2, :community_cares, user: current_user).attributes
       end
 
+      let(:community_cares_request_body2) do
+        FactoryBot.build(:appointment_form_v2, :community_cares2, user: current_user).attributes
+      end
+
       it 'creates the cc appointment' do
-        VCR.use_cassette('vaos/v2/appointments/post_appointments_cc_200_2222022',
+        VCR.use_cassette('vaos/v2/appointments/post_appointments_cc_200_with_provider',
                          match_requests_on: %i[method path query]) do
-          post '/vaos/v2/appointments', params: community_cares_request_body, headers: inflection_header
+          allow_any_instance_of(VAOS::V2::MobilePPMSService).to\
+            receive(:get_provider).with('1174506877').and_return(provider_response3)
+          post '/vaos/v2/appointments', params: community_cares_request_body2, headers: inflection_header
+
           expect(response).to have_http_status(:created)
+          expect(JSON.parse(response.body)['data']['attributes']['preferredProviderName']).to eq('BRIANT G MOYLES')
           expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
         end
       end
@@ -106,6 +126,22 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             expect(data[0]['attributes']['physicalLocation']).to eq('physical_location')
             expect(data[0]['attributes']['friendlyName']).to eq('friendly_name')
             expect(data[0]['attributes']['location']).to eq(mock_facility)
+            expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+          end
+        end
+
+        it 'iterates over appointment list and merges provider name for cc proposed' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_cc_proposed', match_requests_on: %i[method],
+                                                                                    allow_playback_repeats: true) do
+            allow_any_instance_of(VAOS::V2::MobilePPMSService).to\
+              receive(:get_provider).with('1528231610').and_return(provider_response2)
+            get '/vaos/v2/appointments?_include=facilities,clinics&start=2022-09-13&end=2023-01-12&statuses[]=proposed',
+                headers: inflection_header
+            data = JSON.parse(response.body)['data']
+
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(data[0]['attributes']['preferredProviderName']).to eq('CARLTON, ROBERT A  ')
             expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
           end
         end
@@ -281,17 +317,21 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           end
         end
 
+        # TODO: verify this cc request spec with NPI changes
         it 'has access and returns appointment - cc proposed' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_JACQUELINE_M_PROPOSED',
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_cc_proposed',
                            match_requests_on: %i[method path query]) do
-            get '/vaos/v2/appointments/72105', headers: inflection_header
+            allow_any_instance_of(VAOS::V2::MobilePPMSService).to\
+              receive(:get_provider).with('1407938061').and_return(provider_response)
+            get '/vaos/v2/appointments/81063', headers: inflection_header
             expect(response).to have_http_status(:ok)
             expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
             data = JSON.parse(response.body)['data']
 
-            expect(data['id']).to eq('72105')
+            expect(data['id']).to eq('81063')
             expect(data['attributes']['kind']).to eq('cc')
             expect(data['attributes']['status']).to eq('proposed')
+            expect(data['attributes']['preferredProviderName']).to eq('DEHGHAN, AMIR')
           end
         end
 

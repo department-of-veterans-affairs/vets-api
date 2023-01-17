@@ -61,6 +61,17 @@ module Sidekiq
         send_to_central_mail_through_lighthouse_claims_intake_api!
       end
 
+      def gather_docs!
+        get_form526_pdf # 21-526EZ
+        get_uploads      if submission.form[FORM_526_UPLOADS]
+        get_form4142_pdf if submission.form[FORM_4142]
+        get_form0781_pdf if submission.form[FORM_0781]
+        get_form8940_pdf if submission.form[FORM_8940]
+        get_bdd_pdf      if bdd?
+
+        convert_docs_to_pdf
+      end
+
       private
 
       # Transforms the lighthouse response to the only info we actually need from it
@@ -239,7 +250,11 @@ module Sidekiq
           file = sea&.get_file
           raise ArgumentError, "supporting evidence attachment with guid #{guid} has no file data" if file.nil?
 
-          docs << upload.merge!(file: file, type: FORM_526_UPLOADS_DOC_TYPE, evssDocType: upload['attachmentId'])
+          fname = File.basename(file.path)
+          entropied_fname = "#{Common::FileHelpers.random_file_path}.#{Time.now.to_i}.#{fname}"
+          File.binwrite(entropied_fname, file.read)
+          docs << upload.merge!(file: entropied_fname, type: FORM_526_UPLOADS_DOC_TYPE,
+                                evssDocType: upload['attachmentId'])
         end
       end
 
@@ -284,16 +299,6 @@ module Sidekiq
             Common::FileHelpers.delete_file_if_exists(actual_path_to_file) if ::Rails.env.production?
           end
         end
-      end
-
-      def gather_docs!
-        get_form526_pdf # 21-526EZ
-        get_uploads      if submission.form[FORM_526_UPLOADS]
-        get_form4142_pdf if submission.form[FORM_4142]
-        get_form0781_pdf if submission.form[FORM_0781]
-        get_form8940_pdf if submission.form[FORM_8940]
-        get_bdd_pdf      if bdd?
-        convert_docs_to_pdf
       end
     end
   end

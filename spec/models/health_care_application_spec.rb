@@ -4,8 +4,8 @@ require 'rails_helper'
 
 RSpec.describe HealthCareApplication, type: :model do
   let(:health_care_application) { create(:health_care_application) }
-  let(:inelig_character_of_discharge) { Notification::INELIG_CHARACTER_OF_DISCHARGE }
-  let(:login_required) { Notification::LOGIN_REQUIRED }
+  let(:inelig_character_of_discharge) { HCA::EnrollmentEligibility::Constants::INELIG_CHARACTER_OF_DISCHARGE }
+  let(:login_required) { HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED }
 
   describe '#prefill_compensation_type' do
     before do
@@ -170,7 +170,7 @@ RSpec.describe HealthCareApplication, type: :model do
 
         it 'returns the right parsed_status' do
           expect(described_class.parsed_ee_data(ee_data, true)[:parsed_status]).to eq(
-            Notification::ACTIVEDUTY
+            HCA::EnrollmentEligibility::Constants::ACTIVEDUTY
           )
         end
       end
@@ -191,7 +191,7 @@ RSpec.describe HealthCareApplication, type: :model do
 
         it 'returns the right parsed_status' do
           expect(described_class.parsed_ee_data(ee_data, true)[:parsed_status]).to eq(
-            Notification::NON_MILITARY
+            HCA::EnrollmentEligibility::Constants::NON_MILITARY
           )
         end
       end

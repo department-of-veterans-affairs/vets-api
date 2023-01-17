@@ -15,8 +15,9 @@ class AppealsApi::Docs::V1::DocsController < ApplicationController
   end
 
   def appeals_status
-    swagger = YAML.safe_load(File.read(AppealsApi::Engine.root.join('app/swagger/appeals_api/v1/appeals_status.yml')))
-    render json: swagger
+    filename = Settings.vsp_environment == 'production' ? 'swagger.json' : 'swagger_dev.json'
+    content = File.read AppealsApi::Engine.root.join("app/swagger/appeals_status/v1/#{filename}")
+    render json: content
   end
 
   private

@@ -10,13 +10,12 @@ APPEALS_API_DOCS = [
     name: 'decision_reviews',
     version: 'v2',
     pattern: "#{APPEALS_API_DOCS_DIR}/decision_reviews"
+  },
+  {
+    name: 'appeals_status',
+    version: 'v1',
+    pattern: "#{APPEALS_API_DOCS_DIR}/appeals_status_spec.rb"
   }
-  # To be added in API-21523:
-  # {
-  #   name: 'appeals_status',
-  #   version: 'v1',
-  #   pattern: "#{APPEALS_API_DOCS_DIR}/appeals_status_spec.rb"
-  # },
 ] + SEGMENTED_DECISION_REVIEWS_API_NAMES.map do |api_name|
   {
     name: api_name,

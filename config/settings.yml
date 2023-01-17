@@ -318,29 +318,12 @@ modules_appeals_api:
   reports:
     daily_decision_review:
       enabled: false
-      recipients:
-        - drew.fisher@adhocteam.us
-        - jack.schuss@oddball.io
-        - kelly@adhocteam.us
-        - laura.trager@adhocteam.us
-        - nathan.wright@oddball.io
     weekly_decision_review:
       enabled: false
-      recipients:
-        - drew.fisher@adhocteam.us
-        - jack.schuss@oddball.io
-        - kelly@adhocteam.us
-        - laura.trager@adhocteam.us
-        - nathan.wright@oddball.io
     daily_error:
       enabled: false
-      recipients:
-        - drew.fisher@adhocteam.us
-        - jack.schuss@oddball.io
-        - kelly@adhocteam.us
-        - laura.trager@adhocteam.us
-        - nathan.wright@oddball.io
     weekly_error:
+      # See features.yml for enablement
       recipients:
         - drew.fisher@adhocteam.us
         - casey.williams@adhocteam.us
@@ -887,6 +870,7 @@ flipper:
     - eric.voshall@adhocteam.us
     - erik@adhocteam.us
     - ethan.teague@civicactions.com
+    - eugene.lynch@coforma.io # Eugene Lynch (Coforma), Benefits Team 1, FE and BE Engineer
     - filip.fafara@gmail.com # Thoughtworks, ex VANotify, supports DHP, CDSP, Virtual Agent
     - fahmed@governmentcio.com
     - ggupta@kindsys.us # Gaurav Gupta (Kindsys), BE Engineer Health Care Experience/Check-In

@@ -31,9 +31,13 @@ describe VAOS::V2::MobileFacilityService do
     end
 
     context 'with multiple facility ids and cc enabled args' do
-      it 'returns scheduling configuration'
-      # TODO: passing in the cc_enabled argument is currently ignored by the VAOS Service.
-      # Once fixed, implement this rspec.
+      it 'returns scheduling configuration' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_scheduling_configurations_cc_200',
+                         match_requests_on: %i[method path query], tag: :force_utf8) do
+          response = subject.get_scheduling_configurations('489,984', true)
+          expect(response[:data].size).to eq(1)
+        end
+      end
     end
 
     context 'when the upstream server returns a 500' do

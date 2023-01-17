@@ -7,7 +7,6 @@
 # The account.uuid is intended to become the Vets-API user's uuid.
 #
 class Account < ApplicationRecord
-  has_many :notifications, dependent: :destroy
   has_one  :login_stats,
            class_name: 'AccountLoginStat',
            dependent: :destroy,
