@@ -7,6 +7,9 @@ class AppealsApi::RswagConfig
   include DocHelpers
 
   def config
+    # Avoid trying to build this config when running a rake task for a non-appeals API (e.g. Claims)
+    return {} if DocHelpers.running_rake_task? && ENV['RAILS_MODULE'] != 'appeals_api'
+
     {
       DocHelpers.output_json_path => {
         # FIXME: The Lighthouse docs UI code does not yet support openapi versions above 3.0.z
