@@ -23,57 +23,6 @@ describe MPIData, skip_mvi: true do
     end
   end
 
-  describe '#get_person_historical_icns' do
-    subject { MPIData.for_user(user.identity).get_person_historical_icns }
-
-    let(:mpi_profile) { build(:mpi_profile_response, :with_historical_icns) }
-    let(:profile_response) { create(:find_profile_response, profile: mpi_profile) }
-
-    before { allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(profile_response) }
-
-    context 'when user is not loa3' do
-      let(:user) { build(:user) }
-
-      it 'returns an empty array' do
-        expect(subject).to eq([])
-      end
-    end
-
-    context 'when user is loa3' do
-      let(:user) { build(:user, :loa3, icn: icn, mhv_icn: mhv_icn) }
-      let(:icn) { 'some-icn' }
-      let(:mhv_icn) { 'some-icn' }
-
-      context 'and user has an icn' do
-        let(:icn) { 'some-icn' }
-
-        it 'returns historical icns from an mpi call for that user' do
-          expect(subject).to eq(mpi_profile.historical_icns)
-        end
-      end
-
-      context 'and user does not have an icn' do
-        let(:icn) { nil }
-
-        context 'and user has an mhv_icn' do
-          let(:mhv_icn) { 'some-icn' }
-
-          it 'returns historical icns from an mpi call for that user' do
-            expect(subject).to eq(mpi_profile.historical_icns)
-          end
-        end
-
-        context 'and user does not have an mhv_icn' do
-          let(:mhv_icn) { nil }
-
-          it 'returns an empty array' do
-            expect(subject).to eq([])
-          end
-        end
-      end
-    end
-  end
-
   describe '#add_person_proxy' do
     subject { mpi_data.add_person_proxy }
 

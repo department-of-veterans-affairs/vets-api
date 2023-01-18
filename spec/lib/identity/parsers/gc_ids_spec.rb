@@ -247,48 +247,6 @@ describe Identity::Parsers::GCIds do
     end
   end
 
-  describe '#parse_xml_historical_icns' do
-    subject { class_instance.parse_xml_historical_icns(historical_icn_ids) }
-
-    context 'when input historical icn ids is an empty array' do
-      let(:historical_icn_ids) { [] }
-
-      it 'returns an empty array' do
-        expect(subject).to eq []
-      end
-    end
-
-    context 'when input historical icn ids is not an Array' do
-      let(:historical_icn_ids) { 'banana' }
-
-      it 'returns an empty array' do
-        expect(subject).to eq []
-      end
-    end
-
-    context 'when input historical icn ids is an array of Ox::Element objects' do
-      let(:historical_icn_ids) { [Ox.parse(xml_object)] }
-      let(:xml_object) { "<id root='#{va_root_oid}' extension='#{icn_object}'/>" }
-
-      context 'and the format of the ids matches the historical icn ids regex' do
-        let(:icn_object) { "#{icn}^NI^200M^USVHA^A" }
-        let(:icn) { '16701377' }
-
-        it 'returns a parsed icn id from the input xml object' do
-          expect(subject).to eq [icn]
-        end
-      end
-
-      context 'and the format of the ids does not match the historical icn ids regex' do
-        let(:icn_object) { 'banana' }
-
-        it 'returns an empty array' do
-          expect(subject).to eq []
-        end
-      end
-    end
-  end
-
   describe '#parse_string_gcids' do
     subject { class_instance.parse_string_gcids(ids, root_oid) }
 
