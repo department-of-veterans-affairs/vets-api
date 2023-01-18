@@ -9,6 +9,7 @@ module ClaimsApi
     PHASE_TO_STATUS = {
       'claim received' => 'CLAIM_RECEIVED',
       'initial review' => 'INITIAL_REVIEW',
+      'under review' => 'INITIAL_REVIEW',
       'pending' => 'PENDING',
       'evidence gathering' => EVIDENCE_GATHERING,
       'review of evidence' => EVIDENCE_GATHERING,
@@ -46,7 +47,7 @@ module ClaimsApi
     end
 
     def name_from_phase
-      return 'no status received' if @phase_type.nil? || @phase_type.strip.empty?
+      return 'no status received' if @phase_type.nil?
 
       BGS_PHASE_TO_STATUS[@phase_number]
     end

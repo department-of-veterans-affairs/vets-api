@@ -682,6 +682,30 @@ RSpec.describe 'Claims', type: :request do
           end
         end
 
+        context 'when an Under Review status is received' do
+          let(:bgs_claim) { build(:bgs_response_with_under_review_lc_status).to_h }
+
+          it "the v2 mapper sets the 'status' correctly" do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
+                VCR.use_cassette('evss/documents/get_claim_documents') do
+                  expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                    .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
+                  expect(ClaimsApi::AutoEstablishedClaim)
+                    .to receive(:get_by_id_and_icn).and_return(nil)
+
+                  get claim_by_id_path, headers: auth_header
+
+                  json_response = JSON.parse(response.body)
+                  expect(response.status).to eq(200)
+                  expect(json_response).to be_an_instance_of(Hash)
+                  expect(json_response['status']).to eq('INITIAL_REVIEW')
+                end
+              end
+            end
+          end
+        end
+
         context 'it picks the newest status' do
           it "returns a claim with the 'claimId' and 'lighthouseId' set" do
             with_okta_user(scopes) do |auth_header|
