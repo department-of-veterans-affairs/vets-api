@@ -28,8 +28,8 @@ module ClaimsApi
       auto_claim.evss_response = nil
       auto_claim.save!
 
-      queue_flash_updater(auth_headers, auto_claim.flashes, auto_claim_id)
-      queue_special_issues_updater(auth_headers, auto_claim.special_issues, auto_claim)
+      queue_flash_updater(auto_claim.flashes, auto_claim_id)
+      queue_special_issues_updater(auto_claim.special_issues, auto_claim)
     rescue ::EVSS::DisabilityCompensationForm::ServiceException => e
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
       auto_claim.evss_response = e.messages
@@ -63,7 +63,7 @@ module ClaimsApi
       nil
     end
 
-    def queue_special_issues_updater(auth_headers, special_issues_per_disability, auto_claim)
+    def queue_special_issues_updater(special_issues_per_disability, auto_claim)
       return if special_issues_per_disability.blank?
 
       special_issues_per_disability.each do |disability|
@@ -72,17 +72,16 @@ module ClaimsApi
           code: disability['code'],
           name: disability['name']
         }
-        ClaimsApi::SpecialIssueUpdater.perform_async(bgs_user(auth_headers),
-                                                     contention_id,
+        ClaimsApi::SpecialIssueUpdater.perform_async(contention_id,
                                                      disability['special_issues'],
                                                      auto_claim.id)
       end
     end
 
-    def queue_flash_updater(auth_headers, flashes, auto_claim_id)
+    def queue_flash_updater(flashes, auto_claim_id)
       return if flashes.blank?
 
-      ClaimsApi::FlashUpdater.perform_async(bgs_user(auth_headers), flashes, auto_claim_id)
+      ClaimsApi::FlashUpdater.perform_async(flashes, auto_claim_id)
     end
 
     def service(auth_headers)
@@ -91,13 +90,6 @@ module ClaimsApi
       else
         EVSS::DisabilityCompensationForm::Service.new(auth_headers)
       end
-    end
-
-    def bgs_user(auth_headers)
-      {
-        'ssn' => auth_headers['va_eauth_pnid'],
-        'participant_id' => auth_headers['va_eauth_pid']
-      }
     end
   end
 end

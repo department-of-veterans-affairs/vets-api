@@ -73,6 +73,30 @@ FactoryBot.define do
     end
   end
 
+  factory :auto_established_claim_with_auth_headers, class: 'ClaimsApi::AutoEstablishedClaim' do
+    id { SecureRandom.uuid }
+    status { 'pending' }
+    source { 'oddball' }
+    evss_id { nil }
+    auth_headers { { va_eauth_pnid: '123456789', va_eauth_pid: '123456789' } }
+    form_data do
+      json = JSON.parse(File
+             .read(::Rails.root.join(*'/modules/claims_api/spec/fixtures/form_526_json_api.json'.split('/')).to_s))
+      json['data']['attributes']
+    end
+    flashes { form_data.dig('veteran', 'flashes') }
+    special_issues do
+      if form_data['disabilities'].present? && form_data['disabilities'].first['specialIssues'].present?
+        mapper = ClaimsApi::SpecialIssueMappers::Bgs.new
+        [{ code: form_data['disabilities'].first['diagnosticCode'],
+           name: form_data['disabilities'].first['name'],
+           special_issues: form_data['disabilities'].first['specialIssues'].map { |si| mapper.code_from_name!(si) } }]
+      else
+        []
+      end
+    end
+  end
+
   factory :bgs_response, class: OpenStruct do
     bnft_claim_dto { (association :benefit_claim_details_dto).to_h }
   end
