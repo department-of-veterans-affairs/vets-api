@@ -600,6 +600,32 @@ RSpec.describe 'Claims', type: :request do
           end
         end
 
+        context 'when the claim is complete' do
+          let(:bgs_claim) { build(:bgs_response_with_lc_status).to_h }
+
+          it 'shows a closed date' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
+                VCR.use_cassette('evss/documents/get_claim_documents') do
+                  expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                    .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
+                  expect(ClaimsApi::AutoEstablishedClaim)
+                    .to receive(:get_by_id_and_icn).and_return(nil)
+
+                  get claim_by_id_path, headers: auth_header
+
+                  d = Date.parse(bgs_claim[:benefit_claim_details_dto][:claim_complete_dt].to_s)
+                  expected_date = d.strftime('%Y-%m-%d')
+                  json_response = JSON.parse(response.body)
+                  expect(response.status).to eq(200)
+                  expect(json_response).to be_an_instance_of(Hash)
+                  expect(json_response['closeDate']).to eq(expected_date)
+                end
+              end
+            end
+          end
+        end
+
         context 'when a typical status is received' do
           it "the v2 mapper sets the correct 'status'" do
             with_okta_user(scopes) do |auth_header|
