@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_12_14_161602) do
+ActiveRecord::Schema.define(version: 2023_01_06_010006) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -704,20 +704,6 @@ ActiveRecord::Schema.define(version: 2022_12_14_161602) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["icn"], name: "index_mobile_users_on_icn", unique: true
-  end
-
-  create_table "notifications", id: :serial, force: :cascade do |t|
-    t.integer "account_id", null: false
-    t.integer "subject", null: false
-    t.integer "status"
-    t.datetime "status_effective_at"
-    t.datetime "read_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["account_id", "subject"], name: "index_notifications_on_account_id_and_subject", unique: true
-    t.index ["account_id"], name: "index_notifications_on_account_id"
-    t.index ["status"], name: "index_notifications_on_status"
-    t.index ["subject"], name: "index_notifications_on_subject"
   end
 
   create_table "oauth_sessions", force: :cascade do |t|

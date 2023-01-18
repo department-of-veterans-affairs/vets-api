@@ -92,7 +92,7 @@ module VAProfile
         return_val = super(raw_response)
         @user = user
 
-        log_mpi_error if [:ok, 'OK'].include? @user.mpi_status # TB TODO: Remove 'OK' after MPI caches have cycled
+        log_mpi_error if @user.mpi_status == :ok
 
         return_val
       end
