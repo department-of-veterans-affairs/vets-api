@@ -13,7 +13,9 @@ module SignIn
       CSP_TYPES = [IDME = 'idme', LOGINGOV = 'logingov', DSLOGON = 'dslogon', MHV = 'mhv'].freeze
       CLIENT_IDS = [
         WEB_CLIENT = 'web',
+        VA_WEB_CLIENT = 'vaweb',
         MOBILE_CLIENT = 'mobile',
+        VA_MOBILE_CLIENT = 'vamobile',
         MOBILE_TEST_CLIENT = 'mobile_test'
       ].freeze
       GRANT_TYPE = 'authorization_code'
