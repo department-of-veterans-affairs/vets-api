@@ -874,6 +874,17 @@ ActiveRecord::Schema.define(version: 2023_01_12_221719) do
     t.text "id_types", default: [], array: true
   end
 
+  create_table "user_acceptable_verified_credentials", force: :cascade do |t|
+    t.datetime "acceptable_verified_credential_at"
+    t.datetime "idme_verified_credential_at"
+    t.uuid "user_account_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["acceptable_verified_credential_at"], name: "index_user_avc_on_acceptable_verified_credential_at"
+    t.index ["idme_verified_credential_at"], name: "index_user_avc_on_idme_verified_credential_at"
+    t.index ["user_account_id"], name: "index_user_acceptable_verified_credentials_on_user_account_id", unique: true
+  end
+
   create_table "user_accounts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "icn"
     t.datetime "created_at", precision: 6, null: false
@@ -1098,6 +1109,7 @@ ActiveRecord::Schema.define(version: 2023_01_12_221719) do
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
   add_foreign_key "terms_and_conditions_acceptances", "user_accounts"
+  add_foreign_key "user_acceptable_verified_credentials", "user_accounts"
   add_foreign_key "user_credential_emails", "user_verifications"
   add_foreign_key "user_verifications", "user_accounts"
   add_foreign_key "veteran_device_records", "devices"
