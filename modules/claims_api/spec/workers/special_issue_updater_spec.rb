@@ -16,12 +16,12 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
     }
   end
   let(:contention_id) { { claim_id: '123', code: '200', name: 'contention-name-here' } }
-  let(:special_issues) { %w[ALS PTSD/2] }
   let(:claim_record) { create(:auto_established_claim) }
+  let(:special_issues) { claim_record.special_issues }
 
   it 'submits successfully' do
     expect do
-      subject.perform_async(user, contention_id, special_issues, claim_record.id)
+      subject.perform_async(contention_id, special_issues, claim_record.id)
     end.to change(subject.jobs, :size).by(1)
   end
 
@@ -33,7 +33,7 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
         .and_return(claims)
 
       expect do
-        subject.new.perform(user, contention_id, special_issues, claim_record.id)
+        subject.new.perform(contention_id, special_issues, claim_record.id)
       end.to raise_error(StandardError)
     end
   end
@@ -59,7 +59,7 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
 
       it 'job fails and retries later' do
         expect do
-          subject.new.perform(user, contention_id, special_issues, claim_record.id)
+          subject.new.perform(contention_id, special_issues, claim_record.id)
         end.to raise_error(StandardError)
       end
     end
@@ -111,14 +111,14 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
             ]
             expect_any_instance_of(BGS::ContentionService).to receive(:manage_contentions).with(expected_claim_options)
 
-            subject.new.perform(user, contention_id, special_issues, claim_record.id)
+            subject.new.perform(contention_id, special_issues, claim_record.id)
           end
 
           it 'stores bgs exceptions correctly' do
             expect_any_instance_of(BGS::ContentionService).to receive(:manage_contentions)
               .and_raise(BGS::ShareError.new('failed', 500))
 
-            subject.new.perform(user, contention_id, special_issues, claim_record.id)
+            subject.new.perform(contention_id, special_issues, claim_record.id)
             expect(ClaimsApi::AutoEstablishedClaim.find(claim_record.id).bgs_special_issue_responses.count).to eq(1)
           end
         end
@@ -159,7 +159,7 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
             ]
             expect_any_instance_of(BGS::ContentionService).to receive(:manage_contentions).with(expected_claim_options)
 
-            subject.new.perform(user, contention_id, special_issues, claim_record.id)
+            subject.new.perform(contention_id, special_issues, claim_record.id)
           end
         end
       end
@@ -198,13 +198,18 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
 
           it 'new special issues provided are added while preserving existing special issues' do
             expected_claim_options = claim.dup
-            special_issues_payload = special_issues.map { |si| { spis_tc: si } } + [{ spis_tc: 'something-else' }]
+            special_issues_payload =
+              [{ spis_tc: { 'code' => 9999,
+                            'name' => 'PTSD (post traumatic stress disorder)',
+                            'special_issues' => ['FDC', 'PTSD/2'] } },
+               { spis_tc: 'something-else' },
+               { spis_tc: 'ALS' }]
             expected_claim_options[:contentions] = [
               { clm_id: claim_id, cntntn_id: '999111', special_issues: special_issues_payload }
             ]
             expect_any_instance_of(BGS::ContentionService).to receive(:manage_contentions).with(expected_claim_options)
 
-            subject.new.perform(user, contention_id, special_issues, claim_record.id)
+            subject.new.perform(contention_id, special_issues, claim_record.id)
           end
         end
 
@@ -247,7 +252,7 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
             ]
             expect_any_instance_of(BGS::ContentionService).to receive(:manage_contentions).with(expected_claim_options)
 
-            subject.new.perform(user, contention_id, special_issues, claim_record.id)
+            subject.new.perform(contention_id, special_issues, claim_record.id)
           end
         end
       end

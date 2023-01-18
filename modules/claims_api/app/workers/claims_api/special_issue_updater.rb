@@ -4,7 +4,7 @@ require 'sidekiq'
 require 'sentry_logging'
 
 module ClaimsApi
-  class SpecialIssueUpdater
+  class SpecialIssueUpdater < UpdaterService
     include Sidekiq::Worker
     include SentryLogging
 
@@ -19,7 +19,9 @@ module ClaimsApi
     # @param contention_id [Hash(claim_id:, code:, name:)] Identifier to match existing contention
     # @param special_issues [Array(String)] List of special issues to append
     # @param auto_claim_id [Integer] default: nil
-    def perform(user, contention_id, special_issues, auto_claim_id = nil)
+    def perform(contention_id, special_issues, auto_claim_id)
+      user = bgs_headers(auto_claim_id)
+
       contention_id.symbolize_keys!
       validate_contention_id_structure(contention_id)
       service = bgs_service(user).contention
