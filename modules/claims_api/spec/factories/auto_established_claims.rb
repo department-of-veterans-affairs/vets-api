@@ -140,6 +140,19 @@ FactoryBot.define do
   factory :bgs_response_with_lc_status, class: OpenStruct do
     benefit_claim_details_dto { (association :bgs_claim_details_dto_with_lc_status).to_h }
   end
+  factory :bgs_response_with_under_review_lc_status, class: OpenStruct do
+    benefit_claim_details_dto { (association :bgs_claim_details_dto_with_under_review_lc_status).to_h }
+  end
+  factory :bgs_claim_details_dto_with_under_review_lc_status, class: OpenStruct do
+    benefit_claim_id { '111111111' }
+    phase_chngd_dt { Faker::Time.backward(days: 5, period: :morning) }
+    phase_type { 'Under Review' }
+    ptcpnt_clmant_id { Faker::Number.number(digits: 17) }
+    ptcpnt_vet_id { Faker::Number.number(digits: 17) }
+    phase_type_change_ind { '76' }
+    claim_status_type { 'Compensation' }
+    bnft_claim_lc_status { [(association :bnft_claim_lc_status_two).to_h] }
+  end
   factory :bgs_claim_details_dto_with_one_lc_status, class: OpenStruct do
     benefit_claim_id { '111111111' }
     phase_chngd_dt { Faker::Time.backward(days: 5, period: :morning) }
