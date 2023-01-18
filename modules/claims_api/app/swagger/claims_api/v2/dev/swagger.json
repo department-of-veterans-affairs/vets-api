@@ -408,13 +408,13 @@
               "application/json": {
                 "example": [
                   {
-                    "claimDate": "05/02/17",
+                    "claimDate": "2017-05-02",
                     "claimId": "555555555",
                     "claimPhaseDates": {
                       "phaseChangeDate": "2017-10-18"
                     },
                     "claimType": "Compensation",
-                    "closeDate": null,
+                    "closeDate": "2017-10-18",
                     "decisionLetterSent": false,
                     "developmentLetterSent": false,
                     "documentsNeeded": false,
@@ -681,17 +681,19 @@
             "content": {
               "application/json": {
                 "example": {
-                  "claimDate": "05/02/17",
+                  "claimTypeCode": "400PREDSCHRG",
+                  "claimDate": "2017-05-02",
                   "claimId": "555555555",
                   "claimPhaseDates": {
                     "phaseChangeDate": null,
                     "currentPhaseBack": false,
                     "latestPhaseType": "Complete",
-                    "previousPhases": null
+                    "previousPhases": {
+                      "phase1CompleteDate": "2017-10-18"
+                    }
                   },
                   "claimType": "Compensation",
-                  "claimTypeCode": "400PREDSCHRG",
-                  "closeDate": null,
+                  "closeDate": "2017-10-18",
                   "contentionList": [
                     "abnormal heart (New)",
                     " abscess kidney (New)",
@@ -706,10 +708,10 @@
                   "developmentLetterSent": false,
                   "documentsNeeded": false,
                   "endProductCode": "404",
+                  "evidenceWaiverSubmitted5103": false,
                   "errors": [
 
                   ],
-                  "evidenceWaiverSubmitted5103": false,
                   "jurisdiction": "National Work Queue",
                   "lighthouseId": null,
                   "maxEstClaimDate": null,

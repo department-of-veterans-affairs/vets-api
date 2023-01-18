@@ -157,6 +157,7 @@ FactoryBot.define do
     ptcpnt_clmant_id { Faker::Number.number(digits: 17) }
     ptcpnt_vet_id { Faker::Number.number(digits: 17) }
     phase_type_change_ind { '76' }
+    claim_complete_dt { Faker::Time.backward(days: 3, period: :morning) }
     claim_status_type { 'Compensation' }
     bnft_claim_lc_status {
       [(association :bnft_claim_lc_status_one).to_h, (association :bnft_claim_lc_status_two).to_h,
