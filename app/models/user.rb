@@ -214,10 +214,6 @@ class User < Common::RedisStore
     mpi_profile&.given_names
   end
 
-  def historical_icns
-    @mpi_historical_icn ||= mpi.get_person_historical_icns
-  end
-
   def home_phone
     identity&.phone || mpi_profile&.home_phone
   end

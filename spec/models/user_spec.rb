@@ -359,19 +359,6 @@ RSpec.describe User, type: :model do
       end
     end
 
-    describe '#historical_icns' do
-      let(:mvi_profile) { build(:mpi_profile_response, :with_historical_icns) }
-      let(:user) { build(:user, :loa3, middle_name: 'J', mhv_icn: mvi_profile.icn) }
-
-      before do
-        stub_mpi_historical_icns(mvi_profile)
-      end
-
-      it 'fetches historical_icns from MPI response' do
-        expect(user.historical_icns).to be(mvi_profile.historical_icns)
-      end
-    end
-
     describe 'getter methods' do
       context 'when saml user attributes available, icn is available, and user LOA3' do
         let(:mvi_profile) { build(:mvi_profile) }

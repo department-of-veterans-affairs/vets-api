@@ -56,7 +56,6 @@ describe MPI::Service do
       mhv_iens: [],
       edipi: nil,
       edipis: [],
-      historical_icns: nil,
       icn_with_aaid: icn_with_aaid,
       person_types: [],
       full_mvi_ids: [

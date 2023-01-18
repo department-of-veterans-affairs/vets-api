@@ -41,14 +41,6 @@ module MPI
       PERSON_TYPE_CODE_XPATH = 'code/@code'
       ADMIN_OBSERVATION_XPATH = '*/administrativeObservation'
 
-      HISTORICAL_ICN_XPATH = [
-        'controlActProcess/subject',
-        'registrationEvent',
-        'replacementOf',
-        'priorRegistration',
-        'id'
-      ].join('/').freeze
-
       ACKNOWLEDGEMENT_DETAIL_XPATH = 'acknowledgement/acknowledgementDetail/text'
       ACKNOWLEDGEMENT_TARGET_MESSAGE_ID_EXTENSION_XPATH = 'acknowledgement/targetMessage/id/@extension'
       MULTIPLE_MATCHES_FOUND = 'Multiple Matches Found'
@@ -104,9 +96,8 @@ module MPI
       private
 
       def build_mvi_profile(patient)
-        historical_icns = @original_body.locate(HISTORICAL_ICN_XPATH)
         profile_identity_hash = create_mvi_profile_identity(patient, PATIENT_PERSON_PREFIX)
-        profile_ids_hash = create_mvi_profile_ids(patient, historical_icns)
+        profile_ids_hash = create_mvi_profile_ids(patient)
         misc_hash = {
           search_token: locate_element(@original_body, 'id').attributes[:extension],
           relationships: parse_relationships(patient.locate(PATIENT_RELATIONSHIP_XPATH)),
@@ -154,16 +145,15 @@ module MPI
         }
       end
 
-      def create_mvi_profile_ids(patient, historical_icns = nil)
+      def create_mvi_profile_ids(patient)
         full_mvi_ids = get_extensions(patient.locate('id'))
         parsed_mvi_ids = parse_xml_gcids(patient.locate('id'))
-        create_ids_obj(full_mvi_ids, parsed_mvi_ids, historical_icns)
+        create_ids_obj(full_mvi_ids, parsed_mvi_ids)
       end
 
-      def create_ids_obj(full_mvi_ids, parsed_mvi_ids, historical_icns)
+      def create_ids_obj(full_mvi_ids, parsed_mvi_ids)
         {
-          full_mvi_ids: full_mvi_ids,
-          historical_icns: parse_xml_historical_icns(historical_icns)
+          full_mvi_ids: full_mvi_ids
         }.merge(parse_single_ids(parsed_mvi_ids).merge(parse_multiple_ids(parsed_mvi_ids)))
       end
 

@@ -167,16 +167,6 @@ class MPIData < Common::RedisStore
     cached?(key: user_key)
   end
 
-  # @return [String] Array representing the historical icn data for the user
-  def get_person_historical_icns
-    return [] unless user_loa3 && user_icn
-
-    mpi_profile = mpi_service.find_profile_by_identifier(identifier: user_icn,
-                                                         identifier_type: MPI::Constants::ICN,
-                                                         search_type: MPI::Constants::CORRELATION_WITH_ICN_HISTORY)
-    mpi_profile&.profile&.historical_icns
-  end
-
   # The status of the MPI Add Person Proxy Add call. An Orchestrated MVI Search needs to be made before an
   # MPI add person proxy addcall is made. The response is recached afterwards so the new ids can be accessed
   # on the next call.

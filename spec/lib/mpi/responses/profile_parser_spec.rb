@@ -41,7 +41,6 @@ describe MPI::Responses::ProfileParser do
           mhv_ien: nil,
           mhv_iens: [],
           sec_id: nil,
-          historical_icns: nil,
           search_token: 'WSDOC1609131753362231779394902',
           id_theft_flag: false,
           transaction_id: transaction_id
@@ -67,7 +66,6 @@ describe MPI::Responses::ProfileParser do
             mhv_ien: nil,
             mhv_iens: [],
             sec_id: nil,
-            historical_icns: nil,
             search_token: 'WSDOC1609131753362231779394902',
             id_theft_flag: false,
             transaction_id: transaction_id
@@ -100,7 +98,6 @@ describe MPI::Responses::ProfileParser do
             mhv_ien: nil,
             mhv_iens: [],
             sec_id: nil,
-            historical_icns: nil,
             search_token: 'WSDOC1609131753362231779394902',
             id_theft_flag: false,
             transaction_id: transaction_id
@@ -126,7 +123,6 @@ describe MPI::Responses::ProfileParser do
             mhv_ien: nil,
             mhv_iens: [],
             sec_id: nil,
-            historical_icns: nil,
             search_token: 'WSDOC1609131753362231779394902',
             id_theft_flag: false,
             transaction_id: transaction_id
@@ -147,7 +143,6 @@ describe MPI::Responses::ProfileParser do
             birls_id: nil,
             birls_ids: [],
             sec_id: nil,
-            historical_icns: nil,
             vet360_id: nil,
             edipi: nil,
             edipis: [],
@@ -189,7 +184,6 @@ describe MPI::Responses::ProfileParser do
             mhv_ien: '1100792239',
             mhv_iens: ['1100792239'],
             sec_id: '1008714701',
-            historical_icns: nil,
             edipi: nil,
             edipis: [],
             mhv_ids: ['1100792239'],
@@ -234,7 +228,6 @@ describe MPI::Responses::ProfileParser do
           home_phone: '1112223333',
           icn: nil,
           icn_with_aaid: nil,
-          historical_icns: [],
           full_mvi_ids: [],
           sec_id: nil,
           vet360_id: nil,
@@ -301,7 +294,6 @@ describe MPI::Responses::ProfileParser do
           vet360_id: '7909',
           mhv_ien: nil,
           mhv_iens: [],
-          historical_icns: [],
           cerner_id: nil,
           cerner_facility_ids: []
         )
@@ -396,7 +388,6 @@ describe MPI::Responses::ProfileParser do
       build(
         :mpi_profile_response,
         :multiple_mhvids,
-        historical_icns: nil,
         mhv_ien: nil,
         mhv_iens: [],
         icn_with_aaid: icn_with_aaid,
@@ -427,7 +418,6 @@ describe MPI::Responses::ProfileParser do
       build(
         :mpi_profile_response,
         :address_austin,
-        historical_icns: nil,
         sec_id: nil,
         birls_id: nil,
         birls_ids: [],
