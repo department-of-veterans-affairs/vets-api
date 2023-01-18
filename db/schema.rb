@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_01_06_010006) do
+ActiveRecord::Schema.define(version: 2023_01_12_221719) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -881,6 +881,15 @@ ActiveRecord::Schema.define(version: 2023_01_06_010006) do
     t.index ["icn"], name: "index_user_accounts_on_icn", unique: true
   end
 
+  create_table "user_credential_emails", force: :cascade do |t|
+    t.bigint "user_verification_id"
+    t.text "credential_email_ciphertext"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_verification_id"], name: "index_user_credential_emails_on_user_verification_id", unique: true
+  end
+
   create_table "user_verifications", force: :cascade do |t|
     t.uuid "user_account_id"
     t.string "idme_uuid"
@@ -1089,6 +1098,7 @@ ActiveRecord::Schema.define(version: 2023_01_06_010006) do
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
   add_foreign_key "terms_and_conditions_acceptances", "user_accounts"
+  add_foreign_key "user_credential_emails", "user_verifications"
   add_foreign_key "user_verifications", "user_accounts"
   add_foreign_key "veteran_device_records", "devices"
 end
