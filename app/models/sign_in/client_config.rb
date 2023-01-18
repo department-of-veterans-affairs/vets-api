@@ -45,9 +45,9 @@ module SignIn
     def client_config
       @client_config ||=
         case @client_id
-        when SignIn::Constants::Auth::WEB_CLIENT
+        when SignIn::Constants::Auth::WEB_CLIENT, SignIn::Constants::Auth::VA_WEB_CLIENT
           web_config
-        when SignIn::Constants::Auth::MOBILE_CLIENT
+        when SignIn::Constants::Auth::MOBILE_CLIENT, SignIn::Constants::Auth::VA_MOBILE_CLIENT
           mobile_config
         when SignIn::Constants::Auth::MOBILE_TEST_CLIENT
           mobile_test_config
