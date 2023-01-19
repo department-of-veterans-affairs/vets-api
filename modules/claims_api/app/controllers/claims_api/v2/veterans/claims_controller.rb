@@ -160,7 +160,7 @@ module ClaimsApi
             development_letter_sent: map_yes_no_to_boolean('development_letter_sent', data[:development_letter_sent]),
             documents_needed: map_yes_no_to_boolean('attention_needed', data[:attention_needed]),
             end_product_code: data[:end_prdct_type_cd],
-            evidence_waiver_submitted_5103: map_yes_no_to_boolean('filed5103_waiver_ind', data[:filed5103_waiver_ind]),
+            evidence_waiver_submitted_5103: waiver_boolean(data[:filed5103_waiver_ind]),
             jurisdiction: data[:regional_office_jrsdctn],
             lighthouse_id: lighthouse_id,
             max_est_claim_date: data[:max_est_claim_complete_dt],
@@ -295,6 +295,10 @@ module ClaimsApi
             Rails.logger.error "Expected key '#{key}' to be Yes/No. Got '#{s}'."
             nil
           end
+        end
+
+        def waiver_boolean(filed5103_waiver_ind)
+          filed5103_waiver_ind.present? ? filed5103_waiver_ind.downcase == 'y' : false
         end
 
         def map_bgs_tracked_items(bgs_claim) # rubocop:disable Metrics/MethodLength
