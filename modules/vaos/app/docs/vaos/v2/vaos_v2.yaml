@@ -285,6 +285,48 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
+  "/cc_eligibility/{service_type}":
+    get:
+      tags:
+        - patients
+      summary: Returns cc eligibility status for a user
+      operationId: getEligibility
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          required: true
+          name: "service_type"
+          description: "type of service, e.g. 'PrimaryCare' "
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Eligibility retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CCEligibility"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"  
   "/facilities":
     get:
       tags:
@@ -953,6 +995,23 @@ components:
               type: "boolean"
             char4:
               type: "string"
+    CCEligibility:
+      type: "object"
+      required:
+        - "id"
+        - "type"
+        - "attributes"
+      properties:
+        id:
+          type: "string"
+        type:
+          type: "string"
+        attributes:
+          type: "object"
+          properties:
+            eligible:
+              type: "boolean"
+              example: true           
     ClinicalServiceType:
       type: "string"
       enum:
