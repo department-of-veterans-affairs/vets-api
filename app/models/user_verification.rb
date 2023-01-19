@@ -3,6 +3,7 @@
 class UserVerification < ApplicationRecord
   has_one :deprecated_user_account, dependent: :destroy, required: false
   belongs_to :user_account, dependent: nil
+  has_one :user_credential_email, dependent: :destroy, required: false
 
   validate :single_credential_identifier
   validate :backing_uuid_credentials
