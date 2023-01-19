@@ -10,18 +10,6 @@ RSpec.describe SidekiqStatsInstrumentation::ServerMiddleware do
   end
 
   describe '#call' do
-    before(:all) do
-      Sidekiq::Testing.server_middleware do |chain|
-        chain.add described_class
-      end
-    end
-
-    after(:all) do
-      Sidekiq::Testing.server_middleware do |chain|
-        chain.remove described_class
-      end
-    end
-
     around do |example|
       Sidekiq::Testing.inline!(&example)
     end
