@@ -32,6 +32,7 @@ module SignIn
 
     def perform
       create_authenticated_user
+      create_credential_email
       create_code_container
       user_code_map
     end
@@ -46,6 +47,11 @@ module SignIn
       user.last_signed_in = Time.zone.now
       user.fingerprint = request_ip
       user.save && user_identity_for_user_creation.save
+    end
+
+    def create_credential_email
+      Login::UserCredentialEmailUpdater.new(credential_email: credential_email,
+                                            user_verification: user_verification).perform
     end
 
     def create_code_container

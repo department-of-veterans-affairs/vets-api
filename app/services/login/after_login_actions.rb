@@ -15,6 +15,8 @@ module Login
     def perform
       return unless current_user
 
+      Login::UserCredentialEmailUpdater.new(credential_email: current_user.email,
+                                            user_verification: current_user.user_verification).perform
       update_account_login_stats(login_type)
 
       if Settings.test_user_dashboard.env == 'staging'

@@ -71,6 +71,13 @@ RSpec.describe SignIn::UserCreator do
       expect(user.fingerprint).to eq(request_ip)
     end
 
+    it 'creates a user credential email with expected attributes' do
+      expect { subject }.to change(UserCredentialEmail, :count)
+      user = User.find(user_uuid)
+      user_credential_email = user.user_verification.user_credential_email
+      expect(user_credential_email.credential_email).to eq(csp_email)
+    end
+
     it 'returns a user code map with expected attributes' do
       user_code_map = subject
       expect(user_code_map.login_code).to eq(login_code)

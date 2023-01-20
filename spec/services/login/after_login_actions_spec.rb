@@ -4,6 +4,19 @@ require 'rails_helper'
 
 RSpec.describe Login::AfterLoginActions do
   describe '#perform' do
+    context 'creating credential email' do
+      let(:user) { create(:user, email: email, idme_uuid: idme_uuid) }
+      let!(:user_verification) { create(:idme_user_verification, idme_uuid: idme_uuid) }
+      let(:idme_uuid) { 'some-idme-uuid' }
+      let(:email) { 'some-email' }
+
+      it 'creates a user credential email with expected attributes' do
+        expect { described_class.new(user).perform }.to change(UserCredentialEmail, :count)
+        user_credential_email = user.user_verification.user_credential_email
+        expect(user_credential_email.credential_email).to eq(email)
+      end
+    end
+
     context 'in a non-staging environment' do
       let(:user) { create(:user) }
 
