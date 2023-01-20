@@ -15,6 +15,10 @@ module Mobile
       end
 
       def update
+        # temporary log to track down address bug that is populating province on domestic addresses
+        Rails.logger.info('Mobile Address Update', province: address_params['province'],
+                                                   address_type: address_params['address_type'])
+
         render_transaction_to_json(
           service.save_and_await_response(resource_type: :address, params: address_params, update: true)
         )
