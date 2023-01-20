@@ -24,27 +24,55 @@ RSpec.describe VBADocuments::MultipartParser do
     end
 
     context 'multipart_data_type' do
+      let(:expected_high_level_keys) { %w[boundaries headers contents] }
+      let(:metadata_header) do
+        "Content-Disposition: form-data; name=\"metadata\"\r\nContent-Type: application/json"
+      end
+      let(:content_header) do
+        "Content-Disposition: form-data; name=\"content\"; filename=\"valid_doc.pdf\"\r\nContent-Type: application/pdf"
+      end
+      let(:attachment1_header) do
+        "Content-Disposition: form-data; name=\"attachment1\"; filename=\"valid_doc.pdf\"\r\nContent-Type: " \
+          'application/pdf'
+      end
+
       FixtureHelper.data_type.each do |file_or_stringio|
         it "parses a valid multipart payload #{file_or_stringio}" do
           valid_doc = FixtureHelper.fetch(get_fixture('valid_multipart_pdf.blob'), file_or_stringio)
+          multipart_boundary = '----------------------------023987515673673391235769'
+          closing_boundary = "----------------------------023987515673673391235769--\r\n"
           result = described_class.parse(valid_doc)
-          expect(result.size).to eq(2)
-          expect(result).to have_key('metadata')
-          expect(result['metadata']).to be_a(String)
-          expect(result).to have_key('content')
-          expect(result['content']).to be_a(Tempfile)
+
+          expect(result.keys.sort).to eq(expected_high_level_keys.sort)
+
+          expect(result['boundaries']['multipart_boundary']).to eq(multipart_boundary)
+          expect(result['boundaries']['closing_boundary']).to eq(closing_boundary)
+
+          expect(result['headers']['metadata']).to eq(metadata_header)
+          expect(result['headers']['content']).to eq(content_header)
+
+          expect(result['contents']['metadata']).to be_a(String)
+          expect(result['contents']['content']).to be_a(Tempfile)
         end
 
         it "parses a valid multipart payload with attachments #{file_or_stringio}" do
           valid_doc = FixtureHelper.fetch(get_fixture('valid_multipart_pdf_attachments.blob'), file_or_stringio)
+          multipart_boundary = '----------------------------226100779484386681498651'
+          closing_boundary = "----------------------------226100779484386681498651--\r\n"
           result = described_class.parse(valid_doc)
-          expect(result.size).to eq(3)
-          expect(result).to have_key('metadata')
-          expect(result['metadata']).to be_a(String)
-          expect(result).to have_key('content')
-          expect(result['content']).to be_a(Tempfile)
-          expect(result).to have_key('attachment1')
-          expect(result['attachment1']).to be_a(Tempfile)
+
+          expect(result.keys.sort).to eq(expected_high_level_keys.sort)
+
+          expect(result['boundaries']['multipart_boundary']).to eq(multipart_boundary)
+          expect(result['boundaries']['closing_boundary']).to eq(closing_boundary)
+
+          expect(result['headers']['metadata']).to eq(metadata_header)
+          expect(result['headers']['content']).to eq(content_header)
+          expect(result['headers']['attachment1']).to eq(attachment1_header)
+
+          expect(result['contents']['metadata']).to be_a(String)
+          expect(result['contents']['content']).to be_a(Tempfile)
+          expect(result['contents']['attachment1']).to be_a(Tempfile)
         end
 
         it "raises on a malformed multipart payload #{file_or_stringio}" do
@@ -109,13 +137,23 @@ RSpec.describe VBADocuments::MultipartParser do
         end
 
         it "handles a base64 payload #{file_or_stringio}" do
-          valid_doc = FixtureHelper.fetch(get_fixture('base_64'), file_or_stringio)
+          valid_doc = FixtureHelper.fetch(get_fixture('base_64_with_attachment'), file_or_stringio)
+          multipart_boundary = '----------------------------226100779484386681498651'
+          closing_boundary = "----------------------------226100779484386681498651--\r\n"
           result = described_class.parse(valid_doc)
-          expect(result.size).to eq(2)
-          expect(result).to have_key('metadata')
-          expect(result['metadata']).to be_a(String)
-          expect(result).to have_key('content')
-          expect(result['content']).to be_a(Tempfile)
+
+          expect(result.keys.sort).to eq(expected_high_level_keys.sort)
+
+          expect(result['boundaries']['multipart_boundary']).to eq(multipart_boundary)
+          expect(result['boundaries']['closing_boundary']).to eq(closing_boundary)
+
+          expect(result['headers']['metadata']).to eq(metadata_header)
+          expect(result['headers']['content']).to eq(content_header)
+          expect(result['headers']['attachment1']).to eq(attachment1_header)
+
+          expect(result['contents']['metadata']).to be_a(String)
+          expect(result['contents']['content']).to be_a(Tempfile)
+          expect(result['contents']['attachment1']).to be_a(Tempfile)
         end
 
         it "logs base64 decoding progress when handling a base64 payload #{file_or_stringio}" do
