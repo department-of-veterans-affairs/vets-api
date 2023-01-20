@@ -497,9 +497,6 @@ features:
   profile_show_payments_notification_setting:
     actor_type: user
     description: Show/Hide the payments section of notifications in profile
-  profile_show_appeal_status_notification_setting:
-    actor_type: user
-    description: Show/Hide the appeal status change notification setting in profile
   profile_show_pronouns_and_sexual_orientation:
     actor_type: user
     description: Show/hide Pronouns and Sexual Orientation fields on profile page
