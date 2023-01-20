@@ -13,6 +13,9 @@ module VBADocuments
     FILE_SIZE_LIMIT_EXCEEDED_MSG = 'Document exceeds the file size limit of 100 MB'
     DOCUMENT_FAILED_VALIDATION_MSG = 'Document failed validation'
 
+    # Skip the check for owner/permissions password - only a user password invalidates the PDF
+    PDF_VALIDATOR_OPTIONS = { check_encryption: false }.freeze
+
     attr_accessor :result
 
     def initialize(request)
@@ -67,7 +70,7 @@ module VBADocuments
         tempfile << @request.body.read
         tempfile.rewind
 
-        validator = PDFValidator::Validator.new(tempfile)
+        validator = PDFValidator::Validator.new(tempfile, PDF_VALIDATOR_OPTIONS)
         result = validator.validate
 
         unless result.valid_pdf?
