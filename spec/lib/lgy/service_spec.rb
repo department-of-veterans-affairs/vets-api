@@ -134,6 +134,30 @@ describe LGY::Service do
         end
       end
     end
+
+    context 'unexpected statuses' do
+      before { VCR.insert_cassette 'lgy/application_not_found' }
+
+      after { VCR.eject_cassette 'lgy/application_not_found' }
+
+      it 'returns pending and reference number' do
+        VCR.use_cassette 'lgy/determination_unable_to_determine' do
+          VCR.use_cassette 'lgy/application_200_status_submitted' do
+            expect_any_instance_of(LGY::Service).to receive(:log_message_to_sentry).with(
+              'Unexpected COE statuses!',
+              :error,
+              {
+                determination_status: 'UNABLE_TO_DETERMINE_AUTOMATICALLY',
+                application_status: 'SUBMITTED',
+                get_application_status: 200
+              },
+              { team: 'vfs-ebenefits' }
+            )
+            expect(subject.coe_status).to eq(nil)
+          end
+        end
+      end
+    end
   end
 
   describe '#get_coe_file' do

@@ -16,6 +16,7 @@ module LGY
       @icn = icn
     end
 
+    # rubocop:disable Metrics/MethodLength
     def coe_status
       if get_determination.body['status'] == 'ELIGIBLE' && get_application.status == 404
         { status: 'ELIGIBLE', reference_number: get_determination.body['reference_number'] }
@@ -37,8 +38,21 @@ module LGY
       elsif get_determination.body['status'] == 'PENDING' && get_application.body['status'] == 'RETURNED'
         { status: 'PENDING_UPLOAD', application_create_date: get_application.body['create_date'],
           reference_number: get_determination.body['reference_number'] }
+      else
+        log_message_to_sentry(
+          'Unexpected COE statuses!',
+          :error,
+          {
+            determination_status: get_determination.body['status'],
+            application_status: get_application.body['status'],
+            get_application_status: get_application.status
+          },
+          { team: 'vfs-ebenefits' }
+        )
+        nil
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def get_determination
       @get_determination ||= with_monitoring do
