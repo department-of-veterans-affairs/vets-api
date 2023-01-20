@@ -59,20 +59,19 @@ module VBADocuments
       tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)
       response = nil
       begin
-        additional_metadata = { 'size' => tempfile.size, 'base64_encoded' => base64_encoded?(tempfile) }
-        @upload.update(metadata: @upload.metadata.merge(additional_metadata))
+        @upload.update(metadata: @upload.metadata.merge(original_file_metadata(tempfile)))
 
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
-        inspector = VBADocuments::PDFInspector.new(pdf: parts)
+        inspector = VBADocuments::PDFInspector.new(pdf: parts['contents'])
         @upload.update(uploaded_pdf: inspector.pdf_data)
 
         # Validations
-        validate_parts(@upload, parts)
-        validate_metadata(parts[META_PART_NAME], submission_version: @upload.metadata['version'].to_i)
-        validate_documents(parts)
+        validate_parts(@upload, parts['contents'])
+        validate_metadata(parts['contents'][META_PART_NAME], submission_version: @upload.metadata['version'].to_i)
+        validate_documents(parts['contents'])
 
-        metadata = perfect_metadata(@upload, parts, timestamp)
-        response = submit(metadata, parts)
+        metadata = perfect_metadata(@upload, parts['contents'], timestamp)
+        response = submit(metadata, parts['contents'])
 
         process_response(response)
         log_submission(@upload, metadata)
@@ -83,14 +82,18 @@ module VBADocuments
         retry_errors(e, @upload)
       ensure
         tempfile.close
-        close_part_files(parts) if parts.present?
+        close_part_files(parts['contents']) if parts.present? && parts['contents'].present?
       end
       response
     end
     # rubocop:enable Metrics/MethodLength
 
-    def base64_encoded?(tempfile)
-      VBADocuments::MultipartParser.base64_encoded?(tempfile.path)
+    def original_file_metadata(tempfile)
+      {
+        'size' => tempfile.size,
+        'base64_encoded' => VBADocuments::MultipartParser.base64_encoded?(tempfile.path),
+        'original_checksum' => Digest::SHA256.file(tempfile).hexdigest
+      }
     end
 
     def handle_gateway_timeout(error)

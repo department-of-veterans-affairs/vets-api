@@ -137,7 +137,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
         @upload_submission.update(status: 'uploaded')
         allow_any_instance_of(VBADocuments::UploadProcessor).to receive(:cancelled?).and_return(false)
         allow(VBADocuments::MultipartParser).to receive(:parse) {
-          { 'metadata' => @md.to_json, 'content' => valid_doc }
+          { 'contents' => { 'metadata' => @md.to_json, 'content' => valid_doc } }
         }
         allow(CentralMail::Service).to receive(:new) { client_stub }
         allow(faraday_response).to receive(:status).and_return(200)
@@ -224,8 +224,12 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
     let(:invalid_doc) { get_fixture('invalid_multipart_no_partname.blob') }
 
     let(:valid_parts) do
-      { 'metadata' => valid_metadata,
-        'content' => valid_doc }
+      {
+        'contents' => {
+          'metadata' => valid_metadata,
+          'content' => valid_doc
+        }
+      }
     end
 
     it "returns a 404 if feature (via setting) isn't enabled" do

@@ -18,13 +18,13 @@ module VBADocuments
 
     # If add_file_key is true the file is added to the returned hash as the parent key.
     # Useful for the rake task vba_documents:inspect_pdf
-    # pdf can be a String file path or the parts result of 'VBADocuments::MultipartParser.parse(tempfile.path)'
+    # pdf can be a String file path or the result of 'VBADocuments::MultipartParser.parse(tempfile.path)['contents']'
     def initialize(pdf:, add_file_key: false)
       if pdf.is_a?(String)
         raise ArgumentError, "Invalid file #{pdf}, does not exist!" unless File.exist? pdf
 
         @file = pdf
-        @parts = VBADocuments::MultipartParser.parse(@file)
+        @parts = VBADocuments::MultipartParser.parse(@file)['contents']
       else
         @parts = pdf
       end
@@ -48,7 +48,7 @@ module VBADocuments
                total_documents: 0, total_pages: 0, content: {} }
 
       # read the PDF content
-      data[:content].merge!(metadata_for(@parts['content']))
+      data[:content].merge!(pdf_metadata(@parts['content']))
       data[:content][:attachments] = []
       add_line_of_business(data, parts_metadata)
       total_pages = data[:content][:page_count]
@@ -58,7 +58,7 @@ module VBADocuments
       attachment_names = @parts.keys.select { |k| k.match(/attachment\d+/) }
 
       attachment_names.each do |att|
-        attachment_metadata = metadata_for(@parts[att])
+        attachment_metadata = pdf_metadata(@parts[att])
         total_pages += attachment_metadata[:page_count]
         total_documents += 1
         data[:content][:attachments] << attachment_metadata
@@ -79,7 +79,7 @@ module VBADocuments
       end
     end
 
-    def metadata_for(pdf)
+    def pdf_metadata(pdf)
       metadata = PdfInfo::Metadata.read(pdf)
       dimensions = metadata.page_size_inches
 
