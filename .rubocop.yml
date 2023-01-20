@@ -229,6 +229,10 @@ RSpec/LeakyConstantDeclaration:
   Enabled: false
 
 # Determined to be too benign and/or numerous to justify changing
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+
+# Determined to be too benign and/or numerous to justify changing
 RSpec/MessageSpies:
   Enabled: false
 
