@@ -25,11 +25,6 @@ class User < Common::RedisStore
 
   validates :uuid, presence: true
 
-  with_options if: :loa3? do
-    validates :ssn, format: /\A\d{9}\z/, allow_blank: true
-    validates :gender, format: /\A(M|F)\z/, allow_blank: true
-  end
-
   attribute :uuid
   attribute :last_signed_in, Common::UTCTime # vaafi attributes
   attribute :mhv_last_signed_in, Common::UTCTime # MHV audit logging
