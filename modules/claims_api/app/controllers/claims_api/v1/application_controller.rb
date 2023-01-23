@@ -31,14 +31,14 @@ module ClaimsApi
 
         if require_birls && target_veteran.participant_id.present? && target_veteran.birls_id.blank?
           raise ::Common::Exceptions::UnprocessableEntity.new(detail:
-            "Unable to locate Veteran's BIRLS ID in Master Person Index (MPI)." \
+            "Unable to locate Veteran's BIRLS ID in Master Person Index (MPI). " \
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
         end
 
         if header_request? && !target_veteran.mpi_record?
           raise ::Common::Exceptions::UnprocessableEntity.new(
             detail:
-              'Unable to locate Veteran in Master Person Index (MPI).' \
+              'Unable to locate Veteran in Master Person Index (MPI). ' \
               'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
           )
         end
@@ -50,6 +50,15 @@ module ClaimsApi
                               ptcpnt_id: target_veteran.participant_id.present?,
                               icn: target_veteran&.mpi_icn,
                               birls_id: target_veteran.birls_id.present?)
+
+        if target_veteran.icn.blank?
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail:
+              'Veteran missing Integration Control Number (ICN). ' \
+              'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
+          )
+        end
+
         mpi_add_response = target_veteran.mpi.add_person_proxy
 
         raise mpi_add_response.error unless mpi_add_response.ok?
@@ -59,9 +68,9 @@ module ClaimsApi
                               ptcpnt_id: target_veteran.participant_id.present?,
                               birls_id: target_veteran.birls_id.present?,
                               icn: target_veteran&.mpi_icn)
-      rescue ::Common::Exceptions::UnprocessableEntity, MPI::Errors::ArgumentError
+      rescue MPI::Errors::ArgumentError
         raise ::Common::Exceptions::UnprocessableEntity.new(detail:
-          "Unable to locate Veteran's Participant ID in Master Person Index (MPI)." \
+          "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
           'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
       rescue ArgumentError
         raise ::Common::Exceptions::UnprocessableEntity.new(
