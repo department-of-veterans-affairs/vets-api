@@ -1457,6 +1457,11 @@ form526_backup:
   submission_method: 'single'
   api_key: ~
   url: https://sandbox-api.va.gov/services/vba_documents/v1/
+  aws:
+    bucket: ~
+    region: ~
+    access_key_id: ~ 
+    secret_access_key: ~ 
 
 form1095_b:
   s3:

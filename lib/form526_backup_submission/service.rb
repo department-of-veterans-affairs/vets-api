@@ -65,18 +65,23 @@ module Form526BackupSubmission
       end
     end
 
-    def upload_doc(upload_url:, file:, metadata:, attachments: [])
+    def get_upload_docs(file_with_full_path:, metadata:, attachments: [])
       json_tmpfile = generate_tmp_metadata(metadata)
-      file_with_full_path = get_file_path_from_objs(file)
       file_name = File.basename(file_with_full_path)
       params = { metadata: Faraday::UploadIO.new(json_tmpfile, Mime[:json].to_s, 'metadata.json'),
-                 content: Faraday::UploadIO.new(file, Mime[:pdf].to_s, file_name) }
+                 content: Faraday::UploadIO.new(file_with_full_path, Mime[:pdf].to_s, file_name) }
       attachments.each.with_index do |attachment, i|
         file_path = get_file_path_from_objs(attachment[:file])
         file_name = attachment[:file_name] || attachment['name']
         params["attachment#{i + 1}".to_sym] = Faraday::UploadIO.new(file_path, Mime[:pdf].to_s, file_name)
       end
+      [params, json_tmpfile]
+    end
 
+    def upload_doc(upload_url:, file:, metadata:, attachments: [])
+      file_with_full_path = get_file_path_from_objs(file)
+      params, json_tmpfile = get_upload_docs(file_with_full_path: file_with_full_path, metadata: metadata,
+                                             attachments: attachments)
       response = perform :put, upload_url, params, { 'Content-Type' => 'multipart/form-data' }
 
       raise response.body unless response.success?
