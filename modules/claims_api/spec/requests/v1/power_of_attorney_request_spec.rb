@@ -124,7 +124,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
                     response_body = JSON.parse response.body
                     expect(response.status).to eq(422)
                     expect(response_body['errors'][0]['detail']).to eq(
-                      "Unable to locate Veteran's Participant ID in Master Person Index (MPI)." \
+                      "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
                       'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
                     )
                   end
