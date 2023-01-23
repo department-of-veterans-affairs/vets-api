@@ -17,6 +17,7 @@ module Login
 
       Login::UserCredentialEmailUpdater.new(credential_email: current_user.email,
                                             user_verification: current_user.user_verification).perform
+      Login::UserAcceptableVerifiedCredentialUpdater.new(user_account: @current_user.user_account).perform
       update_account_login_stats(login_type)
 
       if Settings.test_user_dashboard.env == 'staging'
