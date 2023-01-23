@@ -146,7 +146,7 @@ class MPIData < Common::RedisStore
   def status
     return :not_authorized unless user_loa3
 
-    mvi_response.status
+    mvi_response&.status
   end
 
   # The error experienced when reaching out to the MVI service.
@@ -237,7 +237,7 @@ class MPIData < Common::RedisStore
   def response_from_redis_or_service(user_key:)
     do_cached_with(key: user_key) do
       find_profile
-    rescue ArgumentError => e
+    rescue ArgumentError, MPI::Errors::ArgumentError => e
       log_message_to_sentry("[MPI Data] Request error: #{e.message}", :warn)
       return nil
     end
