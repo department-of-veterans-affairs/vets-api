@@ -19,7 +19,6 @@ module V0
       #       "id"         => "",
       #       "type"       => "arrays",
       #       "attributes" => {
-      #         "data_source" => "api.va_profile",
       #         "service_history" => [
       #           {
       #             "branch_of_service" => "Air Force",
@@ -49,8 +48,7 @@ module V0
 
         render status: response.status,
                json: json,
-               serializer: ServiceHistorySerializer,
-               data_source: VAProfile::Stats::STATSD_KEY_PREFIX
+               serializer: ServiceHistorySerializer
       end
 
       def check_authorization
