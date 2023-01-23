@@ -6,10 +6,7 @@
     "data": {
       "properties": {
         "attributes": {
-          "properties": {
-            "dataSource": {
-              "type": "string"
-            },            
+          "properties": {          
             "serviceHistory": {
               "description": "Array of service history hashes",
               "items": {
