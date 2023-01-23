@@ -17,6 +17,23 @@ RSpec.describe Login::AfterLoginActions do
       end
     end
 
+    context 'creating user acceptable verified credential' do
+      let(:user) { create(:user, idme_uuid: idme_uuid) }
+      let!(:user_verification) { create(:idme_user_verification, idme_uuid: idme_uuid) }
+      let(:idme_uuid) { 'some-idme-uuid' }
+      let(:expected_avc_at) { '2021-1-1' }
+
+      before { Timecop.freeze(expected_avc_at) }
+
+      after { Timecop.return }
+
+      it 'creates a user acceptable verified credential with expected attributes' do
+        expect { described_class.new(user).perform }.to change(UserAcceptableVerifiedCredential, :count)
+        user_avc = UserAcceptableVerifiedCredential.find_by(user_account: user.user_account)
+        expect(user_avc.idme_verified_credential_at).to eq(expected_avc_at)
+      end
+    end
+
     context 'in a non-staging environment' do
       let(:user) { create(:user) }
 

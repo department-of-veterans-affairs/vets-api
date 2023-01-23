@@ -47,12 +47,13 @@ RSpec.describe SignIn::UserCreator do
     let(:sign_in) { { service_name: service_name, auth_broker: auth_broker, client_id: client_id } }
     let(:authn_context) { service_name }
     let(:login_code) { 'some-login-code' }
-    let(:expected_last_signed_in) { Time.zone.now }
+    let(:expected_last_signed_in) { '2023-1-1' }
+    let(:expected_avc_at) { '2023-1-1' }
     let(:request_ip) { '123.456.78.90' }
 
     before do
       allow(SecureRandom).to receive(:uuid).and_return(login_code)
-      Timecop.freeze
+      Timecop.freeze(expected_last_signed_in)
     end
 
     after { Timecop.return }
@@ -76,6 +77,13 @@ RSpec.describe SignIn::UserCreator do
       user = User.find(user_uuid)
       user_credential_email = user.user_verification.user_credential_email
       expect(user_credential_email.credential_email).to eq(csp_email)
+    end
+
+    it 'creates a user acceptable verified credential email with expected attributes' do
+      expect { subject }.to change(UserAcceptableVerifiedCredential, :count)
+      user = User.find(user_uuid)
+      user_avc = UserAcceptableVerifiedCredential.find_by(user_account: user.user_account)
+      expect(user_avc.acceptable_verified_credential_at).to eq(expected_avc_at)
     end
 
     it 'returns a user code map with expected attributes' do
