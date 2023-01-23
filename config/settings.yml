@@ -282,7 +282,7 @@ modules_appeals_api:
       # See the rswag:appeals_api:dev rake task, spec_helper, and DocHelpers#wip_doc_enabled? for usage info to opt-in.
       # NOTE: Do not remove this key even if it's empty.
   higher_level_review_updater_enabled: true
-  legacy_appeals_enabled: false
+  legacy_appeals_enabled: true
   supplemental_claims_enabled: true
   notice_of_disagreement_updater_enabled: true
   supplemental_claim_updater_enabled: true
