@@ -139,8 +139,26 @@ RSpec.describe Identity::AccountCreator, type: :model do
             let(:logingov_uuid) { nil }
             let(:account_logingov_uuid) { 'banana-logingov-uuid' }
 
-            it 'returns nil' do
-              expect(subject).to be nil
+            context 'and account attributes match relevant user attributes' do
+              it 'returns existing account with matching sec_id, without changes' do
+                expect(subject).to eq(account_sec)
+              end
+            end
+
+            context 'and account attributes do not match relevant user attributes' do
+              let(:icn) { 'kitty-icn' }
+              let(:account_icn) { 'puppy-icn' }
+
+              it 'updates account with user attributes' do
+                expect do
+                  subject
+                  account_sec.reload
+                end.to change(account_sec, :icn).from(account_icn).to(icn)
+              end
+
+              it 'returns account with updated user attributes' do
+                expect(subject.icn).to eq(icn)
+              end
             end
           end
         end
