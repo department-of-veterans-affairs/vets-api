@@ -20,9 +20,6 @@ Rails.application.reloader.to_prepare do
     # for those using regular sidekiq
     config.super_fetch! if defined?(Sidekiq::Pro)
 
-    # history is captured every 30 seconds by default
-    config.retain_history(30)
-
     config.on(:startup) do
       Sidekiq.schedule = YAML.safe_load(
         ERB.new(File.read(File.expand_path('../sidekiq_scheduler.yml', __dir__))).result
