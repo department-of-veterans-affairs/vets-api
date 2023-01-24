@@ -9,7 +9,7 @@ module Identity
     attr_accessor :user
 
     def call
-      return unless user.idme_uuid || user.logingov_uuid
+      return unless user.idme_uuid || user.logingov_uuid || user.sec_id
 
       account = create_if_needed!
 
@@ -33,6 +33,7 @@ module Identity
     def find_matching_account(accounts)
       match_account_for_identifier(accounts, :idme_uuid) ||
         match_account_for_identifier(accounts, :logingov_uuid) ||
+        match_account_for_identifier(accounts, :sec_id) ||
         accounts.first
     end
 
