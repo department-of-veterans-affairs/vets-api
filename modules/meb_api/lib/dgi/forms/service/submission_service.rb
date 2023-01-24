@@ -16,7 +16,6 @@ module MebApi
 
           def submit_claim(params, response_data, form_type = 'toe')
             unmasked_params = update_dd_params(params, response_data)
-
             with_monitoring do
               headers = request_headers
               options = { timeout: 60 }

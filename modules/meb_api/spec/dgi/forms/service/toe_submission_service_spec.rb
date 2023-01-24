@@ -18,44 +18,42 @@ RSpec.describe MebApi::DGI::Forms::Submission::Service do
     let(:service) { MebApi::DGI::Forms::Submission::Service.new(user) }
     let(:claimant_params) do
       { form: {
-        form_id: 1,
-        education_benefit: {
-          claimant: {
-            first_name: 'Herbert',
-            middle_name: 'Hoover',
-            last_name: 'Hoover',
-            date_of_birth: '1980-03-11',
-            contact_info: {
-              address_line_1: '503 upper park',
-              address_line_2: '',
-              city: 'falls church',
-              zipcode: '22046',
-              email_address: 'hhover@test.com',
-              address_type: 'DOMESTIC',
-              mobile_phone_number: '4409938894',
-              country_code: 'US',
-              state_code: 'VA'
-            },
-            notification_method: 'EMAIL'
+        form_id: '22-1990EMEB',
+        toe_claimant: {
+          date_of_birth: '2005-04-05',
+          first_name: 'GREG',
+          last_name: 'ANDERSON',
+          middle_name: 'A',
+          notification_method: 'EMAIL',
+          contact_info: {
+            address_line1: '123 Maple St',
+            city: 'Plymouth',
+            zipcode: '02330',
+            email_address: 'vets.gov.user+1@gmail.com',
+            address_type: 'DOMESTIC',
+            country_code: 'US',
+            state_code: 'MA'
+          },
+          preferred_contact: 'Email'
+        },
+        parent_or_guardian_signature: 'John Hancock',
+        sponsor_options: {
+          not_sure_about_sponsor: false,
+          first_sponsor_va_id: '8009623328',
+          manual_sponsor: {
+            first_name: 'John',
+            last_name: 'Hancock',
+            date_of_birth: '1988-10-13',
+            relationship: 'Child'
           }
         },
-        relinquished_benefit: {
-          eff_relinquish_date: '2021-10-15',
-          relinquished_benefit: 'Chapter30'
-        },
-        additional_considerations: {
-          active_duty_kicker: 'N/A',
-          academy_rotc_scholarship: 'YES',
-          reserve_kicker: 'N/A',
-          senior_rotc_scholarship: 'YES',
-          active_duty_dod_repay_loan: 'YES'
-        },
-        comments: {
-          disagree_with_service_period: false
+        high_school_diploma_info: {
+          high_school_diploma_or_certificate: true,
+          high_school_diploma_or_certificate_date: '2022-06-13'
         },
         direct_deposit: {
-          direct_deposit_account_number: '**3123123123',
-          account_type: 'savings',
+          direct_deposit_account_type: 'checking',
+          direct_deposit_account_number: '1234569891',
           direct_deposit_routing_number: '123123123'
         }
       } }
