@@ -15,10 +15,6 @@ module Mobile
       end
 
       def update
-        # temporary log to track down address bug that is populating province on domestic addresses
-        Rails.logger.info('Mobile Address Update', province: address_params['province'],
-                                                   address_type: address_params['address_type'])
-
         render_transaction_to_json(
           service.save_and_await_response(resource_type: :address, params: address_params, update: true)
         )
@@ -45,13 +41,20 @@ module Mobile
                          ))
         end
 
+        suggested_addresses.each do |suggested_address|
+          if suggested_address['address_type'] == 'DOMESTIC' && suggested_address['province'].present?
+            Rails.logger.info('Mobile Suggested Address - Province in domestic address',
+                              province: suggested_address['province'])
+          end
+        end
+
         render json: Mobile::V0::SuggestedAddressSerializer.new(suggested_addresses)
       end
 
       private
 
       def address_params
-        params.permit(
+        address_params = params.permit(
           :address_line1,
           :address_line2,
           :address_line3,
@@ -67,6 +70,11 @@ module Mobile
           :zip_code,
           :zip_code_suffix
         )
+
+        # No domestic addresses should have a province but some have been coming in as a string 'null'
+        address_params['province'] = nil if address_params['address_type'] == 'DOMESTIC'
+
+        address_params
       end
 
       def validation_service
