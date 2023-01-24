@@ -101,13 +101,13 @@ module Sidekiq
           params_docs.each do |file_name, doc|
             next if file_name == :metadata
 
-            fname = "#{file_name}#{File.extname(doc.original_filename)}"
+            fname = "#{file_name}.pdf"
             zipfile.add(fname, doc.local_path)
           end
         end
         s3_resource = new_s3_resource
         obj = s3_resource.bucket(s3_bucket).object(zipname)
-        obj_ret = obj.upload_file(report_file, content_type: 'application/zip')
+        obj_ret = obj.upload_file(zip_path_and_name, content_type: 'application/zip')
         if return_url
           obj.presigned_url(:get, expires_in: url_life_length)
         else
