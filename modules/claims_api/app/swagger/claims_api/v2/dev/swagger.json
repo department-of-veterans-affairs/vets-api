@@ -442,11 +442,8 @@
                         "example": "Compensation"
                       },
                       "claimDate": {
-                        "type": [
-                          "string",
-                          "null"
-                        ],
                         "format": "date",
+                        "type": "string",
                         "description": "Date in YYYY-MM-DD the claim was first filed",
                         "example": "2018-06-04"
                       },
@@ -454,18 +451,16 @@
                         "type": "object",
                         "properties": {
                           "phaseChangeDate": {
-                            "type": "date",
-                            "nullable": true,
-                            "description": "The date that the claim changed to its current phase"
+                            "format": "date",
+                            "type": "string",
+                            "description": "The date that the claim changed to its current phase",
+                            "example": "2017-10-18"
                           }
                         }
                       },
                       "closeDate": {
-                        "type": [
-                          "string",
-                          "null"
-                        ],
                         "format": "date",
+                        "type": "string",
                         "description": "Date claim was closed",
                         "example": "2019-09-04"
                       },
@@ -736,8 +731,8 @@
                       "dvlpmtTc": "CLMNTRQST",
                       "openedDate": null,
                       "overdue": true,
-                      "requestedDate": "2022-02-04T00:00:00-06:00",
-                      "suspenseDate": "2022-03-06T00:00:00-06:00",
+                      "requestedDate": "2022-02-04",
+                      "suspenseDate": "2022-03-06",
                       "trackedItemId": 325525,
                       "trackedItemStatus": "NEEDED",
                       "uploaded": false,
@@ -750,8 +745,8 @@
                       "dvlpmtTc": "CLMNTRQST",
                       "openedDate": null,
                       "overdue": true,
-                      "requestedDate": "2022-02-04T00:00:00-06:00",
-                      "suspenseDate": "2022-03-06T00:00:00-06:00",
+                      "requestedDate": "2022-02-04",
+                      "suspenseDate": "2022-03-06",
                       "trackedItemId": 325524,
                       "trackedItemStatus": "NEEDED",
                       "uploaded": false,
@@ -791,12 +786,11 @@
                       ]
                     },
                     "claimDate": {
-                      "type": [
-                        "string",
-                        "null"
-                      ],
+                      "format": "date",
+                      "type": "string",
+                      "nullable": true,
                       "description": "The date a claim was filed",
-                      "example": "5/17/20"
+                      "example": "2017-10-18"
                     },
                     "claimPhaseDates": {
                       "type": "object",
@@ -811,23 +805,26 @@
                           "description": "The most current phase for the claim"
                         },
                         "phaseChangeDate": {
-                          "type": "date",
+                          "format": "date",
+                          "type": "string",
                           "nullable": true,
-                          "description": "The date that the claim changed to its current phase"
+                          "description": "The date that the claim changed to its current phase",
+                          "example": "2017-10-18"
                         },
                         "previousPhases": {
-                          "phase1CompleteDate": "date",
-                          "nullable": true,
-                          "description": "Completed date of previous phases."
+                          "phase1CompleteDate": {
+                            "format": "date",
+                            "type": "string",
+                            "description": "Completed date of previous phases.",
+                            "example": "2017-10-18"
+                          }
                         }
                       }
                     },
                     "closeDate": {
-                      "type": [
-                        "string",
-                        "null"
-                      ],
                       "format": "date",
+                      "type": "string",
+                      "nullable": true,
                       "description": "Date claim was closed",
                       "example": "2019-09-04"
                     },
@@ -880,20 +877,16 @@
                       "example": "0BAEFC26-1CE4-4046-9B3C-3071055603DB"
                     },
                     "minEstClaimDate": {
-                      "type": [
-                        "string",
-                        "null"
-                      ],
                       "format": "date",
+                      "type": "string",
+                      "nullable": true,
                       "description": "Minimum Estimated Claim Completion Date",
                       "example": "2019-06-04"
                     },
                     "maxEstClaimDate": {
-                      "type": [
-                        "string",
-                        "null"
-                      ],
                       "format": "date",
+                      "type": "string",
+                      "nullable": true,
                       "description": "Maximum Estimated Claim Completion Date",
                       "example": "2019-09-04"
                     },
@@ -943,9 +936,11 @@
                             "nullable": true
                           },
                           "uploadDate": {
-                            "type": "date",
+                            "format": "date",
+                            "type": "string",
+                            "nullable": true,
                             "description": "Date and time document was uploaded",
-                            "nullable": true
+                            "example": "2017-10-18"
                           }
                         }
                       }
@@ -965,11 +960,11 @@
                         "additionalProperties": false,
                         "properties": {
                           "closedDate": {
-                            "type": "string",
                             "format": "date",
+                            "type": "string",
                             "nullable": true,
                             "description": "Date the tracked item was closed",
-                            "example": "2022-01-01T00:00:00-04:00"
+                            "example": "2017-10-18"
                           },
                           "description": {
                             "type": "string",
@@ -978,16 +973,18 @@
                             "example": "Buddy mentioned - No complete address"
                           },
                           "suspensionDate": {
-                            "type": "string",
                             "format": "date",
+                            "type": "string",
+                            "nullable": true,
                             "description": "Suspension date on the tracked item",
-                            "example": "2022-01-01T00:00:00-04:00"
+                            "example": "2017-10-18"
                           },
                           "requestedDate": {
-                            "type": "string",
                             "format": "date",
+                            "type": "string",
+                            "nullable": true,
                             "description": "Date the tracked item was requested",
-                            "example": "2022-01-01T00:00:00-04:00"
+                            "example": "2017-10-18"
                           },
                           "trackedItemId": {
                             "type": "integer",
@@ -1006,11 +1003,11 @@
                             "example": "Request 5"
                           },
                           "openedDate": {
-                            "type": "string",
                             "format": "date",
+                            "type": "string",
                             "nullable": true,
                             "description": "Date the tracked item was opened",
-                            "example": "2022-01-01T00:00:00-04:00"
+                            "example": "2017-10-18"
                           },
                           "overdue": {
                             "type": "boolean",
@@ -1019,10 +1016,10 @@
                             "example": true
                           },
                           "suspenseDate": {
-                            "type": "string",
                             "format": "date",
+                            "type": "string",
                             "nullable": true,
-                            "example": "2022-01-01T00:00:00-04:00"
+                            "example": "2017-10-18"
                           },
                           "trackedItemStatus": {
                             "type": "string",

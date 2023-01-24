@@ -16,8 +16,8 @@
         "example": "Compensation"
       },
       "claimDate": {
-        "type": ["string", "null"],
         "format": "date",
+        "type": "string",
         "description": "Date in YYYY-MM-DD the claim was first filed",
         "example": "2018-06-04"
       },
@@ -25,15 +25,16 @@
         "type":"object",
         "properties": {
           "phaseChangeDate": {
-            "type": "date",
-            "nullable": true,
-            "description": "The date that the claim changed to its current phase"
+            "format": "date",
+            "type": "string",
+            "description": "The date that the claim changed to its current phase",
+            "example": "2017-10-18"
           }
         }
       },
       "closeDate": {
-        "type": ["string", "null"],
         "format": "date",
+        "type": "string",
         "description": "Date claim was closed",
         "example": "2019-09-04"
       },
