@@ -148,7 +148,7 @@ module ClaimsApi
 
         def build_claim_structure(data:, lighthouse_id:, upstream_id:) # rubocop:disable Metrics/MethodLength
           {
-            claim_date: data[:claim_dt].present? ? format_bgs_date(data[:claim_dt]) : nil,
+            claim_date: date_present(data[:claim_dt]),
             claim_id: upstream_id,
             claim_phase_dates: build_claim_phase_attributes(data, 'index'),
             claim_type_code: data[:bnft_claim_type_cd],
@@ -163,8 +163,8 @@ module ClaimsApi
             evidence_waiver_submitted_5103: waiver_boolean(data[:filed5103_waiver_ind]),
             jurisdiction: data[:regional_office_jrsdctn],
             lighthouse_id: lighthouse_id,
-            max_est_claim_date: data[:max_est_claim_complete_dt],
-            min_est_claim_date: data[:min_est_claim_complete_dt],
+            max_est_claim_date: date_present(data[:max_est_claim_complete_dt]),
+            min_est_claim_date: date_present(data[:min_est_claim_complete_dt]),
             status: detect_current_status(data),
             submitter_application_code: data[:submtr_applcn_type_cd],
             submitter_role_code: data[:submtr_role_type_cd],
@@ -215,12 +215,12 @@ module ClaimsApi
             data[:benefit_claim_details_dto][:bnft_claim_lc_status].each do |lc|
               unless lc[:phase_type_change_ind].nil?
                 phase_number = lc[:phase_type_change_ind] == 'N' ? '1' : lc[:phase_type_change_ind].split('').last
-                phase_dates["phase#{phase_number}CompleteDate"] = format_bgs_date(lc[:phase_chngd_dt])
+                phase_dates["phase#{phase_number}CompleteDate"] = date_present(lc[:phase_chngd_dt])
               end
             end
           else
             date = data[:benefit_claim_details_dto][:bnft_claim_lc_status][:phase_chngd_dt]
-            phase_dates['phase1CompleteDate'] = format_bgs_date(date)
+            phase_dates['phase1CompleteDate'] = date_present(date)
           end
           phase_dates
         end
@@ -229,13 +229,12 @@ module ClaimsApi
           bgs_details.is_a?(Array) ? bgs_details.first[:phase_chngd_dt] : bgs_details[:phase_chngd_dt]
         end
 
-        def format_bgs_phase_date(data)
-          bgs_details = data&.dig(:bnft_claim_lc_status)
-          return {} if bgs_details.nil?
+        ### called from inside of format_bgs_phase_date & format_bgs_phase_chng_dates
+        ### calls format_bgs_date
+        def date_present(date)
+          return unless date.is_a?(Date) || date.is_a?(String)
 
-          date = extract_date(bgs_details)
-
-          format_bgs_date(date)
+          date.present? ? format_bgs_date(date) : nil
         end
 
         def format_bgs_date(phase_change_date)
@@ -243,14 +242,25 @@ module ClaimsApi
           d.strftime('%Y-%m-%d')
         end
 
-        def format_bgs_phase_chng_dates(data)
-          if data[:phase_chngd_dt].nil? &&
-             (data[:benefit_claim_details_dto].nil? || data[:benefit_claim_details_dto][:phase_chngd_dt].nil?)
-            return
-          end
+        def format_bgs_phase_date(data)
+          bgs_details = data&.dig(:bnft_claim_lc_status)
+          return {} if bgs_details.nil?
 
-          phase_change_date = data[:phase_chngd_dt] || data[:benefit_claim_details_dto][:phase_chngd_dt]
-          format_bgs_date(phase_change_date)
+          date = extract_date(bgs_details)
+
+          date_present(date)
+        end
+
+        def format_bgs_phase_chng_dates(data)
+          phase_change_date = if data[:phase_chngd_dt].present?
+                                data[:phase_chngd_dt]
+                              elsif data[:benefit_claim_details_dto].present?
+                                data[:benefit_claim_details_dto][:phase_chngd_dt]
+                              else
+                                format_bgs_phase_date(data[:benefit_claim_details_dto])
+                              end
+
+          date_present(phase_change_date)
         end
 
         def detect_current_status(data)
@@ -361,14 +371,14 @@ module ClaimsApi
                               .include? status ? true : false
 
             {
-              closed_date: detail[:date_closed]&.iso8601,
+              closed_date: date_present(detail[:date_closed]),
               description: detail[:items],
               displayed_name: "Request #{i + 1}", # +1 given a 1 index'd array
               dvlpmt_tc: item[:dvlpmt_tc],
-              opened_date: detail[:date_open]&.iso8601,
+              opened_date: date_present(detail[:date_open]),
               overdue: item[:suspns_dt].nil? ? false : item[:suspns_dt] < Time.zone.now, # EVSS generates this field
-              requested_date: item[:req_dt]&.iso8601,
-              suspense_date: item[:suspns_dt]&.iso8601,
+              requested_date: date_present(item[:req_dt]),
+              suspense_date: date_present(item[:suspns_dt]),
               tracked_item_id: id.to_i,
               tracked_item_status: status, # EVSS generates this field
               uploaded: !detail[:date_rcvd].nil?, # EVSS generates this field
@@ -393,7 +403,7 @@ module ClaimsApi
               document_type_label: doc['document_type_label'],
               original_file_name: doc['original_file_name'],
               tracked_item_id: doc['tracked_item_id'],
-              upload_date: doc['upload_date']
+              upload_date: date_present(doc['upload_date'])
             }
           end
         end
