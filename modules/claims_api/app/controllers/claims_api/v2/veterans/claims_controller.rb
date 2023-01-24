@@ -311,6 +311,14 @@ module ClaimsApi
           filed5103_waiver_ind.present? ? filed5103_waiver_ind.downcase == 'y' : false
         end
 
+        def handle_array_or_hash(object, attribute)
+          if object.present?
+            object.is_a?(Array) ? object.pluck(attribute) : [object[attribute]]
+          else
+            []
+          end
+        end
+
         def map_bgs_tracked_items(bgs_claim) # rubocop:disable Metrics/MethodLength
           return [] if bgs_claim.nil?
 
@@ -323,20 +331,21 @@ module ClaimsApi
                           .dig(:benefit_claim, :dvlpmt_items) || []
           ebenefits_details = bgs_claim[:benefit_claim_details_dto]
 
-          # Just in case there's a doc in ebenefits that we don't have a tracked_item for
-          ids = tracked_items.pluck(:dvlpmt_item_id)
-          docs = (
-            (ebenefits_details[:wwsnfy] || []) +
-            (ebenefits_details[:wwr] || []) +
-            (ebenefits_details[:wwd] || [])
-          )
-          ids += docs.pluck(:dvlpmt_item_id)
-          ids = ids.uniq
+          tracked_ids = handle_array_or_hash(tracked_items, :dvlpmt_item_id)
+
+          wwsnfy = handle_array_or_hash(ebenefits_details[:wwsnfy], :dvlpmt_item_id) || []
+          wwr = handle_array_or_hash(ebenefits_details[:wwr], :dvlpmt_item_id) || []
+          wwd = handle_array_or_hash(ebenefits_details[:wwd], :dvlpmt_item_id) || []
+
+          ids = tracked_ids | wwsnfy | wwr | wwd
 
           ids.map.with_index do |id, i|
-            item = tracked_items.find { |t| t[:dvlpmt_item_id] == id } || {}
-            detail = docs.find do |doc|
-              doc[:dvlpmt_item_id] == id
+            item = tracked_items.find do |t|
+              if t.is_a?(Hash)
+                t[:dvlpmt_item_id] == id
+              else
+                t.include?('dvlpmt_item_id') ? t[:dvlpmt_item_id] == id : nil
+              end
             end || {}
 
             # Values for status enum: "ACCEPTED",
@@ -345,7 +354,7 @@ module ClaimsApi
             # "NO_LONGER_REQUIRED"
             # "SUBMITTED_AWAITING_REVIEW",
 
-            if detail[:date_rcvd].nil?
+            if item[:date_rcvd].nil?
               status = 'NEEDED'
             else
               status = 'SUBMITTED_AWAITING_REVIEW'
@@ -371,17 +380,17 @@ module ClaimsApi
                               .include? status ? true : false
 
             {
-              closed_date: date_present(detail[:date_closed]),
-              description: detail[:items],
+              closed_date: date_present(item[:date_closed]),
+              description: item[:items],
               displayed_name: "Request #{i + 1}", # +1 given a 1 index'd array
               dvlpmt_tc: item[:dvlpmt_tc],
-              opened_date: date_present(detail[:date_open]),
+              opened_date: date_present(item[:date_open]),
               overdue: item[:suspns_dt].nil? ? false : item[:suspns_dt] < Time.zone.now, # EVSS generates this field
               requested_date: date_present(item[:req_dt]),
               suspense_date: date_present(item[:suspns_dt]),
               tracked_item_id: id.to_i,
               tracked_item_status: status, # EVSS generates this field
-              uploaded: !detail[:date_rcvd].nil?, # EVSS generates this field
+              uploaded: !item[:date_rcvd].nil?, # EVSS generates this field
               uploads_allowed: uploads_allowed # EVSS generates this field
             }
           end
