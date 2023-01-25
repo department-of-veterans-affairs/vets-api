@@ -474,8 +474,7 @@ namespace :form526 do
           edipis << edipi
         end
 
-        user_identity = OpenStruct.new(mhv_icn: '', edipi: edipi)
-        response = MPI::Service.new.find_profile(user_identity).profile
+        response = MPI::Service.new.find_profile_by_edipi(edipi: edipi).profile
         active_corp_ids = response.full_mvi_ids.select { |id| id.match?(/\d*\^PI\^200CORP\^USVBA\^A/) }
         vname = "#{fs.auth_headers['va_eauth_firstName']} #{fs.auth_headers['va_eauth_lastName']}"
         csv << [vname, edipi, active_corp_ids] if active_corp_ids.count > 1
@@ -678,7 +677,12 @@ namespace :form526 do
     end
 
     def mpi_profile(user_identity)
-      find_profile_response = MPI::Service.new.find_profile user_identity
+      if user_identity.mhv_icn
+        find_profile_response = MPI::Service.new.find_profile_by_identifier(identifier: user_identity.mhv_icn,
+                                                                            identifier_type: MPI::Constants::ICN)
+      else
+        find_profile_response = MPI::Service.new.find_profile_by_edipi(edipi: user_identity.edipi)
+      end
       raise find_profile_response.error if find_profile_response.error
 
       find_profile_response.profile

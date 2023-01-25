@@ -465,4 +465,79 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(upload.appeals_consumer?).to eq(false)
     end
   end
+
+  describe '#base64_encoded?' do
+    it 'returns true if metadata["base64_encoded"] is true' do
+      upload = FactoryBot.create(:upload_submission, metadata: { 'base64_encoded' => true })
+
+      expect(upload.base64_encoded?).to eq(true)
+    end
+
+    it 'returns false if metadata["base64_encoded"] is false' do
+      upload = FactoryBot.create(:upload_submission, metadata: { 'base64_encoded' => false })
+
+      expect(upload.base64_encoded?).to eq(false)
+    end
+
+    it 'returns false if metadata["base64_encoded"] is nil' do
+      upload = FactoryBot.create(:upload_submission)
+
+      expect(upload.base64_encoded?).to eq(false)
+    end
+  end
+
+  describe '#track_upload_timeout_error' do
+    let(:upload) { FactoryBot.create(:upload_submission) }
+
+    context 'when this is the first timeout error' do
+      before { upload.track_upload_timeout_error }
+
+      it 'sets the "upload_timeout_error_count" metadata to 1' do
+        expect(upload.metadata['upload_timeout_error_count']).to be(1)
+      end
+    end
+
+    context 'when this is the third timeout error' do
+      before do
+        3.times do
+          upload.track_upload_timeout_error
+        end
+      end
+
+      it 'sets the "upload_timeout_error_count" metadata to 3' do
+        expect(upload.metadata['upload_timeout_error_count']).to be(3)
+      end
+    end
+  end
+
+  describe '#hit_upload_timeout_limit?' do
+    let(:retry_limit) { described_class::UPLOAD_TIMEOUT_RETRY_LIMIT }
+
+    context 'when "upload_timeout_error_count" is smaller than the retry limit' do
+      let(:error_count) { retry_limit - 1 }
+      let(:upload) { FactoryBot.create(:upload_submission, metadata: { 'upload_timeout_error_count' => error_count }) }
+
+      it 'returns false' do
+        expect(upload.hit_upload_timeout_limit?).to be(false)
+      end
+    end
+
+    context 'when "upload_timeout_error_count" is equal to the retry limit' do
+      let(:error_count) { retry_limit }
+      let(:upload) { FactoryBot.create(:upload_submission, metadata: { 'upload_timeout_error_count' => error_count }) }
+
+      it 'returns false' do
+        expect(upload.hit_upload_timeout_limit?).to be(false)
+      end
+    end
+
+    context 'when "upload_timeout_error_count" is larger than the retry limit' do
+      let(:error_count) { retry_limit + 1 }
+      let(:upload) { FactoryBot.create(:upload_submission, metadata: { 'upload_timeout_error_count' => error_count }) }
+
+      it 'returns true' do
+        expect(upload.hit_upload_timeout_limit?).to be(true)
+      end
+    end
+  end
 end

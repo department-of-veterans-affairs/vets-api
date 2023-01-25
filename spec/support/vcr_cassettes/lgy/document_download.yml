@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://fake_url.com/eligibility-manager/api/eligibility/document/123456789/file?edipi=1007697216&icn=123498767V234859
+    uri: https://fake_url.com/eligibility-manager/api/eligibility/document/23215740/file?edipi=1007697216&icn=123498767V234859
     body:
       encoding: US-ASCII
       string: ''

@@ -13,7 +13,8 @@ RSpec.describe Message do
       expect(described_class.attribute_set.map(&:name)).to contain_exactly(:id, :category, :subject, :body,
                                                                            :attachment, :attachments, :sent_date,
                                                                            :sender_id, :sender_name, :recipient_id,
-                                                                           :recipient_name, :read_receipt, :uploads)
+                                                                           :recipient_name, :read_receipt, :uploads,
+                                                                           :triage_group_name, :proxy_sender_name)
       expect(subject.id).to eq(params[:id])
       expect(subject.category).to eq(params[:category])
       expect(subject.subject).to eq(params[:subject])

@@ -16,29 +16,20 @@ RSpec.describe CovidVaccine::ExpandedSubmissionJob, type: :worker do
     let(:mvi_profile_no_facility) { build(:mvi_profile) }
 
     let(:mvi_profile_response) do
-      MPI::Responses::FindProfileResponse.new(
-        status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
-        profile: mvi_profile
-      )
+      create(:find_profile_response, profile: mvi_profile)
     end
     let(:mvi_profile_not_found) do
-      MPI::Responses::FindProfileResponse.new(
-        status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:not_found],
-        profile: nil
-      )
+      create(:find_profile_not_found_response)
     end
     let(:mvi_facility_not_found) do
-      MPI::Responses::FindProfileResponse.new(
-        status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
-        profile: mvi_profile_no_facility
-      )
+      create(:find_profile_response, profile: mvi_profile_no_facility)
     end
 
     it 'updates the submission object' do
       sid = SecureRandom.uuid
       allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
         .and_return({ sid: sid })
-      allow_any_instance_of(MPI::Service).to receive(:find_profile)
+      allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
         .and_return(mvi_profile_response)
       subject.perform(submission.id)
       submission.reload
@@ -48,39 +39,10 @@ RSpec.describe CovidVaccine::ExpandedSubmissionJob, type: :worker do
     end
 
     context 'without sufficient traits' do
-      it 'raises exception for MVI lookup error' do
-        expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
-        allow_any_instance_of(MPI::Service).to receive(:find_profile)
-          .and_return(mvi_profile_not_found)
-        allow(Rails.logger).to receive(:error)
-        pending('temporarily quieting errors on MPI failures')
-        expect(Rails.logger).to receive(:error).with('Record not found.')
-        subject.perform(submission.id)
-      end
-
       it 'does not update state when MVI lookup error' do
         expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
-        allow_any_instance_of(MPI::Service).to receive(:find_profile)
+        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
           .and_return(mvi_profile_not_found)
-        subject.perform(submission.id)
-        expect(submission.reload.state).to match('enrollment_pending')
-      end
-
-      it 'raises exception for MVI facility discrepancy error' do
-        pending('temporarily quieting errors on MPI failures')
-        expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
-        allow_any_instance_of(MPI::Service).to receive(:find_profile)
-          .and_return(mvi_facility_not_found)
-        allow(Rails.logger).to receive(:error)
-        expect(Rails.logger).to receive(:error).with('Record not found.')
-        subject.perform(submission.id)
-        expect(submission.reload.state).to match('enrollment_pending')
-      end
-
-      it 'does not update state when MVI facility discrepancy error' do
-        expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
-        allow_any_instance_of(MPI::Service).to receive(:find_profile)
-          .and_return(mvi_facility_not_found)
         subject.perform(submission.id)
         expect(submission.reload.state).to match('enrollment_pending')
       end

@@ -24,4 +24,4 @@ Layout/LineLength:
     - app/swagger/**/*.rb
 
 RSpec/VariableName:
-  IgnoredPatterns: ['^X-', 'Authorization']
+  AllowedPatterns: ['^X-', 'Authorization']

@@ -17,8 +17,16 @@ class MPIData < Common::RedisStore
   REDIS_CONFIG_KEY = :mpi_profile_response
   redis_config_key REDIS_CONFIG_KEY
 
-  # @return [UserIdentity] the user identity object to query MVI for.
-  attr_accessor :user_identity
+  attr_accessor :user_loa3,
+                :user_icn,
+                :user_first_name,
+                :user_last_name,
+                :user_birth_date,
+                :user_ssn,
+                :user_edipi,
+                :user_logingov_uuid,
+                :user_idme_uuid,
+                :user_uuid
 
   # Creates a new MPIData instance for a user identity.
   #
@@ -26,20 +34,18 @@ class MPIData < Common::RedisStore
   # @return [MPIData] an instance of this class
   def self.for_user(user_identity)
     mvi = MPIData.new
-    mvi.user_identity = user_identity
+
+    mvi.user_loa3 = user_identity.loa3?
+    mvi.user_icn = user_identity.mhv_icn || user_identity.icn
+    mvi.user_first_name = user_identity.first_name
+    mvi.user_last_name = user_identity.last_name
+    mvi.user_birth_date = user_identity.birth_date
+    mvi.user_ssn = user_identity.ssn
+    mvi.user_edipi = user_identity.edipi
+    mvi.user_logingov_uuid = user_identity.logingov_uuid
+    mvi.user_idme_uuid = user_identity.idme_uuid
+    mvi.user_uuid = user_identity.uuid
     mvi
-  end
-
-  # Queries MPI specifically to retrieve historical icn data.
-  #
-  # @param user [User] the user to query MVI for
-  # @return [MPIData] an instance of this class
-  def self.historical_icn_for_user(user_identity)
-    return nil unless user_identity.loa3?
-
-    mpi_data_instance = MPIData.new
-    mpi_data_instance.user_identity = user_identity
-    mpi_data_instance.mvi_get_person_historical_icns
   end
 
   # A DOD EDIPI (Electronic Data Interchange Personal Identifier) MVI correlation ID
@@ -129,7 +135,7 @@ class MPIData < Common::RedisStore
   #
   # @return [MPI::Models::MviProfile] patient 'golden record' data from MVI
   def profile
-    return nil unless user_identity.loa3?
+    return nil unless user_loa3
 
     mvi_response&.profile
   end
@@ -138,16 +144,16 @@ class MPIData < Common::RedisStore
   #
   # @return [String] the status of the last MVI response
   def status
-    return MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:not_authorized] unless user_identity.loa3?
+    return :not_authorized unless user_loa3
 
-    mvi_response.status
+    mvi_response&.status
   end
 
   # The error experienced when reaching out to the MVI service.
   #
   # @return [Common::Exceptions::BackendServiceException]
   def error
-    return Common::Exceptions::Unauthorized.new(source: self.class) unless user_identity.loa3?
+    return Common::Exceptions::Unauthorized.new(source: self.class) unless user_loa3
 
     mvi_response.try(:error)
   end
@@ -161,90 +167,77 @@ class MPIData < Common::RedisStore
     cached?(key: user_key)
   end
 
-  # @return [String] Array representing the historical icn data for the user
-  def mvi_get_person_historical_icns
-    mpi_profile = mpi_service.find_profile(user_identity, search_type: MPI::Constants::CORRELATION_WITH_ICN_HISTORY)
-    mpi_profile&.profile&.historical_icns
-  end
-
   # The status of the MPI Add Person Proxy Add call. An Orchestrated MVI Search needs to be made before an
   # MPI add person proxy addcall is made. The response is recached afterwards so the new ids can be accessed
   # on the next call.
-  #
-  # @return [MPI::Responses::AddPersonResponse] the response returned from MPI Add Person Proxy call
   def add_person_proxy
-    search_response = MPI::Service.new.find_profile(user_identity, orch_search: true)
+    search_response = mpi_service.find_profile_by_attributes_with_orch_search(first_name: user_first_name,
+                                                                              last_name: user_last_name,
+                                                                              birth_date: user_birth_date,
+                                                                              ssn: user_ssn,
+                                                                              edipi: user_edipi)
     if search_response.ok?
       @mvi_response = search_response
-      update_user_identity_with_orch_search(search_response.profile)
-      add_response = mpi_service.add_person_proxy(user_identity)
+      add_response = mpi_service.add_person_proxy(last_name: search_response.profile.family_name,
+                                                  ssn: search_response.profile.ssn,
+                                                  birth_date: search_response.profile.birth_date,
+                                                  icn: search_response.profile.icn,
+                                                  edipi: search_response.profile.edipi,
+                                                  search_token: search_response.profile.search_token,
+                                                  first_name: search_response.profile.given_names.first)
       add_ids(add_response) if add_response.ok?
+      add_response
     else
-      add_response = MPI::Responses::AddPersonResponse.with_failed_orch_search(
-        search_response.status, search_response.error
-      )
+      search_response
     end
-    add_response
-  end
-
-  # Make a call for MPI Add Person that implicitly searches for a user with the existing attributes and
-  # either returns an ICN for an existing user, or creates a new MPI record and correlates it to a new ICN
-  #
-  # @return [MPI::Responses::AddPersonResponse] the response returned from MPI Add Person Implicit Search call
-  def add_person_implicit_search
-    mpi_service.add_person_implicit_search(user_identity)
-  end
-
-  # Make a call for MPI Update Profile to revise an existing MPI record. This will add attributes to a correlation
-  # record, not necessarily a main view, which means MPI may prefer its own attributes over the provided ones
-  #
-  # @return [MPI::Responses::UpdateProfileResponse] the response returned from MPI Update Profile call
-  def update_profile
-    mpi_service.update_profile(user_identity)
   end
 
   private
 
   def get_user_key
-    if user_identity.mhv_icn.present?
-      user_identity.mhv_icn
-    elsif user_identity.edipi.present?
-      user_identity.edipi
-    elsif user_identity.logingov_uuid.present?
-      user_identity.logingov_uuid
-    elsif user_identity.idme_uuid.present?
-      user_identity.idme_uuid
+    if user_icn.present?
+      user_icn
+    elsif user_edipi.present?
+      user_edipi
+    elsif user_logingov_uuid.present?
+      user_logingov_uuid
+    elsif user_idme_uuid.present?
+      user_idme_uuid
     else
-      user_identity.uuid
+      user_uuid
     end
   end
 
-  def update_user_identity_with_orch_search(search_response_profile)
-    user_identity.icn_with_aaid = search_response_profile.icn_with_aaid
-    user_identity.edipi = search_response_profile.edipi
-    user_identity.search_token = search_response_profile.search_token
-
-    first_name, *middle_name = search_response_profile.given_names
-    user_identity.first_name = first_name
-    user_identity.middle_name = middle_name&.join(' ').presence
-    user_identity.last_name = search_response_profile.family_name
-    user_identity.gender = search_response_profile.gender
-    user_identity.ssn = search_response_profile.ssn
-    user_identity.birth_date = search_response_profile.birth_date
+  def find_profile
+    if user_icn.present?
+      mpi_service.find_profile_by_identifier(identifier: user_icn, identifier_type: MPI::Constants::ICN)
+    elsif user_edipi.present?
+      mpi_service.find_profile_by_edipi(edipi: user_edipi)
+    elsif user_logingov_uuid.present?
+      mpi_service.find_profile_by_identifier(identifier: user_logingov_uuid,
+                                             identifier_type: MPI::Constants::LOGINGOV_UUID)
+    elsif user_idme_uuid.present?
+      mpi_service.find_profile_by_identifier(identifier: user_idme_uuid, identifier_type: MPI::Constants::IDME_UUID)
+    else
+      mpi_service.find_profile_by_attributes(first_name: user_first_name,
+                                             last_name: user_last_name,
+                                             birth_date: user_birth_date,
+                                             ssn: user_ssn)
+    end
   end
 
   def add_ids(response)
     # set new ids in the profile and recache the response
-    profile.birls_id = response.mvi_codes[:birls_id].presence
-    profile.participant_id = response.mvi_codes[:participant_id].presence
+    profile.birls_id = response.parsed_codes[:birls_id].presence
+    profile.participant_id = response.parsed_codes[:participant_id].presence
 
-    cache(user_identity.uuid, mvi_response) if mvi_response.cache?
+    cache(user_uuid, mvi_response) if mvi_response.cache?
   end
 
   def response_from_redis_or_service(user_key:)
     do_cached_with(key: user_key) do
-      mpi_service.find_profile(user_identity)
-    rescue ArgumentError => e
+      find_profile
+    rescue ArgumentError, MPI::Errors::ArgumentError => e
       log_message_to_sentry("[MPI Data] Request error: #{e.message}", :warn)
       return nil
     end
@@ -261,7 +254,7 @@ class MPIData < Common::RedisStore
   end
 
   def record_ttl
-    if status == MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok]
+    if status == :ok
       # ensure default ttl is used for 'ok' responses
       REDIS_CONFIG[REDIS_CONFIG_KEY][:each_ttl]
     else

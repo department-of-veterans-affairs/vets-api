@@ -6,8 +6,8 @@ module OpenidAuth
   class ApplicationController < ::OpenidApplicationController
     def validate_user
       unless token.static? || token.client_credentials_token? || token.ssoi_token?
-        raise Common::Exceptions::RecordNotFound, @current_user.uuid if @current_user.mpi_status == 'NOT_FOUND'
-        raise Common::Exceptions::BadGateway if @current_user.mpi_status == 'SERVER_ERROR'
+        raise Common::Exceptions::RecordNotFound, @current_user.uuid if @current_user.mpi_status == :not_found
+        raise Common::Exceptions::BadGateway if @current_user.mpi_status == :server_error
 
         obscure_token = Session.obscure_token(token.to_s)
         Rails.logger.info("Logged in user with id #{@session&.uuid}, token #{obscure_token}")

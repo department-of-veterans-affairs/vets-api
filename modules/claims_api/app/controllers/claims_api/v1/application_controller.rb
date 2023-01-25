@@ -4,6 +4,7 @@ require 'evss/error_middleware'
 require 'bgs/power_of_attorney_verifier'
 require 'token_validation/v2/client'
 require 'claims_api/claim_logger'
+require 'mpi/errors/errors'
 
 module ClaimsApi
   module V1
@@ -30,14 +31,14 @@ module ClaimsApi
 
         if require_birls && target_veteran.participant_id.present? && target_veteran.birls_id.blank?
           raise ::Common::Exceptions::UnprocessableEntity.new(detail:
-            "Unable to locate Veteran's BIRLS ID in Master Person Index (MPI)." \
+            "Unable to locate Veteran's BIRLS ID in Master Person Index (MPI). " \
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
         end
 
         if header_request? && !target_veteran.mpi_record?
           raise ::Common::Exceptions::UnprocessableEntity.new(
             detail:
-              'Unable to locate Veteran in Master Person Index (MPI).' \
+              'Unable to locate Veteran in Master Person Index (MPI). ' \
               'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
           )
         end
@@ -47,22 +48,29 @@ module ClaimsApi
                               require_birls: require_birls,
                               header_request: header_request?,
                               ptcpnt_id: target_veteran.participant_id.present?,
+                              icn: target_veteran&.mpi_icn,
                               birls_id: target_veteran.birls_id.present?)
+
+        if target_veteran.icn.blank?
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail:
+              'Veteran missing Integration Control Number (ICN). ' \
+              'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
+          )
+        end
 
         mpi_add_response = target_veteran.mpi.add_person_proxy
 
         raise mpi_add_response.error unless mpi_add_response.ok?
 
-        # Delay to allow MPI caching to propegate
-        sleep 10
-
         ClaimsApi::Logger.log('validate_identifiers',
                               rid: request.request_id, mpi_res_ok: mpi_add_response.ok?,
                               ptcpnt_id: target_veteran.participant_id.present?,
-                              birls_id: target_veteran.birls_id.present?)
-      rescue ::Common::Exceptions::UnprocessableEntity
+                              birls_id: target_veteran.birls_id.present?,
+                              icn: target_veteran&.mpi_icn)
+      rescue MPI::Errors::ArgumentError
         raise ::Common::Exceptions::UnprocessableEntity.new(detail:
-          "Unable to locate Veteran's Participant ID in Master Person Index (MPI)." \
+          "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
           'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
       rescue ArgumentError
         raise ::Common::Exceptions::UnprocessableEntity.new(
@@ -123,7 +131,7 @@ module ClaimsApi
         vet.gender = header('X-VA-Gender') || vet.gender_mpi if with_gender
         vet.edipi = vet.edipi_mpi
         vet.participant_id = vet.participant_id_mpi
-
+        vet.icn = vet&.mpi_icn
         vet
       end
 

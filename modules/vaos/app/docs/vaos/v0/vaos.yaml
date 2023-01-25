@@ -586,7 +586,7 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
-  "/cc_eligibility/{service_type}":
+  "/community_care/eligibility/{service_type}":
     get:
       tags:
         - eligibility

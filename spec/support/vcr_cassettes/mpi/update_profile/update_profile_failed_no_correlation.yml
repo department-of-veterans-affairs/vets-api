@@ -160,7 +160,7 @@ http_interactions:
                   <id extension="200VGOV-0a8c7539-3490-4c5c-b36f-9df9c16af3a2" root="22a0f9e0-4454-11dc-a6be-3603d6866807"/>
                 </targetMessage>
                 <acknowledgementDetail>
-                  <code code="PNUPDATE000005" codeSystem="2.16.840.1.113883.3.2017.11.6.1" displayName="ICN-EDI PI Correlation does not exist"/>
+                  <code codeSystem="2.16.840.1.113883.3.2017.11.6.1" code="PNUPDATE000005"  displayName="ICN-EDI PI Correlation does not exist"/>
                   <text>Enterprise ID 1012592956V095840 passed is not linked to ID e4fd21a4-a677-4118-8c57-1f630cbc2a06</text>
                 </acknowledgementDetail>
                 <acknowledgementDetail>

@@ -9,10 +9,6 @@ VBADocuments::Engine.routes.draw do
   post '/v2/uploads/submit', to: 'v2/uploads#submit' if Settings.vba_documents.v2_upload_endpoint_enabled
 
   namespace :internal, defaults: { format: 'json' } do
-    namespace :v0 do
-      resources :upload_complete, only: [:create]
-    end
-
     namespace :v1 do
       resources :upload_complete, only: [:create]
     end

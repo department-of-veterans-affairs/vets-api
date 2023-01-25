@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
+require 'common/models/attribute_types/date_time_string'
 
 # MessageSearch model
 class MessageSearch < Common::Base

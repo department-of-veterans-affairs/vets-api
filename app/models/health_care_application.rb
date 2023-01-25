@@ -108,9 +108,9 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def self.determine_non_military(primary_eligibility, veteran, parsed_status)
-    if parsed_status == Notification::ACTIVEDUTY &&
+    if parsed_status == HCA::EnrollmentEligibility::Constants::ACTIVEDUTY &&
        !determine_active_duty(primary_eligibility, veteran)
-      Notification::NON_MILITARY
+      HCA::EnrollmentEligibility::Constants::NON_MILITARY
     else
       parsed_status
     end
@@ -133,10 +133,11 @@ class HealthCareApplication < ApplicationRecord
         :primary_eligibility
       ).merge(parsed_status: parsed_status)
     else
-      {
-        parsed_status:
-          ee_data[:enrollment_status].present? ? Notification::LOGIN_REQUIRED : Notification::NONE_OF_THE_ABOVE
-      }
+      { parsed_status: if ee_data[:enrollment_status].present?
+                         HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED
+                       else
+                         HCA::EnrollmentEligibility::Constants::NONE_OF_THE_ABOVE
+                       end }
     end
   end
 
@@ -149,7 +150,10 @@ class HealthCareApplication < ApplicationRecord
 
   def self.user_icn(user_attributes)
     HCA::RateLimitedSearch.create_rate_limited_searches(user_attributes) unless Settings.mvi_hca.skip_rate_limit
-    MPI::Service.new.find_profile(user_attributes)&.profile&.icn
+    MPI::Service.new.find_profile_by_attributes(first_name: user_attributes.first_name,
+                                                last_name: user_attributes.last_name,
+                                                birth_date: user_attributes.birth_date,
+                                                ssn: user_attributes.ssn)&.profile&.icn
   end
 
   def self.user_attributes(form)
@@ -225,12 +229,12 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def submit_async(has_email)
-    submission_job = 'SubmissionJob'
+    submission_job = 'EncryptedSubmissionJob'
     submission_job = "Anon#{submission_job}" unless has_email
 
     "HCA::#{submission_job}".constantize.perform_async(
       self.class.get_user_identifier(user),
-      parsed_form,
+      KmsEncrypted::Box.new.encrypt(parsed_form.to_json),
       id,
       google_analytics_client_id
     )

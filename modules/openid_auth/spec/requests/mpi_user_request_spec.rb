@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true do
+RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_mvi: true, skip_emis: true do
   describe 'via GET with headers' do
     context 'looking up with an SSN' do
       let(:auth_headers) do
@@ -34,7 +34,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
         VCR.use_cassette('mpi/find_candidate/no_subject') do
           auth_headers['x-va-level-of-assurance'] = 1
           get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
-          expect(response).to have_http_status(:not_found)
+          expect(response).to have_http_status(:server_error)
         end
       end
     end
@@ -92,7 +92,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
         VCR.use_cassette('mpi/find_candidate/no_subject') do
           auth_headers['x-va-level-of-assurance'] = 1
           get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
-          expect(response).to have_http_status(:not_found)
+          expect(response).to have_http_status(:server_error)
         end
       end
     end
@@ -131,7 +131,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       it 'responds properly when MVI is down' do
         stub_request(:post, Settings.mvi.url).to_return(status: 200, body: body)
         get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
-        expect(response).to have_http_status(:bad_gateway)
+        expect(response).to have_http_status(:server_error)
       end
     end
   end
@@ -173,7 +173,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
         VCR.use_cassette('mpi/find_candidate/no_subject') do
           req_body['level_of_assurance'] = 1
           post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
-          expect(response).to have_http_status(:not_found)
+          expect(response).to have_http_status(:server_error)
         end
       end
     end
@@ -229,7 +229,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
         VCR.use_cassette('mpi/find_candidate/no_subject') do
           req_body['level_of_assurance'] = 1
           post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
-          expect(response).to have_http_status(:not_found)
+          expect(response).to have_http_status(:server_error)
         end
       end
     end
@@ -267,7 +267,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       it 'responds properly when MVI is down' do
         stub_request(:post, Settings.mvi.url).to_return(status: 200, body: body)
         post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
-        expect(response).to have_http_status(:bad_gateway)
+        expect(response).to have_http_status(:server_error)
       end
     end
   end

@@ -9,7 +9,7 @@ module Identity
     attr_accessor :user
 
     def call
-      return unless user.idme_uuid || user.sec_id || user.logingov_uuid
+      return unless user.idme_uuid || user.logingov_uuid || user.sec_id
 
       account = create_if_needed!
 

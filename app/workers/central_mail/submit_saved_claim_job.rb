@@ -33,6 +33,8 @@ module CentralMail
 
       if response.success?
         update_submission('success')
+
+        @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
       else
         raise CentralMailResponseError
       end

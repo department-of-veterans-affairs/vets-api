@@ -34,38 +34,35 @@ RSpec.describe VANotify::Veteran, type: :model do
     context '526ez' do
       let(:icn) { 'icn' }
       let(:in_progress_form) { create(:in_progress_526_form, user_account: user_account) }
+      let(:mpi_response) { create(:find_profile_response, profile: build(:mvi_profile, given_names: [first_name])) }
 
-      it 'returns the first_name from mpi' do
-        mpi_double = double('MPI::Service')
-        allow(MPI::Service).to receive(:new).and_return(mpi_double)
-        mpi_response_double = double('MPI::Responses::FindProfileResponse', ok?: true)
-        allow(mpi_double).to receive(:find_profile).with(subject).and_return(mpi_response_double)
-
-        mpi_profile = build(:mvi_profile, given_names: ['first_name'])
-        allow(mpi_response_double).to receive(:profile).and_return(mpi_profile)
-
-        expect(subject.first_name).to eq('first_name')
+      before do
+        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier)
+          .with(identifier: icn, identifier_type: MPI::Constants::ICN).and_return(mpi_response)
       end
 
-      it 'raises an error if MPI returns a not #ok? response' do
-        mpi_double = double('MPI::Service')
-        allow(MPI::Service).to receive(:new).and_return(mpi_double)
-        mpi_response_double = double('MPI::Responses::FindProfileResponse', ok?: false)
-        allow(mpi_double).to receive(:find_profile).with(subject).and_return(mpi_response_double)
+      context 'when first name from MPI exists' do
+        let(:first_name) { 'some-first-name' }
 
-        expect { subject.first_name }.to raise_error(VANotify::Veteran::MPIError)
+        it 'returns the first_name from mpi' do
+          expect(subject.first_name).to eq(first_name)
+        end
       end
 
-      it 'raises an error if MPI profile given name is empty' do
-        mpi_double = double('MPI::Service')
-        allow(MPI::Service).to receive(:new).and_return(mpi_double)
-        mpi_response_double = double('MPI::Responses::FindProfileResponse', ok?: true)
-        allow(mpi_double).to receive(:find_profile).with(subject).and_return(mpi_response_double)
+      context 'with invalid MPI response' do
+        let(:mpi_response) { create(:find_profile_not_found_response) }
 
-        mpi_profile = build(:mvi_profile, given_names: nil)
-        allow(mpi_response_double).to receive(:profile).and_return(mpi_profile)
+        it 'raises an error' do
+          expect { subject.first_name }.to raise_error(VANotify::Veteran::MPIError)
+        end
+      end
 
-        expect { subject.first_name }.to raise_error(VANotify::Veteran::MPINameError)
+      context 'when first name from MPI does not exist' do
+        let(:first_name) { nil }
+
+        it 'raises an error' do
+          expect { subject.first_name }.to raise_error(VANotify::Veteran::MPINameError)
+        end
       end
     end
   end

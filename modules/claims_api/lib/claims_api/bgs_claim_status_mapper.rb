@@ -9,6 +9,7 @@ module ClaimsApi
     PHASE_TO_STATUS = {
       'claim received' => 'CLAIM_RECEIVED',
       'initial review' => 'INITIAL_REVIEW',
+      'under review' => 'INITIAL_REVIEW',
       'pending' => 'PENDING',
       'evidence gathering' => EVIDENCE_GATHERING,
       'review of evidence' => EVIDENCE_GATHERING,
@@ -33,9 +34,10 @@ module ClaimsApi
     def initialize(claim_data, phase_number = 0)
       return if claim_data.nil?
 
+      @phase_number = phase_number
       @claim_details = claim_data
-      @phase_type = phase_number unless phase_number.nil?
-      @phase = claim_data[:status].downcase unless claim_data[:status].nil?
+      @phase_type = @phase_number unless @phase_number.nil?
+      @phase = get_status_from_claim(claim_data).downcase
     end
 
     def name
@@ -45,9 +47,23 @@ module ClaimsApi
     end
 
     def name_from_phase
-      return 'no status received' if @phase_type.nil? || @phase_type.strip.empty?
+      return 'no status received' if @phase_type.nil?
 
       BGS_PHASE_TO_STATUS[@phase_number]
+    end
+
+    def get_status_from_claim(claim_data)
+      if !claim_data[:status].nil? && claim_data[:status].is_a?(Hash)
+        claim_data.dig(:status, :phase_type)
+      elsif !claim_data.dig(:claim_phase_dates, :latest_phase_type).nil?
+        claim_data.dig(:claim_phase_dates, :latest_phase_type)
+      elsif !claim_data[:status].nil?
+        claim_data[:status]
+      elsif !claim_data[:phase_type].nil?
+        claim_data[:phase_type]
+      else
+        'Claim received'
+      end
     end
   end
 end

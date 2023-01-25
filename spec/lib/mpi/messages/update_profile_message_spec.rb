@@ -31,7 +31,7 @@ describe MPI::Messages::UpdateProfileMessage do
   let(:edipi) { 'some-edipi' }
   let(:csp_uuid) { 'some-csp-uuid' }
   let(:csp_identifier) { 'some-csp-identifier' }
-  let(:csp_id) { "#{csp_uuid}^#{csp_identifier}^A" }
+  let(:csp_id) { "#{csp_uuid}^#{csp_identifier}" }
 
   describe '.perform' do
     subject { update_profile_message.perform }

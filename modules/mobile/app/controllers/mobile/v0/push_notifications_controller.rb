@@ -47,7 +47,7 @@ module Mobile
       end
 
       def get_app_name(params)
-        "#{params[:app_name]}#{params[:debug] ? '_debug' : ''}"
+        "#{params[:app_name]}#{params[:debug].to_s == 'true' ? '_debug' : ''}"
       end
     end
   end

@@ -4,7 +4,7 @@ module MyHealth
   module V1
     class TriageTeamsController < SMController
       def index
-        resource = client.get_triage_teams(@current_user.uuid, use_cache? || true)
+        resource = client.get_triage_teams(@current_user.uuid, use_cache?)
         raise Common::Exceptions::InternalServerError if resource.blank?
 
         resource = resource.sort(params.permit(:sort)[:sort])

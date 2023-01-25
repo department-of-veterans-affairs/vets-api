@@ -43,7 +43,7 @@ FactoryBot.define do
             "oneTimeRestorationRequested": true,
             "irrrlRequested": false,
             "cashoutRefinaceRequested": false,
-            "homeSellIndicator": false,
+            "homeSellIndicator": nil,
             "noRestorationEntitlementIndicator": false,
             "propertyAddress1": 'LOAN STREET ADDRESS',
             "propertyAddress2": nil,

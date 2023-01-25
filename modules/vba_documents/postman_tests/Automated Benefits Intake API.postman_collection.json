@@ -3367,16 +3367,16 @@
 								"exec": [
 									"const jsonData = pm.response.json();",
 									"",
-									"pm.test(\"Status code is 422\", function () {",
-									"    pm.response.to.have.status(422);",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
 									"});",
 									"",
-									"pm.test(\"Detailed error is provided\", function () {",
-									"    const error = jsonData.errors[0];",
+									"pm.test(\"Data type is documentValidation\", function () {",
+									"    pm.expect(jsonData.data.type).to.eql(\"documentValidation\");",
+									"});",
 									"",
-									"    pm.expect(error.title).to.eql(\"Document failed validation\");",
-									"    pm.expect(error.detail).to.eql(\"Document is encrypted with an owner password\");",
-									"    pm.expect(error.status).to.eql(\"422\");",
+									"pm.test(\"Response status is valid\", function () {",
+									"    pm.expect(jsonData.data.attributes.status).to.eql(\"valid\");",
 									"});"
 								],
 								"type": "text/javascript"

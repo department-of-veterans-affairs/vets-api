@@ -6,6 +6,7 @@ module VBADocuments
   class MultipartParser
     LINE_BREAK = "\r\n"
     CARRIAGE_RETURN = "\r"
+    BASE64_PREFIX = 'data:multipart/form-data;base64,'
 
     def self.parse(infile)
       if base64_encoded?(infile)
@@ -17,7 +18,11 @@ module VBADocuments
 
     # rubocop:disable Metrics/MethodLength
     def self.parse_file(infile)
-      parts = {}
+      parts = {
+        'boundaries' => {},
+        'headers' => {},
+        'contents' => {}
+      }
       begin
         input = if infile.is_a? String
                   File.open(infile, 'rb')
@@ -27,13 +32,16 @@ module VBADocuments
         validate_size(input)
         lines = input.each_line(LINE_BREAK).lazy.each_with_index
         separator = lines.next[0].chomp(LINE_BREAK)
+        parts['boundaries']['multipart_boundary'] = separator
         loop do
           headers = consume_headers(lines, separator)
           partname = get_partname(headers)
+          parts['headers'][partname] = headers.join(LINE_BREAK)
           content_type = get_content_type(headers)
-          body, moreparts = consume_body(lines, separator, content_type)
-          parts[partname] = body
-          break unless moreparts
+          body, closing_boundary = consume_body(lines, separator, content_type)
+          parts['contents'][partname] = body
+          parts['boundaries']['closing_boundary'] = closing_boundary
+          break unless closing_boundary.nil?
         end
       ensure
         input.close
@@ -49,10 +57,12 @@ module VBADocuments
       else
         content = File.read(infile)
       end
-      content.start_with?('data:multipart/form-data;base64,')
+      content.start_with?(BASE64_PREFIX)
     end
 
     def self.create_file_from_base64(infile)
+      Rails.logger.info("#{self} starting to decode Base64 submission contents")
+
       if infile.is_a? String
         contents = `sed -r 's/data:multipart\\/.{3,},//g' #{infile.shellescape}`
       else
@@ -64,9 +74,13 @@ module VBADocuments
 
       decoded_data = Base64.decode64(contents)
 
+      Rails.logger.info("#{self} finished decoding Base64 submission contents")
+
       decoded_file = Tempfile.new('vba_doc_base64_decoded', binmode: true)
       decoded_file.write(decoded_data)
       decoded_file.rewind
+
+      Rails.logger.info("#{self} finished writing Base64-decoded file")
 
       parse(decoded_file)
     end
@@ -137,12 +151,11 @@ module VBADocuments
             raise VBADocuments::UploadError.new(code: 'DOC101',
                                                 detail: 'Unexpected end of payload')
           end
-          linechomp = line.chomp(LINE_BREAK)
-          case linechomp
-          when "#{separator}--", "#{separator}--#{CARRIAGE_RETURN}"
-            return tf.string, false
-          when separator
-            return tf.string, true
+          case line
+          when /^#{separator}--/
+            return tf.string, line
+          when /^#{separator}/
+            return tf.string, nil
           else
             tf.write(line)
           end
@@ -158,14 +171,14 @@ module VBADocuments
         rescue StopIteration
           raise VBADocuments::UploadError.new(code: 'DOC101', detail: 'Unexpected end of payload')
         end
-        linechomp = line.chomp(LINE_BREAK)
-        case linechomp
-        when "#{separator}--", "#{separator}--#{CARRIAGE_RETURN}"
+
+        case line
+        when /^#{separator}--/
           tf.rewind
-          return tf, false
-        when separator
+          return tf, line
+        when /^#{separator}/
           tf.rewind
-          return tf, true
+          return tf, nil
         else
           tf.write(line)
         end

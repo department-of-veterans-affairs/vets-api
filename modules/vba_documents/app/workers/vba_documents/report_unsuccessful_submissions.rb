@@ -38,7 +38,7 @@ module VBADocuments
     # rubocop:disable Metrics/MethodLength
     def totals
       ret_hash = {}
-      sum_hash = UploadSubmission::RPT_STATUSES.index_with { |_v| 0; }
+      sum_hash = UploadSubmission::RPT_STATUSES.index_with { |_v| 0 }
 
       @consumers.each do |name|
         counts = UploadSubmission.where(created_at: @from..@to, consumer_name: name).group(:status).count

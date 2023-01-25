@@ -35,16 +35,6 @@ module Identity
         end.reduce(:merge)
       end
 
-      # @param historical_icn_ids [Array<Ox::Element>]An array of XML Ox objects representing historical icns to parse
-      # @return [Array<String>] An array of strings representing the parsed historical icn ids
-      # for example, ['1000123457V123456']
-      # @return [Array] Empty array if icn regex not parsed
-      def parse_xml_historical_icns(historical_icn_ids)
-        return [] unless historical_icn_ids.is_a? Array
-
-        select(select_extension(historical_icn_ids, ICN_REGEX, VA_ROOT_OID), :id) || []
-      end
-
       # @param ids [String] A string representing ids to parse
       # @param root_oid [String] A string representing the originating service for the ids
       # @return [Hash] An hash representing the parsed ids

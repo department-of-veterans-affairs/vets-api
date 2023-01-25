@@ -4,21 +4,33 @@ require 'rails_helper'
 
 RSpec.describe Login::AfterLoginActions do
   describe '#perform' do
-    context 'with a user that has evss access' do
-      let(:user) { create(:evss_user) }
+    context 'creating credential email' do
+      let(:user) { create(:user, email: email, idme_uuid: idme_uuid) }
+      let!(:user_verification) { create(:idme_user_verification, idme_uuid: idme_uuid) }
+      let(:idme_uuid) { 'some-idme-uuid' }
+      let(:email) { 'some-email' }
 
-      it 'launches CreateUserAccountJob' do
-        expect(EVSS::CreateUserAccountJob).to receive(:perform_async)
-        described_class.new(user).perform
+      it 'creates a user credential email with expected attributes' do
+        expect { described_class.new(user).perform }.to change(UserCredentialEmail, :count)
+        user_credential_email = user.user_verification.user_credential_email
+        expect(user_credential_email.credential_email).to eq(email)
       end
     end
 
-    context 'with a user that doesnt have evss access' do
-      let(:user) { create(:user) }
+    context 'creating user acceptable verified credential' do
+      let(:user) { create(:user, idme_uuid: idme_uuid) }
+      let!(:user_verification) { create(:idme_user_verification, idme_uuid: idme_uuid) }
+      let(:idme_uuid) { 'some-idme-uuid' }
+      let(:expected_avc_at) { '2021-1-1' }
 
-      it 'shouldnt launch CreateUserAccountJob' do
-        expect(EVSS::CreateUserAccountJob).not_to receive(:perform_async)
-        described_class.new(user).perform
+      before { Timecop.freeze(expected_avc_at) }
+
+      after { Timecop.return }
+
+      it 'creates a user acceptable verified credential with expected attributes' do
+        expect { described_class.new(user).perform }.to change(UserAcceptableVerifiedCredential, :count)
+        user_avc = UserAcceptableVerifiedCredential.find_by(user_account: user.user_account)
+        expect(user_avc.idme_verified_credential_at).to eq(expected_avc_at)
       end
     end
 

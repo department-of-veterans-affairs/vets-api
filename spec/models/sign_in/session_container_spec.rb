@@ -16,7 +16,7 @@ RSpec.describe SignIn::SessionContainer, type: :model do
   let(:refresh_token) { create(:refresh_token) }
   let(:access_token) { create(:access_token) }
   let(:anti_csrf_token) { SecureRandom.hex }
-  let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
+  let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
 
   describe 'validations' do
     describe '#session' do

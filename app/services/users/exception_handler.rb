@@ -2,6 +2,7 @@
 
 require 'common/exceptions'
 require 'common/client/concerns/service_status'
+require 'mpi/errors/errors'
 
 module Users
   class ExceptionHandler
@@ -37,6 +38,12 @@ module Users
         emis_error(:not_authorized)
       when EMISRedis::VeteranStatus::RecordNotFound
         emis_error(:not_found)
+      when MPI::Errors::RecordNotFound
+        mpi_error(404)
+      when MPI::Errors::FailedRequestError
+        mpi_error(503)
+      when MPI::Errors::DuplicateRecords
+        mpi_error(404)
       else
         standard_error
       end
@@ -70,6 +77,13 @@ module Users
       error_template.merge(
         description: "#{error.class}, #{RESPONSE_STATUS[type]}",
         status: error.status.to_i
+      )
+    end
+
+    def mpi_error(status)
+      error_template.merge(
+        description: "#{error.class}, #{error.message}",
+        status: status
       )
     end
 

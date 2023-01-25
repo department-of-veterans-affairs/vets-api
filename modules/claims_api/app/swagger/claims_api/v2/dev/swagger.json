@@ -13,6 +13,10 @@
     {
       "name": "Claims",
       "description": "Allows authenticated and authorized users to access claims data for a given Veteran. No data is returned if the user is not authenticated and authorized.\n"
+    },
+    {
+      "name": "5103 Waiver",
+      "description": "Allows authenticated and authorized users to file a 5103 Notice Response on a claim."
     }
   ],
   "components": {
@@ -404,20 +408,20 @@
               "application/json": {
                 "example": [
                   {
-                    "claimDate": "05/02/17",
+                    "claimDate": "2017-05-02",
                     "claimId": "555555555",
                     "claimPhaseDates": {
                       "phaseChangeDate": "2017-10-18"
                     },
                     "claimType": "Compensation",
-                    "closeDate": null,
+                    "closeDate": "2017-10-18",
                     "decisionLetterSent": false,
                     "developmentLetterSent": false,
                     "documentsNeeded": false,
                     "endProductCode": "404",
                     "evidenceWaiverSubmitted5103": false,
                     "lighthouseId": null,
-                    "status": "COMPLETE"
+                    "status": "PENDING"
                   }
                 ],
                 "schema": {
@@ -438,11 +442,8 @@
                         "example": "Compensation"
                       },
                       "claimDate": {
-                        "type": [
-                          "string",
-                          "null"
-                        ],
                         "format": "date",
+                        "type": "string",
                         "description": "Date in YYYY-MM-DD the claim was first filed",
                         "example": "2018-06-04"
                       },
@@ -450,18 +451,16 @@
                         "type": "object",
                         "properties": {
                           "phaseChangeDate": {
-                            "type": "date",
-                            "nullable": true,
-                            "description": "The date that the claim changed to its current phase"
+                            "format": "date",
+                            "type": "string",
+                            "description": "The date that the claim changed to its current phase",
+                            "example": "2017-10-18"
                           }
                         }
                       },
                       "closeDate": {
-                        "type": [
-                          "string",
-                          "null"
-                        ],
                         "format": "date",
+                        "type": "string",
                         "description": "Date claim was closed",
                         "example": "2019-09-04"
                       },
@@ -486,7 +485,6 @@
                       },
                       "evidenceWaiverSubmitted5103": {
                         "type": "boolean",
-                        "nullable": true,
                         "description": "If true, indicates a decision has been requested and/or a Waiver 5103 has been submitted",
                         "example": "false"
                       },
@@ -677,16 +675,19 @@
             "content": {
               "application/json": {
                 "example": {
-                  "claimDate": "05/02/17",
+                  "claimTypeCode": "400PREDSCHRG",
+                  "claimDate": "2017-05-02",
                   "claimId": "555555555",
                   "claimPhaseDates": {
                     "phaseChangeDate": null,
                     "currentPhaseBack": false,
-                    "latestPhaseType": null
+                    "latestPhaseType": "Complete",
+                    "previousPhases": {
+                      "phase1CompleteDate": "2017-10-18"
+                    }
                   },
                   "claimType": "Compensation",
-                  "claimTypeCode": "400PREDSCHRG",
-                  "closeDate": null,
+                  "closeDate": "2017-10-18",
                   "contentionList": [
                     "abnormal heart (New)",
                     " abscess kidney (New)",
@@ -701,10 +702,10 @@
                   "developmentLetterSent": false,
                   "documentsNeeded": false,
                   "endProductCode": "404",
+                  "evidenceWaiverSubmitted5103": false,
                   "errors": [
 
                   ],
-                  "evidenceWaiverSubmitted5103": false,
                   "jurisdiction": "National Work Queue",
                   "lighthouseId": null,
                   "maxEstClaimDate": null,
@@ -730,8 +731,8 @@
                       "dvlpmtTc": "CLMNTRQST",
                       "openedDate": null,
                       "overdue": true,
-                      "requestedDate": "2022-02-04T00:00:00-06:00",
-                      "suspenseDate": "2022-03-06T00:00:00-06:00",
+                      "requestedDate": "2022-02-04",
+                      "suspenseDate": "2022-03-06",
                       "trackedItemId": 325525,
                       "trackedItemStatus": "NEEDED",
                       "uploaded": false,
@@ -744,8 +745,8 @@
                       "dvlpmtTc": "CLMNTRQST",
                       "openedDate": null,
                       "overdue": true,
-                      "requestedDate": "2022-02-04T00:00:00-06:00",
-                      "suspenseDate": "2022-03-06T00:00:00-06:00",
+                      "requestedDate": "2022-02-04",
+                      "suspenseDate": "2022-03-06",
                       "trackedItemId": 325524,
                       "trackedItemStatus": "NEEDED",
                       "uploaded": false,
@@ -785,12 +786,11 @@
                       ]
                     },
                     "claimDate": {
-                      "type": [
-                        "string",
-                        "null"
-                      ],
+                      "format": "date",
+                      "type": "string",
+                      "nullable": true,
                       "description": "The date a claim was filed",
-                      "example": "5/17/20"
+                      "example": "2017-10-18"
                     },
                     "claimPhaseDates": {
                       "type": "object",
@@ -805,18 +805,26 @@
                           "description": "The most current phase for the claim"
                         },
                         "phaseChangeDate": {
-                          "type": "date",
+                          "format": "date",
+                          "type": "string",
                           "nullable": true,
-                          "description": "The date that the claim changed to its current phase"
+                          "description": "The date that the claim changed to its current phase",
+                          "example": "2017-10-18"
+                        },
+                        "previousPhases": {
+                          "phase1CompleteDate": {
+                            "format": "date",
+                            "type": "string",
+                            "description": "Completed date of previous phases.",
+                            "example": "2017-10-18"
+                          }
                         }
                       }
                     },
                     "closeDate": {
-                      "type": [
-                        "string",
-                        "null"
-                      ],
                       "format": "date",
+                      "type": "string",
+                      "nullable": true,
                       "description": "Date claim was closed",
                       "example": "2019-09-04"
                     },
@@ -839,7 +847,6 @@
                     },
                     "evidenceWaiverSubmitted5103": {
                       "type": "boolean",
-                      "nullable": true,
                       "description": "If true, indicates a decision has been requested and/or a Waiver 5103 has been submitted",
                       "example": "false"
                     },
@@ -870,20 +877,16 @@
                       "example": "0BAEFC26-1CE4-4046-9B3C-3071055603DB"
                     },
                     "minEstClaimDate": {
-                      "type": [
-                        "string",
-                        "null"
-                      ],
                       "format": "date",
+                      "type": "string",
+                      "nullable": true,
                       "description": "Minimum Estimated Claim Completion Date",
                       "example": "2019-06-04"
                     },
                     "maxEstClaimDate": {
-                      "type": [
-                        "string",
-                        "null"
-                      ],
                       "format": "date",
+                      "type": "string",
+                      "nullable": true,
                       "description": "Maximum Estimated Claim Completion Date",
                       "example": "2019-09-04"
                     },
@@ -933,9 +936,11 @@
                             "nullable": true
                           },
                           "uploadDate": {
-                            "type": "date",
+                            "format": "date",
+                            "type": "string",
+                            "nullable": true,
                             "description": "Date and time document was uploaded",
-                            "nullable": true
+                            "example": "2017-10-18"
                           }
                         }
                       }
@@ -955,11 +960,11 @@
                         "additionalProperties": false,
                         "properties": {
                           "closedDate": {
-                            "type": "string",
                             "format": "date",
+                            "type": "string",
                             "nullable": true,
                             "description": "Date the tracked item was closed",
-                            "example": "2022-01-01T00:00:00-04:00"
+                            "example": "2017-10-18"
                           },
                           "description": {
                             "type": "string",
@@ -968,16 +973,18 @@
                             "example": "Buddy mentioned - No complete address"
                           },
                           "suspensionDate": {
-                            "type": "string",
                             "format": "date",
+                            "type": "string",
+                            "nullable": true,
                             "description": "Suspension date on the tracked item",
-                            "example": "2022-01-01T00:00:00-04:00"
+                            "example": "2017-10-18"
                           },
                           "requestedDate": {
-                            "type": "string",
                             "format": "date",
+                            "type": "string",
+                            "nullable": true,
                             "description": "Date the tracked item was requested",
-                            "example": "2022-01-01T00:00:00-04:00"
+                            "example": "2017-10-18"
                           },
                           "trackedItemId": {
                             "type": "integer",
@@ -996,11 +1003,11 @@
                             "example": "Request 5"
                           },
                           "openedDate": {
-                            "type": "string",
                             "format": "date",
+                            "type": "string",
                             "nullable": true,
                             "description": "Date the tracked item was opened",
-                            "example": "2022-01-01T00:00:00-04:00"
+                            "example": "2017-10-18"
                           },
                           "overdue": {
                             "type": "boolean",
@@ -1009,10 +1016,10 @@
                             "example": true
                           },
                           "suspenseDate": {
-                            "type": "string",
                             "format": "date",
+                            "type": "string",
                             "nullable": true,
-                            "example": "2022-01-01T00:00:00-04:00"
+                            "example": "2017-10-18"
                           },
                           "trackedItemStatus": {
                             "type": "string",
@@ -1253,8 +1260,7 @@
             "content": {
               "application/json": {
                 "example": {
-                  "success": true,
-                  "status": 200
+                  "success": true
                 },
                 "schema": {
                   "type": "object",
@@ -1375,6 +1381,873 @@
               }
             }
           }
+        }
+      }
+    },
+    "/veterans/{veteranId}/intent-to-file/{type}": {
+      "get": {
+        "summary": "Returns last active Intent to File form submission for given 'type'.",
+        "tags": [
+          "Intent to File"
+        ],
+        "operationId": "active0966itf",
+        "security": [
+          {
+            "productionOauth": [
+              "claim.read"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "description": "Returns Veteran's last active Intent to File submission for given 'type'.",
+        "parameters": [
+          {
+            "name": "veteranId",
+            "in": "path",
+            "required": true,
+            "description": "ID of Veteran",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "description": "Type of Intent to File to return. Available values - compensation, pension, burial",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with active Intent to File",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "193685",
+                  "type": "intent_to_file",
+                  "attributes": {
+                    "creationDate": "2021-03-16T19:15:21.000-05:00",
+                    "expirationDate": "2022-03-16T19:15:20.000-05:00",
+                    "type": "compensation",
+                    "status": "active"
+                  }
+                },
+                "schema": {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "type"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Intent To File ID",
+                      "example": "600131328"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "intent_to_file"
+                    },
+                    "attributes": {
+                      "required": [
+                        "creationDate",
+                        "expirationDate",
+                        "status",
+                        "type"
+                      ],
+                      "properties": {
+                        "creationDate": {
+                          "type": "string",
+                          "format": "date",
+                          "description": "Date the Intent to File was received at the VA"
+                        },
+                        "expirationDate": {
+                          "type": "string",
+                          "format": "date",
+                          "description": "Date the Intent to File expires, this is 1 year from the createdDate"
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "The status of the Intent to File",
+                          "example": "active"
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "The type of Intent to File filed.",
+                          "example": "compensation"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Token Validation Error",
+                      "detail": "Invalid token."
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Forbidden",
+                      "detail": "Forbidden"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "detail": "No active 'compensation' intent to file found."
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/veterans/{veteranId}/intent-to-file": {
+      "post": {
+        "summary": "Submit form 0966 Intent to File.",
+        "tags": [
+          "Intent to File"
+        ],
+        "operationId": "post0966itf",
+        "security": [
+          {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "description": "Establishes an intent to file for disability compensation and pension claims.",
+        "parameters": [
+          {
+            "name": "veteranId",
+            "in": "path",
+            "required": true,
+            "description": "ID of Veteran",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "0966 Response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "1",
+                  "type": "intent_to_file",
+                  "attributes": {
+                    "creationDate": "2023-01-24",
+                    "expirationDate": "2024-01-24",
+                    "type": "compensation",
+                    "status": "active"
+                  }
+                },
+                "schema": {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "type"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Intent To File ID",
+                      "example": "600131328"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "intent_to_file"
+                    },
+                    "attributes": {
+                      "required": [
+                        "creationDate",
+                        "expirationDate",
+                        "status",
+                        "type"
+                      ],
+                      "properties": {
+                        "creationDate": {
+                          "type": "string",
+                          "format": "date",
+                          "description": "Date the Intent to File was received at the VA"
+                        },
+                        "expirationDate": {
+                          "type": "string",
+                          "format": "date",
+                          "description": "Date the Intent to File expires, this is 1 year from the createdDate"
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "The status of the Intent to File",
+                          "example": "active"
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "The type of Intent to File filed.",
+                          "example": "compensation"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "invalid value for type",
+                      "detail": "some-invalid-value is not valid for type"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Token Validation Error",
+                      "detail": "Invalid token."
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Forbidden",
+                      "detail": "Forbidden"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "type"
+                ],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "example": "compensation",
+                    "description": "Type of Intent To File being submitted.",
+                    "enum": [
+                      "compensation",
+                      "pension",
+                      "survivor"
+                    ]
+                  },
+                  "participantClaimantId": {
+                    "type": "string",
+                    "example": "123456789"
+                  },
+                  "participantVetId": {
+                    "type": "string",
+                    "example": "123456789"
+                  }
+                },
+                "example": {
+                  "type": "compensation"
+                }
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/veterans/{veteranId}/intent-to-file/validate": {
+      "post": {
+        "summary": "Validate form 0966 Intent to File.",
+        "tags": [
+          "Intent to File"
+        ],
+        "operationId": "validate0966itf",
+        "security": [
+          {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "description": "Validates an intent to file for disability compensation and pension claims.",
+        "parameters": [
+          {
+            "name": "veteranId",
+            "in": "path",
+            "required": true,
+            "description": "ID of Veteran",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "0966 Response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": {
+                    "type": "intentToFileValidation",
+                    "attributes": {
+                      "status": "valid"
+                    }
+                  }
+                },
+                "schema": {
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "type",
+                        "attributes"
+                      ],
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "status"
+                          ],
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "description": "The status of the Intent to File",
+                              "enum": [
+                                "valid"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "invalid value for type",
+                      "detail": "some-invalid-value is not valid for type"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Token Validation Error",
+                      "detail": "Invalid token."
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Forbidden",
+                      "detail": "Forbidden"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "type"
+                ],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "example": "compensation",
+                    "description": "Type of Intent To File being submitted.",
+                    "enum": [
+                      "compensation",
+                      "pension",
+                      "survivor"
+                    ]
+                  },
+                  "participantClaimantId": {
+                    "type": "string",
+                    "example": "123456789"
+                  },
+                  "participantVetId": {
+                    "type": "string",
+                    "example": "123456789"
+                  }
+                },
+                "example": {
+                  "type": "compensation"
+                }
+              }
+            }
+          },
+          "required": true
         }
       }
     }

@@ -7,16 +7,27 @@ require 'evss/letters/service'
 module Mobile
   module V0
     class LettersController < ApplicationController
-      before_action { authorize :evss, :access? }
+      before_action { authorize :evss, :access? unless Flipper.enabled?(:mobile_lighthouse_letters, @current_user) }
 
       # returns list of letters available for a given user. List includes letter display name and letter type
       def index
-        render json: Mobile::V0::LettersSerializer.new(@current_user.uuid, service.get_letters.letters)
+        response = if Flipper.enabled?(:mobile_lighthouse_letters, @current_user)
+                     lighthouse_service.get_letters[:letters]
+                   else
+                     evss_service.get_letters.letters
+                   end
+
+        render json: Mobile::V0::LettersSerializer.new(@current_user, response)
       end
 
       # returns options and info needed to create user form required for benefit letter download
       def beneficiary
-        render json: Mobile::V0::LettersBeneficiarySerializer.new(@current_user.uuid, service.get_letter_beneficiary)
+        response = if Flipper.enabled?(:mobile_lighthouse_letters, @current_user)
+                     letter_info_adapter.parse(lighthouse_service.get_letters)
+                   else
+                     evss_service.get_letter_beneficiary
+                   end
+        render json: Mobile::V0::LettersBeneficiarySerializer.new(@current_user, response)
       end
 
       # returns a pdf of the requested letter type given the user has that letter type available
@@ -36,7 +47,15 @@ module Mobile
                   disposition: 'attachment'
       end
 
-      def service
+      def letter_info_adapter
+        Mobile::V0::Adapters::LetterInfo.new
+      end
+
+      def lighthouse_service
+        Mobile::V0::LighthouseLetters::Service.new(@current_user)
+      end
+
+      def evss_service
         @service ||= EVSS::Letters::Service.new(@current_user)
       end
 

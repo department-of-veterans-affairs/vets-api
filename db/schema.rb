@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_12_06_191853) do
+ActiveRecord::Schema.define(version: 2023_01_12_221719) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -559,6 +559,7 @@ ActiveRecord::Schema.define(version: 2022_12_06_191853) do
     t.text "encrypted_kms_key"
     t.date "verified_decryptable_at"
     t.uuid "user_account_id"
+    t.string "backup_submitted_claim_id", comment: "*After* a SubmitForm526 Job has exhausted all attempts, a paper submission is generated and sent to Central Mail Portal.This column will be nil for all submissions where a backup submission is not generated.It will have the central mail id for submissions where a backup submission is submitted."
     t.index ["saved_claim_id"], name: "index_form526_submissions_on_saved_claim_id", unique: true
     t.index ["submitted_claim_id"], name: "index_form526_submissions_on_submitted_claim_id", unique: true
     t.index ["user_account_id"], name: "index_form526_submissions_on_user_account_id"
@@ -703,20 +704,6 @@ ActiveRecord::Schema.define(version: 2022_12_06_191853) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["icn"], name: "index_mobile_users_on_icn", unique: true
-  end
-
-  create_table "notifications", id: :serial, force: :cascade do |t|
-    t.integer "account_id", null: false
-    t.integer "subject", null: false
-    t.integer "status"
-    t.datetime "status_effective_at"
-    t.datetime "read_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["account_id", "subject"], name: "index_notifications_on_account_id_and_subject", unique: true
-    t.index ["account_id"], name: "index_notifications_on_account_id"
-    t.index ["status"], name: "index_notifications_on_status"
-    t.index ["subject"], name: "index_notifications_on_subject"
   end
 
   create_table "oauth_sessions", force: :cascade do |t|
@@ -887,11 +874,31 @@ ActiveRecord::Schema.define(version: 2022_12_06_191853) do
     t.text "id_types", default: [], array: true
   end
 
+  create_table "user_acceptable_verified_credentials", force: :cascade do |t|
+    t.datetime "acceptable_verified_credential_at"
+    t.datetime "idme_verified_credential_at"
+    t.uuid "user_account_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["acceptable_verified_credential_at"], name: "index_user_avc_on_acceptable_verified_credential_at"
+    t.index ["idme_verified_credential_at"], name: "index_user_avc_on_idme_verified_credential_at"
+    t.index ["user_account_id"], name: "index_user_acceptable_verified_credentials_on_user_account_id", unique: true
+  end
+
   create_table "user_accounts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "icn"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["icn"], name: "index_user_accounts_on_icn", unique: true
+  end
+
+  create_table "user_credential_emails", force: :cascade do |t|
+    t.bigint "user_verification_id"
+    t.text "credential_email_ciphertext"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_verification_id"], name: "index_user_credential_emails_on_user_verification_id", unique: true
   end
 
   create_table "user_verifications", force: :cascade do |t|
@@ -1090,11 +1097,11 @@ ActiveRecord::Schema.define(version: 2022_12_06_191853) do
   add_foreign_key "async_transactions", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_verifications"
-  add_foreign_key "health_quest_questionnaire_responses", "user_accounts"
-  add_foreign_key "form5655_submissions", "user_accounts"
-  add_foreign_key "form526_submissions", "user_accounts"
-  add_foreign_key "evss_claims", "user_accounts"
   add_foreign_key "education_stem_automated_decisions", "user_accounts"
+  add_foreign_key "evss_claims", "user_accounts"
+  add_foreign_key "form526_submissions", "user_accounts"
+  add_foreign_key "form5655_submissions", "user_accounts"
+  add_foreign_key "health_quest_questionnaire_responses", "user_accounts"
   add_foreign_key "in_progress_forms", "user_accounts"
   add_foreign_key "inherited_proof_verified_user_accounts", "user_accounts"
   add_foreign_key "mhv_accounts", "user_accounts"
@@ -1102,6 +1109,8 @@ ActiveRecord::Schema.define(version: 2022_12_06_191853) do
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
   add_foreign_key "terms_and_conditions_acceptances", "user_accounts"
+  add_foreign_key "user_acceptable_verified_credentials", "user_accounts"
+  add_foreign_key "user_credential_emails", "user_verifications"
   add_foreign_key "user_verifications", "user_accounts"
   add_foreign_key "veteran_device_records", "devices"
 end

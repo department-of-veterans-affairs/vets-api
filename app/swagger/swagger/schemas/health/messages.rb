@@ -95,6 +95,8 @@ module Swagger
           property :recipient_id, type: :integer
           property :recipient_name, type: :string
           property :read_receipt, type: %i[null string]
+          property :triage_group_name, type: %i[null string]
+          property :proxy_sender_name, type: %i[null string]
         end
 
         swagger_schema :Relationships do

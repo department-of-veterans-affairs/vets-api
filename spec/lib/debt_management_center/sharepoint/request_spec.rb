@@ -74,7 +74,7 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
     let(:form_content) { { 'foo' => 'bar' } }
     let(:form_submission) { create(:form5655_submission) }
     let(:station_id) { '123' }
-    let(:file_path) { "#{::Rails.root}/spec/fixtures/dmc/5655.pdf" }
+    let(:file_path) { ::Rails.root.join(*'/spec/fixtures/dmc/5655.pdf'.split('/')).to_s }
     let(:body) do
       {
         'd' => {

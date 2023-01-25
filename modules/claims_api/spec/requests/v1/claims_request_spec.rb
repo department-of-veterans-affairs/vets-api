@@ -164,6 +164,61 @@ RSpec.describe 'EVSS Claims management', type: :request do
         end
       end
 
+      it 'missing MPI Record' do
+        with_okta_user(scopes) do |auth_header|
+          VCR.use_cassette('evss/claims/claim_with_errors') do
+            vet = ClaimsApi::Veteran.new(
+              uuid: request_headers['X-VA-SSN']&.gsub(/[^0-9]/, ''),
+              ssn: request_headers['X-VA-SSN']&.gsub(/[^0-9]/, ''),
+              first_name: request_headers['X-VA-First-Name'],
+              last_name: request_headers['X-VA-Last-Name'],
+              va_profile: ClaimsApi::Veteran.build_profile(request_headers['X-VA-Birth-Date']),
+              last_signed_in: Time.now.utc
+            )
+            vet.participant_id = nil
+            allow_any_instance_of(ClaimsApi::V1::ApplicationController)
+              .to receive(:veteran_from_headers).and_return(vet)
+
+            allow_any_instance_of(ClaimsApi::Veteran)
+              .to receive(:mpi_record?).and_return(false)
+
+            get '/services/claims/v1/claims/123123131', params: nil, headers: request_headers.merge(auth_header)
+
+            expect(response.status).to eq(422)
+            body = JSON.parse(response.body)
+            expect(body['errors'][0]['detail']).to eq('Unable to locate Veteran in Master Person Index (MPI). ' \
+                                                      'Please submit an issue at ask.va.gov or call ' \
+                                                      '1-800-MyVA411 (800-698-2411) for assistance.')
+          end
+        end
+      end
+
+      it 'missing an ICN' do
+        with_okta_user(scopes) do |auth_header|
+          VCR.use_cassette('evss/claims/claim_with_errors') do
+            vet = ClaimsApi::Veteran.new(
+              uuid: request_headers['X-VA-SSN']&.gsub(/[^0-9]/, ''),
+              ssn: request_headers['X-VA-SSN']&.gsub(/[^0-9]/, ''),
+              first_name: request_headers['X-VA-First-Name'],
+              last_name: request_headers['X-VA-Last-Name'],
+              va_profile: ClaimsApi::Veteran.build_profile(request_headers['X-VA-Birth-Date']),
+              last_signed_in: Time.now.utc
+            )
+            vet.icn = nil
+            allow_any_instance_of(ClaimsApi::V1::ApplicationController)
+              .to receive(:veteran_from_headers).and_return(vet)
+
+            get '/services/claims/v1/claims/123123131', params: nil, headers: request_headers.merge(auth_header)
+
+            expect(response.status).to eq(422)
+            body = JSON.parse(response.body)
+            expect(body['errors'][0]['detail']).to eq('Veteran missing Integration Control Number (ICN). ' \
+                                                      'Please submit an issue at ask.va.gov or call 1-800-MyVA411 ' \
+                                                      '(800-698-2411) for assistance.')
+          end
+        end
+      end
+
       it 'shows a single errored Claim with an error message', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
         with_okta_user(scopes) do |auth_header|
           create(:auto_established_claim,

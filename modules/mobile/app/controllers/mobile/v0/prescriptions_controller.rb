@@ -17,8 +17,7 @@ module Mobile
       end
 
       def refill
-        params_list = { rxIds: params[:ids].map(&:to_i) }
-        resource = client.post_refill_rxs(params_list)
+        resource = client.post_refill_rxs(ids)
         render json: Mobile::V0::PrescriptionsRefillsSerializer.new(@current_user.uuid, resource.body)
       end
 
@@ -54,6 +53,13 @@ module Mobile
 
           valid_filter_params
         end
+      end
+
+      def ids
+        ids = params.require(:ids)
+        raise Common::Exceptions::InvalidFieldValue.new('ids', ids) unless ids.is_a? Array
+
+        ids.map(&:to_i)
       end
     end
   end

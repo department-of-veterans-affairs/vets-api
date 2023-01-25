@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class AppealsApi::SupplementalClaimSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
   set_key_transform :camel_lower
   attributes :status, :updated_at, :created_at
   # only return form_data for created records

@@ -37,6 +37,14 @@ class AppealsApi::SwaggerSharedComponents
         example: '706547821',
         schema: { '$ref' => '#/components/schemas/X-VA-SSN' }
       },
+      veteran_icn_header: {
+        in: :header,
+        name: 'X-VA-ICN',
+        required: false,
+        description: 'Veteran\'s ICN',
+        example: '1013062086V794840',
+        schema: { '$ref' => '#/components/schemas/X-VA-ICN' }
+      },
       veteran_first_name_header: {
         in: :header,
         name: 'X-VA-First-Name',

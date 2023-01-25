@@ -52,7 +52,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SignIn::Constants::ClientConfig::COOKIE_AUTH.first
+          client_id: SignIn::Constants::Auth::WEB_CLIENT
         }
       end
 
@@ -136,7 +136,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SignIn::Constants::ClientConfig::COOKIE_AUTH.first
+          client_id: SignIn::Constants::Auth::WEB_CLIENT
         }
       end
 
@@ -157,7 +157,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SignIn::Constants::ClientConfig::COOKIE_AUTH.first
+          client_id: SignIn::Constants::Auth::WEB_CLIENT
         }
       end
 
@@ -178,7 +178,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SignIn::Constants::ClientConfig::COOKIE_AUTH.first
+          client_id: SignIn::Constants::Auth::WEB_CLIENT
         }
       end
 
@@ -193,7 +193,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SignIn::Constants::ClientConfig::COOKIE_AUTH.first
+          client_id: SignIn::Constants::Auth::WEB_CLIENT
         }
       end
 
@@ -209,7 +209,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SignIn::Constants::ClientConfig::COOKIE_AUTH.first
+          client_id: SignIn::Constants::Auth::WEB_CLIENT
         }
       end
 
@@ -227,7 +227,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SignIn::Constants::ClientConfig::COOKIE_AUTH.first
+          client_id: SignIn::Constants::Auth::WEB_CLIENT
         }
       end
 
@@ -464,7 +464,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SignIn::Constants::ClientConfig::COOKIE_AUTH.first
+          client_id: SignIn::Constants::Auth::WEB_CLIENT
         }
       end
 
@@ -483,7 +483,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SignIn::Constants::ClientConfig::COOKIE_AUTH.first
+          client_id: SignIn::Constants::Auth::WEB_CLIENT
         }
       end
 
@@ -506,7 +506,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SignIn::Constants::ClientConfig::API_AUTH.first
+          client_id: SignIn::Constants::Auth::MOBILE_CLIENT
         }
       end
     end
@@ -552,7 +552,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::MHV_ORIGINAL_CSID,
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SignIn::Constants::ClientConfig::COOKIE_AUTH.first
+          client_id: SignIn::Constants::Auth::WEB_CLIENT
         }
       end
 
@@ -601,7 +601,7 @@ FactoryBot.define do
         {
           service_name: SAML::User::DSLOGON_CSID,
           auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SignIn::Constants::ClientConfig::COOKIE_AUTH.first
+          client_id: SignIn::Constants::Auth::WEB_CLIENT
         }
       end
 

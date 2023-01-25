@@ -93,19 +93,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           end
         end
 
-        context 'when not all claims are handed off to MAS' do
-          before { Flipper.disable(:rrd_mas_all_claims_notification) }
-          after { Flipper.enable(:rrd_mas_all_claims_notification) }
-
-          it 'includes a proper classification code for EVSS submission' do
-            subject.perform_async(submission.id)
-            described_class.drain
-            mas_submission = Form526Submission.find(Form526JobStatus.last.form526_submission_id)
-            expect(mas_submission.form.dig('form526', 'form526',
-                                           'disabilities').first['classificationCode']).to eq '9012'
-          end
-        end
-
         context 'MAS-related claim that already includes classification code' do
           let(:submission) do
             create(:form526_submission,
@@ -176,27 +163,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             subject.perform_async(submission.id)
             described_class.drain
             expect(ActionMailer::Base.deliveries.length).to eq 0
-          end
-        end
-      end
-
-      context 'with PACT-related disability' do
-        let(:submission) do
-          create(:form526_submission,
-                 :with_pact_related_disabilities,
-                 user_uuid: user.uuid,
-                 auth_headers_json: auth_headers.to_json,
-                 saved_claim_id: saved_claim.id)
-        end
-
-        it 'sends an email' do
-          VCR.use_cassette('rrd/hypertension', match_requests_on: %i[host path method]) do
-            subject.perform_async(submission.id)
-            described_class.drain
-            expect(ActionMailer::Base.deliveries.last.body.include?('Number of BP readings: 0')).to eq true
-            expect(ActionMailer::Base.deliveries.last.body.include?('Number of Active Medications: 11')).to eq true
-            expect(ActionMailer::Base.deliveries.last.body.include?('Number of claimed issues: 3')).to eq true
-            expect(ActionMailer::Base.deliveries.last.subject).to eq "NEW claim - #{submitted_claim_id}"
           end
         end
       end

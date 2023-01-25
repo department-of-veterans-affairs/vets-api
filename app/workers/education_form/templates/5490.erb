@@ -126,8 +126,8 @@ Served on active duty?: <%= yesno(@applicant.toursOfDuty.present?) %>
 <%= parse_with_template_path('tours_of_duty') %>
 
 
-                    EDUCATION AND EMPLOYMENT INFORMATION
-                    ------------------------------------
+                    EDUCATION INFORMATION
+                    ---------------------
 
 Applicant's disposition from high school: <%= high_school_status %>
 
@@ -143,14 +143,6 @@ Hours: <%= hours_and_type(@applicant.highSchool) %>
 Degree/Diploma/Certificate: <%= @applicant.highSchool&.degreeReceived %>
 
 <%= parse_with_template_path('post_high_school_trainings') %>
-
-        Employment
-        ----------
-
-Since High School
-<%= employment_history(@applicant.nonMilitaryJobs) %>
-
-
           ENTITLEMENT TO AND USAGE OF ADDITIONAL TYPES OF ASSISTANCE
           ----------------------------------------------------------
 

@@ -7,6 +7,21 @@ module Mobile
     class LighthouseAssertion
       TTL = 300
 
+      CLIENT_IDS = { health: Settings.lighthouse_health_immunization.client_id,
+                     letters: Settings.mobile_lighthouse_letters.client_id }.freeze
+
+      AUD_CLAIM_URLS = { health: Settings.lighthouse_health_immunization.audience_claim_url,
+                         letters: Settings.mobile_lighthouse_letters.aud_claim_url }.freeze
+
+      KEY_PATHS = { health: Settings.lighthouse_health_immunization.key_path,
+                    letters: Settings.mobile_lighthouse_letters.key_path }.freeze
+
+      def initialize(api)
+        @client_id = CLIENT_IDS[api]
+        @aud_claim_url = AUD_CLAIM_URLS[api]
+        @key_path = KEY_PATHS[api]
+      end
+
       # Encodes the Lighthouse claim as a JWT token.
       #
       # @return [String] the encoded token as JWT::Encode string
@@ -19,9 +34,9 @@ module Mobile
 
       def claims
         {
-          aud: Settings.lighthouse_health_immunization.audience_claim_url,
-          iss: Settings.lighthouse_health_immunization.client_id,
-          sub: Settings.lighthouse_health_immunization.client_id,
+          aud: @aud_claim_url,
+          iss: @client_id,
+          sub: @client_id,
           jti: SecureRandom.uuid,
           iat: Time.now.to_i,
           exp: Time.now.to_i + TTL
@@ -29,7 +44,7 @@ module Mobile
       end
 
       def rsa_key
-        OpenSSL::PKey::RSA.new(File.read(Settings.lighthouse_health_immunization.key_path))
+        OpenSSL::PKey::RSA.new(File.read(@key_path))
       end
     end
   end

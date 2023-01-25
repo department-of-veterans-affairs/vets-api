@@ -54,6 +54,7 @@ gem 'connect_vbms', git: 'https://github.com/department-of-veterans-affairs/conn
 gem 'coverband'
 gem 'date_validator'
 gem 'ddtrace'
+gem 'dogstatsd-ruby'
 gem 'dry-struct'
 gem 'dry-types'
 gem 'ethon', '>=0.13.0'
@@ -128,7 +129,7 @@ gem 'request_store'
 gem 'restforce'
 gem 'rgeo-geojson'
 gem 'rswag-ui'
-gem 'ruby-saml', '1.14.1', git: 'https://github.com/department-of-veterans-affairs/ruby-saml', branch: 'master'
+gem 'ruby-saml'
 gem 'rubyzip'
 gem 'savon'
 gem 'sentry-raven'
@@ -164,8 +165,6 @@ end
 group :test do
   gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', branch: 'master'
   gem 'fakeredis'
-  gem 'pact', require: false
-  gem 'pact-mock_service', require: false
   gem 'pdf-inspector'
   gem 'rspec_junit_formatter'
   gem 'rspec-retry'

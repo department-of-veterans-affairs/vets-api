@@ -25,11 +25,6 @@ class User < Common::RedisStore
 
   validates :uuid, presence: true
 
-  with_options if: :loa3? do
-    validates :ssn, format: /\A\d{9}\z/, allow_blank: true
-    validates :gender, format: /\A(M|F)\z/, allow_blank: true
-  end
-
   attribute :uuid
   attribute :last_signed_in, Common::UTCTime # vaafi attributes
   attribute :mhv_last_signed_in, Common::UTCTime # MHV audit logging
@@ -214,10 +209,6 @@ class User < Common::RedisStore
     mpi_profile&.given_names
   end
 
-  def historical_icns
-    @mpi_historical_icn ||= MPIData.historical_icn_for_user(self)
-  end
-
   def home_phone
     identity&.phone || mpi_profile&.home_phone
   end
@@ -255,16 +246,6 @@ class User < Common::RedisStore
   end
 
   # MPI setter methods
-
-  def mpi_add_person_proxy
-    add_person_identity = identity
-    add_person_identity.edipi = edipi
-    add_person_identity.ssn = ssn
-    add_person_identity.icn_with_aaid = icn_with_aaid
-    add_person_identity.search_token = search_token
-    mpi.user_identity = add_person_identity
-    mpi.add_person_proxy
-  end
 
   def set_mhv_ids(mhv_id)
     mpi_profile.mhv_ids = [mhv_id] + mhv_ids
@@ -360,10 +341,6 @@ class User < Common::RedisStore
       ID_CARD_ALLOWED_STATUSES.include?(veteran_status.title38_status)
   rescue # Default to false for any veteran_status error
     false
-  end
-
-  def identity_proofed?
-    loa3?
   end
 
   def mhv_account

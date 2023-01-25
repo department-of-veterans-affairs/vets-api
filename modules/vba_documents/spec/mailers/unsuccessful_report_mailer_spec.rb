@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require './modules/vba_documents/spec/support/vba_document_fixtures'
 
 RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
+  include VBADocuments::Fixtures
+
   let(:error_upload) { FactoryBot.create(:upload_submission, :status_error) }
   let(:uploaded_upload) { FactoryBot.create(:upload_submission, :status_uploaded) }
   let(:totals) do
@@ -86,6 +89,73 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
           @email.body.to_s =~ %r{<h1>(.*)?</h1>}i
           expect(Regexp.last_match(1)).to match(/.*#{k.to_s.upcase}.*/)
         end
+      end
+    end
+  end
+
+  describe '.fetch_recipients' do
+    let(:recipients) { get_fixture_yml('reports/unsuccessful_report/report_recipients.yml') }
+    let(:slack_alert_email) { Settings.vba_documents.slack.default_alert_email }
+
+    context 'when environment is prod' do
+      let(:expected_result) do
+        [
+          'wile.e.coyote@va.gov',
+          'elmer.fudd@va.gov',
+          'pepe.le.pew@va.gov',
+          'claude.cat@va.gov',
+          slack_alert_email
+        ]
+      end
+
+      before do
+        expect(VBADocuments::Deployment).to receive(:environment).and_return('prod')
+        expect(YAML).to receive(:load_file).and_return(recipients)
+        Settings.vba_documents.slack.enabled = true
+      end
+
+      it 'returns the recipients list for prod + all environments + the Slack alert email' do
+        expect(described_class.fetch_recipients.sort).to eql(expected_result.sort)
+      end
+    end
+
+    context 'when environment is staging' do
+      let(:expected_result) do
+        %w[
+          wile.e.coyote@va.gov
+          elmer.fudd@va.gov
+          tasmanian.devil@va.gov
+          marvin.martian@va.gov
+        ]
+      end
+
+      before do
+        expect(VBADocuments::Deployment).to receive(:environment).and_return('staging')
+        expect(YAML).to receive(:load_file).and_return(recipients)
+        Settings.vba_documents.slack.enabled = false
+      end
+
+      it 'returns the recipients list for staging + all environments' do
+        expect(described_class.fetch_recipients.sort).to eql(expected_result.sort)
+      end
+    end
+
+    context 'when environment is dev' do
+      let(:expected_result) do
+        %w[
+          wile.e.coyote@va.gov
+          elmer.fudd@va.gov
+        ]
+      end
+
+      before do
+        expect(VBADocuments::Deployment).to receive(:environment).and_return('dev')
+        expect(YAML).to receive(:load_file).and_return(recipients)
+        Settings.vba_documents.slack.enabled = false
+      end
+
+      it 'returns the recipients list all environments only' do
+        expect(described_class.fetch_recipients.sort).to eql(expected_result.sort)
       end
     end
   end

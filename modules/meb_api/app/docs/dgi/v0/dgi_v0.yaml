@@ -13,20 +13,16 @@ tags:
   - name: claimant info
     description: Claimant Information
   - name: submit claim
-    description: Claim Submission
+    description: Claim Submissions
   - name: claim status
     description: Claim Status
   - name: claim letter
     description: Claim Letter
-  - name: fry claim letter
-    description: Fry Claim Letter
   - name: enrollment
     description: Enrollment List
   - name: submit enrollment verification
     description: Enrollment Verification Submission
   - name: sponsors
-    description: Sponsors
-  - name: fry_dea_sponsors
     description: Sponsors
 servers:
   - url: https://sandbox-api.va.gov/meb_api/v0
@@ -76,7 +72,65 @@ paths:
                       type:
                         type: string
                       attributes:
-                        $ref: '#/components/schemas/ClaimantInfo'
+                        $ref: '#/components/schemas/ClaimantInfoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '502':
+          $ref: '#/components/responses/BadGateway'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+          
+  /forms/claimant_info:
+    post:
+      tags:
+        - claimant info
+      summary: >-
+        Retrieves a JSON object containing biographical data for an
+        authenticated applicant.
+      operationId: getToeClaimant
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClaimantInfoRequestBody'
+      responses:
+        '201':
+          description: Retrives a Claimant object with bio and service data.
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      attributes:
+                        $ref: '#/components/schemas/ClaimantInfoResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -109,10 +163,64 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SubmitClaimRequestBody'
+              $ref: '#/components/schemas/SubmitCh33ClaimRequestBody'
       responses:
         '201':
-          description: Submits a the parameters from the form.
+          description: Submits parameters from the form.
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      attributes:
+                        $ref: '#/components/schemas/SubmitClaimResponse'
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '502':
+          $ref: '#/components/responses/BadGateway'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+  /forms/submit_claim:
+    post:
+      tags:
+        - submit claim
+      summary: Formats and submits TOE form data to DGI automation service.
+      operationId: submitTOEClaim
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitTOEClaimRequestBody'
+      responses:
+        '201':
+          description: Submits parameters from the form.
           content:
             application/json:
               schema:
@@ -187,7 +295,7 @@ paths:
                       type:
                         type: string
                       attributes:
-                        $ref: '#/components/schemas/ClaimStatus'
+                        $ref: '#/components/schemas/ClaimStatusResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -208,6 +316,67 @@ paths:
           $ref: '#/components/responses/ServiceUnavailable'
         '504':
           $ref: '#/components/responses/GatewayTimeout'
+          
+  /forms/claim_status:
+    post:
+      tags:
+        - claim status
+      summary: >-
+        Retrieves a JSON object containing status data regarding the claim
+        applied for.
+      operationId: getTOEClaimStatus
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClaimantInfoRequestBody'
+      responses:
+        '201':
+          description: Retrives a Claim Status object.
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      attributes:
+                        $ref: '#/components/schemas/ClaimStatusResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '502':
+          $ref: '#/components/responses/BadGateway'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+          
+          
+   
   /claim_letter:
     post:
       tags:
@@ -249,10 +418,53 @@ paths:
           $ref: '#/components/responses/ServiceUnavailable'
         '504':
           $ref: '#/components/responses/GatewayTimeout'
+          
+  /forms/claim_letter:
+    post:
+      tags:
+        - claim letter
+      summary: Dowloads an approval or denial letter to the client.
+      operationId: getTOEClaimLetter
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClaimantInfoRequestBody'
+      responses:
+        '201':
+          description: Retrives a Claim Letter.
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '502':
+          $ref: '#/components/responses/BadGateway'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+          
   /claim_letter/fry:
     post:
       tags:
-        - fry claim letter
+        - claim letter
       summary: Dowloads an approval or denial fry letter to the client.
       operationId: getFryClaimLetter
       security:
@@ -410,7 +622,7 @@ paths:
           $ref: '#/components/responses/GatewayTimeout'
         default:
           description: Default error sample response
-  /sponsors:
+  /forms/sponsors:
     post:
       tags:
         - sponsors
@@ -537,15 +749,6 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
-    Sponsors:
-      description: >-
-        Unique identifier in the request body to create the claimant
-        information.
-      type: object
-      properties:
-        ssn:
-          type: string
-          example: 539139735
     ClaimantInfoRequestBody:
       description: >-
         Unique identifier in the request body to create the claimant
@@ -555,96 +758,7 @@ components:
         ssn:
           type: string
           example: 539139735
-    SubmitClaimRequestBody:
-      description: Form data submitted to DGI automation service.
-      type: object
-      properties:
-        claimant:
-          description: Parent Object of the form body.
-          type: object
-          properties:
-            claimantId:
-              type: number
-              example: 99900000200000000
-            suffix:
-              type: string
-              example: null,
-            dateOfBirth:
-              type: string
-              example: 07/11/1994
-            firstName:
-              type: string
-              example: James
-            lastName:
-              type: string
-              example: Bond
-            middleName:
-              type: string
-              example: James
-            notificationMethod:
-              type: string
-              example: null
-            contactInfo:
-              type: object
-              properties:
-                addressLine1:
-                  type: string
-                addressLine2:
-                  type: string
-                city:
-                  type: string
-                zipcode:
-                  type: string
-                emailAddress:
-                  type: string
-                  example: james.bond@test.com
-                addressType:
-                  type: string
-                mobilePhoneNumber:
-                  type: string
-                  example: 1231231234
-                homePhoneNumber:
-                  type: string
-                  example: 1231231234
-                countryCode:
-                  type: string
-                  example: US
-                stateCode:
-                  type: string
-            preferredContact:
-              type: string
-              example: EMAIL
-            relinquishedBenefit:
-              type: object
-              properties:
-                effRelinquishDate:
-                  type: string
-                  format: date
-                relinquishedBenefit:
-                  type: string
-                  format: date
-            additionalConsiderations:
-              type: object
-              properties:
-                activeDutyKicker:
-                  type: string
-                reserveKicker:
-                  type: string
-                academyRotcScholarship:
-                  type: string
-                seniorRotcScholarship:
-                  type: string
-                activeDutyDodRepayLoan:
-                  type: string
-                terminalLeave:
-                  type: string
-            comments:
-              type: object
-              properties:
-                disagreeWithServicePeriod:
-                  type: boolean
-                  example: true
-    ClaimantInfo:
+    ClaimantInfoResponse:
       description: Information about an authenticated claimant.
       type: object
       properties:
@@ -735,15 +849,212 @@ components:
                     description: The Claimants period of time spent training.
                     items:
                       type: string
+    SubmitCh33ClaimRequestBody:
+      description: Ch33 Form data submitted to DGI automation service.
+      type: object
+      properties:
+        claimant:
+          description: Parent Object of the form body.
+          type: object
+          properties:
+            claimantId:
+              type: number
+              example: 99900000200000000
+            suffix:
+              type: string
+              example: null,
+            dateOfBirth:
+              type: string
+              example: 07/11/1994
+            firstName:
+              type: string
+              example: James
+            lastName:
+              type: string
+              example: Bond
+            middleName:
+              type: string
+              example: James
+            notificationMethod:
+              type: string
+              example: null
+            contactInfo:
+              type: object
+              properties:
+                addressLine1:
+                  type: string
+                addressLine2:
+                  type: string
+                city:
+                  type: string
+                zipcode:
+                  type: string
+                emailAddress:
+                  type: string
+                  example: james.bond@test.com
+                addressType:
+                  type: string
+                mobilePhoneNumber:
+                  type: string
+                  example: 1231231234
+                homePhoneNumber:
+                  type: string
+                  example: 1231231234
+                countryCode:
+                  type: string
+                  example: US
+                stateCode:
+                  type: string
+            preferredContact:
+              type: string
+              example: EMAIL
+            relinquishedBenefit:
+              type: object
+              properties:
+                effRelinquishDate:
+                  type: string
+                  format: date
+                relinquishedBenefit:
+                  type: string
+                  format: date
+            additionalConsiderations:
+              type: object
+              properties:
+                activeDutyKicker:
+                  type: string
+                reserveKicker:
+                  type: string
+                academyRotcScholarship:
+                  type: string
+                seniorRotcScholarship:
+                  type: string
+                activeDutyDodRepayLoan:
+                  type: string
+                terminalLeave:
+                  type: string
+            comments:
+              type: object
+              properties:
+                disagreeWithServicePeriod:
+                  type: boolean
+                  example: 
+                  
+    SubmitTOEClaimRequestBody:
+      description: Ch33 Form data submitted to DGI automation service.
+      type: object
+      properties:
+        toeClaimant:
+         type: object
+         properties:
+          dateOfBirth:
+           type: string
+           example: "2005-04-05"
+          firstName:
+           type: string
+           example: "GREG"
+          lastName:
+           type: string
+           example: "ANDERSON"
+          middleName:
+           type: string
+           example: "A"
+          notificationMethod:
+           type: string
+           example: "EMAIL"
+          contactInfo:
+           type: object
+           properties:
+            addressLine1:
+             type: string
+             example: "123 Maple St"
+            city:
+             type: string
+             example: "Plymouth"
+            zipcode:
+             type: string
+             example: "02330"
+            emailAddress:
+             type: string
+             example: "vets.gov.user + 1 @gmail.com"
+            addressType:
+             type: string
+             example: "DOMESTIC"
+            countryCode:
+             type: string
+             example: "US"
+            stateCode:
+             type: string
+             example: "MA"
+          preferredContact:
+           type: string
+           example: "Email"
+          personCriteria:
+           type: object
+           properties:
+            ssn:
+             type: string
+             example: "999111111"
+        parentOrGuardianSignature:
+         type: string
+         example: "John Hancock"
+        sponsorOptions:
+         type: object
+         properties:
+          notSureAboutSponsor:
+           type: boolean
+           example: false
+          firstSponsorVaId:
+           type: string
+           example: "8009623328"
+          manualSponsor:
+           type: object
+           properties:
+            firstName:
+             type: string
+             example: "John"
+            lastName:
+             type: string
+             example: "Hancock"
+            dateOfBirth:
+             type: string
+             example: "1988 - 10 - 13"
+            relationship:
+             type: string
+             example: "Child"
+        highSchoolDiplomaInfo:
+         type: object
+         properties:
+          highSchoolDiplomaOrCertificate:
+           type: boolean
+           example: true
+          highSchoolDiplomaOrCertificateDate:
+           type: string
+           example: "2022 - 06 - 15"
+        directDeposit:
+         type: object
+         properties:
+          directDepositAccountType:
+           type: string
+           example: "checking"
+          directDepositAccountNumber:
+           type: string
+           example: "1234567891"
+          directDepositRoutingNumber:
+           type: string
+           example: "123123123"
+                  
     SubmitClaimResponse:
-      description: Submitting Claim via form 22-1990
+      description: Submitting Claim to DGI Services for Automation
       type: object
       properties:
         status:
           type: string
           example: 200
-    ClaimStatus:
-      description: Information about submitted claims status.
+          
+
+
+    ClaimStatusResponse:
+      description: Information about submitted CH33 claims status.
       type: object
       properties:
         claimantId:
@@ -761,12 +1072,23 @@ components:
             - ELIGIBLE
             - DENIED
             - IN_PROGRESS
+            - SUBMITTED
         confirmationNumber:
           type: number
           example: null
         receivedDate:
           type: string
           format: date
+
+    Sponsors:
+      description: >-
+        Unique identifier in the request body to create the claimant
+        information.
+      type: object
+      properties:
+        ssn:
+          type: string
+          example: 539139735
     Enrollment:
       description: Enrollment Verification data.
       type: object

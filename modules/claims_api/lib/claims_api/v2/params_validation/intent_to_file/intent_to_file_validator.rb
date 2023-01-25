@@ -17,7 +17,9 @@ module ClaimsApi
             value = record.data[:type]
             (record.errors.add :type, 'blank') && return if value.blank?
 
-            record.errors.add :type, value unless %w[compensation pension].include?(value.downcase)
+            unless ClaimsApi::V2::IntentToFile::ITF_TYPES_TO_BGS_TYPES.keys.include?(value.downcase)
+              record.errors.add :type, value
+            end
           end
 
           # 'participant_claimant_id' isn't required, but if it's defined, then it needs a non-blank value

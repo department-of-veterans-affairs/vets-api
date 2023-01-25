@@ -1,8 +1,7 @@
 Using this endpoint will decrease the likelihood of errors associated with individual documents during
 the submission process. Validations performed:
 * Document is a valid PDF (Note: `Content-Type` header value must be "application/pdf")
-* Document does not have a user password
-* Document does not have an owner password
+* Document does not have a user password (an owner password is acceptable)
 * File size does not exceed 100 MB
 * Page size does not exceed 21" x 21"
 

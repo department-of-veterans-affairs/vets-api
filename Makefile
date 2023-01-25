@@ -13,13 +13,6 @@ else
 	FOREMAN_ARG := all=1,clamd=0,freshclam=0
 endif
 
-ifdef PACT_URI
-	PACT := "RAILS_ENV=test bundle exec rake pact:verify:at[$(PACT_URI)]"
-else
-    PACT := "RAILS_ENV=test bundle exec rake pact:verify"
-endif
-
-
 
 COMPOSE_DEV  := docker-compose
 COMPOSE_TEST := docker-compose -f docker-compose.test.yml
@@ -102,14 +95,6 @@ guard:  ## Runs guard
 .PHONY: migrate
 migrate:  ## Runs the database migrations
 	@$(BASH_DEV) "bin/rails db:migrate"
-
-.PHONY: pact
-pact:
-ifeq ($(ENV_ARG), dev)
-	@$(BASH_DEV) $(PACT)
-else
-	@$(BASH_TEST) $(PACT)
-endif
 
 .PHONY: rebuild
 rebuild: down  ## Stops the docker services and builds the api

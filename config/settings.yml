@@ -282,7 +282,7 @@ modules_appeals_api:
       # See the rswag:appeals_api:dev rake task, spec_helper, and DocHelpers#wip_doc_enabled? for usage info to opt-in.
       # NOTE: Do not remove this key even if it's empty.
   higher_level_review_updater_enabled: true
-  legacy_appeals_enabled: false
+  legacy_appeals_enabled: true
   supplemental_claims_enabled: true
   notice_of_disagreement_updater_enabled: true
   supplemental_claim_updater_enabled: true
@@ -318,29 +318,12 @@ modules_appeals_api:
   reports:
     daily_decision_review:
       enabled: false
-      recipients:
-        - drew.fisher@adhocteam.us
-        - jack.schuss@oddball.io
-        - kelly@adhocteam.us
-        - laura.trager@adhocteam.us
-        - nathan.wright@oddball.io
     weekly_decision_review:
       enabled: false
-      recipients:
-        - drew.fisher@adhocteam.us
-        - jack.schuss@oddball.io
-        - kelly@adhocteam.us
-        - laura.trager@adhocteam.us
-        - nathan.wright@oddball.io
     daily_error:
       enabled: false
-      recipients:
-        - drew.fisher@adhocteam.us
-        - jack.schuss@oddball.io
-        - kelly@adhocteam.us
-        - laura.trager@adhocteam.us
-        - nathan.wright@oddball.io
     weekly_error:
+      # See features.yml for enablement
       recipients:
         - drew.fisher@adhocteam.us
         - casey.williams@adhocteam.us
@@ -595,7 +578,8 @@ vba_documents:
       - vagov-arn
   slack:
     enabled: false
-    default_alert_url:
+    default_alert_url: https://example.com
+    default_alert_email: example@slack.com
     in_flight_notification_hung_time_in_days: 14
     renotification_in_minutes: 240
     update_stalled_notification_in_minutes: 180
@@ -887,6 +871,7 @@ flipper:
     - eric.voshall@adhocteam.us
     - erik@adhocteam.us
     - ethan.teague@civicactions.com
+    - eugene.lynch@coforma.io # Eugene Lynch (Coforma), Benefits Team 1, FE and BE Engineer
     - filip.fafara@gmail.com # Thoughtworks, ex VANotify, supports DHP, CDSP, Virtual Agent
     - fahmed@governmentcio.com
     - ggupta@kindsys.us # Gaurav Gupta (Kindsys), BE Engineer Health Care Experience/Check-In
@@ -930,6 +915,7 @@ flipper:
     - mark.dewey@va.gov
     - metrowebz@gmail.com
     - micah@adhocteam.us
+    - michael.moyer@va.gov # MHV Secure Messaging Team
     - michel.mcdonald@adhocteam.us
     - michael.chaffee@va.gov # DHP team tech lead
     - michael.chelen@va.gov
@@ -938,6 +924,7 @@ flipper:
     - n.ratana@gmail.com
     - nathaniel.buck@gmail.com # AFS - My Education Benefits
     - narin@adhocteam.us
+    - oleksii.morgun@va.gov # MHV Secure Messaging Team
     - patrick.bateman@va.gov
     - patrick@adhocteam.us
     - patrickryll@yahoo.com
@@ -1008,6 +995,11 @@ flipper:
     - scott.meyers@coforma.io # Scott Meyers - Benefits Team #1
     - kyle.soskin@adhocteam.us # Kyle Soskin - Benefits Team #1
     - johncater@gmail.com # John Cater - FE Engineer Auth Exp
+    - mark.komosa@va.gov # Mark Komosa GCIO VFEP Tech Lead
+    - Napoleon.Kernessant@va.gov # Kernessant, Napoleon GCIO VFEP Dev Lead
+    - Jarred.Simon@va.gov # Jarred Simon GCIO VFEP FE Dev
+    - NOAH.STERN@va.gov # Noah Sterngo GCIO VFEP BE Dev
+    - GREGG.PUHALA@va.gov # Gregg Puhala GCIO VFEP BE Dev
 
 bgs:
   application: ~
@@ -1086,6 +1078,17 @@ hqva_mobile:
 # settings va.gov uses related to lighthouse api's
 lighthouse:
   api_key: fake_key
+  benefits_claims:
+    host: https://sandbox-api.va.gov
+    path: services/claims/v2/veterans
+    access_token:
+      aud_claim_url: https://deptva-eval.okta.com/oauth2/ausdg7guis2TYDlFe2p7/v1/token
+      api_scopes:
+        - claim.read
+        - claim.write
+      client_id: ~
+      rsa_key: ~
+    use_mocks: false
   benefits_reference_data:
     url: https://sandbox-api.va.gov
     path: services/benefits-reference-data
@@ -1173,10 +1176,12 @@ vanotify:
         ch31_vbms_form_confirmation_email: ch31_vbms_fake_template_id
         ch31_central_mail_form_confirmation_email: ch31_central_mail_fake_template_id
         career_counseling_confirmation_email: career_counseling_confirmation_email_template_id
+        form527ez_confirmation_email: form527ez_confirmation_email_template_id
         preneeds_burial_form_email: preneeds_burial_form_email_template_id
         contact_info_change: fake_template_id
         form526_confirmation_email: fake_template_id
         form526_submission_failed_email: fake_template_id
+        form5490_confirmation_email: form5490_confirmation_email_template_id
         form686c_confirmation_email: fake_template_id
         form686c_reminder_email: fake_template_id
         form1010ez_reminder_email: fake_template_id
@@ -1361,7 +1366,7 @@ check_in:
     host: vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
     base_path: dev
     api_id: 22t00c6f97
-    api_key: Xc7k35oE2H9aDeUEpeGa38PzAHyLT9jb5HiKeBfs
+    api_key: fake_key
     service_name: LoROTA-API
     mock: false
     key_path: fake_api_path
@@ -1419,6 +1424,15 @@ lighthouse_health_immunization:
     - "patient/Immunization.read"
     - "patient/Location.read"
 
+mobile_lighthouse_letters:
+  client_id: '0oajpx78t3M8kurld2p7'
+  key_path: ~
+  aud_claim_url: "https://deptva-eval.okta.com/oauth2/ausftw7zk6eHr7gMN2p7/v1/token"
+  access_token_url: 'https://sandbox-api.va.gov/oauth2/va-letter-generator/system/v1/token'
+  api_url: 'https://sandbox-api.va.gov/services/va-letter-generator/v1/'
+  api_scopes:
+    - "letters.read"
+
 token_validation:
   url: https://dev-api.va.gov/internal/auth
 
@@ -1437,6 +1451,18 @@ lgy:
   app_id: ~
   api_key: ~
   mock_coe: true
+
+form526_backup:
+  enabled: false
+  # Can be single or multi, to send 1 payload or many, to central mail
+  submission_method: 'single'
+  api_key: ~
+  url: https://sandbox-api.va.gov/services/vba_documents/v1/
+  aws:
+    bucket: ~
+    region: ~
+    access_key_id: ~ 
+    secret_access_key: ~ 
 
 form1095_b:
   s3:

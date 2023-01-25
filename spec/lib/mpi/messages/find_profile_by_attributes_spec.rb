@@ -6,22 +6,19 @@ require 'mpi/messages/find_profile_by_attributes'
 describe MPI::Messages::FindProfileByAttributes do
   describe '.perform' do
     subject do
-      described_class.new(profile: profile,
+      described_class.new(first_name: first_name,
+                          middle_name: middle_name,
+                          last_name: last_name,
+                          birth_date: birth_date,
+                          ssn: ssn,
+                          gender: gender,
                           orch_search: orch_search,
                           edipi: edipi,
                           search_type: search_type).perform
     end
 
-    let(:profile) do
-      {
-        given_names: given_names,
-        last_name: last_name,
-        birth_date: birth_date,
-        gender: gender,
-        ssn: ssn
-      }
-    end
-    let(:given_names) { %w[some-given-name some-other-given-name] }
+    let(:first_name) { 'some-first-name' }
+    let(:middle_name) { 'some-middle-name' }
     let(:last_name) { 'some-last-name' }
     let(:birth_date) { '10-1-2020' }
     let(:gender) { 'some-gender' }
@@ -44,9 +41,9 @@ describe MPI::Messages::FindProfileByAttributes do
         end
       end
 
-      context 'when given_names is not present' do
-        let(:given_names) { [] }
-        let(:missing_value) { :given_names }
+      context 'when first_name is not present' do
+        let(:first_name) { [] }
+        let(:missing_value) { :first_name }
 
         it_behaves_like 'missing required fields response'
       end
@@ -121,10 +118,10 @@ describe MPI::Messages::FindProfileByAttributes do
         expect(subject).to eq_at_path("#{idm_path}/controlActProcess/dataEnterer/@typeCode", 'ENT')
         expect(subject).to eq_at_path("#{idm_path}/controlActProcess/dataEnterer/@contextControlCode", 'AP')
         expect(subject).to eq_text_at_path(
-          "#{idm_path}/controlActProcess/dataEnterer/assignedPerson/assignedPerson/name/given[0]", given_names.first
+          "#{idm_path}/controlActProcess/dataEnterer/assignedPerson/assignedPerson/name/given[0]", first_name
         )
         expect(subject).to eq_text_at_path(
-          "#{idm_path}/controlActProcess/dataEnterer/assignedPerson/assignedPerson/name/given[1]", given_names.second
+          "#{idm_path}/controlActProcess/dataEnterer/assignedPerson/assignedPerson/name/given[1]", middle_name
         )
         expect(subject).to eq_text_at_path(
           "#{idm_path}/controlActProcess/dataEnterer/assignedPerson/assignedPerson/name/family", last_name
@@ -141,9 +138,9 @@ describe MPI::Messages::FindProfileByAttributes do
       end
 
       it 'has a name node' do
-        expect(subject).to eq_text_at_path("#{parameter_list_path}/livingSubjectName/value/given[0]", given_names.first)
+        expect(subject).to eq_text_at_path("#{parameter_list_path}/livingSubjectName/value/given[0]", first_name)
         expect(subject).to eq_text_at_path("#{parameter_list_path}/livingSubjectName/value/given[1]",
-                                           given_names.second)
+                                           middle_name)
         expect(subject).to eq_text_at_path("#{parameter_list_path}/livingSubjectName/value/family", last_name)
         expect(subject).to eq_text_at_path("#{parameter_list_path}/livingSubjectName/semanticsText", 'Legal Name')
       end

@@ -4,8 +4,8 @@ require 'rails_helper'
 
 RSpec.describe HealthCareApplication, type: :model do
   let(:health_care_application) { create(:health_care_application) }
-  let(:inelig_character_of_discharge) { Notification::INELIG_CHARACTER_OF_DISCHARGE }
-  let(:login_required) { Notification::LOGIN_REQUIRED }
+  let(:inelig_character_of_discharge) { HCA::EnrollmentEligibility::Constants::INELIG_CHARACTER_OF_DISCHARGE }
+  let(:login_required) { HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED }
 
   describe '#prefill_compensation_type' do
     before do
@@ -170,7 +170,7 @@ RSpec.describe HealthCareApplication, type: :model do
 
         it 'returns the right parsed_status' do
           expect(described_class.parsed_ee_data(ee_data, true)[:parsed_status]).to eq(
-            Notification::ACTIVEDUTY
+            HCA::EnrollmentEligibility::Constants::ACTIVEDUTY
           )
         end
       end
@@ -191,7 +191,7 @@ RSpec.describe HealthCareApplication, type: :model do
 
         it 'returns the right parsed_status' do
           expect(described_class.parsed_ee_data(ee_data, true)[:parsed_status]).to eq(
-            Notification::NON_MILITARY
+            HCA::EnrollmentEligibility::Constants::NON_MILITARY
           )
         end
       end
@@ -212,8 +212,10 @@ RSpec.describe HealthCareApplication, type: :model do
     context 'when the user is not found' do
       it 'returns nil' do
         expect_any_instance_of(MPI::Service).to receive(
-          :perform
-        ).and_raise(MPI::Errors::RecordNotFound)
+          :find_profile_by_attributes
+        ).and_return(
+          create(:find_profile_not_found_response)
+        )
 
         expect(described_class.user_icn(described_class.user_attributes(form))).to eq(nil)
       end
@@ -222,11 +224,9 @@ RSpec.describe HealthCareApplication, type: :model do
     context 'when the user is found' do
       it 'returns the icn' do
         expect_any_instance_of(MPI::Service).to receive(
-          :find_profile
+          :find_profile_by_attributes
         ).and_return(
-          OpenStruct.new(
-            profile: OpenStruct.new(icn: '123')
-          )
+          create(:find_profile_response, profile: OpenStruct.new(icn: '123'))
         )
 
         expect(described_class.user_icn(described_class.user_attributes(form))).to eq('123')
@@ -400,10 +400,17 @@ RSpec.describe HealthCareApplication, type: :model do
 
     def self.expect_job_submission(job)
       it "submits using the #{job}" do
-        expect(job).to receive(:perform_async)
+        allow_any_instance_of(HealthCareApplication).to receive(:id).and_return(1)
+        expect_any_instance_of(HealthCareApplication).to receive(:save!)
+
+        expect(job).to receive(:perform_async).with(
+          nil,
+          KmsEncrypted::Box.new.encrypt(health_care_application.parsed_form.to_json),
+          1,
+          nil
+        )
 
         expect(health_care_application.process!).to eq(health_care_application)
-        expect(health_care_application.id.present?).to eq(true)
       end
     end
 
@@ -454,12 +461,12 @@ RSpec.describe HealthCareApplication, type: :model do
       context 'with async_compatible set' do
         before { health_care_application.async_compatible = true }
 
-        expect_job_submission(HCA::AnonSubmissionJob)
+        expect_job_submission(HCA::AnonEncryptedSubmissionJob)
       end
     end
 
     context 'with an email' do
-      expect_job_submission(HCA::SubmissionJob)
+      expect_job_submission(HCA::EncryptedSubmissionJob)
     end
   end
 

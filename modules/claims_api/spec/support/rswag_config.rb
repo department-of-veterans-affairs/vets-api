@@ -107,6 +107,10 @@ class ClaimsApi::RswagConfig
             description: <<~VERBIAGE
               Allows authenticated and authorized users to access claims data for a given Veteran. No data is returned if the user is not authenticated and authorized.
             VERBIAGE
+          },
+          {
+            name: '5103 Waiver',
+            description: 'Allows authenticated and authorized users to file a 5103 Notice Response on a claim.'
           }
         ],
         components: {

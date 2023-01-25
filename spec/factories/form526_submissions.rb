@@ -4,7 +4,7 @@ FactoryBot.define do
   factory :form526_submission do
     transient do
       user { create(:disabilities_compensation_user) }
-      submissions_path { "#{::Rails.root}/spec/support/disability_compensation_form/submissions" }
+      submissions_path { ::Rails.root.join(*'/spec/support/disability_compensation_form/submissions'.split('/')).to_s }
     end
     user_uuid { user.uuid }
     saved_claim { create(:va526ez) }
@@ -17,9 +17,21 @@ FactoryBot.define do
     end
   end
 
+  trait :with_everything do
+    form_json do
+      File.read("#{submissions_path}/with_everything.json")
+    end
+  end
+
   trait :with_uploads do
     form_json do
       File.read("#{submissions_path}/with_uploads.json")
+    end
+  end
+
+  trait :with_non_pdf_uploads do
+    form_json do
+      File.read("#{submissions_path}/with_non_pdf_uploads.json")
     end
   end
 
@@ -33,7 +45,9 @@ FactoryBot.define do
   trait :asthma_claim_for_increase do
     user { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
     form_json do
-      File.read("#{::Rails.root}/spec/support/disability_compensation_form/submissions/only_526_asthma.json")
+      File.read(::Rails.root.join(
+        *'/spec/support/disability_compensation_form/submissions/only_526_asthma.json'.split('/')
+      ).to_s)
     end
   end
 

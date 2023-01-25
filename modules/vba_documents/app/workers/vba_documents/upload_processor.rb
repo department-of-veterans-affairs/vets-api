@@ -59,36 +59,55 @@ module VBADocuments
       tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)
       response = nil
       begin
-        @upload.update(metadata: @upload.metadata.merge({ 'size' => tempfile.size }))
+        @upload.update(metadata: @upload.metadata.merge(original_file_metadata(tempfile)))
 
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
-        inspector = VBADocuments::PDFInspector.new(pdf: parts)
+        inspector = VBADocuments::PDFInspector.new(pdf: parts['contents'])
         @upload.update(uploaded_pdf: inspector.pdf_data)
 
         # Validations
-        validate_parts(@upload, parts)
-        validate_metadata(parts[META_PART_NAME], submission_version: @upload.metadata['version'].to_i)
-        validate_documents(parts)
+        validate_parts(@upload, parts['contents'])
+        validate_metadata(parts['contents'][META_PART_NAME], submission_version: @upload.metadata['version'].to_i)
+        validate_documents(parts['contents'])
 
-        metadata = perfect_metadata(@upload, parts, timestamp)
-        response = submit(metadata, parts)
+        metadata = perfect_metadata(@upload, parts['contents'], timestamp)
+        response = submit(metadata, parts['contents'])
 
         process_response(response)
         log_submission(@upload, metadata)
-      rescue Common::Exceptions::GatewayTimeout, Faraday::TimeoutError => e
-        message = "Exception in download_and_process for guid #{@upload.guid}, size: #{@upload.metadata['size']} bytes."
-        Rails.logger.warn(message, e)
-        VBADocuments::UploadSubmission.refresh_statuses!([@upload])
+      rescue Common::Exceptions::GatewayTimeout => e
+        handle_gateway_timeout(e)
       rescue VBADocuments::UploadError => e
         Rails.logger.warn("UploadError download_and_process for guid #{@upload.guid}.", e)
         retry_errors(e, @upload)
       ensure
         tempfile.close
-        close_part_files(parts) if parts.present?
+        close_part_files(parts['contents']) if parts.present? && parts['contents'].present?
       end
       response
     end
     # rubocop:enable Metrics/MethodLength
+
+    def original_file_metadata(tempfile)
+      {
+        'size' => tempfile.size,
+        'base64_encoded' => VBADocuments::MultipartParser.base64_encoded?(tempfile.path),
+        'original_checksum' => Digest::SHA256.file(tempfile).hexdigest
+      }
+    end
+
+    def handle_gateway_timeout(error)
+      message = "Exception in download_and_process for guid #{@upload.guid}, size: #{@upload.metadata['size']} bytes."
+      Rails.logger.warn(message, error)
+
+      @upload.track_upload_timeout_error
+
+      if @upload.hit_upload_timeout_limit?
+        @upload.update(status: 'error', code: 'DOC104', detail: 'Request timed out uploading to upstream system')
+      end
+
+      VBADocuments::UploadSubmission.refresh_statuses!([@upload])
+    end
 
     def close_part_files(parts)
       parts[DOC_PART_NAME]&.close if parts[DOC_PART_NAME].respond_to? :close

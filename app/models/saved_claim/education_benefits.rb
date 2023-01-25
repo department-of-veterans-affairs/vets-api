@@ -17,9 +17,43 @@ class SavedClaim::EducationBenefits < SavedClaim
     form_id
   end
 
-  def after_submit(user); end
+  def after_submit(_user)
+    case form_id
+    when '22-5490'
+      return unless Flipper.enabled?(:form5490_confirmation_email)
+
+      send_5490_confirmation_email
+    end
+  end
 
   private
+
+  def parsed_form_data
+    @parsed_form_data ||= JSON.parse(form)
+  end
+
+  def send_5490_confirmation_email
+    email = parsed_form_data['email']
+    return if email.blank?
+
+    benefit = case parsed_form_data['benefit']
+              when 'chapter35'
+                'Survivors’ and Dependents’ Educational Assistance (DEA, Chapter 35)'
+              when 'chapter33'
+                'The Fry Scholarship (Chapter 33)'
+              end
+
+    VANotify::EmailJob.perform_async(
+      email,
+      Settings.vanotify.services.va_gov.template_id.form5490_confirmation_email,
+      {
+        'first_name' => parsed_form.dig('relativeFullName', 'first')&.upcase.presence,
+        'benefit' => benefit,
+        'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+        'confirmation_number' => education_benefits_claim.confirmation_number
+      }
+    )
+  end
 
   def add_education_benefits_claim
     build_education_benefits_claim if education_benefits_claim.nil?

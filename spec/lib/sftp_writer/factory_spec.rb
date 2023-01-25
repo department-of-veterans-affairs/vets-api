@@ -21,8 +21,8 @@ RSpec.describe SFTPWriter::Factory, type: :model, form: :education_benefits do
 
   it 'writes to production when possible' do
     expect(Rails.env).to receive('development?').once.and_return(false)
-
-    key_path = "#{::Rails.root}/spec/fixtures/files/idme_cert.crt" # any readable file will work for this spec
+    # any readable file will work for this spec
+    key_path = ::Rails.root.join(*'/spec/fixtures/files/idme_cert.crt'.split('/')).to_s
     with_settings(Settings.edu.sftp, host: 'localhost', key_path: key_path) do
       expect(subject.get_writer(Settings.edu.sftp)).to be(SFTPWriter::Remote)
     end

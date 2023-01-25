@@ -13,10 +13,6 @@ module EVSS
       @use_mock = Settings.evss.mock_common_service || false
     end
 
-    def create_user_account
-      post 'persistentPropertiesService/11.6/createUserAccount'
-    end
-
     def get_current_info
       post 'vsoSearch/11.6/getCurrentInfo'
     end

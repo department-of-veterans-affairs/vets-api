@@ -67,10 +67,10 @@ RSpec.describe UserSessionForm, type: :model do
          '12345748^PI^200MHS^USVHA^A']
       end
       let(:add_person_response) do
-        MPI::Responses::AddPersonResponse.new(status: status, mvi_codes: mvi_codes, error: nil)
+        MPI::Responses::AddPersonResponse.new(status: status, parsed_codes: parsed_codes)
       end
       let(:status) { 'OK' }
-      let(:mvi_codes) { { icn: saml_attributes[:va_eauth_icn] } }
+      let(:parsed_codes) { { icn: saml_attributes[:va_eauth_icn] } }
 
       before do
         allow_any_instance_of(MPI::Service).to receive(:add_person_implicit_search).and_return(add_person_response)
@@ -107,10 +107,10 @@ RSpec.describe UserSessionForm, type: :model do
         let!(:user_verification) { create(:idme_user_verification, user_account: user_account) }
         let(:idme_uuid) { user_verification.idme_uuid }
         let(:add_person_response) do
-          MPI::Responses::AddPersonResponse.new(status: status, mvi_codes: mvi_codes, error: nil)
+          MPI::Responses::AddPersonResponse.new(status: status, parsed_codes: parsed_codes)
         end
         let(:status) { 'OK' }
-        let(:mvi_codes) { { icn: saml_attributes[:va_eauth_icn] } }
+        let(:parsed_codes) { { icn: saml_attributes[:va_eauth_icn] } }
 
         before do
           allow_any_instance_of(MPI::Service).to receive(:add_person_implicit_search).and_return(add_person_response)

@@ -38,7 +38,7 @@ en:
         code: 'CIE-VETS-API_410'
         detail: 'Retry Attempt Exceeded'
         status: 410
-      CHIP-MAPPED-API_500:
+      CHIP-API_500:
         <<: *external_defaults
         title: 'Internal Server Error'
         code: 'CHIP-API_500'

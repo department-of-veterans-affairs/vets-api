@@ -8,8 +8,9 @@ module V0
     class VirtualAgentClaimController < ApplicationController
       include IgnoreNotFound
       rescue_from 'EVSS::ErrorMiddleware::EVSSError', with: :service_exception_handler
-      before_action { authorize :evss, :access? } if Settings.vsp_environment.present?
-
+      if Settings.vsp_environment.present? && Settings.vsp_environment.downcase != 'development'
+        before_action { authorize :evss, :access? }
+      end
       def index
         claims, synchronized = service.all
         cxdw_reporting_service = V0::VirtualAgent::ReportToCxdw.new
@@ -20,25 +21,15 @@ module V0
         when 'FAILED'
           error = EVSS::ErrorMiddleware::EVSSError.new('Could not retrieve claims')
           report_or_error(cxdw_reporting_service, conversation_id)
-          call_virtual_agent_store_user_info if Flipper.enabled?(:virtual_agent_user_access_records)
           service_exception_handler(error)
         else
           data_for_three_most_recent_open_comp_claims(claims)
           report_or_error(cxdw_reporting_service, conversation_id)
-          call_virtual_agent_store_user_info if Flipper.enabled?(:virtual_agent_user_access_records)
           render json: {
             data: data_for_three_most_recent_open_comp_claims(claims),
             meta: { sync_status: synchronized }
           }
         end
-      end
-
-      def call_virtual_agent_store_user_info
-        kms = KmsEncrypted::Box.new(previous_versions: [{ key_id: Settings.lockbox.master_key }])
-        user_info = { first_name: current_user.first_name, last_name: current_user.last_name,
-                      ssn: kms.encrypt(current_user.ssn), icn: current_user.icn }
-
-        VirtualAgentStoreUserInfoJob.perform_async(user_info, 'claims', kms, {})
       end
 
       def show

@@ -3,84 +3,45 @@
 require 'rails_helper'
 
 describe MPIData, skip_mvi: true do
-  let(:user) do
-    build(:user, :loa3, :no_vha_facilities,
-          edipi: nil, sec_id: nil, icn: nil, cerner_id: nil,
-          cerner_facility_ids: nil)
-  end
-  let(:mvi) { MPIData.for_user(user.identity) }
-  let(:mvi_profile) { build(:mvi_profile) }
-  let(:mvi_codes) do
-    {
-      birls_id: '111985523',
-      participant_id: '32397028'
-    }
-  end
-  let(:profile_response) do
-    MPI::Responses::FindProfileResponse.new(
-      status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
-      profile: mvi_profile
-    )
-  end
-  let(:profile_response_error) { MPI::Responses::FindProfileResponse.with_server_error(server_error_exception) }
-  let(:profile_response_not_found) { MPI::Responses::FindProfileResponse.with_not_found(not_found_exception) }
-  let(:add_response) do
-    MPI::Responses::AddPersonResponse.new(
-      status: MPI::Responses::AddPersonResponse::RESPONSE_STATUS[:ok],
-      mvi_codes: mvi_codes
-    )
-  end
-  let(:add_response_error) { MPI::Responses::AddPersonResponse.with_server_error(server_error_exception) }
-  let(:default_ttl) { REDIS_CONFIG[MPIData::REDIS_CONFIG_KEY.to_s]['each_ttl'] }
-  let(:failure_ttl) { REDIS_CONFIG[MPIData::REDIS_CONFIG_KEY.to_s]['failure_ttl'] }
+  let(:user) { build(:user, :loa3) }
 
-  describe '.new' do
-    it 'creates an instance with user attributes' do
-      expect(mvi.user_identity).to eq(user.identity)
-    end
-  end
+  describe '.for_user' do
+    subject { MPIData.for_user(user.identity) }
 
-  describe '.historical_icn_for_user' do
-    subject { MPIData.historical_icn_for_user(user.identity) }
-
-    let(:mpi_profile) { build(:mpi_profile_response, :with_historical_icns) }
-
-    before do
-      stub_mpi_historical_icns(mpi_profile)
-    end
-
-    context 'when user is not loa3' do
-      let(:user) { build(:user) }
-
-      it 'returns nil' do
-        expect(subject).to eq(nil)
-      end
-    end
-
-    context 'when user is loa3' do
-      it 'returns historical icns from an mpi call for that user' do
-        expect(subject).to eq(mpi_profile.historical_icns)
-      end
-    end
-  end
-
-  describe '#mvi_get_person_historical_icns' do
-    subject { MPIData.new(user.identity).mvi_get_person_historical_icns }
-
-    let(:mpi_profile) { build(:mpi_profile_response, :with_historical_icns) }
-
-    before do
-      stub_mpi_historical_icns(mpi_profile)
-    end
-
-    it 'returns historical icn data from MPI call for given user' do
-      expect(subject).to eq(mpi_profile.historical_icns)
+    it 'creates an instance with given user identity attributes' do
+      mpi_data = subject
+      expect(mpi_data.user_loa3).to eq(user.identity.loa3?)
+      expect(mpi_data.user_icn).to eq(user.identity.icn)
+      expect(mpi_data.user_first_name).to eq(user.identity.first_name)
+      expect(mpi_data.user_last_name).to eq(user.identity.last_name)
+      expect(mpi_data.user_birth_date).to eq(user.identity.birth_date)
+      expect(mpi_data.user_ssn).to eq(user.identity.ssn)
+      expect(mpi_data.user_edipi).to eq(user.identity.edipi)
+      expect(mpi_data.user_logingov_uuid).to eq(user.identity.logingov_uuid)
+      expect(mpi_data.user_idme_uuid).to eq(user.identity.idme_uuid)
+      expect(mpi_data.user_uuid).to eq(user.identity.uuid)
     end
   end
 
   describe '#add_person_proxy' do
+    subject { mpi_data.add_person_proxy }
+
+    let(:mpi_data) { MPIData.for_user(user.identity) }
+    let(:profile_response_error) { create(:find_profile_server_error_response) }
+    let(:profile_response) { create(:find_profile_response, profile: mpi_profile) }
+    let(:mpi_profile) { build(:mvi_profile) }
+
     context 'with a successful add' do
-      let(:given_names) { %w[kitty puppy] }
+      let(:add_response) { create(:add_person_response, parsed_codes: parsed_codes) }
+      let(:parsed_codes) do
+        {
+          birls_id: birls_id,
+          participant_id: participant_id
+        }
+      end
+      let(:birls_id) { '111985523' }
+      let(:participant_id) { '32397028' }
+      let(:given_names) { %w[kitty] }
       let(:family_name) { 'banana' }
       let(:suffix) { 'Jr' }
       let(:birth_date) { '19801010' }
@@ -93,279 +54,306 @@ describe MPIData, skip_mvi: true do
           postal_code: '20500'
         }
       end
-      let(:icn_with_aaid) { 'some-icn-with-aaid' }
+      let(:icn) { 'some-icn' }
       let(:edipi) { 'some-edipi' }
       let(:search_token) { 'some-search_token' }
       let(:gender) { 'M' }
       let(:ssn) { '987654321' }
       let(:phone) { '(800) 867-5309' }
       let(:person_types) { ['VET'] }
-      let(:mvi_profile) do
+      let(:mpi_profile) do
         build(:mvi_profile,
               given_names: given_names,
               family_name: family_name,
               birth_date: birth_date,
-              icn_with_aaid: icn_with_aaid,
+              icn: icn,
               edipi: edipi,
               search_token: search_token,
               ssn: ssn,
               person_types: person_types,
               gender: gender)
       end
-      let(:expected_user_identity) do
-        build(:user_identity,
-              :loa3,
-              first_name: given_names.first,
-              middle_name: given_names.last,
-              last_name: family_name,
-              suffix: suffix,
-              birth_date: birth_date,
-              address: address,
-              icn_with_aaid: icn_with_aaid,
-              edipi: edipi,
-              search_token: search_token,
-              gender: gender,
-              ssn: ssn,
-              phone: phone,
-              idme_uuid: user.idme_uuid)
+
+      before do
+        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes_with_orch_search)
+          .and_return(profile_response)
+        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(profile_response)
+        allow_any_instance_of(MPI::Service).to receive(:add_person_proxy).and_return(add_response)
+      end
+
+      it 'creates a birls_id from add_person_proxy and adds it to existing mpi data object' do
+        expect { subject }.to change(mpi_data, :birls_id).from(mpi_profile.birls_id).to(birls_id)
+      end
+
+      it 'creates a participant_id from add_person_proxy and adds it to existing mpi data object' do
+        expect { subject }.to change(mpi_data, :participant_id).from(mpi_profile.participant_id).to(participant_id)
       end
 
       it 'copies relevant results from orchestration search to fields for add person call' do
-        allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response)
-        allow_any_instance_of(MPI::Service).to receive(:add_person_proxy).and_return(add_response)
+        subject
 
-        expect_any_instance_of(MPI::Service).to receive(:find_profile)
-          .with(instance_of(UserIdentity), orch_search: true)
-        mvi.add_person_proxy
-        expect(mvi.user_identity.to_h).to include(expected_user_identity.to_h)
+        expect(mpi_data.birls_id).to eq(birls_id)
+        expect(mpi_data.participant_id).to eq(participant_id)
       end
 
       it 'returns the successful response' do
-        allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response)
-        allow_any_instance_of(MPI::Service).to receive(:add_person_proxy).and_return(add_response)
-        expect_any_instance_of(MPIData).to receive(:add_ids).once.and_call_original
-        expect_any_instance_of(MPIData).to receive(:cache).once.and_call_original
-        response = mvi.add_person_proxy
-        expect(response.status).to eq('OK')
+        expect(subject.ok?).to eq(true)
       end
     end
 
     context 'with a failed search' do
-      it 'returns the failed search response' do
-        allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response_error)
-        response = mvi.add_person_proxy
+      before do
+        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes_with_orch_search)
+          .and_return(profile_response_error)
+      end
+
+      it 'returns the response from the failed search' do
         expect_any_instance_of(MPI::Service).not_to receive(:add_person_proxy)
-        expect(response.status).to eq('SERVER_ERROR')
+        expect(subject).to eq(profile_response_error)
       end
     end
 
     context 'with a failed add' do
-      it 'returns the failed add response' do
-        allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response)
+      let(:add_response_error) { create(:add_person_server_error_response) }
+
+      before do
+        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes_with_orch_search)
+          .and_return(profile_response)
         allow_any_instance_of(MPI::Service).to receive(:add_person_proxy).and_return(add_response_error)
+      end
+
+      it 'returns the failed add response' do
         expect_any_instance_of(MPIData).not_to receive(:add_ids)
         expect_any_instance_of(MPIData).not_to receive(:cache)
-        response = mvi.add_person_proxy
-        expect(response.status).to eq('SERVER_ERROR')
+        response = subject
+        expect(response.server_error?).to eq(true)
       end
     end
   end
 
   describe '#profile' do
-    context 'when the cache is empty' do
-      it 'caches and return an :ok response', :aggregate_failures do
-        allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response)
-        expect(mvi).to receive(:save).once
-        expect_any_instance_of(MPI::Service).to receive(:find_profile).once
-        expect(mvi.status).to eq('OK')
-        expect(mvi.send(:record_ttl)).to eq(86_400)
-        expect(mvi.error).to be_nil
-      end
+    subject { mpi_data.profile }
 
-      it 'returns an :error response but not cache it', :aggregate_failures do
-        allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response_error)
-        expect(mvi).not_to receive(:save)
-        expect_any_instance_of(MPI::Service).to receive(:find_profile).once
-        expect(mvi.status).to eq('SERVER_ERROR')
-        expect(mvi.error).to be_present
-        expect(mvi.error.class).to eq Common::Exceptions::BackendServiceException
-      end
+    let(:mpi_data) { MPIData.for_user(user.identity) }
 
-      it 'returns a :not_found response and cache it for a shorter time', :aggregate_failures do
-        allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response_not_found)
-        expect(mvi).to receive(:save).once
-        expect_any_instance_of(MPI::Service).to receive(:find_profile).once
-        expect(mvi.status).to eq('NOT_FOUND')
-        expect(mvi.send(:record_ttl)).to eq(1800)
-        expect(mvi.error).to be_present
-        expect(mvi.error.class).to eq Common::Exceptions::BackendServiceException
+    context 'when user is not loa3' do
+      let(:user) { build(:user) }
+
+      it 'returns nil' do
+        expect(subject).to eq(nil)
       end
     end
 
-    context 'when there is cached data' do
-      it 'returns the cached data for :ok response', :aggregate_failures do
-        mvi.cache(user.uuid, profile_response)
-        expect_any_instance_of(MPI::Service).not_to receive(:find_profile)
-        expect(mvi.profile).to have_deep_attributes(mvi_profile)
-        expect(mvi.error).to be_nil
+    context 'when user is loa3' do
+      let(:user) { build(:user, :loa3) }
+      let(:profile_response) { 'some-profile-response' }
+
+      before do
+        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(profile_response)
       end
 
-      it 'returns the cached data for :error response', :aggregate_failures do
-        mvi.cache(user.uuid, profile_response_error)
-        expect_any_instance_of(MPI::Service).not_to receive(:find_profile)
-        expect(mvi.profile).to be_nil
-        expect(mvi.error).to be_present
-        expect(mvi.error.class).to eq Common::Exceptions::BackendServiceException
+      context 'and there is cached data for a successful response' do
+        let(:mpi_profile) { build(:mpi_profile_response) }
+        let(:profile_response) { create(:find_profile_response, profile: mpi_profile) }
+
+        before { mpi_data.cache(user.uuid, profile_response) }
+
+        it 'returns the cached data' do
+          expect(MPIData.find(user.uuid).response).to have_deep_attributes(profile_response)
+        end
       end
 
-      it 'returns the cached data for :not_found response', :aggregate_failures do
-        mvi.cache(user.uuid, profile_response_not_found)
-        expect_any_instance_of(MPI::Service).not_to receive(:find_profile)
-        expect(mvi.profile).to be_nil
-        expect(mvi.error).to be_present
-        expect(mvi.error.class).to eq Common::Exceptions::BackendServiceException
+      context 'and there is cached data for a server error response' do
+        let(:profile_response) { create(:find_profile_server_error_response) }
+
+        before { mpi_data.cache(user.uuid, profile_response) }
+
+        it 'returns the cached data' do
+          expect(MPIData.find(user.uuid).response).to have_deep_attributes(profile_response)
+        end
+      end
+
+      context 'and there is cached data for a not found response' do
+        let(:profile_response) { create(:find_profile_not_found_response) }
+
+        before { mpi_data.cache(user.uuid, profile_response) }
+
+        it 'returns the cached data' do
+          expect(MPIData.find(user.uuid).response).to have_deep_attributes(profile_response)
+        end
+      end
+
+      context 'and there is not cached data for a response' do
+        context 'and the response is successful' do
+          let(:mpi_profile) { build(:mpi_profile_response) }
+          let(:profile_response) { create(:find_profile_response, profile: mpi_profile) }
+
+          it 'returns the successful response' do
+            expect(subject).to eq(mpi_profile)
+          end
+
+          it 'caches the successful response' do
+            subject
+            expect(MPIData.find(user.icn).response).to have_deep_attributes(profile_response)
+          end
+        end
+
+        context 'and the response is not successful with not found response' do
+          let(:profile_response) { create(:find_profile_not_found_response, profile: profile) }
+          let(:profile) { 'some-unsuccessful-profile' }
+
+          it 'returns the unsuccessful response' do
+            expect(subject).to eq(profile)
+          end
+
+          it 'caches the unsuccessful response' do
+            subject
+            expect(MPIData.find(user.icn).response.profile).to eq(profile)
+          end
+        end
+
+        context 'and the response is not successful with server error response' do
+          let(:profile_response) { create(:find_profile_server_error_response, profile: profile) }
+          let(:profile) { 'some-unsuccessful-profile' }
+
+          it 'returns the unsuccessful response' do
+            expect(subject).to eq(profile)
+          end
+
+          it 'does not cache the unsuccessful response' do
+            subject
+            expect(MPIData.find(user.icn)).to be(nil)
+          end
+        end
       end
     end
   end
 
-  describe 'correlation ids' do
+  describe 'delegated attribute functions' do
     context 'with a successful response' do
+      let(:mpi_data) { MPIData.for_user(user.identity) }
+      let(:mpi_profile) { build(:mvi_profile) }
+      let(:profile_response) { create(:find_profile_response, profile: mpi_profile) }
+
       before do
-        allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response)
+        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(profile_response)
       end
 
       describe '#edipi' do
         it 'matches the response' do
-          expect(mvi.edipi).to eq(profile_response.profile.edipi)
+          expect(mpi_data.edipi).to eq(profile_response.profile.edipi)
         end
       end
 
       describe '#edipis' do
         it 'matches the response' do
-          expect(mvi.edipis).to eq(profile_response.profile.edipis)
+          expect(mpi_data.edipis).to eq(profile_response.profile.edipis)
         end
       end
 
       describe '#icn' do
         it 'matches the response' do
-          expect(mvi.icn).to eq(profile_response.profile.icn)
+          expect(mpi_data.icn).to eq(profile_response.profile.icn)
         end
       end
 
       describe '#icn_with_aaid' do
         it 'matches the response' do
-          expect(mvi.icn_with_aaid).to eq(profile_response.profile.icn_with_aaid)
+          expect(mpi_data.icn_with_aaid).to eq(profile_response.profile.icn_with_aaid)
         end
       end
 
       describe '#mhv_correlation_id' do
         it 'matches the response' do
-          expect(mvi.mhv_correlation_id).to eq(profile_response.profile.mhv_correlation_id)
+          expect(mpi_data.mhv_correlation_id).to eq(profile_response.profile.mhv_correlation_id)
         end
       end
 
       describe '#participant_id' do
         it 'matches the response' do
-          expect(mvi.participant_id).to eq(profile_response.profile.participant_id)
+          expect(mpi_data.participant_id).to eq(profile_response.profile.participant_id)
         end
       end
 
       describe '#participant_ids' do
         it 'matches the response' do
-          expect(mvi.participant_ids).to eq(profile_response.profile.participant_ids)
+          expect(mpi_data.participant_ids).to eq(profile_response.profile.participant_ids)
         end
       end
 
       describe '#birls_id' do
         it 'matches the response' do
-          expect(mvi.birls_id).to eq(profile_response.profile.birls_id)
+          expect(mpi_data.birls_id).to eq(profile_response.profile.birls_id)
         end
       end
 
       describe '#birls_ids' do
         it 'matches the response' do
-          expect(mvi.birls_ids).to eq(profile_response.profile.birls_ids)
+          expect(mpi_data.birls_ids).to eq(profile_response.profile.birls_ids)
         end
       end
 
       describe '#mhv_ien' do
         it 'matches the response' do
-          expect(mvi.mhv_ien).to eq(profile_response.profile.mhv_ien)
+          expect(mpi_data.mhv_ien).to eq(profile_response.profile.mhv_ien)
         end
       end
 
       describe '#mhv_iens' do
         it 'matches the response' do
-          expect(mvi.mhv_iens).to eq(profile_response.profile.mhv_iens)
+          expect(mpi_data.mhv_iens).to eq(profile_response.profile.mhv_iens)
         end
       end
 
       describe '#vet360_id' do
         it 'matches the response' do
-          expect(mvi.vet360_id).to eq(profile_response.profile.vet360_id)
+          expect(mpi_data.vet360_id).to eq(profile_response.profile.vet360_id)
         end
       end
     end
 
     context 'with an error response' do
+      let(:mpi_data) { MPIData.for_user(user.identity) }
+      let(:profile_response_error) { create(:find_profile_server_error_response, error: error) }
+      let(:error) { 'some-error' }
+
       before do
-        allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response_error)
+        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(profile_response_error)
       end
 
       it 'captures the error in #error' do
-        expect(mvi.error).to be_present
+        expect(mpi_data.error).to eq(error)
       end
 
       describe '#edipi' do
         it 'is nil' do
-          expect(mvi.edipi).to be_nil
+          expect(mpi_data.edipi).to be_nil
         end
       end
 
       describe '#icn' do
         it 'is nil' do
-          expect(mvi.icn).to be_nil
+          expect(mpi_data.icn).to be_nil
         end
       end
 
       describe '#icn_with_aaid' do
         it 'is nil' do
-          expect(mvi.icn_with_aaid).to be_nil
+          expect(mpi_data.icn_with_aaid).to be_nil
         end
       end
 
       describe '#mhv_correlation_id' do
         it 'is nil' do
-          expect(mvi.mhv_correlation_id).to be_nil
+          expect(mpi_data.mhv_correlation_id).to be_nil
         end
       end
 
       describe '#participant_id' do
         it 'is nil' do
-          expect(mvi.participant_id).to be_nil
+          expect(mpi_data.participant_id).to be_nil
         end
       end
-    end
-  end
-
-  describe '#add_ids' do
-    let(:mvi) { MPIData.for_user(user.identity) }
-    let(:response) do
-      MPI::Responses::AddPersonResponse.new(
-        status: 'OK',
-        mvi_codes: {
-          birls_id: '1234567890',
-          participant_id: '0987654321'
-        }
-      )
-    end
-
-    it 'updates the user profile and updates the cache' do
-      allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response)
-      expect_any_instance_of(MPIData).to receive(:cache).twice.and_call_original
-      mvi.send(:add_ids, response)
-      expect(user.participant_id).to eq('0987654321')
-      expect(user.birls_id).to eq('1234567890')
     end
   end
 end

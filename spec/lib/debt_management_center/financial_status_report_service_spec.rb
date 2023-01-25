@@ -23,7 +23,9 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
 
   def mock_pdf_fill
     pdf_stub = class_double('PdfFill::Filler').as_stubbed_const
-    allow(pdf_stub).to receive(:fill_ancillary_form).and_return("#{::Rails.root}/spec/fixtures/dmc/5655.pdf")
+    allow(pdf_stub).to receive(:fill_ancillary_form).and_return(::Rails.root.join(
+      *'/spec/fixtures/dmc/5655.pdf'.split('/')
+    ).to_s)
   end
 
   describe '#submit_financial_status_report' do
@@ -218,6 +220,20 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
 
     it 'enqueues a VBA submission job' do
       valid_form_data['selectedDebtsAndCopays'] = [{ 'foo' => 'bar', 'debtType' => 'DEBT' }]
+      valid_form_data['personalIdentification'] = {}
+      VCR.use_cassette('dmc/submit_fsr') do
+        VCR.use_cassette('bgs/people_service/person_data') do
+          service = described_class.new(user)
+          expect { service.submit_combined_fsr(valid_form_data) }
+            .to change { Form5655::VBASubmissionJob.jobs.size }
+            .from(0)
+            .to(1)
+        end
+      end
+    end
+
+    it 'enqueues a VBA submission job if no selected debts present' do
+      valid_form_data['selectedDebtsAndCopays'] = []
       valid_form_data['personalIdentification'] = {}
       VCR.use_cassette('dmc/submit_fsr') do
         VCR.use_cassette('bgs/people_service/person_data') do

@@ -20,7 +20,7 @@ class VANotifyEmailJob
       log_exception_to_sentry(
         e,
         {
-          args: { email: email, template_id: template_id, personalisation: personalisation }
+          args: { template_id: template_id, personalisation: personalisation }
         },
         { error: :va_notify_email_job }
       )

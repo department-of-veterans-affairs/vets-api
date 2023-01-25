@@ -78,4 +78,36 @@ RSpec.describe V1::SupplementalClaimsController do
       end
     end
   end
+
+  describe '#create with uploads' do
+    # Create evidence files objs
+
+    subject do
+      post '/v1/supplemental_claims',
+           params: example_payload.to_json,
+           headers: headers
+    end
+
+    let(:example_payload) { VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-WITH-UPLOADS_V1') }
+
+    def personal_information_logs
+      PersonalInformationLog.where 'error_class like ?',
+                                   'V1::SupplementalClaimsController#create exception % (SC_V1)'
+    end
+
+    it 'creates a supplemental claim and queues evidence jobs when additionalDocuments info is provided' do
+      VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-WITH-UPLOADS-200_V1') do
+        VCR.use_cassette('central_mail/submit_4142') do
+          VCR.use_cassette('decision_review/SC-GET-UPLOAD-URL-200_V1') do
+            expect { subject }.to change(DecisionReview::SubmitUpload.jobs, :size).by(2)
+            expect(response).to be_successful
+            parsed_response = JSON.parse(response.body)
+            id = parsed_response['data']['id']
+            appeal_submission = AppealSubmission.find_by(submitted_appeal_uuid: id)
+            expect(appeal_submission.type_of_appeal).to eq('SC')
+          end
+        end
+      end
+    end
+  end
 end

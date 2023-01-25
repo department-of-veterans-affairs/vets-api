@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Facilities::PSSGDownload, type: :job do
   let(:drive_time_data_648A4) do
-    fixture_file_name = "#{::Rails.root}/spec/fixtures/pssg/drive_time_data_648A4.json"
+    fixture_file_name = ::Rails.root.join(*'/spec/fixtures/pssg/drive_time_data_648A4.json'.split('/')).to_s
     File.open(fixture_file_name, 'rb') do |f|
       JSON.parse(f.read)
     end
@@ -25,7 +25,7 @@ RSpec.describe Facilities::PSSGDownload, type: :job do
   end
 
   let(:drive_time_data_402QA) do
-    fixture_file_name = "#{::Rails.root}/spec/fixtures/pssg/drive_time_data_402QA.json"
+    fixture_file_name = ::Rails.root.join(*'/spec/fixtures/pssg/drive_time_data_402QA.json'.split('/')).to_s
     File.open(fixture_file_name, 'rb') do |f|
       JSON.parse(f.read)
     end

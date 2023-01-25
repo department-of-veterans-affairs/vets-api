@@ -377,5 +377,21 @@ RSpec.describe 'Intent to file', type: :request do
         expect(response.status).to eq(422)
       end
     end
+
+    it 'returns a 422 when invalid target_veteran' do
+      with_okta_user(scopes) do |auth_header|
+        vet = FactoryBot.build(:user_with_no_birls_id, :loa3)
+        allow_any_instance_of(ClaimsApi::V1::ApplicationController)
+          .to receive(:veteran_from_headers).and_return(vet)
+
+        post "#{path}/validate", params: data.to_json, headers: headers.merge(auth_header)
+        parsed = JSON.parse(response.body)
+        expect(response.status).to eq(422)
+        expect(parsed['errors'][0]['detail']).to eq("Unable to locate Veteran's BIRLS ID in Master Person Index " \
+                                                    '(MPI). ' \
+                                                    'Please submit an issue at ask.va.gov or call 1-800-MyVA411 ' \
+                                                    '(800-698-2411) for assistance.')
+      end
+    end
   end
 end

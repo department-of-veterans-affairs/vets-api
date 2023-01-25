@@ -16,4 +16,19 @@ class SavedClaim::Pension < CentralMailClaim
   def email
     parsed_form['email']
   end
+
+  def send_confirmation_email
+    return unless Flipper.enabled?(:form527ez_confirmation_email)
+    return if email.blank?
+
+    VANotify::EmailJob.perform_async(
+      email,
+      Settings.vanotify.services.va_gov.template_id.form527ez_confirmation_email,
+      {
+        'first_name' => parsed_form.dig('veteranFullName', 'first')&.upcase.presence,
+        'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+        'confirmation_number' => guid
+      }
+    )
+  end
 end

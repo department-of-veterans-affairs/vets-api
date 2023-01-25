@@ -3,6 +3,7 @@
 require_relative 'request_helper'
 require_relative 'request_builder'
 require 'formatters/date_formatter'
+require 'mpi/errors/errors'
 
 module MPI
   module Messages
@@ -111,7 +112,7 @@ module MPI
       end
 
       def identifier
-        "#{csp_uuid}^#{csp_identifier}^A"
+        "#{csp_uuid}^#{csp_identifier}"
       end
 
       def csp_identifier

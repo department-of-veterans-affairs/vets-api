@@ -21,8 +21,8 @@ module SAML
 
     LOGIN_REDIRECT_PARTIAL = '/auth/login/callback'
     LOGOUT_REDIRECT_PARTIAL = '/logout/'
-    STATSD_SSO_UNIFIED_NEW_KEY = 'api.auth.unified_new'
     BROKER_CODE = 'iam'
+    UNIFIED_SIGN_IN_CLIENTS = %w[vaweb mhv myvahealth ebenefits vamobile vaoccmobile].freeze
 
     attr_reader :saml_settings, :session, :user, :authn_context, :type, :query_params, :tracker
 
@@ -237,9 +237,7 @@ module SAML
       redirect = previous&.payload_attr(:redirect) || params[:redirect]
       application = previous&.payload_attr(:application) || params[:application]
       post_login = previous&.payload_attr(:post_login) || params[:postLogin]
-      if %w[mhv myvahealth ebenefits vamobile vaoccmobile].include?(application)
-        StatsD.increment(STATSD_SSO_UNIFIED_NEW_KEY, tags: ["client:#{application}"])
-      end
+
       # if created_at is set to nil (meaning no previous tracker to use), it
       # will be initialized to the current time when it is saved
       SAMLRequestTracker.new(

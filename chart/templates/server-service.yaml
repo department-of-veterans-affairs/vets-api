@@ -1,4 +1,6 @@
-{{- if .Values.web.service.enabled }}
+{{- $root := . -}}
+{{- if $root.Values.web.service.enabled }}
+{{- range $name, $service := $root.Values.web.webServices }}
 # Source: confluence/templates/service.yaml
 # Documentation: https://kubernetes.io/docs/concepts/services-networking/service/
 # Worker env: tracks pods that deployment has
@@ -6,16 +8,17 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.appName }}-web
-  namespace: {{ .Release.Namespace }}
+  name: {{ $name }}
+  namespace: {{ $root.Release.Namespace }}
   labels:
-    app_name: {{ .Values.appName }}-web
+    app_name: {{ $name }}
   annotations:
-{{ toYaml .Values.web.service.annotations | indent 4 }}
+{{ toYaml $root.Values.web.service.annotations | indent 4 }}
 spec:
   ports:
-{{ toYaml .Values.web.service.ports | indent 4 }}
-  type: {{ .Values.web.service.type }}
+{{ toYaml $root.Values.web.service.ports | indent 4 }}
+  type: {{ $root.Values.web.service.type }}
   selector:
-    app: {{ .Values.appName }}-web
+    app: {{ $name }}
+{{- end }}
 {{- end }}

@@ -60,7 +60,13 @@ module VBADocuments
           submission.status = request.headers['Status-Override']
           submission.save
         else
-          submission.refresh_status! unless submission.status == 'expired'
+          begin
+            submission.refresh_status! unless submission.status == 'expired'
+          rescue Common::Exceptions::GatewayTimeout, Common::Exceptions::BadGateway => e
+            # Rescue and log (but don't raise exception), so that last cached status is returned
+            message = "Status refresh failed for submission on #{controller_name}##{action_name}, GUID: #{params[:id]}"
+            Rails.logger.warn(message, e)
+          end
         end
 
         render json: submission,
@@ -88,7 +94,7 @@ module VBADocuments
           upload_model.metadata['version'] = 2
           upload_model.save!
 
-          parts = VBADocuments::MultipartParser.parse(StringIO.new(request.raw_post))
+          parts = VBADocuments::MultipartParser.parse(StringIO.new(request.raw_post))['contents']
           inspector = VBADocuments::PDFInspector.new(pdf: parts)
           upload_model.update(uploaded_pdf: inspector.pdf_data)
 

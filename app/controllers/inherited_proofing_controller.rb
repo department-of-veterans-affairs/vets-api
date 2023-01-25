@@ -9,7 +9,7 @@ require 'inherited_proofing/errors'
 
 class InheritedProofingController < ApplicationController
   skip_before_action :verify_authenticity_token, :authenticate, only: [:user_attributes]
-  before_action :authenticate_access_token, only: [:user_attributes]
+  before_action :authenticate_auth_code_access_token, only: [:user_attributes]
 
   BEARER_PATTERN = /^Bearer /.freeze
 
@@ -33,6 +33,7 @@ class InheritedProofingController < ApplicationController
   end
 
   def callback
+    validate_auth_code(params[:auth_code].presence)
     save_inherited_proofing_verification
     reset_session
     redirect_to controller: 'v1/sessions', action: :new, type: SAML::User::LOGINGOV_CSID
@@ -42,14 +43,14 @@ class InheritedProofingController < ApplicationController
 
   private
 
-  def bearer_token
+  def auth_code_bearer_token
     header = request.authorization
     access_token_jwt = header.gsub(BEARER_PATTERN, '') if header&.match(BEARER_PATTERN)
     InheritedProofing::JwtDecoder.new(access_token_jwt: access_token_jwt).perform
   end
 
-  def authenticate_access_token
-    access_token = bearer_token
+  def authenticate_auth_code_access_token
+    access_token = auth_code_bearer_token
     @auth_code = access_token.inherited_proofing_auth
   rescue => e
     render json: { errors: e }, status: :unauthorized
@@ -61,6 +62,22 @@ class InheritedProofingController < ApplicationController
     end
 
     InheritedProofVerifiedUserAccount.new(user_account: @current_user.user_account).save!
+  end
+
+  def validate_auth_code(auth_code)
+    raise InheritedProofing::Errors::AuthCodeMissingError unless auth_code
+
+    audit_data = inherited_proofing_audit_data(auth_code)
+    raise InheritedProofing::Errors::AuthCodeInvalidError unless audit_data
+    raise InheritedProofing::Errors::InvalidUserError unless audit_data.user_uuid == @current_user.uuid
+    raise InheritedProofing::Errors::InvalidCSPError unless
+      audit_data.legacy_csp == @current_user.identity_sign_in[:service_name]
+  ensure
+    audit_data&.destroy
+  end
+
+  def inherited_proofing_audit_data(auth_code)
+    @audit_data ||= InheritedProofing::AuditData.find(auth_code)
   end
 
   def logingov_inherited_proofing_service

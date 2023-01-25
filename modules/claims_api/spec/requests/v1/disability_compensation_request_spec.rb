@@ -1065,25 +1065,15 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
 
       context 'when consumer is Veteran' do
-        let(:mvi_codes) do
+        let(:parsed_codes) do
           {
             birls_id: '111985523',
             participant_id: '32397028'
           }
         end
         let(:mvi_profile) { build(:mvi_profile) }
-        let(:mvi_profile_response) do
-          MPI::Responses::FindProfileResponse.new(
-            status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
-            profile: mvi_profile
-          )
-        end
-        let(:add_response) do
-          MPI::Responses::AddPersonResponse.new(
-            status: MPI::Responses::AddPersonResponse::RESPONSE_STATUS[:ok],
-            mvi_codes: mvi_codes
-          )
-        end
+        let(:mvi_profile_response) { build(:find_profile_response, profile: mvi_profile) }
+        let(:add_response) { build(:add_person_response, parsed_codes: parsed_codes) }
 
         it 'adds person to MPI' do
           with_okta_user(scopes) do |auth_header|
@@ -1093,7 +1083,10 @@ RSpec.describe 'Disability Claims ', type: :request do
                   VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes') do
                     expect_any_instance_of(MPIData).to receive(:add_person_proxy).once.and_call_original
                     expect_any_instance_of(MPI::Service).to receive(:add_person_proxy).and_return(add_response)
-                    allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(mvi_profile_response)
+                    allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier)
+                      .and_return(mvi_profile_response)
+                    allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes_with_orch_search)
+                      .and_return(mvi_profile_response)
 
                     post path, params: data, headers: auth_header
                     expect(response.status).to eq(200)
@@ -2779,12 +2772,15 @@ RSpec.describe 'Disability Claims ', type: :request do
     let(:auto_claim) { create(:auto_established_claim) }
     let(:non_auto_claim) { create(:auto_established_claim, :autoCestPDFGeneration_disabled) }
     let(:binary_params) do
-      { attachment1: Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"),
-        attachment2: Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
+      { attachment1: Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+                                                                     .split('/')).to_s),
+        attachment2: Rack::Test::UploadedFile.new(::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+                                                                     .split('/')).to_s) }
     end
+
     let(:base64_params) do
-      { attachment1: File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf"),
-        attachment2: File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf") }
+      { attachment1: File.read(::Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s),
+        attachment2: File.read(::Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s) }
     end
 
     context 'when no attachment is provided to the PUT endpoint' do

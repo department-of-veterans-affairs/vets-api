@@ -29,8 +29,7 @@ module MebApi
       def claim_status
         claimant_response = claimant_service.get_claimant_info
         claimant_id = claimant_response['claimant_id']
-
-        claim_status_response = claim_status_service.get_claim_status(claimant_id)
+        claim_status_response = claim_status_service.get_claim_status(params, claimant_id)
 
         response = claimant_response.status == 201 ? claim_status_response : claimant_response
         serializer = claimant_response.status == 201 ? ClaimStatusSerializer : ClaimantSerializer
@@ -41,7 +40,7 @@ module MebApi
       def claim_letter
         claimant_response = claimant_service.get_claimant_info
         claimant_id = claimant_response['claimant_id']
-        claim_status_response = claim_status_service.get_claim_status(claimant_id)
+        claim_status_response = claim_status_service.get_claim_status(params, claimant_id)
         claim_letter_response = claim_letters_service.get_claim_letter(claimant_id)
         is_eligible = claim_status_response.claim_status == 'ELIGIBLE'
         response = claimant_response.status == 201 ? claim_letter_response : claimant_response
@@ -70,18 +69,34 @@ module MebApi
       def enrollment
         claimant_response = claimant_service.get_claimant_info
         claimant_id = claimant_response['claimant_id']
-        response = enrollment_service.get_enrollment(claimant_id)
-
-        render json: response, serializer: EnrollmentSerializer
+        if claimant_id.nil?
+          render json: {
+            data: {
+              no_911_benefits: true
+            }
+          }
+        else
+          response = enrollment_service.get_enrollment(claimant_id)
+          render json: response, serializer: EnrollmentSerializer
+        end
       end
 
       def submit_enrollment_verification
         claimant_response = claimant_service.get_claimant_info
         claimant_id = claimant_response['claimant_id']
 
-        response = enrollment_service.submit_enrollment(params[:education_benefit], claimant_id)
-
-        render json: response, serializer: SubmitEnrollmentSerializer
+        if claimant_id.to_i.zero?
+          render json: {
+            data: {
+              enrollment_certify_responses: []
+            }
+          }
+        else
+          response = enrollment_service.submit_enrollment(
+            params[:education_benefit], claimant_id
+          )
+          render json: response, serializer: SubmitEnrollmentSerializer
+        end
       end
 
       private

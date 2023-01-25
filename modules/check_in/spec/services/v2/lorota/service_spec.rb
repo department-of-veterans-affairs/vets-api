@@ -10,7 +10,7 @@ describe V2::Lorota::Service do
     {
       data: {
         uuid: id,
-        last4: '1234',
+        dob: '1970-02-20',
         last_name: 'Johnson'
       }
     }
@@ -320,8 +320,7 @@ describe V2::Lorota::Service do
       let(:last_name_mismatch) do
         '{ "error" : "lastName does not match with current record" }'
       end
-      let(:ssn_mismatch) { '{ "error" : "SSN4 does not match with current record" }' }
-      let(:ssn_mismatch_with_whitespace) { '{ "error" : "  SSN4 does not match with current record   " }' }
+      let(:dob_mismatch_with_whitespace) { '{ "error" : "  dob does not match with current record   " }' }
       let(:dob_mismatch) { '{ "error" : "dob does not match with current record" }' }
       let(:last_name_dob_mismatch) { '{ "error" : "lastName or dob does not match with current record" }' }
       let(:uuid_not_found) { '{ "error" : "UUID not found" }' }
@@ -334,325 +333,22 @@ describe V2::Lorota::Service do
         { status: '404', detail: ['{ "error" : "UUID not found" }'], code: 'CIE-VETS-API_404' }
       end
 
-      context 'check_in_experience_lorota_deletion_enabled feature flag turned off' do
+      context 'with chip delete endpoint succeeding' do
         before do
-          allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_deletion_enabled')
-                                              .and_return(false)
-          allow_any_instance_of(V2::Lorota::Client).to receive(:token)
-            .and_raise(Common::Exceptions::BackendServiceException.new('LOROTA-API_401',
-                                                                       auth_exception_response_values,
-                                                                       401, last_name_mismatch))
+          allow_any_instance_of(V2::Chip::Service).to receive(:delete)
+            .and_return(Faraday::Response.new(body: 'Delete successful', status: 200))
         end
 
-        it 'returns authentication error' do
-          expect do
-            subject.build(check_in: valid_check_in).token
-          end.to raise_error(Common::Exceptions::BackendServiceException,
-                             "BackendServiceException: #{auth_exception_response_values}")
-        end
-      end
-
-      context 'check_in_experience_lorota_deletion_enabled feature flag turned on' do
-        before do
-          allow(Flipper).to receive(:enabled?).with('check_in_experience_lorota_deletion_enabled')
-                                              .and_return(true)
-        end
-
-        context 'with chip delete endpoint succeeding' do
+        context 'when status code is 401 with lastName does not match error message' do
           before do
-            allow_any_instance_of(V2::Chip::Service).to receive(:delete)
-              .and_return(Faraday::Response.new(body: 'Delete successful', status: 200))
+            allow_any_instance_of(V2::Lorota::Client).to receive(:token)
+              .and_raise(Common::Exceptions::BackendServiceException.new('LOROTA-API_401',
+                                                                         auth_exception_response_values,
+                                                                         401, last_name_mismatch))
           end
 
-          context 'when status code is 401 with lastName does not match error message' do
+          context 'if redis retry_attempt < max_auth_retry_limit' do
             before do
-              allow_any_instance_of(V2::Lorota::Client).to receive(:token)
-                .and_raise(Common::Exceptions::BackendServiceException.new('LOROTA-API_401',
-                                                                           auth_exception_response_values,
-                                                                           401, last_name_mismatch))
-            end
-
-            context 'if redis retry_attempt < max_auth_retry_limit' do
-              before do
-                Rails.cache.write(
-                  "authentication_retry_limit_#{id}",
-                  retry_count,
-                  namespace: 'check-in-lorota-v2-cache',
-                  expires_in: 604_800
-                )
-              end
-
-              it 'increments retry_attempt_count and returns authentication error' do
-                expect do
-                  subject.build(check_in: valid_check_in).token
-                end.to raise_error(Common::Exceptions::BackendServiceException,
-                                   "BackendServiceException: #{auth_exception_response_values}")
-
-                retry_attempt_count = Rails.cache.read(
-                  "authentication_retry_limit_#{id}",
-                  namespace: 'check-in-lorota-v2-cache'
-                )
-
-                expect(retry_attempt_count).to eq(retry_count + 1)
-              end
-            end
-
-            context 'if redis retry_attempt >= max_auth_retry_limit' do
-              let(:data_gone_exception) do
-                { status: '410', detail: [last_name_mismatch], code: 'CIE-VETS-API_410' }
-              end
-
-              before do
-                Rails.cache.write(
-                  "authentication_retry_limit_#{id}",
-                  retry_count + 3,
-                  namespace: 'check-in-lorota-v2-cache',
-                  expires_in: 604_800
-                )
-              end
-
-              it 'throws exception with 410 status code' do
-                expect do
-                  subject.build(check_in: valid_check_in).token
-                end.to raise_error(CheckIn::V2::CheckinServiceException,
-                                   "BackendServiceException: #{data_gone_exception}")
-              end
-            end
-          end
-
-          context 'when status code is 401 with SSN4 does not match error message for second retry' do
-            before do
-              allow_any_instance_of(V2::Lorota::Client).to receive(:token)
-                .and_raise(Common::Exceptions::BackendServiceException.new('LOROTA-API_401',
-                                                                           auth_exception_response_values,
-                                                                           401, ssn_mismatch))
-            end
-
-            context 'if redis retry_attempt < max_auth_retry_limit' do
-              before do
-                Rails.cache.write(
-                  "authentication_retry_limit_#{id}",
-                  retry_count,
-                  namespace: 'check-in-lorota-v2-cache',
-                  expires_in: 604_800
-                )
-              end
-
-              it 'increments retry_attempt_count and returns authentication error' do
-                expect do
-                  subject.build(check_in: valid_check_in).token
-                end.to raise_error(Common::Exceptions::BackendServiceException,
-                                   "BackendServiceException: #{auth_exception_response_values}")
-
-                retry_attempt_count = Rails.cache.read(
-                  "authentication_retry_limit_#{id}",
-                  namespace: 'check-in-lorota-v2-cache'
-                )
-                expect(retry_attempt_count).to eq(retry_count + 1)
-              end
-            end
-
-            context 'if redis retry_attempt >= max_auth_retry_limit' do
-              let(:data_gone_exception) do
-                { status: '410', detail: [ssn_mismatch], code: 'CIE-VETS-API_410' }
-              end
-
-              before do
-                Rails.cache.write(
-                  "authentication_retry_limit_#{id}",
-                  retry_count + 3,
-                  namespace: 'check-in-lorota-v2-cache',
-                  expires_in: 604_800
-                )
-              end
-
-              it 'throws exception with 410 status code' do
-                expect do
-                  subject.build(check_in: valid_check_in).token
-                end.to raise_error(CheckIn::V2::CheckinServiceException,
-                                   "BackendServiceException: #{data_gone_exception}")
-              end
-            end
-          end
-
-          context 'when status code is 401 with DOB does not match error message for second retry' do
-            before do
-              allow_any_instance_of(V2::Lorota::Client).to receive(:token)
-                .and_raise(Common::Exceptions::BackendServiceException.new('LOROTA-API_401',
-                                                                           auth_exception_response_values,
-                                                                           401,
-                                                                           dob_mismatch))
-            end
-
-            context 'if redis retry_attempt < max_auth_retry_limit' do
-              before do
-                Rails.cache.write(
-                  "authentication_retry_limit_#{id}",
-                  retry_count,
-                  namespace: 'check-in-lorota-v2-cache',
-                  expires_in: 604_800
-                )
-              end
-
-              it 'increments retry_attempt_count and returns authentication error' do
-                expect do
-                  subject.build(check_in: valid_check_in).token
-                end.to raise_error(Common::Exceptions::BackendServiceException,
-                                   "BackendServiceException: #{auth_exception_response_values}")
-
-                retry_attempt_count = Rails.cache.read(
-                  "authentication_retry_limit_#{id}",
-                  namespace: 'check-in-lorota-v2-cache'
-                )
-                expect(retry_attempt_count).to eq(retry_count + 1)
-              end
-            end
-
-            context 'if redis retry_attempt >= max_auth_retry_limit' do
-              let(:data_gone_exception) do
-                { status: '410', detail: [dob_mismatch], code: 'CIE-VETS-API_410' }
-              end
-
-              before do
-                Rails.cache.write(
-                  "authentication_retry_limit_#{id}",
-                  retry_count + 3,
-                  namespace: 'check-in-lorota-v2-cache',
-                  expires_in: 604_800
-                )
-              end
-
-              it 'throws exception with 410 status code' do
-                expect do
-                  subject.build(check_in: valid_check_in).token
-                end.to raise_error(CheckIn::V2::CheckinServiceException,
-                                   "BackendServiceException: #{data_gone_exception}")
-              end
-            end
-          end
-
-          context 'when status code is 401 with last name and DOB mismatch error message' do
-            before do
-              allow_any_instance_of(V2::Lorota::Client).to receive(:token)
-                .and_raise(Common::Exceptions::BackendServiceException.new('LOROTA-API_401',
-                                                                           auth_exception_response_values,
-                                                                           401,
-                                                                           last_name_dob_mismatch))
-            end
-
-            context 'if redis retry_attempt < max_auth_retry_limit' do
-              before do
-                Rails.cache.write(
-                  "authentication_retry_limit_#{id}",
-                  retry_count,
-                  namespace: 'check-in-lorota-v2-cache',
-                  expires_in: 604_800
-                )
-              end
-
-              it 'increments retry_attempt_count and returns authentication error' do
-                expect do
-                  subject.build(check_in: valid_check_in).token
-                end.to raise_error(Common::Exceptions::BackendServiceException,
-                                   "BackendServiceException: #{auth_exception_response_values}")
-
-                retry_attempt_count = Rails.cache.read(
-                  "authentication_retry_limit_#{id}",
-                  namespace: 'check-in-lorota-v2-cache'
-                )
-                expect(retry_attempt_count).to eq(retry_count + 1)
-              end
-            end
-
-            context 'if redis retry_attempt >= max_auth_retry_limit' do
-              let(:data_gone_exception) do
-                { status: '410', detail: [last_name_dob_mismatch], code: 'CIE-VETS-API_410' }
-              end
-
-              before do
-                Rails.cache.write(
-                  "authentication_retry_limit_#{id}",
-                  retry_count + 3,
-                  namespace: 'check-in-lorota-v2-cache',
-                  expires_in: 604_800
-                )
-              end
-
-              it 'throws exception with 410 status code' do
-                expect do
-                  subject.build(check_in: valid_check_in).token
-                end.to raise_error(CheckIn::V2::CheckinServiceException,
-                                   "BackendServiceException: #{data_gone_exception}")
-              end
-            end
-          end
-
-          context 'when status code is 401 with leading and trailing whitespaces in error message' do
-            before do
-              allow_any_instance_of(V2::Lorota::Client).to receive(:token)
-                .and_raise(Common::Exceptions::BackendServiceException.new('LOROTA-API_401',
-                                                                           auth_exception_response_values,
-                                                                           401, ssn_mismatch_with_whitespace))
-            end
-
-            context 'if redis retry_attempt < max_auth_retry_limit' do
-              before do
-                Rails.cache.write(
-                  "authentication_retry_limit_#{id}",
-                  retry_count,
-                  namespace: 'check-in-lorota-v2-cache',
-                  expires_in: 604_800
-                )
-              end
-
-              it 'still increments retry_attempt_count and returns authentication error' do
-                expect do
-                  subject.build(check_in: valid_check_in).token
-                end.to raise_error(Common::Exceptions::BackendServiceException,
-                                   "BackendServiceException: #{auth_exception_response_values}")
-
-                retry_attempt_count = Rails.cache.read(
-                  "authentication_retry_limit_#{id}",
-                  namespace: 'check-in-lorota-v2-cache'
-                )
-                expect(retry_attempt_count).to eq(retry_count + 1)
-              end
-            end
-          end
-
-          context 'when status code is 401 with unknown issuer error message' do
-            before do
-              allow_any_instance_of(V2::Lorota::Client).to receive(:token)
-                .and_raise(Common::Exceptions::BackendServiceException.new('LOROTA-API_401',
-                                                                           auth_exception_response_values,
-                                                                           401,
-                                                                           unknown_issuer))
-            end
-
-            context 'if redis retry_attempt < max_auth_retry_limit' do
-              it 'returns authentication error without incrementing retry_attempts' do
-                expect do
-                  subject.build(check_in: valid_check_in).token
-                end.to raise_error(Common::Exceptions::BackendServiceException,
-                                   "BackendServiceException: #{auth_exception_response_values}")
-
-                retry_attempt_count = Rails.cache.read(
-                  "authentication_retry_limit_#{id}",
-                  namespace: 'check-in-lorota-v2-cache'
-                )
-                expect(retry_attempt_count).to be_nil
-              end
-            end
-          end
-
-          context 'when status code is 401 with max_auth_retry_limit as string' do
-            before do
-              allow_any_instance_of(V2::Lorota::Client).to receive(:token)
-                .and_raise(Common::Exceptions::BackendServiceException.new('LOROTA-API_401',
-                                                                           auth_exception_response_values,
-                                                                           401,
-                                                                           last_name_mismatch))
-              allow_any_instance_of(V2::Lorota::Service).to receive(:max_auth_retry_limit).and_return('3')
               Rails.cache.write(
                 "authentication_retry_limit_#{id}",
                 retry_count,
@@ -661,7 +357,64 @@ describe V2::Lorota::Service do
               )
             end
 
-            it 'treats max_auth_retry_limit as integer and increments entry in redis' do
+            it 'increments retry_attempt_count and returns authentication error' do
+              expect do
+                subject.build(check_in: valid_check_in).token
+              end.to raise_error(Common::Exceptions::BackendServiceException,
+                                 "BackendServiceException: #{auth_exception_response_values}")
+
+              retry_attempt_count = Rails.cache.read(
+                "authentication_retry_limit_#{id}",
+                namespace: 'check-in-lorota-v2-cache'
+              )
+
+              expect(retry_attempt_count).to eq(retry_count + 1)
+            end
+          end
+
+          context 'if redis retry_attempt >= max_auth_retry_limit' do
+            let(:data_gone_exception) do
+              { status: '410', detail: [last_name_mismatch], code: 'CIE-VETS-API_410' }
+            end
+
+            before do
+              Rails.cache.write(
+                "authentication_retry_limit_#{id}",
+                retry_count + 3,
+                namespace: 'check-in-lorota-v2-cache',
+                expires_in: 604_800
+              )
+            end
+
+            it 'throws exception with 410 status code' do
+              expect do
+                subject.build(check_in: valid_check_in).token
+              end.to raise_error(CheckIn::V2::CheckinServiceException,
+                                 "BackendServiceException: #{data_gone_exception}")
+            end
+          end
+        end
+
+        context 'when status code is 401 with DOB does not match error message for second retry' do
+          before do
+            allow_any_instance_of(V2::Lorota::Client).to receive(:token)
+              .and_raise(Common::Exceptions::BackendServiceException.new('LOROTA-API_401',
+                                                                         auth_exception_response_values,
+                                                                         401,
+                                                                         dob_mismatch))
+          end
+
+          context 'if redis retry_attempt < max_auth_retry_limit' do
+            before do
+              Rails.cache.write(
+                "authentication_retry_limit_#{id}",
+                retry_count,
+                namespace: 'check-in-lorota-v2-cache',
+                expires_in: 604_800
+              )
+            end
+
+            it 'increments retry_attempt_count and returns authentication error' do
               expect do
                 subject.build(check_in: valid_check_in).token
               end.to raise_error(Common::Exceptions::BackendServiceException,
@@ -675,51 +428,217 @@ describe V2::Lorota::Service do
             end
           end
 
-          context 'when status code is 401 with UUID not found error message' do
-            before do
-              allow_any_instance_of(V2::Lorota::Client).to receive(:token)
-                .and_raise(Common::Exceptions::BackendServiceException.new('LOROTA-API_401',
-                                                                           auth_exception_response_values,
-                                                                           401,
-                                                                           uuid_not_found))
+          context 'if redis retry_attempt >= max_auth_retry_limit' do
+            let(:data_gone_exception) do
+              { status: '410', detail: [dob_mismatch], code: 'CIE-VETS-API_410' }
             end
 
-            it 'throws exception with 404 status code' do
+            before do
+              Rails.cache.write(
+                "authentication_retry_limit_#{id}",
+                retry_count + 3,
+                namespace: 'check-in-lorota-v2-cache',
+                expires_in: 604_800
+              )
+            end
+
+            it 'throws exception with 410 status code' do
               expect do
                 subject.build(check_in: valid_check_in).token
               end.to raise_error(CheckIn::V2::CheckinServiceException,
-                                 "BackendServiceException: #{uuid_not_found_exception}")
+                                 "BackendServiceException: #{data_gone_exception}")
             end
           end
         end
 
-        context 'with chip delete endpoint failing' do
-          let(:data_gone_exception) do
-            { status: '410', detail: [last_name_mismatch], code: 'CIE-VETS-API_410' }
-          end
-
+        context 'when status code is 401 with last name and DOB mismatch error message' do
           before do
             allow_any_instance_of(V2::Lorota::Client).to receive(:token)
               .and_raise(Common::Exceptions::BackendServiceException.new('LOROTA-API_401',
                                                                          auth_exception_response_values,
-                                                                         401, last_name_mismatch))
-            allow_any_instance_of(V2::Chip::Service).to receive(:delete)
-              .and_return(Faraday::Response.new(body: 'Unknown error',
-                                                status: 500))
+                                                                         401,
+                                                                         last_name_dob_mismatch))
+          end
+
+          context 'if redis retry_attempt < max_auth_retry_limit' do
+            before do
+              Rails.cache.write(
+                "authentication_retry_limit_#{id}",
+                retry_count,
+                namespace: 'check-in-lorota-v2-cache',
+                expires_in: 604_800
+              )
+            end
+
+            it 'increments retry_attempt_count and returns authentication error' do
+              expect do
+                subject.build(check_in: valid_check_in).token
+              end.to raise_error(Common::Exceptions::BackendServiceException,
+                                 "BackendServiceException: #{auth_exception_response_values}")
+
+              retry_attempt_count = Rails.cache.read(
+                "authentication_retry_limit_#{id}",
+                namespace: 'check-in-lorota-v2-cache'
+              )
+              expect(retry_attempt_count).to eq(retry_count + 1)
+            end
+          end
+
+          context 'if redis retry_attempt >= max_auth_retry_limit' do
+            let(:data_gone_exception) do
+              { status: '410', detail: [last_name_dob_mismatch], code: 'CIE-VETS-API_410' }
+            end
+
+            before do
+              Rails.cache.write(
+                "authentication_retry_limit_#{id}",
+                retry_count + 3,
+                namespace: 'check-in-lorota-v2-cache',
+                expires_in: 604_800
+              )
+            end
+
+            it 'throws exception with 410 status code' do
+              expect do
+                subject.build(check_in: valid_check_in).token
+              end.to raise_error(CheckIn::V2::CheckinServiceException,
+                                 "BackendServiceException: #{data_gone_exception}")
+            end
+          end
+        end
+
+        context 'when status code is 401 with leading and trailing whitespaces in error message' do
+          before do
+            allow_any_instance_of(V2::Lorota::Client).to receive(:token)
+              .and_raise(Common::Exceptions::BackendServiceException.new('LOROTA-API_401',
+                                                                         auth_exception_response_values,
+                                                                         401, dob_mismatch_with_whitespace))
+          end
+
+          context 'if redis retry_attempt < max_auth_retry_limit' do
+            before do
+              Rails.cache.write(
+                "authentication_retry_limit_#{id}",
+                retry_count,
+                namespace: 'check-in-lorota-v2-cache',
+                expires_in: 604_800
+              )
+            end
+
+            it 'still increments retry_attempt_count and returns authentication error' do
+              expect do
+                subject.build(check_in: valid_check_in).token
+              end.to raise_error(Common::Exceptions::BackendServiceException,
+                                 "BackendServiceException: #{auth_exception_response_values}")
+
+              retry_attempt_count = Rails.cache.read(
+                "authentication_retry_limit_#{id}",
+                namespace: 'check-in-lorota-v2-cache'
+              )
+              expect(retry_attempt_count).to eq(retry_count + 1)
+            end
+          end
+        end
+
+        context 'when status code is 401 with unknown issuer error message' do
+          before do
+            allow_any_instance_of(V2::Lorota::Client).to receive(:token)
+              .and_raise(Common::Exceptions::BackendServiceException.new('LOROTA-API_401',
+                                                                         auth_exception_response_values,
+                                                                         401,
+                                                                         unknown_issuer))
+          end
+
+          context 'if redis retry_attempt < max_auth_retry_limit' do
+            it 'returns authentication error without incrementing retry_attempts' do
+              expect do
+                subject.build(check_in: valid_check_in).token
+              end.to raise_error(Common::Exceptions::BackendServiceException,
+                                 "BackendServiceException: #{auth_exception_response_values}")
+
+              retry_attempt_count = Rails.cache.read(
+                "authentication_retry_limit_#{id}",
+                namespace: 'check-in-lorota-v2-cache'
+              )
+              expect(retry_attempt_count).to be_nil
+            end
+          end
+        end
+
+        context 'when status code is 401 with max_auth_retry_limit as string' do
+          before do
+            allow_any_instance_of(V2::Lorota::Client).to receive(:token)
+              .and_raise(Common::Exceptions::BackendServiceException.new('LOROTA-API_401',
+                                                                         auth_exception_response_values,
+                                                                         401,
+                                                                         last_name_mismatch))
+            allow_any_instance_of(V2::Lorota::Service).to receive(:max_auth_retry_limit).and_return('3')
             Rails.cache.write(
               "authentication_retry_limit_#{id}",
-              retry_count + 3,
+              retry_count,
               namespace: 'check-in-lorota-v2-cache',
               expires_in: 604_800
             )
           end
 
-          it 'throws exception with 410 status code' do
+          it 'treats max_auth_retry_limit as integer and increments entry in redis' do
+            expect do
+              subject.build(check_in: valid_check_in).token
+            end.to raise_error(Common::Exceptions::BackendServiceException,
+                               "BackendServiceException: #{auth_exception_response_values}")
+
+            retry_attempt_count = Rails.cache.read(
+              "authentication_retry_limit_#{id}",
+              namespace: 'check-in-lorota-v2-cache'
+            )
+            expect(retry_attempt_count).to eq(retry_count + 1)
+          end
+        end
+
+        context 'when status code is 401 with UUID not found error message' do
+          before do
+            allow_any_instance_of(V2::Lorota::Client).to receive(:token)
+              .and_raise(Common::Exceptions::BackendServiceException.new('LOROTA-API_401',
+                                                                         auth_exception_response_values,
+                                                                         401,
+                                                                         uuid_not_found))
+          end
+
+          it 'throws exception with 404 status code' do
             expect do
               subject.build(check_in: valid_check_in).token
             end.to raise_error(CheckIn::V2::CheckinServiceException,
-                               "BackendServiceException: #{data_gone_exception}")
+                               "BackendServiceException: #{uuid_not_found_exception}")
           end
+        end
+      end
+
+      context 'with chip delete endpoint failing' do
+        let(:data_gone_exception) do
+          { status: '410', detail: [last_name_mismatch], code: 'CIE-VETS-API_410' }
+        end
+
+        before do
+          allow_any_instance_of(V2::Lorota::Client).to receive(:token)
+            .and_raise(Common::Exceptions::BackendServiceException.new('LOROTA-API_401',
+                                                                       auth_exception_response_values,
+                                                                       401, last_name_mismatch))
+          allow_any_instance_of(V2::Chip::Service).to receive(:delete)
+            .and_return(Faraday::Response.new(body: 'Unknown error',
+                                              status: 500))
+          Rails.cache.write(
+            "authentication_retry_limit_#{id}",
+            retry_count + 3,
+            namespace: 'check-in-lorota-v2-cache',
+            expires_in: 604_800
+          )
+        end
+
+        it 'throws exception with 410 status code' do
+          expect do
+            subject.build(check_in: valid_check_in).token
+          end.to raise_error(CheckIn::V2::CheckinServiceException,
+                             "BackendServiceException: #{data_gone_exception}")
         end
       end
 

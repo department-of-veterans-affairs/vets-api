@@ -216,7 +216,13 @@ RSpec.describe InheritedProofingController, type: :controller do
   end
 
   describe 'GET callback' do
-    subject { get(:callback) }
+    subject { get :callback, params: { auth_code: auth_code } }
+
+    let(:audit_data_auth_code) { SecureRandom.hex }
+    let(:auth_code) { audit_data_auth_code }
+    let(:audit_data_user) { create(:user, :mhv, uuid: SecureRandom.uuid) }
+    let(:current_user) { audit_data_user }
+    let!(:audit_data) { create(:audit_data, user_uuid: audit_data_user.uuid, code: audit_data_auth_code) }
 
     context 'when user is not authenticated' do
       let(:expected_error_title) { 'Not authorized' }
@@ -234,12 +240,74 @@ RSpec.describe InheritedProofingController, type: :controller do
       let(:icn) { '1013459302V141714' }
       let(:correlation_id) { '19031408' }
       let(:identity_info_url) { "#{Settings.mhv.inherited_proofing.base_path}/mhvacctinfo/#{correlation_id}" }
-      let(:current_user) { create(:user, :mhv) }
       let!(:user_verification) { create(:mhv_user_verification, mhv_uuid: current_user.mhv_correlation_id) }
       let(:user_account) { current_user.user_account }
 
       before do
         sign_in_as(current_user)
+      end
+
+      context 'audit_data validations' do
+        shared_examples 'audit_data validation cleanup' do
+          it 'destroys the audit_data record' do
+            expect(InheritedProofing::AuditData.find(auth_code)).not_to be(nil)
+            subject
+            expect(InheritedProofing::AuditData.find(auth_code)).to be(nil)
+          end
+        end
+
+        context 'failed validations' do
+          let(:expected_error_json) { { 'errors' => expected_error } }
+
+          context 'when auth_code is not present' do
+            let(:auth_code) { nil }
+            let(:expected_error) { InheritedProofing::Errors::AuthCodeMissingError.to_s }
+
+            it 'renders an AuthCodeMissingError' do
+              expect(JSON.parse(subject.body)).to eq(expected_error_json)
+            end
+          end
+
+          context 'when audit_data is not found' do
+            let(:auth_code) { SecureRandom.hex }
+            let(:expected_error) { InheritedProofing::Errors::AuthCodeInvalidError.to_s }
+
+            it 'renders an AuthCodeInvalidError' do
+              expect(JSON.parse(subject.body)).to eq(expected_error_json)
+            end
+          end
+
+          context 'when the current user does not match the audit_data user' do
+            let(:current_user) { create(:user, :mhv) }
+            let(:expected_error) { InheritedProofing::Errors::InvalidUserError.to_s }
+
+            it 'renders an InvalidUserError' do
+              expect(JSON.parse(subject.body)).to eq(expected_error_json)
+            end
+
+            it_behaves_like 'audit_data validation cleanup'
+          end
+
+          context 'when the current user\'s sign_in service_name does not match audit_data legacy_csp' do
+            let(:current_user) { create(:user, :dslogon, uuid: audit_data_user.uuid) }
+            let(:expected_error) { InheritedProofing::Errors::InvalidCSPError.to_s }
+
+            it 'renders an InvalidCSPError' do
+              expect(JSON.parse(subject.body)).to eq(expected_error_json)
+            end
+
+            it_behaves_like 'audit_data validation cleanup'
+          end
+        end
+
+        context 'successful validation' do
+          it 'passes audit_data validations and calls for inhertited proofing verification' do
+            expect_any_instance_of(InheritedProofingController).to receive(:save_inherited_proofing_verification)
+            expect(subject).to have_http_status(:redirect)
+          end
+
+          it_behaves_like 'audit_data validation cleanup'
+        end
       end
 
       context 'and user has not already verified in the past' do

@@ -21,7 +21,7 @@ RSpec.describe SignIn::TokenSerializer do
     let(:refresh_token) { create(:refresh_token) }
     let(:access_token) { create(:access_token) }
     let(:anti_csrf_token) { 'some-anti-csrf-token' }
-    let(:client_id) { SignIn::Constants::ClientConfig::CLIENT_IDS.first }
+    let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
     let(:encoded_access_token) do
       SignIn::AccessTokenJwtEncoder.new(access_token: access_token).perform
     end
@@ -30,7 +30,7 @@ RSpec.describe SignIn::TokenSerializer do
     end
 
     context 'when client id is in the list of cookie auth clients' do
-      let(:client_id) { SignIn::Constants::ClientConfig::COOKIE_AUTH.first }
+      let(:client_id) { SignIn::Constants::Auth::WEB_CLIENT }
       let(:access_token_expiration) { access_token.expiration_time }
       let(:refresh_token_expiration) { session_container.session.refresh_expiration }
       let(:info_cookie_value) do
@@ -114,7 +114,7 @@ RSpec.describe SignIn::TokenSerializer do
     end
 
     context 'when client id is in the list of api auth clients' do
-      let(:client_id) { SignIn::Constants::ClientConfig::API_AUTH.first }
+      let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
       let(:token_payload) { { access_token: encoded_access_token, refresh_token: encrypted_refresh_token } }
       let(:expected_json_payload) { { data: token_payload } }
 
@@ -127,8 +127,8 @@ RSpec.describe SignIn::TokenSerializer do
 
     context 'when client id is arbitrary' do
       let(:client_id) { 'some-client-id' }
-      let(:expected_error) { SignIn::Errors::InvalidClientIdError }
-      let(:expected_error_message) { 'Client id is not valid' }
+      let(:expected_error) { ActiveModel::ValidationError }
+      let(:expected_error_message) { 'Validation failed: Client is not included in the list' }
 
       it 'raises client id is not valid error' do
         expect { subject }.to raise_error(expected_error, expected_error_message)

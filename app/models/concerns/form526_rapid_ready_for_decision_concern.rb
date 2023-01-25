@@ -82,17 +82,11 @@ module Form526RapidReadyForDecisionConcern
 
     save_metadata(forward_to_mas_all_claims: true) if Flipper.enabled?(:rrd_mas_all_claims_tracking) &&
                                                       !single_issue_hypertension_cfi?
-
-    if Flipper.enabled?(:rrd_mas_disability_tracking) && single_disability_eligible_for_mas?
-      save_metadata(forward_to_mas: true)
-      insert_classification_codes unless Flipper.enabled?(:rrd_mas_all_claims_notification)
-    end
   end
 
   def send_post_evss_notifications!
     send_completed_notification if rrd_job_selector.rrd_applicable?
     conditionally_notify_mas
-    send_pact_related_notification if new_pact_related_disability?
   end
 
   def single_issue?
@@ -127,20 +121,6 @@ module Form526RapidReadyForDecisionConcern
     end
   end
 
-  def insert_classification_codes
-    submission_data = JSON.parse(form_json)
-    disabilities = submission_data.dig('form526', 'form526', 'disabilities')
-    disabilities.each do |disability|
-      mas_classification_code = RapidReadyForDecision::Constants::MAS_RELATED_CONTENTIONS[disability['diagnosticCode']]
-
-      unless mas_classification_code.nil? || disability['classificationCode']
-        disability['classificationCode'] = mas_classification_code
-      end
-    end
-    update!(form_json: JSON.dump(submission_data))
-    invalidate_form_hash
-  end
-
   private
 
   def open_claims
@@ -161,15 +141,6 @@ module Form526RapidReadyForDecisionConcern
     rrd_pdf_added_for_uploading? && rrd_special_issue_set?
   end
 
-  def new_pact_related_disability?
-    return false unless Flipper.enabled?(:rrd_new_pact_related_disability)
-
-    disabilities.any? do |disability|
-      disability['disabilityActionType']&.upcase == 'NEW' &&
-        (RapidReadyForDecision::Constants::PACT_CLASSIFICATION_CODES.include? disability['classificationCode'])
-    end
-  end
-
   def notify_mas_tracking
     RrdMasNotificationMailer.build(self).deliver_now
   end
@@ -180,12 +151,8 @@ module Form526RapidReadyForDecisionConcern
 
   def conditionally_notify_mas
     notify_mas_all_claims_tracking if read_metadata(:forward_to_mas_all_claims)
-    notify_mas_tracking if read_metadata(:forward_to_mas)
 
-    return unless Flipper.enabled?(:rrd_mas_notification)
-
-    if read_metadata(:forward_to_mas) ||
-       (Flipper.enabled?(:rrd_mas_all_claims_notification) && read_metadata(:forward_to_mas_all_claims))
+    if Flipper.enabled?(:rrd_mas_all_claims_notification) && read_metadata(:forward_to_mas_all_claims)
       client = MailAutomation::Client.new({
                                             file_number: birls_id,
                                             claim_id: submitted_claim_id,
@@ -201,18 +168,6 @@ module Form526RapidReadyForDecisionConcern
 
   def send_completed_notification
     RrdCompletedMailer.build(self).deliver_now
-  end
-
-  def send_pact_related_notification
-    icn = RapidReadyForDecision::ClaimContext.new(self).user_icn
-    client = Lighthouse::VeteransHealth::Client.new(icn)
-    bp_readings = RapidReadyForDecision::LighthouseObservationData.new(client.list_bp_observations).transform
-    meds = RapidReadyForDecision::LighthouseMedicationRequestData.new(client.list_medication_requests).transform
-
-    RrdNewDisabilityClaimMailer.build(self, {
-                                        bp_readings_count: bp_readings.length,
-                                        medications_count: meds.length
-                                      }).deliver_now
   end
 end
 # rubocop:enable Metrics/ModuleLength

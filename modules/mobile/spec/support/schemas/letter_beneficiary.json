@@ -8,7 +8,7 @@
         "attributes": {
           "properties": {
             "benefitInformation": {
-              "oneOf": [
+              "anyOf": [
                 {
                   "$ref": "letter_beneficiary_benefit_information_dependent.json"
                 },

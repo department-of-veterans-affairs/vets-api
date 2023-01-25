@@ -7,7 +7,7 @@ FactoryBot.define do
     end
     user_uuid { user.uuid }
     form_json do
-      JSON.parse(File.read("#{::Rails.root}/spec/fixtures/dmc/form5655_submission.json")).to_json
+      JSON.parse(File.read(::Rails.root.join(*'/spec/fixtures/dmc/form5655_submission.json'.split('/')).to_s)).to_json
     end
   end
 end

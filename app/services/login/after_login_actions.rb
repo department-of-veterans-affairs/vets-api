@@ -15,7 +15,9 @@ module Login
     def perform
       return unless current_user
 
-      evss_create_account
+      Login::UserCredentialEmailUpdater.new(credential_email: current_user.email,
+                                            user_verification: current_user.user_verification).perform
+      Login::UserAcceptableVerifiedCredentialUpdater.new(user_account: @current_user.user_account).perform
       update_account_login_stats(login_type)
 
       if Settings.test_user_dashboard.env == 'staging'
@@ -28,10 +30,6 @@ module Login
 
     def login_type
       @login_type ||= current_user.identity.sign_in[:service_name]
-    end
-
-    def evss_create_account
-      EVSS::CreateUserAccountJob.perform_async(current_user.uuid) if current_user.authorize(:evss, :access?)
     end
   end
 end

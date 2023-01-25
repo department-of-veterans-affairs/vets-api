@@ -4,6 +4,26 @@ require 'rails_helper'
 require 'mpi/responses/parser_base'
 
 describe MPI::Responses::ParserBase do
+  describe '#unknown_error?' do
+    subject { described_class.new(code).unknown_error? }
+
+    context 'when code is set to nil' do
+      let(:code) { nil }
+
+      it 'returns true' do
+        expect(subject).to eq(true)
+      end
+    end
+
+    context 'when code is set to an arbitrary value' do
+      let(:code) { 'some-code' }
+
+      it 'returns false' do
+        expect(subject).to eq(false)
+      end
+    end
+  end
+
   describe '#failed_or_invalid?' do
     subject { described_class.new(code).failed_or_invalid? }
 

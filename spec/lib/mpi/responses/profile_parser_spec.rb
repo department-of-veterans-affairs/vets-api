@@ -10,6 +10,7 @@ describe MPI::Responses::ProfileParser do
   let(:error_details) do
     { error_details: { ack_detail_code: ack_detail_code,
                        id_extension: id_extension,
+                       transaction_id: transaction_id,
                        error_texts: error_texts } }
   end
   let(:headers) { { 'x-global-transaction-id' => transaction_id } }
@@ -40,7 +41,6 @@ describe MPI::Responses::ProfileParser do
           mhv_ien: nil,
           mhv_iens: [],
           sec_id: nil,
-          historical_icns: nil,
           search_token: 'WSDOC1609131753362231779394902',
           id_theft_flag: false,
           transaction_id: transaction_id
@@ -66,7 +66,6 @@ describe MPI::Responses::ProfileParser do
             mhv_ien: nil,
             mhv_iens: [],
             sec_id: nil,
-            historical_icns: nil,
             search_token: 'WSDOC1609131753362231779394902',
             id_theft_flag: false,
             transaction_id: transaction_id
@@ -99,7 +98,6 @@ describe MPI::Responses::ProfileParser do
             mhv_ien: nil,
             mhv_iens: [],
             sec_id: nil,
-            historical_icns: nil,
             search_token: 'WSDOC1609131753362231779394902',
             id_theft_flag: false,
             transaction_id: transaction_id
@@ -125,7 +123,6 @@ describe MPI::Responses::ProfileParser do
             mhv_ien: nil,
             mhv_iens: [],
             sec_id: nil,
-            historical_icns: nil,
             search_token: 'WSDOC1609131753362231779394902',
             id_theft_flag: false,
             transaction_id: transaction_id
@@ -146,7 +143,6 @@ describe MPI::Responses::ProfileParser do
             birls_id: nil,
             birls_ids: [],
             sec_id: nil,
-            historical_icns: nil,
             vet360_id: nil,
             edipi: nil,
             edipis: [],
@@ -188,7 +184,6 @@ describe MPI::Responses::ProfileParser do
             mhv_ien: '1100792239',
             mhv_iens: ['1100792239'],
             sec_id: '1008714701',
-            historical_icns: nil,
             edipi: nil,
             edipis: [],
             mhv_ids: ['1100792239'],
@@ -233,7 +228,6 @@ describe MPI::Responses::ProfileParser do
           home_phone: '1112223333',
           icn: nil,
           icn_with_aaid: nil,
-          historical_icns: [],
           full_mvi_ids: [],
           sec_id: nil,
           vet360_id: nil,
@@ -300,7 +294,6 @@ describe MPI::Responses::ProfileParser do
           vet360_id: '7909',
           mhv_ien: nil,
           mhv_iens: [],
-          historical_icns: [],
           cerner_id: nil,
           cerner_facility_ids: []
         )
@@ -315,10 +308,11 @@ describe MPI::Responses::ProfileParser do
   context 'with no subject element' do
     let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_no_subject_response.xml')) }
     let(:mvi_profile) { build(:mpi_profile_response, :missing_attrs) }
+    let(:expected_mvi_profile) { MPI::Models::MviProfile.new({ transaction_id: transaction_id }) }
 
     describe '#parse' do
-      it 'return nil if the response includes no suject element' do
-        expect(parser.parse).to be_nil
+      it 'return empty mvi profile if the response includes no suject element' do
+        expect(parser.parse).to have_deep_attributes(expected_mvi_profile)
       end
     end
   end
@@ -394,7 +388,6 @@ describe MPI::Responses::ProfileParser do
       build(
         :mpi_profile_response,
         :multiple_mhvids,
-        historical_icns: nil,
         mhv_ien: nil,
         mhv_iens: [],
         icn_with_aaid: icn_with_aaid,
@@ -425,7 +418,6 @@ describe MPI::Responses::ProfileParser do
       build(
         :mpi_profile_response,
         :address_austin,
-        historical_icns: nil,
         sec_id: nil,
         birls_id: nil,
         birls_ids: [],

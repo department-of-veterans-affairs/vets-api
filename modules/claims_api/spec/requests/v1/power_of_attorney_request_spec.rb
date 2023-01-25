@@ -124,7 +124,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
                     response_body = JSON.parse response.body
                     expect(response.status).to eq(422)
                     expect(response_body['errors'][0]['detail']).to eq(
-                      "Unable to locate Veteran's Participant ID in Master Person Index (MPI)." \
+                      "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
                       'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
                     )
                   end
@@ -158,7 +158,9 @@ RSpec.describe 'Power of Attorney ', type: :request do
                 allow_any_instance_of(BGS::PersonWebService)
                   .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
                 params = JSON.parse data
-                base64_signature = File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/signature_b64.txt")
+                base64_signature = File.read(::Rails.root.join(
+                  *'/modules/claims_api/spec/fixtures/signature_b64.txt'.split('/')
+                ).to_s)
                 signatures = { veteran: base64_signature, representative: base64_signature }
                 params['data']['attributes']['signatures'] = signatures
 
@@ -239,7 +241,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
           end
 
           it 'returns an unprocessible entity status' do
-            allow_any_instance_of(MPI::Service).to receive(:find_profile).and_raise(ArgumentError)
+            allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes_with_orch_search)
+              .and_raise(ArgumentError)
             with_okta_user(scopes) do |auth_header|
               post path, params: data, headers: headers.merge(auth_header)
               expect(response.status).to eq(422)
@@ -305,10 +308,12 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
       let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
       let(:binary_params) do
-        { attachment: Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
+        { attachment: Rack::Test::UploadedFile.new(::Rails.root.join(
+          *'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')
+        ).to_s) }
       end
       let(:base64_params) do
-        { attachment: File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf") }
+        { attachment: File.read(::Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s) }
       end
 
       it 'submit binary and change the document status' do

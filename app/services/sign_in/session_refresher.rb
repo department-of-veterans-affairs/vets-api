@@ -89,11 +89,7 @@ module SignIn
     end
 
     def validity_length
-      if Constants::ClientConfig::SHORT_TOKEN_EXPIRATION.include?(session.client_id)
-        Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES.minutes
-      elsif Constants::ClientConfig::LONG_TOKEN_EXPIRATION.include?(session.client_id)
-        Constants::RefreshToken::VALIDITY_LENGTH_LONG_DAYS.days
-      end
+      client_config.refresh_token_duration
     end
 
     def updated_anti_csrf_token
@@ -101,7 +97,11 @@ module SignIn
     end
 
     def anti_csrf_enabled_client?
-      Constants::ClientConfig::ANTI_CSRF_ENABLED.include?(session.client_id)
+      client_config.anti_csrf?
+    end
+
+    def client_config
+      @client_config ||= SignIn::ClientConfig.new(client_id: session.client_id)
     end
 
     def get_hash(object)

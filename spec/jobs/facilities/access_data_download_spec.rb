@@ -4,14 +4,14 @@ require 'rails_helper'
 
 RSpec.describe Facilities::AccessDataDownload, type: :job do
   let(:satisfaction_data) do
-    fixture_file_name = "#{::Rails.root}/spec/fixtures/facility_access/satisfaction_data.json"
+    fixture_file_name = ::Rails.root.join(*'/spec/fixtures/facility_access/satisfaction_data.json'.split('/')).to_s
     File.open(fixture_file_name, 'rb') do |f|
       JSON.parse(f.read)
     end
   end
 
   let(:wait_time_data) do
-    fixture_file_name = "#{::Rails.root}/spec/fixtures/facility_access/wait_time_data.json"
+    fixture_file_name = ::Rails.root.join(*'/spec/fixtures/facility_access/wait_time_data.json'.split('/')).to_s
     File.open(fixture_file_name, 'rb') do |f|
       JSON.parse(f.read)
     end

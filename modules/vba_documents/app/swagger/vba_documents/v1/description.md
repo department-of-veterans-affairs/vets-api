@@ -18,7 +18,7 @@ The Benefits Intake API first provides an upload location and unique submission 
 
 The metadata describes the document and attachments, and identifies the person for whom it is being submitted. This payload is encoded as binary multipart/form-data (not base64). The unique identifier supplied with the payload can subsequently be used to request the processing status of the uploaded document package.
 
-To avoid errors and processing delays, API consumers are encouraged to validate the `zipcode`,`fileNumber`, `veteranFirstName`, `veteranLastName` and `businessLine` fields before submission according to their description in the DocumentUploadMetadata model and use the 'businessLine' attribute for the most efficient processing. Additionally, please ensure no PDF user or owner passwords are used in submitted PDFs. 
+To avoid errors and processing delays, API consumers are encouraged to validate the `zipcode`,`fileNumber`, `veteranFirstName`, `veteranLastName` and `businessLine` fields before submission according to their description in the DocumentUploadMetadata model and use the 'businessLine' attribute for the most efficient processing. Additionally, please ensure no PDF user passwords are used in submitted PDFs. 
 
 ### Attachment & file size limits
 There is no limit on the number of files a payload can contain, but size limits do apply.
@@ -54,8 +54,7 @@ of individual document errors during the submission process.
 
 Validations performed:
 * Document is a valid PDF (Note: `Content-Type` header value must be "application/pdf")
-* Document does not have a user password
-* Document does not have an owner password
+* Document does not have a user password (an owner password is acceptable)
 * File size does not exceed 100 MB
 * Page size does not exceed 21" x 21"
 

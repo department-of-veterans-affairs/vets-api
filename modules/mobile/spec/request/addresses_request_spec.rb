@@ -10,8 +10,14 @@ RSpec.describe 'address', type: :request do
   before { iam_sign_in(user) }
 
   let(:user) { FactoryBot.build(:iam_user) }
-  let(:address) { build(:va_profile_address, vet360_id: user.vet360_id) }
   let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  let(:address) do
+    address = build(:va_profile_address, vet360_id: user.vet360_id)
+    # Some domestic addresses are coming in with province of string 'null'.
+    # The controller now manually forces all domestic provinces be nil
+    address.province = 'null'
+    address
+  end
 
   describe 'update endpoints' do
     before(:all) do

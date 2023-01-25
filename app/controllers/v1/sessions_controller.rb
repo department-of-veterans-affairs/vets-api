@@ -33,6 +33,7 @@ module V1
     # For more details see SAML::SSOeSettingsService and SAML::URLService
     def new
       type = params[:type]
+      client_id = params[:application] || 'vaweb'
 
       # As a temporary measure while we have the ability to authenticate either through SessionsController
       # or through SignInController, we will delete all SignInController cookies when authenticating with SSOe
@@ -50,7 +51,7 @@ module V1
       else
         render_login(type)
       end
-      new_stats(type)
+      new_stats(type, client_id)
     end
 
     def ssoe_slo_callback
@@ -188,7 +189,7 @@ module V1
       when 'dslogon'
         url_service.login_url('dslogon', 'dslogon', AuthnContext::DSLOGON)
       when 'dslogon_verified'
-        url_service.login_url('dslogon', 'dslogon_loa3', AuthnContext::DSLOGON)
+        url_service.login_url('dslogon', 'dslogon', AuthnContext::DSLOGON)
       when 'idme'
         url_service.login_url('idme', LOA::IDME_LOA1_VETS, AuthnContext::ID_ME, AuthnContext::MINIMUM)
       when 'idme_verified'
@@ -269,15 +270,16 @@ module V1
       end
     end
 
-    def new_stats(type)
-      tags = ["context:#{type}", VERSION_TAG]
+    def new_stats(type, client_id)
+      tags = ["context:#{type}", VERSION_TAG, "client_id:#{client_id}"]
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: tags)
       Rails.logger.info("SSO_NEW_KEY, tags: #{tags}")
     end
 
     def login_stats(status, error = nil)
       type = url_service.tracker.payload_attr(:type)
-      tags = ["context:#{type}", VERSION_TAG]
+      client_id = url_service.tracker.payload_attr(:application)
+      tags = ["context:#{type}", VERSION_TAG, "client_id:#{client_id}"]
       case status
       when :success
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'

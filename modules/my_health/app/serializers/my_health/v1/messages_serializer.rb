@@ -16,6 +16,8 @@ module MyHealth
       attribute :recipient_id
       attribute :recipient_name
       attribute :read_receipt
+      attribute :triage_group_name
+      attribute :proxy_sender_name
 
       link(:self) { MyHealth::UrlHelper.new.v1_message_url(object.id) }
     end

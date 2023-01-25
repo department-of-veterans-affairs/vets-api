@@ -16,6 +16,7 @@ RSpec.describe 'user', type: :request do
     before(:all) do
       @original_cassette_dir = VCR.configure(&:cassette_library_dir)
       VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
+      Flipper.disable(:mobile_lighthouse_letters)
     end
 
     after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
@@ -223,8 +224,9 @@ RSpec.describe 'user', type: :request do
         end
       end
 
-      context 'with a user who does not have access to evss' do
+      context 'with a user who does not have access to evss and is not using Lighthouse Letters service' do
         before do
+          Flipper.disable(:mobile_lighthouse_letters)
           iam_sign_in(FactoryBot.build(:iam_user, :no_edipi_id))
           VCR.use_cassette('payment_information/payment_information') do
             VCR.use_cassette('user/get_facilities_no_ids', match_requests_on: %i[method uri]) do
@@ -240,6 +242,31 @@ RSpec.describe 'user', type: :request do
               appointments
               paymentHistory
               userProfileUpdate
+            ]
+          )
+        end
+      end
+
+      context 'with a user who does not have access to evss but is using Lighthouse letters service' do
+        before do
+          user = FactoryBot.build(:iam_user, :no_edipi_id)
+          iam_sign_in(user)
+          Flipper.enable(:mobile_lighthouse_letters, user)
+          VCR.use_cassette('payment_information/payment_information') do
+            VCR.use_cassette('user/get_facilities_no_ids', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/user', headers: iam_headers
+            end
+          end
+        end
+
+        it 'does not include edipi services (claims, direct deposit, military history) except for letters' do
+          expect(attributes['authorizedServices']).to eq(
+            %w[
+              appeals
+              appointments
+              paymentHistory
+              userProfileUpdate
+              lettersAndDocuments
             ]
           )
         end
@@ -305,6 +332,7 @@ RSpec.describe 'user', type: :request do
 
       context 'with a user who does not have access to bgs' do
         before do
+          Flipper.disable(:mobile_lighthouse_letters)
           iam_sign_in(FactoryBot.build(:iam_user, :no_participant_id))
           VCR.use_cassette('payment_information/payment_information') do
             VCR.use_cassette('user/get_facilities_no_ids', match_requests_on: %i[method uri]) do

@@ -14,15 +14,17 @@ RSpec.describe VBADocuments::ReportMonthlySubmissions, type: :job do
 
   describe '#perform' do
     include VBADocuments::SQLSupport
-    monthly_counts = 'monthly_report/monthly_counts.yml'
-    summary = 'monthly_report/monthly_summary.yml'
-    still_processing = 'monthly_report/still_processing.yml'
-    still_success = 'monthly_report/still_success.yml'
-    avg_times = 'monthly_report/avg_processing_time.yml'
-    final_monthly_results = 'monthly_report/final_monthly_results.yml'
-    mode = 'monthly_report/mode.yml'
-    max_avg = 'monthly_report/max_avg.yml'
-    rolling_elapsed_times = 'monthly_report/rolling_elapsed_times.yml'
+
+    base_fixture_path = 'reports/monthly_report'
+    monthly_counts = "#{base_fixture_path}/monthly_counts.yml"
+    summary = "#{base_fixture_path}/monthly_summary.yml"
+    still_processing = "#{base_fixture_path}/still_processing.yml"
+    still_success = "#{base_fixture_path}/still_success.yml"
+    avg_times = "#{base_fixture_path}/avg_processing_time.yml"
+    final_monthly_results = "#{base_fixture_path}/final_monthly_results.yml"
+    mode = "#{base_fixture_path}/mode.yml"
+    max_avg = "#{base_fixture_path}/max_avg.yml"
+    rolling_elapsed_times = "#{base_fixture_path}/rolling_elapsed_times.yml"
 
     it 'sends mail' do
       with_settings(Settings.vba_documents, monthly_report: true) do

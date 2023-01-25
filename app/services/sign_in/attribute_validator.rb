@@ -65,10 +65,15 @@ module SignIn
     end
 
     def add_mpi_user
-      add_person_response = mpi_service.add_person_implicit_search(user_identity_from_attributes)
-      if add_person_response.ok?
-        user_identity_from_attributes.icn = add_person_response.mvi_codes[:icn]
-      else
+      add_person_response = mpi_service.add_person_implicit_search(first_name: first_name,
+                                                                   last_name: last_name,
+                                                                   ssn: ssn,
+                                                                   birth_date: birth_date,
+                                                                   email: credential_email,
+                                                                   address: address,
+                                                                   idme_uuid: idme_uuid,
+                                                                   logingov_uuid: logingov_uuid)
+      unless add_person_response.ok?
         handle_error('User MPI record cannot be created',
                      Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
                      error: Errors::MPIUserCreationFailedError)
@@ -79,14 +84,22 @@ module SignIn
       return if auto_uplevel
 
       user_attribute_mismatch_checks
-      update_profile_response = mpi_service.update_profile(user_identity_from_attributes)
+      update_profile_response = mpi_service.update_profile(last_name: last_name,
+                                                           ssn: ssn,
+                                                           birth_date: birth_date,
+                                                           icn: verified_icn,
+                                                           email: credential_email,
+                                                           address: address,
+                                                           idme_uuid: idme_uuid,
+                                                           logingov_uuid: logingov_uuid,
+                                                           edipi: edipi,
+                                                           first_name: first_name)
       unless update_profile_response&.ok?
         handle_error('User MPI record cannot be updated', Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE)
       end
     end
 
     def user_attribute_mismatch_checks
-      user_identity_from_attributes.icn ||= mpi_response_profile.icn
       attribute_mismatch_check(:first_name, first_name, mpi_response_profile.given_names.first)
       attribute_mismatch_check(:last_name, last_name, mpi_response_profile.family_name)
       attribute_mismatch_check(:birth_date, birth_date, mpi_response_profile.birth_date)
@@ -137,29 +150,11 @@ module SignIn
                      Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
                      error: Errors::MHVMissingMPIRecordError)
       end
-      user_identity_from_attributes.first_name = mpi_response_profile.given_names.first
-      user_identity_from_attributes.last_name = mpi_response_profile.family_name
-      user_identity_from_attributes.birth_date = mpi_response_profile.birth_date
-      user_identity_from_attributes.ssn = mpi_response_profile.ssn
-      user_identity_from_attributes.icn = mpi_response_profile.icn
-      user_identity_from_attributes.mhv_icn = mpi_response_profile.icn
-    end
-
-    def user_identity_from_attributes
-      @user_identity_from_attributes ||= UserIdentity.new({ idme_uuid: idme_uuid,
-                                                            logingov_uuid: logingov_uuid,
-                                                            loa: loa,
-                                                            first_name: first_name,
-                                                            last_name: last_name,
-                                                            birth_date: birth_date,
-                                                            email: credential_email,
-                                                            address: address,
-                                                            ssn: ssn,
-                                                            edipi: edipi,
-                                                            icn: mhv_icn,
-                                                            mhv_icn: mhv_icn,
-                                                            mhv_correlation_id: mhv_correlation_id,
-                                                            uuid: credential_uuid })
+      @first_name = mpi_response_profile.given_names.first
+      @last_name = mpi_response_profile.family_name
+      @birth_date = mpi_response_profile.birth_date
+      @ssn = mpi_response_profile.ssn
+      @mhv_icn = mpi_response_profile.icn
     end
 
     def check_lock_flag(attribute, attribute_description, code)
@@ -182,15 +177,16 @@ module SignIn
     end
 
     def mpi_response_profile
-      @mpi_response_profile ||= mpi_service.find_profile(user_identity_for_mpi_query)&.profile
-    end
-
-    def user_identity_for_mpi_query
-      @user_identity_for_mpi_query ||= UserIdentity.new({ idme_uuid: idme_uuid,
-                                                          logingov_uuid: logingov_uuid,
-                                                          loa: loa,
-                                                          mhv_icn: mhv_icn,
-                                                          uuid: credential_uuid })
+      @mpi_response_profile ||=
+        if idme_uuid
+          mpi_service.find_profile_by_identifier(identifier: idme_uuid,
+                                                 identifier_type: MPI::Constants::IDME_UUID)&.profile
+        elsif logingov_uuid
+          mpi_service.find_profile_by_identifier(identifier: logingov_uuid,
+                                                 identifier_type: MPI::Constants::LOGINGOV_UUID)&.profile
+        elsif mhv_icn
+          mpi_service.find_profile_by_identifier(identifier: mhv_icn, identifier_type: MPI::Constants::ICN)&.profile
+        end
     end
 
     def verified_icn

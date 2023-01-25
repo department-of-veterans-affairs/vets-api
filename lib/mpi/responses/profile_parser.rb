@@ -3,6 +3,7 @@
 require 'sentry_logging'
 require 'identity/parsers/gc_ids'
 require_relative 'parser_base'
+require 'mpi/models/mvi_profile'
 
 module MPI
   module Responses
@@ -40,33 +41,18 @@ module MPI
       PERSON_TYPE_CODE_XPATH = 'code/@code'
       ADMIN_OBSERVATION_XPATH = '*/administrativeObservation'
 
-      HISTORICAL_ICN_XPATH = [
-        'controlActProcess/subject', # matches SUBJECT_XPATH
-        'registrationEvent',
-        'replacementOf',
-        'priorRegistration',
-        'id'
-      ].join('/').freeze
-
       ACKNOWLEDGEMENT_DETAIL_XPATH = 'acknowledgement/acknowledgementDetail/text'
       ACKNOWLEDGEMENT_TARGET_MESSAGE_ID_EXTENSION_XPATH = 'acknowledgement/targetMessage/id/@extension'
       MULTIPLE_MATCHES_FOUND = 'Multiple Matches Found'
 
       PATIENT_RELATIONSHIP_XPATH = 'patientPerson/personalRelationship'
 
-      # Creates a new parser instance.
-      #
-      # @param response [struct Faraday::Env] the Faraday response
-      # @return [ProfileParser] an instance of this class
       def initialize(response)
         @transaction_id = response.response_headers['x-global-transaction-id']
         @original_body = locate_element(response.body, BODY_XPATH)
         @code = locate_element(@original_body, CODE_XPATH)
       end
 
-      # MVI returns multiple match warnings if a query returns more than one match.
-      #
-      # @return [Boolean] has a multiple match warning?
       def multiple_match?
         acknowledgement_detail = locate_element(@original_body, ACKNOWLEDGEMENT_DETAIL_XPATH)
         return false unless acknowledgement_detail
@@ -74,15 +60,16 @@ module MPI
         acknowledgement_detail.nodes.first == MULTIPLE_MATCHES_FOUND
       end
 
-      # Parse the response and builds an MviProfile.
-      #
-      # @return [MviProfile] the profile from the parsed response
+      def no_match?
+        locate_element(@original_body, SUBJECT_XPATH).blank?
+      end
+
       def parse
         subject = locate_element(@original_body, SUBJECT_XPATH)
-        return nil unless subject
+        return MPI::Models::MviProfile.new({ transaction_id: @transaction_id }) unless subject
 
         patient = locate_element(subject, PATIENT_XPATH)
-        return nil unless patient
+        return MPI::Models::MviProfile.new({ transaction_id: @transaction_id }) unless patient
 
         build_mvi_profile(patient)
       end
@@ -91,6 +78,7 @@ module MPI
         error_details = {
           ack_detail_code: @code,
           id_extension: locate_element(@original_body, ACKNOWLEDGEMENT_TARGET_MESSAGE_ID_EXTENSION_XPATH),
+          transaction_id: @transaction_id,
           error_texts: []
         }
         error_text_nodes = locate_elements(@original_body, ACKNOWLEDGEMENT_DETAIL_XPATH)
@@ -108,9 +96,8 @@ module MPI
       private
 
       def build_mvi_profile(patient)
-        historical_icns = @original_body.locate(HISTORICAL_ICN_XPATH)
         profile_identity_hash = create_mvi_profile_identity(patient, PATIENT_PERSON_PREFIX)
-        profile_ids_hash = create_mvi_profile_ids(patient, historical_icns)
+        profile_ids_hash = create_mvi_profile_ids(patient)
         misc_hash = {
           search_token: locate_element(@original_body, 'id').attributes[:extension],
           relationships: parse_relationships(patient.locate(PATIENT_RELATIONSHIP_XPATH)),
@@ -158,16 +145,15 @@ module MPI
         }
       end
 
-      def create_mvi_profile_ids(patient, historical_icns = nil)
+      def create_mvi_profile_ids(patient)
         full_mvi_ids = get_extensions(patient.locate('id'))
         parsed_mvi_ids = parse_xml_gcids(patient.locate('id'))
-        create_ids_obj(full_mvi_ids, parsed_mvi_ids, historical_icns)
+        create_ids_obj(full_mvi_ids, parsed_mvi_ids)
       end
 
-      def create_ids_obj(full_mvi_ids, parsed_mvi_ids, historical_icns)
+      def create_ids_obj(full_mvi_ids, parsed_mvi_ids)
         {
-          full_mvi_ids: full_mvi_ids,
-          historical_icns: parse_xml_historical_icns(historical_icns)
+          full_mvi_ids: full_mvi_ids
         }.merge(parse_single_ids(parsed_mvi_ids).merge(parse_multiple_ids(parsed_mvi_ids)))
       end
 
