@@ -35,8 +35,7 @@ metadata:
 spec:
   {{- if .Values.web.ingress.headers.enabled }}
   headers:
-    accessControlAllowOriginListRegex:
-    - '{{ .Values.web.ingress.headers.accessControlAllowOriginListRegex }}'
+    {{ .Values.web.ingress.headers.properties }}
   {{- end }}
   plugin:
     traefik-real-ip:

@@ -62,7 +62,7 @@ web:
       priority: ""
     headers:
       enabled: false
-      accessControlAllowOriginListRegex: ""
+      properties: ""
   webServices: {}
   autoscaling:
     minReplicas: ""
