@@ -32,7 +32,14 @@ RSpec.describe Login::UserAcceptableVerifiedCredentialUpdater do
 
       context 'and user account is verified' do
         let(:icn) { 'some-icn' }
+        let!(:user_verification) { create(:logingov_user_verification, user_account: user_account) }
         let(:expected_verified_credential_at) { '2023-1-1' }
+        let(:expected_log_message) { 'User AVC Updated' }
+        let(:expected_log_context) do
+          { account_id: user_account.id,
+            idme_credential: user_verification&.idme_uuid,
+            logingov_credential: user_verification&.logingov_uuid }
+        end
 
         before { Timecop.freeze(expected_verified_credential_at) }
 
@@ -44,11 +51,38 @@ RSpec.describe Login::UserAcceptableVerifiedCredentialUpdater do
           it 'does not create a new acceptable verified credential' do
             expect { subject }.not_to change(UserAcceptableVerifiedCredential, :count)
           end
+
+          it 'does not log user acceptable verified credential update' do
+            expect(Rails.logger).not_to receive(:info).with(expected_log_message)
+            subject
+          end
         end
 
         context 'and user acceptable verified credential does not already exist associated to the user account' do
           it 'creates a new acceptable verified credential' do
             expect { subject }.to change(UserAcceptableVerifiedCredential, :count)
+          end
+
+          it 'logs user acceptable verified credential update' do
+            expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_context)
+            subject
+          end
+        end
+
+        context 'and user account is associated with a logingov user verification' do
+          let(:expected_avc_at) { expected_verified_credential_at }
+          let(:expected_ivc_at) { nil }
+
+          it 'updates acceptable verified credential at value' do
+            subject
+            user_avc = UserAcceptableVerifiedCredential.last
+            expect(user_avc.acceptable_verified_credential_at).to eq(expected_avc_at)
+            expect(user_avc.idme_verified_credential_at).to eq(expected_ivc_at)
+          end
+
+          it 'logs user acceptable verified credential update' do
+            expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_context)
+            subject
           end
         end
 
@@ -63,18 +97,10 @@ RSpec.describe Login::UserAcceptableVerifiedCredentialUpdater do
             expect(user_avc.acceptable_verified_credential_at).to eq(expected_avc_at)
             expect(user_avc.idme_verified_credential_at).to eq(expected_ivc_at)
           end
-        end
 
-        context 'and user account is associated with a logingov user verification' do
-          let!(:user_verification) { create(:logingov_user_verification, user_account: user_account) }
-          let(:expected_avc_at) { expected_verified_credential_at }
-          let(:expected_ivc_at) { nil }
-
-          it 'updates acceptable verified credential at value' do
+          it 'logs user acceptable verified credential update' do
+            expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_context)
             subject
-            user_avc = UserAcceptableVerifiedCredential.last
-            expect(user_avc.acceptable_verified_credential_at).to eq(expected_avc_at)
-            expect(user_avc.idme_verified_credential_at).to eq(expected_ivc_at)
           end
         end
 
@@ -88,6 +114,11 @@ RSpec.describe Login::UserAcceptableVerifiedCredentialUpdater do
             user_avc = UserAcceptableVerifiedCredential.last
             expect(user_avc.acceptable_verified_credential_at).to eq(expected_avc_at)
             expect(user_avc.idme_verified_credential_at).to eq(expected_ivc_at)
+          end
+
+          it 'does not log user acceptable verified credential update' do
+            expect(Rails.logger).not_to receive(:info).with(expected_log_message)
+            subject
           end
         end
       end
