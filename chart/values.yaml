@@ -62,7 +62,7 @@ web:
       priority: ""
     headers:
       enabled: false
-      properties: ""
+      properties: {}
   webServices: {}
   autoscaling:
     minReplicas: ""
