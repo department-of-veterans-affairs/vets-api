@@ -33,10 +33,10 @@ metadata:
   name: traefik-real-ip
   namespace: {{ .Release.Namespace }}
 spec:
-  {{- if eq .Values.target_env "dev" }}
+  {{- if .Values.web.ingress.headers.enabled }}
   headers:
     accessControlAllowOriginListRegex:
-    - "(http|https)://.*api\\.(vfs\\.)*va\\.gov"
+    - '{{ .Values.web.ingress.headers.accessControlAllowOriginListRegex }}'
   {{- end }}
   plugin:
     traefik-real-ip:

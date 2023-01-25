@@ -52,7 +52,7 @@ web:
   ssoeEnabled: false
   ssoeConfigs: {}
   ingress:
-    enabled: false
+    enabled: true
     entryPoints: ""
     default:
       port: ""
@@ -60,6 +60,9 @@ web:
       middleware: ""
       host: ""
       priority: ""
+    headers:
+      enabled: false
+      accessControlAllowOriginListRegex: ""
   webServices: {}
   autoscaling:
     minReplicas: ""
