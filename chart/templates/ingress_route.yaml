@@ -35,8 +35,7 @@ metadata:
 spec:
   {{- if .Values.web.ingress.headers.enabled }}
   headers:
-    properties:
-{{ toYaml .Values.web.ingress.headers.properties | indent 6 }}
+{{ toYaml .Values.web.ingress.headers.properties | indent 4 }}
   {{- end }}
   plugin:
     traefik-real-ip:
