@@ -87,7 +87,6 @@ module Form526RapidReadyForDecisionConcern
   def send_post_evss_notifications!
     send_completed_notification if rrd_job_selector.rrd_applicable?
     conditionally_notify_mas
-    send_pact_related_notification if new_pact_related_disability?
   end
 
   def single_issue?
@@ -142,15 +141,6 @@ module Form526RapidReadyForDecisionConcern
     rrd_pdf_added_for_uploading? && rrd_special_issue_set?
   end
 
-  def new_pact_related_disability?
-    return false unless Flipper.enabled?(:rrd_new_pact_related_disability)
-
-    disabilities.any? do |disability|
-      disability['disabilityActionType']&.upcase == 'NEW' &&
-        (RapidReadyForDecision::Constants::PACT_CLASSIFICATION_CODES.include? disability['classificationCode'])
-    end
-  end
-
   def notify_mas_tracking
     RrdMasNotificationMailer.build(self).deliver_now
   end
@@ -178,18 +168,6 @@ module Form526RapidReadyForDecisionConcern
 
   def send_completed_notification
     RrdCompletedMailer.build(self).deliver_now
-  end
-
-  def send_pact_related_notification
-    icn = RapidReadyForDecision::ClaimContext.new(self).user_icn
-    client = Lighthouse::VeteransHealth::Client.new(icn)
-    bp_readings = RapidReadyForDecision::LighthouseObservationData.new(client.list_bp_observations).transform
-    meds = RapidReadyForDecision::LighthouseMedicationRequestData.new(client.list_medication_requests).transform
-
-    RrdNewDisabilityClaimMailer.build(self, {
-                                        bp_readings_count: bp_readings.length,
-                                        medications_count: meds.length
-                                      }).deliver_now
   end
 end
 # rubocop:enable Metrics/ModuleLength
