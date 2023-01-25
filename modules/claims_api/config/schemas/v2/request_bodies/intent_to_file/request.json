@@ -8,7 +8,7 @@
       "type": "string",
       "example": "compensation",
       "description": "Type of Intent To File being submitted.",
-      "enum": ["compensation", "pension"]
+      "enum": ["compensation", "pension", "survivor"]
     },
     "participantClaimantId": {
       "type": "string",
