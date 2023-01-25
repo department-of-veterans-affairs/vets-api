@@ -200,6 +200,10 @@ class AppealsApi::RswagConfig
         'maxLength': 9,
         'pattern': '^[0-9]{9}$'
       },
+      "X-VA-ICN": {
+        "type": 'string',
+        "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)"
+      },
       'X-VA-First-Name': {
         'allOf': [
           { 'description': 'first name' },
