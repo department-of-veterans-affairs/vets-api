@@ -325,6 +325,16 @@
           },
           {
             "in": "header",
+            "name": "X-VA-ICN",
+            "required": false,
+            "description": "Veteran's ICN",
+            "example": "1013062086V794840",
+            "schema": {
+              "$ref": "#/components/schemas/X-VA-ICN"
+            }
+          },
+          {
+            "in": "header",
             "name": "X-VA-First-Name",
             "required": true,
             "description": "Veteran's first name",
@@ -1536,6 +1546,16 @@
           },
           {
             "in": "header",
+            "name": "X-VA-ICN",
+            "required": false,
+            "description": "Veteran's ICN",
+            "example": "1013062086V794840",
+            "schema": {
+              "$ref": "#/components/schemas/X-VA-ICN"
+            }
+          },
+          {
+            "in": "header",
             "name": "X-VA-First-Name",
             "required": true,
             "description": "Veteran's first name",
@@ -2254,6 +2274,16 @@
           },
           {
             "in": "header",
+            "name": "X-VA-ICN",
+            "required": false,
+            "description": "Veteran's ICN",
+            "example": "1013062086V794840",
+            "schema": {
+              "$ref": "#/components/schemas/X-VA-ICN"
+            }
+          },
+          {
+            "in": "header",
             "name": "X-VA-First-Name",
             "required": true,
             "description": "Veteran's first name",
@@ -2897,6 +2927,16 @@
             "description": "Veteran's file number",
             "schema": {
               "$ref": "#/components/schemas/X-VA-File-Number"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-ICN",
+            "required": false,
+            "description": "Veteran's ICN",
+            "example": "1013062086V794840",
+            "schema": {
+              "$ref": "#/components/schemas/X-VA-ICN"
             }
           },
           {
@@ -3594,6 +3634,16 @@
             "example": "706547821",
             "schema": {
               "$ref": "#/components/schemas/X-VA-SSN"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-ICN",
+            "required": false,
+            "description": "Veteran's ICN",
+            "example": "1013062086V794840",
+            "schema": {
+              "$ref": "#/components/schemas/X-VA-ICN"
             }
           },
           {
@@ -4491,6 +4541,16 @@
             "example": "706547821",
             "schema": {
               "$ref": "#/components/schemas/X-VA-SSN"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-ICN",
+            "required": false,
+            "description": "Veteran's ICN",
+            "example": "1013062086V794840",
+            "schema": {
+              "$ref": "#/components/schemas/X-VA-ICN"
             }
           },
           {
@@ -9779,6 +9839,10 @@
             "type": "string"
           }
         ]
+      },
+      "X-VA-ICN": {
+        "type": "string",
+        "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)"
       },
       "X-VA-Insurance-Policy-Number": {
         "allOf": [
