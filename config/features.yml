@@ -767,6 +767,9 @@ features:
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
+  vba_documents_file_checksum:
+    actor_type: user
+    description: Generates file checksums before and after upload processing, then compares them
   yellow_ribbon_mvp_enhancement:
     actor_type: user
     description: Enhances Yellow Ribbon MVP.
