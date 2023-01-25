@@ -551,10 +551,6 @@ features:
     actor_type: user
     description: Enables the RRD flow to call VRO for assessing health data and generating RRD PDF
     enable_in_development: true
-  rrd_new_pact_related_disability:
-    actor_type: user
-    description: Sends notification to Slack channel if a new claim includes a PACT-related disability that RRD handles
-    enable_in_development: true
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
