@@ -41,10 +41,11 @@ module Mobile
                          ))
         end
 
-        suggested_addresses.each do |suggested_address|
-          if suggested_address['address_type'] == 'DOMESTIC' && suggested_address['province'].present?
-            Rails.logger.info('Mobile Suggested Address - Province in domestic address',
-                              province: suggested_address['province'])
+        # No domestic or military addresses should have a province but some have been coming in as a string 'null'
+        suggested_addresses.each do |sa|
+          if sa['address_type'].in?(['DOMESTIC', 'OVERSEAS MILITARY']) && sa['province'].present?
+            Rails.logger.info('Mobile Suggested Address - Province in domestic or military address',
+                              province: sa['province'])
           end
         end
 
@@ -71,8 +72,8 @@ module Mobile
           :zip_code_suffix
         )
 
-        # No domestic addresses should have a province but some have been coming in as a string 'null'
-        address_params['province'] = nil if address_params['address_type'] == 'DOMESTIC'
+        # No domestic or military addresses should have a province but some have been coming in as a string 'null'
+        address_params['province'] = nil if address_params['address_type'].in?(['DOMESTIC', 'OVERSEAS MILITARY'])
 
         address_params
       end
