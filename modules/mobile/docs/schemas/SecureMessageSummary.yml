@@ -25,6 +25,8 @@ properties:
       - recipientId
       - recipientName
       - readReceipt
+      - triageGroupName
+      - proxySenderName
     properties:
       messageId:
         type: integer
@@ -62,6 +64,14 @@ properties:
         type: string
         nullable: true
         enum: [ READ, null ]
+      triageGroupName:
+        type: string
+        nullable: true
+        example: "Triage_Group_5"
+      proxySenderName:
+        type: string
+        nullable: true
+        example: "SMITH, JOHN"
   links:
     type: object
     required:
