@@ -69,7 +69,7 @@ shared_examples 'an appeal model with updatable status' do |opts|
       end
     end
 
-    context "when status is 'submitted' and claimant or veteran email data present" do
+    context "when status has updated to 'submitted' and claimant or veteran email data present" do
       it 'enqueues the appeal received job' do
         expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
         example_instance.update_status(status: 'submitted')
@@ -77,7 +77,17 @@ shared_examples 'an appeal model with updatable status' do |opts|
       end
     end
 
-    context "when status is not 'submitted' but claimant or veteran email data present" do
+    context "when incoming and current statuses are both 'submitted' and claimant or veteran email data present" do
+      before { example_instance.update(status: 'submitted') }
+
+      it 'does not enqueue the appeal received job' do
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
+        example_instance.update_status(status: 'submitted')
+        expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
+      end
+    end
+
+    context "when incoming status is not 'submitted' and claimant or veteran email data present" do
       it 'does not enqueue the appeal received job' do
         expect(AppealsApi::AppealReceivedJob.jobs.size).to eq 0
         example_instance.update_status(status: 'pending')

@@ -217,22 +217,22 @@ module AppealsApi
             detail: detail
           }.stringify_keys
         )
-      end
 
-      return if auth_headers.blank? # Go no further if we've removed PII
+        return if auth_headers.blank? # Go no further if we've removed PII
 
-      if status == 'submitted' && email_present?
-        AppealsApi::AppealReceivedJob.perform_async(
-          {
-            receipt_event: 'sc_received',
-            email_identifier: email_identifier,
-            first_name: veteran.first_name,
-            date_submitted: appellant_local_time.iso8601,
-            guid: id,
-            claimant_email: claimant.email,
-            claimant_first_name: claimant.first_name
-          }.stringify_keys
-        )
+        if status == 'submitted' && email_present?
+          AppealsApi::AppealReceivedJob.perform_async(
+            {
+              receipt_event: 'sc_received',
+              email_identifier: email_identifier,
+              first_name: veteran.first_name,
+              date_submitted: appellant_local_time.iso8601,
+              guid: id,
+              claimant_email: claimant.email,
+              claimant_first_name: claimant.first_name
+            }.stringify_keys
+          )
+        end
       end
     end
     # rubocop:enable Metrics/MethodLength
