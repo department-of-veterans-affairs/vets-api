@@ -33,13 +33,20 @@ metadata:
   name: traefik-real-ip
   namespace: {{ .Release.Namespace }}
 spec:
-  {{- if .Values.web.ingress.headers.enabled }}
-  headers:
-{{ toYaml .Values.web.ingress.headers.properties | indent 4 }}
-  {{- end }}
   plugin:
     traefik-real-ip:
       excludednets:
         - "1.1.1.1/24"
-{{- end }}
 
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ $root.Values.web.ingress.default.middleware }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  {{- if .Values.web.ingress.headers.enabled }}
+  headers:
+{{ toYaml .Values.web.ingress.headers.properties | indent 4 }}
+  {{- end }}
+{{- end }}
