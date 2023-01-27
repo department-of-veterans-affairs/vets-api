@@ -23,7 +23,8 @@ spec:
         - name: {{ $name }}
           port:  {{ .port | default $root.Values.web.ingress.default.port }}
       middlewares:
-        - name: {{ $root.Values.web.ingress.default.middleware }}
+        - name: traefik-real-ip-headers
+        - name: traefik-real-ip
     {{- end }}
     {{- end }}
 ---
