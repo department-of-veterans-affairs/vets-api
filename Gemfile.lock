@@ -83,6 +83,7 @@ PATH
     debts_api (0.1.0)
     dhp_connected_devices (0.1.0)
     facilities_api (0.1.0)
+    forms_api (0.1.0)
     health_quest (0.1.0)
     meb_api (0.1.0)
     mobile (0.1.0)
@@ -1018,6 +1019,7 @@ DEPENDENCIES
   flipper-active_support_cache_store
   flipper-ui (= 0.22.0)
   foreman
+  forms_api!
   fuubar
   google-api-client
   google-apis-core

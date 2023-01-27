@@ -15,6 +15,7 @@ path 'modules' do
   gem 'debts_api'
   gem 'dhp_connected_devices'
   gem 'facilities_api'
+  gem 'forms_api'
   gem 'health_quest'
   gem 'meb_api'
   gem 'mobile'
