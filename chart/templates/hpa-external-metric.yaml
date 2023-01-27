@@ -11,6 +11,6 @@ metadata:
     argocd.argoproj.io/hook: PreSync
     argocd.argoproj.io/sync-wave: "-1"
 spec:
-  query: sum:puma.backlog{deployment_env:vagov-prod} by {autoscaling_group}.rollup(sum)
+  query: sum:puma.backlog{kube_cluster_name:dsva-vagov-{{ $root.Values.target_env }}-cluster,kube_namespace:{{ $root.Release.Namespace }},kube_deployment:{{ $name }}}.rollup(sum, 1)
 {{- end }}
 {{- end }}
