@@ -6,12 +6,6 @@ module CentralMail
     META_PART_NAME = 'metadata'
     DOC_PART_NAME = 'content'
     SUBMIT_DOC_PART_NAME = 'document'
-    # valid lines of business.  From 'LOG' on these keys must be mapped to 'CMP' until they are formally supported.
-    # See https://vajira.max.gov/browse/API-678 for a description of the LOBs
-    VALID_LOB = { 'CMP' => 'CMP', 'PMC' => 'PMC', 'INS' => 'INS', 'EDU' => 'EDU', 'VRE' => 'VRE', 'BVA' => 'BVA',
-                  'FID' => 'FID', 'OTH' => 'CMP' }.freeze
-    VALID_LOB_MSG = { 'CMP' => 'CMP', 'PMC' => 'PMC', 'INS' => 'INS', 'EDU' => 'EDU', 'VRE' => 'VRE', 'BVA' => 'BVA',
-                      'FID' => 'FID', 'OTH' => 'OTH' }.freeze
     REQUIRED_KEYS = %w[veteranFirstName veteranLastName fileNumber zipCode].freeze
     FILE_NUMBER_REGEX = /^\d{8,9}$/.freeze
     INVALID_ZIP_CODE_ERROR_REGEX = /Invalid zipCode/.freeze
@@ -21,6 +15,12 @@ module CentralMail
                                  'or 9 digits in XXXXX-XXXX format. Specify \'00000\' for non-US addresses.'
     MISSING_ZIP_CODE_ERROR_MSG = 'Missing ZIP Code. ZIP Code must be 5 digits, ' \
                                  'or 9 digits in XXXXX-XXXX format. Specify \'00000\' for non-US addresses.'
+    DEFAULT_VALID_LOB = { 'CMP' => 'CMP', 'PMC' => 'PMC', 'INS' => 'INS', 'EDU' => 'EDU', 'VRE' => 'VRE',
+                          'BVA' => 'BVA', 'FID' => 'FID', 'NCA' => 'NCA', 'OTH' => 'CMP' }.freeze
+
+    def self.valid_lob
+      Flipper.enabled?(:vba_documents_nca_lob) ? DEFAULT_VALID_LOB : DEFAULT_VALID_LOB.except('NCA').freeze
+    end
 
     def log_submission(uploaded_object, metadata)
       number_pages = metadata.select { |k, _| k.to_s.start_with?('numberPages') }

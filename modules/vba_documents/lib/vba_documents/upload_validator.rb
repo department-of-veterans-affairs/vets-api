@@ -83,7 +83,9 @@ module VBADocuments
         metadata["ahash#{i + 1}"] = Digest::SHA256.file(parts[att]).hexdigest
         metadata["numberPages#{i + 1}"] = model.uploaded_pdf.dig('content', 'attachments', i, 'page_count')
       end
-      metadata['businessLine'] = VALID_LOB[metadata['businessLine'].to_s.upcase] if metadata.key? 'businessLine'
+      if metadata.key? 'businessLine'
+        metadata['businessLine'] = CentralMail::Utilities.valid_lob[metadata['businessLine'].to_s.upcase]
+      end
       metadata['businessLine'] = AppealsApi::LineOfBusiness.new(model).value if model.appeals_consumer?
       metadata
     end
@@ -102,12 +104,15 @@ module VBADocuments
       return if lob.to_s.empty? && !(submission_version && submission_version >= 2)
 
       if lob.to_s.blank? && submission_version >= 2
-        msg = "The businessLine metadata field is missing or empty. Valid values are: #{VALID_LOB_MSG.keys.join(',')}"
+        msg = "The businessLine metadata field is missing or empty. Valid values are: #{
+              CentralMail::Utilities.valid_lob.keys.join(',')}"
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: msg)
       end
 
-      unless VALID_LOB.keys.include?(lob.to_s.upcase)
-        msg = "Invalid businessLine provided - {#{lob}}, valid values are: #{VALID_LOB_MSG.keys.join(',')}"
+      unless CentralMail::Utilities.valid_lob.keys.include?(lob.to_s.upcase)
+        msg = "Invalid businessLine provided - {#{lob}}, valid values are: #{
+              CentralMail::Utilities.valid_lob.keys.join(',')}"
+
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: msg)
       end
     end
