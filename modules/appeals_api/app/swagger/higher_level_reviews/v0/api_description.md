@@ -1,4 +1,4 @@
-The Higher-Level Reviews API lets internal VA teams create and manage Higher-Level Reviews. Higher-Level Reviews can be requested after receiving an initial claim or a Supplemental Claims decision. [Learn more about VA Higher-Level Reviews](https://www.va.gov/decision-reviews/higher-level-review/).  
+The Higher-Level Reviews API lets you create and manage Higher-Level Reviews. Higher-Level Reviews can be requested after receiving an initial claim or a Supplemental Claims decision. [Learn more about VA Higher-Level Reviews](https://www.va.gov/decision-reviews/higher-level-review/).  
 
 To check the status of all decision reviews and appeals for a specified individual, use the [Appeals Status API](https://developer.va.gov/explore/appeals/docs/appeals?version=current).
 
@@ -6,9 +6,11 @@ To check the status of all decision reviews and appeals for a specified individu
 The Higher-Level Reviews API pulls data from Caseflow, a case management system. It provides decision review and appeal data that can be used for submitting a Higher-Level Review.
 
 ### Authorization and Access
-To gain access to the Higher-Level Reviews API you must [request an API Key](https://developer.va.gov/apply). API requests are authorized through a symmetric API token which is provided in an HTTP header named `apikey`.
+The authentication model for the Higher-Level Reviews API uses OAuth 2.0/OpenID Connect. The following authorization models are supported:
+* [Authorization code flow](https://developer.va.gov/explore/authorization/docs/authorization-code)
+* [Client Credentials Grant (CCG)](https://developer.va.gov/explore/authorization/docs/client-credentials)
 
-Because this application is designed to let third-parties request information on behalf of a claimant, we are not using VA Authentication Federation Infrastructure (VAAFI) headers or Single Sign On External (SSOe).
+To use this API, you must first [request sandbox access](https://developer.va.gov/onboarding/request-sandbox-access). Then, follow our authentication process for [authorization code flow](https://developer.va.gov/explore/authorization/docs/authorization-code) or [client credentials grant](https://developer.va.gov/explore/authorization/docs/client-credentials).
 
 ### Submission Statuses
 Use the correct GET endpoint to check the status of a Higher-Level Review submission. 
@@ -35,4 +37,3 @@ Test submissions do not progress through the same statuses as the production env
 Due to system limitations, status attribute data for the GET `/forms/200996/{uuid}` endpoint is cached for 1 hour. The updated_at field indicates the last time the status for a given GUID was updated.
 
 ### [Terms of service](https://developer.va.gov/terms-of-service)
-
