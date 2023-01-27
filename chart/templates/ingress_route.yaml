@@ -42,7 +42,7 @@ spec:
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
-  name: {{ $root.Values.web.ingress.default.middleware }}
+  name: traefik-real-ip-headers
   namespace: {{ .Release.Namespace }}
 spec:
   {{- if .Values.web.ingress.headers.enabled }}
