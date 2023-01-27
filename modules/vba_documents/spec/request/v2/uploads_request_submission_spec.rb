@@ -178,7 +178,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       expect(@attributes['detail']).to eq('Missing content-type header')
     end
 
-    CentralMail::Utilities::VALID_LOB.each_key do |key|
+    CentralMail::Utilities.valid_lob.each_key do |key|
       it "consumes the valid line of business #{key}" do
         fixture = get_fixture('valid_metadata.json')
         metadata = JSON.parse(File.read(fixture))
