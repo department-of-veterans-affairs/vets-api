@@ -10,7 +10,7 @@ RSpec.describe InheritedProofing::UserAttributesFetcher do
     end
 
     let(:auth_code) { 'some-auth-code' }
-    let(:user) { create(:user) }
+    let(:user) { create(:user, :mhv) }
     let(:user_uuid) { user.uuid }
 
     context 'when MHVIdentityData for auth_code does not exist' do
@@ -34,43 +34,21 @@ RSpec.describe InheritedProofing::UserAttributesFetcher do
       end
 
       context 'and User does exist for matching user_uuid' do
-        let(:user_uuid) { user.uuid }
         let(:user) do
-          create(:user,
-                 first_name: first_name,
-                 last_name: last_name,
-                 address: address,
-                 phone: phone,
-                 birth_date: birth_date,
-                 ssn: ssn)
+          create(:user, :loa3, :mpi_attr_sourcing,
+                 first_name: first_name, last_name: last_name, address: address,
+                 home_phone: home_phone, birth_date: birth_date, ssn: ssn)
         end
         let(:first_name) { 'some-first-name' }
         let(:last_name) { 'some-last-name' }
         let(:address) do
-          {
-            street: 'some-street',
-            street2: 'some-street-2',
-            city: 'some-city',
-            state: 'some-state',
-            country: 'some-country',
-            postal_code: 'some-postal-code'
-          }
-        end
-
-        let(:expected_address) do
-          {
-            street: address[:street],
-            street2: address[:street2],
-            city: address[:city],
-            state: address[:state],
-            country: address[:country],
-            postal_code: address[:postal_code]
-          }
+          { street: 'some-street', street2: 'some-street-2', city: 'some-city',
+            state: 'some-state', country: 'some-country', postal_code: 'some-postal-code' }
         end
         let(:expected_mhv_data) { mhv_identity_data.data }
-        let(:phone) { 'some-phone' }
+        let(:home_phone) { 'some-phone' }
         let(:birth_date) { '2021-01-01' }
-        let(:ssn) { 'some-ssn' }
+        let(:ssn) { '123456789' }
         let(:expected_error) { InheritedProofing::Errors::UserMissingAttributesError }
 
         context 'and first name on user does not exist' do
@@ -119,9 +97,9 @@ RSpec.describe InheritedProofing::UserAttributesFetcher do
 
             expect(user_attribute_hash[:first_name]).to eq(first_name)
             expect(user_attribute_hash[:last_name]).to eq(last_name)
-            expect(user_attribute_hash[:address]).to eq(expected_address)
+            expect(user_attribute_hash[:address]).to eq(address)
             expect(user_attribute_hash[:mhv_data]).to eq(expected_mhv_data)
-            expect(user_attribute_hash[:phone]).to eq(phone)
+            expect(user_attribute_hash[:phone]).to eq(home_phone)
             expect(user_attribute_hash[:birth_date]).to eq(birth_date)
             expect(user_attribute_hash[:ssn]).to eq(ssn)
           end

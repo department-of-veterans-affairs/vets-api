@@ -39,8 +39,8 @@ module Swagger
               property :birth_date, type: :string, example: '1900-01-01'
               property :gender, type: :string, example: 'F'
               property :zip,
-                       type: :string,
-                       description: "The user's zip code from the identity provider(id.me, Ds Logon) or MVI"
+                       type: %i[string null],
+                       description: "The user's zip code from MPI"
               property :multifactor,
                        type: :boolean,
                        example: true,

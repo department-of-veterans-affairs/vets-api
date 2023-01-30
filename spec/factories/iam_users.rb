@@ -202,13 +202,15 @@ FactoryBot.define do
 
       transient do
         facility_ids { [] }
+        cerner_facility_ids { [] }
       end
 
       after(:build) do |_user, evaluator|
         stub_mpi(
           build(
             :mvi_profile,
-            vha_facility_ids: evaluator.facility_ids
+            vha_facility_ids: evaluator.facility_ids,
+            cerner_facility_ids: evaluator.cerner_facility_ids
           )
         )
       end

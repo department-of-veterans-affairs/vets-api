@@ -47,84 +47,6 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe '#birls_id' do
-    let(:user) { build(:user, birls_id: identity_birls_id) }
-    let(:mpi_profile) { build(:mvi_profile, birls_id: mpi_birls_id) }
-    let(:identity_birls_id) { 'some_identity_birls_id' }
-    let(:mpi_birls_id) { 'some_mpi_birls_id' }
-
-    before do
-      allow(user).to receive(:mpi).and_return(mpi_profile)
-    end
-
-    context 'when birls_id on User Identity exists' do
-      let(:identity_birls_id) { 'some_identity_birls_id' }
-
-      it 'returns birls_id off the User Identity' do
-        expect(user.birls_id).to eq(identity_birls_id)
-      end
-    end
-
-    context 'when birls_id on identity does not exist' do
-      let(:identity_birls_id) { nil }
-
-      context 'and birls_id on MPI Data exists' do
-        let(:mpi_birls_id) { 'some_mpi_birls_id' }
-
-        it 'returns birls_id from the MPI Data' do
-          expect(user.birls_id).to eq(mpi_birls_id)
-        end
-      end
-
-      context 'and birls_id on MPI Data does not exist' do
-        let(:mpi_birls_id) { nil }
-
-        it 'returns nil' do
-          expect(user.birls_id).to eq(nil)
-        end
-      end
-    end
-  end
-
-  describe '#participant_id' do
-    let(:user) { build(:user, participant_id: identity_participant_id) }
-    let(:mpi_profile) { build(:mvi_profile, participant_id: mpi_participant_id) }
-    let(:identity_participant_id) { 'some_identity_participant_id' }
-    let(:mpi_participant_id) { 'some_mpi_participant_id' }
-
-    before do
-      allow(user).to receive(:mpi).and_return(mpi_profile)
-    end
-
-    context 'when participant_id on User Identity exists' do
-      let(:identity_participant_id) { 'some_identity_participant_id' }
-
-      it 'returns participant_id off the User Identity' do
-        expect(user.participant_id).to eq(identity_participant_id)
-      end
-    end
-
-    context 'when participant_id on identity does not exist' do
-      let(:identity_participant_id) { nil }
-
-      context 'and participant_id on MPI Data exists' do
-        let(:mpi_participant_id) { 'some_mpi_participant_id' }
-
-        it 'returns participant_id from the MPI Data' do
-          expect(user.participant_id).to eq(mpi_participant_id)
-        end
-      end
-
-      context 'and participant_id on MPI Data does not exist' do
-        let(:mpi_participant_id) { nil }
-
-        it 'returns nil' do
-          expect(user.participant_id).to eq(nil)
-        end
-      end
-    end
-  end
-
   describe '#all_emails' do
     let(:user) { build(:user, :loa3) }
     let(:vet360_email) { user.vet360_contact_info.email.email_address }
@@ -147,38 +69,6 @@ RSpec.describe User, type: :model do
 
     it 'returns identity and vet360 emails' do
       expect(user.all_emails).to eq([vet360_email, user.email])
-    end
-  end
-
-  describe '#common_name' do
-    let(:user) do
-      build(:user,
-            common_name: common_name,
-            first_name: first_name,
-            middle_name: middle_name,
-            last_name: last_name,
-            suffix: suffix)
-    end
-    let(:first_name) { 'some-first-name' }
-    let(:middle_name) { 'some-middle-name' }
-    let(:last_name) { 'some-last-name' }
-    let(:suffix) { 'some-suffix' }
-
-    context 'when common name is defined in the identity object' do
-      let(:common_name) { 'some-common-name' }
-
-      it 'returns the defined common name' do
-        expect(user.common_name).to eq(common_name)
-      end
-    end
-
-    context 'when common name is not defined in the identity object' do
-      let(:common_name) { nil }
-      let(:expected_common_name) { "#{first_name} #{middle_name} #{last_name} #{suffix}" }
-
-      it 'returns an expected generated common name string' do
-        expect(user.common_name).to eq(expected_common_name)
-      end
     end
   end
 
@@ -388,28 +278,8 @@ RSpec.describe User, type: :model do
           expect(user.birth_date).to eq(Date.parse(user.identity.birth_date).iso8601)
         end
 
-        it 'fetches postal_code from IDENTITY' do
-          expect(user.postal_code).to be(user.identity.postal_code)
-        end
-
         it 'fetches ssn from IDENTITY' do
           expect(user.ssn).to be(user.identity.ssn)
-        end
-
-        it 'fetches address information from IDENTITY' do
-          expect(user.address[:street]).to be(user.identity.address[:street])
-          expect(user.address[:street2]).to be(user.identity.address[:street2])
-          expect(user.address[:city]).to be(user.identity.address[:city])
-          expect(user.address[:postal_code]).to be(user.identity.address[:postal_code])
-          expect(user.address[:country]).to be(user.identity.address[:country])
-        end
-
-        it 'fetches phone from IDENTITY' do
-          expect(user.home_phone).to be(user.identity.phone)
-        end
-
-        it 'fetches suffix from IDENTITY' do
-          expect(user.suffix).to be(user.suffix)
         end
 
         it 'fetches edipi from IDENTITY' do
@@ -419,16 +289,6 @@ RSpec.describe User, type: :model do
 
         it 'has a vet360 id if one exists' do
           expect(user.vet360_id).to be(mvi_profile.vet360_id)
-        end
-
-        it 'fetches cerner ids from IDENTITY' do
-          expect(user.cerner_id).to be(user.identity.cerner_id)
-          expect(user.cerner_facility_ids).to be(user.identity.cerner_facility_ids)
-        end
-
-        it 'fetches VHA facility ids from IDENTITY' do
-          expect(user.vha_facility_hash).to be(user.identity.vha_facility_hash)
-          expect(user.vha_facility_ids).to be(user.identity.vha_facility_ids)
         end
       end
 
@@ -465,56 +325,216 @@ RSpec.describe User, type: :model do
         end
       end
 
-      context 'explicit MPI getter methods' do
-        let(:mvi_profile) { build(:mvi_profile) }
-        let(:user) { build(:user, :loa3, middle_name: 'J', mhv_icn: mvi_profile.icn, phone: nil, suffix: nil) }
+      context 'exclusively MPI sourced attributes' do
+        context 'address attributes' do
+          let(:user) { build(:user, :loa3, :mpi_attr_sourcing, address: expected_address) }
+          let(:expected_address) do
+            { street: '123 Colfax Ave',
+              street2: 'Unit 456',
+              city: 'Denver',
+              state: 'CO',
+              postal_code: '80203',
+              country: 'USA' }
+          end
 
-        before do
-          stub_mpi(mvi_profile)
+          context 'user has an address' do
+            it 'returns mpi_profile\'s address as hash' do
+              expect(user.address).to eq(expected_address)
+              expect(user.address).to eq(user.send(:mpi_profile).address.to_h)
+            end
+
+            it 'returns mpi_profile\'s address postal code' do
+              expect(user.postal_code).to eq(expected_address[:postal_code])
+              expect(user.postal_code).to eq(user.send(:mpi_profile).address.postal_code)
+            end
+          end
+
+          context 'user does not have an address' do
+            before { user.send(:mpi_profile).address = nil }
+
+            it 'returns a hash where all values are nil' do
+              expect(user.address).to eq(
+                { street: nil, street2: nil, city: nil, state: nil, country: nil, postal_code: nil }
+              )
+            end
+
+            it 'returns nil postal code' do
+              expect(user.postal_code).to be_nil
+            end
+          end
         end
 
-        it 'fetches given_names from MPI' do
-          expect(user.given_names).to be(mvi_profile.given_names)
+        describe '#birls_id' do
+          let(:user) { build(:user, :loa3, :mpi_attr_sourcing, birls_id: mpi_birls_id) }
+          let(:mpi_birls_id) { 'some_mpi_birls_id' }
+
+          it 'returns birls_id from the MPI profile' do
+            expect(user.birls_id).to eq(mpi_birls_id)
+            expect(user.birls_id).to eq(user.send(:mpi_profile).birls_id)
+          end
         end
 
-        it 'fetches first_name from MPI' do
-          expect(user.first_name_mpi).to be(mvi_profile.given_names.first)
+        context 'CERNER ids' do
+          let(:user) do
+            build(:user, :loa3, :mpi_attr_sourcing,
+                  cerner_id: cerner_id, cerner_facility_ids: cerner_facility_ids)
+          end
+          let(:cerner_id) { 'some-cerner-id' }
+          let(:cerner_facility_ids) { %w[123 456] }
+
+          it 'returns cerner_id from the MPI profile' do
+            expect(user.cerner_id).to eq(cerner_id)
+            expect(user.cerner_id).to eq(user.send(:mpi_profile).cerner_id)
+          end
+
+          it 'returns cerner_facility_ids from the MPI profile' do
+            expect(user.cerner_facility_ids).to eq(cerner_facility_ids)
+            expect(user.cerner_facility_ids).to eq(user.send(:mpi_profile).cerner_facility_ids)
+          end
         end
 
-        it 'fetches last_name from MPI' do
-          expect(user.last_name_mpi).to be(mvi_profile.family_name)
+        describe '#edipi_mpi' do
+          let(:user) { build(:user, :loa3, :mpi_attr_sourcing, edipi: expected_edipi) }
+          let(:expected_edipi) { '1234567890' }
+
+          it 'fetches edipi from MPI' do
+            expect(user.edipi_mpi).to eq(expected_edipi)
+            expect(user.edipi_mpi).to eq(user.send(:mpi_profile).edipi)
+          end
         end
 
-        it 'fetches person_types from MPI' do
-          expect(user.person_types).to be(mvi_profile.person_types)
+        describe '#gender_mpi' do
+          let(:user) { build(:user, :loa3, :mpi_attr_sourcing, gender: expected_gender) }
+          let(:expected_gender) { 'F' }
+
+          it 'fetches gender from MPI' do
+            expect(user.gender_mpi).to eq(expected_gender)
+            expect(user.gender_mpi).to eq(user.send(:mpi_profile).gender)
+          end
         end
 
-        it 'fetches gender from MPI' do
-          expect(user.gender_mpi).to be(mvi_profile.gender)
+        describe '#home_phone' do
+          let(:user) { build(:user, :loa3, :mpi_attr_sourcing, home_phone: home_phone) }
+          let(:home_phone) { '315-867-5309' }
+
+          it 'returns home_phone from the MPI profile' do
+            expect(user.home_phone).to eq(home_phone)
+            expect(user.home_phone).to eq(user.send(:mpi_profile).home_phone)
+          end
         end
 
-        it 'fetches edipi from MPI' do
-          expect(user.edipi_mpi).to be(mvi_profile.edipi)
+        context 'name attributes' do
+          let(:user) do
+            build(:user, :loa3, :mpi_attr_sourcing,
+                  first_name: first_name, middle_name: middle_name, last_name: last_name, suffix: suffix)
+          end
+          let(:first_name) { 'some-first-name' }
+          let(:middle_name) { 'some-middle-name' }
+          let(:last_name) { 'some-last-name' }
+          let(:suffix) { 'some-suffix' }
+          let(:expected_given_names) { [first_name, middle_name] }
+          let(:expected_common_name) { "#{first_name} #{middle_name} #{last_name} #{suffix}" }
+
+          it 'fetches first_name from MPI' do
+            expect(user.first_name_mpi).to eq(first_name)
+            expect(user.first_name_mpi).to eq(user.send(:mpi_profile).given_names&.first)
+          end
+
+          it 'fetches last_name from MPI' do
+            expect(user.last_name_mpi).to eq(last_name)
+            expect(user.last_name_mpi).to eq(user.send(:mpi_profile).family_name)
+          end
+
+          it 'returns an expected generated common name string' do
+            expect(user.common_name).to eq(expected_common_name)
+          end
+
+          it 'fetches given_names from MPI' do
+            expect(user.given_names).to eq(expected_given_names)
+            expect(user.given_names).to eq(user.send(:mpi_profile).given_names)
+          end
+
+          it 'fetches suffix from MPI' do
+            expect(user.suffix).to eq(suffix)
+            expect(user.suffix).to eq(user.send(:mpi_profile).suffix)
+          end
         end
 
-        it 'fetches ssn from MPI' do
-          expect(user.ssn_mpi).to be(mvi_profile.ssn)
+        context 'MHV ids' do
+          let(:user) { build(:user, :loa3, :mpi_attr_sourcing, mhv_ids: [mpi_participant_id]) }
+          let(:mpi_participant_id) { 'some_mpi_participant_id' }
+
+          context 'when mhv ids are nil' do
+            let(:mpi_participant_id) { nil }
+
+            it 'has a mhv correlation id of nil' do
+              expect(user.mhv_correlation_id).to be_nil
+            end
+          end
+
+          context 'when there are mhv ids' do
+            it 'fetches mhv correlation id from MPI' do
+              expect(user.mhv_correlation_id).to eq(user.send(:mpi_profile).mhv_ids.first)
+              expect(user.mhv_correlation_id).to eq(user.send(:mpi_profile).active_mhv_ids.first)
+            end
+
+            it 'fetches mhv_ids from MPI' do
+              expect(user.mhv_ids).to be(user.send(:mpi_profile).mhv_ids)
+            end
+
+            it 'fetches active_mhv_ids from MPI' do
+              expect(user.active_mhv_ids).to be(user.send(:mpi_profile).active_mhv_ids)
+            end
+          end
         end
 
-        it 'fetches home_phone from MPI' do
-          expect(user.home_phone).to be(mvi_profile.home_phone)
+        describe '#participant_id' do
+          let(:user) { build(:user, :loa3, :mpi_attr_sourcing, participant_id: mpi_participant_id) }
+          let(:mpi_participant_id) { 'some_mpi_participant_id' }
+
+          it 'returns participant_id from the MPI profile' do
+            expect(user.participant_id).to eq(mpi_participant_id)
+            expect(user.participant_id).to eq(user.send(:mpi_profile).participant_id)
+          end
         end
 
-        it 'fetches mhv_ids from MPI' do
-          expect(user.mhv_ids).to be(mvi_profile.mhv_ids)
+        describe '#person_types' do
+          let(:user) { build(:user, :loa3, :mpi_attr_sourcing, person_types: expected_person_types) }
+          let(:expected_person_types) { %w[DEP VET] }
+
+          it 'returns person_types from the MPI profile' do
+            expect(user.person_types).to eq(expected_person_types)
+            expect(user.person_types).to eq(user.send(:mpi_profile).person_types)
+          end
         end
 
-        it 'fetches active_mhv_ids from MPI' do
-          expect(user.active_mhv_ids).to be(mvi_profile.active_mhv_ids)
+        describe '#ssn_mpi' do
+          let(:user) { build(:user, :loa3, :mpi_attr_sourcing, ssn: expected_ssn) }
+          let(:expected_ssn) { '296333851' }
+
+          it 'returns ssn from the MPI profile' do
+            expect(user.ssn_mpi).to eq(expected_ssn)
+            expect(user.ssn_mpi).to eq(user.send(:mpi_profile).ssn)
+          end
         end
 
-        it 'fetches suffix from MPI' do
-          expect(user.suffix).to be(mvi_profile.suffix)
+        context 'VHA facility ids' do
+          let(:user) do
+            build(:user, :loa3, :mpi_attr_sourcing,
+                  vha_facility_ids: vha_facility_ids, vha_facility_hash: vha_facility_hash)
+          end
+          let(:vha_facility_ids) { %w[200CRNR 200MHV] }
+          let(:vha_facility_hash) { { '200CRNR' => %w[123456], '200MHV' => %w[123456] } }
+
+          it 'returns vha_facility_ids from the MPI profile' do
+            expect(user.vha_facility_ids).to eq(vha_facility_ids)
+            expect(user.vha_facility_ids).to eq(user.send(:mpi_profile).vha_facility_ids)
+          end
+
+          it 'returns vha_facility_hash from the MPI profile' do
+            expect(user.vha_facility_hash).to eq(vha_facility_hash)
+            expect(user.vha_facility_hash).to eq(user.send(:mpi_profile).vha_facility_hash)
+          end
         end
       end
 
@@ -601,10 +621,6 @@ RSpec.describe User, type: :model do
           expect(user.address[:country]).to be(mvi_profile.address[:country])
         end
 
-        it 'fetches postal_code from MPI' do
-          expect(user.postal_code).to be(mvi_profile.address.postal_code)
-        end
-
         it 'fetches ssn from MPI' do
           expect(user.ssn).to be(user.ssn_mpi)
         end
@@ -634,10 +650,6 @@ RSpec.describe User, type: :model do
 
         it 'fetches birth_date from IDENTITY' do
           expect(user.birth_date).to be_nil
-        end
-
-        it 'fetches postal_code from IDENTITY' do
-          expect(user.postal_code).to be_nil
         end
 
         it 'fetches ssn from IDENTITY' do
@@ -671,33 +683,8 @@ RSpec.describe User, type: :model do
           expect(user.birth_date).to eq(Date.parse(user.identity.birth_date).iso8601)
         end
 
-        it 'fetches postal_code from IDENTITY' do
-          expect(user.postal_code).to be(user.identity.postal_code)
-        end
-
         it 'fetches ssn from IDENTITY' do
           expect(user.ssn).to be(user.identity.ssn)
-        end
-      end
-
-      describe '#mhv_correlation_id' do
-        context 'when mhv ids are nil' do
-          let(:user) { build(:user) }
-
-          it 'has a mhv correlation id of nil' do
-            expect(user.mhv_correlation_id).to be_nil
-          end
-        end
-
-        context 'when there are mhv ids' do
-          let(:loa3_user) { build(:user, :loa3) }
-          let(:mvi_profile) { build(:mvi_profile) }
-
-          it 'has a mhv correlation id' do
-            stub_mpi(mvi_profile)
-            expect(loa3_user.mhv_correlation_id).to eq(mvi_profile.mhv_ids.first)
-            expect(loa3_user.mhv_correlation_id).to eq(mvi_profile.active_mhv_ids.first)
-          end
         end
       end
     end
@@ -1080,39 +1067,106 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe '#user_verification' do
+  context 'user_verification methods' do
     let(:user) do
-      described_class.new(build(:user,
-                                authn_context: authn_context,
-                                logingov_uuid: logingov_uuid,
-                                idme_uuid: idme_uuid,
-                                edipi: edipi,
-                                mhv_correlation_id: mhv_correlation_id))
+      described_class.new(
+        build(:user, :loa3, :mpi_attr_sourcing,
+              idme_uuid: idme_uuid, logingov_uuid: logingov_uuid,
+              edipi: edipi, mhv_ids: [mhv_correlation_id], authn_context: authn_context)
+      )
     end
-    let!(:user_verification) { Login::UserVerifier.new(user.identity).perform }
+    let(:user_verifier_object) do
+      OpenStruct.new({ idme_uuid: idme_uuid, logingov_uuid: logingov_uuid, sign_in: user.identity_sign_in,
+                       edipi: edipi, mhv_correlation_id: mhv_correlation_id })
+    end
     let(:authn_context) { LOA::IDME_LOA1_VETS }
     let(:logingov_uuid) { 'some-logingov-uuid' }
     let(:idme_uuid) { 'some-idme-uuid' }
     let(:edipi) { 'some-edipi' }
     let(:mhv_correlation_id) { 'some-mhv-correlation-id' }
+    let!(:user_verification) { Login::UserVerifier.new(user_verifier_object).perform }
+    let!(:user_account) { user_verification&.user_account }
 
-    it 'returns expected user_verification' do
-      expect(user.user_verification).to eq(user_verification)
-    end
+    describe '#user_verification' do
+      it 'returns expected user_verification' do
+        expect(user.user_verification).to eq(user_verification)
+      end
 
-    context 'when user is logged in with mhv' do
-      let(:authn_context) { 'myhealthevet' }
+      context 'when user is logged in with mhv' do
+        let(:authn_context) { 'myhealthevet' }
 
-      context 'and there is an mhv_correlation_id' do
-        let(:mhv_correlation_id) { 'some-mhv-correlation-id' }
+        context 'and there is an mhv_correlation_id' do
+          it 'returns user verification with a matching mhv_correlation_id' do
+            expect(user.user_verification.mhv_uuid).to eq(mhv_correlation_id)
+          end
+        end
 
-        it 'returns user verification with a matching mhv_correlation_id' do
-          expect(user.user_verification.mhv_uuid).to eq(mhv_correlation_id)
+        context 'and there is not an mhv_correlation_id' do
+          let(:mhv_correlation_id) { nil }
+
+          context 'and user has an idme_uuid' do
+            let(:idme_uuid) { 'some-idme-uuid' }
+
+            it 'returns user verification with a matching idme_uuid' do
+              expect(user.user_verification.idme_uuid).to eq(idme_uuid)
+            end
+          end
+
+          context 'and user does not have an idme_uuid' do
+            let(:idme_uuid) { nil }
+            let(:user_verification) { nil }
+
+            it 'returns nil' do
+              expect(user.user_verification).to be nil
+            end
+          end
         end
       end
 
-      context 'and there is not an mhv_correlation_id' do
-        let(:mhv_correlation_id) { nil }
+      context 'when user is logged in with dslogon' do
+        let(:authn_context) { 'dslogon' }
+
+        context 'and there is an edipi' do
+          let(:edipi) { 'some-edipi' }
+
+          it 'returns user verification with a matching edipi' do
+            expect(user.user_verification.dslogon_uuid).to eq(edipi)
+          end
+        end
+
+        context 'and there is not an edipi' do
+          let(:edipi) { nil }
+
+          context 'and user has an idme_uuid' do
+            let(:idme_uuid) { 'some-idme-uuid' }
+
+            it 'returns user verification with a matching idme_uuid' do
+              expect(user.user_verification.idme_uuid).to eq(idme_uuid)
+            end
+          end
+
+          context 'and user does not have an idme_uuid' do
+            let(:idme_uuid) { nil }
+            let(:user_verification) { nil }
+
+            it 'returns nil' do
+              expect(user.user_verification).to be nil
+            end
+          end
+        end
+      end
+
+      context 'when user is logged in with logingov' do
+        let(:authn_context) { IAL::LOGIN_GOV_IAL1 }
+        let(:logingov_uuid) { 'some-logingov-uuid' }
+
+        it 'returns user verification with a matching logingov uuid' do
+          expect(user.user_verification.logingov_uuid).to eq(logingov_uuid)
+        end
+      end
+
+      context 'when user is logged in with idme' do
+        let(:authn_context) { LOA::IDME_LOA1_VETS }
 
         context 'and user has an idme_uuid' do
           let(:idme_uuid) { 'some-idme-uuid' }
@@ -1133,126 +1187,25 @@ RSpec.describe User, type: :model do
       end
     end
 
-    context 'when user is logged in with dslogon' do
-      let(:authn_context) { 'dslogon' }
+    describe '#user_account' do
+      it 'returns expected user_account' do
+        expect(user.user_account).to eq(user_account)
+      end
+    end
 
-      context 'and there is an edipi' do
-        let(:edipi) { 'some-edipi' }
+    describe '#inherited_proof_verified' do
+      context 'when Inherited Proof Verified User Account exists and matches current user_account' do
+        let!(:inherited_proof_verified) { create(:inherited_proof_verified_user_account, user_account: user_account) }
 
-        it 'returns user verification with a matching edipi' do
-          expect(user.user_verification.dslogon_uuid).to eq(edipi)
+        it 'returns true' do
+          expect(user.inherited_proof_verified).to be true
         end
       end
 
-      context 'and there is not an edipi' do
-        let(:edipi) { nil }
-
-        context 'and user has an idme_uuid' do
-          let(:idme_uuid) { 'some-idme-uuid' }
-
-          it 'returns user verification with a matching idme_uuid' do
-            expect(user.user_verification.idme_uuid).to eq(idme_uuid)
-          end
+      context 'when no Inherited Proof Verified User Account is found' do
+        it 'returns false' do
+          expect(user.inherited_proof_verified).to be false
         end
-
-        context 'and user does not have an idme_uuid' do
-          let(:idme_uuid) { nil }
-          let(:user_verification) { nil }
-
-          it 'returns nil' do
-            expect(user.user_verification).to be nil
-          end
-        end
-      end
-    end
-
-    context 'when user is logged in with logingov' do
-      let(:authn_context) { IAL::LOGIN_GOV_IAL1 }
-      let(:logingov_uuid) { 'some-logingov-uuid' }
-
-      it 'returns user verification with a matching logingov uuid' do
-        expect(user.user_verification.logingov_uuid).to eq(logingov_uuid)
-      end
-    end
-
-    context 'when user is logged in with idme' do
-      let(:authn_context) { LOA::IDME_LOA1_VETS }
-
-      context 'and user has an idme_uuid' do
-        let(:idme_uuid) { 'some-idme-uuid' }
-
-        it 'returns user verification with a matching idme_uuid' do
-          expect(user.user_verification.idme_uuid).to eq(idme_uuid)
-        end
-      end
-
-      context 'and user does not have an idme_uuid' do
-        let(:idme_uuid) { nil }
-        let(:user_verification) { nil }
-
-        it 'returns nil' do
-          expect(user.user_verification).to be nil
-        end
-      end
-    end
-  end
-
-  describe '#user_account' do
-    let(:user) { described_class.new(build(:user)) }
-    let!(:user_account) { Login::UserVerifier.new(user.identity).perform.user_account }
-
-    it 'returns expected user_account' do
-      expect(user.user_account).to eq(user_account)
-    end
-  end
-
-  describe '#inherited_proof_verified' do
-    let(:user) { described_class.new(build(:user)) }
-    let(:user_account) { Login::UserVerifier.new(user.identity).perform.user_account }
-
-    context 'when Inherited Proof Verified User Account exists and matches current user_account' do
-      let!(:inherited_proof_verified) { create(:inherited_proof_verified_user_account, user_account: user_account) }
-
-      it 'returns true' do
-        expect(user.inherited_proof_verified).to be true
-      end
-    end
-
-    context 'when no Inherited Proof Verified User Account is found' do
-      it 'returns false' do
-        expect(user.inherited_proof_verified).to be false
-      end
-    end
-  end
-
-  describe '#address' do
-    let(:user) { build(:user, :loa3, :mvi_profile_street_and_suffix) }
-    let(:mvi_profile) { build(:mvi_profile, suffix: 'Jr.') }
-
-    before do
-      stub_mpi(mvi_profile)
-    end
-
-    context 'user has an address' do
-      it 'returns address as hash, with user_identity record\'s address preferred over mpi_profile\'s address' do
-        expect(user.address).to eq(user.identity.address)
-        user.identity.address = nil
-        expect(user.address).to eq(user.send(:mpi_profile).address.to_h)
-      end
-    end
-
-    context 'user does not have an address' do
-      it 'returns a hash where all values are nil' do
-        user.identity.address = nil
-        user.send(:mpi_profile).address = nil
-        expect(user.address).to eq({
-                                     street: nil,
-                                     street2: nil,
-                                     city: nil,
-                                     state: nil,
-                                     country: nil,
-                                     postal_code: nil
-                                   })
       end
     end
   end

@@ -8,10 +8,10 @@ RSpec.describe BGS::Service do
   let(:bgs_service) { BGS::Service.new(user_object) }
   let(:proc_id) { '3829671' }
   let(:participant_id) { '149456' }
-  let(:common_name) { 'abraham.lincoln@vets.gov' }
+  let(:email) { 'abraham.lincoln@vets.gov' }
 
   context 'direct deposit methods' do
-    let(:user_object) { build(:ch33_dd_user, common_name: common_name) }
+    let(:user_object) { build(:ch33_dd_user, email: email) }
 
     context 'with a user that has no icn' do
       before do

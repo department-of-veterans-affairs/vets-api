@@ -17,16 +17,9 @@ class UserIdentity < Common::RedisStore
   attribute :first_name
   attribute :middle_name
   attribute :last_name
-  attribute :common_name
-  attribute :suffix
   attribute :gender
   attribute :birth_date
-  attribute :birls_id
-  attribute :participant_id
   attribute :icn
-  attribute :address
-  attribute :phone
-  attribute :postal_code
   attribute :ssn
   attribute :loa
   attribute :multifactor, Boolean # used by F/E to decision on whether or not to prompt user to add MFA
@@ -42,10 +35,6 @@ class UserIdentity < Common::RedisStore
   attribute :sign_in, Hash # original sign_in (see sso_service#mergable_identity_attributes)
   attribute :icn_with_aaid
   attribute :search_token
-  attribute :cerner_id
-  attribute :cerner_facility_ids
-  attribute :vha_facility_ids
-  attribute :vha_facility_hash
 
   validates :uuid, presence: true
   validates :loa, presence: true

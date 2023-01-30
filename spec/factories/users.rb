@@ -13,7 +13,6 @@ FactoryBot.define do
       last_name { 'lincoln' }
       gender { 'M' }
       birth_date { '1809-02-12' }
-      postal_code { '17325' }
       ssn { '796111863' }
       idme_uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
       logingov_uuid { nil }
@@ -24,6 +23,7 @@ FactoryBot.define do
       icn { '123498767V234859' }
       mhv_icn { nil }
       multifactor { false }
+      mhv_ids { [] }
       mhv_correlation_id { nil }
       mhv_account_type { nil }
       edipi { '384759483' }
@@ -32,9 +32,9 @@ FactoryBot.define do
       icn_with_aaid { nil }
       common_name { nil }
       person_types { ['VET'] }
-      phone { '(800) 867-5309' }
+      home_phone { '(800) 867-5309' }
       suffix { 'Jr' }
-      address {
+      address do
         {
           street: '1600 Pennsylvania Ave',
           city: 'Washington',
@@ -42,7 +42,7 @@ FactoryBot.define do
           country: 'USA',
           postal_code: '20500'
         }
-      }
+      end
       cerner_id { '123456' }
       cerner_facility_ids { %w[200MHV] }
       vha_facility_ids { %w[200CRNR 200MHV] }
@@ -71,14 +71,11 @@ FactoryBot.define do
                              last_name: t.last_name,
                              gender: t.gender,
                              birth_date: t.birth_date,
-                             postal_code: t.postal_code,
                              ssn: t.ssn,
                              idme_uuid: t.idme_uuid,
                              logingov_uuid: t.logingov_uuid,
                              verified_at: t.verified_at,
                              sec_id: t.sec_id,
-                             participant_id: t.participant_id,
-                             birls_id: t.birls_id,
                              icn: t.icn,
                              mhv_icn: t.mhv_icn,
                              loa: t.loa,
@@ -86,15 +83,7 @@ FactoryBot.define do
                              mhv_correlation_id: t.mhv_correlation_id,
                              mhv_account_type: t.mhv_account_type,
                              edipi: t.edipi,
-                             sign_in: t.sign_in,
-                             common_name: t.common_name,
-                             phone: t.phone,
-                             suffix: t.suffix,
-                             address: t.address,
-                             cerner_id: t.cerner_id,
-                             cerner_facility_ids: t.cerner_facility_ids,
-                             vha_facility_hash: t.vha_facility_hash,
-                             vha_facility_ids: t.vha_facility_ids)
+                             sign_in: t.sign_in)
       user.instance_variable_set(:@identity, user_identity)
     end
 
@@ -108,7 +97,6 @@ FactoryBot.define do
       first_name { nil }
       last_name { nil }
       gender { nil }
-      postal_code { nil }
       birth_date { nil }
       ssn { nil }
       multifactor { nil }
@@ -520,7 +508,6 @@ FactoryBot.define do
       last_name { nil }
       gender { nil }
       birth_date { nil }
-      postal_code { nil }
       ssn { nil }
       mhv_icn { '12345' }
       multifactor { false }
@@ -537,7 +524,6 @@ FactoryBot.define do
       last_name { Faker::Name.last_name }
       icn { nil }
       gender { 'M' }
-      postal_code { Faker::Address.postcode }
       birth_date { Faker::Time.between(from: 40.years.ago, to: 10.years.ago) }
       ssn { '796111864' }
       multifactor { true }
@@ -570,7 +556,9 @@ FactoryBot.define do
             :mvi_profile,
             icn: '1000123456V123456',
             mhv_ids: %w[12345678901],
-            vha_facility_ids: t.va_patient ? %w[358 200MHS] : []
+            vha_facility_ids: t.va_patient ? %w[358 200MHS] : [],
+            cerner_id: t.cerner_id,
+            cerner_facility_ids: t.cerner_facility_ids
           )
         )
       end
@@ -590,7 +578,6 @@ FactoryBot.define do
       first_name { Faker::Name.first_name }
       last_name { Faker::Name.last_name }
       gender { 'M' }
-      postal_code { Faker::Address.postcode }
       birth_date { Faker::Time.between(from: 40.years.ago, to: 10.years.ago) }
       ssn { '796111864' }
       multifactor { true }
@@ -642,6 +629,35 @@ FactoryBot.define do
           postal_code: '20500'
         }
       }
+    end
+
+    trait :mpi_attr_sourcing do
+      after(:build) do |_user, t|
+        given_names = [t.first_name]
+        given_names << t.middle_name if t.middle_name.present?
+        stub_mpi(
+          build(
+            :mvi_profile,
+            address: t.address,
+            birls_id: t.birls_id,
+            birth_date: t.birth_date,
+            cerner_id: t.cerner_id,
+            cerner_facility_ids: t.cerner_facility_ids,
+            edipi: t.edipi,
+            family_name: t.last_name,
+            gender: t.gender,
+            given_names: given_names,
+            home_phone: t.home_phone,
+            mhv_ids: t.mhv_ids,
+            participant_id: t.participant_id,
+            person_types: t.person_types,
+            ssn: t.ssn,
+            suffix: t.suffix,
+            vha_facility_ids: t.vha_facility_ids,
+            vha_facility_hash: t.vha_facility_hash
+          )
+        )
+      end
     end
   end
 end
