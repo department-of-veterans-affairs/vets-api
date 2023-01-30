@@ -812,11 +812,56 @@
                           "example": "2017-10-18"
                         },
                         "previousPhases": {
-                          "phase1CompleteDate": {
-                            "format": "date",
-                            "type": "string",
-                            "description": "Completed date of previous phases.",
-                            "example": "2017-10-18"
+                          "type": "object",
+                          "properties": {
+                            "phase1CompleteDate": {
+                              "format": "date",
+                              "type": "string",
+                              "description": "Completed date of the claim received phase.",
+                              "example": "2017-10-18"
+                            },
+                            "phase2CompleteDate": {
+                              "format": "date",
+                              "type": "string",
+                              "description": "Completed date of the initial review phase.",
+                              "example": "2017-10-18"
+                            },
+                            "phase3CompleteDate": {
+                              "format": "date",
+                              "type": "string",
+                              "description": "Completed date of the gathering of evidence phase.",
+                              "example": "2017-10-18"
+                            },
+                            "phase4CompleteDate": {
+                              "format": "date",
+                              "type": "string",
+                              "description": "Completed date of the reviewing of evidence phase.",
+                              "example": "2017-10-18"
+                            },
+                            "phase5CompleteDate": {
+                              "format": "date",
+                              "type": "string",
+                              "description": "Completed date of the preparation for decision phase.",
+                              "example": "2017-10-18"
+                            },
+                            "phase6CompleteDate": {
+                              "format": "date",
+                              "type": "string",
+                              "description": "Completed date of the pending decision approval phase.",
+                              "example": "2017-10-18"
+                            },
+                            "phase7CompleteDate": {
+                              "format": "date",
+                              "type": "string",
+                              "description": "Completed date of the preparation for notification phase.",
+                              "example": "2017-10-18"
+                            },
+                            "phase8CompleteDate": {
+                              "format": "date",
+                              "type": "string",
+                              "description": "Completed date of the completed phase.",
+                              "example": "2017-10-18"
+                            }
                           }
                         }
                       }
@@ -1706,8 +1751,8 @@
                   "id": "1",
                   "type": "intent_to_file",
                   "attributes": {
-                    "creationDate": "2023-01-24",
-                    "expirationDate": "2024-01-24",
+                    "creationDate": "2023-01-25",
+                    "expirationDate": "2024-01-25",
                     "type": "compensation",
                     "status": "active"
                   }
