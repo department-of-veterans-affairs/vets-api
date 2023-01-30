@@ -162,7 +162,7 @@ module Sidekiq
         {
           "veteranFirstName": auth_info['va_eauth_firstName'], "veteranLastName": auth_info['va_eauth_lastName'],
           "fileNumber": auth_info['va_eauth_pnid'], "zipCode": zip, "source": 'va.gov backup submission',
-          "docType": doc_type, "businessLine": 'CMP'
+          "docType": doc_type, "businessLine": 'CMP', "claimDate": submission.created_at.iso8601
         }
       end
 
