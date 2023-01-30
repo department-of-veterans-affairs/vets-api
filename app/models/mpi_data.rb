@@ -131,6 +131,11 @@ class MPIData < Common::RedisStore
   # @return [Array[String]] the list of person types
   delegate :person_types, to: :profile, allow_nil: true
 
+  # The user's home phone number
+  #
+  # @return [String] the home_phone
+  delegate :home_phone, to: :profile, allow_nil: true
+
   # The profile returned from the MVI service. Either returned from cached response in Redis or the MVI service.
   #
   # @return [MPI::Models::MviProfile] patient 'golden record' data from MVI

@@ -12,7 +12,6 @@ FactoryBot.modify do
       middle_name { 'Snow' }
       last_name { 'Morrison' }
       gender { 'F' }
-      postal_code { nil }
       birth_date { '1953-04-01' }
       ssn { '796061976' }
       va_patient { true }

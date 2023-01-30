@@ -13,7 +13,6 @@ FactoryBot.modify do
       last_name { 'Morrison' }
       icn { nil }
       gender { 'F' }
-      postal_code { nil }
       birth_date { '1953-04-01' }
       ssn { '796061976' }
       va_patient { true }
@@ -67,7 +66,6 @@ FactoryBot.modify do
       last_name { 'Morgan' }
       icn { nil }
       gender { 'F' }
-      postal_code { nil }
       birth_date { '1962-02-07' }
       ssn { '796029146' }
       va_patient { true }

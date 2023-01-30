@@ -5,10 +5,16 @@ require 'rails_helper'
 RSpec.describe SignIn::IntrospectSerializer do
   subject { serialize(user, serializer_class: described_class) }
 
-  let(:user) { create(:user, :loa3, middle_name: middle_name, logingov_uuid: logingov_uuid, idme_uuid: idme_uuid) }
+  let(:user) do
+    create(:user, :loa3, :mpi_attr_sourcing,
+           middle_name: middle_name, logingov_uuid: logingov_uuid, idme_uuid: idme_uuid,
+           mhv_ids: mhv_ids, participant_id: participant_id)
+  end
   let(:middle_name) { 'some-middle-name' }
   let(:logingov_uuid) { 'some-logingov-uuid' }
   let(:idme_uuid) { 'some-idme-uuid' }
+  let(:mhv_ids) { %w[123 456] }
+  let(:participant_id) { 'some-participant-id' }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 

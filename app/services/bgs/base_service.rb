@@ -14,7 +14,7 @@ module BGS
     def initialize_service
       BGS::Services.new(
         external_uid: @user.icn,
-        external_key: external_key
+        external_key: @user.email
       )
     end
 
@@ -26,14 +26,6 @@ module BGS
         },
         { team: 'vfs-ebenefits' }
       )
-    end
-
-    def external_key
-      key = @user.common_name.presence || @user.email
-
-      raise Errors::MissingExternalKeyError if key.blank?
-
-      key.first(39)
     end
   end
 end

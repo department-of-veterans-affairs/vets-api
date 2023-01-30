@@ -9,11 +9,9 @@ module SAML
     class SSOe
       include SentryLogging
       include Identity::Parsers::GCIds
-      SERIALIZABLE_ATTRIBUTES = %i[email phone first_name middle_name last_name common_name suffix address postal_code
-                                   gender ssn birth_date uuid idme_uuid logingov_uuid verified_at sec_id
-                                   mhv_icn mhv_correlation_id mhv_account_type cerner_id cerner_facility_ids
-                                   edipi loa sign_in multifactor participant_id birls_id icn
-                                   vha_facility_ids vha_facility_hash].freeze
+      SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name gender ssn birth_date
+                                   uuid idme_uuid logingov_uuid verified_at sec_id mhv_icn
+                                   mhv_correlation_id mhv_account_type edipi loa sign_in multifactor icn].freeze
       INBOUND_AUTHN_CONTEXT = 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
 
       attr_reader :attributes, :authn_context, :tracker_uuid, :warnings
@@ -38,39 +36,8 @@ module SAML
         safe_attr('va_eauth_lastname')
       end
 
-      def common_name
-        safe_attr('va_eauth_commonname')
-      end
-
-      def suffix
-        safe_attr('va_eauth_suffix')
-      end
-
-      def participant_id
-        sanitize_id(mvi_ids[:vba_corp_id])
-      end
-
-      def birls_id
-        sanitize_id(mvi_ids[:birls_id])
-      end
-
       def icn
         mvi_ids[:icn]
-      end
-
-      def address
-        {
-          street: safe_attr('va_eauth_street'),
-          street2: safe_attr('va_eauth_street2'),
-          city: safe_attr('va_eauth_city'),
-          state: safe_attr('va_eauth_state'),
-          country: safe_attr('va_eauth_country'),
-          postal_code: postal_code
-        }
-      end
-
-      def postal_code
-        safe_attr('va_eauth_postalcode')
       end
 
       def gender
@@ -95,10 +62,6 @@ module SAML
 
       def email
         safe_attr('va_eauth_emailaddress')
-      end
-
-      def phone
-        safe_attr('va_eauth_phone')
       end
 
       ### Identifiers
@@ -158,10 +121,6 @@ module SAML
         edipi_ids[:edipi]
       end
 
-      def sponsor_dod_epi_pn_id
-        safe_attr('va_eauth_sponsordodedipnid')&.split(',')&.first
-      end
-
       # va_eauth_credentialassurancelevel is supposed to roll up the
       # federated assurance level from credential provider and broker.
       # It is currently returning a value of "2" for DSLogon level 2
@@ -218,14 +177,6 @@ module SAML
 
       def transactionid
         safe_attr('va_eauth_transactionid')
-      end
-
-      def cerner_id
-        mvi_ids[:cerner_id]
-      end
-
-      def cerner_facility_ids
-        mvi_ids[:cerner_facility_ids]
       end
 
       def vha_facility_ids
@@ -317,10 +268,6 @@ module SAML
           tracker = SAMLRequestTracker.find(@tracker_uuid)
           %w[mhv myvahealth].include?(tracker&.payload_attr(:application))
         end
-      end
-
-      def birls_id_mismatch?
-        attribute_has_multiple_values?('va_eauth_birlsfilenumber')
       end
 
       def check_id_mismatch(ids, multiple_ids_error_type)

@@ -64,6 +64,8 @@ FactoryBot.define do
     mhv_ids { Array.new(2) { Faker::Number.number(digits: 11) } }
     active_mhv_ids { mhv_ids }
     id_theft_flag { false }
+    cerner_id { '123456' }
+    cerner_facility_ids { %w[200MHV] }
     edipi { Faker::Number.number(digits: 10) }
     edipis { [edipi] }
     mhv_ien { Faker::Number.number(digits: 10) }

@@ -34,9 +34,6 @@ class User < Common::RedisStore
   attribute :user_verification_id, Integer
   attribute :fingerprint, String
 
-  delegate :email, to: :identity, allow_nil: true
-  delegate :loa3?, to: :identity, allow_nil: true
-
   # Retrieve a user's Account record
   #
   # @return [Account] an instance of the Account object
@@ -85,11 +82,16 @@ class User < Common::RedisStore
     pciu&.get_alternate_phone&.to_s
   end
 
-  # Identity getter methods
-
-  def birls_id
-    identity&.birls_id || mpi_birls_id
-  end
+  # Identity attributes & methods
+  delegate :authn_context, to: :identity, allow_nil: true
+  delegate :email, to: :identity, allow_nil: true
+  delegate :idme_uuid, to: :identity, allow_nil: true
+  delegate :loa3?, to: :identity, allow_nil: true
+  delegate :logingov_uuid, to: :identity, allow_nil: true
+  delegate :mhv_icn, to: :identity, allow_nil: true
+  delegate :multifactor, to: :identity, allow_nil: true
+  delegate :sign_in, to: :identity, allow_nil: true, prefix: true
+  delegate :verified_at, to: :identity, allow_nil: true
 
   # Returns a Date string in iso8601 format, eg. '{year}-{month}-{day}'
   def birth_date
@@ -103,7 +105,11 @@ class User < Common::RedisStore
   end
 
   def common_name
-    identity.common_name.presence || [first_name, middle_name, last_name, suffix].compact.join(' ')
+    [first_name, middle_name, last_name, suffix].compact.join(' ')
+  end
+
+  def edipi
+    loa3? && identity.edipi.present? ? identity.edipi : edipi_mpi
   end
 
   def full_name_normalized
@@ -143,10 +149,6 @@ class User < Common::RedisStore
     identity.last_name.presence || last_name_mpi
   end
 
-  def participant_id
-    identity&.participant_id || mpi&.participant_id
-  end
-
   def sec_id
     identity&.sec_id || mpi_profile&.sec_id
   end
@@ -159,18 +161,31 @@ class User < Common::RedisStore
     ssn&.gsub(/[^\d]/, '')
   end
 
-  def postal_code
-    identity&.postal_code || mpi&.profile&.address&.postal_code
-  end
-
-  # MPI getter methods
+  # MPI attributes & methods
+  delegate :birls_id, to: :mpi
+  delegate :cerner_id, to: :mpi
+  delegate :cerner_facility_ids, to: :mpi
+  delegate :edipis, to: :mpi, prefix: true
+  delegate :error, to: :mpi, prefix: true
+  delegate :home_phone, to: :mpi
+  delegate :icn, to: :mpi, prefix: true
+  delegate :icn_with_aaid, to: :mpi
+  delegate :id_theft_flag, to: :mpi
+  delegate :mhv_ien, to: :mpi
+  delegate :mhv_iens, to: :mpi, prefix: true
+  delegate :participant_id, to: :mpi
+  delegate :participant_ids, to: :mpi, prefix: true
+  delegate :person_types, to: :mpi
+  delegate :search_token, to: :mpi
+  delegate :status, to: :mpi, prefix: true
+  delegate :vet360_id, to: :mpi
 
   def active_mhv_ids
     mpi_profile&.active_mhv_ids
   end
 
   def address
-    address = identity&.address || mpi_profile&.address || {}
+    address = mpi_profile&.address || {}
     {
       street: address[:street],
       street2: address[:street2],
@@ -210,7 +225,7 @@ class User < Common::RedisStore
   end
 
   def home_phone
-    identity&.phone || mpi_profile&.home_phone
+    mpi_profile&.home_phone
   end
 
   def last_name_mpi
@@ -233,16 +248,28 @@ class User < Common::RedisStore
     mpi_profile&.normalized_suffix
   end
 
+  def postal_code
+    mpi&.profile&.address&.postal_code
+  end
+
   def ssn_mpi
     mpi_profile&.ssn
   end
 
   def suffix
-    identity&.suffix || mpi_profile&.suffix
+    mpi_profile&.suffix
   end
 
   def mpi_profile?
     mpi_profile != nil
+  end
+
+  def vha_facility_ids
+    mpi_profile&.vha_facility_ids || []
+  end
+
+  def vha_facility_hash
+    mpi_profile&.vha_facility_hash || {}
   end
 
   # MPI setter methods
@@ -262,38 +289,9 @@ class User < Common::RedisStore
     @mpi = nil
   end
 
-  # identity attributes
-  delegate :multifactor, to: :identity, allow_nil: true
-  delegate :authn_context, to: :identity, allow_nil: true
-  delegate :mhv_icn, to: :identity, allow_nil: true
-  delegate :idme_uuid, to: :identity, allow_nil: true
-  delegate :logingov_uuid, to: :identity, allow_nil: true
-  delegate :verified_at, to: :identity, allow_nil: true
-  delegate :sign_in, to: :identity, allow_nil: true, prefix: true
-
-  # mpi attributes
-  delegate :birls_id, to: :mpi, prefix: true
-  delegate :mhv_ien, to: :mpi
-  delegate :mhv_iens, to: :mpi, prefix: true
-  delegate :participant_ids, to: :mpi, prefix: true
-  delegate :edipis, to: :mpi, prefix: true
-  delegate :birls_ids, to: :mpi, prefix: true
-  delegate :icn, to: :mpi, prefix: true
-  delegate :icn_with_aaid, to: :mpi
-  delegate :vet360_id, to: :mpi
-  delegate :search_token, to: :mpi
-  delegate :person_types, to: :mpi
-  delegate :id_theft_flag, to: :mpi
-  delegate :status, to: :mpi, prefix: true
-  delegate :error, to: :mpi, prefix: true
-
   # emis attributes
   delegate :military_person?, to: :veteran_status
   delegate :veteran?, to: :veteran_status
-
-  def edipi
-    loa3? && identity.edipi.present? ? identity.edipi : edipi_mpi
-  end
 
   def ssn_mismatch?
     return false unless loa3? && identity&.ssn && ssn_mpi
@@ -318,22 +316,6 @@ class User < Common::RedisStore
       Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) } ||
         Settings.mhv.facility_specific.include?(f)
     end
-  end
-
-  def vha_facility_ids
-    identity&.vha_facility_ids || mpi_profile&.vha_facility_ids || []
-  end
-
-  def vha_facility_hash
-    identity&.vha_facility_hash || mpi_profile&.vha_facility_hash || {}
-  end
-
-  def cerner_id
-    identity&.cerner_id || mpi_profile&.cerner_id
-  end
-
-  def cerner_facility_ids
-    identity&.cerner_facility_ids || mpi_profile&.cerner_facility_ids
   end
 
   def can_access_id_card?
@@ -447,14 +429,14 @@ class User < Common::RedisStore
 
   private
 
-  def mpi
-    @mpi ||= MPIData.for_user(identity)
-  end
-
   def mpi_profile
     return nil unless identity && mpi
 
     mpi.profile
+  end
+
+  def mpi
+    @mpi ||= MPIData.for_user(identity)
   end
 
   # Get user_verification based on login method
