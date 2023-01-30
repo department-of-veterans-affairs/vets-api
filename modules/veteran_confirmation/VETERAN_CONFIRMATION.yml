@@ -15,7 +15,7 @@ info:
 
     ### 2. Test the API
     In the endpoint documentation below, we've provided a curl command builder for trying out the API before implementation with your app.
-    Use [Test User](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts.md) attributes to populate the request body.
+    Use [Test User](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts/confirmation_test_accounts.md) attributes to populate the request body.
 
     ### 3. Build your app
     The base URI for the Veteran Confirmation API in the Sandbox environment is:
