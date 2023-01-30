@@ -504,6 +504,10 @@ features:
   profile_show_pronouns_and_sexual_orientation:
     actor_type: user
     description: Show/hide Pronouns and Sexual Orientation fields on profile page
+  profile_use_security_process_list:
+    actor_type: user
+    descriptions: For Account Security page, use a new process list component for account setup information
+    enable_in_development: true
   profile_use_vaos_v2_api:
     description: "Use the new VAOS v2 API endpoints"
     enable_in_development: true
