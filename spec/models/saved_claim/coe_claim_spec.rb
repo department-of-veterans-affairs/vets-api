@@ -23,7 +23,7 @@ RSpec.describe SavedClaim::CoeClaim do
 
     it 'sends the right data to LGY' do
       # rubocop:disable Layout/LineLength
-      coe_claim = create(:coe_claim, form: '{"relevantPriorLoans":[{"dateRange":{"from":"2017-01-01T00:00:00.000Z","to":""},"propertyAddress":{"propertyAddress1":"234","propertyAddress2":"234","propertyCity":"asdf","propertyState":"AL","propertyZip":"11111"},"propertyOwned":false,"vaLoanNumber":"123123123123","willRefinance":true},{"dateRange":{"from":"2010-01-01T00:00:00.000Z","to":"2011-01-01T00:00:00.000Z"},"propertyAddress":{"propertyAddress1":"939393","propertyAddress2":"234","propertyCity":"asdf","propertyState":"AL","propertyZip":"11111"},"propertyOwned":true,"vaLoanNumber":"123123123123","willRefinance":true}],"intent":"REFI","vaLoanIndicator":true,"periodsOfService":[{"serviceBranch":"Air Force","dateRange":{"from":"2000-01-01T00:00:00.000Z","to":"2010-01-16T00:00:00.000Z"}}],"identity":"ADSM","contactPhone":"2223334444","contactEmail":"vet@example.com","fullName":{"first":"Eddie","middle":"Joseph","last":"Caldwell"},"dateOfBirth":"1933-10-27","applicantAddress":{"country":"USA","street":"123 ANY ST","city":"ANYTOWN","state":"AL","postalCode":"54321"},"privacyAgreementAccepted":true}')
+      coe_claim = create(:coe_claim, form: '{"relevantPriorLoans":[{"dateRange":{"from":"2017-01-01T00:00:00.000Z","to":""},"propertyAddress":{"propertyAddress1":"234","propertyAddress2":"234","propertyCity":"asdf","propertyState":"AL","propertyZip":"11111"},"propertyOwned":false,"vaLoanNumber":"123123123123","willRefinance":true,"intent":"IRRRL"},{"dateRange":{"from":"2010-01-01T00:00:00.000Z","to":"2011-01-01T00:00:00.000Z"},"propertyAddress":{"propertyAddress1":"939393","propertyAddress2":"234","propertyCity":"asdf","propertyState":"AL","propertyZip":"11111"},"propertyOwned":true,"vaLoanNumber":"123123123123","willRefinance":true,"intent":"REFI"}],"vaLoanIndicator":true,"periodsOfService":[{"serviceBranch":"Air Force","dateRange":{"from":"2000-01-01T00:00:00.000Z","to":"2010-01-16T00:00:00.000Z"}}],"identity":"ADSM","contactPhone":"2223334444","contactEmail":"vet@example.com","fullName":{"first":"Eddie","middle":"Joseph","last":"Caldwell"},"dateOfBirth":"1933-10-27","applicantAddress":{"country":"USA","street":"123 ANY ST","city":"ANYTOWN","state":"AL","postalCode":"54321"},"privacyAgreementAccepted":true}')
       # rubocop:enable Layout/LineLength
       expected_prepared_form_data = {
         'status' => 'SUBMITTED',
@@ -60,8 +60,8 @@ RSpec.describe SavedClaim::CoeClaim do
           'loanEntitlementCharged' => nil,
           'propertyOwned' => false,
           'oneTimeRestorationRequested' => false,
-          'irrrlRequested' => false,
-          'cashoutRefinaceRequested' => true,
+          'irrrlRequested' => true,
+          'cashoutRefinaceRequested' => false,
           'noRestorationEntitlementIndicator' => false,
           'homeSellIndicator' => nil,
           'propertyAddress1' => '234',
@@ -109,7 +109,7 @@ RSpec.describe SavedClaim::CoeClaim do
     context 'send AIR_FORCE as branch for Air National Guard to LGY' do
       it 'sends the right data to LGY' do
         # rubocop:disable Layout/LineLength
-        coe_claim = create(:coe_claim, form: '{"relevantPriorLoans":[{"dateRange":{"from":"2017-01-01T00:00:00.000Z","to":""},"propertyAddress":{"propertyAddress1":"234","propertyAddress2":"234","propertyCity":"asdf","propertyState":"AL","propertyZip":"11111"},"propertyOwned":false,"vaLoanNumber":"123123123123","willRefinance":true},{"dateRange":{"from":"2010-01-01T00:00:00.000Z","to":"2011-01-01T00:00:00.000Z"},"propertyAddress":{"propertyAddress1":"939393","propertyAddress2":"234","propertyCity":"asdf","propertyState":"AL","propertyZip":"11111"},"propertyOwned":true,"vaLoanNumber":"123123123123","willRefinance":true}],"intent":"REFI","vaLoanIndicator":true,"periodsOfService":[{"serviceBranch":"Air National Guard","dateRange":{"from":"2000-01-01T00:00:00.000Z","to":"2010-01-16T00:00:00.000Z"}}],"identity":"ADSM","contactPhone":"2223334444","contactEmail":"vet@example.com","fullName":{"first":"Eddie","middle":"Joseph","last":"Caldwell"},"dateOfBirth":"1933-10-27","applicantAddress":{"country":"USA","street":"123 ANY ST","city":"ANYTOWN","state":"AL","postalCode":"54321"},"privacyAgreementAccepted":true}')
+        coe_claim = create(:coe_claim, form: '{"relevantPriorLoans":[{"dateRange":{"from":"2017-01-01T00:00:00.000Z","to":""},"propertyAddress":{"propertyAddress1":"234","propertyAddress2":"234","propertyCity":"asdf","propertyState":"AL","propertyZip":"11111"},"propertyOwned":false,"vaLoanNumber":"123123123123","willRefinance":true, "intent":"IRRRL"},{"dateRange":{"from":"2010-01-01T00:00:00.000Z","to":"2011-01-01T00:00:00.000Z"},"propertyAddress":{"propertyAddress1":"939393","propertyAddress2":"234","propertyCity":"asdf","propertyState":"AL","propertyZip":"11111"},"propertyOwned":true,"vaLoanNumber":"123123123123","willRefinance":true, "intent":"REFI"}],"vaLoanIndicator":true,"periodsOfService":[{"serviceBranch":"Air National Guard","dateRange":{"from":"2000-01-01T00:00:00.000Z","to":"2010-01-16T00:00:00.000Z"}}],"identity":"ADSM","contactPhone":"2223334444","contactEmail":"vet@example.com","fullName":{"first":"Eddie","middle":"Joseph","last":"Caldwell"},"dateOfBirth":"1933-10-27","applicantAddress":{"country":"USA","street":"123 ANY ST","city":"ANYTOWN","state":"AL","postalCode":"54321"},"privacyAgreementAccepted":true}')
         # rubocop:enable Layout/LineLength
         expected_prepared_form_data = {
           'status' => 'SUBMITTED',
@@ -146,8 +146,8 @@ RSpec.describe SavedClaim::CoeClaim do
             'loanEntitlementCharged' => nil,
             'propertyOwned' => false,
             'oneTimeRestorationRequested' => false,
-            'irrrlRequested' => false,
-            'cashoutRefinaceRequested' => true,
+            'irrrlRequested' => true,
+            'cashoutRefinaceRequested' => false,
             'noRestorationEntitlementIndicator' => false,
             'homeSellIndicator' => nil,
             'propertyAddress1' => '234',
@@ -196,7 +196,7 @@ RSpec.describe SavedClaim::CoeClaim do
     context 'send MARINES as branch for Marine Corps Reserve to LGY' do
       it 'sends the right data to LGY' do
         # rubocop:disable Layout/LineLength
-        coe_claim = create(:coe_claim, form: '{"relevantPriorLoans":[{"dateRange":{"from":"2017-01-01T00:00:00.000Z","to":""},"propertyAddress":{"propertyAddress1":"234","propertyAddress2":"234","propertyCity":"asdf","propertyState":"AL","propertyZip":"11111"},"propertyOwned":false,"vaLoanNumber":"123123123123","willRefinance":true},{"dateRange":{"from":"2010-01-01T00:00:00.000Z","to":"2011-01-01T00:00:00.000Z"},"propertyAddress":{"propertyAddress1":"939393","propertyAddress2":"234","propertyCity":"asdf","propertyState":"AL","propertyZip":"11111"},"propertyOwned":true,"vaLoanNumber":"123123123123","willRefinance":true}],"intent":"REFI","vaLoanIndicator":true,"periodsOfService":[{"serviceBranch":"Marine Corps Reserve","dateRange":{"from":"2000-01-01T00:00:00.000Z","to":"2010-01-16T00:00:00.000Z"}}],"identity":"ADSM","contactPhone":"2223334444","contactEmail":"vet@example.com","fullName":{"first":"Eddie","middle":"Joseph","last":"Caldwell"},"dateOfBirth":"1933-10-27","applicantAddress":{"country":"USA","street":"123 ANY ST","city":"ANYTOWN","state":"AL","postalCode":"54321"},"privacyAgreementAccepted":true}')
+        coe_claim = create(:coe_claim, form: '{"relevantPriorLoans":[{"dateRange":{"from":"2017-01-01T00:00:00.000Z","to":""},"propertyAddress":{"propertyAddress1":"234","propertyAddress2":"234","propertyCity":"asdf","propertyState":"AL","propertyZip":"11111"},"propertyOwned":false,"vaLoanNumber":"123123123123","willRefinance":true,"intent":"IRRRL"},{"dateRange":{"from":"2010-01-01T00:00:00.000Z","to":"2011-01-01T00:00:00.000Z"},"propertyAddress":{"propertyAddress1":"939393","propertyAddress2":"234","propertyCity":"asdf","propertyState":"AL","propertyZip":"11111"},"propertyOwned":true,"vaLoanNumber":"123123123123","willRefinance":true,"intent":"REFI"}],"vaLoanIndicator":true,"periodsOfService":[{"serviceBranch":"Marine Corps Reserve","dateRange":{"from":"2000-01-01T00:00:00.000Z","to":"2010-01-16T00:00:00.000Z"}}],"identity":"ADSM","contactPhone":"2223334444","contactEmail":"vet@example.com","fullName":{"first":"Eddie","middle":"Joseph","last":"Caldwell"},"dateOfBirth":"1933-10-27","applicantAddress":{"country":"USA","street":"123 ANY ST","city":"ANYTOWN","state":"AL","postalCode":"54321"},"privacyAgreementAccepted":true}')
         # rubocop:enable Layout/LineLength
         expected_prepared_form_data = {
           'status' => 'SUBMITTED',
@@ -233,8 +233,8 @@ RSpec.describe SavedClaim::CoeClaim do
             'loanEntitlementCharged' => nil,
             'propertyOwned' => false,
             'oneTimeRestorationRequested' => false,
-            'irrrlRequested' => false,
-            'cashoutRefinaceRequested' => true,
+            'irrrlRequested' => true,
+            'cashoutRefinaceRequested' => false,
             'noRestorationEntitlementIndicator' => false,
             'homeSellIndicator' => nil,
             'propertyAddress1' => '234',
@@ -283,7 +283,7 @@ RSpec.describe SavedClaim::CoeClaim do
     context 'send MARINES as branch for Marine Corps to LGY' do
       it 'sends the right data to LGY' do
         # rubocop:disable Layout/LineLength
-        coe_claim = create(:coe_claim, form: '{"relevantPriorLoans":[{"dateRange":{"from":"2017-01-01T00:00:00.000Z","to":""},"propertyAddress":{"propertyAddress1":"234","propertyAddress2":"234","propertyCity":"asdf","propertyState":"AL","propertyZip":"11111"},"propertyOwned":false,"vaLoanNumber":"123123123123","willRefinance":true},{"dateRange":{"from":"2010-01-01T00:00:00.000Z","to":"2011-01-01T00:00:00.000Z"},"propertyAddress":{"propertyAddress1":"939393","propertyAddress2":"234","propertyCity":"asdf","propertyState":"AL","propertyZip":"11111"},"propertyOwned":true,"vaLoanNumber":"123123123123","willRefinance":true}],"intent":"REFI","vaLoanIndicator":true,"periodsOfService":[{"serviceBranch":"Marine Corps","dateRange":{"from":"2000-01-01T00:00:00.000Z","to":"2010-01-16T00:00:00.000Z"}}],"identity":"ADSM","contactPhone":"2223334444","contactEmail":"vet@example.com","fullName":{"first":"Eddie","middle":"Joseph","last":"Caldwell"},"dateOfBirth":"1933-10-27","applicantAddress":{"country":"USA","street":"123 ANY ST","city":"ANYTOWN","state":"AL","postalCode":"54321"},"privacyAgreementAccepted":true}')
+        coe_claim = create(:coe_claim, form: '{"relevantPriorLoans":[{"dateRange":{"from":"2017-01-01T00:00:00.000Z","to":""},"propertyAddress":{"propertyAddress1":"234","propertyAddress2":"234","propertyCity":"asdf","propertyState":"AL","propertyZip":"11111"},"propertyOwned":false,"vaLoanNumber":"123123123123","willRefinance":true,"intent":"IRRRL"},{"dateRange":{"from":"2010-01-01T00:00:00.000Z","to":"2011-01-01T00:00:00.000Z"},"propertyAddress":{"propertyAddress1":"939393","propertyAddress2":"234","propertyCity":"asdf","propertyState":"AL","propertyZip":"11111"},"propertyOwned":true,"vaLoanNumber":"123123123123","willRefinance":true,"intent":"REFI"}],"vaLoanIndicator":true,"periodsOfService":[{"serviceBranch":"Marine Corps","dateRange":{"from":"2000-01-01T00:00:00.000Z","to":"2010-01-16T00:00:00.000Z"}}],"identity":"ADSM","contactPhone":"2223334444","contactEmail":"vet@example.com","fullName":{"first":"Eddie","middle":"Joseph","last":"Caldwell"},"dateOfBirth":"1933-10-27","applicantAddress":{"country":"USA","street":"123 ANY ST","city":"ANYTOWN","state":"AL","postalCode":"54321"},"privacyAgreementAccepted":true}')
         # rubocop:enable Layout/LineLength
         expected_prepared_form_data = {
           'status' => 'SUBMITTED',
@@ -320,8 +320,8 @@ RSpec.describe SavedClaim::CoeClaim do
             'loanEntitlementCharged' => nil,
             'propertyOwned' => false,
             'oneTimeRestorationRequested' => false,
-            'irrrlRequested' => false,
-            'cashoutRefinaceRequested' => true,
+            'irrrlRequested' => true,
+            'cashoutRefinaceRequested' => false,
             'noRestorationEntitlementIndicator' => false,
             'homeSellIndicator' => nil,
             'propertyAddress1' => '234',
