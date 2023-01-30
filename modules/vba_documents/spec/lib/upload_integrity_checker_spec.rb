@@ -97,21 +97,21 @@ RSpec.describe VBADocuments::UploadIntegrityChecker do
 
     context 'when the generated file does not match the original file' do
       let(:original_checksum) { 'some_other_checksum' }
-      let(:warning_message) { "#{described_class} raised error for upload, guid: #{upload_submission.guid}" }
+      let(:warning_message) { "#{described_class} failed for upload" }
       let(:exception_message) { "Checksums don't match!" }
+
+      let(:logger_message) { "#{warning_message}, guid: #{upload_submission.guid}" }
+      let(:sentry_message) { "#{warning_message}: #{exception_message}" }
 
       it 'logs to Rails logger, log level: warn' do
         subject.check_integrity
-        expect(Rails.logger).to have_received(:warn).with(warning_message, exception_message)
+        expect(Rails.logger).to have_received(:warn).with(logger_message, exception_message)
       end
 
       # rubocop:disable RSpec/SubjectStub
       it 'logs a warning to Sentry' do
         subject.check_integrity
-        expect(subject).to have_received(:log_message_to_sentry).with(
-          "#{warning_message}: #{exception_message}",
-          :warning
-        )
+        expect(subject).to have_received(:log_message_to_sentry).with(sentry_message, :warning)
       end
       # rubocop:enable RSpec/SubjectStub
     end

@@ -26,8 +26,8 @@ module VBADocuments
 
         Rails.logger.info("#{self.class} complete, guid: #{@upload_submission.guid}")
       rescue => e
-        warning_message = "#{self.class} raised error for upload, guid: #{@upload_submission.guid}"
-        Rails.logger.warn(warning_message, e.message)
+        warning_message = "#{self.class} failed for upload"
+        Rails.logger.warn("#{warning_message}, guid: #{@upload_submission.guid}", e.message)
         log_message_to_sentry("#{warning_message}: #{e.message}", :warning)
       ensure
         close_multipart_files
