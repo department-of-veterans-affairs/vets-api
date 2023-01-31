@@ -117,7 +117,6 @@ class SavedClaim::CoeClaim < SavedClaim
         'propertyCounty' => '',
         'propertyZip' => property_zip,
         'propertyZipSuffix' => property_zip_suffix || ''
-        # 'willRefinance' => loan_info['propertyAddress']['willRefinance'] || false
       }
     end
   end
