@@ -225,6 +225,18 @@ features:
     actor_type: user
     description: Enables the supplemental claim PII expunge job
     enable_in_development: true
+  decision_review_hlr_status_updater_enabled:
+      actor_type: user
+      description: Enables the Higher Level Review status update batch job
+      enable_in_development: true
+  decision_review_nod_status_updater_enabled:
+    actor_type: user
+    description: Enables the Notice of Disagreement status update batch job
+    enable_in_development: true
+  decision_review_sc_status_updater_enabled:
+    actor_type: user
+    description: Enables the Supplemental Claim status update batch job
+    enable_in_development: true
   decision_review_icn_updater_enabled:
     actor_type: user
     description: Enables the ICN lookup job

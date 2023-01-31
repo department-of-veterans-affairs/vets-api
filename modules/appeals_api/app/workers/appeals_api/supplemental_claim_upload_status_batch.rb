@@ -28,7 +28,7 @@ module AppealsApi
     end
 
     def enabled?
-      Settings.modules_appeals_api.supplemental_claim_updater_enabled
+      Flipper.enabled? :decision_review_sc_status_updater_enabled
     end
   end
 end
