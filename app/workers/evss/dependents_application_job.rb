@@ -10,8 +10,9 @@ module EVSS
     sidekiq_options retry: false
 
     # rubocop:disable Metrics/MethodLength
-    def perform(app_id, form, user_uuid)
+    def perform(app_id, encrypted_form, user_uuid)
       @app_id = app_id
+      form = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_form))
       user = User.find(user_uuid)
       service = Dependents::Service.new(user)
       cached_info = Dependents::RetrievedInfo.for_user(user)
