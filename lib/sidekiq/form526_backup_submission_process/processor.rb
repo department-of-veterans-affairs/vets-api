@@ -28,13 +28,24 @@ module Sidekiq
       FORM_0781 = 'form0781'
       FORM_8940 = 'form8940'
       FLASHES = 'flashes'
-      BIRLS_KEY = 'va_eauth_birlsfilenumber'
-      TMP_FILE_PREFIX = 'form526.backup.'
-      EVIDENCE_LOOKUP = {}.freeze
       BKUP_SETTINGS = Settings.key?(:form526_backup) ? Settings.form526_backup : OpenStruct.new
+      DOCTYPE_MAPPING = {
+        '21-526EZ' => 'L533',
+        '21-4142' => 'L107',
+        '21-0781' => 'L228',
+        '21-0781a' => 'L229',
+        '21-8940' => 'L149',
+        'bdd' => 'L023'
+      }.freeze
+      DOCTYPE_NAMES = %w[
+        21-526EZ
+        21-4142
+        21-0781
+        21-0781a
+        21-8940
+      ].freeze
 
       SUB_METHOD = (BKUP_SETTINGS.submission_method || 'single').to_sym
-      CONSUMER_NAME = 'vets_api_backup_submission'
 
       # Takes a submission id, assembles all needed docs from its payload, then sends it to central mail via
       # lighthouse benefits intake API - https://developer.va.gov/explore/benefits/docs/benefits?version=current
@@ -77,10 +88,16 @@ module Sidekiq
       # and upload to aws for manual review
       def upload_pdf_submission_to_s3(return_url: false, url_life_length: 1.week.to_i)
         gather_docs! unless @docs_gathered
-        initial_payload, other_payloads = evidence_526_split
-        params_docs, _metadata_file = submit_as_one(initial_payload, other_payloads,
-                                                    return_docs_instead_of_sending: true)
-        metadata = get_meta_data(FORM_526_DOC_TYPE).merge({ claimDate: submission.created_at.iso8601 })
+        i = 0
+        params_docs = docs.map do |doc|
+          doc_type = doc[:evssDocType] || doc[:metadata][:docType]
+          {
+            file_path: lighthouse_service.get_file_path_from_objs(doc[:file]),
+            docType: DOCTYPE_MAPPING[doc_type] || doc_type,
+            file_name: DOCTYPE_NAMES.include?(doc_type) ? "#{doc_type}.pdf" : "attachment#{i += 1}.pdf"
+          }
+        end
+        metadata = get_meta_data(FORM_526_DOC_TYPE)
         zipname = "#{submission.id}.zip"
         generate_zip_and_upload(params_docs, zipname, metadata, return_url, url_life_length)
       end
@@ -98,12 +115,12 @@ module Sidekiq
         zip_path_and_name = "tmp/#{zipname}"
         Zip::File.open(zip_path_and_name, create: true) do |zipfile|
           zipfile.get_output_stream('metadata.json') { |f| f.puts metadata.to_json }
-          params_docs.each do |file_name, doc|
-            next if file_name == :metadata
-
-            fname = "#{file_name}.pdf"
-            zipfile.add(fname, doc.local_path)
+          zipfile.get_output_stream('mappings.json') do |f|
+            f.puts params_docs.to_h { |q|
+                     [q[:file_name], q[:docType]]
+                   }.to_json
           end
+          params_docs.each { |doc| zipfile.add(doc[:file_name], doc[:file_path]) }
         end
         s3_resource = new_s3_resource
         obj = s3_resource.bucket(s3_bucket).object(zipname)
@@ -159,11 +176,18 @@ module Sidekiq
       # Generate metadata for metadata.json file for the lighthouse benefits intake API to send along to Central Mail
       def get_meta_data(doc_type)
         auth_info = submission.auth_headers
-        {
-          "veteranFirstName": auth_info['va_eauth_firstName'], "veteranLastName": auth_info['va_eauth_lastName'],
-          "fileNumber": auth_info['va_eauth_pnid'], "zipCode": zip, "source": 'va.gov backup submission',
-          "docType": doc_type, "businessLine": 'CMP', "claimDate": submission.created_at.iso8601
+        md = {
+          veteranFirstName: auth_info['va_eauth_firstName'],
+          veteranLastName: auth_info['va_eauth_lastName'],
+          fileNumber: auth_info['va_eauth_pnid'],
+          zipCode: zip,
+          source: 'va.gov backup submission',
+          docType: doc_type,
+          businessLine: 'CMP',
+          claimDate: submission.created_at.iso8601
         }
+        md[:forceOfframp] = 'true' if Flipper.enabled?(:form526_backup_submission_force_offramp)
+        md
       end
 
       def send_to_central_mail_through_lighthouse_claims_intake_api!
@@ -237,7 +261,7 @@ module Sidekiq
       def submit_initial_payload(initial_payload)
         seperated = initial_payload.group_by { |doc| doc[:type] }
         form526_doc = seperated[FORM_526_DOC_TYPE].first
-        evidence_files = seperated[FORM_526_UPLOADS_DOC_TYPE].map { |doc| doc[:file] }
+        evidence_files = seperated[FORM_526_UPLOADS_DOC_TYPE].pluck(:file)
         log_info(message: 'Uploading initial fallback payload to Lighthouse', upload_type: FORM_526_DOC_TYPE,
                  uuid: initial_upload_uuid)
         lighthouse_service.upload_doc(
@@ -282,9 +306,7 @@ module Sidekiq
 
       def write_to_tmp_file(content, ext = 'pdf')
         fname = "#{Common::FileHelpers.random_file_path}.#{ext}"
-        File.open(fname, 'wb') do |f|
-          f.write(content)
-        end
+        File.binwrite(fname, content)
         fname
       end
 
@@ -320,11 +342,11 @@ module Sidekiq
       end
 
       def get_form4142_pdf
-        processor_4142 = DecisionReviewV1::Processor::Form4142Processor.new(form_data: submission.form[FORM_4142],
-                                                                            response: initial_upload)
+        processor4142 = DecisionReviewV1::Processor::Form4142Processor.new(form_data: submission.form[FORM_4142],
+                                                                           response: initial_upload)
         docs << {
           type: FORM_4142_DOC_TYPE,
-          file: processor_4142.pdf_path
+          file: processor4142.pdf_path
         }
       end
 
