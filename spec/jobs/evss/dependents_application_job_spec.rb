@@ -39,14 +39,29 @@ RSpec.describe EVSS::DependentsApplicationJob do
       end
     end
 
-    it 'uses, then deletes a cache of user info' do
-      VCR.use_cassette(
-        'evss/dependents/all',
-        match_requests_on: %i[method uri body]
-      ) do
-        expect_any_instance_of(EVSS::Dependents::RetrievedInfo).to receive(:body).once.and_call_original
-        expect_any_instance_of(EVSS::Dependents::RetrievedInfo).to receive(:delete).once.and_call_original
-        described_class.drain
+    context 'user info protection' do
+      before { allow_any_instance_of(KmsEncrypted::Box).to receive(:decrypt).and_return(dependents_application.form) }
+
+      it 'decrypts the encrypted user form argument' do
+        VCR.use_cassette(
+          'evss/dependents/all',
+          match_requests_on: %i[method uri body]
+        ) do
+          expect_any_instance_of(KmsEncrypted::Box).to receive(:decrypt)
+          described_class.drain
+          reload_dependents_application
+        end
+      end
+
+      it 'uses, then deletes a cache of user info' do
+        VCR.use_cassette(
+          'evss/dependents/all',
+          match_requests_on: %i[method uri body]
+        ) do
+          expect_any_instance_of(EVSS::Dependents::RetrievedInfo).to receive(:body).once.and_call_original
+          expect_any_instance_of(EVSS::Dependents::RetrievedInfo).to receive(:delete).once.and_call_original
+          described_class.drain
+        end
       end
     end
   end

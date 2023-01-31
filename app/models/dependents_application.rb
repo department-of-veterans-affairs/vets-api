@@ -248,6 +248,6 @@ class DependentsApplication < Common::RedisStore
   end
 
   def create_submission_job
-    EVSS::DependentsApplicationJob.perform_async(id, parsed_form, user.uuid)
+    EVSS::DependentsApplicationJob.perform_async(id, KmsEncrypted::Box.new.encrypt(parsed_form.to_json), user.uuid)
   end
 end
