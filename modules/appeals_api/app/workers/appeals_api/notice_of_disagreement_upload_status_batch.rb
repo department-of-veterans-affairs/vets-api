@@ -28,7 +28,7 @@ module AppealsApi
     end
 
     def enabled?
-      Settings.modules_appeals_api.notice_of_disagreement_updater_enabled
+      Flipper.enabled? :decision_review_nod_status_updater_enabled
     end
   end
 end

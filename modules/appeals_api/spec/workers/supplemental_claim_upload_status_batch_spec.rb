@@ -23,21 +23,21 @@ describe AppealsApi::SupplementalClaimUploadStatusBatch, type: :job do
     end
 
     context 'when status updater is enabled' do
+      before { Flipper.enable :decision_review_sc_status_updater_enabled }
+
       it 'updates all the statuses' do
-        with_settings(Settings.modules_appeals_api, supplemental_claim_updater_enabled: true) do
-          Sidekiq::Testing.inline! { AppealsApi::SupplementalClaimUploadStatusBatch.new.perform }
-          upload.reload
-          expect(upload.status).to eq('processing')
-        end
+        Sidekiq::Testing.inline! { AppealsApi::SupplementalClaimUploadStatusBatch.new.perform }
+        upload.reload
+        expect(upload.status).to eq('processing')
       end
     end
 
     context 'when status updater is disabled' do
       it 'does not update statuses' do
-        with_settings(Settings.modules_appeals_api, supplemental_claim_updater_enabled: false) do
-          Sidekiq::Testing.inline! { AppealsApi::SupplementalClaimUploadStatusBatch.new.perform }
-          expect(upload.status).to eq('submitted')
-        end
+        Flipper.disable :decision_review_sc_status_updater_enabled
+        Sidekiq::Testing.inline! { AppealsApi::SupplementalClaimUploadStatusBatch.new.perform }
+        upload.reload
+        expect(upload.status).to eq('submitted')
       end
     end
   end
