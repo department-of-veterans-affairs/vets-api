@@ -10,7 +10,8 @@ module Sidekiq
       sidekiq_options retry: 0
 
       def perform(id)
-        Processor.new(id).upload_pdf_submission_to_s3
+        Processor.new(id, get_upload_location_on_instantiation: false,
+                          ignore_expiration: true).upload_pdf_submission_to_s3
       end
     end
 
