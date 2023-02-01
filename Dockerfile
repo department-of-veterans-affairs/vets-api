@@ -34,7 +34,7 @@ RUN ./import-va-certs.sh
 
 COPY config/clamd.conf /etc/clamav/clamd.conf
 
-RUN chmod 777 /etc/clamav/clamd.conf
+RUN chmod 0750 /etc/clamav/clamd.conf
 
 ENV LANG=C.UTF-8 \
    BUNDLE_JOBS=4 \
