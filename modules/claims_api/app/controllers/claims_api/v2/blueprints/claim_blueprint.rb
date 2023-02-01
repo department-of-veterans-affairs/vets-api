@@ -6,48 +6,58 @@ module ClaimsApi
   module V2
     module Blueprints
       class ClaimBlueprint < Blueprinter::Base
-        field :claim_type_code
-        field :claim_date
-        field :claim_id
-        field :claim_phase_dates
-        field :claim_type
-        field :close_date
-        field :contention_list
-        field :decision_letter_sent
-        field :development_letter_sent
-        field :documents_needed
-        field :end_product_code
-        field :evidence_waiver_submitted_5103
-        field :errors
-        field :jurisdiction
-        field :lighthouse_id
-        field :max_est_claim_date
-        field :min_est_claim_date
-        field :status do |claim, _options|
-          ClaimsApi::BGSClaimStatusMapper.new(claim).name
+        identifier :claim_id, name: :id
+        field :type do |_options|
+          'claim'
         end
-        field :submitter_application_code
-        field :submitter_role_code
-        field :supporting_documents
-        field :temp_jurisdiction
-        field :tracked_items
-
         transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
 
-        view :list do
-          exclude :claim_type_code
-          exclude :contention_list
-          exclude :errors
-          exclude :jurisdiction
-          exclude :max_est_claim_date
-          exclude :min_est_claim_date
-          exclude :status_type
-          exclude :submitter_application_code
-          exclude :submitter_role_code
-          exclude :supporting_documents
-          exclude :temp_jurisdiction
-          exclude :tracked_items
+        view :index do
+          field :attributes do |claim, _options|
+            {
+              claim_date: claim[:claim_date],
+              claim_phase_dates: claim[:claim_phase_dates],
+              claim_type: claim[:claim_type],
+              close_date: claim[:close_date],
+              decision_letter_sent: claim[:decision_letter_sent],
+              development_letter_sent: claim[:development_letter_sent],
+              documents_needed: claim[:documents_needed],
+              end_product_code: claim[:end_product_code],
+              evidence_waiver_submitted_5103: claim[:evidence_waiver_submitted_5103],
+              lighthouse_id: claim[:lighthouse_id],
+              status: ClaimsApi::BGSClaimStatusMapper.new(claim).name
+            }
+          end
+          transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
+        end
 
+        view :show do
+          field :attributes do |claim, _options|
+            {
+              claim_type_code: claim[:claim_type_code],
+              claim_date: claim[:claim_date],
+              claim_phase_dates: claim[:claim_phase_dates],
+              claim_type: claim[:claim_type],
+              close_date: claim[:close_date],
+              contention_list: claim[:contention_list],
+              decision_letter_sent: claim[:decision_letter_sent],
+              development_letter_sent: claim[:development_letter_sent],
+              documents_needed: claim[:documents_needed],
+              end_product_code: claim[:end_product_code],
+              evidence_waiver_submitted_5103: claim[:evidence_waiver_submitted_5103],
+              errors: claim[:errors],
+              jurisdiction: claim[:jurisdiction],
+              lighthouse_id: claim[:lighthouse_id],
+              max_est_claim_date: claim[:max_est_claim_date],
+              min_est_claim_date: claim[:min_est_claim_date],
+              status: ClaimsApi::BGSClaimStatusMapper.new(claim).name,
+              submitter_application_code: claim[:submitter_application_code],
+              submitter_role_code: claim[:submitter_role_code],
+              supporting_documents: claim[:supporting_documents],
+              temp_jurisdiction: claim[:temp_jurisdiction],
+              tracked_items: claim[:tracked_items]
+            }
+          end
           transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
         end
       end
