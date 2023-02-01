@@ -27,6 +27,15 @@ module DebtManagementCenter
     DATE_TIMEZONE = 'Central Time (US & Canada)'
     VBA_CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.fsr_confirmation_email
     VHA_CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.vha_fsr_confirmation_email
+    DEDUCTION_CODES = {
+      '30' => 'Disability compensation and pension debt',
+      '41' => 'Chapter 34 education debt',
+      '44' => 'Chapter 35 education debt',
+      '71' => 'Post-9/11 GI Bill debt for books and supplies',
+      '72' => 'Post-9/11 GI Bill debt for housing',
+      '74' => 'Post-9/11 GI Bill debt for tuition',
+      '75' => 'Post-9/11 GI Bill debt for tuition (school liable)'
+    }.freeze
 
     ##
     # Submit a financial status report to the Debt Management Center
@@ -88,6 +97,7 @@ module DebtManagementCenter
         form['personalIdentification']['fsrReason'] = debts.map do |debt|
           debt['resolutionOption']
         end.uniq.join(', ')
+        add_compromise_amounts(form, debts)
       end
       submission = persist_form_submission(form, debts)
       submission.submit_to_vba
@@ -103,6 +113,7 @@ module DebtManagementCenter
         facility_form['personalIdentification']['fsrReason'] = fsr_reason
         facility_form['facilityNum'] = facility_num
         facility_form['personalIdentification']['fileNumber'] = @user.ssn
+        add_compromise_amounts(facility_form, copays)
         facility_form.delete('selectedDebtsAndCopays')
         facility_form = remove_form_delimiters(facility_form)
 
@@ -199,6 +210,19 @@ module DebtManagementCenter
       form['personalIdentification']['fileNumber'] = @file_number
       set_certification_date(form)
       form
+    end
+
+    def add_compromise_amounts(form, debts)
+      form['additionalData']['additionalComments'] =
+        "#{form['additionalData']['additionalComments']}#{get_compromise_amount_text(debts)}"
+    end
+
+    def get_compromise_amount_text(debts)
+      debts.map do |debt|
+        if debt['resolutionOption'] == 'compromise'
+          "#{DEDUCTION_CODES[debt['deductionCode']]} compromise amount: $#{debt['resolutionComment']}"
+        end
+      end.join(', ')
     end
 
     def validate_form_schema(form)
