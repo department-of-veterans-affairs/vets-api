@@ -132,17 +132,23 @@ module ClaimsApi
                           external_key: target_veteran.participant_id)
       end
 
-      def build_target_veteran(veteran_id:, loa:)
+      def build_target_veteran(veteran_id:, loa:) # rubocop:disable Metrics/MethodLength
         target_veteran ||= ClaimsApi::Veteran.new(
           mhv_icn: veteran_id,
           loa: loa
         )
         # populate missing veteran attributes with their mpi record
         target_veteran.mpi_record?(user_key: veteran_id)
-        mpi_profile = target_veteran.mpi.mvi_response.profile
+        mpi_profile = target_veteran&.mpi&.mvi_response&.profile || {}
         target_veteran[:first_name] = mpi_profile[:given_names]&.first
         if target_veteran[:first_name].nil?
           raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'Missing first name')
+        end
+
+        if mpi_profile[:participant_id].blank?
+          raise ::Common::Exceptions::UnprocessableEntity.new(detail:
+            "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
+            'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
         end
 
         target_veteran[:last_name] = mpi_profile[:family_name]

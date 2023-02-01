@@ -9,6 +9,16 @@ RSpec.describe 'Claims', type: :request do
   let(:all_claims_path) { "/services/claims/v2/veterans/#{veteran_id}/claims" }
   let(:claim_by_id_path) { "/services/claims/v2/veterans/#{veteran_id}/claims/#{claim_id}" }
   let(:scopes) { %w[claim.read] }
+  let(:profile) do
+    MPI::Responses::FindProfileResponse.new(
+      {
+        status: 'OK',
+        profile: FactoryBot.build(:mvi_profile,
+                                  participant_id: nil,
+                                  participant_ids: [])
+      }
+    )
+  end
 
   describe 'Claims' do
     describe 'index' do
@@ -331,6 +341,30 @@ RSpec.describe 'Claims', type: :request do
                 expect(json_response['data'].count).to eq(0)
               end
             end
+          end
+        end
+      end
+
+      describe 'participant ID' do
+        context 'when missing' do
+          let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: { 'scp' => [] }) }
+
+          it 'returns a 422' do
+            allow(JWT).to receive(:decode).and_return(nil)
+            allow(Token).to receive(:new).and_return(ccg_token)
+            allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
+
+            allow_any_instance_of(MPIData)
+              .to receive(:mvi_response).and_return(profile)
+
+            get all_claims_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
+
+            expect(response.status).to eq(422)
+            json_response = JSON.parse(response.body)
+            expect(json_response['errors'][0]['detail']).to eq(
+              "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
+              'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
+            )
           end
         end
       end
