@@ -209,6 +209,7 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
     let(:user) { build(:user, :loa3) }
 
     before do
+      valid_form_data.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
       response = Faraday::Response.new(status: 200, body:
       {
         message: 'Success'
