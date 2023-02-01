@@ -16,7 +16,7 @@ module Sidekiq
   module Form526BackupSubmissionProcess
     class Processor
       attr_reader :submission, :lighthouse_service, :zip, :initial_upload_location, :initial_upload_uuid,
-                  :initial_upload, :docs_gathered
+                  :initial_upload, :docs_gathered, :initial_upload_fetched, :ignore_expiration
       attr_accessor :docs
 
       FORM_526 = 'form526'
@@ -49,18 +49,18 @@ module Sidekiq
 
       # Takes a submission id, assembles all needed docs from its payload, then sends it to central mail via
       # lighthouse benefits intake API - https://developer.va.gov/explore/benefits/docs/benefits?version=current
-      def initialize(submission_id, docs = [])
+      def initialize(submission_id, docs = [], get_upload_location_on_instantiation: true, ignore_expiration: false)
         @submission = Form526Submission.find(submission_id)
         @docs = docs
         @docs_gathered = false
+        @initial_upload_fetched = false
         @lighthouse_service = Form526BackupSubmission::Service.new
+        @ignore_expiration = ignore_expiration
         # We need an initial location/uuid as other ancillary docs want a reference id to it
         # (eventhough I dont think they actually use it for anything because we are just using them to
         # generate the pdf and not the sending portion of those classes... but it needs something there to not error)
-        @initial_upload = get_upload_info
-        uuid_and_location = upload_location_to_location_and_uuid(initial_upload)
-        @initial_upload_uuid = uuid_and_location[:uuid]
-        @initial_upload_location = uuid_and_location[:location]
+        instantiate_upload_info_from_lighthouse if get_upload_location_on_instantiation
+
         determine_zip
       end
 
@@ -103,6 +103,14 @@ module Sidekiq
       end
 
       private
+
+      def instantiate_upload_info_from_lighthouse
+        @initial_upload = get_upload_info
+        uuid_and_location = upload_location_to_location_and_uuid(initial_upload)
+        @initial_upload_uuid = uuid_and_location[:uuid]
+        @initial_upload_location = uuid_and_location[:location]
+        @initial_upload_fetched = true
+      end
 
       def evidence_526_split
         is_526_or_evidence = docs.group_by do |doc|
@@ -191,6 +199,7 @@ module Sidekiq
       end
 
       def send_to_central_mail_through_lighthouse_claims_intake_api!
+        instantiate_upload_info_from_lighthouse unless @initial_upload_fetched
         initial_payload, other_payloads = evidence_526_split
         if SUB_METHOD == :single
           submit_as_one(initial_payload, other_payloads)
@@ -315,6 +324,7 @@ module Sidekiq
         submission_create_date = submission.created_at.iso8601
         form_json = JSON.parse(submission.form_json)[FORM_526]
         form_json[FORM_526]['claimDate'] ||= submission_create_date
+        form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
         resp = EVSS::DisabilityCompensationForm::Service.new(headers).get_form526(form_json.to_json)
         b64_enc_body = resp.body['pdf']
         content = Base64.decode64(b64_enc_body)
