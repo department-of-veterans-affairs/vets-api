@@ -1062,6 +1062,13 @@ lighthouse:
     url: https://sandbox-api.va.gov
     path: services/benefits-reference-data
     version: v1
+  direct_deposit:
+    host: https://sandbox-api.va.gov
+    access_token:
+      aud_claim_url: https://deptva-eval.okta.com/oauth2/1234567890/v1/token
+      client_id: ~
+      rsa_key: ~
+    use_mocks: false
   veterans_health:
     url: https://sandbox-api.va.gov
     fast_tracker:
