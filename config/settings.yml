@@ -1437,8 +1437,8 @@ form526_backup:
   aws:
     bucket: ~
     region: ~
-    access_key_id: ~ 
-    secret_access_key: ~ 
+    access_key_id: ~
+    secret_access_key: ~
 
 form1095_b:
   s3:
@@ -1454,3 +1454,7 @@ coverband:
   github_oauth_key: ~
   github_oauth_secret: ~
   github_api_key: ~
+
+
+dogstatsd:
+  enabled: false
