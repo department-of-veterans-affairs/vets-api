@@ -176,8 +176,8 @@ RSpec.describe 'Claims', type: :request do
 
               json_response = JSON.parse(response.body)
               expect(response.status).to eq(200)
-              claim = json_response.first
-              expect(claim['claimPhaseDates']['phaseChangeDate']).to eq('2017-10-18')
+              claim = json_response['data'].first
+              expect(claim['attributes']['claimPhaseDates']['phaseChangeDate']).to eq('2017-10-18')
             end
           end
         end
@@ -219,11 +219,11 @@ RSpec.describe 'Claims', type: :request do
 
                   json_response = JSON.parse(response.body)
                   expect(response.status).to eq(200)
-                  expect(json_response).to be_an_instance_of(Array)
+                  expect(json_response['data']).to be_an_instance_of(Array)
                   expect(json_response.count).to eq(1)
-                  claim = json_response.first
-                  expect(claim['claimId']).to eq('111111111')
-                  expect(claim['lighthouseId']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
+                  claim = json_response['data'].first
+                  expect(claim['id']).to eq('111111111')
+                  expect(claim['attributes']['lighthouseId']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
                 end
               end
             end
@@ -255,11 +255,11 @@ RSpec.describe 'Claims', type: :request do
 
                   json_response = JSON.parse(response.body)
                   expect(response.status).to eq(200)
-                  expect(json_response).to be_an_instance_of(Array)
+                  expect(json_response['data']).to be_an_instance_of(Array)
                   expect(json_response.count).to eq(1)
-                  claim = json_response.first
-                  expect(claim['claimId']).to eq('111111111')
-                  expect(claim['lighthouseId']).to be nil
+                  claim = json_response['data'].first
+                  expect(claim['id']).to eq('111111111')
+                  expect(claim['attributes']['lighthouseId']).to be nil
                 end
               end
             end
@@ -296,11 +296,11 @@ RSpec.describe 'Claims', type: :request do
                   json_response = JSON.parse(response.body)
 
                   expect(response.status).to eq(200)
-                  expect(json_response).to be_an_instance_of(Array)
+                  expect(json_response['data']).to be_an_instance_of(Array)
                   expect(json_response.count).to eq(1)
-                  claim = json_response.first
-                  expect(claim['lighthouseId']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
-                  expect(claim['claimId']).to be nil
+                  claim = json_response['data'].first
+                  expect(claim['attributes']['lighthouseId']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
+                  expect(claim['attributes']['claimId']).to be nil
                 end
               end
             end
@@ -327,8 +327,8 @@ RSpec.describe 'Claims', type: :request do
 
                 json_response = JSON.parse(response.body)
                 expect(response.status).to eq(200)
-                expect(json_response).to be_an_instance_of(Array)
-                expect(json_response.count).to eq(0)
+                expect(json_response['data']).to be_an_instance_of(Array)
+                expect(json_response['data'].count).to eq(0)
               end
             end
           end
@@ -354,11 +354,11 @@ RSpec.describe 'Claims', type: :request do
                 get claim_by_id_path, headers: auth_header
 
                 json_response = JSON.parse(response.body)
-
                 expect(response.status).to eq(200)
-                expect(json_response['claimPhaseDates']['currentPhaseBack']).to eq(true)
-                expect(json_response['claimPhaseDates']['latestPhaseType']).to eq('Claim Received')
-                expect(json_response['claimPhaseDates']['previousPhases']).to be_truthy
+                claim_attributes = json_response['data']['attributes']
+                expect(claim_attributes['claimPhaseDates']['currentPhaseBack']).to eq(true)
+                expect(claim_attributes['claimPhaseDates']['latestPhaseType']).to eq('Claim Received')
+                expect(claim_attributes['claimPhaseDates']['previousPhases']).to be_truthy
               end
             end
           end
@@ -463,8 +463,8 @@ RSpec.describe 'Claims', type: :request do
                     json_response = JSON.parse(response.body)
                     expect(response.status).to eq(200)
                     expect(json_response).to be_an_instance_of(Hash)
-                    expect(json_response['status']).to eq('PENDING')
-                    expect(json_response['claimId']).to be nil
+                    expect(json_response['data']['attributes']['status']).to eq('PENDING')
+                    expect(json_response['data']['id']).to be nil
                   end
                 end
               end
@@ -489,8 +489,8 @@ RSpec.describe 'Claims', type: :request do
                       json_response = JSON.parse(response.body)
                       expect(response.status).to eq(200)
                       expect(json_response).to be_an_instance_of(Hash)
-                      expect(json_response['lighthouseId']).to eq(lighthouse_claim.id)
-                      expect(json_response['claimId']).to eq('111111111')
+                      expect(json_response['data']['attributes']['lighthouseId']).to eq(lighthouse_claim.id)
+                      expect(json_response['data']['id']).to eq('111111111')
                     end
                   end
                 end
@@ -542,9 +542,10 @@ RSpec.describe 'Claims', type: :request do
 
                       json_response = JSON.parse(response.body)
                       expect(response.status).to eq(200)
+                      claim_attributes = json_response['data']['attributes']
                       expect(json_response).to be_an_instance_of(Hash)
-                      expect(json_response['lighthouseId']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
-                      expect(json_response['claimId']).to eq('111111111')
+                      expect(claim_attributes['lighthouseId']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
+                      expect(json_response['data']['id']).to eq('111111111')
                     end
                   end
                 end
@@ -567,8 +568,8 @@ RSpec.describe 'Claims', type: :request do
                     json_response = JSON.parse(response.body)
                     expect(response.status).to eq(200)
                     expect(json_response).to be_an_instance_of(Hash)
-                    expect(json_response['claimId']).to eq('111111111')
-                    expect(json_response['lighthouseId']).to be nil
+                    expect(json_response['data']['id']).to eq('111111111')
+                    expect(json_response['data']['attributes']['lighthouseId']).to be nil
                   end
                 end
               end
@@ -593,7 +594,7 @@ RSpec.describe 'Claims', type: :request do
                   json_response = JSON.parse(response.body)
                   expect(response.status).to eq(200)
                   expect(json_response).to be_an_instance_of(Hash)
-                  expect(json_response['status']).to eq('CLAIM_RECEIVED')
+                  expect(json_response['data']['attributes']['status']).to eq('CLAIM_RECEIVED')
                 end
               end
             end
@@ -619,7 +620,7 @@ RSpec.describe 'Claims', type: :request do
                   json_response = JSON.parse(response.body)
                   expect(response.status).to eq(200)
                   expect(json_response).to be_an_instance_of(Hash)
-                  expect(json_response['closeDate']).to eq(expected_date)
+                  expect(json_response['data']['attributes']['closeDate']).to eq(expected_date)
                 end
               end
             end
@@ -641,7 +642,7 @@ RSpec.describe 'Claims', type: :request do
                   json_response = JSON.parse(response.body)
                   expect(response.status).to eq(200)
                   expect(json_response).to be_an_instance_of(Hash)
-                  expect(json_response['status']).to eq('CLAIM_RECEIVED')
+                  expect(json_response['data']['attributes']['status']).to eq('CLAIM_RECEIVED')
                 end
               end
             end
@@ -675,7 +676,7 @@ RSpec.describe 'Claims', type: :request do
                   json_response = JSON.parse(response.body)
                   expect(response.status).to eq(200)
                   expect(json_response).to be_an_instance_of(Hash)
-                  expect(json_response['status']).to eq('CLAIM_RECEIVED')
+                  expect(json_response['data']['attributes']['status']).to eq('CLAIM_RECEIVED')
                 end
               end
             end
@@ -699,7 +700,7 @@ RSpec.describe 'Claims', type: :request do
                   json_response = JSON.parse(response.body)
                   expect(response.status).to eq(200)
                   expect(json_response).to be_an_instance_of(Hash)
-                  expect(json_response['status']).to eq('INITIAL_REVIEW')
+                  expect(json_response['data']['attributes']['status']).to eq('INITIAL_REVIEW')
                 end
               end
             end
@@ -721,8 +722,8 @@ RSpec.describe 'Claims', type: :request do
                   json_response = JSON.parse(response.body)
                   expect(response.status).to eq(200)
                   expect(json_response).to be_an_instance_of(Hash)
-                  expect(json_response['claimType']).to eq('Compensation')
-                  expect(json_response['status']).to eq('CLAIM_RECEIVED')
+                  expect(json_response['data']['attributes']['claimType']).to eq('Compensation')
+                  expect(json_response['data']['attributes']['status']).to eq('CLAIM_RECEIVED')
                 end
               end
             end
@@ -744,10 +745,10 @@ RSpec.describe 'Claims', type: :request do
                   get claim_by_id_path, headers: auth_header
 
                   json_response = JSON.parse(response.body)
-                  first_doc_id = json_response.dig('supportingDocuments', 0, 'documentId')
+                  first_doc_id = json_response['data']['attributes'].dig('supportingDocuments', 0, 'documentId')
                   expect(response.status).to eq(200)
                   expect(json_response).to be_an_instance_of(Hash)
-                  expect(json_response['claimType']).to eq('Compensation')
+                  expect(json_response['data']['attributes']['claimType']).to eq('Compensation')
                   expect(first_doc_id).to eq('{54EF0C16-A9E7-4C3F-B876-B2C7BEC1F834}')
                 end
               end
@@ -774,8 +775,8 @@ RSpec.describe 'Claims', type: :request do
                   json_response = JSON.parse(response.body)
                   expect(response.status).to eq(200)
                   expect(json_response).to be_an_instance_of(Hash)
-                  expect(json_response['claimType']).to eq('Compensation')
-                  expect(json_response['supportingDocuments']).to be_empty
+                  expect(json_response['data']['attributes']['claimType']).to eq('Compensation')
+                  expect(json_response['data']['attributes']['supportingDocuments']).to be_empty
                 end
               end
             end
@@ -803,7 +804,7 @@ RSpec.describe 'Claims', type: :request do
                 json_response = JSON.parse(response.body)
                 expect(response.status).to eq(200)
                 expect(json_response).to be_an_instance_of(Hash)
-                expect(json_response['supportingDocuments']).to be_empty
+                expect(json_response['data']['attributes']['supportingDocuments']).to be_empty
               end
             end
           end
@@ -834,9 +835,9 @@ RSpec.describe 'Claims', type: :request do
 
                 json_response = JSON.parse(response.body)
                 expect(response.status).to eq(200)
-                expect(json_response.dig('errors', 0, 'detail')).to eq('ERROR Something happened')
-                expect(json_response.dig('errors', 0, 'source')).to eq('test/path/here')
-                expect(json_response['status']).to eq('ERRORED')
+                expect(json_response['data']['attributes'].dig('errors', 0, 'detail')).to eq('ERROR Something happened')
+                expect(json_response['data']['attributes'].dig('errors', 0, 'source')).to eq('test/path/here')
+                expect(json_response['data']['attributes']['status']).to eq('ERRORED')
               end
             end
           end
@@ -863,10 +864,10 @@ RSpec.describe 'Claims', type: :request do
                     get claim_by_id_with_items_path, headers: auth_header
 
                     json_response = JSON.parse(response.body)
-                    first_doc_id = json_response.dig('trackedItems', 0, 'trackedItemId')
+                    first_doc_id = json_response['data']['attributes'].dig('trackedItems', 0, 'trackedItemId')
                     expect(response.status).to eq(200)
                     expect(json_response).to be_an_instance_of(Hash)
-                    expect(json_response['claimId']).to eq('600236068')
+                    expect(json_response['data']['id']).to eq('600236068')
                     expect(first_doc_id).to eq(325_525)
                   end
                 end
@@ -896,7 +897,7 @@ RSpec.describe 'Claims', type: :request do
                 json_response = JSON.parse(response.body)
                 expect(response.status).to eq(200)
                 expect(json_response).to be_an_instance_of(Hash)
-                expect(json_response['trackedItems']).to be_empty
+                expect(json_response['data']['attributes']['trackedItems']).to be_empty
               end
             end
           end
