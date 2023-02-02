@@ -3,10 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
-  let(:user) { FactoryBot.build(:ch33_dd_user, common_name: 'abraham.lincoln@vets.gov') }
+  let(:user) { FactoryBot.build(:ch33_dd_user) }
 
   before do
     sign_in_as(user)
+    allow_any_instance_of(User).to receive(:common_name).and_return('abraham.lincoln@vets.gov')
   end
 
   context 'unauthorized user' do

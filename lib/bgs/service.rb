@@ -275,7 +275,7 @@ module BGS
     def service
       @service ||= BGS::Services.new(
         external_uid: @user.icn || @user.uuid,
-        external_key: @user.email
+        external_key: @user.common_name || @user.email
       )
     end
   end

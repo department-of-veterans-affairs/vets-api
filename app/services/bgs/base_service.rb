@@ -11,10 +11,18 @@ module BGS
 
     private
 
+    def external_key
+      key = @user.common_name.presence || @user.email
+
+      raise Errors::MissingExternalKeyError if key.blank?
+
+      key.first(39)
+    end
+
     def initialize_service
       BGS::Services.new(
         external_uid: @user.icn,
-        external_key: @user.email
+        external_key: external_key
       )
     end
 

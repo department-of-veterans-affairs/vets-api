@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe BGS::BaseService do
-  let(:evss_user) { FactoryBot.create(:evss_user, :loa3, email: 'abraham.lincoln@vets.gov') }
-  let(:user) { FactoryBot.create(:user, :loa3, icn: '12345', email: 'thisuserhasareallylongemailaddress@va.gov') }
+  let(:evss_user) { FactoryBot.create(:evss_user, :loa3, first_name: 'abraham') }
+  let(:user) { FactoryBot.create(:user, :loa3, icn: '12345', first_name: 'thisuserhasareallylongnameitisactuallyvery') }
 
   describe '#initialize_service' do
     context 'with an external key that is less than character limit' do
@@ -15,7 +15,7 @@ RSpec.describe BGS::BaseService do
         config = service.instance_variable_get(:@config)
 
         expect(config[:external_uid]).to eq('123498767V234859')
-        expect(config[:external_key]).to eq(evss_user.email)
+        expect(config[:external_key]).to eq(evss_user.common_name)
       end
     end
 
@@ -27,7 +27,7 @@ RSpec.describe BGS::BaseService do
         config = service.instance_variable_get(:@config)
 
         expect(config[:external_uid]).to eq('12345')
-        expect(config[:external_key]).to eq(user.email)
+        expect(config[:external_key]).to eq('thisuserhasareallylongnameitisactuallyv')
       end
     end
   end

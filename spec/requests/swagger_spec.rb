@@ -2639,7 +2639,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       context 'ch33 bank accounts methods' do
-        let(:mhv_user) { FactoryBot.build(:ch33_dd_user, common_name: 'abraham.lincoln@vets.gov') }
+        let(:mhv_user) { FactoryBot.build(:ch33_dd_user) }
+
+        before { allow_any_instance_of(User).to receive(:common_name).and_return('abraham.lincoln@vets.gov') }
 
         it 'supports the update ch33 bank account api 400 response' do
           res = {
