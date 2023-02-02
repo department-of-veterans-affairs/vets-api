@@ -1,0 +1,7 @@
+description: |
+  This endpoint accepts the `filter` param. This must be provided in the format `filter[model_attribute][operation]=value`. For example, if your model implements an attribute called "status" and you want to receive only records where the status equals "complete", you would add the param `filter[status][eq]=complete`. At this time the only operations supported are eq and not_eq. For more information, see https://department-of-veterans-affairs.github.io/va-mobile-app/docs/Engineering/BackEnd/Architecture/RecordFiltering.
+in: query
+name: filter
+required: false
+schema:
+  type: string
