@@ -9,8 +9,12 @@ module Mobile
 
       sidekiq_options(retry: false)
 
+      class MissingUserError < StandardError; end
+
       def perform(uuid)
-        user = IAMUser.find(uuid)
+        user = IAMUser.find(uuid) || User.find(uuid)
+        raise MissingUserError, uuid unless user
+
         result = Mobile::V0::Profile::SyncUpdateService.new(user).await_vet360_account_link
         Rails.logger.info('Mobile Vet360 account linking succeeded for user with uuid',
                           { user_uuid: uuid, transaction_id: result.transaction_id })
