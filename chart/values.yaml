@@ -124,6 +124,21 @@ worker:
   service:
     enabled: false
 
+#clamAV config
+clamAV:
+  enabled: false
+  image:
+    tag: ""
+    value: ""
+    pullPolicy: always
+  autoscaling:
+    enabled: false
+  containers: {}
+  service:
+    enabled: false
+    type: ClusterIP
+    annotations: {}
+    ports: {}
 
 # Common configuration
 common:

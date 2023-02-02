@@ -22,3 +22,28 @@ spec:
     app: {{ $name }}
 {{- end }}
 {{- end }}
+
+{{- if $root.Values.clamAV.service.enabled }}
+---
+# Source: confluence/templates/service.yaml
+# Documentation: https://kubernetes.io/docs/concepts/services-networking/service/
+# Worker env: tracks pods that deployment has
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: clamAV
+  namespace: {{ $root.Release.Namespace }}
+  labels:
+    app_name: clamAV
+  annotations:
+{{ toYaml $root.Values.clamAV.service.annotations | indent 4 }}
+spec:
+  ports:
+{{ toYaml $root.Values.clamAV.service.ports | indent 4 }}
+  type: {{ $root.Values.clamAV.service.type }}
+  selector:
+    app: clamAV
+{{- end }}
+
+

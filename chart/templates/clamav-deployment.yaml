@@ -1,0 +1,44 @@
+{{- $root := . -}}
+{{- if $root.Values.clamAV.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: clamAV
+  name: clamAV
+  namespace: {{ $root.Release.Namespace }}
+spec:
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: clamAV
+  template:
+    metadata:
+      labels:
+        app: clamAV
+    spec:
+      replicas: 1
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: {{ $root.Values.affinityWeight }}
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: {{ $root.Values.matchExpressions.key }}
+                      operator: {{ $root.Values.matchExpressions.operator }}
+                      values:
+                        - clamAV
+                topologyKey:  {{ $root.Values.topologyKey }}
+      securityContext:
+        fsGroup: 1000
+      volumes:
+{{ toYaml $root.Values.clamAV.volumes | indent 12 }}
+      containers:
+        - image: "{{ $root.Values.clamAV.image.value }}:{{ $root.Values.clamAV.image.tag }}"
+          imagePullPolicy: {{ $root.Values.image.pullPolicy }}
+          name: clamAV
+{{ toYaml $root.Values.clamAV.containers | indent 10 }}
+      serviceAccountName: {{ $root.Values.serviceAccount.name }}
+{{- end }}
