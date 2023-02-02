@@ -332,6 +332,20 @@ module SM
     end
 
     ##
+    # Move a thread to a given folder
+    #
+    # @param id [Fixnum] the thread id
+    # @param folder_id [Fixnum] the {Folder} id
+    # @return [Fixnum] the response status code
+    #
+    def post_move_thread(id, folder_id)
+      custom_headers = token_headers.merge('Content-Type' => 'application/json')
+      response = perform(:post, "message/#{id}/movethreadmessages/tofolder/#{folder_id}", nil, custom_headers)
+
+      response&.status
+    end
+
+    ##
     # Delete a message
     #
     # @param id [Fixnum] id of message to be deleted
