@@ -3,7 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe BankName, type: :model do
-  let(:user) { FactoryBot.create(:ch33_dd_user, common_name: 'abraham.lincoln@vets.gov') }
+  let(:user) { FactoryBot.create(:ch33_dd_user) }
+
+  before { allow_any_instance_of(User).to receive(:common_name).and_return('abraham.lincoln@vets.gov') }
 
   describe '.get_bank_name' do
     context 'with blank routing number' do
