@@ -10,6 +10,10 @@ MyHealth::Engine.routes.draw do
         post :search, on: :member
       end
 
+      resources :threads, defaults: { format: :json } do
+        patch :move, on: :member
+      end
+
       resources :messages, only: %i[show create destroy], defaults: { format: :json } do
         get :thread, on: :member
         get :categories, on: :collection

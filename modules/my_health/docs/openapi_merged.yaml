@@ -733,6 +733,40 @@ paths:
       summary: /v1/messaging/recipients
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
+  /v1/messaging/threads/{id}/move:
+    patch:
+      description: Moves all received messages in a secure message thread to a specified folder. Sent messages, draft messages, and deleted messages will not be moved.
+      operationId: post_move_thread
+      parameters:
+        - description: The id of the thread that is to be moved
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - description: The id of the folder that the message is to be moved to
+          in: query
+          name: folder_id,
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '204':
+          description: The message thread was moved successfully
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/threads/{id}/move
 components:
   securitySchemes:
     CookieAuth:

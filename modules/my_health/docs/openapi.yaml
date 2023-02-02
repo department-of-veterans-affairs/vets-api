@@ -14,19 +14,19 @@ paths:
       description: List available secure messaging folders
       operationId: get_folders
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 $ref: ./schemas/SecureMessagingFolders.yml
           description: OK
-        '401':
+        "401":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Unauthorized
-        '403':
+        "403":
           content:
             application/json:
               schema:
@@ -34,25 +34,25 @@ paths:
           description: Not authorized for access to secure messages
       summary: /v1/messaging/folders
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+        - $ref: "#/components/parameters/InflectionHeader"
   /v1/messaging/folders/{id}:
     get:
       description: Get a secure messaging folder
       operationId: get_folder
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 $ref: ./schemas/SecureMessagingFolder.yml
           description: OK
-        '401':
+        "401":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Unauthorized
-        '403':
+        "403":
           content:
             application/json:
               schema:
@@ -60,7 +60,7 @@ paths:
           description: Not authorized for access to secure messages
       summary: /v1/messaging/folders/{id}
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+        - $ref: "#/components/parameters/InflectionHeader"
     put:
       description: Rename an existing folder
       operationId: post_rename_folder
@@ -73,19 +73,19 @@ paths:
               type: object
         required: true
       responses:
-        '201':
+        "201":
           content:
             application/json:
               schema:
                 $ref: ./schemas/SecureMessagingFolder.yml
           description: OK
-        '401':
+        "401":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Unauthorized
-        '403':
+        "403":
           content:
             application/json:
               schema:
@@ -102,19 +102,19 @@ paths:
         getting the specific message resource.
       operationId: get_folder_messages
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 $ref: ./schemas/SecureMessageList.yml
           description: OK
-        '401':
+        "401":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Unauthorized
-        '403':
+        "403":
           content:
             application/json:
               schema:
@@ -122,7 +122,7 @@ paths:
           description: Not authorized for access to secure messages
       summary: /v1/messaging/folders/{id}/messages
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+        - $ref: "#/components/parameters/InflectionHeader"
   /v1/messaging/folders/{id}/search:
     post:
       description: |
@@ -156,19 +156,19 @@ paths:
               $ref: ./schemas/SecureMessageSearchRequest.yml
         required: true
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 $ref: ./schemas/SecureMessageSearch.yml
           description: OK
-        '401':
+        "401":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Unauthorized
-        '403':
+        "403":
           content:
             application/json:
               schema:
@@ -186,19 +186,19 @@ paths:
               $ref: ./schemas/SecureMessageNewMessageRequest.yml
         required: true
       responses:
-        '201':
+        "201":
           content:
             application/json:
               schema:
                 $ref: ./schemas/SecureMessageNewMessageRequest.yml
           description: Created
-        '401':
+        "401":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Unauthorized
-        '403':
+        "403":
           content:
             application/json:
               schema:
@@ -206,7 +206,7 @@ paths:
           description: Not authorized for access to secure messages
       summary: /v1/messaging/message_drafts
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+        - $ref: "#/components/parameters/InflectionHeader"
   /v1/messaging/message_drafts/{id}:
     put:
       description: Update an existing draft message
@@ -218,7 +218,7 @@ paths:
           required: true
           schema:
             type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+        - $ref: "#/components/parameters/InflectionHeader"
       requestBody:
         content:
           application/json:
@@ -228,15 +228,15 @@ paths:
               type: object
         required: true
       responses:
-        '204':
+        "204":
           description: No Content
-        '401':
+        "401":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Unauthorized
-        '403':
+        "403":
           content:
             application/json:
               schema:
@@ -254,7 +254,7 @@ paths:
           required: true
           schema:
             type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+        - $ref: "#/components/parameters/InflectionHeader"
       requestBody:
         content:
           application/json:
@@ -262,19 +262,19 @@ paths:
               $ref: ./schemas/SecureMessageNewMessageRequest.yml
         required: true
       responses:
-        '201':
+        "201":
           content:
             application/json:
               schema:
                 $ref: ./schemas/SecureMessageNewMessageRequest.yml
           description: Created
-        '401':
+        "401":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Unauthorized
-        '403':
+        "403":
           content:
             application/json:
               schema:
@@ -298,7 +298,7 @@ paths:
           required: true
           schema:
             type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+        - $ref: "#/components/parameters/InflectionHeader"
       requestBody:
         content:
           application/json:
@@ -308,15 +308,15 @@ paths:
               type: object
         required: true
       responses:
-        '204':
+        "204":
           description: No Content
-        '401':
+        "401":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Unauthorized
-        '403':
+        "403":
           content:
             application/json:
               schema:
@@ -336,7 +336,8 @@ paths:
             schema:
               properties:
                 message:
-                  description: Stringified JSON with same parameters as if this was
+                  description:
+                    Stringified JSON with same parameters as if this was
                     an application/json request (e.g. '{"category":"OTHER","recipient_id":1763526,"body":"test
                     message"}')
                   type: string
@@ -377,19 +378,19 @@ paths:
           </ul>
         required: true
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 $ref: ./schemas/SecureMessageDetail.yml
           description: OK
-        '401':
+        "401":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Unauthorized
-        '403':
+        "403":
           content:
             application/json:
               schema:
@@ -397,25 +398,25 @@ paths:
           description: Not authorized for access to secure messages
       summary: /v1/messaging/messages
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+        - $ref: "#/components/parameters/InflectionHeader"
   /v1/messaging/messages/categories:
     get:
       description: List available message categories
       operationId: get_categories
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 $ref: ./schemas/SecureMessageCategories.yml
           description: OK
-        '401':
+        "401":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Unauthorized
-        '403':
+        "403":
           content:
             application/json:
               schema:
@@ -423,25 +424,25 @@ paths:
           description: Not authorized for access to secure messages
       summary: /v1/messaging/messages/categories
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+        - $ref: "#/components/parameters/InflectionHeader"
   /v1/messaging/messages/signature:
     get:
       description: Gets user message signature preferences
       operationId: get_signature
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 $ref: ./schemas/SecureMessageSignature.yml
           description: OK
-        '401':
+        "401":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Unauthorized
-        '403':
+        "403":
           content:
             application/json:
               schema:
@@ -449,7 +450,7 @@ paths:
           description: Not authorized for access to secure messages
       summary: /v1/messaging/messages/signature
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+        - $ref: "#/components/parameters/InflectionHeader"
   /v1/messaging/messages/{id}:
     delete:
       description: Moves a secure message to the "Deleted" folder
@@ -461,42 +462,42 @@ paths:
           required: true
           schema:
             type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+        - $ref: "#/components/parameters/InflectionHeader"
       responses:
-        '204':
+        "204":
           description: The message was deleted successfully
-        '400':
+        "400":
           content:
             application/json:
               example:
                 errors:
                   - code: SM114
                     detail: Unable to move message
-                    status: '400'
+                    status: "400"
                     title: Operation failed
               schema:
                 $ref: ./schemas/Errors.yml
           description: Bad Request
-        '401':
+        "401":
           content:
             application/json:
               example:
                 errors:
-                  - code: '401'
+                  - code: "401"
                     detail: IAM user session is inactive
-                    status: '401'
+                    status: "401"
                     title: Not authorized
               schema:
                 $ref: ./schemas/Errors.yml
           description: Unauthorized
-        '403':
+        "403":
           content:
             application/json:
               example:
                 errors:
-                  - code: '403'
+                  - code: "403"
                     detail: You do not have access to messaging
-                    status: '403'
+                    status: "403"
                     title: Forbidden
               schema:
                 $ref: ./schemas/Errors.yml
@@ -515,19 +516,19 @@ paths:
         </ul>
       operationId: get_message
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 $ref: ./schemas/SecureMessageDetail.yml
           description: OK
-        '401':
+        "401":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Unauthorized
-        '403':
+        "403":
           content:
             application/json:
               schema:
@@ -535,7 +536,7 @@ paths:
           description: Not authorized for access to secure messages
       summary: /v1/messaging/messages/{id}
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+        - $ref: "#/components/parameters/InflectionHeader"
     patch:
       description: Moves a secure message to a specified folder
       operationId: post_move_message
@@ -552,17 +553,17 @@ paths:
           required: true
           schema:
             type: string
-        - $ref: '#/components/parameters/InflectionHeader'
+        - $ref: "#/components/parameters/InflectionHeader"
       responses:
-        '204':
+        "204":
           description: The message was moved successfully
-        '401':
+        "401":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Unauthorized
-        '403':
+        "403":
           content:
             application/json:
               schema:
@@ -581,9 +582,9 @@ paths:
           required: true
           schema:
             type: integer
-        - $ref: '#/components/parameters/InflectionHeader'
+        - $ref: "#/components/parameters/InflectionHeader"
       responses:
-        '200':
+        "200":
           content:
             application/octet-stream:
               schema:
@@ -596,13 +597,13 @@ paths:
                 This header will have the value of "attachment", and a "filename" parameter containing the original filename of the attached content.
               schema:
                 type: string
-        '401':
+        "401":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Unauthorized
-        '403':
+        "403":
           content:
             application/json:
               schema:
@@ -631,7 +632,7 @@ paths:
           required: true
           schema:
             type: integer
-        - $ref: '#/components/parameters/InflectionHeader'
+        - $ref: "#/components/parameters/InflectionHeader"
       requestBody:
         content:
           application/json:
@@ -641,7 +642,8 @@ paths:
             schema:
               properties:
                 message:
-                  description: Stringified JSON with same parameters as if this was
+                  description:
+                    Stringified JSON with same parameters as if this was
                     an application/json request (e.g. '{"body":"test body with attachment"}')
                   type: string
                 uploads[]:
@@ -663,19 +665,19 @@ paths:
         description: Reply message body
         required: true
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 $ref: ./schemas/SecureMessageDetail.yml
           description: OK
-        '401':
+        "401":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Unauthorized
-        '403':
+        "403":
           content:
             application/json:
               schema:
@@ -689,19 +691,19 @@ paths:
         Does <strong>not</strong> include the message of the passed id itself.
       operationId: get_message_history
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 $ref: ./schemas/SecureMessageList.yml
           description: OK
-        '401':
+        "401":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Unauthorized
-        '403':
+        "403":
           content:
             application/json:
               schema:
@@ -709,25 +711,25 @@ paths:
           description: Not authorized for access to secure messages
       summary: /v1/messaging/messages/{id}/thread
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+        - $ref: "#/components/parameters/InflectionHeader"
   /v1/messaging/recipients:
     get:
       description: List available recipients to which messages may be sent
       operationId: get_triage_teams
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 $ref: ./schemas/SecureMessagingRecipients.yml
           description: OK
-        '401':
+        "401":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Unauthorized
-        '403':
+        "403":
           content:
             application/json:
               schema:
@@ -735,7 +737,43 @@ paths:
           description: Not authorized for access to secure messages
       summary: /v1/messaging/recipients
       parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
+        - $ref: "#/components/parameters/InflectionHeader"
+  /v1/messaging/threads/{id}/move:
+    patch:
+      description:
+        Moves all received messages in a secure message thread to a specified folder. Sent
+        messages, draft messages, and deleted messages will not be moved.
+      operationId: post_move_thread
+      parameters:
+        - description: The id of the thread that is to be moved
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - description: The id of the folder that the message is to be moved to
+          in: query
+          name: folder_id,
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/InflectionHeader"
+      responses:
+        "204":
+          description: The message thread was moved successfully
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/threads/{id}/move
 
 components:
   securitySchemes:
