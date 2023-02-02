@@ -7,8 +7,12 @@ module Mobile
 
       sidekiq_options(retry: false)
 
+      class MissingUserError < StandardError; end
+
       def perform(uuid)
-        user = IAMUser.find(uuid)
+        user = IAMUser.find(uuid) || User.find(uuid)
+        raise MissingUserError, uuid unless user
+
         data, errors = claims_proxy(user).get_claims_and_appeals
 
         if errors.size.positive?
