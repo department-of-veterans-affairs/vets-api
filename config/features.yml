@@ -784,6 +784,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for content update to VA and Community Care request flow
+  va_online_scheduling_poc_type_of_care:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for proof of concept to help Veteran contact a facility when the type of care is not available
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
