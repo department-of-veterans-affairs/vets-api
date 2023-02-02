@@ -126,11 +126,13 @@
                   "properties": {
                     "evidenceType":{
                       "type": "array",
-                      "description": "'upload' indicates that the Veteran has supplied additional evidence as uploaded documents. 'retrieval' indicates that the Veteran has supplied contact information for facilities holding evidence relevant to the claim; the 'retrieveFrom' field will contain the facility's contact information.",
-                      "items": { "type": "string", "enum": ["upload", "retrieval"] },
+                      "description": "'upload' indicates that the Veteran has supplied additional evidence as uploaded documents. 'retrieval' indicates that the Veteran has supplied contact information for facilities holding evidence relevant to the claim; the 'retrieveFrom' field will contain the facility's contact information. 'none' indicates that the Veteran has not supplied additional evidence.",
+                      "items": { "type": "string", "enum": ["upload", "retrieval", "none"] },
                       "minItems": 1,
-                      "maxItems": 2,
-                      "uniqueItems": true
+                      "uniqueItems": true,
+                      "if": { "contains": { "const": "none" } },
+                      "then": { "maxItems": 1 },
+                      "else": { "maxItems": 2 }
                     },
                     "retrieveFrom": {
                       "type": "array",
@@ -166,7 +168,7 @@
                     }
                   },
                   "required": ["evidenceType"],
-                  "if": { "properties": { "evidenceType": { "const": "retrieval" } } },
+                  "if": { "properties": { "evidenceType": {"contains": { "const": "retrieval" } } } },
                   "then": { "required": ["retrieveFrom"] }
                 },
                 "form5103Acknowledged": {
