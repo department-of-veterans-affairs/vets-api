@@ -29,12 +29,9 @@ module Mobile
     def result
       validate!
       [matches, nil]
-    rescue FilterError => e
-      log_exception_to_sentry(e, extra_context_for_errors)
-      [@list, e.message]
     rescue => e
       log_exception_to_sentry(e, extra_context_for_errors)
-      [@list, 'unknown filter error']
+      [@list, e]
     end
 
     def extra_context_for_errors
