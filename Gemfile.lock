@@ -850,7 +850,7 @@ GEM
       sidekiq-pro (>= 5.5.0, < 6)
     sidekiq-pro (5.5.8)
       sidekiq (~> 6.0, >= 6.5.6)
-    sidekiq-scheduler (5.0.0)
+    sidekiq-scheduler (5.0.1)
       rufus-scheduler (~> 3.2)
       sidekiq (>= 4, < 8)
       tilt (>= 1.4.0)
