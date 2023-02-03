@@ -51,9 +51,14 @@ class SavedClaim::EducationBenefits < SavedClaim
         'benefit' => benefit,
         'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
         'confirmation_number' => education_benefits_claim.confirmation_number,
-        'regional_office_details' => education_benefits_claim.regional_office
+        'regional_office_address' => regional_office_address
       }
     )
+  end
+
+  def regional_office_address
+    (_title, *address) = education_benefits_claim.regional_office.split("\n")
+    address.join("\n")
   end
 
   def add_education_benefits_claim
