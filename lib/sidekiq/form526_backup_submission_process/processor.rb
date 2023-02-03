@@ -394,5 +394,33 @@ module Sidekiq
         end
       end
     end
+
+    class NonBreakeredProcessor < Processor
+      def get_form526_pdf
+        headers = submission.auth_headers
+        submission_create_date = submission.created_at.iso8601
+        form_json = JSON.parse(submission.form_json)[FORM_526]
+        form_json[FORM_526]['claimDate'] ||= submission_create_date
+        form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
+        resp = EVSS::DisabilityCompensationForm::NonBreakeredService.new(headers).get_form526(form_json.to_json)
+        b64_enc_body = resp.body['pdf']
+        content = Base64.decode64(b64_enc_body)
+        file = write_to_tmp_file(content)
+        docs << {
+          type: FORM_526_DOC_TYPE,
+          file: file
+        }
+      end
+    end
+
+    class NonBreakeredForm526BackgroundLoader
+      extend ActiveSupport::Concern
+      include Sidekiq::Worker
+      sidekiq_options retry: false
+      def perform(id)
+        NonBreakeredProcessor.new(id, get_upload_location_on_instantiation: false,
+                                      ignore_expiration: true).upload_pdf_submission_to_s3
+      end
+    end
   end
 end
