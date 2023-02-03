@@ -84,21 +84,23 @@ spec:
                   key:  {{ $secret.name }}
           {{- end }}
           {{- end }}
-        {{- if $.root.Values.clamav.enabled  }}
+        {{- if $root.Values.clamav.enabled  }}
+
         - name: clamav
           image: "{{ $root.Values.clamav.image.value }}:{{ $root.Values.clamav.image.tag }}"
+          imagePullPolicy: {{ $root.Values.image.pullPolicy }}
           command:
 {{ toYaml $root.Values.clamav.command | indent 12 }}
           volumeMounts:
 {{ toYaml $root.Values.clamav.volumeMounts | indent 12 }}
           ports:
 {{ toYaml $root.Values.clamav.ports | indent 12 }}
+{{ toYaml $root.Values.clamav.probes | indent 10 }}
+          resources:
+{{ toYaml $root.Values.clamav.resources | indent 12 }}
         {{- end }}
         {{- if $root.Values.web.socatProxyEnabled }}
 {{ toYaml $root.Values.common.socatProxy | indent 8 }}
         {{- end }}
-
-{{ toYaml $root.Values.clamav.container | indent 8 }}
-{{- end }}
       serviceAccountName: {{ $root.Values.serviceAccount.name }}
 {{- end }}

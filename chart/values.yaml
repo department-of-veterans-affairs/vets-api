@@ -132,6 +132,8 @@ clamav:
     value: ""
   volumeMounts: {}
   ports: {}
+  probes: {}
+  resources: {}
 
 # Common configuration
 common:
