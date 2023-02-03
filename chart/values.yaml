@@ -83,9 +83,6 @@ web:
     envSecrets:
       - name: DD_APM_ENABLED
         value: false
-  clamav:
-    enabled: false
-    container: {}
 
 
 #Worker Configuration
@@ -126,6 +123,15 @@ worker:
       memory: ""
   service:
     enabled: false
+
+clamav:
+  enabled: false
+  command: ""
+  image:
+    tag: ""
+    value: ""
+  volumeMounts: {}
+  ports: {}
 
 # Common configuration
 common:
