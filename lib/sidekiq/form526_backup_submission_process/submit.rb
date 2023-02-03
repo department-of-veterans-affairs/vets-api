@@ -7,7 +7,7 @@ module Sidekiq
     class Form526BackgroundLoader
       extend ActiveSupport::Concern
       include Sidekiq::Worker
-      sidekiq_options retry: 0
+      sidekiq_options retry: false
 
       def perform(id)
         Processor.new(id, get_upload_location_on_instantiation: false,
