@@ -18,19 +18,6 @@ spec:
       labels:
         app: clamAV
     spec:
-      replicas: 1
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: {{ $root.Values.affinityWeight }}
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: {{ $root.Values.matchExpressions.key }}
-                      operator: {{ $root.Values.matchExpressions.operator }}
-                      values:
-                        - clamAV
-                topologyKey:  {{ $root.Values.topologyKey }}
       securityContext:
         fsGroup: 1000
       volumes:
