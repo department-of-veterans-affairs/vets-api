@@ -83,6 +83,9 @@ web:
     envSecrets:
       - name: DD_APM_ENABLED
         value: false
+  clamav:
+    enabled: false
+    container: {}
 
 
 #Worker Configuration
@@ -123,22 +126,6 @@ worker:
       memory: ""
   service:
     enabled: false
-
-#clamav config
-clamav:
-  enabled: false
-  image:
-    tag: ""
-    value: ""
-    pullPolicy: always
-  autoscaling:
-    enabled: false
-  containers: {}
-  service:
-    enabled: false
-    type: ClusterIP
-    annotations: {}
-    ports: {}
 
 # Common configuration
 common:
