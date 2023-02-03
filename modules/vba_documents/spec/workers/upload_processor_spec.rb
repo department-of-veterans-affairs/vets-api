@@ -7,7 +7,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
   include VBADocuments::Fixtures
 
   let(:test_caller) { { 'caller' => 'tester' } }
-  let(:integrity_checker) { instance_double('VBADocuments::UploadIntegrityChecker') }
   let(:client_stub) { instance_double('CentralMail::Service') }
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:valid_metadata) { get_fixture('valid_metadata.json').read }
@@ -498,47 +497,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       upload.reload
       expect(upload.metadata['original_checksum']).to be_a(String)
       expect(upload.metadata['original_checksum'].length).to eq(sha256_char_length)
-    end
-
-    context 'when vba_documents_file_checksum flag is enabled' do
-      before do
-        allow(VBADocuments::MultipartParser).to receive(:parse).and_return(valid_parts)
-        allow(VBADocuments::UploadIntegrityChecker).to receive(:new)
-          .with(upload, valid_parts).and_return(integrity_checker)
-        allow(integrity_checker).to receive(:check_integrity)
-        allow(CentralMail::Service).to receive(:new).and_return(client_stub)
-        allow(faraday_response).to receive(:status).and_return(200)
-        allow(faraday_response).to receive(:body).and_return('')
-        allow(faraday_response).to receive(:success?).and_return(true)
-        allow(client_stub).to receive(:upload).and_return(faraday_response)
-        Flipper.enable(:vba_documents_file_checksum)
-      end
-
-      it 'calls VBADocuments::UploadIntegrityChecker' do
-        expect(VBADocuments::UploadIntegrityChecker).to receive(:new).with(upload, valid_parts)
-        expect(integrity_checker).to receive(:check_integrity)
-        described_class.new.perform(upload.guid, test_caller)
-      end
-    end
-
-    context 'when vba_documents_file_checksum flag is disabled' do
-      before do
-        allow(VBADocuments::MultipartParser).to receive(:parse).and_return(valid_parts)
-        allow(VBADocuments::UploadIntegrityChecker).to receive(:new)
-          .with(upload, valid_parts).and_return(integrity_checker)
-        allow(integrity_checker).to receive(:check_integrity)
-        allow(CentralMail::Service).to receive(:new).and_return(client_stub)
-        allow(faraday_response).to receive(:status).and_return(200)
-        allow(faraday_response).to receive(:body).and_return('')
-        allow(faraday_response).to receive(:success?).and_return(true)
-        allow(client_stub).to receive(:upload).and_return(faraday_response)
-        Flipper.disable(:vba_documents_file_checksum)
-      end
-
-      it 'does not call the VBADocuments::UploadIntegrityChecker' do
-        expect(VBADocuments::UploadIntegrityChecker).not_to receive(:new)
-        described_class.new.perform(upload.guid, test_caller)
-      end
     end
 
     context 'with invalid sizes' do

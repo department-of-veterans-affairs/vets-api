@@ -3,7 +3,6 @@
 require_dependency 'vba_documents/upload_validator'
 require_dependency 'vba_documents/payload_manager'
 require_dependency 'vba_documents/multipart_parser'
-require_dependency 'vba_documents/upload_integrity_checker'
 
 require 'sidekiq'
 require 'vba_documents/object_store'
@@ -70,10 +69,6 @@ module VBADocuments
         validate_parts(@upload, parts['contents'])
         validate_metadata(parts['contents'][META_PART_NAME], submission_version: @upload.metadata['version'].to_i)
         validate_documents(parts['contents'])
-
-        if Flipper.enabled?(:vba_documents_file_checksum)
-          VBADocuments::UploadIntegrityChecker.new(@upload, parts).check_integrity
-        end
 
         metadata = perfect_metadata(@upload, parts['contents'], timestamp)
         response = submit(metadata, parts['contents'])

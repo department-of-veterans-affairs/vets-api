@@ -791,9 +791,6 @@ features:
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
-  vba_documents_file_checksum:
-    actor_type: user
-    description: Generates file checksums before and after upload processing, then compares them
   vba_documents_nca_lob:
     actor_type: user
     description: Allows the use of the NCA (National Cemetery Administration) line of business
