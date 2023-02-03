@@ -51,8 +51,8 @@ RSpec.describe Message do
           let(:file1) { instance_double(upload_class, original_filename: 'file1.jpg', size: 1.megabytes) }
           let(:file2) { instance_double(upload_class, original_filename: 'file2.jpg', size: 2.megabytes) }
           let(:file3) { instance_double(upload_class, original_filename: 'file3.jpg', size: 1.megabytes) }
-          let(:file4) { instance_double(upload_class, original_filename: 'file4.jpg', size: 2.megabytes) }
-          let(:file5) { instance_double(upload_class, original_filename: 'file5.jpg', size: 3.1.megabytes) }
+          let(:file4) { instance_double(upload_class, original_filename: 'file4.jpg', size: 4.megabytes) }
+          let(:file5) { instance_double(upload_class, original_filename: 'file5.jpg', size: 6.1.megabytes) }
 
           it 'can validate file size with valid file sizes' do
             message = build(:message, uploads: [file1, file2, file3, file4])
@@ -65,16 +65,16 @@ RSpec.describe Message do
             expect(message.errors[:uploads]).to include('has too many files (maximum is 4 files)')
           end
 
-          it 'requires that upload file size not exceed 3 MB for any one file' do
+          it 'requires that upload file size not exceed 6 MB for any one file' do
             message = build(:message, uploads: [file5])
             expect(message).not_to be_valid
-            expect(message.errors[:base]).to include('The file5.jpg exceeds file size limit of 3.0 MB')
+            expect(message.errors[:base]).to include('The file5.jpg exceeds file size limit of 6.0 MB')
           end
 
-          it 'require that total upload size not exceed 6 MB' do
-            message = build(:message, uploads: [file1, file2, file3, file4, file5])
+          it 'require that total upload size not exceed 10 MB' do
+            message = build(:message, uploads: [file2, file3, file4, file5])
             expect(message).not_to be_valid
-            expect(message.errors[:base]).to include('Total size of uploads exceeds 6.0 MB')
+            expect(message.errors[:base]).to include('Total size of uploads exceeds 10.0 MB')
           end
         end
       end

@@ -38,8 +38,8 @@ class Message < Common::Base
   per_page 10
   max_per_page 100
 
-  MAX_TOTAL_FILE_SIZE_MB = 6.0
-  MAX_SINGLE_FILE_SIZE_MB = 3.0
+  MAX_TOTAL_FILE_SIZE_MB = 10.0
+  MAX_SINGLE_FILE_SIZE_MB = 6.0
 
   include ActiveModel::Validations
   include RedisCaching
