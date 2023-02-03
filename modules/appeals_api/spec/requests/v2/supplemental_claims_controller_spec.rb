@@ -19,9 +19,6 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
   let(:extra_data) { fixture_to_s 'valid_200995_extra.json', version: 'v2' }
   let(:headers) { fixture_as_json 'valid_200995_headers.json', version: 'v2' }
   let(:max_headers) { fixture_as_json 'valid_200995_headers_extra.json', version: 'v2' }
-  let(:min_data_no_evidence) { fixture_to_s 'valid_200995_no_evidence.json', version: 'v2' }
-  let(:min_data_invalid_evidence) { fixture_to_s 'invalid_200995_evidence.json', version: 'v2' }
-  let(:data_missing_retrieve_from) { fixture_to_s 'invalid_200995_missing_retrieve_from.json', version: 'v2' }
 
   let(:parsed) { JSON.parse(response.body) }
 
@@ -227,7 +224,9 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       end
 
       it 'with no evidence' do
-        post(path, params: min_data_no_evidence, headers: headers)
+        mod_data = JSON.parse(data)
+        mod_data['data']['attributes']['evidenceSubmission']['evidenceType'] = %w[none]
+        post(path, params: mod_data.to_json, headers: headers)
 
         sc_guid = JSON.parse(response.body)['data']['id']
         sc = AppealsApi::SupplementalClaim.find(sc_guid)
@@ -236,15 +235,21 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       end
 
       it 'evidenceType with both none and retrieval' do
-        post(path, params: min_data_invalid_evidence, headers: headers)
+        mod_data = JSON.parse(data)
+        mod_data['data']['attributes']['evidenceSubmission']['evidenceType'] = %w[none retrieval]
+        post(path, params: mod_data.to_json, headers: headers)
+
         expect(response.status).to eq(422)
         expect(parsed['errors']).not_to be_empty
         expect(parsed['errors'][1]['title']).to eq('Invalid array')
       end
 
       it 'without retrieval section' do
-        post(path, params: data_missing_retrieve_from, headers: headers)
-        pp parsed['errors']
+        mod_data = JSON.parse(data)
+        mod_data['data']['attributes']['evidenceSubmission']['evidenceType'] = %w[retrieval]
+
+        post(path, params: mod_data.to_json, headers: headers)
+
         puts parsed['errors'][0]['title']
         puts parsed['errors'][0]['meta']['missing_fields'][0]
 
