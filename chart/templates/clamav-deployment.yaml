@@ -1,31 +1,31 @@
 {{- $root := . -}}
-{{- if $root.Values.clamAV.enabled }}
+{{- if $root.Values.clamav.enabled }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: clamAV
-  name: clamAV
+    app: clamav
+  name: clamav
   namespace: {{ $root.Release.Namespace }}
 spec:
   revisionHistoryLimit: 1
   selector:
     matchLabels:
-      app: clamAV
+      app: clamav
   template:
     metadata:
       labels:
-        app: clamAV
+        app: clamav
     spec:
       securityContext:
         fsGroup: 1000
       volumes:
-{{ toYaml $root.Values.clamAV.volumes | indent 12 }}
+{{ toYaml $root.Values.clamav.volumes | indent 12 }}
       containers:
-        - image: "{{ $root.Values.clamAV.image.value }}:{{ $root.Values.clamAV.image.tag }}"
+        - image: "{{ $root.Values.clamav.image.value }}:{{ $root.Values.clamav.image.tag }}"
           imagePullPolicy: {{ $root.Values.image.pullPolicy }}
-          name: clamAV
-{{ toYaml $root.Values.clamAV.containers | indent 10 }}
+          name: clamav
+{{ toYaml $root.Values.clamav.containers | indent 10 }}
       serviceAccountName: {{ $root.Values.serviceAccount.name }}
 {{- end }}

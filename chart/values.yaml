@@ -124,8 +124,8 @@ worker:
   service:
     enabled: false
 
-#clamAV config
-clamAV:
+#clamav config
+clamav:
   enabled: false
   image:
     tag: ""
