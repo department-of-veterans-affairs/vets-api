@@ -43,7 +43,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/connect_vbms.git
-  revision: 049b3c5068fa6c6d1cae0b58654529316b84be57
+  revision: 4b24bf161815648b9d256fc7034dcf7cf9e426d7
   branch: master
   specs:
     connect_vbms (1.2.0)
@@ -946,13 +946,13 @@ GEM
       activerecord (>= 4.2)
     xmldsig (0.3.2)
       nokogiri
-    xmlenc (0.7.1)
+    xmlenc (0.8.0)
       activemodel (>= 3.0.0)
       activesupport (>= 3.0.0)
       nokogiri (>= 1.6.0, < 2.0.0)
       xmlmapper (>= 0.7.3)
-    xmlmapper (0.7.3)
-      nokogiri (~> 1.5)
+    xmlmapper (0.8.1)
+      nokogiri (~> 1.11)
     yard (0.9.28)
       webrick (~> 1.7.0)
     zeitwerk (2.6.6)
