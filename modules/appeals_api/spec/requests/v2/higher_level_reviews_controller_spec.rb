@@ -35,7 +35,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         uuid_2 = create(:higher_level_review_v2, veteran_icn: '1013062086V794840').id
         create(:higher_level_review_v2, veteran_icn: 'something_else')
 
-        get(path, headers: @minimum_required_headers)
+        get(path, headers: { 'X-VA-ICN' => ' 1013062086V794840   ' })
 
         expect(parsed['data'].length).to eq(2)
         # Returns HLRs in desc creation date, so expect 2 before 1
@@ -51,9 +51,21 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         create(:higher_level_review_v2, veteran_icn: 'someone_else')
         create(:higher_level_review_v2, veteran_icn: 'also_someone_else')
 
-        get(path, headers: @minimum_required_headers)
+        get(path, headers: { 'X-VA-ICN' => ' 1013062086V794840   ' })
 
         expect(parsed['data'].length).to eq(0)
+      end
+    end
+
+    context 'when no ICN is provided' do
+      it 'returns a 422 error' do
+        @headers_extra.delete('X-VA-ICN')
+
+        get(path, headers: {})
+
+        expect(response.status).to eq(422)
+        expect(parsed['errors']).to be_an Array
+        expect(parsed['errors'][0]['detail']).to include('X-VA-ICN is required')
       end
     end
   end

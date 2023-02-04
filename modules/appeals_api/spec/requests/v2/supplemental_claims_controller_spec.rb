@@ -31,7 +31,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         uuid_2 = create(:supplemental_claim, veteran_icn: '1013062086V794840').id
         create(:supplemental_claim, veteran_icn: 'something_else')
 
-        get(path, headers: headers)
+        get(path, headers: max_headers)
 
         expect(parsed['data'].length).to eq(2)
         # Returns SCs in desc creation date, so expect 2 before 1
@@ -47,9 +47,21 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         create(:supplemental_claim, veteran_icn: 'someone_else')
         create(:supplemental_claim, veteran_icn: 'also_someone_else')
 
-        get(path, headers: headers)
+        get(path, headers: max_headers)
 
         expect(parsed['data'].length).to eq(0)
+      end
+    end
+
+    context 'when no ICN is provided' do
+      it 'returns a 422 error' do
+        max_headers.delete('X-VA-ICN')
+
+        get(path, headers: @max_headers)
+
+        expect(response.status).to eq(422)
+        expect(parsed['errors']).to be_an Array
+        expect(parsed['errors'][0]['detail']).to include('X-VA-ICN is required')
       end
     end
   end

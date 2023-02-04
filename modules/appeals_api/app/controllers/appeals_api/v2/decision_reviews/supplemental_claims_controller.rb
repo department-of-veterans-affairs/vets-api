@@ -9,6 +9,7 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
   include AppealsApi::MPIVeteran
 
   skip_before_action :authenticate
+  before_action :validate_index_headers, only: %i[index]
   before_action :validate_json_format, if: -> { request.post? }
   before_action :validate_json_schema, only: %i[create validate]
 
@@ -24,7 +25,7 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
 
   def index
     veteran_scs = AppealsApi::SupplementalClaim.select(ALLOWED_COLUMNS)
-                                               .where(veteran_icn: target_veteran.mpi_icn)
+                                               .where(veteran_icn: request_headers['X-VA-ICN'].presence&.strip)
                                                .order(created_at: :desc)
     render json: AppealsApi::SupplementalClaimSerializer.new(veteran_scs).serializable_hash
   end
@@ -76,6 +77,13 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
   end
 
   private
+
+  def validate_index_headers
+    validation_errors = [{ status: 422, detail: 'X-VA-ICN is required' }]
+    if request_headers['X-VA-ICN'].presence&.strip.blank?
+      render json: { errors: validation_errors }, status: :unprocessable_entity
+    end
+  end
 
   def validate_json_schema
     validate_json_schema_for_headers

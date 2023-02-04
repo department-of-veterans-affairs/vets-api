@@ -71,7 +71,9 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
 
   def validate_index_headers
     validation_errors = [{ status: 422, detail: 'X-VA-ICN is required' }]
-    render json: { errors: validation_errors }, status: :unprocessable_entity if request_headers['X-VA-ICN'].nil?
+    if request_headers['X-VA-ICN'].presence&.strip.blank?
+      render json: { errors: validation_errors }, status: :unprocessable_entity
+    end
   end
 
   def validate_json_schema
