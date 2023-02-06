@@ -391,9 +391,10 @@ RSpec.describe 'Claims', type: :request do
                 json_response = JSON.parse(response.body)
 
                 expect(response.status).to eq(200)
-                expect(json_response['claimPhaseDates']['currentPhaseBack']).to eq(true)
-                expect(json_response['claimPhaseDates']['latestPhaseType']).to eq('Claim Received')
-                expect(json_response['claimPhaseDates']['previousPhases']).to be_truthy
+                expect(json_response['data']['attributes']['claimPhaseDates']['currentPhaseBack']).to eq(true)
+                expect(json_response['data']['attributes']['claimPhaseDates']['latestPhaseType'])
+                  .to eq('Claim Received')
+                expect(json_response['data']['attributes']['claimPhaseDates']['previousPhases']).to be_truthy
               end
             end
           end
