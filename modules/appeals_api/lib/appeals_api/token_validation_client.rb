@@ -22,9 +22,9 @@ module AppealsApi
 
       permitted = permitted_scopes(response)
 
-      scopes.each do |scope|
-        raise ::Common::Exceptions::Forbidden unless permitted.include? scope
-      end
+      matching_scope = scopes.find { |scope| permitted.include?(scope) }
+
+      raise ::Common::Exceptions::Forbidden unless matching_scope
     end
 
     private

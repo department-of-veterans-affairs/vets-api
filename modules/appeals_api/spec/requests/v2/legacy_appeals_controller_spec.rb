@@ -144,7 +144,9 @@ describe AppealsApi::V2::DecisionReviews::LegacyAppealsController, type: :reques
           original_response = JSON.parse(response.body)
         end
         VCR.use_cassette('caseflow/legacy_appeals_get_by_ssn') do
-          with_openid_auth(%w[claim.read]) do |auth_header|
+          with_openid_auth(
+            AppealsApi::LegacyAppeals::V0::LegacyAppealsController::OAUTH_SCOPES[:GET]
+          ) do |auth_header|
             get_legacy_appeals(oauth_path, auth_header)
           end
           expect(response).to have_http_status(:ok)
@@ -153,7 +155,10 @@ describe AppealsApi::V2::DecisionReviews::LegacyAppealsController, type: :reques
       end
 
       context 'with oauth' do
-        it_behaves_like('an endpoint with OpenID auth', %w[claim.read]) do
+        it_behaves_like(
+          'an endpoint with OpenID auth',
+          AppealsApi::LegacyAppeals::V0::LegacyAppealsController::OAUTH_SCOPES[:GET]
+        ) do
           def make_request(auth_header)
             VCR.use_cassette('caseflow/legacy_appeals_get_by_ssn') do
               get_legacy_appeals(oauth_path, auth_header)

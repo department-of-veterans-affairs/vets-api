@@ -16,7 +16,10 @@ describe AppealsApi::V2::DecisionReviews::ContestableIssuesController, type: :re
                      use_versioned_namespace_route: true,
                      version: 'v2'
 
-    it_behaves_like('an endpoint with OpenID auth', %w[claim.read]) do
+    it_behaves_like(
+      'an endpoint with OpenID auth',
+      AppealsApi::ContestableIssues::V0::ContestableIssuesController::OAUTH_SCOPES[:GET]
+    ) do
       let(:path) do
         '/services/appeals/contestable_issues/v0/contestable_issues/higher_level_reviews?benefit_type=compensation'
       end

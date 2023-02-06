@@ -12,5 +12,17 @@ module AppealsApi::HigherLevelReviews::V0
         AppealsApi::Engine.root.join('config/schemas/v2/200996_with_shared_refs_headers.json')
       )
     )['definitions']['hlrCreateParameters']['properties'].keys
+
+    OAUTH_SCOPES = {
+      GET: %w[appeals/HigherLevelReviews.read],
+      PUT: %w[appeals/HigherLevelReviews.write],
+      POST: %w[appeals/HigherLevelReviews.write]
+    }.freeze
+
+    private
+
+    def token_validation_api_key
+      Settings.dig(:modules_appeals_api, :token_validation, :higher_level_reviews, :api_key)
+    end
   end
 end

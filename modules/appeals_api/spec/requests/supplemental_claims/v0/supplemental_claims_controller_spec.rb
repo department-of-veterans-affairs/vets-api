@@ -8,7 +8,7 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type:
     let(:path) { '/services/appeals/supplemental_claims/v0/schemas/200995' }
 
     it 'renders the json schema with shared refs' do
-      with_openid_auth(%w[claim.read]) do |auth_header|
+      with_openid_auth(described_class::OAUTH_SCOPES[:GET]) do |auth_header|
         get(path, headers: auth_header)
       end
 
@@ -18,7 +18,7 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type:
       expect(response.body).to include('{"$ref":"phone.json"}')
     end
 
-    it_behaves_like('an endpoint with OpenID auth', %w[claim.read]) do
+    it_behaves_like('an endpoint with OpenID auth', described_class::OAUTH_SCOPES[:GET]) do
       def make_request(auth_header)
         get(path, headers: auth_header)
       end
