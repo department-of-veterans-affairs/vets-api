@@ -161,6 +161,21 @@ describe 'Claims',
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
       let(:id) { '600131328' }
+      let(:target_veteran) do
+        OpenStruct.new(
+          icn: '1013062086V794840',
+          first_name: 'abraham',
+          last_name: 'lincoln',
+          loa: { current: 3, highest: 3 },
+          ssn: '796111863',
+          edipi: '8040545646',
+          participant_id: '600061742',
+          mpi: OpenStruct.new(
+            icn: '1013062086V794840',
+            profile: OpenStruct.new(ssn: '796111863')
+          )
+        )
+      end
 
       describe 'Getting a successful response' do
         response '200', 'claim response' do
@@ -189,10 +204,11 @@ describe 'Claims',
             with_okta_user(scopes) do
               VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                 VCR.use_cassette('evss/documents/get_claim_documents') do
-                  expect(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_and_icn).and_return(nil)
+                  bgs_response[:benefit_claim_details_dto][:ptcpnt_vet_id] = target_veteran.participant_id
                   expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
                     .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_response)
-
+                  allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+                    .to receive(:target_veteran).and_return(target_veteran)
                   submit_request(example.metadata)
                 end
               end
