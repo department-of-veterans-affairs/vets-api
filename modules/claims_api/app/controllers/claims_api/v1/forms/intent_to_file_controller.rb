@@ -22,9 +22,11 @@ module ClaimsApi
         #
         # @return [JSON] Response from BGS
         def submit_form_0966
+          ClaimsApi::Logger.log('itf', detail: '0966 - Request Started')
           validate_json_schema
           validate_veteran_identifiers(require_birls: true)
           check_for_invalid_burial_submission! if form_type == 'burial'
+          ClaimsApi::Logger.log('itf', detail: '0966 - Controller Actions Completed')
 
           bgs_response = bgs_service.intent_to_file.insert_intent_to_file(intent_to_file_options)
           ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::SUBMITTED, cid: token.payload['cid'])
@@ -61,11 +63,13 @@ module ClaimsApi
         #
         # @return [JSON] Success if valid, error messages if invalid.
         def validate
+          ClaimsApi::Logger.log('itf', detail: '0966/validate - Request Started')
           add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           validate_json_schema
           validate_veteran_identifiers(require_birls: true)
           check_for_invalid_burial_submission! if form_type == 'burial'
 
+          ClaimsApi::Logger.log('itf', detail: '0966/validate - Request Completed')
           render json: validation_success
         end
 

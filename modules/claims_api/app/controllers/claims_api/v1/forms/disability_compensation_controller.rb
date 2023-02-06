@@ -32,11 +32,13 @@ module ClaimsApi
         #
         # @return [JSON] Record in pending state
         def submit_form_526 # rubocop:disable Metrics/MethodLength
+          ClaimsApi::Logger.log('526', detail: '526 - Request Started')
           sanitize_account_type if form_attributes.dig('directDeposit', 'accountType')
           validate_json_schema
           validate_form_526_submission_values!
           validate_veteran_identifiers(require_birls: true)
           validate_initial_claim
+          ClaimsApi::Logger.log('526', detail: '526 - Controller Actions Completed')
 
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
@@ -68,6 +70,7 @@ module ClaimsApi
             ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
           end
 
+          ClaimsApi::Logger.log('526', detail: '526 - Request Completed')
           render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
         end
 
@@ -133,12 +136,14 @@ module ClaimsApi
         # @return [JSON] Success if valid, error messages if invalid.
         # rubocop:disable Metrics/MethodLength
         def validate_form_526
+          ClaimsApi::Logger.log('526', detail: '526/validate - Request Started')
           add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           sanitize_account_type if form_attributes.dig('directDeposit', 'accountType')
           validate_json_schema
           validate_form_526_submission_values!
           validate_veteran_identifiers(require_birls: true)
           validate_initial_claim
+          ClaimsApi::Logger.log('526', detail: '526/validate - Controller Actions Completed')
 
           service =
             if Flipper.enabled? :form526_legacy
@@ -155,6 +160,7 @@ module ClaimsApi
             special_issues: special_issues_per_disability
           )
           service.validate_form526(auto_claim.to_internal)
+          ClaimsApi::Logger.log('526', detail: '526/validate - Request Completed')
           render json: valid_526_response
         rescue ::EVSS::DisabilityCompensationForm::ServiceException, EVSS::ErrorMiddleware::EVSSError => e
           error_details = e.is_a?(EVSS::ErrorMiddleware::EVSSError) ? e.details : e.messages
