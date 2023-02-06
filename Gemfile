@@ -48,6 +48,7 @@ gem 'bootsnap', require: false
 gem 'breakers'
 gem 'carrierwave'
 gem 'carrierwave-aws'
+gem 'clamav-client', require: 'clamav/client'
 gem 'clam_scan'
 gem 'combine_pdf'
 gem 'config'
