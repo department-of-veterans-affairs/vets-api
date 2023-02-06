@@ -98,5 +98,7 @@ spec:
         {{- if $root.Values.web.socatProxyEnabled }}
 {{ toYaml $root.Values.common.socatProxy | indent 8 }}
         {{- end }}
+          volumeMounts:
+{{ toYaml $root.Values.clamav.volumeMounts | indent 12 }}
       serviceAccountName: {{ $root.Values.serviceAccount.name }}
 {{- end }}
